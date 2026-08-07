@@ -501,6 +501,23 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                 <span>{t.klookTicketBtn}</span>
                 <ExternalLink size={14} />
               </a>
+              <a
+                href={`https://www.kkday.com/ko/product/search?k=${encodeURIComponent(spot?.title || '')}&cid=26248`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary"
+                style={{
+                  textDecoration: 'none',
+                  justifyContent: 'center',
+                  padding: '0.65rem 1rem',
+                  fontSize: '0.85rem',
+                  background: 'linear-gradient(135deg, #0d9488, #0f766e)'
+                }}
+              >
+                <Sparkles size={16} />
+                <span>KKday 투어/입장권</span>
+                <ExternalLink size={14} />
+              </a>
             </div>
           </div>
 

@@ -93,7 +93,29 @@ export default function AdBanner({ type = 'leaderboard', lang = 'ko', spotTitle 
             }}
           >
             <Ticket size={16} color="#ffffff" />
-            <span>eSIM / K-Pass 혜택 ↗</span>
+            <span>Klook eSIM / 패스 ↗</span>
+          </a>
+          <a
+            href="https://www.kkday.com/ko/product/search?k=Korea&cid=26248"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              padding: '0.55rem 1.1rem',
+              fontSize: '0.85rem',
+              fontWeight: 700,
+              color: '#ffffff',
+              textDecoration: 'none',
+              borderRadius: 'var(--radius-md)',
+              background: 'linear-gradient(135deg, #0d9488, #0f766e)',
+              boxShadow: '0 4px 12px rgba(13, 148, 136, 0.4)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              border: 'none'
+            }}
+          >
+            <Sparkles size={16} color="#ffffff" />
+            <span>KKday 액티비티 ↗</span>
           </a>
           <a
             href="https://www.agoda.com/partners/partnersearch.aspx?cid=1972217&text=Korea"
@@ -224,6 +246,30 @@ export default function AdBanner({ type = 'leaderboard', lang = 'ko', spotTitle 
           >
             <Ticket size={16} color="#ffffff" />
             <span>{t.klookTicketBtn}</span>
+            <ExternalLink size={14} color="#ffffff" />
+          </a>
+          <a
+            href={`https://www.kkday.com/ko/product/search?k=${encodeURIComponent(spotTitle || region || 'Korea')}&cid=26248`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              justifyContent: 'center',
+              textDecoration: 'none',
+              fontSize: '0.85rem',
+              fontWeight: 700,
+              color: '#ffffff',
+              padding: '0.65rem 1rem',
+              borderRadius: 'var(--radius-md)',
+              background: 'linear-gradient(135deg, #0d9488, #0f766e)',
+              boxShadow: '0 4px 12px rgba(13, 148, 136, 0.35)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              border: 'none'
+            }}
+          >
+            <Sparkles size={16} color="#ffffff" />
+            <span>KKday 액티비티 예약</span>
             <ExternalLink size={14} color="#ffffff" />
           </a>
         </div>
