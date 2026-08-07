@@ -9,7 +9,8 @@ import { de } from 'date-fns/locale/de';
 import { fr } from 'date-fns/locale/fr';
 import { es } from 'date-fns/locale/es';
 import { ru } from 'date-fns/locale/ru';
-import { Search, Calendar, MapPin, Compass, User, Users, Sparkles } from 'lucide-react';
+import { useState } from 'react';
+import { Search, Calendar, MapPin, Compass, User, Users, Sparkles, ChevronDown, ChevronUp, Filter } from 'lucide-react';
 import { REGION_META, API_SERVICE_TYPES } from '../services/apiConfig';
 import { TRANSLATIONS } from '../i18n/translations';
 
@@ -24,6 +25,7 @@ registerLocale('ru', ru);
 
 export default function SearchFilterForm({ filters, setFilters, onSearch, lang }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const regions = Object.keys(REGION_META);
   const themes = ['전체', '자연/힐링', '역사/문화', '미식/쇼핑', '액티비티/레저', 'K-컬처/이벤트'];
@@ -41,20 +43,94 @@ export default function SearchFilterForm({ filters, setFilters, onSearch, lang }
     return `${y}-${m}-${day}`;
   };
 
+  const handleFormSearch = () => {
+    onSearch();
+    setIsCollapsed(true); // Auto-collapse on search for clean UI
+  };
+
   return (
     <div style={{
       background: 'var(--bg-glass)',
       backdropFilter: 'blur(16px)',
       border: '1px solid var(--border-color)',
       borderRadius: 'var(--radius-lg)',
-      padding: '1.75rem',
+      padding: '1.25rem 1.75rem',
       margin: '1.5rem 0',
-      boxShadow: 'var(--shadow-md)'
+      boxShadow: 'var(--shadow-md)',
+      transition: 'all 0.3s ease'
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem' }}>
-        <Sparkles size={20} color="var(--accent-primary)" />
-        <h2 style={{ fontSize: '1.2rem', fontWeight: 800 }}>{t.searchTitle}</h2>
+      {/* Header Bar with Accordion Toggle */}
+      <div 
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          cursor: 'pointer',
+          userSelect: 'none',
+          marginBottom: isCollapsed ? 0 : '1.25rem'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.4rem',
+            background: 'rgba(56, 189, 248, 0.15)',
+            padding: '0.4rem 0.75rem',
+            borderRadius: 'var(--radius-full)'
+          }}>
+            <Sparkles size={18} color="var(--accent-primary)" />
+            <h2 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0 }}>{t.searchTitle}</h2>
+          </div>
+
+          {/* Active Summary Badges when Collapsed */}
+          {isCollapsed && (
+            <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.78rem', background: 'var(--bg-secondary)', padding: '0.2rem 0.6rem', borderRadius: 'var(--radius-sm)', color: 'var(--accent-primary)', fontWeight: 600 }}>
+                📍 {filters.region || '전국'}
+              </span>
+              <span style={{ fontSize: '0.78rem', background: 'var(--bg-secondary)', padding: '0.2rem 0.6rem', borderRadius: 'var(--radius-sm)', color: 'var(--text-secondary)' }}>
+                🏖️ {filters.theme || '전체'}
+              </span>
+              {filters.keyword && (
+                <span style={{ fontSize: '0.78rem', background: 'rgba(249, 115, 22, 0.2)', padding: '0.2rem 0.6rem', borderRadius: 'var(--radius-sm)', color: '#f97316', fontWeight: 700 }}>
+                  🔍 {filters.keyword}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsCollapsed(!isCollapsed);
+          }}
+          style={{
+            background: 'var(--bg-secondary)',
+            border: '1px solid var(--border-color)',
+            color: 'var(--text-main)',
+            padding: '0.35rem 0.85rem',
+            borderRadius: 'var(--radius-md)',
+            fontSize: '0.8rem',
+            fontWeight: 700,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.4rem',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          <Filter size={14} color="var(--accent-primary)" />
+          <span>{isCollapsed ? '조회 조건 펼치기 ▼' : '조회 조건 접기 ▲'}</span>
+          {isCollapsed ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+        </button>
       </div>
+
+      {!isCollapsed && (
+        <>
 
       <div style={{
         display: 'grid',
@@ -276,7 +352,7 @@ export default function SearchFilterForm({ filters, setFilters, onSearch, lang }
             placeholder={t.keywordPlaceholder || "명소 이름, 도시, 태그(#일출, #데이트 등) 검색..."}
             value={filters.keyword || ''}
             onChange={(e) => setFilters(prev => ({ ...prev, keyword: e.target.value }))}
-            onKeyDown={(e) => { if (e.key === 'Enter') onSearch(); }}
+            onKeyDown={(e) => { if (e.key === 'Enter') handleFormSearch(); }}
             style={{
               width: '100%',
               padding: '0.55rem 1rem',
@@ -294,7 +370,7 @@ export default function SearchFilterForm({ filters, setFilters, onSearch, lang }
       {/* Submit Button */}
       <div style={{ textAlign: 'right' }}>
         <button
-          onClick={onSearch}
+          onClick={handleFormSearch}
           className="btn-primary"
           style={{ width: '100%', maxWidth: '300px', justifyContent: 'center', padding: '0.85rem' }}
         >
@@ -302,6 +378,8 @@ export default function SearchFilterForm({ filters, setFilters, onSearch, lang }
           <span>{t.searchBtn}</span>
         </button>
       </div>
+        </>
+      )}
     </div>
   );
 }
