@@ -485,7 +485,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
               </a>
 
               <a
-                href={`https://www.klook.com/ko/search/?query=${encodeURIComponent(spot?.title || '')}`}
+                href={`https://www.klook.com/ko/search/?query=${encodeURIComponent(spot?.title || '')}&aid=130249`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-primary"

@@ -74,7 +74,7 @@ export default function AdBanner({ type = 'leaderboard', lang = 'ko', spotTitle 
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
           <a
-            href="https://www.klook.com/ko/search/?query=Korea%20eSIM"
+            href="https://www.klook.com/ko/search/?query=Korea%20eSIM&aid=130249"
             target="_blank"
             rel="noopener noreferrer"
             style={{
@@ -203,7 +203,7 @@ export default function AdBanner({ type = 'leaderboard', lang = 'ko', spotTitle 
             <ExternalLink size={14} color="#ffffff" />
           </a>
           <a
-            href={`https://www.klook.com/ko/search/?query=${encodeURIComponent(spotTitle || region || 'Korea')}`}
+            href={`https://www.klook.com/ko/search/?query=${encodeURIComponent(spotTitle || region || 'Korea')}&aid=130249`}
             target="_blank"
             rel="noopener noreferrer"
             style={{
