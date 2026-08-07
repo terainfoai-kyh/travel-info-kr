@@ -42,7 +42,11 @@ export async function fetchSpotDetailCommon(contentId, lang = 'ko') {
         }
       }
 
-      const imgUrl = (item.firstimage || item.firstimage2 || '').replace(/^http:\/\//i, 'https://');
+      let imgUrl = (item.firstimage || item.firstimage2 || '').replace(/^http:\/\//i, 'https://');
+      const lowerImg = imgUrl.toLowerCase();
+      if (!imgUrl || lowerImg.includes('japan') || lowerImg.includes('fuji') || lowerImg.includes('tokyo') || lowerImg.includes('kyoto') || lowerImg.includes('osaka') || lowerImg.includes('photo-1549693578')) {
+        imgUrl = 'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=800&q=80';
+      }
 
       return {
         overview: item.overview ? item.overview.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ') : '',
@@ -346,7 +350,12 @@ export async function fetchTourSpots({
           validImage.includes('794101_image2_1.jpg') || 
           validImage.includes('photo-1549693578') ||
           validImage.toLowerCase().includes('toilet') || 
-          validImage.toLowerCase().includes('restroom')
+          validImage.toLowerCase().includes('restroom') ||
+          validImage.toLowerCase().includes('japan') ||
+          validImage.toLowerCase().includes('fuji') ||
+          validImage.toLowerCase().includes('tokyo') ||
+          validImage.toLowerCase().includes('kyoto') ||
+          validImage.toLowerCase().includes('osaka')
         ) {
           validImage = OFFICIAL_GYEONGBOKGUNG_IMAGE;
         }
