@@ -1,15 +1,15 @@
 import React from 'react';
-import { Star, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Star, MapPin, ChevronLeft, ChevronRight, Sparkles, ArrowRight } from 'lucide-react';
 import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress, getTranslatedTheme } from '../i18n/translations';
 import AdBanner from './AdBanner';
 
-export default function TourSpotGrid({ spots, page, setPage, totalPages, lang, onSelectSpot }) {
+export default function TourSpotGrid({ spots, page, setPage, totalPages, lang, onSelectSpot, onOpenItinerary }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
 
   return (
     <div style={{ marginBottom: '2.5rem' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
-        <h3 style={{ fontSize: '1.25rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+        <h3 style={{ fontSize: '1.25rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
           <span>{t.tourTitle}</span>
           <span style={{
             background: 'var(--bg-secondary)',
@@ -23,10 +23,68 @@ export default function TourSpotGrid({ spots, page, setPage, totalPages, lang, o
           </span>
         </h3>
 
-        {/* Page Info */}
-        <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-          {t.page} {page} / {totalPages || 1}
-        </span>
+        {/* AI Quick Trigger Button in Grid Header */}
+        <button
+          type="button"
+          onClick={onOpenItinerary}
+          style={{
+            background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(192, 132, 252, 0.2))',
+            border: '1px solid rgba(192, 132, 252, 0.4)',
+            color: 'var(--text-main)',
+            padding: '0.4rem 0.85rem',
+            borderRadius: 'var(--radius-full)',
+            fontSize: '0.8rem',
+            fontWeight: 800,
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.4rem',
+            transition: 'all 0.2s ease',
+            boxShadow: 'var(--shadow-sm)'
+          }}
+        >
+          <Sparkles size={14} color="#c084fc" />
+          <span>✨ AI 맞춤 코스 짜기</span>
+        </button>
+      </div>
+
+      {/* Mini AI Recommendation Preview Banner */}
+      <div style={{
+        background: 'var(--bg-card)',
+        border: '1px solid var(--border-highlight)',
+        borderRadius: 'var(--radius-md)',
+        padding: '0.85rem 1.25rem',
+        marginBottom: '1.25rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '0.75rem'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.85rem', color: 'var(--text-main)' }}>
+          <Sparkles size={16} color="var(--accent-primary)" />
+          <span><strong>어디로 갈지 고민이신가요?</strong> 한국관광공사 Official DB 연동 1:1 맞춤 여행 코스를 1초 만에 확인해보세요!</span>
+        </div>
+        <button
+          type="button"
+          onClick={onOpenItinerary}
+          style={{
+            background: 'var(--accent-gradient)',
+            color: '#ffffff',
+            border: 'none',
+            padding: '0.35rem 0.85rem',
+            borderRadius: 'var(--radius-md)',
+            fontSize: '0.78rem',
+            fontWeight: 700,
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.35rem'
+          }}
+        >
+          <span>AI 코스 생성하기</span>
+          <ArrowRight size={13} />
+        </button>
       </div>
 
       {/* Grid of 6 Cards */}

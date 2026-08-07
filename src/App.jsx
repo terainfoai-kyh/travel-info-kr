@@ -17,6 +17,8 @@ import { Loader2 } from 'lucide-react';
 import ItineraryModal from './components/ItineraryModal';
 import WishlistDrawer from './components/WishlistDrawer';
 import TravelEssentialsSection from './components/TravelEssentialsSection';
+import HeroAIBanner from './components/HeroAIBanner';
+import AIFloatingButton from './components/AIFloatingButton';
 
 export default function App() {
   // Auto-detect browser locale
@@ -196,6 +198,12 @@ export default function App() {
           lang={lang}
         />
 
+        {/* Hero AI Feature Banner */}
+        <HeroAIBanner
+          onOpenItinerary={() => setIsItineraryOpen(true)}
+          filters={filters}
+        />
+
         {/* Top Partner & Ad Banner */}
         <AdBanner type="leaderboard" lang={lang} />
 
@@ -215,6 +223,7 @@ export default function App() {
               totalPages={totalPages}
               lang={lang}
               onSelectSpot={(spot) => setSelectedSpot(spot)}
+              onOpenItinerary={() => setIsItineraryOpen(true)}
             />
 
             {/* 2. Travel Essentials Hub Section */}
@@ -330,6 +339,9 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* Floating Action AI Button (Bottom-Right Corner) */}
+      <AIFloatingButton onOpenItinerary={() => setIsItineraryOpen(true)} />
 
       {/* Footer */}
       <footer style={{

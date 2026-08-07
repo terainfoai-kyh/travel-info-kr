@@ -106,6 +106,11 @@ export const TRANSLATIONS = {
     esimBannerTitle: '✈️ 한국 여행 필수템: eSIM & K-PASS 할인 혜택',
     esimBannerSub: '한국 방문 외국인/여행객 전용 데이터 eSIM & K-Pass 즉시 발급',
     adSponsoredTag: '스폰서 파트너 / 광고',
+    aiTrustBadgeTitle: '🔒 K-Travel AI 플래너의 약속',
+    aiTrustBadgeDesc: '본 코스는 한국관광공사 Official DB를 기반으로 생성되며, 허위 정보 없이 카카오맵/구글맵 실제 경로와 100% 연동됩니다.',
+    rainyModeLabel: '비 오는 날 (실내 코스)',
+    swapSpotBtn: '다른 장소 추천 🔄',
+    regenerateItineraryBtn: 'AI 코스 다시 추천 🔄',
     spotTitles: {
       '경복궁 & 근정전': '경복궁 & 근정전',
       '제주 성산일출봉': '제주 성산일출봉',

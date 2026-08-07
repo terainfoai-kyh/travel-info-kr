@@ -380,3 +380,28 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     margin-top: 0.4rem !important;
   }
 }
+
+/* Mobile AI Optimization Styles */
+@media (max-width: 768px) {
+  .hero-ai-banner-container {
+    padding: 1.1rem 1.1rem !important;
+    gap: 1rem !important;
+  }
+
+  .hero-ai-cta-btn {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 0.75rem 1.2rem !important;
+    font-size: 0.88rem !important;
+  }
+
+  .ai-floating-btn-container {
+    bottom: 1.25rem !important;
+    right: 1rem !important;
+  }
+
+  .ai-floating-badge {
+    font-size: 0.68rem !important;
+    padding: 0.2rem 0.5rem !important;
+  }
+}

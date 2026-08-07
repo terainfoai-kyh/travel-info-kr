@@ -14,7 +14,7 @@ export default function TravelEssentialsSection({ lang }) {
       desc: '한국 도착 즉시 개통되는 무제한 4G/5G 고속 데이터 SIM/eSIM',
       badgeBg: 'rgba(56, 189, 248, 0.15)',
       badgeColor: '#38bdf8',
-      link: 'https://www.klook.com/ko/search/result/?query=%ED%95%9C%EA%B5%AD%20eSIM&af_wid=31000'
+      link: 'https://www.klook.com/ko/search/?query=%ED%95%9C%EA%B5%AD%20eSIM&af_wid=31000'
     },
     {
       id: 'transit',
@@ -24,7 +24,7 @@ export default function TravelEssentialsSection({ lang }) {
       desc: '인천공항 직통열차 & 대한민국 전역 지하철/버스 통합 교통권',
       badgeBg: 'rgba(129, 140, 248, 0.15)',
       badgeColor: '#818cf8',
-      link: 'https://www.kkday.com/ko/product/search?keyword=%ED%95%9C%EA%B5%AD%20%EA%B5%90%ED%86%B5%EC%B9%B4%EB%93%9C&cid=17000'
+      link: 'https://www.kkday.com/ko/product/productlist?keyword=%ED%95%9C%EA%B5%AD%20%EA%B5%90%ED%86%B5%EC%B9%B4%EB%93%9C'
     },
     {
       id: 'hotel',
@@ -44,7 +44,7 @@ export default function TravelEssentialsSection({ lang }) {
       desc: '주요 백화점, 마트, 올리브영 즉시 면세(Tax Refund) 환급 방법',
       badgeBg: 'rgba(16, 185, 129, 0.15)',
       badgeColor: '#10b981',
-      link: 'https://www.klook.com/ko/blog/korea-tax-refund-guide/'
+      link: 'https://www.klook.com/ko/search/?query=%ED%95%9C%EA%B5%AD%20%EC%87%BC%ED%95%91%20%EB%A9%B4%EC%84%B8'
     }
   ];
 

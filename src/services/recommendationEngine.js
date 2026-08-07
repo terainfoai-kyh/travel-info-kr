@@ -235,37 +235,205 @@ export function getRecommendedFoodAndOutfit({ weather, region, theme, age, gende
   return { foods: selectedFoods, outfits: outfitList };
 }
 
+// Travel time & distance estimator helper
+export function calculateTravelEstimate(spotA, spotB) {
+  if (!spotA || !spotB) return { distKm: '4.5', carMin: 15, transitMin: 25 };
+
+  let lat1 = parseFloat(spotA.lat);
+  let lng1 = parseFloat(spotA.lng);
+  let lat2 = parseFloat(spotB.lat);
+  let lng2 = parseFloat(spotB.lng);
+
+  if (isNaN(lat1) || isNaN(lng1) || isNaN(lat2) || isNaN(lng2) || lat1 === 0 || lat2 === 0) {
+    const titleA = spotA.title || 'A';
+    const titleB = spotB.title || 'B';
+    const pseudoDist = Math.max(2.5, Math.min(15.0, (titleA.length + titleB.length) * 0.8 + 2.0));
+    const carMin = Math.round(pseudoDist * 2.1 + 6);
+    const transitMin = Math.round(pseudoDist * 3.4 + 10);
+    return { distKm: pseudoDist.toFixed(1), carMin, transitMin };
+  }
+
+  const R = 6371; // Earth radius in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const dist = Math.max(0.8, R * c);
+
+  const carMin = Math.max(6, Math.round(dist * 2.2 + 5));
+  const transitMin = Math.max(10, Math.round(dist * 3.6 + 8));
+
+  return {
+    distKm: dist.toFixed(1),
+    carMin,
+    transitMin
+  };
+}
+
 // AI Smart Itinerary Generator Engine
-export function generateSmartItinerary({ region = '서울', theme = '전체', days = 2, spots = [] }) {
+export function generateSmartItinerary({
+  region = '서울',
+  theme = '전체',
+  days = 2,
+  startDate = '',
+  startTime = '09:30',
+  endTime = '20:00',
+  dayTimes = {},
+  daySeeds = {},
+  rainyMode = false,
+  refreshSeed = 0,
+  spots = []
+}) {
   const GYEONGBOKGUNG_FALLBACK_IMG = 'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=800&q=80';
   
-  // Filter available spots by region if specified
-  let pool = spots.filter(s => region === '전국' || !s.region || s.region === region || s.location?.includes(region));
-  if (pool.length < 4) {
-    pool = spots; // Fallback to all spots if pool is too small
+  // Base date parsing
+  let baseDate = new Date();
+  if (startDate) {
+    const parsed = new Date(startDate);
+    if (!isNaN(parsed.getTime())) baseDate = parsed;
+  }
+
+  const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
+
+  // Parse hour float helper
+  const parseHourMin = (timeStr, defaultHour) => {
+    if (!timeStr) return defaultHour;
+    const parts = timeStr.split(':');
+    const h = parseInt(parts[0], 10);
+    const m = parseInt(parts[1], 10);
+    if (isNaN(h)) return defaultHour;
+    return h + (isNaN(m) ? 0 : m / 60);
+  };
+
+  const formatTimeSlot = (hFloat) => {
+    const totalMins = Math.round(hFloat * 60);
+    const h = Math.floor(totalMins / 60) % 24;
+    const m = totalMins % 60;
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+  };
+
+  // Region synonym dictionary for accurate geo-matching
+  const REGION_SYNONYMS = {
+    '제주': ['제주', '서귀포', '제주시', '우도', '성산', '한라산', '애월', '중문', '협재', '섭지코지'],
+    '서울': ['서울', '강남', '홍대', '명동', '이태원', '종로', '잠실', '성수', '경복궁', '남산'],
+    '부산': ['부산', '해운대', '광안리', '남포동', '서면', '영도', '기장', '태종대', '감천'],
+    '강원': ['강원', '강릉', '속초', '양양', '평창', '동해', '삼척', '춘천', '설악산', '정동진'],
+    '경주': ['경주', '보문', '불국사', '첨성대', '황리단길', '안압지', '동궁'],
+    '전주': ['전주', '한옥마을', '덕진'],
+    '인천': ['인천', '송도', '영종도', '차이나타운', '월미도'],
+    '경기': ['경기', '수원', '용인', '파주', '가평', '양평'],
+    '충청': ['충청', '공주', '부여', '단양', '제천', '천안'],
+    '전라': ['전라', '여수', '순천', '목포', '담양', '보성'],
+    '경상': ['경상', '통영', '거제', '남해', '안동', '포항']
+  };
+
+  const REGION_PRESETS = {
+    '제주': [
+      { title: '성산일출봉', location: '제주특별자치도 서귀포시 성산읍', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.9, tags: ['자연', '세계유산'] },
+      { title: '협재 해수욕장 & 비양도', location: '제주특별자치도 제주시 한림읍', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.8, tags: ['해변', '에메랄드빛'] },
+      { title: '한라산 국립공원', location: '제주특별자치도 제주시 1100로', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.9, tags: ['등산', '인생샷'] },
+      { title: '서귀포 매일올레시장', location: '제주특별자치도 서귀포시 중앙로62번길', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.7, tags: ['로컬미식', '야시장'] },
+      { title: '섭지코지 & 유채꽃밭', location: '제주특별자치도 서귀포시 성산읍', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.8, tags: ['해안산책', '포토존'] },
+      { title: '중문관광단지 & 주상절리대', location: '제주특별자치도 서귀포시 이어도로', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.9, tags: ['주상절리', '경관'] }
+    ],
+    '서울': [
+      { title: '경복궁 & 광화문 광장', location: '서울특별시 종로구 사직로 161', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.9, tags: ['고궁', '한복체험'] },
+      { title: 'N서울타워 & 남산공원', location: '서울특별시 용산구 남산공원길 105', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.8, tags: ['야경', '랜드마크'] },
+      { title: '북촌한옥마을 & 삼청동', location: '서울특별시 종로구 계동길', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.8, tags: ['한옥', '감성카페'] },
+      { title: '성수동 카페거리 & 서울숲', location: '서울특별시 성동구 서울숲2길', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.7, tags: ['핫플레이스', '쇼핑'] }
+    ],
+    '부산': [
+      { title: '해운대 해수욕장 & 블루라인파크', location: '부산광역시 해운대구 달맞이길', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.9, tags: ['해변', '스카이캡슐'] },
+      { title: '광안리 해수욕장 & 드론쇼', location: '부산광역시 수영구 광안해변로', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.9, tags: ['야경', '광안대교'] },
+      { title: '감천문화마을', location: '부산광역시 사하구 감내2로', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.8, tags: ['문화', '포토존'] },
+      { title: '자갈치시장 & BIFF 광장', location: '부산광역시 중구 자갈치해안로', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.7, tags: ['해산물', '씨앗호떡'] }
+    ]
+  };
+
+  const isMatchingRegion = (spot, targetRegion) => {
+    if (!targetRegion || targetRegion === '전국' || targetRegion === '전체') return true;
+    if (spot.region && (spot.region === targetRegion || spot.region.includes(targetRegion))) return true;
+
+    const keywords = REGION_SYNONYMS[targetRegion] || [targetRegion];
+    const locText = `${spot.location || ''} ${spot.addr1 || ''} ${spot.title || ''} ${spot.region || ''}`.toLowerCase();
+
+    return keywords.some(kw => locText.includes(kw.toLowerCase()));
+  };
+
+  // Filter pool strictly by target region
+  let pool = spots.filter(s => isMatchingRegion(s, region));
+
+  // Indoor rainy mode filtering
+  if (rainyMode) {
+    const indoorKeywords = ['박물관', '미술관', '몰', '카페', '실내', '아쿠아리움', '전시관', '백화점', '쇼핑', '시장', '온천', '공연장', '체험관'];
+    const indoorPool = pool.filter(s => {
+      const fullTxt = `${s.title || ''} ${s.location || ''} ${s.tags?.join(' ') || ''}`.toLowerCase();
+      return indoorKeywords.some(kw => fullTxt.includes(kw));
+    });
+    if (indoorPool.length >= 3) {
+      pool = indoorPool;
+    }
+  }
+
+  // If theme filter is specified, prioritize theme matching within the region
+  if (theme && theme !== '전체') {
+    const themePool = pool.filter(s => s.theme === theme || s.tags?.includes(theme));
+    if (themePool.length >= 2) {
+      pool = themePool;
+    }
+  }
+
+  // If pool is insufficient for specific region, mix in regional presets
+  if (pool.length < 4 && region !== '전국') {
+    const presets = REGION_PRESETS[region] || REGION_PRESETS['제주'];
+    pool = [...pool, ...presets];
+  } else if (pool.length === 0) {
+    pool = spots;
   }
 
   const numDays = Math.min(Math.max(parseInt(days, 10) || 2, 1), 3);
   const itinerary = [];
 
-  const TIME_SLOTS = [
-    { time: '09:30', slotName: '오전 코스 & 상쾌한 산책', icon: 'Sun' },
-    { time: '12:30', slotName: '점심 식사 & 로컬 미식 탐방', icon: 'Utensils' },
-    { time: '15:30', slotName: '오후 핵심 관광 & K-컬처 체험', icon: 'Camera' },
-    { time: '19:00', slotName: '야경 탐방 & 분위기 있는 저녁', icon: 'Moon' }
-  ];
-
   for (let d = 1; d <= numDays; d++) {
+    const curDate = new Date(baseDate);
+    curDate.setDate(baseDate.getDate() + (d - 1));
+    const year = curDate.getFullYear();
+    const month = String(curDate.getMonth() + 1).padStart(2, '0');
+    const dateNum = String(curDate.getDate()).padStart(2, '0');
+    const dayOfWeek = WEEKDAYS[curDate.getDay()];
+    const formattedDate = `${year}.${month}.${dateNum} (${dayOfWeek})`;
+
+    // Per-day time calculation
+    const dStartTime = dayTimes[d]?.start || startTime || '09:30';
+    const dEndTime = dayTimes[d]?.end || endTime || '20:00';
+    const dSeed = (daySeeds[d] || 0) + refreshSeed;
+
+    const dStartH = parseHourMin(dStartTime, 9.5);
+    const dEndH = parseHourMin(dEndTime, 20.0);
+    const dDuration = Math.max(3, dEndH - dStartH);
+    const dStep = dDuration / 3;
+
+    const dayTimeSlots = [
+      { time: formatTimeSlot(dStartH), slotName: '오전 명소 & 상쾌한 출발', icon: 'Sun' },
+      { time: formatTimeSlot(dStartH + dStep), slotName: '낮 일정 & 핵심 랜드마크', icon: 'MapPin' },
+      { time: formatTimeSlot(dStartH + dStep * 2), slotName: '오후 관광 & K-컬처 체험', icon: 'Camera' },
+      { time: formatTimeSlot(dEndH), slotName: '야경 탐방 & 도심 산책', icon: 'Moon' }
+    ];
+
     const daySpots = [];
     for (let s = 0; s < 4; s++) {
-      const spotIdx = ((d - 1) * 4 + s) % (pool.length || 1);
+      const spotIdx = ((d - 1) * 4 + s + dSeed * 2) % (pool.length || 1);
       const targetSpot = pool[spotIdx] || {
         id: `gen-${d}-${s}`,
         title: `${region !== '전국' ? region : '대한민국'} 대표 명소 ${s + 1}`,
         image: GYEONGBOKGUNG_FALLBACK_IMG,
         location: `${region} 도심 위치`,
         rating: 4.8,
-        tags: ['추천명소', '인생샷']
+        tags: ['추천명소', '인생샷'],
+        lat: 37.5665,
+        lng: 126.9780
       };
 
       let img = targetSpot.image || GYEONGBOKGUNG_FALLBACK_IMG;
@@ -274,21 +442,30 @@ export function generateSmartItinerary({ region = '서울', theme = '전체', da
       }
 
       daySpots.push({
-        time: TIME_SLOTS[s].time,
-        slotName: TIME_SLOTS[s].slotName,
+        time: dayTimeSlots[s].time,
+        slotName: dayTimeSlots[s].slotName,
         spotId: targetSpot.id,
         title: targetSpot.title,
         image: img,
         location: targetSpot.location || targetSpot.addr1 || `${region} 중심가`,
         rating: targetSpot.rating || 4.8,
-        tags: targetSpot.tags || ['포토존', '핫플레이스']
+        tags: targetSpot.tags || ['포토존', '핫플레이스'],
+        lat: targetSpot.lat,
+        lng: targetSpot.lng
       });
+    }
+
+    // Calculate travel estimates between consecutive spots
+    for (let i = 0; i < daySpots.length - 1; i++) {
+      daySpots[i].nextTravel = calculateTravelEstimate(daySpots[i], daySpots[i + 1]);
     }
 
     itinerary.push({
       day: d,
-      dayTitle: `${d}일차 코스 (${region !== '전국' ? region : '전국'} 추천 동선)`,
-      schedule: daySpots
+      dateStr: formattedDate,
+      dayTitle: `${d}일차 코스 · ${formattedDate} (${region !== '전국' ? region : '전국'} 동선)`,
+      schedule: daySpots,
+      pool: pool // Store pool for spot swapping
     });
   }
 
