@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+// Trigger Cloudflare Pages automated build with updated dist output
 import Header from './components/Header';
 import SearchFilterForm from './components/SearchFilterForm';
 import WeatherWidget from './components/WeatherWidget';
