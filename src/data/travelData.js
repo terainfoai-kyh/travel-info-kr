@@ -26,7 +26,7 @@ export const TRAVEL_SPOTS = [
     location: '제주특별자치도 서귀포시 성산읍 일출로 284-12',
     rating: 4.9,
     reviewsCount: 5120,
-    image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1000&q=80',
+    image: 'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=1000&q=80',
     description: '유네스코 세계자연유산에 등재된 해돋이 명소로, 분화구 주변 절경과 에메랄드빛 바다가 장관입니다.',
     tags: ['유네스코', '일출명소', '바다', '하이킹'],
     details: {
@@ -45,7 +45,7 @@ export const TRAVEL_SPOTS = [
     location: '부산광역시 해운대구 청사포로 116',
     rating: 4.7,
     reviewsCount: 2890,
-    image: 'https://images.unsplash.com/photo-1596402184320-417e7178b2cd?auto=format&fit=crop&w=1000&q=80',
+    image: 'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=1000&q=80',
     description: '해운대 미포~청사포~송정 구간의 동해남부선 옛 철길을 따라 해변열차와 스카이캡슐을 즐기는 이색 코스입니다.',
     tags: ['해변열차', '바다전망', '데이트코스', '오션뷰'],
     details: {
@@ -64,7 +64,7 @@ export const TRAVEL_SPOTS = [
     location: '강원특별자치도 속초시 설악산로 1091',
     rating: 4.9,
     reviewsCount: 4100,
-    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&q=80',
+    image: 'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=1000&q=80',
     description: '웅장한 암봉과 기암괴석, 계곡이 어우러진 대한민국 대표 산악 국립공원으로 케이블카로 편하게 오를 수 있습니다.',
     tags: ['단풍명소', '케이블카', '등산', '자연경관'],
     details: {
@@ -83,7 +83,7 @@ export const TRAVEL_SPOTS = [
     location: '경상북도 경주시 원화로 102',
     rating: 4.85,
     reviewsCount: 3950,
-    image: 'https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?auto=format&fit=crop&w=1000&q=80',
+    image: 'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=1000&q=80',
     description: '신라 문무왕 때 조성된 왕궁의 연못으로, 환상적인 야경과 반사광이 어우러진 최고의 밤 산책 코스입니다.',
     tags: ['신라유적', '야경명소', '산책로', '역사탐방'],
     details: {
