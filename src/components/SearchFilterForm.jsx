@@ -87,14 +87,29 @@ export default function SearchFilterForm({ filters, setFilters, onSearch, lang }
           {/* Active Summary Badges when Collapsed */}
           {isCollapsed && (
             <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.78rem', background: 'var(--bg-secondary)', padding: '0.2rem 0.6rem', borderRadius: 'var(--radius-sm)', color: 'var(--accent-primary)', fontWeight: 600 }}>
+              <span style={{ fontSize: '0.78rem', background: 'rgba(56, 189, 248, 0.18)', border: '1px solid rgba(56, 189, 248, 0.3)', padding: '0.2rem 0.6rem', borderRadius: 'var(--radius-sm)', color: 'var(--accent-primary)', fontWeight: 700 }}>
                 📍 {filters.region || '전국'}
               </span>
-              <span style={{ fontSize: '0.78rem', background: 'var(--bg-secondary)', padding: '0.2rem 0.6rem', borderRadius: 'var(--radius-sm)', color: 'var(--text-secondary)' }}>
-                🏖️ {filters.theme || '전체'}
+              <span style={{ fontSize: '0.78rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', padding: '0.2rem 0.6rem', borderRadius: 'var(--radius-sm)', color: 'var(--text-main)', fontWeight: 600 }}>
+                🏖️ {filters.theme || '전체 테마'}
               </span>
+              {(filters.startDate || filters.endDate) && (
+                <span style={{ fontSize: '0.78rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', padding: '0.2rem 0.6rem', borderRadius: 'var(--radius-sm)', color: 'var(--text-secondary)' }}>
+                  📅 {filters.startDate || ''} ~ {filters.endDate || ''}
+                </span>
+              )}
+              {filters.age && filters.age !== '전체' && (
+                <span style={{ fontSize: '0.78rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', padding: '0.2rem 0.6rem', borderRadius: 'var(--radius-sm)', color: 'var(--text-secondary)' }}>
+                  👤 {filters.age}
+                </span>
+              )}
+              {filters.gender && filters.gender !== '무관' && (
+                <span style={{ fontSize: '0.78rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', padding: '0.2rem 0.6rem', borderRadius: 'var(--radius-sm)', color: 'var(--text-secondary)' }}>
+                  🚻 {filters.gender}
+                </span>
+              )}
               {filters.keyword && (
-                <span style={{ fontSize: '0.78rem', background: 'rgba(249, 115, 22, 0.2)', padding: '0.2rem 0.6rem', borderRadius: 'var(--radius-sm)', color: '#f97316', fontWeight: 700 }}>
+                <span style={{ fontSize: '0.78rem', background: 'rgba(249, 115, 22, 0.2)', border: '1px solid rgba(249, 115, 22, 0.4)', padding: '0.2rem 0.6rem', borderRadius: 'var(--radius-sm)', color: '#f97316', fontWeight: 700 }}>
                   🔍 {filters.keyword}
                 </span>
               )}
