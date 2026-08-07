@@ -287,6 +287,8 @@ export default function SearchFilterForm({ filters, setFilters, onSearch, lang }
                 locale={lang === 'zht' ? 'zh' : (lang || 'ko')}
                 dateFormat="yyyy-MM-dd"
                 className="custom-datepicker-input"
+                portalId="root"
+                popperPlacement="bottom-start"
                 showIcon
                 icon={
                   <svg 
@@ -322,6 +324,8 @@ export default function SearchFilterForm({ filters, setFilters, onSearch, lang }
                 locale={lang === 'zht' ? 'zh' : (lang || 'ko')}
                 dateFormat="yyyy-MM-dd"
                 className="custom-datepicker-input"
+                portalId="root"
+                popperPlacement="bottom-start"
                 showIcon
                 icon={
                   <svg 
