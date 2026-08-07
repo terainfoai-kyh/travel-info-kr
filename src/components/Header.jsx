@@ -79,7 +79,7 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
   };
 
   return (
-    <header className="glass-panel" style={{
+    <header className="glass-panel app-header" style={{
       position: 'sticky',
       top: 0,
       zIndex: 100,
@@ -90,8 +90,8 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
       borderBottom: '1px solid var(--border-color)'
     }}>
       {/* Brand Title */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-        <div style={{
+      <div className="header-brand" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <div className="header-logo" style={{
           width: '58px',
           height: '58px',
           borderRadius: '14px',
@@ -109,15 +109,15 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
           <img src="/logo.png" alt="K-Travel Logo" style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scale(1.12)' }} />
         </div>
         <div>
-          <h1 style={{ fontSize: '1.3rem', fontWeight: 800, lineHeight: 1.1 }} className="gradient-text">
+          <h1 style={{ fontSize: '1.3rem', fontWeight: 800, lineHeight: 1.1 }} className="gradient-text header-title">
             {t.title}
           </h1>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.35rem', flexWrap: 'wrap' }}>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 500, margin: 0, marginRight: '0.25rem' }}>
+            <p className="header-subtitle" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 500, margin: 0, marginRight: '0.25rem' }}>
               {t.subtitle}
             </p>
             {filters && (
-              <div style={{ display: 'inline-flex', gap: '0.35rem', flexWrap: 'wrap', alignItems: 'center' }}>
+              <div className="desktop-only-badges" style={{ display: 'inline-flex', gap: '0.35rem', flexWrap: 'wrap', alignItems: 'center' }}>
                 {/* 1. 여행 기간 (Date Range) */}
                 {(filters.startDate || filters.endDate) && (
                   <span style={{ fontSize: '0.72rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', padding: '0.15rem 0.5rem', borderRadius: 'var(--radius-sm)', color: 'var(--text-secondary)' }}>
@@ -176,9 +176,10 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
       </div>
 
       {/* Theme Toggle & Language Selector */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+      <div className="header-controls" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
         {/* Dark / Light Mode Toggle Button */}
         <button
+          className="header-theme-btn"
           onClick={() => setThemeMode(prev => prev === 'dark' ? 'light' : 'dark')}
           style={{
             background: 'var(--bg-secondary)',

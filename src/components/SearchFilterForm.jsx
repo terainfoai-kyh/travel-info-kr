@@ -138,7 +138,7 @@ export default function SearchFilterForm({ filters, setFilters, onSearch, lang }
   };
 
   return (
-    <div style={{
+    <div className="search-filter-card" style={{
       background: 'var(--bg-glass)',
       backdropFilter: 'blur(16px)',
       border: '1px solid var(--border-color)',
@@ -150,6 +150,7 @@ export default function SearchFilterForm({ filters, setFilters, onSearch, lang }
     }}>
       {/* Header Bar with Accordion Toggle */}
       <div 
+        className="search-filter-header-bar"
         onClick={() => setIsCollapsed(!isCollapsed)}
         style={{
           display: 'flex',
@@ -249,7 +250,8 @@ export default function SearchFilterForm({ filters, setFilters, onSearch, lang }
             display: 'flex',
             alignItems: 'center',
             gap: '0.4rem',
-            transition: 'all 0.2s ease'
+            transition: 'all 0.2s ease',
+            flexShrink: 0
           }}
         >
           <Filter size={14} color="var(--accent-primary)" />
@@ -261,7 +263,7 @@ export default function SearchFilterForm({ filters, setFilters, onSearch, lang }
       {!isCollapsed && (
         <>
 
-      <div style={{
+      <div className="search-form-grid" style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(4, 1fr)',
         gap: '1.25rem',

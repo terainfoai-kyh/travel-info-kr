@@ -31,10 +31,10 @@ export default function TourSpotGrid({ spots, page, setPage, totalPages, lang, o
 
       {/* Grid of 6 Cards */}
       {spots.length > 0 ? (
-        <div style={{
+        <div className="spot-grid-container" style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-          gap: '1.5rem',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))',
+          gap: '1.25rem',
           marginBottom: '1.5rem'
         }}>
           {spots.map((spot) => (
