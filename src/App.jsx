@@ -12,13 +12,18 @@ import AdBanner from './components/AdBanner';
 import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
 import { fetchRealtimeWeather } from './services/weatherApi';
 import { fetchTourSpots } from './services/tourApi';
-import { getRecommendedFoodAndOutfit } from './services/recommendationEngine';
-import { Loader2 } from 'lucide-react';
+import ItineraryModal from './components/ItineraryModal';
+import WishlistDrawer from './components/WishlistDrawer';
+import TravelEssentialsSection from './components/TravelEssentialsSection';
 
 export default function App() {
   // Auto-detect browser locale
   const [lang, setLang] = useState(detectBrowserLanguage());
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+
+  // Modals & Drawers state
+  const [isItineraryOpen, setIsItineraryOpen] = useState(false);
+  const [isWishlistOpen, setIsWishlistOpen] = useState(false);
 
   // Dark / Light Theme Mode
   const [themeMode, setThemeMode] = useState(() => {
@@ -34,6 +39,27 @@ export default function App() {
     const langMap = { ko: 'ko-KR', en: 'en-US', ja: 'ja-JP', zh: 'zh-CN' };
     document.documentElement.lang = langMap[lang] || 'ko-KR';
   }, [lang]);
+
+  // Handle URL Shared Wishlist Parameters (?wishlist=id1,id2)
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const sharedWishlistStr = params.get('wishlist');
+      if (sharedWishlistStr) {
+        const ids = sharedWishlistStr.split(',').map(id => id.trim()).filter(Boolean);
+        if (ids.length > 0) {
+          setBookmarks(prev => {
+            const merged = Array.from(new Set([...prev, ...ids]));
+            localStorage.setItem('ktravel_bookmarks', JSON.stringify(merged));
+            return merged;
+          });
+          setIsWishlistOpen(true); // Auto-open wishlist drawer when visiting via shared link!
+        }
+      }
+    } catch (e) {
+      console.error('Error parsing shared wishlist URL params:', e);
+    }
+  }, []);
   
   // Search Filters
   const today = new Date();
@@ -141,6 +167,9 @@ export default function App() {
     page * ITEMS_PER_PAGE
   );
 
+  // Compute Wishlist Full Objects
+  const wishlistFullSpots = allTourSpots.filter(s => bookmarks.includes(s.id));
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* Header with active search filter badge and theme toggle */}
@@ -150,6 +179,9 @@ export default function App() {
         filters={filters} 
         themeMode={themeMode}
         setThemeMode={setThemeMode}
+        wishlistCount={bookmarks.length}
+        onOpenWishlist={() => setIsWishlistOpen(true)}
+        onOpenItinerary={() => setIsItineraryOpen(true)}
       />
 
       {/* Main Container */}
@@ -183,16 +215,19 @@ export default function App() {
               onSelectSpot={(spot) => setSelectedSpot(spot)}
             />
 
-            {/* 2. Weather Info */}
+            {/* 2. Travel Essentials Hub Section */}
+            <TravelEssentialsSection lang={lang} />
+
+            {/* 3. Weather Info */}
             <WeatherWidget weatherData={weatherData} lang={lang} />
 
-            {/* 3. Food Recommendations */}
+            {/* 4. Food Recommendations */}
             <FoodRecommendation foods={recommendations.foods} lang={lang} />
 
-            {/* 4. Outfit Recommendations */}
+            {/* 5. Outfit Recommendations */}
             <OutfitRecommendation outfits={recommendations.outfits} filters={filters} lang={lang} />
 
-            {/* 5. Google Maps View */}
+            {/* 6. Google Maps View */}
             <GoogleMapView
               selectedSpot={selectedSpot}
               allSpots={paginatedSpots}
@@ -201,6 +236,32 @@ export default function App() {
           </>
         )}
       </main>
+
+      {/* AI Itinerary Builder Modal */}
+      <ItineraryModal
+        isOpen={isItineraryOpen}
+        onClose={() => setIsItineraryOpen(false)}
+        filters={filters}
+        spots={allTourSpots}
+        lang={lang}
+        onSelectSpot={(spot) => {
+          setIsItineraryOpen(false);
+          setSelectedSpot(spot);
+        }}
+      />
+
+      {/* Wishlist Side Drawer */}
+      <WishlistDrawer
+        isOpen={isWishlistOpen}
+        onClose={() => setIsWishlistOpen(false)}
+        wishlistSpots={wishlistFullSpots}
+        onRemoveWishlist={handleToggleBookmark}
+        onSelectSpot={(spot) => {
+          setIsWishlistOpen(false);
+          setSelectedSpot(spot);
+        }}
+        lang={lang}
+      />
 
       {/* Detail Modal */}
       <TravelDetailModal

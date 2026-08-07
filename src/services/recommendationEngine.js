@@ -234,3 +234,63 @@ export function getRecommendedFoodAndOutfit({ weather, region, theme, age, gende
 
   return { foods: selectedFoods, outfits: outfitList };
 }
+
+// AI Smart Itinerary Generator Engine
+export function generateSmartItinerary({ region = '서울', theme = '전체', days = 2, spots = [] }) {
+  const GYEONGBOKGUNG_FALLBACK_IMG = 'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=800&q=80';
+  
+  // Filter available spots by region if specified
+  let pool = spots.filter(s => region === '전국' || !s.region || s.region === region || s.location?.includes(region));
+  if (pool.length < 4) {
+    pool = spots; // Fallback to all spots if pool is too small
+  }
+
+  const numDays = Math.min(Math.max(parseInt(days, 10) || 2, 1), 3);
+  const itinerary = [];
+
+  const TIME_SLOTS = [
+    { time: '09:30', slotName: '오전 코스 & 상쾌한 산책', icon: 'Sun' },
+    { time: '12:30', slotName: '점심 식사 & 로컬 미식 탐방', icon: 'Utensils' },
+    { time: '15:30', slotName: '오후 핵심 관광 & K-컬처 체험', icon: 'Camera' },
+    { time: '19:00', slotName: '야경 탐방 & 분위기 있는 저녁', icon: 'Moon' }
+  ];
+
+  for (let d = 1; d <= numDays; d++) {
+    const daySpots = [];
+    for (let s = 0; s < 4; s++) {
+      const spotIdx = ((d - 1) * 4 + s) % (pool.length || 1);
+      const targetSpot = pool[spotIdx] || {
+        id: `gen-${d}-${s}`,
+        title: `${region !== '전국' ? region : '대한민국'} 대표 명소 ${s + 1}`,
+        image: GYEONGBOKGUNG_FALLBACK_IMG,
+        location: `${region} 도심 위치`,
+        rating: 4.8,
+        tags: ['추천명소', '인생샷']
+      };
+
+      let img = targetSpot.image || GYEONGBOKGUNG_FALLBACK_IMG;
+      if (img.toLowerCase().includes('japan') || img.toLowerCase().includes('fuji') || img.toLowerCase().includes('tokyo') || img.toLowerCase().includes('kyoto') || img.toLowerCase().includes('osaka')) {
+        img = GYEONGBOKGUNG_FALLBACK_IMG;
+      }
+
+      daySpots.push({
+        time: TIME_SLOTS[s].time,
+        slotName: TIME_SLOTS[s].slotName,
+        spotId: targetSpot.id,
+        title: targetSpot.title,
+        image: img,
+        location: targetSpot.location || targetSpot.addr1 || `${region} 중심가`,
+        rating: targetSpot.rating || 4.8,
+        tags: targetSpot.tags || ['포토존', '핫플레이스']
+      });
+    }
+
+    itinerary.push({
+      day: d,
+      dayTitle: `${d}일차 코스 (${region !== '전국' ? region : '전국'} 추천 동선)`,
+      schedule: daySpots
+    });
+  }
+
+  return itinerary;
+}
