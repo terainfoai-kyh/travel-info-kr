@@ -467,7 +467,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
               <a
-                href={`https://www.agoda.com/search?text=${encodeURIComponent(spot?.title || '')}`}
+                href={`https://www.agoda.com/partners/partnersearch.aspx?cid=1972214&text=${encodeURIComponent(spot?.title || '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-primary"

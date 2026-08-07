@@ -96,7 +96,7 @@ export default function AdBanner({ type = 'leaderboard', lang = 'ko', spotTitle 
             <span>eSIM / K-Pass 혜택 ↗</span>
           </a>
           <a
-            href="https://www.agoda.com/search?text=Korea"
+            href="https://www.agoda.com/partners/partnersearch.aspx?cid=1972214&text=Korea"
             target="_blank"
             rel="noopener noreferrer"
             style={{
@@ -179,7 +179,7 @@ export default function AdBanner({ type = 'leaderboard', lang = 'ko', spotTitle 
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.55rem' }}>
           <a
-            href={`https://www.agoda.com/search?text=${encodeURIComponent(spotTitle || region || 'Korea')}`}
+            href={`https://www.agoda.com/partners/partnersearch.aspx?cid=1972214&text=${encodeURIComponent(spotTitle || region || 'Korea')}`}
             target="_blank"
             rel="noopener noreferrer"
             style={{
