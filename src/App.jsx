@@ -18,6 +18,7 @@ import { Loader2 } from 'lucide-react';
 export default function App() {
   // Auto-detect browser locale
   const [lang, setLang] = useState(detectBrowserLanguage());
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
   // Dark / Light Theme Mode
   const [themeMode, setThemeMode] = useState(() => {
@@ -210,6 +211,63 @@ export default function App() {
         lang={lang}
       />
 
+      {/* Privacy Policy Modal */}
+      {showPrivacyModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.75)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: '1.5rem'
+        }}>
+          <div style={{
+            background: 'var(--bg-card)',
+            color: 'var(--text-primary)',
+            borderRadius: 'var(--radius-lg)',
+            padding: '2rem',
+            maxWidth: '650px',
+            width: '100%',
+            maxHeight: '85vh',
+            overflowY: 'auto',
+            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)',
+            border: '1px solid var(--border-color)'
+          }}>
+            <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '1rem', color: 'var(--accent-primary)' }}>
+              개인정보처리방침 (Privacy Policy)
+            </h3>
+            <div style={{ fontSize: '0.9rem', lineHeight: 1.7, color: 'var(--text-secondary)' }}>
+              <p><strong>1. 수집하는 개인정보 항목 및 수집 방법</strong><br />본 서비스는 별도의 회원가입 없이 이용 가능하며, 서비스 제공 및 품질 개선을 위해 웹 브라우저 쿠키(Cookie) 및 접근 기기 정보를 자동으로 수집할 수 있습니다.</p>
+              <p style={{ marginTop: '0.75rem' }}><strong>2. 구글 애드센스 (Google AdSense) 광고 및 쿠키 안내</strong><br />본 웹사이트는 구글(Google)을 비롯한 제3자 광고 사업자의 맞춤형 맞춤 광고(AdSense)를 게재할 수 있습니다. Google은 쿠키를 사용하여 사용자의 이전 방문 기록을 바탕으로 관련성 높은 광고를 표시합니다.</p>
+              <p style={{ marginTop: '0.75rem' }}><strong>3. 제휴 마케팅 (Affiliate Links) 안내</strong><br />본 서비스는 아고다(Agoda), 클룩(Klook), KKday 등 파트너사의 제휴 링크를 포함하고 있으며, 방문자가 해당 링크를 통해 결제 시 당사는 소정의 수수료 보상을 받을 수 있습니다.</p>
+              <p style={{ marginTop: '0.75rem' }}><strong>4. 개인정보의 보유 및 이용 기간</strong><br />원칙적으로 개인정보 수집 및 이용목적이 달성된 후에는 해당 정보를 지체 없이 파기합니다.</p>
+            </div>
+            <button
+              onClick={() => setShowPrivacyModal(false)}
+              style={{
+                marginTop: '1.5rem',
+                width: '100%',
+                padding: '0.75rem',
+                borderRadius: 'var(--radius-md)',
+                background: 'linear-gradient(135deg, #0284c7, #0369a1)',
+                color: '#ffffff',
+                fontWeight: 700,
+                border: 'none',
+                cursor: 'pointer'
+              }}
+            >
+              확인 및 닫기
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Footer */}
       <footer style={{
         borderTop: '1px solid var(--border-color)',
@@ -219,7 +277,27 @@ export default function App() {
         fontSize: '0.85rem',
         background: 'var(--bg-primary)'
       }}>
-        © 2026 대한민국 여행 정보 (K-Travel Info). 한국관광공사 TourAPI & 기상청 공공데이터 연동.
+        <div style={{ marginBottom: '0.5rem' }}>
+          © 2026 대한민국 여행 정보 (K-Travel Explorer). koreatravel.cc & koreatravelsguide.com
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', fontSize: '0.8rem' }}>
+          <span>한국관광공사 TourAPI 4.0 및 기상청 공공데이터 연동</span>
+          <span>•</span>
+          <button
+            onClick={() => setShowPrivacyModal(true)}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'var(--accent-primary)',
+              textDecoration: 'underline',
+              cursor: 'pointer',
+              fontSize: '0.8rem',
+              padding: 0
+            }}
+          >
+            개인정보처리방침 (Privacy Policy)
+          </button>
+        </div>
       </footer>
     </div>
   );
