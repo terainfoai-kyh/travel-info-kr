@@ -502,7 +502,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                 <ExternalLink size={14} />
               </a>
               <a
-                href={`https://www.kkday.com/ko/product/search?k=${encodeURIComponent(spot?.title || '')}&cid=26248`}
+                href={`https://www.kkday.com/ko/product/productlist?keyword=${encodeURIComponent(spot?.title || '')}&cid=26248`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-primary"

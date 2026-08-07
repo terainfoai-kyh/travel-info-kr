@@ -96,7 +96,7 @@ export default function AdBanner({ type = 'leaderboard', lang = 'ko', spotTitle 
             <span>Klook eSIM / 패스 ↗</span>
           </a>
           <a
-            href="https://www.kkday.com/ko/product/search?k=Korea&cid=26248"
+            href="https://www.kkday.com/ko/product/productlist?keyword=Korea&cid=26248"
             target="_blank"
             rel="noopener noreferrer"
             style={{
