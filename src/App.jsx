@@ -12,6 +12,8 @@ import AdBanner from './components/AdBanner';
 import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
 import { fetchRealtimeWeather } from './services/weatherApi';
 import { fetchTourSpots } from './services/tourApi';
+import { getRecommendedFoodAndOutfit } from './services/recommendationEngine';
+import { Loader2 } from 'lucide-react';
 import ItineraryModal from './components/ItineraryModal';
 import WishlistDrawer from './components/WishlistDrawer';
 import TravelEssentialsSection from './components/TravelEssentialsSection';
