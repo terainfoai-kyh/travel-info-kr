@@ -5,6 +5,10 @@ import { ko } from 'date-fns/locale/ko';
 import { enUS } from 'date-fns/locale/en-US';
 import { ja } from 'date-fns/locale/ja';
 import { zhCN } from 'date-fns/locale/zh-CN';
+import { de } from 'date-fns/locale/de';
+import { fr } from 'date-fns/locale/fr';
+import { es } from 'date-fns/locale/es';
+import { ru } from 'date-fns/locale/ru';
 import { Search, Calendar, MapPin, Compass, User, Users, Sparkles } from 'lucide-react';
 import { REGION_META, API_SERVICE_TYPES } from '../services/apiConfig';
 import { TRANSLATIONS } from '../i18n/translations';
@@ -13,6 +17,10 @@ registerLocale('ko', ko);
 registerLocale('en', enUS);
 registerLocale('ja', ja);
 registerLocale('zh', zhCN);
+registerLocale('de', de);
+registerLocale('fr', fr);
+registerLocale('es', es);
+registerLocale('ru', ru);
 
 export default function SearchFilterForm({ filters, setFilters, onSearch, lang }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
