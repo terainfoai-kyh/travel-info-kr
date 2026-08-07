@@ -108,6 +108,16 @@ export default function SearchFilterForm({ filters, setFilters, onSearch, lang }
                   🚻 {filters.gender}
                 </span>
               )}
+              {filters.arrange && (
+                <span style={{ fontSize: '0.78rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', padding: '0.2rem 0.6rem', borderRadius: 'var(--radius-sm)', color: 'var(--text-secondary)' }}>
+                  ⚡ {{ O: '제목순', Q: '최근 수정일순', R: '최근 등록일순' }[filters.arrange] || '제목순'}
+                </span>
+              )}
+              {filters.apiServiceType && (
+                <span style={{ fontSize: '0.78rem', background: 'rgba(14, 165, 233, 0.15)', border: '1px solid rgba(14, 165, 233, 0.3)', padding: '0.2rem 0.6rem', borderRadius: 'var(--radius-sm)', color: '#38bdf8', fontWeight: 600 }}>
+                  🌐 {{ all: '전체 서비스', area: '지역기반 정보', location: '위치기반 주변', festival: '행사/축제', stay: '숙박/호텔' }[filters.apiServiceType] || '전체 서비스'}
+                </span>
+              )}
               {filters.keyword && (
                 <span style={{ fontSize: '0.78rem', background: 'rgba(249, 115, 22, 0.2)', border: '1px solid rgba(249, 115, 22, 0.4)', padding: '0.2rem 0.6rem', borderRadius: 'var(--radius-sm)', color: '#f97316', fontWeight: 700 }}>
                   🔍 {filters.keyword}
