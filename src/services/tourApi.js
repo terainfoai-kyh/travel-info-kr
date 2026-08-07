@@ -42,6 +42,8 @@ export async function fetchSpotDetailCommon(contentId, lang = 'ko') {
         }
       }
 
+      const imgUrl = (item.firstimage || item.firstimage2 || '').replace(/^http:\/\//i, 'https://');
+
       return {
         overview: item.overview ? item.overview.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ') : '',
         homepage: hpUrl,
@@ -49,7 +51,7 @@ export async function fetchSpotDetailCommon(contentId, lang = 'ko') {
         tel: item.tel || '',
         addr1: item.addr1 || '',
         title: item.title || '',
-        firstimage: item.firstimage || item.firstimage2 || ''
+        firstimage: imgUrl
       };
     }
   } catch (err) {
@@ -86,12 +88,12 @@ export async function fetchSpotDetailImages(contentId, lang = 'ko') {
           const imgStr = (img.originimgurl || img.imgname || '').toLowerCase();
           return !imgStr.includes('toilet') && !imgStr.includes('restroom') && !imgStr.includes('화장실') && !imgStr.includes('편의시설');
         })
-        .map(img => img.originimgurl || img.smallimageurl)
+        .map(img => (img.originimgurl || img.smallimageurl || '').replace(/^http:\/\//i, 'https://'))
         .filter(Boolean);
     } else if (itemsRaw && (itemsRaw.originimgurl || itemsRaw.smallimageurl)) {
       const imgStr = (itemsRaw.originimgurl || itemsRaw.imgname || '').toLowerCase();
       if (!imgStr.includes('toilet') && !imgStr.includes('restroom') && !imgStr.includes('화장실') && !imgStr.includes('편의시설')) {
-        return [itemsRaw.originimgurl || itemsRaw.smallimageurl];
+        return [(itemsRaw.originimgurl || itemsRaw.smallimageurl).replace(/^http:\/\//i, 'https://')];
       }
     }
   } catch (err) {
@@ -338,7 +340,7 @@ export async function fetchTourSpots({
       ];
 
       const parsed = items.map((item, idx) => {
-        let validImage = item.firstimage || item.firstimage2 || '';
+        let validImage = (item.firstimage || item.firstimage2 || '').replace(/^http:\/\//i, 'https://');
 
         // Extract title safely from TourAPI (item.title) or Durunubi (item.crsNm / item.themeNm)
         const rawTitle = item.title || item.crsNm || item.themeNm || item.spotNm || `명소 ${idx + 1}`;
