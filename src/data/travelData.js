@@ -83,7 +83,7 @@ export const TRAVEL_SPOTS = [
     location: '경상북도 경주시 원화로 102',
     rating: 4.85,
     reviewsCount: 3950,
-    image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1000&q=80',
+    image: 'https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?auto=format&fit=crop&w=1000&q=80',
     description: '신라 문무왕 때 조성된 왕궁의 연못으로, 환상적인 야경과 반사광이 어우러진 최고의 밤 산책 코스입니다.',
     tags: ['신라유적', '야경명소', '산책로', '역사탐방'],
     details: {

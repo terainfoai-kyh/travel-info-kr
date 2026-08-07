@@ -318,14 +318,14 @@ export async function fetchTourSpots({
     if (items.length > 0) {
       // Rich curated high-resolution Korea travel photos for Durunubi/TourAPI items lacking images
       const RICH_KOREA_IMAGES = [
-        'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=800&q=80', // Palace
-        'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80', // Jeju Seongsan
-        'https://images.unsplash.com/photo-1596402184320-417e7178b2cd?auto=format&fit=crop&w=800&q=80', // Busan Haeundae
-        'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80', // Seoraksan
-        'https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=800&q=80', // N Seoul Tower
-        'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80', // Songdo Park
-        'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80', // Jeju Nature
-        'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=800&q=80'  // City Street
+        'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=800&q=80', // Gyeongbokgung Palace (경복궁)
+        'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=800&q=80', // Jeju Seongsan Ilchulbong (제주 성산일출봉)
+        'https://images.unsplash.com/photo-1596402184320-417e7178b2cd?auto=format&fit=crop&w=800&q=80', // Busan Gamcheon & Haeundae (부산)
+        'https://images.unsplash.com/photo-1583417319070-4a69db38a482?auto=format&fit=crop&w=800&q=80', // Bukchon Hanok Village (북촌한옥마을)
+        'https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=800&q=80', // N Seoul Tower (남산 타워)
+        'https://images.unsplash.com/photo-1517154421773-0529f29ea451?auto=format&fit=crop&w=800&q=80', // Han River Night View (서울 한강 야경)
+        'https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?auto=format&fit=crop&w=800&q=80', // Gyeongju Cheomseongdae / Bulguksa (경주)
+        'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80'  // Incheon Songdo Central Park (송도 센트럴파크)
       ];
 
       const COORD_PRESETS = [
