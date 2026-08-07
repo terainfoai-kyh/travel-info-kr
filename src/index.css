@@ -202,12 +202,15 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
   padding: 0 !important;
   stroke: var(--accent-primary) !important;
   fill: none !important;
-  cursor: pointer;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  z-index: 5 !important;
 }
 
 .datepicker-custom-icon {
-  stroke: var(--accent-primary);
-  cursor: pointer;
+  stroke: var(--accent-primary) !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
 }
 
 /* React DatePicker Dark & Light Popup Theme */

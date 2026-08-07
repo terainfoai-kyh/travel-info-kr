@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import DatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { ko } from 'date-fns/locale/ko';
@@ -9,7 +9,6 @@ import { de } from 'date-fns/locale/de';
 import { fr } from 'date-fns/locale/fr';
 import { es } from 'date-fns/locale/es';
 import { ru } from 'date-fns/locale/ru';
-import { useState } from 'react';
 import { Search, Calendar, MapPin, Compass, User, Users, Sparkles, ChevronDown, ChevronUp, Filter } from 'lucide-react';
 import { REGION_META, API_SERVICE_TYPES } from '../services/apiConfig';
 import { TRANSLATIONS } from '../i18n/translations';
@@ -18,6 +17,7 @@ registerLocale('ko', ko);
 registerLocale('en', enUS);
 registerLocale('ja', ja);
 registerLocale('zh', zhCN);
+registerLocale('zht', zhCN);
 registerLocale('de', de);
 registerLocale('fr', fr);
 registerLocale('es', es);
@@ -26,6 +26,9 @@ registerLocale('ru', ru);
 export default function SearchFilterForm({ filters, setFilters, onSearch, lang }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
   const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const startPickerRef = useRef(null);
+  const endPickerRef = useRef(null);
 
   const getBadgeI18n = (type, value) => {
     const curLang = lang || 'ko';
@@ -278,6 +281,7 @@ export default function SearchFilterForm({ filters, setFilters, onSearch, lang }
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
             <div style={{ flex: 1, position: 'relative' }}>
               <DatePicker
+                ref={startPickerRef}
                 selected={startDateObj}
                 onChange={(d) => setFilters(prev => ({ ...prev, startDate: formatDateStr(d) }))}
                 locale={lang === 'zht' ? 'zh' : (lang || 'ko')}
@@ -285,7 +289,22 @@ export default function SearchFilterForm({ filters, setFilters, onSearch, lang }
                 className="custom-datepicker-input"
                 showIcon
                 icon={
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="datepicker-custom-icon">
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    width="16" 
+                    height="16" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    className="datepicker-custom-icon"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      startPickerRef.current?.setOpen(true);
+                    }}
+                  >
                     <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
                     <line x1="16" x2="16" y1="2" y2="6"/>
                     <line x1="8" x2="8" y1="2" y2="6"/>
@@ -297,6 +316,7 @@ export default function SearchFilterForm({ filters, setFilters, onSearch, lang }
             <span style={{ color: 'var(--text-muted)', fontWeight: 600 }}>~</span>
             <div style={{ flex: 1, position: 'relative' }}>
               <DatePicker
+                ref={endPickerRef}
                 selected={endDateObj}
                 onChange={(d) => setFilters(prev => ({ ...prev, endDate: formatDateStr(d) }))}
                 locale={lang === 'zht' ? 'zh' : (lang || 'ko')}
@@ -304,7 +324,22 @@ export default function SearchFilterForm({ filters, setFilters, onSearch, lang }
                 className="custom-datepicker-input"
                 showIcon
                 icon={
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="datepicker-custom-icon">
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    width="16" 
+                    height="16" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    className="datepicker-custom-icon"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      endPickerRef.current?.setOpen(true);
+                    }}
+                  >
                     <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
                     <line x1="16" x2="16" y1="2" y2="6"/>
                     <line x1="8" x2="8" y1="2" y2="6"/>
