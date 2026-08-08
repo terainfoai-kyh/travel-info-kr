@@ -126,30 +126,15 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
   if (!spot) return null;
 
   return (
-    <div style={{
-      position: 'fixed',
-      inset: 0,
-      zIndex: 1000,
-      background: 'rgba(15, 23, 42, 0.75)',
-      backdropFilter: 'blur(8px)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '1rem',
-      overflowY: 'auto'
-    }} onClick={onClose}>
+    <div className="modal-overlay-backdrop" onClick={onClose}>
       <div 
-        className="animate-fade-in"
+        className="animate-fade-in glass-panel modal-responsive-card"
         style={{
           background: 'var(--bg-secondary)',
           border: '1px solid var(--border-color)',
           borderRadius: 'var(--radius-lg)',
-          width: '100%',
-          maxWidth: '780px',
-          maxHeight: '90vh',
-          overflowY: 'auto',
           boxShadow: 'var(--shadow-xl)',
-          position: 'relative'
+          padding: '1.25rem 1.25rem'
         }}
         onClick={(e) => e.stopPropagation()}
       >

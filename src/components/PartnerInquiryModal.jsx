@@ -73,33 +73,19 @@ export default function PartnerInquiryModal({ isOpen, onClose, lang = 'ko' }) {
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(0, 0, 0, 0.75)',
-      backdropFilter: 'blur(8px)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 10000,
-      padding: '1.5rem'
-    }}>
-      <div style={{
-        background: 'var(--bg-card)',
-        color: 'var(--text-main)',
-        borderRadius: 'var(--radius-lg)',
-        padding: '2rem',
-        maxWidth: '560px',
-        width: '100%',
-        maxHeight: '90vh',
-        overflowY: 'auto',
-        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)',
-        border: '1px solid var(--border-highlight)',
-        position: 'relative'
-      }}>
+    <div className="modal-overlay-backdrop">
+      <div 
+        className="animate-fade-in glass-panel modal-responsive-card"
+        style={{
+          background: 'var(--bg-card)',
+          color: 'var(--text-main)',
+          borderRadius: 'var(--radius-lg)',
+          padding: '1.25rem 1.25rem',
+          maxWidth: '560px',
+          boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)',
+          border: '1px solid var(--border-highlight)'
+        }}
+      >
         {/* Close Button */}
         <button
           onClick={onClose}

@@ -32,11 +32,14 @@ export default function WishlistDrawer({ isOpen, onClose, wishlistSpots, onRemov
       style={{
         position: 'fixed',
         inset: 0,
-        zIndex: 1000,
+        width: '100vw',
+        height: '100dvh',
+        zIndex: 99999,
         background: 'rgba(15, 23, 42, 0.75)',
         backdropFilter: 'blur(6px)',
         display: 'flex',
-        justifyContent: 'flex-end'
+        justifyContent: 'flex-end',
+        overflow: 'hidden'
       }}
       onClick={onClose}
     >
@@ -46,11 +49,11 @@ export default function WishlistDrawer({ isOpen, onClose, wishlistSpots, onRemov
           background: 'var(--bg-secondary)',
           borderLeft: '1px solid var(--border-highlight)',
           width: '100%',
-          maxWidth: '460px',
-          height: '100vh',
+          maxWidth: 'min(460px, 100vw)',
+          height: '100dvh',
           overflowY: 'auto',
           boxShadow: 'var(--shadow-xl)',
-          padding: '1.5rem',
+          padding: '1.25rem 1rem',
           display: 'flex',
           flexDirection: 'column'
         }}

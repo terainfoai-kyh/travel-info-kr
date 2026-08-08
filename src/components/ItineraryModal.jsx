@@ -143,32 +143,17 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
 
   return (
     <div 
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 1000,
-        background: 'rgba(15, 23, 42, 0.82)',
-        backdropFilter: 'blur(8px)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '1rem'
-      }}
+      className="modal-overlay-backdrop"
       onClick={onClose}
     >
       <div 
-        className="animate-fade-in glass-panel"
+        className="animate-fade-in glass-panel modal-responsive-card"
         style={{
           background: 'var(--bg-secondary)',
           border: '1px solid var(--border-highlight)',
           borderRadius: 'var(--radius-lg)',
-          width: '100%',
-          maxWidth: '880px',
-          maxHeight: '90vh',
-          overflowY: 'auto',
           boxShadow: 'var(--shadow-glow)',
-          position: 'relative',
-          padding: '1.5rem 1.75rem'
+          padding: '1.25rem 1.25rem'
         }}
         onClick={(e) => e.stopPropagation()}
       >

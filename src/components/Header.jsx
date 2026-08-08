@@ -123,13 +123,17 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
     <header className="glass-panel app-header" style={{
       position: 'sticky',
       top: 0,
-      zIndex: 100,
-      padding: '0.65rem 1.5rem 0.5rem 1.5rem',
+      left: 0,
+      right: 0,
+      width: '100%',
+      boxSizing: 'border-box',
+      zIndex: 1000,
+      padding: '0.65rem 1.25rem 0.5rem 1.25rem',
       display: 'flex',
       flexDirection: 'column',
-      gap: '0.65rem',
+      gap: '0.55rem',
       borderBottom: '1px solid var(--border-color)',
-      background: themeMode === 'light' ? 'rgba(255, 255, 255, 0.95)' : 'rgba(15, 23, 42, 0.94)',
+      background: themeMode === 'light' ? 'rgba(255, 255, 255, 0.96)' : 'rgba(15, 23, 42, 0.95)',
       backdropFilter: 'blur(16px)',
       WebkitBackdropFilter: 'blur(16px)'
     }}>
