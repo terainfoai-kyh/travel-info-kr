@@ -1,11 +1,15 @@
 import React, { useEffect } from 'react';
 import { ExternalLink, Sparkles, Hotel, Ticket, Wifi } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
-import { buildAgodaDeepLink } from '../services/apiConfig';
+import { buildAgodaDeepLink, buildKlookDeepLink, buildKKdayDeepLink } from '../services/apiConfig';
 
-export default function AdBanner({ type = 'leaderboard', lang = 'ko', spotTitle = '', region = '', themeMode = 'dark' }) {
+export default function AdBanner({ type = 'leaderboard', lang = 'ko', spotTitle = '', region = '', themeMode = 'dark', startDate, endDate, filters }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
   const isLight = themeMode === 'light';
+
+  const checkIn = startDate || filters?.startDate;
+  const checkOut = endDate || filters?.endDate;
+  const targetRegion = region || filters?.region || '서울';
 
   useEffect(() => {
     try {
@@ -23,70 +27,70 @@ export default function AdBanner({ type = 'leaderboard', lang = 'ko', spotTitle 
       <div style={{
         margin: '1rem 0 1.5rem 0',
         padding: '1rem 1.25rem',
-        borderRadius: 'var(--radius-md)',
         background: isLight
-          ? 'linear-gradient(135deg, #f0f9ff, #e0f2fe)'
-          : 'linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.98))',
+          ? 'linear-gradient(135deg, #e0f2fe, #bae6fd)'
+          : 'linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98))',
         border: isLight
-          ? '1px solid rgba(2, 132, 199, 0.25)'
+          ? '1px solid rgba(2, 132, 199, 0.3)'
           : '1px solid rgba(56, 189, 248, 0.3)',
-        boxShadow: isLight
-          ? '0 6px 20px rgba(2, 132, 199, 0.08)'
-          : '0 6px 20px rgba(0, 0, 0, 0.25)',
+        borderRadius: 'var(--radius-lg)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         flexWrap: 'wrap',
-        gap: '0.85rem',
+        gap: '1rem',
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        boxShadow: isLight
+          ? '0 8px 24px rgba(2, 132, 199, 0.12)'
+          : '0 8px 24px rgba(0, 0, 0, 0.25)'
       }}>
-        <div style={{
+        {/* Sponsored Tag */}
+        <span style={{
           position: 'absolute',
-          top: 0,
-          right: 0,
+          top: '0.5rem',
+          right: '0.75rem',
           background: isLight ? 'rgba(2, 132, 199, 0.15)' : 'rgba(56, 189, 248, 0.15)',
           color: isLight ? '#0284c7' : 'var(--accent-primary)',
           fontSize: '0.65rem',
           fontWeight: 800,
-          padding: '0.2rem 0.6rem',
-          borderBottomLeftRadius: 'var(--radius-sm)'
+          padding: '0.15rem 0.5rem',
+          borderRadius: 'var(--radius-sm)'
         }}>
           {t.adSponsoredTag || 'SPONSORED'}
-        </div>
+        </span>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+        {/* Left Side Info */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', minWidth: '260px' }}>
           <div style={{
-            width: '40px',
-            height: '40px',
-            borderRadius: '50%',
-            background: 'linear-gradient(135deg, #0284c7, #38bdf8)',
+            background: isLight ? 'rgba(2, 132, 199, 0.2)' : 'rgba(56, 189, 248, 0.2)',
+            padding: '0.6rem',
+            borderRadius: 'var(--radius-md)',
+            color: isLight ? '#0284c7' : 'var(--accent-primary)',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            color: '#fff',
-            flexShrink: 0
+            justifyContent: 'center'
           }}>
-            <Wifi size={20} />
+            <Wifi size={24} />
           </div>
+
           <div>
             <h4 style={{
-              fontSize: '0.95rem',
+              fontSize: '1rem',
               fontWeight: 800,
               color: isLight ? '#0f172a' : '#ffffff',
-              margin: 0,
+              margin: '0 0 0.2rem 0',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.35rem'
+              gap: '0.4rem'
             }}>
-              <span>{t.esimBannerTitle}</span>
-              <Sparkles size={13} color="#f59e0b" />
+              {t.esimBannerTitle} <Sparkles size={14} color="#f59e0b" />
             </h4>
             <p style={{
-              fontSize: '0.78rem',
+              fontSize: '0.82rem',
               color: isLight ? '#334155' : '#94a3b8',
-              fontWeight: isLight ? 600 : 400,
-              margin: '0.15rem 0 0 0'
+              margin: 0,
+              fontWeight: isLight ? 600 : 400
             }}>
               {t.esimBannerSub}
             </p>
@@ -95,7 +99,7 @@ export default function AdBanner({ type = 'leaderboard', lang = 'ko', spotTitle 
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
           <a
-            href="https://www.klook.com/ko/search/result/?query=Korea%20eSIM&aid=130249&af_wid=31000"
+            href={buildKlookDeepLink('Korea eSIM', checkIn, checkOut)}
             target="_blank"
             rel="noopener noreferrer"
             style={{
@@ -115,7 +119,7 @@ export default function AdBanner({ type = 'leaderboard', lang = 'ko', spotTitle 
             <span>Klook eSIM / 패스 ↗</span>
           </a>
           <a
-            href="https://www.kkday.com/ko/product/productlist?keyword=Korea&cid=26248"
+            href={buildKKdayDeepLink('Korea', checkIn, checkOut)}
             target="_blank"
             rel="noopener noreferrer"
             style={{
@@ -135,7 +139,7 @@ export default function AdBanner({ type = 'leaderboard', lang = 'ko', spotTitle 
             <span>KKday 액티비티 ↗</span>
           </a>
           <a
-            href={buildAgodaDeepLink(region || '서울')}
+            href={buildAgodaDeepLink(targetRegion, checkIn, checkOut)}
             target="_blank"
             rel="noopener noreferrer"
             style={{
@@ -152,7 +156,7 @@ export default function AdBanner({ type = 'leaderboard', lang = 'ko', spotTitle 
             }}
           >
             <Hotel size={14} color="#ffffff" />
-            <span>{t.agodaHotelBtn || '숙소 검색 ↗'}</span>
+            <span>{t.agodaHotelBtn || '아고다 숙소 ↗'}</span>
           </a>
         </div>
       </div>
@@ -236,7 +240,7 @@ export default function AdBanner({ type = 'leaderboard', lang = 'ko', spotTitle 
           alignItems: 'center'
         }}>
           <a
-            href={buildAgodaDeepLink(region || '서울')}
+            href={buildAgodaDeepLink(targetRegion, checkIn, checkOut)}
             target="_blank"
             rel="noopener noreferrer"
             style={{
@@ -262,7 +266,7 @@ export default function AdBanner({ type = 'leaderboard', lang = 'ko', spotTitle 
           </a>
 
           <a
-            href={`https://www.klook.com/ko/search/result/?query=${encodeURIComponent(spotTitle || region || 'Korea')}&aid=130249&af_wid=31000`}
+            href={buildKlookDeepLink(targetRegion, checkIn, checkOut)}
             target="_blank"
             rel="noopener noreferrer"
             style={{
@@ -288,7 +292,7 @@ export default function AdBanner({ type = 'leaderboard', lang = 'ko', spotTitle 
           </a>
 
           <a
-            href={`https://www.kkday.com/ko/product/search?k=${encodeURIComponent(spotTitle || region || 'Korea')}&cid=26248`}
+            href={buildKKdayDeepLink(region || spotTitle || 'Korea')}
             target="_blank"
             rel="noopener noreferrer"
             style={{

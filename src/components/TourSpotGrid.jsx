@@ -4,7 +4,7 @@ import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress, getTranslatedTh
 import AdBanner from './AdBanner';
 import TravelImageWithFallback from './TravelImageWithFallback';
 
-export default function TourSpotGrid({ spots = [], page = 1, setPage, totalPages = 1, lang = 'ko', themeMode = 'dark', onSelectSpot, onOpenItinerary }) {
+export default function TourSpotGrid({ spots = [], page = 1, setPage, totalPages = 1, lang = 'ko', themeMode = 'dark', onSelectSpot, onOpenItinerary, filters }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
 
   return (
@@ -124,7 +124,7 @@ export default function TourSpotGrid({ spots = [], page = 1, setPage, totalPages
           </div>
 
           {/* Clean Partner Ad Banner below the symmetrical 3x2 Grid */}
-          <AdBanner type="infeed" lang={lang} spotTitle={spots[0]?.title} region={spots[0]?.region} themeMode={themeMode} />
+          <AdBanner type="infeed" lang={lang} spotTitle={spots[0]?.title} region={spots[0]?.region} themeMode={themeMode} filters={filters} />
         </>
       ) : (
         <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>

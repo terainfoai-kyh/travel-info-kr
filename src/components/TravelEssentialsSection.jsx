@@ -1,9 +1,14 @@
 import React from 'react';
 import { Wifi, CreditCard, Hotel, DollarSign, ExternalLink, Sparkles, ShieldCheck } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
+import { buildAgodaDeepLink, buildKlookDeepLink, buildKKdayDeepLink } from '../services/apiConfig';
 
-export default function TravelEssentialsSection({ lang = 'ko' }) {
+export default function TravelEssentialsSection({ lang = 'ko', filters }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
+
+  const checkIn = filters?.startDate;
+  const checkOut = filters?.endDate;
+  const targetRegion = filters?.region && filters?.region !== '전국' ? filters?.region : '서울';
 
   const ESSENTIALS = [
     {
@@ -14,7 +19,7 @@ export default function TravelEssentialsSection({ lang = 'ko' }) {
       desc: t.esimDesc || '한국 도착 즉시 개통되는 무제한 4G/5G 고속 데이터 SIM/eSIM',
       badgeBg: 'rgba(56, 189, 248, 0.15)',
       badgeColor: '#38bdf8',
-      link: 'https://www.klook.com/ko/search/result/?query=%ED%95%9C%EA%B5%AD%20eSIM&aid=130249&af_wid=31000'
+      link: buildKlookDeepLink('한국 eSIM', checkIn, checkOut)
     },
     {
       id: 'transit',
@@ -24,7 +29,7 @@ export default function TravelEssentialsSection({ lang = 'ko' }) {
       desc: t.transitDesc || '인천공항 직통열차 & 대한민국 전역 지하철/버스 통합 교통권',
       badgeBg: 'rgba(129, 140, 248, 0.15)',
       badgeColor: '#818cf8',
-      link: 'https://www.kkday.com/ko/product/productlist?keyword=%ED%95%9C%EA%B5%AD%20%EA%B5%90%ED%86%B5%EC%B9%B4%EB%93%9C&cid=26248'
+      link: buildKKdayDeepLink('한국 교통카드')
     },
     {
       id: 'hotel',
@@ -34,7 +39,7 @@ export default function TravelEssentialsSection({ lang = 'ko' }) {
       desc: t.hotelDesc || '서울, 제주, 부산, 경주 한옥 등 인근 숙소 최대 75% 특별 할인가',
       badgeBg: 'rgba(245, 158, 11, 0.15)',
       badgeColor: '#f59e0b',
-      link: 'https://www.agoda.com/ko-kr/city/seoul-kr.html?cid=1972217&city=14690'
+      link: buildAgodaDeepLink(targetRegion, checkIn, checkOut)
     },
     {
       id: 'taxfree',
@@ -44,7 +49,7 @@ export default function TravelEssentialsSection({ lang = 'ko' }) {
       desc: t.taxfreeDesc || '주요 백화점, 마트, 올리브영 즉시 면세(Tax Refund) 환급 방법',
       badgeBg: 'rgba(16, 185, 129, 0.15)',
       badgeColor: '#10b981',
-      link: 'https://www.klook.com/ko/search/result/?query=%ED%95%9C%EA%B5%AD%20%EC%87%BC%ED%95%91%20%EB%A9%B4%EC%84%B8&aid=130249&af_wid=31000'
+      link: buildKlookDeepLink('한국 쇼핑 면세', checkIn, checkOut)
     }
   ];
 

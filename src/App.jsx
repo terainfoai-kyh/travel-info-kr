@@ -226,7 +226,7 @@ export default function App() {
         />
 
         {/* Top Partner & Ad Banner */}
-        <AdBanner type="leaderboard" lang={lang} themeMode={themeMode} />
+        <AdBanner type="leaderboard" lang={lang} themeMode={themeMode} filters={filters} />
 
         {/* Loading Indicator */}
         {isLoading ? (
@@ -247,12 +247,13 @@ export default function App() {
                 themeMode={themeMode}
                 onSelectSpot={(spot) => setSelectedSpot(spot)}
                 onOpenItinerary={() => setIsItineraryOpen(true)}
+                filters={filters}
               />
             </div>
 
             {/* 2. Travel Essentials Hub Section */}
             <div id="travel-essentials">
-              <TravelEssentialsSection lang={lang} />
+              <TravelEssentialsSection lang={lang} filters={filters} />
             </div>
 
             {/* 3. Weather Info */}

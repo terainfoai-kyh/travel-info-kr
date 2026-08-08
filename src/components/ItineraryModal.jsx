@@ -1,16 +1,23 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import DatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { X, Calendar, Clock, MapPin, Sparkles, Navigation, Copy, Check, Filter, ShieldCheck, CloudRain, RefreshCw, Car, Bus, Utensils } from 'lucide-react';
 import { generateSmartItinerary, calculateTravelEstimate } from '../services/recommendationEngine';
 import { TRANSLATIONS } from '../i18n/translations';
-import { buildAgodaDeepLink } from '../services/apiConfig';
+import { buildAgodaDeepLink, buildKlookDeepLink } from '../services/apiConfig';
 
 export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, onSelectSpot }) {
   const [selectedDays, setSelectedDays] = useState(2);
   const [customStartDate, setCustomStartDate] = useState(() => {
     return filters?.startDate || new Date().toISOString().split('T')[0];
   });
+
+  useEffect(() => {
+    if (isOpen && filters?.startDate) {
+      setCustomStartDate(filters.startDate);
+    }
+  }, [isOpen, filters?.startDate]);
+
   const [startTime, setStartTime] = useState('09:30');
   const [endTime, setEndTime] = useState('20:00');
   const [dayTimes, setDayTimes] = useState({});
@@ -840,7 +847,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
           }
 
           const agodaDeepUrl = buildAgodaDeepLink(region, checkInStr, checkOutStr);
-          const klookDeepUrl = `https://www.klook.com/ko/search/result/?query=${encodeURIComponent(region)}&aid=130249`;
+          const klookDeepUrl = buildKlookDeepLink(region, checkInStr, checkOutStr);
 
           return (
             <div style={{

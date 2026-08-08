@@ -343,8 +343,8 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
   }
 
   .header-theme-btn {
-    width: 34px !important;
-    height: 34px !important;
+    padding: 0.35rem 0.65rem !important;
+    font-size: 0.75rem !important;
   }
 
   /* Search Filter Form Mobile */

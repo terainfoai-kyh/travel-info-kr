@@ -293,24 +293,40 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
             className="header-theme-btn"
             onClick={() => setThemeMode(prev => prev === 'dark' ? 'light' : 'dark')}
             style={{
-              background: 'var(--bg-secondary)',
-              border: '1px solid var(--border-color)',
-              color: 'var(--text-main)',
-              width: '34px',
-              height: '34px',
-              borderRadius: 'var(--radius-md)',
-              display: 'flex',
+              background: themeMode === 'dark' 
+                ? 'linear-gradient(135deg, #f59e0b, #ea580c)' 
+                : 'linear-gradient(135deg, #0f172a, #1e1b4b)',
+              border: themeMode === 'dark'
+                ? '1px solid rgba(245, 158, 11, 0.6)'
+                : '1px solid rgba(56, 189, 248, 0.5)',
+              color: themeMode === 'dark' ? '#ffffff' : '#38bdf8',
+              padding: '0.4rem 0.85rem',
+              borderRadius: '9999px',
+              display: 'inline-flex',
               alignItems: 'center',
-              justifyContent: 'center',
+              gap: '0.45rem',
               cursor: 'pointer',
-              flexShrink: 0
+              fontWeight: 800,
+              fontSize: '0.8rem',
+              boxShadow: themeMode === 'dark'
+                ? '0 3px 14px rgba(245, 158, 11, 0.4)'
+                : '0 3px 14px rgba(15, 23, 42, 0.3)',
+              transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+              flexShrink: 0,
+              whiteSpace: 'nowrap'
             }}
-            title={themeMode === 'dark' ? '라이트 모드로 변경' : '다크 모드로 변경'}
+            title={themeMode === 'dark' ? '밝은 화면(라이트 모드)으로 변경' : '어두운 화면(다크 모드)으로 변경'}
           >
             {themeMode === 'dark' ? (
-              <Sun size={16} color="#f59e0b" />
+              <>
+                <Sun size={15} color="#ffffff" />
+                <span>라이트 모드</span>
+              </>
             ) : (
-              <Moon size={16} color="#38bdf8" />
+              <>
+                <Moon size={15} color="#38bdf8" />
+                <span>다크 모드</span>
+              </>
             )}
           </button>
 

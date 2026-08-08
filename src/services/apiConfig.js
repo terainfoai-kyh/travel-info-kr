@@ -99,8 +99,35 @@ export function buildAgodaDeepLink(region, checkIn, checkOut) {
   const cleanRegion = (region || '서울').trim();
   const matched = AGODA_CITY_MAP[cleanRegion] || AGODA_CITY_MAP['서울'];
   
-  if (checkIn && checkOut) {
-    return `https://www.agoda.com/ko-kr/city/${matched.slug}.html?cid=1972217&city=${matched.id}&checkin=${checkIn}&checkout=${checkOut}&adults=2&rooms=1`;
+  let finalCheckIn = checkIn;
+  let finalCheckOut = checkOut;
+
+  if (!finalCheckIn || !finalCheckOut) {
+    const today = new Date();
+    const nextTwoDays = new Date(today);
+    nextTwoDays.setDate(today.getDate() + 2);
+
+    finalCheckIn = today.toISOString().split('T')[0];
+    finalCheckOut = nextTwoDays.toISOString().split('T')[0];
   }
-  return `https://www.agoda.com/ko-kr/city/${matched.slug}.html?cid=1972217&city=${matched.id}`;
+
+  const startMs = new Date(finalCheckIn).getTime();
+  const endMs = new Date(finalCheckOut).getTime();
+  const los = Math.max(1, Math.round((endMs - startMs) / (1000 * 60 * 60 * 24)));
+
+  return `https://www.agoda.com/ko-kr/city/${matched.slug}.html?cid=1972217&city=${matched.id}&checkin=${finalCheckIn}&checkout=${finalCheckOut}&los=${los}&rooms=1&adults=2`;
+}
+
+export function buildKKdayDeepLink(query) {
+  const cleanQuery = encodeURIComponent((query || '한국 여행').trim());
+  return `https://www.kkday.com/ko?cid=26248&keyword=${cleanQuery}`;
+}
+
+export function buildKlookDeepLink(query, checkIn, checkOut) {
+  const cleanQuery = encodeURIComponent((query || '한국 여행').trim());
+  let dateParams = '';
+  if (checkIn && checkOut) {
+    dateParams = `&start_date=${checkIn}&end_date=${checkOut}`;
+  }
+  return `https://www.klook.com/ko/search/result/?query=${cleanQuery}${dateParams}&aid=130249&af_wid=31000`;
 }

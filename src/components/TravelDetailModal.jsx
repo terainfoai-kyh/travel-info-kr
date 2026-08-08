@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Star, MapPin, Clock, Phone, SunMedium, CheckCircle, Heart, Globe, Loader2, Hotel, Ticket, ExternalLink, Sparkles } from 'lucide-react';
 import { fetchSpotDetailCommon, fetchSpotDetailImages } from '../services/tourApi';
-import { PUBLIC_API_CONFIG, buildAgodaDeepLink } from '../services/apiConfig';
+import { PUBLIC_API_CONFIG, buildAgodaDeepLink, buildKlookDeepLink, buildKKdayDeepLink } from '../services/apiConfig';
 import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress, getTranslatedTheme, getTranslatedReview, getTranslatedOverview, getTranslatedDetailText } from '../i18n/translations';
 import AdBanner from './AdBanner';
 import TravelImageWithFallback from './TravelImageWithFallback';
@@ -486,8 +486,8 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
               const checkOutStr = `${y2}-${m2}-${d2}`;
 
               const agodaUrl = buildAgodaDeepLink(regionText, checkInStr, checkOutStr);
-              const klookUrl = `https://www.klook.com/ko/search/result/?query=${encodeURIComponent(regionText + ' ' + (spot?.title || ''))}&aid=130249`;
-              const kkdayUrl = `https://www.kkday.com/ko/product/productlist?keyword=${encodeURIComponent(regionText + ' ' + (spot?.title || ''))}&cid=26248`;
+              const klookUrl = buildKlookDeepLink(regionText + ' ' + (spot?.title || ''), checkInStr, checkOutStr);
+              const kkdayUrl = buildKKdayDeepLink(regionText + ' ' + (spot?.title || ''));
 
               return (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
@@ -505,7 +505,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                     }}
                   >
                     <Hotel size={16} />
-                    <span>{regionText} {t.agodaHotelBtn || '최저가 숙소'}</span>
+                    <span>{regionText} {t.agodaHotelBtn || '최저가 숙소 (Agoda)'}</span>
                     <ExternalLink size={14} />
                   </a>
 
