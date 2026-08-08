@@ -320,12 +320,12 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
             {themeMode === 'dark' ? (
               <>
                 <Sun size={15} color="#ffffff" />
-                <span>라이트 모드</span>
+                <span>{t.lightMode || '라이트 모드'}</span>
               </>
             ) : (
               <>
                 <Moon size={15} color="#38bdf8" />
-                <span>다크 모드</span>
+                <span>{t.darkMode || '다크 모드'}</span>
               </>
             )}
           </button>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Utensils, Shirt, Sparkles, MapPin, ExternalLink, CheckCircle, Info, Flame, Sun, Droplets } from 'lucide-react';
-import { TRANSLATIONS, getTranslatedFood, getTranslatedOutfit } from '../i18n/translations';
+import { TRANSLATIONS, getTranslatedFood, getTranslatedOutfit, getMapSearchBtnLabel } from '../i18n/translations';
 
 export default function AILifestyleSection({ foods = [], outfits = [], filters = {}, lang = 'ko', themeMode = 'dark' }) {
   const [activeTab, setActiveTab] = useState('food'); // 'food' | 'outfit'
@@ -223,7 +223,7 @@ export default function AILifestyleSection({ foods = [], outfits = [], filters =
                         border: isLight ? '1px solid rgba(34, 197, 94, 0.35)' : '1px solid rgba(34, 197, 94, 0.3)'
                       }}>
                         <Flame size={11} />
-                        AI 매칭 {matchScores[idx % matchScores.length]}%
+                        {t.aiMatchingLabel || 'AI 매칭'} {matchScores[idx % matchScores.length]}%
                       </span>
                     </div>
 
@@ -286,7 +286,7 @@ export default function AILifestyleSection({ foods = [], outfits = [], filters =
                     }}
                   >
                     <MapPin size={13} />
-                    <span>주변 {food.name.split('&')[0].trim()} 맛집 지도 검색 ↗</span>
+                    <span>{getMapSearchBtnLabel(food.name, lang)}</span>
                   </a>
                 </div>
               );
@@ -357,7 +357,7 @@ export default function AILifestyleSection({ foods = [], outfits = [], filters =
                         padding: '0.15rem 0.55rem',
                         borderRadius: 'var(--radius-sm)'
                       }}>
-                        👤 {filters.gender || '남녀공용'} · {filters.age || '전연령'}
+                        👤 {TRANSLATIONS[lang]?.genders?.[filters.gender] || filters.gender || '무관'} · {TRANSLATIONS[lang]?.ages?.[filters.age] || filters.age || '전체'}
                       </span>
                     </div>
 
@@ -428,7 +428,7 @@ export default function AILifestyleSection({ foods = [], outfits = [], filters =
                     }}
                   >
                     <Shirt size={13} />
-                    <span>추천 코디 스타일 룩북 검색 ↗</span>
+                    <span>{t.outfitSearchBtn || '추천 코디 스타일 룩북 검색 ↗'}</span>
                   </a>
                 </div>
               );

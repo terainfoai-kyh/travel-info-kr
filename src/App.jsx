@@ -349,7 +349,7 @@ export default function App() {
             border: '1px solid var(--border-color)'
           }}>
             <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '1rem', color: 'var(--accent-primary)' }}>
-              {t.privacyPolicyTitle || '개인정보처리방침 (Privacy Policy)'}
+              {t.privacyPolicyTitle || '개인정보처리방침'}
             </h3>
             <div style={{ fontSize: '0.9rem', lineHeight: 1.7, color: 'var(--text-muted)' }}>
               <p><strong>{t.privacySection1Title || '1. 수집하는 개인정보 항목 및 수집 방법'}</strong><br />{t.privacySection1Desc}</p>
@@ -418,7 +418,7 @@ export default function App() {
               padding: 0
             }}
           >
-            {t.privacyPolicyTitle || '개인정보처리방침 (Privacy Policy)'}
+            {t.privacyPolicyTitle || '개인정보처리방침'}
           </button>
           <span>•</span>
           <button

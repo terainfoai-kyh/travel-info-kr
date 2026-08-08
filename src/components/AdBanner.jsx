@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { ExternalLink, Sparkles, Hotel, Ticket, Wifi } from 'lucide-react';
-import { TRANSLATIONS } from '../i18n/translations';
+import { TRANSLATIONS, getTranslatedTitle, romanizeHangul } from '../i18n/translations';
 import { buildAgodaDeepLink, buildKlookDeepLink, buildKKdayDeepLink } from '../services/apiConfig';
 
 export default function AdBanner({ type = 'leaderboard', lang = 'ko', spotTitle = '', region = '', themeMode = 'dark', startDate, endDate, filters }) {
@@ -10,6 +10,14 @@ export default function AdBanner({ type = 'leaderboard', lang = 'ko', spotTitle 
   const checkIn = startDate || filters?.startDate;
   const checkOut = endDate || filters?.endDate;
   const targetRegion = region || filters?.region || '서울';
+
+  let displaySpotTitle = spotTitle ? getTranslatedTitle(spotTitle, lang) : '';
+  if (lang !== 'ko' && displaySpotTitle && /[\uAC00-\uD7A3]/.test(displaySpotTitle)) {
+    displaySpotTitle = displaySpotTitle.replace(/\s*\([\s\S]*?[\uAC00-\uD7A3]+[\s\S]*?\)/g, '').trim();
+    if (/[\uAC00-\uD7A3]/.test(displaySpotTitle)) {
+      displaySpotTitle = romanizeHangul(displaySpotTitle);
+    }
+  }
 
   useEffect(() => {
     try {
@@ -116,7 +124,7 @@ export default function AdBanner({ type = 'leaderboard', lang = 'ko', spotTitle 
             }}
           >
             <Ticket size={14} color="#ffffff" />
-            <span>Klook eSIM / 패스 ↗</span>
+            <span>{t.klookEsimBtn || 'Klook eSIM / 패스 ↗'}</span>
           </a>
           <a
             href={buildKKdayDeepLink('Korea', checkIn, checkOut)}
@@ -136,7 +144,7 @@ export default function AdBanner({ type = 'leaderboard', lang = 'ko', spotTitle 
             }}
           >
             <Sparkles size={14} color="#ffffff" />
-            <span>KKday 액티비티 ↗</span>
+            <span>{t.kkdayActivityBtn || 'KKday 액티비티 ↗'}</span>
           </a>
           <a
             href={buildAgodaDeepLink(targetRegion, checkIn, checkOut)}
@@ -220,7 +228,7 @@ export default function AdBanner({ type = 'leaderboard', lang = 'ko', spotTitle 
             color: isLight ? '#0f172a' : '#ffffff',
             margin: 0
           }}>
-            {spotTitle ? `${spotTitle} ${t.agodaHotelBtn}` : t.esimBannerTitle}
+            {displaySpotTitle ? `${displaySpotTitle} ${t.agodaHotelBtn}` : t.esimBannerTitle}
           </h4>
 
           <span style={{
@@ -313,7 +321,7 @@ export default function AdBanner({ type = 'leaderboard', lang = 'ko', spotTitle 
             }}
           >
             <Sparkles size={15} color="#ffffff" />
-            <span>KKday 액티비티 예약</span>
+            <span>{t.kkdayTicketBtn || 'KKday 액티비티 예약'}</span>
             <ExternalLink size={13} color="#ffffff" />
           </a>
         </div>

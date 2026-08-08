@@ -468,7 +468,18 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
             </div>
 
             {(() => {
-              const regionText = spot?.region && spot.region !== '전국' && spot.region !== '한국' ? spot.region : (spot?.title || '서울');
+              const rawRegion = spot?.region && spot.region !== '전국' && spot.region !== '한국' 
+                ? (TRANSLATIONS[lang]?.regions?.[spot.region] || spot.region)
+                : (displayTitle || '서울');
+
+              let regionText = getTranslatedTitle(rawRegion, lang);
+              if (lang !== 'ko' && /[\uAC00-\uD7A3]/.test(regionText)) {
+                regionText = regionText.replace(/\s*\([\s\S]*?[\uAC00-\uD7A3]+[\s\S]*?\)/g, '').trim();
+                if (!regionText || /[\uAC00-\uD7A3]/.test(regionText)) {
+                  regionText = romanizeHangul(regionText);
+                }
+              }
+
               const today = new Date();
               const checkInObj = new Date(today);
               checkInObj.setDate(checkInObj.getDate() + 1);
@@ -505,7 +516,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                     }}
                   >
                     <Hotel size={16} />
-                    <span>{regionText} {t.agodaHotelBtn || '최저가 숙소 (Agoda)'}</span>
+                    <span>{regionText ? `${regionText} ` : ''}{t.agodaHotelBtn || '최저가 숙소 (Agoda)'}</span>
                     <ExternalLink size={14} />
                   </a>
 
@@ -523,7 +534,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                     }}
                   >
                     <Ticket size={16} />
-                    <span>{regionText} {t.klookTicketBtn || '투어 & 렌터카'}</span>
+                    <span>{regionText ? `${regionText} ` : ''}{t.klookTicketBtn || '투어 & 렌터카'}</span>
                     <ExternalLink size={14} />
                   </a>
                   <a
@@ -540,7 +551,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                     }}
                   >
                     <Sparkles size={16} />
-                    <span>{regionText} KKday 체험</span>
+                    <span>{regionText ? `${regionText} ` : ''}{t.kkdayTicketBtn || 'KKday 체험'}</span>
                     <ExternalLink size={14} />
                   </a>
                 </div>
