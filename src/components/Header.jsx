@@ -7,7 +7,7 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
   const [activeSection, setActiveSection] = useState('tour-spots');
   const [showToast, setShowToast] = useState(false);
 
-  const handleShare = () => {
+  const handleShare = async () => {
     try {
       const params = new URLSearchParams();
       if (filters?.region) params.set('region', filters.region);
@@ -21,13 +21,32 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
         ? `${window.location.origin}${window.location.pathname}?${queryString}`
         : `${window.location.origin}${window.location.pathname}`;
       
+      const regionName = getBadgeI18n('region', filters?.region || '서울');
+      const themeName = getBadgeI18n('theme', filters?.theme || '전체');
+      const shareTitle = `K-Travel AI | 대한민국 스마트 여행 가이드`;
+      const shareText = `✈️ AI 맞춤 [${regionName} / ${themeName}] 여행 가이드! ☀️ 실시간 날씨 & 추천 코스:`;
+
+      // Try Native Web Share API (KakaoTalk, Instagram, Messages on mobile)
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: shareTitle,
+            text: `${shareText}\n${shareUrl}`,
+            url: shareUrl
+          });
+          return;
+        } catch (shareErr) {
+          // If share sheet closed by user, fall through to clipboard fallback
+        }
+      }
+
       if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(shareUrl).then(() => {
+        navigator.clipboard.writeText(`${shareText}\n${shareUrl}`).then(() => {
           setShowToast(true);
           setTimeout(() => setShowToast(false), 2800);
-        }).catch(() => fallbackCopyText(shareUrl));
+        }).catch(() => fallbackCopyText(`${shareText}\n${shareUrl}`));
       } else {
-        fallbackCopyText(shareUrl);
+        fallbackCopyText(`${shareText}\n${shareUrl}`);
       }
     } catch (e) {
       console.error('Share error:', e);

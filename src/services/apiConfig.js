@@ -70,3 +70,37 @@ export const API_SERVICE_TYPES = [
   { id: 'festival', name: '행사/축제 정보' },
   { id: 'stay', name: '숙박/호텔 정보' }
 ];
+
+export const AGODA_CITY_MAP = {
+  '서울': { id: 14690, slug: 'seoul-kr' },
+  '제주': { id: 16901, slug: 'jeju-island-kr' },
+  '부산': { id: 17172, slug: 'busan-kr' },
+  '인천': { id: 17171, slug: 'incheon-kr' },
+  '대구': { id: 16894, slug: 'daegu-kr' },
+  '대전': { id: 17176, slug: 'daejeon-kr' },
+  '광주': { id: 17175, slug: 'gwangju-kr' },
+  '경주': { id: 17174, slug: 'gyeongju-si-kr' },
+  '강원': { id: 17216, slug: 'gangneung-si-kr' },
+  '강릉': { id: 17216, slug: 'gangneung-si-kr' },
+  '속초': { id: 17217, slug: 'sokcho-si-kr' },
+  '전주': { id: 17177, slug: 'jeonju-si-kr' },
+  '세종': { id: 32174, slug: 'sejong-kr' },
+  '울산': { id: 17173, slug: 'ulsan-kr' },
+  '여수': { id: 17300, slug: 'yeosu-si-kr' },
+  '충북': { id: 17176, slug: 'daejeon-kr' },
+  '충남': { id: 17176, slug: 'daejeon-kr' },
+  '전북': { id: 17177, slug: 'jeonju-si-kr' },
+  '전남': { id: 17300, slug: 'yeosu-si-kr' },
+  '경북': { id: 17174, slug: 'gyeongju-si-kr' },
+  '경남': { id: 17172, slug: 'busan-kr' }
+};
+
+export function buildAgodaDeepLink(region, checkIn, checkOut) {
+  const cleanRegion = (region || '서울').trim();
+  const matched = AGODA_CITY_MAP[cleanRegion] || AGODA_CITY_MAP['서울'];
+  
+  if (checkIn && checkOut) {
+    return `https://www.agoda.com/ko-kr/city/${matched.slug}.html?cid=1972217&city=${matched.id}&checkin=${checkIn}&checkout=${checkOut}&adults=2&rooms=1`;
+  }
+  return `https://www.agoda.com/ko-kr/city/${matched.slug}.html?cid=1972217&city=${matched.id}`;
+}

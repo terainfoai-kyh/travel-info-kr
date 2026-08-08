@@ -17,12 +17,14 @@ import ItineraryModal from './components/ItineraryModal';
 import WishlistDrawer from './components/WishlistDrawer';
 import TravelEssentialsSection from './components/TravelEssentialsSection';
 import AIFloatingButton from './components/AIFloatingButton';
+import PartnerInquiryModal from './components/PartnerInquiryModal';
 
 export default function App() {
   // Auto-detect browser locale
   const [lang, setLang] = useState(detectBrowserLanguage());
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  const [isPartnerOpen, setIsPartnerOpen] = useState(false);
 
   // Modals & Drawers state
   const [isItineraryOpen, setIsItineraryOpen] = useState(false);
@@ -374,6 +376,13 @@ export default function App() {
         </div>
       )}
 
+      {/* Partner & Sponsorship Inquiry Modal */}
+      <PartnerInquiryModal
+        isOpen={isPartnerOpen}
+        onClose={() => setIsPartnerOpen(false)}
+        lang={lang}
+      />
+
       {/* Floating Action AI Button (Bottom-Right Corner) */}
       <AIFloatingButton
         onOpenItinerary={() => setIsItineraryOpen(true)}
@@ -393,7 +402,7 @@ export default function App() {
         <div style={{ marginBottom: '0.5rem' }}>
           {t.footerCopyright || '© 2026 대한민국 여행 정보 (K-Travel Explorer). koreatravel.cc & koreatravelsguide.com'}
         </div>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', fontSize: '0.8rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', fontSize: '0.8rem', flexWrap: 'wrap', alignItems: 'center' }}>
           <span>{t.footerAttribution || '한국관광공사 TourAPI 4.0 및 기상청 공공데이터 연동'}</span>
           <span>•</span>
           <button
@@ -409,6 +418,22 @@ export default function App() {
             }}
           >
             {t.privacyPolicyTitle || '개인정보처리방침 (Privacy Policy)'}
+          </button>
+          <span>•</span>
+          <button
+            onClick={() => setIsPartnerOpen(true)}
+            style={{
+              background: 'rgba(56, 189, 248, 0.12)',
+              border: '1px solid rgba(56, 189, 248, 0.3)',
+              color: 'var(--accent-primary)',
+              borderRadius: 'var(--radius-full)',
+              cursor: 'pointer',
+              fontSize: '0.78rem',
+              fontWeight: 800,
+              padding: '0.25rem 0.65rem'
+            }}
+          >
+            {t.partnerInquiryBtn || '📩 제휴 & 광고 문의'}
           </button>
         </div>
       </footer>

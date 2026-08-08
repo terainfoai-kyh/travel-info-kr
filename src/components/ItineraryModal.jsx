@@ -4,6 +4,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { X, Calendar, Clock, MapPin, Sparkles, Navigation, Copy, Check, Filter, ShieldCheck, CloudRain, RefreshCw, Car, Bus, Utensils } from 'lucide-react';
 import { generateSmartItinerary, calculateTravelEstimate } from '../services/recommendationEngine';
 import { TRANSLATIONS } from '../i18n/translations';
+import { buildAgodaDeepLink } from '../services/apiConfig';
 
 export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, onSelectSpot }) {
   const [selectedDays, setSelectedDays] = useState(2);
@@ -817,8 +818,101 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
             </div>
           );
         })}
-        </div>
+
+        {/* Contextual Affiliate & Discount Coupon Banner */}
+        {(() => {
+          let checkInStr = '';
+          let checkOutStr = '';
+          try {
+            const startDate = customStartDate ? new Date(customStartDate) : new Date();
+            const endDate = new Date(startDate);
+            endDate.setDate(endDate.getDate() + (selectedDays || 2));
+            const y1 = startDate.getFullYear();
+            const m1 = String(startDate.getMonth() + 1).padStart(2, '0');
+            const d1 = String(startDate.getDate()).padStart(2, '0');
+            const y2 = endDate.getFullYear();
+            const m2 = String(endDate.getMonth() + 1).padStart(2, '0');
+            const d2 = String(endDate.getDate()).padStart(2, '0');
+            checkInStr = `${y1}-${m1}-${d1}`;
+            checkOutStr = `${y2}-${m2}-${d2}`;
+          } catch (e) {
+            checkInStr = new Date().toISOString().split('T')[0];
+          }
+
+          const agodaDeepUrl = buildAgodaDeepLink(region, checkInStr, checkOutStr);
+          const klookDeepUrl = `https://www.klook.com/ko/search/result/?query=${encodeURIComponent(region)}&aid=130249`;
+
+          return (
+            <div style={{
+              marginTop: '1.75rem',
+              padding: '1.25rem 1.5rem',
+              borderRadius: 'var(--radius-lg)',
+              background: 'linear-gradient(135deg, rgba(2, 132, 199, 0.1), rgba(129, 140, 248, 0.12))',
+              border: '1px solid rgba(56, 189, 248, 0.3)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.8rem'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <h4 style={{ fontSize: '0.95rem', fontWeight: 800, margin: 0, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <Sparkles size={16} color="var(--accent-primary)" />
+                  <span>🎁 {region} {t.itineraryAffiliateTitle || '코스 맞춤 제휴 혜택 & 최저가 숙소/입장권'}</span>
+                </h4>
+                <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#10b981', background: 'rgba(16, 185, 129, 0.15)', padding: '0.2rem 0.5rem', borderRadius: 'var(--radius-sm)' }}>
+                  최대 75% OFF ({checkInStr} ~ {checkOutStr})
+                </span>
+              </div>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.65rem' }}>
+                <a
+                  href={agodaDeepUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.45rem',
+                    padding: '0.65rem 0.85rem',
+                    background: 'linear-gradient(135deg, #0284c7, #38bdf8)',
+                    color: '#ffffff',
+                    fontWeight: 700,
+                    fontSize: '0.82rem',
+                    borderRadius: 'var(--radius-md)',
+                    textDecoration: 'none',
+                    boxShadow: 'var(--shadow-sm)'
+                  }}
+                >
+                  <span>🏨 {region} 최저가 숙소 (Agoda)</span>
+                </a>
+
+                <a
+                  href={klookDeepUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.45rem',
+                    padding: '0.65rem 0.85rem',
+                    background: 'linear-gradient(135deg, #f97316, #ea580c)',
+                    color: '#ffffff',
+                    fontWeight: 700,
+                    fontSize: '0.82rem',
+                    borderRadius: 'var(--radius-md)',
+                    textDecoration: 'none',
+                    boxShadow: 'var(--shadow-sm)'
+                  }}
+                >
+                  <span>🎫 {region} 투어 & 렌터카 (Klook)</span>
+                </a>
+              </div>
+            </div>
+          );
+        })()}
       </div>
     </div>
+  </div>
   );
 }

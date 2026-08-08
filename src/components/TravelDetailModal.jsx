@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Star, MapPin, Clock, Phone, SunMedium, CheckCircle, Heart, Globe, Loader2, Hotel, Ticket, ExternalLink, Sparkles } from 'lucide-react';
 import { fetchSpotDetailCommon, fetchSpotDetailImages } from '../services/tourApi';
-import { PUBLIC_API_CONFIG } from '../services/apiConfig';
+import { PUBLIC_API_CONFIG, buildAgodaDeepLink } from '../services/apiConfig';
 import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress, getTranslatedTheme, getTranslatedReview, getTranslatedOverview, getTranslatedDetailText } from '../i18n/translations';
 import AdBanner from './AdBanner';
 import TravelImageWithFallback from './TravelImageWithFallback';
@@ -467,60 +467,85 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
               </span>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
-              <a
-                href={`https://www.agoda.com/partners/partnersearch.aspx?cid=1972217&text=${encodeURIComponent(spot?.title || '')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-primary"
-                style={{
-                  textDecoration: 'none',
-                  justifyContent: 'center',
-                  padding: '0.65rem 1rem',
-                  fontSize: '0.85rem',
-                  background: 'linear-gradient(135deg, #0284c7, #38bdf8)'
-                }}
-              >
-                <Hotel size={16} />
-                <span>{t.agodaHotelBtn}</span>
-                <ExternalLink size={14} />
-              </a>
+            {(() => {
+              const regionText = spot?.region && spot.region !== '전국' && spot.region !== '한국' ? spot.region : (spot?.title || '서울');
+              const today = new Date();
+              const checkInObj = new Date(today);
+              checkInObj.setDate(checkInObj.getDate() + 1);
+              const checkOutObj = new Date(checkInObj);
+              checkOutObj.setDate(checkOutObj.getDate() + 2);
 
-              <a
-                href={`https://www.klook.com/ko/search/?query=${encodeURIComponent(spot?.title || '')}&aid=130249`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-primary"
-                style={{
-                  textDecoration: 'none',
-                  justifyContent: 'center',
-                  padding: '0.65rem 1rem',
-                  fontSize: '0.85rem',
-                  background: 'linear-gradient(135deg, #f97316, #ea580c)'
-                }}
-              >
-                <Ticket size={16} />
-                <span>{t.klookTicketBtn}</span>
-                <ExternalLink size={14} />
-              </a>
-              <a
-                href={`https://www.kkday.com/ko/product/productlist?keyword=${encodeURIComponent(spot?.title || '')}&cid=26248`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-primary"
-                style={{
-                  textDecoration: 'none',
-                  justifyContent: 'center',
-                  padding: '0.65rem 1rem',
-                  fontSize: '0.85rem',
-                  background: 'linear-gradient(135deg, #0d9488, #0f766e)'
-                }}
-              >
-                <Sparkles size={16} />
-                <span>KKday 투어/입장권</span>
-                <ExternalLink size={14} />
-              </a>
-            </div>
+              const y1 = checkInObj.getFullYear();
+              const m1 = String(checkInObj.getMonth() + 1).padStart(2, '0');
+              const d1 = String(checkInObj.getDate()).padStart(2, '0');
+              const y2 = checkOutObj.getFullYear();
+              const m2 = String(checkOutObj.getMonth() + 1).padStart(2, '0');
+              const d2 = String(checkOutObj.getDate()).padStart(2, '0');
+
+              const checkInStr = `${y1}-${m1}-${d1}`;
+              const checkOutStr = `${y2}-${m2}-${d2}`;
+
+              const agodaUrl = buildAgodaDeepLink(regionText, checkInStr, checkOutStr);
+              const klookUrl = `https://www.klook.com/ko/search/result/?query=${encodeURIComponent(regionText + ' ' + (spot?.title || ''))}&aid=130249`;
+              const kkdayUrl = `https://www.kkday.com/ko/product/productlist?keyword=${encodeURIComponent(regionText + ' ' + (spot?.title || ''))}&cid=26248`;
+
+              return (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
+                  <a
+                    href={agodaUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-primary"
+                    style={{
+                      textDecoration: 'none',
+                      justifyContent: 'center',
+                      padding: '0.65rem 1rem',
+                      fontSize: '0.85rem',
+                      background: 'linear-gradient(135deg, #0284c7, #38bdf8)'
+                    }}
+                  >
+                    <Hotel size={16} />
+                    <span>{regionText} {t.agodaHotelBtn || '최저가 숙소'}</span>
+                    <ExternalLink size={14} />
+                  </a>
+
+                  <a
+                    href={klookUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-primary"
+                    style={{
+                      textDecoration: 'none',
+                      justifyContent: 'center',
+                      padding: '0.65rem 1rem',
+                      fontSize: '0.85rem',
+                      background: 'linear-gradient(135deg, #f97316, #ea580c)'
+                    }}
+                  >
+                    <Ticket size={16} />
+                    <span>{regionText} {t.klookTicketBtn || '투어 & 렌터카'}</span>
+                    <ExternalLink size={14} />
+                  </a>
+                  <a
+                    href={kkdayUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-primary"
+                    style={{
+                      textDecoration: 'none',
+                      justifyContent: 'center',
+                      padding: '0.65rem 1rem',
+                      fontSize: '0.85rem',
+                      background: 'linear-gradient(135deg, #0d9488, #0f766e)'
+                    }}
+                  >
+                    <Sparkles size={16} />
+                    <span>{regionText} KKday 체험</span>
+                    <ExternalLink size={14} />
+                  </a>
+                </div>
+              );
+            })()}
           </div>
 
           {/* TourAPI 4.0 Sub-Image Gallery (/detailImage2) */}
