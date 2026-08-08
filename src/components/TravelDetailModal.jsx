@@ -4,6 +4,7 @@ import { fetchSpotDetailCommon, fetchSpotDetailImages } from '../services/tourAp
 import { PUBLIC_API_CONFIG } from '../services/apiConfig';
 import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress, getTranslatedTheme, getTranslatedReview, getTranslatedOverview, getTranslatedDetailText } from '../i18n/translations';
 import AdBanner from './AdBanner';
+import TravelImageWithFallback from './TravelImageWithFallback';
 
 export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggleBookmark, lang = 'ko' }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
@@ -191,15 +192,16 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
         </button>
 
         <div style={{ position: 'relative', width: '100%', height: '320px' }}>
-          <img 
+          <TravelImageWithFallback 
             src={(() => {
               const apiFirstImg = detailData?.firstimage || '';
               const isBadImg = apiFirstImg.includes('794101_image2_1.jpg') || apiFirstImg.toLowerCase().includes('toilet') || apiFirstImg.toLowerCase().includes('restroom') || apiFirstImg.toLowerCase().includes('화장실');
               if (!isBadImg && apiFirstImg) return apiFirstImg;
-              return spot.image || 'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=800&q=80';
+              return spot.image;
             })()} 
-            alt={displayTitle} 
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            spotTitle={displayTitle || spot.title}
+            lang={lang}
+            showTitle={false}
           />
           <div style={{
             position: 'absolute',
@@ -777,7 +779,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
             {/* Write Review Input */}
             <div style={{
               background: 'var(--bg-card)',
-              padding: '125rem',
+              padding: '1.25rem',
               borderRadius: 'var(--radius-md)',
               border: '1px solid var(--border-highlight)'
             }}>

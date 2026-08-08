@@ -36,18 +36,24 @@
 [data-theme="light"] {
   --bg-primary: #f8fafc;
   --bg-secondary: #ffffff;
-  --bg-card: rgba(255, 255, 255, 0.85);
-  --bg-glass: rgba(255, 255, 255, 0.8);
+  --bg-card: #ffffff;
+  --bg-glass: rgba(255, 255, 255, 0.92);
+
+  --accent-primary: #0284c7;
+  --accent-hover: #0369a1;
+  --accent-gradient: linear-gradient(135deg, #0284c7 0%, #4f46e5 50%, #9333ea 100%);
+  --accent-glow: radial-gradient(circle, rgba(2, 132, 199, 0.12) 0%, transparent 70%);
 
   --text-main: #0f172a;
-  --text-muted: #475569;
-  --text-dim: #94a3b8;
+  --text-muted: #334155;
+  --text-dim: #475569;
 
-  --border-color: rgba(0, 0, 0, 0.08);
-  --border-highlight: rgba(2, 132, 199, 0.3);
-  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.08);
-  --shadow-glow: 0 0 25px rgba(2, 132, 199, 0.15);
+  --border-color: rgba(0, 0, 0, 0.12);
+  --border-highlight: rgba(2, 132, 199, 0.4);
+
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.1);
+  --shadow-glow: 0 0 25px rgba(2, 132, 199, 0.2);
 }
 
 * {
@@ -404,4 +410,45 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     font-size: 0.68rem !important;
     padding: 0.2rem 0.5rem !important;
   }
+}
+
+/* LIVE AI Pulse Animations */
+@keyframes pulseDot {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.85);
+    opacity: 0.5;
+  }
+}
+
+@keyframes pulseBadge {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6);
+  }
+  70% {
+    box-shadow: 0 0 0 7px rgba(16, 185, 129, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+.live-ai-pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ffffff;
+  display: inline-block;
+  animation: pulseDot 1.2s infinite ease-in-out;
+}
+
+.live-ai-badge-container {
+  animation: pulseBadge 2s infinite ease-in-out;
 }

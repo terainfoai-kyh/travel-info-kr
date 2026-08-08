@@ -98,7 +98,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
       [swapKey]: {
         title: newSpot.title,
         location: newSpot.location || newSpot.addr1 || `${region} 도심`,
-        image: newSpot.image || 'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=800&q=80',
+        image: newSpot.image || '/default-spot.png',
         rating: newSpot.rating || 4.8,
         lat: newSpot.lat,
         lng: newSpot.lng

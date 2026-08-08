@@ -1,6 +1,7 @@
 import React from 'react';
 import { Star, MapPin, Bookmark, Heart, ChevronRight } from 'lucide-react';
 import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress, getTranslatedTheme } from '../i18n/translations';
+import TravelImageWithFallback from './TravelImageWithFallback';
 
 export default function TravelCard({ spot, onSelect, isBookmarked, onToggleBookmark, lang = 'ko' }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
@@ -32,15 +33,11 @@ export default function TravelCard({ spot, onSelect, isBookmarked, onToggleBookm
     >
       {/* Thumbnail Container */}
       <div style={{ position: 'relative', width: '100%', height: '220px', overflow: 'hidden' }}>
-        <img 
-          src={spot.image} 
-          alt={spot.title} 
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            transition: 'transform var(--transition-normal)'
-          }}
+        <TravelImageWithFallback
+          src={spot.image}
+          spotTitle={spot.title}
+          lang={lang}
+          style={{ transition: 'transform var(--transition-normal)' }}
         />
         {/* Region Badge */}
         <span style={{

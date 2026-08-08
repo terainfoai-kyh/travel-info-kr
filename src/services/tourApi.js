@@ -44,8 +44,8 @@ export async function fetchSpotDetailCommon(contentId, lang = 'ko') {
 
       let imgUrl = (item.firstimage || item.firstimage2 || '').replace(/^http:\/\//i, 'https://');
       const lowerImg = imgUrl.toLowerCase();
-      if (!imgUrl || lowerImg.includes('japan') || lowerImg.includes('fuji') || lowerImg.includes('tokyo') || lowerImg.includes('kyoto') || lowerImg.includes('osaka') || lowerImg.includes('photo-1549693578')) {
-        imgUrl = 'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=800&q=80';
+      if (!imgUrl || lowerImg.includes('japan') || lowerImg.includes('fuji') || lowerImg.includes('tokyo') || lowerImg.includes('kyoto') || lowerImg.includes('osaka') || lowerImg.includes('photo-1549693578') || lowerImg.includes('photo-1578637387939')) {
+        imgUrl = '/default-spot.png';
       }
 
       return {
@@ -114,7 +114,7 @@ export const MOCK_ALL_SPOTS = [
     theme: '역사/문화',
     contentTypeId: '14',
     rating: 4.9,
-    image: 'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=800&q=80',
+    image: '/default-spot.png',
     location: '서울특별시 종로구 사직로 161',
     lat: 37.5796,
     lng: 126.9770,
@@ -130,7 +130,7 @@ export const MOCK_ALL_SPOTS = [
     theme: '자연/힐링',
     contentTypeId: '12',
     rating: 4.95,
-    image: 'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=800&q=80',
+    image: '/default-spot.png',
     location: '제주특별자치도 서귀포시 성산읍 일출로 284-12',
     lat: 33.4581,
     lng: 126.9426,
@@ -146,7 +146,7 @@ export const MOCK_ALL_SPOTS = [
     theme: '액티비티/레저',
     contentTypeId: '28',
     rating: 4.8,
-    image: 'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=800&q=80',
+    image: '/default-spot.png',
     location: '부산광역시 해운대구 청사포로 116',
     lat: 35.1601,
     lng: 129.1923,
@@ -162,7 +162,7 @@ export const MOCK_ALL_SPOTS = [
     theme: '자연/힐링',
     contentTypeId: '12',
     rating: 4.88,
-    image: 'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=800&q=80',
+    image: '/default-spot.png',
     location: '강원특별자치도 속초시 설악산로 1091',
     lat: 38.1194,
     lng: 128.4656,
@@ -178,7 +178,7 @@ export const MOCK_ALL_SPOTS = [
     theme: '역사/문화',
     contentTypeId: '14',
     rating: 4.9,
-    image: 'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=800&q=80',
+    image: '/default-spot.png',
     location: '경상북도 경주시 원화로 102',
     lat: 35.8341,
     lng: 129.2266,
@@ -194,7 +194,7 @@ export const MOCK_ALL_SPOTS = [
     theme: '미식/쇼핑',
     contentTypeId: '39',
     rating: 4.78,
-    image: 'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=800&q=80',
+    image: '/default-spot.png',
     location: '전북특별자치도 전주시 완산구 기린대로 99',
     lat: 35.8150,
     lng: 127.1530,
@@ -210,7 +210,7 @@ export const MOCK_ALL_SPOTS = [
     theme: 'K-컬처/이벤트',
     contentTypeId: '15',
     rating: 4.82,
-    image: 'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=800&q=80',
+    image: '/default-spot.png',
     location: '서울특별시 용산구 남산공원길 105',
     lat: 37.5512,
     lng: 126.9882,
@@ -226,7 +226,7 @@ export const MOCK_ALL_SPOTS = [
     theme: '자연/힐링',
     contentTypeId: '12',
     rating: 4.75,
-    image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80',
+    image: '/default-spot.png',
     location: '인천광역시 연수구 컨벤시아대로 160',
     lat: 37.3925,
     lng: 126.6394,
@@ -242,7 +242,7 @@ export const MOCK_ALL_SPOTS = [
     theme: '역사/문화',
     contentTypeId: '14',
     rating: 4.88,
-    image: 'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=800&q=80',
+    image: '/default-spot.png',
     location: '경기도 수원시 팔달구 정조로 825',
     lat: 37.2872,
     lng: 127.0119,
@@ -320,9 +320,7 @@ export async function fetchTourSpots({
     }
 
     if (items.length > 0) {
-      // Official Gyeongbokgung Palace photo for fallbacks
-      const OFFICIAL_GYEONGBOKGUNG_IMAGE = 'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=800&q=80';
-      const RICH_KOREA_IMAGES = [OFFICIAL_GYEONGBOKGUNG_IMAGE];
+      const DEFAULT_FALLBACK_IMAGE = '/default-spot.png';
 
       const COORD_PRESETS = [
         { lat: 37.5665, lng: 126.9780, loc: '서울특별시 종로구 세종대로' },
@@ -348,7 +346,8 @@ export async function fetchTourSpots({
           titleClean.includes('수원화성박물관') || 
           contentId === '976378' ||
           validImage.includes('794101_image2_1.jpg') || 
-          validImage.includes('photo-1549693578') ||
+          validImage.includes('photo-') ||
+          validImage.includes('unsplash') ||
           validImage.toLowerCase().includes('toilet') || 
           validImage.toLowerCase().includes('restroom') ||
           validImage.toLowerCase().includes('japan') ||
@@ -357,7 +356,7 @@ export async function fetchTourSpots({
           validImage.toLowerCase().includes('kyoto') ||
           validImage.toLowerCase().includes('osaka')
         ) {
-          validImage = OFFICIAL_GYEONGBOKGUNG_IMAGE;
+          validImage = DEFAULT_FALLBACK_IMAGE;
         }
 
         const preset = COORD_PRESETS[idx % COORD_PRESETS.length];

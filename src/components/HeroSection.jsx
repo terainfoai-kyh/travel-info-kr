@@ -10,7 +10,7 @@ export default function HeroSection({ onSelectRegion }) {
       borderRadius: 'var(--radius-lg)',
       overflow: 'hidden',
       margin: '1.5rem 0',
-      background: 'linear-gradient(130deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.8) 100%), url("https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1600&q=80")',
+      background: 'linear-gradient(130deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 41, 59, 0.85) 100%), url("/default-spot.png")',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
       padding: '4rem 2rem',

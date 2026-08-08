@@ -2,16 +2,16 @@ import React from 'react';
 import { Wifi, CreditCard, Hotel, DollarSign, ExternalLink, Sparkles, ShieldCheck } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
 
-export default function TravelEssentialsSection({ lang }) {
+export default function TravelEssentialsSection({ lang = 'ko' }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
 
   const ESSENTIALS = [
     {
       id: 'esim',
       icon: <Wifi size={24} color="#38bdf8" />,
-      title: '무제한 데이터 eSIM / SIM',
-      tag: 'Klook 15% 할인',
-      desc: '한국 도착 즉시 개통되는 무제한 4G/5G 고속 데이터 SIM/eSIM',
+      title: t.esimTitle || '무제한 데이터 eSIM / SIM',
+      tag: t.esimTag || 'Klook 15% 할인',
+      desc: t.esimDesc || '한국 도착 즉시 개통되는 무제한 4G/5G 고속 데이터 SIM/eSIM',
       badgeBg: 'rgba(56, 189, 248, 0.15)',
       badgeColor: '#38bdf8',
       link: 'https://www.klook.com/ko/search/?query=%ED%95%9C%EA%B5%AD%20eSIM&af_wid=31000'
@@ -19,9 +19,9 @@ export default function TravelEssentialsSection({ lang }) {
     {
       id: 'transit',
       icon: <CreditCard size={24} color="#818cf8" />,
-      title: 'K-PASS & 공항철도 AREX',
-      tag: '교통 필수 패스',
-      desc: '인천공항 직통열차 & 대한민국 전역 지하철/버스 통합 교통권',
+      title: t.transitTitle || 'K-PASS & 공항철도 AREX',
+      tag: t.transitTag || '교통 필수 패스',
+      desc: t.transitDesc || '인천공항 직통열차 & 대한민국 전역 지하철/버스 통합 교통권',
       badgeBg: 'rgba(129, 140, 248, 0.15)',
       badgeColor: '#818cf8',
       link: 'https://www.kkday.com/ko/product/productlist?keyword=%ED%95%9C%EA%B5%AD%20%EA%B5%90%ED%86%B5%EC%B9%B4%EB%93%9C'
@@ -29,9 +29,9 @@ export default function TravelEssentialsSection({ lang }) {
     {
       id: 'hotel',
       icon: <Hotel size={24} color="#f59e0b" />,
-      title: '인기 지역 최고급 호텔 & 숙소',
-      tag: 'Agoda 최저가 보장',
-      desc: '서울, 제주, 부산, 경주 한옥 등 인근 숙소 최대 75% 특별 할인가',
+      title: t.hotelTitle || '인기 지역 최고급 호텔 & 숙소',
+      tag: t.hotelTag || 'Agoda 최저가 보장',
+      desc: t.hotelDesc || '서울, 제주, 부산, 경주 한옥 등 인근 숙소 최대 75% 특별 할인가',
       badgeBg: 'rgba(245, 158, 11, 0.15)',
       badgeColor: '#f59e0b',
       link: 'https://www.agoda.com/ko-kr/search?city=14690&cid=189000'
@@ -39,9 +39,9 @@ export default function TravelEssentialsSection({ lang }) {
     {
       id: 'taxfree',
       icon: <DollarSign size={24} color="#10b981" />,
-      title: '택스 리펀 & 면세 쇼핑 팁',
-      tag: '환급 혜택 가이드',
-      desc: '주요 백화점, 마트, 올리브영 즉시 면세(Tax Refund) 환급 방법',
+      title: t.taxfreeTitle || '택스 리펀 & 면세 쇼핑 팁',
+      tag: t.taxfreeTag || '환급 혜택 가이드',
+      desc: t.taxfreeDesc || '주요 백화점, 마트, 올리브영 즉시 면세(Tax Refund) 환급 방법',
       badgeBg: 'rgba(16, 185, 129, 0.15)',
       badgeColor: '#10b981',
       link: 'https://www.klook.com/ko/search/?query=%ED%95%9C%EA%B5%AD%20%EC%87%BC%ED%95%91%20%EB%A9%B4%EC%84%B8'
@@ -76,11 +76,11 @@ export default function TravelEssentialsSection({ lang }) {
             <Sparkles size={22} />
           </div>
           <div>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>
-              ✈️ 한국 여행 필수 가이드 & 제휴 혜택
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, color: 'var(--text-main)' }}>
+              {t.essentialsTitle || '✈️ 한국 여행 필수 가이드 & 제휴 혜택'}
             </h3>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>
-              eSIM, 교통패스, 최저가 호텔 예약까지 원스톱으로 준비하세요
+              {t.essentialsSub || 'eSIM, 교통패스, 최저가 호텔 예약까지 원스톱으로 준비하세요'}
             </p>
           </div>
         </div>
@@ -98,7 +98,7 @@ export default function TravelEssentialsSection({ lang }) {
           fontWeight: 700
         }}>
           <ShieldCheck size={14} />
-          <span>공식 공식 제휴 할인가 적용</span>
+          <span>{t.essentialsBadge || '공식 제휴 할인가 적용'}</span>
         </div>
       </div>
 
@@ -158,7 +158,7 @@ export default function TravelEssentialsSection({ lang }) {
                 </span>
               </div>
 
-              <h4 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '0.3rem' }}>
+              <h4 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '0.3rem', color: 'var(--text-main)' }}>
                 {item.title}
               </h4>
               <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: 1.45, marginBottom: '1rem' }}>
@@ -176,7 +176,7 @@ export default function TravelEssentialsSection({ lang }) {
               fontWeight: 700,
               color: 'var(--accent-primary)'
             }}>
-              <span>혜택 상세 & 예약하기</span>
+              <span>{t.essentialsDetails || '혜택 상세 & 예약하기'}</span>
               <ExternalLink size={14} />
             </div>
           </a>

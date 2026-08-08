@@ -2,8 +2,9 @@ import React from 'react';
 import { Map, MapPin } from 'lucide-react';
 import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress } from '../i18n/translations';
 
-export default function GoogleMapView({ selectedSpot, allSpots, lang }) {
+export default function GoogleMapView({ selectedSpot, allSpots, lang, themeMode = 'dark' }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
+  const isLight = themeMode === 'light';
 
   const activeSpot = selectedSpot || (allSpots && allSpots[0]);
   const lat = activeSpot ? activeSpot.lat : 37.5665;
@@ -12,7 +13,7 @@ export default function GoogleMapView({ selectedSpot, allSpots, lang }) {
 
   return (
     <div style={{ marginBottom: '3rem' }}>
-      <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+      <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-main)' }}>
         <Map size={20} color="var(--accent-primary)" />
         <span>{t.mapTitle}</span>
       </h3>
@@ -42,11 +43,12 @@ export default function GoogleMapView({ selectedSpot, allSpots, lang }) {
             bottom: '1rem',
             left: '1rem',
             right: '1rem',
-            background: 'rgba(15, 23, 42, 0.9)',
-            backdropFilter: 'blur(10px)',
+            background: isLight ? 'rgba(255, 255, 255, 0.95)' : 'rgba(15, 23, 42, 0.92)',
+            backdropFilter: 'blur(12px)',
             padding: '0.75rem 1.25rem',
             borderRadius: 'var(--radius-md)',
-            border: '1px solid var(--border-color)',
+            border: isLight ? '1px solid rgba(0, 0, 0, 0.12)' : '1px solid var(--border-color)',
+            boxShadow: isLight ? '0 6px 20px rgba(0, 0, 0, 0.08)' : '0 6px 20px rgba(0, 0, 0, 0.4)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between'
@@ -54,10 +56,10 @@ export default function GoogleMapView({ selectedSpot, allSpots, lang }) {
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <MapPin size={18} color="var(--accent-primary)" />
               <div>
-                <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#fff' }}>
+                <div style={{ fontSize: '0.95rem', fontWeight: 800, color: isLight ? '#0f172a' : '#ffffff' }}>
                   {getTranslatedTitle(title, lang)}
                 </div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                <div style={{ fontSize: '0.8rem', color: isLight ? '#334155' : 'var(--text-muted)', fontWeight: isLight ? 600 : 400 }}>
                   {getTranslatedAddress(activeSpot.location, lang)}
                 </div>
               </div>
@@ -67,7 +69,7 @@ export default function GoogleMapView({ selectedSpot, allSpots, lang }) {
               target="_blank"
               rel="noreferrer"
               className="btn-primary"
-              style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem' }}
+              style={{ padding: '0.45rem 0.9rem', fontSize: '0.78rem', fontWeight: 800 }}
             >
               {t.viewOnGoogleMaps || 'Google 지도에서 크게 보기'}
             </a>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Heart, Trash2, Share2, Copy, Check, ExternalLink, MapPin, Sparkles } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
+import TravelImageWithFallback from './TravelImageWithFallback';
 
 export default function WishlistDrawer({ isOpen, onClose, wishlistSpots, onRemoveWishlist, onSelectSpot, lang }) {
   const [copied, setCopied] = useState(false);
@@ -159,17 +160,13 @@ export default function WishlistDrawer({ isOpen, onClose, wishlistSpots, onRemov
                 }}
                 onClick={() => onSelectSpot(spot)}
               >
-                <img 
-                  src={spot.image || 'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=800&q=80'} 
-                  alt={spot.title} 
-                  style={{
-                    width: '68px',
-                    height: '68px',
-                    borderRadius: 'var(--radius-sm)',
-                    objectFit: 'cover',
-                    flexShrink: 0
-                  }}
-                />
+                <div style={{ width: '68px', height: '68px', borderRadius: 'var(--radius-sm)', overflow: 'hidden', flexShrink: 0 }}>
+                  <TravelImageWithFallback 
+                    src={spot.image} 
+                    spotTitle={spot.title}
+                    lang={lang}
+                  />
+                </div>
 
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <span style={{ fontSize: '0.7rem', color: 'var(--accent-primary)', fontWeight: 700 }}>
