@@ -113,7 +113,7 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
     setActiveSection(id);
     const elem = document.getElementById(id);
     if (elem) {
-      const yOffset = -130; // Offset for sticky header with tabs
+      const yOffset = window.innerWidth <= 768 ? -95 : -130; // Dynamic offset for mobile 2-row sticky header
       const y = elem.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({ top: y, behavior: 'smooth' });
     }
@@ -368,7 +368,7 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
       </div>
 
       {/* Row 2: Sticky Quick Navigation Tabs Bar */}
-      <div style={{
+      <div className="header-nav-tabs" style={{
         display: 'flex',
         alignItems: 'center',
         gap: '0.4rem',
