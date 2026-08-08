@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { ExternalLink, Sparkles, Hotel, Ticket, Wifi } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
+import { buildAgodaDeepLink } from '../services/apiConfig';
 
 export default function AdBanner({ type = 'leaderboard', lang = 'ko', spotTitle = '', region = '', themeMode = 'dark' }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
@@ -134,7 +135,7 @@ export default function AdBanner({ type = 'leaderboard', lang = 'ko', spotTitle 
             <span>KKday 액티비티 ↗</span>
           </a>
           <a
-            href="https://www.agoda.com/partners/partnersearch.aspx?cid=1972217&text=Korea"
+            href={buildAgodaDeepLink(region || '서울')}
             target="_blank"
             rel="noopener noreferrer"
             style={{
@@ -235,7 +236,7 @@ export default function AdBanner({ type = 'leaderboard', lang = 'ko', spotTitle 
           alignItems: 'center'
         }}>
           <a
-            href={`https://www.agoda.com/partners/partnersearch.aspx?cid=1972217&text=${encodeURIComponent(spotTitle || region || 'Korea')}`}
+            href={buildAgodaDeepLink(region || '서울')}
             target="_blank"
             rel="noopener noreferrer"
             style={{
