@@ -127,7 +127,7 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
       right: 0,
       width: '100%',
       boxSizing: 'border-box',
-      zIndex: 1000,
+      zIndex: 10000,
       padding: '0.65rem 1.25rem 0.5rem 1.25rem',
       display: 'flex',
       flexDirection: 'column',
