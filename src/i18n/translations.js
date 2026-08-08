@@ -234,7 +234,7 @@ export const TRANSLATIONS = {
       '광주': '광주', '울산': '울산', '세종': '세종', '한국': '대한민국'
     },
     genders: { '무관': '무관', '남성': '남성', '여성': '여성' },
-    ages: { '전체': '전체', '10대': '10대', '20대': '20대', '30대': '30대', '40대': '40대', '50대이상': '50대 이상' },
+    ages: { '전체': '전체', '10대': '10대', '20대': '20대', '30대': '30대', '40대': '40대', '50대': '50대', '50대이상': '50대', '60대이상': '60대 이상' },
     themes: {
       '전체': '전체', '관광': '관광', '자연/힐링': '자연/힐링', '역사/문화': '역사/문화',
       '미식/쇼핑': '미식/쇼핑', '액티비티/레저': '액티비티/레저', 'K-컬처/이벤트': 'K-컬처/이벤트',
@@ -466,7 +466,7 @@ export const TRANSLATIONS = {
       '광주': 'Gwangju', '울산': 'Ulsan', '세종': 'Sejong', '한국': 'South Korea'
     },
     genders: { '무관': 'Any', '남성': 'Male', '여성': 'Female' },
-    ages: { '전체': 'All Ages', '10대': 'Teens (10s)', '20대': '20s', '30대': '30s', '40대': '40s', '50대이상': '50s & Above' },
+    ages: { '전체': 'All Ages', '10대': 'Teens (10s)', '20대': '20s', '30대': '30s', '40대': '40s', '50대': '50s', '50대이상': '50s', '60대이상': '60s & Above' },
     themes: {
       '전체': 'All', '관광': 'Sightseeing', '자연/힐링': 'Nature & Healing', '역사/문화': 'History & Culture',
       '미식/쇼핑': 'Food & Shopping', '액티비티/레저': 'Activity & Leisure', 'K-컬처/이벤트': 'K-Culture & Events',
@@ -687,7 +687,7 @@ export const TRANSLATIONS = {
       '광주': '光州 (광주)', '울산': '蔚山 (울산)', '세종': '世宗 (세종)', '한국': '韓国'
     },
     genders: { '무관': '指定なし', '남성': '男性', '여성': '女性' },
-    ages: { '전체': '全年代', '10대': '10代', '20대': '20代', '30대': '30代', '40대': '40代', '50대이상': '50代以上' },
+    ages: { '전체': '全年代', '10대': '10代', '20대': '20代', '30대': '30代', '40대': '40代', '50대': '50代', '50대이상': '50代', '60대이상': '60代以上' },
     themes: {
       '전체': '全テーマ', '관광': '観光', '자연/힐링': '自然＆ヒーリング', '역사/문화': '歴史＆文化',
       '미식/쇼핑': 'グルメ＆ショッピング', '액티비티/레저': 'アクティビティ＆レジャー', 'K-컬처/이벤트': 'K-カルチャー＆イベント',
@@ -910,7 +910,7 @@ export const TRANSLATIONS = {
       '광주': '光州', '울산': '蔚山', '세종': '世宗', '한국': '韩国'
     },
     genders: { '무관': '不限', '남성': '男性', '여성': '女性' },
-    ages: { '전체': '不限', '10대': '10多岁', '20대': '20多岁', '30대': '30多岁', '40대': '40多岁', '50대이상': '50岁以上' },
+    ages: { '전체': '不限', '10대': '10多岁', '20대': '20多岁', '30대': '30多岁', '40대': '40多岁', '50대': '50多岁', '50대이상': '50多岁', '60대이상': '60岁以上' },
     themes: {
       '전체': '全部', '관광': '观光景点', '자연/힐링': '自然与疗愈', '역사/문화': '历史与文化',
       '미식/쇼핑': '美食与购物', '액티비티/레저': '户外与休闲', 'K-컬처/이벤트': 'K-文化与活动',
@@ -1133,7 +1133,7 @@ export const TRANSLATIONS = {
       '광주': '光州', '울산': '蔚山', '세종': '世宗', '한국': '韓國'
     },
     genders: { '무관': '不限', '남성': '男性', '여성': '女性' },
-    ages: { '전체': '不限', '10대': '10多歲', '20대': '20多歲', '30대': '30多歲', '40대': '40多歲', '50대이상': '50歲以上' },
+    ages: { '전체': '不限', '10대': '10多歲', '20대': '20多歲', '30대': '30多歲', '40대': '40多歲', '50대': '50多歲', '50대이상': '50多歲', '60대이상': '60歲以上' },
     themes: {
       '전체': '全部', '관광': '觀光景點', '자연/힐링': '自然與療癒', '역사/문화': '歷史與文化',
       '미식/쇼핑': '美食與購物', '액티비티/레저': '戶外與休閒', 'K-컬처/이벤트': 'K-文化與活動',
@@ -1215,7 +1215,7 @@ export const TRANSLATIONS = {
     filterSummary: 'Filterbedingungen', keywordLabel: 'Schlüsselwort', searchTitle: 'Reisebedingungen Anpassen', period: 'Reisezeitraum', keyword: 'Suchbegriff', keywordPlaceholder: 'Attraktion, Stadt, Tag (#Sonnenaufgang, #Date)...', region: 'Region', theme: 'Thema', age: 'Altersgruppe', gender: 'Geschlecht', arrange: 'Sortierung', arrangeO: 'Alphabetisch', arrangeQ: 'Zuletzt Aktualisiert', arrangeR: 'Neueste', apiServiceTypeLabel: 'API-Diensttyp', searchBtn: 'Reiseinfos Suchen', weatherTitle: 'Echtzeit-Wetterinformationen', weatherTempLabel: 'Aktuelle Temperatur', weatherPopLabel: 'Niederschlagswahrscheinlichkeit', midTermTitle: 'Wettervorhersage (3-7 Tage)', dayOffsetLabel: 'Tage Vorhersage', tourTitle: 'Empfohlene Sehenswürdigkeiten in Korea', totalSpots: 'Insgesamt {count} Orte', page: 'Seite', foodTitle: 'Empfohlene Kulinarik', outfitTitle: 'Kleidungsempfehlungen & Dresscode', customConditionLabel: 'Filter', mapTitle: 'Karte Anzeigen', viewOnGoogleMaps: 'Auf Google Maps anzeigen', noCoordinates: 'Keine Koordinaten verfügbar.', countryBadge: 'Südkorea', detailTitle: 'Details', overviewLoading: 'Lädt offizielle Daten der Korea Tourism Organization...', defaultOverview: 'Offiziell registrierte Attraktion der Korea Tourism Organization.', officialWebsite: 'Offizielle Website besuchen ↗', noOfficialWebsite: 'Keine offizielle Website angegeben.', telInquiry: 'Telefonischer Kontakt', hoursLabel: 'Öffnungszeiten', hoursDefault: '09:00 - 18:00 (Montags geschlossen)', contactLabel: 'Kontakt', contactDefault: 'Tourist Information 1330', websiteLabel: 'Website', websiteLoading: 'Link wird geprüft...', visitOfficialWebsite: 'Offizielle Website besuchen', seasonLabel: 'Beste Reisezeit', seasonDefault: 'Frühling & Herbst (Ganzjährig geöffnet)', highlightsTitle: 'Highlights der Attraktion', highlightsBullets: ['Offiziell zertifizierte Attraktion von KTO TourAPI', 'Verbindung zu lokalen Kulinarik- und Café-Routen', 'Wunderschöne Fotospots und Aussichtspunkte', 'Gute Anbindung an öffentliche Verkehrsmittel'], galleryTitle: 'Fotogalerie', photosUnit: 'Fotos', mapSearchTitle: 'Karte & Route', googleMapRoute: 'Route auf Google Maps anzeigen', reviewsTitle: 'Bewertungen', reviewsUnit: 'Bewertungen', writeReviewLabel: 'Bewertung schreiben', reviewPlaceholder: 'Schreiben Sie Ihre Bewertung...', submitReviewBtn: 'Bewertung absenden', ratingLabel: 'Bewertung', authorLabel: 'Besucher', closeBtn: 'Schließen', savedBookmark: 'Gespeichert', saveBookmark: 'Merken', showAllReviews: 'Alle anzeigen', hideReviews: 'Einklappen', scoreSuffix: 'Pkt', koreaRecommendedTag: 'KTO Empfohlen', noSpots: 'Keine Ergebnisse gefunden.', detailModalHeader: 'Attraktions-Details', detailModalSub: 'Echtzeit-Verifizierung durch Korea Tourism Organization TourAPI 4.0',
     affiliateTitle: 'Partnerangebote & Services', agodaHotelBtn: 'Hotels in der Nähe suchen (Agoda)', klookTicketBtn: 'Tickets & eSIM buchen (Klook)', tripHotelBtn: 'Hotels & Flüge (Trip.com)', esimBannerTitle: '✈️ Korea Reise-Essentials: eSIM & K-PASS Rabatt', esimBannerSub: 'Sofortige Bereitstellung von Daten-eSIM & K-Pass für Reisende', adSponsoredTag: 'Sponsor / Werbung',
     spotTitles: {}, regions: { '전국': 'Ganz Korea', '서울': 'Seoul', '부산': 'Busan', '제주': 'Jeju', '인천': 'Incheon', '강원': 'Gangwon', '경기': 'Gyeonggi', '경북': 'Gyeongbuk', '경남': 'Gyeongnam', '전북': 'Jeonbuk', '전남': 'Jeonnam', '충북': 'Chungbuk', '충남': 'Chungnam', '대구': 'Daegu', '대전': 'Daejeon', '광주': 'Gwangju', '울산': 'Ulsan', '세종': 'Sejong', '한국': 'Südkorea' },
-    genders: { '무관': 'Alle', '남성': 'Männlich', '여성': 'Weiblich' }, ages: { '전체': 'Alle', '10대': '10er', '20대': '20er', '30대': '30er', '40대': '40er', '50대이상': '50+' },
+    genders: { '무관': 'Alle', '남성': 'Männlich', '여성': 'Weiblich' }, ages: { '전체': 'Alle', '10대': '10er', '20대': '20er', '30대': '30er', '40대': '40er', '50대': '50er', '50대이상': '50er', '60대이상': '60+' },
     themes: { '전체': 'Alle', '관광': 'Besichtigung', '자연/힐링': 'Natur & Erholung', '역사/문화': 'Geschichte & Kultur', '미식/쇼핑': 'Kulinarik & Shopping', '액티비티/레저': 'Aktivitäten & Freizeit', 'K-컬처/이벤트': 'K-Kultur & Events', '숙박/호텔': 'Hotels & Unterkunft', '쇼핑/명소': 'Shopping', '축제': 'Festivals', '음식': 'Kulinarik' },
     weatherMap: { '맑음': 'Sonnig', '맑고 쾌청함': 'Klar', '구름 조금': 'Leicht bewölkt', '구름많음': 'Bewölkt', '구름 많음': 'Bewölkt', '흐림': 'Bedeckt', '비': 'Regen', '비/눈': 'Schneeregen', '눈': 'Schnee', '소나기': 'Schauer' },
     apiServices: { 'all': 'Alle Dienste (TourAPI)', 'area': 'Regional-Sehenswürdigkeiten', 'location': 'In der Nähe (Radius)', 'festival': 'Events & Festivals', 'stay': 'Unterkunft & Hotels' }
@@ -1274,7 +1274,7 @@ export const TRANSLATIONS = {
     essentialsTitle: '✈️ Indispensables Voyage Corée & Offres Partenaires', essentialsSub: 'Préparation tout-en-un pour eSIM, pass transport & tarifs hôtels', essentialsBadge: 'Réduction Officielle Appliquée', essentialsDetails: 'Voir les détails & réserver', esimTitle: 'eSIM / SIM Données Illimitées', esimTag: 'Klook 15% de réduction', esimDesc: 'Activation instantanée à l\'arrivée en Corée avec données 4G/5G haut débit', transitTitle: 'K-PASS & Express Aéroport AREX', transitTag: 'Pass Transport', transitDesc: 'Train express Aéroport Incheon & pass bus/métro tout-en-un pour la Corée', hotelTitle: 'Meilleurs Hôtels & Séjours Hanok', hotelTag: 'Garantie Meilleur Tarif Agoda', hotelDesc: 'Jusqu\'à 75% de réduction sur les hôtels & hanoks à Séoul, Jeju, Busan', taxfreeTitle: 'Détaxe & Conseils Shopping Duty Free', taxfreeTag: 'Guide Détaxe', taxfreeDesc: 'Détaxe immédiate dans les grands magasins, supermarchés & Olive Young',
     aiFloatBadge: 'Itinéraire sur mesure 1:1 en 3s !', aiFloatBtn: 'Planificateur AI', aiCourseBtn: 'Planificateur AI', wishlistBtn: 'Favoris', copiedToast: 'Copié !', kkdayTicketBtn: 'Réserver Activités KKday', aiMatchingLabel: 'Match AI',
     spotTitles: {}, regions: { '전국': 'Toute la Corée', '서울': 'Séoul', '부산': 'Busan', '제주': 'Jeju', '인천': 'Incheon', '강원': 'Gangwon', '경기': 'Gyeonggi', '경북': 'Gyeongbuk', '경남': 'Gyeongnam', '전북': 'Jeonbuk', '전남': 'Jeonnam', '충북': 'Chungbuk', '충남': 'Chungnam', '대구': 'Daegu', '대전': 'Daejeon', '광주': 'Gwangju', '울산': 'Ulsan', '세종': 'Sejong', '한국': 'Corée du Sud' },
-    genders: { '무관': 'Tous', '남성': 'Homme', '여성': 'Femme' }, ages: { '전체': 'Tous', '10대': '10ans', '20대': '20ans', '30대': '30ans', '40대': '40ans', '50대이상': '50+' },
+    genders: { '무관': 'Tous', '남성': 'Homme', '여성': 'Femme' }, ages: { '전체': 'Tous', '10대': '10ans', '20대': '20ans', '30대': '30ans', '40대': '40ans', '50대': '50ans', '50대이상': '50ans', '60대이상': '60+' },
     themes: { '전체': 'Tous', '관광': 'Visites', '자연/힐링': 'Nature & Détente', '역사/문화': 'Histoire & Culture', '미식/쇼핑': 'Gastronomie & Shopping', '액티비티/레저': 'Activités & Loisirs', 'K-컬처/이벤트': 'K-Culture & Événements', '숙박/호텔': 'Hôtels & Hébergements', '쇼핑/명소': 'Shopping', '축제': 'Festivals', '음식': 'Gastronomie' },
     weatherMap: { '맑음': 'Ensoleillé', '맑고 쾌청함': 'Dégagé', '구름 조금': 'Peu nuageux', '구름많음': 'Nuageux', '구름 많음': 'Très nuageux', '흐림': 'Couvert', '비': 'Pluie', '비/눈': 'Pluie et neige', '눈': 'Neige', '소나기': 'Averse' },
     apiServices: { 'all': 'Tous les Services (TourAPI)', 'area': 'Attractions Régionales', 'location': 'À Proximité (Rayon)', 'festival': 'Événements & Festivals', 'stay': 'Hôtels & Hébergements' }
@@ -1317,7 +1317,7 @@ export const TRANSLATIONS = {
     privacySection4Desc: 'En principio, los datos personales se eliminan de inmediato una vez cumplido el propósito de la recopilación y uso.',
     aiFloatBadge: '¡Itinerario personalizado 1:1 en 3s!', aiFloatBtn: 'Planificador AI', aiCourseBtn: 'Planificador AI', wishlistBtn: 'Favoritos', copiedToast: '¡Copiado!', kkdayTicketBtn: 'Reservar Actividades KKday', aiMatchingLabel: 'Coincidencia AI',
     spotTitles: {}, regions: { '전국': 'Toda Corea', '서울': 'Seúl', '부산': 'Busan', '제주': 'Jeju', '인천': 'Incheon', '강원': 'Gangwon', '경기': 'Gyeonggi', '경북': 'Gyeongbuk', '경남': 'Gyeongnam', '전북': 'Jeonbuk', '전남': 'Jeonnam', '충북': 'Chungbuk', '충남': 'Chungnam', '대구': 'Daegu', '대전': 'Daejeon', '광주': 'Gwangju', '울산': 'Ulsan', '세종': 'Sejong', '한국': 'Corea del Sur' },
-    genders: { '무관': 'Todos', '남성': 'Hombre', '여성': 'Mujer' }, ages: { '전체': 'Todos', '10대': '10s', '20대': '20s', '30대': '30s', '40대': '40s', '50대이상': '50+' },
+    genders: { '무관': 'Todos', '남성': 'Hombre', '여성': 'Mujer' }, ages: { '전체': 'Todos', '10대': '10s', '20대': '20s', '30대': '30s', '40대': '40s', '50대': '50s', '50대이상': '50s', '60대이상': '60+' },
     themes: { '전체': 'Todos', '관광': 'Turismo', '자연/힐링': 'Naturaleza & Relajación', '역사/문화': 'Historia & Cultura', '미식/쇼핑': 'Gastronomía & Compras', '액티비티/레저': 'Actividades & Ocio', 'K-컬처/이벤트': 'K-Cultura & Eventos', '숙박/호텔': 'Hoteles & Alojamiento', '쇼핑/명소': 'Compras', '축제': 'Festivales', '음식': 'Gastronomía' },
     weatherMap: { '맑음': 'Soleado', '맑고 쾌청함': 'Despejado', '구름 조금': 'Algo nublado', '구름많음': 'Nublado', '구름 많음': 'Muy nublado', '흐림': 'Cubierto', '비': 'Lluvia', '비/눈': 'Lluvia y nieve', '눈': 'Nieve', '소나기': 'Chubasco' },
     apiServices: { 'all': 'Todos los Servicios (TourAPI)', 'area': 'Información Turística Regional', 'location': 'Cercano (Radio)', 'festival': 'Eventos y Festivales', 'stay': 'Alojamientos y Hoteles' }
@@ -1360,7 +1360,7 @@ export const TRANSLATIONS = {
     privacySection4Desc: 'Персональные данные удаляются незамедлительно после достижения целей их сбора и использования.',
     aiFloatBadge: 'Маршрут 1:1 за 3 секунды!', aiFloatBtn: 'AI Маршруты', aiCourseBtn: 'AI Маршруты', wishlistBtn: 'Избранное', copiedToast: 'Скопировано!', kkdayTicketBtn: 'Туры на KKday', aiMatchingLabel: 'Совпадение AI',
     spotTitles: {}, regions: { '전국': 'Вся Корея', '서울': 'Сеул', '부산': 'Пусан', '제주': 'Чеджу', '인천': 'Инчхон', '강원': 'Канвондо', '경기': 'Кёнгидо', '경북': 'Кёнсан-Пукто', '경남': 'Кёнсан-Намдо', '전북': 'Чолла-Пукто', '전남': 'Чолла-Намдо', '충북': 'Чхунчхон-Пукто', '충남': 'Чхунчхон-Намдо', '대구': 'Тэгу', '대전': 'Тэджон', '광주': 'Кванджу', '울산': 'Ульсан', '세종': 'Седжон', '한국': 'Южная Корея' },
-    genders: { '무관': 'Все', '남성': 'Мужской', '여성': 'Женский' }, ages: { '전체': 'Все', '10대': '10-19', '20대': '20-29', '30대': '30-39', '40대': '40-49', '50대이상': '50+' },
+    genders: { '무관': 'Все', '남성': 'Мужской', '여성': 'Женский' }, ages: { '전체': 'Все', '10대': '10-19', '20대': '20-29', '30대': '30-39', '40대': '40-49', '50대': '50-59', '50대이상': '50-59', '60대이상': '60+' },
     themes: { '전체': 'Все', '관광': 'Экскурсии', '자연/힐링': 'Природа и Отдых', '역사/문화': 'История и Культура', '미식/쇼핑': 'Еда и Шопинг', '액티비티/레저': 'Активный отдых', 'K-컬처/이벤트': 'K-Культура и События', '숙박/호텔': 'Отели и Проживание', '쇼핑/명소': 'Шопинг', '축제': 'Фестивали', '음식': 'Еда' },
     weatherMap: { '맑음': 'Ясно', '맑고 쾌청함': 'Ясно и сухо', '구름 조금': 'Небольшая облачность', '구름많음': 'Облачно', '구름 많음': 'Значительная облачность', '흐림': 'Пасмурно', '비': 'Дождь', '비/눈': 'Дождь со снегом', '눈': 'Снег', '소나기': 'Ливень' },
     apiServices: { 'all': 'Все сервисы (TourAPI)', 'area': 'Региональный туризм', 'location': 'Достопримечательности рядом', 'festival': 'Фестивали и мероприятия', 'stay': 'Отели и проживание' }
@@ -1676,9 +1676,9 @@ export function getTranslatedReview(review, lang = 'ko') {
     zh: { '김민준': '金民俊', '이서연': '李瑞妍', '박지훈': '朴智勋', '최유진': '崔有珍', '정명훈': '郑明勋' }
   };
   const ageMap = {
-    en: { '10대': 'Teens', '20대': '20s', '30대': '30s', '40대': '40s', '50대이상': '50s+' },
-    ja: { '10대': '10代', '20대': '20代', '30대': '30代', '40대': '40代', '50대이상': '50代以上' },
-    zh: { '10대': '10多岁', '20대': '20多岁', '30대': '30多岁', '40대': '40多岁', '50대이상': '50岁以上' }
+    en: { '10대': 'Teens', '20대': '20s', '30대': '30s', '40대': '40s', '50대': '50s', '50대이상': '50s', '60대이상': '60s+' },
+    ja: { '10대': '10代', '20대': '20代', '30대': '30代', '40대': '40代', '50대': '50代', '50대이상': '50代', '60대이상': '60代以上' },
+    zh: { '10대': '10多岁', '20대': '20多岁', '30대': '30多岁', '40대': '40多岁', '50대': '50多岁', '50대이상': '50多岁', '60대이상': '60岁以上' }
   };
   const genderMap = {
     en: { '남성': 'Male', '여성': 'Female' },

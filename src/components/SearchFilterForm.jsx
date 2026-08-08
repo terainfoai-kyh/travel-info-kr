@@ -75,7 +75,9 @@ export default function SearchFilterForm({ filters, setFilters, onSearch, lang }
         '20대': { en: '20s', ja: '20代', zh: '20多岁', zht: '20多歲', de: '20er', fr: '20s', es: '20s', ru: '20-е' },
         '30대': { en: '30s', ja: '30代', zh: '30多岁', zht: '30多歲', de: '30er', fr: '30s', es: '30s', ru: '30-е' },
         '40대': { en: '40s', ja: '40代', zh: '40多岁', zht: '40多歲', de: '40er', fr: '40s', es: '40s', ru: '40-е' },
-        '50대이상': { en: '50s+', ja: '50代以上', zh: '50岁以上', zht: '50歲以上', de: '50er+', fr: '50s+', es: '50s+', ru: '50+' }
+        '50대': { en: '50s', ja: '50代', zh: '50多岁', zht: '50多歲', de: '50er', fr: '50s', es: '50s', ru: '50-е' },
+        '50대이상': { en: '50s', ja: '50代', zh: '50多岁', zht: '50多歲', de: '50er', fr: '50s', es: '50s', ru: '50-е' },
+        '60대이상': { en: '60s+', ja: '60代以上', zh: '60岁以上', zht: '60歲以上', de: '60er+', fr: '60s+', es: '60s+', ru: '60+' }
       };
       return map[value]?.[curLang] || value;
     }
@@ -121,7 +123,7 @@ export default function SearchFilterForm({ filters, setFilters, onSearch, lang }
 
   const regions = Object.keys(REGION_META);
   const themes = ['전체', '자연/힐링', '역사/문화', '미식/쇼핑', '액티비티/레저', 'K-컬처/이벤트'];
-  const ages = ['전체', '10대', '20대', '30대', '40대', '50대이상'];
+  const ages = ['전체', '10대', '20대', '30대', '40대', '50대', '60대이상'];
   const genders = ['무관', '남성', '여성'];
 
   const startDateObj = filters.startDate ? new Date(filters.startDate) : new Date();

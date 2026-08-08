@@ -396,7 +396,10 @@ export async function fetchTourSpots({
   return MOCK_ALL_SPOTS.filter(spot => {
     const matchRegion = region === '전국' || spot.region === region;
     const matchTheme = theme === '전체' || spot.theme === theme;
-    const matchAge = age === '전체' || spot.targetAge.includes(age);
+    const matchAge = age === '전체' || 
+      spot.targetAge.includes(age) || 
+      (age === '50대' && (spot.targetAge.includes('50대') || spot.targetAge.includes('50대이상'))) || 
+      (age === '60대이상' && (spot.targetAge.includes('60대이상') || spot.targetAge.includes('50대이상')));
     const matchGender = gender === '무관' || spot.targetGender.includes(gender) || spot.targetGender.includes('무관');
     
     const spotTitleNoSpace = spot.title.replace(/\s+/g, '').toLowerCase();
