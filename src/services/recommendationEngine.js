@@ -231,9 +231,144 @@ export function getRecommendedFoodAndOutfit({ weather, region, theme, age, gende
   return { foods: selectedFoods, outfits: outfitList };
 }
 
+// Postal Code Prefix Mapping (5-digit Korean Zipcode Rules)
+export const ZIPCODE_PROVINCE_MAP = [
+  { range: [1, 9], key: '서울' },
+  { range: [10, 20], key: '경기' },
+  { range: [21, 23], key: '인천' },
+  { range: [24, 26], key: '강원' },
+  { range: [27, 29], key: '충북' },
+  { range: [30, 30], key: '세종' },
+  { range: [31, 33], key: '충남' },
+  { range: [34, 35], key: '대전' },
+  { range: [36, 40], key: '경북' },
+  { range: [41, 43], key: '대구' },
+  { range: [44, 45], key: '울산' },
+  { range: [46, 49], key: '부산' },
+  { range: [50, 53], key: '경남' },
+  { range: [54, 56], key: '전북' },
+  { range: [57, 60], key: '전남' },
+  { range: [61, 62], key: '광주' },
+  { range: [63, 63], key: '제주' }
+];
+
+// AreaCode Mapping (TourAPI official AreaCodes)
+export const AREA_CODE_MAP = {
+  '1': '서울',
+  '2': '인천',
+  '3': '대전',
+  '4': '대구',
+  '5': '광주',
+  '6': '부산',
+  '7': '울산',
+  '8': '세종',
+  '31': '경기',
+  '32': '강원',
+  '33': '충북',
+  '34': '충남',
+  '35': '경북',
+  '36': '경남',
+  '37': '전북',
+  '38': '전남',
+  '39': '제주'
+};
+
+// 1st-Level Administrative Province Address Starters
+export const PROVINCE_ADDR_PREFIXES = [
+  { prefix: '서울특별시', key: '서울' },
+  { prefix: '서울', key: '서울' },
+  { prefix: '제주특별자치도', key: '제주' },
+  { prefix: '제주', key: '제주' },
+  { prefix: '부산광역시', key: '부산' },
+  { prefix: '부산', key: '부산' },
+  { prefix: '강원특별자치도', key: '강원' },
+  { prefix: '강원도', key: '강원' },
+  { prefix: '강원', key: '강원' },
+  { prefix: '전북특별자치도', key: '전북' },
+  { prefix: '전라북도', key: '전북' },
+  { prefix: '전북', key: '전북' },
+  { prefix: '전라남도', key: '전남' },
+  { prefix: '전남', key: '전남' },
+  { prefix: '경상북도', key: '경북' },
+  { prefix: '경북', key: '경북' },
+  { prefix: '경상남도', key: '경남' },
+  { prefix: '경남', key: '경남' },
+  { prefix: '인천광역시', key: '인천' },
+  { prefix: '인천', key: '인천' },
+  { prefix: '경기도', key: '경기' },
+  { prefix: '경기', key: '경기' },
+  { prefix: '충청북도', key: '충북' },
+  { prefix: '충북', key: '충북' },
+  { prefix: '충청남도', key: '충남' },
+  { prefix: '충남', key: '충남' },
+  { prefix: '대구광역시', key: '대구' },
+  { prefix: '대구', key: '대구' },
+  { prefix: '대전광역시', key: '대전' },
+  { prefix: '대전', key: '대전' },
+  { prefix: '광주광역시', key: '광주' },
+  { prefix: '광주', key: '광주' },
+  { prefix: '울산광역시', key: '울산' },
+  { prefix: '울산', key: '울산' },
+  { prefix: '세종특별자치시', key: '세종' },
+  { prefix: '세종', key: '세종' }
+];
+
+export function getSpotProvinceKey(spot) {
+  if (!spot) return '서울';
+
+  // Layer 1: Check 5-digit Korean Zipcode (zipcode)
+  if (spot.zipcode) {
+    const zipNum = parseInt(String(spot.zipcode).trim().substring(0, 2), 10);
+    if (!isNaN(zipNum)) {
+      const matched = ZIPCODE_PROVINCE_MAP.find(m => zipNum >= m.range[0] && zipNum <= m.range[1]);
+      if (matched) return matched.key;
+    }
+  }
+
+  // Layer 2: Check TourAPI Official AreaCode (areaCode)
+  if (spot.areaCode && AREA_CODE_MAP[String(spot.areaCode)]) {
+    return AREA_CODE_MAP[String(spot.areaCode)];
+  }
+
+  // Layer 3: Check 1st-level administrative address prefix (location / addr1 / region)
+  const locStr = `${spot.location || ''} ${spot.addr1 || ''}`.trim();
+  if (locStr) {
+    for (const item of PROVINCE_ADDR_PREFIXES) {
+      if (locStr.startsWith(item.prefix) || locStr.includes(item.prefix)) {
+        return item.key;
+      }
+    }
+  }
+
+  // Layer 4: Specific landmark title fallback (Strictly full city names, avoiding ambiguous sub-districts like '성산')
+  const title = (spot.title || '').toLowerCase();
+  if (title.includes('서울') || title.includes('경복궁') || title.includes('광화문') || title.includes('남산타워') || title.includes('북촌한옥')) return '서울';
+  if (title.includes('제주') || title.includes('한라산') || title.includes('성산일출봉') || title.includes('섭지코지') || title.includes('서귀포')) return '제주';
+  if (title.includes('부산') || title.includes('해운대') || title.includes('광안리') || title.includes('감천문화') || title.includes('자갈치')) return '부산';
+  if (title.includes('강릉') || title.includes('속초') || title.includes('설악산') || title.includes('정동진') || title.includes('양양')) return '강원';
+  if (title.includes('전주') || title.includes('전주한옥') || title.includes('경기전') || title.includes('덕진공원')) return '전북';
+  if (title.includes('경주') || title.includes('불국사') || title.includes('첨성대') || title.includes('황리단길')) return '경북';
+
+  return spot.region || '서울';
+}
+
 // Travel time & distance estimator helper
 export function calculateTravelEstimate(spotA, spotB) {
   if (!spotA || !spotB) return { distKm: '4.5', carMin: 15, transitMin: 25 };
+
+  const provA = getSpotProvinceKey(spotA);
+  const provB = getSpotProvinceKey(spotB);
+
+  // If different administrative provinces (e.g. Seoul vs Jeonbuk, Seoul vs Jeju, Jeju vs Busan)
+  if (provA !== provB) {
+    return {
+      distKm: '220',
+      carMin: 150,
+      transitMin: 210,
+      isLongDistance: true,
+      longDistanceNote: '✈️ KTX / 고속버스 이동 (약 2.5시간)'
+    };
+  }
 
   let lat1 = parseFloat(spotA.lat);
   let lng1 = parseFloat(spotA.lng);
@@ -243,9 +378,9 @@ export function calculateTravelEstimate(spotA, spotB) {
   if (isNaN(lat1) || isNaN(lng1) || isNaN(lat2) || isNaN(lng2) || lat1 === 0 || lat2 === 0) {
     const titleA = spotA.title || 'A';
     const titleB = spotB.title || 'B';
-    const pseudoDist = Math.max(2.5, Math.min(15.0, (titleA.length + titleB.length) * 0.8 + 2.0));
-    const carMin = Math.round(pseudoDist * 2.1 + 6);
-    const transitMin = Math.round(pseudoDist * 3.4 + 10);
+    const pseudoDist = Math.max(1.8, Math.min(8.5, (titleA.length + titleB.length) * 0.4 + 1.2));
+    const carMin = Math.round(pseudoDist * 2.0 + 5);
+    const transitMin = Math.round(pseudoDist * 3.2 + 8);
     return { distKm: pseudoDist.toFixed(1), carMin, transitMin };
   }
 
@@ -258,8 +393,19 @@ export function calculateTravelEstimate(spotA, spotB) {
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const dist = Math.max(0.8, R * c);
 
-  const carMin = Math.max(6, Math.round(dist * 2.2 + 5));
-  const transitMin = Math.max(10, Math.round(dist * 3.6 + 8));
+  if (dist > 45) {
+    const hours = (dist / 70 + 0.3).toFixed(1);
+    return {
+      distKm: dist.toFixed(0),
+      carMin: Math.round(dist * 1.2),
+      transitMin: Math.round(dist * 1.8),
+      isLongDistance: true,
+      longDistanceNote: `✈️ KTX / 고속버스 (약 ${hours}시간)`
+    };
+  }
+
+  const carMin = Math.max(5, Math.round(dist * 2.0 + 4));
+  const transitMin = Math.max(8, Math.round(dist * 3.2 + 6));
 
   return {
     distKm: dist.toFixed(1),
@@ -343,17 +489,32 @@ export function generateSmartItinerary({
       { title: '광안리 해수욕장 & 드론쇼', location: '부산광역시 수영구 광안해변로', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.9, tags: ['야경', '광안대교'], lat: 35.1532, lng: 129.1189 },
       { title: '감천문화마을', location: '부산광역시 사하구 감내2로', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.8, tags: ['문화', '포토존'], lat: 35.0975, lng: 129.0106 },
       { title: '자갈치시장 & BIFF 광장', location: '부산광역시 중구 자갈치해안로', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.7, tags: ['해산물', '씨앗호떡'], lat: 35.0967, lng: 129.0305 }
+    ],
+    '전북': [
+      { title: '전주 한옥마을 & 경기전', location: '전북특별자치도 전주시 완산구 기린대로 99', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.9, tags: ['한옥', '전통문화'], lat: 35.8147, lng: 127.1526 },
+      { title: '전주 덕진공원 & 연꽃지', location: '전북특별자치도 전주시 덕진구 권삼득로', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.8, tags: ['공원', '산책'], lat: 35.8471, lng: 127.1245 },
+      { title: '한국도로공사 전주수목원', location: '전북특별자치도 전주시 덕진구 번영로', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.8, tags: ['수목원', '포토존'], lat: 35.8705, lng: 127.0583 },
+      { title: '전주 남부시장 & 청년몰', location: '전북특별자치도 전주시 완산구 풍남문2길', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.7, tags: ['야시장', '콩나물국밥'], lat: 35.8123, lng: 127.1472 }
+    ],
+    '강원': [
+      { title: '설악산 국립공원 권금성', location: '강원특별자치도 속초시 설악산로', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.9, tags: ['단풍', '케이블카'], lat: 38.1194, lng: 128.4656 },
+      { title: '강릉 경포대 & 경포해변', location: '강원특별자치도 강릉시 경포로', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.8, tags: ['오션뷰', '카페거리'], lat: 37.7951, lng: 128.8966 },
+      { title: '양양 서피비치', location: '강원특별자치도 양양군 현북면', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.8, tags: ['서핑', '핫플'], lat: 38.0264, lng: 128.7181 },
+      { title: '정동진역 & 해돋이공원', location: '강원특별자치도 강릉시 강동면', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.7, tags: ['일출', '바다열차'], lat: 37.6915, lng: 129.0326 }
+    ],
+    '경북': [
+      { title: '경주 동궁과 월지 (안압지)', location: '경상북도 경주시 원화로 102', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.9, tags: ['야경', '신라역사'], lat: 35.8341, lng: 129.2266 },
+      { title: '경주 첨성대 & 대릉원', location: '경상북도 경주시 첨성로 140', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.9, tags: ['유네스코', '산책'], lat: 35.8347, lng: 129.2190 },
+      { title: '황리단길 카페거리', location: '경상북도 경주시 포석로', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.8, tags: ['감성카페', '황남빵'], lat: 35.8362, lng: 129.2104 },
+      { title: '불국사 & 석굴암', location: '경상북도 경주시 불국로 385', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.9, tags: ['사찰', '세계유산'], lat: 35.7901, lng: 129.3323 }
     ]
   };
 
   const isMatchingRegion = (spot, targetRegion) => {
     if (!targetRegion || targetRegion === '전국' || targetRegion === '전체') return true;
-    if (spot.region && (spot.region === targetRegion || spot.region.includes(targetRegion))) return true;
-
-    const keywords = REGION_SYNONYMS[targetRegion] || [targetRegion];
-    const locText = `${spot.location || ''} ${spot.addr1 || ''} ${spot.title || ''} ${spot.region || ''}`.toLowerCase();
-
-    return keywords.some(kw => locText.includes(kw.toLowerCase()));
+    const targetKey = getSpotProvinceKey({ region: targetRegion, location: targetRegion });
+    const spotKey = getSpotProvinceKey(spot);
+    return spotKey === targetKey;
   };
 
   // Filter pool strictly by target region
@@ -379,15 +540,16 @@ export function generateSmartItinerary({
     }
   }
 
-  // If pool is insufficient for specific region, mix in regional presets
   if (pool.length < 4 && region !== '전국' && region !== '전체') {
-    const presets = REGION_PRESETS[region] || REGION_PRESETS['제주'];
+    const targetKey = getSpotProvinceKey({ region, location: region });
+    const presets = REGION_PRESETS[targetKey] || REGION_PRESETS['서울'];
     pool = [...pool, ...presets];
   } else if (pool.length === 0) {
     pool = spots;
   }
 
-  const numDays = Math.min(Math.max(parseInt(days, 10) || 2, 1), 3);
+  const ALL_PROVINCES = ['서울', '제주', '부산', '전북', '강원', '경북', '전남', '경남', '인천', '경기'];
+  const numDays = Math.min(Math.max(parseInt(days, 10) || 2, 1), 5);
   const itinerary = [];
 
   for (let d = 1; d <= numDays; d++) {
@@ -399,7 +561,24 @@ export function generateSmartItinerary({
     const dayOfWeek = WEEKDAYS[curDate.getDay()];
     const formattedDate = `${year}.${month}.${dateNum} (${dayOfWeek})`;
 
-    // Per-day time calculation
+    let targetProvince = region;
+    if (region === '전국' || region === '전체') {
+      targetProvince = ALL_PROVINCES[(d - 1 + refreshSeed) % ALL_PROVINCES.length];
+    } else {
+      targetProvince = getSpotProvinceKey({ region, location: region });
+    }
+
+    // Filter spots belonging STRICTLY to targetProvince
+    let provincePool = pool.filter(s => getSpotProvinceKey(s) === targetProvince);
+
+    // If province pool has fewer than 4 items, fill from REGION_PRESETS[targetProvince]!
+    const presets = REGION_PRESETS[targetProvince] || REGION_PRESETS['서울'];
+    if (provincePool.length < 4) {
+      const existingTitles = new Set(provincePool.map(s => s.title));
+      const extraPresets = presets.filter(p => !existingTitles.has(p.title));
+      provincePool = [...provincePool, ...extraPresets];
+    }
+
     const dStartTime = dayTimes[d]?.start || startTime || '09:30';
     const dEndTime = dayTimes[d]?.end || endTime || '20:00';
     const dSeed = (daySeeds[d] || 0) + refreshSeed;
@@ -418,17 +597,8 @@ export function generateSmartItinerary({
 
     const daySpots = [];
     for (let s = 0; s < 4; s++) {
-      const spotIdx = ((d - 1) * 4 + s + dSeed * 2) % (pool.length || 1);
-      const targetSpot = pool[spotIdx] || {
-        id: `gen-${d}-${s}`,
-        title: `${region !== '전국' ? region : '대한민국'} 대표 명소 ${s + 1}`,
-        image: GYEONGBOKGUNG_FALLBACK_IMG,
-        location: `${region} 도심 위치`,
-        rating: 4.8,
-        tags: ['추천명소', '인생샷'],
-        lat: 37.5665,
-        lng: 126.9780
-      };
+      const spotIdx = (s + dSeed) % (provincePool.length || 1);
+      const targetSpot = provincePool[spotIdx] || presets[s % presets.length];
 
       let img = targetSpot.image || GYEONGBOKGUNG_FALLBACK_IMG;
       if (img.toLowerCase().includes('japan') || img.toLowerCase().includes('fuji') || img.toLowerCase().includes('tokyo') || img.toLowerCase().includes('kyoto') || img.toLowerCase().includes('osaka')) {
@@ -441,7 +611,7 @@ export function generateSmartItinerary({
         spotId: targetSpot.id,
         title: targetSpot.title,
         image: img,
-        location: targetSpot.location || targetSpot.addr1 || `${region} 중심가`,
+        location: targetSpot.location || targetSpot.addr1 || `${targetProvince} 중심가`,
         rating: targetSpot.rating || 4.8,
         tags: targetSpot.tags || ['포토존', '핫플레이스'],
         lat: targetSpot.lat,
@@ -457,9 +627,9 @@ export function generateSmartItinerary({
     itinerary.push({
       day: d,
       dateStr: formattedDate,
-      dayTitle: `${d}일차 코스 · ${formattedDate} (${region !== '전국' ? region : '전국'} 동선)`,
+      dayTitle: `${d}일차 코스 · ${formattedDate} (${targetProvince} 동선)`,
       schedule: daySpots,
-      pool: pool // Store pool for spot swapping
+      pool: provincePool
     });
   }
 

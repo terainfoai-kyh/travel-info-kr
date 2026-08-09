@@ -53,16 +53,33 @@ function getI18nDayHeaderTitle(dayObj, region, lang = 'ko') {
 }
 
 export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, onSelectSpot }) {
-  const [selectedDays, setSelectedDays] = useState(2);
+  const getInitialDays = () => {
+    if (!filters?.startDate || !filters?.endDate) return 2;
+    try {
+      const s = new Date(filters.startDate);
+      const e = new Date(filters.endDate);
+      const diffTime = e.getTime() - s.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      if (isNaN(diffDays) || diffDays <= 0) return 1;
+      return Math.min(Math.max(diffDays, 1), 3);
+    } catch (e) {
+      return 2;
+    }
+  };
+
+  const [selectedDays, setSelectedDays] = useState(getInitialDays);
   const [customStartDate, setCustomStartDate] = useState(() => {
     return filters?.startDate || new Date().toISOString().split('T')[0];
   });
 
   useEffect(() => {
-    if (isOpen && filters?.startDate) {
-      setCustomStartDate(filters.startDate);
+    if (isOpen) {
+      setSelectedDays(getInitialDays());
+      if (filters?.startDate) {
+        setCustomStartDate(filters.startDate);
+      }
     }
-  }, [isOpen, filters?.startDate]);
+  }, [isOpen, filters?.startDate, filters?.endDate]);
 
   const [startTime, setStartTime] = useState('09:30');
   const [endTime, setEndTime] = useState('20:00');
@@ -302,7 +319,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
 
             {/* 1. 여행 시작일 ~ 종료일 */}
             <span style={{ fontSize: '0.75rem', background: 'rgba(56, 189, 248, 0.15)', border: '1px solid rgba(56, 189, 248, 0.3)', padding: '0.15rem 0.55rem', borderRadius: 'var(--radius-sm)', color: 'var(--accent-primary)', fontWeight: 700 }}>
-              📅 {customStartDate} {t.fromStartLabel || '부터'} ({selectedDays}{t.daysCountUnit || '일간'})
+              📅 {filters?.endDate && filters.endDate !== customStartDate ? `${customStartDate} ~ ${filters.endDate}` : `${customStartDate} ${t.fromStartLabel || '부터'}`} ({selectedDays}{t.daysCountUnit || '일 코스 추천'})
             </span>
 
             {/* 2. 지역 */}
@@ -351,10 +368,10 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
           borderRadius: 'var(--radius-md)',
           border: '1px solid var(--border-highlight)'
         }}>
-          {/* Days buttons */}
+          {/* Days buttons (Up to 5 Days) */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
             <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-main)' }}>{t.tripDurationTitle || '여행 기간:'}</span>
-            {[1, 2, 3].map(d => (
+            {[1, 2, 3, 4, 5].map(d => (
               <button
                 key={d}
                 onClick={() => setSelectedDays(d)}
