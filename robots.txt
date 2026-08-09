@@ -1,34 +1,31 @@
 # Robots.txt for Korea Travel Guide (koreatravel.cc & koreatravelsguide.com)
-# Optimized for Naver (Yeti), Google (Googlebot), and AI Search Engines (GEO)
+# Search Engines Allowed (Google, Naver, Bing) | AI Scrapers & Code Cloning Bots Blocked
+
+# Search Engine Crawlers (Allowed for SEO Indexing)
+User-agent: Yeti
+User-agent: Naverbot
+User-agent: Googlebot
+User-agent: Googlebot-Image
+User-agent: Googlebot-Mobile
+User-agent: Bingbot
+User-agent: Slurp
+Allow: /
+
+# Block AI Scraping, Code Replication & Content Cloning Bots
+User-agent: GPTBot
+User-agent: ChatGPT-User
+User-agent: CCBot
+User-agent: Bytespider
+User-agent: Anthropic-ai
+User-agent: ClaudeBot
+User-agent: PerplexityBot
+User-agent: Google-Extended
+Disallow: /
 
 User-agent: *
 Allow: /
 Disallow: /admin/
 Disallow: /private/
-
-# Naver Search Engine Bot
-User-agent: Yeti
-User-agent: Naverbot
-Allow: /
-
-# Google Search Engine Bot
-User-agent: Googlebot
-User-agent: Googlebot-Image
-User-agent: Googlebot-Mobile
-Allow: /
-
-# Bing & Yahoo
-User-agent: Bingbot
-User-agent: Slurp
-Allow: /
-
-# AI Crawlers for GEO (Generative Engine Optimization)
-User-agent: GPTBot
-User-agent: ChatGPT-User
-User-agent: ClaudeBot
-User-agent: PerplexityBot
-User-agent: Google-Extended
-Allow: /
 
 # Sitemaps
 Sitemap: https://koreatravel.cc/sitemap.xml
