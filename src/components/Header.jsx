@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Compass, Globe, Sparkles, Sun, Moon, Heart, MapPin, Utensils, Luggage, Share2, Check } from 'lucide-react';
+import { Compass, Globe, Sparkles, Sun, Moon, Heart, MapPin, Utensils, Luggage, Share2, Check, BookOpen } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
 
 const LANGUAGE_OPTIONS = [
@@ -14,7 +14,7 @@ const LANGUAGE_OPTIONS = [
   { value: 'ru', label: 'Русский (RU)' }
 ];
 
-export default function Header({ currentLang, setLang, filters, themeMode, setThemeMode, wishlistCount = 0, onOpenWishlist, onOpenItinerary }) {
+export default function Header({ currentLang, setLang, filters, themeMode, setThemeMode, wishlistCount = 0, onOpenWishlist, onOpenItinerary, onOpenGuidePR }) {
   const t = TRANSLATIONS[currentLang] || TRANSLATIONS.ko;
   const [activeSection, setActiveSection] = useState('tour-spots');
   const [showToast, setShowToast] = useState(false);
@@ -221,6 +221,31 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
 
         {/* Action Controls */}
         <div className="header-controls" style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
+          {/* User Guide & PR Hub Button */}
+          <button
+            onClick={onOpenGuidePR}
+            style={{
+              background: 'var(--bg-secondary)',
+              border: '1px solid var(--border-highlight)',
+              color: 'var(--text-main)',
+              padding: '0.4rem 0.75rem',
+              borderRadius: 'var(--radius-md)',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              whiteSpace: 'nowrap',
+              transition: 'all 0.2s ease',
+              boxShadow: 'var(--shadow-sm)'
+            }}
+            title="플랫폼 이용안내 매뉴얼 & 공식 홍보관"
+          >
+            <BookOpen size={14} color="var(--accent-primary)" />
+            <span className="desktop-btn-text">{t.userGuideBtn || '이용가이드 & 홍보관'}</span>
+          </button>
+
           {/* Share Button */}
           <button
             onClick={handleShare}

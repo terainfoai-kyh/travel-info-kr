@@ -19,6 +19,7 @@ import AIFloatingButton from './components/AIFloatingButton';
 import PartnerInquiryModal from './components/PartnerInquiryModal';
 import SplashScreen from './components/SplashScreen';
 import CustomCourseFloatingBar from './components/CustomCourseFloatingBar';
+import GuidePRModal from './components/GuidePRModal';
 
 export default function App() {
   // Auto-detect browser locale
@@ -27,6 +28,7 @@ export default function App() {
   const [showSplash, setShowSplash] = useState(true);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [isPartnerOpen, setIsPartnerOpen] = useState(false);
+  const [isGuidePROpen, setIsGuidePROpen] = useState(false);
 
   // Modals & Drawers state
   const [isItineraryOpen, setIsItineraryOpen] = useState(false);
@@ -242,6 +244,7 @@ export default function App() {
         wishlistCount={bookmarks.length}
         onOpenWishlist={() => setIsWishlistOpen(true)}
         onOpenItinerary={() => setIsItineraryOpen(true)}
+        onOpenGuidePR={() => setIsGuidePROpen(true)}
       />
 
       {/* Main Container */}
@@ -450,6 +453,21 @@ export default function App() {
           <span>{t.footerAttribution || '한국관광공사 TourAPI 4.0 및 기상청 공공데이터 연동'}</span>
           <span>•</span>
           <button
+            onClick={() => setIsGuidePROpen(true)}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'var(--accent-primary)',
+              textDecoration: 'underline',
+              cursor: 'pointer',
+              fontSize: '0.8rem',
+              padding: 0
+            }}
+          >
+            {t.userGuideBtn || '📖 이용가이드 & 홍보관'}
+          </button>
+          <span>•</span>
+          <button
             onClick={() => setShowPrivacyModal(true)}
             style={{
               background: 'none',
@@ -481,6 +499,14 @@ export default function App() {
           </button>
         </div>
       </footer>
+
+      {/* User Guide & PR Publicity Hub Modal */}
+      <GuidePRModal
+        isOpen={isGuidePROpen}
+        onClose={() => setIsGuidePROpen(false)}
+        lang={lang}
+        onOpenPartnerInquiry={() => setIsPartnerOpen(true)}
+      />
     </div>
   );
 }
