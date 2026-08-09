@@ -92,6 +92,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
   const [rainyMode, setRainyMode] = useState(false);
   const [refreshSeed, setRefreshSeed] = useState(0);
   const [swappedSpots, setSwappedSpots] = useState({});
+  const [copied, setCopied] = useState(false);
   const [viewMode, setViewMode] = useState('map'); // 'map' | 'list'
   const [activeMapDay, setActiveMapDay] = useState(1);
   const datePickerRef = useRef(null);
