@@ -326,23 +326,31 @@ export async function fetchTourSpots({
   else if (lang === 'es') apiBase = PUBLIC_API_CONFIG.SPN_BASE;
   else if (lang === 'ru') apiBase = PUBLIC_API_CONFIG.RUS_BASE;
 
+  // Convert app arrange filter to official TourAPI 4.0 arrange code
+  let apiArrange = 'B';
+  if (arrange === 'A') apiArrange = 'B';      // 추천순 -> TourAPI 'B' (조회수/인기순)
+  else if (arrange === 'O') apiArrange = 'A'; // 명칭순 -> TourAPI 'A' (제목순)
+  else if (arrange === 'Q') apiArrange = 'C'; // 수정일순 -> TourAPI 'C' (수정일순)
+  else if (arrange === 'R') apiArrange = 'D'; // 등록일순 -> TourAPI 'D' (등록일순)
+  else apiArrange = arrange;
+
   let url = '';
   if (cleanKw) {
-    url = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=30&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=${arrange}&keyword=${encodeURIComponent(kwNoSpace)}`;
+    url = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=30&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=${apiArrange}&keyword=${encodeURIComponent(kwNoSpace)}`;
     if (regionMeta && regionMeta.areaCode) url += `&areaCode=${regionMeta.areaCode}`;
     if (contentTypeId) url += `&contentTypeId=${contentTypeId}`;
   } else if (apiServiceType === 'location') {
-    url = `${apiBase}/locationBasedList2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=30&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=${arrange}&mapX=${regionMeta.lng}&mapY=${regionMeta.lat}&radius=20000`;
+    url = `${apiBase}/locationBasedList2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=30&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=${apiArrange}&mapX=${regionMeta.lng}&mapY=${regionMeta.lat}&radius=20000`;
     if (contentTypeId) url += `&contentTypeId=${contentTypeId}`;
   } else if (apiServiceType === 'festival') {
     const eventDate = startDate ? startDate.replace(/-/g, '') : new Date().toISOString().slice(0, 10).replace(/-/g, '');
-    url = `${apiBase}/searchFestival2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=30&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=${arrange}&eventStartDate=${eventDate}`;
+    url = `${apiBase}/searchFestival2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=30&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=${apiArrange}&eventStartDate=${eventDate}`;
     if (regionMeta && regionMeta.areaCode) url += `&areaCode=${regionMeta.areaCode}`;
   } else if (apiServiceType === 'stay') {
-    url = `${apiBase}/searchStay2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=30&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=${arrange}`;
+    url = `${apiBase}/searchStay2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=30&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=${apiArrange}`;
     if (regionMeta && regionMeta.areaCode) url += `&areaCode=${regionMeta.areaCode}`;
   } else {
-    url = `${apiBase}/areaBasedList2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=30&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=${arrange}`;
+    url = `${apiBase}/areaBasedList2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=30&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=${apiArrange}`;
     if (regionMeta && regionMeta.areaCode) url += `&areaCode=${regionMeta.areaCode}`;
     if (contentTypeId) url += `&contentTypeId=${contentTypeId}`;
   }
@@ -356,7 +364,7 @@ export async function fetchTourSpots({
 
     // Fallback search with original cleanKw if kwNoSpace yielded zero items from TourAPI
     if (items.length === 0 && cleanKw && kwNoSpace !== cleanKw && apiServiceType !== 'location' && apiServiceType !== 'festival' && apiServiceType !== 'stay') {
-      const fallbackUrl = `${PUBLIC_API_CONFIG.SEARCH_KEYWORD_URL}?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=30&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=${arrange}&keyword=${encodeURIComponent(cleanKw)}`;
+      const fallbackUrl = `${PUBLIC_API_CONFIG.SEARCH_KEYWORD_URL}?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=30&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=${apiArrange}&keyword=${encodeURIComponent(cleanKw)}`;
       const fbRes = await fetch(fallbackUrl);
       if (fbRes.ok) {
         const fbData = await fbRes.json();
@@ -367,7 +375,7 @@ export async function fetchTourSpots({
     if (items.length > 0) {
       const DEFAULT_FALLBACK_IMAGE = '/default-spot.png';
 
-      // Global Smart Priority Sorting Engine: Prioritize pure attractions (12, 14, 28) over food/stores (39, 38) across all queries!
+      // Global Smart Priority Sorting Engine: Prioritize pure attractions (12, 14, 28) & photo quality
       const sortedRawItems = [...items].sort((a, b) => {
         const typeA = String(a.contenttypeid || '');
         const typeB = String(b.contenttypeid || '');
@@ -381,6 +389,24 @@ export async function fetchTourSpots({
           if (isAttractionA && !isAttractionB) return -1;
           if (isAttractionB && !isAttractionA) return 1;
         }
+
+        if (arrange === 'O') {
+          const titleA = String(a.title || a.crsNm || a.themeNm || a.spotNm || '');
+          const titleB = String(b.title || b.crsNm || b.themeNm || b.spotNm || '');
+          return titleA.localeCompare(titleB, 'ko-KR');
+        }
+
+        if (arrange === 'A' || arrange === 'B') {
+          const hasImgA = !!(a.firstimage || a.firstimage2);
+          const hasImgB = !!(b.firstimage || b.firstimage2);
+          if (hasImgA && !hasImgB) return -1;
+          if (!hasImgA && hasImgB) return 1;
+
+          const countA = parseInt(a.readcount || 0, 10);
+          const countB = parseInt(b.readcount || 0, 10);
+          if (countA !== countB) return countB - countA;
+        }
+
         return 0;
       });
 

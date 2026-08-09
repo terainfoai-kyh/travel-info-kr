@@ -261,7 +261,7 @@ export default function PartnerInquiryModal({ isOpen, onClose, lang = 'ko' }) {
               {isSubmitting ? (
                 <>
                   <Loader2 size={16} className="animate-spin" />
-                  <span>전송 중...</span>
+                  <span>{t.submitting || '전송 중...'}</span>
                 </>
               ) : (
                 <>

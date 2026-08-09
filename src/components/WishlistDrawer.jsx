@@ -89,7 +89,7 @@ export default function WishlistDrawer({ isOpen, onClose, wishlistSpots, onRemov
 
           <button
             onClick={onClose}
-            aria-label="닫기"
+            aria-label={t.closeBtn || '닫기'}
             style={{
               background: 'var(--bg-primary)',
               border: '1px solid var(--border-color)',
@@ -198,7 +198,7 @@ export default function WishlistDrawer({ isOpen, onClose, wishlistSpots, onRemov
                     e.stopPropagation();
                     onRemoveWishlist(spot.id);
                   }}
-                  title="삭제"
+                  title={t.deleteBtn || '삭제'}
                   style={{
                     background: 'transparent',
                     border: 'none',

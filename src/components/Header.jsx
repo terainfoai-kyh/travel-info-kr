@@ -2,6 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { Compass, Globe, Sparkles, Sun, Moon, Heart, MapPin, Utensils, Luggage, Share2, Check } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
 
+const LANGUAGE_OPTIONS = [
+  { value: 'ko', label: '한국어 (KO)' },
+  { value: 'en', label: 'English (EN)' },
+  { value: 'ja', label: '日本語 (JA)' },
+  { value: 'zh', label: '简体中文 (ZH-CN)' },
+  { value: 'zht', label: '繁體中文 (ZH-TW)' },
+  { value: 'de', label: 'Deutsch (DE)' },
+  { value: 'fr', label: 'Français (FR)' },
+  { value: 'es', label: 'Español (ES)' },
+  { value: 'ru', label: 'Русский (RU)' }
+];
+
 export default function Header({ currentLang, setLang, filters, themeMode, setThemeMode, wishlistCount = 0, onOpenWishlist, onOpenItinerary }) {
   const t = TRANSLATIONS[currentLang] || TRANSLATIONS.ko;
   const [activeSection, setActiveSection] = useState('tour-spots');
@@ -354,15 +366,11 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
                 cursor: 'pointer'
               }}
             >
-              <option value="ko">{t.langKo}</option>
-              <option value="en">{t.langEn}</option>
-              <option value="ja">{t.langJa}</option>
-              <option value="zh">{t.langZh}</option>
-              <option value="zht">{t.langZht}</option>
-              <option value="de">{t.langDe}</option>
-              <option value="fr">{t.langFr}</option>
-              <option value="es">{t.langEs}</option>
-              <option value="ru">{t.langRu}</option>
+              {LANGUAGE_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
             </select>
           </div>
         </div>

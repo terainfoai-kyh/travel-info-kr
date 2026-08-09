@@ -395,7 +395,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
               }
 
               if (loadingDetail) {
-                return <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>웹사이트 연결 정보 확인 중...</div>;
+                return <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{t.websiteLoading || '웹사이트 연결 정보 확인 중...'}</div>;
               }
 
               if (activeUrl) {

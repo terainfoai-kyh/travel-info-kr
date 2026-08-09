@@ -1,16 +1,69 @@
 import { PUBLIC_API_CONFIG, REGION_META } from './apiConfig';
 
-// 기상청 중기예보 (Mid-term Forecast: getMidLandFcst, getMidTa, getMidFcst)
+// Dynamic Base Time calculation for KMA Short-Term Forecast API (VilageFcstInfoService_2.0)
+// Release times: 0200, 0500, 0800, 1100, 1400, 1700, 2000, 2300 (available ~15 mins after base_time)
+function getShortTermBaseDateTime() {
+  const now = new Date();
+  let year = now.getFullYear();
+  let month = now.getMonth() + 1;
+  let day = now.getDate();
+  let hours = now.getHours();
+  let minutes = now.getMinutes();
+
+  if (hours < 2 || (hours === 2 && minutes < 15)) {
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    year = yesterday.getFullYear();
+    month = yesterday.getMonth() + 1;
+    day = yesterday.getDate();
+    return {
+      baseDate: `${year}${String(month).padStart(2, '0')}${String(day).padStart(2, '0')}`,
+      baseTime: '2300'
+    };
+  }
+
+  const baseTimes = [2, 5, 8, 11, 14, 17, 20, 23];
+  let selectedBase = 2;
+  for (const b of baseTimes) {
+    if (hours > b || (hours === b && minutes >= 15)) {
+      selectedBase = b;
+    }
+  }
+
+  const baseDate = `${year}${String(month).padStart(2, '0')}${String(day).padStart(2, '0')}`;
+  const baseTime = `${String(selectedBase).padStart(2, '0')}00`;
+  return { baseDate, baseTime };
+}
+
+// Dynamic tmFc calculation for KMA Mid-Term Forecast API (MidFcstInfoService)
+// Release times: 06:00, 18:00
+function getMidTermBaseTm() {
+  const now = new Date();
+  let year = now.getFullYear();
+  let month = now.getMonth() + 1;
+  let day = now.getDate();
+  let hours = now.getHours();
+
+  if (hours < 6) {
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    year = yesterday.getFullYear();
+    month = yesterday.getMonth() + 1;
+    day = yesterday.getDate();
+    return `${year}${String(month).padStart(2, '0')}${String(day).padStart(2, '0')}1800`;
+  } else if (hours < 18) {
+    return `${year}${String(month).padStart(2, '0')}${String(day).padStart(2, '0')}0600`;
+  } else {
+    return `${year}${String(month).padStart(2, '0')}${String(day).padStart(2, '0')}1800`;
+  }
+}
+
+// 기상청 중기예보 (Mid-term Forecast: getMidLandFcst, getMidTa)
 export async function fetchMidTermWeather(regionName = '서울', baseTm = '') {
   const meta = REGION_META[regionName] || REGION_META['서울'];
   
-  // Format baseTm (e.g. 202608050600)
   if (!baseTm) {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    baseTm = `${year}${month}${day}0600`;
+    baseTm = getMidTermBaseTm();
   }
 
   const urlLand = `${PUBLIC_API_CONFIG.WEATHER_MID_BASE}/getMidLandFcst?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&pageNo=1&numOfRows=10&dataType=JSON&regId=${meta.regIdLand}&tmFc=${baseTm}`;
@@ -63,10 +116,8 @@ export async function fetchMidTermWeather(regionName = '서울', baseTm = '') {
 function generateDynamicWeather(regionName, startDate, endDate) {
   const meta = REGION_META[regionName] || REGION_META['서울'];
   
-  // Seed hash based on region name + startDate
   const seed = (regionName + (startDate || '')).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   
-  // Weather profiles per region characteristics
   const tempBaseMap = {
     '서울': 25, '인천': 24, '경기': 24, '강원': 22, '충북': 25,
     '충남': 25, '대전': 26, '세종': 25, '전북': 26, '전남': 27,
@@ -84,7 +135,7 @@ function generateDynamicWeather(regionName, startDate, endDate) {
   ];
 
   const baseTemp = tempBaseMap[regionName] || 25;
-  const tempVar = (seed % 7) - 3; // -3 to +3
+  const tempVar = (seed % 7) - 3;
   const currentTemp = `${baseTemp + tempVar}°C`;
   const wType = weatherTypes[seed % weatherTypes.length];
 
@@ -117,16 +168,10 @@ function generateDynamicWeather(regionName, startDate, endDate) {
 export async function fetchRealtimeWeather(regionName = '서울', startDate, endDate) {
   const meta = REGION_META[regionName] || REGION_META['서울'];
   
-  // Format dates
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const day = String(today.getDate()).padStart(2, '0');
-  const baseDate = `${year}${month}${day}`;
+  const { baseDate, baseTime } = getShortTermBaseDateTime();
+  const dateRangeStr = startDate && endDate ? `${startDate} ~ ${endDate}` : `${baseDate.slice(0,4)}-${baseDate.slice(4,6)}-${baseDate.slice(6,8)}`;
 
-  const dateRangeStr = startDate && endDate ? `${startDate} ~ ${endDate}` : `${year}-${month}-${day}`;
-
-  const urlShort = `${PUBLIC_API_CONFIG.WEATHER_SHORT_BASE}/getVilageFcst?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&pageNo=1&numOfRows=60&dataType=JSON&base_date=${baseDate}&base_time=0500&nx=${meta.nx}&ny=${meta.ny}`;
+  const urlShort = `${PUBLIC_API_CONFIG.WEATHER_SHORT_BASE}/getVilageFcst?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&pageNo=1&numOfRows=60&dataType=JSON&base_date=${baseDate}&base_time=${baseTime}&nx=${meta.nx}&ny=${meta.ny}`;
 
   try {
     const res = await fetch(urlShort);
@@ -166,7 +211,7 @@ export async function fetchRealtimeWeather(regionName = '서울', startDate, end
     });
 
     // Also fetch Mid-Term Weather forecast for multi-day travels
-    const midTermForecast = await fetchMidTermWeather(regionName, `${baseDate}0600`);
+    const midTermForecast = await fetchMidTermWeather(regionName, getMidTermBaseTm());
 
     return {
       region: regionName,

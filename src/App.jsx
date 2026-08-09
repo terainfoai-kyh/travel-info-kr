@@ -241,7 +241,7 @@ export default function App() {
         {isLoading ? (
           <div style={{ textAlign: 'center', padding: '4rem 0', color: 'var(--accent-primary)' }}>
             <Loader2 size={40} className="animate-spin" style={{ margin: '0 auto 1rem auto' }} />
-            <p style={{ fontWeight: 600 }}>실시간 기후 및 공공데이터를 조회 중입니다...</p>
+            <p style={{ fontWeight: 600 }}>{t.loadingData || '실시간 기후 및 공공데이터를 조회 중입니다...'}</p>
           </div>
         ) : (
           <>

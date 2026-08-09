@@ -1,7 +1,9 @@
 import React from 'react';
 import { MapPin, Sparkles, Navigation } from 'lucide-react';
+import { TRANSLATIONS } from '../i18n/translations';
 
-export default function HeroSection({ onSelectRegion }) {
+export default function HeroSection({ onSelectRegion, lang = 'ko' }) {
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
   const popularKeywords = ['제주 성산일출봉', '서울 야경', '부산 해운대', '강원도 단풍', '전주 맛집'];
 
   return (
@@ -35,7 +37,7 @@ export default function HeroSection({ onSelectRegion }) {
         marginBottom: '1rem'
       }}>
         <Sparkles size={16} />
-        <span>2026 대한민국 핫플레이스 추천</span>
+        <span>{t.heroTag || '2026 대한민국 핫플레이스 추천'}</span>
       </div>
 
       <h2 style={{
@@ -45,7 +47,7 @@ export default function HeroSection({ onSelectRegion }) {
         marginBottom: '1rem',
         maxWidth: '800px'
       }}>
-        떠나보세요, <span className="gradient-text">당신만의 특별한 한국 여행</span>으로
+        {t.heroTitlePrefix || '떠나보세요, '}<span className="gradient-text">{t.heroTitleHighlight || '당신만의 특별한 한국 여행'}</span>{t.heroTitleSuffix || '으로'}
       </h2>
 
       <p style={{
@@ -54,12 +56,12 @@ export default function HeroSection({ onSelectRegion }) {
         maxWidth: '600px',
         marginBottom: '2rem'
       }}>
-        전국 각지의 숨은 명소부터 최신 핫플레이스, 오션뷰 산책로와 전통 미식까지 모든 정보를 한곳에서 만나보세요.
+        {t.heroSubtitle || '전국 각지의 숨은 명소부터 최신 핫플레이스, 오션뷰 산책로와 전통 미식까지 모든 정보를 한곳에서 만나보세요.'}
       </p>
 
       {/* Recommended Keywords */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-        <span style={{ fontSize: '0.85rem', color: 'var(--text-dim)', fontWeight: 600 }}>인기 검색:</span>
+        <span style={{ fontSize: '0.85rem', color: 'var(--text-dim)', fontWeight: 600 }}>{t.heroPopularSearch || '인기 검색:'}</span>
         {popularKeywords.map((kw, i) => (
           <button
             key={i}
