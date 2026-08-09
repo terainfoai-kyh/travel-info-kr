@@ -3,8 +3,54 @@ import DatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { X, Calendar, Clock, MapPin, Sparkles, Navigation, Copy, Check, Filter, ShieldCheck, CloudRain, RefreshCw, Car, Bus, Utensils } from 'lucide-react';
 import { generateSmartItinerary, calculateTravelEstimate } from '../services/recommendationEngine';
-import { TRANSLATIONS } from '../i18n/translations';
+import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress } from '../i18n/translations';
 import { buildAgodaDeepLink, buildKlookDeepLink } from '../services/apiConfig';
+
+function getI18nDayHeaderTitle(dayObj, region, lang = 'ko') {
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
+  const dNum = dayObj.day;
+  const rawDate = dayObj.dateStr;
+  
+  let dateFormatted = rawDate || '';
+  if (rawDate) {
+    try {
+      const dt = new Date(rawDate);
+      if (!isNaN(dt.getTime())) {
+        const daysOfWeek = {
+          ko: ['일', '월', '화', '수', '목', '금', '토'],
+          en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+          ja: ['日', '月', '火', '水', '木', '金', '土'],
+          zh: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
+          zht: ['週日', '週一', '週二', '週三', '週四', '週五', '週六'],
+          de: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
+          fr: ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'],
+          es: ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
+          ru: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб']
+        };
+        const dowList = daysOfWeek[lang] || daysOfWeek.en;
+        const dowStr = dowList[dt.getDay()];
+        const y = dt.getFullYear();
+        const m = String(dt.getMonth() + 1).padStart(2, '0');
+        const d = String(dt.getDate()).padStart(2, '0');
+        dateFormatted = `${y}.${m}.${d} (${dowStr})`;
+      }
+    } catch (e) {}
+  }
+
+  const regionName = region && region !== '전국' && region !== '한국' ? (t.regions?.[region] || region) : (t.regions?.['전국'] || '전국');
+
+  switch (lang) {
+    case 'en': return `Day ${dNum} Course · ${dateFormatted} (${regionName} Route)`;
+    case 'ja': return `${dNum}日目コース · ${dateFormatted} (${regionName} ルート)`;
+    case 'zh': return `第 ${dNum} 天行程 · ${dateFormatted} (${regionName} 路线)`;
+    case 'zht': return `第 ${dNum} 天行程 · ${dateFormatted} (${regionName} 路線)`;
+    case 'de': return `Tag ${dNum} Route · ${dateFormatted} (${regionName} Route)`;
+    case 'fr': return `Jour ${dNum} Parcours · ${dateFormatted} (Itinéraire ${regionName})`;
+    case 'es': return `Día ${dNum} Ruta · ${dateFormatted} (Ruta ${regionName})`;
+    case 'ru': return `День ${dNum} Маршрут · ${dateFormatted} (Маршрут ${regionName})`;
+    default: return `${dNum}일차 코스 · ${dateFormatted} (${regionName} 동선)`;
+  }
+}
 
 export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, onSelectSpot }) {
   const [selectedDays, setSelectedDays] = useState(2);
@@ -208,10 +254,10 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
             </div>
             <div>
               <h2 style={{ fontSize: '1.4rem', fontWeight: 800, margin: 0 }} className="gradient-text">
-                AI 스마트 여행 코스 추천
+                {t.aiItineraryMainTitle || 'AI 스마트 여행 코스 추천'}
               </h2>
               <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>
-                지정한 시작일자 및 상세 검색 조건 기반 맞춤 동선 추천
+                {t.aiItineraryMainSub || '지정한 시작일자 및 상세 검색 조건 기반 맞춤 동선 추천'}
               </p>
             </div>
           </div>
@@ -251,12 +297,12 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
             border: '1px solid var(--border-color)'
           }}>
             <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-              <Filter size={13} color="var(--accent-primary)" /> 적용된 조회 조건:
+              <Filter size={13} color="var(--accent-primary)" /> {t.appliedFiltersLabel || '적용된 조회 조건:'}
             </span>
 
             {/* 1. 여행 시작일 ~ 종료일 */}
             <span style={{ fontSize: '0.75rem', background: 'rgba(56, 189, 248, 0.15)', border: '1px solid rgba(56, 189, 248, 0.3)', padding: '0.15rem 0.55rem', borderRadius: 'var(--radius-sm)', color: 'var(--accent-primary)', fontWeight: 700 }}>
-              📅 {customStartDate} 부터 ({selectedDays}일간)
+              📅 {customStartDate} {t.fromStartLabel || '부터'} ({selectedDays}{t.daysCountUnit || '일간'})
             </span>
 
             {/* 2. 지역 */}
@@ -307,7 +353,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
         }}>
           {/* Days buttons */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-main)' }}>여행 기간:</span>
+            <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-main)' }}>{t.tripDurationTitle || '여행 기간:'}</span>
             {[1, 2, 3].map(d => (
               <button
                 key={d}
@@ -324,7 +370,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                   transition: 'all 0.2s ease'
                 }}
               >
-                {d === 1 ? '당일치기 (1 Day)' : `${d - 1}박 ${d}일 (${d} Days)`}
+                {d === 1 ? (t.dayTrip1Day || '당일치기 (1 Day)') : `${d - 1}${t.nightsLabel || '박'} ${d}${t.daysLabel || '일'} (${d} Days)`}
               </button>
             ))}
           </div>
@@ -408,15 +454,15 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                   cursor: 'pointer'
                 }}
               >
-                <option value="06:00">06:00 출발</option>
-                <option value="07:00">07:00 출발</option>
-                <option value="08:00">08:00 출발</option>
-                <option value="09:00">09:00 출발</option>
-                <option value="09:30">09:30 출발</option>
-                <option value="10:00">10:00 출발</option>
-                <option value="11:00">11:00 출발</option>
-                <option value="12:00">12:00 출발</option>
-                <option value="13:00">13:00 출발</option>
+                <option value="06:00">06:00 {t.departTimeLabel || '출발'}</option>
+                <option value="07:00">07:00 {t.departTimeLabel || '출발'}</option>
+                <option value="08:00">08:00 {t.departTimeLabel || '출발'}</option>
+                <option value="09:00">09:00 {t.departTimeLabel || '출발'}</option>
+                <option value="09:30">09:30 {t.departTimeLabel || '출발'}</option>
+                <option value="10:00">10:00 {t.departTimeLabel || '출발'}</option>
+                <option value="11:00">11:00 {t.departTimeLabel || '출발'}</option>
+                <option value="12:00">12:00 {t.departTimeLabel || '출발'}</option>
+                <option value="13:00">13:00 {t.departTimeLabel || '출발'}</option>
               </select>
               <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>~</span>
               <select
@@ -432,12 +478,12 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                   cursor: 'pointer'
                 }}
               >
-                <option value="18:00">18:00 종료</option>
-                <option value="19:00">19:00 종료</option>
-                <option value="20:00">20:00 종료</option>
-                <option value="21:00">21:00 종료</option>
-                <option value="22:00">22:00 종료</option>
-                <option value="23:00">23:00 종료</option>
+                <option value="18:00">18:00 {t.arriveTimeLabel || '종료'}</option>
+                <option value="19:00">19:00 {t.arriveTimeLabel || '종료'}</option>
+                <option value="20:00">20:00 {t.arriveTimeLabel || '종료'}</option>
+                <option value="21:00">21:00 {t.arriveTimeLabel || '종료'}</option>
+                <option value="22:00">22:00 {t.arriveTimeLabel || '종료'}</option>
+                <option value="23:00">23:00 {t.arriveTimeLabel || '종료'}</option>
               </select>
             </div>
 
@@ -467,7 +513,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
               title="시간/날짜 조건에 맞춰 AI 추천 코스 갱신하기"
             >
               <Sparkles size={15} />
-              <span>{t.regenerateItineraryBtn || 'AI 코스 다시 추천 🔄'}</span>
+              <span>{t.reRecommendAiBtn || 'AI 코스 다시 추천 🔄'}</span>
             </button>
 
             <button
@@ -490,7 +536,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
               }}
             >
               {copied ? <Check size={15} /> : <Copy size={15} />}
-              <span>{copied ? '복사완료!' : '코스 복사'}</span>
+              <span>{copied ? (t.copiedToast || '복사완료!') : (t.copyCourseBtn || '코스 복사')}</span>
             </button>
           </div>
         </div>
@@ -529,7 +575,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                     margin: 0
                   }}>
                     <Calendar size={18} />
-                    <span>{day.dayTitle}</span>
+                    <span>{getI18nDayHeaderTitle(day, region, lang)}</span>
                   </h3>
 
                   {/* Day-specific Time Controls & Regeneration */}
@@ -563,15 +609,15 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                           cursor: 'pointer'
                         }}
                       >
-                        <option value="06:00">06:00 출발</option>
-                        <option value="07:00">07:00 출발</option>
-                        <option value="08:00">08:00 출발</option>
-                        <option value="09:00">09:00 출발</option>
-                        <option value="09:30">09:30 출발</option>
-                        <option value="10:00">10:00 출발</option>
-                        <option value="11:00">11:00 출발</option>
-                        <option value="12:00">12:00 출발</option>
-                        <option value="13:00">13:00 출발</option>
+                        <option value="06:00">06:00 {t.departTimeLabel || '출발'}</option>
+                        <option value="07:00">07:00 {t.departTimeLabel || '출발'}</option>
+                        <option value="08:00">08:00 {t.departTimeLabel || '출발'}</option>
+                        <option value="09:00">09:00 {t.departTimeLabel || '출발'}</option>
+                        <option value="09:30">09:30 {t.departTimeLabel || '출발'}</option>
+                        <option value="10:00">10:00 {t.departTimeLabel || '출발'}</option>
+                        <option value="11:00">11:00 {t.departTimeLabel || '출발'}</option>
+                        <option value="12:00">12:00 {t.departTimeLabel || '출발'}</option>
+                        <option value="13:00">13:00 {t.departTimeLabel || '출발'}</option>
                       </select>
                       <span style={{ color: 'var(--text-muted)', fontSize: '0.72rem' }}>~</span>
                       <select
@@ -593,12 +639,12 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                           cursor: 'pointer'
                         }}
                       >
-                        <option value="18:00">18:00 종료</option>
-                        <option value="19:00">19:00 종료</option>
-                        <option value="20:00">20:00 종료</option>
-                        <option value="21:00">21:00 종료</option>
-                        <option value="22:00">22:00 종료</option>
-                        <option value="23:00">23:00 종료</option>
+                        <option value="18:00">18:00 {t.arriveTimeLabel || '종료'}</option>
+                        <option value="19:00">19:00 {t.arriveTimeLabel || '종료'}</option>
+                        <option value="20:00">20:00 {t.arriveTimeLabel || '종료'}</option>
+                        <option value="21:00">21:00 {t.arriveTimeLabel || '종료'}</option>
+                        <option value="22:00">22:00 {t.arriveTimeLabel || '종료'}</option>
+                        <option value="23:00">23:00 {t.arriveTimeLabel || '종료'}</option>
                       </select>
                     </div>
 
@@ -624,16 +670,28 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                         gap: '0.3rem',
                         transition: 'all 0.2s ease'
                       }}
-                      title={`${day.day}일차 추천 코스 다시 생성`}
+                      title={`${day.day}${t.dayUnit || '일차'} ${t.changeCourseBtn || '코스 변경'}`}
                     >
                       <RefreshCw size={12} />
-                      <span>{day.day}일차 코스 변경 🔄</span>
+                      <span>{day.day}{t.dayUnit || '일차'} {t.changeCourseBtn || '코스 변경 🔄'}</span>
                     </button>
                   </div>
                 </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                {day.schedule.map((item, sIdx) => (
+                {day.schedule.map((item, sIdx) => {
+                  let slotI18n = item.slotName;
+                  if (item.slotName.includes('오전')) slotI18n = t.slotMorning || item.slotName;
+                  else if (item.slotName.includes('낮')) slotI18n = t.slotAfternoon || item.slotName;
+                  else if (item.slotName.includes('오후')) slotI18n = t.slotEvening || item.slotName;
+                  else if (item.slotName.includes('밤')) slotI18n = t.slotNight || item.slotName;
+
+                  const itemDisplayTitle = getTranslatedTitle(item.title, lang);
+                  const itemDisplayAddr = getTranslatedAddress(item.location, lang);
+                  const nextSpot = day.schedule[sIdx + 1];
+                  const nextDisplayTitle = nextSpot ? getTranslatedTitle(nextSpot.title, lang) : '';
+
+                  return (
                   <React.Fragment key={sIdx}>
                     <div style={{
                       display: 'flex',
@@ -665,7 +723,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                       {/* Spot Image */}
                       <img 
                         src={item.image} 
-                        alt={item.title} 
+                        alt={itemDisplayTitle} 
                         style={{
                           width: '54px',
                           height: '54px',
@@ -679,14 +737,14 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                       {/* Info */}
                       <div style={{ flex: 1, minWidth: '180px' }}>
                         <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-                          {item.slotName}
+                          {slotI18n}
                         </div>
                         <h4 style={{ fontSize: '0.98rem', fontWeight: 800, margin: '0.1rem 0' }}>
-                          {item.title}
+                          {itemDisplayTitle}
                         </h4>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.78rem', color: 'var(--text-dim)' }}>
                           <MapPin size={13} color="var(--accent-primary)" />
-                          <span>{item.location}</span>
+                          <span>{itemDisplayAddr}</span>
                         </div>
                       </div>
 
@@ -708,7 +766,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                             alignItems: 'center',
                             gap: '0.25rem'
                           }}
-                          title="다른 장소로 추천 교체"
+                          title={t.swapSpotBtn || '교체 🔄'}
                         >
                           <RefreshCw size={13} />
                           <span>{t.swapSpotBtn || '교체 🔄'}</span>
@@ -735,7 +793,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                           }}
                         >
                           <Navigation size={13} />
-                          <span>지도 경로</span>
+                          <span>{t.mapRouteBtn || '지도 경로'}</span>
                         </a>
 
                         <a
@@ -757,16 +815,16 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                             transition: 'all 0.2s ease',
                             flexShrink: 0
                           }}
-                          title={`${item.title} 주변 실시간 인기 맛집 지도 검색`}
+                          title={`${itemDisplayTitle} 주변 맛집 검색`}
                         >
                           <Utensils size={13} color="#f97316" />
-                          <span>주변 맛집 🍽️</span>
+                          <span>{t.nearbyFoodBtn || '주변 맛집 🍽️'}</span>
                         </a>
                       </div>
                     </div>
 
                     {/* Inter-Spot Travel Time & Distance Indicator */}
-                    {item.nextTravel && day.schedule[sIdx + 1] && (
+                    {item.nextTravel && nextSpot && (
                       <div style={{
                         display: 'flex',
                         alignItems: 'center',
@@ -790,22 +848,23 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                           boxShadow: 'var(--shadow-sm)'
                         }}>
                           <span style={{ fontWeight: 700, color: 'var(--text-main)' }}>
-                            📍 {item.title.length > 8 ? item.title.substring(0, 8) + '...' : item.title} ➔ {day.schedule[sIdx + 1].title.length > 8 ? day.schedule[sIdx + 1].title.substring(0, 8) + '...' : day.schedule[sIdx + 1].title}
+                            📍 {itemDisplayTitle.length > 8 ? itemDisplayTitle.substring(0, 8) + '...' : itemDisplayTitle} ➔ {nextDisplayTitle.length > 8 ? nextDisplayTitle.substring(0, 8) + '...' : nextDisplayTitle}
                           </span>
                           <span style={{ color: 'var(--text-muted)' }}>:</span>
                           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem', color: '#0284c7', fontWeight: 700 }}>
-                            <Car size={12} /> 차량 약 {item.nextTravel.carMin}분 ({item.nextTravel.distKm}km)
+                            <Car size={12} /> {t.drivePrefix || '차량 약'} {item.nextTravel.carMin}{t.minuteUnit || '분'} ({item.nextTravel.distKm}km)
                           </span>
                           <span style={{ color: 'var(--text-muted)' }}>|</span>
                           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem', color: '#818cf8', fontWeight: 700 }}>
-                            <Bus size={12} /> 대중교통 약 {item.nextTravel.transitMin}분
+                            <Bus size={12} /> {t.transitPrefix || '대중교통 약'} {item.nextTravel.transitMin}{t.minuteUnit || '분'}
                           </span>
                         </span>
                         <span style={{ height: '14px', width: '1px', background: 'var(--border-color)' }} />
                       </div>
                     )}
                   </React.Fragment>
-                ))}
+                  );
+                })}
               </div>
             </div>
           );
@@ -848,10 +907,10 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
                 <h4 style={{ fontSize: '0.95rem', fontWeight: 800, margin: 0, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                   <Sparkles size={16} color="var(--accent-primary)" />
-                  <span>🎁 {region} {t.itineraryAffiliateTitle || '코스 맞춤 제휴 혜택 & 최저가 숙소/입장권'}</span>
+                  <span>{t.partnerDealsTitle || '✨ 🎁 전국 코스 맞춤 제휴 혜택 & 최저가 숙소/입장권'}</span>
                 </h4>
                 <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#10b981', background: 'rgba(16, 185, 129, 0.15)', padding: '0.2rem 0.5rem', borderRadius: 'var(--radius-sm)' }}>
-                  최대 75% OFF ({checkInStr} ~ {checkOutStr})
+                  {checkInStr} ~ {checkOutStr}
                 </span>
               </div>
               
@@ -875,7 +934,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                     boxShadow: 'var(--shadow-sm)'
                   }}
                 >
-                  <span>🏨 {region} 최저가 숙소 (Agoda)</span>
+                  <span>🏨 {getBadgeI18n('region', region)} {t.agodaHotelBtn || '최저가 숙소 (Agoda)'}</span>
                 </a>
 
                 <a
@@ -897,7 +956,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                     boxShadow: 'var(--shadow-sm)'
                   }}
                 >
-                  <span>🎫 {region} 투어 & 렌터카 (Klook)</span>
+                  <span>🎫 {getBadgeI18n('region', region)} {t.klookActivityBtn || '티켓/패스 (Klook)'}</span>
                 </a>
               </div>
             </div>

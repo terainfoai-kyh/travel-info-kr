@@ -12,7 +12,7 @@ export default function GoogleMapView({ selectedSpot, allSpots, lang, themeMode 
   const title = activeSpot ? activeSpot.title : '대한민국';
 
   return (
-    <div style={{ marginBottom: '3rem' }}>
+    <div style={{ marginBottom: '0.75rem' }}>
       <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-main)' }}>
         <Map size={20} color="var(--accent-primary)" />
         <span>{t.mapTitle}</span>

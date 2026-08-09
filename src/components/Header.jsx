@@ -113,7 +113,7 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
     setActiveSection(id);
     const elem = document.getElementById(id);
     if (elem) {
-      const yOffset = window.innerWidth <= 768 ? -95 : -130; // Dynamic offset for mobile 2-row sticky header
+      const yOffset = window.innerWidth <= 768 ? -75 : -130; // Dynamic offset for slim mobile sticky header
       const y = elem.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({ top: y, behavior: 'smooth' });
     }
@@ -167,7 +167,8 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <h1 style={{ fontSize: '1.2rem', fontWeight: 800, lineHeight: 1.1 }} className="gradient-text header-title">
-                {t.title}
+                <span className="desktop-title-text">{t.title}</span>
+                <span className="mobile-title-text">K-Travel AI</span>
               </h1>
               <span
                 className="live-ai-badge-container"

@@ -7,7 +7,7 @@ export const TRAVEL_SPOTS = [
     location: '서울특별시 종로구 사직로 161',
     rating: 4.8,
     reviewsCount: 3420,
-    image: '/default-spot.png',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg',
     description: '조선 왕조의 으뜸 궁궐이자 서울 도심 속에 위치한 대표적인 전통 역사 문화 유적지입니다.',
     tags: ['역사', '한복체험', '궁궐', '사진명소'],
     details: {
@@ -26,7 +26,7 @@ export const TRAVEL_SPOTS = [
     location: '제주특별자치도 서귀포시 성산읍 일출로 284-12',
     rating: 4.9,
     reviewsCount: 5120,
-    image: '/default-spot.png',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/82/2944282_image2_1.bmp',
     description: '유네스코 세계자연유산에 등재된 해돋이 명소로, 분화구 주변 절경과 에메랄드빛 바다가 장관입니다.',
     tags: ['유네스코', '일출명소', '바다', '하이킹'],
     details: {
@@ -45,7 +45,7 @@ export const TRAVEL_SPOTS = [
     location: '부산광역시 해운대구 청사포로 116',
     rating: 4.7,
     reviewsCount: 2890,
-    image: '/default-spot.png',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/99/3546099_image2_1.jpg',
     description: '해운대 미포~청사포~송정 구간의 동해남부선 옛 철길을 따라 해변열차와 스카이캡슐을 즐기는 이색 코스입니다.',
     tags: ['해변열차', '바다전망', '데이트코스', '오션뷰'],
     details: {
@@ -64,7 +64,7 @@ export const TRAVEL_SPOTS = [
     location: '강원특별자치도 속초시 설악산로 1091',
     rating: 4.9,
     reviewsCount: 4100,
-    image: '/default-spot.png',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/45/3505945_image2_1.jpg',
     description: '웅장한 암봉과 기암괴석, 계곡이 어우러진 대한민국 대표 산악 국립공원으로 케이블카로 편하게 오를 수 있습니다.',
     tags: ['단풍명소', '케이블카', '등산', '자연경관'],
     details: {
@@ -83,7 +83,7 @@ export const TRAVEL_SPOTS = [
     location: '경상북도 경주시 원화로 102',
     rating: 4.85,
     reviewsCount: 3950,
-    image: '/default-spot.png',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/62/2612562_image2_1.jpg',
     description: '신라 문무왕 때 조성된 왕궁의 연못으로, 환상적인 야경과 반사광이 어우러진 최고의 밤 산책 코스입니다.',
     tags: ['신라유적', '야경명소', '산책로', '역사탐방'],
     details: {
@@ -102,7 +102,7 @@ export const TRAVEL_SPOTS = [
     location: '전북특별자치도 전주시 완산구 기린대로 99',
     rating: 4.75,
     reviewsCount: 4500,
-    image: '/default-spot.png',
+    image: 'https://tong.visitkorea.or.kr/cms/resource_photo/45/3365745_image2_1.jpg',
     description: '700여 동의 한옥이 밀집된 전통 문화 구역으로, 비빔밥, 콩나물국밥 등 전라도 미식과 다양한 먹거리를 자랑합니다.',
     tags: ['미식여행', '한옥체험', '먹거리', '슬로시티'],
     details: {

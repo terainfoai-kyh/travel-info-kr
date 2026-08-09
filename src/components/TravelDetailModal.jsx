@@ -3,7 +3,6 @@ import { X, Star, MapPin, Clock, Phone, SunMedium, CheckCircle, Heart, Globe, Lo
 import { fetchSpotDetailCommon, fetchSpotDetailImages } from '../services/tourApi';
 import { PUBLIC_API_CONFIG, buildAgodaDeepLink, buildKlookDeepLink, buildKKdayDeepLink } from '../services/apiConfig';
 import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress, getTranslatedTheme, getTranslatedReview, getTranslatedOverview, getTranslatedDetailText } from '../i18n/translations';
-import AdBanner from './AdBanner';
 import TravelImageWithFallback from './TravelImageWithFallback';
 
 export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggleBookmark, lang = 'ko' }) {
@@ -32,45 +31,45 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
           setMockReviews([
             {
               id: 1,
-              author: '김민준',
+              author: 'Minjun Kim',
               ageGroup: '20대',
-              gender: '남성',
+              gender: t.authorMale || '남성',
               rating: 5,
               date: '2026-08-04',
               content: '날씨 좋을 때 방문하니 경관이 정말 훌륭했습니다! 포토스팟도 많고 강력 추천합니다.'
             },
             {
               id: 2,
-              author: '이서연',
+              author: 'Seoyeon Lee',
               ageGroup: '30대',
-              gender: '여성',
+              gender: t.authorFemale || '여성',
               rating: 5,
               date: '2026-08-02',
               content: '주변 로컬 맛집 코스가 잘 되어 있네요. 주차 공간도 여유로워서 무척 편했습니다.'
             },
             {
               id: 3,
-              author: '박지훈',
+              author: 'Jihun Park',
               ageGroup: '40대',
-              gender: '남성',
+              gender: t.authorMale || '남성',
               rating: 4,
               date: '2026-07-28',
               content: '가족과 함께 오기 좋은 곳입니다. 편의시설이 깔끔하게 잘 정비되어 있습니다.'
             },
             {
               id: 4,
-              author: '최유진',
+              author: 'Yujin Choi',
               ageGroup: '20대',
-              gender: '여성',
+              gender: t.authorFemale || '여성',
               rating: 5,
               date: '2026-07-25',
               content: '인생샷 사진 찍기 최고입니다! 대중교통 접근성도 좋고 주변 둘레길 산책 코스도 무척 좋습니다.'
             },
             {
               id: 5,
-              author: '정명훈',
+              author: 'Myeonghun Jeong',
               ageGroup: '50대이상',
-              gender: '남성',
+              gender: t.authorMale || '남성',
               rating: 5,
               date: '2026-07-20',
               content: '가족들과 주말 나들이로 다녀왔는데 경치가 너무 고즈넉하고 힐링되었습니다.'
@@ -207,7 +206,10 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                 {displayRegion}
               </span>
               {spot.tags.map((tagItem, i) => {
-                const translatedTag = t.themes?.[tagItem] || t.regions?.[tagItem] || (tagItem === '관광공사추천' ? t.koreaRecommendedTag : tagItem);
+                const cleanTag = tagItem.startsWith('#') ? tagItem.substring(1) : tagItem;
+                const hashTag = `#${cleanTag}`;
+                const translatedTag = t.tags?.[hashTag] || t.tags?.[cleanTag] || t.themes?.[cleanTag] || t.regions?.[cleanTag] || (cleanTag === '관광공사추천' ? t.koreaRecommendedTag : cleanTag);
+                const displayTagText = translatedTag.startsWith('#') ? translatedTag : `#${translatedTag}`;
                 return (
                   <span key={i} style={{
                     background: 'rgba(0, 0, 0, 0.65)',
@@ -219,7 +221,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                     borderRadius: 'var(--radius-sm)',
                     backdropFilter: 'blur(4px)'
                   }}>
-                    #{translatedTag}
+                    {displayTagText}
                   </span>
                 );
               })}
@@ -409,7 +411,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                     }}
                   >
                     <Globe size={20} />
-                    <span>🌐 {t.officialWebsite || '공식 홈페이지 바로가기 (새창 팝업)'} ↗</span>
+                    <span>{t.officialWebsite || '공식 홈페이지 바로가기 (새창 팝업)'} ↗</span>
                   </a>
                 );
               }
@@ -888,7 +890,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                   className="btn-primary"
                   style={{ padding: '0.6rem 1.25rem', fontSize: '0.88rem', whiteSpace: 'nowrap', fontWeight: 700 }}
                 >
-                  리뷰 등록
+                  {t.submitReviewBtn || '리뷰 등록'}
                 </button>
               </div>
             </div>

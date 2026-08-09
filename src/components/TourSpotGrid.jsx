@@ -1,7 +1,6 @@
 import React from 'react';
 import { Star, MapPin, ChevronLeft, ChevronRight, Sparkles, ArrowRight } from 'lucide-react';
 import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress, getTranslatedTheme } from '../i18n/translations';
-import AdBanner from './AdBanner';
 import TravelImageWithFallback from './TravelImageWithFallback';
 
 export default function TourSpotGrid({ spots = [], page = 1, setPage, totalPages = 1, lang = 'ko', themeMode = 'dark', onSelectSpot, onOpenItinerary, filters }) {
@@ -95,11 +94,11 @@ export default function TourSpotGrid({ spots = [], page = 1, setPage, totalPages
                         fontSize: '0.75rem',
                         fontWeight: 700,
                         color: 'var(--accent-primary)',
-                        background: 'rgba(56, 189, 248, 0.1)',
-                        padding: '0.15rem 0.55rem',
+                        background: 'rgba(56, 189, 248, 0.12)',
+                        padding: '0.18rem 0.6rem',
                         borderRadius: 'var(--radius-sm)'
                       }}>
-                        {getTranslatedTheme(spot.category, lang)}
+                        {getTranslatedTheme(spot.category || spot.theme, lang) || (t.defaultCategory || (lang === 'ko' ? '관광명소' : 'Tourist Spot'))}
                       </span>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: '#f59e0b', fontSize: '0.85rem', fontWeight: 700 }}>
                         <Star size={14} fill="#f59e0b" />
@@ -122,9 +121,6 @@ export default function TourSpotGrid({ spots = [], page = 1, setPage, totalPages
               </div>
             ))}
           </div>
-
-          {/* Clean Partner Ad Banner below the symmetrical 3x2 Grid */}
-          <AdBanner type="infeed" lang={lang} spotTitle={spots[0]?.title} region={spots[0]?.region} themeMode={themeMode} filters={filters} />
         </>
       ) : (
         <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>

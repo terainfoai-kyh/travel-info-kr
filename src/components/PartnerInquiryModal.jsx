@@ -150,7 +150,7 @@ export default function PartnerInquiryModal({ isOpen, onClose, lang = 'ko' }) {
               <input
                 type="text"
                 required
-                placeholder="홍길동 팀장 (K-Hotel)"
+                placeholder={t.partnerFormNamePlaceholder || (lang === 'ko' ? '홍길동 팀장 (K-Hotel)' : 'John Smith / Manager')}
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 style={{
@@ -220,7 +220,7 @@ export default function PartnerInquiryModal({ isOpen, onClose, lang = 'ko' }) {
               <textarea
                 required
                 rows={3}
-                placeholder="제휴 희망 상품, 예산, 노출 기간 등 자유롭게 작성해 주세요."
+                placeholder={t.partnerFormContentPlaceholder || (lang === 'ko' ? '제휴 희망 상품, 예산, 노출 기간 등 자유롭게 작성해 주세요.' : 'Please describe your inquiry details, budget, duration, etc.')}
                 value={form.message}
                 onChange={(e) => setForm({ ...form, message: e.target.value })}
                 style={{

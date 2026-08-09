@@ -1,4 +1,5 @@
 import { PUBLIC_API_CONFIG, REGION_META, THEME_META } from './apiConfig';
+import { TRAVEL_SPOTS } from '../data/travelData';
 
 // 한국관광공사 TourAPI 4.0 - 공통정보조회 (/detailCommon2)
 export async function fetchSpotDetailCommon(contentId, lang = 'ko') {
@@ -322,6 +323,23 @@ export async function fetchTourSpots({
     if (items.length > 0) {
       const DEFAULT_FALLBACK_IMAGE = '/default-spot.png';
 
+      // Global Smart Priority Sorting Engine: Prioritize pure attractions (12, 14, 28) over food/stores (39, 38) across all queries!
+      const sortedRawItems = [...items].sort((a, b) => {
+        const typeA = String(a.contenttypeid || '');
+        const typeB = String(b.contenttypeid || '');
+
+        if (theme === '미식/쇼핑' || theme === '음식') {
+          if (typeA === '39' && typeB !== '39') return -1;
+          if (typeB === '39' && typeA !== '39') return 1;
+        } else {
+          const isAttractionA = typeA === '12' || typeA === '14' || typeA === '28';
+          const isAttractionB = typeB === '12' || typeB === '14' || typeB === '28';
+          if (isAttractionA && !isAttractionB) return -1;
+          if (isAttractionB && !isAttractionA) return 1;
+        }
+        return 0;
+      });
+
       const COORD_PRESETS = [
         { lat: 37.5665, lng: 126.9780, loc: '서울특별시 종로구 세종대로' },
         { lat: 33.4581, lng: 126.9426, loc: '제주특별자치도 서귀포시 성산읍' },
@@ -333,7 +351,7 @@ export async function fetchTourSpots({
         { lat: 37.2872, lng: 127.0119, loc: '경기도 수원시 팔달구 정조로' }
       ];
 
-      const parsed = items.map((item, idx) => {
+      const parsed = sortedRawItems.map((item, idx) => {
         let validImage = (item.firstimage || item.firstimage2 || '').replace(/^http:\/\//i, 'https://');
 
         // Extract title safely from TourAPI (item.title) or Durunubi (item.crsNm / item.themeNm)
@@ -378,7 +396,7 @@ export async function fetchTourSpots({
       });
 
       // Flexible space-insensitive client filtering
-      return parsed.filter(spot => {
+      const filtered = parsed.filter(spot => {
         if (!cleanKw) return true;
 
         const kw = kwNoSpace.toLowerCase();
@@ -387,20 +405,30 @@ export async function fetchTourSpots({
 
         return titleNoSpace.includes(kw) || locNoSpace.includes(kw);
       });
+
+      // Signature Landmark Boost: On default query (전국/한국, 전체), always prioritize Korea's top 6 iconic landmarks first!
+      if ((region === '전국' || region === '한국') && theme === '전체' && !cleanKw) {
+        const signatureLandmarks = TRAVEL_SPOTS.slice(0, 6);
+        const signatureTitles = new Set(signatureLandmarks.map(s => s.title.toLowerCase().replace(/\s+/g, '')));
+        const otherSpots = filtered.filter(s => !signatureTitles.has(s.title.toLowerCase().replace(/\s+/g, '')));
+        return [...signatureLandmarks, ...otherSpots];
+      }
+
+      return filtered;
     }
   } catch (err) {
     console.warn('TourAPI Fallback triggered:', err);
   }
 
   // Fallback & Filter Mock Data with space-insensitive matching & image sanitization
-  return MOCK_ALL_SPOTS.filter(spot => {
+  return TRAVEL_SPOTS.filter(spot => {
     const matchRegion = region === '전국' || spot.region === region;
     const matchTheme = theme === '전체' || spot.theme === theme;
     const matchAge = age === '전체' || 
-      spot.targetAge.includes(age) || 
-      (age === '50대' && (spot.targetAge.includes('50대') || spot.targetAge.includes('50대이상'))) || 
-      (age === '60대이상' && (spot.targetAge.includes('60대이상') || spot.targetAge.includes('50대이상')));
-    const matchGender = gender === '무관' || spot.targetGender.includes(gender) || spot.targetGender.includes('무관');
+      (!spot.targetAge || spot.targetAge.includes(age)) || 
+      (age === '50대' && spot.targetAge && (spot.targetAge.includes('50대') || spot.targetAge.includes('50대이상'))) || 
+      (age === '60대이상' && spot.targetAge && (spot.targetAge.includes('60대이상') || spot.targetAge.includes('50대이상')));
+    const matchGender = gender === '무관' || !spot.targetGender || spot.targetGender.includes(gender) || spot.targetGender.includes('무관');
     
     const spotTitleNoSpace = spot.title.replace(/\s+/g, '').toLowerCase();
     const spotLocNoSpace = spot.location.replace(/\s+/g, '').toLowerCase();

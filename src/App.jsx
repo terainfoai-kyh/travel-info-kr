@@ -7,7 +7,6 @@ import TourSpotGrid from './components/TourSpotGrid';
 import AILifestyleSection from './components/AILifestyleSection';
 import GoogleMapView from './components/GoogleMapView';
 import TravelDetailModal from './components/TravelDetailModal';
-import AdBanner from './components/AdBanner';
 import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
 import { fetchRealtimeWeather } from './services/weatherApi';
 import { fetchTourSpots } from './services/tourApi';
@@ -18,11 +17,13 @@ import WishlistDrawer from './components/WishlistDrawer';
 import TravelEssentialsSection from './components/TravelEssentialsSection';
 import AIFloatingButton from './components/AIFloatingButton';
 import PartnerInquiryModal from './components/PartnerInquiryModal';
+import SplashScreen from './components/SplashScreen';
 
 export default function App() {
   // Auto-detect browser locale
   const [lang, setLang] = useState(detectBrowserLanguage());
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
+  const [showSplash, setShowSplash] = useState(true);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [isPartnerOpen, setIsPartnerOpen] = useState(false);
 
@@ -94,7 +95,7 @@ export default function App() {
         age: params.get('age') || '전체',
         gender: params.get('gender') || '무관',
         keyword: params.get('keyword') || '',
-        arrange: params.get('arrange') || 'O',
+        arrange: params.get('arrange') || 'A',
         apiServiceType: params.get('apiServiceType') || 'all'
       };
     } catch (e) {
@@ -106,7 +107,7 @@ export default function App() {
         age: '전체',
         gender: '무관',
         keyword: '',
-        arrange: 'O',
+        arrange: 'A',
         apiServiceType: 'all'
       };
     }
@@ -202,7 +203,18 @@ export default function App() {
   const wishlistFullSpots = allTourSpots.filter(s => bookmarks.includes(s.id));
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+      {/* Dynamic K-Aurora Mesh Background System */}
+      <div className="k-aurora-bg">
+        <div className="k-aurora-glow-1" />
+        <div className="k-aurora-glow-2" />
+        <div className="k-aurora-glow-3" />
+        <div className="k-aurora-pattern" />
+      </div>
+
+      {/* 1.8s Cinematic Intro Splash Screen */}
+      {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} lang={lang} />}
+
       {/* Header with active search filter badge and theme toggle */}
       <Header 
         currentLang={lang} 
@@ -216,7 +228,7 @@ export default function App() {
       />
 
       {/* Main Container */}
-      <main style={{ maxWidth: '1280px', width: '100%', margin: '0 auto', padding: '0 1.5rem 4rem 1.5rem', flex: 1 }}>
+      <main style={{ maxWidth: '1280px', width: '100%', margin: '0 auto', padding: '0 1.5rem 0.5rem 1.5rem', flex: 1, position: 'relative', zIndex: 1 }}>
         {/* Search Conditions Input */}
         <SearchFilterForm
           filters={filters}
@@ -224,9 +236,6 @@ export default function App() {
           onSearch={handleSearch}
           lang={lang}
         />
-
-        {/* Top Partner & Ad Banner */}
-        <AdBanner type="leaderboard" lang={lang} themeMode={themeMode} filters={filters} />
 
         {/* Loading Indicator */}
         {isLoading ? (
@@ -380,15 +389,34 @@ export default function App() {
 
       {/* Footer */}
       <footer style={{
-        borderTop: '1px solid var(--border-color)',
-        padding: '2rem 1.5rem',
+        borderTop: '2px solid var(--accent-primary)',
+        padding: '1.25rem 1.5rem',
         textAlign: 'center',
         color: 'var(--text-dim)',
         fontSize: '0.85rem',
-        background: 'var(--bg-primary)'
+        background: 'var(--bg-secondary)',
+        position: 'relative',
+        zIndex: 2
       }}>
-        <div style={{ marginBottom: '0.5rem' }}>
-          {t.footerCopyright || '© 2026 대한민국 여행 정보 (K-Travel Explorer). koreatravel.cc & koreatravelsguide.com'}
+        <div style={{ marginBottom: '0.65rem', fontWeight: 600, color: 'var(--text-main)' }}>
+          © 2026 {t.travelKorea || '대한민국 여행 정보'} (K-Travel Explorer) ·{' '}
+          <a
+            href="https://koreatravel.cc"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: 'var(--accent-primary)', fontWeight: 800, textDecoration: 'none' }}
+          >
+            koreatravel.cc
+          </a>
+          {' & '}
+          <a
+            href="https://koreatravelsguide.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: 'var(--accent-primary)', fontWeight: 800, textDecoration: 'none' }}
+          >
+            koreatravelsguide.com
+          </a>
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', fontSize: '0.8rem', flexWrap: 'wrap', alignItems: 'center' }}>
           <span>{t.footerAttribution || '한국관광공사 TourAPI 4.0 및 기상청 공공데이터 연동'}</span>

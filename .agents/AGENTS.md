@@ -1,0 +1,40 @@
+# Project Rules & Working Guidelines
+
+## Work Authorization & Verification Workflow
+
+1. **Root Cause & Side-Effect Analysis (원인 및 영향도 분석)**
+   - 코드 수정 전, 문제의 근본 원인을 파악하고 연관된 컴포넌트, 상태(State), 이벤트 흐름을 추적합니다.
+   - 수정 작업으로 인해 기존에 잘 동작하던 기능이 안 되게 되는 사이드 이펙트(Regression risk)가 있는지 사전에 도출합니다.
+
+2. **Feasibility Review & Better Alternatives (타당성 검토 및 대안 제안)**
+   - 요청된 작업 방식의 타당성을 검토합니다.
+   - 만약 구조적으로 더 우수하거나 부작용이 적고 안전한 대안이 있다면 먼저 제안합니다.
+
+3. **Implementation Plan & Explicit User Approval (계획 제시 및 승인 대기)**
+   - 분석 결과, 사이드 이펙트 가능성, 제안/대안, 검증 방안을 사용자에게 먼저 설명합니다.
+   - **사용자가 "진행해" 등 명시적으로 승인하기 전까지는 절대 코드를 먼저 수정하지 않습니다.**
+
+4. **Safe Execution & Verification (작업 진행 및 검증)**
+   - 승인받은 내용에 대해서만 작업을 수행하고, 기존 기능의 원복이나 파손이 없는지 철저히 검증합니다.
+
+5. **Strict Multilingual Support (다국어 처리 기본 적용 - i18n)**
+   - UI 텍스트, 버튼 문구, 툴팁, 안내 메시지 등 새로운 문구를 추가하거나 수정할 때는 단일 언어 하드코딩을 절대 금지합니다.
+   - 기본적으로 `src/i18n/translations.js`에 모든 지원 언어(한국어, 영어, 일본어, 중국어 간체/번체, 독일어, 프랑스어, 스페인어, 러시아어 등)의 번역 키를 빠짐없이 등록하고 적용합니다.
+
+6. **Data Sourcing & Fallback Handling (관광 정보 API 및 이미지 템플릿 처리)**
+   - 기본적으로 관광 정보, 상세 데이터 및 이미지는 공공 데이터(한국관광공사 TourAPI 등)를 우선 활용합니다.
+   - API 데이터나 이미지가 유실/누락된 경우, 화면이 깨지거나 빈 공간이 생기지 않도록 고품질 템플릿 이미지(Fallback Image) 및 기본 템플릿 정보 데이터를 준비하여 항상 매끄럽게 표시되도록 처리합니다.
+
+7. **Authentic Korean Tourism Imagery Only (한국 및 관광공사 정품 이미지 엄격 적용)**
+   - 일본, 그리스 등 해외 풍경 이미지 및 부적절한 간판 사진의 사용을 100% 엄금합니다.
+   - 모든 관광 명소 이미지는 한국관광공사 TourAPI 4.0 공식 CDN (`http://tong.visitkorea.or.kr/...`) 정품 이미지 및 검증된 한국 대표 관광지 고화질 사진만 활용하며, 검증되지 않은 외부 무작위 이미지는 철저히 차단합니다.
+
+8. **Multilingual TourAPI Data Sourcing (다국어 관광 정보 관광공사 공식 API 우선 호출)**
+   - 영어(EngService2), 일본어(JpnService2), 중국어 간체(ChsService2), 중국어 번체(ChtService2), 독일어(GerService2), 프랑스어(FreService2), 스페인어(SpnService2), 러시아어(RusService2) 등 모든 다국어 모드 전환 시, 임의 번역기나 외부 주소가 아닌 한국관광공사 TourAPI 4.0 다국어 전용 공식 API 서비스(`https://apis.data.go.kr/B551011/...Service2`)를 100% 최우선으로 연동하여 정품 다국어 관광명소명, 위치 정보, 상세 안내 데이터를 수신합니다.
+
+9. **Foreigner-First UX & Mandatory Multilingual Verification (글로벌 외국인 관광객 기준 최우선 및 개발 단계 다국어 검증 의무화)**
+   - 본 플랫폼의 주 서비스 대상은 **대한민국을 방문하는 글로벌 외국인 관광객**입니다.
+   - 모든 새로운 기능의 추가, 기존 기능 수정, UI/UX 디자인 변경 시 반드시 글로벌 외국인 사용자 기준(영어/외국어 표기, 가독성, 해외 결제/대중교통 안내, 글로벌 구글지도 연동)에서 최우선으로 설계합니다.
+   - **기능을 수정하거나 추가하는 모든 작업 단계에서 지원하는 모든 다국어 모드(영어, 일본어, 중국어 등)에 단일 언어 하드코딩이나 번역 누락이 없는지 철저히 사전 검증을 완료한 후 마감합니다.**
+
+
