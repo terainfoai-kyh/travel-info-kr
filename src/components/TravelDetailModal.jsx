@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Star, MapPin, Clock, Phone, SunMedium, CheckCircle, Heart, Globe, Loader2, Hotel, Ticket, ExternalLink, Sparkles } from 'lucide-react';
-import { fetchSpotDetailCommon, fetchSpotDetailImages } from '../services/tourApi';
+import { fetchSpotDetailCommon, fetchSpotDetailImages, fetchSpotDetailIntro } from '../services/tourApi';
 import { PUBLIC_API_CONFIG, buildAgodaDeepLink, buildKlookDeepLink, buildKKdayDeepLink } from '../services/apiConfig';
 import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress, getTranslatedTheme, getTranslatedReview, getTranslatedOverview, getTranslatedDetailText } from '../i18n/translations';
 import TravelImageWithFallback from './TravelImageWithFallback';
@@ -8,6 +8,7 @@ import TravelImageWithFallback from './TravelImageWithFallback';
 export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggleBookmark, lang = 'ko' }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
   const [detailData, setDetailData] = useState(null);
+  const [introData, setIntroData] = useState(null);
   const [galleryImages, setGalleryImages] = useState([]);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [newReviewText, setNewReviewText] = useState('');
@@ -80,6 +81,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
 
       setLoadingDetail(true);
       setGalleryImages([]);
+      setIntroData(null);
 
       if (String(spot.id).startsWith('t-')) {
         // Search real contentId by title for mock spots
@@ -89,15 +91,18 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
           .then(data => {
             const realItem = data.response?.body?.items?.item?.[0];
             if (realItem && realItem.contentid) {
+              const cType = realItem.contenttypeid || spot.contentTypeId || '14';
               return Promise.all([
                 fetchSpotDetailCommon(realItem.contentid, lang),
-                fetchSpotDetailImages(realItem.contentid, lang)
+                fetchSpotDetailImages(realItem.contentid, lang),
+                fetchSpotDetailIntro(realItem.contentid, cType, lang)
               ]);
             }
-            return [null, []];
+            return [null, [], null];
           })
-          .then(([commonRes, imagesRes]) => {
+          .then(([commonRes, imagesRes, introRes]) => {
             setDetailData(commonRes);
+            setIntroData(introRes);
             if (imagesRes && imagesRes.length > 0) {
               setGalleryImages(imagesRes);
             }
@@ -105,14 +110,18 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
           })
           .catch(() => {
             setDetailData(null);
+            setIntroData(null);
             setLoadingDetail(false);
           });
       } else {
+        const cType = spot.contentTypeId || '14';
         Promise.all([
           fetchSpotDetailCommon(spot.id, lang),
-          fetchSpotDetailImages(spot.id, lang)
-        ]).then(([commonRes, imagesRes]) => {
+          fetchSpotDetailImages(spot.id, lang),
+          fetchSpotDetailIntro(spot.id, cType, lang)
+        ]).then(([commonRes, imagesRes, introRes]) => {
           setDetailData(commonRes);
+          setIntroData(introRes);
           if (imagesRes && imagesRes.length > 0) {
             setGalleryImages(imagesRes);
           }
@@ -645,7 +654,9 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
               <div>
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', fontWeight: 600 }}>{t.hoursLabel}</div>
                 <div style={{ fontSize: '0.9rem', color: 'var(--text-main)' }}>
-                  {getTranslatedDetailText(spot.details?.hours || t.hoursDefault, lang)}
+                  {introData?.usetime 
+                    ? getTranslatedDetailText(introData.usetime + (introData.restdate ? ` (${introData.restdate})` : ''), lang)
+                    : getTranslatedDetailText(spot.details?.hours || t.hoursDefault, lang)}
                 </div>
               </div>
             </div>
@@ -655,7 +666,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
               <div>
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', fontWeight: 600 }}>{t.contactLabel}</div>
                 <div style={{ fontSize: '0.9rem', color: 'var(--text-main)' }}>
-                  {getTranslatedDetailText(detailData?.tel || spot.details?.contact || t.contactDefault, lang)}
+                  {getTranslatedDetailText(introData?.infocenter || detailData?.tel || spot.details?.contact || t.contactDefault, lang)}
                 </div>
               </div>
             </div>
@@ -697,7 +708,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
               <div>
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', fontWeight: 600 }}>{t.seasonLabel}</div>
                 <div style={{ fontSize: '0.9rem', color: 'var(--text-main)' }}>
-                  {getTranslatedDetailText(spot.details?.bestSeason || t.seasonDefault, lang)}
+                  {getTranslatedDetailText(introData?.useseason || spot.details?.bestSeason || t.seasonDefault, lang)}
                 </div>
               </div>
             </div>

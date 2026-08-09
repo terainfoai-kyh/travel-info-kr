@@ -2232,35 +2232,101 @@ export function getTranslatedDetailText(text, lang = 'ko') {
   const TEXT_MAP = {
     en: {
       '09:00 - 18:00 (입장마감 17:00 / 매주 월요일 휴무)': '09:00 - 18:00 (Last Entry 17:00 / Closed Mondays)',
+      '09:00 - 18:00 (매주 화요일 휴무)': '09:00 - 18:00 (Closed Tuesdays)',
       '관광안내콜센터 1330': 'Tourist Info Center 1330',
       '봄/가을 맑은 날 최적 (사계절 방문 가능)': 'Best on clear Spring/Autumn days (Year-round)',
+      '봄 / 가을': 'Spring / Autumn',
+      '사계절': 'All Seasons',
+      '수문장 교대의식': 'Royal Guard Changing Ceremony',
+      '향원정 연못 정자': 'Hyangwonjeong Pond Pavilion',
+      '근정전 밤 야경 투어': 'Geunjeongjeon Night View Tour',
       '한국관광공사 TourAPI 공식 인증 대표 명소': 'Officially certified landmark of KTO TourAPI 4.0',
       '지역 특색 미식 및 주변 로컬 감성 카페 연계 코스': 'Paired with local gastronomy & aesthetic neighborhood cafes',
       '인생샷 포토 스팟 및 야경 뷰포인트 추천': 'Recommended photo spots & stunning night view points',
       '대중교통 및 주차 시설 완비 (가족/연인/나홀로 여행 최적)': 'Convenient public transit & parking (ideal for family & solo travel)'
     },
-    ja: {
-      '09:00 - 18:00 (입장마감 17:00 / 매주 월요일 휴무)': '09:00 - 18:00 (入場締切 17:00 / 毎週月曜日休館)',
-      '관광안내콜센터 1330': '観光案内コールセンター 1330',
-      '봄/가을 맑은 날 최적 (사계절 방문 가능)': '春・秋の晴れた日が最適 (年中無休)',
-      '한국관광공사 TourAPI 공식 인증 대표 명소': '韓国観光公社TourAPI公式認定の代表的スポット',
-      '지역 특색 미식 및 주변 로컬 감성 카페 연계 코스': '地域の特色あるグルメや人気ローカルカフェの連動コース',
-      '인생샷 포토 스팟 및 야경 뷰포인트 추천': '映え写真スポット＆夜景ビューポイントのオススメ',
-      '대중교통 및 주차 시설 완비 (가족/연인/나홀로 여행 최적)': '公共交通機関アクセス＆駐車場完備（ファミリー・一人旅に最適）'
-    },
     zh: {
       '09:00 - 18:00 (입장마감 17:00 / 매주 월요일 휴무)': '09:00 - 18:00 (截止入场 17:00 / 每周一闭馆)',
+      '09:00 - 18:00 (매주 화요일 휴무)': '09:00 - 18:00 (每周二闭馆)',
       '관광안내콜센터 1330': '旅游咨询热线 1330',
       '봄/가을 맑은 날 최적 (사계절 방문 가능)': '春秋晴天游览最佳 (全年开放)',
+      '봄 / 가을': '春秋两季',
+      '사계절': '四季皆宜',
+      '수문장 교대의식': '守门将换岗仪式',
+      '향원정 연못 정자': '香远亭池塘凉亭',
+      '근정전 밤 야경 투어': '勤政殿夜景之旅',
       '한국관광공사 TourAPI 공식 인증 대표 명소': '韩国旅游发展局TourAPI官方认证代表景点',
       '지역 특색 미식 및 주변 로컬 감성 카페 연계 코스': '联动地方特色美食与周边特色文青咖啡馆路线',
       '인생샷 포토 스팟 및 야경 뷰포인트 추천': '推荐绝美打卡拍照点与迷人夜景观景点',
       '대중교통 및 주차 시설 완비 (가족/연인/나홀로 여행 최적)': '公共交通便利与停车设施完善（极度适合家庭与单人游）'
+    },
+    zht: {
+      '09:00 - 18:00 (입장마감 17:00 / 매주 월요일 휴무)': '09:00 - 18:00 (截止入場 17:00 / 每週一閉館)',
+      '09:00 - 18:00 (매주 화요일 휴무)': '09:00 - 18:00 (每週二閉館)',
+      '관광안내콜센터 1330': '旅遊諮詢熱線 1330',
+      '봄/가을 맑은 날 최적 (사계절 방문 가능)': '春秋晴天遊覽最佳 (全年開放)',
+      '봄 / 가을': '春秋兩季',
+      '사계절': '四季皆宜',
+      '수문장 교대의식': '守門將換崗儀式',
+      '향원정 연못 정자': '香遠亭池塘涼亭',
+      '근정전 밤 야경 투어': '勤政殿夜景之旅',
+      '한국관광공사 TourAPI 공식 인증 대표 명소': '韓國旅遊發展局TourAPI官方認證代表景點',
+      '지역 특색 미식 및 주변 로컬 감성 카페 연계 코스': '聯動地方特色美食與周邊特色文青咖啡館路線',
+      '인생샷 포토 스팟 및 야경 뷰포인트 추천': '推薦絕美打卡拍照點與迷人夜景觀景點',
+      '대중교통 및 주차 시설 완비 (가족/연인/나홀로 여행 최적)': '公共交通便利與停車設施完善（極度適合家庭與單人遊）'
+    },
+    ja: {
+      '09:00 - 18:00 (입장마감 17:00 / 매주 월요일 휴무)': '09:00 - 18:00 (入場締切 17:00 / 毎週月曜日休館)',
+      '09:00 - 18:00 (매주 화요일 휴무)': '09:00 - 18:00 (毎週火曜日休館)',
+      '관광안내콜센터 1330': '観光案内コールセンター 1330',
+      '봄/가을 맑은 날 최적 (사계절 방문 가능)': '春・秋の晴れた日が最適 (年中無休)',
+      '봄 / 가을': '春・秋',
+      '사계절': '四季',
+      '수문장 교대의식': '王宮守門将交代儀式',
+      '향원정 연못 정자': '香遠亭の池と東屋',
+      '근정전 밤 야경 투어': '勤政殿の夜景ツアー',
+      '한국관광공사 TourAPI 공식 인증 대표 명소': '韓国観光公社TourAPI公式認定の代表的スポット',
+      '지역 특색 미식 및 주변 로컬 감성 카페 연계 코스': '地域の特色あるグルメや人気ロー컬カフェの連動コース',
+      '인생샷 포토 스팟 및 야경 뷰포인트 추천': '映え写真スポット＆夜景ビューポイントのオススメ',
+      '대중교통 및 주차 시설 완비 (가족/연인/나홀로 여행 최적)': '公共交通機関アクセス＆駐車場完備（ファミリー・一人旅に最適）'
     }
   };
 
-  const list = TEXT_MAP[lang] || TEXT_MAP.en;
-  return list[text] || text;
+  const list = TEXT_MAP[lang] || TEXT_MAP.zh || TEXT_MAP.en;
+  let str = list[text] || text;
+
+  if (lang !== 'ko' && typeof str === 'string' && /[\uAC00-\uD7A3]/.test(str)) {
+    str = str
+      .replace(/매주\s*화요일\s*휴무/g, {
+        en: 'Closed Tuesdays', zh: '每周二闭馆', zht: '每週二閉館', ja: '毎週火曜日休館', de: 'Dienstags geschlossen', fr: 'Fermé le mardi', es: 'Cerrado los martes', ru: 'Выходной: вторник'
+      }[lang] || 'Closed Tuesdays')
+      .replace(/매주\s*월요일\s*휴무/g, {
+        en: 'Closed Mondays', zh: '每周一闭馆', zht: '每週一閉館', ja: '毎週月曜日休館', de: 'Montags geschlossen', fr: 'Fermé le lundi', es: 'Cerrado los lunes', ru: 'Выходной: понедельник'
+      }[lang] || 'Closed Mondays')
+      .replace(/매주\s*수요일\s*휴무/g, {
+        en: 'Closed Wednesdays', zh: '每周三闭馆', zht: '每週三閉館', ja: '毎週水曜日休館', de: 'Mittwochs geschlossen', fr: 'Fermé le mercredi', es: 'Cerrado los miércoles', ru: 'Выходной: среда'
+      }[lang] || 'Closed Wednesdays')
+      .replace(/연중무휴/g, {
+        en: 'Open Year-Round', zh: '全年无休', zht: '全年無休', ja: '年中無休', de: 'Ganzjährig geöffnet', fr: 'Ouvert toute l’année', es: 'Abierto todo el año', ru: 'Круглый год'
+      }[lang] || 'Open Year-Round')
+      .replace(/봄\s*\/\s*가을/g, {
+        en: 'Spring / Autumn', zh: '春秋两季', zht: '春秋兩季', ja: '春・秋', de: 'Frühling / Herbst', fr: 'Printemps / Automne', es: 'Primavera / Otoño', ru: 'Весна / Осень'
+      }[lang] || 'Spring / Autumn')
+      .replace(/사계절/g, {
+        en: 'All Seasons', zh: '四季皆宜', zht: '四季皆宜', ja: '四季', de: 'Alle Jahreszeiten', fr: 'Toutes saisons', es: 'Todas las estaciones', ru: 'Все сезоны'
+      }[lang] || 'All Seasons')
+      .replace(/수문장\s*교대의식/g, {
+        en: 'Royal Guard Changing Ceremony', zh: '守门将换岗仪式', zht: '守門將換崗儀式', ja: '王宮守門将交代儀式', de: 'Königliche Wachablösung', fr: 'Relève de la garde royale', es: 'Ceremonia de cambio de guardia', ru: 'Церемония смены караула'
+      }[lang] || 'Royal Guard Changing Ceremony')
+      .replace(/향원정\s*연못\s*정자/g, {
+        en: 'Hyangwonjeong Pond Pavilion', zh: '香远亭池塘凉亭', zht: '香遠亭池塘涼亭', ja: '香遠亭の池と東屋', de: 'Hyangwonjeong-Teichpavillon', fr: 'Pavillon du étang Hyangwonjeong', es: 'Pabellón del estanque Hyangwonjeong', ru: 'Павильон у пруда Хянвонджон'
+      }[lang] || 'Hyangwonjeong Pond Pavilion')
+      .replace(/근정전\s*밤\s*야경\s*투어/g, {
+        en: 'Geunjeongjeon Night Tour', zh: '勤政殿夜景之旅', zht: '勤政殿夜景之旅', ja: '勤政殿の夜景ツアー', de: 'Geunjeongjeon Nacht-Tour', fr: 'Visite nocturne du Geunjeongjeon', es: 'Tour nocturno de Geunjeongjeon', ru: 'Ночной тур в Гынчжонджон'
+      }[lang] || 'Geunjeongjeon Night Tour');
+  }
+
+  return str;
 }
 
 export function getTranslatedFood(food, lang = 'ko') {

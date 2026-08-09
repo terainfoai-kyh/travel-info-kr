@@ -65,6 +65,50 @@ export async function fetchSpotDetailCommon(contentId, lang = 'ko') {
   return null;
 }
 
+// 한국관광공사 TourAPI 4.0 - 소개정보조회 (/detailIntro2) 다국어 전용 연동
+export async function fetchSpotDetailIntro(contentId, contentTypeId = '14', lang = 'ko') {
+  if (!contentId) return null;
+
+  let baseUrl = PUBLIC_API_CONFIG.DETAIL_INTRO_URL;
+  if (lang === 'en') baseUrl = `${PUBLIC_API_CONFIG.ENG_BASE}/detailIntro2`;
+  else if (lang === 'ja') baseUrl = `${PUBLIC_API_CONFIG.JPN_BASE}/detailIntro2`;
+  else if (lang === 'zh') baseUrl = `${PUBLIC_API_CONFIG.CHS_BASE}/detailIntro2`;
+  else if (lang === 'zht') baseUrl = `${PUBLIC_API_CONFIG.CHT_BASE}/detailIntro2`;
+  else if (lang === 'de') baseUrl = `${PUBLIC_API_CONFIG.GER_BASE}/detailIntro2`;
+  else if (lang === 'fr') baseUrl = `${PUBLIC_API_CONFIG.FRE_BASE}/detailIntro2`;
+  else if (lang === 'es') baseUrl = `${PUBLIC_API_CONFIG.SPN_BASE}/detailIntro2`;
+  else if (lang === 'ru') baseUrl = `${PUBLIC_API_CONFIG.RUS_BASE}/detailIntro2`;
+
+  const url = `${baseUrl}?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&contentId=${contentId}&contentTypeId=${contentTypeId}`;
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const data = await res.json();
+    
+    const itemsRaw = data.response?.body?.items?.item;
+    let item = null;
+    if (Array.isArray(itemsRaw)) {
+      item = itemsRaw[0];
+    } else if (itemsRaw && typeof itemsRaw === 'object') {
+      item = itemsRaw;
+    }
+
+    if (item) {
+      const cleanHtml = (str) => (str || '').replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').trim();
+      return {
+        usetime: cleanHtml(item.usetime || item.usetimeculture || item.opentimefood || item.usetimeleports),
+        restdate: cleanHtml(item.restdate || item.restdateculture || item.restdatefood || item.restdateleports),
+        infocenter: cleanHtml(item.infocenter || item.infocenterculture || item.infocenterfood || item.infocenterleports),
+        useseason: cleanHtml(item.useseason || item.useseasonleports)
+      };
+    }
+  } catch (err) {
+    console.warn('Detail Intro API fallback:', err);
+  }
+  return null;
+}
+
 // 한국관광공사 TourAPI 4.0 - 이미지정보조회 (/detailImage2)
 export async function fetchSpotDetailImages(contentId, lang = 'ko') {
   if (!contentId) return [];
