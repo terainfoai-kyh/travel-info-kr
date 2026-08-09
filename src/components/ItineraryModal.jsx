@@ -851,13 +851,21 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                             📍 {itemDisplayTitle.length > 8 ? itemDisplayTitle.substring(0, 8) + '...' : itemDisplayTitle} ➔ {nextDisplayTitle.length > 8 ? nextDisplayTitle.substring(0, 8) + '...' : nextDisplayTitle}
                           </span>
                           <span style={{ color: 'var(--text-muted)' }}>:</span>
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem', color: '#0284c7', fontWeight: 700 }}>
-                            <Car size={12} /> {t.drivePrefix || '차량 약'} {item.nextTravel.carMin}{t.minuteUnit || '분'} ({item.nextTravel.distKm}km)
-                          </span>
-                          <span style={{ color: 'var(--text-muted)' }}>|</span>
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem', color: '#818cf8', fontWeight: 700 }}>
-                            <Bus size={12} /> {t.transitPrefix || '대중교통 약'} {item.nextTravel.transitMin}{t.minuteUnit || '분'}
-                          </span>
+                          {item.nextTravel.isLongDistance ? (
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem', color: '#eab308', fontWeight: 700 }}>
+                              {item.nextTravel.longDistanceNote || '✈️ KTX / 항공 / 시외버스 이동 (장거리)'}
+                            </span>
+                          ) : (
+                            <>
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem', color: '#0284c7', fontWeight: 700 }}>
+                                <Car size={12} /> {t.drivePrefix || '차량 약'} {item.nextTravel.carMin}{t.minuteUnit || '분'} ({item.nextTravel.distKm}km)
+                              </span>
+                              <span style={{ color: 'var(--text-muted)' }}>|</span>
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem', color: '#818cf8', fontWeight: 700 }}>
+                                <Bus size={12} /> {t.transitPrefix || '대중교통 약'} {item.nextTravel.transitMin}{t.minuteUnit || '분'}
+                              </span>
+                            </>
+                          )}
                         </span>
                         <span style={{ height: '14px', width: '1px', background: 'var(--border-color)' }} />
                       </div>

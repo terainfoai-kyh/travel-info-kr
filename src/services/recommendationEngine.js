@@ -326,25 +326,23 @@ export function generateSmartItinerary({
   };
 
   const REGION_PRESETS = {
-    '제주': [
-      { title: '성산일출봉', location: '제주특별자치도 서귀포시 성산읍', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.9, tags: ['자연', '세계유산'] },
-      { title: '협재 해수욕장 & 비양도', location: '제주특별자치도 제주시 한림읍', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.8, tags: ['해변', '에메랄드빛'] },
-      { title: '한라산 국립공원', location: '제주특별자치도 제주시 1100로', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.9, tags: ['등산', '인생샷'] },
-      { title: '서귀포 매일올레시장', location: '제주특별자치도 서귀포시 중앙로62번길', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.7, tags: ['로컬미식', '야시장'] },
-      { title: '섭지코지 & 유채꽃밭', location: '제주특별자치도 서귀포시 성산읍', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.8, tags: ['해안산책', '포토존'] },
-      { title: '중문관광단지 & 주상절리대', location: '제주특별자치도 서귀포시 이어도로', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.9, tags: ['주상절리', '경관'] }
-    ],
     '서울': [
-      { title: '경복궁 & 광화문 광장', location: '서울특별시 종로구 사직로 161', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.9, tags: ['고궁', '한복체험'] },
-      { title: 'N서울타워 & 남산공원', location: '서울특별시 용산구 남산공원길 105', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.8, tags: ['야경', '랜드마크'] },
-      { title: '북촌한옥마을 & 삼청동', location: '서울특별시 종로구 계동길', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.8, tags: ['한옥', '감성카페'] },
-      { title: '성수동 카페거리 & 서울숲', location: '서울특별시 성동구 서울숲2길', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.7, tags: ['핫플레이스', '쇼핑'] }
+      { title: '경복궁 & 광화문 광장', location: '서울특별시 종로구 사직로 161', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.9, tags: ['고궁', '한복체험'], lat: 37.5796, lng: 126.9770 },
+      { title: 'N서울타워 & 남산공원', location: '서울특별시 용산구 남산공원길 105', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.8, tags: ['야경', '랜드마크'], lat: 37.5512, lng: 126.9882 },
+      { title: '북촌한옥마을 & 삼청동', location: '서울특별시 종로구 계동길', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.8, tags: ['한옥', '감성카페'], lat: 37.5826, lng: 126.9831 },
+      { title: '성수동 카페거리 & 서울숲', location: '서울특별시 성동구 서울숲2길', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.7, tags: ['핫플레이스', '쇼핑'], lat: 37.5445, lng: 127.0441 }
+    ],
+    '제주': [
+      { title: '성산일출봉 & 광치기해변', location: '제주특별자치도 서귀포시 성산읍', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.9, tags: ['유네스코', '일출명소'], lat: 33.4581, lng: 126.9426 },
+      { title: '한라산 국립공원', location: '제주특별자치도 제주시 1100로', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.9, tags: ['등산', '인생샷'], lat: 33.3617, lng: 126.5332 },
+      { title: '서귀포 매일올레시장', location: '제주특별자치도 서귀포시 중앙로62번길', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.7, tags: ['로컬미식', '야시장'], lat: 33.2494, lng: 126.5638 },
+      { title: '섭지코지 & 유채꽃밭', location: '제주특별자치도 서귀포시 성산읍', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.8, tags: ['해안산책', '포토존'], lat: 33.4243, lng: 126.9288 }
     ],
     '부산': [
-      { title: '해운대 해수욕장 & 블루라인파크', location: '부산광역시 해운대구 달맞이길', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.9, tags: ['해변', '스카이캡슐'] },
-      { title: '광안리 해수욕장 & 드론쇼', location: '부산광역시 수영구 광안해변로', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.9, tags: ['야경', '광안대교'] },
-      { title: '감천문화마을', location: '부산광역시 사하구 감내2로', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.8, tags: ['문화', '포토존'] },
-      { title: '자갈치시장 & BIFF 광장', location: '부산광역시 중구 자갈치해안로', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.7, tags: ['해산물', '씨앗호떡'] }
+      { title: '해운대 해수욕장 & 블루라인파크', location: '부산광역시 해운대구 달맞이길', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.9, tags: ['해변', '스카이캡슐'], lat: 35.1601, lng: 129.1923 },
+      { title: '광안리 해수욕장 & 드론쇼', location: '부산광역시 수영구 광안해변로', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.9, tags: ['야경', '광안대교'], lat: 35.1532, lng: 129.1189 },
+      { title: '감천문화마을', location: '부산광역시 사하구 감내2로', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.8, tags: ['문화', '포토존'], lat: 35.0975, lng: 129.0106 },
+      { title: '자갈치시장 & BIFF 광장', location: '부산광역시 중구 자갈치해안로', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.7, tags: ['해산물', '씨앗호떡'], lat: 35.0967, lng: 129.0305 }
     ]
   };
 
@@ -382,7 +380,7 @@ export function generateSmartItinerary({
   }
 
   // If pool is insufficient for specific region, mix in regional presets
-  if (pool.length < 4 && region !== '전국') {
+  if (pool.length < 4 && region !== '전국' && region !== '전체') {
     const presets = REGION_PRESETS[region] || REGION_PRESETS['제주'];
     pool = [...pool, ...presets];
   } else if (pool.length === 0) {
