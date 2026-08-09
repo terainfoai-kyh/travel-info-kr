@@ -361,12 +361,16 @@ export function calculateTravelEstimate(spotA, spotB) {
 
   // If different administrative provinces (e.g. Seoul vs Jeonbuk, Seoul vs Jeju, Jeju vs Busan)
   if (provA !== provB) {
+    const isJejuTrip = provA === '제주' || provB === '제주';
+    const noteText = isJejuTrip 
+      ? '✈️ 비행기 / 연안여객선 (약 3.5시간)' 
+      : '🚄 KTX / 고속버스 (약 2.5시간)';
     return {
-      distKm: '220',
+      distKm: isJejuTrip ? '450' : '220',
       carMin: 150,
       transitMin: 210,
       isLongDistance: true,
-      longDistanceNote: '✈️ KTX / 고속버스 이동 (약 2.5시간)'
+      longDistanceNote: noteText
     };
   }
 
@@ -395,12 +399,16 @@ export function calculateTravelEstimate(spotA, spotB) {
 
   if (dist > 45) {
     const hours = (dist / 70 + 0.3).toFixed(1);
+    const isJejuTrip = provA === '제주' || provB === '제주';
+    const noteText = isJejuTrip 
+      ? '✈️ 비행기 / 연안여객선 (약 3.5시간)' 
+      : `🚄 KTX / 고속버스 (약 ${hours}시간)`;
     return {
       distKm: dist.toFixed(0),
       carMin: Math.round(dist * 1.2),
       transitMin: Math.round(dist * 1.8),
       isLongDistance: true,
-      longDistanceNote: `✈️ KTX / 고속버스 (약 ${hours}시간)`
+      longDistanceNote: noteText
     };
   }
 
@@ -456,65 +464,46 @@ export function generateSmartItinerary({
     return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
   };
 
-  // Region synonym dictionary for accurate geo-matching
-  const REGION_SYNONYMS = {
-    '제주': ['제주', '서귀포', '제주시', '우도', '성산', '한라산', '애월', '중문', '협재', '섭지코지'],
-    '서울': ['서울', '강남', '홍대', '명동', '이태원', '종로', '잠실', '성수', '경복궁', '남산'],
-    '부산': ['부산', '해운대', '광안리', '남포동', '서면', '영도', '기장', '태종대', '감천'],
-    '강원': ['강원', '강릉', '속초', '양양', '평창', '동해', '삼척', '춘천', '설악산', '정동진'],
-    '경주': ['경주', '보문', '불국사', '첨성대', '황리단길', '안압지', '동궁'],
-    '전주': ['전주', '한옥마을', '덕진'],
-    '인천': ['인천', '송도', '영종도', '차이나타운', '월미도'],
-    '경기': ['경기', '수원', '용인', '파주', '가평', '양평'],
-    '충청': ['충청', '공주', '부여', '단양', '제천', '천안'],
-    '전라': ['전라', '여수', '순천', '목포', '담양', '보성'],
-    '경상': ['경상', '통영', '거제', '남해', '안동', '포항']
-  };
-
+  // Province presets dictionary
   const REGION_PRESETS = {
     '서울': [
-      { title: '경복궁 & 광화문 광장', location: '서울특별시 종로구 사직로 161', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.9, tags: ['고궁', '한복체험'], lat: 37.5796, lng: 126.9770 },
-      { title: 'N서울타워 & 남산공원', location: '서울특별시 용산구 남산공원길 105', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.8, tags: ['야경', '랜드마크'], lat: 37.5512, lng: 126.9882 },
-      { title: '북촌한옥마을 & 삼청동', location: '서울특별시 종로구 계동길', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.8, tags: ['한옥', '감성카페'], lat: 37.5826, lng: 126.9831 },
-      { title: '성수동 카페거리 & 서울숲', location: '서울특별시 성동구 서울숲2길', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.7, tags: ['핫플레이스', '쇼핑'], lat: 37.5445, lng: 127.0441 }
+      { id: 'p-1', title: '경복궁 & 향원정', location: '서울특별시 종로구 사직로 161', rating: 4.9, tags: ['역사탐방', '궁궐', '포토존'], lat: 37.5796, lng: 126.9770, image: GYEONGBOKGUNG_FALLBACK_IMG },
+      { id: 'p-2', title: 'N서울타워 & 남산공원', location: '서울특별시 용산구 남산공원길 105', rating: 4.8, tags: ['야경명소', '전망대', '데이트'], lat: 37.5512, lng: 126.9882, image: GYEONGBOKGUNG_FALLBACK_IMG },
+      { id: 'p-3', title: '북촌한옥마을', location: '서울특별시 종로구 계동길 37', rating: 4.7, tags: ['한옥', '전통문화', '골목길'], lat: 37.5826, lng: 126.9831, image: GYEONGBOKGUNG_FALLBACK_IMG },
+      { id: 'p-4', title: 'DDP 동대문디자인플라자', location: '서울특별시 중구 을지로 281', rating: 4.6, tags: ['건축', '전시', '쇼핑'], lat: 37.5665, lng: 127.0092, image: GYEONGBOKGUNG_FALLBACK_IMG }
     ],
     '제주': [
-      { title: '성산일출봉 & 광치기해변', location: '제주특별자치도 서귀포시 성산읍', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.9, tags: ['유네스코', '일출명소'], lat: 33.4581, lng: 126.9426 },
-      { title: '한라산 국립공원', location: '제주특별자치도 제주시 1100로', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.9, tags: ['등산', '인생샷'], lat: 33.3617, lng: 126.5332 },
-      { title: '서귀포 매일올레시장', location: '제주특별자치도 서귀포시 중앙로62번길', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.7, tags: ['로컬미식', '야시장'], lat: 33.2494, lng: 126.5638 },
-      { title: '섭지코지 & 유채꽃밭', location: '제주특별자치도 서귀포시 성산읍', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.8, tags: ['해안산책', '포토존'], lat: 33.4243, lng: 126.9288 }
+      { id: 'p-5', title: '성산일출봉', location: '제주특별자치도 서귀포시 성산읍 일출로 284-12', rating: 4.9, tags: ['유네스코', '세계자연유산', '일출'], lat: 33.4581, lng: 126.9426, image: GYEONGBOKGUNG_FALLBACK_IMG },
+      { id: 'p-6', title: '협재해수욕장', location: '제주특별자치도 제주시 한림읍 한림로 329', rating: 4.8, tags: ['에메랄드바다', '석양', '힐링'], lat: 33.3940, lng: 126.2397, image: GYEONGBOKGUNG_FALLBACK_IMG },
+      { id: 'p-7', title: '한라산 국립공원', location: '제주특별자치도 제주시 1100로 2070-61', rating: 4.9, tags: ['등산', '백록담', '자연탐방'], lat: 33.3617, lng: 126.5292, image: GYEONGBOKGUNG_FALLBACK_IMG },
+      { id: 'p-8', title: '섭지코지', location: '제주특별자치도 서귀포시 성산읍 섭지코지로 107', rating: 4.7, tags: ['해안산책', '유채꽃', '드라마촬영지'], lat: 33.4244, lng: 126.9312, image: GYEONGBOKGUNG_FALLBACK_IMG }
     ],
     '부산': [
-      { title: '해운대 해수욕장 & 블루라인파크', location: '부산광역시 해운대구 달맞이길', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.9, tags: ['해변', '스카이캡슐'], lat: 35.1601, lng: 129.1923 },
-      { title: '광안리 해수욕장 & 드론쇼', location: '부산광역시 수영구 광안해변로', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.9, tags: ['야경', '광안대교'], lat: 35.1532, lng: 129.1189 },
-      { title: '감천문화마을', location: '부산광역시 사하구 감내2로', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.8, tags: ['문화', '포토존'], lat: 35.0975, lng: 129.0106 },
-      { title: '자갈치시장 & BIFF 광장', location: '부산광역시 중구 자갈치해안로', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.7, tags: ['해산물', '씨앗호떡'], lat: 35.0967, lng: 129.0305 }
-    ],
-    '전북': [
-      { title: '전주 한옥마을 & 경기전', location: '전북특별자치도 전주시 완산구 기린대로 99', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.9, tags: ['한옥', '전통문화'], lat: 35.8147, lng: 127.1526 },
-      { title: '전주 덕진공원 & 연꽃지', location: '전북특별자치도 전주시 덕진구 권삼득로', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.8, tags: ['공원', '산책'], lat: 35.8471, lng: 127.1245 },
-      { title: '한국도로공사 전주수목원', location: '전북특별자치도 전주시 덕진구 번영로', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.8, tags: ['수목원', '포토존'], lat: 35.8705, lng: 127.0583 },
-      { title: '전주 남부시장 & 청년몰', location: '전북특별자치도 전주시 완산구 풍남문2길', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.7, tags: ['야시장', '콩나물국밥'], lat: 35.8123, lng: 127.1472 }
+      { id: 'p-9', title: '해운대해수욕장 & 엘시티 X더스카이', location: '부산광역시 해운대구 달맞이길 30', rating: 4.9, tags: ['해변', '오션뷰', '야경'], lat: 35.1587, lng: 129.1604, image: GYEONGBOKGUNG_FALLBACK_IMG },
+      { id: 'p-10', title: '감천문화마을', location: '부산광역시 사하구 감내2로 203', rating: 4.8, tags: ['어린왕자', '벽화마을', '포토존'], lat: 35.0975, lng: 129.0106, image: GYEONGBOKGUNG_FALLBACK_IMG },
+      { id: 'p-11', title: '광안리해수욕장 & 광안대교', location: '부산광역시 수영구 광안해변로 219', rating: 4.9, tags: ['드론쇼', '카페거리', '야경명소'], lat: 35.1532, lng: 129.1189, image: GYEONGBOKGUNG_FALLBACK_IMG },
+      { id: 'p-12', title: '태종대 유원지', location: '부산광역시 영도구 전망로 24', rating: 4.7, tags: ['기암괴석', '순환열차', '해안절경'], lat: 35.0531, lng: 129.0872, image: GYEONGBOKGUNG_FALLBACK_IMG }
     ],
     '강원': [
-      { title: '설악산 국립공원 권금성', location: '강원특별자치도 속초시 설악산로', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.9, tags: ['단풍', '케이블카'], lat: 38.1194, lng: 128.4656 },
-      { title: '강릉 경포대 & 경포해변', location: '강원특별자치도 강릉시 경포로', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.8, tags: ['오션뷰', '카페거리'], lat: 37.7951, lng: 128.8966 },
-      { title: '양양 서피비치', location: '강원특별자치도 양양군 현북면', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.8, tags: ['서핑', '핫플'], lat: 38.0264, lng: 128.7181 },
-      { title: '정동진역 & 해돋이공원', location: '강원특별자치도 강릉시 강동면', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.7, tags: ['일출', '바다열차'], lat: 37.6915, lng: 129.0326 }
+      { id: 'p-13', title: '강릉 경포대 & 경포호수', location: '강원특별자치도 강릉시 경포로 365', rating: 4.8, tags: ['호수', '동해바다', '자전거'], lat: 37.7950, lng: 128.8964, image: GYEONGBOKGUNG_FALLBACK_IMG },
+      { id: 'p-14', title: '속초관광수산시장', location: '강원특별자치도 속초시 중앙로147번길 16', rating: 4.7, tags: ['닭강정', 'K-푸드', '전통시장'], lat: 38.2045, lng: 128.5905, image: GYEONGBOKGUNG_FALLBACK_IMG },
+      { id: 'p-15', title: '설악산 국립공원 (권금성 케이블카)', location: '강원특별자치도 속초시 설악산로 1085', rating: 4.9, tags: ['단풍명소', '케이블카', '명산'], lat: 38.1194, lng: 128.4656, image: GYEONGBOKGUNG_FALLBACK_IMG },
+      { id: 'p-16', title: '정동진역 & 조각공원', location: '강원특별자치도 강릉시 강동면 정동역길 17', rating: 4.7, tags: ['해돋이', '바다열차', '감성'], lat: 37.6914, lng: 129.0326, image: GYEONGBOKGUNG_FALLBACK_IMG }
     ],
-    '경북': [
-      { title: '경주 동궁과 월지 (안압지)', location: '경상북도 경주시 원화로 102', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.9, tags: ['야경', '신라역사'], lat: 35.8341, lng: 129.2266 },
-      { title: '경주 첨성대 & 대릉원', location: '경상북도 경주시 첨성로 140', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.9, tags: ['유네스코', '산책'], lat: 35.8347, lng: 129.2190 },
-      { title: '황리단길 카페거리', location: '경상북도 경주시 포석로', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.8, tags: ['감성카페', '황남빵'], lat: 35.8362, lng: 129.2104 },
-      { title: '불국사 & 석굴암', location: '경상북도 경주시 불국로 385', image: GYEONGBOKGUNG_FALLBACK_IMG, rating: 4.9, tags: ['사찰', '세계유산'], lat: 35.7901, lng: 129.3323 }
+    '전북': [
+      { id: 'p-17', title: '전주한옥마을 & 경기전', location: '전북특별자치도 전주시 완산구 기린대로 99', rating: 4.9, tags: ['한복체험', 'K-푸드', '한옥미학'], lat: 35.8147, lng: 127.1526, image: GYEONGBOKGUNG_FALLBACK_IMG },
+      { id: 'p-18', title: '덕진공원 연화교', location: '전북특별자치도 전주시 덕진구 권삼득로 390', rating: 4.7, tags: ['연꽃', '도서관', '야경'], lat: 35.8471, lng: 127.1215, image: GYEONGBOKGUNG_FALLBACK_IMG },
+      { id: 'p-19', title: '군산 근대화거리 & 초원사진관', location: '전북특별자치도 군산시 구영2길 12-1', rating: 4.6, tags: ['레트로', '근대역사', '영화촬영지'], lat: 35.9872, lng: 126.7061, image: GYEONGBOKGUNG_FALLBACK_IMG },
+      { id: 'p-20', title: '마이산 도립공원', location: '전북특별자치도 진안군 진안읍 마이산로 130', rating: 4.8, tags: ['탑사', '기암괴석', '미스테리'], lat: 35.7621, lng: 127.4285, image: GYEONGBOKGUNG_FALLBACK_IMG }
     ]
   };
 
+  // Helper function to match region against spot object using the 3-Layer engine
   const isMatchingRegion = (spot, targetRegion) => {
     if (!targetRegion || targetRegion === '전국' || targetRegion === '전체') return true;
-    const targetKey = getSpotProvinceKey({ region: targetRegion, location: targetRegion });
-    const spotKey = getSpotProvinceKey(spot);
-    return spotKey === targetKey;
+    const spotProvKey = getSpotProvinceKey(spot);
+    const targetProvKey = getSpotProvinceKey({ region: targetRegion, location: targetRegion });
+    return spotProvKey === targetProvKey;
   };
 
   // Filter pool strictly by target region
@@ -540,14 +529,6 @@ export function generateSmartItinerary({
     }
   }
 
-  if (pool.length < 4 && region !== '전국' && region !== '전체') {
-    const targetKey = getSpotProvinceKey({ region, location: region });
-    const presets = REGION_PRESETS[targetKey] || REGION_PRESETS['서울'];
-    pool = [...pool, ...presets];
-  } else if (pool.length === 0) {
-    pool = spots;
-  }
-
   const ALL_PROVINCES = ['서울', '제주', '부산', '전북', '강원', '경북', '전남', '경남', '인천', '경기'];
   const numDays = Math.min(Math.max(parseInt(days, 10) || 2, 1), 5);
   const itinerary = [];
@@ -562,21 +543,19 @@ export function generateSmartItinerary({
     const formattedDate = `${year}.${month}.${dateNum} (${dayOfWeek})`;
 
     let targetProvince = region;
+    let provincePool = pool;
+
     if (region === '전국' || region === '전체') {
-      targetProvince = ALL_PROVINCES[(d - 1 + refreshSeed) % ALL_PROVINCES.length];
+      targetProvince = ALL_PROVINCES[(d - 1) % ALL_PROVINCES.length];
+      const matchedProvinceSpots = spots.filter(s => getSpotProvinceKey(s) === targetProvince);
+      if (matchedProvinceSpots.length >= 3) {
+        provincePool = matchedProvinceSpots;
+      } else {
+        const targetProvKey = getSpotProvinceKey({ region: targetProvince, location: targetProvince });
+        provincePool = REGION_PRESETS[targetProvKey] || REGION_PRESETS['서울'];
+      }
     } else {
       targetProvince = getSpotProvinceKey({ region, location: region });
-    }
-
-    // Filter spots belonging STRICTLY to targetProvince
-    let provincePool = pool.filter(s => getSpotProvinceKey(s) === targetProvince);
-
-    // If province pool has fewer than 4 items, fill from REGION_PRESETS[targetProvince]!
-    const presets = REGION_PRESETS[targetProvince] || REGION_PRESETS['서울'];
-    if (provincePool.length < 4) {
-      const existingTitles = new Set(provincePool.map(s => s.title));
-      const extraPresets = presets.filter(p => !existingTitles.has(p.title));
-      provincePool = [...provincePool, ...extraPresets];
     }
 
     const dStartTime = dayTimes[d]?.start || startTime || '09:30';
@@ -598,7 +577,7 @@ export function generateSmartItinerary({
     const daySpots = [];
     for (let s = 0; s < 4; s++) {
       const spotIdx = (s + dSeed) % (provincePool.length || 1);
-      const targetSpot = provincePool[spotIdx] || presets[s % presets.length];
+      const targetSpot = provincePool[spotIdx] || REGION_PRESETS['서울'][s % 4];
 
       let img = targetSpot.image || GYEONGBOKGUNG_FALLBACK_IMG;
       if (img.toLowerCase().includes('japan') || img.toLowerCase().includes('fuji') || img.toLowerCase().includes('tokyo') || img.toLowerCase().includes('kyoto') || img.toLowerCase().includes('osaka')) {
@@ -630,6 +609,150 @@ export function generateSmartItinerary({
       dayTitle: `${d}일차 코스 · ${formattedDate} (${targetProvince} 동선)`,
       schedule: daySpots,
       pool: provincePool
+    });
+  }
+
+  return itinerary;
+}
+
+// TSP Nearest-Neighbor & Province-Isolated Route Optimizer for User-Selected Spots
+export function generateCustomPickedItinerary({
+  pickedSpots = [],
+  days = 1,
+  startDate = '',
+  startTime = '09:30',
+  endTime = '20:00',
+  rainyMode = false,
+  allSpots = []
+}) {
+  if (!pickedSpots || pickedSpots.length === 0) return [];
+
+  const GYEONGBOKGUNG_FALLBACK_IMG = '/default-spot.png';
+
+  // 1. Group picked spots strictly by province first so islands/mainlands are isolated into clean separate days!
+  const provinceGroups = {};
+  for (const spot of pickedSpots) {
+    const prov = getSpotProvinceKey(spot);
+    if (!provinceGroups[prov]) provinceGroups[prov] = [];
+    provinceGroups[prov].push(spot);
+  }
+
+  // 2. Sort spots inside each province group using TSP Nearest-Neighbor
+  const daysByProvince = [];
+  for (const prov of Object.keys(provinceGroups)) {
+    const group = provinceGroups[prov];
+    const unvisited = [...group];
+    const sortedGroup = [];
+
+    let current = unvisited.shift();
+    sortedGroup.push(current);
+
+    while (unvisited.length > 0) {
+      let nearestIdx = 0;
+      let minDistance = Infinity;
+
+      const lat1 = parseFloat(current.lat) || 37.5665;
+      const lng1 = parseFloat(current.lng) || 126.9780;
+
+      for (let i = 0; i < unvisited.length; i++) {
+        const candidate = unvisited[i];
+        const lat2 = parseFloat(candidate.lat) || 37.5665;
+        const lng2 = parseFloat(candidate.lng) || 126.9780;
+
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLng = (lng2 - lng1) * Math.PI / 180;
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        const dist = 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        if (dist < minDistance) {
+          minDistance = dist;
+          nearestIdx = i;
+        }
+      }
+
+      current = unvisited.splice(nearestIdx, 1)[0];
+      sortedGroup.push(current);
+    }
+
+    // Chunk sortedGroup into day blocks (max 4 spots per day per province)
+    for (let i = 0; i < sortedGroup.length; i += 4) {
+      daysByProvince.push({
+        province: prov,
+        spots: sortedGroup.slice(i, i + 4)
+      });
+    }
+  }
+
+  // 3. Build multi-day schedule
+  const totalDays = Math.min(Math.max(daysByProvince.length, parseInt(days, 10) || 1), 5);
+  const itinerary = [];
+
+  let baseDate = new Date();
+  if (startDate) {
+    const parsed = new Date(startDate);
+    if (!isNaN(parsed.getTime())) baseDate = parsed;
+  }
+
+  const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
+
+  for (let d = 1; d <= totalDays; d++) {
+    const curDate = new Date(baseDate);
+    curDate.setDate(baseDate.getDate() + (d - 1));
+    const year = curDate.getFullYear();
+    const month = String(curDate.getMonth() + 1).padStart(2, '0');
+    const dateNum = String(curDate.getDate()).padStart(2, '0');
+    const dayOfWeek = WEEKDAYS[curDate.getDay()];
+    const formattedDate = `${year}.${month}.${dateNum} (${dayOfWeek})`;
+
+    const dayTimeSlots = [
+      { time: '09:30', slotName: '오전 명소 & 상쾌한 출발', icon: 'Sun' },
+      { time: '13:00', slotName: '낮 일정 & 핵심 랜드마크', icon: 'MapPin' },
+      { time: '16:30', slotName: '오후 관광 & K-컬처 체험', icon: 'Camera' },
+      { time: '20:00', slotName: '야경 탐방 & 도심 산책', icon: 'Moon' }
+    ];
+
+    const dayGroup = daysByProvince[d - 1] || daysByProvince[0];
+    const dayProv = dayGroup.province;
+    const dayPicked = [...dayGroup.spots];
+
+    // If dayPicked has fewer than 4 spots, auto-fill with nearby spots from allSpots in the SAME province!
+    if (dayPicked.length > 0 && dayPicked.length < 4 && allSpots.length > 0) {
+      const existingIds = new Set(dayPicked.map(s => s.id));
+      const nearbyExtra = allSpots.filter(s => getSpotProvinceKey(s) === dayProv && !existingIds.has(s.id));
+
+      for (let extra of nearbyExtra) {
+        if (dayPicked.length >= 4) break;
+        dayPicked.push(extra);
+        existingIds.add(extra.id);
+      }
+    }
+
+    const daySpots = dayPicked.map((spot, sIdx) => ({
+      time: dayTimeSlots[sIdx]?.time || '10:00',
+      slotName: dayTimeSlots[sIdx]?.slotName || '추천 관광',
+      spotId: spot.id,
+      title: spot.title,
+      image: spot.image || GYEONGBOKGUNG_FALLBACK_IMG,
+      location: spot.location || spot.addr1 || `${dayProv} 중심가`,
+      rating: spot.rating || 4.8,
+      tags: spot.tags || ['직접선택', '맞춤코스'],
+      lat: spot.lat,
+      lng: spot.lng
+    }));
+
+    // Calculate travel estimates between consecutive spots
+    for (let i = 0; i < daySpots.length - 1; i++) {
+      daySpots[i].nextTravel = calculateTravelEstimate(daySpots[i], daySpots[i + 1]);
+    }
+
+    itinerary.push({
+      day: d,
+      dateStr: formattedDate,
+      dayTitle: `${d}일차 코스 · ${formattedDate} (${dayProv} 최적 동선)`,
+      schedule: daySpots,
+      pool: dayPicked
     });
   }
 

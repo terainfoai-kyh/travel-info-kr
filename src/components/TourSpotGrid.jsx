@@ -3,7 +3,19 @@ import { Star, MapPin, ChevronLeft, ChevronRight, Sparkles, ArrowRight } from 'l
 import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress, getTranslatedTheme } from '../i18n/translations';
 import TravelImageWithFallback from './TravelImageWithFallback';
 
-export default function TourSpotGrid({ spots = [], page = 1, setPage, totalPages = 1, lang = 'ko', themeMode = 'dark', onSelectSpot, onOpenItinerary, filters }) {
+export default function TourSpotGrid({
+  spots = [],
+  page = 1,
+  setPage,
+  totalPages = 1,
+  lang = 'ko',
+  themeMode = 'dark',
+  onSelectSpot,
+  onOpenItinerary,
+  filters,
+  selectedCourseSpotIds = [],
+  onToggleCourseSpot
+}) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
 
   return (
@@ -84,6 +96,38 @@ export default function TourSpotGrid({ spots = [], page = 1, setPage, totalPages
                   }}>
                     {getTranslatedAddress(spot.region, lang)}
                   </span>
+
+                  {/* Course Pick Button */}
+                  {onToggleCourseSpot && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleCourseSpot(spot.id);
+                      }}
+                      style={{
+                        position: 'absolute',
+                        top: '0.85rem',
+                        right: '0.85rem',
+                        padding: '0.25rem 0.65rem',
+                        borderRadius: 'var(--radius-full)',
+                        background: selectedCourseSpotIds.includes(spot.id) ? 'var(--accent-gradient)' : 'rgba(15, 23, 42, 0.85)',
+                        backdropFilter: 'blur(8px)',
+                        border: selectedCourseSpotIds.includes(spot.id) ? 'none' : '1px solid rgba(255, 255, 255, 0.3)',
+                        color: '#ffffff',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.3rem',
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        boxShadow: selectedCourseSpotIds.includes(spot.id) ? '0 2px 10px rgba(56, 189, 248, 0.6)' : 'none',
+                        transition: 'all 0.2s ease',
+                        zIndex: 10
+                      }}
+                    >
+                      <span>{selectedCourseSpotIds.includes(spot.id) ? '✓ 코스 담김' : '+ 코스 담기'}</span>
+                    </button>
+                  )}
                 </div>
 
                 {/* Card Content Body */}

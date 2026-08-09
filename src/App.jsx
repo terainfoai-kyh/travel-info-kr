@@ -18,6 +18,7 @@ import TravelEssentialsSection from './components/TravelEssentialsSection';
 import AIFloatingButton from './components/AIFloatingButton';
 import PartnerInquiryModal from './components/PartnerInquiryModal';
 import SplashScreen from './components/SplashScreen';
+import CustomCourseFloatingBar from './components/CustomCourseFloatingBar';
 
 export default function App() {
   // Auto-detect browser locale
@@ -30,6 +31,22 @@ export default function App() {
   // Modals & Drawers state
   const [isItineraryOpen, setIsItineraryOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
+
+  // Selected Spots for Custom Picked Itinerary
+  const [selectedCourseSpotIds, setSelectedCourseSpotIds] = useState([]);
+
+  const handleToggleCourseSpot = (spotId) => {
+    setSelectedCourseSpotIds(prev => {
+      if (prev.includes(spotId)) {
+        return prev.filter(id => id !== spotId);
+      }
+      return [...prev, spotId];
+    });
+  };
+
+  const handleClearCourseSelection = () => {
+    setSelectedCourseSpotIds([]);
+  };
 
   // Dark / Light Theme Mode (Auto-detect system preference, defaulting to light mode)
   const [themeMode, setThemeMode] = useState(() => {
@@ -257,6 +274,8 @@ export default function App() {
                 onSelectSpot={(spot) => setSelectedSpot(spot)}
                 onOpenItinerary={() => setIsItineraryOpen(true)}
                 filters={filters}
+                selectedCourseSpotIds={selectedCourseSpotIds}
+                onToggleCourseSpot={handleToggleCourseSpot}
               />
             </div>
 
@@ -294,6 +313,14 @@ export default function App() {
         )}
       </main>
 
+      {/* Mobile & Desktop Custom Course Floating Action Bar */}
+      <CustomCourseFloatingBar
+        selectedCount={selectedCourseSpotIds.length}
+        onBuildRoute={() => setIsItineraryOpen(true)}
+        onClear={handleClearCourseSelection}
+        lang={lang}
+      />
+
       {/* AI Itinerary Builder Modal */}
       <ItineraryModal
         isOpen={isItineraryOpen}
@@ -301,6 +328,7 @@ export default function App() {
         filters={filters}
         spots={allTourSpots}
         lang={lang}
+        customPickedSpots={allTourSpots.filter(s => selectedCourseSpotIds.includes(s.id))}
         onSelectSpot={(spot) => {
           setIsItineraryOpen(false);
           setSelectedSpot(spot);

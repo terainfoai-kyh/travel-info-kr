@@ -2,9 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import DatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { X, Calendar, Clock, MapPin, Sparkles, Navigation, Copy, Check, Filter, ShieldCheck, CloudRain, RefreshCw, Car, Bus, Utensils } from 'lucide-react';
-import { generateSmartItinerary, calculateTravelEstimate } from '../services/recommendationEngine';
+import { generateSmartItinerary, generateCustomPickedItinerary, calculateTravelEstimate } from '../services/recommendationEngine';
 import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress } from '../i18n/translations';
 import { buildAgodaDeepLink, buildKlookDeepLink } from '../services/apiConfig';
+import ItineraryMapView from './ItineraryMapView';
 
 function getI18nDayHeaderTitle(dayObj, region, lang = 'ko') {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
@@ -52,8 +53,11 @@ function getI18nDayHeaderTitle(dayObj, region, lang = 'ko') {
   }
 }
 
-export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, onSelectSpot }) {
+export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, onSelectSpot, customPickedSpots = [] }) {
   const getInitialDays = () => {
+    if (customPickedSpots && customPickedSpots.length > 0) {
+      return Math.min(Math.max(Math.ceil(customPickedSpots.length / 4), 1), 5);
+    }
     if (!filters?.startDate || !filters?.endDate) return 2;
     try {
       const s = new Date(filters.startDate);
@@ -61,7 +65,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
       const diffTime = e.getTime() - s.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       if (isNaN(diffDays) || diffDays <= 0) return 1;
-      return Math.min(Math.max(diffDays, 1), 3);
+      return Math.min(Math.max(diffDays, 1), 5);
     } catch (e) {
       return 2;
     }
@@ -79,7 +83,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
         setCustomStartDate(filters.startDate);
       }
     }
-  }, [isOpen, filters?.startDate, filters?.endDate]);
+  }, [isOpen, filters?.startDate, filters?.endDate, customPickedSpots?.length]);
 
   const [startTime, setStartTime] = useState('09:30');
   const [endTime, setEndTime] = useState('20:00');
@@ -88,7 +92,8 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
   const [rainyMode, setRainyMode] = useState(false);
   const [refreshSeed, setRefreshSeed] = useState(0);
   const [swappedSpots, setSwappedSpots] = useState({});
-  const [copied, setCopied] = useState(false);
+  const [viewMode, setViewMode] = useState('map'); // 'map' | 'list'
+  const [activeMapDay, setActiveMapDay] = useState(1);
   const datePickerRef = useRef(null);
 
   if (!isOpen) return null;
@@ -118,19 +123,31 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
     return value;
   };
 
-  const baseItinerary = generateSmartItinerary({
-    region,
-    theme,
-    days: selectedDays,
-    startDate: customStartDate,
-    startTime,
-    endTime,
-    dayTimes,
-    daySeeds,
-    rainyMode,
-    refreshSeed,
-    spots
-  });
+  const isCustomMode = customPickedSpots && customPickedSpots.length > 0;
+
+  const baseItinerary = isCustomMode
+    ? generateCustomPickedItinerary({
+        pickedSpots: customPickedSpots,
+        days: selectedDays,
+        startDate: customStartDate,
+        startTime,
+        endTime,
+        rainyMode,
+        allSpots: spots
+      })
+    : generateSmartItinerary({
+        region,
+        theme,
+        days: selectedDays,
+        startDate: customStartDate,
+        startTime,
+        endTime,
+        dayTimes,
+        daySeeds,
+        rainyMode,
+        refreshSeed,
+        spots
+      });
 
   // Apply spot swaps AND dynamically recalculate nextTravel between consecutive items
   const itinerary = baseItinerary.map((day, dIdx) => {
@@ -504,6 +521,42 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
               </select>
             </div>
 
+            {/* View Mode Toggle (Map vs List) */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', background: 'var(--bg-secondary)', padding: '0.2rem', borderRadius: 'var(--radius-full)', border: '1px solid var(--border-color)' }}>
+              <button
+                type="button"
+                onClick={() => setViewMode('map')}
+                style={{
+                  background: viewMode === 'map' ? 'var(--accent-gradient)' : 'transparent',
+                  color: viewMode === 'map' ? '#ffffff' : 'var(--text-muted)',
+                  border: 'none',
+                  padding: '0.35rem 0.85rem',
+                  borderRadius: 'var(--radius-full)',
+                  fontSize: '0.78rem',
+                  fontWeight: 800,
+                  cursor: 'pointer'
+                }}
+              >
+                🗺️ {t.mapViewLabel || '전체 동선 지도'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('list')}
+                style={{
+                  background: viewMode === 'list' ? 'var(--accent-gradient)' : 'transparent',
+                  color: viewMode === 'list' ? '#ffffff' : 'var(--text-muted)',
+                  border: 'none',
+                  padding: '0.35rem 0.85rem',
+                  borderRadius: 'var(--radius-full)',
+                  fontSize: '0.78rem',
+                  fontWeight: 800,
+                  cursor: 'pointer'
+                }}
+              >
+                📋 {t.listViewLabel || '일정 목록'}
+              </button>
+            </div>
+
             {/* AI Regenerate / Re-recommend Button */}
             <button
               type="button"
@@ -558,11 +611,19 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
           </div>
         </div>
 
-        {/* Timeline Itinerary Days Display */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
-          {itinerary.map((day, dIdx) => {
-            const curDayStart = dayTimes[day.day]?.start || startTime;
-            const curDayEnd = dayTimes[day.day]?.end || endTime;
+        {/* Conditional View Rendering: Map View vs Timeline List View */}
+        {viewMode === 'map' ? (
+          <ItineraryMapView
+            itinerary={itinerary}
+            activeDay={activeMapDay}
+            onChangeDay={setActiveMapDay}
+            lang={lang}
+          />
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
+            {itinerary.map((day, dIdx) => {
+              const curDayStart = dayTimes[day.day]?.start || startTime;
+              const curDayEnd = dayTimes[day.day]?.end || endTime;
 
             return (
               <div key={day.day} style={{
@@ -985,10 +1046,11 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                 </a>
               </div>
             </div>
-          );
-        })()}
+            );
+          })()}
+        </div>
+        )}
       </div>
     </div>
-  </div>
   );
 }
