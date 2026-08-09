@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MapPin, Navigation, ExternalLink, Compass, Car, Map, Sparkles, RefreshCw } from 'lucide-react';
+import { MapPin, Navigation, ExternalLink, Compass, Car, Bus, Map, Sparkles, RefreshCw } from 'lucide-react';
 import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress } from '../i18n/translations';
 
 export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChangeDay, lang = 'ko' }) {
@@ -375,9 +375,17 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
               </div>
 
               {item.nextTravel && (
-                <div style={{ fontSize: '0.72rem', color: 'var(--accent-primary)', marginTop: '0.5rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                  <Car size={12} />
-                  <span>{item.nextTravel.longDistanceNote || `차량 ${item.nextTravel.carMin}분 (${item.nextTravel.distKm}km)`}</span>
+                <div style={{ fontSize: '0.72rem', marginTop: '0.5rem', fontWeight: 700, display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem', color: '#0284c7' }}>
+                    <Car size={11} />
+                    <span>{item.nextTravel.longDistanceNote || `차량 ${item.nextTravel.carMin}분 (${item.nextTravel.distKm}km)`}</span>
+                  </div>
+                  {!item.nextTravel.isLongDistance && (
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem', color: '#818cf8' }}>
+                      <Bus size={11} />
+                      <span>{item.nextTravel.transitRouteNote || `대중교통 약 ${item.nextTravel.transitMin}분`}</span>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

@@ -1,5 +1,33 @@
 import { PUBLIC_API_CONFIG, REGION_META } from './apiConfig';
 
+// Base Time calculation for KMA Realtime Observation API (getUltraSrtNcst)
+// Released every hour on the hour (available ~10-15 mins after base_time)
+function getUltraSrtNcstBaseDateTime() {
+  const now = new Date();
+  let year = now.getFullYear();
+  let month = now.getMonth() + 1;
+  let day = now.getDate();
+  let hours = now.getHours();
+  let minutes = now.getMinutes();
+
+  let baseHour = hours;
+  if (minutes < 15) {
+    baseHour = hours - 1;
+    if (baseHour < 0) {
+      baseHour = 23;
+      const yesterday = new Date(now);
+      yesterday.setDate(yesterday.getDate() - 1);
+      year = yesterday.getFullYear();
+      month = yesterday.getMonth() + 1;
+      day = yesterday.getDate();
+    }
+  }
+
+  const baseDate = `${year}${String(month).padStart(2, '0')}${String(day).padStart(2, '0')}`;
+  const baseTime = `${String(baseHour).padStart(2, '0')}00`;
+  return { baseDate, baseTime };
+}
+
 // Dynamic Base Time calculation for KMA Short-Term Forecast API (VilageFcstInfoService_2.0)
 // Release times: 0200, 0500, 0800, 1100, 1400, 1700, 2000, 2300 (available ~15 mins after base_time)
 function getShortTermBaseDateTime() {
@@ -84,23 +112,38 @@ export async function fetchMidTermWeather(regionName = '서울', baseTm = '') {
       const itemTa = dataTa.response?.body?.items?.item?.[0];
 
       if (itemLand && itemTa) {
-        // Construct 3-day to 7-day forecasts
         for (let d = 3; d <= 7; d++) {
-          const wf = itemLand[`wf${d}Am`] || itemLand[`wf${d}`] || '구름많음';
-          const pop = itemLand[`rnSt${d}Am`] || itemLand[`rnSt${d}`] || 30;
-          const taMin = itemTa[`taMin${d}`] || 22;
-          const taMax = itemTa[`taMax${d}`] || 31;
+          const wfAm = itemLand[`wf${d}Am`];
+          const wfPm = itemLand[`wf${d}Pm`];
+          const wf = wfAm || wfPm || itemLand[`wf${d}`];
+          
+          const rnStAm = itemLand[`rnSt${d}Am`];
+          const rnStPm = itemLand[`rnSt${d}Pm`];
+          const popVal = rnStAm !== undefined ? rnStAm : (rnStPm !== undefined ? rnStPm : itemLand[`rnSt${d}`]);
+
+          const taMin = itemTa[`taMin${d}`];
+          const taMax = itemTa[`taMax${d}`];
+
+          // Skip if key fields for day offset d do not exist in KMA payload for this baseTm
+          if (!wf && taMin === undefined && taMax === undefined) {
+            continue;
+          }
+
+          const wfText = wf || '구름많음';
+          const popText = popVal !== undefined ? `${popVal}%` : '20%';
+          const minText = taMin !== undefined ? `${taMin}°C` : '22°C';
+          const maxText = taMax !== undefined ? `${taMax}°C` : '30°C';
 
           let icon = 'Sun';
-          if (wf.includes('비') || wf.includes('소나기')) icon = 'CloudRain';
-          else if (wf.includes('구름') || wf.includes('흐림')) icon = 'Cloud';
+          if (wfText.includes('비') || wfText.includes('소나기')) icon = 'CloudRain';
+          else if (wfText.includes('구름') || wfText.includes('흐림')) icon = 'Cloud';
 
           dailyList.push({
             dayOffset: d,
-            weatherText: wf,
+            weatherText: wfText,
             weatherIcon: icon,
-            pop: `${pop}%`,
-            tempRange: `${taMin}°C / ${taMax}°C`
+            pop: popText,
+            tempRange: `${minText} / ${maxText}`
           });
         }
       }
@@ -112,30 +155,35 @@ export async function fetchMidTermWeather(regionName = '서울', baseTm = '') {
   }
 }
 
-// Helper to generate deterministic but dynamic weather info per region & date range
+// Helper to generate deterministic but dynamic weather info per region & date range with seasonal accuracy
 function generateDynamicWeather(regionName, startDate, endDate) {
   const meta = REGION_META[regionName] || REGION_META['서울'];
   
   const seed = (regionName + (startDate || '')).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   
-  const tempBaseMap = {
-    '서울': 25, '인천': 24, '경기': 24, '강원': 22, '충북': 25,
-    '충남': 25, '대전': 26, '세종': 25, '전북': 26, '전남': 27,
-    '광주': 27, '경북': 26, '경남': 27, '대구': 29, '울산': 26,
-    '부산': 26, '제주': 27, '전국': 25
+  // Seasonal base temperature mapping by month (Jan=0, Feb=1, Mar=2, Apr=3, May=4, Jun=5, Jul=6, Aug=7, Sep=8, Oct=9, Nov=10, Dec=11)
+  const currentMonth = new Date().getMonth();
+  const seasonalTempOffsets = [-2, 0, 8, 14, 20, 24, 28, 28, 23, 16, 8, 1];
+  const seasonalBase = seasonalTempOffsets[currentMonth] ?? 24;
+
+  const tempRegionalOffsets = {
+    '서울': 0, '인천': -1, '경기': -1, '강원': -3, '충북': 0,
+    '충남': 0, '대전': 1, '세종': 0, '전북': 1, '전남': 2,
+    '광주': 2, '경북': 1, '경남': 2, '대구': 3, '울산': 1,
+    '부산': 2, '제주': 3, '전국': 0
   };
 
   const weatherTypes = [
-    { text: '맑고 쾌청함', icon: 'Sun', pop: '10%' },
+    { text: '맑음', icon: 'Sun', pop: '10%' },
     { text: '구름 조금', icon: 'Sun', pop: '20%' },
-    { text: '구름 많음', icon: 'Cloud', pop: '30%' },
+    { text: '구름많음', icon: 'Cloud', pop: '30%' },
     { text: '흐림', icon: 'Cloud', pop: '40%' },
     { text: '한때 소나기', icon: 'CloudRain', pop: '60%' },
-    { text: '비 / 뇌우', icon: 'CloudRain', pop: '80%' }
+    { text: '비', icon: 'CloudRain', pop: '80%' }
   ];
 
-  const baseTemp = tempBaseMap[regionName] || 25;
-  const tempVar = (seed % 7) - 3;
+  const baseTemp = seasonalBase + (tempRegionalOffsets[regionName] || 0);
+  const tempVar = (seed % 5) - 2;
   const currentTemp = `${baseTemp + tempVar}°C`;
   const wType = weatherTypes[seed % weatherTypes.length];
 
@@ -169,46 +217,80 @@ export async function fetchRealtimeWeather(regionName = '서울', startDate, end
   const meta = REGION_META[regionName] || REGION_META['서울'];
   
   const { baseDate, baseTime } = getShortTermBaseDateTime();
-  const dateRangeStr = startDate && endDate ? `${startDate} ~ ${endDate}` : `${baseDate.slice(0,4)}-${baseDate.slice(4,6)}-${baseDate.slice(6,8)}`;
+  const ncstInfo = getUltraSrtNcstBaseDateTime();
+  const dateRangeStr = startDate && endDate ? `${startDate} ~ ${endDate}` : `${ncstInfo.baseDate.slice(0,4)}-${ncstInfo.baseDate.slice(4,6)}-${ncstInfo.baseDate.slice(6,8)}`;
 
+  const urlNcst = `${PUBLIC_API_CONFIG.WEATHER_SHORT_BASE}/getUltraSrtNcst?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&pageNo=1&numOfRows=10&dataType=JSON&base_date=${ncstInfo.baseDate}&base_time=${ncstInfo.baseTime}&nx=${meta.nx}&ny=${meta.ny}`;
   const urlShort = `${PUBLIC_API_CONFIG.WEATHER_SHORT_BASE}/getVilageFcst?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&pageNo=1&numOfRows=60&dataType=JSON&base_date=${baseDate}&base_time=${baseTime}&nx=${meta.nx}&ny=${meta.ny}`;
 
   try {
-    const res = await fetch(urlShort);
-    if (!res.ok) throw new Error('Weather API HTTP error');
-    const data = await res.json();
-    const items = data.response?.body?.items?.item || [];
+    const [resNcst, resShort] = await Promise.all([
+      fetch(urlNcst).catch(() => null),
+      fetch(urlShort).catch(() => null)
+    ]);
 
-    if (!items || items.length === 0) {
+    let temp = '';
+    let ptyVal = '0';
+    let pop = '20%';
+    let skyVal = '1';
+
+    if (resNcst && resNcst.ok) {
+      const dataNcst = await resNcst.json();
+      const ncstItems = dataNcst.response?.body?.items?.item || [];
+      ncstItems.forEach(item => {
+        if (item.category === 'T1H') temp = `${parseFloat(item.obsrValue).toFixed(1)}°C`;
+        if (item.category === 'PTY') ptyVal = String(item.obsrValue);
+      });
+    }
+
+    if (resShort && resShort.ok) {
+      const dataShort = await resShort.json();
+      const shortItems = dataShort.response?.body?.items?.item || [];
+      if (shortItems.length > 0) {
+        const firstFcstTime = shortItems[0]?.fcstTime;
+        const targetItems = shortItems.filter(i => i.fcstTime === firstFcstTime);
+        
+        targetItems.forEach(item => {
+          if (item.category === 'POP') pop = `${item.fcstValue}%`;
+          if (item.category === 'SKY') skyVal = String(item.fcstValue);
+          if (item.category === 'TMP' && !temp) temp = `${item.fcstValue}°C`;
+          if (item.category === 'PTY' && ptyVal === '0' && item.fcstValue !== '0') ptyVal = String(item.fcstValue);
+        });
+
+        if (!temp) {
+          const tmpItem = shortItems.find(i => i.category === 'TMP');
+          if (tmpItem) temp = `${tmpItem.fcstValue}°C`;
+        }
+      }
+    }
+
+    if (!temp) {
       return generateDynamicWeather(regionName, startDate, endDate);
     }
 
-    let temp = '25°C';
-    let pop = '20%';
+    // Determine Sky/Weather text & icon from PTY & SKY
+    const skyMap = { '1': '맑음', '3': '구름많음', '4': '흐림' };
+    const ptyMap = {
+      '1': '비',
+      '2': '비/눈',
+      '3': '눈',
+      '4': '소나기',
+      '5': '빗방울',
+      '6': '빗방울눈날림',
+      '7': '눈날림'
+    };
+
     let skyText = '맑음';
     let skyIcon = 'Sun';
 
-    items.forEach(item => {
-      if (item.category === 'TMP') temp = `${item.fcstValue}°C`;
-      if (item.category === 'POP') pop = `${item.fcstValue}%`;
-      if (item.category === 'SKY') {
-        const val = parseInt(item.fcstValue, 10);
-        if (val <= 5) {
-          skyText = '맑음';
-          skyIcon = 'Sun';
-        } else if (val <= 8) {
-          skyText = '구름 많음';
-          skyIcon = 'Cloud';
-        } else {
-          skyText = '흐림';
-          skyIcon = 'CloudRain';
-        }
-      }
-      if (item.category === 'PTY' && item.fcstValue !== '0') {
-        skyText = '비/눈 예보';
-        skyIcon = 'CloudRain';
-      }
-    });
+    if (ptyVal !== '0' && ptyMap[ptyVal]) {
+      skyText = ptyMap[ptyVal];
+      skyIcon = (ptyVal === '3' || ptyVal === '7') ? 'Cloud' : 'CloudRain';
+    } else {
+      skyText = skyMap[skyVal] || '맑음';
+      if (skyVal === '3' || skyVal === '4') skyIcon = 'Cloud';
+      else skyIcon = 'Sun';
+    }
 
     // Also fetch Mid-Term Weather forecast for multi-day travels
     const midTermForecast = await fetchMidTermWeather(regionName, getMidTermBaseTm());
@@ -227,3 +309,4 @@ export async function fetchRealtimeWeather(regionName = '서울', startDate, end
     return generateDynamicWeather(regionName, startDate, endDate);
   }
 }
+
