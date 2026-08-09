@@ -941,7 +941,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                               </span>
                               <span style={{ color: 'var(--text-muted)' }}>|</span>
                               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem', color: '#818cf8', fontWeight: 700 }}>
-                                <Bus size={12} /> {t.transitPrefix || '대중교통 약'} {item.nextTravel.transitMin}{t.minuteUnit || '분'}
+                                <Bus size={12} /> {item.nextTravel.transitRouteNote || `${t.transitPrefix || '대중교통 약'} ${item.nextTravel.transitMin}${t.minuteUnit || '분'}`}
                               </span>
                             </>
                           )}

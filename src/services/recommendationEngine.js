@@ -415,10 +415,26 @@ export function calculateTravelEstimate(spotA, spotB) {
   const carMin = Math.max(5, Math.round(dist * 2.0 + 4));
   const transitMin = Math.max(8, Math.round(dist * 3.2 + 6));
 
+  let transitRouteNote = '';
+  let transitType = 'transit';
+
+  if (dist < 1.5) {
+    transitType = 'walk';
+    transitRouteNote = `🚶 도보 약 ${Math.round(dist * 14 + 3)}분 (${dist.toFixed(1)}km)`;
+  } else if (dist < 7.0) {
+    transitType = 'subway';
+    transitRouteNote = `🚇 지하철 / 🚌 시내버스 (약 ${transitMin}분)`;
+  } else {
+    transitType = 'transit';
+    transitRouteNote = `🚇 지하철 환승 / 🚌 대중교통 (약 ${transitMin}분)`;
+  }
+
   return {
     distKm: dist.toFixed(1),
     carMin,
-    transitMin
+    transitMin,
+    transitType,
+    transitRouteNote
   };
 }
 
