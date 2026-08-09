@@ -416,12 +416,13 @@ export default function App() {
         onOpenItinerary={() => setIsItineraryOpen(true)}
         lang={lang}
         themeMode={themeMode}
+        hasCustomBar={selectedCourseSpotIds.length > 0}
       />
 
       {/* Footer */}
       <footer style={{
         borderTop: '2px solid var(--accent-primary)',
-        padding: '1.25rem 1.5rem',
+        padding: '1.75rem 1.25rem 6.5rem 1.25rem',
         textAlign: 'center',
         color: 'var(--text-dim)',
         fontSize: '0.85rem',

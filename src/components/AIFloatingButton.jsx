@@ -2,21 +2,25 @@ import React from 'react';
 import { Sparkles } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
 
-export default function AIFloatingButton({ onOpenItinerary, lang = 'ko', themeMode = 'dark' }) {
+export default function AIFloatingButton({ onOpenItinerary, lang = 'ko', themeMode = 'dark', hasCustomBar = false }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
   const isLight = themeMode === 'light';
 
   return (
-    <div className="ai-floating-btn-container" style={{
-      position: 'fixed',
-      bottom: '2rem',
-      right: '2rem',
-      zIndex: 999,
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'flex-end',
-      gap: '0.4rem'
-    }}>
+    <div
+      className={`ai-floating-btn-container ${hasCustomBar ? 'has-custom-bar' : ''}`}
+      style={{
+        position: 'fixed',
+        bottom: hasCustomBar ? '5.5rem' : '2rem',
+        right: '2rem',
+        zIndex: 999,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-end',
+        gap: '0.4rem',
+        transition: 'bottom 0.3s ease'
+      }}
+    >
       {/* Tooltip Badge */}
       <div className="ai-floating-badge" style={{
         background: isLight ? 'rgba(255, 255, 255, 0.95)' : 'rgba(15, 23, 42, 0.92)',
@@ -46,6 +50,7 @@ export default function AIFloatingButton({ onOpenItinerary, lang = 'ko', themeMo
       {/* Main Floating Action Button */}
       <button
         onClick={onOpenItinerary}
+        className="ai-floating-main-btn"
         style={{
           background: 'linear-gradient(135deg, #0284c7 0%, #818cf8 50%, #c084fc 100%)',
           color: '#ffffff',
