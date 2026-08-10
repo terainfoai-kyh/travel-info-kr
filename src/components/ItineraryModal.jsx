@@ -4,6 +4,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { X, Calendar, Clock, MapPin, Sparkles, Navigation, Copy, Check, Filter, ShieldCheck, CloudRain, RefreshCw, Car, Bus, Utensils, Compass } from 'lucide-react';
 import { generateSmartItinerary, generateCustomPickedItinerary, calculateTravelEstimate } from '../services/recommendationEngine';
 import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress } from '../i18n/translations';
+import { getI18nTravelNote } from '../i18n/travelChipI18n';
 import { buildAgodaDeepLink, buildKlookDeepLink } from '../services/apiConfig';
 import ItineraryMapView from './ItineraryMapView';
 
@@ -974,50 +975,53 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                       </div>
                     </div>
 
-                    {/* Inter-Spot Travel Time & Distance Indicator (Refined Clean Chip Layout) */}
-                    {item.nextTravel && nextSpot && (
-                      <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: '0.2rem 0',
-                        margin: '-0.15rem 0'
-                      }}>
+                    {/* Inter-Spot Travel Time & Distance Indicator (100% 9-Language i18n Chip) */}
+                    {item.nextTravel && nextSpot && (() => {
+                      const travelI18n = getI18nTravelNote(item.nextTravel, lang);
+                      return (
                         <div style={{
-                          background: 'var(--bg-card)',
-                          border: '1px solid var(--border-highlight)',
-                          padding: '0.3rem 0.85rem',
-                          borderRadius: 'var(--radius-full)',
-                          fontSize: '0.74rem',
-                          display: 'inline-flex',
+                          display: 'flex',
                           alignItems: 'center',
-                          gap: '0.5rem',
-                          flexWrap: 'wrap',
                           justifyContent: 'center',
-                          boxShadow: '0 2px 6px rgba(0, 0, 0, 0.06)'
+                          padding: '0.2rem 0',
+                          margin: '-0.15rem 0'
                         }}>
-                          <span style={{ fontWeight: 800, color: 'var(--text-main)' }}>
-                            📍 {itemDisplayTitle.length > 8 ? itemDisplayTitle.substring(0, 8) + '...' : itemDisplayTitle} ➔ {nextDisplayTitle.length > 8 ? nextDisplayTitle.substring(0, 8) + '...' : nextDisplayTitle}
-                          </span>
-                          <span style={{ color: 'var(--text-muted)' }}>|</span>
-                          {item.nextTravel.isLongDistance ? (
-                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', color: '#eab308', fontWeight: 800 }}>
-                              {item.nextTravel.longDistanceNote || '✈️ KTX / 항공 / 시외버스 이동 (장거리)'}
+                          <div style={{
+                            background: 'var(--bg-card)',
+                            border: '1px solid var(--border-highlight)',
+                            padding: '0.3rem 0.85rem',
+                            borderRadius: 'var(--radius-full)',
+                            fontSize: '0.74rem',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            flexWrap: 'wrap',
+                            justifyContent: 'center',
+                            boxShadow: '0 2px 6px rgba(0, 0, 0, 0.06)'
+                          }}>
+                            <span style={{ fontWeight: 800, color: 'var(--text-main)' }}>
+                              📍 {itemDisplayTitle.length > 8 ? itemDisplayTitle.substring(0, 8) + '...' : itemDisplayTitle} ➔ {nextDisplayTitle.length > 8 ? nextDisplayTitle.substring(0, 8) + '...' : nextDisplayTitle}
                             </span>
-                          ) : (
-                            <>
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', color: '#0284c7', fontWeight: 800 }}>
-                                <Car size={13} /> {t.drivePrefix || '차량 약'} {item.nextTravel.carMin}{t.minuteUnit || '분'} ({item.nextTravel.distKm}km)
+                            <span style={{ color: 'var(--text-muted)' }}>|</span>
+                            {travelI18n.isLongDistance ? (
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', color: '#eab308', fontWeight: 800 }}>
+                                {travelI18n.longNote}
                               </span>
-                              <span style={{ color: 'var(--text-muted)' }}>·</span>
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', color: '#818cf8', fontWeight: 800 }}>
-                                <Bus size={13} /> {item.nextTravel.transitRouteNote || `${t.transitPrefix || '대중교통 약'} ${item.nextTravel.transitMin}${t.minuteUnit || '분'}`}
-                              </span>
-                            </>
-                          )}
+                            ) : (
+                              <>
+                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', color: '#0284c7', fontWeight: 800 }}>
+                                  {travelI18n.driveNote}
+                                </span>
+                                <span style={{ color: 'var(--text-muted)' }}>·</span>
+                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', color: '#818cf8', fontWeight: 800 }}>
+                                  {travelI18n.transitNote}
+                                </span>
+                              </>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      );
+                    })()}
                   </React.Fragment>
                   );
                 })}
