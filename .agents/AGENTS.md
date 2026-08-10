@@ -45,3 +45,8 @@
     - 개발/테스트 단계 배포 지시("배포해", "푸시해") 시: **오직 개발 전용 `dev-remote` (`travelkorea_2.git`) 레포로만 푸시**합니다. (Cloudflare Pages `travelkorea-dev.pages.dev` 반영)
     - 운영/실제 서비스 배포 지시("운영 배포해", "프로덕션 배포해", "origin 푸시해") 시에만 **운영 전용 `origin` (`travel-info-kr.git`) 레포로 푸시**합니다. (GitHub Pages `terainfoai-kyh.github.io/travel-info-kr/` 반영)
 
+12. **Strict User Opinion Seeking Rule (의견 문의 시 선(先) 코드 수정 금지 및 100% 승인 대기)**
+    - 사용자가 "의견은?", "어때?", "어떻게 생각해?", "의견좀" 등 의견을 질의할 때는 **절대로 코드를 사전에 수정하거나 실행하지 않습니다.**
+    - 오직 **[현상 분석 + 장단점/대안 + 추천 안]**만을 정갈하게 답변으로 제시하고, 사용자가 "진행해", "수정해", "OK" 등 명시적으로 승인 지시를 내릴 때까지 **100% 대기**합니다.
+
+
