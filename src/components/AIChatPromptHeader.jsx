@@ -381,7 +381,7 @@ export default function AIChatPromptHeader({ lang = 'ko', filters, onGenerateIti
           <p style={{
             fontSize: isMobile ? '0.8rem' : '0.95rem',
             fontWeight: 600,
-            color: 'var(--text-muted)',
+            color: '#334155',
             margin: 0,
             lineHeight: 1.5,
             wordBreak: 'keep-all',

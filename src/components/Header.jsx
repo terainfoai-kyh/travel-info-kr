@@ -215,15 +215,15 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
               </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.2rem', flexWrap: 'wrap' }}>
-              <p style={{ fontSize: '0.73rem', color: themeMode === 'light' ? '#334155' : 'var(--text-muted)', fontWeight: 600, margin: 0 }}>
+              <p style={{ fontSize: '0.73rem', color: themeMode === 'light' ? '#334155' : '#93c5fd', fontWeight: 700, margin: 0 }}>
                 {t.subtitle}
               </p>
               {filters && (
                 <div style={{ display: 'inline-flex', gap: '0.35rem', flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: '0.7rem', background: 'rgba(56, 189, 248, 0.18)', border: '1px solid rgba(56, 189, 248, 0.3)', padding: '0.12rem 0.45rem', borderRadius: '4px', color: 'var(--accent-primary)', fontWeight: 700 }}>
+                  <span style={{ fontSize: '0.7rem', background: themeMode === 'light' ? 'rgba(56, 189, 248, 0.18)' : 'rgba(56, 189, 248, 0.25)', border: '1px solid rgba(56, 189, 248, 0.4)', padding: '0.12rem 0.45rem', borderRadius: '4px', color: themeMode === 'light' ? '#0284c7' : '#38bdf8', fontWeight: 800 }}>
                     📍 {getBadgeI18n('region', filters.region || '전국')}
                   </span>
-                  <span style={{ fontSize: '0.7rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', padding: '0.12rem 0.45rem', borderRadius: '4px', color: 'var(--text-main)', fontWeight: 600 }}>
+                  <span style={{ fontSize: '0.7rem', background: themeMode === 'light' ? 'var(--bg-secondary)' : 'rgba(255, 255, 255, 0.15)', border: themeMode === 'light' ? '1px solid var(--border-color)' : '1px solid rgba(255, 255, 255, 0.25)', padding: '0.12rem 0.45rem', borderRadius: '4px', color: themeMode === 'light' ? 'var(--text-main)' : '#ffffff', fontWeight: 700 }}>
                     🏖️ {getBadgeI18n('theme', filters.theme || '전체')}
                   </span>
                 </div>
@@ -242,13 +242,13 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
           paddingLeft: isMobile ? 0 : '58px',
           boxSizing: 'border-box'
         }}>
-          <button onClick={onOpenGuidePR} style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-highlight)', color: 'var(--text-main)', padding: '0.4rem 0.75rem', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem', transition: 'all 0.2s ease' }}>
-            <BookOpen size={14} color="var(--accent-primary)" />
+          <button onClick={onOpenGuidePR} style={{ background: themeMode === 'light' ? 'var(--bg-secondary)' : 'rgba(30, 41, 59, 0.95)', border: themeMode === 'light' ? '1px solid var(--border-highlight)' : '1px solid rgba(56, 189, 248, 0.5)', color: themeMode === 'light' ? 'var(--text-main)' : '#ffffff', padding: '0.4rem 0.75rem', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem', transition: 'all 0.2s ease' }}>
+            <BookOpen size={14} color={themeMode === 'light' ? 'var(--accent-primary)' : '#38bdf8'} />
             <span>{t.userGuideBtn || '이용가이드 & 홍보관'}</span>
           </button>
 
-          <button onClick={handleShare} style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-main)', padding: '0.4rem 0.75rem', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-            {showToast ? <Check size={14} color="#10b981" /> : <Share2 size={14} color="var(--accent-primary)" />}
+          <button onClick={handleShare} style={{ background: themeMode === 'light' ? 'var(--bg-secondary)' : 'rgba(30, 41, 59, 0.95)', border: themeMode === 'light' ? '1px solid var(--border-color)' : '1px solid rgba(255, 255, 255, 0.25)', color: themeMode === 'light' ? 'var(--text-main)' : '#ffffff', padding: '0.4rem 0.75rem', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+            {showToast ? <Check size={14} color="#10b981" /> : <Share2 size={14} color={themeMode === 'light' ? 'var(--accent-primary)' : '#38bdf8'} />}
             <span>{showToast ? (t.copiedToast || '복사 완료!') : (t.shareBtn || '공유')}</span>
           </button>
 
@@ -257,8 +257,8 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
             <span>{t.aiCourseBtn || 'AI 코스 추천'}</span>
           </button>
 
-          <button onClick={onOpenWishlist} style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-main)', padding: '0.4rem 0.7rem', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem', position: 'relative' }}>
-            <Heart size={15} fill={wishlistCount > 0 ? "#ef4444" : "none"} color={wishlistCount > 0 ? "#ef4444" : "currentColor"} />
+          <button onClick={onOpenWishlist} style={{ background: themeMode === 'light' ? 'var(--bg-secondary)' : 'rgba(30, 41, 59, 0.95)', border: themeMode === 'light' ? '1px solid var(--border-color)' : '1px solid rgba(255, 255, 255, 0.25)', color: themeMode === 'light' ? 'var(--text-main)' : '#ffffff', padding: '0.4rem 0.7rem', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem', position: 'relative' }}>
+            <Heart size={15} fill={wishlistCount > 0 ? "#ef4444" : "none"} color={wishlistCount > 0 ? "#ef4444" : (themeMode === 'light' ? 'currentColor' : '#ffffff')} />
             <span>{t.wishlistBtn || '찜'}</span>
             {wishlistCount > 0 && (
               <span style={{ background: '#ef4444', color: '#ffffff', fontSize: '0.68rem', fontWeight: 800, padding: '0.08rem 0.35rem', borderRadius: '999px' }}>{wishlistCount}</span>
@@ -280,10 +280,10 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
           </button>
 
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', position: 'relative' }}>
-            <Globe size={15} style={{ color: 'var(--accent-primary)', flexShrink: 0 }} />
-            <select value={currentLang} onChange={(e) => setLang(e.target.value)} className="header-lang-select" style={{ background: 'var(--bg-secondary)', color: 'var(--text-main)', border: '1px solid var(--border-color)', padding: '0.35rem 0.6rem', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', outline: 'none', transition: 'all 0.2s ease' }}>
+            <Globe size={15} style={{ color: themeMode === 'light' ? 'var(--accent-primary)' : '#38bdf8', flexShrink: 0 }} />
+            <select value={currentLang} onChange={(e) => setLang(e.target.value)} className="header-lang-select" style={{ background: themeMode === 'light' ? 'var(--bg-secondary)' : '#1e293b', color: themeMode === 'light' ? 'var(--text-main)' : '#ffffff', border: themeMode === 'light' ? '1px solid var(--border-color)' : '1px solid rgba(255, 255, 255, 0.25)', padding: '0.35rem 0.6rem', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', outline: 'none', transition: 'all 0.2s ease' }}>
               {LANGUAGE_OPTIONS.map(opt => (
-                <option key={opt.value} value={opt.value} style={{ background: 'var(--bg-card)', color: 'var(--text-main)' }}>
+                <option key={opt.value} value={opt.value} style={{ background: themeMode === 'light' ? '#ffffff' : '#1e293b', color: themeMode === 'light' ? '#0f172a' : '#ffffff' }}>
                   {opt.label}
                 </option>
               ))}
