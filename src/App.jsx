@@ -270,14 +270,15 @@ export default function App() {
             };
             setFilters(newFilters);
             setIsLoading(true);
+            let fetchedSpots = [];
             try {
-              const spots = await fetchTourSpots({
+              fetchedSpots = await fetchTourSpots({
                 ...newFilters,
                 lang
               });
-              setAllTourSpots(spots);
-              const effectiveRegion = (targetRegion === '전국' && spots[0] && spots[0].regionName && spots[0].regionName !== '전국')
-                ? spots[0].regionName
+              setAllTourSpots(fetchedSpots);
+              const effectiveRegion = (targetRegion === '전국' && fetchedSpots[0] && fetchedSpots[0].regionName && fetchedSpots[0].regionName !== '전국')
+                ? fetchedSpots[0].regionName
                 : targetRegion;
               const wData = await fetchRealtimeWeather(effectiveRegion, newFilters.startDate, newFilters.endDate);
               setWeatherData(wData);
@@ -294,7 +295,12 @@ export default function App() {
               console.error('Error fetching itinerary spots:', err);
             } finally {
               setIsLoading(false);
-              setIsItineraryOpen(true);
+              // CRITICAL: Only open itinerary modal if matching spots exist! If 0 items, remain on main screen with 0-item message!
+              if (fetchedSpots && fetchedSpots.length > 0) {
+                setIsItineraryOpen(true);
+              } else {
+                setIsItineraryOpen(false);
+              }
             }
           }} 
         />
