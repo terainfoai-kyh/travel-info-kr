@@ -218,7 +218,7 @@ export default function TourSpotGrid({
             <Lightbulb size={15} />
             <span>
               {filters?.keyword
-                ? `'${filters.keyword}' 검색 결과가 없습니다`
+                ? (t.noSpotsResult ? t.noSpotsResult.replace('{keyword}', filters.keyword) : `'${filters.keyword}' 검색 결과가 없습니다`)
                 : (t.noSpots || '조회 조건에 해당하는 명소가 없습니다')}
             </span>
           </div>
@@ -230,7 +230,7 @@ export default function TourSpotGrid({
             margin: 0,
             maxWidth: '480px'
           }}>
-            원하시는 장소가 없으신가요? 아래 추천 팁이나 음성 검색을 활용해 보세요.
+            {t.noSpotsDesc || '원하시는 장소가 없으신가요? 아래 추천 팁이나 음성 검색을 활용해 보세요.'}
           </p>
 
           {/* Compact 1-Row Chips */}
@@ -252,7 +252,7 @@ export default function TourSpotGrid({
               color: 'var(--text-main)',
               fontWeight: 600
             }}>
-              💡 '지역명 + 테마' (예: 성수동 카페, 해운대 맛집)
+              {t.tipRegionTheme || "💡 '지역명 + 테마' (예: 성수동 카페, 해운대 맛집)"}
             </span>
             <span style={{
               background: 'var(--bg-secondary)',
@@ -267,7 +267,7 @@ export default function TourSpotGrid({
               gap: '0.25rem'
             }}>
               <Mic size={12} />
-              AI 음성 검색
+              {t.tipVoiceSearch || 'AI 음성 검색'}
             </span>
           </div>
 
@@ -292,7 +292,7 @@ export default function TourSpotGrid({
             }}
           >
             <RefreshCw size={14} />
-            <span>전체 관광 명소 목록으로 초기화</span>
+            <span>{t.resetFilterBtn || '전체 관광 명소 목록으로 초기화'}</span>
           </button>
         </div>
       )}

@@ -29,6 +29,12 @@ export function getMapSearchBtnLabel(foodName, lang = 'ko') {
 
 export const TRANSLATIONS = {
   ko: {
+    noSpotsResult: '\'{keyword}\' 검색 결과가 없습니다',
+    noSpotsDesc: '원하시는 장소가 없으신가요? 아래 추천 팁이나 음성 검색을 활용해 보세요.',
+    tipRegionTheme: '💡 \'지역명 + 테마\' (예: 성수동 카페, 해운대 맛집)',
+    tipVoiceSearch: 'AI 음성 검색',
+    resetFilterBtn: '전체 관광 명소 목록으로 초기화',
+
     title: 'K-Travel AI | 대한민국 스마트 여행 가이드',
     subtitle: '✨ AI가 안내하는 실시간 날씨 · 맞춤 명소 · 맛집 & 코디',
     heroTitle: '어디로 떠나시나요? 🚀',
@@ -317,6 +323,12 @@ export const TRANSLATIONS = {
     swapSpotBtn: '다른 장소 추천 🔄',
     regenerateItineraryBtn: 'AI 코스 다시 추천 🔄',
     spotTitles: {
+    noSpotsResult: 'No se encontraron resultados para \'{keyword}\'',
+    noSpotsDesc: '¿No encuentras lo que buscas? Revisa las sugerencias de búsqueda o usa la búsqueda por voz con IA.',
+    tipRegionTheme: '💡 \'Región + Tema\' (ej. Café Seongsu, Comida Haeundae)',
+    tipVoiceSearch: 'Búsqueda por voz IA',
+    resetFilterBtn: 'Restablecer a todas las atracciones',
+
       '경복궁 & 근정전': '경복궁 & 근정전',
       '제주 성산일출봉': '제주 성산일출봉',
       '부산 해운대 블루라인파크': '부산 해운대 블루라인파크',
@@ -361,6 +373,12 @@ export const TRANSLATIONS = {
     }
   },
   en: {
+    noSpotsResult: 'No results found for \'{keyword}\'',
+    noSpotsDesc: 'Couldn\'t find what you\'re looking for? Try the search tips below or use AI voice search.',
+    tipRegionTheme: '💡 \'Region + Theme\' (e.g. Seongsu Cafe, Haeundae Food)',
+    tipVoiceSearch: 'AI Voice Search',
+    resetFilterBtn: 'Reset to All Attractions',
+
     title: 'K-Travel AI | Korea Smart Travel Guide',
     subtitle: '✨ Real-time Weather, AI Spots, Food & Outfit Guide',
     heroTitle: 'Where are you traveling? 🚀',
@@ -683,6 +701,12 @@ export const TRANSLATIONS = {
     }
   },
   ja: {
+    noSpotsResult: '「{keyword}」の検索結果がありません',
+    noSpotsDesc: 'お探しの場所は見つかりませんでしたか？以下の検索ヒントやAI音声検索をご利用ください。',
+    tipRegionTheme: '💡 「地域名＋テーマ」（例：聖水洞カフェ、海雲台グルメ）',
+    tipVoiceSearch: 'AI 音声検索',
+    resetFilterBtn: 'すべての観光スポット一覧にリセット',
+
     title: '韓国旅行ガイド',
     subtitle: 'リアルタイム天気 · 観光スポット · グルメ & 服装ガイド',
     heroTitle: 'どこへ旅行しますか？ 🚀',
@@ -970,6 +994,12 @@ export const TRANSLATIONS = {
     }
   },
   zh: {
+    noSpotsResult: '未找到 "{keyword}" 的搜索结果',
+    noSpotsDesc: '没有找到您想去的景点吗？请参考下面的搜索提示或 AI 语音搜索。',
+    tipRegionTheme: '💡 “地区 + 主题”（例：圣水洞咖啡馆、海云台美食）',
+    tipVoiceSearch: 'AI 语音搜索',
+    resetFilterBtn: '重置为所有景点列表',
+
     title: '韩国旅游指南',
     subtitle: '实时天气 · 景点推荐 · 美食与服装指南',
     heroTitle: '您想去哪里旅行？ 🚀',
@@ -1277,6 +1307,12 @@ export const TRANSLATIONS = {
     }
   },
   zht: {
+    noSpotsResult: '未找到 「{keyword}」 的搜尋結果',
+    noSpotsDesc: '沒有找到您想去的景點嗎？請參考下面的搜尋提示或 AI 語音搜尋。',
+    tipRegionTheme: '💡 「地區 + 主題」（例：聖水洞咖啡館、海雲台美食）',
+    tipVoiceSearch: 'AI 語音搜尋',
+    resetFilterBtn: '重置為所有景點列表',
+
     title: '韓國旅遊指南',
     subtitle: '實時天氣 · 景點推薦 · 美食與服裝指南',
     heroTitle: '您想去哪裡旅行？ 🚀',
@@ -1566,6 +1602,12 @@ export const TRANSLATIONS = {
     }
   },
   de: {
+    noSpotsResult: 'Keine Ergebnisse für \'{keyword}\' gefunden',
+    noSpotsDesc: 'Nicht das Richtige gefunden? Nutzen Sie die Suchtipps oder die KI-Sprachsuche.',
+    tipRegionTheme: '💡 \'Region + Thema\' (z.B. Seongsu Café, Haeundae Essen)',
+    tipVoiceSearch: 'KI-Sprachsuche',
+    resetFilterBtn: 'Alle Sehenswürdigkeiten zurücksetzen',
+
     title: 'Korea Reiseführer',
     subtitle: 'Wetter · Sehenswürdigkeiten · Gastronomie & Outfits',
     heroTitle: 'Wohin reisen Sie? 🚀',
@@ -1698,6 +1740,12 @@ export const TRANSLATIONS = {
     apiServices: { 'all': 'Alle Dienste (TourAPI)', 'area': 'Regional-Sehenswürdigkeiten', 'location': 'In der Nähe (Radius)', 'festival': 'Events & Festivals', 'stay': 'Unterkunft & Hotels' }
   },
   fr: {
+    noSpotsResult: 'Aucun résultat trouvé pour \'{keyword}\'',
+    noSpotsDesc: 'Vous ne trouvez pas votre bonheur ? Utilisez les conseils de recherche ou la recherche vocale IA.',
+    tipRegionTheme: '💡 \'Région + Thème\' (ex: Café Seongsu, Resto Haeundae)',
+    tipVoiceSearch: 'Recherche vocale IA',
+    resetFilterBtn: 'Réinitialiser à toutes les attractions',
+
     title: 'Guide de Voyage en Corée',
     subtitle: 'Météo en Temps Réel · Attractions · Gastronomie & Tenues',
     heroTitle: 'Où voyagez-vous ? 🚀',
@@ -1966,6 +2014,12 @@ export const TRANSLATIONS = {
     apiServices: { 'all': 'Todos los Servicios (TourAPI)', 'area': 'Información Turística Regional', 'location': 'Cercano (Radio)', 'festival': 'Eventos y Festivales', 'stay': 'Alojamientos y Hoteles' }
   },
   ru: {
+    noSpotsResult: 'Результаты по запросу «{keyword}» не найдены',
+    noSpotsDesc: 'Не нашли то, что искали? Воспользуйтесь подсказками по поиску или голосовым поиском ИИ.',
+    tipRegionTheme: '💡 «Регион + Тема» (напр. Кафе Сонсу, Еда Хэундэ)',
+    tipVoiceSearch: 'Голосовой поиск ИИ',
+    resetFilterBtn: 'Сбросить до списка всех достопримечательностей',
+
     title: 'Путеводитель по Корее',
     subtitle: 'Погода в реальном времени · Достопримечательности · Еда и одежда',
     heroTitle: 'Куда вы отправляетесь? 🚀',
