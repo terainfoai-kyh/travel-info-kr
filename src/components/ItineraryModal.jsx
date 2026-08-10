@@ -239,12 +239,46 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Option 1: Ultra-Slim 1-Row Modal Header (Diet from 400px to 52px) */}
+        {/* Absolute Top-Right Floating Close Button (Fixed Location) */}
+        <button
+          onClick={onClose}
+          aria-label="닫기"
+          style={{
+            position: 'absolute',
+            top: '0.65rem',
+            right: '0.65rem',
+            zIndex: 100,
+            background: 'rgba(15, 23, 42, 0.92)',
+            border: '1px solid rgba(255, 255, 255, 0.3)',
+            color: '#ffffff',
+            width: '32px',
+            height: '32px',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
+            transition: 'all 0.2s ease'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'scale(1.1)';
+            e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.95)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'scale(1)';
+            e.currentTarget.style.backgroundColor = 'rgba(15, 23, 42, 0.92)';
+          }}
+        >
+          <X size={18} strokeWidth={2.5} />
+        </button>
+
+        {/* Sleek 1-Row Modal Header */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '0.65rem 0.85rem',
+          padding: '0.6rem 3rem 0.6rem 0.85rem',
           margin: '-1rem -1rem 0.85rem -1rem',
           background: 'var(--bg-secondary)',
           borderBottom: '1px solid var(--border-color)',
@@ -252,7 +286,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
           gap: '0.5rem',
           flexWrap: 'wrap'
         }}>
-          {/* Left: Compact Title & Region/Days Badge & Trust Tooltip */}
+          {/* Left: Title & Region/Days Badge & Trust Tooltip */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
             <div style={{
               background: 'rgba(56, 189, 248, 0.2)',
@@ -301,9 +335,8 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
             </span>
           </div>
 
-          {/* Right: View Switcher (Map vs List) & Close Button */}
+          {/* Right: View Switcher (Map vs List) */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            {/* View Switcher Segmented Pills */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
@@ -356,27 +389,6 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                 <span>{t.listViewShort || '📋 일정 목록'}</span>
               </button>
             </div>
-
-            {/* Close Button */}
-            <button
-              onClick={onClose}
-              style={{
-                background: 'rgba(15, 23, 42, 0.92)',
-                border: '1px solid rgba(255, 255, 255, 0.25)',
-                color: '#ffffff',
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                flexShrink: 0
-              }}
-            >
-              <X size={18} strokeWidth={2.5} />
-            </button>
           </div>
         </div>
 
@@ -653,44 +665,6 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
           />
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
-            {/* List View Header Switcher Banner */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              flexWrap: 'wrap',
-              gap: '0.75rem',
-              padding: '0.85rem 1.25rem',
-              background: 'var(--bg-secondary)',
-              borderRadius: 'var(--radius-lg)',
-              border: '1px solid var(--border-highlight)'
-            }}>
-              <div style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Calendar size={18} color="var(--accent-primary)" />
-                <span>{t.listViewLabel || '📋 시간대별 카드형 상세 일정 목록'}</span>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setViewMode('map')}
-                style={{
-                  background: 'var(--accent-gradient)',
-                  color: '#ffffff',
-                  border: 'none',
-                  padding: '0.45rem 1rem',
-                  borderRadius: 'var(--radius-full)',
-                  fontSize: '0.8rem',
-                  fontWeight: 800,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.4rem',
-                  boxShadow: 'var(--shadow-sm)'
-                }}
-              >
-                <span>{t.switchToMap || '🗺️ 전체 동선 지도로 이동 ➔'}</span>
-              </button>
-            </div>
             {itinerary.map((day, dIdx) => {
               const curDayStart = dayTimes[day.day]?.start || startTime;
               const curDayEnd = dayTimes[day.day]?.end || endTime;

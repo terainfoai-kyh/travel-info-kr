@@ -389,30 +389,6 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
-            {onSwitchToList && (
-              <button
-                type="button"
-                onClick={onSwitchToList}
-                style={{
-                  background: 'var(--bg-card)',
-                  color: 'var(--accent-primary)',
-                  border: '1px solid var(--accent-primary)',
-                  padding: '0.45rem 0.9rem',
-                  fontSize: '0.8rem',
-                  fontWeight: 800,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.4rem',
-                  borderRadius: 'var(--radius-full)',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  boxShadow: 'var(--shadow-sm)'
-                }}
-                title="상세 일정 카드 목록 뷰로 바로 이동"
-              >
-                <span>{t.switchToList || '📋 상세 일정 목록으로 이동 ➔'}</span>
-              </button>
-            )}
 
             <a
               href={buildMultiPointMapUrl()}
