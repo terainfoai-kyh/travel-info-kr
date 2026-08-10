@@ -333,10 +333,26 @@ export function getSpotProvinceKey(spot) {
   }
 
   // Layer 3: Check 1st-level administrative address prefix (location / addr1 / region)
-  const locStr = `${spot.location || ''} ${spot.addr1 || ''}`.trim();
+  const locStr = `${spot.location || ''} ${spot.addr1 || ''} ${spot.region || ''}`.trim().toLowerCase();
   if (locStr) {
+    if (locStr.includes('seoul')) return '서울';
+    if (locStr.includes('jeju')) return '제주';
+    if (locStr.includes('busan')) return '부산';
+    if (locStr.includes('gangwon')) return '강원';
+    if (locStr.includes('gyeonggi')) return '경기';
+    if (locStr.includes('jeonbuk')) return '전북';
+    if (locStr.includes('gyeongbuk')) return '경북';
+    if (locStr.includes('jeonnam')) return '전남';
+    if (locStr.includes('gyeongnam')) return '경남';
+    if (locStr.includes('incheon')) return '인천';
+    if (locStr.includes('daegu')) return '대구';
+    if (locStr.includes('daejeon')) return '대전';
+    if (locStr.includes('gwangju')) return '광주';
+    if (locStr.includes('ulsan')) return '울산';
+    if (locStr.includes('sejong')) return '세종';
+
     for (const item of PROVINCE_ADDR_PREFIXES) {
-      if (locStr.startsWith(item.prefix) || locStr.includes(item.prefix)) {
+      if (locStr.includes(item.prefix.toLowerCase())) {
         return item.key;
       }
     }
@@ -344,12 +360,12 @@ export function getSpotProvinceKey(spot) {
 
   // Layer 4: Specific landmark title fallback (Strictly full city names, avoiding ambiguous sub-districts like '성산')
   const title = (spot.title || '').toLowerCase();
-  if (title.includes('서울') || title.includes('경복궁') || title.includes('광화문') || title.includes('남산타워') || title.includes('북촌한옥')) return '서울';
-  if (title.includes('제주') || title.includes('한라산') || title.includes('성산일출봉') || title.includes('섭지코지') || title.includes('서귀포')) return '제주';
-  if (title.includes('부산') || title.includes('해운대') || title.includes('광안리') || title.includes('감천문화') || title.includes('자갈치')) return '부산';
-  if (title.includes('강릉') || title.includes('속초') || title.includes('설악산') || title.includes('정동진') || title.includes('양양')) return '강원';
-  if (title.includes('전주') || title.includes('전주한옥') || title.includes('경기전') || title.includes('덕진공원')) return '전북';
-  if (title.includes('경주') || title.includes('불국사') || title.includes('첨성대') || title.includes('황리단길')) return '경북';
+  if (title.includes('서울') || title.includes('경복궁') || title.includes('광화문') || title.includes('남산타워') || title.includes('북촌한옥') || title.includes('seoul')) return '서울';
+  if (title.includes('제주') || title.includes('한라산') || title.includes('성산일출봉') || title.includes('섭지코지') || title.includes('서귀포') || title.includes('jeju')) return '제주';
+  if (title.includes('부산') || title.includes('해운대') || title.includes('광안리') || title.includes('감천문화') || title.includes('자갈치') || title.includes('busan')) return '부산';
+  if (title.includes('강릉') || title.includes('속초') || title.includes('설악산') || title.includes('정동진') || title.includes('양양') || title.includes('gangwon')) return '강원';
+  if (title.includes('전주') || title.includes('전주한옥') || title.includes('경기전') || title.includes('덕진공원') || title.includes('jeonbuk')) return '전북';
+  if (title.includes('경주') || title.includes('불국사') || title.includes('첨성대') || title.includes('황리단길') || title.includes('gyeongbuk')) return '경북';
 
   return spot.region || '서울';
 }
@@ -619,19 +635,26 @@ export function generateSmartItinerary({
 
     const daySpots = [];
     const fallbackPreset = REGION_PRESETS[targetProvince] || REGION_PRESETS['경기'] || REGION_PRESETS['서울'];
-    const combinedCandidates = [...spots, ...provincePool, ...fallbackPreset, ...(REGION_PRESETS['서울'] || [])];
+    const activeSearchSpots = (Array.isArray(spots) && spots.length > 0) ? spots : [];
+    const combinedCandidates = [...activeSearchSpots, ...provincePool, ...fallbackPreset, ...(REGION_PRESETS['서울'] || [])];
 
     for (let s = 0; s < 4; s++) {
       let targetSpot = null;
 
-      // Find first candidate from main screen spots that hasn't been used yet across the entire itinerary
-      for (let cIdx = 0; cIdx < combinedCandidates.length; cIdx++) {
-        const candidateIdx = ((d - 1) * 4 + s + dSeed + cIdx) % combinedCandidates.length;
-        const candidate = combinedCandidates[candidateIdx];
-        if (candidate && candidate.title && !globalUsedTitles.has(candidate.title.toLowerCase().replace(/\s+/g, ''))) {
-          targetSpot = candidate;
-          globalUsedTitles.add(candidate.title.toLowerCase().replace(/\s+/g, ''));
-          break;
+      // On Day 1, strictly bind user's active search result spots to slots 1..N
+      if (d === 1 && activeSearchSpots[s] && activeSearchSpots[s].title) {
+        targetSpot = activeSearchSpots[s];
+        globalUsedTitles.add(targetSpot.title.toLowerCase().replace(/\s+/g, ''));
+      } else {
+        // Find first candidate that hasn't been used yet across the entire itinerary
+        for (let cIdx = 0; cIdx < combinedCandidates.length; cIdx++) {
+          const candidateIdx = ((d - 1) * 4 + s + dSeed + cIdx) % combinedCandidates.length;
+          const candidate = combinedCandidates[candidateIdx];
+          if (candidate && candidate.title && !globalUsedTitles.has(candidate.title.toLowerCase().replace(/\s+/g, ''))) {
+            targetSpot = candidate;
+            globalUsedTitles.add(candidate.title.toLowerCase().replace(/\s+/g, ''));
+            break;
+          }
         }
       }
 
