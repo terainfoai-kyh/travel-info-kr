@@ -239,52 +239,23 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Absolute Top-Right Floating Close Button (Fixed Location) */}
-        <button
-          onClick={onClose}
-          aria-label="닫기"
-          style={{
-            position: 'absolute',
-            top: '0.65rem',
-            right: '0.65rem',
-            zIndex: 100,
-            background: 'rgba(15, 23, 42, 0.92)',
-            border: '1px solid rgba(255, 255, 255, 0.3)',
-            color: '#ffffff',
-            width: '32px',
-            height: '32px',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'scale(1.1)';
-            e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.95)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'scale(1)';
-            e.currentTarget.style.backgroundColor = 'rgba(15, 23, 42, 0.92)';
-          }}
-        >
-          <X size={18} strokeWidth={2.5} />
-        </button>
-
-        {/* Sleek 1-Row Modal Header */}
+        {/* Sleek 1-Row Modal Header (STICKY PINNED AT TOP) */}
         <div style={{
+          position: 'sticky',
+          top: '-1.25rem',
+          zIndex: 150,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '0.6rem 3rem 0.6rem 0.85rem',
-          margin: '-1rem -1rem 0.85rem -1rem',
+          padding: '0.65rem 0.85rem',
+          margin: '-1.25rem -1.25rem 0.85rem -1.25rem',
           background: 'var(--bg-secondary)',
           borderBottom: '1px solid var(--border-color)',
           borderRadius: 'var(--radius-lg) var(--radius-lg) 0 0',
           gap: '0.5rem',
-          flexWrap: 'wrap'
+          flexWrap: 'wrap',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          backdropFilter: 'blur(12px)'
         }}>
           {/* Left: Title & Region/Days Badge & Trust Tooltip */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
@@ -335,7 +306,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
             </span>
           </div>
 
-          {/* Right: View Switcher (Map vs List) */}
+          {/* Right: View Switcher (Map vs List) & Sticky Close Button */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <div style={{
               display: 'flex',
@@ -389,6 +360,37 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                 <span>{t.listViewShort || '📋 일정 목록'}</span>
               </button>
             </div>
+
+            {/* Sticky Close Button */}
+            <button
+              onClick={onClose}
+              aria-label="닫기"
+              style={{
+                background: 'rgba(15, 23, 42, 0.92)',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                color: '#ffffff',
+                width: '30px',
+                height: '30px',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
+                transition: 'all 0.2s ease',
+                flexShrink: 0
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'scale(1.1)';
+                e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.95)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.backgroundColor = 'rgba(15, 23, 42, 0.92)';
+              }}
+            >
+              <X size={16} strokeWidth={2.5} />
+            </button>
           </div>
         </div>
 
