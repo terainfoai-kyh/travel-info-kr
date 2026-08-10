@@ -95,6 +95,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
   const [copied, setCopied] = useState(false);
   const [viewMode, setViewMode] = useState('map'); // 'map' | 'list'
   const [activeMapDay, setActiveMapDay] = useState(1);
+  const [isOptionsExpanded, setIsOptionsExpanded] = useState(false);
   const datePickerRef = useRef(null);
 
   if (!isOpen) return null;
@@ -437,207 +438,266 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
           </button>
         </div>
 
-        {/* Controls Bar (Days, Start Date, Rainy Mode Toggle, Copy) */}
+        {/* Sleek Option 1: 1-Row Compact Summary Accordion Toolbar */}
         <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: '0.85rem',
-          margin: '0 0 1.5rem 0',
-          padding: '0.85rem 1rem',
+          margin: '0 0 1rem 0',
           background: 'var(--bg-primary)',
           borderRadius: 'var(--radius-md)',
-          border: '1px solid var(--border-highlight)'
+          border: '1px solid var(--border-highlight)',
+          overflow: 'hidden',
+          boxShadow: 'var(--shadow-sm)'
         }}>
-          {/* Days buttons (Up to 5 Days) */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-main)' }}>{t.tripDurationTitle || '여행 기간:'}</span>
-            {[1, 2, 3, 4, 5].map(d => (
+          {/* Always Visible 1-Row Compact Summary & Quick Action Bar */}
+          <div style={{
+            padding: '0.55rem 0.85rem',
+            background: 'var(--bg-secondary)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '0.5rem'
+          }}>
+            {/* Active Summary Info & Expand Toggle Button */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <span style={{
+                fontSize: '0.82rem',
+                fontWeight: 800,
+                color: 'var(--text-main)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                background: 'var(--bg-card)',
+                padding: '0.25rem 0.6rem',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid var(--border-color)'
+              }}>
+                🗓️ {selectedDays === 1 ? (t.dayTrip1Day || '당일치기') : `${selectedDays - 1}${t.nightsLabel || '박'}${selectedDays}${t.daysLabel || '일'}`} · {customStartDate}
+              </span>
+
               <button
-                key={d}
-                onClick={() => setSelectedDays(d)}
+                type="button"
+                onClick={() => setIsOptionsExpanded(!isOptionsExpanded)}
                 style={{
-                  background: selectedDays === d ? 'var(--accent-gradient)' : 'var(--bg-secondary)',
-                  color: selectedDays === d ? '#ffffff' : 'var(--text-muted)',
-                  border: selectedDays === d ? 'none' : '1px solid var(--border-color)',
-                  padding: '0.35rem 0.85rem',
+                  background: isOptionsExpanded ? 'rgba(56, 189, 248, 0.2)' : 'var(--bg-primary)',
+                  color: isOptionsExpanded ? 'var(--accent-primary)' : 'var(--text-main)',
+                  border: isOptionsExpanded ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                  padding: '0.25rem 0.65rem',
                   borderRadius: 'var(--radius-full)',
-                  fontSize: '0.8rem',
-                  fontWeight: 700,
+                  fontSize: '0.78rem',
+                  fontWeight: 800,
                   cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.3rem',
                   transition: 'all 0.2s ease'
                 }}
               >
-                {d === 1 ? (t.dayTrip1Day || '당일치기 (1 Day)') : `${d - 1}${t.nightsLabel || '박'} ${d}${t.daysLabel || '일'} (${d} Days)`}
+                <span>{isOptionsExpanded ? (t.toggleOptionsCollapse || (lang === 'en' ? '🔼 Hide Options ▲' : '🔼 조건 접기 ▲')) : (t.toggleOptionsExpand || (lang === 'en' ? '⚙️ Change Options ▼' : '⚙️ 조건 변경 ▼'))}</span>
               </button>
-            ))}
+            </div>
+
+            {/* Quick Action Buttons */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setSwappedSpots({});
+                  setRefreshSeed(prev => prev + 1);
+                }}
+                style={{
+                  background: 'linear-gradient(135deg, #818cf8 0%, #c084fc 100%)',
+                  border: 'none',
+                  color: '#ffffff',
+                  padding: '0.35rem 0.7rem',
+                  borderRadius: 'var(--radius-md)',
+                  fontSize: '0.78rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.35rem',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 2px 8px rgba(192, 132, 252, 0.35)'
+                }}
+                title="시간/날짜 조건에 맞춰 AI 추천 코스 갱신하기"
+              >
+                <Sparkles size={14} />
+                <span>{t.reRecommendAiBtn || 'AI 코스 다시 추천 🔄'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleCopyItinerary}
+                style={{
+                  background: copied ? '#22c55e' : 'var(--accent-gradient)',
+                  border: 'none',
+                  color: '#ffffff',
+                  padding: '0.35rem 0.7rem',
+                  borderRadius: 'var(--radius-md)',
+                  fontSize: '0.78rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.35rem',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 2px 8px rgba(37, 99, 235, 0.3)'
+                }}
+              >
+                {copied ? <Check size={14} /> : <Copy size={14} />}
+                <span>{copied ? (t.copiedToast || '복사완료!') : (t.copyCourseBtn || '코스 복사')}</span>
+              </button>
+            </div>
           </div>
 
-          {/* Interactive Controls (Start Date, Rainy Mode Toggle, Copy) */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
-            {/* Rainy Mode Toggle */}
-            <button
-              type="button"
-              onClick={() => setRainyMode(!rainyMode)}
-              style={{
-                background: rainyMode ? 'linear-gradient(135deg, #0284c7, #38bdf8)' : 'var(--bg-secondary)',
-                border: rainyMode ? 'none' : '1px solid var(--border-color)',
-                color: rainyMode ? '#ffffff' : 'var(--text-main)',
-                padding: '0.4rem 0.75rem',
-                borderRadius: 'var(--radius-full)',
-                fontSize: '0.78rem',
-                fontWeight: 700,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.35rem',
-                transition: 'all 0.2s ease'
-              }}
-            >
-              <CloudRain size={14} color={rainyMode ? '#ffffff' : '#38bdf8'} />
-              <span>{t.rainyModeLabel || '비 오는 날 (실내 코스)'}</span>
-            </button>
-
-            {/* Date Picker Input */}
-            <div style={{ position: 'relative', width: '155px' }}>
-              <DatePicker
-                ref={datePickerRef}
-                selected={startDateObj}
-                onChange={(d) => setCustomStartDate(formatDateStr(d))}
-                locale={lang === 'zht' ? 'zh' : (lang || 'ko')}
-                dateFormat="yyyy-MM-dd"
-                className="custom-datepicker-input"
-                portalId="root"
-                popperPlacement="bottom-start"
-                showIcon
-                icon={
-                  <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    width="15" 
-                    height="15" 
-                    viewBox="0 0 24 24" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    strokeWidth="2" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    className="datepicker-custom-icon"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      datePickerRef.current?.setOpen(true);
+          {/* Collapsible Accordion Panel for Detailed Condition Options */}
+          {isOptionsExpanded && (
+            <div style={{
+              padding: '0.85rem 1rem',
+              borderTop: '1px solid var(--border-color)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.85rem',
+              background: 'var(--bg-primary)'
+            }}>
+              {/* Days buttons (Up to 5 Days) */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)' }}>{t.tripDurationTitle || '여행 기간:'}</span>
+                {[1, 2, 3, 4, 5].map(d => (
+                  <button
+                    key={d}
+                    onClick={() => setSelectedDays(d)}
+                    style={{
+                      background: selectedDays === d ? 'var(--accent-gradient)' : 'var(--bg-secondary)',
+                      color: selectedDays === d ? '#ffffff' : 'var(--text-muted)',
+                      border: selectedDays === d ? 'none' : '1px solid var(--border-color)',
+                      padding: '0.3rem 0.75rem',
+                      borderRadius: 'var(--radius-full)',
+                      fontSize: '0.78rem',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease'
                     }}
                   >
-                    <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
-                    <line x1="16" x2="16" y1="2" y2="6"/>
-                    <line x1="8" x2="8" y1="2" y2="6"/>
-                    <line x1="3" x2="21" y1="10" y2="10"/>
-                  </svg>
-                }
-              />
+                    {d === 1 ? (t.dayTrip1Day || '당일치기 (1 Day)') : `${d - 1}${t.nightsLabel || '박'} ${d}${t.daysLabel || '일'} (${d} Days)`}
+                  </button>
+                ))}
+              </div>
+
+              {/* Interactive Controls (Start Date, Rainy Mode Toggle, Time Selector) */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+                {/* Rainy Mode Toggle */}
+                <button
+                  type="button"
+                  onClick={() => setRainyMode(!rainyMode)}
+                  style={{
+                    background: rainyMode ? 'linear-gradient(135deg, #0284c7, #38bdf8)' : 'var(--bg-secondary)',
+                    border: rainyMode ? 'none' : '1px solid var(--border-color)',
+                    color: rainyMode ? '#ffffff' : 'var(--text-main)',
+                    padding: '0.35rem 0.75rem',
+                    borderRadius: 'var(--radius-full)',
+                    fontSize: '0.78rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <CloudRain size={14} color={rainyMode ? '#ffffff' : '#38bdf8'} />
+                  <span>{t.rainyModeLabel || '비 오는 날 (실내 코스)'}</span>
+                </button>
+
+                {/* Date Picker Input */}
+                <div style={{ position: 'relative', width: '155px' }}>
+                  <DatePicker
+                    ref={datePickerRef}
+                    selected={startDateObj}
+                    onChange={(d) => setCustomStartDate(formatDateStr(d))}
+                    locale={lang === 'zht' ? 'zh' : (lang || 'ko')}
+                    dateFormat="yyyy-MM-dd"
+                    className="custom-datepicker-input"
+                    portalId="root"
+                    popperPlacement="bottom-start"
+                    showIcon
+                    icon={
+                      <svg 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        width="15" 
+                        height="15" 
+                        viewBox="0 0 24 24" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        strokeWidth="2" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        className="datepicker-custom-icon"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          datePickerRef.current?.setOpen(true);
+                        }}
+                      >
+                        <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
+                        <line x1="16" x2="16" y1="2" y2="6"/>
+                        <line x1="8" x2="8" y1="2" y2="6"/>
+                        <line x1="3" x2="21" y1="10" y2="10"/>
+                      </svg>
+                    }
+                  />
+                </div>
+
+                {/* Daily Start ~ End Time Selector */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', padding: '0.35rem 0.65rem', borderRadius: 'var(--radius-md)' }}>
+                  <Clock size={14} color="var(--accent-primary)" />
+                  <select
+                    value={startTime}
+                    onChange={(e) => setStartTime(e.target.value)}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: 'var(--text-main)',
+                      fontSize: '0.78rem',
+                      fontWeight: 800,
+                      outline: 'none',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <option value="06:00">06:00 {t.departTimeLabel || '출발'}</option>
+                    <option value="07:00">07:00 {t.departTimeLabel || '출발'}</option>
+                    <option value="08:00">08:00 {t.departTimeLabel || '출발'}</option>
+                    <option value="09:00">09:00 {t.departTimeLabel || '출발'}</option>
+                    <option value="09:30">09:30 {t.departTimeLabel || '출발'}</option>
+                    <option value="10:00">10:00 {t.departTimeLabel || '출발'}</option>
+                    <option value="11:00">11:00 {t.departTimeLabel || '출발'}</option>
+                    <option value="12:00">12:00 {t.departTimeLabel || '출발'}</option>
+                    <option value="13:00">13:00 {t.departTimeLabel || '출발'}</option>
+                  </select>
+                  <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>~</span>
+                  <select
+                    value={endTime}
+                    onChange={(e) => setEndTime(e.target.value)}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: 'var(--text-main)',
+                      fontSize: '0.78rem',
+                      fontWeight: 800,
+                      outline: 'none',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <option value="18:00">18:00 {t.arriveTimeLabel || '종료'}</option>
+                    <option value="19:00">19:00 {t.arriveTimeLabel || '종료'}</option>
+                    <option value="20:00">20:00 {t.arriveTimeLabel || '종료'}</option>
+                    <option value="21:00">21:00 {t.arriveTimeLabel || '종료'}</option>
+                    <option value="22:00">22:00 {t.arriveTimeLabel || '종료'}</option>
+                    <option value="23:00">23:00 {t.arriveTimeLabel || '종료'}</option>
+                  </select>
+                </div>
+              </div>
             </div>
-
-            {/* Daily Start ~ End Time Selector */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', padding: '0.35rem 0.65rem', borderRadius: 'var(--radius-md)' }}>
-              <Clock size={14} color="var(--accent-primary)" />
-              <select
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: 'var(--text-main)',
-                  fontSize: '0.78rem',
-                  fontWeight: 700,
-                  outline: 'none',
-                  cursor: 'pointer'
-                }}
-              >
-                <option value="06:00">06:00 {t.departTimeLabel || '출발'}</option>
-                <option value="07:00">07:00 {t.departTimeLabel || '출발'}</option>
-                <option value="08:00">08:00 {t.departTimeLabel || '출발'}</option>
-                <option value="09:00">09:00 {t.departTimeLabel || '출발'}</option>
-                <option value="09:30">09:30 {t.departTimeLabel || '출발'}</option>
-                <option value="10:00">10:00 {t.departTimeLabel || '출발'}</option>
-                <option value="11:00">11:00 {t.departTimeLabel || '출발'}</option>
-                <option value="12:00">12:00 {t.departTimeLabel || '출발'}</option>
-                <option value="13:00">13:00 {t.departTimeLabel || '출발'}</option>
-              </select>
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>~</span>
-              <select
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: 'var(--text-main)',
-                  fontSize: '0.78rem',
-                  fontWeight: 700,
-                  outline: 'none',
-                  cursor: 'pointer'
-                }}
-              >
-                <option value="18:00">18:00 {t.arriveTimeLabel || '종료'}</option>
-                <option value="19:00">19:00 {t.arriveTimeLabel || '종료'}</option>
-                <option value="20:00">20:00 {t.arriveTimeLabel || '종료'}</option>
-                <option value="21:00">21:00 {t.arriveTimeLabel || '종료'}</option>
-                <option value="22:00">22:00 {t.arriveTimeLabel || '종료'}</option>
-                <option value="23:00">23:00 {t.arriveTimeLabel || '종료'}</option>
-              </select>
-            </div>
-
-            {/* AI Regenerate / Re-recommend Button */}
-            <button
-              type="button"
-              onClick={() => {
-                setSwappedSpots({});
-                setRefreshSeed(prev => prev + 1);
-              }}
-              style={{
-                background: 'linear-gradient(135deg, #818cf8 0%, #c084fc 100%)',
-                border: 'none',
-                color: '#ffffff',
-                padding: '0.4rem 0.85rem',
-                borderRadius: 'var(--radius-md)',
-                fontSize: '0.8rem',
-                fontWeight: 700,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.4rem',
-                transition: 'all 0.2s ease',
-                whiteSpace: 'nowrap',
-                boxShadow: '0 2px 8px rgba(192, 132, 252, 0.35)'
-              }}
-              title="시간/날짜 조건에 맞춰 AI 추천 코스 갱신하기"
-            >
-              <Sparkles size={15} />
-              <span>{t.reRecommendAiBtn || 'AI 코스 다시 추천 🔄'}</span>
-            </button>
-
-            <button
-              onClick={handleCopyItinerary}
-              style={{
-                background: copied ? '#22c55e' : 'var(--accent-gradient)',
-                border: 'none',
-                color: '#ffffff',
-                padding: '0.4rem 0.85rem',
-                borderRadius: 'var(--radius-md)',
-                fontSize: '0.8rem',
-                fontWeight: 700,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.4rem',
-                transition: 'all 0.2s ease',
-                whiteSpace: 'nowrap',
-                boxShadow: '0 2px 8px rgba(56, 189, 248, 0.3)'
-              }}
-            >
-              {copied ? <Check size={15} /> : <Copy size={15} />}
-              <span>{copied ? (t.copiedToast || '복사완료!') : (t.copyCourseBtn || '코스 복사')}</span>
-            </button>
-          </div>
+          )}
         </div>
 
         {/* Conditional View Rendering: Map View vs Timeline List View */}
