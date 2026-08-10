@@ -61,6 +61,8 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary })
   const [isListening, setIsListening] = useState(false);
   const [isSpeechSupported, setIsSpeechSupported] = useState(true);
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const recognitionRef = useRef(null);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
