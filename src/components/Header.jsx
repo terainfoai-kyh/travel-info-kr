@@ -123,9 +123,13 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
 
   const scrollToSection = (id) => {
     setActiveSection(id);
+    if (id === 'tour-spots') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
     const elem = document.getElementById(id);
     if (elem) {
-      const yOffset = window.innerWidth <= 768 ? -75 : -130; // Dynamic offset for slim mobile sticky header
+      const yOffset = window.innerWidth <= 768 ? -180 : -220;
       const y = elem.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({ top: y, behavior: 'smooth' });
     }

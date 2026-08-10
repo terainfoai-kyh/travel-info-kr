@@ -53,7 +53,7 @@ export const TRANSLATIONS = {
     shareSuccessToast: '여행 조건 공유 링크가 클립보드에 복사되었습니다!',
     imagePreparing: '이미지 준비 중',
     travelKorea: '대한민국 여행 정보',
-    navSpots: '추천 명소',
+    navSpots: '🏠 홈 · 추천명소',
     navEssentials: '여행 필수템',
     navWeather: '실시간 날씨',
     navLifestyle: 'AI 맛집 & 코디',

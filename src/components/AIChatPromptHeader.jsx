@@ -60,7 +60,20 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary })
   const [promptText, setPromptText] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [isSpeechSupported, setIsSpeechSupported] = useState(true);
+  const [isScrolled, setIsScrolled] = useState(false);
   const recognitionRef = useRef(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 120) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -124,177 +137,274 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary })
   ];
 
   return (
-    <div style={{
-      width: '100%',
-      marginBottom: '1.5rem',
-      borderRadius: '24px',
-      background: '#ffffff',
-      border: '1px solid #e2e8f0',
-      padding: '1.75rem 1.25rem',
-      boxShadow: '0 10px 30px rgba(15, 23, 42, 0.05)',
-      color: '#0f172a',
-      position: 'relative',
-      boxSizing: 'border-box'
-    }}>
-      {/* Title Header */}
-      <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
-        <h1 style={{
-          fontSize: '1.75rem',
-          fontWeight: 900,
-          color: '#0f172a',
-          margin: '0 0 0.4rem 0',
-          letterSpacing: '-0.02em',
-          lineHeight: 1.25
-        }}>
-          {t.heroTitle || '어디로 떠나시나요? 🚀'}
-        </h1>
-        <p style={{
-          fontSize: '0.9rem',
-          fontWeight: 500,
-          color: '#64748b',
-          margin: 0
-        }}>
-          {t.heroSubtitle || '3초 만에 AI가 찾아주는 나만의 1:1 맞춤 한국 여행 동선'}
-        </p>
-      </div>
-
-      {/* Mobile-Optimized Sleek Pill Search Bar */}
-      <form onSubmit={handleSubmit} style={{
-        maxWidth: '680px',
-        margin: '0 auto 1.25rem auto',
-        position: 'relative'
-      }}>
+    <>
+      {/* Sticky Floating Slim Mini AI Search Bar on Scroll (Option 1: Perplexity/Airbnb style) */}
+      {isScrolled && (
         <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          background: '#ffffff',
-          border: isListening ? '2px solid #ef4444' : '1.5px solid #2563eb',
-          borderRadius: '9999px',
-          padding: '0.35rem 0.4rem 0.35rem 1rem',
-          boxShadow: isListening ? '0 0 15px rgba(239, 68, 68, 0.25)' : '0 6px 20px rgba(37, 99, 235, 0.1)',
-          transition: 'all 0.2s ease'
+          position: 'fixed',
+          top: '128px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '92%',
+          maxWidth: '680px',
+          zIndex: 9999,
+          transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
         }}>
-          <Sparkles style={{ width: '20px', height: '20px', color: '#2563eb', flexShrink: 0, marginRight: '0.4rem' }} />
+          <form onSubmit={handleSubmit} style={{ margin: 0 }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              background: 'rgba(255, 255, 255, 0.96)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              border: isListening ? '2px solid #ef4444' : '1.5px solid #2563eb',
+              borderRadius: '9999px',
+              padding: '0.35rem 0.4rem 0.35rem 1rem',
+              boxShadow: '0 12px 35px rgba(37, 99, 235, 0.28)'
+            }}>
+              <Sparkles style={{ width: '18px', height: '18px', color: '#2563eb', flexShrink: 0, marginRight: '0.4rem' }} />
 
-          <input
-            type="text"
-            value={promptText}
-            onChange={(e) => setPromptText(e.target.value)}
-            placeholder={isListening ? (t.voiceListening || '말씀하세요... 🎧 (음성 인식 중)') : (t.aiPromptPlaceholder || '어디로 떠나고 싶으신가요? 💬')}
-            style={{
-              width: '100%',
-              background: 'transparent',
-              border: 'none',
-              outline: 'none',
-              color: '#0f172a',
-              fontSize: '0.9rem',
-              fontWeight: 600,
-              padding: '0.5rem 0'
-            }}
-          />
+              <input
+                type="text"
+                value={promptText}
+                onChange={(e) => setPromptText(e.target.value)}
+                placeholder={isListening ? (t.voiceListening || '말씀하세요... 🎧 (음성 인식 중)') : (t.aiPromptPlaceholder || '어디로 떠나고 싶으신가요? 💬')}
+                style={{
+                  width: '100%',
+                  background: 'transparent',
+                  border: 'none',
+                  outline: 'none',
+                  color: '#0f172a',
+                  fontSize: '0.88rem',
+                  fontWeight: 600,
+                  padding: '0.45rem 0'
+                }}
+              />
 
-          {isSpeechSupported && (
-            <button
-              type="button"
-              onClick={toggleListening}
-              title={t.voiceBtnTooltip || '음성 인식 시작 🎙️'}
+              {isSpeechSupported && (
+                <button
+                  type="button"
+                  onClick={toggleListening}
+                  title={t.voiceBtnTooltip || '음성 인식 시작 🎙️'}
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '9999px',
+                    border: 'none',
+                    background: isListening ? '#ef4444' : '#f1f5f9',
+                    color: isListening ? '#ffffff' : '#475569',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    flexShrink: 0,
+                    marginRight: '0.35rem',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  {isListening ? <MicOff style={{ width: '16px', height: '16px' }} /> : <Mic style={{ width: '16px', height: '16px' }} />}
+                </button>
+              )}
+
+              <button
+                type="submit"
+                title={t.aiCourseBtn || 'AI 코스 생성'}
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '9999px',
+                  border: 'none',
+                  background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+                  color: '#ffffff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  flexShrink: 0,
+                  boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <ArrowRight style={{ width: '16px', height: '16px' }} />
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Main Top Hero Card */}
+      <div style={{
+        width: '100%',
+        marginBottom: '1.5rem',
+        borderRadius: '24px',
+        background: '#ffffff',
+        border: '1px solid #e2e8f0',
+        padding: '1.75rem 1.25rem',
+        boxShadow: '0 10px 30px rgba(15, 23, 42, 0.05)',
+        color: '#0f172a',
+        position: 'relative',
+        boxSizing: 'border-box'
+      }}>
+        {/* Title Header */}
+        <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
+          <h1 style={{
+            fontSize: '1.75rem',
+            fontWeight: 900,
+            color: '#0f172a',
+            margin: '0 0 0.4rem 0',
+            letterSpacing: '-0.02em',
+            lineHeight: 1.25
+          }}>
+            {t.heroTitle || '어디로 떠나시나요? 🚀'}
+          </h1>
+          <p style={{
+            fontSize: '0.9rem',
+            fontWeight: 500,
+            color: '#64748b',
+            margin: 0
+          }}>
+            {t.heroSubtitle || '3초 만에 AI가 찾아주는 나만의 1:1 맞춤 한국 여행 동선'}
+          </p>
+        </div>
+
+        {/* Mobile-Optimized Sleek Pill Search Bar */}
+        <form onSubmit={handleSubmit} style={{
+          maxWidth: '680px',
+          margin: '0 auto 1.25rem auto',
+          position: 'relative'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            background: '#ffffff',
+            border: isListening ? '2px solid #ef4444' : '1.5px solid #2563eb',
+            borderRadius: '9999px',
+            padding: '0.35rem 0.4rem 0.35rem 1rem',
+            boxShadow: isListening ? '0 0 15px rgba(239, 68, 68, 0.25)' : '0 6px 20px rgba(37, 99, 235, 0.1)',
+            transition: 'all 0.2s ease'
+          }}>
+            <Sparkles style={{ width: '20px', height: '20px', color: '#2563eb', flexShrink: 0, marginRight: '0.4rem' }} />
+
+            <input
+              type="text"
+              value={promptText}
+              onChange={(e) => setPromptText(e.target.value)}
+              placeholder={isListening ? (t.voiceListening || '말씀하세요... 🎧 (음성 인식 중)') : (t.aiPromptPlaceholder || '어디로 떠나고 싶으신가요? 💬')}
               style={{
-                width: '38px',
-                height: '38px',
+                width: '100%',
+                background: 'transparent',
+                border: 'none',
+                outline: 'none',
+                color: '#0f172a',
+                fontSize: '0.9rem',
+                fontWeight: 600,
+                padding: '0.5rem 0'
+              }}
+            />
+
+            {isSpeechSupported && (
+              <button
+                type="button"
+                onClick={toggleListening}
+                title={t.voiceBtnTooltip || '음성 인식 시작 🎙️'}
+                style={{
+                  width: '38px',
+                  height: '38px',
+                  borderRadius: '9999px',
+                  border: 'none',
+                  background: isListening ? '#ef4444' : '#f1f5f9',
+                  color: isListening ? '#ffffff' : '#475569',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  flexShrink: 0,
+                  marginRight: '0.35rem',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                {isListening ? <MicOff style={{ width: '18px', height: '18px' }} /> : <Mic style={{ width: '18px', height: '18px' }} />}
+              </button>
+            )}
+
+            <button
+              type="submit"
+              title={t.aiCourseBtn || 'AI 코스 생성'}
+              style={{
+                width: '40px',
+                height: '40px',
                 borderRadius: '9999px',
                 border: 'none',
-                background: isListening ? '#ef4444' : '#f1f5f9',
-                color: isListening ? '#ffffff' : '#475569',
+                background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+                color: '#ffffff',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'pointer',
                 flexShrink: 0,
-                marginRight: '0.35rem',
+                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)',
                 transition: 'all 0.2s ease'
               }}
             >
-              {isListening ? <MicOff style={{ width: '18px', height: '18px' }} /> : <Mic style={{ width: '18px', height: '18px' }} />}
+              <ArrowRight style={{ width: '18px', height: '18px' }} />
             </button>
-          )}
+          </div>
+        </form>
 
-          <button
-            type="submit"
-            title={t.aiCourseBtn || 'AI 코스 생성'}
-            style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '9999px',
-              border: 'none',
-              background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
-              color: '#ffffff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              flexShrink: 0,
-              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)',
-              transition: 'all 0.2s ease'
-            }}
-          >
-            <ArrowRight style={{ width: '18px', height: '18px' }} />
-          </button>
-        </div>
-      </form>
+        {/* Chips */}
+        <div style={{
+          maxWidth: '680px',
+          margin: '0 auto',
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '0.4rem'
+        }}>
+          {sampleChips.map((chip, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => handleChipClick(chip.text)}
+              style={{
+                background: '#f1f5f9',
+                border: '1px solid #e2e8f0',
+                color: '#334155',
+                fontSize: '0.78rem',
+                fontWeight: 600,
+                padding: '0.4rem 0.85rem',
+                borderRadius: '9999px',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              {chip.label}
+            </button>
+          ))}
 
-      {/* Chips */}
-      <div style={{
-        maxWidth: '680px',
-        margin: '0 auto',
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '0.4rem'
-      }}>
-        {sampleChips.map((chip, idx) => (
-          <button
-            key={idx}
-            type="button"
-            onClick={() => handleChipClick(chip.text)}
+          <a
+            href="https://www.instagram.com/explore/tags/%EC%84%B1%EC%88%98%EB%8F%99%ED%95%AB%ED%94%8C/"
+            target="_blank"
+            rel="noopener noreferrer"
             style={{
-              background: '#f1f5f9',
-              border: '1px solid #e2e8f0',
-              color: '#334155',
+              background: '#fdf2f8',
+              border: '1px solid #fbcfe8',
+              color: '#db2777',
               fontSize: '0.78rem',
-              fontWeight: 600,
+              fontWeight: 700,
               padding: '0.4rem 0.85rem',
               borderRadius: '9999px',
-              cursor: 'pointer',
-              transition: 'all 0.15s ease'
+              textDecoration: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.3rem'
             }}
           >
-            {chip.label}
-          </button>
-        ))}
-
-        <a
-          href="https://www.instagram.com/explore/tags/%EC%84%B1%EC%88%98%EB%8F%99%ED%95%AB%ED%94%8C/"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            background: '#fdf2f8',
-            border: '1px solid #fbcfe8',
-            color: '#db2777',
-            fontSize: '0.78rem',
-            fontWeight: 700,
-            padding: '0.4rem 0.85rem',
-            borderRadius: '9999px',
-            textDecoration: 'none',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.3rem'
-          }}
-        >
-          <Camera style={{ width: '13px', height: '13px' }} />
-          <span>{t.instaHashtagLabel || '📸 인스타 핫플 ↗'}</span>
-        </a>
+            <Camera style={{ width: '13px', height: '13px' }} />
+            <span>{t.instaHashtagLabel || '📸 인스타 핫플 ↗'}</span>
+          </a>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
