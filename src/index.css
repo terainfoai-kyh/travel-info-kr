@@ -469,26 +469,37 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     display: none !important;
   }
 
+  .header-brand {
+    gap: 0.4rem !important;
+  }
+
   .header-logo {
-    width: 36px !important;
-    height: 36px !important;
-    border-radius: 10px !important;
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 8px !important;
   }
 
   .header-controls {
-    gap: 0.35rem !important;
-    flex-wrap: nowrap !important;
+    gap: 0.2rem !important;
+    flex-wrap: wrap !important;
     justify-content: flex-end !important;
+    max-width: 100% !important;
+  }
+
+  .header-controls button {
+    padding: 0.28rem 0.45rem !important;
+    font-size: 0.72rem !important;
   }
 
   .header-lang-select {
-    padding: 0.3rem 0.45rem !important;
-    font-size: 0.75rem !important;
+    padding: 0.25rem 0.35rem !important;
+    font-size: 0.72rem !important;
+    max-width: 110px !important;
   }
 
   .header-theme-btn {
-    padding: 0.3rem 0.6rem !important;
-    font-size: 0.75rem !important;
+    padding: 0.28rem 0.45rem !important;
+    font-size: 0.72rem !important;
   }
 
   .header-theme-btn span {
@@ -499,12 +510,14 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
   .header-nav-tabs {
     flex-wrap: nowrap !important;
     justify-content: flex-start !important;
-    gap: 0.45rem !important;
+    gap: 0.35rem !important;
     overflow-x: auto !important;
-    padding: 0.35rem 2rem 0.25rem 0.15rem !important;
+    padding: 0.3rem 0.5rem 0.2rem 0.2rem !important;
     border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
     scrollbar-width: none !important;
     -webkit-overflow-scrolling: touch !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   .header-nav-tabs::-webkit-scrollbar {
