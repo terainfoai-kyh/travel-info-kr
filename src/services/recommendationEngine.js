@@ -568,6 +568,7 @@ export function generateSmartItinerary({
   const ALL_PROVINCES = ['서울', '제주', '부산', '전북', '강원', '경북', '전남', '경남', '인천', '경기'];
   const numDays = Math.min(Math.max(parseInt(days, 10) || 2, 1), 5);
   const itinerary = [];
+  const globalUsedTitles = new Set();
 
   for (let d = 1; d <= numDays; d++) {
     const curDate = new Date(baseDate);
@@ -617,20 +618,19 @@ export function generateSmartItinerary({
     ];
 
     const daySpots = [];
-    const usedTitles = new Set();
     const fallbackPreset = REGION_PRESETS[targetProvince] || REGION_PRESETS['경기'] || REGION_PRESETS['서울'];
-    const combinedCandidates = [...provincePool, ...spots, ...fallbackPreset, ...(REGION_PRESETS['서울'] || [])];
+    const combinedCandidates = [...spots, ...provincePool, ...fallbackPreset, ...(REGION_PRESETS['서울'] || [])];
 
     for (let s = 0; s < 4; s++) {
       let targetSpot = null;
 
-      // Find first candidate that hasn't been used in this day yet
+      // Find first candidate from main screen spots that hasn't been used yet across the entire itinerary
       for (let cIdx = 0; cIdx < combinedCandidates.length; cIdx++) {
-        const candidateIdx = (s + dSeed + cIdx) % combinedCandidates.length;
+        const candidateIdx = ((d - 1) * 4 + s + dSeed + cIdx) % combinedCandidates.length;
         const candidate = combinedCandidates[candidateIdx];
-        if (candidate && candidate.title && !usedTitles.has(candidate.title.toLowerCase().replace(/\s+/g, ''))) {
+        if (candidate && candidate.title && !globalUsedTitles.has(candidate.title.toLowerCase().replace(/\s+/g, ''))) {
           targetSpot = candidate;
-          usedTitles.add(candidate.title.toLowerCase().replace(/\s+/g, ''));
+          globalUsedTitles.add(candidate.title.toLowerCase().replace(/\s+/g, ''));
           break;
         }
       }
