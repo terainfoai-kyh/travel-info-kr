@@ -202,31 +202,33 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
                 <span className="desktop-title-text">{t.title}</span>
                 <span className="mobile-title-text">K-Travel AI</span>
               </h1>
-              <span style={{
-                  background: 'linear-gradient(135deg, #10b981, #059669)',
-                  color: '#ffffff',
-                  fontSize: '0.62rem',
-                  fontWeight: 800,
-                  padding: '0.15rem 0.5rem',
-                  borderRadius: '999px',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.3rem',
-                  boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
-                  flexShrink: 0,
-                  whiteSpace: 'nowrap'
-                }}>
-                <span className="live-ai-pulse-dot" />
-                LIVE AI
-              </span>
+              {!isMobile && (
+                <span style={{
+                    background: 'linear-gradient(135deg, #10b981, #059669)',
+                    color: '#ffffff',
+                    fontSize: '0.62rem',
+                    fontWeight: 800,
+                    padding: '0.15rem 0.5rem',
+                    borderRadius: '999px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.3rem',
+                    boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                    flexShrink: 0,
+                    whiteSpace: 'nowrap'
+                  }}>
+                  <span className="live-ai-pulse-dot" />
+                  LIVE AI
+                </span>
+              )}
             </div>
           </div>
 
-          {/* Right Container: Language Selector (Always Visible) & Menu Toggle Button */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexShrink: 0 }}>
+          {/* Right Container: Compact Language Selector (Always Visible) & Menu Toggle Button */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexShrink: 0, zIndex: 10 }}>
             {/* 100% Always-Visible Language Selector in Row 1 Header */}
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', position: 'relative' }}>
-              <Globe size={15} style={{ color: themeMode === 'light' ? '#0284c7' : '#38bdf8', flexShrink: 0 }} />
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem', position: 'relative' }}>
+              <Globe size={14} style={{ color: themeMode === 'light' ? '#0284c7' : '#38bdf8', flexShrink: 0 }} />
               <select 
                 value={currentLang} 
                 onChange={(e) => setLang(e.target.value)} 
@@ -235,18 +237,19 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
                   background: themeMode === 'light' ? '#ffffff' : 'rgba(30, 41, 59, 0.95)', 
                   color: themeMode === 'light' ? '#0f172a' : '#ffffff', 
                   border: themeMode === 'light' ? '1px solid #cbd5e1' : '1px solid rgba(255, 255, 255, 0.25)', 
-                  padding: '0.35rem 0.5rem', 
+                  padding: '0.3rem 0.45rem', 
                   borderRadius: 'var(--radius-md)', 
-                  fontSize: '0.78rem', 
+                  fontSize: '0.76rem', 
                   fontWeight: 800, 
                   cursor: 'pointer', 
                   outline: 'none',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                  maxWidth: isMobile ? '85px' : '140px'
                 }}
               >
                 {LANGUAGE_OPTIONS.map(opt => (
                   <option key={opt.value} value={opt.value} style={{ background: themeMode === 'light' ? '#ffffff' : '#1e293b', color: themeMode === 'light' ? '#0f172a' : '#ffffff' }}>
-                    {opt.label}
+                    {isMobile ? opt.value.toUpperCase() : opt.label}
                   </option>
                 ))}
               </select>
