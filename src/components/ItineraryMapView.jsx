@@ -81,10 +81,14 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
 
     leafletMapRef.current = map;
 
-    // Add Dark/Light Tile Layer (CartoDB Positron / Dark Matter or OpenStreetMap)
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    // Select tile layer based on language (OpenStreetMap Standard for 100% Korean place names, CartoDB Voyager for International languages)
+    const tileUrl = (lang === 'ko')
+      ? 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+
+    L.tileLayer(tileUrl, {
       maxZoom: 19,
-      subdomains: 'abcd'
+      subdomains: (lang === 'ko') ? 'abc' : 'abcd'
     }).addTo(map);
 
     // Add Custom Zoom Control to top right
