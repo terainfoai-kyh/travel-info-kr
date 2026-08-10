@@ -480,10 +480,11 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
   }
 
   .header-controls {
-    gap: 0.2rem !important;
+    gap: 0.35rem !important;
     flex-wrap: wrap !important;
-    justify-content: flex-end !important;
+    justify-content: flex-start !important;
     max-width: 100% !important;
+    width: 100% !important;
   }
 
   .header-controls button {
