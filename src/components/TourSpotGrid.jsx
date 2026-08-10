@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, MapPin, ChevronLeft, ChevronRight, Sparkles, ArrowRight, Compass, RefreshCw } from 'lucide-react';
+import { Star, MapPin, ChevronLeft, ChevronRight, Sparkles, ArrowRight, Compass, RefreshCw, Lightbulb, Mic, Search } from 'lucide-react';
 import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress, getTranslatedTheme } from '../i18n/translations';
 import TravelImageWithFallback from './TravelImageWithFallback';
 
@@ -187,8 +187,175 @@ export default function TourSpotGrid({
           </div>
         </>
       ) : (
-        <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-          {t.noSpots}
+        /* Option 3: Smart Search Tip & Helper Hero Card */
+        <div style={{
+          background: 'rgba(30, 41, 59, 0.4)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          borderRadius: '24px',
+          border: '1px solid rgba(251, 191, 36, 0.25)',
+          padding: '3rem 1.75rem',
+          textAlign: 'center',
+          margin: '1.5rem 0',
+          boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.3)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '1.25rem',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          {/* Subtle Glow Ring */}
+          <div style={{
+            position: 'absolute',
+            top: '-40%',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '280px',
+            height: '280px',
+            background: 'radial-gradient(circle, rgba(251, 191, 36, 0.15) 0%, rgba(0, 0, 0, 0) 70%)',
+            pointerEvents: 'none',
+            zIndex: 0
+          }} />
+
+          {/* Glowing Lightbulb Badge */}
+          <div style={{
+            width: '68px',
+            height: '68px',
+            borderRadius: '20px',
+            background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(245, 158, 11, 0.2) 100%)',
+            border: '1px solid rgba(251, 191, 36, 0.4)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#fbbf24',
+            boxShadow: '0 0 25px rgba(251, 191, 36, 0.25)',
+            zIndex: 1
+          }}>
+            <Lightbulb size={34} className="animate-pulse" />
+          </div>
+
+          {/* Main Title */}
+          <div style={{ zIndex: 1, maxWidth: '520px' }}>
+            <h4 style={{
+              fontSize: '1.25rem',
+              fontWeight: 900,
+              color: 'var(--text-main)',
+              marginBottom: '0.4rem',
+              letterSpacing: '-0.02em'
+            }}>
+              {filters?.keyword
+                ? `'${filters.keyword}'(으)로 검색된 결과가 없습니다`
+                : (t.noSpots || '조회 조건에 해당하는 관광 명소가 없습니다')}
+            </h4>
+            <p style={{
+              fontSize: '0.88rem',
+              color: 'var(--text-muted)',
+              lineHeight: 1.5,
+              margin: 0
+            }}>
+              원하시는 장소가 검색되지 않았나요? 아래 <strong>스마트 검색 팁</strong>을 참고해 보세요!
+            </p>
+          </div>
+
+          {/* Smart Search Tips Helper Grid */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+            gap: '0.85rem',
+            width: '100%',
+            maxWidth: '680px',
+            zIndex: 1,
+            marginTop: '0.5rem',
+            textAlign: 'left'
+          }}>
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.05)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '16px',
+              padding: '1rem',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '0.75rem'
+            }}>
+              <div style={{
+                background: 'rgba(56, 189, 248, 0.15)',
+                color: '#38bdf8',
+                borderRadius: '10px',
+                padding: '0.4rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0
+              }}>
+                <Search size={18} />
+              </div>
+              <div>
+                <h5 style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)', margin: '0 0 0.25rem 0' }}>
+                  💡 지역명 + 테마 조합 검색
+                </h5>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: 0, lineHeight: 1.4 }}>
+                  예: <strong style={{ color: '#38bdf8' }}>'성수동 카페'</strong>, <strong style={{ color: '#38bdf8' }}>'해운대 맛집'</strong>, <strong style={{ color: '#38bdf8' }}>'속초 힐링'</strong> 처럼 조합해 보세요.
+                </p>
+              </div>
+            </div>
+
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.05)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '16px',
+              padding: '1rem',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '0.75rem'
+            }}>
+              <div style={{
+                background: 'rgba(168, 85, 247, 0.15)',
+                color: '#c084fc',
+                borderRadius: '10px',
+                padding: '0.4rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0
+              }}>
+                <Mic size={18} />
+              </div>
+              <div>
+                <h5 style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)', margin: '0 0 0.25rem 0' }}>
+                  🎙️ AI 음성 검색 활용
+                </h5>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: 0, lineHeight: 1.4 }}>
+                  상단 검색창의 <strong style={{ color: '#c084fc' }}>마이크 버튼(🎙️)</strong>을 누르고 말로 편하게 질문하실 수도 있습니다.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Reset Action Button */}
+          <button
+            onClick={() => onResetFilters && onResetFilters({ region: '전국', keyword: '', theme: '전체' })}
+            style={{
+              marginTop: '0.75rem',
+              background: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '14px',
+              padding: '0.75rem 1.6rem',
+              fontSize: '0.88rem',
+              fontWeight: 800,
+              cursor: 'pointer',
+              boxShadow: '0 10px 20px -5px rgba(37, 99, 235, 0.4)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              zIndex: 1
+            }}
+          >
+            <RefreshCw size={16} />
+            <span>전체 관광 명소 목록으로 초기화</span>
+          </button>
         </div>
       )}
 
