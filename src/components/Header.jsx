@@ -423,7 +423,8 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
       <div className="header-nav-tabs" style={{
         display: 'flex',
         alignItems: 'center',
-        gap: '0.4rem',
+        justifyContent: isMobile ? 'flex-start' : 'center',
+        gap: '0.45rem',
         overflowX: 'auto',
         paddingTop: '0.4rem',
         borderTop: themeMode === 'light' ? '1px solid rgba(0, 0, 0, 0.08)' : '1px solid rgba(255, 255, 255, 0.08)',

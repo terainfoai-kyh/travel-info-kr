@@ -520,6 +520,12 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     box-sizing: border-box !important;
   }
 
+  @media (min-width: 769px) {
+    .header-nav-tabs {
+      justify-content: center !important;
+    }
+  }
+
   .header-nav-tabs::-webkit-scrollbar {
     display: none !important;
   }
