@@ -269,11 +269,14 @@ export default function App() {
                 lang
               });
               setAllTourSpots(spots);
-              const wData = await fetchRealtimeWeather(targetRegion, newFilters.startDate, newFilters.endDate);
+              const effectiveRegion = (targetRegion === '전국' && spots[0] && spots[0].regionName && spots[0].regionName !== '전국')
+                ? spots[0].regionName
+                : targetRegion;
+              const wData = await fetchRealtimeWeather(effectiveRegion, newFilters.startDate, newFilters.endDate);
               setWeatherData(wData);
               const recs = getRecommendedFoodAndOutfit({
                 weather: wData,
-                region: targetRegion,
+                region: effectiveRegion,
                 keyword: targetKeyword,
                 theme: newFilters.theme,
                 age: newFilters.age,

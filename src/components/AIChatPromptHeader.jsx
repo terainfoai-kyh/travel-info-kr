@@ -11,25 +11,25 @@ export function parseNaturalPrompt(text) {
   const raw = text.trim();
   let region = '전국';
 
-  // Region & Major City Map (Includes 17 administrative regions & major cities)
+  // Region & Major City Map (Includes 17 administrative regions & 50+ major cities and spoken suffixes)
   const regionMap = [
-    { name: '서울', keys: ['서울', 'seoul', '강남', '홍대', '성수', '명동', '종로', '잠실', '이태원', '신촌', '여의도'] },
-    { name: '경기', keys: ['경기', 'gyeonggi', '수원', '용인', '성남', '분당', '파주', '가평', '고양', '일산', '부천', '안양', '화성', '동탄', '남양주', '평택', '의정부', '시흥', '김포', '안산', '광명', '행궁동', '화성행궁'] },
-    { name: '제주', keys: ['제주', 'jeju', '서귀포', '애월', '성산', '중문', '우도', '한라산'] },
-    { name: '부산', keys: ['부산', 'busan', '해운대', '광안리', '서면', '영도', '기장', '태종대', '자갈치'] },
-    { name: '인천', keys: ['인천', 'incheon', '송도', '영종도', '강화도', '차이나타운'] },
-    { name: '강원', keys: ['강원', 'gangwon', '속초', '강릉', '춘천', '평창', '양양', '동해', '삼척', '원주', '설악산', '경포대'] },
-    { name: '경북', keys: ['경북', 'gyeongbuk', '경주', '포항', '안동', '구미', '영주', '울릉도', '독도', '보문단지'] },
-    { name: '경남', keys: ['경남', 'gyeongnam', '창원', '거제', '통영', '남해', '진주', '양산', '외도'] },
-    { name: '전북', keys: ['전북', 'jeonbuk', '전주', '군산', '익산', '남원', '무주', '한옥마을'] },
-    { name: '전남', keys: ['전남', 'jeonnam', '여수', '순천', '목포', '담양', '보성', '향일암'] },
-    { name: '충북', keys: ['충북', 'chungbuk', '청주', '충주', '제천', '단양', '청남대'] },
-    { name: '충남', keys: ['충남', 'chungnam', '천안', '아산', '공주', '부여', '보령', '태안', '대천'] },
-    { name: '대구', keys: ['대구', 'daegu', '동성로', '팔공산'] },
-    { name: '대전', keys: ['대전', 'daejeon', '유성', '성심당'] },
-    { name: '광주', keys: ['광주', 'gwangju', '무등산'] },
-    { name: '울산', keys: ['울산', 'ulsan', '간절곶', '태화강'] },
-    { name: '세종', keys: ['세종', 'sejong'] }
+    { name: '서울', keys: ['서울', 'seoul', '강남', '홍대', '성수', '명동', '종로', '잠실', '이태원', '신촌', '여의도', '서울시', '서울 특별시'] },
+    { name: '경기', keys: ['경기', 'gyeonggi', '수원', '용인', '성남', '분당', '파주', '가평', '고양', '일산', '부천', '안양', '화성', '동탄', '남양주', '평택', '의정부', '시흥', '김포', '안산', '광명', '행궁동', '화성행궁', '경기도'] },
+    { name: '제주', keys: ['제주', 'jeju', '서귀포', '애월', '성산', '중문', '우도', '한라산', '제주도', '제주시', '서귀포시'] },
+    { name: '부산', keys: ['부산', 'busan', '해운대', '광안리', '서면', '영도', '기장', '태종대', '자갈치', '남포동', '부산시', '부산 광역시'] },
+    { name: '인천', keys: ['인천', 'incheon', '송도', '영종도', '강화도', '차이나타운', '인천시', '인천 광역시'] },
+    { name: '강원', keys: ['강원', 'gangwon', '속초', '강릉', '춘천', '평창', '양양', '동해', '삼척', '원주', '설악산', '경포대', '정선', '홍천', '강원도', '강원 특별자치도'] },
+    { name: '경북', keys: ['경북', 'gyeongbuk', '경주', '포항', '안동', '구미', '영주', '울릉도', '독도', '보문단지', '경주시', '경상북도'] },
+    { name: '경남', keys: ['경남', 'gyeongnam', '창원', '거제', '통영', '남해', '진주', '양산', '외도', '통영시', '거제도', '경상남도'] },
+    { name: '전북', keys: ['전북', 'jeonbuk', '전주', '군산', '익산', '남원', '무주', '한옥마을', '전주시', '전라북도', '전북 특별자치도'] },
+    { name: '전남', keys: ['전남', 'jeonnam', '여수', '순천', '목포', '담양', '보성', '향일암', '여수시', '전라남도'] },
+    { name: '충북', keys: ['충북', 'chungbuk', '청주', '충주', '제천', '단양', '청남대', '단양군', '충청북도'] },
+    { name: '충남', keys: ['충남', 'chungnam', '천안', '아산', '공주', '부여', '보령', '태안', '대천', '안면도', '충청남도'] },
+    { name: '대구', keys: ['대구', 'daegu', '동성로', '팔공산', '대구시', '대구 광역시'] },
+    { name: '대전', keys: ['대전', 'daejeon', '유성', '성심당', '대전시', '대전 광역시'] },
+    { name: '광주', keys: ['광주', 'gwangju', '무등산', '광주시', '광주 광역시'] },
+    { name: '울산', keys: ['울산', 'ulsan', '간절곶', '태화강', '울산시', '울산 광역시'] },
+    { name: '세종', keys: ['세종', 'sejong', '세종시', '세종 특별자치시'] }
   ];
 
   for (const item of regionMap) {
@@ -39,11 +39,24 @@ export function parseNaturalPrompt(text) {
     }
   }
 
-  // Extract clean keyword by removing common prompt stopwords
+  // Extract clean keyword by removing common prompt stopwords and spoken fillers
   let cleanKeyword = raw
-    .replace(/(에서|으로|로|에|의|가볼만한|가볼|만한|곳|좀|추천해줘|추천|알려줘|코스|일정|여행|맛집|포함|보여줘|만들어줘|플랜|동선)/g, ' ')
+    .replace(/(에서|으로|로|에|의|가볼만한|가볼|만한|곳|좀|추천해줘|추천|알려줘|코스|일정|여행|맛집|포함|보여줘|만들어줘|플랜|동선|가자|가고싶어|가고|싶어|어디가|좋아|어디|짜줘|찾아줘|부탁해)/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
+
+  // If region was detected, clean region keywords out of search text so keyword doesn't duplicate region name
+  if (region !== '전국') {
+    const matchedRegionObj = regionMap.find(r => r.name === region);
+    if (matchedRegionObj) {
+      matchedRegionObj.keys.forEach(k => {
+        if (k.length >= 2 && cleanKeyword.toLowerCase().includes(k)) {
+          const regRegex = new RegExp(k, 'gi');
+          cleanKeyword = cleanKeyword.replace(regRegex, ' ').replace(/\s+/g, ' ').trim();
+        }
+      });
+    }
+  }
 
   // Days detection
   let days = 3;
@@ -52,7 +65,7 @@ export function parseNaturalPrompt(text) {
   else if (raw.includes('3박') || raw.includes('2박 3일') || raw.includes('2박3일') || raw.includes('3d') || raw.includes('3-day')) days = 3;
   else if (raw.includes('4박') || raw.includes('3박 4일') || raw.includes('3박4일') || raw.includes('4d') || raw.includes('4-day')) days = 4;
 
-  return { region, days, keyword: cleanKeyword || raw, raw };
+  return { region, days, keyword: cleanKeyword, raw };
 }
 
 export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary }) {

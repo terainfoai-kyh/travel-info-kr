@@ -339,7 +339,7 @@ export async function fetchTourSpots({
     url = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=30&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=${apiArrange}&keyword=${encodeURIComponent(kwNoSpace)}`;
     if (regionMeta && regionMeta.areaCode) url += `&areaCode=${regionMeta.areaCode}`;
     if (contentTypeId) url += `&contentTypeId=${contentTypeId}`;
-  } else if (apiServiceType === 'location') {
+  } else if (apiServiceType === 'location' && regionMeta && regionMeta.areaCode) {
     url = `${apiBase}/locationBasedList2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=30&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=${apiArrange}&mapX=${regionMeta.lng}&mapY=${regionMeta.lat}&radius=20000`;
     if (contentTypeId) url += `&contentTypeId=${contentTypeId}`;
   } else if (apiServiceType === 'festival') {
