@@ -484,7 +484,10 @@ export async function fetchTourSpots({
         return [...signatureLandmarks, ...otherSpots];
       }
 
-      return filtered;
+      if (filtered.length > 0) {
+        return filtered;
+      }
+      return parsed;
     }
   } catch (err) {
     console.warn('TourAPI Fallback triggered:', err);

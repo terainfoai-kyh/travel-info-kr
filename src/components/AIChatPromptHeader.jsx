@@ -39,9 +39,9 @@ export function parseNaturalPrompt(text) {
     }
   }
 
-  // Phase 1: Extract clean keyword by removing common intent phrases first
+  // Phase 1: Extract clean keyword by removing common intent phrases (with \s* for optional spaces inserted by Speech Recognition)
   let cleanKeyword = raw
-    .replace(/(가볼만한곳|가볼만한|가볼 곳|가볼곳|가볼|만한|추천해줘|추천코스|추천맛집|추천|알려줘|보여줘|만들어줘|가고싶어|가고|싶어|어디가좋아|어디가|어디|여행코스|여행지|관광지|관광명소|핫플레이스|핫플|명소|동선|플랜|일정|코스|여행|맛집|포함|짜줘|찾아줘|부탁해)/gi, ' ')
+    .replace(/(가\s*볼\s*만\s*한\s*곳|가\s*볼\s*만\s*한|가\s*볼\s*곳|가\s*볼|만\s*한\s*곳|만\s*한|추\s*천\s*해\s*줘|추\s*천\s*코\s*스|추\s*천\s*맛\s*집|추\s*천|알\s*려\s*줘|보\s*여\s*줘|만\s*들\s*어\s*줘|가\s*고\s*싶\s*어|어\s*디\s*가\s*좋\s*아|어\s*디\s*가|어\s*디|여\s*행\s*코\s*스|여\s*행\s*지|관\s*광\s*지|관\s*광\s*명\s*소|핫\s*플\s*레\s*이\s*스|핫\s*플|명\s*소|동\s*선|플\s*랜|일\s*정|코\s*스|여\s*행|맛\s*집|포\s*함|짜\s*줘|찾\s*아\s*줘|부\s*탁\s*해)/gi, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 
@@ -64,9 +64,9 @@ export function parseNaturalPrompt(text) {
     }
   }
 
-  // Phase 4: Final fragment check. If remaining keyword is a meaningless fragment or 1-char, clear to ""
-  const junkFragments = ['가', '볼', '가볼', '곳', '만한', '에', '로', '좀', '추천'];
-  if (junkFragments.includes(cleanKeyword) || cleanKeyword.length <= 1) {
+  // Phase 4: Final fragment check. If remaining keyword is a meaningless fragment or junk intent, clear to ""
+  const junkFragments = ['가', '볼', '가볼', '곳', '만한', '에', '로', '좀', '추천', '가 볼', '가 볼 만한', '볼 만한'];
+  if (junkFragments.includes(cleanKeyword) || cleanKeyword.length <= 1 || /^[\s가볼곳만한에로좀추천]+$/i.test(cleanKeyword)) {
     cleanKeyword = '';
   }
 
