@@ -169,7 +169,7 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
         gap: isMobile ? '0.3rem' : '0.45rem',
         boxSizing: 'border-box'
       }}>
-        {/* Row 1: Brand Logo + Title + LIVE AI (Left) & Language Selector + Menu Toggle Button (Far Right) */}
+        {/* Row 1: Brand Logo + Title + LIVE AI (Left) & Menu Toggle Button (Far Right Only) */}
         <div className="header-brand-row" style={{
           display: 'flex',
           alignItems: 'center',
@@ -179,10 +179,10 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
           width: '100%'
         }}>
           {/* Left Brand Container */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexShrink: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexShrink: 1, minWidth: 0, whiteSpace: 'nowrap' }}>
             <div className="header-logo" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{
-              width: isMobile ? '36px' : '42px',
-              height: isMobile ? '36px' : '42px',
+              width: isMobile ? '34px' : '40px',
+              height: isMobile ? '34px' : '40px',
               borderRadius: '10px',
               overflow: 'hidden',
               display: 'flex',
@@ -198,7 +198,7 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexShrink: 1, minWidth: 0 }}>
-              <h1 style={{ fontSize: isMobile ? '1.05rem' : '1.2rem', fontWeight: 800, lineHeight: 1.1, margin: 0 }} className="gradient-text">
+              <h1 style={{ fontSize: isMobile ? '1.05rem' : '1.25rem', fontWeight: 800, lineHeight: 1.1, margin: 0, whiteSpace: 'nowrap' }} className="gradient-text">
                 <span className="desktop-title-text">{t.title}</span>
                 <span className="mobile-title-text">K-Travel AI</span>
               </h1>
@@ -213,7 +213,8 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
                   alignItems: 'center',
                   gap: '0.3rem',
                   boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
-                  flexShrink: 0
+                  flexShrink: 0,
+                  whiteSpace: 'nowrap'
                 }}>
                 <span className="live-ai-pulse-dot" />
                 LIVE AI
@@ -221,22 +222,75 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
             </div>
           </div>
 
-          {/* Right Container: Language Selector & Menu Toggle Button */}
+          {/* Right Container: Menu Toggle Accordion Button ONLY */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexShrink: 0 }}>
-            {/* Language Selector */}
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', position: 'relative' }}>
+            <button
+              onClick={() => setIsMenuOpen(prev => !prev)}
+              style={{
+                background: isMenuOpen 
+                  ? 'var(--accent-gradient)' 
+                  : (themeMode === 'light' ? '#ffffff' : 'rgba(30, 41, 59, 0.95)'),
+                color: isMenuOpen ? '#ffffff' : (themeMode === 'light' ? '#0f172a' : '#ffffff'),
+                border: isMenuOpen 
+                  ? 'none' 
+                  : (themeMode === 'light' ? '1px solid #cbd5e1' : '1px solid rgba(255, 255, 255, 0.25)'),
+                padding: '0.35rem 0.75rem',
+                borderRadius: 'var(--radius-md)',
+                fontSize: '0.8rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                boxShadow: isMenuOpen ? '0 2px 8px rgba(37, 99, 235, 0.3)' : '0 1px 3px rgba(0,0,0,0.05)',
+                transition: 'all 0.2s ease',
+                whiteSpace: 'nowrap'
+              }}
+              title={isMenuOpen ? "메뉴 접기" : "메뉴 펼치기"}
+            >
+              <SlidersHorizontal size={14} />
+              <span>{isMenuOpen ? '메뉴 닫기' : '메뉴'}</span>
+              {isMenuOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            </button>
+          </div>
+        </div>
+
+        {/* Row 2: Collapsible Menu Bar (Language Select + Guide, Share, Wishlist, DarkMode inside) */}
+        <div style={{
+          maxHeight: isMenuOpen ? '250px' : '0px',
+          overflow: 'hidden',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          opacity: isMenuOpen ? 1 : 0,
+          margin: isMenuOpen ? '0.25rem 0 0 0' : '0',
+          paddingBottom: isMenuOpen ? '0.25rem' : '0'
+        }}>
+          <div className="header-controls" style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-start',
+            gap: '0.5rem',
+            flexWrap: 'wrap',
+            width: '100%',
+            padding: '0.45rem 0.65rem',
+            background: themeMode === 'light' ? '#ffffff' : 'rgba(30, 41, 59, 0.7)',
+            borderRadius: 'var(--radius-md)',
+            border: themeMode === 'light' ? '1px solid #cbd5e1' : '1px solid rgba(255, 255, 255, 0.15)',
+            boxSizing: 'border-box'
+          }}>
+            {/* Language Selector Inside Menu Box */}
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', position: 'relative' }}>
               <Globe size={14} style={{ color: themeMode === 'light' ? '#0284c7' : '#38bdf8', flexShrink: 0 }} />
               <select 
                 value={currentLang} 
                 onChange={(e) => setLang(e.target.value)} 
                 className="header-lang-select" 
                 style={{ 
-                  background: themeMode === 'light' ? '#ffffff' : '#1e293b', 
+                  background: themeMode === 'light' ? 'var(--bg-secondary)' : '#1e293b', 
                   color: themeMode === 'light' ? '#0f172a' : '#ffffff', 
                   border: themeMode === 'light' ? '1px solid #cbd5e1' : '1px solid rgba(255, 255, 255, 0.25)', 
-                  padding: '0.3rem 0.5rem', 
+                  padding: '0.35rem 0.6rem', 
                   borderRadius: 'var(--radius-md)', 
-                  fontSize: '0.76rem', 
+                  fontSize: '0.78rem', 
                   fontWeight: 700, 
                   cursor: 'pointer', 
                   outline: 'none',
@@ -250,60 +304,6 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
                 ))}
               </select>
             </div>
-
-            {/* Menu Toggle Accordion Button */}
-            <button
-              onClick={() => setIsMenuOpen(prev => !prev)}
-              style={{
-                background: isMenuOpen 
-                  ? 'var(--accent-gradient)' 
-                  : (themeMode === 'light' ? '#ffffff' : 'rgba(30, 41, 59, 0.95)'),
-                color: isMenuOpen ? '#ffffff' : (themeMode === 'light' ? '#0f172a' : '#ffffff'),
-                border: isMenuOpen 
-                  ? 'none' 
-                  : (themeMode === 'light' ? '1px solid #cbd5e1' : '1px solid rgba(255, 255, 255, 0.25)'),
-                padding: '0.3rem 0.65rem',
-                borderRadius: 'var(--radius-md)',
-                fontSize: '0.78rem',
-                fontWeight: 800,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.3rem',
-                boxShadow: isMenuOpen ? '0 2px 8px rgba(37, 99, 235, 0.3)' : '0 1px 3px rgba(0,0,0,0.05)',
-                transition: 'all 0.2s ease'
-              }}
-              title={isMenuOpen ? "메뉴 접기" : "메뉴 펼치기"}
-            >
-              <SlidersHorizontal size={13} />
-              <span>{isMenuOpen ? '메뉴 닫기' : '메뉴'}</span>
-              {isMenuOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-            </button>
-          </div>
-        </div>
-
-        {/* Row 2: Collapsible Menu Bar (Toggle Controlled) */}
-        <div style={{
-          maxHeight: isMenuOpen ? '250px' : '0px',
-          overflow: 'hidden',
-          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          opacity: isMenuOpen ? 1 : 0,
-          margin: isMenuOpen ? '0.25rem 0 0 0' : '0',
-          paddingBottom: isMenuOpen ? '0.25rem' : '0'
-        }}>
-          <div className="header-controls" style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-start',
-            gap: '0.45rem',
-            flexWrap: 'wrap',
-            width: '100%',
-            padding: '0.4rem 0.6rem',
-            background: themeMode === 'light' ? '#ffffff' : 'rgba(30, 41, 59, 0.7)',
-            borderRadius: 'var(--radius-md)',
-            border: themeMode === 'light' ? '1px solid #cbd5e1' : '1px solid rgba(255, 255, 255, 0.15)',
-            boxSizing: 'border-box'
-          }}>
             <button onClick={onOpenGuidePR} style={{ background: themeMode === 'light' ? 'var(--bg-secondary)' : 'rgba(30, 41, 59, 0.95)', border: themeMode === 'light' ? '1px solid var(--border-highlight)' : '1px solid rgba(56, 189, 248, 0.5)', color: themeMode === 'light' ? 'var(--text-main)' : '#ffffff', padding: '0.35rem 0.7rem', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem', transition: 'all 0.2s ease' }}>
               <BookOpen size={14} color={themeMode === 'light' ? 'var(--accent-primary)' : '#38bdf8'} />
               <span>{t.userGuideBtn || '이용가이드 & 홍보관'}</span>

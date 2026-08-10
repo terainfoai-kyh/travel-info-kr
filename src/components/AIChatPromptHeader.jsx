@@ -351,46 +351,46 @@ export default function AIChatPromptHeader({ lang = 'ko', filters, onGenerateIti
         </div>
       )}
 
-      {/* Main Top Hero Card */}
+      {/* Main Top Hero Card (Slimmed Vertical Height) */}
       <div style={{
         width: '100%',
-        marginBottom: isMobile ? '0.75rem' : '1.5rem',
-        borderRadius: isMobile ? '16px' : '24px',
+        marginBottom: isMobile ? '0.5rem' : '0.85rem',
+        borderRadius: isMobile ? '14px' : '20px',
         background: '#ffffff',
         border: '1px solid #e2e8f0',
-        padding: isMobile ? '1rem 0.85rem' : '1.75rem 1.25rem',
-        boxShadow: '0 10px 30px rgba(15, 23, 42, 0.05)',
+        padding: isMobile ? '0.65rem 0.75rem' : '0.95rem 1.25rem',
+        boxShadow: '0 8px 24px rgba(15, 23, 42, 0.05)',
         color: '#0f172a',
         position: 'relative',
         boxSizing: 'border-box'
       }}>
-        {/* Title Header (Expanded Comfortable Spacing) */}
-        <div style={{ textAlign: 'center', marginBottom: isMobile ? '1rem' : '1.65rem' }}>
+        {/* Title Header (Slim & Compact) */}
+        <div style={{ textAlign: 'center', marginBottom: isMobile ? '0.5rem' : '0.75rem' }}>
           <p style={{
-            fontSize: isMobile ? '0.78rem' : '0.88rem',
+            fontSize: isMobile ? '0.74rem' : '0.84rem',
             fontWeight: 700,
             color: '#0284c7',
             background: 'rgba(56, 189, 248, 0.14)',
             border: '1px solid rgba(56, 189, 248, 0.35)',
-            padding: '0.28rem 0.85rem',
+            padding: '0.2rem 0.75rem',
             borderRadius: '9999px',
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '0.4rem',
-            margin: isMobile ? '0.2rem 0 0.75rem 0' : '0.3rem 0 0.95rem 0',
-            boxShadow: '0 2px 8px rgba(56, 189, 248, 0.12)'
+            gap: '0.35rem',
+            margin: isMobile ? '0.1rem 0 0.35rem 0' : '0.15rem 0 0.45rem 0',
+            boxShadow: '0 2px 6px rgba(56, 189, 248, 0.1)'
           }}>
-            <Sparkles size={14} color="#0284c7" />
+            <Sparkles size={13} color="#0284c7" />
             <span>{t.subtitle || '✨ AI가 안내하는 실시간 날씨 · 맞춤 명소 · 맛집 & 코디'}</span>
           </p>
 
           <h1 style={{
-            fontSize: isMobile ? '1.35rem' : '1.85rem',
+            fontSize: isMobile ? '1.2rem' : '1.6rem',
             fontWeight: 900,
             color: '#0f172a',
             margin: 0,
             letterSpacing: '-0.02em',
-            lineHeight: 1.25
+            lineHeight: 1.2
           }}>
             {t.heroTitle || '어디로 떠나시나요? 🚀'}
           </h1>
@@ -399,7 +399,7 @@ export default function AIChatPromptHeader({ lang = 'ko', filters, onGenerateIti
         {/* Mobile-Optimized Sleek Pill Search Bar */}
         <form onSubmit={handleSubmit} style={{
           maxWidth: '680px',
-          margin: isMobile ? '0 auto 0.65rem auto' : '0 auto 1.25rem auto',
+          margin: isMobile ? '0 auto 0.45rem auto' : '0 auto 0.65rem auto',
           position: 'relative'
         }}>
           <div style={{
