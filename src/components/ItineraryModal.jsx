@@ -683,38 +683,57 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                 padding: '1.25rem',
                 boxShadow: 'var(--shadow-sm)'
               }}>
+                {/* Premium Day Header Banner (Distinct Pastel Gradient + Left Brand Accent Bar) */}
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   flexWrap: 'wrap',
-                  gap: '0.75rem',
+                  gap: '0.6rem',
                   marginBottom: '1rem',
-                  borderBottom: '1px solid var(--border-color)',
-                  paddingBottom: '0.6rem'
+                  padding: '0.75rem 0.85rem',
+                  background: 'linear-gradient(135deg, rgba(14, 165, 233, 0.12) 0%, rgba(99, 102, 241, 0.12) 100%)',
+                  border: '1px solid rgba(56, 189, 248, 0.25)',
+                  borderLeft: '5px solid var(--accent-primary)',
+                  borderRadius: 'var(--radius-md)',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
                 }}>
-                  <h3 style={{
-                    fontSize: '1.05rem',
-                    fontWeight: 800,
-                    color: 'var(--accent-primary)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    margin: 0
-                  }}>
-                    <Calendar size={18} />
-                    <span>{getI18nDayHeaderTitle(day, region, lang)}</span>
-                  </h3>
+                  {/* Left: DAY Pill Badge & Full Date/Region Title */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', flexWrap: 'wrap' }}>
+                    <span style={{
+                      background: 'var(--accent-gradient)',
+                      color: '#ffffff',
+                      fontSize: '0.8rem',
+                      fontWeight: 900,
+                      padding: '0.2rem 0.6rem',
+                      borderRadius: 'var(--radius-sm)',
+                      letterSpacing: '0.04em',
+                      boxShadow: '0 2px 6px rgba(14, 165, 233, 0.3)'
+                    }}>
+                      DAY {day.day}
+                    </span>
+                    <h3 style={{
+                      fontSize: '1rem',
+                      fontWeight: 800,
+                      color: 'var(--text-main)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.4rem',
+                      margin: 0
+                    }}>
+                      <span>{getI18nDayHeaderTitle(day, region, lang)}</span>
+                    </h3>
+                  </div>
 
-                  {/* Day-specific Time Controls & Regeneration */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  {/* Right: Day-specific Time Controls & Regeneration Button in Compact 1-Row */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
                     <div style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '0.25rem',
-                      background: 'var(--bg-secondary)',
+                      gap: '0.2rem',
+                      background: 'var(--bg-card)',
                       border: '1px solid var(--border-color)',
-                      padding: '0.25rem 0.55rem',
+                      padding: '0.2rem 0.45rem',
                       borderRadius: 'var(--radius-md)'
                     }}>
                       <Clock size={13} color="var(--accent-primary)" />
@@ -785,17 +804,17 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                         }));
                       }}
                       style={{
-                        background: 'var(--bg-secondary)',
+                        background: 'var(--bg-card)',
                         border: '1px solid var(--border-highlight)',
                         color: 'var(--accent-primary)',
-                        padding: '0.25rem 0.65rem',
+                        padding: '0.25rem 0.55rem',
                         borderRadius: 'var(--radius-md)',
                         fontSize: '0.75rem',
                         fontWeight: 700,
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '0.3rem',
+                        gap: '0.25rem',
                         transition: 'all 0.2s ease'
                       }}
                       title={`${day.day}${t.dayUnit || '일차'} ${t.changeCourseBtn || '코스 변경'}`}
@@ -860,31 +879,35 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                           flexShrink: 0,
                           border: '1px solid var(--border-color)'
                         }}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = DEFAULT_SPOT_IMAGES.attraction;
+                        }}
                       />
 
-                      {/* Info */}
+                      {/* Info Container */}
                       <div style={{ flex: 1, minWidth: '180px' }}>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.15rem' }}>
                           {slotI18n}
                         </div>
-                        <h4 style={{ fontSize: '0.98rem', fontWeight: 800, margin: '0.1rem 0' }}>
+                        <h4 style={{ fontSize: '0.98rem', fontWeight: 800, margin: '0 0 0.2rem 0', color: 'var(--text-main)' }}>
                           {itemDisplayTitle}
                         </h4>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.78rem', color: 'var(--text-dim)' }}>
-                          <MapPin size={13} color="var(--accent-primary)" />
+                        <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                          <MapPin size={12} color="var(--accent-primary)" />
                           <span>{itemDisplayAddr}</span>
                         </div>
                       </div>
 
-                      {/* Actions (Spot Swap & Map Link) */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      {/* Action Buttons: Swap Spot, Route Map, Nearby Food */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
                         <button
                           type="button"
-                          onClick={() => handleSwapSpot(dIdx, sIdx, day.pool)}
+                          onClick={() => handleSwapSpot(day.day, sIdx)}
                           style={{
                             background: 'var(--bg-secondary)',
                             border: '1px solid var(--border-color)',
-                            color: 'var(--text-muted)',
+                            color: 'var(--text-main)',
                             padding: '0.4rem 0.65rem',
                             borderRadius: 'var(--radius-md)',
                             fontSize: '0.75rem',
@@ -951,51 +974,48 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                       </div>
                     </div>
 
-                    {/* Inter-Spot Travel Time & Distance Indicator */}
+                    {/* Inter-Spot Travel Time & Distance Indicator (Refined Clean Chip Layout) */}
                     {item.nextTravel && nextSpot && (
                       <div style={{
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        gap: '0.8rem',
-                        fontSize: '0.75rem',
-                        color: 'var(--text-dim)',
-                        padding: '0.3rem 0',
-                        margin: '-0.2rem 0'
+                        padding: '0.2rem 0',
+                        margin: '-0.15rem 0'
                       }}>
-                        <span style={{ height: '14px', width: '1px', background: 'var(--border-color)' }} />
-                        <span style={{
-                          background: 'var(--bg-primary)',
-                          border: '1px solid var(--border-color)',
-                          padding: '0.2rem 0.75rem',
+                        <div style={{
+                          background: 'var(--bg-card)',
+                          border: '1px solid var(--border-highlight)',
+                          padding: '0.3rem 0.85rem',
                           borderRadius: 'var(--radius-full)',
-                          fontSize: '0.73rem',
+                          fontSize: '0.74rem',
                           display: 'inline-flex',
                           alignItems: 'center',
-                          gap: '0.45rem',
-                          boxShadow: 'var(--shadow-sm)'
+                          gap: '0.5rem',
+                          flexWrap: 'wrap',
+                          justifyContent: 'center',
+                          boxShadow: '0 2px 6px rgba(0, 0, 0, 0.06)'
                         }}>
-                          <span style={{ fontWeight: 700, color: 'var(--text-main)' }}>
+                          <span style={{ fontWeight: 800, color: 'var(--text-main)' }}>
                             📍 {itemDisplayTitle.length > 8 ? itemDisplayTitle.substring(0, 8) + '...' : itemDisplayTitle} ➔ {nextDisplayTitle.length > 8 ? nextDisplayTitle.substring(0, 8) + '...' : nextDisplayTitle}
                           </span>
-                          <span style={{ color: 'var(--text-muted)' }}>:</span>
+                          <span style={{ color: 'var(--text-muted)' }}>|</span>
                           {item.nextTravel.isLongDistance ? (
-                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem', color: '#eab308', fontWeight: 700 }}>
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', color: '#eab308', fontWeight: 800 }}>
                               {item.nextTravel.longDistanceNote || '✈️ KTX / 항공 / 시외버스 이동 (장거리)'}
                             </span>
                           ) : (
                             <>
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem', color: '#0284c7', fontWeight: 700 }}>
-                                <Car size={12} /> {t.drivePrefix || '차량 약'} {item.nextTravel.carMin}{t.minuteUnit || '분'} ({item.nextTravel.distKm}km)
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', color: '#0284c7', fontWeight: 800 }}>
+                                <Car size={13} /> {t.drivePrefix || '차량 약'} {item.nextTravel.carMin}{t.minuteUnit || '분'} ({item.nextTravel.distKm}km)
                               </span>
-                              <span style={{ color: 'var(--text-muted)' }}>|</span>
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem', color: '#818cf8', fontWeight: 700 }}>
-                                <Bus size={12} /> {item.nextTravel.transitRouteNote || `${t.transitPrefix || '대중교통 약'} ${item.nextTravel.transitMin}${t.minuteUnit || '분'}`}
+                              <span style={{ color: 'var(--text-muted)' }}>·</span>
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', color: '#818cf8', fontWeight: 800 }}>
+                                <Bus size={13} /> {item.nextTravel.transitRouteNote || `${t.transitPrefix || '대중교통 약'} ${item.nextTravel.transitMin}${t.minuteUnit || '분'}`}
                               </span>
                             </>
                           )}
-                        </span>
-                        <span style={{ height: '14px', width: '1px', background: 'var(--border-color)' }} />
+                        </div>
                       </div>
                     )}
                   </React.Fragment>
