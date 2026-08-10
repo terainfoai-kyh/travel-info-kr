@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, Mic, MicOff, Send, ArrowRight, Compass, Camera, Flame, Heart, MapPin } from 'lucide-react';
+import { Sparkles, Mic, MicOff, ArrowRight, Camera, Flame } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
 
 /**
@@ -41,28 +41,17 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary })
       recognition.interimResults = false;
       recognition.lang = lang === 'en' ? 'en-US' : lang === 'ja' ? 'ja-JP' : lang === 'zh' ? 'zh-CN' : 'ko-KR';
 
-      recognition.onstart = () => {
-        setIsListening(true);
-      };
-
+      recognition.onstart = () => setIsListening(true);
       recognition.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
         setPromptText(transcript);
         setIsListening(false);
         if (onGenerateItinerary && transcript.trim()) {
-          const parsed = parseNaturalPrompt(transcript);
-          onGenerateItinerary(parsed);
+          onGenerateItinerary(parseNaturalPrompt(transcript));
         }
       };
-
-      recognition.onerror = (event) => {
-        console.warn('Speech recognition error:', event.error);
-        setIsListening(false);
-      };
-
-      recognition.onend = () => {
-        setIsListening(false);
-      };
+      recognition.onerror = () => setIsListening(false);
+      recognition.onend = () => setIsListening(false);
 
       recognitionRef.current = recognition;
     } else {
@@ -79,7 +68,7 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary })
       try {
         recognitionRef.current.start();
       } catch (err) {
-        console.warn('Recognition start failed:', err);
+        console.warn('Recognition error:', err);
       }
     }
   };
@@ -87,97 +76,79 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary })
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
     if (!promptText.trim()) return;
-    const parsed = parseNaturalPrompt(promptText);
     if (onGenerateItinerary) {
-      onGenerateItinerary(parsed);
+      onGenerateItinerary(parseNaturalPrompt(promptText));
     }
   };
 
   const handleChipClick = (sampleText) => {
     setPromptText(sampleText);
-    const parsed = parseNaturalPrompt(sampleText);
     if (onGenerateItinerary) {
-      onGenerateItinerary(parsed);
+      onGenerateItinerary(parseNaturalPrompt(sampleText));
     }
   };
 
   const sampleChips = [
-    { label: '💬 서울 성수동 핫플 & 카페 1박 2일', text: '친구랑 서울 성수동 카페 & 맛집 포함 1박 2일 코스' },
-    { label: '💬 비 오는 날 제주도 실내 데이트 2박 3일', text: '비 오는 날 제주도 실내 박물관 & 감성 데이트 2박 3일' },
-    { label: '💬 부산 해운대 바다뷰 & 맛집 2박 3일', text: '부산 해운대 바다 뷰 카페 및 유명 맛집 2박 3일' },
-    { label: '💬 외국인 친구와 가는 서울 야경 K-컬처', text: '외국인 친구와 함께 가는 서울 야경 & 전통시장 K-컬처' }
-  ];
-
-  const instaChips = [
-    { label: '📸 #성수동핫플 인생샷 ↗', tag: '성수동핫플' },
-    { label: '📸 #경복궁한복 릴스 ↗', tag: '경복궁한복' },
-    { label: '📸 #해운대바다뷰 ↗', tag: '해운대바다뷰' },
-    { label: '📸 #제주인생샷 ↗', tag: '제주인생샷' }
+    { label: '🗼 서울 성수동 핫플 1박2일', text: '친구랑 서울 성수동 카페 & 맛집 포함 1박 2일 코스' },
+    { label: '🏝️ 제주 감성 데이트 2박3일', text: '비 오는 날 제주도 실내 박물관 & 감성 데이트 2박 3일' },
+    { label: '🌊 부산 해운대 바다뷰 2박3일', text: '부산 해운대 바다 뷰 카페 및 유명 맛집 2박 3일' }
   ];
 
   return (
-    <div className="w-full mb-6 rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-indigo-500/30 p-5 md:p-8 shadow-2xl text-white relative overflow-hidden">
-      {/* Background Decorative Glow */}
-      <div className="absolute -top-24 -right-24 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
+    <div className="w-full mb-8 rounded-3xl bg-white/95 backdrop-blur-xl border border-slate-200/80 p-6 md:p-10 shadow-xl shadow-slate-200/50 text-slate-900 relative overflow-hidden">
+      {/* Ambient Soft Pastel Glow Background Circles */}
+      <div className="absolute -top-32 -right-32 w-80 h-80 bg-sky-200/40 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-32 -left-32 w-80 h-80 bg-pink-200/30 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Header Badge & Title */}
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/20 border border-indigo-400/40 text-indigo-300 text-xs font-semibold tracking-wide">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
-          </span>
-          🤖 K-TRAVEL NATIVE AI ENGINE
-        </div>
-        <span className="text-xs text-indigo-300/80 font-medium">
-          ⚡ 100% Realtime TourAPI 4.0 & Weather Fusion
-        </span>
+      {/* Main Title */}
+      <div className="max-w-3xl mx-auto text-center mb-6 relative z-10">
+        <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-3">
+          어디로 떠나시나요? 🚀
+        </h1>
+        <p className="text-base md:text-lg text-slate-500 font-medium">
+          3초 만에 AI가 찾아주는 나만의 1:1 맞춤 한국 여행 동선
+        </p>
       </div>
 
-      <h1 className="text-2xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-indigo-100 to-purple-200 mb-2 leading-tight">
-        {t.heroTitle || '3초 만에 AI가 완성하는 1:1 맞춤 한국 여행 🚀'}
-      </h1>
-      <p className="text-sm md:text-base text-indigo-200/90 mb-5 font-normal">
-        {t.heroSubtitle || '자유롭게 대화하거나 말로 적어주시면 AI가 최적의 동선을 만들어 드립니다 🎙️'}
-      </p>
-
-      {/* Main Conversational AI Prompt Box */}
-      <form onSubmit={handleSubmit} className="relative mb-4">
-        <div className={`relative flex items-center bg-slate-800/90 border transition-all duration-300 rounded-2xl p-1.5 shadow-inner ${isListening ? 'border-red-500 ring-4 ring-red-500/30' : 'border-indigo-500/50 hover:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-400/50'}`}>
-          <div className="pl-3.5 pr-2 text-indigo-400">
-            <Sparkles className="w-6 h-6 animate-pulse" />
+      {/* Ultra-Clean Pill-Shaped Smart Search Bar */}
+      <form onSubmit={handleSubmit} className="max-w-3xl mx-auto relative z-10 mb-6">
+        <div className={`flex items-center bg-slate-50/90 border transition-all duration-300 rounded-full p-2 shadow-lg shadow-blue-500/5 ${
+          isListening 
+            ? 'border-red-500 ring-4 ring-red-500/20' 
+            : 'border-slate-300/80 hover:border-blue-500 focus-within:border-blue-600 focus-within:ring-4 focus-within:ring-blue-500/15'
+        }`}>
+          <div className="pl-4 text-blue-600">
+            <Sparkles className="w-6 h-6" />
           </div>
 
           <input
             type="text"
             value={promptText}
             onChange={(e) => setPromptText(e.target.value)}
-            placeholder={isListening ? (t.voiceListening || '말씀하세요... 🎧 (실시간 음성 인식 중)') : (t.aiPromptPlaceholder || "예: '친구랑 서울 성수동 카페 & 맛집 포함 1박 2일 코스 알려줘' 💬")}
-            className="w-full bg-transparent text-white placeholder-slate-400 text-sm md:text-base focus:outline-none py-2 px-1"
+            placeholder={isListening ? '말씀하세요... 🎧 (실시간 음성 인식 중)' : '예: "서울 성수동 카페 & 맛집 포함 1박 2일 코스" 💬'}
+            className="w-full bg-transparent text-slate-900 placeholder-slate-400 text-sm md:text-base focus:outline-none px-3 font-medium"
           />
 
-          {/* Voice Input Button */}
+          {/* Voice Input Icon Button */}
           {isSpeechSupported && (
             <button
               type="button"
               onClick={toggleListening}
-              title={t.voiceBtnTooltip || '음성 인식 시작 🎙️'}
-              className={`p-2.5 rounded-xl transition-all duration-200 mr-1.5 flex items-center gap-1.5 text-xs font-semibold ${
+              title="음성 인식 시작 🎙️"
+              className={`p-3 rounded-full transition-all duration-200 mr-2 flex items-center justify-center ${
                 isListening
-                  ? 'bg-red-600 text-white animate-bounce shadow-lg shadow-red-600/50'
-                  : 'bg-indigo-950/80 text-indigo-300 hover:bg-indigo-800 hover:text-white border border-indigo-700/50'
+                  ? 'bg-red-600 text-white animate-pulse'
+                  : 'bg-slate-200/70 hover:bg-slate-300 text-slate-700'
               }`}
             >
-              {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5 text-indigo-300" />}
-              <span className="hidden sm:inline">{isListening ? '음성 중지' : '음성 입력'}</span>
+              {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
             </button>
           )}
 
           {/* Submit Button */}
           <button
             type="submit"
-            className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-4 md:px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap active:scale-95"
+            className="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white px-6 py-3 rounded-full font-bold text-sm shadow-md shadow-blue-600/30 transition-all duration-200 flex items-center gap-2 whitespace-nowrap"
           >
             <span>AI 코스 생성</span>
             <ArrowRight className="w-4 h-4" />
@@ -185,45 +156,28 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary })
         </div>
       </form>
 
-      {/* Natural Prompt Sample Chips */}
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-1.5 text-xs text-indigo-300/80 font-medium">
-          <Flame className="w-3.5 h-3.5 text-amber-400" />
-          <span>인기 추천 프롬프트 (터치 시 1초 생성)</span>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {sampleChips.map((chip, idx) => (
-            <button
-              key={idx}
-              type="button"
-              onClick={() => handleChipClick(chip.text)}
-              className="text-xs bg-slate-800/80 hover:bg-indigo-900/80 text-indigo-100 border border-indigo-500/30 hover:border-indigo-400/80 px-3 py-1.5 rounded-full transition-all duration-150 active:scale-95 text-left"
-            >
-              {chip.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* Minimal Sample Chips & Instagram Deep Link */}
+      <div className="max-w-3xl mx-auto flex flex-wrap items-center justify-center gap-2 relative z-10">
+        {sampleChips.map((chip, idx) => (
+          <button
+            key={idx}
+            type="button"
+            onClick={() => handleChipClick(chip.text)}
+            className="text-xs bg-slate-100/80 hover:bg-blue-50 text-slate-700 hover:text-blue-600 border border-slate-200 px-4 py-2 rounded-full transition-all duration-150 active:scale-95 font-medium"
+          >
+            {chip.label}
+          </button>
+        ))}
 
-      {/* Instagram Hotspots Deep Links (Zero-Cost Fusion) */}
-      <div className="mt-4 pt-3 border-t border-indigo-900/60 flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5 text-xs text-pink-300/90 font-semibold">
-          <Camera className="w-3.5 h-3.5 text-pink-400" />
-          <span>실시간 인스타그램 인생샷 릴스 (무료 연동)</span>
-        </div>
-        <div className="flex flex-wrap gap-1.5">
-          {instaChips.map((item, i) => (
-            <a
-              key={i}
-              href={`https://www.instagram.com/explore/tags/${encodeURIComponent(item.tag)}/`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[11px] bg-pink-950/40 hover:bg-pink-900/60 text-pink-200 border border-pink-500/30 px-2.5 py-1 rounded-full transition-all duration-150 flex items-center gap-1"
-            >
-              {item.label}
-            </a>
-          ))}
-        </div>
+        <a
+          href="https://www.instagram.com/explore/tags/%EC%84%B1%EC%88%98%EB%8F%99%ED%95%AB%ED%94%8C/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs bg-pink-50 hover:bg-pink-100 text-pink-600 border border-pink-200 px-4 py-2 rounded-full transition-all duration-150 flex items-center gap-1.5 font-semibold"
+        >
+          <Camera className="w-3.5 h-3.5" />
+          <span>📸 인스타 핫플 인생샷 ↗</span>
+        </a>
       </div>
     </div>
   );
