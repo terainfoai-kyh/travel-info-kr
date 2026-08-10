@@ -423,13 +423,17 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
       <div className="header-nav-tabs" style={{
         display: 'flex',
         alignItems: 'center',
-        justifyContent: isMobile ? 'flex-start' : 'center',
+        justifyContent: 'flex-start',
         gap: '0.45rem',
         overflowX: 'auto',
         paddingTop: '0.4rem',
         borderTop: themeMode === 'light' ? '1px solid rgba(0, 0, 0, 0.08)' : '1px solid rgba(255, 255, 255, 0.08)',
         scrollbarWidth: 'none',
-        msOverflowStyle: 'none'
+        msOverflowStyle: 'none',
+        maxWidth: '1280px',
+        margin: '0 auto',
+        width: '100%',
+        boxSizing: 'border-box'
       }}>
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;

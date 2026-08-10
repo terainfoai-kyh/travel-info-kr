@@ -522,7 +522,9 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 
   @media (min-width: 769px) {
     .header-nav-tabs {
-      justify-content: center !important;
+      justify-content: flex-start !important;
+      max-width: 1280px !important;
+      margin: 0 auto !important;
     }
   }
 
