@@ -484,10 +484,20 @@ export async function fetchTourSpots({
         return [...signatureLandmarks, ...otherSpots];
       }
 
-      if (filtered.length > 0) {
-        return filtered;
+      let mainList = filtered.length > 0 ? filtered : parsed;
+      if (mainList.length < 6 && region !== '전국' && region !== '한국') {
+        const regionalSupplements = TRAVEL_SPOTS.filter(spot => spot.region === region);
+        const existingTitles = new Set(mainList.map(s => s.title.toLowerCase().replace(/\s+/g, '')));
+        for (const sup of regionalSupplements) {
+          const supTitle = sup.title.toLowerCase().replace(/\s+/g, '');
+          if (!existingTitles.has(supTitle)) {
+            mainList.push(sup);
+            existingTitles.add(supTitle);
+          }
+          if (mainList.length >= 6) break;
+        }
       }
-      return parsed;
+      return mainList;
     }
   } catch (err) {
     console.warn('TourAPI Fallback triggered:', err);
@@ -513,10 +523,23 @@ export async function fetchTourSpots({
     return matchRegion && matchTheme && matchAge && matchGender && matchKeyword;
   });
 
-  // Zero Results Protection: If filtering resulted in 0 items, fallback to returning top spots for the target region!
-  const finalSpots = (resultSpots.length > 0)
-    ? resultSpots
-    : TRAVEL_SPOTS.filter(spot => region === '전국' || spot.region === region);
+  // Minimum 6 spots protection: If filtering resulted in fewer than 6 items for a specific region, supplement with top spots for that region!
+  let finalSpots = [...resultSpots];
+  if (finalSpots.length < 6 && region !== '전국' && region !== '한국') {
+    const regionSpots = TRAVEL_SPOTS.filter(spot => spot.region === region);
+    const existingTitles = new Set(finalSpots.map(s => s.title.toLowerCase().replace(/\s+/g, '')));
+    for (const rSpot of regionSpots) {
+      const rTitle = rSpot.title.toLowerCase().replace(/\s+/g, '');
+      if (!existingTitles.has(rTitle)) {
+        finalSpots.push(rSpot);
+        existingTitles.add(rTitle);
+      }
+      if (finalSpots.length >= 6) break;
+    }
+  }
+  if (finalSpots.length === 0) {
+    finalSpots = TRAVEL_SPOTS.filter(spot => region === '전국' || spot.region === region);
+  }
 
   return finalSpots.map(spot => {
     let img = spot.image;
