@@ -1,6 +1,125 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { MapPin, Navigation, ExternalLink, Compass, Car, Bus, Map, Sparkles, RefreshCw } from 'lucide-react';
-import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress } from '../i18n/translations';
+function getI18nDayHeaderTitle(dayObj, region, lang = 'ko') {
+  if (!dayObj) return '';
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
+  const dNum = dayObj.day || 1;
+  const rawDate = dayObj.dateStr;
+  
+  let dateFormatted = rawDate || '';
+  if (rawDate) {
+    try {
+      const dt = new Date(rawDate);
+      if (!isNaN(dt.getTime())) {
+        const daysOfWeek = {
+          ko: ['일', '월', '화', '수', '목', '금', '토'],
+          en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+          ja: ['日', '月', '火', '水', '木', '金', '土'],
+          zh: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
+          zht: ['週日', '週一', '週二', '週三', '週四', '週五', '週六'],
+          de: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
+          fr: ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'],
+          es: ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
+          ru: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб']
+        };
+        const dowList = daysOfWeek[lang] || daysOfWeek.en;
+        const dowStr = dowList[dt.getDay()];
+        const y = dt.getFullYear();
+        const m = String(dt.getMonth() + 1).padStart(2, '0');
+        const d = String(dt.getDate()).padStart(2, '0');
+        dateFormatted = `${y}.${m}.${d} (${dowStr})`;
+      }
+    } catch (e) {}
+  }
+
+  const regionName = region && region !== '전국' && region !== '한국' ? (t.regions?.[region] || region) : (t.regions?.['전국'] || '전국');
+
+  switch (lang) {
+    case 'en': return `Day ${dNum} Course · ${dateFormatted} (${regionName} Route)`;
+    case 'ja': return `${dNum}日目コース · ${dateFormatted} (${regionName} ルート)`;
+    case 'zh': return `第 ${dNum} 天行程 · ${dateFormatted} (${regionName} 路线)`;
+    case 'zht': return `第 ${dNum} 天行程 · ${dateFormatted} (${regionName} 路線)`;
+    case 'de': return `Tag ${dNum} Route · ${dateFormatted} (${regionName} Route)`;
+    case 'fr': return `Jour ${dNum} Parcours · ${dateFormatted} (Itinéraire ${regionName})`;
+    case 'es': return `Día ${dNum} Ruta · ${dateFormatted} (Ruta ${regionName})`;
+    case 'ru': return `День ${dNum} Маршрут · ${dateFormatted} (Маршрут ${regionName})`;
+    default: return `${dNum}일차 코스 · ${dateFormatted} (${regionName} 동선)`;
+  }
+}
+
+function getDayBtnText(d, lang) {
+  const dNum = d.day || 1;
+  let dowStr = '';
+  if (d.dateStr) {
+    try {
+      const dt = new Date(d.dateStr);
+      if (!isNaN(dt.getTime())) {
+        const daysOfWeek = {
+          ko: ['일', '월', '화', '수', '목', '금', '토'],
+          en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+          ja: ['日', '月', '火', '水', '木', '金', '土'],
+          zh: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
+          zht: ['週日', '週一', '週二', '週三', '週四', '週五', '週六'],
+          de: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
+          fr: ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'],
+          es: ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
+          ru: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб']
+        };
+        const dowList = daysOfWeek[lang] || daysOfWeek.en;
+        dowStr = dowList[dt.getDay()];
+      }
+    } catch (e) {}
+  }
+
+  const dowPart = dowStr ? `(${dowStr})` : '';
+
+  switch (lang) {
+    case 'en': return `Day ${dNum} ${dowPart}`;
+    case 'ja': return `${dNum}日目 ${dowPart}`;
+    case 'zh': return `第 ${dNum} 天 ${dowPart}`;
+    case 'zht': return `第 ${dNum} 天 ${dowPart}`;
+    case 'de': return `Tag ${dNum} ${dowPart}`;
+    case 'fr': return `Jour ${dNum} ${dowPart}`;
+    case 'es': return `Día ${dNum} ${dowPart}`;
+    case 'ru': return `День ${dNum} ${dowPart}`;
+    default: return `${dNum}일차 ${dowPart}`;
+  }
+}
+
+function getMapZoomOutGuide(lang) {
+  switch (lang) {
+    case 'en': return '🎯 All spots from 1 to 4 and the connecting path line are automatically framed together.';
+    case 'ja': return '🎯 1番から4番までの全スポットと移動経路が自動ズームアウト表示されます。';
+    case 'zh': return '🎯 1号至4号所有景点及路线已自动适应屏幕居中显示。';
+    case 'zht': return '🎯 1號至4號所有景點及路線已自動適應螢幕居中顯示。';
+    case 'de': return '🎯 Alle Orte von 1 bis 4 und die Verbindungsroute werden automatisch zentriert.';
+    case 'fr': return '🎯 Tous les lieux de 1 à 4 et l\'itinéraire sont automatiquement cadrés.';
+    case 'es': return '🎯 Todos los lugares del 1 al 4 y la ruta se ajustan automáticamente en el mapa.';
+    case 'ru': return '🎯 Все места с 1 по 4 и маршрут автоматически выровнены на карте.';
+    default: return '🎯 1번부터 4번까지 전체 명소 및 이동 경로가 자동 줌아웃 표시됩니다.';
+  }
+}
+
+function formatTravelNote(travel, lang) {
+  if (!travel) return { car: '', transit: '' };
+  const carMin = travel.carMin || 15;
+  const distKm = travel.distKm || 5.0;
+  const transitMin = travel.transitMin || 25;
+
+  if (travel.longDistanceNote) {
+    return { car: travel.longDistanceNote, transit: '' };
+  }
+
+  switch (lang) {
+    case 'en': return { car: `Drive ${carMin} min (${distKm} km)`, transit: `Transit ~${transitMin} min` };
+    case 'ja': return { car: `車 ${carMin}分 (${distKm}km)`, transit: `公共交通 約${transitMin}分` };
+    case 'zh': return { car: `驾车 ${carMin}分钟 (${distKm}公里)`, transit: `公共交通 约${transitMin}分钟` };
+    case 'zht': return { car: `駕車 ${carMin}分鐘 (${distKm}公里)`, transit: `公共交通 約${transitMin}分鐘` };
+    case 'de': return { car: `Auto ${carMin} Min. (${distKm} km)`, transit: `ÖPNV ca. ${transitMin} Min.` };
+    case 'fr': return { car: `Voiture ${carMin} min (${distKm} km)`, transit: `Transports ~${transitMin} min` };
+    case 'es': return { car: `Coche ${carMin} min (${distKm} km)`, transit: `Transporte ~${transitMin} min` };
+    case 'ru': return { car: `Авто ${carMin} мин (${distKm} км)`, transit: `Транспорт ~${transitMin} мин` };
+    default: return { car: `차량 ${carMin}분 (${distKm}km)`, transit: `대중교통 약 ${transitMin}분` };
+  }
+}
 
 export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChangeDay, lang = 'ko', onSwitchToList }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
@@ -14,6 +133,11 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
   const leafletMapRef = useRef(null);
 
   const NUMBER_ICONS = ['❶', '❷', '❸', '❹', '❺'];
+
+  // Select tile layer based on language (OpenStreetMap Standard for Korean, Esri World Street Map for Multilingual)
+  const tileUrl = (lang === 'ko')
+    ? 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+    : 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}';
 
 
   // Dynamically load Leaflet CSS & JS
@@ -226,7 +350,7 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
               transition: 'all 0.2s ease'
             }}
           >
-            {d.day}일차 {d.schedule[0] ? `(${d.dayTitle.split('(')[1] || ''}` : ''}
+            {getDayBtnText(d, lang)}
           </button>
         ))}
       </div>
@@ -253,10 +377,10 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
           <div>
             <div style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
               <Compass size={18} color="var(--accent-primary)" />
-              <span>{currentDayData?.dayTitle || `${activeDay}일차 동선 지도`}</span>
+              <span>{getI18nDayHeaderTitle(currentDayData, currentDayData?.region, lang)}</span>
             </div>
             <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
-              🎯 1번부터 4번까지 전체 명소 및 이동 경로가 자동 줌아웃 표시됩니다.
+              {getMapZoomOutGuide(lang)}
             </div>
           </div>
 
@@ -422,20 +546,23 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
                 </div>
               </div>
 
-              {item.nextTravel && (
-                <div style={{ fontSize: '0.72rem', marginTop: '0.5rem', fontWeight: 700, display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem', color: '#0284c7' }}>
-                    <Car size={11} />
-                    <span>{item.nextTravel.longDistanceNote || `차량 ${item.nextTravel.carMin}분 (${item.nextTravel.distKm}km)`}</span>
-                  </div>
-                  {!item.nextTravel.isLongDistance && (
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem', color: '#818cf8' }}>
-                      <Bus size={11} />
-                      <span>{item.nextTravel.transitRouteNote || `대중교통 약 ${item.nextTravel.transitMin}분`}</span>
+              {item.nextTravel && (() => {
+                const noteObj = formatTravelNote(item.nextTravel, lang);
+                return (
+                  <div style={{ fontSize: '0.72rem', marginTop: '0.5rem', fontWeight: 700, display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem', color: '#0284c7' }}>
+                      <Car size={11} />
+                      <span>{noteObj.car}</span>
                     </div>
-                  )}
-                </div>
-              )}
+                    {!item.nextTravel.isLongDistance && noteObj.transit && (
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem', color: '#818cf8' }}>
+                        <Bus size={11} />
+                        <span>{noteObj.transit}</span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           ))}
         </div>
