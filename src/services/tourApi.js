@@ -495,11 +495,9 @@ export async function fetchTourSpots({
         return [...signatureLandmarks, ...otherSpots];
       }
 
-      if (cleanKw && filtered.length > 0) {
+      if (cleanKw) {
+        // Strict keyword search: Return filtered matches, or empty array [] if 0 matches found
         return filtered;
-      }
-      if (cleanKw && parsed.length > 0) {
-        return parsed;
       }
 
       let mainList = filtered.length > 0 ? filtered : parsed;
@@ -541,6 +539,11 @@ export async function fetchTourSpots({
 
     return matchRegion && matchTheme && matchAge && matchGender && matchKeyword;
   });
+
+  if (cleanKw) {
+    // If user searched for a keyword and 0 matches found in mock data, return [] to show zero-state message
+    return resultSpots;
+  }
 
   if (resultSpots.length > 0) return resultSpots;
 
