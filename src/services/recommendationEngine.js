@@ -580,13 +580,19 @@ export function generateSmartItinerary({
     let provincePool = pool;
 
     if (region === '전국' || region === '전체') {
-      targetProvince = ALL_PROVINCES[(d - 1) % ALL_PROVINCES.length];
-      const matchedProvinceSpots = spots.filter(s => getSpotProvinceKey(s) === targetProvince);
-      if (matchedProvinceSpots.length >= 3) {
-        provincePool = matchedProvinceSpots;
+      const firstSpotRegion = spots[0] ? getSpotProvinceKey(spots[0]) : '';
+      if (firstSpotRegion && firstSpotRegion !== '전국' && firstSpotRegion !== '한국') {
+        targetProvince = firstSpotRegion;
+        provincePool = spots;
       } else {
-        const targetProvKey = getSpotProvinceKey({ region: targetProvince, location: targetProvince });
-        provincePool = REGION_PRESETS[targetProvKey] || REGION_PRESETS['서울'];
+        targetProvince = ALL_PROVINCES[(d - 1) % ALL_PROVINCES.length];
+        const matchedProvinceSpots = spots.filter(s => getSpotProvinceKey(s) === targetProvince);
+        if (matchedProvinceSpots.length >= 3) {
+          provincePool = matchedProvinceSpots;
+        } else {
+          const targetProvKey = getSpotProvinceKey({ region: targetProvince, location: targetProvince });
+          provincePool = REGION_PRESETS[targetProvKey] || REGION_PRESETS['서울'];
+        }
       }
     } else {
       targetProvince = getSpotProvinceKey({ region, location: region });
@@ -611,7 +617,8 @@ export function generateSmartItinerary({
     const daySpots = [];
     for (let s = 0; s < 4; s++) {
       const spotIdx = (s + dSeed) % (provincePool.length || 1);
-      const targetSpot = provincePool[spotIdx] || REGION_PRESETS['서울'][s % 4];
+      const fallbackPreset = REGION_PRESETS[targetProvince] || REGION_PRESETS['경기'] || REGION_PRESETS['서울'];
+      const targetSpot = provincePool[spotIdx] || spots[s % (spots.length || 1)] || fallbackPreset[s % fallbackPreset.length];
 
       let img = targetSpot.image || GYEONGBOKGUNG_FALLBACK_IMG;
       if (img.toLowerCase().includes('japan') || img.toLowerCase().includes('fuji') || img.toLowerCase().includes('tokyo') || img.toLowerCase().includes('kyoto') || img.toLowerCase().includes('osaka')) {
