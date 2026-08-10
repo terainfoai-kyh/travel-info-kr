@@ -29,6 +29,11 @@ export function getMapSearchBtnLabel(foodName, lang = 'ko') {
 
 export const TRANSLATIONS = {
   ko: {
+    aiTrustBadgeTitleShort: '공식 DB 연동',
+    mapViewShort: '🗺️ 지도',
+    listViewShort: '📋 일정 목록',
+    mapViewShort: '🗺️ 지도',
+    listViewShort: '📋 일정 목록',
     openMenu: '메뉴',
     closeMenu: '메뉴 닫기',
 
@@ -333,6 +338,11 @@ export const TRANSLATIONS = {
     swapSpotBtn: '다른 장소 추천 🔄',
     regenerateItineraryBtn: 'AI 코스 다시 추천 🔄',
     spotTitles: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar',
 
@@ -371,9 +381,19 @@ export const TRANSLATIONS = {
     },
     genders: { '무관': '무관', '남성': '남성', '여성': '여성' },
     ages: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar', '전체': '전체', '10대': '10대', '20대': '20대', '30대': '30대', '40대': '40대', '50대': '50대', '50대이상': '50대', '60대이상': '60대 이상' },
     themes: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar',
       '전체': '전체', '관광': '관광', '자연/힐링': '자연/힐링', '역사/문화': '역사/문화',
@@ -388,6 +408,11 @@ export const TRANSLATIONS = {
       '비': '비', '비/눈': '비 또는 눈', '눈': '눈', '소나기': '소나기'
     },
     apiServices: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar',
       'all': '전체 (모든 정보 서비스)',
@@ -398,6 +423,11 @@ export const TRANSLATIONS = {
     }
   },
   en: {
+    aiTrustBadgeTitleShort: 'Official DB',
+    mapViewShort: '🗺️ Map',
+    listViewShort: '📋 Itinerary',
+    mapViewShort: '🗺️ Map',
+    listViewShort: '📋 Itinerary',
     openMenu: 'Menu',
     closeMenu: 'Close Menu',
 
@@ -692,6 +722,11 @@ export const TRANSLATIONS = {
     esimBannerSub: 'Instant delivery for Korea data eSIM & K-Pass for travelers',
     adSponsoredTag: 'Sponsored Partner / Ad',
     spotTitles: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar',
       '경복궁 & 근정전': 'Gyeongbokgung Palace & Geunjeongjeon',
@@ -717,9 +752,19 @@ export const TRANSLATIONS = {
     },
     genders: { '무관': 'Any', '남성': 'Male', '여성': 'Female' },
     ages: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar', '전체': 'All Ages', '10대': 'Teens (10s)', '20대': '20s', '30대': '30s', '40대': '40s', '50대': '50s', '50대이상': '50s', '60대이상': '60s & Above' },
     themes: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar',
       '전체': 'All', '관광': 'Sightseeing', '자연/힐링': 'Nature & Healing', '역사/문화': 'History & Culture',
@@ -734,6 +779,11 @@ export const TRANSLATIONS = {
       '비': 'Rain', '비/눈': 'Rain / Snow', '눈': 'Snow', '소나기': 'Shower'
     },
     apiServices: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar',
       'all': 'All Services (Full TourAPI)',
@@ -744,6 +794,11 @@ export const TRANSLATIONS = {
     }
   },
   ja: {
+    aiTrustBadgeTitleShort: '公式DB連動',
+    mapViewShort: '🗺️ 地図',
+    listViewShort: '📋 日程リスト',
+    mapViewShort: '🗺️ 地図',
+    listViewShort: '📋 日程リスト',
     openMenu: 'メニュー',
     closeMenu: '閉じる',
 
@@ -1003,6 +1058,11 @@ export const TRANSLATIONS = {
     kkdayTicketBtn: 'KKday アクティビティ予約',
     aiMatchingLabel: 'AI マッチング',
     spotTitles: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar',
       '경복궁 & 근정전': '景福宮 (キョンボックン) & 勤政殿',
@@ -1028,9 +1088,19 @@ export const TRANSLATIONS = {
     },
     genders: { '무관': '指定なし', '남성': '男性', '여성': '女性' },
     ages: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar', '전체': '全年代', '10대': '10代', '20대': '20代', '30대': '30代', '40대': '40代', '50대': '50代', '50대이상': '50代', '60대이상': '60代以上' },
     themes: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar',
       '전체': '全テーマ', '관광': '観光', '자연/힐링': '自然＆ヒーリング', '역사/문화': '歴史＆文化',
@@ -1045,6 +1115,11 @@ export const TRANSLATIONS = {
       '비': '雨', '비/눈': '雨または雪', '눈': '雪', '소나기': 'にわか雨'
     },
     apiServices: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar',
       'all': '全体 (すべての情報サービス)',
@@ -1055,6 +1130,11 @@ export const TRANSLATIONS = {
     }
   },
   zh: {
+    aiTrustBadgeTitleShort: '官方DB联动',
+    mapViewShort: '🗺️ 地图',
+    listViewShort: '📋 行程列表',
+    mapViewShort: '🗺️ 地图',
+    listViewShort: '📋 行程列表',
     openMenu: '菜单',
     closeMenu: '关闭菜单',
 
@@ -1334,6 +1414,11 @@ export const TRANSLATIONS = {
     kkdayTicketBtn: '预订 KKday 活动体验',
     aiMatchingLabel: 'AI 匹配',
     spotTitles: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar',
       '경복궁 & 근정전': '景福宫 & 勤政殿',
@@ -1359,9 +1444,19 @@ export const TRANSLATIONS = {
     },
     genders: { '무관': '不限', '남성': '男性', '여성': '女性' },
     ages: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar', '전체': '不限', '10대': '10多岁', '20대': '20多岁', '30대': '30多岁', '40대': '40多岁', '50대': '50多岁', '50대이상': '50多岁', '60대이상': '60岁以上' },
     themes: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar',
       '전체': '全部', '관광': '观光景点', '자연/힐링': '自然与疗愈', '역사/문화': '历史与文化',
@@ -1376,6 +1471,11 @@ export const TRANSLATIONS = {
       '비': '降雨', '비/눈': '雨夹雪', '눈': '降雪', '소나기': '阵雨'
     },
     apiServices: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar',
       'all': '全部 (所有信息服务)',
@@ -1386,6 +1486,11 @@ export const TRANSLATIONS = {
     }
   },
   zht: {
+    aiTrustBadgeTitleShort: '官方DB連動',
+    mapViewShort: '🗺️ 地圖',
+    listViewShort: '📋 行程列表',
+    mapViewShort: '🗺️ 地圖',
+    listViewShort: '📋 行程列表',
     openMenu: '選單',
     closeMenu: '關閉選單',
 
@@ -1647,6 +1752,11 @@ export const TRANSLATIONS = {
     kkdayTicketBtn: '預訂 KKday 活動體驗',
     aiMatchingLabel: 'AI 匹配',
     spotTitles: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar',
       '경복궁 & 근정전': '景福宮 & 勤政殿',
@@ -1672,9 +1782,19 @@ export const TRANSLATIONS = {
     },
     genders: { '무관': '不限', '남성': '男性', '여성': '女性' },
     ages: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar', '전체': '不限', '10대': '10多歲', '20대': '20多歲', '30대': '30多歲', '40대': '40多歲', '50대': '50多歲', '50대이상': '50多歲', '60대이상': '60歲以上' },
     themes: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar',
       '전체': '全部', '관광': '觀光景點', '자연/힐링': '自然與療癒', '역사/문화': '歷史與文化',
@@ -1689,6 +1809,11 @@ export const TRANSLATIONS = {
       '비': '降雨', '비/눈': '雨夾雪', '눈': '降雪', '소나기': '陣雨'
     },
     apiServices: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar',
       'all': '全部 (所有資訊服務)',
@@ -1699,6 +1824,11 @@ export const TRANSLATIONS = {
     }
   },
   de: {
+    aiTrustBadgeTitleShort: 'Offizielle DB',
+    mapViewShort: '🗺️ Karte',
+    listViewShort: '📋 Ablauf',
+    mapViewShort: '🗺️ Karte',
+    listViewShort: '📋 Ablauf',
     openMenu: 'Menü',
     closeMenu: 'Schließen',
 
@@ -1841,20 +1971,45 @@ export const TRANSLATIONS = {
     filterSummary: 'Filterbedingungen', keywordLabel: 'Schlüsselwort', searchTitle: 'Reisebedingungen Anpassen', period: 'Reisezeitraum', keyword: 'Suchbegriff', keywordPlaceholder: 'Attraktion, Stadt, Tag (#Sonnenaufgang, #Date)...', region: 'Region', theme: 'Thema', age: 'Altersgruppe', gender: 'Geschlecht', arrange: 'Sortierung', arrangeO: 'Alphabetisch', arrangeQ: 'Zuletzt Aktualisiert', arrangeR: 'Neueste', apiServiceTypeLabel: 'API-Diensttyp', searchBtn: 'Reiseinfos Suchen', weatherTitle: 'Echtzeit-Wetterinformationen', weatherTempLabel: 'Aktuelle Temperatur', weatherPopLabel: 'Niederschlagswahrscheinlichkeit', midTermTitle: 'Wettervorhersage (3-7 Tage)', dayOffsetLabel: 'Tage Vorhersage', tourTitle: 'Empfohlene Sehenswürdigkeiten in Korea', totalSpots: 'Insgesamt {count} Orte', page: 'Seite', foodTitle: 'Empfohlene Kulinarik', outfitTitle: 'Kleidungsempfehlungen & Dresscode', customConditionLabel: 'Filter', mapTitle: 'Karte Anzeigen', viewOnGoogleMaps: 'Auf Google Maps anzeigen', noCoordinates: 'Keine Koordinaten verfügbar.', countryBadge: 'Südkorea', detailTitle: 'Details', overviewLoading: 'Lädt offizielle Daten der Korea Tourism Organization...', defaultOverview: 'Offiziell registrierte Attraktion der Korea Tourism Organization.', officialWebsite: 'Offizielle Website besuchen ↗', noOfficialWebsite: 'Keine offizielle Website angegeben.', telInquiry: 'Telefonischer Kontakt', hoursLabel: 'Öffnungszeiten', hoursDefault: '09:00 - 18:00 (Montags geschlossen)', contactLabel: 'Kontakt', contactDefault: 'Tourist Information 1330', websiteLabel: 'Website', websiteLoading: 'Link wird geprüft...', visitOfficialWebsite: 'Offizielle Website besuchen', seasonLabel: 'Beste Reisezeit', seasonDefault: 'Frühling & Herbst (Ganzjährig geöffnet)', highlightsTitle: 'Highlights der Attraktion', highlightsBullets: ['Offiziell zertifizierte Attraktion von KTO TourAPI', 'Verbindung zu lokalen Kulinarik- und Café-Routen', 'Wunderschöne Fotospots und Aussichtspunkte', 'Gute Anbindung an öffentliche Verkehrsmittel'], galleryTitle: 'Fotogalerie', photosUnit: 'Fotos', mapSearchTitle: 'Karte & Route', googleMapRoute: 'Route auf Google Maps anzeigen', reviewsTitle: 'Bewertungen', reviewsUnit: 'Bewertungen', writeReviewLabel: 'Bewertung schreiben', reviewPlaceholder: 'Schreiben Sie Ihre Bewertung...', submitReviewBtn: 'Bewertung absenden', ratingLabel: 'Bewertung', authorLabel: 'Besucher', closeBtn: 'Schließen', savedBookmark: 'Gespeichert', saveBookmark: 'Merken', showAllReviews: 'Alle anzeigen', hideReviews: 'Einklappen', scoreSuffix: 'Pkt', koreaRecommendedTag: 'KTO Empfohlen', noSpots: 'Keine Ergebnisse gefunden.', detailModalHeader: 'Attraktions-Details', detailModalSub: 'Echtzeit-Verifizierung durch Korea Tourism Organization TourAPI 4.0',
     affiliateTitle: 'Partnerangebote & Services', agodaHotelBtn: 'Hotels in der Nähe suchen (Agoda)', klookTicketBtn: 'Tickets & eSIM buchen (Klook)', tripHotelBtn: 'Hotels & Flüge (Trip.com)', esimBannerTitle: '✈️ Korea Reise-Essentials: eSIM & K-PASS Rabatt', esimBannerSub: 'Sofortige Bereitstellung von Daten-eSIM & K-Pass für Reisende', adSponsoredTag: 'Sponsor / Werbung',
     spotTitles: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar',}, regions: { '전국': 'Ganz Korea', '서울': 'Seoul', '부산': 'Busan', '제주': 'Jeju', '인천': 'Incheon', '강원': 'Gangwon', '경기': 'Gyeonggi', '경북': 'Gyeongbuk', '경남': 'Gyeongnam', '전북': 'Jeonbuk', '전남': 'Jeonnam', '충북': 'Chungbuk', '충남': 'Chungnam', '대구': 'Daegu', '대전': 'Daejeon', '광주': 'Gwangju', '울산': 'Ulsan', '세종': 'Sejong', '한국': 'Südkorea' },
     genders: { '무관': 'Alle', '남성': 'Männlich', '여성': 'Weiblich' }, ages: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar', '전체': 'Alle', '10대': '10er', '20대': '20er', '30대': '30er', '40대': '40er', '50대': '50er', '50대이상': '50er', '60대이상': '60+' },
     themes: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar', '전체': 'Alle', '관광': 'Besichtigung', '자연/힐링': 'Natur & Erholung', '역사/문화': 'Geschichte & Kultur', '미식/쇼핑': 'Kulinarik & Shopping', '액티비티/레저': 'Aktivitäten & Freizeit', 'K-컬처/이벤트': 'K-Kultur & Events', '숙박/호텔': 'Hotels & Unterkunft', '쇼핑/명소': 'Shopping', '축제': 'Festivals', '음식': 'Kulinarik' },
     weatherMap: { '맑음': 'Sonnig', '맑고 쾌청함': 'Klar', '구름 조금': 'Leicht bewölkt', '구름많음': 'Bewölkt', '구름 많음': 'Bewölkt', '흐림': 'Bedeckt', '비': 'Regen', '비/눈': 'Schneeregen', '눈': 'Schnee', '소나기': 'Schauer' },
     apiServices: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar', 'all': 'Alle Dienste (TourAPI)', 'area': 'Regional-Sehenswürdigkeiten', 'location': 'In der Nähe (Radius)', 'festival': 'Events & Festivals', 'stay': 'Unterkunft & Hotels' }
   },
   fr: {
+    aiTrustBadgeTitleShort: 'BD officielle',
+    mapViewShort: '🗺️ Carte',
+    listViewShort: '📋 Itinéraire',
+    mapViewShort: '🗺️ Carte',
+    listViewShort: '📋 Itinéraire',
     openMenu: 'Menu',
     closeMenu: 'Fermer',
 
@@ -2009,20 +2164,45 @@ export const TRANSLATIONS = {
     },
     aiMatchingLabel: 'Match AI',
     spotTitles: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar',}, regions: { '전국': 'Toute la Corée', '서울': 'Séoul', '부산': 'Busan', '제주': 'Jeju', '인천': 'Incheon', '강원': 'Gangwon', '경기': 'Gyeonggi', '경북': 'Gyeongbuk', '경남': 'Gyeongnam', '전북': 'Jeonbuk', '전남': 'Jeonnam', '충북': 'Chungbuk', '충남': 'Chungnam', '대구': 'Daegu', '대전': 'Daejeon', '광주': 'Gwangju', '울산': 'Ulsan', '세종': 'Sejong', '한국': 'Corée du Sud' },
     genders: { '무관': 'Tous', '남성': 'Homme', '여성': 'Femme' }, ages: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar', '전체': 'Tous', '10대': '10ans', '20대': '20ans', '30대': '30ans', '40대': '40ans', '50대': '50ans', '50대이상': '50ans', '60대이상': '60+' },
     themes: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar', '전체': 'Tous', '관광': 'Visites', '자연/힐링': 'Nature & Détente', '역사/문화': 'Histoire & Culture', '미식/쇼핑': 'Gastronomie & Shopping', '액티비티/레저': 'Activités & Loisirs', 'K-컬처/이벤트': 'K-Culture & Événements', '숙박/호텔': 'Hôtels & Hébergements', '쇼핑/명소': 'Shopping', '축제': 'Festivals', '음식': 'Gastronomie' },
     weatherMap: { '맑음': 'Ensoleillé', '맑고 쾌청함': 'Dégagé', '구름 조금': 'Peu nuageux', '구름많음': 'Nuageux', '구름 많음': 'Très nuageux', '흐림': 'Couvert', '비': 'Pluie', '비/눈': 'Pluie et neige', '눈': 'Neige', '소나기': 'Averse' },
     apiServices: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar', 'all': 'Tous les Services (TourAPI)', 'area': 'Attractions Régionales', 'location': 'À Proximité (Rayon)', 'festival': 'Événements & Festivals', 'stay': 'Hôtels & Hébergements' }
   },
   es: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar',
     noSpotsResult: 'No se encontraron resultados para \'{keyword}\'',
@@ -2149,20 +2329,45 @@ export const TRANSLATIONS = {
     },
     aiMatchingLabel: 'Coincidencia AI',
     spotTitles: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar',}, regions: { '전국': 'Toda Corea', '서울': 'Seúl', '부산': 'Busan', '제주': 'Jeju', '인천': 'Incheon', '강원': 'Gangwon', '경기': 'Gyeonggi', '경북': 'Gyeongbuk', '경남': 'Gyeongnam', '전북': 'Jeonbuk', '전남': 'Jeonnam', '충북': 'Chungbuk', '충남': 'Chungnam', '대구': 'Daegu', '대전': 'Daejeon', '광주': 'Gwangju', '울산': 'Ulsan', '세종': 'Sejong', '한국': 'Corea del Sur' },
     genders: { '무관': 'Todos', '남성': 'Hombre', '여성': 'Mujer' }, ages: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar', '전체': 'Todos', '10대': '10s', '20대': '20s', '30대': '30s', '40대': '40s', '50대': '50s', '50대이상': '50s', '60대이상': '60+' },
     themes: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar', '전체': 'Todos', '관광': 'Turismo', '자연/힐링': 'Naturaleza & Relajación', '역사/문화': 'Historia & Cultura', '미식/쇼핑': 'Gastronomía & Compras', '액티비티/레저': 'Actividades & Ocio', 'K-컬처/이벤트': 'K-Cultura & Eventos', '숙박/호텔': 'Hoteles & Alojamiento', '쇼핑/명소': 'Compras', '축제': 'Festivales', '음식': 'Gastronomía' },
     weatherMap: { '맑음': 'Soleado', '맑고 쾌청함': 'Despejado', '구름 조금': 'Algo nublado', '구름많음': 'Nublado', '구름 많음': 'Muy nublado', '흐림': 'Cubierto', '비': 'Lluvia', '비/눈': 'Lluvia y nieve', '눈': 'Nieve', '소나기': 'Chubasco' },
     apiServices: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar', 'all': 'Todos los Servicios (TourAPI)', 'area': 'Información Turística Regional', 'location': 'Cercano (Radio)', 'festival': 'Eventos y Festivales', 'stay': 'Alojamientos y Hoteles' }
   },
   ru: {
+    aiTrustBadgeTitleShort: 'Офиц. БД',
+    mapViewShort: '🗺️ Карта',
+    listViewShort: '📋 Список',
+    mapViewShort: '🗺️ Карта',
+    listViewShort: '📋 Список',
     openMenu: 'Меню',
     closeMenu: 'Закрыть',
 
@@ -2301,16 +2506,36 @@ export const TRANSLATIONS = {
     partnerFormContentPlaceholder: 'Пожалуйста, опишите детали запроса, бюджет, сроки и т.д.',
     aiMatchingLabel: 'Совпадение AI',
     spotTitles: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar',}, regions: { '전국': 'Вся Корея', '서울': 'Сеул', '부산': 'Пусан', '제주': 'Чеджу', '인천': 'Инчхон', '강원': 'Канвондо', '경기': 'Кёнгидо', '경북': 'Кёнсан-Пукто', '경남': 'Кёнсан-Намдо', '전북': 'Чолла-Пукто', '전남': 'Чолла-Намдо', '충북': 'Чхунчхон-Пукто', '충남': 'Чхунчхон-Намдо', '대구': 'Тэгу', '대전': 'Тэджон', '광주': 'Кванджу', '울산': 'Ульсан', '세종': 'Седжон', '한국': 'Южная Корея' },
     genders: { '무관': 'Все', '남성': 'Мужской', '여성': 'Женский' }, ages: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar', '전체': 'Все', '10대': '10-19', '20대': '20-29', '30대': '30-39', '40대': '40-49', '50대': '50-59', '50대이상': '50-59', '60대이상': '60+' },
     themes: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar', '전체': 'Все', '관광': 'Экскурсии', '자연/힐링': 'Природа и Отдых', '역사/문화': 'История и Культура', '미식/쇼핑': 'Еда и Шопинг', '액티비티/레저': 'Активный отдых', 'K-컬처/이벤트': 'K-Культура и События', '숙박/호텔': 'Отели и Проживание', '쇼핑/명소': 'Шопинг', '축제': 'Фестивали', '음식': 'Еда' },
     weatherMap: { '맑음': 'Ясно', '맑고 쾌청함': 'Ясно и сухо', '구름 조금': 'Небольшая облачность', '구름많음': 'Облачно', '구름 많음': 'Значительная облачность', '흐림': 'Пасмурно', '비': 'Дождь', '비/눈': 'Дождь со снегом', '눈': 'Снег', '소나기': 'Ливень' },
     apiServices: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar', 'all': 'Все сервисы (TourAPI)', 'area': 'Региональный туризм', 'location': 'Достопримечательности рядом', 'festival': 'Фестивали и мероприятия', 'stay': 'Отели и проживание' }
   }
@@ -2596,6 +2821,11 @@ export function getTranslatedReview(review, lang = 'ko') {
 
   const REVIEW_TRANS = {
     en: {
+    aiTrustBadgeTitleShort: 'Official DB',
+    mapViewShort: '🗺️ Map',
+    listViewShort: '📋 Itinerary',
+    mapViewShort: '🗺️ Map',
+    listViewShort: '📋 Itinerary',
     openMenu: 'Menu',
     closeMenu: 'Close Menu',
       '날씨 좋을 때 방문하니 경관이 정말 훌륭했습니다! 포토스팟도 많고 강력 추천합니다.': 'Visiting in nice weather gave an absolutely stunning view! Great photo spots and highly recommended.',
@@ -2605,6 +2835,11 @@ export function getTranslatedReview(review, lang = 'ko') {
       '가족들과 주말 나들이로 다녀왔는데 경치가 너무 고즈넉하고 힐링되었습니다.': 'Went on a weekend family trip. Scenic, tranquil atmosphere provided great healing.'
     },
     ja: {
+    aiTrustBadgeTitleShort: '公式DB連動',
+    mapViewShort: '🗺️ 地図',
+    listViewShort: '📋 日程リスト',
+    mapViewShort: '🗺️ 地図',
+    listViewShort: '📋 日程リスト',
     openMenu: 'メニュー',
     closeMenu: '閉じる',
       '날씨 좋을 때 방문하니 경관이 정말 훌륭했습니다! 포토스팟도 많고 강력 추천합니다.': 'お天気の良い日に訪れたら景観が本当に素晴らしかったです！フォトスポットも多く大満足です。',
@@ -2614,6 +2849,11 @@ export function getTranslatedReview(review, lang = 'ko') {
       '가족들과 주말 나들이로 다녀왔는데 경치가 너무 고즈넉하고 힐링되었습니다.': '週末に家族でお出かけしました。静かで趣のある風景にとても癒されました。'
     },
     zh: {
+    aiTrustBadgeTitleShort: '官方DB联动',
+    mapViewShort: '🗺️ 地图',
+    listViewShort: '📋 行程列表',
+    mapViewShort: '🗺️ 地图',
+    listViewShort: '📋 行程列表',
     openMenu: '菜单',
     closeMenu: '关闭菜单',
       '날씨 좋을 때 방문하니 경관이 정말 훌륭했습니다! 포토스팟도 많고 강력 추천합니다.': '天气晴朗时前往，风景非常绝美！打卡拍照点很多，强烈推荐！',
@@ -2627,34 +2867,79 @@ export function getTranslatedReview(review, lang = 'ko') {
   const list = REVIEW_TRANS[lang] || REVIEW_TRANS.en;
   const authorMap = {
     en: {
+    aiTrustBadgeTitleShort: 'Official DB',
+    mapViewShort: '🗺️ Map',
+    listViewShort: '📋 Itinerary',
+    mapViewShort: '🗺️ Map',
+    listViewShort: '📋 Itinerary',
     openMenu: 'Menu',
     closeMenu: 'Close Menu', '김민준': 'Minjun Kim', '이서연': 'Seoyeon Lee', '박지훈': 'Jihoon Park', '최유진': 'Yujin Choi', '정명훈': 'Myeonghun Jeong' },
     ja: {
+    aiTrustBadgeTitleShort: '公式DB連動',
+    mapViewShort: '🗺️ 地図',
+    listViewShort: '📋 日程リスト',
+    mapViewShort: '🗺️ 地図',
+    listViewShort: '📋 日程リスト',
     openMenu: 'メニュー',
     closeMenu: '閉じる', '김민준': '金ミンジュン', '이서연': '李ソヨン', '박지훈': '朴ジフン', '최유진': '崔ユジン', '정명훈': '鄭ミョンフン' },
     zh: {
+    aiTrustBadgeTitleShort: '官方DB联动',
+    mapViewShort: '🗺️ 地图',
+    listViewShort: '📋 行程列表',
+    mapViewShort: '🗺️ 地图',
+    listViewShort: '📋 行程列表',
     openMenu: '菜单',
     closeMenu: '关闭菜单', '김민준': '金民俊', '이서연': '李瑞妍', '박지훈': '朴智勋', '최유진': '崔有珍', '정명훈': '郑明勋' }
   };
   const ageMap = {
     en: {
+    aiTrustBadgeTitleShort: 'Official DB',
+    mapViewShort: '🗺️ Map',
+    listViewShort: '📋 Itinerary',
+    mapViewShort: '🗺️ Map',
+    listViewShort: '📋 Itinerary',
     openMenu: 'Menu',
     closeMenu: 'Close Menu', '10대': 'Teens', '20대': '20s', '30대': '30s', '40대': '40s', '50대': '50s', '50대이상': '50s', '60대이상': '60s+' },
     ja: {
+    aiTrustBadgeTitleShort: '公式DB連動',
+    mapViewShort: '🗺️ 地図',
+    listViewShort: '📋 日程リスト',
+    mapViewShort: '🗺️ 地図',
+    listViewShort: '📋 日程リスト',
     openMenu: 'メニュー',
     closeMenu: '閉じる', '10대': '10代', '20대': '20代', '30대': '30代', '40대': '40代', '50대': '50代', '50대이상': '50代', '60대이상': '60代以上' },
     zh: {
+    aiTrustBadgeTitleShort: '官方DB联动',
+    mapViewShort: '🗺️ 地图',
+    listViewShort: '📋 行程列表',
+    mapViewShort: '🗺️ 地图',
+    listViewShort: '📋 行程列表',
     openMenu: '菜单',
     closeMenu: '关闭菜单', '10대': '10多岁', '20대': '20多岁', '30대': '30多岁', '40대': '40多岁', '50대': '50多岁', '50대이상': '50多岁', '60대이상': '60岁以上' }
   };
   const genderMap = {
     en: {
+    aiTrustBadgeTitleShort: 'Official DB',
+    mapViewShort: '🗺️ Map',
+    listViewShort: '📋 Itinerary',
+    mapViewShort: '🗺️ Map',
+    listViewShort: '📋 Itinerary',
     openMenu: 'Menu',
     closeMenu: 'Close Menu', '남성': 'Male', '여성': 'Female' },
     ja: {
+    aiTrustBadgeTitleShort: '公式DB連動',
+    mapViewShort: '🗺️ 地図',
+    listViewShort: '📋 日程リスト',
+    mapViewShort: '🗺️ 地図',
+    listViewShort: '📋 日程リスト',
     openMenu: 'メニュー',
     closeMenu: '閉じる', '남성': '男性', '여성': '女性' },
     zh: {
+    aiTrustBadgeTitleShort: '官方DB联动',
+    mapViewShort: '🗺️ 地图',
+    listViewShort: '📋 行程列表',
+    mapViewShort: '🗺️ 地图',
+    listViewShort: '📋 行程列表',
     openMenu: '菜单',
     closeMenu: '关闭菜单', '남성': '男性', '여성': '女性' }
   };
@@ -2684,18 +2969,33 @@ export function getTranslatedOverview(overview, title = '', lang = 'ko') {
 
   const OVERVIEW_MAP = {
     en: {
+    aiTrustBadgeTitleShort: 'Official DB',
+    mapViewShort: '🗺️ Map',
+    listViewShort: '📋 Itinerary',
+    mapViewShort: '🗺️ Map',
+    listViewShort: '📋 Itinerary',
     openMenu: 'Menu',
     closeMenu: 'Close Menu',
       '한국관광공사 TourAPI 공식 등록 관광지입니다.': 'Officially registered tourism spot of the Korea Tourism Organization (KTO). Provides rich cultural experiences and scenic beauty.',
       '대한민국 관광공사 공식 등록 대표 명소입니다. 아름다운 풍경과 다양한 볼거리를 제공합니다.': 'Official landmark registered with Korea Tourism Organization. Offers scenic views and iconic cultural experiences.'
     },
     ja: {
+    aiTrustBadgeTitleShort: '公式DB連動',
+    mapViewShort: '🗺️ 地図',
+    listViewShort: '📋 日程リスト',
+    mapViewShort: '🗺️ 地図',
+    listViewShort: '📋 日程リスト',
     openMenu: 'メニュー',
     closeMenu: '閉じる',
       '한국관광공사 TourAPI 공식 등록 관광지입니다.': '韓国観光公社(KTO)公式登録の観光スポットです。豊かな文化的体験と美しい風景を提供します。',
       '대한민국 관광공사 공식 등록 대표 명소입니다. 아름다운 풍경과 다양한 볼거리를 제공합니다.': '韓国観光公社公式登録の代表的観光スポットです。美しい風景と様々な見どころを提供します。'
     },
     zh: {
+    aiTrustBadgeTitleShort: '官方DB联动',
+    mapViewShort: '🗺️ 地图',
+    listViewShort: '📋 行程列表',
+    mapViewShort: '🗺️ 地图',
+    listViewShort: '📋 行程列表',
     openMenu: '菜单',
     closeMenu: '关闭菜单',
       '한국관광공사 TourAPI 공식 등록 관광지입니다.': '韩国旅游发展局(KTO)官方登记景点，提供丰富的文化体验与绝美自然风光。',
@@ -2729,6 +3029,11 @@ export function getTranslatedDetailText(text, lang = 'ko') {
 
   const TEXT_MAP = {
     en: {
+    aiTrustBadgeTitleShort: 'Official DB',
+    mapViewShort: '🗺️ Map',
+    listViewShort: '📋 Itinerary',
+    mapViewShort: '🗺️ Map',
+    listViewShort: '📋 Itinerary',
     openMenu: 'Menu',
     closeMenu: 'Close Menu',
       '09:00 - 18:00 (입장마감 17:00 / 매주 월요일 휴무)': '09:00 - 18:00 (Last Entry 17:00 / Closed Mondays)',
@@ -2746,6 +3051,11 @@ export function getTranslatedDetailText(text, lang = 'ko') {
       '대중교통 및 주차 시설 완비 (가족/연인/나홀로 여행 최적)': 'Convenient public transit & parking (ideal for family & solo travel)'
     },
     zh: {
+    aiTrustBadgeTitleShort: '官方DB联动',
+    mapViewShort: '🗺️ 地图',
+    listViewShort: '📋 行程列表',
+    mapViewShort: '🗺️ 地图',
+    listViewShort: '📋 行程列表',
     openMenu: '菜单',
     closeMenu: '关闭菜单',
       '09:00 - 18:00 (입장마감 17:00 / 매주 월요일 휴무)': '09:00 - 18:00 (截止入场 17:00 / 每周一闭馆)',
@@ -2763,6 +3073,11 @@ export function getTranslatedDetailText(text, lang = 'ko') {
       '대중교통 및 주차 시설 완비 (가족/연인/나홀로 여행 최적)': '公共交通便利与停车设施完善（极度适合家庭与单人游）'
     },
     zht: {
+    aiTrustBadgeTitleShort: '官方DB連動',
+    mapViewShort: '🗺️ 地圖',
+    listViewShort: '📋 行程列表',
+    mapViewShort: '🗺️ 地圖',
+    listViewShort: '📋 行程列表',
     openMenu: '選單',
     closeMenu: '關閉選單',
       '09:00 - 18:00 (입장마감 17:00 / 매주 월요일 휴무)': '09:00 - 18:00 (截止入場 17:00 / 每週一閉館)',
@@ -2780,6 +3095,11 @@ export function getTranslatedDetailText(text, lang = 'ko') {
       '대중교통 및 주차 시설 완비 (가족/연인/나홀로 여행 최적)': '公共交通便利與停車設施完善（極度適合家庭與單人遊）'
     },
     ja: {
+    aiTrustBadgeTitleShort: '公式DB連動',
+    mapViewShort: '🗺️ 地図',
+    listViewShort: '📋 日程リスト',
+    mapViewShort: '🗺️ 地図',
+    listViewShort: '📋 日程リスト',
     openMenu: 'メニュー',
     closeMenu: '閉じる',
       '09:00 - 18:00 (입장마감 17:00 / 매주 월요일 휴무)': '09:00 - 18:00 (入場締切 17:00 / 毎週月曜日休館)',
@@ -2841,6 +3161,11 @@ export function getTranslatedFood(food, lang = 'ko') {
 
   const FOOD_NAME_MAP = {
     en: {
+    aiTrustBadgeTitleShort: 'Official DB',
+    mapViewShort: '🗺️ Map',
+    listViewShort: '📋 Itinerary',
+    mapViewShort: '🗺️ Map',
+    listViewShort: '📋 Itinerary',
     openMenu: 'Menu',
     closeMenu: 'Close Menu',
       '제주 청정 흑돼지 구이 & 멜젓': 'Jeju Premium Black Pork BBQ & Anchovy Dip',
@@ -2850,6 +3175,11 @@ export function getTranslatedFood(food, lang = 'ko') {
       '얼큰한 해물 뚝배기 전골 & 칼국수': 'Spicy Seafood Hot-pot & Kalguksu Noodle'
     },
     ja: {
+    aiTrustBadgeTitleShort: '公式DB連動',
+    mapViewShort: '🗺️ 地図',
+    listViewShort: '📋 日程リスト',
+    mapViewShort: '🗺️ 地図',
+    listViewShort: '📋 日程リスト',
     openMenu: 'メニュー',
     closeMenu: '閉じる',
       '제주 청정 흑돼지 구이 & 멜젓': '済州クリーン黒豚焼肉 ＆ メルジョッ(イワ시塩辛)',
@@ -2859,6 +3189,11 @@ export function getTranslatedFood(food, lang = 'ko') {
       '얼큰한 해물 뚝배기 전골 & 칼국수': 'ピリ辛海鮮土鍋チゲ ＆ カルグクス'
     },
     zh: {
+    aiTrustBadgeTitleShort: '官方DB联动',
+    mapViewShort: '🗺️ 地图',
+    listViewShort: '📋 行程列表',
+    mapViewShort: '🗺️ 地图',
+    listViewShort: '📋 行程列表',
     openMenu: '菜单',
     closeMenu: '关闭菜单',
       '제주 청정 흑돼지 구이 & 멜젓': '济州清净黑猪肉烤肉 & 鳀鱼酱',
@@ -2868,6 +3203,11 @@ export function getTranslatedFood(food, lang = 'ko') {
       '얼큰한 해물 뚝배기 전골 & 칼국수': '香辣海鲜砂锅火锅 & 刀削面'
     },
     zht: {
+    aiTrustBadgeTitleShort: '官方DB連動',
+    mapViewShort: '🗺️ 地圖',
+    listViewShort: '📋 行程列表',
+    mapViewShort: '🗺️ 地圖',
+    listViewShort: '📋 行程列表',
     openMenu: '選單',
     closeMenu: '關閉選單',
       '제주 청정 흑돼지 구이 & 멜젓': '濟州清淨黑豬肉烤肉 & 鯷魚醬',
@@ -2877,6 +3217,11 @@ export function getTranslatedFood(food, lang = 'ko') {
       '얼큰한 해물 뚝배기 전골 & 칼국수': '香辣海鮮砂鍋火鍋 & 刀削麵'
     },
     de: {
+    aiTrustBadgeTitleShort: 'Offizielle DB',
+    mapViewShort: '🗺️ Karte',
+    listViewShort: '📋 Ablauf',
+    mapViewShort: '🗺️ Karte',
+    listViewShort: '📋 Ablauf',
     openMenu: 'Menü',
     closeMenu: 'Schließen',
       '제주 청정 흑돼지 구이 & 멜젓': 'Jeju Bio-Schwarzschwein BBQ & Anchovis-Dip',
@@ -2886,6 +3231,11 @@ export function getTranslatedFood(food, lang = 'ko') {
       '얼큰한 해물 뚝배기 전골 & 칼국수': 'Scharfer Meeresfrüchte-Eintopf & Kalguksu'
     },
     fr: {
+    aiTrustBadgeTitleShort: 'BD officielle',
+    mapViewShort: '🗺️ Carte',
+    listViewShort: '📋 Itinéraire',
+    mapViewShort: '🗺️ Carte',
+    listViewShort: '📋 Itinéraire',
     openMenu: 'Menu',
     closeMenu: 'Fermer',
       '제주 청정 흑돼지 구이 & 멜젓': 'Barbecue de Porc Noir de Jeju & Sauce Anchois',
@@ -2895,6 +3245,11 @@ export function getTranslatedFood(food, lang = 'ko') {
       '얼큰한 해물 뚝배기 전골 & 칼국수': 'Marmite de Fruits de Mer Épicée & Nouilles'
     },
     es: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar',
       '제주 청정 흑돼지 구이 & 멜젓': 'Barbacoa de Cerdo Negro de Jeju y Salsa de Anchoas',
@@ -2904,6 +3259,11 @@ export function getTranslatedFood(food, lang = 'ko') {
       '얼큰한 해물 뚝배기 전골 & 칼국수': 'Cazuela Picante de Mariscos y Fideos Kalguksu'
     },
     ru: {
+    aiTrustBadgeTitleShort: 'Офиц. БД',
+    mapViewShort: '🗺️ Карта',
+    listViewShort: '📋 Список',
+    mapViewShort: '🗺️ Карта',
+    listViewShort: '📋 Список',
     openMenu: 'Меню',
     closeMenu: 'Закрыть',
       '제주 청정 흑돼지 구이 & 멜젓': 'BBQ из черной свинины Чеджу с соусом',
@@ -2916,33 +3276,78 @@ export function getTranslatedFood(food, lang = 'ko') {
 
   const FOOD_CAT_MAP = {
     en: {
+    aiTrustBadgeTitleShort: 'Official DB',
+    mapViewShort: '🗺️ Map',
+    listViewShort: '📋 Itinerary',
+    mapViewShort: '🗺️ Map',
+    listViewShort: '📋 Itinerary',
     openMenu: 'Menu',
     closeMenu: 'Close Menu', '구이 / 제주특산': 'BBQ / Jeju Specialty', '면류 / 육류': 'Noodles / Meat', '해산물 / 오션뷰': 'Seafood / Ocean View', '국밥 / 한식': 'Soup Rice / Korean', '전골 / 면류': 'Hot-pot / Noodles' },
     ja: {
+    aiTrustBadgeTitleShort: '公式DB連動',
+    mapViewShort: '🗺️ 地図',
+    listViewShort: '📋 日程リスト',
+    mapViewShort: '🗺️ 地図',
+    listViewShort: '📋 日程リスト',
     openMenu: 'メニュー',
     closeMenu: '閉じる', '구이 / 제주특산': '焼肉 / 済州特産', '면류 / 육류': '麺類 / 肉料理', '해산물 / 오션뷰': '海鮮 / オーシャンビュー', '국밥 / 한식': 'クッパ / 韓国料理', '전골 / 면류': '鍋料理 / 麺類' },
     zh: {
+    aiTrustBadgeTitleShort: '官方DB联动',
+    mapViewShort: '🗺️ 地图',
+    listViewShort: '📋 行程列表',
+    mapViewShort: '🗺️ 地图',
+    listViewShort: '📋 行程列表',
     openMenu: '菜单',
     closeMenu: '关闭菜单', '구이 / 제주특산': '烧烤 / 济州特产', '면류 / 육류': '面类 / 肉类', '해산물 / 오션뷰': '海鲜 / 海景', '국밥 / 한식': '汤饭 / 韩餐', '전골 / 면류': '火锅 / 面类' },
     zht: {
+    aiTrustBadgeTitleShort: '官方DB連動',
+    mapViewShort: '🗺️ 地圖',
+    listViewShort: '📋 行程列表',
+    mapViewShort: '🗺️ 地圖',
+    listViewShort: '📋 行程列表',
     openMenu: '選單',
     closeMenu: '關閉選單', '구이 / 제주특산': '燒烤 / 濟州特產', '면류 / 육류': '麵類 / 肉類', '해산물 / 오션뷰': '海鮮 / 海景', '국밥 / 한식': '湯飯 / 韓餐', '전골 / 면류': '火鍋 / 麵類' },
     de: {
+    aiTrustBadgeTitleShort: 'Offizielle DB',
+    mapViewShort: '🗺️ Karte',
+    listViewShort: '📋 Ablauf',
+    mapViewShort: '🗺️ Karte',
+    listViewShort: '📋 Ablauf',
     openMenu: 'Menü',
     closeMenu: 'Schließen', '구이 / 제주특산': 'BBQ / Spezialität', '면류 / 육류': 'Nudeln / Fleisch', '해산물 / 오션뷰': 'Meeresfrüchte / Meerblick', '국밥 / 한식': 'Suppenreis / Koreanisch', '전골 / 면류': 'Eintopf / Nudeln' },
     fr: {
+    aiTrustBadgeTitleShort: 'BD officielle',
+    mapViewShort: '🗺️ Carte',
+    listViewShort: '📋 Itinéraire',
+    mapViewShort: '🗺️ Carte',
+    listViewShort: '📋 Itinéraire',
     openMenu: 'Menu',
     closeMenu: 'Fermer', '구이 / 제주특산': 'Barbecue / Spécialité', '면류 / 육류': 'Nouilles / Viande', '해산물 / 오션뷰': 'Fruits de Mer / Vue Mer', '국밥 / 한식': 'Soupe Riz / Coréen', '전골 / 면류': 'Marmite / Nouilles' },
     es: {
+    aiTrustBadgeTitleShort: 'BD oficial',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
+    mapViewShort: '🗺️ Mapa',
+    listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar', '구이 / 제주특산': 'Barbacoa / Especialidad', '면류 / 육류': 'Fideos / Carne', '해산물 / 오션뷰': 'Mariscos / Vista al Mar', '국밥 / 한식': 'Sopa con Arroz / Coreano', '전골 / 면류': 'Cazuela / Fideos' },
     ru: {
+    aiTrustBadgeTitleShort: 'Офиц. БД',
+    mapViewShort: '🗺️ Карта',
+    listViewShort: '📋 Список',
+    mapViewShort: '🗺️ Карта',
+    listViewShort: '📋 Список',
     openMenu: 'Меню',
     closeMenu: 'Закрыть', '구이 / 제주특산': 'BBQ / Специфика', '면류 / 육류': 'Лапша / Мясо', '해산물 / 오션뷰': 'Морепродукты / Вид на море', '국밥 / 한식': 'Суп с рисом / Корейская кухня', '전골 / 면류': 'Суп-жаровня / Лапша' }
   };
 
   const REASON_MAP = {
     en: {
+    aiTrustBadgeTitleShort: 'Official DB',
+    mapViewShort: '🗺️ Map',
+    listViewShort: '📋 Itinerary',
+    mapViewShort: '🗺️ Map',
+    listViewShort: '📋 Itinerary',
     openMenu: 'Menu',
     closeMenu: 'Close Menu',
       '제주 청정 자연에서 자란 두툼하고 육즙 가득한 명품 흑돼지': 'Thick, juicy premium black pork raised in Jeju\'s pristine nature.',
@@ -2952,6 +3357,11 @@ export function getTranslatedFood(food, lang = 'ko') {
       '겨울철 동해/남해 해산물의 얼큰함과 깊은 육수가 일품인 탕 요리': 'Spicy, rich seafood stew made with fresh coastal catches.'
     },
     ja: {
+    aiTrustBadgeTitleShort: '公式DB連動',
+    mapViewShort: '🗺️ 地図',
+    listViewShort: '📋 日程リスト',
+    mapViewShort: '🗺️ 地図',
+    listViewShort: '📋 日程リスト',
     openMenu: 'メニュー',
     closeMenu: '閉じる',
       '제주 청정 자연에서 자란 두툼하고 육즙 가득한 명품 흑돼지': '済州の清らかな大自然で育った、肉汁あふれる極上黒豚。',
@@ -2961,6 +3371,11 @@ export function getTranslatedFood(food, lang = 'ko') {
       '겨울철 동해/남해 해산물의 얼큰함과 깊은 육수가 일품인 탕 요리': '冬の新鮮な海の幸의 旨味が染み出たピリ辛濃厚スープ料理。'
     },
     zh: {
+    aiTrustBadgeTitleShort: '官方DB联动',
+    mapViewShort: '🗺️ 地图',
+    listViewShort: '📋 行程列表',
+    mapViewShort: '🗺️ 地图',
+    listViewShort: '📋 行程列表',
     openMenu: '菜单',
     closeMenu: '关闭菜单',
       '제주 청정 자연에서 자란 두툼하고 육즙 가득한 명품 흑돼지': '在济州清净大自然中生长的厚实多汁特级黑猪肉。',
@@ -2970,6 +3385,11 @@ export function getTranslatedFood(food, lang = 'ko') {
       '겨울철 동해/남해 해산물의 얼큰함과 깊은 육수가 일품인 탕 요리': '融入冬季新鲜海鲜与浓郁高汤的香辣锅物。'
     },
     zht: {
+    aiTrustBadgeTitleShort: '官方DB連動',
+    mapViewShort: '🗺️ 地圖',
+    listViewShort: '📋 行程列表',
+    mapViewShort: '🗺️ 地圖',
+    listViewShort: '📋 行程列表',
     openMenu: '選單',
     closeMenu: '關閉選單',
       '제주 청정 자연에서 자란 두툼하고 육즙 가득한 명품 흑돼지': '在濟州清淨大自然中生長厚實多汁特級黑豬肉。',
@@ -3016,6 +3436,11 @@ export function getTranslatedOutfit(outfit, lang = 'ko') {
 
   const OUTFIT_TITLE_MAP = {
     en: {
+    aiTrustBadgeTitleShort: 'Official DB',
+    mapViewShort: '🗺️ Map',
+    listViewShort: '📋 Itinerary',
+    mapViewShort: '🗺️ Map',
+    listViewShort: '📋 Itinerary',
     openMenu: 'Menu',
     closeMenu: 'Close Menu',
       '남녀공용 시티 캐주얼 레이어드 룩': 'Unisex City Casual Layered Look',
@@ -3028,6 +3453,11 @@ export function getTranslatedOutfit(outfit, lang = 'ko') {
       '여성 숏 숏패딩 & 뽀글이 플리스 룩': 'Women\'s Short Puffer & Fleece Look'
     },
     ja: {
+    aiTrustBadgeTitleShort: '公式DB連動',
+    mapViewShort: '🗺️ 地図',
+    listViewShort: '📋 日程リスト',
+    mapViewShort: '🗺️ 地図',
+    listViewShort: '📋 日程リスト',
     openMenu: 'メニュー',
     closeMenu: '閉じる',
       '남녀공용 시티 캐주얼 레이어드 룩': 'ユニセックス シティカジュアルレイヤード',
@@ -3040,6 +3470,11 @@ export function getTranslatedOutfit(outfit, lang = 'ko') {
       '여성 숏 숏패딩 & 뽀글이 플리스 룩': 'ウィメンズ 숏ダウン ＆ ボアフリース'
     },
     zh: {
+    aiTrustBadgeTitleShort: '官方DB联动',
+    mapViewShort: '🗺️ 地图',
+    listViewShort: '📋 行程列表',
+    mapViewShort: '🗺️ 地图',
+    listViewShort: '📋 行程列表',
     openMenu: '菜单',
     closeMenu: '关闭菜单',
       '남녀공용 시티 캐주얼 레이어드 룩': '男女通穿 都市休闲叠穿',
@@ -3052,6 +3487,11 @@ export function getTranslatedOutfit(outfit, lang = 'ko') {
       '여성 숏 숏패딩 & 뽀글이 플리스 룩': '女士短款羽绒服 & 羊羔绒外套'
     },
     zht: {
+    aiTrustBadgeTitleShort: '官方DB連動',
+    mapViewShort: '🗺️ 地圖',
+    listViewShort: '📋 行程列表',
+    mapViewShort: '🗺️ 地圖',
+    listViewShort: '📋 行程列表',
     openMenu: '選單',
     closeMenu: '關閉選單',
       '남녀공용 시티 캐주얼 레이어드 룩': '男女通穿 都市休閒疊穿',
@@ -3067,21 +3507,46 @@ export function getTranslatedOutfit(outfit, lang = 'ko') {
 
   const OUTFIT_SEASON_MAP = {
     en: {
+    aiTrustBadgeTitleShort: 'Official DB',
+    mapViewShort: '🗺️ Map',
+    listViewShort: '📋 Itinerary',
+    mapViewShort: '🗺️ Map',
+    listViewShort: '📋 Itinerary',
     openMenu: 'Menu',
     closeMenu: 'Close Menu', '봄/가을 (18°C ~ 24°C)': 'Spring/Autumn (18°C ~ 24°C)', '여름 / 햇살 강한 날': 'Summer / Sunny Days', '여름 (28°C ~ 33°C)': 'Summer (28°C ~ 33°C)', '겨울 (한파 / 영하 기온)': 'Winter (Freezing Cold)' },
     ja: {
+    aiTrustBadgeTitleShort: '公式DB連動',
+    mapViewShort: '🗺️ 地図',
+    listViewShort: '📋 日程リスト',
+    mapViewShort: '🗺️ 地図',
+    listViewShort: '📋 日程リスト',
     openMenu: 'メニュー',
     closeMenu: '閉じる', '봄/가을 (18°C ~ 24°C)': '春・秋 (18°C ~ 24°C)', '여름 / 햇살 강한 날': '夏 / 晴れた日', '여름 (28°C ~ 33°C)': '夏 (28°C ~ 33°C)', '겨울 (한파 / 영하 기온)': '冬 (極寒・氷点下)' },
     zh: {
+    aiTrustBadgeTitleShort: '官方DB联动',
+    mapViewShort: '🗺️ 地图',
+    listViewShort: '📋 行程列表',
+    mapViewShort: '🗺️ 地图',
+    listViewShort: '📋 行程列表',
     openMenu: '菜单',
     closeMenu: '关闭菜单', '봄/가을 (18°C ~ 24°C)': '春秋 (18°C ~ 24°C)', '여름 / 햇살 강한 날': '夏季 / 阳光强烈', '여름 (28°C ~ 33°C)': '夏季 (28°C ~ 33°C)', '겨울 (한파 / 영하 기온)': '冬季 (严寒 / 零下)' },
     zht: {
+    aiTrustBadgeTitleShort: '官方DB連動',
+    mapViewShort: '🗺️ 地圖',
+    listViewShort: '📋 行程列表',
+    mapViewShort: '🗺️ 地圖',
+    listViewShort: '📋 行程列表',
     openMenu: '選單',
     closeMenu: '關閉選單', '봄/가을 (18°C ~ 24°C)': '春秋 (18°C ~ 24°C)', '여름 / 햇살 강한 날': '夏季 / 陽光強烈', '여름 (28°C ~ 33°C)': '夏季 (28°C ~ 33°C)', '겨울 (한파 / 영하 기온)': '冬季 (嚴寒 / 零下)' }
   };
 
   const OUTFIT_REASON_MAP = {
     en: {
+    aiTrustBadgeTitleShort: 'Official DB',
+    mapViewShort: '🗺️ Map',
+    listViewShort: '📋 Itinerary',
+    mapViewShort: '🗺️ Map',
+    listViewShort: '📋 Itinerary',
     openMenu: 'Menu',
     closeMenu: 'Close Menu',
       '무난하고 세련된 남녀공용 캐주얼 스타일': 'Neat and stylish unisex casual travel style.',
@@ -3090,6 +3555,11 @@ export function getTranslatedOutfit(outfit, lang = 'ko') {
       '인생샷 촬영과 활동성을 모두 잡은 스타일': 'Stylish look ideal for taking great photos and active touring.'
     },
     ja: {
+    aiTrustBadgeTitleShort: '公式DB連動',
+    mapViewShort: '🗺️ 地図',
+    listViewShort: '📋 日程リスト',
+    mapViewShort: '🗺️ 地図',
+    listViewShort: '📋 日程リスト',
     openMenu: 'メニュー',
     closeMenu: '閉じる',
       '무난하고 세련된 남녀공용 캐주얼 스타일': 'シンプルで洗練されたユニセックスカジュアルスタイル。',
@@ -3098,6 +3568,11 @@ export function getTranslatedOutfit(outfit, lang = 'ko') {
       '인생샷 촬영과 활동성을 모두 잡은 스타일': '映え写真撮影と動きやすさを両立したスタイリッシュスタイル。'
     },
     zh: {
+    aiTrustBadgeTitleShort: '官方DB联动',
+    mapViewShort: '🗺️ 地图',
+    listViewShort: '📋 行程列表',
+    mapViewShort: '🗺️ 地图',
+    listViewShort: '📋 行程列表',
     openMenu: '菜单',
     closeMenu: '关闭菜单',
       '무난하고 세련된 남녀공용 캐주얼 스타일': '大方得体的都市通用休闲风格。',
@@ -3106,6 +3581,11 @@ export function getTranslatedOutfit(outfit, lang = 'ko') {
       '인생샷 촬영과 활동성을 모두 잡은 스타일': '兼顾美照拍摄与便利舒适度的时尚穿搭。'
     },
     zht: {
+    aiTrustBadgeTitleShort: '官方DB連動',
+    mapViewShort: '🗺️ 地圖',
+    listViewShort: '📋 行程列表',
+    mapViewShort: '🗺️ 地圖',
+    listViewShort: '📋 行程列表',
     openMenu: '選單',
     closeMenu: '關閉選單',
       '무난하고 세련된 남녀공용 캐주얼 스타일': '大方得體的都市通用休閒風格。',
@@ -3117,6 +3597,11 @@ export function getTranslatedOutfit(outfit, lang = 'ko') {
 
   const ITEM_MAP = {
     en: {
+    aiTrustBadgeTitleShort: 'Official DB',
+    mapViewShort: '🗺️ Map',
+    listViewShort: '📋 Itinerary',
+    mapViewShort: '🗺️ Map',
+    listViewShort: '📋 Itinerary',
     openMenu: 'Menu',
     closeMenu: 'Close Menu',
       '오버핏 셔츠': 'Overfit Shirt', '편안한 슬랙스/데님': 'Comfy Slacks/Denim', '러닝 스니커즈': 'Running Sneakers', '에코백': 'Eco Canvas Tote Bag',
@@ -3125,6 +3610,11 @@ export function getTranslatedOutfit(outfit, lang = 'ko') {
       '가벼운 카디건/크롭 셔츠': 'Light Cardigan/Crop Shirt', '하이웨이스트 슬랙스': 'High-waist Slacks', '쿠션 스니커즈': 'Cushioned Sneakers', '미니 크로스백': 'Mini Crossbody Bag'
     },
     ja: {
+    aiTrustBadgeTitleShort: '公式DB連動',
+    mapViewShort: '🗺️ 地図',
+    listViewShort: '📋 日程リスト',
+    mapViewShort: '🗺️ 地図',
+    listViewShort: '📋 日程リスト',
     openMenu: 'メニュー',
     closeMenu: '閉じる',
       '오버핏 셔츠': 'オーバーサイズシャツ', '편안한 슬랙스/데님': '快適スラックス/デニム', '러닝 스니커즈': 'ランニングスニーカー', '에코백': 'エコバッグ',
@@ -3133,6 +3623,11 @@ export function getTranslatedOutfit(outfit, lang = 'ko') {
       '가벼운 카디건/크롭 셔츠': 'カーディガン/クロップドシャツ', '하이웨이스트 슬랙스': 'ハイウエストスラックス', '쿠션 스니커즈': 'クッションスニーカー', '미니 크로스백': 'ミニクロスバッグ'
     },
     zh: {
+    aiTrustBadgeTitleShort: '官方DB联动',
+    mapViewShort: '🗺️ 地图',
+    listViewShort: '📋 行程列表',
+    mapViewShort: '🗺️ 地图',
+    listViewShort: '📋 行程列表',
     openMenu: '菜单',
     closeMenu: '关闭菜单',
       '오버핏 셔츠': '宽松衬衫', '편안한 슬랙스/데님': '舒适西裤/牛仔裤', '러닝 스니커즈': '跑步慢跑鞋', '에코백': '帆布环保袋',
@@ -3141,6 +3636,11 @@ export function getTranslatedOutfit(outfit, lang = 'ko') {
       '가벼운 카디건/크롭 셔츠': '针织开衫/短款衬衫', '하이웨이스트 슬랙스': '高腰西装裤', '쿠션 스니커즈': '减震运动鞋', '미니 크로스백': '迷你斜挎包'
     },
     zht: {
+    aiTrustBadgeTitleShort: '官方DB連動',
+    mapViewShort: '🗺️ 地圖',
+    listViewShort: '📋 行程列表',
+    mapViewShort: '🗺️ 地圖',
+    listViewShort: '📋 行程列表',
     openMenu: '選單',
     closeMenu: '關閉選單',
       '오버핏 셔츠': '鬆身襯衫', '편안한 슬랙스/데님': '舒適西褲/牛仔褲', '러닝 스니커즈': '跑步慢跑鞋', '에코백': '帆布環保袋',
