@@ -379,12 +379,15 @@ export default function AIChatPromptHeader({ lang = 'ko', filters, onGenerateIti
             {t.heroTitle || '어디로 떠나시나요? 🚀'}
           </h1>
           <p style={{
-            fontSize: isMobile ? '0.78rem' : '0.9rem',
-            fontWeight: 500,
-            color: '#64748b',
-            margin: 0
+            fontSize: isMobile ? '0.8rem' : '0.95rem',
+            fontWeight: 600,
+            color: 'var(--text-muted)',
+            margin: 0,
+            lineHeight: 1.5,
+            wordBreak: 'keep-all',
+            letterSpacing: '-0.01em'
           }}>
-            {t.heroSubtitle || '3초 만에 AI가 찾아주는 나만의 1:1 맞춤 한국 여행 동선'}
+            {t.heroSubtitle || '전국 각지의 숨은 명소부터 최신 핫플레이스까지, 3초 만에 AI가 찾아주는 나만의 한국 여행 동선'}
           </p>
         </div>
 
