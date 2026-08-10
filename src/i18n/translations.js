@@ -1,7 +1,7 @@
 export function detectBrowserLanguage() {
-  if (typeof navigator === 'undefined') return 'ko';
-  const lang = (navigator.language || navigator.userLanguage || 'ko').toLowerCase();
-  if (lang.startsWith('en')) return 'en';
+  if (typeof navigator === 'undefined') return 'en';
+  const lang = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
+  if (lang.startsWith('ko')) return 'ko';
   if (lang.startsWith('ja')) return 'ja';
   if (lang.includes('tw') || lang.includes('hk') || lang.includes('hant')) return 'zht';
   if (lang.startsWith('zh')) return 'zh';
@@ -9,7 +9,9 @@ export function detectBrowserLanguage() {
   if (lang.startsWith('fr')) return 'fr';
   if (lang.startsWith('es')) return 'es';
   if (lang.startsWith('ru')) return 'ru';
-  return 'ko';
+  if (lang.startsWith('en')) return 'en';
+  // All other non-supported languages (e.g. vi, th, ar, pt, it, etc.) -> Default to 'en' (English)
+  return 'en';
 }
 
 export function getMapSearchBtnLabel(foodName, lang = 'ko') {

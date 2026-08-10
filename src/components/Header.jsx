@@ -222,8 +222,36 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
             </div>
           </div>
 
-          {/* Right Container: Menu Toggle Accordion Button ONLY */}
+          {/* Right Container: Language Selector (Always Visible) & Menu Toggle Button */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexShrink: 0 }}>
+            {/* 100% Always-Visible Language Selector in Row 1 Header */}
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', position: 'relative' }}>
+              <Globe size={15} style={{ color: themeMode === 'light' ? '#0284c7' : '#38bdf8', flexShrink: 0 }} />
+              <select 
+                value={currentLang} 
+                onChange={(e) => setLang(e.target.value)} 
+                className="header-lang-select" 
+                style={{ 
+                  background: themeMode === 'light' ? '#ffffff' : 'rgba(30, 41, 59, 0.95)', 
+                  color: themeMode === 'light' ? '#0f172a' : '#ffffff', 
+                  border: themeMode === 'light' ? '1px solid #cbd5e1' : '1px solid rgba(255, 255, 255, 0.25)', 
+                  padding: '0.35rem 0.5rem', 
+                  borderRadius: 'var(--radius-md)', 
+                  fontSize: '0.78rem', 
+                  fontWeight: 800, 
+                  cursor: 'pointer', 
+                  outline: 'none',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                }}
+              >
+                {LANGUAGE_OPTIONS.map(opt => (
+                  <option key={opt.value} value={opt.value} style={{ background: themeMode === 'light' ? '#ffffff' : '#1e293b', color: themeMode === 'light' ? '#0f172a' : '#ffffff' }}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <button
               onClick={() => setIsMenuOpen(prev => !prev)}
               style={{
@@ -255,7 +283,7 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
           </div>
         </div>
 
-        {/* Row 2: Collapsible Menu Bar (Language Select + Guide, Share, Wishlist, DarkMode inside) */}
+        {/* Row 2: Collapsible Menu Bar (Guide, Share, Wishlist, DarkMode inside) */}
         <div style={{
           maxHeight: isMenuOpen ? '250px' : '0px',
           overflow: 'hidden',
@@ -277,33 +305,6 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
             border: themeMode === 'light' ? '1px solid #cbd5e1' : '1px solid rgba(255, 255, 255, 0.15)',
             boxSizing: 'border-box'
           }}>
-            {/* Language Selector Inside Menu Box */}
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', position: 'relative' }}>
-              <Globe size={14} style={{ color: themeMode === 'light' ? '#0284c7' : '#38bdf8', flexShrink: 0 }} />
-              <select 
-                value={currentLang} 
-                onChange={(e) => setLang(e.target.value)} 
-                className="header-lang-select" 
-                style={{ 
-                  background: themeMode === 'light' ? 'var(--bg-secondary)' : '#1e293b', 
-                  color: themeMode === 'light' ? '#0f172a' : '#ffffff', 
-                  border: themeMode === 'light' ? '1px solid #cbd5e1' : '1px solid rgba(255, 255, 255, 0.25)', 
-                  padding: '0.35rem 0.6rem', 
-                  borderRadius: 'var(--radius-md)', 
-                  fontSize: '0.78rem', 
-                  fontWeight: 700, 
-                  cursor: 'pointer', 
-                  outline: 'none',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
-                }}
-              >
-                {LANGUAGE_OPTIONS.map(opt => (
-                  <option key={opt.value} value={opt.value} style={{ background: themeMode === 'light' ? '#ffffff' : '#1e293b', color: themeMode === 'light' ? '#0f172a' : '#ffffff' }}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            </div>
             <button onClick={onOpenGuidePR} style={{ background: themeMode === 'light' ? 'var(--bg-secondary)' : 'rgba(30, 41, 59, 0.95)', border: themeMode === 'light' ? '1px solid var(--border-highlight)' : '1px solid rgba(56, 189, 248, 0.5)', color: themeMode === 'light' ? 'var(--text-main)' : '#ffffff', padding: '0.35rem 0.7rem', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem', transition: 'all 0.2s ease' }}>
               <BookOpen size={14} color={themeMode === 'light' ? 'var(--accent-primary)' : '#38bdf8'} />
               <span>{t.userGuideBtn || '이용가이드 & 홍보관'}</span>
