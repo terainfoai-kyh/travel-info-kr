@@ -56,6 +56,34 @@
   --shadow-glow: 0 0 20px rgba(0, 113, 227, 0.15);
 }
 
+[data-theme="dark"] {
+  --bg-primary: #0b1329;
+  --bg-secondary: #162039;
+  --bg-card: #162039;
+  --bg-glass: rgba(15, 23, 42, 0.88);
+
+  --accent-primary: #38bdf8;
+  --accent-hover: #0ea5e9;
+  --accent-gradient: linear-gradient(135deg, #0284c7 0%, #7c3aed 100%);
+  --accent-glow: radial-gradient(circle, rgba(56, 189, 248, 0.2) 0%, transparent 70%);
+
+  --text-main: #f8fafc;
+  --text-muted: #cbd5e1;
+  --text-dim: #94a3b8;
+
+  --border-color: rgba(255, 255, 255, 0.12);
+  --border-highlight: rgba(56, 189, 248, 0.4);
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-glow: 0 0 20px rgba(56, 189, 248, 0.25);
+}
+
+/* Ensure Headings & Text Always Inherit Theme Variable */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-main);
+}
+
 /* Apple-Style Ambient Minimalist Slate Background System */
 .k-aurora-bg {
   position: fixed;

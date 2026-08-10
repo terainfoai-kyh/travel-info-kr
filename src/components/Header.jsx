@@ -317,14 +317,14 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
                 onClick={() => scrollToSection(item.id)}
                 style={{
                   background: isActive
-                    ? (themeMode === 'light' ? 'linear-gradient(135deg, #0284c7, #4f46e5)' : 'linear-gradient(135deg, rgba(56, 189, 248, 0.22), rgba(168, 85, 247, 0.28))')
-                    : (themeMode === 'light' ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.03)'),
+                    ? (themeMode === 'light' ? 'linear-gradient(135deg, #0284c7, #4f46e5)' : 'linear-gradient(135deg, #0284c7, #7c3aed)')
+                    : (themeMode === 'light' ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.12)'),
                   color: isActive
                     ? '#ffffff'
-                    : (themeMode === 'light' ? '#1e293b' : 'var(--text-main)'),
+                    : (themeMode === 'light' ? '#1e293b' : '#f8fafc'),
                   border: isActive
-                    ? (themeMode === 'light' ? '1px solid #0284c7' : '1px solid rgba(168, 85, 247, 0.5)')
-                    : (themeMode === 'light' ? '1px solid rgba(0, 0, 0, 0.12)' : '1px solid rgba(255, 255, 255, 0.06)'),
+                    ? (themeMode === 'light' ? '1px solid #0284c7' : '1px solid #38bdf8')
+                    : (themeMode === 'light' ? '1px solid rgba(0, 0, 0, 0.12)' : '1px solid rgba(255, 255, 255, 0.18)'),
                   padding: '0.35rem 0.85rem',
                   borderRadius: 'var(--radius-full)',
                   fontSize: '0.78rem',
@@ -339,19 +339,19 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
                 }}
                 onMouseEnter={(e) => {
                   if (!isActive) {
-                    e.currentTarget.style.color = themeMode === 'light' ? '#0284c7' : 'var(--text-main)';
-                    e.currentTarget.style.background = themeMode === 'light' ? 'rgba(2, 132, 199, 0.1)' : 'rgba(255, 255, 255, 0.08)';
+                    e.currentTarget.style.color = themeMode === 'light' ? '#0284c7' : '#38bdf8';
+                    e.currentTarget.style.background = themeMode === 'light' ? 'rgba(2, 132, 199, 0.1)' : 'rgba(255, 255, 255, 0.18)';
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!isActive) {
-                    e.currentTarget.style.color = themeMode === 'light' ? '#1e293b' : 'var(--text-main)';
-                    e.currentTarget.style.background = themeMode === 'light' ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.03)';
+                    e.currentTarget.style.color = themeMode === 'light' ? '#1e293b' : '#f8fafc';
+                    e.currentTarget.style.background = themeMode === 'light' ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.12)';
                   }
                 }}
               >
-                <Icon size={14} style={{ color: isActive ? '#ffffff' : (themeMode === 'light' ? '#0284c7' : 'var(--accent-primary)') }} />
-                <span>{item.label}</span>
+                <Icon size={14} style={{ color: isActive ? '#ffffff' : (themeMode === 'light' ? '#0284c7' : '#38bdf8') }} />
+                <span style={{ color: isActive ? '#ffffff' : (themeMode === 'light' ? '#1e293b' : '#f8fafc') }}>{item.label}</span>
               </button>
             );
           })}
