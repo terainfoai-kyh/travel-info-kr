@@ -20,6 +20,7 @@ import PartnerInquiryModal from './components/PartnerInquiryModal';
 import SplashScreen from './components/SplashScreen';
 import CustomCourseFloatingBar from './components/CustomCourseFloatingBar';
 import GuidePRModal from './components/GuidePRModal';
+import AIChatPromptHeader from './components/AIChatPromptHeader';
 
 export default function App() {
   // Auto-detect browser locale
@@ -249,6 +250,17 @@ export default function App() {
 
       {/* Main Container */}
       <main style={{ maxWidth: '1280px', width: '100%', margin: '0 auto', padding: '0 1.5rem 0.5rem 1.5rem', flex: 1, position: 'relative', zIndex: 1 }}>
+        {/* Conversational & Voice AI Prompt Header */}
+        <AIChatPromptHeader 
+          lang={lang} 
+          onGenerateItinerary={(parsed) => {
+            if (parsed.region) {
+              setFilters(prev => ({ ...prev, region: parsed.region, keyword: parsed.keyword || prev.keyword }));
+            }
+            setIsItineraryOpen(true);
+          }} 
+        />
+
         {/* Search Conditions Input */}
         <SearchFilterForm
           filters={filters}

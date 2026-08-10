@@ -31,6 +31,12 @@ export const TRANSLATIONS = {
   ko: {
     title: 'K-Travel AI | 대한민국 스마트 여행 가이드',
     subtitle: '✨ AI가 안내하는 실시간 날씨 · 맞춤 명소 · 맛집 & 코디',
+    heroTitle: '3초 만에 AI가 완성하는 1:1 맞춤 한국 여행 🚀',
+    heroSubtitle: '자유롭게 대화하거나 말로 적어주시면 AI가 최적의 동선을 만들어 드립니다 🎙️',
+    aiPromptPlaceholder: "예: '친구랑 서울 성수동 카페 & 맛집 포함 1박 2일 코스 알려줘' 💬",
+    voiceBtnTooltip: '음성 인식 시작 🎙️',
+    voiceListening: '말씀하세요... 🎧 (실시간 음성 인식 중)',
+    instaHashtagLabel: '📸 인스타 핫플 인생샷 ↗',
     splashTitle: '🇰🇷 K-Travel AI',
     splashSub: '대한민국 스마트 여행 가이드',
     splashSkip: '건너뛰기 ➔',
