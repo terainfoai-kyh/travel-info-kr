@@ -38,8 +38,9 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
       const shareTitle = `K-Travel AI | 대한민국 스마트 여행 가이드`;
       const shareText = `✈️ AI 맞춤 [${regionName} / ${themeName}] 여행 가이드! ☀️ 실시간 날씨 & 추천 코스:`;
 
-      // Try Native Web Share API (KakaoTalk, Instagram, Messages on mobile)
-      if (navigator.share) {
+      // Try Native Web Share API ONLY on mobile devices (prevents Windows Desktop Chrome hangs)
+      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      if (isMobileDevice && navigator.share) {
         try {
           await navigator.share({
             title: shareTitle,
@@ -129,7 +130,7 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
     }
     const elem = document.getElementById(id);
     if (elem) {
-      const yOffset = window.innerWidth <= 768 ? -180 : -220;
+      const yOffset = window.innerWidth <= 768 ? -145 : -210;
       const y = elem.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({ top: y, behavior: 'smooth' });
     }
@@ -159,12 +160,15 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
         alignItems: 'center',
         justifyContent: 'space-between',
         flexWrap: 'wrap',
-        gap: '0.75rem',
-        width: '100%'
+        gap: '0.5rem 0.75rem',
+        width: '100%',
+        maxWidth: '1280px',
+        margin: '0 auto',
+        boxSizing: 'border-box'
       }}>
         {/* Brand Title */}
-        <div className="header-brand" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <div className="header-logo" style={{
+        <div className="header-brand" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 1, minWidth: 0 }}>
+          <div className="header-logo" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{
             width: '46px',
             height: '46px',
             borderRadius: '12px',
@@ -180,7 +184,7 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
           }}>
             <img src="/logo.png" alt="K-Travel Logo" style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scale(1.1)' }} />
           </div>
-          <div>
+          <div style={{ flexShrink: 1, minWidth: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <h1 style={{ fontSize: '1.2rem', fontWeight: 800, lineHeight: 1.1 }} className="gradient-text header-title">
                 <span className="desktop-title-text">{t.title}</span>
@@ -198,7 +202,8 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '0.3rem',
-                  boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)'
+                  boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                  flexShrink: 0
                 }}
               >
                 <span className="live-ai-pulse-dot" />
@@ -206,7 +211,7 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
               </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.2rem', flexWrap: 'wrap' }}>
-              <p className="header-subtitle" style={{ fontSize: '0.73rem', color: themeMode === 'light' ? '#334155' : 'var(--text-muted)', fontWeight: 600, margin: 0 }}>
+              <p className="header-subtitle" style={{ fontSize: '0.73rem', color: themeMode === 'light' ? '#334155' : 'var(--text-muted)', fontWeight: 600, margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {t.subtitle}
               </p>
               {filters && (
@@ -224,7 +229,7 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
         </div>
 
         {/* Action Controls */}
-        <div className="header-controls" style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
+        <div className="header-controls" style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap', justifyContent: 'flex-end', flexShrink: 1, maxWidth: '100%' }}>
           {/* User Guide & PR Hub Button */}
           <button
             onClick={onOpenGuidePR}

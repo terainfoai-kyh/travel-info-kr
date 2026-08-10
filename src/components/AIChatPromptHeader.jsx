@@ -60,8 +60,13 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary })
   const [promptText, setPromptText] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [isSpeechSupported, setIsSpeechSupported] = useState(true);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const recognitionRef = useRef(null);
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -142,10 +147,10 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary })
       {isScrolled && (
         <div style={{
           position: 'fixed',
-          top: '128px',
+          top: isMobile ? '84px' : '124px',
           left: '50%',
           transform: 'translateX(-50%)',
-          width: '92%',
+          width: isMobile ? '95%' : '92%',
           maxWidth: '680px',
           zIndex: 9999,
           transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
