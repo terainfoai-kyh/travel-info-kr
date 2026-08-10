@@ -154,9 +154,10 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
       padding: isMobile ? '0.4rem 0.5rem' : '0.65rem 1rem',
       boxSizing: 'border-box',
       borderBottom: '1px solid var(--border-color)',
-      background: themeMode === 'light' ? 'rgba(255, 255, 255, 0.96)' : 'rgba(15, 23, 42, 0.95)',
+      background: themeMode === 'light' ? '#f1f5f9' : 'rgba(15, 23, 42, 0.95)',
       backdropFilter: 'blur(16px)',
-      WebkitBackdropFilter: 'blur(16px)'
+      WebkitBackdropFilter: 'blur(16px)',
+      boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)'
     }}>
       <div style={{
         width: '100%',
@@ -167,32 +168,34 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
         gap: isMobile ? '0.35rem' : '0.5rem',
         boxSizing: 'border-box'
       }}>
+        {/* Row 1: Brand Logo + Title + LIVE AI (Left) & Language Selector (Far Right) */}
         <div className="header-brand-row" style={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'flex-start',
+          justifyContent: 'space-between',
           gap: '0.75rem',
           flexWrap: 'wrap',
           width: '100%'
         }}>
-          <div className="header-logo" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{
-            width: '46px',
-            height: '46px',
-            borderRadius: '12px',
-            overflow: 'hidden',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 4px 14px rgba(56, 189, 248, 0.35)',
-            border: '2px solid rgba(56, 189, 248, 0.5)',
-            background: '#ffffff',
-            flexShrink: 0,
-            cursor: 'pointer'
-          }}>
-            <img src="/logo.png" alt="K-Travel Logo" style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scale(1.1)' }} />
-          </div>
-          <div style={{ flexShrink: 1, minWidth: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 1, minWidth: 0 }}>
+            <div className="header-logo" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{
+              width: '42px',
+              height: '42px',
+              borderRadius: '12px',
+              overflow: 'hidden',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 4px 14px rgba(56, 189, 248, 0.35)',
+              border: '2px solid rgba(56, 189, 248, 0.5)',
+              background: '#ffffff',
+              flexShrink: 0,
+              cursor: 'pointer'
+            }}>
+              <img src="/logo.png" alt="K-Travel Logo" style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scale(1.1)' }} />
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
               <h1 style={{ fontSize: '1.2rem', fontWeight: 800, lineHeight: 1.1, margin: 0 }} className="gradient-text">
                 <span className="desktop-title-text">{t.title}</span>
                 <span className="mobile-title-text">K-Travel AI</span>
@@ -213,11 +216,6 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
                 <span className="live-ai-pulse-dot" />
                 LIVE AI
               </span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.2rem', flexWrap: 'wrap' }}>
-              <p style={{ fontSize: '0.73rem', color: themeMode === 'light' ? '#334155' : '#93c5fd', fontWeight: 700, margin: 0 }}>
-                {t.subtitle}
-              </p>
               {filters && (
                 <div style={{ display: 'inline-flex', gap: '0.35rem', flexWrap: 'wrap' }}>
                   <span style={{ fontSize: '0.7rem', background: themeMode === 'light' ? 'rgba(56, 189, 248, 0.18)' : 'rgba(56, 189, 248, 0.25)', border: '1px solid rgba(56, 189, 248, 0.4)', padding: '0.12rem 0.45rem', borderRadius: '4px', color: themeMode === 'light' ? '#0284c7' : '#38bdf8', fontWeight: 800 }}>
@@ -230,8 +228,21 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
               )}
             </div>
           </div>
+
+          {/* Row 1 Far Right: Language Selector */}
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', position: 'relative' }}>
+            <Globe size={15} style={{ color: themeMode === 'light' ? 'var(--accent-primary)' : '#38bdf8', flexShrink: 0 }} />
+            <select value={currentLang} onChange={(e) => setLang(e.target.value)} className="header-lang-select" style={{ background: themeMode === 'light' ? 'var(--bg-card)' : '#1e293b', color: themeMode === 'light' ? 'var(--text-main)' : '#ffffff', border: themeMode === 'light' ? '1px solid var(--border-color)' : '1px solid rgba(255, 255, 255, 0.25)', padding: '0.35rem 0.6rem', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', outline: 'none', transition: 'all 0.2s ease' }}>
+              {LANGUAGE_OPTIONS.map(opt => (
+                <option key={opt.value} value={opt.value} style={{ background: themeMode === 'light' ? '#ffffff' : '#1e293b', color: themeMode === 'light' ? '#0f172a' : '#ffffff' }}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
+        {/* Row 2: Header Controls Aligned Far Left (Guide, Share, Wishlist, DarkMode - AI Course Button Deleted) */}
         <div className="header-controls" style={{
           display: 'flex',
           alignItems: 'center',
@@ -239,27 +250,21 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
           gap: '0.45rem',
           flexWrap: 'wrap',
           width: '100%',
-          paddingLeft: isMobile ? 0 : '58px',
           boxSizing: 'border-box'
         }}>
-          <button onClick={onOpenGuidePR} style={{ background: themeMode === 'light' ? 'var(--bg-secondary)' : 'rgba(30, 41, 59, 0.95)', border: themeMode === 'light' ? '1px solid var(--border-highlight)' : '1px solid rgba(56, 189, 248, 0.5)', color: themeMode === 'light' ? 'var(--text-main)' : '#ffffff', padding: '0.4rem 0.75rem', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem', transition: 'all 0.2s ease' }}>
+          <button onClick={onOpenGuidePR} style={{ background: themeMode === 'light' ? 'var(--bg-card)' : 'rgba(30, 41, 59, 0.95)', border: themeMode === 'light' ? '1px solid var(--border-highlight)' : '1px solid rgba(56, 189, 248, 0.5)', color: themeMode === 'light' ? 'var(--text-main)' : '#ffffff', padding: '0.4rem 0.75rem', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem', transition: 'all 0.2s ease' }}>
             <BookOpen size={14} color={themeMode === 'light' ? 'var(--accent-primary)' : '#38bdf8'} />
             <span>{t.userGuideBtn || '이용가이드 & 홍보관'}</span>
           </button>
 
-          <button onClick={handleShare} style={{ background: themeMode === 'light' ? 'var(--bg-secondary)' : 'rgba(30, 41, 59, 0.95)', border: themeMode === 'light' ? '1px solid var(--border-color)' : '1px solid rgba(255, 255, 255, 0.25)', color: themeMode === 'light' ? 'var(--text-main)' : '#ffffff', padding: '0.4rem 0.75rem', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+          <button onClick={handleShare} style={{ background: themeMode === 'light' ? 'var(--bg-card)' : 'rgba(30, 41, 59, 0.95)', border: themeMode === 'light' ? '1px solid var(--border-color)' : '1px solid rgba(255, 255, 255, 0.25)', color: themeMode === 'light' ? 'var(--text-main)' : '#ffffff', padding: '0.4rem 0.75rem', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
             {showToast ? <Check size={14} color="#10b981" /> : <Share2 size={14} color={themeMode === 'light' ? 'var(--accent-primary)' : '#38bdf8'} />}
-            <span>{showToast ? (t.copiedToast || '복사 완료!') : (t.shareBtn || '공유')}</span>
+            <span>{showToast ? (t.copiedToast || '복사 완료!') : (t.shareBtn || '여행 조건 공유')}</span>
           </button>
 
-          <button onClick={onOpenItinerary} style={{ background: 'var(--accent-gradient)', color: '#ffffff', border: 'none', padding: '0.4rem 0.8rem', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem', boxShadow: '0 3px 12px rgba(37, 99, 235, 0.3)', transition: 'all 0.2s ease' }} title={t.aiFloatBadge || "AI 맞춤 여행 동선 코스 추천받기"}>
-            <Sparkles size={14} />
-            <span>{t.aiCourseBtn || 'AI 코스 추천'}</span>
-          </button>
-
-          <button onClick={onOpenWishlist} style={{ background: themeMode === 'light' ? 'var(--bg-secondary)' : 'rgba(30, 41, 59, 0.95)', border: themeMode === 'light' ? '1px solid var(--border-color)' : '1px solid rgba(255, 255, 255, 0.25)', color: themeMode === 'light' ? 'var(--text-main)' : '#ffffff', padding: '0.4rem 0.7rem', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem', position: 'relative' }}>
+          <button onClick={onOpenWishlist} style={{ background: themeMode === 'light' ? 'var(--bg-card)' : 'rgba(30, 41, 59, 0.95)', border: themeMode === 'light' ? '1px solid var(--border-color)' : '1px solid rgba(255, 255, 255, 0.25)', color: themeMode === 'light' ? 'var(--text-main)' : '#ffffff', padding: '0.4rem 0.7rem', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem', position: 'relative' }}>
             <Heart size={15} fill={wishlistCount > 0 ? "#ef4444" : "none"} color={wishlistCount > 0 ? "#ef4444" : (themeMode === 'light' ? 'currentColor' : '#ffffff')} />
-            <span>{t.wishlistBtn || '찜'}</span>
+            <span>{t.wishlistBtn || '찜목록'}</span>
             {wishlistCount > 0 && (
               <span style={{ background: '#ef4444', color: '#ffffff', fontSize: '0.68rem', fontWeight: 800, padding: '0.08rem 0.35rem', borderRadius: '999px' }}>{wishlistCount}</span>
             )}
@@ -278,17 +283,6 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
               </>
             )}
           </button>
-
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', position: 'relative' }}>
-            <Globe size={15} style={{ color: themeMode === 'light' ? 'var(--accent-primary)' : '#38bdf8', flexShrink: 0 }} />
-            <select value={currentLang} onChange={(e) => setLang(e.target.value)} className="header-lang-select" style={{ background: themeMode === 'light' ? 'var(--bg-secondary)' : '#1e293b', color: themeMode === 'light' ? 'var(--text-main)' : '#ffffff', border: themeMode === 'light' ? '1px solid var(--border-color)' : '1px solid rgba(255, 255, 255, 0.25)', padding: '0.35rem 0.6rem', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', outline: 'none', transition: 'all 0.2s ease' }}>
-              {LANGUAGE_OPTIONS.map(opt => (
-                <option key={opt.value} value={opt.value} style={{ background: themeMode === 'light' ? '#ffffff' : '#1e293b', color: themeMode === 'light' ? '#0f172a' : '#ffffff' }}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
         </div>
 
         {/* Row 3: Sticky Quick Navigation Tabs Bar (58px Left-Indented Alignment) */}

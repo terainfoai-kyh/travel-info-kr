@@ -366,27 +366,33 @@ export default function AIChatPromptHeader({ lang = 'ko', filters, onGenerateIti
       }}>
         {/* Title Header */}
         <div style={{ textAlign: 'center', marginBottom: isMobile ? '0.65rem' : '1.25rem' }}>
+          <p style={{
+            fontSize: isMobile ? '0.78rem' : '0.88rem',
+            fontWeight: 700,
+            color: '#0284c7',
+            background: 'rgba(56, 189, 248, 0.12)',
+            border: '1px solid rgba(56, 189, 248, 0.3)',
+            padding: '0.22rem 0.75rem',
+            borderRadius: '9999px',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+            margin: '0 0 0.4rem 0'
+          }}>
+            <Sparkles size={13} color="#0284c7" />
+            <span>{t.subtitle || '✨ AI가 안내하는 실시간 날씨 · 맞춤 명소 · 맛집 & 코디'}</span>
+          </p>
+
           <h1 style={{
-            fontSize: isMobile ? '1.3rem' : '1.75rem',
+            fontSize: isMobile ? '1.35rem' : '1.85rem',
             fontWeight: 900,
             color: '#0f172a',
-            margin: isMobile ? '0 0 0.2rem 0' : '0 0 0.4rem 0',
+            margin: 0,
             letterSpacing: '-0.02em',
             lineHeight: 1.25
           }}>
             {t.heroTitle || '어디로 떠나시나요? 🚀'}
           </h1>
-          <p style={{
-            fontSize: isMobile ? '0.8rem' : '0.95rem',
-            fontWeight: 600,
-            color: '#334155',
-            margin: 0,
-            lineHeight: 1.5,
-            wordBreak: 'keep-all',
-            letterSpacing: '-0.01em'
-          }}>
-            {t.heroSubtitle || '전국 각지의 숨은 명소부터 최신 핫플레이스까지, 3초 만에 AI가 찾아주는 나만의 한국 여행 동선'}
-          </p>
         </div>
 
         {/* Mobile-Optimized Sleek Pill Search Bar */}
