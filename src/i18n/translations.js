@@ -29,6 +29,9 @@ export function getMapSearchBtnLabel(foodName, lang = 'ko') {
 
 export const TRANSLATIONS = {
   ko: {
+    openGoogleRoute: '🗺️ 구글지도 경로연결',
+    openKakaoRoute: '💛 카카오맵 길찾기',
+    openNaverRoute: '💚 네이버지도 길찾기',
     aiTrustBadgeTitleShort: '공식 DB 연동',
     mapViewShort: '🗺️ 지도',
     listViewShort: '📋 일정 목록',
@@ -338,6 +341,9 @@ export const TRANSLATIONS = {
     swapSpotBtn: '다른 장소 추천 🔄',
     regenerateItineraryBtn: 'AI 코스 다시 추천 🔄',
     spotTitles: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -381,6 +387,9 @@ export const TRANSLATIONS = {
     },
     genders: { '무관': '무관', '남성': '남성', '여성': '여성' },
     ages: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -389,6 +398,9 @@ export const TRANSLATIONS = {
     openMenu: 'Menú',
     closeMenu: 'Cerrar', '전체': '전체', '10대': '10대', '20대': '20대', '30대': '30대', '40대': '40대', '50대': '50대', '50대이상': '50대', '60대이상': '60대 이상' },
     themes: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -408,6 +420,9 @@ export const TRANSLATIONS = {
       '비': '비', '비/눈': '비 또는 눈', '눈': '눈', '소나기': '소나기'
     },
     apiServices: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -423,6 +438,9 @@ export const TRANSLATIONS = {
     }
   },
   en: {
+    openGoogleRoute: '🗺️ Google Maps Route',
+    openKakaoRoute: '💛 KakaoMap Directions',
+    openNaverRoute: '💚 Naver Map Directions',
     aiTrustBadgeTitleShort: 'Official DB',
     mapViewShort: '🗺️ Map',
     listViewShort: '📋 Itinerary',
@@ -722,6 +740,9 @@ export const TRANSLATIONS = {
     esimBannerSub: 'Instant delivery for Korea data eSIM & K-Pass for travelers',
     adSponsoredTag: 'Sponsored Partner / Ad',
     spotTitles: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -752,6 +773,9 @@ export const TRANSLATIONS = {
     },
     genders: { '무관': 'Any', '남성': 'Male', '여성': 'Female' },
     ages: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -760,6 +784,9 @@ export const TRANSLATIONS = {
     openMenu: 'Menú',
     closeMenu: 'Cerrar', '전체': 'All Ages', '10대': 'Teens (10s)', '20대': '20s', '30대': '30s', '40대': '40s', '50대': '50s', '50대이상': '50s', '60대이상': '60s & Above' },
     themes: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -779,6 +806,9 @@ export const TRANSLATIONS = {
       '비': 'Rain', '비/눈': 'Rain / Snow', '눈': 'Snow', '소나기': 'Shower'
     },
     apiServices: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -794,6 +824,9 @@ export const TRANSLATIONS = {
     }
   },
   ja: {
+    openGoogleRoute: '🗺️ Googleマップルート',
+    openKakaoRoute: '💛 Kakaoマップ道案内',
+    openNaverRoute: '💚 Naverマップ道案内',
     aiTrustBadgeTitleShort: '公式DB連動',
     mapViewShort: '🗺️ 地図',
     listViewShort: '📋 日程リスト',
@@ -1058,6 +1091,9 @@ export const TRANSLATIONS = {
     kkdayTicketBtn: 'KKday アクティビティ予約',
     aiMatchingLabel: 'AI マッチング',
     spotTitles: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -1088,6 +1124,9 @@ export const TRANSLATIONS = {
     },
     genders: { '무관': '指定なし', '남성': '男性', '여성': '女性' },
     ages: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -1096,6 +1135,9 @@ export const TRANSLATIONS = {
     openMenu: 'Menú',
     closeMenu: 'Cerrar', '전체': '全年代', '10대': '10代', '20대': '20代', '30대': '30代', '40대': '40代', '50대': '50代', '50대이상': '50代', '60대이상': '60代以上' },
     themes: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -1115,6 +1157,9 @@ export const TRANSLATIONS = {
       '비': '雨', '비/눈': '雨または雪', '눈': '雪', '소나기': 'にわか雨'
     },
     apiServices: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -1130,6 +1175,9 @@ export const TRANSLATIONS = {
     }
   },
   zh: {
+    openGoogleRoute: '🗺️ 谷歌地图路线',
+    openKakaoRoute: '💛 Kakao地图导航',
+    openNaverRoute: '💚 Naver地图导航',
     aiTrustBadgeTitleShort: '官方DB联动',
     mapViewShort: '🗺️ 地图',
     listViewShort: '📋 行程列表',
@@ -1414,6 +1462,9 @@ export const TRANSLATIONS = {
     kkdayTicketBtn: '预订 KKday 活动体验',
     aiMatchingLabel: 'AI 匹配',
     spotTitles: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -1444,6 +1495,9 @@ export const TRANSLATIONS = {
     },
     genders: { '무관': '不限', '남성': '男性', '여성': '女性' },
     ages: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -1452,6 +1506,9 @@ export const TRANSLATIONS = {
     openMenu: 'Menú',
     closeMenu: 'Cerrar', '전체': '不限', '10대': '10多岁', '20대': '20多岁', '30대': '30多岁', '40대': '40多岁', '50대': '50多岁', '50대이상': '50多岁', '60대이상': '60岁以上' },
     themes: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -1471,6 +1528,9 @@ export const TRANSLATIONS = {
       '비': '降雨', '비/눈': '雨夹雪', '눈': '降雪', '소나기': '阵雨'
     },
     apiServices: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -1486,6 +1546,9 @@ export const TRANSLATIONS = {
     }
   },
   zht: {
+    openGoogleRoute: '🗺️ 谷歌地圖路線',
+    openKakaoRoute: '💛 Kakao地圖導航',
+    openNaverRoute: '💚 Naver地圖導航',
     aiTrustBadgeTitleShort: '官方DB連動',
     mapViewShort: '🗺️ 地圖',
     listViewShort: '📋 行程列表',
@@ -1752,6 +1815,9 @@ export const TRANSLATIONS = {
     kkdayTicketBtn: '預訂 KKday 活動體驗',
     aiMatchingLabel: 'AI 匹配',
     spotTitles: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -1782,6 +1848,9 @@ export const TRANSLATIONS = {
     },
     genders: { '무관': '不限', '남성': '男性', '여성': '女性' },
     ages: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -1790,6 +1859,9 @@ export const TRANSLATIONS = {
     openMenu: 'Menú',
     closeMenu: 'Cerrar', '전체': '不限', '10대': '10多歲', '20대': '20多歲', '30대': '30多歲', '40대': '40多歲', '50대': '50多歲', '50대이상': '50多歲', '60대이상': '60歲以上' },
     themes: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -1809,6 +1881,9 @@ export const TRANSLATIONS = {
       '비': '降雨', '비/눈': '雨夾雪', '눈': '降雪', '소나기': '陣雨'
     },
     apiServices: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -1824,6 +1899,9 @@ export const TRANSLATIONS = {
     }
   },
   de: {
+    openGoogleRoute: '🗺️ Google Maps Route',
+    openKakaoRoute: '💛 KakaoMap Route',
+    openNaverRoute: '💚 Naver Map Route',
     aiTrustBadgeTitleShort: 'Offizielle DB',
     mapViewShort: '🗺️ Karte',
     listViewShort: '📋 Ablauf',
@@ -1971,6 +2049,9 @@ export const TRANSLATIONS = {
     filterSummary: 'Filterbedingungen', keywordLabel: 'Schlüsselwort', searchTitle: 'Reisebedingungen Anpassen', period: 'Reisezeitraum', keyword: 'Suchbegriff', keywordPlaceholder: 'Attraktion, Stadt, Tag (#Sonnenaufgang, #Date)...', region: 'Region', theme: 'Thema', age: 'Altersgruppe', gender: 'Geschlecht', arrange: 'Sortierung', arrangeO: 'Alphabetisch', arrangeQ: 'Zuletzt Aktualisiert', arrangeR: 'Neueste', apiServiceTypeLabel: 'API-Diensttyp', searchBtn: 'Reiseinfos Suchen', weatherTitle: 'Echtzeit-Wetterinformationen', weatherTempLabel: 'Aktuelle Temperatur', weatherPopLabel: 'Niederschlagswahrscheinlichkeit', midTermTitle: 'Wettervorhersage (3-7 Tage)', dayOffsetLabel: 'Tage Vorhersage', tourTitle: 'Empfohlene Sehenswürdigkeiten in Korea', totalSpots: 'Insgesamt {count} Orte', page: 'Seite', foodTitle: 'Empfohlene Kulinarik', outfitTitle: 'Kleidungsempfehlungen & Dresscode', customConditionLabel: 'Filter', mapTitle: 'Karte Anzeigen', viewOnGoogleMaps: 'Auf Google Maps anzeigen', noCoordinates: 'Keine Koordinaten verfügbar.', countryBadge: 'Südkorea', detailTitle: 'Details', overviewLoading: 'Lädt offizielle Daten der Korea Tourism Organization...', defaultOverview: 'Offiziell registrierte Attraktion der Korea Tourism Organization.', officialWebsite: 'Offizielle Website besuchen ↗', noOfficialWebsite: 'Keine offizielle Website angegeben.', telInquiry: 'Telefonischer Kontakt', hoursLabel: 'Öffnungszeiten', hoursDefault: '09:00 - 18:00 (Montags geschlossen)', contactLabel: 'Kontakt', contactDefault: 'Tourist Information 1330', websiteLabel: 'Website', websiteLoading: 'Link wird geprüft...', visitOfficialWebsite: 'Offizielle Website besuchen', seasonLabel: 'Beste Reisezeit', seasonDefault: 'Frühling & Herbst (Ganzjährig geöffnet)', highlightsTitle: 'Highlights der Attraktion', highlightsBullets: ['Offiziell zertifizierte Attraktion von KTO TourAPI', 'Verbindung zu lokalen Kulinarik- und Café-Routen', 'Wunderschöne Fotospots und Aussichtspunkte', 'Gute Anbindung an öffentliche Verkehrsmittel'], galleryTitle: 'Fotogalerie', photosUnit: 'Fotos', mapSearchTitle: 'Karte & Route', googleMapRoute: 'Route auf Google Maps anzeigen', reviewsTitle: 'Bewertungen', reviewsUnit: 'Bewertungen', writeReviewLabel: 'Bewertung schreiben', reviewPlaceholder: 'Schreiben Sie Ihre Bewertung...', submitReviewBtn: 'Bewertung absenden', ratingLabel: 'Bewertung', authorLabel: 'Besucher', closeBtn: 'Schließen', savedBookmark: 'Gespeichert', saveBookmark: 'Merken', showAllReviews: 'Alle anzeigen', hideReviews: 'Einklappen', scoreSuffix: 'Pkt', koreaRecommendedTag: 'KTO Empfohlen', noSpots: 'Keine Ergebnisse gefunden.', detailModalHeader: 'Attraktions-Details', detailModalSub: 'Echtzeit-Verifizierung durch Korea Tourism Organization TourAPI 4.0',
     affiliateTitle: 'Partnerangebote & Services', agodaHotelBtn: 'Hotels in der Nähe suchen (Agoda)', klookTicketBtn: 'Tickets & eSIM buchen (Klook)', tripHotelBtn: 'Hotels & Flüge (Trip.com)', esimBannerTitle: '✈️ Korea Reise-Essentials: eSIM & K-PASS Rabatt', esimBannerSub: 'Sofortige Bereitstellung von Daten-eSIM & K-Pass für Reisende', adSponsoredTag: 'Sponsor / Werbung',
     spotTitles: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -1979,6 +2060,9 @@ export const TRANSLATIONS = {
     openMenu: 'Menú',
     closeMenu: 'Cerrar',}, regions: { '전국': 'Ganz Korea', '서울': 'Seoul', '부산': 'Busan', '제주': 'Jeju', '인천': 'Incheon', '강원': 'Gangwon', '경기': 'Gyeonggi', '경북': 'Gyeongbuk', '경남': 'Gyeongnam', '전북': 'Jeonbuk', '전남': 'Jeonnam', '충북': 'Chungbuk', '충남': 'Chungnam', '대구': 'Daegu', '대전': 'Daejeon', '광주': 'Gwangju', '울산': 'Ulsan', '세종': 'Sejong', '한국': 'Südkorea' },
     genders: { '무관': 'Alle', '남성': 'Männlich', '여성': 'Weiblich' }, ages: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -1987,6 +2071,9 @@ export const TRANSLATIONS = {
     openMenu: 'Menú',
     closeMenu: 'Cerrar', '전체': 'Alle', '10대': '10er', '20대': '20er', '30대': '30er', '40대': '40er', '50대': '50er', '50대이상': '50er', '60대이상': '60+' },
     themes: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -1996,6 +2083,9 @@ export const TRANSLATIONS = {
     closeMenu: 'Cerrar', '전체': 'Alle', '관광': 'Besichtigung', '자연/힐링': 'Natur & Erholung', '역사/문화': 'Geschichte & Kultur', '미식/쇼핑': 'Kulinarik & Shopping', '액티비티/레저': 'Aktivitäten & Freizeit', 'K-컬처/이벤트': 'K-Kultur & Events', '숙박/호텔': 'Hotels & Unterkunft', '쇼핑/명소': 'Shopping', '축제': 'Festivals', '음식': 'Kulinarik' },
     weatherMap: { '맑음': 'Sonnig', '맑고 쾌청함': 'Klar', '구름 조금': 'Leicht bewölkt', '구름많음': 'Bewölkt', '구름 많음': 'Bewölkt', '흐림': 'Bedeckt', '비': 'Regen', '비/눈': 'Schneeregen', '눈': 'Schnee', '소나기': 'Schauer' },
     apiServices: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -2005,6 +2095,9 @@ export const TRANSLATIONS = {
     closeMenu: 'Cerrar', 'all': 'Alle Dienste (TourAPI)', 'area': 'Regional-Sehenswürdigkeiten', 'location': 'In der Nähe (Radius)', 'festival': 'Events & Festivals', 'stay': 'Unterkunft & Hotels' }
   },
   fr: {
+    openGoogleRoute: '🗺️ Google Maps Route',
+    openKakaoRoute: '💛 KakaoMap Itinéraire',
+    openNaverRoute: '💚 Naver Map Itinéraire',
     aiTrustBadgeTitleShort: 'BD officielle',
     mapViewShort: '🗺️ Carte',
     listViewShort: '📋 Itinéraire',
@@ -2164,6 +2257,9 @@ export const TRANSLATIONS = {
     },
     aiMatchingLabel: 'Match AI',
     spotTitles: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -2172,6 +2268,9 @@ export const TRANSLATIONS = {
     openMenu: 'Menú',
     closeMenu: 'Cerrar',}, regions: { '전국': 'Toute la Corée', '서울': 'Séoul', '부산': 'Busan', '제주': 'Jeju', '인천': 'Incheon', '강원': 'Gangwon', '경기': 'Gyeonggi', '경북': 'Gyeongbuk', '경남': 'Gyeongnam', '전북': 'Jeonbuk', '전남': 'Jeonnam', '충북': 'Chungbuk', '충남': 'Chungnam', '대구': 'Daegu', '대전': 'Daejeon', '광주': 'Gwangju', '울산': 'Ulsan', '세종': 'Sejong', '한국': 'Corée du Sud' },
     genders: { '무관': 'Tous', '남성': 'Homme', '여성': 'Femme' }, ages: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -2180,6 +2279,9 @@ export const TRANSLATIONS = {
     openMenu: 'Menú',
     closeMenu: 'Cerrar', '전체': 'Tous', '10대': '10ans', '20대': '20ans', '30대': '30ans', '40대': '40ans', '50대': '50ans', '50대이상': '50ans', '60대이상': '60+' },
     themes: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -2189,6 +2291,9 @@ export const TRANSLATIONS = {
     closeMenu: 'Cerrar', '전체': 'Tous', '관광': 'Visites', '자연/힐링': 'Nature & Détente', '역사/문화': 'Histoire & Culture', '미식/쇼핑': 'Gastronomie & Shopping', '액티비티/레저': 'Activités & Loisirs', 'K-컬처/이벤트': 'K-Culture & Événements', '숙박/호텔': 'Hôtels & Hébergements', '쇼핑/명소': 'Shopping', '축제': 'Festivals', '음식': 'Gastronomie' },
     weatherMap: { '맑음': 'Ensoleillé', '맑고 쾌청함': 'Dégagé', '구름 조금': 'Peu nuageux', '구름많음': 'Nuageux', '구름 많음': 'Très nuageux', '흐림': 'Couvert', '비': 'Pluie', '비/눈': 'Pluie et neige', '눈': 'Neige', '소나기': 'Averse' },
     apiServices: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -2198,6 +2303,9 @@ export const TRANSLATIONS = {
     closeMenu: 'Cerrar', 'all': 'Tous les Services (TourAPI)', 'area': 'Attractions Régionales', 'location': 'À Proximité (Rayon)', 'festival': 'Événements & Festivals', 'stay': 'Hôtels & Hébergements' }
   },
   es: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -2329,6 +2437,9 @@ export const TRANSLATIONS = {
     },
     aiMatchingLabel: 'Coincidencia AI',
     spotTitles: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -2337,6 +2448,9 @@ export const TRANSLATIONS = {
     openMenu: 'Menú',
     closeMenu: 'Cerrar',}, regions: { '전국': 'Toda Corea', '서울': 'Seúl', '부산': 'Busan', '제주': 'Jeju', '인천': 'Incheon', '강원': 'Gangwon', '경기': 'Gyeonggi', '경북': 'Gyeongbuk', '경남': 'Gyeongnam', '전북': 'Jeonbuk', '전남': 'Jeonnam', '충북': 'Chungbuk', '충남': 'Chungnam', '대구': 'Daegu', '대전': 'Daejeon', '광주': 'Gwangju', '울산': 'Ulsan', '세종': 'Sejong', '한국': 'Corea del Sur' },
     genders: { '무관': 'Todos', '남성': 'Hombre', '여성': 'Mujer' }, ages: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -2345,6 +2459,9 @@ export const TRANSLATIONS = {
     openMenu: 'Menú',
     closeMenu: 'Cerrar', '전체': 'Todos', '10대': '10s', '20대': '20s', '30대': '30s', '40대': '40s', '50대': '50s', '50대이상': '50s', '60대이상': '60+' },
     themes: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -2354,6 +2471,9 @@ export const TRANSLATIONS = {
     closeMenu: 'Cerrar', '전체': 'Todos', '관광': 'Turismo', '자연/힐링': 'Naturaleza & Relajación', '역사/문화': 'Historia & Cultura', '미식/쇼핑': 'Gastronomía & Compras', '액티비티/레저': 'Actividades & Ocio', 'K-컬처/이벤트': 'K-Cultura & Eventos', '숙박/호텔': 'Hoteles & Alojamiento', '쇼핑/명소': 'Compras', '축제': 'Festivales', '음식': 'Gastronomía' },
     weatherMap: { '맑음': 'Soleado', '맑고 쾌청함': 'Despejado', '구름 조금': 'Algo nublado', '구름많음': 'Nublado', '구름 많음': 'Muy nublado', '흐림': 'Cubierto', '비': 'Lluvia', '비/눈': 'Lluvia y nieve', '눈': 'Nieve', '소나기': 'Chubasco' },
     apiServices: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -2363,6 +2483,9 @@ export const TRANSLATIONS = {
     closeMenu: 'Cerrar', 'all': 'Todos los Servicios (TourAPI)', 'area': 'Información Turística Regional', 'location': 'Cercano (Radio)', 'festival': 'Eventos y Festivales', 'stay': 'Alojamientos y Hoteles' }
   },
   ru: {
+    openGoogleRoute: '🗺️ Google Карта Маршрут',
+    openKakaoRoute: '💛 KakaoМаршрут',
+    openNaverRoute: '💚 NaverМаршрут',
     aiTrustBadgeTitleShort: 'Офиц. БД',
     mapViewShort: '🗺️ Карта',
     listViewShort: '📋 Список',
@@ -2506,6 +2629,9 @@ export const TRANSLATIONS = {
     partnerFormContentPlaceholder: 'Пожалуйста, опишите детали запроса, бюджет, сроки и т.д.',
     aiMatchingLabel: 'Совпадение AI',
     spotTitles: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -2514,6 +2640,9 @@ export const TRANSLATIONS = {
     openMenu: 'Menú',
     closeMenu: 'Cerrar',}, regions: { '전국': 'Вся Корея', '서울': 'Сеул', '부산': 'Пусан', '제주': 'Чеджу', '인천': 'Инчхон', '강원': 'Канвондо', '경기': 'Кёнгидо', '경북': 'Кёнсан-Пукто', '경남': 'Кёнсан-Намдо', '전북': 'Чолла-Пукто', '전남': 'Чолла-Намдо', '충북': 'Чхунчхон-Пукто', '충남': 'Чхунчхон-Намдо', '대구': 'Тэгу', '대전': 'Тэджон', '광주': 'Кванджу', '울산': 'Ульсан', '세종': 'Седжон', '한국': 'Южная Корея' },
     genders: { '무관': 'Все', '남성': 'Мужской', '여성': 'Женский' }, ages: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -2522,6 +2651,9 @@ export const TRANSLATIONS = {
     openMenu: 'Menú',
     closeMenu: 'Cerrar', '전체': 'Все', '10대': '10-19', '20대': '20-29', '30대': '30-39', '40대': '40-49', '50대': '50-59', '50대이상': '50-59', '60대이상': '60+' },
     themes: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -2531,6 +2663,9 @@ export const TRANSLATIONS = {
     closeMenu: 'Cerrar', '전체': 'Все', '관광': 'Экскурсии', '자연/힐링': 'Природа и Отдых', '역사/문화': 'История и Культура', '미식/쇼핑': 'Еда и Шопинг', '액티비티/레저': 'Активный отдых', 'K-컬처/이벤트': 'K-Культура и События', '숙박/호텔': 'Отели и Проживание', '쇼핑/명소': 'Шопинг', '축제': 'Фестивали', '음식': 'Еда' },
     weatherMap: { '맑음': 'Ясно', '맑고 쾌청함': 'Ясно и сухо', '구름 조금': 'Небольшая облачность', '구름많음': 'Облачно', '구름 많음': 'Значительная облачность', '흐림': 'Пасмурно', '비': 'Дождь', '비/눈': 'Дождь со снегом', '눈': 'Снег', '소나기': 'Ливень' },
     apiServices: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -2821,6 +2956,9 @@ export function getTranslatedReview(review, lang = 'ko') {
 
   const REVIEW_TRANS = {
     en: {
+    openGoogleRoute: '🗺️ Google Maps Route',
+    openKakaoRoute: '💛 KakaoMap Directions',
+    openNaverRoute: '💚 Naver Map Directions',
     aiTrustBadgeTitleShort: 'Official DB',
     mapViewShort: '🗺️ Map',
     listViewShort: '📋 Itinerary',
@@ -2835,6 +2973,9 @@ export function getTranslatedReview(review, lang = 'ko') {
       '가족들과 주말 나들이로 다녀왔는데 경치가 너무 고즈넉하고 힐링되었습니다.': 'Went on a weekend family trip. Scenic, tranquil atmosphere provided great healing.'
     },
     ja: {
+    openGoogleRoute: '🗺️ Googleマップルート',
+    openKakaoRoute: '💛 Kakaoマップ道案内',
+    openNaverRoute: '💚 Naverマップ道案内',
     aiTrustBadgeTitleShort: '公式DB連動',
     mapViewShort: '🗺️ 地図',
     listViewShort: '📋 日程リスト',
@@ -2849,6 +2990,9 @@ export function getTranslatedReview(review, lang = 'ko') {
       '가족들과 주말 나들이로 다녀왔는데 경치가 너무 고즈넉하고 힐링되었습니다.': '週末に家族でお出かけしました。静かで趣のある風景にとても癒されました。'
     },
     zh: {
+    openGoogleRoute: '🗺️ 谷歌地图路线',
+    openKakaoRoute: '💛 Kakao地图导航',
+    openNaverRoute: '💚 Naver地图导航',
     aiTrustBadgeTitleShort: '官方DB联动',
     mapViewShort: '🗺️ 地图',
     listViewShort: '📋 行程列表',
@@ -2867,6 +3011,9 @@ export function getTranslatedReview(review, lang = 'ko') {
   const list = REVIEW_TRANS[lang] || REVIEW_TRANS.en;
   const authorMap = {
     en: {
+    openGoogleRoute: '🗺️ Google Maps Route',
+    openKakaoRoute: '💛 KakaoMap Directions',
+    openNaverRoute: '💚 Naver Map Directions',
     aiTrustBadgeTitleShort: 'Official DB',
     mapViewShort: '🗺️ Map',
     listViewShort: '📋 Itinerary',
@@ -2875,6 +3022,9 @@ export function getTranslatedReview(review, lang = 'ko') {
     openMenu: 'Menu',
     closeMenu: 'Close Menu', '김민준': 'Minjun Kim', '이서연': 'Seoyeon Lee', '박지훈': 'Jihoon Park', '최유진': 'Yujin Choi', '정명훈': 'Myeonghun Jeong' },
     ja: {
+    openGoogleRoute: '🗺️ Googleマップルート',
+    openKakaoRoute: '💛 Kakaoマップ道案内',
+    openNaverRoute: '💚 Naverマップ道案内',
     aiTrustBadgeTitleShort: '公式DB連動',
     mapViewShort: '🗺️ 地図',
     listViewShort: '📋 日程リスト',
@@ -2883,6 +3033,9 @@ export function getTranslatedReview(review, lang = 'ko') {
     openMenu: 'メニュー',
     closeMenu: '閉じる', '김민준': '金ミンジュン', '이서연': '李ソヨン', '박지훈': '朴ジフン', '최유진': '崔ユジン', '정명훈': '鄭ミョンフン' },
     zh: {
+    openGoogleRoute: '🗺️ 谷歌地图路线',
+    openKakaoRoute: '💛 Kakao地图导航',
+    openNaverRoute: '💚 Naver地图导航',
     aiTrustBadgeTitleShort: '官方DB联动',
     mapViewShort: '🗺️ 地图',
     listViewShort: '📋 行程列表',
@@ -2893,6 +3046,9 @@ export function getTranslatedReview(review, lang = 'ko') {
   };
   const ageMap = {
     en: {
+    openGoogleRoute: '🗺️ Google Maps Route',
+    openKakaoRoute: '💛 KakaoMap Directions',
+    openNaverRoute: '💚 Naver Map Directions',
     aiTrustBadgeTitleShort: 'Official DB',
     mapViewShort: '🗺️ Map',
     listViewShort: '📋 Itinerary',
@@ -2901,6 +3057,9 @@ export function getTranslatedReview(review, lang = 'ko') {
     openMenu: 'Menu',
     closeMenu: 'Close Menu', '10대': 'Teens', '20대': '20s', '30대': '30s', '40대': '40s', '50대': '50s', '50대이상': '50s', '60대이상': '60s+' },
     ja: {
+    openGoogleRoute: '🗺️ Googleマップルート',
+    openKakaoRoute: '💛 Kakaoマップ道案内',
+    openNaverRoute: '💚 Naverマップ道案内',
     aiTrustBadgeTitleShort: '公式DB連動',
     mapViewShort: '🗺️ 地図',
     listViewShort: '📋 日程リスト',
@@ -2909,6 +3068,9 @@ export function getTranslatedReview(review, lang = 'ko') {
     openMenu: 'メニュー',
     closeMenu: '閉じる', '10대': '10代', '20대': '20代', '30대': '30代', '40대': '40代', '50대': '50代', '50대이상': '50代', '60대이상': '60代以上' },
     zh: {
+    openGoogleRoute: '🗺️ 谷歌地图路线',
+    openKakaoRoute: '💛 Kakao地图导航',
+    openNaverRoute: '💚 Naver地图导航',
     aiTrustBadgeTitleShort: '官方DB联动',
     mapViewShort: '🗺️ 地图',
     listViewShort: '📋 行程列表',
@@ -2919,6 +3081,9 @@ export function getTranslatedReview(review, lang = 'ko') {
   };
   const genderMap = {
     en: {
+    openGoogleRoute: '🗺️ Google Maps Route',
+    openKakaoRoute: '💛 KakaoMap Directions',
+    openNaverRoute: '💚 Naver Map Directions',
     aiTrustBadgeTitleShort: 'Official DB',
     mapViewShort: '🗺️ Map',
     listViewShort: '📋 Itinerary',
@@ -2927,6 +3092,9 @@ export function getTranslatedReview(review, lang = 'ko') {
     openMenu: 'Menu',
     closeMenu: 'Close Menu', '남성': 'Male', '여성': 'Female' },
     ja: {
+    openGoogleRoute: '🗺️ Googleマップルート',
+    openKakaoRoute: '💛 Kakaoマップ道案内',
+    openNaverRoute: '💚 Naverマップ道案内',
     aiTrustBadgeTitleShort: '公式DB連動',
     mapViewShort: '🗺️ 地図',
     listViewShort: '📋 日程リスト',
@@ -2935,6 +3103,9 @@ export function getTranslatedReview(review, lang = 'ko') {
     openMenu: 'メニュー',
     closeMenu: '閉じる', '남성': '男性', '여성': '女性' },
     zh: {
+    openGoogleRoute: '🗺️ 谷歌地图路线',
+    openKakaoRoute: '💛 Kakao地图导航',
+    openNaverRoute: '💚 Naver地图导航',
     aiTrustBadgeTitleShort: '官方DB联动',
     mapViewShort: '🗺️ 地图',
     listViewShort: '📋 行程列表',
@@ -2969,6 +3140,9 @@ export function getTranslatedOverview(overview, title = '', lang = 'ko') {
 
   const OVERVIEW_MAP = {
     en: {
+    openGoogleRoute: '🗺️ Google Maps Route',
+    openKakaoRoute: '💛 KakaoMap Directions',
+    openNaverRoute: '💚 Naver Map Directions',
     aiTrustBadgeTitleShort: 'Official DB',
     mapViewShort: '🗺️ Map',
     listViewShort: '📋 Itinerary',
@@ -2980,6 +3154,9 @@ export function getTranslatedOverview(overview, title = '', lang = 'ko') {
       '대한민국 관광공사 공식 등록 대표 명소입니다. 아름다운 풍경과 다양한 볼거리를 제공합니다.': 'Official landmark registered with Korea Tourism Organization. Offers scenic views and iconic cultural experiences.'
     },
     ja: {
+    openGoogleRoute: '🗺️ Googleマップルート',
+    openKakaoRoute: '💛 Kakaoマップ道案内',
+    openNaverRoute: '💚 Naverマップ道案内',
     aiTrustBadgeTitleShort: '公式DB連動',
     mapViewShort: '🗺️ 地図',
     listViewShort: '📋 日程リスト',
@@ -2991,6 +3168,9 @@ export function getTranslatedOverview(overview, title = '', lang = 'ko') {
       '대한민국 관광공사 공식 등록 대표 명소입니다. 아름다운 풍경과 다양한 볼거리를 제공합니다.': '韓国観光公社公式登録の代表的観光スポットです。美しい風景と様々な見どころを提供します。'
     },
     zh: {
+    openGoogleRoute: '🗺️ 谷歌地图路线',
+    openKakaoRoute: '💛 Kakao地图导航',
+    openNaverRoute: '💚 Naver地图导航',
     aiTrustBadgeTitleShort: '官方DB联动',
     mapViewShort: '🗺️ 地图',
     listViewShort: '📋 行程列表',
@@ -3029,6 +3209,9 @@ export function getTranslatedDetailText(text, lang = 'ko') {
 
   const TEXT_MAP = {
     en: {
+    openGoogleRoute: '🗺️ Google Maps Route',
+    openKakaoRoute: '💛 KakaoMap Directions',
+    openNaverRoute: '💚 Naver Map Directions',
     aiTrustBadgeTitleShort: 'Official DB',
     mapViewShort: '🗺️ Map',
     listViewShort: '📋 Itinerary',
@@ -3051,6 +3234,9 @@ export function getTranslatedDetailText(text, lang = 'ko') {
       '대중교통 및 주차 시설 완비 (가족/연인/나홀로 여행 최적)': 'Convenient public transit & parking (ideal for family & solo travel)'
     },
     zh: {
+    openGoogleRoute: '🗺️ 谷歌地图路线',
+    openKakaoRoute: '💛 Kakao地图导航',
+    openNaverRoute: '💚 Naver地图导航',
     aiTrustBadgeTitleShort: '官方DB联动',
     mapViewShort: '🗺️ 地图',
     listViewShort: '📋 行程列表',
@@ -3073,6 +3259,9 @@ export function getTranslatedDetailText(text, lang = 'ko') {
       '대중교통 및 주차 시설 완비 (가족/연인/나홀로 여행 최적)': '公共交通便利与停车设施完善（极度适合家庭与单人游）'
     },
     zht: {
+    openGoogleRoute: '🗺️ 谷歌地圖路線',
+    openKakaoRoute: '💛 Kakao地圖導航',
+    openNaverRoute: '💚 Naver地圖導航',
     aiTrustBadgeTitleShort: '官方DB連動',
     mapViewShort: '🗺️ 地圖',
     listViewShort: '📋 行程列表',
@@ -3095,6 +3284,9 @@ export function getTranslatedDetailText(text, lang = 'ko') {
       '대중교통 및 주차 시설 완비 (가족/연인/나홀로 여행 최적)': '公共交通便利與停車設施完善（極度適合家庭與單人遊）'
     },
     ja: {
+    openGoogleRoute: '🗺️ Googleマップルート',
+    openKakaoRoute: '💛 Kakaoマップ道案内',
+    openNaverRoute: '💚 Naverマップ道案内',
     aiTrustBadgeTitleShort: '公式DB連動',
     mapViewShort: '🗺️ 地図',
     listViewShort: '📋 日程リスト',
@@ -3161,6 +3353,9 @@ export function getTranslatedFood(food, lang = 'ko') {
 
   const FOOD_NAME_MAP = {
     en: {
+    openGoogleRoute: '🗺️ Google Maps Route',
+    openKakaoRoute: '💛 KakaoMap Directions',
+    openNaverRoute: '💚 Naver Map Directions',
     aiTrustBadgeTitleShort: 'Official DB',
     mapViewShort: '🗺️ Map',
     listViewShort: '📋 Itinerary',
@@ -3175,6 +3370,9 @@ export function getTranslatedFood(food, lang = 'ko') {
       '얼큰한 해물 뚝배기 전골 & 칼국수': 'Spicy Seafood Hot-pot & Kalguksu Noodle'
     },
     ja: {
+    openGoogleRoute: '🗺️ Googleマップルート',
+    openKakaoRoute: '💛 Kakaoマップ道案内',
+    openNaverRoute: '💚 Naverマップ道案内',
     aiTrustBadgeTitleShort: '公式DB連動',
     mapViewShort: '🗺️ 地図',
     listViewShort: '📋 日程リスト',
@@ -3189,6 +3387,9 @@ export function getTranslatedFood(food, lang = 'ko') {
       '얼큰한 해물 뚝배기 전골 & 칼국수': 'ピリ辛海鮮土鍋チゲ ＆ カルグクス'
     },
     zh: {
+    openGoogleRoute: '🗺️ 谷歌地图路线',
+    openKakaoRoute: '💛 Kakao地图导航',
+    openNaverRoute: '💚 Naver地图导航',
     aiTrustBadgeTitleShort: '官方DB联动',
     mapViewShort: '🗺️ 地图',
     listViewShort: '📋 行程列表',
@@ -3203,6 +3404,9 @@ export function getTranslatedFood(food, lang = 'ko') {
       '얼큰한 해물 뚝배기 전골 & 칼국수': '香辣海鲜砂锅火锅 & 刀削面'
     },
     zht: {
+    openGoogleRoute: '🗺️ 谷歌地圖路線',
+    openKakaoRoute: '💛 Kakao地圖導航',
+    openNaverRoute: '💚 Naver地圖導航',
     aiTrustBadgeTitleShort: '官方DB連動',
     mapViewShort: '🗺️ 地圖',
     listViewShort: '📋 行程列表',
@@ -3217,6 +3421,9 @@ export function getTranslatedFood(food, lang = 'ko') {
       '얼큰한 해물 뚝배기 전골 & 칼국수': '香辣海鮮砂鍋火鍋 & 刀削麵'
     },
     de: {
+    openGoogleRoute: '🗺️ Google Maps Route',
+    openKakaoRoute: '💛 KakaoMap Route',
+    openNaverRoute: '💚 Naver Map Route',
     aiTrustBadgeTitleShort: 'Offizielle DB',
     mapViewShort: '🗺️ Karte',
     listViewShort: '📋 Ablauf',
@@ -3231,6 +3438,9 @@ export function getTranslatedFood(food, lang = 'ko') {
       '얼큰한 해물 뚝배기 전골 & 칼국수': 'Scharfer Meeresfrüchte-Eintopf & Kalguksu'
     },
     fr: {
+    openGoogleRoute: '🗺️ Google Maps Route',
+    openKakaoRoute: '💛 KakaoMap Itinéraire',
+    openNaverRoute: '💚 Naver Map Itinéraire',
     aiTrustBadgeTitleShort: 'BD officielle',
     mapViewShort: '🗺️ Carte',
     listViewShort: '📋 Itinéraire',
@@ -3245,6 +3455,9 @@ export function getTranslatedFood(food, lang = 'ko') {
       '얼큰한 해물 뚝배기 전골 & 칼국수': 'Marmite de Fruits de Mer Épicée & Nouilles'
     },
     es: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -3259,6 +3472,9 @@ export function getTranslatedFood(food, lang = 'ko') {
       '얼큰한 해물 뚝배기 전골 & 칼국수': 'Cazuela Picante de Mariscos y Fideos Kalguksu'
     },
     ru: {
+    openGoogleRoute: '🗺️ Google Карта Маршрут',
+    openKakaoRoute: '💛 KakaoМаршрут',
+    openNaverRoute: '💚 NaverМаршрут',
     aiTrustBadgeTitleShort: 'Офиц. БД',
     mapViewShort: '🗺️ Карта',
     listViewShort: '📋 Список',
@@ -3276,6 +3492,9 @@ export function getTranslatedFood(food, lang = 'ko') {
 
   const FOOD_CAT_MAP = {
     en: {
+    openGoogleRoute: '🗺️ Google Maps Route',
+    openKakaoRoute: '💛 KakaoMap Directions',
+    openNaverRoute: '💚 Naver Map Directions',
     aiTrustBadgeTitleShort: 'Official DB',
     mapViewShort: '🗺️ Map',
     listViewShort: '📋 Itinerary',
@@ -3284,6 +3503,9 @@ export function getTranslatedFood(food, lang = 'ko') {
     openMenu: 'Menu',
     closeMenu: 'Close Menu', '구이 / 제주특산': 'BBQ / Jeju Specialty', '면류 / 육류': 'Noodles / Meat', '해산물 / 오션뷰': 'Seafood / Ocean View', '국밥 / 한식': 'Soup Rice / Korean', '전골 / 면류': 'Hot-pot / Noodles' },
     ja: {
+    openGoogleRoute: '🗺️ Googleマップルート',
+    openKakaoRoute: '💛 Kakaoマップ道案内',
+    openNaverRoute: '💚 Naverマップ道案内',
     aiTrustBadgeTitleShort: '公式DB連動',
     mapViewShort: '🗺️ 地図',
     listViewShort: '📋 日程リスト',
@@ -3292,6 +3514,9 @@ export function getTranslatedFood(food, lang = 'ko') {
     openMenu: 'メニュー',
     closeMenu: '閉じる', '구이 / 제주특산': '焼肉 / 済州特産', '면류 / 육류': '麺類 / 肉料理', '해산물 / 오션뷰': '海鮮 / オーシャンビュー', '국밥 / 한식': 'クッパ / 韓国料理', '전골 / 면류': '鍋料理 / 麺類' },
     zh: {
+    openGoogleRoute: '🗺️ 谷歌地图路线',
+    openKakaoRoute: '💛 Kakao地图导航',
+    openNaverRoute: '💚 Naver地图导航',
     aiTrustBadgeTitleShort: '官方DB联动',
     mapViewShort: '🗺️ 地图',
     listViewShort: '📋 行程列表',
@@ -3300,6 +3525,9 @@ export function getTranslatedFood(food, lang = 'ko') {
     openMenu: '菜单',
     closeMenu: '关闭菜单', '구이 / 제주특산': '烧烤 / 济州特产', '면류 / 육류': '面类 / 肉类', '해산물 / 오션뷰': '海鲜 / 海景', '국밥 / 한식': '汤饭 / 韩餐', '전골 / 면류': '火锅 / 面类' },
     zht: {
+    openGoogleRoute: '🗺️ 谷歌地圖路線',
+    openKakaoRoute: '💛 Kakao地圖導航',
+    openNaverRoute: '💚 Naver地圖導航',
     aiTrustBadgeTitleShort: '官方DB連動',
     mapViewShort: '🗺️ 地圖',
     listViewShort: '📋 行程列表',
@@ -3308,6 +3536,9 @@ export function getTranslatedFood(food, lang = 'ko') {
     openMenu: '選單',
     closeMenu: '關閉選單', '구이 / 제주특산': '燒烤 / 濟州特產', '면류 / 육류': '麵類 / 肉類', '해산물 / 오션뷰': '海鮮 / 海景', '국밥 / 한식': '湯飯 / 韓餐', '전골 / 면류': '火鍋 / 麵類' },
     de: {
+    openGoogleRoute: '🗺️ Google Maps Route',
+    openKakaoRoute: '💛 KakaoMap Route',
+    openNaverRoute: '💚 Naver Map Route',
     aiTrustBadgeTitleShort: 'Offizielle DB',
     mapViewShort: '🗺️ Karte',
     listViewShort: '📋 Ablauf',
@@ -3316,6 +3547,9 @@ export function getTranslatedFood(food, lang = 'ko') {
     openMenu: 'Menü',
     closeMenu: 'Schließen', '구이 / 제주특산': 'BBQ / Spezialität', '면류 / 육류': 'Nudeln / Fleisch', '해산물 / 오션뷰': 'Meeresfrüchte / Meerblick', '국밥 / 한식': 'Suppenreis / Koreanisch', '전골 / 면류': 'Eintopf / Nudeln' },
     fr: {
+    openGoogleRoute: '🗺️ Google Maps Route',
+    openKakaoRoute: '💛 KakaoMap Itinéraire',
+    openNaverRoute: '💚 Naver Map Itinéraire',
     aiTrustBadgeTitleShort: 'BD officielle',
     mapViewShort: '🗺️ Carte',
     listViewShort: '📋 Itinéraire',
@@ -3324,6 +3558,9 @@ export function getTranslatedFood(food, lang = 'ko') {
     openMenu: 'Menu',
     closeMenu: 'Fermer', '구이 / 제주특산': 'Barbecue / Spécialité', '면류 / 육류': 'Nouilles / Viande', '해산물 / 오션뷰': 'Fruits de Mer / Vue Mer', '국밥 / 한식': 'Soupe Riz / Coréen', '전골 / 면류': 'Marmite / Nouilles' },
     es: {
+    openGoogleRoute: '🗺️ Google Maps Ruta',
+    openKakaoRoute: '💛 KakaoMap Ruta',
+    openNaverRoute: '💚 Naver Map Ruta',
     aiTrustBadgeTitleShort: 'BD oficial',
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
@@ -3332,6 +3569,9 @@ export function getTranslatedFood(food, lang = 'ko') {
     openMenu: 'Menú',
     closeMenu: 'Cerrar', '구이 / 제주특산': 'Barbacoa / Especialidad', '면류 / 육류': 'Fideos / Carne', '해산물 / 오션뷰': 'Mariscos / Vista al Mar', '국밥 / 한식': 'Sopa con Arroz / Coreano', '전골 / 면류': 'Cazuela / Fideos' },
     ru: {
+    openGoogleRoute: '🗺️ Google Карта Маршрут',
+    openKakaoRoute: '💛 KakaoМаршрут',
+    openNaverRoute: '💚 NaverМаршрут',
     aiTrustBadgeTitleShort: 'Офиц. БД',
     mapViewShort: '🗺️ Карта',
     listViewShort: '📋 Список',
@@ -3343,6 +3583,9 @@ export function getTranslatedFood(food, lang = 'ko') {
 
   const REASON_MAP = {
     en: {
+    openGoogleRoute: '🗺️ Google Maps Route',
+    openKakaoRoute: '💛 KakaoMap Directions',
+    openNaverRoute: '💚 Naver Map Directions',
     aiTrustBadgeTitleShort: 'Official DB',
     mapViewShort: '🗺️ Map',
     listViewShort: '📋 Itinerary',
@@ -3357,6 +3600,9 @@ export function getTranslatedFood(food, lang = 'ko') {
       '겨울철 동해/남해 해산물의 얼큰함과 깊은 육수가 일품인 탕 요리': 'Spicy, rich seafood stew made with fresh coastal catches.'
     },
     ja: {
+    openGoogleRoute: '🗺️ Googleマップルート',
+    openKakaoRoute: '💛 Kakaoマップ道案内',
+    openNaverRoute: '💚 Naverマップ道案内',
     aiTrustBadgeTitleShort: '公式DB連動',
     mapViewShort: '🗺️ 地図',
     listViewShort: '📋 日程リスト',
@@ -3371,6 +3617,9 @@ export function getTranslatedFood(food, lang = 'ko') {
       '겨울철 동해/남해 해산물의 얼큰함과 깊은 육수가 일품인 탕 요리': '冬の新鮮な海の幸의 旨味が染み出たピリ辛濃厚スープ料理。'
     },
     zh: {
+    openGoogleRoute: '🗺️ 谷歌地图路线',
+    openKakaoRoute: '💛 Kakao地图导航',
+    openNaverRoute: '💚 Naver地图导航',
     aiTrustBadgeTitleShort: '官方DB联动',
     mapViewShort: '🗺️ 地图',
     listViewShort: '📋 行程列表',
@@ -3385,6 +3634,9 @@ export function getTranslatedFood(food, lang = 'ko') {
       '겨울철 동해/남해 해산물의 얼큰함과 깊은 육수가 일품인 탕 요리': '融入冬季新鲜海鲜与浓郁高汤的香辣锅物。'
     },
     zht: {
+    openGoogleRoute: '🗺️ 谷歌地圖路線',
+    openKakaoRoute: '💛 Kakao地圖導航',
+    openNaverRoute: '💚 Naver地圖導航',
     aiTrustBadgeTitleShort: '官方DB連動',
     mapViewShort: '🗺️ 地圖',
     listViewShort: '📋 行程列表',
@@ -3436,6 +3688,9 @@ export function getTranslatedOutfit(outfit, lang = 'ko') {
 
   const OUTFIT_TITLE_MAP = {
     en: {
+    openGoogleRoute: '🗺️ Google Maps Route',
+    openKakaoRoute: '💛 KakaoMap Directions',
+    openNaverRoute: '💚 Naver Map Directions',
     aiTrustBadgeTitleShort: 'Official DB',
     mapViewShort: '🗺️ Map',
     listViewShort: '📋 Itinerary',
@@ -3453,6 +3708,9 @@ export function getTranslatedOutfit(outfit, lang = 'ko') {
       '여성 숏 숏패딩 & 뽀글이 플리스 룩': 'Women\'s Short Puffer & Fleece Look'
     },
     ja: {
+    openGoogleRoute: '🗺️ Googleマップルート',
+    openKakaoRoute: '💛 Kakaoマップ道案内',
+    openNaverRoute: '💚 Naverマップ道案内',
     aiTrustBadgeTitleShort: '公式DB連動',
     mapViewShort: '🗺️ 地図',
     listViewShort: '📋 日程リスト',
@@ -3470,6 +3728,9 @@ export function getTranslatedOutfit(outfit, lang = 'ko') {
       '여성 숏 숏패딩 & 뽀글이 플리스 룩': 'ウィメンズ 숏ダウン ＆ ボアフリース'
     },
     zh: {
+    openGoogleRoute: '🗺️ 谷歌地图路线',
+    openKakaoRoute: '💛 Kakao地图导航',
+    openNaverRoute: '💚 Naver地图导航',
     aiTrustBadgeTitleShort: '官方DB联动',
     mapViewShort: '🗺️ 地图',
     listViewShort: '📋 行程列表',
@@ -3487,6 +3748,9 @@ export function getTranslatedOutfit(outfit, lang = 'ko') {
       '여성 숏 숏패딩 & 뽀글이 플리스 룩': '女士短款羽绒服 & 羊羔绒外套'
     },
     zht: {
+    openGoogleRoute: '🗺️ 谷歌地圖路線',
+    openKakaoRoute: '💛 Kakao地圖導航',
+    openNaverRoute: '💚 Naver地圖導航',
     aiTrustBadgeTitleShort: '官方DB連動',
     mapViewShort: '🗺️ 地圖',
     listViewShort: '📋 行程列表',
@@ -3507,6 +3771,9 @@ export function getTranslatedOutfit(outfit, lang = 'ko') {
 
   const OUTFIT_SEASON_MAP = {
     en: {
+    openGoogleRoute: '🗺️ Google Maps Route',
+    openKakaoRoute: '💛 KakaoMap Directions',
+    openNaverRoute: '💚 Naver Map Directions',
     aiTrustBadgeTitleShort: 'Official DB',
     mapViewShort: '🗺️ Map',
     listViewShort: '📋 Itinerary',
@@ -3515,6 +3782,9 @@ export function getTranslatedOutfit(outfit, lang = 'ko') {
     openMenu: 'Menu',
     closeMenu: 'Close Menu', '봄/가을 (18°C ~ 24°C)': 'Spring/Autumn (18°C ~ 24°C)', '여름 / 햇살 강한 날': 'Summer / Sunny Days', '여름 (28°C ~ 33°C)': 'Summer (28°C ~ 33°C)', '겨울 (한파 / 영하 기온)': 'Winter (Freezing Cold)' },
     ja: {
+    openGoogleRoute: '🗺️ Googleマップルート',
+    openKakaoRoute: '💛 Kakaoマップ道案内',
+    openNaverRoute: '💚 Naverマップ道案内',
     aiTrustBadgeTitleShort: '公式DB連動',
     mapViewShort: '🗺️ 地図',
     listViewShort: '📋 日程リスト',
@@ -3523,6 +3793,9 @@ export function getTranslatedOutfit(outfit, lang = 'ko') {
     openMenu: 'メニュー',
     closeMenu: '閉じる', '봄/가을 (18°C ~ 24°C)': '春・秋 (18°C ~ 24°C)', '여름 / 햇살 강한 날': '夏 / 晴れた日', '여름 (28°C ~ 33°C)': '夏 (28°C ~ 33°C)', '겨울 (한파 / 영하 기온)': '冬 (極寒・氷点下)' },
     zh: {
+    openGoogleRoute: '🗺️ 谷歌地图路线',
+    openKakaoRoute: '💛 Kakao地图导航',
+    openNaverRoute: '💚 Naver地图导航',
     aiTrustBadgeTitleShort: '官方DB联动',
     mapViewShort: '🗺️ 地图',
     listViewShort: '📋 行程列表',
@@ -3531,6 +3804,9 @@ export function getTranslatedOutfit(outfit, lang = 'ko') {
     openMenu: '菜单',
     closeMenu: '关闭菜单', '봄/가을 (18°C ~ 24°C)': '春秋 (18°C ~ 24°C)', '여름 / 햇살 강한 날': '夏季 / 阳光强烈', '여름 (28°C ~ 33°C)': '夏季 (28°C ~ 33°C)', '겨울 (한파 / 영하 기온)': '冬季 (严寒 / 零下)' },
     zht: {
+    openGoogleRoute: '🗺️ 谷歌地圖路線',
+    openKakaoRoute: '💛 Kakao地圖導航',
+    openNaverRoute: '💚 Naver地圖導航',
     aiTrustBadgeTitleShort: '官方DB連動',
     mapViewShort: '🗺️ 地圖',
     listViewShort: '📋 行程列表',
@@ -3542,6 +3818,9 @@ export function getTranslatedOutfit(outfit, lang = 'ko') {
 
   const OUTFIT_REASON_MAP = {
     en: {
+    openGoogleRoute: '🗺️ Google Maps Route',
+    openKakaoRoute: '💛 KakaoMap Directions',
+    openNaverRoute: '💚 Naver Map Directions',
     aiTrustBadgeTitleShort: 'Official DB',
     mapViewShort: '🗺️ Map',
     listViewShort: '📋 Itinerary',
@@ -3555,6 +3834,9 @@ export function getTranslatedOutfit(outfit, lang = 'ko') {
       '인생샷 촬영과 활동성을 모두 잡은 스타일': 'Stylish look ideal for taking great photos and active touring.'
     },
     ja: {
+    openGoogleRoute: '🗺️ Googleマップルート',
+    openKakaoRoute: '💛 Kakaoマップ道案内',
+    openNaverRoute: '💚 Naverマップ道案内',
     aiTrustBadgeTitleShort: '公式DB連動',
     mapViewShort: '🗺️ 地図',
     listViewShort: '📋 日程リスト',
@@ -3568,6 +3850,9 @@ export function getTranslatedOutfit(outfit, lang = 'ko') {
       '인생샷 촬영과 활동성을 모두 잡은 스타일': '映え写真撮影と動きやすさを両立したスタイリッシュスタイル。'
     },
     zh: {
+    openGoogleRoute: '🗺️ 谷歌地图路线',
+    openKakaoRoute: '💛 Kakao地图导航',
+    openNaverRoute: '💚 Naver地图导航',
     aiTrustBadgeTitleShort: '官方DB联动',
     mapViewShort: '🗺️ 地图',
     listViewShort: '📋 行程列表',
@@ -3581,6 +3866,9 @@ export function getTranslatedOutfit(outfit, lang = 'ko') {
       '인생샷 촬영과 활동성을 모두 잡은 스타일': '兼顾美照拍摄与便利舒适度的时尚穿搭。'
     },
     zht: {
+    openGoogleRoute: '🗺️ 谷歌地圖路線',
+    openKakaoRoute: '💛 Kakao地圖導航',
+    openNaverRoute: '💚 Naver地圖導航',
     aiTrustBadgeTitleShort: '官方DB連動',
     mapViewShort: '🗺️ 地圖',
     listViewShort: '📋 行程列表',
@@ -3597,6 +3885,9 @@ export function getTranslatedOutfit(outfit, lang = 'ko') {
 
   const ITEM_MAP = {
     en: {
+    openGoogleRoute: '🗺️ Google Maps Route',
+    openKakaoRoute: '💛 KakaoMap Directions',
+    openNaverRoute: '💚 Naver Map Directions',
     aiTrustBadgeTitleShort: 'Official DB',
     mapViewShort: '🗺️ Map',
     listViewShort: '📋 Itinerary',
@@ -3610,6 +3901,9 @@ export function getTranslatedOutfit(outfit, lang = 'ko') {
       '가벼운 카디건/크롭 셔츠': 'Light Cardigan/Crop Shirt', '하이웨이스트 슬랙스': 'High-waist Slacks', '쿠션 스니커즈': 'Cushioned Sneakers', '미니 크로스백': 'Mini Crossbody Bag'
     },
     ja: {
+    openGoogleRoute: '🗺️ Googleマップルート',
+    openKakaoRoute: '💛 Kakaoマップ道案内',
+    openNaverRoute: '💚 Naverマップ道案内',
     aiTrustBadgeTitleShort: '公式DB連動',
     mapViewShort: '🗺️ 地図',
     listViewShort: '📋 日程リスト',
@@ -3623,6 +3917,9 @@ export function getTranslatedOutfit(outfit, lang = 'ko') {
       '가벼운 카디건/크롭 셔츠': 'カーディガン/クロップドシャツ', '하이웨이스트 슬랙스': 'ハイウエストスラックス', '쿠션 스니커즈': 'クッションスニーカー', '미니 크로스백': 'ミニクロスバッグ'
     },
     zh: {
+    openGoogleRoute: '🗺️ 谷歌地图路线',
+    openKakaoRoute: '💛 Kakao地图导航',
+    openNaverRoute: '💚 Naver地图导航',
     aiTrustBadgeTitleShort: '官方DB联动',
     mapViewShort: '🗺️ 地图',
     listViewShort: '📋 行程列表',
@@ -3636,6 +3933,9 @@ export function getTranslatedOutfit(outfit, lang = 'ko') {
       '가벼운 카디건/크롭 셔츠': '针织开衫/短款衬衫', '하이웨이스트 슬랙스': '高腰西装裤', '쿠션 스니커즈': '减震运动鞋', '미니 크로스백': '迷你斜挎包'
     },
     zht: {
+    openGoogleRoute: '🗺️ 谷歌地圖路線',
+    openKakaoRoute: '💛 Kakao地圖導航',
+    openNaverRoute: '💚 Naver地圖導航',
     aiTrustBadgeTitleShort: '官方DB連動',
     mapViewShort: '🗺️ 地圖',
     listViewShort: '📋 行程列表',

@@ -311,20 +311,36 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
   const lat = selectedSpot.lat || 37.5665;
   const lng = selectedSpot.lng || 126.9780;
 
-  // Build Multi-Waypoint External Map Navigation URL
-  const buildMultiPointMapUrl = () => {
-    const validSpots = schedule.filter(s => s.lat && s.lng);
+  // Build Multi-Waypoint Google Maps Route Navigation URL (Place-Name Based for 100% Driving Route Line Drawing)
+  const buildGoogleRouteUrl = () => {
+    const validSpots = schedule.filter(s => s && s.title);
     if (validSpots.length === 0) return '#';
 
-    if (lang === 'ko') {
-      const query = encodeURIComponent(validSpots.map(s => s.title).join(' '));
-      return `https://map.kakao.com/link/search/${query}`;
-    } else {
-      const origin = `${validSpots[0].lat},${validSpots[0].lng}`;
-      const destination = `${validSpots[validSpots.length - 1].lat},${validSpots[validSpots.length - 1].lng}`;
-      const waypoints = validSpots.slice(1, -1).map(s => `${s.lat},${s.lng}`).join('|');
-      return `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}${waypoints ? `&waypoints=${waypoints}` : ''}&travelmode=driving`;
+    const origin = encodeURIComponent(validSpots[0].title + (validSpots[0].location ? ` ${validSpots[0].location}` : ''));
+    const destination = encodeURIComponent(validSpots[validSpots.length - 1].title + (validSpots[validSpots.length - 1].location ? ` ${validSpots[validSpots.length - 1].location}` : ''));
+    
+    let waypointsParam = '';
+    if (validSpots.length > 2) {
+      const waypoints = validSpots.slice(1, -1).map(s => encodeURIComponent(s.title + (s.location ? ` ${s.location}` : ''))).join('|');
+      waypointsParam = `&waypoints=${waypoints}`;
     }
+
+    return `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}${waypointsParam}&travelmode=driving`;
+  };
+
+  // Build KakaoMap Route Navigation URL (Kakao Origin-Destination Directions API)
+  const buildKakaoRouteUrl = () => {
+    const validSpots = schedule.filter(s => s && s.title);
+    if (validSpots.length === 0) return '#';
+
+    if (validSpots.length >= 2) {
+      const sName = encodeURIComponent(validSpots[0].title);
+      const eName = encodeURIComponent(validSpots[validSpots.length - 1].title);
+      return `https://map.kakao.com/?sName=${sName}&eName=${eName}`;
+    }
+
+    const spot = validSpots[0];
+    return `https://map.kakao.com/link/to/${encodeURIComponent(spot.title)},${spot.lat || ''},${spot.lng || ''}`;
   };
 
   return (
@@ -385,27 +401,56 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
-
+          {/* Map Navigation Buttons: Google Maps Route & KakaoMap Directions */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
             <a
-              href={buildMultiPointMapUrl()}
+              href={buildGoogleRouteUrl()}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-primary"
               style={{
-                padding: '0.45rem 1rem',
-                fontSize: '0.8rem',
+                padding: '0.4rem 0.85rem',
+                fontSize: '0.78rem',
                 fontWeight: 800,
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.4rem',
+                gap: '0.35rem',
                 textDecoration: 'none',
-                borderRadius: 'var(--radius-full)'
+                borderRadius: 'var(--radius-full)',
+                background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+                color: '#ffffff',
+                boxShadow: '0 2px 8px rgba(37, 99, 235, 0.3)'
               }}
+              title="Google Maps Route Navigation"
             >
-              <Navigation size={15} />
-              <span>{lang === 'ko' ? '🚗 전체 경로 내비 연결' : '🚗 Open Full Route Navigation'}</span>
-              <ExternalLink size={13} />
+              <Navigation size={14} />
+              <span>{t.openGoogleRoute || '🗺️ 구글지도 경로연결'}</span>
+              <ExternalLink size={12} />
+            </a>
+
+            <a
+              href={buildKakaoRouteUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                padding: '0.4rem 0.85rem',
+                fontSize: '0.78rem',
+                fontWeight: 800,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                textDecoration: 'none',
+                borderRadius: 'var(--radius-full)',
+                background: '#fee500',
+                color: '#191919',
+                border: '1px solid #e5d000',
+                boxShadow: '0 2px 8px rgba(254, 229, 0, 0.4)'
+              }}
+              title="카카오맵 길찾기 (KakaoMap Directions)"
+            >
+              <Navigation size={14} color="#191919" />
+              <span>{t.openKakaoRoute || '💛 카카오맵 길찾기'}</span>
+              <ExternalLink size={12} color="#191919" />
             </a>
           </div>
         </div>
