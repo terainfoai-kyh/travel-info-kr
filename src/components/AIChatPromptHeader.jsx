@@ -364,24 +364,29 @@ export default function AIChatPromptHeader({ lang = 'ko', filters, onGenerateIti
         position: 'relative',
         boxSizing: 'border-box'
       }}>
-        {/* Title Header (Slim & Compact) */}
+        {/* Title Header (Slim & Compact with 1-Line Fixed Subtitle Badge) */}
         <div style={{ textAlign: 'center', marginBottom: isMobile ? '0.5rem' : '0.75rem' }}>
           <p style={{
-            fontSize: isMobile ? '0.74rem' : '0.84rem',
+            fontSize: isMobile ? '0.68rem' : '0.84rem',
             fontWeight: 700,
             color: '#0284c7',
             background: 'rgba(56, 189, 248, 0.14)',
             border: '1px solid rgba(56, 189, 248, 0.35)',
-            padding: '0.2rem 0.75rem',
+            padding: isMobile ? '0.2rem 0.55rem' : '0.25rem 0.75rem',
             borderRadius: '9999px',
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '0.35rem',
+            gap: '0.3rem',
             margin: isMobile ? '0.1rem 0 0.35rem 0' : '0.15rem 0 0.45rem 0',
-            boxShadow: '0 2px 6px rgba(56, 189, 248, 0.1)'
+            boxShadow: '0 2px 6px rgba(56, 189, 248, 0.1)',
+            whiteSpace: 'nowrap',
+            maxWidth: '100%',
+            overflow: 'hidden'
           }}>
-            <Sparkles size={13} color="#0284c7" />
-            <span>{t.subtitle || '✨ AI가 안내하는 실시간 날씨 · 맞춤 명소 · 맛집 & 코디'}</span>
+            <Sparkles size={isMobile ? 12 : 14} color="#0284c7" style={{ flexShrink: 0 }} />
+            <span style={{ whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+              {t.subtitle || '✨ AI가 안내하는 실시간 날씨 · 맞춤 명소 · 맛집 & 코디'}
+            </span>
           </p>
 
           <h1 style={{
