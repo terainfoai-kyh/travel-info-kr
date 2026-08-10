@@ -238,7 +238,9 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
           justifyContent: 'flex-start',
           gap: '0.45rem',
           flexWrap: 'wrap',
-          width: '100%'
+          width: '100%',
+          paddingLeft: isMobile ? 0 : '58px',
+          boxSizing: 'border-box'
         }}>
           <button onClick={onOpenGuidePR} style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-highlight)', color: 'var(--text-main)', padding: '0.4rem 0.75rem', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem', transition: 'all 0.2s ease' }}>
             <BookOpen size={14} color="var(--accent-primary)" />
@@ -289,7 +291,7 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
           </div>
         </div>
 
-        {/* Row 3: Sticky Quick Navigation Tabs Bar (100% Left-Aligned) */}
+        {/* Row 3: Sticky Quick Navigation Tabs Bar (58px Left-Indented Alignment) */}
         <div className="header-nav-tabs" style={{
           display: 'flex',
           alignItems: 'center',
@@ -301,6 +303,7 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
           width: '100%',
+          paddingLeft: isMobile ? 0 : '58px',
           boxSizing: 'border-box'
         }}>
           {NAV_ITEMS.map((item) => {
