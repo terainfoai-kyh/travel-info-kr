@@ -112,6 +112,82 @@ export const TRAVEL_SPOTS = [
       highlights: ['전주 비빔밥 미식', '전통 한옥 숙박', '경기전 조선태조 이성계 어진'],
       bestSeason: '봄 / 가을'
     }
+  },
+  {
+    id: 'spot-7',
+    title: '서울 성수동 카페거리 & 서울숲',
+    category: 'culture',
+    region: '서울',
+    location: '서울특별시 성동구 성수동1가 685-216',
+    rating: 4.88,
+    reviewsCount: 4200,
+    image: 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg',
+    description: '붉은 벽돌의 감성 붉은 건물과 팝업스토어, 디저트 카페, 서울숲 산책이 어우러진 서울 최고의 핫플레이스입니다.',
+    tags: ['성수동', '성수', '서울숲', '카페거리', '팝업스토어', '핫플'],
+    details: {
+      address: '서울특별시 성동구 성수동1가 685-216',
+      hours: '10:00 - 22:00 (매장별 유동적)',
+      contact: '02-2286-5114',
+      highlights: ['디저트 팝업스토어', '서울숲 피크닉', '성수 수제화거리'],
+      bestSeason: '봄 / 가을 / 사계절'
+    }
+  },
+  {
+    id: 'spot-8',
+    title: '서울 홍대 걷고싶은거리 & 연남동',
+    category: 'food',
+    region: '서울',
+    location: '서울특별시 마포구 어울마당로 109',
+    rating: 4.82,
+    reviewsCount: 5300,
+    image: 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg',
+    description: '젊음과 버스킹 공연, 독특한 디저트 카페와 연트럴파크 산책이 매력적인 트렌디 관광 구역입니다.',
+    tags: ['홍대', '연남동', '연트럴파크', '버스킹', '젊음의거리'],
+    details: {
+      address: '서울특별시 마포구 어울마당로 109',
+      hours: '24시간 운영',
+      contact: '02-3153-8114',
+      highlights: ['거리 버스킹 공연', '연남동 연트럴파크 산책', '이색 디저트 카페'],
+      bestSeason: '사계절'
+    }
+  },
+  {
+    id: 'spot-9',
+    title: '제주 애월 한담해안산책로',
+    category: 'nature',
+    region: '제주',
+    location: '제주특별자치도 제주시 애월읍 애월리 2496-1',
+    rating: 4.92,
+    reviewsCount: 4800,
+    image: 'https://tong.visitkorea.or.kr/cms/resource/82/2944282_image2_1.bmp',
+    description: '에메랄드빛 제주 바다를 바로 곁에 두고 걷는 해안 산책로와 감성 카페들이 모여있는 힐링 스팟입니다.',
+    tags: ['제주', '애월', '애월읍', '해안산책로', '오션뷰', '카페거리'],
+    details: {
+      address: '제주특별자치도 제주시 애월읍 애월리 2496-1',
+      hours: '일몰 전 이용 권장',
+      contact: '064-728-3011',
+      highlights: ['애월 바다 일몰 장관', '투명 카약 체험', '감성 오션뷰 카페'],
+      bestSeason: '봄 / 여름 / 가을'
+    }
+  },
+  {
+    id: 'spot-10',
+    title: '수원 화성행궁 & 행리단길',
+    category: 'culture',
+    region: '경기',
+    location: '경기도 수원시 팔달구 정조로 825',
+    rating: 4.86,
+    reviewsCount: 3600,
+    image: 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg',
+    description: '세계유산 수원화성의 유서 깊은 아름다움과 감성 레트로 카페가 공존하는 경기 대표 여행지입니다.',
+    tags: ['수원', '행궁동', '행리단길', '화성행궁', '세계유산', '경기'],
+    details: {
+      address: '경기도 수원시 팔달구 정조로 825',
+      hours: '09:00 - 18:00',
+      contact: '031-290-3600',
+      highlights: ['화성 성곽 야경 투어', '행리단길 한옥 카페', '열기구 플라잉수원'],
+      bestSeason: '봄 / 가을'
+    }
   }
 ];
 

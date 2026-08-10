@@ -362,13 +362,24 @@ export async function fetchTourSpots({
     const data = await res.json();
     let items = data.response?.body?.items?.item || [];
 
-    // Fallback search with original cleanKw if kwNoSpace yielded zero items from TourAPI
-    if (items.length === 0 && cleanKw && kwNoSpace !== cleanKw && apiServiceType !== 'location' && apiServiceType !== 'festival' && apiServiceType !== 'stay') {
+    // Fallback search with original cleanKw or areaBasedList2 if kwNoSpace yielded zero items from TourAPI
+    if (items.length === 0 && cleanKw) {
       const fallbackUrl = `${PUBLIC_API_CONFIG.SEARCH_KEYWORD_URL}?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=30&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=${apiArrange}&keyword=${encodeURIComponent(cleanKw)}`;
       const fbRes = await fetch(fallbackUrl);
       if (fbRes.ok) {
         const fbData = await fbRes.json();
         items = fbData.response?.body?.items?.item || [];
+      }
+
+      if (items.length === 0) {
+        let areaUrl = `${apiBase}/areaBasedList2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=30&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=${apiArrange}`;
+        if (regionMeta && regionMeta.areaCode) areaUrl += `&areaCode=${regionMeta.areaCode}`;
+        if (contentTypeId) areaUrl += `&contentTypeId=${contentTypeId}`;
+        const areaRes = await fetch(areaUrl);
+        if (areaRes.ok) {
+          const areaData = await areaRes.json();
+          items = areaData.response?.body?.items?.item || [];
+        }
       }
     }
 
@@ -484,8 +495,11 @@ export async function fetchTourSpots({
         return [...signatureLandmarks, ...otherSpots];
       }
 
-      if (cleanKw) {
-        return filtered; // Return exact keyword match (0 to N items) without forced dummy substitutions
+      if (cleanKw && filtered.length > 0) {
+        return filtered;
+      }
+      if (cleanKw && parsed.length > 0) {
+        return parsed;
       }
 
       let mainList = filtered.length > 0 ? filtered : parsed;
@@ -509,7 +523,7 @@ export async function fetchTourSpots({
 
   // Fallback & Filter Mock Data with space-insensitive matching & image sanitization
   const resultSpots = TRAVEL_SPOTS.filter(spot => {
-    const matchRegion = region === '전국' || spot.region === region;
+    const matchRegion = region === '전국' || spot.region === region || spot.location.includes(region);
     const matchTheme = theme === '전체' || spot.theme === theme;
     const matchAge = age === '전체' || 
       (!spot.targetAge || spot.targetAge.includes(age)) || 
@@ -522,10 +536,17 @@ export async function fetchTourSpots({
 
     const matchKeyword = !cleanKw || 
       spotTitleNoSpace.includes(kwNoSpace.toLowerCase()) ||
-      spotLocNoSpace.includes(kwNoSpace.toLowerCase());
+      spotLocNoSpace.includes(kwNoSpace.toLowerCase()) ||
+      (spot.tags && spot.tags.some(t => t.toLowerCase().includes(cleanKw.toLowerCase())));
 
     return matchRegion && matchTheme && matchAge && matchGender && matchKeyword;
   });
+
+  if (resultSpots.length > 0) return resultSpots;
+
+  // Ultimate Rule 6 Fallback: Always return regional top spots instead of empty 0 items!
+  const regionFallback = TRAVEL_SPOTS.filter(spot => region === '전국' || spot.region === region);
+  return regionFallback.length > 0 ? regionFallback : TRAVEL_SPOTS.slice(0, 6);
 
   return resultSpots.map(spot => {
     let img = spot.image;
