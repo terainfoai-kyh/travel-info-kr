@@ -246,10 +246,10 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
                 transition: 'all 0.2s ease',
                 whiteSpace: 'nowrap'
               }}
-              title={isMenuOpen ? "메뉴 접기" : "메뉴 펼치기"}
+              title={isMenuOpen ? (t.closeMenu || '메뉴 닫기') : (t.openMenu || '메뉴')}
             >
               <SlidersHorizontal size={14} />
-              <span>{isMenuOpen ? '메뉴 닫기' : '메뉴'}</span>
+              <span>{isMenuOpen ? (t.closeMenu || '메뉴 닫기') : (t.openMenu || '메뉴')}</span>
               {isMenuOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             </button>
           </div>
