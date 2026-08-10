@@ -107,7 +107,19 @@ export function parseNaturalPrompt(text) {
   else if (raw.includes('3박') || raw.includes('2박 3일') || raw.includes('2박3일') || raw.includes('3d') || raw.includes('3-day')) days = 3;
   else if (raw.includes('4박') || raw.includes('3박 4일') || raw.includes('3박4일') || raw.includes('4d') || raw.includes('4-day')) days = 4;
 
-  return { region, days, keyword: cleanKeyword, raw };
+  // Overseas / Unsupported international query detection
+  const OVERSEAS_KEYWORDS = [
+    '샌프란시스코', 'san francisco', '도쿄', 'tokyo', '뉴욕', 'new york', '파리', 'paris',
+    '런던', 'london', 'la', '로스앤젤레스', 'los angeles', '하와이', 'hawaii', '오사카', 'osaka',
+    '후쿠오카', 'fukuoka', '타이베이', 'taipei', '대만', '방콕', 'bangkok', '상하이', 'shanghai',
+    '베이징', 'beijing', '시드니', 'sydney', '괌', 'guam', '사이판', 'saipan', '싱가포르', 'singapore',
+    '유럽', 'europe', '미국', 'usa', '일본', 'japan', '중국', 'china', '태국', 'thailand',
+    '베트남', 'vietnam', '다낭', 'danang', '나트랑', '발리', 'bali', '세부', 'cebu', '홍콩', 'hongkong',
+    '해외', '외국', '해외여행', '푸켓', '마닐라', '로마', '바르셀로나', '베네치아', '프라하', '비엔나'
+  ];
+  const isOverseas = OVERSEAS_KEYWORDS.some(k => raw.toLowerCase().includes(k));
+
+  return { region, days, keyword: cleanKeyword, raw, isOverseas };
 }
 
 export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary }) {

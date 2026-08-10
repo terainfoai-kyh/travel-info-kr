@@ -11,7 +11,7 @@ import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
 import { fetchRealtimeWeather } from './services/weatherApi';
 import { fetchTourSpots } from './services/tourApi';
 import { getRecommendedFoodAndOutfit } from './services/recommendationEngine';
-import { Loader2 } from 'lucide-react';
+import { Loader2, X } from 'lucide-react';
 import ItineraryModal from './components/ItineraryModal';
 import WishlistDrawer from './components/WishlistDrawer';
 import TravelEssentialsSection from './components/TravelEssentialsSection';
@@ -34,6 +34,8 @@ export default function App() {
   // Modals & Drawers state
   const [isItineraryOpen, setIsItineraryOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
+  const [showOverseasModal, setShowOverseasModal] = useState(false);
+  const [overseasQuery, setOverseasQuery] = useState('');
 
   // Selected Spots for Custom Picked Itinerary
   const [selectedCourseSpotIds, setSelectedCourseSpotIds] = useState([]);
@@ -254,6 +256,11 @@ export default function App() {
         <AIChatPromptHeader 
           lang={lang} 
           onGenerateItinerary={async (parsed) => {
+            if (parsed?.isOverseas) {
+              setOverseasQuery(parsed.raw || '');
+              setShowOverseasModal(true);
+              return;
+            }
             const targetRegion = parsed.region || '전국';
             const targetKeyword = parsed.keyword || '';
             const newFilters = {
@@ -543,6 +550,183 @@ export default function App() {
         lang={lang}
         onOpenPartnerInquiry={() => setIsPartnerOpen(true)}
       />
+
+      {/* Overseas Query Notice Modal */}
+      {showOverseasModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(15, 23, 42, 0.75)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          zIndex: 99999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '1rem'
+        }}>
+          <div style={{
+            background: '#ffffff',
+            borderRadius: '24px',
+            maxWidth: '520px',
+            width: '100%',
+            padding: '1.75rem',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+            position: 'relative',
+            textAlign: 'center'
+          }}>
+            <button
+              onClick={() => setShowOverseasModal(false)}
+              style={{
+                position: 'absolute',
+                top: '1rem',
+                right: '1rem',
+                background: '#f1f5f9',
+                border: 'none',
+                borderRadius: '50%',
+                width: '36px',
+                height: '36px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                color: '#64748b'
+              }}
+            >
+              <X size={20} />
+            </button>
+
+            <div style={{
+              width: '60px',
+              height: '60px',
+              borderRadius: '50%',
+              background: '#eff6ff',
+              color: '#2563eb',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '2rem',
+              margin: '0 auto 1rem auto'
+            }}>
+              ✈️
+            </div>
+
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0f172a', margin: '0 0 0.5rem 0' }}>
+              대한민국(한국) 관광 전용 서비스 안내
+            </h2>
+
+            <p style={{ fontSize: '0.88rem', color: '#475569', lineHeight: 1.6, margin: '0 0 1.25rem 0' }}>
+              입력하신 <strong style={{ color: '#2563eb' }}>'{overseasQuery}'</strong>은(는) 해외 지역으로, 본 플랫폼은 <strong style={{ color: '#0f172a' }}>한국관광공사 TourAPI 4.0</strong> 기반의 <strong>대한민국 전용 관광 플랫폼</strong>입니다.
+            </p>
+
+            <div style={{ background: '#f8fafc', borderRadius: '16px', padding: '1rem', marginBottom: '1.25rem', border: '1px solid #e2e8f0' }}>
+              <p style={{ fontSize: '0.82rem', fontWeight: 800, color: '#1e293b', margin: '0 0 0.75rem 0' }}>
+                💡 대표적인 대한민국 인기도시 코스를 추천받으시겠어요?
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <button
+                  onClick={() => {
+                    setShowOverseasModal(false);
+                    const newFilters = { ...filters, region: '서울', keyword: '성수동' };
+                    setFilters(newFilters);
+                    fetchTourSpots({ ...newFilters, lang }).then(spots => {
+                      setAllTourSpots(spots);
+                      setIsItineraryOpen(true);
+                    });
+                  }}
+                  style={{
+                    background: '#ffffff',
+                    border: '1.5px solid #cbd5e1',
+                    borderRadius: '12px',
+                    padding: '0.6rem 0.85rem',
+                    fontWeight: 700,
+                    fontSize: '0.82rem',
+                    color: '#0f172a',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                  }}
+                >
+                  <span>🗼 서울 핫플 코스 (성수동, 홍대, 경복궁)</span>
+                  <span style={{ color: '#2563eb' }}>선택 ➔</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setShowOverseasModal(false);
+                    const newFilters = { ...filters, region: '제주', keyword: '서귀포' };
+                    setFilters(newFilters);
+                    fetchTourSpots({ ...newFilters, lang }).then(spots => {
+                      setAllTourSpots(spots);
+                      setIsItineraryOpen(true);
+                    });
+                  }}
+                  style={{
+                    background: '#ffffff',
+                    border: '1.5px solid #cbd5e1',
+                    borderRadius: '12px',
+                    padding: '0.6rem 0.85rem',
+                    fontWeight: 700,
+                    fontSize: '0.82rem',
+                    color: '#0f172a',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                  }}
+                >
+                  <span>🏝️ 제주 감성 힐링 코스 (애월, 서귀포, 성산)</span>
+                  <span style={{ color: '#2563eb' }}>선택 ➔</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setShowOverseasModal(false);
+                    const newFilters = { ...filters, region: '부산', keyword: '해운대' };
+                    setFilters(newFilters);
+                    fetchTourSpots({ ...newFilters, lang }).then(spots => {
+                      setAllTourSpots(spots);
+                      setIsItineraryOpen(true);
+                    });
+                  }}
+                  style={{
+                    background: '#ffffff',
+                    border: '1.5px solid #cbd5e1',
+                    borderRadius: '12px',
+                    padding: '0.6rem 0.85rem',
+                    fontWeight: 700,
+                    fontSize: '0.82rem',
+                    color: '#0f172a',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                  }}
+                >
+                  <span>🌊 부산 해운대 바다뷰 코스 (블루라인파크, 광안리)</span>
+                  <span style={{ color: '#2563eb' }}>선택 ➔</span>
+                </button>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowOverseasModal(false)}
+              style={{
+                width: '100%',
+                background: '#f1f5f9',
+                color: '#475569',
+                border: 'none',
+                borderRadius: '12px',
+                padding: '0.65rem',
+                fontWeight: 700,
+                fontSize: '0.85rem',
+                cursor: 'pointer'
+              }}
+            >
+              닫기 (국내 도시 검색하기)
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
