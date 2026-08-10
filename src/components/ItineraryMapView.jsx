@@ -427,55 +427,6 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
             />
           )}
 
-          {/* Floating Selected Spot Card Overlay */}
-          <div style={{
-            position: 'absolute',
-            bottom: '0.85rem',
-            left: '0.85rem',
-            right: '0.85rem',
-            zIndex: 500,
-            background: 'rgba(15, 23, 42, 0.92)',
-            backdropFilter: 'blur(12px)',
-            padding: '0.75rem 1rem',
-            borderRadius: 'var(--radius-md)',
-            border: '1px solid rgba(56, 189, 248, 0.4)',
-            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '0.75rem'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-              <span style={{
-                fontSize: '1.3rem',
-                fontWeight: 900,
-                color: 'var(--accent-primary)',
-                lineHeight: 1
-              }}>
-                {NUMBER_ICONS[activeSpotIdx] || '❶'}
-              </span>
-              <div>
-                <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#ffffff' }}>
-                  {getTranslatedTitle(selectedSpot.title, lang)}
-                </div>
-                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.1rem' }}>
-                  <MapPin size={12} color="var(--accent-primary)" />
-                  <span>{getTranslatedAddress(selectedSpot.location, lang)}</span>
-                </div>
-              </div>
-            </div>
-
-            <span style={{
-              fontSize: '0.75rem',
-              fontWeight: 800,
-              background: 'rgba(56, 189, 248, 0.2)',
-              color: 'var(--accent-primary)',
-              padding: '0.2rem 0.6rem',
-              borderRadius: 'var(--radius-sm)'
-            }}>
-              {selectedSpot.time || '10:00'}
-            </span>
-          </div>
         </div>
 
         {/* Sequential Route Timeline Cards Bar (1 ➔ 2 ➔ 3 ➔ 4) */}
