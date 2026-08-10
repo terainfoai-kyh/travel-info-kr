@@ -71,7 +71,18 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
       leafletMapRef.current = null;
     }
 
-    const latLngs = schedule.map(s => [parseFloat(s.lat) || 37.5665, parseFloat(s.lng) || 126.9780]);
+    // Calculate latLngs with micro-spread if coordinates are identical
+    const baseLat = parseFloat(schedule[0]?.lat) || 37.5665;
+    const baseLng = parseFloat(schedule[0]?.lng) || 126.9780;
+    const latLngs = schedule.map((s, idx) => {
+      let lat = parseFloat(s.lat) || 37.5665;
+      let lng = parseFloat(s.lng) || 126.9780;
+      if (idx > 0 && Math.abs(lat - baseLat) < 0.0001 && Math.abs(lng - baseLng) < 0.0001) {
+        lat += idx * 0.003;
+        lng += idx * 0.004;
+      }
+      return [lat, lng];
+    });
 
     // Create Leaflet Map Instance
     const map = L.map(mapContainerRef.current, {
@@ -96,8 +107,8 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
 
     // Add Numbered Markers for each spot
     schedule.forEach((spot, idx) => {
-      const spotLat = parseFloat(spot.lat) || 37.5665;
-      const spotLng = parseFloat(spot.lng) || 126.9780;
+      const spotLat = latLngs[idx][0];
+      const spotLng = latLngs[idx][1];
       const numIcon = NUMBER_ICONS[idx] || (idx + 1);
 
       const customIcon = L.divIcon({
@@ -147,10 +158,15 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
         dashArray: '8, 8'
       }).addTo(map);
 
-      // CRITICAL: Auto-Fit Bounding Box so ALL 4 spots are framed together zoomed out!
-      map.fitBounds(polyline.getBounds(), { padding: [50, 50] });
+      // Auto-Fit Bounding Box so ALL spots are framed together cleanly
+      const bounds = polyline.getBounds();
+      if (bounds && bounds.isValid()) {
+        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14 });
+      } else {
+        map.setView(latLngs[0], 13);
+      }
     } else if (latLngs.length === 1) {
-      map.setView(latLngs[0], 14);
+      map.setView(latLngs[0], 13);
     }
 
   }, [isLeafletReady, schedule, activeDay]);

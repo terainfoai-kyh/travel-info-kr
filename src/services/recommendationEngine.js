@@ -615,10 +615,27 @@ export function generateSmartItinerary({
     ];
 
     const daySpots = [];
+    const usedTitles = new Set();
+    const fallbackPreset = REGION_PRESETS[targetProvince] || REGION_PRESETS['경기'] || REGION_PRESETS['서울'];
+    const combinedCandidates = [...provincePool, ...spots, ...fallbackPreset, ...TRAVEL_SPOTS];
+
     for (let s = 0; s < 4; s++) {
-      const spotIdx = (s + dSeed) % (provincePool.length || 1);
-      const fallbackPreset = REGION_PRESETS[targetProvince] || REGION_PRESETS['경기'] || REGION_PRESETS['서울'];
-      const targetSpot = provincePool[spotIdx] || spots[s % (spots.length || 1)] || fallbackPreset[s % fallbackPreset.length];
+      let targetSpot = null;
+
+      // Find first candidate that hasn't been used in this day yet
+      for (let cIdx = 0; cIdx < combinedCandidates.length; cIdx++) {
+        const candidateIdx = (s + dSeed + cIdx) % combinedCandidates.length;
+        const candidate = combinedCandidates[candidateIdx];
+        if (candidate && candidate.title && !usedTitles.has(candidate.title.toLowerCase().replace(/\s+/g, ''))) {
+          targetSpot = candidate;
+          usedTitles.add(candidate.title.toLowerCase().replace(/\s+/g, ''));
+          break;
+        }
+      }
+
+      if (!targetSpot) {
+        targetSpot = combinedCandidates[s % combinedCandidates.length] || fallbackPreset[s % fallbackPreset.length];
+      }
 
       let img = targetSpot.image || GYEONGBOKGUNG_FALLBACK_IMG;
       if (img.toLowerCase().includes('japan') || img.toLowerCase().includes('fuji') || img.toLowerCase().includes('tokyo') || img.toLowerCase().includes('kyoto') || img.toLowerCase().includes('osaka')) {
