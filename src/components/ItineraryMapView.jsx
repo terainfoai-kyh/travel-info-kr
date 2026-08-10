@@ -311,36 +311,45 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
   const lat = selectedSpot.lat || 37.5665;
   const lng = selectedSpot.lng || 126.9780;
 
-  // Build Multi-Waypoint Google Maps Route Navigation URL (Place-Name Based for 100% Driving Route Line Drawing)
+  // Clean spot title (strips building floor numbers like 4F, address suffixes, parentheses)
+  const cleanTitle = (rawTitle) => {
+    if (!rawTitle) return '';
+    return rawTitle
+      .split('(')[0]
+      .replace(/\s*\d+F|\s*\d+층|\s*지하\d+층/gi, '')
+      .replace(/부산광역시|서울특별시|대구광역시|인천광역시|광주광역시|대전광역시|울산광역시|세종특별자치시|경기도|강원도|충청북도|충청남도|전라북도|전라남도|경상북도|경상남도|제주특별자치도/gi, '')
+      .trim();
+  };
+
+  // Build Multi-Waypoint Google Maps Route Navigation URL (Clean Place Names for 100% Driving Line Drawing)
   const buildGoogleRouteUrl = () => {
     const validSpots = schedule.filter(s => s && s.title);
     if (validSpots.length === 0) return '#';
 
-    const origin = encodeURIComponent(validSpots[0].title + (validSpots[0].location ? ` ${validSpots[0].location}` : ''));
-    const destination = encodeURIComponent(validSpots[validSpots.length - 1].title + (validSpots[validSpots.length - 1].location ? ` ${validSpots[validSpots.length - 1].location}` : ''));
+    const origin = encodeURIComponent(cleanTitle(validSpots[0].title));
+    const destination = encodeURIComponent(cleanTitle(validSpots[validSpots.length - 1].title));
     
     let waypointsParam = '';
     if (validSpots.length > 2) {
-      const waypoints = validSpots.slice(1, -1).map(s => encodeURIComponent(s.title + (s.location ? ` ${s.location}` : ''))).join('|');
+      const waypoints = validSpots.slice(1, -1).map(s => encodeURIComponent(cleanTitle(s.title))).join('|');
       waypointsParam = `&waypoints=${waypoints}`;
     }
 
     return `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}${waypointsParam}&travelmode=driving`;
   };
 
-  // Build KakaoMap Route Navigation URL (Kakao Origin-Destination Directions API)
+  // Build KakaoMap Official Directions Link URL (Kakao Official link/to Scheme)
   const buildKakaoRouteUrl = () => {
     const validSpots = schedule.filter(s => s && s.title);
     if (validSpots.length === 0) return '#';
 
-    if (validSpots.length >= 2) {
-      const sName = encodeURIComponent(validSpots[0].title);
-      const eName = encodeURIComponent(validSpots[validSpots.length - 1].title);
-      return `https://map.kakao.com/?sName=${sName}&eName=${eName}`;
-    }
+    const destSpot = validSpots[validSpots.length - 1];
+    const destTitle = encodeURIComponent(cleanTitle(destSpot.title));
 
-    const spot = validSpots[0];
-    return `https://map.kakao.com/link/to/${encodeURIComponent(spot.title)},${spot.lat || ''},${spot.lng || ''}`;
+    if (destSpot.lat && destSpot.lng) {
+      return `https://map.kakao.com/link/to/${destTitle},${destSpot.lat},${destSpot.lng}`;
+    }
+    return `https://map.kakao.com/link/search/${destTitle}`;
   };
 
   return (
