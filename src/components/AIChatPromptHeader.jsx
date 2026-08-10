@@ -364,22 +364,23 @@ export default function AIChatPromptHeader({ lang = 'ko', filters, onGenerateIti
         position: 'relative',
         boxSizing: 'border-box'
       }}>
-        {/* Title Header */}
-        <div style={{ textAlign: 'center', marginBottom: isMobile ? '0.65rem' : '1.25rem' }}>
+        {/* Title Header (Expanded Comfortable Spacing) */}
+        <div style={{ textAlign: 'center', marginBottom: isMobile ? '1rem' : '1.65rem' }}>
           <p style={{
             fontSize: isMobile ? '0.78rem' : '0.88rem',
             fontWeight: 700,
             color: '#0284c7',
-            background: 'rgba(56, 189, 248, 0.12)',
-            border: '1px solid rgba(56, 189, 248, 0.3)',
-            padding: '0.22rem 0.75rem',
+            background: 'rgba(56, 189, 248, 0.14)',
+            border: '1px solid rgba(56, 189, 248, 0.35)',
+            padding: '0.28rem 0.85rem',
             borderRadius: '9999px',
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '0.35rem',
-            margin: '0 0 0.4rem 0'
+            gap: '0.4rem',
+            margin: isMobile ? '0.2rem 0 0.75rem 0' : '0.3rem 0 0.95rem 0',
+            boxShadow: '0 2px 8px rgba(56, 189, 248, 0.12)'
           }}>
-            <Sparkles size={13} color="#0284c7" />
+            <Sparkles size={14} color="#0284c7" />
             <span>{t.subtitle || '✨ AI가 안내하는 실시간 날씨 · 맞춤 명소 · 맛집 & 코디'}</span>
           </p>
 

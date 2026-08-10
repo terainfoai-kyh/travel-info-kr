@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Compass, Globe, Sparkles, Sun, Moon, Heart, MapPin, Utensils, Luggage, Share2, Check, BookOpen } from 'lucide-react';
+import { Compass, Globe, Sparkles, Sun, Moon, Heart, MapPin, Utensils, Luggage, Share2, Check, BookOpen, ChevronDown, ChevronUp, SlidersHorizontal } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
 
 const LANGUAGE_OPTIONS = [
@@ -18,6 +18,7 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
   const t = TRANSLATIONS[currentLang] || TRANSLATIONS.ko;
   const [activeSection, setActiveSection] = useState('tour-spots');
   const [showToast, setShowToast] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
 
   useEffect(() => {
@@ -151,13 +152,13 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
       top: 0,
       zIndex: 1000,
       width: '100%',
-      padding: isMobile ? '0.4rem 0.5rem' : '0.65rem 1rem',
+      padding: isMobile ? '0.45rem 0.6rem' : '0.65rem 1rem',
       boxSizing: 'border-box',
-      borderBottom: '1px solid var(--border-color)',
-      background: themeMode === 'light' ? '#f1f5f9' : 'rgba(15, 23, 42, 0.95)',
+      borderBottom: themeMode === 'light' ? '1.5px solid #cbd5e1' : '1px solid var(--border-color)',
+      background: themeMode === 'light' ? '#e2e8f0' : 'rgba(15, 23, 42, 0.95)',
       backdropFilter: 'blur(16px)',
       WebkitBackdropFilter: 'blur(16px)',
-      boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)'
+      boxShadow: '0 4px 14px rgba(15, 23, 42, 0.08)'
     }}>
       <div style={{
         width: '100%',
@@ -165,23 +166,24 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
         margin: '0 auto',
         display: 'flex',
         flexDirection: 'column',
-        gap: isMobile ? '0.35rem' : '0.5rem',
+        gap: isMobile ? '0.3rem' : '0.45rem',
         boxSizing: 'border-box'
       }}>
-        {/* Row 1: Brand Logo + Title + LIVE AI (Left) & Language Selector (Far Right) */}
+        {/* Row 1: Brand Logo + Title + LIVE AI (Left) & Language Selector + Menu Toggle Button (Far Right) */}
         <div className="header-brand-row" style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: '0.75rem',
-          flexWrap: 'wrap',
+          gap: '0.5rem',
+          flexWrap: 'nowrap',
           width: '100%'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 1, minWidth: 0 }}>
+          {/* Left Brand Container */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexShrink: 1, minWidth: 0 }}>
             <div className="header-logo" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{
-              width: '42px',
-              height: '42px',
-              borderRadius: '12px',
+              width: isMobile ? '36px' : '42px',
+              height: isMobile ? '36px' : '42px',
+              borderRadius: '10px',
               overflow: 'hidden',
               display: 'flex',
               alignItems: 'center',
@@ -195,8 +197,8 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
               <img src="/logo.png" alt="K-Travel Logo" style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scale(1.1)' }} />
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-              <h1 style={{ fontSize: '1.2rem', fontWeight: 800, lineHeight: 1.1, margin: 0 }} className="gradient-text">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexShrink: 1, minWidth: 0 }}>
+              <h1 style={{ fontSize: isMobile ? '1.05rem' : '1.2rem', fontWeight: 800, lineHeight: 1.1, margin: 0 }} className="gradient-text">
                 <span className="desktop-title-text">{t.title}</span>
                 <span className="mobile-title-text">K-Travel AI</span>
               </h1>
@@ -216,73 +218,124 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
                 <span className="live-ai-pulse-dot" />
                 LIVE AI
               </span>
-              {filters && (
-                <div style={{ display: 'inline-flex', gap: '0.35rem', flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: '0.7rem', background: themeMode === 'light' ? 'rgba(56, 189, 248, 0.18)' : 'rgba(56, 189, 248, 0.25)', border: '1px solid rgba(56, 189, 248, 0.4)', padding: '0.12rem 0.45rem', borderRadius: '4px', color: themeMode === 'light' ? '#0284c7' : '#38bdf8', fontWeight: 800 }}>
-                    📍 {getBadgeI18n('region', filters.region || '전국')}
-                  </span>
-                  <span style={{ fontSize: '0.7rem', background: themeMode === 'light' ? 'var(--bg-secondary)' : 'rgba(255, 255, 255, 0.15)', border: themeMode === 'light' ? '1px solid var(--border-color)' : '1px solid rgba(255, 255, 255, 0.25)', padding: '0.12rem 0.45rem', borderRadius: '4px', color: themeMode === 'light' ? 'var(--text-main)' : '#ffffff', fontWeight: 700 }}>
-                    🏖️ {getBadgeI18n('theme', filters.theme || '전체')}
-                  </span>
-                </div>
-              )}
             </div>
           </div>
 
-          {/* Row 1 Far Right: Language Selector */}
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', position: 'relative' }}>
-            <Globe size={15} style={{ color: themeMode === 'light' ? 'var(--accent-primary)' : '#38bdf8', flexShrink: 0 }} />
-            <select value={currentLang} onChange={(e) => setLang(e.target.value)} className="header-lang-select" style={{ background: themeMode === 'light' ? 'var(--bg-card)' : '#1e293b', color: themeMode === 'light' ? 'var(--text-main)' : '#ffffff', border: themeMode === 'light' ? '1px solid var(--border-color)' : '1px solid rgba(255, 255, 255, 0.25)', padding: '0.35rem 0.6rem', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', outline: 'none', transition: 'all 0.2s ease' }}>
-              {LANGUAGE_OPTIONS.map(opt => (
-                <option key={opt.value} value={opt.value} style={{ background: themeMode === 'light' ? '#ffffff' : '#1e293b', color: themeMode === 'light' ? '#0f172a' : '#ffffff' }}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+          {/* Right Container: Language Selector & Menu Toggle Button */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexShrink: 0 }}>
+            {/* Language Selector */}
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', position: 'relative' }}>
+              <Globe size={14} style={{ color: themeMode === 'light' ? '#0284c7' : '#38bdf8', flexShrink: 0 }} />
+              <select 
+                value={currentLang} 
+                onChange={(e) => setLang(e.target.value)} 
+                className="header-lang-select" 
+                style={{ 
+                  background: themeMode === 'light' ? '#ffffff' : '#1e293b', 
+                  color: themeMode === 'light' ? '#0f172a' : '#ffffff', 
+                  border: themeMode === 'light' ? '1px solid #cbd5e1' : '1px solid rgba(255, 255, 255, 0.25)', 
+                  padding: '0.3rem 0.5rem', 
+                  borderRadius: 'var(--radius-md)', 
+                  fontSize: '0.76rem', 
+                  fontWeight: 700, 
+                  cursor: 'pointer', 
+                  outline: 'none',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                }}
+              >
+                {LANGUAGE_OPTIONS.map(opt => (
+                  <option key={opt.value} value={opt.value} style={{ background: themeMode === 'light' ? '#ffffff' : '#1e293b', color: themeMode === 'light' ? '#0f172a' : '#ffffff' }}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Menu Toggle Accordion Button */}
+            <button
+              onClick={() => setIsMenuOpen(prev => !prev)}
+              style={{
+                background: isMenuOpen 
+                  ? 'var(--accent-gradient)' 
+                  : (themeMode === 'light' ? '#ffffff' : 'rgba(30, 41, 59, 0.95)'),
+                color: isMenuOpen ? '#ffffff' : (themeMode === 'light' ? '#0f172a' : '#ffffff'),
+                border: isMenuOpen 
+                  ? 'none' 
+                  : (themeMode === 'light' ? '1px solid #cbd5e1' : '1px solid rgba(255, 255, 255, 0.25)'),
+                padding: '0.3rem 0.65rem',
+                borderRadius: 'var(--radius-md)',
+                fontSize: '0.78rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.3rem',
+                boxShadow: isMenuOpen ? '0 2px 8px rgba(37, 99, 235, 0.3)' : '0 1px 3px rgba(0,0,0,0.05)',
+                transition: 'all 0.2s ease'
+              }}
+              title={isMenuOpen ? "메뉴 접기" : "메뉴 펼치기"}
+            >
+              <SlidersHorizontal size={13} />
+              <span>{isMenuOpen ? '메뉴 닫기' : '메뉴'}</span>
+              {isMenuOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            </button>
           </div>
         </div>
 
-        {/* Row 2: Header Controls Aligned Far Left (Guide, Share, Wishlist, DarkMode - AI Course Button Deleted) */}
-        <div className="header-controls" style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'flex-start',
-          gap: '0.45rem',
-          flexWrap: 'wrap',
-          width: '100%',
-          boxSizing: 'border-box'
+        {/* Row 2: Collapsible Menu Bar (Toggle Controlled) */}
+        <div style={{
+          maxHeight: isMenuOpen ? '250px' : '0px',
+          overflow: 'hidden',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          opacity: isMenuOpen ? 1 : 0,
+          margin: isMenuOpen ? '0.25rem 0 0 0' : '0',
+          paddingBottom: isMenuOpen ? '0.25rem' : '0'
         }}>
-          <button onClick={onOpenGuidePR} style={{ background: themeMode === 'light' ? 'var(--bg-card)' : 'rgba(30, 41, 59, 0.95)', border: themeMode === 'light' ? '1px solid var(--border-highlight)' : '1px solid rgba(56, 189, 248, 0.5)', color: themeMode === 'light' ? 'var(--text-main)' : '#ffffff', padding: '0.4rem 0.75rem', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem', transition: 'all 0.2s ease' }}>
-            <BookOpen size={14} color={themeMode === 'light' ? 'var(--accent-primary)' : '#38bdf8'} />
-            <span>{t.userGuideBtn || '이용가이드 & 홍보관'}</span>
-          </button>
+          <div className="header-controls" style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-start',
+            gap: '0.45rem',
+            flexWrap: 'wrap',
+            width: '100%',
+            padding: '0.4rem 0.6rem',
+            background: themeMode === 'light' ? '#ffffff' : 'rgba(30, 41, 59, 0.7)',
+            borderRadius: 'var(--radius-md)',
+            border: themeMode === 'light' ? '1px solid #cbd5e1' : '1px solid rgba(255, 255, 255, 0.15)',
+            boxSizing: 'border-box'
+          }}>
+            <button onClick={onOpenGuidePR} style={{ background: themeMode === 'light' ? 'var(--bg-secondary)' : 'rgba(30, 41, 59, 0.95)', border: themeMode === 'light' ? '1px solid var(--border-highlight)' : '1px solid rgba(56, 189, 248, 0.5)', color: themeMode === 'light' ? 'var(--text-main)' : '#ffffff', padding: '0.35rem 0.7rem', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem', transition: 'all 0.2s ease' }}>
+              <BookOpen size={14} color={themeMode === 'light' ? 'var(--accent-primary)' : '#38bdf8'} />
+              <span>{t.userGuideBtn || '이용가이드 & 홍보관'}</span>
+            </button>
 
-          <button onClick={handleShare} style={{ background: themeMode === 'light' ? 'var(--bg-card)' : 'rgba(30, 41, 59, 0.95)', border: themeMode === 'light' ? '1px solid var(--border-color)' : '1px solid rgba(255, 255, 255, 0.25)', color: themeMode === 'light' ? 'var(--text-main)' : '#ffffff', padding: '0.4rem 0.75rem', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-            {showToast ? <Check size={14} color="#10b981" /> : <Share2 size={14} color={themeMode === 'light' ? 'var(--accent-primary)' : '#38bdf8'} />}
-            <span>{showToast ? (t.copiedToast || '복사 완료!') : (t.shareBtn || '여행 조건 공유')}</span>
-          </button>
+            <button onClick={handleShare} style={{ background: themeMode === 'light' ? 'var(--bg-secondary)' : 'rgba(30, 41, 59, 0.95)', border: themeMode === 'light' ? '1px solid var(--border-color)' : '1px solid rgba(255, 255, 255, 0.25)', color: themeMode === 'light' ? 'var(--text-main)' : '#ffffff', padding: '0.35rem 0.7rem', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              {showToast ? <Check size={14} color="#10b981" /> : <Share2 size={14} color={themeMode === 'light' ? 'var(--accent-primary)' : '#38bdf8'} />}
+              <span>{showToast ? (t.copiedToast || '복사 완료!') : (t.shareBtn || '여행 조건 공유')}</span>
+            </button>
 
-          <button onClick={onOpenWishlist} style={{ background: themeMode === 'light' ? 'var(--bg-card)' : 'rgba(30, 41, 59, 0.95)', border: themeMode === 'light' ? '1px solid var(--border-color)' : '1px solid rgba(255, 255, 255, 0.25)', color: themeMode === 'light' ? 'var(--text-main)' : '#ffffff', padding: '0.4rem 0.7rem', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem', position: 'relative' }}>
-            <Heart size={15} fill={wishlistCount > 0 ? "#ef4444" : "none"} color={wishlistCount > 0 ? "#ef4444" : (themeMode === 'light' ? 'currentColor' : '#ffffff')} />
-            <span>{t.wishlistBtn || '찜목록'}</span>
-            {wishlistCount > 0 && (
-              <span style={{ background: '#ef4444', color: '#ffffff', fontSize: '0.68rem', fontWeight: 800, padding: '0.08rem 0.35rem', borderRadius: '999px' }}>{wishlistCount}</span>
-            )}
-          </button>
+            <button onClick={onOpenWishlist} style={{ background: themeMode === 'light' ? 'var(--bg-secondary)' : 'rgba(30, 41, 59, 0.95)', border: themeMode === 'light' ? '1px solid var(--border-color)' : '1px solid rgba(255, 255, 255, 0.25)', color: themeMode === 'light' ? 'var(--text-main)' : '#ffffff', padding: '0.35rem 0.7rem', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem', position: 'relative' }}>
+              <Heart size={15} fill={wishlistCount > 0 ? "#ef4444" : "none"} color={wishlistCount > 0 ? "#ef4444" : (themeMode === 'light' ? 'currentColor' : '#ffffff')} />
+              <span>{t.wishlistBtn || '찜목록'}</span>
+              {wishlistCount > 0 && (
+                <span style={{ background: '#ef4444', color: '#ffffff', fontSize: '0.68rem', fontWeight: 800, padding: '0.08rem 0.35rem', borderRadius: '999px' }}>{wishlistCount}</span>
+              )}
+            </button>
 
-          <button onClick={() => setThemeMode(prev => prev === 'dark' ? 'light' : 'dark')} style={{ background: themeMode === 'dark' ? 'linear-gradient(135deg, #f59e0b, #ea580c)' : 'linear-gradient(135deg, #0f172a, #1e1b4b)', border: 'none', color: '#ffffff', padding: '0.4rem 0.75rem', borderRadius: '9999px', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', fontWeight: 700, fontSize: '0.78rem' }} title={themeMode === 'dark' ? '밝은 화면(라이트 모드)으로 변경' : '어두운 화면(다크 모드)으로 변경'}>
-            {themeMode === 'dark' ? (
-              <>
-                <Sun size={15} style={{ color: '#ffffff' }} />
-                <span>{t.lightMode || '라이트 모드'}</span>
-              </>
-            ) : (
-              <>
-                <Moon size={15} style={{ color: '#38bdf8' }} />
-                <span>{t.darkMode || '다크 모드'}</span>
-              </>
-            )}
-          </button>
+            <button onClick={() => setThemeMode(prev => prev === 'dark' ? 'light' : 'dark')} style={{ background: themeMode === 'dark' ? 'linear-gradient(135deg, #f59e0b, #ea580c)' : 'linear-gradient(135deg, #0f172a, #1e1b4b)', border: 'none', color: '#ffffff', padding: '0.35rem 0.75rem', borderRadius: '9999px', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', fontWeight: 700, fontSize: '0.78rem' }} title={themeMode === 'dark' ? '밝은 화면(라이트 모드)으로 변경' : '어두운 화면(다크 모드)으로 변경'}>
+              {themeMode === 'dark' ? (
+                <>
+                  <Sun size={15} style={{ color: '#ffffff' }} />
+                  <span>{t.lightMode || '라이트 모드'}</span>
+                </>
+              ) : (
+                <>
+                  <Moon size={15} style={{ color: '#38bdf8' }} />
+                  <span>{t.darkMode || '다크 모드'}</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Row 3: Sticky Quick Navigation Tabs Bar (58px Left-Indented Alignment) */}
