@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, Mic, MicOff, ArrowRight, Camera } from 'lucide-react';
+import { Sparkles, Mic, MicOff, ArrowRight, Camera, X } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
 
 /**
@@ -270,6 +270,31 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary })
                 }}
               />
 
+              {promptText && promptText.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setPromptText('')}
+                  title="검색어 지우기 ✕"
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '9999px',
+                    border: 'none',
+                    background: '#f1f5f9',
+                    color: '#64748b',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    flexShrink: 0,
+                    marginRight: '0.35rem',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <X style={{ width: '14px', height: '14px' }} />
+                </button>
+              )}
+
               {isSpeechSupported && (
                 <button
                   type="button"
@@ -390,6 +415,31 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary })
                 padding: isMobile ? '0.35rem 0' : '0.5rem 0'
               }}
             />
+
+            {promptText && promptText.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setPromptText('')}
+                title="검색어 지우기 ✕"
+                style={{
+                  width: isMobile ? '30px' : '34px',
+                  height: isMobile ? '30px' : '34px',
+                  borderRadius: '9999px',
+                  border: 'none',
+                  background: '#f1f5f9',
+                  color: '#64748b',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  flexShrink: 0,
+                  marginRight: '0.25rem',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <X style={{ width: isMobile ? '13px' : '15px', height: isMobile ? '13px' : '15px' }} />
+              </button>
+            )}
 
             {isSpeechSupported && (
               <button
