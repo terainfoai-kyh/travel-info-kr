@@ -305,9 +305,44 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
             </button>
           </div>
 
-          {/* Row 2: View Switcher Tabs on Left & Official DB Badge + Region/Days Badge on Right */}
+          {/* Row 2: Badges Bar on Top Sub-line & View Switcher Tab on Bottom right above Map */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.45rem' }}>
-            {/* View Switcher Pills */}
+            {/* Official DB Badge & Region/Days Badge Side-by-Side */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+              <span 
+                title={t.aiTrustBadgeDesc || '한국관광공사 Official DB 100% 연동 인증 코스'}
+                style={{
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  color: '#10b981',
+                  background: 'rgba(16, 185, 129, 0.12)',
+                  border: '1px solid rgba(16, 185, 129, 0.3)',
+                  padding: '0.18rem 0.5rem',
+                  borderRadius: 'var(--radius-full)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.25rem',
+                  cursor: 'pointer'
+                }}
+              >
+                <ShieldCheck size={13} color="#10b981" />
+                <span>{t.aiTrustBadgeTitleShort || '공식 DB 연동'}</span>
+              </span>
+
+              <span style={{
+                fontSize: '0.78rem',
+                fontWeight: 800,
+                background: 'var(--bg-card)',
+                color: 'var(--accent-primary)',
+                border: '1px solid var(--border-highlight)',
+                padding: '0.18rem 0.55rem',
+                borderRadius: 'var(--radius-full)'
+              }}>
+                📍 {getBadgeI18n('region', region)} · {selectedDays === 1 ? (t.dayTrip1Day || '당일치기') : `${selectedDays}${t.daysCountUnit || '일간'}`}
+              </span>
+            </div>
+
+            {/* View Switcher Pills Pinned Right Above Map */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
@@ -359,41 +394,6 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                 <Calendar size={14} />
                 <span>{t.listViewShort || '📋 일정 목록'}</span>
               </button>
-            </div>
-
-            {/* Official DB Badge & Region/Days Badge Side-by-Side */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
-              <span 
-                title={t.aiTrustBadgeDesc || '한국관광공사 Official DB 100% 연동 인증 코스'}
-                style={{
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  color: '#10b981',
-                  background: 'rgba(16, 185, 129, 0.12)',
-                  border: '1px solid rgba(16, 185, 129, 0.3)',
-                  padding: '0.18rem 0.5rem',
-                  borderRadius: 'var(--radius-full)',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.25rem',
-                  cursor: 'pointer'
-                }}
-              >
-                <ShieldCheck size={13} color="#10b981" />
-                <span>{t.aiTrustBadgeTitleShort || '공식 DB 연동'}</span>
-              </span>
-
-              <span style={{
-                fontSize: '0.78rem',
-                fontWeight: 800,
-                background: 'var(--bg-card)',
-                color: 'var(--accent-primary)',
-                border: '1px solid var(--border-highlight)',
-                padding: '0.18rem 0.55rem',
-                borderRadius: 'var(--radius-full)'
-              }}>
-                📍 {getBadgeI18n('region', region)} · {selectedDays === 1 ? (t.dayTrip1Day || '당일치기') : `${selectedDays}${t.daysCountUnit || '일간'}`}
-              </span>
             </div>
           </div>
         </div>

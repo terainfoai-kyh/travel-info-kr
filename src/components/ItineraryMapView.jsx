@@ -383,9 +383,6 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
               <Compass size={18} color="var(--accent-primary)" />
               <span>{getI18nDayHeaderTitle(currentDayData, currentDayData?.region, lang)}</span>
             </div>
-            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
-              {getMapZoomOutGuide(lang)}
-            </div>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
