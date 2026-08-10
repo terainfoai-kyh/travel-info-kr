@@ -239,203 +239,145 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Always Visible Sticky Close Button */}
-        <button
-          onClick={onClose}
-          aria-label="닫기"
-          style={{
-            position: 'sticky',
-            top: '1rem',
-            float: 'right',
-            marginRight: '0.5rem',
-            marginTop: '0.5rem',
-            marginBottom: '-3rem',
-            zIndex: 200,
-            background: 'rgba(15, 23, 42, 0.92)',
-            border: '2px solid rgba(255, 255, 255, 0.4)',
-            color: '#ffffff',
-            width: '42px',
-            height: '42px',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.6)',
-            backdropFilter: 'blur(8px)',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'scale(1.1)';
-            e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.95)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'scale(1)';
-            e.currentTarget.style.backgroundColor = 'rgba(15, 23, 42, 0.92)';
-          }}
-        >
-          <X size={24} strokeWidth={2.5} />
-        </button>
-
-        {/* Modal Header */}
-        <div style={{ marginBottom: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.4rem' }}>
-            <div style={{
-              background: 'rgba(56, 189, 248, 0.2)',
-              padding: '0.5rem',
-              borderRadius: 'var(--radius-md)',
-              color: 'var(--accent-primary)'
-            }}>
-              <Sparkles size={24} />
-            </div>
-            <div>
-              <h2 style={{ fontSize: '1.4rem', fontWeight: 800, margin: 0 }} className="gradient-text">
-                {t.aiItineraryMainTitle || 'AI 스마트 여행 코스 추천'}
-              </h2>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>
-                {t.aiItineraryMainSub || '지정한 시작일자 및 상세 검색 조건 기반 맞춤 동선 추천'}
-              </p>
-            </div>
-          </div>
-
-          {/* Trust Guarantee Badge Card */}
-          <div style={{
-            margin: '0.75rem 0 0.5rem 0',
-            padding: '0.75rem 1rem',
-            background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(56, 189, 248, 0.1))',
-            borderRadius: 'var(--radius-md)',
-            border: '1px solid rgba(16, 185, 129, 0.3)',
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: '0.65rem'
-          }}>
-            <ShieldCheck size={20} color="#10b981" style={{ marginTop: '0.1rem', flexShrink: 0 }} />
-            <div>
-              <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#10b981' }}>
-                {t.aiTrustBadgeTitle || '🔒 K-Travel AI 플래너의 약속'}
-              </div>
-              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.15rem', lineHeight: 1.4 }}>
-                {t.aiTrustBadgeDesc || '본 코스는 한국관광공사 Official DB를 기반으로 생성되며, 허위 정보 없이 카카오맵/구글맵 실제 경로와 100% 연동됩니다.'}
-              </div>
-            </div>
-          </div>
-
-          {/* Active Search Conditions Badges Bar */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-            flexWrap: 'wrap',
-            marginTop: '0.6rem',
-            padding: '0.6rem 0.85rem',
-            background: 'var(--bg-primary)',
-            borderRadius: 'var(--radius-md)',
-            border: '1px solid var(--border-color)'
-          }}>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-              <Filter size={13} color="var(--accent-primary)" /> {t.appliedFiltersLabel || '적용된 조회 조건:'}
-            </span>
-
-            {/* 1. 여행 시작일 ~ 종료일 */}
-            <span style={{ fontSize: '0.75rem', background: 'rgba(56, 189, 248, 0.15)', border: '1px solid rgba(56, 189, 248, 0.3)', padding: '0.15rem 0.55rem', borderRadius: 'var(--radius-sm)', color: 'var(--accent-primary)', fontWeight: 700 }}>
-              📅 {filters?.endDate && filters.endDate !== customStartDate ? `${customStartDate} ~ ${filters.endDate}` : `${customStartDate} ${t.fromStartLabel || '부터'}`} ({selectedDays}{t.daysCountUnit || '일 코스 추천'})
-            </span>
-
-            {/* 2. 지역 */}
-            <span style={{ fontSize: '0.75rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', padding: '0.15rem 0.55rem', borderRadius: 'var(--radius-sm)', color: 'var(--text-main)', fontWeight: 700 }}>
-              📍 {getBadgeI18n('region', region)}
-            </span>
-
-            {/* 3. 테마 */}
-            <span style={{ fontSize: '0.75rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', padding: '0.15rem 0.55rem', borderRadius: 'var(--radius-sm)', color: 'var(--text-main)', fontWeight: 600 }}>
-              🏖️ {getBadgeI18n('theme', theme)}
-            </span>
-
-            {/* 4. 성별 */}
-            {filters?.gender && filters.gender !== '무관' && (
-              <span style={{ fontSize: '0.75rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', padding: '0.15rem 0.55rem', borderRadius: 'var(--radius-sm)', color: 'var(--text-muted)' }}>
-                🚻 {getBadgeI18n('gender', filters.gender)}
-              </span>
-            )}
-
-            {/* 5. 연령대 */}
-            {filters?.age && filters.age !== '전체' && (
-              <span style={{ fontSize: '0.75rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', padding: '0.15rem 0.55rem', borderRadius: 'var(--radius-sm)', color: 'var(--text-muted)' }}>
-                👤 {getBadgeI18n('age', filters.age)}
-              </span>
-            )}
-
-            {/* 6. 검색 키워드 */}
-            {filters?.keyword && (
-              <span style={{ fontSize: '0.75rem', background: 'rgba(249, 115, 22, 0.2)', border: '1px solid rgba(249, 115, 22, 0.4)', padding: '0.15rem 0.55rem', borderRadius: 'var(--radius-sm)', color: '#f97316', fontWeight: 700 }}>
-                🔍 {filters.keyword}
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* Top Segmented View Switcher (전체 동선 지도 vs 상세 일정 목록) */}
+        {/* Option 1: Ultra-Slim 1-Row Modal Header (Diet from 400px to 52px) */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
-          gap: '0.6rem',
+          justifyContent: 'space-between',
+          padding: '0.65rem 0.85rem',
+          margin: '-1rem -1rem 0.85rem -1rem',
           background: 'var(--bg-secondary)',
-          padding: '0.4rem',
-          borderRadius: 'var(--radius-lg)',
-          border: '1px solid var(--border-highlight)',
-          margin: '1rem 0',
-          boxShadow: 'var(--shadow-sm)'
+          borderBottom: '1px solid var(--border-color)',
+          borderRadius: 'var(--radius-lg) var(--radius-lg) 0 0',
+          gap: '0.5rem',
+          flexWrap: 'wrap'
         }}>
-          <button
-            type="button"
-            onClick={() => setViewMode('map')}
-            style={{
-              flex: 1,
+          {/* Left: Compact Title & Region/Days Badge & Trust Tooltip */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
+            <div style={{
+              background: 'rgba(56, 189, 248, 0.2)',
+              padding: '0.35rem',
+              borderRadius: 'var(--radius-sm)',
+              color: 'var(--accent-primary)',
               display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem',
-              background: viewMode === 'map' ? 'var(--accent-gradient)' : 'transparent',
-              color: viewMode === 'map' ? '#ffffff' : 'var(--text-muted)',
-              border: 'none',
-              padding: '0.65rem 1.25rem',
-              borderRadius: 'var(--radius-md)',
-              fontSize: '0.9rem',
-              fontWeight: 800,
-              cursor: 'pointer',
-              transition: 'all 0.25s ease',
-              boxShadow: viewMode === 'map' ? 'var(--shadow-glow)' : 'none'
-            }}
-          >
-            <Compass size={18} />
-            <span>{t.mapViewLabel || '🗺️ 전체 동선 지도 뷰'}</span>
-          </button>
+              alignItems: 'center'
+            }}>
+              <Sparkles size={16} />
+            </div>
+            <h2 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0 }} className="gradient-text">
+              {t.aiItineraryMainTitle || 'AI 코스 추천'}
+            </h2>
 
-          <button
-            type="button"
-            onClick={() => setViewMode('list')}
-            style={{
-              flex: 1,
+            <span style={{
+              fontSize: '0.78rem',
+              fontWeight: 800,
+              background: 'var(--bg-card)',
+              color: 'var(--accent-primary)',
+              border: '1px solid var(--border-highlight)',
+              padding: '0.18rem 0.55rem',
+              borderRadius: 'var(--radius-full)'
+            }}>
+              📍 {getBadgeI18n('region', region)} · {selectedDays === 1 ? (t.dayTrip1Day || '당일치기') : `${selectedDays}${t.daysCountUnit || '일간'}`}
+            </span>
+
+            <span 
+              title={t.aiTrustBadgeDesc || '한국관광공사 Official DB 100% 연동 인증 코스'}
+              style={{
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                color: '#10b981',
+                background: 'rgba(16, 185, 129, 0.12)',
+                border: '1px solid rgba(16, 185, 129, 0.3)',
+                padding: '0.15rem 0.45rem',
+                borderRadius: 'var(--radius-full)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.25rem',
+                cursor: 'pointer'
+              }}
+            >
+              <ShieldCheck size={13} color="#10b981" />
+              <span>{t.aiTrustBadgeTitleShort || '공식 DB 연동'}</span>
+            </span>
+          </div>
+
+          {/* Right: View Switcher (Map vs List) & Close Button */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            {/* View Switcher Segmented Pills */}
+            <div style={{
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem',
-              background: viewMode === 'list' ? 'var(--accent-gradient)' : 'transparent',
-              color: viewMode === 'list' ? '#ffffff' : 'var(--text-muted)',
-              border: 'none',
-              padding: '0.65rem 1.25rem',
+              background: 'var(--bg-primary)',
+              padding: '0.2rem',
               borderRadius: 'var(--radius-md)',
-              fontSize: '0.9rem',
-              fontWeight: 800,
-              cursor: 'pointer',
-              transition: 'all 0.25s ease',
-              boxShadow: viewMode === 'list' ? 'var(--shadow-glow)' : 'none'
-            }}
-          >
-            <Calendar size={18} />
-            <span>{t.listViewLabel || '📋 카드형 상세 일정 목록 뷰'}</span>
-          </button>
+              border: '1px solid var(--border-color)'
+            }}>
+              <button
+                type="button"
+                onClick={() => setViewMode('map')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.3rem',
+                  background: viewMode === 'map' ? 'var(--accent-gradient)' : 'transparent',
+                  color: viewMode === 'map' ? '#ffffff' : 'var(--text-muted)',
+                  border: 'none',
+                  padding: '0.35rem 0.75rem',
+                  borderRadius: 'var(--radius-sm)',
+                  fontSize: '0.78rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <Compass size={14} />
+                <span>{t.mapViewShort || '🗺️ 지도'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setViewMode('list')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.3rem',
+                  background: viewMode === 'list' ? 'var(--accent-gradient)' : 'transparent',
+                  color: viewMode === 'list' ? '#ffffff' : 'var(--text-muted)',
+                  border: 'none',
+                  padding: '0.35rem 0.75rem',
+                  borderRadius: 'var(--radius-sm)',
+                  fontSize: '0.78rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <Calendar size={14} />
+                <span>{t.listViewShort || '📋 일정 목록'}</span>
+              </button>
+            </div>
+
+            {/* Close Button */}
+            <button
+              onClick={onClose}
+              style={{
+                background: 'rgba(15, 23, 42, 0.92)',
+                border: '1px solid rgba(255, 255, 255, 0.25)',
+                color: '#ffffff',
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                flexShrink: 0
+              }}
+            >
+              <X size={18} strokeWidth={2.5} />
+            </button>
+          </div>
         </div>
 
         {/* Sleek Option 1: 1-Row Compact Summary Accordion Toolbar */}
