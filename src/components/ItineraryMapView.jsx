@@ -1,3 +1,7 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { MapPin, Navigation, ExternalLink, Compass, Car, Bus, Map, Sparkles, RefreshCw } from 'lucide-react';
+import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress } from '../i18n/translations';
+
 function getI18nDayHeaderTitle(dayObj, region, lang = 'ko') {
   if (!dayObj) return '';
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
