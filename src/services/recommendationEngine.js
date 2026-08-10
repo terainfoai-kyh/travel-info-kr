@@ -511,6 +511,12 @@ export function generateSmartItinerary({
       { id: 'p-18', title: '덕진공원 연화교', location: '전북특별자치도 전주시 덕진구 권삼득로 390', rating: 4.7, tags: ['연꽃', '도서관', '야경'], lat: 35.8471, lng: 127.1215, image: GYEONGBOKGUNG_FALLBACK_IMG },
       { id: 'p-19', title: '군산 근대화거리 & 초원사진관', location: '전북특별자치도 군산시 구영2길 12-1', rating: 4.6, tags: ['레트로', '근대역사', '영화촬영지'], lat: 35.9872, lng: 126.7061, image: GYEONGBOKGUNG_FALLBACK_IMG },
       { id: 'p-20', title: '마이산 도립공원', location: '전북특별자치도 진안군 진안읍 마이산로 130', rating: 4.8, tags: ['탑사', '기암괴석', '미스테리'], lat: 35.7621, lng: 127.4285, image: GYEONGBOKGUNG_FALLBACK_IMG }
+    ],
+    '경기': [
+      { id: 'p-21', title: '수원 화성 & 방화수류정', location: '경기도 수원시 팔달구 정조로 825', rating: 4.9, tags: ['유네스코', '세계문화유산', '야경명소', '수원'], lat: 37.2858, lng: 127.0145, image: GYEONGBOKGUNG_FALLBACK_IMG },
+      { id: 'p-22', title: '수원 행궁동 카페거리 & 화성행궁', location: '경기도 수원시 팔달구 신풍로23번길 61', rating: 4.8, tags: ['카페거리', '데이트', 'K-드라마', '수원'], lat: 37.2825, lng: 127.0122, image: GYEONGBOKGUNG_FALLBACK_IMG },
+      { id: 'p-23', title: '광명동굴 & 미디어아트', location: '경기도 광명시 가학로85번길 142', rating: 4.7, tags: ['동굴탐험', '와인동굴', '실내코스'], lat: 37.4262, lng: 126.8661, image: GYEONGBOKGUNG_FALLBACK_IMG },
+      { id: 'p-24', title: '파주 헤이리 예술마을 & 프로방스', location: '경기도 파주시 탄현면 헤이리마을길 70-21', rating: 4.7, tags: ['예술', '박물관', '드라이브'], lat: 37.7891, lng: 126.6983, image: GYEONGBOKGUNG_FALLBACK_IMG }
     ]
   };
 
@@ -524,6 +530,18 @@ export function generateSmartItinerary({
 
   // Filter pool strictly by target region
   let pool = spots.filter(s => isMatchingRegion(s, region));
+
+  // If specific search keyword is provided (e.g. "수원"), prioritize spots matching the keyword
+  const keywordClean = (spots.keyword || '').trim().toLowerCase();
+  if (keywordClean && keywordClean.length >= 2) {
+    const kwMatchedPool = pool.filter(s => {
+      const txt = `${s.title || ''} ${s.location || ''} ${s.tags?.join(' ') || ''}`.toLowerCase();
+      return txt.includes(keywordClean);
+    });
+    if (kwMatchedPool.length >= 1) {
+      pool = kwMatchedPool;
+    }
+  }
 
   // Indoor rainy mode filtering
   if (rainyMode) {

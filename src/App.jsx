@@ -253,20 +253,40 @@ export default function App() {
         {/* Conversational & Voice AI Prompt Header */}
         <AIChatPromptHeader 
           lang={lang} 
-          onGenerateItinerary={(parsed) => {
-            if (parsed.region) {
-              setFilters(prev => ({ ...prev, region: parsed.region, keyword: parsed.keyword || prev.keyword }));
+          onGenerateItinerary={async (parsed) => {
+            const targetRegion = parsed.region || '전국';
+            const targetKeyword = parsed.keyword || '';
+            const newFilters = {
+              ...filters,
+              region: targetRegion,
+              keyword: targetKeyword
+            };
+            setFilters(newFilters);
+            setIsLoading(true);
+            try {
+              const spots = await fetchTourSpots({
+                ...newFilters,
+                lang
+              });
+              setAllTourSpots(spots);
+              const wData = await fetchRealtimeWeather(targetRegion, newFilters.startDate, newFilters.endDate);
+              setWeatherData(wData);
+              const recs = getRecommendedFoodAndOutfit({
+                weather: wData,
+                region: targetRegion,
+                keyword: targetKeyword,
+                theme: newFilters.theme,
+                age: newFilters.age,
+                gender: newFilters.gender
+              });
+              setRecommendations(recs);
+            } catch (err) {
+              console.error('Error fetching itinerary spots:', err);
+            } finally {
+              setIsLoading(false);
+              setIsItineraryOpen(true);
             }
-            setIsItineraryOpen(true);
           }} 
-        />
-
-        {/* Search Conditions Input */}
-        <SearchFilterForm
-          filters={filters}
-          setFilters={setFilters}
-          onSearch={handleSearch}
-          lang={lang}
         />
 
         {/* Loading Indicator */}
@@ -477,7 +497,7 @@ export default function App() {
               padding: 0
             }}
           >
-            {t.userGuideBtn || '📖 이용가이드 & 홍보관'}
+            📖 {t.userGuideBtn || '이용가이드 & 홍보관'}
           </button>
           <span>•</span>
           <button
