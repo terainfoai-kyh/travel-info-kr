@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MapPin, Navigation, ExternalLink, Compass, Car, Bus, Map, Sparkles, RefreshCw } from 'lucide-react';
 import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress } from '../i18n/translations';
+import { getI18nTravelNote } from '../i18n/travelChipI18n';
 
 function getI18nDayHeaderTitle(dayObj, region, lang = 'ko') {
   if (!dayObj) return '';
@@ -104,25 +105,11 @@ function getMapZoomOutGuide(lang) {
 
 function formatTravelNote(travel, lang) {
   if (!travel) return { car: '', transit: '' };
-  const carMin = travel.carMin || 15;
-  const distKm = travel.distKm || 5.0;
-  const transitMin = travel.transitMin || 25;
-
-  if (travel.longDistanceNote) {
-    return { car: travel.longDistanceNote, transit: '' };
+  const res = getI18nTravelNote(travel, lang);
+  if (res.isLongDistance) {
+    return { car: res.longNote, transit: '' };
   }
-
-  switch (lang) {
-    case 'en': return { car: `Drive ${carMin} min (${distKm} km)`, transit: `Transit ~${transitMin} min` };
-    case 'ja': return { car: `車 ${carMin}分 (${distKm}km)`, transit: `公共交通 約${transitMin}分` };
-    case 'zh': return { car: `驾车 ${carMin}分钟 (${distKm}公里)`, transit: `公共交通 约${transitMin}分钟` };
-    case 'zht': return { car: `駕車 ${carMin}分鐘 (${distKm}公里)`, transit: `公共交通 約${transitMin}分鐘` };
-    case 'de': return { car: `Auto ${carMin} Min. (${distKm} km)`, transit: `ÖPNV ca. ${transitMin} Min.` };
-    case 'fr': return { car: `Voiture ${carMin} min (${distKm} km)`, transit: `Transports ~${transitMin} min` };
-    case 'es': return { car: `Coche ${carMin} min (${distKm} km)`, transit: `Transporte ~${transitMin} min` };
-    case 'ru': return { car: `Авто ${carMin} мин (${distKm} км)`, transit: `Транспорт ~${transitMin} мин` };
-    default: return { car: `차량 ${carMin}분 (${distKm}km)`, transit: `대중교통 약 ${transitMin}분` };
-  }
+  return { car: res.driveNote, transit: res.transitNote };
 }
 
 export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChangeDay, lang = 'ko', onSwitchToList }) {
@@ -321,31 +308,31 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
       .trim();
   };
 
-  // Build Multi-Waypoint Google Maps Route Navigation URL (Clean Place Names for 100% Driving Line Drawing)
+  // Build Google Maps Direct Route URL (Origin ➔ Destination for 100% Driving Route Line Drawing)
   const buildGoogleRouteUrl = () => {
     const validSpots = schedule.filter(s => s && s.title);
     if (validSpots.length === 0) return '#';
 
-    const origin = encodeURIComponent(cleanTitle(validSpots[0].title));
-    const destination = encodeURIComponent(cleanTitle(validSpots[validSpots.length - 1].title));
-    
-    let waypointsParam = '';
-    if (validSpots.length > 2) {
-      const waypoints = validSpots.slice(1, -1).map(s => encodeURIComponent(cleanTitle(s.title))).join('|');
-      waypointsParam = `&waypoints=${waypoints}`;
-    }
+    const originTitle = encodeURIComponent(cleanTitle(validSpots[0].title));
+    const destTitle = encodeURIComponent(cleanTitle(validSpots[validSpots.length - 1].title));
 
-    return `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}${waypointsParam}&travelmode=driving`;
+    return `https://www.google.com/maps/dir/?api=1&origin=${originTitle}&destination=${destTitle}&travelmode=driving`;
   };
 
-  // Build KakaoMap Official Directions Link URL (Kakao Official link/to Scheme)
+  // Build KakaoMap Official Directions Link URL (Pre-fills BOTH Origin & Destination via /to/dest/from/origin Scheme)
   const buildKakaoRouteUrl = () => {
     const validSpots = schedule.filter(s => s && s.title);
     if (validSpots.length === 0) return '#';
 
+    const originSpot = validSpots[0];
     const destSpot = validSpots[validSpots.length - 1];
+
+    const originTitle = encodeURIComponent(cleanTitle(originSpot.title));
     const destTitle = encodeURIComponent(cleanTitle(destSpot.title));
 
+    if (validSpots.length >= 2 && originSpot.lat && originSpot.lng && destSpot.lat && destSpot.lng) {
+      return `https://map.kakao.com/link/to/${destTitle},${destSpot.lat},${destSpot.lng}/from/${originTitle},${originSpot.lat},${originSpot.lng}`;
+    }
     if (destSpot.lat && destSpot.lng) {
       return `https://map.kakao.com/link/to/${destTitle},${destSpot.lat},${destSpot.lng}`;
     }
