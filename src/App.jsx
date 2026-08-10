@@ -256,11 +256,6 @@ export default function App() {
         <AIChatPromptHeader 
           lang={lang} 
           onGenerateItinerary={async (parsed) => {
-            if (parsed?.isOverseas) {
-              setOverseasQuery(parsed.raw || '');
-              setShowOverseasModal(true);
-              return;
-            }
             const targetRegion = parsed.region || '전국';
             const targetKeyword = parsed.keyword || '';
             const newFilters = {
