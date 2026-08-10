@@ -39,13 +39,19 @@ export function parseNaturalPrompt(text) {
     }
   }
 
-  // Extract clean keyword by removing common prompt stopwords and spoken fillers
+  // Phase 1: Extract clean keyword by removing common intent phrases first
   let cleanKeyword = raw
-    .replace(/(에서|으로|로|에|의|가볼만한|가볼|만한|곳|좀|추천해줘|추천|알려줘|코스|일정|여행|맛집|포함|보여줘|만들어줘|플랜|동선|가자|가고싶어|가고|싶어|어디가|좋아|어디|짜줘|찾아줘|부탁해)/g, ' ')
+    .replace(/(가볼만한곳|가볼만한|가볼 곳|가볼곳|가볼|만한|추천해줘|추천코스|추천맛집|추천|알려줘|보여줘|만들어줘|가고싶어|가고|싶어|어디가좋아|어디가|어디|여행코스|여행지|관광지|관광명소|핫플레이스|핫플|명소|동선|플랜|일정|코스|여행|맛집|포함|짜줘|찾아줘|부탁해)/gi, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 
-  // If region was detected, clean region keywords out of search text so keyword doesn't duplicate region name
+  // Phase 2: Strip particle suffixes
+  cleanKeyword = cleanKeyword
+    .replace(/(에서|으로|로|에|의|가|는|은|을|를|좀|곳)/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  // Phase 3: If region was detected, clean region keywords out of search text so keyword doesn't duplicate region name
   if (region !== '전국') {
     const matchedRegionObj = regionMap.find(r => r.name === region);
     if (matchedRegionObj) {
@@ -56,6 +62,12 @@ export function parseNaturalPrompt(text) {
         }
       });
     }
+  }
+
+  // Phase 4: Final fragment check. If remaining keyword is a meaningless fragment or 1-char, clear to ""
+  const junkFragments = ['가', '볼', '가볼', '곳', '만한', '에', '로', '좀', '추천'];
+  if (junkFragments.includes(cleanKeyword) || cleanKeyword.length <= 1) {
+    cleanKeyword = '';
   }
 
   // Days detection
