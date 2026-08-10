@@ -219,16 +219,16 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
                 LIVE AI
               </span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.2rem', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.2rem', flexWrap: 'wrap' }}>
               <p className="header-subtitle" style={{ fontSize: '0.73rem', color: themeMode === 'light' ? '#334155' : 'var(--text-muted)', fontWeight: 600, margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {t.subtitle}
               </p>
               {filters && (
                 <div className="desktop-only-badges" style={{ display: 'inline-flex', gap: '0.35rem', flexWrap: 'wrap', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.7rem', background: 'rgba(56, 189, 248, 0.18)', border: '1px solid rgba(56, 189, 248, 0.3)', padding: '0.12rem 0.45rem', borderRadius: 'var(--radius-sm)', color: 'var(--accent-primary)', fontWeight: 700 }}>
+                  <span style={{ fontSize: '0.7rem', background: 'rgba(56, 189, 248, 0.18)', border: '1px solid rgba(56, 189, 248, 0.3)', padding: '0.12rem 0.45rem', borderRadius: 'var(--radius-sm)', color: 'var(--accent-primary)', fontWeight: 700, whiteSpace: 'nowrap' }}>
                     📍 {getBadgeI18n('region', filters.region || '전국')}
                   </span>
-                  <span style={{ fontSize: '0.7rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', padding: '0.12rem 0.45rem', borderRadius: 'var(--radius-sm)', color: 'var(--text-main)', fontWeight: 600 }}>
+                  <span style={{ fontSize: '0.7rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', padding: '0.12rem 0.45rem', borderRadius: 'var(--radius-sm)', color: 'var(--text-main)', fontWeight: 600, whiteSpace: 'nowrap' }}>
                     🏖️ {getBadgeI18n('theme', filters.theme || '전체')}
                   </span>
                 </div>
@@ -238,7 +238,7 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
         </div>
 
         {/* Action Controls */}
-        <div className="header-controls" style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap', justifyContent: 'flex-end', flexShrink: 1, maxWidth: '100%' }}>
+        <div className="header-controls" style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap', justifyContent: 'flex-end', flexShrink: 0, marginLeft: 'auto' }}>
           {/* User Guide & PR Hub Button */}
           <button
             onClick={onOpenGuidePR}

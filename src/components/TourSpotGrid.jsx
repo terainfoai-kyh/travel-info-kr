@@ -194,13 +194,16 @@ export default function TourSpotGrid({
           border: '1px solid var(--border-color)',
           padding: '1.1rem 0.9rem',
           textAlign: 'center',
-          margin: '0.65rem 0',
+          margin: '0.65rem auto',
           boxShadow: 'var(--shadow-sm)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: '0.65rem'
+          gap: '0.65rem',
+          width: '100%',
+          maxWidth: '1280px',
+          boxSizing: 'border-box'
         }}>
           {/* Inline Compact Title Badge */}
           <div style={{

@@ -29,6 +29,14 @@ export function getMapSearchBtnLabel(foodName, lang = 'ko') {
 
 export const TRANSLATIONS = {
   ko: {
+
+
+    noSpotsResult: '\'{keyword}\' 검색 결과가 없습니다',
+    noSpotsDesc: '원하시는 장소가 없으신가요? 아래 추천 팁이나 음성 검색을 활용해 보세요.',
+    tipRegionTheme: '💡 \'지역명 + 테마\' (예: 성수동 카페, 해운대 맛집)',
+    tipVoiceSearch: 'AI 음성 검색',
+    resetFilterBtn: '전체 관광 명소 목록으로 초기화',
+
     noSpotsResult: '\'{keyword}\' 검색 결과가 없습니다',
     noSpotsDesc: '원하시는 장소가 없으신가요? 아래 추천 팁이나 음성 검색을 활용해 보세요.',
     tipRegionTheme: '💡 \'지역명 + 테마\' (예: 성수동 카페, 해운대 맛집)',
@@ -323,6 +331,13 @@ export const TRANSLATIONS = {
     swapSpotBtn: '다른 장소 추천 🔄',
     regenerateItineraryBtn: 'AI 코스 다시 추천 🔄',
     spotTitles: {
+
+    noSpotsResult: 'No se encontraron resultados para \'{keyword}\'',
+    noSpotsDesc: '¿No encuentras lo que buscas? Revisa las sugerencias de búsqueda o usa la búsqueda por voz con IA.',
+    tipRegionTheme: '💡 \'Región + Tema\' (ej. Café Seongsu, Comida Haeundae)',
+    tipVoiceSearch: 'Búsqueda por voz IA',
+    resetFilterBtn: 'Restablecer a todas las atracciones',
+
     noSpotsResult: 'No se encontraron resultados para \'{keyword}\'',
     noSpotsDesc: '¿No encuentras lo que buscas? Revisa las sugerencias de búsqueda o usa la búsqueda por voz con IA.',
     tipRegionTheme: '💡 \'Región + Tema\' (ej. Café Seongsu, Comida Haeundae)',
@@ -373,6 +388,14 @@ export const TRANSLATIONS = {
     }
   },
   en: {
+
+
+    noSpotsResult: 'No results found for \'{keyword}\'',
+    noSpotsDesc: 'Couldn\'t find what you\'re looking for? Try the search tips below or use AI voice search.',
+    tipRegionTheme: '💡 \'Region + Theme\' (e.g. Seongsu Cafe, Haeundae Food)',
+    tipVoiceSearch: 'AI Voice Search',
+    resetFilterBtn: 'Reset to All Attractions',
+
     noSpotsResult: 'No results found for \'{keyword}\'',
     noSpotsDesc: 'Couldn\'t find what you\'re looking for? Try the search tips below or use AI voice search.',
     tipRegionTheme: '💡 \'Region + Theme\' (e.g. Seongsu Cafe, Haeundae Food)',
@@ -701,6 +724,14 @@ export const TRANSLATIONS = {
     }
   },
   ja: {
+
+
+    noSpotsResult: '「{keyword}」の検索結果がありません',
+    noSpotsDesc: 'お探しの場所は見つかりませんでしたか？以下の検索ヒントやAI音声検索をご利用ください。',
+    tipRegionTheme: '💡 「地域名＋テーマ」（例：聖水洞カフェ、海雲台グルメ）',
+    tipVoiceSearch: 'AI 音声検索',
+    resetFilterBtn: 'すべての観光スポット一覧にリセット',
+
     noSpotsResult: '「{keyword}」の検索結果がありません',
     noSpotsDesc: 'お探しの場所は見つかりませんでしたか？以下の検索ヒントやAI音声検索をご利用ください。',
     tipRegionTheme: '💡 「地域名＋テーマ」（例：聖水洞カフェ、海雲台グルメ）',
@@ -994,6 +1025,14 @@ export const TRANSLATIONS = {
     }
   },
   zh: {
+
+
+    noSpotsResult: '未找到 "{keyword}" 的搜索结果',
+    noSpotsDesc: '没有找到您想去的景点吗？请参考下面的搜索提示或 AI 语音搜索。',
+    tipRegionTheme: '💡 “地区 + 主题”（例：圣水洞咖啡馆、海云台美食）',
+    tipVoiceSearch: 'AI 语音搜索',
+    resetFilterBtn: '重置为所有景点列表',
+
     noSpotsResult: '未找到 "{keyword}" 的搜索结果',
     noSpotsDesc: '没有找到您想去的景点吗？请参考下面的搜索提示或 AI 语音搜索。',
     tipRegionTheme: '💡 “地区 + 主题”（例：圣水洞咖啡馆、海云台美食）',
@@ -1307,6 +1346,14 @@ export const TRANSLATIONS = {
     }
   },
   zht: {
+
+
+    noSpotsResult: '未找到 「{keyword}」 的搜尋結果',
+    noSpotsDesc: '沒有找到您想去的景點嗎？請參考下面的搜尋提示或 AI 語音搜尋。',
+    tipRegionTheme: '💡 「地區 + 主題」（例：聖水洞咖啡館、海雲台美食）',
+    tipVoiceSearch: 'AI 語音搜尋',
+    resetFilterBtn: '重置為所有景點列表',
+
     noSpotsResult: '未找到 「{keyword}」 的搜尋結果',
     noSpotsDesc: '沒有找到您想去的景點嗎？請參考下面的搜尋提示或 AI 語音搜尋。',
     tipRegionTheme: '💡 「地區 + 主題」（例：聖水洞咖啡館、海雲台美食）',
@@ -1602,6 +1649,14 @@ export const TRANSLATIONS = {
     }
   },
   de: {
+
+
+    noSpotsResult: 'Keine Ergebnisse für \'{keyword}\' gefunden',
+    noSpotsDesc: 'Nicht das Richtige gefunden? Nutzen Sie die Suchtipps oder die KI-Sprachsuche.',
+    tipRegionTheme: '💡 \'Region + Thema\' (z.B. Seongsu Café, Haeundae Essen)',
+    tipVoiceSearch: 'KI-Sprachsuche',
+    resetFilterBtn: 'Alle Sehenswürdigkeiten zurücksetzen',
+
     noSpotsResult: 'Keine Ergebnisse für \'{keyword}\' gefunden',
     noSpotsDesc: 'Nicht das Richtige gefunden? Nutzen Sie die Suchtipps oder die KI-Sprachsuche.',
     tipRegionTheme: '💡 \'Region + Thema\' (z.B. Seongsu Café, Haeundae Essen)',
@@ -1740,6 +1795,14 @@ export const TRANSLATIONS = {
     apiServices: { 'all': 'Alle Dienste (TourAPI)', 'area': 'Regional-Sehenswürdigkeiten', 'location': 'In der Nähe (Radius)', 'festival': 'Events & Festivals', 'stay': 'Unterkunft & Hotels' }
   },
   fr: {
+
+
+    noSpotsResult: 'Aucun résultat trouvé pour \'{keyword}\'',
+    noSpotsDesc: 'Vous ne trouvez pas votre bonheur ? Utilisez les conseils de recherche ou la recherche vocale IA.',
+    tipRegionTheme: '💡 \'Région + Thème\' (ex: Café Seongsu, Resto Haeundae)',
+    tipVoiceSearch: 'Recherche vocale IA',
+    resetFilterBtn: 'Réinitialiser à toutes les attractions',
+
     noSpotsResult: 'Aucun résultat trouvé pour \'{keyword}\'',
     noSpotsDesc: 'Vous ne trouvez pas votre bonheur ? Utilisez les conseils de recherche ou la recherche vocale IA.',
     tipRegionTheme: '💡 \'Région + Thème\' (ex: Café Seongsu, Resto Haeundae)',
@@ -1890,6 +1953,12 @@ export const TRANSLATIONS = {
     apiServices: { 'all': 'Tous les Services (TourAPI)', 'area': 'Attractions Régionales', 'location': 'À Proximité (Rayon)', 'festival': 'Événements & Festivals', 'stay': 'Hôtels & Hébergements' }
   },
   es: {
+    noSpotsResult: 'No se encontraron resultados para \'{keyword}\'',
+    noSpotsDesc: '¿No encuentras lo que buscas? Revisa las sugerencias de búsqueda o usa la búsqueda por voz con IA.',
+    tipRegionTheme: '💡 \'Región + Tema\' (ej. Café Seongsu, Comida Haeundae)',
+    tipVoiceSearch: 'Búsqueda por voz IA',
+    resetFilterBtn: 'Restablecer a todas las atracciones',
+
     title: 'Guía de Viaje a Corea',
     subtitle: 'Clima en Tiempo Real · Atracciones · Gastronomía y Ropa',
     heroTitle: '¿A dónde viajas? 🚀',
@@ -2014,6 +2083,14 @@ export const TRANSLATIONS = {
     apiServices: { 'all': 'Todos los Servicios (TourAPI)', 'area': 'Información Turística Regional', 'location': 'Cercano (Radio)', 'festival': 'Eventos y Festivales', 'stay': 'Alojamientos y Hoteles' }
   },
   ru: {
+
+
+    noSpotsResult: 'Результаты по запросу «{keyword}» не найдены',
+    noSpotsDesc: 'Не нашли то, что искали? Воспользуйтесь подсказками по поиску или голосовым поиском ИИ.',
+    tipRegionTheme: '💡 «Регион + Тема» (напр. Кафе Сонсу, Еда Хэундэ)',
+    tipVoiceSearch: 'Голосовой поиск ИИ',
+    resetFilterBtn: 'Сбросить до списка всех достопримечательностей',
+
     noSpotsResult: 'Результаты по запросу «{keyword}» не найдены',
     noSpotsDesc: 'Не нашли то, что искали? Воспользуйтесь подсказками по поиску или голосовым поиском ИИ.',
     tipRegionTheme: '💡 «Регион + Тема» (напр. Кафе Сонсу, Еда Хэундэ)',
