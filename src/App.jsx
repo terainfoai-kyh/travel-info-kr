@@ -322,6 +322,19 @@ export default function App() {
                 filters={filters}
                 selectedCourseSpotIds={selectedCourseSpotIds}
                 onToggleCourseSpot={handleToggleCourseSpot}
+                onResetFilters={async (newF) => {
+                  const updated = { ...filters, ...newF };
+                  setFilters(updated);
+                  setIsLoading(true);
+                  try {
+                    const spots = await fetchTourSpots({ ...updated, lang });
+                    setAllTourSpots(spots);
+                  } catch (err) {
+                    console.error(err);
+                  } finally {
+                    setIsLoading(false);
+                  }
+                }}
               />
             </div>
 
