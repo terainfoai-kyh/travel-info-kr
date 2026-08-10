@@ -18,6 +18,13 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
   const t = TRANSLATIONS[currentLang] || TRANSLATIONS.ko;
   const [activeSection, setActiveSection] = useState('tour-spots');
   const [showToast, setShowToast] = useState(false);
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleShare = async () => {
     try {
@@ -130,7 +137,9 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
     }
     const elem = document.getElementById(id);
     if (elem) {
-      const yOffset = window.innerWidth <= 768 ? -145 : -210;
+      const headerEl = document.querySelector('header') || document.querySelector('.app-header');
+      const hHeight = headerEl ? headerEl.getBoundingClientRect().height : (window.innerWidth <= 768 ? 90 : 140);
+      const yOffset = -(hHeight + 85);
       const y = elem.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({ top: y, behavior: 'smooth' });
     }
@@ -145,10 +154,10 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
       width: '100%',
       boxSizing: 'border-box',
       zIndex: 10000,
-      padding: '0.65rem 1.25rem 0.5rem 1.25rem',
+      padding: isMobile ? '0.45rem 0.75rem 0.35rem 0.75rem' : '0.65rem 1.25rem 0.5rem 1.25rem',
       display: 'flex',
       flexDirection: 'column',
-      gap: '0.55rem',
+      gap: isMobile ? '0.35rem' : '0.55rem',
       borderBottom: '1px solid var(--border-color)',
       background: themeMode === 'light' ? 'rgba(255, 255, 255, 0.96)' : 'rgba(15, 23, 42, 0.95)',
       backdropFilter: 'blur(16px)',

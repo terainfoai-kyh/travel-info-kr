@@ -40,3 +40,8 @@
 10. **Autonomous Execution & Minimized Interactive Prompting (자율 수행 및 질의 팝업 최소화)**
     - 단순하거나 사소한 디자인/구현 선택 시 인터랙티브 팝업(`ask_question`)을 남발하지 않고 가장 우수한 추천 옵션을 자율적으로 선택하여 진행합니다.
     - 사용자의 승인을 받은 구현 계획 범위 내에서는 추가 확인 팝업 없이 안전한 검증 및 코드 완성을 자율적(Autonomous)으로 신속히 수행합니다.
+
+11. **Two-Track Deployment Isolation (개발-운영 깃 레포 분리)**
+    - 개발/테스트 단계 배포 지시("배포해", "푸시해") 시: **오직 개발 전용 `dev-remote` (`travelkorea_2.git`) 레포로만 푸시**합니다. (Cloudflare Pages `travelkorea-dev.pages.dev` 반영)
+    - 운영/실제 서비스 배포 지시("운영 배포해", "프로덕션 배포해", "origin 푸시해") 시에만 **운영 전용 `origin` (`travel-info-kr.git`) 레포로 푸시**합니다. (GitHub Pages `terainfoai-kyh.github.io/travel-info-kr/` 반영)
+

@@ -62,6 +62,7 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary })
   const [isSpeechSupported, setIsSpeechSupported] = useState(true);
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [headerBottom, setHeaderBottom] = useState(132);
   const recognitionRef = useRef(null);
 
   useEffect(() => {
@@ -71,15 +72,30 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary })
   }, []);
 
   useEffect(() => {
-    const handleScroll = () => {
+    const updateHeaderBottom = () => {
+      const headerEl = document.querySelector('header') || document.querySelector('.app-header');
+      if (headerEl) {
+        const rect = headerEl.getBoundingClientRect();
+        setHeaderBottom(rect.bottom);
+      }
+    };
+    updateHeaderBottom();
+
+    const handleScrollOrResize = () => {
+      updateHeaderBottom();
       if (window.scrollY > 120) {
         setIsScrolled(true);
       } else {
         setIsScrolled(false);
       }
     };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+
+    window.addEventListener('scroll', handleScrollOrResize, { passive: true });
+    window.addEventListener('resize', handleScrollOrResize, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScrollOrResize);
+      window.removeEventListener('resize', handleScrollOrResize);
+    };
   }, []);
 
   useEffect(() => {
@@ -149,7 +165,7 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary })
       {isScrolled && (
         <div style={{
           position: 'fixed',
-          top: isMobile ? '84px' : '124px',
+          top: `${Math.max(headerBottom + 12, isMobile ? 96 : 132)}px`,
           left: '50%',
           transform: 'translateX(-50%)',
           width: isMobile ? '95%' : '92%',
@@ -242,30 +258,30 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary })
       {/* Main Top Hero Card */}
       <div style={{
         width: '100%',
-        marginBottom: '1.5rem',
-        borderRadius: '24px',
+        marginBottom: isMobile ? '0.75rem' : '1.5rem',
+        borderRadius: isMobile ? '16px' : '24px',
         background: '#ffffff',
         border: '1px solid #e2e8f0',
-        padding: '1.75rem 1.25rem',
+        padding: isMobile ? '1rem 0.85rem' : '1.75rem 1.25rem',
         boxShadow: '0 10px 30px rgba(15, 23, 42, 0.05)',
         color: '#0f172a',
         position: 'relative',
         boxSizing: 'border-box'
       }}>
         {/* Title Header */}
-        <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: isMobile ? '0.65rem' : '1.25rem' }}>
           <h1 style={{
-            fontSize: '1.75rem',
+            fontSize: isMobile ? '1.3rem' : '1.75rem',
             fontWeight: 900,
             color: '#0f172a',
-            margin: '0 0 0.4rem 0',
+            margin: isMobile ? '0 0 0.2rem 0' : '0 0 0.4rem 0',
             letterSpacing: '-0.02em',
             lineHeight: 1.25
           }}>
             {t.heroTitle || '어디로 떠나시나요? 🚀'}
           </h1>
           <p style={{
-            fontSize: '0.9rem',
+            fontSize: isMobile ? '0.78rem' : '0.9rem',
             fontWeight: 500,
             color: '#64748b',
             margin: 0
@@ -277,7 +293,7 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary })
         {/* Mobile-Optimized Sleek Pill Search Bar */}
         <form onSubmit={handleSubmit} style={{
           maxWidth: '680px',
-          margin: '0 auto 1.25rem auto',
+          margin: isMobile ? '0 auto 0.65rem auto' : '0 auto 1.25rem auto',
           position: 'relative'
         }}>
           <div style={{
@@ -286,11 +302,11 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary })
             background: '#ffffff',
             border: isListening ? '2px solid #ef4444' : '1.5px solid #2563eb',
             borderRadius: '9999px',
-            padding: '0.35rem 0.4rem 0.35rem 1rem',
+            padding: isMobile ? '0.25rem 0.3rem 0.25rem 0.75rem' : '0.35rem 0.4rem 0.35rem 1rem',
             boxShadow: isListening ? '0 0 15px rgba(239, 68, 68, 0.25)' : '0 6px 20px rgba(37, 99, 235, 0.1)',
             transition: 'all 0.2s ease'
           }}>
-            <Sparkles style={{ width: '20px', height: '20px', color: '#2563eb', flexShrink: 0, marginRight: '0.4rem' }} />
+            <Sparkles style={{ width: isMobile ? '16px' : '20px', height: isMobile ? '16px' : '20px', color: '#2563eb', flexShrink: 0, marginRight: '0.35rem' }} />
 
             <input
               type="text"
@@ -303,9 +319,9 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary })
                 border: 'none',
                 outline: 'none',
                 color: '#0f172a',
-                fontSize: '0.9rem',
+                fontSize: isMobile ? '0.8rem' : '0.9rem',
                 fontWeight: 600,
-                padding: '0.5rem 0'
+                padding: isMobile ? '0.35rem 0' : '0.5rem 0'
               }}
             />
 
@@ -315,8 +331,8 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary })
                 onClick={toggleListening}
                 title={t.voiceBtnTooltip || '음성 인식 시작 🎙️'}
                 style={{
-                  width: '38px',
-                  height: '38px',
+                  width: isMobile ? '32px' : '38px',
+                  height: isMobile ? '32px' : '38px',
                   borderRadius: '9999px',
                   border: 'none',
                   background: isListening ? '#ef4444' : '#f1f5f9',
@@ -326,11 +342,11 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary })
                   justifyContent: 'center',
                   cursor: 'pointer',
                   flexShrink: 0,
-                  marginRight: '0.35rem',
+                  marginRight: '0.25rem',
                   transition: 'all 0.2s ease'
                 }}
               >
-                {isListening ? <MicOff style={{ width: '18px', height: '18px' }} /> : <Mic style={{ width: '18px', height: '18px' }} />}
+                {isListening ? <MicOff style={{ width: isMobile ? '14px' : '18px', height: isMobile ? '14px' : '18px' }} /> : <Mic style={{ width: isMobile ? '14px' : '18px', height: isMobile ? '14px' : '18px' }} />}
               </button>
             )}
 
@@ -338,8 +354,8 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary })
               type="submit"
               title={t.aiCourseBtn || 'AI 코스 생성'}
               style={{
-                width: '40px',
-                height: '40px',
+                width: isMobile ? '32px' : '40px',
+                height: isMobile ? '32px' : '40px',
                 borderRadius: '9999px',
                 border: 'none',
                 background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
@@ -353,7 +369,7 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary })
                 transition: 'all 0.2s ease'
               }}
             >
-              <ArrowRight style={{ width: '18px', height: '18px' }} />
+              <ArrowRight style={{ width: isMobile ? '14px' : '18px', height: isMobile ? '14px' : '18px' }} />
             </button>
           </div>
         </form>
@@ -366,7 +382,7 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary })
           flexWrap: 'wrap',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: '0.4rem'
+          gap: isMobile ? '0.3rem' : '0.4rem'
         }}>
           {sampleChips.map((chip, idx) => (
             <button
@@ -377,9 +393,9 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary })
                 background: '#f1f5f9',
                 border: '1px solid #e2e8f0',
                 color: '#334155',
-                fontSize: '0.78rem',
+                fontSize: isMobile ? '0.72rem' : '0.78rem',
                 fontWeight: 600,
-                padding: '0.4rem 0.85rem',
+                padding: isMobile ? '0.25rem 0.6rem' : '0.4rem 0.85rem',
                 borderRadius: '9999px',
                 cursor: 'pointer',
                 transition: 'all 0.15s ease'
@@ -397,17 +413,17 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary })
               background: '#fdf2f8',
               border: '1px solid #fbcfe8',
               color: '#db2777',
-              fontSize: '0.78rem',
+              fontSize: isMobile ? '0.72rem' : '0.78rem',
               fontWeight: 700,
-              padding: '0.4rem 0.85rem',
+              padding: isMobile ? '0.25rem 0.6rem' : '0.4rem 0.85rem',
               borderRadius: '9999px',
               textDecoration: 'none',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.3rem'
+              gap: '0.25rem'
             }}
           >
-            <Camera style={{ width: '13px', height: '13px' }} />
+            <Camera style={{ width: isMobile ? '12px' : '13px', height: isMobile ? '12px' : '13px' }} />
             <span>{t.instaHashtagLabel || '📸 인스타 핫플 ↗'}</span>
           </a>
         </div>
