@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import DatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { X, Calendar, Clock, MapPin, Sparkles, Navigation, Copy, Check, Filter, ShieldCheck, CloudRain, RefreshCw, Car, Bus, Utensils } from 'lucide-react';
+import { X, Calendar, Clock, MapPin, Sparkles, Navigation, Copy, Check, Filter, ShieldCheck, CloudRain, RefreshCw, Car, Bus, Utensils, Compass } from 'lucide-react';
 import { generateSmartItinerary, generateCustomPickedItinerary, calculateTravelEstimate } from '../services/recommendationEngine';
 import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress } from '../i18n/translations';
 import { buildAgodaDeepLink, buildKlookDeepLink } from '../services/apiConfig';
