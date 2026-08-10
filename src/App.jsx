@@ -255,6 +255,7 @@ export default function App() {
         {/* Conversational & Voice AI Prompt Header */}
         <AIChatPromptHeader 
           lang={lang} 
+          filters={filters}
           onGenerateItinerary={async (parsed) => {
             const targetRegion = parsed.region || '전국';
             const targetKeyword = parsed.keyword || '';

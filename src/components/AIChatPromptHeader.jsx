@@ -110,7 +110,7 @@ export function parseNaturalPrompt(text) {
   return { region, days, keyword: cleanKeyword || raw, raw };
 }
 
-export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary }) {
+export default function AIChatPromptHeader({ lang = 'ko', filters, onGenerateItinerary }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
   const [promptText, setPromptText] = useState('');
   const [isListening, setIsListening] = useState(false);
@@ -119,6 +119,13 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary })
   const [isScrolled, setIsScrolled] = useState(false);
   const [headerBottom, setHeaderBottom] = useState(132);
   const recognitionRef = useRef(null);
+
+  // Sync promptText when filters.keyword is reset (e.g. when reset button is clicked)
+  useEffect(() => {
+    if (filters && filters.keyword !== undefined) {
+      setPromptText(filters.keyword);
+    }
+  }, [filters?.keyword]);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);

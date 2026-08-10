@@ -187,72 +187,54 @@ export default function TourSpotGrid({
           </div>
         </>
       ) : (
-        /* Option 3: Smart Search Tip & Helper Hero Card */
+        /* Compact, Theme-Adaptive Option 3: Smart Search Tip & Helper Hero Card */
         <div style={{
-          background: 'rgba(30, 41, 59, 0.4)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-          borderRadius: '24px',
-          border: '1px solid rgba(251, 191, 36, 0.25)',
-          padding: '3rem 1.75rem',
+          background: 'var(--bg-card)',
+          borderRadius: 'var(--radius-lg)',
+          border: '1px solid var(--border-color)',
+          padding: '1.75rem 1.25rem',
           textAlign: 'center',
-          margin: '1.5rem 0',
-          boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.3)',
+          margin: '1rem 0',
+          boxShadow: 'var(--shadow-sm)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: '1.25rem',
-          position: 'relative',
-          overflow: 'hidden'
+          gap: '1rem',
+          position: 'relative'
         }}>
-          {/* Subtle Glow Ring */}
-          <div style={{
-            position: 'absolute',
-            top: '-40%',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: '280px',
-            height: '280px',
-            background: 'radial-gradient(circle, rgba(251, 191, 36, 0.15) 0%, rgba(0, 0, 0, 0) 70%)',
-            pointerEvents: 'none',
-            zIndex: 0
-          }} />
-
           {/* Glowing Lightbulb Badge */}
           <div style={{
-            width: '68px',
-            height: '68px',
-            borderRadius: '20px',
-            background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(245, 158, 11, 0.2) 100%)',
-            border: '1px solid rgba(251, 191, 36, 0.4)',
+            width: '52px',
+            height: '52px',
+            borderRadius: '16px',
+            background: 'rgba(251, 191, 36, 0.12)',
+            border: '1px solid rgba(251, 191, 36, 0.3)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#fbbf24',
-            boxShadow: '0 0 25px rgba(251, 191, 36, 0.25)',
-            zIndex: 1
+            color: '#f59e0b'
           }}>
-            <Lightbulb size={34} className="animate-pulse" />
+            <Lightbulb size={26} />
           </div>
 
           {/* Main Title */}
-          <div style={{ zIndex: 1, maxWidth: '520px' }}>
+          <div style={{ maxWidth: '520px' }}>
             <h4 style={{
-              fontSize: '1.25rem',
-              fontWeight: 900,
+              fontSize: '1.08rem',
+              fontWeight: 800,
               color: 'var(--text-main)',
-              marginBottom: '0.4rem',
-              letterSpacing: '-0.02em'
+              marginBottom: '0.3rem',
+              letterSpacing: '-0.01em'
             }}>
               {filters?.keyword
                 ? `'${filters.keyword}'(으)로 검색된 결과가 없습니다`
                 : (t.noSpots || '조회 조건에 해당하는 관광 명소가 없습니다')}
             </h4>
             <p style={{
-              fontSize: '0.88rem',
+              fontSize: '0.83rem',
               color: 'var(--text-muted)',
-              lineHeight: 1.5,
+              lineHeight: 1.45,
               margin: 0
             }}>
               원하시는 장소가 검색되지 않았나요? 아래 <strong>스마트 검색 팁</strong>을 참고해 보세요!
@@ -262,72 +244,70 @@ export default function TourSpotGrid({
           {/* Smart Search Tips Helper Grid */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-            gap: '0.85rem',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+            gap: '0.75rem',
             width: '100%',
-            maxWidth: '680px',
-            zIndex: 1,
-            marginTop: '0.5rem',
+            maxWidth: '620px',
             textAlign: 'left'
           }}>
             <div style={{
-              background: 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              borderRadius: '16px',
-              padding: '1rem',
+              background: 'var(--bg-secondary)',
+              border: '1px solid var(--border-color)',
+              borderRadius: '14px',
+              padding: '0.85rem',
               display: 'flex',
               alignItems: 'flex-start',
-              gap: '0.75rem'
+              gap: '0.65rem'
             }}>
               <div style={{
-                background: 'rgba(56, 189, 248, 0.15)',
-                color: '#38bdf8',
-                borderRadius: '10px',
-                padding: '0.4rem',
+                background: 'rgba(56, 189, 248, 0.12)',
+                color: 'var(--accent-primary)',
+                borderRadius: '8px',
+                padding: '0.35rem',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0
               }}>
-                <Search size={18} />
+                <Search size={16} />
               </div>
               <div>
-                <h5 style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)', margin: '0 0 0.25rem 0' }}>
+                <h5 style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-main)', margin: '0 0 0.2rem 0' }}>
                   💡 지역명 + 테마 조합 검색
                 </h5>
-                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: 0, lineHeight: 1.4 }}>
-                  예: <strong style={{ color: '#38bdf8' }}>'성수동 카페'</strong>, <strong style={{ color: '#38bdf8' }}>'해운대 맛집'</strong>, <strong style={{ color: '#38bdf8' }}>'속초 힐링'</strong> 처럼 조합해 보세요.
+                <p style={{ fontSize: '0.76rem', color: 'var(--text-muted)', margin: 0, lineHeight: 1.35 }}>
+                  예: <strong style={{ color: 'var(--accent-primary)' }}>'성수동 카페'</strong>, <strong style={{ color: 'var(--accent-primary)' }}>'해운대 맛집'</strong>, <strong style={{ color: 'var(--accent-primary)' }}>'속초 힐링'</strong>
                 </p>
               </div>
             </div>
 
             <div style={{
-              background: 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              borderRadius: '16px',
-              padding: '1rem',
+              background: 'var(--bg-secondary)',
+              border: '1px solid var(--border-color)',
+              borderRadius: '14px',
+              padding: '0.85rem',
               display: 'flex',
               alignItems: 'flex-start',
-              gap: '0.75rem'
+              gap: '0.65rem'
             }}>
               <div style={{
-                background: 'rgba(168, 85, 247, 0.15)',
-                color: '#c084fc',
-                borderRadius: '10px',
-                padding: '0.4rem',
+                background: 'rgba(168, 85, 247, 0.12)',
+                color: '#a855f7',
+                borderRadius: '8px',
+                padding: '0.35rem',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0
               }}>
-                <Mic size={18} />
+                <Mic size={16} />
               </div>
               <div>
-                <h5 style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)', margin: '0 0 0.25rem 0' }}>
+                <h5 style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-main)', margin: '0 0 0.2rem 0' }}>
                   🎙️ AI 음성 검색 활용
                 </h5>
-                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: 0, lineHeight: 1.4 }}>
-                  상단 검색창의 <strong style={{ color: '#c084fc' }}>마이크 버튼(🎙️)</strong>을 누르고 말로 편하게 질문하실 수도 있습니다.
+                <p style={{ fontSize: '0.76rem', color: 'var(--text-muted)', margin: 0, lineHeight: 1.35 }}>
+                  상단 검색창의 <strong style={{ color: '#a855f7' }}>마이크 버튼(🎙️)</strong>을 누르고 말로 질문해 보세요.
                 </p>
               </div>
             </div>
@@ -337,23 +317,22 @@ export default function TourSpotGrid({
           <button
             onClick={() => onResetFilters && onResetFilters({ region: '전국', keyword: '', theme: '전체' })}
             style={{
-              marginTop: '0.75rem',
-              background: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)',
+              marginTop: '0.25rem',
+              background: 'var(--accent-gradient)',
               color: '#ffffff',
               border: 'none',
-              borderRadius: '14px',
-              padding: '0.75rem 1.6rem',
-              fontSize: '0.88rem',
+              borderRadius: '12px',
+              padding: '0.65rem 1.35rem',
+              fontSize: '0.83rem',
               fontWeight: 800,
               cursor: 'pointer',
-              boxShadow: '0 10px 20px -5px rgba(37, 99, 235, 0.4)',
+              boxShadow: 'var(--shadow-sm)',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.5rem',
-              zIndex: 1
+              gap: '0.45rem'
             }}
           >
-            <RefreshCw size={16} />
+            <RefreshCw size={15} />
             <span>전체 관광 명소 목록으로 초기화</span>
           </button>
         </div>
