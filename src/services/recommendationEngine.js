@@ -1,3 +1,5 @@
+import { TRAVEL_SPOTS } from '../data/travelData';
+
 export function getRecommendedFoodAndOutfit({ weather, region, theme, age, gender, keyword = '' }) {
   const isSunny = weather?.weatherText?.includes('맑음');
   const isRainy = weather?.weatherText?.includes('비') || weather?.weatherText?.includes('흐림');
