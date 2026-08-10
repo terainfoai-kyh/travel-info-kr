@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { MapPin, Navigation, ExternalLink, Compass, Car, Bus, Map, Sparkles, RefreshCw } from 'lucide-react';
 import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress } from '../i18n/translations';
 
-export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChangeDay, lang = 'ko' }) {
+export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChangeDay, lang = 'ko', onSwitchToList }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
 
   const currentDayData = itinerary.find(d => d.day === activeDay) || itinerary[0];
@@ -14,6 +14,7 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
   const leafletMapRef = useRef(null);
 
   const NUMBER_ICONS = ['❶', '❷', '❸', '❹', '❺'];
+
 
   // Dynamically load Leaflet CSS & JS
   useEffect(() => {
@@ -239,26 +240,53 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
             </div>
           </div>
 
-          <a
-            href={buildMultiPointMapUrl()}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-primary"
-            style={{
-              padding: '0.45rem 1rem',
-              fontSize: '0.8rem',
-              fontWeight: 800,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              textDecoration: 'none',
-              borderRadius: 'var(--radius-full)'
-            }}
-          >
-            <Navigation size={15} />
-            <span>{lang === 'ko' ? '🚗 전체 경로 내비 연결' : '🚗 Open Full Route Navigation'}</span>
-            <ExternalLink size={13} />
-          </a>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+            {onSwitchToList && (
+              <button
+                type="button"
+                onClick={onSwitchToList}
+                style={{
+                  background: 'var(--bg-card)',
+                  color: 'var(--accent-primary)',
+                  border: '1px solid var(--accent-primary)',
+                  padding: '0.45rem 0.9rem',
+                  fontSize: '0.8rem',
+                  fontWeight: 800,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                  borderRadius: 'var(--radius-full)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  boxShadow: 'var(--shadow-sm)'
+                }}
+                title="상세 일정 카드 목록 뷰로 바로 이동"
+              >
+                <span>{t.switchToList || '📋 상세 일정 목록으로 이동 ➔'}</span>
+              </button>
+            )}
+
+            <a
+              href={buildMultiPointMapUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary"
+              style={{
+                padding: '0.45rem 1rem',
+                fontSize: '0.8rem',
+                fontWeight: 800,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                textDecoration: 'none',
+                borderRadius: 'var(--radius-full)'
+              }}
+            >
+              <Navigation size={15} />
+              <span>{lang === 'ko' ? '🚗 전체 경로 내비 연결' : '🚗 Open Full Route Navigation'}</span>
+              <ExternalLink size={13} />
+            </a>
+          </div>
         </div>
 
         {/* Dynamic Leaflet Map with Bounding Path & Fallback */}

@@ -373,6 +373,70 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
           </div>
         </div>
 
+        {/* Top Segmented View Switcher (전체 동선 지도 vs 상세 일정 목록) */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '0.6rem',
+          background: 'var(--bg-secondary)',
+          padding: '0.4rem',
+          borderRadius: 'var(--radius-lg)',
+          border: '1px solid var(--border-highlight)',
+          margin: '1rem 0',
+          boxShadow: 'var(--shadow-sm)'
+        }}>
+          <button
+            type="button"
+            onClick={() => setViewMode('map')}
+            style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem',
+              background: viewMode === 'map' ? 'var(--accent-gradient)' : 'transparent',
+              color: viewMode === 'map' ? '#ffffff' : 'var(--text-muted)',
+              border: 'none',
+              padding: '0.65rem 1.25rem',
+              borderRadius: 'var(--radius-md)',
+              fontSize: '0.9rem',
+              fontWeight: 800,
+              cursor: 'pointer',
+              transition: 'all 0.25s ease',
+              boxShadow: viewMode === 'map' ? 'var(--shadow-glow)' : 'none'
+            }}
+          >
+            <Compass size={18} />
+            <span>{t.mapViewLabel || '🗺️ 전체 동선 지도 뷰'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setViewMode('list')}
+            style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem',
+              background: viewMode === 'list' ? 'var(--accent-gradient)' : 'transparent',
+              color: viewMode === 'list' ? '#ffffff' : 'var(--text-muted)',
+              border: 'none',
+              padding: '0.65rem 1.25rem',
+              borderRadius: 'var(--radius-md)',
+              fontSize: '0.9rem',
+              fontWeight: 800,
+              cursor: 'pointer',
+              transition: 'all 0.25s ease',
+              boxShadow: viewMode === 'list' ? 'var(--shadow-glow)' : 'none'
+            }}
+          >
+            <Calendar size={18} />
+            <span>{t.listViewLabel || '📋 카드형 상세 일정 목록 뷰'}</span>
+          </button>
+        </div>
+
         {/* Controls Bar (Days, Start Date, Rainy Mode Toggle, Copy) */}
         <div style={{
           display: 'flex',
@@ -380,7 +444,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
           justifyContent: 'space-between',
           flexWrap: 'wrap',
           gap: '0.85rem',
-          margin: '1rem 0 1.5rem 0',
+          margin: '0 0 1.5rem 0',
           padding: '0.85rem 1rem',
           background: 'var(--bg-primary)',
           borderRadius: 'var(--radius-md)',
@@ -522,42 +586,6 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
               </select>
             </div>
 
-            {/* View Mode Toggle (Map vs List) */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', background: 'var(--bg-secondary)', padding: '0.2rem', borderRadius: 'var(--radius-full)', border: '1px solid var(--border-color)' }}>
-              <button
-                type="button"
-                onClick={() => setViewMode('map')}
-                style={{
-                  background: viewMode === 'map' ? 'var(--accent-gradient)' : 'transparent',
-                  color: viewMode === 'map' ? '#ffffff' : 'var(--text-muted)',
-                  border: 'none',
-                  padding: '0.35rem 0.85rem',
-                  borderRadius: 'var(--radius-full)',
-                  fontSize: '0.78rem',
-                  fontWeight: 800,
-                  cursor: 'pointer'
-                }}
-              >
-                🗺️ {t.mapViewLabel || '전체 동선 지도'}
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode('list')}
-                style={{
-                  background: viewMode === 'list' ? 'var(--accent-gradient)' : 'transparent',
-                  color: viewMode === 'list' ? '#ffffff' : 'var(--text-muted)',
-                  border: 'none',
-                  padding: '0.35rem 0.85rem',
-                  borderRadius: 'var(--radius-full)',
-                  fontSize: '0.78rem',
-                  fontWeight: 800,
-                  cursor: 'pointer'
-                }}
-              >
-                📋 {t.listViewLabel || '일정 목록'}
-              </button>
-            </div>
-
             {/* AI Regenerate / Re-recommend Button */}
             <button
               type="button"
@@ -619,9 +647,48 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
             activeDay={activeMapDay}
             onChangeDay={setActiveMapDay}
             lang={lang}
+            onSwitchToList={() => setViewMode('list')}
           />
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
+            {/* List View Header Switcher Banner */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: '0.75rem',
+              padding: '0.85rem 1.25rem',
+              background: 'var(--bg-secondary)',
+              borderRadius: 'var(--radius-lg)',
+              border: '1px solid var(--border-highlight)'
+            }}>
+              <div style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Calendar size={18} color="var(--accent-primary)" />
+                <span>{t.listViewLabel || '📋 시간대별 카드형 상세 일정 목록'}</span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setViewMode('map')}
+                style={{
+                  background: 'var(--accent-gradient)',
+                  color: '#ffffff',
+                  border: 'none',
+                  padding: '0.45rem 1rem',
+                  borderRadius: 'var(--radius-full)',
+                  fontSize: '0.8rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                  boxShadow: 'var(--shadow-sm)'
+                }}
+              >
+                <span>{t.switchToMap || '🗺️ 전체 동선 지도로 이동 ➔'}</span>
+              </button>
+            </div>
             {itinerary.map((day, dIdx) => {
               const curDayStart = dayTimes[day.day]?.start || startTime;
               const curDayEnd = dayTimes[day.day]?.end || endTime;
