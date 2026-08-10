@@ -617,7 +617,7 @@ export function generateSmartItinerary({
     const daySpots = [];
     const usedTitles = new Set();
     const fallbackPreset = REGION_PRESETS[targetProvince] || REGION_PRESETS['경기'] || REGION_PRESETS['서울'];
-    const combinedCandidates = [...provincePool, ...spots, ...fallbackPreset, ...TRAVEL_SPOTS];
+    const combinedCandidates = [...provincePool, ...spots, ...fallbackPreset, ...(REGION_PRESETS['서울'] || [])];
 
     for (let s = 0; s < 4; s++) {
       let targetSpot = null;
