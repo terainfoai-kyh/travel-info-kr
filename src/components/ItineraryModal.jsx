@@ -239,75 +239,75 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Sleek 1-Row Modal Header (STICKY PINNED AT TOP) */}
+        {/* Sleek 2-Row Sticky Header (Clean Layout) */}
         <div style={{
           position: 'sticky',
           top: '-1.25rem',
           zIndex: 150,
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
+          flexDirection: 'column',
+          gap: '0.45rem',
           padding: '0.65rem 0.85rem',
           margin: '-1.25rem -1.25rem 0.85rem -1.25rem',
           background: 'var(--bg-secondary)',
           borderBottom: '1px solid var(--border-color)',
           borderRadius: 'var(--radius-lg) var(--radius-lg) 0 0',
-          gap: '0.5rem',
-          flexWrap: 'wrap',
           boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
           backdropFilter: 'blur(12px)'
         }}>
-          {/* Left: Title & Region/Days Badge & Trust Tooltip */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
-            <div style={{
-              background: 'rgba(56, 189, 248, 0.2)',
-              padding: '0.35rem',
-              borderRadius: 'var(--radius-sm)',
-              color: 'var(--accent-primary)',
-              display: 'flex',
-              alignItems: 'center'
-            }}>
-              <Sparkles size={16} />
+          {/* Row 1: Title on Left & Close Button on Right */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+              <div style={{
+                background: 'rgba(56, 189, 248, 0.2)',
+                padding: '0.35rem',
+                borderRadius: 'var(--radius-sm)',
+                color: 'var(--accent-primary)',
+                display: 'flex',
+                alignItems: 'center'
+              }}>
+                <Sparkles size={16} />
+              </div>
+              <h2 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0 }} className="gradient-text">
+                {t.aiItineraryMainTitle || 'AI 코스 추천'}
+              </h2>
             </div>
-            <h2 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0 }} className="gradient-text">
-              {t.aiItineraryMainTitle || 'AI 코스 추천'}
-            </h2>
 
-            <span style={{
-              fontSize: '0.78rem',
-              fontWeight: 800,
-              background: 'var(--bg-card)',
-              color: 'var(--accent-primary)',
-              border: '1px solid var(--border-highlight)',
-              padding: '0.18rem 0.55rem',
-              borderRadius: 'var(--radius-full)'
-            }}>
-              📍 {getBadgeI18n('region', region)} · {selectedDays === 1 ? (t.dayTrip1Day || '당일치기') : `${selectedDays}${t.daysCountUnit || '일간'}`}
-            </span>
-
-            <span 
-              title={t.aiTrustBadgeDesc || '한국관광공사 Official DB 100% 연동 인증 코스'}
+            {/* Top-Right Sticky Close Button */}
+            <button
+              onClick={onClose}
+              aria-label="닫기"
               style={{
-                fontSize: '0.75rem',
-                fontWeight: 700,
-                color: '#10b981',
-                background: 'rgba(16, 185, 129, 0.12)',
-                border: '1px solid rgba(16, 185, 129, 0.3)',
-                padding: '0.15rem 0.45rem',
-                borderRadius: 'var(--radius-full)',
-                display: 'inline-flex',
+                background: 'rgba(15, 23, 42, 0.92)',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                color: '#ffffff',
+                width: '30px',
+                height: '30px',
+                borderRadius: '50%',
+                display: 'flex',
                 alignItems: 'center',
-                gap: '0.25rem',
-                cursor: 'pointer'
+                justifyContent: 'center',
+                cursor: 'pointer',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
+                transition: 'all 0.2s ease',
+                flexShrink: 0
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'scale(1.1)';
+                e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.95)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.backgroundColor = 'rgba(15, 23, 42, 0.92)';
               }}
             >
-              <ShieldCheck size={13} color="#10b981" />
-              <span>{t.aiTrustBadgeTitleShort || '공식 DB 연동'}</span>
-            </span>
+              <X size={16} strokeWidth={2.5} />
+            </button>
           </div>
 
-          {/* Right: View Switcher (Map vs List) & Sticky Close Button */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          {/* Row 2: View Switcher Tabs on Left & Official DB Badge + Region/Days Badge on Right */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.45rem' }}>
+            {/* View Switcher Pills */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
@@ -361,36 +361,40 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
               </button>
             </div>
 
-            {/* Sticky Close Button */}
-            <button
-              onClick={onClose}
-              aria-label="닫기"
-              style={{
-                background: 'rgba(15, 23, 42, 0.92)',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                color: '#ffffff',
-                width: '30px',
-                height: '30px',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
-                transition: 'all 0.2s ease',
-                flexShrink: 0
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.1)';
-                e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.95)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.backgroundColor = 'rgba(15, 23, 42, 0.92)';
-              }}
-            >
-              <X size={16} strokeWidth={2.5} />
-            </button>
+            {/* Official DB Badge & Region/Days Badge Side-by-Side */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+              <span 
+                title={t.aiTrustBadgeDesc || '한국관광공사 Official DB 100% 연동 인증 코스'}
+                style={{
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  color: '#10b981',
+                  background: 'rgba(16, 185, 129, 0.12)',
+                  border: '1px solid rgba(16, 185, 129, 0.3)',
+                  padding: '0.18rem 0.5rem',
+                  borderRadius: 'var(--radius-full)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.25rem',
+                  cursor: 'pointer'
+                }}
+              >
+                <ShieldCheck size={13} color="#10b981" />
+                <span>{t.aiTrustBadgeTitleShort || '공식 DB 연동'}</span>
+              </span>
+
+              <span style={{
+                fontSize: '0.78rem',
+                fontWeight: 800,
+                background: 'var(--bg-card)',
+                color: 'var(--accent-primary)',
+                border: '1px solid var(--border-highlight)',
+                padding: '0.18rem 0.55rem',
+                borderRadius: 'var(--radius-full)'
+              }}>
+                📍 {getBadgeI18n('region', region)} · {selectedDays === 1 ? (t.dayTrip1Day || '당일치기') : `${selectedDays}${t.daysCountUnit || '일간'}`}
+              </span>
+            </div>
           </div>
         </div>
 
