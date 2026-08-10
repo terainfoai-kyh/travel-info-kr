@@ -64,10 +64,38 @@ export function parseNaturalPrompt(text) {
     }
   }
 
+  // Detect sub-city keyword (e.g. 수원, 강릉, 속초, 여수, 경주, 전주, 통영, 가평, 해운대, 서귀포)
+  const subCities = [
+    '수원', '용인', '성남', '분당', '파주', '가평', '고양', '일산', '부천', '안양', '화성', '동탄', '남양주', '평택', '의정부', '시흥', '김포', '안산', '광명', '행궁동',
+    '서귀포', '애월', '성산', '중문', '우도', '한라산',
+    '해운대', '광안리', '서면', '영도', '기장', '태종대', '자갈치', '남포동',
+    '송도', '영종도', '강화도', '차이나타운',
+    '속초', '강릉', '춘천', '평창', '양양', '동해', '삼척', '원주', '설악산', '경포대', '정선', '홍천',
+    '경주', '포항', '안동', '구미', '영주', '울릉도', '독도', '보문단지',
+    '창원', '거제', '통영', '남해', '진주', '양산', '외도',
+    '전주', '군산', '익산', '남원', '무주', '한옥마을',
+    '여수', '순천', '목포', '담양', '보성', '향일암',
+    '청주', '충주', '제천', '단양', '청남대',
+    '천안', '아산', '공주', '부여', '보령', '태안', '대천', '안면도'
+  ];
+
+  let detectedSubCity = '';
+  for (const city of subCities) {
+    if (raw.toLowerCase().includes(city)) {
+      detectedSubCity = city;
+      break;
+    }
+  }
+
   // Phase 4: Final fragment check. If remaining keyword is a meaningless fragment or junk intent, clear to ""
   const junkFragments = ['가', '볼', '가볼', '곳', '만한', '에', '로', '좀', '추천', '가 볼', '가 볼 만한', '볼 만한'];
   if (junkFragments.includes(cleanKeyword) || cleanKeyword.length <= 1 || /^[\s가볼곳만한에로좀추천]+$/i.test(cleanKeyword)) {
     cleanKeyword = '';
+  }
+
+  // If cleanKeyword became empty, BUT a specific sub-city was mentioned (e.g. "수원"), set cleanKeyword to that sub-city!
+  if (!cleanKeyword && detectedSubCity && detectedSubCity !== region) {
+    cleanKeyword = detectedSubCity;
   }
 
   // Days detection
