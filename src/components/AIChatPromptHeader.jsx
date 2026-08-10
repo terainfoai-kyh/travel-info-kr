@@ -53,21 +53,19 @@ export function parseNaturalPrompt(text) {
     .replace(/\s+/g, ' ')
     .trim();
 
-  // Phase 3: If region was detected, clean region keywords out of search text so keyword doesn't duplicate region name
+  // Phase 3: Only strip primary region names (e.g. "서울", "제주"), NEVER sub-cities ("성수동", "해운대")
+  const primaryRegionNames = ['서울', '경기', '제주', '부산', '인천', '강원', '경북', '경남', '전북', '전남', '충북', '충남', '대구', '대전', '광주', '울산', '세종'];
   if (region !== '전국') {
-    const matchedRegionObj = regionMap.find(r => r.name === region);
-    if (matchedRegionObj) {
-      matchedRegionObj.keys.forEach(k => {
-        if (k.length >= 2 && cleanKeyword.toLowerCase().includes(k)) {
-          const regRegex = new RegExp(k, 'gi');
-          cleanKeyword = cleanKeyword.replace(regRegex, ' ').replace(/\s+/g, ' ').trim();
-        }
-      });
-    }
+    primaryRegionNames.forEach(rn => {
+      if (cleanKeyword.includes(rn)) {
+        cleanKeyword = cleanKeyword.replace(new RegExp(rn, 'g'), ' ').replace(/\s+/g, ' ').trim();
+      }
+    });
   }
 
-  // Detect sub-city keyword (e.g. 수원, 강릉, 속초, 여수, 경주, 전주, 통영, 가평, 해운대, 서귀포)
+  // Detect sub-city keyword (e.g. 성수동, 수원, 강릉, 속초, 여수, 경주, 전주, 통영, 가평, 해운대, 서귀포)
   const subCities = [
+    '성수동', '성수', '강남', '홍대', '명동', '이태원', '잠실', '종로', '익선동', '연남동', '압구정', '청담',
     '수원', '용인', '성남', '분당', '파주', '가평', '고양', '일산', '부천', '안양', '화성', '동탄', '남양주', '평택', '의정부', '시흥', '김포', '안산', '광명', '행궁동',
     '서귀포', '애월', '성산', '중문', '우도', '한라산',
     '해운대', '광안리', '서면', '영도', '기장', '태종대', '자갈치', '남포동',
@@ -90,13 +88,13 @@ export function parseNaturalPrompt(text) {
   }
 
   // Phase 4: Final fragment check. If remaining keyword is a meaningless fragment or junk intent, clear to ""
-  const junkFragments = ['가', '볼', '가볼', '곳', '만한', '에', '로', '좀', '추천', '가 볼', '가 볼 만한', '볼 만한'];
-  if (junkFragments.includes(cleanKeyword) || cleanKeyword.length <= 1 || /^[\s가볼곳만한에로좀추천]+$/i.test(cleanKeyword)) {
+  const junkFragments = ['가', '볼', '가볼', '곳', '만한', '에', '로', '좀', '추천', '가 볼', '가 볼 만한', '볼 만한', '포함', '코스', '여행'];
+  if (junkFragments.includes(cleanKeyword) || cleanKeyword.length <= 1 || /^[\s가볼곳만한에로좀추천포함코스여행]+$/i.test(cleanKeyword)) {
     cleanKeyword = '';
   }
 
-  // If cleanKeyword became empty, BUT a specific sub-city was mentioned (e.g. "수원"), set cleanKeyword to that sub-city!
-  if (!cleanKeyword && detectedSubCity && detectedSubCity !== region) {
+  // If cleanKeyword became empty, BUT a specific sub-city was mentioned (e.g. "성수동"), set cleanKeyword to that sub-city!
+  if (!cleanKeyword && detectedSubCity) {
     cleanKeyword = detectedSubCity;
   }
 
@@ -107,7 +105,7 @@ export function parseNaturalPrompt(text) {
   else if (raw.includes('3박') || raw.includes('2박 3일') || raw.includes('2박3일') || raw.includes('3d') || raw.includes('3-day')) days = 3;
   else if (raw.includes('4박') || raw.includes('3박 4일') || raw.includes('3박4일') || raw.includes('4d') || raw.includes('4-day')) days = 4;
 
-  return { region, days, keyword: cleanKeyword || raw, raw };
+  return { region, days, keyword: cleanKeyword, raw };
 }
 
 export default function AIChatPromptHeader({ lang = 'ko', filters, onGenerateItinerary }) {
