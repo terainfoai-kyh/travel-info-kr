@@ -1,32 +1,56 @@
-# Robots.txt for Korea Travel Guide (koreatravel.cc & koreatravelsguide.com)
-# Search Engines Allowed (Google, Naver, Bing) | AI Scrapers & Code Cloning Bots Blocked
-
-# Search Engine Crawlers (Allowed for SEO Indexing)
-User-agent: Yeti
-User-agent: Naverbot
-User-agent: Googlebot
-User-agent: Googlebot-Image
-User-agent: Googlebot-Mobile
-User-agent: Bingbot
-User-agent: Slurp
-Allow: /
-
-# Block AI Scraping, Code Replication & Content Cloning Bots
-User-agent: GPTBot
-User-agent: ChatGPT-User
-User-agent: CCBot
-User-agent: Bytespider
-User-agent: Anthropic-ai
-User-agent: ClaudeBot
-User-agent: PerplexityBot
-User-agent: Google-Extended
-Disallow: /
+# Robots.txt for K-Travel Explorer (koreatravel.cc)
+# Allow all search engine crawlers and AI search agents
 
 User-agent: *
 Allow: /
+Allow: /assets/
+Allow: /default-spot.png
+Allow: /logo.png
+Allow: /favicon.png
 Disallow: /admin/
 Disallow: /private/
 
-# Sitemaps
+# Specific major search engine bots
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Naverbot
+Allow: /
+
+User-agent: Yeti
+Allow: /
+
+User-agent: Daumoa
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+# AI Search & Generative Engine Crawlers
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+# Sitemap Location
 Sitemap: https://koreatravel.cc/sitemap.xml
-Sitemap: https://koreatravelsguide.com/sitemap.xml
+Sitemap: https://travelkorea-dev.pages.dev/sitemap.xml
