@@ -137,7 +137,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
   if (!spot) return null;
 
   return (
-    <div className="modal-overlay-backdrop" onClick={onClose}>
+    <div className="modal-overlay-backdrop">
       <div 
         className="animate-fade-in glass-panel modal-responsive-card"
         style={{

@@ -44,7 +44,6 @@ export default function WishlistDrawer({ isOpen, onClose, wishlistSpots, onRemov
         justifyContent: 'flex-end',
         overflow: 'hidden'
       }}
-      onClick={onClose}
     >
       <div 
         className="animate-fade-in glass-panel"

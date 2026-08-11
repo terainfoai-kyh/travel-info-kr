@@ -316,7 +316,6 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
         overscrollBehaviorX: 'none',
         touchAction: 'pan-x pan-y'
       }}
-      onClick={onClose}
     >
       <div 
         className="animate-fade-in glass-panel modal-responsive-card"
