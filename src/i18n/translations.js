@@ -31,6 +31,8 @@ export function getMapSearchBtnLabel(foodName, lang = 'ko') {
 
 export const TRANSLATIONS = {
   ko: {
+    mapLockScrollShort: '🔒 스크롤 우선',
+    mapUnlockTouchShort: '🔓 지도 조작 ⇄',
     mapLockScrollEnabled: '🔒 지도 고정 (터치 시 스크롤)',
     mapUnlockTouchBtn: '🔓 지도 조작하기',
     mapLockTouchBtn: '🔒 스크롤 고정',
@@ -353,6 +355,8 @@ export const TRANSLATIONS = {
     swapSpotBtn: '다른 장소 추천 🔄',
     regenerateItineraryBtn: 'AI 코스 다시 추천 🔄',
     spotTitles: {
+    mapLockScrollShort: '🔒 Prioridad Desplazar',
+    mapUnlockTouchShort: '🔓 Control Mapa ⇄',
     mapLockScrollEnabled: '🔒 Mapa fijo (Desplazar)',
     mapUnlockTouchBtn: '🔓 Desbloquear mapa',
     mapLockTouchBtn: '🔒 Bloquear mapa',
@@ -483,6 +487,8 @@ export const TRANSLATIONS = {
     }
   },
   en: {
+    mapLockScrollShort: '🔒 Scroll Priority',
+    mapUnlockTouchShort: '🔓 Control Map ⇄',
     mapLockScrollEnabled: '🔒 Map Fixed (Touch to Scroll)',
     mapUnlockTouchBtn: '🔓 Unlock Map Control',
     mapLockTouchBtn: '🔒 Lock Map Scroll',
@@ -880,6 +886,8 @@ export const TRANSLATIONS = {
     }
   },
   ja: {
+    mapLockScrollShort: '🔒 スクロール優先',
+    mapUnlockTouchShort: '🔓 地図操作 ⇄',
     mapLockScrollEnabled: '🔒 地図固定 (スクロール優先)',
     mapUnlockTouchBtn: '🔓 地図を操作する',
     mapLockTouchBtn: '🔒 スクロール固定',
@@ -1260,6 +1268,8 @@ export const TRANSLATIONS = {
     }
   },
   zh: {
+    mapLockScrollShort: '🔒 优先滑动',
+    mapUnlockTouchShort: '🔓 地图操作 ⇄',
     mapLockScrollEnabled: '🔒 地图已固定 (滑动页面)',
     mapUnlockTouchBtn: '🔓 解锁地图操作',
     mapLockTouchBtn: '🔒 锁定地图滑动',
@@ -1660,6 +1670,8 @@ export const TRANSLATIONS = {
     }
   },
   zht: {
+    mapLockScrollShort: '🔒 優先滑動',
+    mapUnlockTouchShort: '🔓 地圖操作 ⇄',
     mapLockScrollEnabled: '🔒 地圖已固定 (滑動頁面)',
     mapUnlockTouchBtn: '🔓 解鎖地圖操作',
     mapLockTouchBtn: '🔒 鎖定地圖滑動',
@@ -2042,6 +2054,8 @@ export const TRANSLATIONS = {
     }
   },
   de: {
+    mapLockScrollShort: '🔒 Scroll-Modus',
+    mapUnlockTouchShort: '🔓 Karte bedienen ⇄',
     mapLockScrollEnabled: '🔒 Karte fixiert (Scrollen)',
     mapUnlockTouchBtn: '🔓 Karte bedienen',
     mapLockTouchBtn: '🔒 Karte fixieren',
@@ -2267,6 +2281,8 @@ export const TRANSLATIONS = {
     closeMenu: 'Cerrar', 'all': 'Alle Dienste (TourAPI)', 'area': 'Regional-Sehenswürdigkeiten', 'location': 'In der Nähe (Radius)', 'festival': 'Events & Festivals', 'stay': 'Unterkunft & Hotels' }
   },
   fr: {
+    mapLockScrollShort: '🔒 Défilement prioritaire',
+    mapUnlockTouchShort: '🔓 Mode Carte ⇄',
     mapLockScrollEnabled: '🔒 Carte fixe (Défiler)',
     mapUnlockTouchBtn: '🔓 Déverrouiller carte',
     mapLockTouchBtn: '🔒 Verrouiller carte',
@@ -2686,6 +2702,8 @@ export const TRANSLATIONS = {
     closeMenu: 'Cerrar', 'all': 'Todos los Servicios (TourAPI)', 'area': 'Información Turística Regional', 'location': 'Cercano (Radio)', 'festival': 'Eventos y Festivales', 'stay': 'Alojamientos y Hoteles' }
   },
   ru: {
+    mapLockScrollShort: '🔒 Режим скролла',
+    mapUnlockTouchShort: '🔓 Управление картой ⇄',
     mapLockScrollEnabled: '🔒 Карта заблокирована (Прокрутка)',
     mapUnlockTouchBtn: '🔓 Управление картой',
     mapLockTouchBtn: '🔒 Заблокировать карту',

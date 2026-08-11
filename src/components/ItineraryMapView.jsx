@@ -475,23 +475,24 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
                   : 'rgba(15, 23, 42, 0.92)',
                 color: '#ffffff',
                 border: isMapUnlocked ? 'none' : '1px solid rgba(56, 189, 248, 0.5)',
-                padding: '0.35rem 0.75rem',
+                padding: '0.3rem 0.7rem',
                 borderRadius: 'var(--radius-full)',
-                fontSize: '0.75rem',
+                fontSize: '0.74rem',
                 fontWeight: 800,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.35rem',
-                boxShadow: '0 4px 14px rgba(0, 0, 0, 0.4)',
+                gap: '0.3rem',
+                boxShadow: isMapUnlocked ? '0 4px 14px rgba(2, 132, 199, 0.45)' : '0 4px 14px rgba(0, 0, 0, 0.4)',
                 backdropFilter: 'blur(10px)',
                 transition: 'all 0.2s ease'
               }}
+              title={isMapUnlocked ? '클릭 시 스크롤 모드로 복귀' : '클릭 시 지도 줌인/이동 활성화'}
             >
               <span>
                 {isMapUnlocked 
-                  ? `${t.mapUnlockedTitle || '🔓 지도 조작 중'} · ${t.mapLockTouchBtn || '🔒 스크롤 고정'}`
-                  : `${t.mapLockScrollEnabled || '🔒 지도 고정 (터치 시 스크롤)'} · ${t.mapUnlockTouchBtn || '🔓 지도 조작하기'}`
+                  ? (t.mapUnlockTouchShort || '🔓 지도 조작 ⇄')
+                  : (t.mapLockScrollShort || '🔒 스크롤 우선')
                 }
               </span>
             </button>
