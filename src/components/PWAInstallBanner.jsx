@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Smartphone, Download, X, Share, Monitor, Sparkles } from 'lucide-react';
 
 const PWA_I18N = {
@@ -13,7 +13,7 @@ const PWA_I18N = {
     guideModalTitle: '홈 화면에 추가하는 방법',
     guideModalSub: '스마트폰 홈 화면(바탕화면)에 1초 만에 바로가기 앱을 추가해 보세요!',
     desktopGuideModalTitle: 'PC 데스크톱 앱 설치 방법',
-    desktopGuideModalSub: '브라우저 주소창 우측의 [앱 설치] 아이콘(💻)을 클릭하시거나 아래 버튼을 누르시면 전용 창으로 바로 실행됩니다!',
+    desktopGuideModalSub: '브라우저 주소창 우측의 [앱 설치] 아이콘(💻)을 클릭하시거나 아래 지침을 따라 설치하시면 독립 창으로 바로 실행됩니다!',
     step1Title: '1. 브라우저 메뉴 열기',
     step1DescKakao: '카카오톡 우측 하단 (⋮ 또는 ⚙️) ➔ "다른 브라우저로 열기" 선택 후',
     step1DescGeneral: '하단/상단 브라우저 공유 또는 설정 메뉴 터치',
@@ -46,7 +46,7 @@ const PWA_I18N = {
     bannerTitle: '📱 ホーム画面に追加',
     bannerDesc: 'ホーム画面に追加してワンタップで即アクセス！',
     badgeNew: 'NEW',
-    installBtn: '追加하는',
+    installBtn: '追加する',
     desktopTitle: '💻 PCデスクトップアプリをインストール',
     desktopDesc: 'アドレスバーなしの専用ウィンドウで1秒起動！',
     desktopInstallBtn: 'アプリをインストール',
@@ -186,6 +186,7 @@ const PWA_I18N = {
 
 export default function PWAInstallBanner({ lang = 'ko' }) {
   const t = PWA_I18N[lang] || PWA_I18N.ko;
+  const deferredPromptRef = useRef(null);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showBanner, setShowBanner] = useState(false);
   const [showGuideModal, setShowGuideModal] = useState(false);
@@ -218,14 +219,20 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
       if (dismissedTimestamp) {
         const pastHours = (Date.now() - parseInt(dismissedTimestamp, 10)) / (1000 * 60 * 60);
         if (pastHours < 24 && !window.location.search.includes('pwa=')) {
-          return;
+          // Banner auto-popup disabled if dismissed within 24h, but Header click still opens modal!
+          setShowBanner(false);
+        } else {
+          setShowBanner(true);
         }
+      } else {
+        setShowBanner(true);
       }
     }
 
     // 3. Listen for Chrome/Android/Samsung/Edge PWA install prompt
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
+      deferredPromptRef.current = e;
       setDeferredPrompt(e);
       setShowBanner(true);
     };
@@ -233,22 +240,37 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
     // 4. Listen for appinstalled event (Hide banner immediately when install completes)
     const handleAppInstalled = () => {
       setShowBanner(false);
+      setShowGuideModal(false);
+      deferredPromptRef.current = null;
       setDeferredPrompt(null);
       localStorage.setItem('ktravel_pwa_banner_dismissed_at', String(Date.now()));
     };
 
     // 5. Listen for custom header button click event
-    const handleOpenInstallModal = () => {
-      setShowBanner(true);
-      handleInstallClick();
+    const handleOpenInstallModal = async () => {
+      const promptObj = deferredPromptRef.current;
+      if (promptObj) {
+        try {
+          promptObj.prompt();
+          const { outcome } = await promptObj.userChoice;
+          if (outcome === 'accepted') {
+            setShowBanner(false);
+            setShowGuideModal(false);
+            deferredPromptRef.current = null;
+            setDeferredPrompt(null);
+            return;
+          }
+        } catch (err) {
+          console.log('PWA prompt error, falling back to guide modal:', err);
+        }
+      }
+      // If no prompt event available or dismissed, open guide modal 100%
+      setShowGuideModal(true);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     window.addEventListener('appinstalled', handleAppInstalled);
     window.addEventListener('open-pwa-install-modal', handleOpenInstallModal);
-
-    // Show banner for both desktop PC and mobile
-    setShowBanner(true);
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -272,13 +294,20 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
       return;
     }
 
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
-        setShowBanner(false);
+    const activePrompt = deferredPromptRef.current || deferredPrompt;
+    if (activePrompt) {
+      try {
+        activePrompt.prompt();
+        const { outcome } = await activePrompt.userChoice;
+        if (outcome === 'accepted') {
+          setShowBanner(false);
+          setShowGuideModal(false);
+        }
+        deferredPromptRef.current = null;
+        setDeferredPrompt(null);
+      } catch (err) {
+        setShowGuideModal(true);
       }
-      setDeferredPrompt(null);
     } else {
       setShowGuideModal(true);
     }
@@ -289,7 +318,8 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
     localStorage.setItem('ktravel_pwa_banner_dismissed_at', String(Date.now()));
   };
 
-  if (!showBanner) return null;
+  // If neither banner nor guide modal is active, return null
+  if (!showBanner && !showGuideModal) return null;
 
   const currentTitle = isDesktop ? t.desktopTitle : t.bannerTitle;
   const currentDesc = isDesktop ? t.desktopDesc : t.bannerDesc;
@@ -300,94 +330,96 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
   return (
     <>
       {/* Floating Smart PWA Shortcut Banner - PC & Mobile Dual Support */}
-      <div 
-        className="animate-fade-in"
-        style={{
-          position: 'fixed',
-          bottom: '1.15rem',
-          left: '0.75rem',
-          right: '0.75rem',
-          maxWidth: '520px',
-          margin: '0 auto',
-          zIndex: 9999,
-          background: 'rgba(15, 23, 42, 0.96)',
-          border: '1.5px solid rgba(56, 189, 248, 0.5)',
-          borderRadius: 'var(--radius-lg)',
-          boxShadow: '0 10px 28px rgba(0, 0, 0, 0.5)',
-          backdropFilter: 'blur(16px)',
-          padding: '0.65rem 0.85rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '0.45rem',
-          color: '#ffffff'
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', flex: 1, minWidth: 0 }}>
-          <img 
-            src="/pwa-192x192.png" 
-            alt="Travel Korea Icon" 
-            style={{ width: '36px', height: '36px', borderRadius: '9px', flexShrink: 0, boxShadow: '0 2px 6px rgba(0,0,0,0.3)' }}
-          />
-          <div style={{ minWidth: 0, flex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-              <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#38bdf8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {currentTitle}
-              </span>
-              <span style={{ background: '#f59e0b', color: '#000', fontSize: '0.6rem', fontWeight: 900, padding: '0.05rem 0.3rem', borderRadius: '3px', flexShrink: 0 }}>
-                {t.badgeNew}
-              </span>
+      {showBanner && (
+        <div 
+          className="animate-fade-in"
+          style={{
+            position: 'fixed',
+            bottom: '1.15rem',
+            left: '0.75rem',
+            right: '0.75rem',
+            maxWidth: '520px',
+            margin: '0 auto',
+            zIndex: 9999,
+            background: 'rgba(15, 23, 42, 0.96)',
+            border: '1.5px solid rgba(56, 189, 248, 0.5)',
+            borderRadius: 'var(--radius-lg)',
+            boxShadow: '0 10px 28px rgba(0, 0, 0, 0.5)',
+            backdropFilter: 'blur(16px)',
+            padding: '0.65rem 0.85rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '0.45rem',
+            color: '#ffffff'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', flex: 1, minWidth: 0 }}>
+            <img 
+              src="/pwa-192x192.png" 
+              alt="Travel Korea Icon" 
+              style={{ width: '36px', height: '36px', borderRadius: '9px', flexShrink: 0, boxShadow: '0 2px 6px rgba(0,0,0,0.3)' }}
+            />
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#38bdf8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {currentTitle}
+                </span>
+                <span style={{ background: '#f59e0b', color: '#000', fontSize: '0.6rem', fontWeight: 900, padding: '0.05rem 0.3rem', borderRadius: '3px', flexShrink: 0 }}>
+                  {t.badgeNew}
+                </span>
+              </div>
+              <p style={{ fontSize: '0.72rem', color: '#cbd5e1', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {currentDesc}
+              </p>
             </div>
-            <p style={{ fontSize: '0.72rem', color: '#cbd5e1', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {currentDesc}
-            </p>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexShrink: 0 }}>
+            <button
+              onClick={handleInstallClick}
+              style={{
+                background: 'linear-gradient(135deg, #0284c7, #2563eb)',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: 'var(--radius-md)',
+                padding: '0.4rem 0.65rem',
+                fontSize: '0.75rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.3rem',
+                whiteSpace: 'nowrap',
+                boxShadow: '0 2px 8px rgba(37, 99, 235, 0.4)'
+              }}
+            >
+              {isDesktop ? <Monitor size={13} /> : <Download size={13} />}
+              <span>{currentBtnLabel}</span>
+            </button>
+
+            <button
+              onClick={handleDismiss}
+              aria-label="닫기"
+              style={{
+                background: 'rgba(255, 255, 255, 0.12)',
+                border: 'none',
+                color: '#94a3b8',
+                borderRadius: '50%',
+                width: '26px',
+                height: '26px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                flexShrink: 0
+              }}
+            >
+              <X size={15} />
+            </button>
           </div>
         </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexShrink: 0 }}>
-          <button
-            onClick={handleInstallClick}
-            style={{
-              background: 'linear-gradient(135deg, #0284c7, #2563eb)',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: 'var(--radius-md)',
-              padding: '0.4rem 0.65rem',
-              fontSize: '0.75rem',
-              fontWeight: 800,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.3rem',
-              whiteSpace: 'nowrap',
-              boxShadow: '0 2px 8px rgba(37, 99, 235, 0.4)'
-            }}
-          >
-            {isDesktop ? <Monitor size={13} /> : <Download size={13} />}
-            <span>{currentBtnLabel}</span>
-          </button>
-
-          <button
-            onClick={handleDismiss}
-            aria-label="닫기"
-            style={{
-              background: 'rgba(255, 255, 255, 0.12)',
-              border: 'none',
-              color: '#94a3b8',
-              borderRadius: '50%',
-              width: '26px',
-              height: '26px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              flexShrink: 0
-            }}
-          >
-            <X size={15} />
-          </button>
-        </div>
-      </div>
+      )}
 
       {/* PC Desktop & Mobile PWA Guide Modal */}
       {showGuideModal && (
