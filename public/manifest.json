@@ -1,0 +1,31 @@
+{
+  "name": "Travel Korea - 대한민국 AI 여행 가이드",
+  "short_name": "Travel Korea",
+  "description": "한국관광공사 Official API 기반 AI 맞춤 여행 코스 추천 및 9개국 다국어 여행 플랫폼",
+  "start_url": "/",
+  "id": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}

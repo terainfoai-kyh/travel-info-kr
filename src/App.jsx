@@ -21,6 +21,7 @@ import SplashScreen from './components/SplashScreen';
 import CustomCourseFloatingBar from './components/CustomCourseFloatingBar';
 import GuidePRModal from './components/GuidePRModal';
 import AIChatPromptHeader from './components/AIChatPromptHeader';
+import PWAInstallBanner from './components/PWAInstallBanner';
 
 export default function App() {
   // Auto-detect browser locale
@@ -742,6 +743,9 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* PWA Home Screen Shortcut Banner & Guide */}
+      <PWAInstallBanner lang={lang} />
     </div>
   );
 }
