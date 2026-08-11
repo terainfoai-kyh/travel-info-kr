@@ -90,7 +90,9 @@ export function parseNaturalPrompt(text) {
     { canonical: '속초', keys: ['속초', 'sokcho', '束草', 'ソクチョ', 'сокчхо'] },
     { canonical: '경주', keys: ['경주', 'gyeongju', '慶州', '庆州', 'キョンジュ', 'кёнджу'] },
     { canonical: '전주', keys: ['전주', 'jeonju', '全州', 'チョンジュ', 'чонджу'] },
-    { canonical: '여수', keys: ['여수', 'yeosu', '麗水', '丽水', 'ヨス', 'ёсу'] }
+    { canonical: '여수', keys: ['여수', 'yeosu', '麗水', '丽水', 'ヨス', 'ёсу'] },
+    { canonical: '파주', keys: ['파주', 'paju', '坡州', 'パジュ', 'пачжу', '헤이리'] },
+    { canonical: '인천', keys: ['인천', 'incheon', '仁川', 'インチョン', 'инчхон', '송도'] }
   ];
 
   const matchedSubCities = [];
@@ -125,6 +127,7 @@ export function parseNaturalPrompt(text) {
     { canonical: '성심당', keys: ['성심당', 'sungsimdang', '聖心堂', '圣心堂'] }
   ];
 
+
   const userLandmarks = [];
   for (const lmItem of multilingualLandmarks) {
     if (lmItem.keys.some(k => rawLower.includes(k.toLowerCase()))) {
@@ -147,7 +150,6 @@ export function parseNaturalPrompt(text) {
         while (pos !== -1) {
           let minDist = 99999;
           for (const sIdx of stayIndices) {
-            // Sub-cities appearing after or immediately before stay keyword (pos >= sIdx - 2) get high priority
             const forwardDist = pos >= (sIdx - 2) ? (pos - sIdx + 2) : (sIdx - pos + 200);
             if (forwardDist < minDist) minDist = forwardDist;
           }
@@ -180,6 +182,19 @@ export function parseNaturalPrompt(text) {
     day2Matches.sort((a, b) => a.idx - b.idx);
     if (day2Matches.length > 0) {
       day2KeywordIntent = day2Matches[0].city;
+    }
+  }
+
+  // Multi-City Sequential Auto-Distribution Engine (e.g. "수원 명동 파주 일정")
+  if (matchedSubCities.length >= 2) {
+    const uniqueCities = [...new Set(matchedSubCities.map(m => m.city))];
+    if (uniqueCities.length >= 2) {
+      if (!nightKeywordIntent) {
+        nightKeywordIntent = uniqueCities[1];
+      }
+      if (!day2KeywordIntent) {
+        day2KeywordIntent = uniqueCities[2] || uniqueCities[1];
+      }
     }
   }
 
