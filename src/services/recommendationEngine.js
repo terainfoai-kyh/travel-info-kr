@@ -682,8 +682,9 @@ export function generateSmartItinerary({
       const isNightSlot = (s === targetSlotsCount - 1);
       const isNightSpot = (spot) => {
         if (!spot || !spot.title) return false;
-        const txt = `${spot.title} ${spot.location || ''}`.toLowerCase();
-        return (nightKeyword && txt.includes(nightKeyword.toLowerCase())) || txt.includes('명동') || txt.includes('myeongdong') || txt.includes('서울타워');
+        if (!nightKeyword) return false;
+        const txt = `${spot.title} ${spot.location || ''} ${spot.addr1 || ''}`.toLowerCase();
+        return txt.includes(nightKeyword.toLowerCase());
       };
 
       if (d === 1) {

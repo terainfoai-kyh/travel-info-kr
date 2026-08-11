@@ -340,7 +340,12 @@ export default function App() {
                 selectedCourseSpotIds={selectedCourseSpotIds}
                 onToggleCourseSpot={handleToggleCourseSpot}
                 onResetFilters={async (newF) => {
-                  const updated = { ...filters, ...newF };
+                  const updated = {
+                    ...filters,
+                    nightKeyword: '',
+                    userLandmarks: [],
+                    ...newF
+                  };
                   setFilters(updated);
                   setIsLoading(true);
                   try {
@@ -658,7 +663,7 @@ export default function App() {
                 <button
                   onClick={() => {
                     setShowOverseasModal(false);
-                    const newFilters = { ...filters, region: '서울', keyword: '성수동' };
+                    const newFilters = { ...filters, region: '서울', keyword: '성수동', nightKeyword: '', userLandmarks: [] };
                     setFilters(newFilters);
                     fetchTourSpots({ ...newFilters, lang }).then(spots => {
                       setAllTourSpots(spots);
@@ -685,7 +690,7 @@ export default function App() {
                 <button
                   onClick={() => {
                     setShowOverseasModal(false);
-                    const newFilters = { ...filters, region: '제주', keyword: '서귀포' };
+                    const newFilters = { ...filters, region: '제주', keyword: '서귀포', nightKeyword: '', userLandmarks: [] };
                     setFilters(newFilters);
                     fetchTourSpots({ ...newFilters, lang }).then(spots => {
                       setAllTourSpots(spots);
@@ -712,7 +717,7 @@ export default function App() {
                 <button
                   onClick={() => {
                     setShowOverseasModal(false);
-                    const newFilters = { ...filters, region: '부산', keyword: '해운대' };
+                    const newFilters = { ...filters, region: '부산', keyword: '해운대', nightKeyword: '', userLandmarks: [] };
                     setFilters(newFilters);
                     fetchTourSpots({ ...newFilters, lang }).then(spots => {
                       setAllTourSpots(spots);

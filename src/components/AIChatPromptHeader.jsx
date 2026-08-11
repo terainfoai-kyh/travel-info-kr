@@ -132,15 +132,24 @@ export function parseNaturalPrompt(text) {
     }
   }
 
-  // Multi-clause intent detection across languages (Rainy mode, Night/Hotel area intent)
+  // Multi-clause intent detection across 9 languages (Rainy mode, Night/Hotel/Stay area intent)
   const rainyModeIntent = /(비\s*오|비오|실내|우천|비가|rain|indoor|雨|室内|дождь|regen|pluie|lluvia)/i.test(rawLower);
   let nightKeywordIntent = '';
-  if (/(저녁|밤|야간|숙소|호텔|evening|night|hotel|stay|夜|宿|酒店|отель|ночь|nacht|nuit|noche)/i.test(rawLower)) {
+  if (/(저녁|밤|야간|숙소|호텔|잘거야|자고|자야|자다|숙박|묵을|묵고|자려|stay|sleep|hotel|night|evening|夜|宿|酒店|宿泊|泊まる|泊まり|отель|ночь|остановиться|schlafen|übernachten|dormir|pernoctar)/i.test(rawLower)) {
+    const matchedNightSubCities = [];
     for (const item of multilingualSubCityMap) {
-      if (item.keys.some(k => rawLower.includes(k.toLowerCase()))) {
-        nightKeywordIntent = item.canonical;
-        break;
+      for (const k of item.keys) {
+        const idx = rawLower.lastIndexOf(k.toLowerCase());
+        if (idx !== -1) {
+          matchedNightSubCities.push({ city: item.canonical, idx });
+          break;
+        }
       }
+    }
+    // Sort DESCENDING by appearance index so the sub-city mentioned LAST (nearest to stay/hotel clause) is selected
+    matchedNightSubCities.sort((a, b) => b.idx - a.idx);
+    if (matchedNightSubCities.length > 0) {
+      nightKeywordIntent = matchedNightSubCities[0].city;
     }
   }
 
