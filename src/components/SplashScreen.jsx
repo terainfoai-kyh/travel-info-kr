@@ -83,19 +83,28 @@ export default function SplashScreen({ onFinish, lang = 'ko' }) {
         alignItems: 'center',
         textAlign: 'center'
       }}>
-        {/* Emblem Badge */}
+        {/* Official 3D K-Taegeuk Emblem Logo */}
         <div style={{
-          width: '72px',
-          height: '72px',
-          borderRadius: '24px',
-          background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
+          position: 'relative',
+          width: '84px',
+          height: '84px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          boxShadow: '0 12px 30px rgba(37, 99, 235, 0.25)',
-          marginBottom: '1.25rem'
+          marginBottom: '1.25rem',
+          animation: 'splashLogoFloat 3s ease-in-out infinite'
         }}>
-          <Sparkles style={{ width: '36px', height: '36px', color: '#ffffff' }} />
+          <img
+            src="/logo.png"
+            alt="K-Travel AI Logo"
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+              borderRadius: '22px',
+              boxShadow: '0 12px 30px rgba(37, 99, 235, 0.3)'
+            }}
+          />
         </div>
 
         <h1 style={{
@@ -141,6 +150,10 @@ export default function SplashScreen({ onFinish, lang = 'ko' }) {
         @keyframes splashBar {
           0% { transform: translateX(-100%); }
           100% { transform: translateX(0); }
+        }
+        @keyframes splashLogoFloat {
+          0%, 100% { transform: translateY(0) scale(1); }
+          50% { transform: translateY(-4px) scale(1.04); }
         }
       `}</style>
     </div>
