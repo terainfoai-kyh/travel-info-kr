@@ -245,8 +245,15 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
     setIsGenerating(true);
 
     try {
+      // Build multi-turn conversation history context for Gemini LLM
+      const historyContext = chatMessages
+        .filter(m => m.text)
+        .map(m => `${m.sender === 'user' ? 'User' : 'AI'}: ${m.text}`)
+        .join('\n');
+      const contextualPrompt = historyContext ? `${historyContext}\nUser: ${query}` : query;
+
       const parsedIntent = await geminiParseNaturalPrompt(query, lang);
-      const fullAiResult = await geminiGenerateFullItinerary(query, lang);
+      const fullAiResult = await geminiGenerateFullItinerary(contextualPrompt, lang);
 
       const aiBubbleText = fullAiResult?.aiRecommendationSummary || 
         `'${query}'에 맞춰 최적의 ${parsedIntent?.days || 3}일치 여행 일정을 100% 정품 명소와 실시간 미식/날씨로 구성했습니다! 📍`;
