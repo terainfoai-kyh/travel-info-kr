@@ -204,6 +204,21 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
   }, []);
 
   const handleInstallClick = async () => {
+    // KakaoTalk in-app browser detection
+    if (isKakaoInApp) {
+      const ua = (navigator.userAgent || '').toLowerCase();
+      if (ua.includes('android')) {
+        // Auto-launch Android Chrome/Samsung Internet via Intent URI scheme
+        const targetUrl = window.location.href.replace(/^https?:\/\//i, '');
+        const chromeIntent = `intent://${targetUrl}#Intent;scheme=https;package=com.android.chrome;end;`;
+        window.location.href = chromeIntent;
+        return;
+      }
+      // iOS KakaoTalk guide modal
+      setShowIOSGuide(true);
+      return;
+    }
+
     if (deferredPrompt) {
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
@@ -290,7 +305,7 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
             }}
           >
             <Download size={13} />
-            <span>{t.installBtn}</span>
+            <span>{isKakaoInApp ? (lang === 'ko' ? '크롬/삼성인터넷 열기' : t.installBtn) : t.installBtn}</span>
           </button>
 
           <button
