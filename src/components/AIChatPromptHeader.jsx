@@ -150,6 +150,7 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
   const [chatMessages, setChatMessages] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const chatContainerRef = useRef(null);
+  const recognitionRef = useRef(null);
 
   useEffect(() => {
     if (filters && filters.keyword === '') {
