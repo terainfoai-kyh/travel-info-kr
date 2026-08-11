@@ -478,6 +478,7 @@ export function generateSmartItinerary({
   refreshSeed = 0,
   nightKeyword = '',
   day2Keyword = '',
+  dailyRegions = [],
   spots = []
 }) {
   const GYEONGBOKGUNG_FALLBACK_IMG = '/default-spot.png';
