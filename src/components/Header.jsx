@@ -357,7 +357,7 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
               }}
             >
               <Download size={14} color="#ffffff" />
-              <span>{t.installAppBtn || '📲 앱 설치'}</span>
+              <span>{isMobile ? (t.installAppBtnShort || '앱 설치') : (t.installAppBtn || '💻 앱 설치')}</span>
             </button>
             <button onClick={onOpenGuidePR} style={{ background: themeMode === 'light' ? 'var(--bg-secondary)' : 'rgba(30, 41, 59, 0.95)', border: themeMode === 'light' ? '1px solid var(--border-highlight)' : '1px solid rgba(56, 189, 248, 0.5)', color: themeMode === 'light' ? 'var(--text-main)' : '#ffffff', padding: '0.35rem 0.7rem', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem', transition: 'all 0.2s ease' }}>
               <BookOpen size={14} color={themeMode === 'light' ? 'var(--accent-primary)' : '#38bdf8'} />

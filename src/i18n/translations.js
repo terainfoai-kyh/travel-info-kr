@@ -355,6 +355,8 @@ export const TRANSLATIONS = {
     listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar',
+    installAppBtn: "💻 Instalar app",
+    installAppBtnShort: "Instalar",
 
     noSpotsResult: 'No se encontraron resultados para \'{keyword}\'',
     noSpotsDesc: '¿No encuentras lo que buscas? Revisa las sugerencias de búsqueda o usa la búsqueda por voz con IA.',
@@ -452,6 +454,8 @@ export const TRANSLATIONS = {
     listViewShort: '📋 Itinerary',
     openMenu: 'Menu',
     closeMenu: 'Close Menu',
+    installAppBtn: "💻 Install App",
+    installAppBtnShort: "Install App",
 
 
     noSpotsResult: 'No results found for \'{keyword}\'',
@@ -838,6 +842,8 @@ export const TRANSLATIONS = {
     listViewShort: '📋 日程リスト',
     openMenu: 'メニュー',
     closeMenu: '閉じる',
+    installAppBtn: "💻 アプリをインストール",
+    installAppBtnShort: "アプリ",
 
 
     noSpotsResult: '「{keyword}」の検索結果がありません',
@@ -1189,6 +1195,8 @@ export const TRANSLATIONS = {
     listViewShort: '📋 行程列表',
     openMenu: '菜单',
     closeMenu: '关闭菜单',
+    installAppBtn: "💻 安装应用",
+    installAppBtnShort: "安装应用",
 
 
     noSpotsResult: '未找到 "{keyword}" 的搜索结果',
@@ -1560,6 +1568,8 @@ export const TRANSLATIONS = {
     listViewShort: '📋 行程列表',
     openMenu: '選單',
     closeMenu: '關閉選單',
+    installAppBtn: "💻 安裝應用",
+    installAppBtnShort: "安裝應用",
 
 
     noSpotsResult: '未找到 「{keyword}」 的搜尋結果',
@@ -1913,6 +1923,8 @@ export const TRANSLATIONS = {
     listViewShort: '📋 Ablauf',
     openMenu: 'Menü',
     closeMenu: 'Schließen',
+    installAppBtn: "💻 App installieren",
+    installAppBtnShort: "App installieren",
 
 
     noSpotsResult: 'Keine Ergebnisse für \'{keyword}\' gefunden',
@@ -2109,6 +2121,8 @@ export const TRANSLATIONS = {
     listViewShort: '📋 Itinéraire',
     openMenu: 'Menu',
     closeMenu: 'Fermer',
+    installAppBtn: "💻 Installer l'app",
+    installAppBtnShort: "Installer",
 
 
     noSpotsResult: 'Aucun résultat trouvé pour \'{keyword}\'',
@@ -2497,6 +2511,8 @@ export const TRANSLATIONS = {
     listViewShort: '📋 Список',
     openMenu: 'Меню',
     closeMenu: 'Закрыть',
+    installAppBtn: "💻 Установить приложение",
+    installAppBtnShort: "Установить",
 
 
     noSpotsResult: 'Результаты по запросу «{keyword}» не найдены',
