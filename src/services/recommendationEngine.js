@@ -672,7 +672,10 @@ export function generateSmartItinerary({
     const dEndH = parseHourMin(dEndTime, 20.0);
     const dDuration = Math.max(3, dEndH - dStartH);
 
-    const fallbackPreset = REGION_PRESETS[targetProvince] || REGION_PRESETS['경기'] || REGION_PRESETS['서울'];
+    const targetFallbackSpots = (REGION_PRESETS[targetProvince] && REGION_PRESETS[targetProvince].length > 0)
+      ? REGION_PRESETS[targetProvince]
+      : TRAVEL_SPOTS.filter(s => getSpotProvinceKey(s) === targetProvince);
+    const fallbackPreset = targetFallbackSpots.length > 0 ? targetFallbackSpots : (REGION_PRESETS['서울'] || []);
     let activeSearchSpots = (Array.isArray(spots) && spots.length > 0) ? spots : [];
     if (rainyMode) {
       const indoorKeywords = ['박물관', '미술관', '몰', '카페', '실내', '아쿠아리움', '전시관', '백화점', '쇼핑', '시장', '온천', '공연장', '체험관'];
@@ -684,7 +687,12 @@ export function generateSmartItinerary({
         activeSearchSpots = indoorActiveSearch;
       }
     }
-    const combinedCandidates = [...activeSearchSpots, ...provincePool, ...fallbackPreset, ...(REGION_PRESETS['서울'] || [])];
+    
+    // Day-specific candidate filtering: ensure day candidates prioritize the day's active region
+    const dayProvSpots = activeSearchSpots.filter(s => getSpotProvinceKey(s) === targetProvince);
+    const combinedCandidates = dayProvSpots.length >= 3
+      ? [...dayProvSpots, ...provincePool, ...fallbackPreset]
+      : [...provincePool, ...fallbackPreset, ...(REGION_PRESETS['서울'] || [])];
 
     // Determine dynamic target slots count based on departure start time (dStartH)
     let targetSlotsCount = 4;
