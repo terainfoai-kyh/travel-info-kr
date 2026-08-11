@@ -108,12 +108,31 @@ export function parseNaturalPrompt(text) {
     }
   }
 
-  // Days detection
+  // Days detection (Check full "1박 2일" / "2박 3일" patterns BEFORE single "1박" to prevent 1박2일 from matching 1박)
   let days = 3;
-  if (raw.includes('1박') || raw.includes('하루') || raw.includes('당일') || raw.includes('1d') || raw.includes('1-day')) days = 1;
-  else if (raw.includes('2박') || raw.includes('1박 2일') || raw.includes('1박2일') || raw.includes('2d') || raw.includes('2-day')) days = 2;
-  else if (raw.includes('3박') || raw.includes('2박 3일') || raw.includes('2박3일') || raw.includes('3d') || raw.includes('3-day')) days = 3;
-  else if (raw.includes('4박') || raw.includes('3박 4일') || raw.includes('3박4일') || raw.includes('4d') || raw.includes('4-day')) days = 4;
+  if (raw.includes('1박 2일') || raw.includes('1박2일')) days = 2;
+  else if (raw.includes('2박 3일') || raw.includes('2박3일')) days = 3;
+  else if (raw.includes('3박 4일') || raw.includes('3박4일')) days = 4;
+  else if (raw.includes('4박 5일') || raw.includes('4박5일')) days = 5;
+  else if (raw.includes('1박') || raw.includes('하루') || raw.includes('당일') || raw.includes('1d') || raw.includes('1-day')) days = 1;
+  else if (raw.includes('2박') || raw.includes('2d') || raw.includes('2-day')) days = 2;
+  else if (raw.includes('3박') || raw.includes('3d') || raw.includes('3-day')) days = 3;
+  else if (raw.includes('4박') || raw.includes('4d') || raw.includes('4-day')) days = 4;
+
+  // Extract explicit landmark names mentioned in user prompt (e.g. "화성행궁", "방화수류정", "명동", "성심당")
+  const landmarkKeywords = [
+    '화성행궁', '방화수류정', '행궁동', '명동', '경복궁', 'N서울타워', '북촌한옥마을', 'DDP', '성수동', '해운대', '광안리',
+    '감천문화마을', '태종대', '성산일출봉', '협재', '한라산', '섭지코지', '경포대', '속초관광수산시장', '설악산', '정동진',
+    '전주한옥마을', '경기전', '군산', '마이산', '불국사', '보문단지', '첨성대', '안동하회마을', '해동용궁사', '여수', '향일암',
+    '순천만', '담양', '보성', '청남대', '충주호', '도담삼봉', '안면도', '성심당', '유성온천', '동성로', '팔공산'
+  ];
+
+  const userLandmarks = [];
+  for (const lm of landmarkKeywords) {
+    if (raw.includes(lm)) {
+      userLandmarks.push(lm);
+    }
+  }
 
   // Multi-clause intent detection (Rainy mode, Night/Hotel area intent)
   const rainyModeIntent = /(비\s*오|비오|실내|우천|비가)/i.test(raw);
@@ -134,7 +153,8 @@ export function parseNaturalPrompt(text) {
     keyword: cleanKeyword,
     raw,
     rainyMode: rainyModeIntent,
-    nightKeyword: nightKeywordIntent
+    nightKeyword: nightKeywordIntent,
+    userLandmarks
   };
 }
 

@@ -574,3 +574,56 @@ export async function fetchTourSpots({
     return { ...spot, image: img };
   });
 }
+
+// Pinpoint TourAPI Keyword Search for User Mentioned Landmarks
+export async function fetchPinpointLandmarkSpots(landmarks = [], lang = 'ko') {
+  if (!Array.isArray(landmarks) || landmarks.length === 0) return [];
+  
+  let apiBase = PUBLIC_API_CONFIG.BASE_URL;
+  if (lang === 'en') apiBase = PUBLIC_API_CONFIG.ENG_BASE;
+  else if (lang === 'ja') apiBase = PUBLIC_API_CONFIG.JPN_BASE;
+  else if (lang === 'zh') apiBase = PUBLIC_API_CONFIG.CHS_BASE;
+
+  const pinpointSpots = [];
+
+  for (const lm of landmarks) {
+    if (!lm || lm.length < 2) continue;
+    try {
+      const url = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=5&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=B&keyword=${encodeURIComponent(lm)}`;
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        const items = data.response?.body?.items?.item || [];
+        const rawItem = Array.isArray(items) ? items[0] : items;
+        if (rawItem && rawItem.title) {
+          let rawImg = rawItem.firstimage || rawItem.firstimage2 || '';
+          if (rawImg) rawImg = rawImg.replace(/^http:\/\//i, 'https://');
+          const lowerImg = rawImg.toLowerCase();
+          if (!rawImg || lowerImg.includes('japan') || lowerImg.includes('fuji') || lowerImg.includes('tokyo') || lowerImg.includes('kyoto') || lowerImg.includes('osaka')) {
+            rawImg = '/default-spot.png';
+          }
+
+          pinpointSpots.push({
+            id: rawItem.contentid || `pin-${Date.now()}-${Math.random()}`,
+            contentId: rawItem.contentid,
+            title: rawItem.title,
+            region: rawItem.addr1 ? rawItem.addr1.split(' ')[0] : '한국',
+            theme: '역사/문화',
+            contentTypeId: rawItem.contenttypeid || '12',
+            rating: 4.9,
+            image: rawImg,
+            location: rawItem.addr1 || `${lm} 위치`,
+            lat: parseFloat(rawItem.mapy) || 37.2858,
+            lng: parseFloat(rawItem.mapx) || 127.0145,
+            tel: rawItem.tel || '',
+            tags: ['관광명소', '핫플레이스', lm]
+          });
+        }
+      }
+    } catch (err) {
+      console.warn(`Pinpoint query for ${lm} failed:`, err);
+    }
+  }
+
+  return pinpointSpots;
+}

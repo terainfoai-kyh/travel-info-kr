@@ -59,6 +59,9 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
   useModalHistory(isOpen, onClose, 'itinerary-modal');
 
   const getInitialDays = () => {
+    if (filters?.days && typeof filters.days === 'number') {
+      return Math.min(Math.max(filters.days, 1), 5);
+    }
     if (customPickedSpots && customPickedSpots.length > 0) {
       return Math.min(Math.max(Math.ceil(customPickedSpots.length / 4), 1), 5);
     }
@@ -84,7 +87,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
   const [endTime, setEndTime] = useState('20:00');
   const [dayTimes, setDayTimes] = useState({});
   const [daySeeds, setDaySeeds] = useState({});
-  const [rainyMode, setRainyMode] = useState(false);
+  const [rainyMode, setRainyMode] = useState(() => !!filters?.rainyMode);
   const [refreshSeed, setRefreshSeed] = useState(0);
   const [swappedSpots, setSwappedSpots] = useState({});
   const [deletedSpotKeys, setDeletedSpotKeys] = useState({});
@@ -102,8 +105,11 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
       if (filters?.startDate) {
         setCustomStartDate(filters.startDate);
       }
+      if (filters?.rainyMode !== undefined) {
+        setRainyMode(!!filters.rainyMode);
+      }
     }
-  }, [isOpen, filters?.startDate, filters?.endDate, customPickedSpots?.length]);
+  }, [isOpen, filters?.startDate, filters?.endDate, filters?.days, filters?.rainyMode, customPickedSpots?.length]);
 
   // Auto-reset activeMapDay to 1 and clear spot modifications whenever ANY condition filter changes
   useEffect(() => {

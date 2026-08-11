@@ -9,7 +9,7 @@ import GoogleMapView from './components/GoogleMapView';
 import TravelDetailModal from './components/TravelDetailModal';
 import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
 import { fetchRealtimeWeather } from './services/weatherApi';
-import { fetchTourSpots } from './services/tourApi';
+import { fetchTourSpots, fetchPinpointLandmarkSpots } from './services/tourApi';
 import { getRecommendedFoodAndOutfit } from './services/recommendationEngine';
 import { Loader2, X } from 'lucide-react';
 import ItineraryModal from './components/ItineraryModal';
@@ -263,7 +263,11 @@ export default function App() {
             const newFilters = {
               ...filters,
               region: targetRegion,
-              keyword: targetKeyword
+              keyword: targetKeyword,
+              days: parsed.days || filters.days || 2,
+              rainyMode: parsed.rainyMode || false,
+              nightKeyword: parsed.nightKeyword || '',
+              userLandmarks: parsed.userLandmarks || []
             };
             setFilters(newFilters);
             setIsLoading(true);
@@ -273,6 +277,17 @@ export default function App() {
                 ...newFilters,
                 lang
               });
+
+              // Pinpoint TourAPI Keyword Search for User Mentioned Landmarks (e.g. "화성행궁", "방화수류정", "명동")
+              if (parsed.userLandmarks && parsed.userLandmarks.length > 0) {
+                const pinpointSpots = await fetchPinpointLandmarkSpots(parsed.userLandmarks, lang);
+                if (pinpointSpots.length > 0) {
+                  const existingTitles = new Set(pinpointSpots.map(s => (s.title || '').toLowerCase().replace(/\s+/g, '')));
+                  const remainingSpots = fetchedSpots.filter(s => !existingTitles.has((s.title || '').toLowerCase().replace(/\s+/g, '')));
+                  fetchedSpots = [...pinpointSpots, ...remainingSpots];
+                }
+              }
+
               setAllTourSpots(fetchedSpots);
               const effectiveRegion = (targetRegion === '전국' && fetchedSpots[0] && fetchedSpots[0].regionName && fetchedSpots[0].regionName !== '전국')
                 ? fetchedSpots[0].regionName
