@@ -257,14 +257,18 @@ export default function App() {
         <AIChatPromptHeader 
           lang={lang} 
           filters={filters}
-          onGenerateItinerary={async (parsed) => {
+          onGenerateItinerary={async (parsed, fullAiResult = null) => {
+            if (!parsed) return;
+            if (fullAiResult) {
+              setFullAiItinerary(fullAiResult);
+            }
             const targetRegion = parsed.region || '전국';
             const targetKeyword = parsed.keyword || '';
             const newFilters = {
               ...filters,
               region: targetRegion,
               keyword: targetKeyword,
-              days: parsed.days || filters.days || 2,
+              days: parsed.days || 3,
               rainyMode: parsed.rainyMode || false,
               nightKeyword: parsed.nightKeyword || '',
               day2Keyword: parsed.day2Keyword || '',
@@ -411,6 +415,7 @@ export default function App() {
         filters={filters}
         spots={allTourSpots}
         lang={lang}
+        fullAiItinerary={fullAiItinerary}
         customPickedSpots={allTourSpots.filter(s => selectedCourseSpotIds.includes(s.id))}
         onSelectSpot={(spot) => {
           setIsItineraryOpen(false);

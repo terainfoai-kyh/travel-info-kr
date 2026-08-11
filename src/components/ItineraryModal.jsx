@@ -55,7 +55,7 @@ function getI18nDayHeaderTitle(dayObj, region, lang = 'ko') {
   }
 }
 
-export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, onSelectSpot, customPickedSpots = [] }) {
+export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, onSelectSpot, customPickedSpots = [], fullAiItinerary = null }) {
   useModalHistory(isOpen, onClose, 'itinerary-modal');
 
   const getInitialDays = () => {
@@ -125,30 +125,50 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
   const region = filters?.region || '서울';
   const theme = filters?.theme || '전체';
 
-  const startDateObj = customStartDate ? new Date(customStartDate) : new Date();
-
-  const formatDateStr = (d) => {
-    if (!d) return '';
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`;
-  };
-
-  const getBadgeI18n = (type, value) => {
-    if (!value) return '';
-    const curLang = lang || 'ko';
-    if (type === 'region') return TRANSLATIONS[curLang]?.regions?.[value] || value;
-    if (type === 'theme') return TRANSLATIONS[curLang]?.themes?.[value] || value;
-    if (type === 'gender') return TRANSLATIONS[curLang]?.genders?.[value] || value;
-    if (type === 'age') return TRANSLATIONS[curLang]?.ages?.[value] || value;
-    if (type === 'apiService') return TRANSLATIONS[curLang]?.apiServices?.[value] || value;
-    return value;
-  };
-
   const isCustomMode = customPickedSpots && customPickedSpots.length > 0;
 
-  const baseItinerary = isCustomMode
+  const mapFullAiToItinerary = (fullAi, totalDays, startDate) => {
+    if (!fullAi || !Array.isArray(fullAi.dailySchedules)) return null;
+    const startDt = startDate ? new Date(startDate) : new Date();
+    return fullAi.dailySchedules.slice(0, totalDays).map((ds, idx) => {
+      const curDate = new Date(startDt);
+      curDate.setDate(startDt.getDate() + idx);
+      const y = curDate.getFullYear();
+      const m = String(curDate.getMonth() + 1).padStart(2, '0');
+      const dStr = String(curDate.getDate()).padStart(2, '0');
+      const dateStr = `${y}-${m}-${dStr}`;
+
+      const rawSpots = Array.isArray(ds.spots) ? ds.spots : [];
+      const schedule = rawSpots.map((sp, sIdx) => ({
+        time: sIdx === 0 ? '09:30' : (sIdx === 1 ? '13:00' : (sIdx === 2 ? '16:30' : '20:00')),
+        slotName: sIdx === 0 ? '오전 명소 & 출발' : (sIdx === 1 ? '점심 & 랜드마크' : (sIdx === 2 ? '오후 관광 & 체험' : '야경 & 마감')),
+        spotId: sp.id || `fullai-${ds.day}-${sIdx}`,
+        title: sp.title,
+        location: sp.location || sp.addr1 || `${ds.city || '전국'} 중심가`,
+        lat: parseFloat(sp.lat) || 37.5665,
+        lng: parseFloat(sp.lng) || 126.9780,
+        rating: sp.rating || 4.8,
+        image: sp.image || '/default-spot.png',
+        tags: sp.tags || [],
+        isInstagramHotspot: sp.isInstagramHotspot
+      }));
+
+      return {
+        day: ds.day || (idx + 1),
+        dateStr,
+        region: ds.city || region,
+        weather: ds.weather,
+        foodRecommendation: ds.foodRecommendation,
+        outfitRecommendation: ds.outfitRecommendation,
+        accommodation: ds.accommodation,
+        schedule
+      };
+    });
+  };
+
+  const aiMappedItinerary = mapFullAiToItinerary(fullAiItinerary, selectedDays, customStartDate);
+
+  const baseItinerary = aiMappedItinerary || (isCustomMode
     ? generateCustomPickedItinerary({
         pickedSpots: customPickedSpots,
         days: selectedDays,
@@ -173,7 +193,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
         day2Keyword: filters?.day2Keyword || '',
         dailyRegions: filters?.dailyRegions || [],
         spots
-      });
+      }));
 
   // Apply spot swaps, deletions, additions AND dynamically recalculate nextTravel between consecutive items
   const itinerary = baseItinerary.map((day, dIdx) => {

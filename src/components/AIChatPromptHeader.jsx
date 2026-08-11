@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, Mic, MicOff, ArrowRight, Camera, X } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
 import { geminiParseNaturalPrompt } from '../services/geminiNlpService';
+import AIChatWindow from './AIChatWindow';
 
 /**
  * Natural language query parser to extract region, days, and clean keywords
@@ -250,6 +251,7 @@ export default function AIChatPromptHeader({ lang = 'ko', filters, onGenerateIti
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [headerBottom, setHeaderBottom] = useState(132);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const recognitionRef = useRef(null);
 
   // Sync promptText ONLY when filters.keyword is explicitly reset to empty string
@@ -345,19 +347,16 @@ export default function AIChatPromptHeader({ lang = 'ko', filters, onGenerateIti
 
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
-    if (!promptText.trim()) return;
-    if (onGenerateItinerary) {
-      const parsed = await geminiParseNaturalPrompt(promptText, lang, parseNaturalPrompt);
-      onGenerateItinerary(parsed);
+    if (!promptText.trim()) {
+      setIsChatOpen(true);
+      return;
     }
+    setIsChatOpen(true);
   };
 
   const handleChipClick = async (sampleText) => {
     setPromptText(sampleText);
-    if (onGenerateItinerary) {
-      const parsed = await geminiParseNaturalPrompt(sampleText, lang, parseNaturalPrompt);
-      onGenerateItinerary(parsed);
-    }
+    setIsChatOpen(true);
   };
 
   const sampleChips = [
@@ -700,6 +699,15 @@ export default function AIChatPromptHeader({ lang = 'ko', filters, onGenerateIti
           </a>
         </div>
       </div>
+
+      {/* Conversational AI Travel Concierge Chat Window */}
+      <AIChatWindow
+        isOpen={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+        lang={lang}
+        initialPrompt={promptText}
+        onGenerateItinerary={onGenerateItinerary}
+      />
     </>
   );
 }

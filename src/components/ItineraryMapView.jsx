@@ -478,6 +478,91 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
           </div>
         </div>
 
+        {/* AI Enriched Daily Info Banner: Weather, Food Curation, Outfit TPO & Accommodation Booking */}
+        {(currentDayData?.weather || currentDayData?.foodRecommendation || currentDayData?.outfitRecommendation || currentDayData?.accommodation) && (
+          <div style={{
+            padding: '0.65rem 0.95rem',
+            background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95))',
+            borderBottom: '1px solid var(--border-color)',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+            gap: '0.5rem'
+          }}>
+            {/* Weather Card */}
+            {currentDayData?.weather && (
+              <div style={{ background: 'rgba(30, 41, 59, 0.6)', border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '10px', padding: '0.45rem 0.65rem' }}>
+                <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                  <span>🌤️ AI 맞춤 날씨</span>
+                </div>
+                <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#ffffff', marginTop: '0.15rem' }}>
+                  {currentDayData.weather.temp} · {currentDayData.weather.condition} (강수 {currentDayData.weather.rainProbability})
+                </div>
+              </div>
+            )}
+
+            {/* Food Curation Card */}
+            {currentDayData?.foodRecommendation && (
+              <div style={{ background: 'rgba(30, 41, 59, 0.6)', border: '1px solid rgba(251, 146, 60, 0.3)', borderRadius: '10px', padding: '0.45rem 0.65rem' }}>
+                <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#fb923c', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                  <span>🍱 추천 대표 미식</span>
+                </div>
+                <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#ffffff', marginTop: '0.15rem' }}>
+                  {currentDayData.foodRecommendation.dishName}
+                </div>
+                <div style={{ fontSize: '0.68rem', color: '#cbd5e1' }}>
+                  {currentDayData.foodRecommendation.restaurantName}
+                </div>
+              </div>
+            )}
+
+            {/* Outfit TPO Card */}
+            {currentDayData?.outfitRecommendation && (
+              <div style={{ background: 'rgba(30, 41, 59, 0.6)', border: '1px solid rgba(192, 132, 252, 0.3)', borderRadius: '10px', padding: '0.45rem 0.65rem' }}>
+                <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#c084fc', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                  <span>👗 AI 추천 TPO 코디</span>
+                </div>
+                <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#ffffff', marginTop: '0.15rem' }}>
+                  {currentDayData.outfitRecommendation.title}
+                </div>
+                <div style={{ fontSize: '0.68rem', color: '#cbd5e1' }}>
+                  {currentDayData.outfitRecommendation.description}
+                </div>
+              </div>
+            )}
+
+            {/* Accommodation Booking Card */}
+            {currentDayData?.accommodation && (
+              <div style={{ background: 'rgba(30, 41, 59, 0.6)', border: '1px solid rgba(52, 211, 153, 0.3)', borderRadius: '10px', padding: '0.45rem 0.65rem' }}>
+                <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#34d399', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                  <span>🏨 추천 패밀리/호텔</span>
+                </div>
+                <div style={{ fontSize: '0.74rem', fontWeight: 700, color: '#ffffff', marginTop: '0.15rem', marginBottom: '0.25rem' }}>
+                  {currentDayData.accommodation.name}
+                </div>
+                <a
+                  href={currentDayData.accommodation.agodaLink || `https://www.agoda.com/search?text=${encodeURIComponent(currentDayData.accommodation.name)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.2rem',
+                    fontSize: '0.68rem',
+                    fontWeight: 800,
+                    background: '#10b981',
+                    color: '#ffffff',
+                    padding: '0.2rem 0.45rem',
+                    borderRadius: '6px',
+                    textDecoration: 'none'
+                  }}
+                >
+                  <span>🏨 1-클릭 숙소 예약 ↗</span>
+                </a>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Dynamic Leaflet Map with Bounding Path & Smart Touch Control Overlay */}
         <div style={{ position: 'relative', width: '100%', height: '380px', background: '#0f172a' }}>
           {/* Floating Map Touch Lock / Unlock Control Badge */}

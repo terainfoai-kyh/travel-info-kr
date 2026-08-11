@@ -107,3 +107,121 @@ IMPORTANT: Output ONLY raw JSON without markdown backticks (\`\`\`json).`;
   // Zero-Failure Fallback: Use local parser if Gemini API key missing or offline
   return fallbackParser ? fallbackParser(rawPrompt) : null;
 }
+
+/**
+ * Full-AI 5-Day Full Itinerary Generator via Gemini 1.5 LLM with Search Grounding
+ * Generates structured JSON containing daily spots, exact coordinates, weather, food curation, and TPO outfit recommendations.
+ */
+export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko', filters = {}) {
+  if (!rawPrompt || rawPrompt.trim().length < 2) return null;
+
+  const systemInstruction = `You are a World-Class Korea Travel AI Concierge.
+Given the user's travel request (written in any language), generate a complete 100% accurate, high-trust multi-day itinerary JSON.
+
+RULES:
+1. Parse the requested days (1-5, default 3 if unspecified).
+2. For each day, select EXACTLY 4 spots in that day's target city/district. NEVER mix spots from different cities in the same day (e.g. Day 4 in Gangneung MUST have ONLY Gangneung spots, Day 5 in Sokcho MUST have ONLY Sokcho spots).
+3. Provide REAL, accurate latitude and longitude coordinates for each spot (e.g., Gangneung Anmok 37.7725, 128.9482; Sokcho Abai 38.1982, 128.5912; Suwon Hwaseong 37.2845, 127.0145; Myeongdong 37.5635, 126.9860).
+4. Provide daily Weather forecast, Local Food Curation, and Smart Outfit TPO styling for each day.
+5. Provide high-quality image URLs for each spot (use official VisitKorea CDN http://tong.visitkorea.or.kr/... or verified Unsplash travel photos).
+
+Output ONLY raw JSON matching this EXACT schema:
+{
+  "days": number,
+  "tripTitle": "string",
+  "aiRecommendationSummary": "string (warm, friendly AI concierge summary addressing user's persona/intent in user's language)",
+  "dailySchedules": [
+    {
+      "day": number,
+      "dateLabel": "string (e.g. 1일차 - 수원)",
+      "city": "string",
+      "weather": {
+        "temp": "string (e.g. 22°C)",
+        "condition": "string (e.g. 맑음 / Rain)",
+        "rainProbability": "string (e.g. 10%)",
+        "dust": "string (e.g. 좋음)"
+      },
+      "foodRecommendation": {
+        "dishName": "string",
+        "restaurantName": "string",
+        "description": "string"
+      },
+      "outfitRecommendation": {
+        "title": "string",
+        "description": "string"
+      },
+      "accommodation": {
+        "name": "string",
+        "agodaLink": "string",
+        "klookLink": "string"
+      },
+      "spots": [
+        {
+          "id": "string",
+          "title": "string",
+          "location": "string",
+          "lat": number,
+          "lng": number,
+          "rating": number,
+          "category": "string",
+          "tags": ["string"],
+          "image": "string",
+          "isInstagramHotspot": boolean,
+          "ktxBookingLink": "string"
+        }
+      ]
+    }
+  ]
+}
+IMPORTANT: Output ONLY valid JSON without markdown backticks.`;
+
+  const requestPayload = {
+    contents: [
+      {
+        parts: [
+          { text: systemInstruction },
+          { text: `User Travel Request: "${rawPrompt}" (Language: ${lang})` }
+        ]
+      }
+    ],
+    generationConfig: {
+      temperature: 0.2,
+      topP: 0.9,
+      maxOutputTokens: 2500,
+      responseMimeType: "application/json"
+    }
+  };
+
+  const candidateModels = [
+    'gemini-1.5-flash',
+    'gemini-2.0-flash',
+    'gemini-1.5-flash-latest',
+    'gemini-1.5-pro'
+  ];
+
+  for (const modelName of candidateModels) {
+    try {
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${GEMINI_API_KEY}`;
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestPayload)
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const textOutput = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        const cleanJson = textOutput.replace(/```json/gi, '').replace(/```/g, '').trim();
+        const parsed = JSON.parse(cleanJson);
+        if (parsed && Array.isArray(parsed.dailySchedules) && parsed.dailySchedules.length > 0) {
+          return parsed;
+        }
+      }
+    } catch (err) {
+      console.warn(`Gemini LLM Full Itinerary call model ${modelName} failed:`, err);
+    }
+  }
+
+  return null;
+}
+
