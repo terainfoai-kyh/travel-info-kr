@@ -75,11 +75,25 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
     }
   };
 
+  // All state declarations placed at top of component to prevent TDZ ReferenceError
   const [selectedDays, setSelectedDays] = useState(getInitialDays);
   const [customStartDate, setCustomStartDate] = useState(() => {
     return filters?.startDate || new Date().toISOString().split('T')[0];
   });
+  const [startTime, setStartTime] = useState('09:30');
+  const [endTime, setEndTime] = useState('20:00');
+  const [dayTimes, setDayTimes] = useState({});
+  const [daySeeds, setDaySeeds] = useState({});
+  const [rainyMode, setRainyMode] = useState(false);
+  const [refreshSeed, setRefreshSeed] = useState(0);
+  const [swappedSpots, setSwappedSpots] = useState({});
+  const [copied, setCopied] = useState(false);
+  const [viewMode, setViewMode] = useState('map'); // 'map' | 'list'
+  const [activeMapDay, setActiveMapDay] = useState(1);
+  const [isOptionsExpanded, setIsOptionsExpanded] = useState(false);
+  const datePickerRef = useRef(null);
 
+  // useEffect hooks placed after all state variables are fully initialized
   useEffect(() => {
     if (isOpen) {
       setSelectedDays(getInitialDays());
@@ -93,19 +107,6 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
   useEffect(() => {
     setActiveMapDay(1);
   }, [selectedDays, customStartDate, rainyMode, refreshSeed]);
-
-  const [startTime, setStartTime] = useState('09:30');
-  const [endTime, setEndTime] = useState('20:00');
-  const [dayTimes, setDayTimes] = useState({});
-  const [daySeeds, setDaySeeds] = useState({});
-  const [rainyMode, setRainyMode] = useState(false);
-  const [refreshSeed, setRefreshSeed] = useState(0);
-  const [swappedSpots, setSwappedSpots] = useState({});
-  const [copied, setCopied] = useState(false);
-  const [viewMode, setViewMode] = useState('map'); // 'map' | 'list'
-  const [activeMapDay, setActiveMapDay] = useState(1);
-  const [isOptionsExpanded, setIsOptionsExpanded] = useState(false);
-  const datePickerRef = useRef(null);
 
   if (!isOpen) return null;
 
