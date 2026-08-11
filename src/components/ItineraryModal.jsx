@@ -1108,9 +1108,31 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                             </span>
                             <span style={{ color: 'var(--text-muted)' }}>|</span>
                             {travelI18n.isLongDistance ? (
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', color: '#eab308', fontWeight: 800 }}>
-                                {travelI18n.longNote}
-                              </span>
+                              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                                <span style={{ color: '#eab308', fontWeight: 800 }}>
+                                  {travelI18n.longNote}
+                                </span>
+                                <a
+                                  href="https://www.letskorail.com/ebizbf/EbizbfForeign_pr16100.do?gubun=1"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  style={{
+                                    background: '#2563eb',
+                                    color: '#ffffff',
+                                    padding: '0.18rem 0.55rem',
+                                    borderRadius: '9999px',
+                                    fontSize: '0.7rem',
+                                    fontWeight: 800,
+                                    textDecoration: 'none',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.2rem'
+                                  }}
+                                  title={t.ktxBookingBtn || '🚄 KTX 예매 ↗'}
+                                >
+                                  {t.ktxBookingBtn || '🚄 KTX 예매 ↗'}
+                                </a>
+                              </div>
                             ) : (
                               <>
                                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', color: '#0284c7', fontWeight: 800 }}>

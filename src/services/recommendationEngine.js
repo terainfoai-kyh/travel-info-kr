@@ -523,7 +523,7 @@ export function generateSmartItinerary({
     ],
     '부산': [
       { id: 'p-9', title: '해운대해수욕장 & 엘시티 X더스카이', location: '부산광역시 해운대구 달맞이길 30', rating: 4.9, tags: ['해변', '오션뷰', '야경'], lat: 35.1587, lng: 129.1604, image: GYEONGBOKGUNG_FALLBACK_IMG },
-      { id: 'p-10', title: '감천문화마을', location: '부산광역시 사하구 감내2로 203', rating: 4.8, tags: ['어린왕자', '벽화마을', '포토존'], lat: 35.0975, lng: 129.0106, image: GYEONGBOKGUNG_FALLBACK_IMG },
+    { id: 'p-10', title: '감천문화마을', location: '부산광역시 사하구 감내2로 203', rating: 4.8, tags: ['어린왕자', '벽화마을', '포토존'], lat: 35.0975, lng: 129.0106, image: GYEONGBOKGUNG_FALLBACK_IMG },
       { id: 'p-11', title: '광안리해수욕장 & 광안대교', location: '부산광역시 수영구 광안해변로 219', rating: 4.9, tags: ['드론쇼', '카페거리', '야경명소'], lat: 35.1532, lng: 129.1189, image: GYEONGBOKGUNG_FALLBACK_IMG },
       { id: 'p-12', title: '태종대 유원지', location: '부산광역시 영도구 전망로 24', rating: 4.7, tags: ['기암괴석', '순환열차', '해안절경'], lat: 35.0531, lng: 129.0872, image: GYEONGBOKGUNG_FALLBACK_IMG }
     ],
@@ -605,9 +605,13 @@ export function generateSmartItinerary({
     const formattedDate = `${year}.${month}.${dateNum} (${dayOfWeek})`;
 
     let targetProvince = region;
-    let provincePool = pool;
-
-    if (region === '전국' || region === '전체') {
+    // Multi-Day Region Inheritance: If Day 1 night keyword specified a new region, Day 2+ inherits the new region
+    if (d > 1 && nightKeyword) {
+      const inheritedKey = getSpotProvinceKey({ region: nightKeyword, location: nightKeyword });
+      if (inheritedKey && inheritedKey !== '한국') {
+        targetProvince = inheritedKey;
+      }
+    } else if (region === '전국' || region === '전체') {
       const firstSpotRegion = spots[0] ? getSpotProvinceKey(spots[0]) : '';
       if (firstSpotRegion && firstSpotRegion !== '전국' && firstSpotRegion !== '한국') {
         targetProvince = firstSpotRegion;
@@ -649,9 +653,6 @@ export function generateSmartItinerary({
     const combinedCandidates = [...activeSearchSpots, ...provincePool, ...fallbackPreset, ...(REGION_PRESETS['서울'] || [])];
 
     // Determine dynamic target slots count based on departure start time (dStartH)
-    // Morning start (< 11.5): 4 slots
-    // Afternoon start (11.5 ~ 15.5): 3 slots
-    // Evening start (>= 15.5): 2 slots
     let targetSlotsCount = 4;
     if (dStartH >= 15.5) {
       targetSlotsCount = 2;

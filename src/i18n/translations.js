@@ -487,6 +487,10 @@ export const TRANSLATIONS = {
     },
     deleteSpotBtn: "제외 🗑️",
     addSpotBtn: "코스에 명소 추가 ➕",
+    ktxBookingBtn: "🚄 KTX / 고속버스 실시간 예매",
+    luggageStorageTip: "🎒 꿀팁: KTX역 물품보관함에 큰 짐(캐리어)을 보관 후 이동하세요!",
+    hotelCheckinSlot: "🏨 숙소 체크인 & 야경 산책",
+    changeToSeoulBtn: "🗼 1-클릭으로 서울 명동으로 변경",
   },
   en: {
     mapLockScrollShort: '🔒 Scroll Priority',
@@ -888,6 +892,10 @@ export const TRANSLATIONS = {
     },
     deleteSpotBtn: "Remove 🗑️",
     addSpotBtn: "Add Spot to Itinerary ➕",
+    ktxBookingBtn: "🚄 KTX / Express Bus Tickets",
+    luggageStorageTip: "🎒 Tip: Store heavy luggage at the station storage lockers before sightseeing!",
+    hotelCheckinSlot: "🏨 Hotel Check-in & Evening Stroll",
+    changeToSeoulBtn: "🗼 Change to Seoul Myeongdong in 1-Click",
   },
   ja: {
     mapLockScrollShort: '🔒 スクロール優先',
@@ -1272,6 +1280,10 @@ export const TRANSLATIONS = {
     },
     deleteSpotBtn: "除外 🗑️",
     addSpotBtn: "コースにスポット追加 ➕",
+    ktxBookingBtn: "🚄 KTX / 高速バス リアルタイム予約",
+    luggageStorageTip: "🎒 ヒント: 駅のコインロッカーに大きな荷物を預けて移動しましょう！",
+    hotelCheckinSlot: "🏨 ホテルチェックイン ＆ 夜景散歩",
+    changeToSeoulBtn: "🗼 ワンクリックでソウル明洞に変更",
   },
   zh: {
     mapLockScrollShort: '🔒 优先滑动',
@@ -1676,6 +1688,10 @@ export const TRANSLATIONS = {
     },
     deleteSpotBtn: "移除 🗑️",
     addSpotBtn: "添加景点到行程 ➕",
+    ktxBookingBtn: "🚄 KTX / 高速巴士 实时预订",
+    luggageStorageTip: "🎒 小贴士：请将大件行李存放在车站寄存柜后再前往游览！",
+    hotelCheckinSlot: "🏨 酒店入住 & 夜景散步",
+    changeToSeoulBtn: "🗼 一键切换至首尔明洞",
   },
   zht: {
     mapLockScrollShort: '🔒 優先滑動',
@@ -2062,6 +2078,10 @@ export const TRANSLATIONS = {
     },
     deleteSpotBtn: "移除 🗑️",
     addSpotBtn: "新增景點至行程 ➕",
+    ktxBookingBtn: "🚄 KTX / 高速巴士 實時預訂",
+    luggageStorageTip: "🎒 小貼士：請將大件行李存放在車站寄存櫃後再前往遊覽！",
+    hotelCheckinSlot: "🏨 酒店入住 & 夜景散步",
+    changeToSeoulBtn: "🗼 一鍵切換至首爾明洞",
   },
   de: {
     mapLockScrollShort: '🔒 Scroll-Modus',
@@ -2292,6 +2312,10 @@ export const TRANSLATIONS = {
 
     deleteSpotBtn: "Entfernen 🗑️",
     addSpotBtn: "Ort zum Reiseplan hinzufügen ➕",
+    ktxBookingBtn: "🚄 KTX / Fernbus Ticketbuchung",
+    luggageStorageTip: "🎒 Tipp: Schließfächer am Bahnhof für schweres Gepäck nutzen!",
+    hotelCheckinSlot: "🏨 Hotel Check-in & Abendspaziergang",
+    changeToSeoulBtn: "🗼 Mit 1-Klick zu Seoul Myeongdong wechseln",
   },
   fr: {
     mapLockScrollShort: '🔒 Défilement prioritaire',
@@ -2534,6 +2558,10 @@ export const TRANSLATIONS = {
 
     deleteSpotBtn: "Supprimer 🗑️",
     addSpotBtn: "Ajouter un lieu à l’itinéraire ➕",
+    ktxBookingBtn: "🚄 KTX / Billets de Bus Express",
+    luggageStorageTip: "🎒 Conseil: Laissez vos bagages aux consignes de la gare avant la visite!",
+    hotelCheckinSlot: "🏨 Enregistrement Hôtel & Promenade Nocturne",
+    changeToSeoulBtn: "🗼 Passer à Séoul Myeongdong en 1-Clic",
   },
   es: {
     openGoogleRoute: '🗺️ Google Maps Ruta',
