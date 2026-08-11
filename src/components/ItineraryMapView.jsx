@@ -120,8 +120,30 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
 
   const [activeSpotIdx, setActiveSpotIdx] = useState(0);
   const [isLeafletReady, setIsLeafletReady] = useState(false);
+  const [isMapUnlocked, setIsMapUnlocked] = useState(false);
   const mapContainerRef = useRef(null);
   const leafletMapRef = useRef(null);
+
+  // Synchronize Leaflet interactive touch & drag handlers based on isMapUnlocked state
+  useEffect(() => {
+    if (!leafletMapRef.current) return;
+    const map = leafletMapRef.current;
+    if (isMapUnlocked) {
+      map.dragging.enable();
+      if (map.touchZoom) map.touchZoom.enable();
+      if (map.doubleClickZoom) map.doubleClickZoom.enable();
+      if (map.scrollWheelZoom) map.scrollWheelZoom.enable();
+      if (map.boxZoom) map.boxZoom.enable();
+      if (map.keyboard) map.keyboard.enable();
+    } else {
+      map.dragging.disable();
+      if (map.touchZoom) map.touchZoom.disable();
+      if (map.doubleClickZoom) map.doubleClickZoom.disable();
+      if (map.scrollWheelZoom) map.scrollWheelZoom.disable();
+      if (map.boxZoom) map.boxZoom.disable();
+      if (map.keyboard) map.keyboard.disable();
+    }
+  }, [isMapUnlocked]);
 
   const NUMBER_ICONS = ['❶', '❷', '❸', '❹', '❺'];
 
@@ -199,10 +221,14 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
       return [lat, lng];
     });
 
-    // Create Leaflet Map Instance
+    // Create Leaflet Map Instance (Default locked for 1-finger page scrolling)
     const map = L.map(mapContainerRef.current, {
       zoomControl: false,
-      attributionControl: false
+      attributionControl: false,
+      dragging: false,
+      touchZoom: false,
+      doubleClickZoom: false,
+      scrollWheelZoom: false
     });
 
     leafletMapRef.current = map;
@@ -427,9 +453,51 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
           </div>
         </div>
 
-        {/* Dynamic Leaflet Map with Bounding Path & Fallback */}
+        {/* Dynamic Leaflet Map with Bounding Path & Smart Touch Control Overlay */}
         <div style={{ position: 'relative', width: '100%', height: '380px', background: '#0f172a' }}>
-          <div ref={mapContainerRef} style={{ width: '100%', height: '100%', zIndex: 1 }} />
+          {/* Floating Map Touch Lock / Unlock Control Badge */}
+          <div style={{
+            position: 'absolute',
+            top: '12px',
+            left: '12px',
+            zIndex: 1000,
+            pointerEvents: 'auto'
+          }}>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsMapUnlocked(!isMapUnlocked);
+              }}
+              style={{
+                background: isMapUnlocked 
+                  ? 'linear-gradient(135deg, #0284c7, #38bdf8)' 
+                  : 'rgba(15, 23, 42, 0.92)',
+                color: '#ffffff',
+                border: isMapUnlocked ? 'none' : '1px solid rgba(56, 189, 248, 0.5)',
+                padding: '0.35rem 0.75rem',
+                borderRadius: 'var(--radius-full)',
+                fontSize: '0.75rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                boxShadow: '0 4px 14px rgba(0, 0, 0, 0.4)',
+                backdropFilter: 'blur(10px)',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <span>
+                {isMapUnlocked 
+                  ? `${t.mapUnlockedTitle || '🔓 지도 조작 중'} · ${t.mapLockTouchBtn || '🔒 스크롤 고정'}`
+                  : `${t.mapLockScrollEnabled || '🔒 지도 고정 (터치 시 스크롤)'} · ${t.mapUnlockTouchBtn || '🔓 지도 조작하기'}`
+                }
+              </span>
+            </button>
+          </div>
+
+          <div ref={mapContainerRef} style={{ width: '100%', height: '100%', zIndex: 1, pointerEvents: isMapUnlocked ? 'auto' : 'none' }} />
 
           {/* Leaflet Loading Fallback iFrame */}
           {!isLeafletReady && (

@@ -31,6 +31,10 @@ export function getMapSearchBtnLabel(foodName, lang = 'ko') {
 
 export const TRANSLATIONS = {
   ko: {
+    mapLockScrollEnabled: '🔒 지도 고정 (터치 시 스크롤)',
+    mapUnlockTouchBtn: '🔓 지도 조작하기',
+    mapLockTouchBtn: '🔒 스크롤 고정',
+    mapUnlockedTitle: '🔓 지도 조작 중',
     openGoogleRoute: '🗺️ 구글지도 경로연결',
     openKakaoRoute: '💛 카카오맵 길찾기',
     openNaverRoute: '💚 네이버지도 길찾기',
@@ -349,6 +353,10 @@ export const TRANSLATIONS = {
     swapSpotBtn: '다른 장소 추천 🔄',
     regenerateItineraryBtn: 'AI 코스 다시 추천 🔄',
     spotTitles: {
+    mapLockScrollEnabled: '🔒 Mapa fijo (Desplazar)',
+    mapUnlockTouchBtn: '🔓 Desbloquear mapa',
+    mapLockTouchBtn: '🔒 Bloquear mapa',
+    mapUnlockedTitle: '🔓 Mapa activo',
     installAppBtn: "💻 Instalar app",
     installAppBtnShort: "Instalar",
     splashTitle: "🇰🇷 K-Travel AI",
@@ -475,6 +483,10 @@ export const TRANSLATIONS = {
     }
   },
   en: {
+    mapLockScrollEnabled: '🔒 Map Fixed (Touch to Scroll)',
+    mapUnlockTouchBtn: '🔓 Unlock Map Control',
+    mapLockTouchBtn: '🔒 Lock Map Scroll',
+    mapUnlockedTitle: '🔓 Map Unlocked',
     regenerateItineraryBtn: "Re-Recommend AI Course 🔄",
     openGoogleRoute: '🗺️ Google Maps Route',
     openKakaoRoute: '💛 KakaoMap Directions',
@@ -868,6 +880,10 @@ export const TRANSLATIONS = {
     }
   },
   ja: {
+    mapLockScrollEnabled: '🔒 地図固定 (スクロール優先)',
+    mapUnlockTouchBtn: '🔓 地図を操作する',
+    mapLockTouchBtn: '🔒 スクロール固定',
+    mapUnlockedTitle: '🔓 地図操作中',
     splashTitle: "🇰🇷 K-Travel AI",
     splashSub: "韓国スマート旅行ガイド",
     splashSkip: "スキップ ➔",
@@ -1244,6 +1260,10 @@ export const TRANSLATIONS = {
     }
   },
   zh: {
+    mapLockScrollEnabled: '🔒 地图已固定 (滑动页面)',
+    mapUnlockTouchBtn: '🔓 解锁地图操作',
+    mapLockTouchBtn: '🔒 锁定地图滑动',
+    mapUnlockedTitle: '🔓 地图操作中',
     splashTitle: "🇰🇷 K-Travel AI",
     splashSub: "韩国智能旅游指南",
     splashSkip: "跳过 ➔",
@@ -1640,6 +1660,10 @@ export const TRANSLATIONS = {
     }
   },
   zht: {
+    mapLockScrollEnabled: '🔒 地圖已固定 (滑動頁面)',
+    mapUnlockTouchBtn: '🔓 解鎖地圖操作',
+    mapLockTouchBtn: '🔒 鎖定地圖滑動',
+    mapUnlockedTitle: '🔓 地圖操作中',
     splashTitle: "🇰🇷 K-Travel AI",
     splashSub: "韓國智慧旅遊指南",
     splashSkip: "跳過 ➔",
@@ -2018,6 +2042,10 @@ export const TRANSLATIONS = {
     }
   },
   de: {
+    mapLockScrollEnabled: '🔒 Karte fixiert (Scrollen)',
+    mapUnlockTouchBtn: '🔓 Karte bedienen',
+    mapLockTouchBtn: '🔒 Karte fixieren',
+    mapUnlockedTitle: '🔓 Karte entsperrt',
     splashTitle: "🇰🇷 K-Travel AI",
     splashSub: "Korea Smarter Reiseführer",
     splashSkip: "Überspringen ➔",
@@ -2239,6 +2267,10 @@ export const TRANSLATIONS = {
     closeMenu: 'Cerrar', 'all': 'Alle Dienste (TourAPI)', 'area': 'Regional-Sehenswürdigkeiten', 'location': 'In der Nähe (Radius)', 'festival': 'Events & Festivals', 'stay': 'Unterkunft & Hotels' }
   },
   fr: {
+    mapLockScrollEnabled: '🔒 Carte fixe (Défiler)',
+    mapUnlockTouchBtn: '🔓 Déverrouiller carte',
+    mapLockTouchBtn: '🔒 Verrouiller carte',
+    mapUnlockedTitle: '🔓 Carte active',
     splashTitle: "🇰🇷 K-Travel AI",
     splashSub: "Guide de Voyage Intelligent en Corée",
     splashSkip: "Passer ➔",
@@ -2654,6 +2686,10 @@ export const TRANSLATIONS = {
     closeMenu: 'Cerrar', 'all': 'Todos los Servicios (TourAPI)', 'area': 'Información Turística Regional', 'location': 'Cercano (Radio)', 'festival': 'Eventos y Festivales', 'stay': 'Alojamientos y Hoteles' }
   },
   ru: {
+    mapLockScrollEnabled: '🔒 Карта заблокирована (Прокрутка)',
+    mapUnlockTouchBtn: '🔓 Управление картой',
+    mapLockTouchBtn: '🔒 Заблокировать карту',
+    mapUnlockedTitle: '🔓 Карта активна',
     splashTitle: "🇰🇷 K-Travel AI",
     splashSub: "Умный путеводитель по Корее",
     splashSkip: "Пропустить ➔",
