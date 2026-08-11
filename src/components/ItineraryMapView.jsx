@@ -341,57 +341,6 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-      {/* Sticky Day Selector & Filter Navigation Bar (Always Visible at Top When Scrolling) */}
-      <div style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 110,
-        background: 'var(--bg-secondary)',
-        backdropFilter: 'blur(12px)',
-        border: '1px solid var(--border-color)',
-        padding: '0.5rem 0.75rem',
-        borderRadius: 'var(--radius-md)',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '0.5rem',
-        overflowX: 'auto',
-        whiteSpace: 'nowrap',
-        scrollbarWidth: 'none',
-        msOverflowStyle: 'none'
-      }}>
-        <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.3rem', flexShrink: 0 }}>
-          <Map size={15} color="var(--accent-primary)" />
-          <span>{t.selectDayLabel || '일차 선택:'}</span>
-        </span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0 }}>
-          {itinerary.map(d => (
-            <button
-              key={d.day}
-              onClick={() => {
-                onChangeDay(d.day);
-                setActiveSpotIdx(0);
-              }}
-              style={{
-                background: activeDay === d.day ? 'var(--accent-gradient)' : 'var(--bg-card)',
-                color: activeDay === d.day ? '#ffffff' : 'var(--text-main)',
-                border: activeDay === d.day ? 'none' : '1px solid var(--border-color)',
-                padding: '0.3rem 0.75rem',
-                borderRadius: 'var(--radius-full)',
-                fontSize: '0.78rem',
-                fontWeight: 800,
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                flexShrink: 0,
-                whiteSpace: 'nowrap'
-              }}
-            >
-              {getDayBtnText(d, lang)}
-            </button>
-          ))}
-        </div>
-      </div>
-
       {/* Interactive Main Map & Route Card */}
       <div style={{
         background: 'var(--bg-primary)',

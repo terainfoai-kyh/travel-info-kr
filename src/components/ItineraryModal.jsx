@@ -402,6 +402,103 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
               </button>
             </div>
           </div>
+
+          {/* Row 3: Sticky Day Selector Tabs (Horizontal Swipeable Bar) & Quick Action Controls */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '0.5rem',
+            overflowX: 'auto',
+            whiteSpace: 'nowrap',
+            paddingTop: '0.25rem',
+            borderTop: '1px solid var(--border-color)',
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none'
+          }}>
+            {/* Day Selector Buttons */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexShrink: 0 }}>
+              <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', marginRight: '0.1rem', flexShrink: 0 }}>
+                {t.selectDayLabel || '일차:'}
+              </span>
+              {itinerary.map(d => (
+                <button
+                  key={d.day}
+                  type="button"
+                  onClick={() => {
+                    setActiveMapDay(d.day);
+                  }}
+                  style={{
+                    background: activeMapDay === d.day ? 'var(--accent-gradient)' : 'var(--bg-card)',
+                    color: activeMapDay === d.day ? '#ffffff' : 'var(--text-main)',
+                    border: activeMapDay === d.day ? 'none' : '1px solid var(--border-color)',
+                    padding: '0.25rem 0.65rem',
+                    borderRadius: 'var(--radius-full)',
+                    fontSize: '0.76rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    flexShrink: 0,
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  {getDayBtnText(d, lang)}
+                </button>
+              ))}
+            </div>
+
+            {/* Quick Action Controls: Options Toggle & AI Regenerate */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexShrink: 0 }}>
+              <button
+                type="button"
+                onClick={() => setIsOptionsExpanded(!isOptionsExpanded)}
+                style={{
+                  background: isOptionsExpanded ? 'rgba(56, 189, 248, 0.2)' : 'var(--bg-card)',
+                  color: isOptionsExpanded ? 'var(--accent-primary)' : 'var(--text-main)',
+                  border: isOptionsExpanded ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                  padding: '0.25rem 0.55rem',
+                  borderRadius: 'var(--radius-full)',
+                  fontSize: '0.75rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.25rem',
+                  transition: 'all 0.2s ease',
+                  flexShrink: 0
+                }}
+              >
+                <span>{isOptionsExpanded ? (t.toggleOptionsCollapse || (lang === 'en' ? '▲ Hide' : '▲ 접기')) : (t.toggleOptionsExpand || (lang === 'en' ? '⚙️ Filter ▼' : '⚙️ 조건 변경 ▼'))}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setSwappedSpots({});
+                  setRefreshSeed(prev => prev + 1);
+                }}
+                style={{
+                  background: 'linear-gradient(135deg, #818cf8 0%, #c084fc 100%)',
+                  border: 'none',
+                  color: '#ffffff',
+                  padding: '0.25rem 0.55rem',
+                  borderRadius: 'var(--radius-full)',
+                  fontSize: '0.75rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.25rem',
+                  boxShadow: '0 2px 6px rgba(192, 132, 252, 0.3)',
+                  flexShrink: 0
+                }}
+                title="AI 코스 다시 추천"
+              >
+                <Sparkles size={12} />
+                <span>{t.reRecommendAiBtnShort || (lang === 'ko' ? '🔄 다시추천' : '🔄 Re-AI')}</span>
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Sleek Option 1: 1-Row Compact Summary Accordion Toolbar */}
