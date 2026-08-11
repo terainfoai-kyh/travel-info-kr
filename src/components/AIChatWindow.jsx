@@ -42,7 +42,7 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
       case 'ja': return "こんにちは！韓国旅行AIコンシェルジュです。🇰🇷 どこへ旅行したいですか？「1日目水原→2日目明洞」や「50代家族旅行3泊4日」など気軽にお尋ねください！";
       case 'zh': return "您好！我是您的韩国旅游AI管家。🇰🇷 想去哪里旅行？您可以随时告诉我，如“第1天水原->第2天明洞”或“50多岁家庭3天4夜游”！";
       case 'zht': return "您好！我是您的韓國旅遊AI管家。🇰🇷 想去哪裡旅行？您可以隨時告訴我，如「第1天水原->第2天明洞」或「50多歲家庭3天4夜遊」！";
-      case 'de': return "Hallo! Ich bin Ihr Korea-Reise-AI-Concierge. 🇰🇷 Wohin möchten Sie reisen? Fragt mich z.B. 'Tag 1 Suwon -> Tag 2 Myeongdong'!";
+      case 'de': return "Hallo! Ich bin Ihr Korea-Reise-AI-Concierge. 🇰🇷 Wohin möchten Sie reisen?";
       case 'fr': return "Bonjour! Je suis votre concierge de voyage IA pour la Corée. 🇰🇷 Où souhaitez-vous voyager?";
       case 'es': return "¡Hola! Soy tu asistente de viajes de IA para Corea. 🇰🇷 ¿A dónde te gustaría viajar?";
       case 'ru': return "Здравствуйте! Я ваш ИИ-консьерж по путешествиям в Корею. 🇰🇷 Куда вы хотите отправиться?";
@@ -157,62 +157,165 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-3 sm:p-6 animate-fade-in">
-      <div className="bg-slate-900/95 border border-slate-700/60 rounded-2xl w-full max-w-3xl h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+    <div style={{
+      position: 'fixed',
+      inset: 0,
+      zIndex: 9999,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'rgba(15, 23, 42, 0.75)',
+      backdropFilter: 'blur(12px)',
+      padding: '1rem'
+    }}>
+      <div style={{
+        background: '#0f172a',
+        border: '1px solid rgba(56, 189, 248, 0.3)',
+        borderRadius: '20px',
+        width: '100%',
+        maxWidth: '720px',
+        height: '82vh',
+        display: 'flex',
+        flexDirection: 'column',
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.75)',
+        overflow: 'hidden'
+      }}>
         {/* Chat Window Header */}
-        <div className="px-5 py-4 bg-slate-800/80 border-b border-slate-700/60 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
-              <Sparkles className="w-5 h-5 animate-pulse" />
+        <div style={{
+          padding: '1rem 1.25rem',
+          background: '#1e293b',
+          borderBottom: '1px solid rgba(51, 65, 85, 0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{
+              width: '38px',
+              height: '38px',
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, #2563eb, #9333ea)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#ffffff',
+              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)'
+            }}>
+              <Sparkles size={20} />
             </div>
             <div>
-              <h3 className="text-white font-bold text-base flex items-center gap-2">
+              <h3 style={{ color: '#ffffff', fontWeight: 800, fontSize: '0.95rem', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <span>AI Travel Concierge</span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">Gemini 1.5 Flash</span>
+                <span style={{ fontSize: '0.65rem', padding: '0.15rem 0.5rem', borderRadius: '9999px', background: 'rgba(56, 189, 248, 0.2)', color: '#38bdf8', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+                  Gemini 1.5 Flash
+                </span>
               </h3>
-              <p className="text-xs text-slate-400">실시간 인스타 핫플 & 날씨/미식/코디 100% 맞춤 생성</p>
+              <p style={{ color: '#94a3b8', fontSize: '0.74rem', margin: '0.15rem 0 0 0' }}>
+                실시간 인스타 핫플 & 날씨 / 미식 / 코디 100% 맞춤 생성
+              </p>
             </div>
           </div>
 
           <button 
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-700/50 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition-colors"
+            style={{
+              width: '32px',
+              height: '32px',
+              borderRadius: '50%',
+              background: 'rgba(51, 65, 85, 0.6)',
+              border: 'none',
+              color: '#cbd5e1',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
           >
-            <X className="w-5 h-5" />
+            <X size={18} />
           </button>
         </div>
 
         {/* Chat Bubbles Container */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+        <div style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: '1.25rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1rem'
+        }}>
           {messages.map((msg) => (
             <div 
               key={msg.id}
-              className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'} space-y-2`}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: msg.sender === 'user' ? 'flex-end' : 'flex-start',
+                gap: '0.25rem'
+              }}
             >
-              <div className={`flex items-start space-x-2 max-w-[88%] ${msg.sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '0.5rem',
+                maxWidth: '88%',
+                flexDirection: msg.sender === 'user' ? 'row-reverse' : 'row'
+              }}>
                 {msg.sender === 'ai' && (
-                  <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white text-xs font-bold shrink-0 mt-0.5">
+                  <div style={{
+                    width: '28px',
+                    height: '28px',
+                    borderRadius: '8px',
+                    background: '#2563eb',
+                    color: '#ffffff',
+                    fontSize: '0.7rem',
+                    fontWeight: 900,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    marginTop: '2px'
+                  }}>
                     AI
                   </div>
                 )}
 
                 <div 
-                  className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${
-                    msg.sender === 'user'
-                      ? 'bg-blue-600 text-white rounded-tr-none shadow-md'
-                      : 'bg-slate-800 border border-slate-700 text-slate-100 rounded-tl-none shadow-lg'
-                  }`}
+                  style={{
+                    padding: '0.85rem 1.1rem',
+                    borderRadius: '16px',
+                    borderTopLeftRadius: msg.sender === 'ai' ? '4px' : '16px',
+                    borderTopRightRadius: msg.sender === 'user' ? '4px' : '16px',
+                    fontSize: '0.88rem',
+                    lineHeight: 1.6,
+                    background: msg.sender === 'user' ? 'linear-gradient(135deg, #2563eb, #1d4ed8)' : '#1e293b',
+                    color: msg.sender === 'user' ? '#ffffff' : '#f8fafc',
+                    border: msg.sender === 'user' ? 'none' : '1px solid #334155',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
+                  }}
                 >
-                  <p className="whitespace-pre-wrap">{msg.text}</p>
+                  <p style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{msg.text}</p>
 
                   {/* Suggestion Chips in Welcome Message */}
                   {msg.suggestionChips && (
-                    <div className="mt-3 pt-3 border-t border-slate-700/60 flex flex-wrap gap-2">
+                    <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid #334155', display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
                       {msg.suggestionChips.map((chip, idx) => (
                         <button
                           key={idx}
                           onClick={() => handleSendMessage(chip)}
-                          className="text-xs px-3 py-1.5 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 border border-blue-500/30 text-left transition-all hover:scale-[1.02]"
+                          style={{
+                            background: 'rgba(37, 99, 235, 0.15)',
+                            border: '1px solid rgba(56, 189, 248, 0.3)',
+                            color: '#38bdf8',
+                            fontSize: '0.76rem',
+                            fontWeight: 700,
+                            padding: '0.35rem 0.75rem',
+                            borderRadius: '9999px',
+                            cursor: 'pointer',
+                            textAlign: 'left',
+                            transition: 'all 0.15s ease'
+                          }}
                         >
                           ✨ {chip}
                         </button>
@@ -222,23 +325,23 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
 
                   {/* Generated Itinerary Rich Summary Card */}
                   {msg.itinerarySummary && (
-                    <div className="mt-3 pt-3 border-t border-slate-700/60 space-y-2">
-                      <div className="bg-slate-900/80 rounded-xl p-3 border border-slate-700">
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="text-xs font-bold text-amber-400 flex items-center gap-1.5">
-                            <Compass className="w-3.5 h-3.5" />
+                    <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid #334155' }}>
+                      <div style={{ background: '#0f172a', borderRadius: '12px', padding: '0.85rem', border: '1px solid #334155' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                          <h4 style={{ fontSize: '0.82rem', fontWeight: 800, color: '#fbbf24', margin: 0, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                            <Compass size={15} />
                             <span>{msg.itinerarySummary.title}</span>
                           </h4>
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300">
+                          <span style={{ fontSize: '0.65rem', padding: '0.15rem 0.45rem', borderRadius: '4px', background: 'rgba(16, 185, 129, 0.2)', color: '#34d399', fontWeight: 800 }}>
                             {msg.itinerarySummary.days}일치 완벽 생성
                           </span>
                         </div>
 
-                        <div className="space-y-1 text-xs text-slate-300">
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                           {msg.itinerarySummary.dailySchedules?.map((ds, idx) => (
-                            <div key={idx} className="flex items-center justify-between text-[11px] py-1 border-b border-slate-800 last:border-none">
-                              <span className="font-medium text-slate-200">{ds.dateLabel || `${ds.day}일차 - ${ds.city}`}</span>
-                              <span className="text-slate-400">{ds.spots?.length || 4}개 명소 (좌표100% 매칭)</span>
+                            <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.75rem', padding: '0.25rem 0', borderBottom: '1px solid #1e293b' }}>
+                              <span style={{ fontWeight: 700, color: '#e2e8f0' }}>{ds.dateLabel || `${ds.day}일차 - ${ds.city}`}</span>
+                              <span style={{ color: '#94a3b8' }}>{ds.spots?.length || 4}개 명소 (좌표100% 매칭)</span>
                             </div>
                           ))}
                         </div>
@@ -250,9 +353,25 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
                             }
                             onClose();
                           }}
-                          className="w-full mt-3 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold text-xs flex items-center justify-center space-x-1.5 shadow-md transition-transform active:scale-95"
+                          style={{
+                            width: '100%',
+                            marginTop: '0.75rem',
+                            padding: '0.55rem',
+                            borderRadius: '8px',
+                            background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+                            color: '#ffffff',
+                            fontWeight: 800,
+                            fontSize: '0.78rem',
+                            border: 'none',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '0.35rem',
+                            boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)'
+                          }}
                         >
-                          <MapPin className="w-3.5 h-3.5" />
+                          <MapPin size={14} />
                           <span>5일치 완벽 지도 & 코스 렌더링 보기</span>
                         </button>
                       </div>
@@ -260,13 +379,13 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
                   )}
                 </div>
               </div>
-              <span className="text-[10px] text-slate-500 px-1">{msg.timestamp}</span>
+              <span style={{ fontSize: '0.65rem', color: '#64748b', padding: '0 0.25rem' }}>{msg.timestamp}</span>
             </div>
           ))}
 
           {isGenerating && (
-            <div className="flex items-center space-x-2 text-slate-400 text-xs py-2 px-3 bg-slate-800/50 rounded-xl w-fit">
-              <Sparkles className="w-4 h-4 text-blue-400 animate-spin" />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#94a3b8', fontSize: '0.78rem', padding: '0.5rem 0.85rem', background: '#1e293b', borderRadius: '12px', width: 'fit-content' }}>
+              <Sparkles size={16} color="#38bdf8" style={{ animation: 'spin 1.5s linear infinite' }} />
               <span>Gemini 1.5 AI가 100% 정품 명소와 날씨/미식/코디를 직조하는 중...</span>
             </div>
           )}
@@ -274,39 +393,77 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
         </div>
 
         {/* Input Bar */}
-        <div className="p-4 bg-slate-800/90 border-t border-slate-700/60">
+        <div style={{
+          padding: '0.85rem 1.25rem',
+          background: '#1e293b',
+          borderTop: '1px solid rgba(51, 65, 85, 0.8)'
+        }}>
           <form 
             onSubmit={(e) => {
               e.preventDefault();
               handleSendMessage();
             }}
-            className="flex items-center space-x-2 bg-slate-900 rounded-xl px-4 py-2.5 border border-slate-700 focus-within:border-blue-500 transition-colors"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              background: '#0f172a',
+              borderRadius: '12px',
+              padding: '0.5rem 0.85rem',
+              border: '1px solid #334155'
+            }}
           >
             <input 
               type="text"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               placeholder="예: 1일차 수원 ➔ 2일차 명동 ➔ 3일차 인천 또는 50대 가족여행..."
-              className="flex-1 bg-transparent text-white placeholder-slate-500 text-sm focus:outline-none"
+              style={{
+                flex: 1,
+                background: 'transparent',
+                border: 'none',
+                color: '#ffffff',
+                fontSize: '0.85rem',
+                outline: 'none'
+              }}
             />
 
             <button
               type="button"
               onClick={handleSpeechInput}
-              className={`p-2 rounded-lg transition-colors ${
-                isListening ? 'bg-red-500/20 text-red-400 animate-pulse' : 'text-slate-400 hover:text-white hover:bg-slate-800'
-              }`}
+              style={{
+                padding: '0.4rem',
+                borderRadius: '8px',
+                border: 'none',
+                background: isListening ? 'rgba(239, 68, 68, 0.2)' : 'transparent',
+                color: isListening ? '#ef4444' : '#94a3b8',
+                cursor: 'pointer'
+              }}
             >
-              {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+              {isListening ? <MicOff size={16} /> : <Mic size={16} />}
             </button>
 
             <button
               type="submit"
               disabled={!inputText.trim() || isGenerating}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white font-medium rounded-lg text-xs flex items-center space-x-1.5 transition-all shadow-md active:scale-95"
+              style={{
+                padding: '0.45rem 0.9rem',
+                background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+                opacity: (!inputText.trim() || isGenerating) ? 0.4 : 1,
+                color: '#ffffff',
+                fontWeight: 800,
+                borderRadius: '8px',
+                fontSize: '0.78rem',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                boxShadow: '0 2px 8px rgba(37, 99, 235, 0.3)'
+              }}
             >
               <span>전송</span>
-              <Send className="w-3.5 h-3.5" />
+              <Send size={13} />
             </button>
           </form>
         </div>
