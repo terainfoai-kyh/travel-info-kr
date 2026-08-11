@@ -334,14 +334,29 @@ export async function fetchTourSpots({
   else if (arrange === 'R') apiArrange = 'D'; // 등록일순 -> TourAPI 'D' (등록일순)
   else apiArrange = arrange;
 
+  // Map Korean contentTypeId (12, 14, 28, 39) to Foreign Multilingual TourAPI contentTypeId (75, 76, 77, 82)
+  let effectiveContentTypeId = contentTypeId;
+  if (lang !== 'ko' && contentTypeId) {
+    const foreignTypeMap = {
+      '12': '75', // 관광지 -> Attractions
+      '14': '76', // 문화시설 -> Cultural Facilities
+      '28': '77', // 레포츠 -> Leisure
+      '38': '78', // 쇼핑 -> Shopping
+      '32': '79', // 숙박 -> Accommodation
+      '15': '80', // 행사/축제 -> Events
+      '39': '82'  // 음식점 -> Food / Dining
+    };
+    effectiveContentTypeId = foreignTypeMap[contentTypeId] || contentTypeId;
+  }
+
   let url = '';
   if (cleanKw) {
     url = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=30&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=${apiArrange}&keyword=${encodeURIComponent(kwNoSpace)}`;
     if (regionMeta && regionMeta.areaCode) url += `&areaCode=${regionMeta.areaCode}`;
-    if (contentTypeId) url += `&contentTypeId=${contentTypeId}`;
+    if (effectiveContentTypeId) url += `&contentTypeId=${effectiveContentTypeId}`;
   } else if (apiServiceType === 'location' && regionMeta && regionMeta.areaCode) {
     url = `${apiBase}/locationBasedList2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=30&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=${apiArrange}&mapX=${regionMeta.lng}&mapY=${regionMeta.lat}&radius=20000`;
-    if (contentTypeId) url += `&contentTypeId=${contentTypeId}`;
+    if (effectiveContentTypeId) url += `&contentTypeId=${effectiveContentTypeId}`;
   } else if (apiServiceType === 'festival') {
     const eventDate = startDate ? startDate.replace(/-/g, '') : new Date().toISOString().slice(0, 10).replace(/-/g, '');
     url = `${apiBase}/searchFestival2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=30&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=${apiArrange}&eventStartDate=${eventDate}`;
@@ -352,7 +367,7 @@ export async function fetchTourSpots({
   } else {
     url = `${apiBase}/areaBasedList2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=30&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=${apiArrange}`;
     if (regionMeta && regionMeta.areaCode) url += `&areaCode=${regionMeta.areaCode}`;
-    if (contentTypeId) url += `&contentTypeId=${contentTypeId}`;
+    if (effectiveContentTypeId) url += `&contentTypeId=${effectiveContentTypeId}`;
   }
 
   try {
@@ -364,7 +379,7 @@ export async function fetchTourSpots({
 
     // Fallback search with original cleanKw or areaBasedList2 if kwNoSpace yielded zero items from TourAPI
     if (items.length === 0 && cleanKw) {
-      const fallbackUrl = `${PUBLIC_API_CONFIG.SEARCH_KEYWORD_URL}?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=30&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=${apiArrange}&keyword=${encodeURIComponent(cleanKw)}`;
+      const fallbackUrl = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=30&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=${apiArrange}&keyword=${encodeURIComponent(cleanKw)}`;
       const fbRes = await fetch(fallbackUrl);
       if (fbRes.ok) {
         const fbData = await fbRes.json();
@@ -374,7 +389,7 @@ export async function fetchTourSpots({
       if (items.length === 0) {
         let areaUrl = `${apiBase}/areaBasedList2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=30&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=${apiArrange}`;
         if (regionMeta && regionMeta.areaCode) areaUrl += `&areaCode=${regionMeta.areaCode}`;
-        if (contentTypeId) areaUrl += `&contentTypeId=${contentTypeId}`;
+        if (effectiveContentTypeId) areaUrl += `&contentTypeId=${effectiveContentTypeId}`;
         const areaRes = await fetch(areaUrl);
         if (areaRes.ok) {
           const areaData = await areaRes.json();

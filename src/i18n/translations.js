@@ -2886,9 +2886,14 @@ export function getTranslatedTitle(title, lang = 'ko') {
     if (lang === 'en') return 'Gaga Bookstore (Gongju)';
     if (lang === 'ja') return 'ガガ本屋 (Gaga Bookstore)';
     if (lang === 'zh') return 'Gaga书店 (公州)';
+    if (lang === 'es') return 'Librería Gaga (Gongju)';
   }
 
   let res = title;
+  const foreignMatch = res.match(/^([A-Za-z0-9\s,\.\-&'/]+)\s*\([\uAC00-\uD7A30-9\s]+\)$/);
+  if (foreignMatch && foreignMatch[1] && foreignMatch[1].trim().length > 2) {
+    res = foreignMatch[1].trim();
+  }
 
   const COMPOUND_REPLACEMENTS = {
     en: [
