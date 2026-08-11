@@ -315,7 +315,16 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
       map.setView(latLngs[0], 13);
     }
 
-  }, [isLeafletReady, schedule, activeDay]);
+    // Force map invalidateSize after layout reflow to ensure markers & tiles render 100% reliably
+    const timer = setTimeout(() => {
+      if (leafletMapRef.current) {
+        leafletMapRef.current.invalidateSize();
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+
+  }, [isLeafletReady, schedule, activeDay, itinerary]);
 
   if (!schedule || schedule.length === 0) {
     return (

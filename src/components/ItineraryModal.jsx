@@ -692,7 +692,6 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
         {/* Conditional View Rendering: Map View vs Timeline List View */}
         {viewMode === 'map' ? (
           <ItineraryMapView
-            key={`map-view-${selectedDays}-${activeMapDay}-${refreshSeed}-${rainyMode}`}
             itinerary={itinerary}
             activeDay={activeMapDay}
             onChangeDay={setActiveMapDay}
