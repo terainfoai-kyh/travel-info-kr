@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, Mic, MicOff, ArrowRight, Camera, X, MessageSquare, Send, MapPin } from 'lucide-react';
+import { Sparkles, Mic, MicOff, ArrowRight, Camera, X, MessageSquare, Send, MapPin, Compass } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
-import { geminiParseNaturalPrompt } from '../services/geminiNlpService';
-import AIChatWindow from './AIChatWindow';
+import { geminiParseNaturalPrompt, geminiGenerateFullItinerary } from '../services/geminiNlpService';
 
 /**
  * Natural language query parser to extract region, days, and clean keywords
@@ -25,12 +24,12 @@ export function parseNaturalPrompt(text) {
     { name: '전북', keys: ['전북', 'jeonbuk', '전주', '군산', '익산', '남원', '무주', '한옥마을', '전주시', '전라북도', '전북 특별자치도', '全州', '全羅北道', 'Чон북', 'jeonju'] },
     { name: '전남', keys: ['전남', 'jeonnam', '여수', '순천', '목포', '담양', '보성', '향일암', '여수시', '전라남도', '麗水', '全羅南道', 'Чон남', 'yeosu'] },
     { name: '충북', keys: ['충북', 'chungbuk', '청주', '충주', '제천', '단양', '청남대', '단양군', '충청북도', '忠清北道', 'Чун부크'] },
-    { name: '충남', keys: ['충남', 'chungnam', '천안', '아산', '공주', '부여', '보령', '태안', '대천', '안면도', '충청남도', '忠清南道', 'Чуннам'] },
+    { name: '충남', keys: ['충남', 'chungnam', '천안', '아산', '공주', '부여', '보령', '태안', '대천', '안면도', '충청남도', '忠清南道', 'Чун남'] },
     { name: '대구', keys: ['대구', 'daegu', '동성로', '팔공산', '대구시', '대구 광역시', '大邱', 'Тэгу'] },
     { name: '대전', keys: ['대전', 'daejeon', '유성', '성심당', '대전시', '대전 광역시', '大田', 'Тэдж온'] },
     { name: '광주', keys: ['광주', 'gwangju', '무등산', '광주시', '광주 광역시', '光州', 'Кванджу'] },
     { name: '울산', keys: ['울산', 'ulsan', '간절곶', '태화강', '울산시', '울산 광역시', '蔚山', 'Ульсан'] },
-    { name: '세종', keys: ['세종', 'sejong', '세종시', '세종 특별자치시', '世宗', 'Седжон'] }
+    { name: '세종', keys: ['세종', 'sejong', '세종시', '세종 특별자치시', '世宗', 'Седж온'] }
   ];
 
   let earliestRegionIdx = Infinity;
@@ -148,9 +147,12 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
   const [isScrolled, setIsScrolled] = useState(false);
   const [headerBottom, setHeaderBottom] = useState(132);
 
-  // Chat Modal State
-  const [isChatOpen, setIsChatOpen] = useState(false);
+  // 100% Inline Hero Expansion State
+  const [isInlineChatExpanded, setIsInlineChatExpanded] = useState(false);
+  const [chatMessages, setChatMessages] = useState([]);
+  const [isGenerating, setIsGenerating] = useState(false);
   const recognitionRef = useRef(null);
+  const chatScrollRef = useRef(null);
 
   useEffect(() => {
     if (filters && filters.keyword === '') {
@@ -200,7 +202,7 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
         const transcript = event.results[0][0].transcript;
         setPromptText(transcript);
         setIsListening(false);
-        setIsChatOpen(true);
+        handleSendMessage(transcript);
       };
       recognition.onerror = () => setIsListening(false);
       recognition.onend = () => setIsListening(false);
@@ -210,6 +212,10 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
       setIsSpeechSupported(false);
     }
   }, [lang]);
+
+  useEffect(() => {
+    chatScrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMessages, isGenerating]);
 
   const toggleListening = () => {
     if (!recognitionRef.current) return;
@@ -225,19 +231,84 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
     }
   };
 
-  // Button 1: Open 1:1 Conversational AI Chat Window
-  const handleOpenChat = (e) => {
-    if (e) e.preventDefault();
-    setIsChatOpen(true);
+  // Handle 1:1 Conversational AI Chat inside Inline Expanded Hero Card
+  const handleSendMessage = async (customText = null) => {
+    const textToSend = customText !== null ? customText : promptText;
+    const query = textToSend.trim();
+    if (!query || isGenerating) {
+      // If prompt is empty but user clicked [💬 대화], expand inline chat with welcoming message
+      if (!isInlineChatExpanded) {
+        setIsInlineChatExpanded(true);
+        if (chatMessages.length === 0) {
+          setChatMessages([{
+            id: 'init-welcome',
+            sender: 'ai',
+            text: '안녕하세요! 대한민국 여행 AI 컨시어지입니다. 🇰🇷 어디로 떠나고 싶으신가요? 편하게 말씀해 주세요!',
+            suggestionChips: ['1일차 수원 ➔ 2일차 명동 ➔ 3일차 인천', '성수동 핫플 & 팝업스토어', '50대 부모님 모시고 떠나는 가족 힐링 3박4일'],
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          }]);
+        }
+      }
+      return;
+    }
+
+    setPromptText('');
+    setIsInlineChatExpanded(true);
+
+    const userBubble = {
+      id: `user-${Date.now()}`,
+      sender: 'user',
+      text: query,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+
+    setChatMessages(prev => [...prev, userBubble]);
+    setIsGenerating(true);
+
+    try {
+      const parsedIntent = await geminiParseNaturalPrompt(query, lang);
+      const fullAiResult = await geminiGenerateFullItinerary(query, lang);
+
+      const aiBubbleText = fullAiResult?.aiRecommendationSummary || 
+        `'${query}'에 맞춰 최적의 ${parsedIntent?.days || 3}일치 여행 일정을 100% 정품 명소와 실시간 미식/날씨로 구성했습니다! 📍`;
+
+      const aiBubble = {
+        id: `ai-${Date.now()}`,
+        sender: 'ai',
+        text: aiBubbleText,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        itinerarySummary: fullAiResult ? {
+          title: fullAiResult.tripTitle || `${query} 맞춤 코스`,
+          days: fullAiResult.days,
+          dailySchedules: fullAiResult.dailySchedules
+        } : null,
+        parsedIntent,
+        fullAiResult
+      };
+
+      setChatMessages(prev => [...prev, aiBubble]);
+    } catch (err) {
+      console.error("Inline AI Chat Generation Error:", err);
+      const errorBubble = {
+        id: `ai-err-${Date.now()}`,
+        sender: 'ai',
+        text: "일정 생성 중 오류가 발생했습니다. 다시 시도해 주세요.",
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setChatMessages(prev => [...prev, errorBubble]);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   // Button 2: Direct 5-Day Course Generation & Map Modal
   const handleDirectCourseGeneration = (e) => {
     if (e) e.preventDefault();
-    const query = promptText.trim() || '추천 코스';
+    const query = promptText.trim() || (chatMessages.findLast(m => m.sender === 'user')?.text) || '추천 코스';
     const parsed = parseNaturalPrompt(query);
+    const lastAiMsg = chatMessages.findLast(m => m.sender === 'ai' && m.fullAiResult);
     if (onGenerateItinerary) {
-      onGenerateItinerary(parsed, null);
+      onGenerateItinerary(parsed, lastAiMsg ? lastAiMsg.fullAiResult : null);
     }
   };
 
@@ -255,7 +326,7 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
           zIndex: 9999,
           transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
         }}>
-          <form onSubmit={handleOpenChat} style={{ margin: 0 }}>
+          <form onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }} style={{ margin: 0 }}>
             <div style={{
               display: 'flex',
               alignItems: 'center',
@@ -334,16 +405,14 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
                 </button>
               )}
 
-              {/* Button 1: Chat Input Button */}
+              {/* Button 1: 💬 AI 대화 */}
               <button
-                type="button"
-                onClick={handleOpenChat}
-                title="AI 컨시어지 대화하기 💬"
+                type="submit"
+                title="AI 컨시어지 1:1 대화하기 💬"
                 style={{
                   padding: '0.4rem 0.75rem',
                   borderRadius: '9999px',
-                  border: 'none',
-                  background: '#f1f5f9',
+                  background: '#eff6ff',
                   color: '#2563eb',
                   fontWeight: 800,
                   fontSize: '0.78rem',
@@ -351,18 +420,19 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
                   alignItems: 'center',
                   gap: '0.35rem',
                   cursor: 'pointer',
-                  marginRight: '0.35rem'
+                  marginRight: '0.35rem',
+                  border: '1px solid #bfdbfe'
                 }}
               >
                 <MessageSquare size={14} />
                 <span>대화</span>
               </button>
 
-              {/* Button 2: Direct Course Generation */}
+              {/* Button 2: ✨ 코스 추천 */}
               <button
                 type="button"
                 onClick={handleDirectCourseGeneration}
-                title="AI 코스 모달 바로보기 ✨"
+                title="AI 5일치 코스 모달 생성 ✨"
                 style={{
                   padding: '0.4rem 0.85rem',
                   borderRadius: '9999px',
@@ -386,42 +456,231 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
         </div>
       )}
 
-      {/* Main Top Ultra-Clean Slim Header Card (Clean 1-Line Badge + 2 Action Buttons) */}
+      {/* Main Hero Card Container (100% Inline Expansion, 0 Popups) */}
       <div style={{
         width: '100%',
         marginBottom: isMobile ? '0.5rem' : '0.85rem',
-        borderRadius: isMobile ? '14px' : '20px',
+        borderRadius: isMobile ? '16px' : '22px',
         background: '#ffffff',
         border: '1px solid #cbd5e1',
-        padding: isMobile ? '0.65rem 0.75rem' : '0.85rem 1.25rem',
-        boxShadow: '0 8px 24px rgba(15, 23, 42, 0.05)',
+        padding: isMobile ? '0.75rem 0.85rem' : '1rem 1.35rem',
+        boxShadow: '0 10px 30px rgba(15, 23, 42, 0.06)',
         color: '#0f172a',
         position: 'relative',
-        boxSizing: 'border-box'
+        boxSizing: 'border-box',
+        transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
       }}>
-        {/* Top Slim Subtitle Badge ONLY (Big Title '어디로 떠나시나요?' and Chips DELETED per user feedback) */}
-        <div style={{ textAlign: 'center', marginBottom: isMobile ? '0.45rem' : '0.65rem' }}>
-          <p style={{
-            fontSize: isMobile ? '0.72rem' : '0.84rem',
-            fontWeight: 700,
-            color: '#0284c7',
-            background: 'rgba(56, 189, 248, 0.14)',
-            border: '1px solid rgba(56, 189, 248, 0.35)',
-            padding: isMobile ? '0.2rem 0.65rem' : '0.25rem 0.85rem',
-            borderRadius: '9999px',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.35rem',
-            margin: '0 auto',
-            boxShadow: '0 2px 6px rgba(56, 189, 248, 0.1)'
-          }}>
-            <Sparkles size={isMobile ? 13 : 15} color="#0284c7" />
-            <span>{t.subtitle || '✨ AI가 안내하는 실시간 날씨 · 맞춤 명소 · 맛집 & 코디'}</span>
-          </p>
+        {/* Header Badge Row & Toggle Collapse Button */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: isMobile ? '0.5rem' : '0.75rem' }}>
+          <div style={{ width: isInlineChatExpanded ? 'auto' : '100%', textAlign: isInlineChatExpanded ? 'left' : 'center' }}>
+            <p style={{
+              fontSize: isMobile ? '0.7rem' : '0.82rem',
+              fontWeight: 700,
+              color: '#0284c7',
+              background: 'rgba(56, 189, 248, 0.14)',
+              border: '1px solid rgba(56, 189, 248, 0.35)',
+              padding: isMobile ? '0.2rem 0.6rem' : '0.25rem 0.8rem',
+              borderRadius: '9999px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              margin: '0 auto',
+              boxShadow: '0 2px 6px rgba(56, 189, 248, 0.1)'
+            }}>
+              <Sparkles size={isMobile ? 13 : 15} color="#0284c7" />
+              <span>{t.subtitle || '✨ AI가 안내하는 실시간 날씨 · 맞춤 명소 · 맛집 & 코디'}</span>
+            </p>
+          </div>
+
+          {/* Toggle [ ✕ 대화 접기 ] Collapse Button */}
+          {isInlineChatExpanded && (
+            <button
+              type="button"
+              onClick={() => setIsInlineChatExpanded(false)}
+              style={{
+                padding: '0.35rem 0.75rem',
+                borderRadius: '9999px',
+                background: '#f1f5f9',
+                border: '1px solid #cbd5e1',
+                color: '#475569',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.3rem',
+                cursor: 'pointer',
+                flexShrink: 0
+              }}
+            >
+              <X size={14} />
+              <span>대화 접기</span>
+            </button>
+          )}
         </div>
 
-        {/* Mobile-Optimized Sleek Pill Search Bar with 2 Action Buttons */}
-        <form onSubmit={handleOpenChat} style={{
+        {/* Inline AI Chat Thread Area (Expands downward inside Hero Card) */}
+        {isInlineChatExpanded && (
+          <div style={{
+            background: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: '16px',
+            padding: '1rem',
+            marginBottom: '0.85rem',
+            maxHeight: '340px',
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.85rem'
+          }}>
+            {chatMessages.map((msg) => (
+              <div 
+                key={msg.id}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: msg.sender === 'user' ? 'flex-end' : 'flex-start',
+                  gap: '0.2rem'
+                }}
+              >
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '0.45rem',
+                  maxWidth: '92%',
+                  flexDirection: msg.sender === 'user' ? 'row-reverse' : 'row'
+                }}>
+                  {msg.sender === 'ai' && (
+                    <div style={{
+                      width: '26px',
+                      height: '26px',
+                      borderRadius: '8px',
+                      background: '#2563eb',
+                      color: '#ffffff',
+                      fontSize: '0.68rem',
+                      fontWeight: 900,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                      marginTop: '2px'
+                    }}>
+                      AI
+                    </div>
+                  )}
+
+                  <div style={{
+                    padding: '0.75rem 1rem',
+                    borderRadius: '14px',
+                    borderTopLeftRadius: msg.sender === 'ai' ? '2px' : '14px',
+                    borderTopRightRadius: msg.sender === 'user' ? '2px' : '14px',
+                    fontSize: '0.85rem',
+                    lineHeight: 1.55,
+                    background: msg.sender === 'user' ? 'linear-gradient(135deg, #2563eb, #1d4ed8)' : '#ffffff',
+                    color: msg.sender === 'user' ? '#ffffff' : '#0f172a',
+                    border: msg.sender === 'user' ? 'none' : '1px solid #e2e8f0',
+                    boxShadow: '0 2px 6px rgba(0, 0, 0, 0.04)'
+                  }}>
+                    <p style={{ margin: 0, whiteSpace: 'pre-wrap', fontWeight: msg.sender === 'user' ? 600 : 500 }}>{msg.text}</p>
+
+                    {/* Suggestion Chips */}
+                    {msg.suggestionChips && (
+                      <div style={{ marginTop: '0.65rem', paddingTop: '0.65rem', borderTop: '1px solid #f1f5f9', display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
+                        {msg.suggestionChips.map((chip, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => handleSendMessage(chip)}
+                            style={{
+                              background: '#eff6ff',
+                              border: '1px solid #bfdbfe',
+                              color: '#1d4ed8',
+                              fontSize: '0.74rem',
+                              fontWeight: 700,
+                              padding: '0.3rem 0.65rem',
+                              borderRadius: '9999px',
+                              cursor: 'pointer',
+                              textAlign: 'left'
+                            }}
+                          >
+                            ✨ {chip}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Rich Full-AI Summary Card */}
+                    {msg.itinerarySummary && (
+                      <div style={{ marginTop: '0.65rem', paddingTop: '0.65rem', borderTop: '1px solid #f1f5f9' }}>
+                        <div style={{ background: '#f1f5f9', borderRadius: '10px', padding: '0.75rem', border: '1px solid #e2e8f0' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+                            <h4 style={{ fontSize: '0.8rem', fontWeight: 800, color: '#1e40af', margin: 0, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                              <Compass size={14} />
+                              <span>{msg.itinerarySummary.title}</span>
+                            </h4>
+                            <span style={{ fontSize: '0.65rem', padding: '0.12rem 0.4rem', borderRadius: '4px', background: '#d1fae5', color: '#065f46', fontWeight: 800 }}>
+                              {msg.itinerarySummary.days}일치 완벽 생성
+                            </span>
+                          </div>
+
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                            {msg.itinerarySummary.dailySchedules?.map((ds, idx) => (
+                              <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.73rem', padding: '0.2rem 0', borderBottom: '1px solid #e2e8f0' }}>
+                                <span style={{ fontWeight: 700, color: '#1e293b' }}>{ds.dateLabel || `${ds.day}일차 - ${ds.city}`}</span>
+                                <span style={{ color: '#64748b' }}>{ds.spots?.length || 4}개 명소 (좌표100% 매칭)</span>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Quick Map Action Button inside Chat Bubble */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (onGenerateItinerary) {
+                                onGenerateItinerary(msg.parsedIntent, msg.fullAiResult);
+                              }
+                            }}
+                            style={{
+                              width: '100%',
+                              marginTop: '0.65rem',
+                              padding: '0.45rem',
+                              borderRadius: '8px',
+                              background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+                              color: '#ffffff',
+                              fontWeight: 800,
+                              fontSize: '0.76rem',
+                              border: 'none',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '0.3rem',
+                              boxShadow: '0 4px 10px rgba(37, 99, 235, 0.2)'
+                            }}
+                          >
+                            <MapPin size={13} />
+                            <span>📍 5일치 완벽 지도 & 코스 렌더링 보기</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <span style={{ fontSize: '0.62rem', color: '#94a3b8', padding: '0 0.2rem' }}>{msg.timestamp}</span>
+              </div>
+            ))}
+
+            {isGenerating && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#1e40af', fontSize: '0.76rem', padding: '0.45rem 0.75rem', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '10px', width: 'fit-content' }}>
+                <Sparkles size={15} color="#2563eb" style={{ animation: 'spin 1.5s linear infinite' }} />
+                <span>Gemini 1.5 AI가 100% 정품 명소와 날씨/미식/코디를 직조하는 중...</span>
+              </div>
+            )}
+            <div ref={chatScrollRef} />
+          </div>
+        )}
+
+        {/* Input Bar at Bottom of Hero Card (Contains BOTH [💬 대화] & [✨ 코스 추천] buttons ALWAYS) */}
+        <form onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }} style={{
           maxWidth: '680px',
           margin: '0 auto',
           position: 'relative'
@@ -502,10 +761,10 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
               </button>
             )}
 
-            {/* Button 1: 💬 AI 대화 (Opens AIChatWindow 1:1 chat without skipping!) */}
+            {/* Button 1: 💬 AI 대화 (Expands Hero Card Inline) */}
             <button
               type="submit"
-              title="AI 컨시어지 대화하기 💬"
+              title="AI 컨시어지 1:1 대화하기 💬"
               style={{
                 padding: isMobile ? '0.35rem 0.65rem' : '0.45rem 0.85rem',
                 borderRadius: '9999px',
@@ -526,11 +785,11 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
               <span>대화</span>
             </button>
 
-            {/* Button 2: ✨ 코스 추천 (Directly opens full 5-day Itinerary Map Modal) */}
+            {/* Button 2: ✨ 코스 추천 (Directly queries and opens full 5-day Itinerary Map Modal) */}
             <button
               type="button"
               onClick={handleDirectCourseGeneration}
-              title="AI 5일치 코스 모달 생성 ✨"
+              title="AI 5일치 코스 지도 모달 생성 ✨"
               style={{
                 padding: isMobile ? '0.35rem 0.75rem' : '0.45rem 0.95rem',
                 borderRadius: '9999px',
@@ -553,15 +812,6 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
           </div>
         </form>
       </div>
-
-      {/* Conversational AI Travel Concierge Chat Window Modal */}
-      <AIChatWindow
-        isOpen={isChatOpen}
-        onClose={() => setIsChatOpen(false)}
-        lang={lang}
-        initialPrompt={promptText}
-        onGenerateItinerary={onGenerateItinerary}
-      />
     </>
   );
 }
