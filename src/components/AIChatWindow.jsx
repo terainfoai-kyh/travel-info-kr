@@ -115,10 +115,6 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
       };
 
       setMessages(prev => [...prev, aiBubble]);
-
-      if (onGenerateItinerary) {
-        onGenerateItinerary(parsedIntent, fullAiResult);
-      }
     } catch (err) {
       console.error("AI Chat Generation Error:", err);
       const errorBubble = {
