@@ -516,7 +516,6 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
               <span>Gemini 1.5 AI가 100% 정품 명소와 날씨/미식/코디를 직조하는 중...</span>
             </div>
           )}
-          <div ref={chatScrollRef} />
         </div>
       )}
 
