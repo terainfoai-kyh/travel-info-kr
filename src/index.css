@@ -201,6 +201,22 @@ body {
   min-height: 100vh;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: contain;
+  overscroll-behavior-x: none;
+  touch-action: pan-x pan-y;
+}
+
+/* Global Pull-to-Refresh & Overscroll Containment for Mobile Modals */
+html {
+  overscroll-behavior-y: contain;
+  overscroll-behavior-x: none;
+  touch-action: pan-x pan-y;
+}
+
+.modal-overlay-backdrop, .modal-content, .modal-dialog, [role="dialog"] {
+  overscroll-behavior-y: contain !important;
+  overscroll-behavior-x: none !important;
+  touch-action: pan-x pan-y;
 }
 
 /* Global Sticky Header Rule for Web & Mobile */

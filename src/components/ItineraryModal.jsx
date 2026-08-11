@@ -230,6 +230,11 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
   return (
     <div 
       className="modal-overlay-backdrop"
+      style={{
+        overscrollBehaviorY: 'contain',
+        overscrollBehaviorX: 'none',
+        touchAction: 'pan-x pan-y'
+      }}
       onClick={onClose}
     >
       <div 
@@ -239,7 +244,10 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
           border: '1px solid var(--border-highlight)',
           borderRadius: 'var(--radius-lg)',
           boxShadow: 'var(--shadow-glow)',
-          padding: '1.25rem 1.25rem'
+          padding: '1.25rem 1.25rem',
+          overscrollBehaviorY: 'contain',
+          overscrollBehaviorX: 'none',
+          touchAction: 'pan-x pan-y'
         }}
         onClick={(e) => e.stopPropagation()}
       >
