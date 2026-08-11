@@ -345,12 +345,12 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
             </button>
           </div>
 
-          {/* Row 2: Sticky Day Selector Tabs (Horizontal Swipe Bar) + View Switcher & Action Controls */}
+          {/* Row 2: View Switcher (Item 1 Far Left) | Options Toggle (Item 2) | Day Selector Tabs (Item 3) | Actions (Item 4 Far Right) */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            gap: '0.45rem',
+            gap: '0.4rem',
             overflowX: 'auto',
             whiteSpace: 'nowrap',
             paddingTop: '0.3rem',
@@ -358,8 +358,62 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
             scrollbarWidth: 'none',
             msOverflowStyle: 'none'
           }}>
-            {/* Day Selector Buttons (Horizontal Swipeable Bar) */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexShrink: 0 }}>
+            {/* Item 1 (Far Left): Compact Single Toggle Button for View Switcher (Map ⇄ List) */}
+            <button
+              type="button"
+              onClick={() => setViewMode(viewMode === 'map' ? 'list' : 'map')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.25rem',
+                background: 'var(--accent-gradient)',
+                color: '#ffffff',
+                border: 'none',
+                padding: '0.25rem 0.6rem',
+                borderRadius: 'var(--radius-full)',
+                fontSize: '0.75rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                flexShrink: 0,
+                boxShadow: '0 2px 6px rgba(37, 99, 235, 0.3)'
+              }}
+              title={viewMode === 'map' ? (t.switchToListView || '일정 목록으로 보기') : (t.switchToMapView || '지도 화면으로 보기')}
+            >
+              {viewMode === 'map' ? <Calendar size={13} /> : <Compass size={13} />}
+              <span>
+                {viewMode === 'map' 
+                  ? (t.listViewShortToggle || (lang === 'en' ? '📋 List ⇄' : '📋 일정 ⇄')) 
+                  : (t.mapViewShortToggle || (lang === 'en' ? '🗺️ Map ⇄' : '🗺️ 지도 ⇄'))
+                }
+              </span>
+            </button>
+
+            {/* Item 2 (Second): Options Toggle Button (Condition Change) */}
+            <button
+              type="button"
+              onClick={() => setIsOptionsExpanded(!isOptionsExpanded)}
+              style={{
+                background: isOptionsExpanded ? 'rgba(56, 189, 248, 0.2)' : 'var(--bg-card)',
+                color: isOptionsExpanded ? 'var(--accent-primary)' : 'var(--text-main)',
+                border: isOptionsExpanded ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                padding: '0.25rem 0.55rem',
+                borderRadius: 'var(--radius-full)',
+                fontSize: '0.74rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.2rem',
+                transition: 'all 0.2s ease',
+                flexShrink: 0
+              }}
+            >
+              <span>{isOptionsExpanded ? (t.toggleOptionsCollapse || (lang === 'en' ? '▲ Hide' : '▲ 접기')) : (t.toggleOptionsExpand || (lang === 'en' ? '⚙️ Filter ▼' : '⚙️ 조건 변경 ▼'))}</span>
+            </button>
+
+            {/* Item 3 (Center~Right): Day Selector Buttons (Horizontal Swipeable Bar) */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexShrink: 0 }}>
               <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', marginRight: '0.1rem', flexShrink: 0 }}>
                 {t.selectDayLabel || '일차:'}
               </span>
@@ -374,9 +428,9 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                     background: activeMapDay === d.day ? 'var(--accent-gradient)' : 'var(--bg-card)',
                     color: activeMapDay === d.day ? '#ffffff' : 'var(--text-main)',
                     border: activeMapDay === d.day ? 'none' : '1px solid var(--border-color)',
-                    padding: '0.25rem 0.65rem',
+                    padding: '0.25rem 0.6rem',
                     borderRadius: 'var(--radius-full)',
-                    fontSize: '0.76rem',
+                    fontSize: '0.75rem',
                     fontWeight: 800,
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
@@ -389,86 +443,8 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
               ))}
             </div>
 
-            {/* Right Group: View Switcher & Quick Action Controls */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexShrink: 0 }}>
-              {/* View Switcher Pills */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                background: 'var(--bg-primary)',
-                padding: '0.15rem',
-                borderRadius: 'var(--radius-md)',
-                border: '1px solid var(--border-color)',
-                flexShrink: 0
-              }}>
-                <button
-                  type="button"
-                  onClick={() => setViewMode('map')}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.25rem',
-                    background: viewMode === 'map' ? 'var(--accent-gradient)' : 'transparent',
-                    color: viewMode === 'map' ? '#ffffff' : 'var(--text-muted)',
-                    border: 'none',
-                    padding: '0.25rem 0.55rem',
-                    borderRadius: 'var(--radius-sm)',
-                    fontSize: '0.74rem',
-                    fontWeight: 800,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  <Compass size={13} />
-                  <span>{t.mapViewShort || '🗺️ 지도'}</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setViewMode('list')}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.25rem',
-                    background: viewMode === 'list' ? 'var(--accent-gradient)' : 'transparent',
-                    color: viewMode === 'list' ? '#ffffff' : 'var(--text-muted)',
-                    border: 'none',
-                    padding: '0.25rem 0.55rem',
-                    borderRadius: 'var(--radius-sm)',
-                    fontSize: '0.74rem',
-                    fontWeight: 800,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  <Calendar size={13} />
-                  <span>{t.listViewShort || '📋 일정'}</span>
-                </button>
-              </div>
-
-              {/* Options Toggle Button */}
-              <button
-                type="button"
-                onClick={() => setIsOptionsExpanded(!isOptionsExpanded)}
-                style={{
-                  background: isOptionsExpanded ? 'rgba(56, 189, 248, 0.2)' : 'var(--bg-card)',
-                  color: isOptionsExpanded ? 'var(--accent-primary)' : 'var(--text-main)',
-                  border: isOptionsExpanded ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)',
-                  padding: '0.25rem 0.55rem',
-                  borderRadius: 'var(--radius-full)',
-                  fontSize: '0.74rem',
-                  fontWeight: 800,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.2rem',
-                  transition: 'all 0.2s ease',
-                  flexShrink: 0
-                }}
-              >
-                <span>{isOptionsExpanded ? (t.toggleOptionsCollapse || (lang === 'en' ? '▲ Hide' : '▲ 접기')) : (t.toggleOptionsExpand || (lang === 'en' ? '⚙️ Filter ▼' : '⚙️ 조건 변경 ▼'))}</span>
-              </button>
-
+            {/* Item 4 (Far Right): Action Buttons (AI Regenerate & Copy Course) */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexShrink: 0 }}>
               {/* AI Regenerate Button */}
               <button
                 type="button"
