@@ -233,6 +233,7 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
       deferredPromptRef.current = e;
+      window.__ktravel_deferred_prompt = e;
       setDeferredPrompt(e);
       setShowBanner(true);
     };
@@ -242,29 +243,31 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
       setShowBanner(false);
       setShowGuideModal(false);
       deferredPromptRef.current = null;
+      window.__ktravel_deferred_prompt = null;
       setDeferredPrompt(null);
       localStorage.setItem('ktravel_pwa_banner_dismissed_at', String(Date.now()));
     };
 
-    // 5. Listen for custom header button click event
+    // 5. Listen for custom header button click event (Prioritize 1-click Chrome native prompt)
     const handleOpenInstallModal = async () => {
-      const promptObj = deferredPromptRef.current;
-      if (promptObj) {
+      const activePrompt = deferredPromptRef.current || window.__ktravel_deferred_prompt || deferredPrompt;
+      if (activePrompt) {
         try {
-          promptObj.prompt();
-          const { outcome } = await promptObj.userChoice;
+          activePrompt.prompt();
+          const { outcome } = await activePrompt.userChoice;
           if (outcome === 'accepted') {
             setShowBanner(false);
             setShowGuideModal(false);
             deferredPromptRef.current = null;
+            window.__ktravel_deferred_prompt = null;
             setDeferredPrompt(null);
             return;
           }
         } catch (err) {
-          console.log('PWA prompt error, falling back to guide modal:', err);
+          console.log('Native prompt execution error:', err);
         }
       }
-      // If no prompt event available or dismissed, open guide modal 100%
+      // If native prompt unavailable, fallback to guide modal
       setShowGuideModal(true);
     };
 
@@ -277,14 +280,13 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
       window.removeEventListener('appinstalled', handleAppInstalled);
       window.removeEventListener('open-pwa-install-modal', handleOpenInstallModal);
     };
-  }, []);
+  }, [deferredPrompt]);
 
   const handleInstallClick = async () => {
     // KakaoTalk in-app browser detection
     if (isKakaoInApp) {
       const ua = (navigator.userAgent || '').toLowerCase();
       if (ua.includes('android')) {
-        // Auto-launch Android Chrome/Samsung Internet via Intent URI scheme
         const targetUrl = window.location.href.replace(/^https?:\/\//i, '');
         const chromeIntent = `intent://${targetUrl}#Intent;scheme=https;package=com.android.chrome;end;`;
         window.location.href = chromeIntent;
@@ -294,7 +296,7 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
       return;
     }
 
-    const activePrompt = deferredPromptRef.current || deferredPrompt;
+    const activePrompt = deferredPromptRef.current || window.__ktravel_deferred_prompt || deferredPrompt;
     if (activePrompt) {
       try {
         activePrompt.prompt();
@@ -304,6 +306,7 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
           setShowGuideModal(false);
         }
         deferredPromptRef.current = null;
+        window.__ktravel_deferred_prompt = null;
         setDeferredPrompt(null);
       } catch (err) {
         setShowGuideModal(true);

@@ -41,6 +41,8 @@ export const TRANSLATIONS = {
     listViewShort: '📋 일정 목록',
     openMenu: '메뉴',
     closeMenu: '메뉴 닫기',
+    installAppBtn: '💻 앱 설치',
+    installAppBtnShort: '앱 설치',
 
 
     noSpotsResult: '\'{keyword}\' 검색 결과가 없습니다',
