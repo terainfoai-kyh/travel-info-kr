@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, Mic, MicOff, ArrowRight, Camera, X, MessageSquare, Send, MapPin, Compass } from 'lucide-react';
+import { Sparkles, Mic, MicOff, ArrowRight, Camera, X, MessageSquare, Send, MapPin, Compass, ChevronDown, ChevronUp } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
 import { geminiParseNaturalPrompt, geminiGenerateFullItinerary } from '../services/geminiNlpService';
 
@@ -144,10 +144,8 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
   const [isListening, setIsListening] = useState(false);
   const [isSpeechSupported, setIsSpeechSupported] = useState(true);
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [headerBottom, setHeaderBottom] = useState(132);
 
-  // 100% Inline Hero Expansion State
+  // 100% Inline Hero Expansion & Chat Persistence State
   const [isInlineChatExpanded, setIsInlineChatExpanded] = useState(false);
   const [chatMessages, setChatMessages] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -164,29 +162,6 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  useEffect(() => {
-    const updateHeaderBottom = () => {
-      const headerEl = document.querySelector('header') || document.querySelector('.app-header');
-      if (headerEl) {
-        const rect = headerEl.getBoundingClientRect();
-        setHeaderBottom(rect.bottom);
-      }
-    };
-    updateHeaderBottom();
-
-    const handleScrollOrResize = () => {
-      updateHeaderBottom();
-      setIsScrolled(window.scrollY > 120);
-    };
-
-    window.addEventListener('scroll', handleScrollOrResize, { passive: true });
-    window.addEventListener('resize', handleScrollOrResize, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', handleScrollOrResize);
-      window.removeEventListener('resize', handleScrollOrResize);
-    };
   }, []);
 
   useEffect(() => {
@@ -214,8 +189,10 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
   }, [lang]);
 
   useEffect(() => {
-    chatScrollRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [chatMessages, isGenerating]);
+    if (isInlineChatExpanded) {
+      chatScrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [chatMessages, isGenerating, isInlineChatExpanded]);
 
   const toggleListening = () => {
     if (!recognitionRef.current) return;
@@ -231,26 +208,27 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
     }
   };
 
-  // Handle 1:1 Conversational AI Chat inside Inline Expanded Hero Card
+  // Handle 1:1 Conversational AI Chat & Enter Key Submit
   const handleSendMessage = async (customText = null) => {
     const textToSend = customText !== null ? customText : promptText;
     const query = textToSend.trim();
-    if (!query || isGenerating) {
-      // If prompt is empty but user clicked [💬 대화], expand inline chat with welcoming message
-      if (!isInlineChatExpanded) {
-        setIsInlineChatExpanded(true);
-        if (chatMessages.length === 0) {
-          setChatMessages([{
-            id: 'init-welcome',
-            sender: 'ai',
-            text: '안녕하세요! 대한민국 여행 AI 컨시어지입니다. 🇰🇷 어디로 떠나고 싶으신가요? 편하게 말씀해 주세요!',
-            suggestionChips: ['1일차 수원 ➔ 2일차 명동 ➔ 3일차 인천', '성수동 핫플 & 팝업스토어', '50대 부모님 모시고 떠나는 가족 힐링 3박4일'],
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-          }]);
-        }
+
+    // If query is empty but user clicked [💬 대화] or [💬 대화 펼치기]
+    if (!query) {
+      setIsInlineChatExpanded(true);
+      if (chatMessages.length === 0) {
+        setChatMessages([{
+          id: 'init-welcome',
+          sender: 'ai',
+          text: '안녕하세요! 대한민국 여행 AI 컨시어지입니다. 🇰🇷 어디로 떠나고 싶으신가요? 편하게 말씀해 주세요!',
+          suggestionChips: ['1일차 수원 ➔ 2일차 명동 ➔ 3일차 인천', '성수동 핫플 & 팝업스토어', '50대 부모님 모시고 떠나는 가족 힐링 3박4일'],
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }]);
       }
       return;
     }
+
+    if (isGenerating) return;
 
     setPromptText('');
     setIsInlineChatExpanded(true);
@@ -312,506 +290,365 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
     }
   };
 
+  const hasExistingHistory = chatMessages.length > 0;
+
   return (
-    <>
-      {/* Sticky Floating Slim Mini AI Search Bar on Scroll */}
-      {isScrolled && (
-        <div style={{
-          position: 'fixed',
-          top: `${Math.max(headerBottom + 12, isMobile ? 96 : 132)}px`,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: isMobile ? '95%' : '92%',
-          maxWidth: '680px',
-          zIndex: 9999,
-          transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
-        }}>
-          <form onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }} style={{ margin: 0 }}>
-            <div style={{
+    <div style={{
+      width: '100%',
+      marginBottom: isMobile ? '0.5rem' : '0.85rem',
+      borderRadius: isMobile ? '16px' : '22px',
+      background: '#ffffff',
+      border: '1px solid #cbd5e1',
+      padding: isMobile ? '0.75rem 0.85rem' : '1rem 1.35rem',
+      boxShadow: '0 10px 30px rgba(15, 23, 42, 0.06)',
+      color: '#0f172a',
+      position: 'relative',
+      boxSizing: 'border-box',
+      transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+    }}>
+      {/* Header Badge Row & Toggle Collapse Button */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: isMobile ? '0.5rem' : '0.75rem' }}>
+        <div style={{ width: isInlineChatExpanded ? 'auto' : '100%', textAlign: isInlineChatExpanded ? 'left' : 'center' }}>
+          <p style={{
+            fontSize: isMobile ? '0.7rem' : '0.82rem',
+            fontWeight: 700,
+            color: '#0284c7',
+            background: 'rgba(56, 189, 248, 0.14)',
+            border: '1px solid rgba(56, 189, 248, 0.35)',
+            padding: isMobile ? '0.2rem 0.6rem' : '0.25rem 0.8rem',
+            borderRadius: '9999px',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+            margin: '0 auto',
+            boxShadow: '0 2px 6px rgba(56, 189, 248, 0.1)'
+          }}>
+            <Sparkles size={isMobile ? 13 : 15} color="#0284c7" />
+            <span>{t.subtitle || '✨ AI가 안내하는 실시간 날씨 · 맞춤 명소 · 맛집 & 코디'}</span>
+          </p>
+        </div>
+
+        {/* Toggle [ ✕ 대화 접기 ] Collapse Button */}
+        {isInlineChatExpanded && (
+          <button
+            type="button"
+            onClick={() => setIsInlineChatExpanded(false)}
+            title="대화창 접기 ✕"
+            style={{
+              padding: '0.35rem 0.75rem',
+              borderRadius: '9999px',
+              background: '#f1f5f9',
+              border: '1px solid #cbd5e1',
+              color: '#475569',
+              fontSize: '0.75rem',
+              fontWeight: 700,
               display: 'flex',
               alignItems: 'center',
-              background: 'rgba(255, 255, 255, 0.96)',
-              backdropFilter: 'blur(16px)',
-              WebkitBackdropFilter: 'blur(16px)',
-              border: isListening ? '2px solid #ef4444' : '1.5px solid #2563eb',
-              borderRadius: '9999px',
-              padding: '0.35rem 0.4rem 0.35rem 1rem',
-              boxShadow: '0 12px 35px rgba(37, 99, 235, 0.28)'
-            }}>
-              <Sparkles style={{ width: '18px', height: '18px', color: '#2563eb', flexShrink: 0, marginRight: '0.4rem' }} />
+              gap: '0.3rem',
+              cursor: 'pointer',
+              flexShrink: 0
+            }}
+          >
+            <X size={14} />
+            <span>대화 접기</span>
+          </button>
+        )}
+      </div>
 
-              <input
-                type="text"
-                value={promptText}
-                onChange={(e) => setPromptText(e.target.value)}
-                placeholder={isListening ? (t.voiceListening || '말씀하세요... 🎧 (음성 인식 중)') : (t.aiPromptPlaceholder || '어디로 떠나고 싶으신가요? 💬')}
-                style={{
-                  width: '100%',
-                  background: 'transparent',
-                  border: 'none',
-                  outline: 'none',
-                  color: '#0f172a',
-                  fontSize: '0.88rem',
-                  fontWeight: 600,
-                  padding: '0.45rem 0'
-                }}
-              />
-
-              {promptText && promptText.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setPromptText('')}
-                  title="검색어 지우기 ✕"
-                  style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '9999px',
-                    border: 'none',
-                    background: '#f1f5f9',
-                    color: '#64748b',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    flexShrink: 0,
-                    marginRight: '0.35rem'
-                  }}
-                >
-                  <X style={{ width: '14px', height: '14px' }} />
-                </button>
-              )}
-
-              {isSpeechSupported && (
-                <button
-                  type="button"
-                  onClick={toggleListening}
-                  title={t.voiceBtnTooltip || '음성 인식 시작 🎙️'}
-                  style={{
-                    width: '36px',
-                    height: '36px',
-                    borderRadius: '9999px',
-                    border: 'none',
-                    background: isListening ? '#ef4444' : '#f1f5f9',
-                    color: isListening ? '#ffffff' : '#475569',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    flexShrink: 0,
-                    marginRight: '0.35rem'
-                  }}
-                >
-                  {isListening ? <MicOff style={{ width: '16px', height: '16px' }} /> : <Mic style={{ width: '16px', height: '16px' }} />}
-                </button>
-              )}
-
-              {/* Button 1: 💬 AI 대화 */}
-              <button
-                type="submit"
-                title="AI 컨시어지 1:1 대화하기 💬"
-                style={{
-                  padding: '0.4rem 0.75rem',
-                  borderRadius: '9999px',
-                  background: '#eff6ff',
-                  color: '#2563eb',
-                  fontWeight: 800,
-                  fontSize: '0.78rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.35rem',
-                  cursor: 'pointer',
-                  marginRight: '0.35rem',
-                  border: '1px solid #bfdbfe'
-                }}
-              >
-                <MessageSquare size={14} />
-                <span>대화</span>
-              </button>
-
-              {/* Button 2: ✨ 코스 추천 */}
-              <button
-                type="button"
-                onClick={handleDirectCourseGeneration}
-                title="AI 5일치 코스 모달 생성 ✨"
-                style={{
-                  padding: '0.4rem 0.85rem',
-                  borderRadius: '9999px',
-                  border: 'none',
-                  background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
-                  color: '#ffffff',
-                  fontWeight: 800,
-                  fontSize: '0.78rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.35rem',
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)'
-                }}
-              >
-                <Sparkles size={14} />
-                <span>코스 추천</span>
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {/* Main Hero Card Container (100% Inline Expansion, 0 Popups) */}
-      <div style={{
-        width: '100%',
-        marginBottom: isMobile ? '0.5rem' : '0.85rem',
-        borderRadius: isMobile ? '16px' : '22px',
-        background: '#ffffff',
-        border: '1px solid #cbd5e1',
-        padding: isMobile ? '0.75rem 0.85rem' : '1rem 1.35rem',
-        boxShadow: '0 10px 30px rgba(15, 23, 42, 0.06)',
-        color: '#0f172a',
-        position: 'relative',
-        boxSizing: 'border-box',
-        transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
-      }}>
-        {/* Header Badge Row & Toggle Collapse Button */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: isMobile ? '0.5rem' : '0.75rem' }}>
-          <div style={{ width: isInlineChatExpanded ? 'auto' : '100%', textAlign: isInlineChatExpanded ? 'left' : 'center' }}>
-            <p style={{
-              fontSize: isMobile ? '0.7rem' : '0.82rem',
-              fontWeight: 700,
-              color: '#0284c7',
-              background: 'rgba(56, 189, 248, 0.14)',
-              border: '1px solid rgba(56, 189, 248, 0.35)',
-              padding: isMobile ? '0.2rem 0.6rem' : '0.25rem 0.8rem',
-              borderRadius: '9999px',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.35rem',
-              margin: '0 auto',
-              boxShadow: '0 2px 6px rgba(56, 189, 248, 0.1)'
-            }}>
-              <Sparkles size={isMobile ? 13 : 15} color="#0284c7" />
-              <span>{t.subtitle || '✨ AI가 안내하는 실시간 날씨 · 맞춤 명소 · 맛집 & 코디'}</span>
-            </p>
-          </div>
-
-          {/* Toggle [ ✕ 대화 접기 ] Collapse Button */}
-          {isInlineChatExpanded && (
-            <button
-              type="button"
-              onClick={() => setIsInlineChatExpanded(false)}
+      {/* Inline AI Chat Thread Area (Expands downward inside Hero Card with smooth scroll) */}
+      {isInlineChatExpanded && (
+        <div style={{
+          background: '#f8fafc',
+          border: '1px solid #e2e8f0',
+          borderRadius: '16px',
+          padding: '1rem',
+          marginBottom: '0.85rem',
+          maxHeight: '380px',
+          overflowY: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.85rem',
+          scrollBehavior: 'smooth'
+        }}>
+          {chatMessages.map((msg) => (
+            <div 
+              key={msg.id}
               style={{
-                padding: '0.35rem 0.75rem',
-                borderRadius: '9999px',
-                background: '#f1f5f9',
-                border: '1px solid #cbd5e1',
-                color: '#475569',
-                fontSize: '0.75rem',
-                fontWeight: 700,
                 display: 'flex',
-                alignItems: 'center',
-                gap: '0.3rem',
-                cursor: 'pointer',
-                flexShrink: 0
+                flexDirection: 'column',
+                alignItems: msg.sender === 'user' ? 'flex-end' : 'flex-start',
+                gap: '0.2rem'
               }}
             >
-              <X size={14} />
-              <span>대화 접기</span>
-            </button>
-          )}
-        </div>
+              <div style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '0.45rem',
+                maxWidth: '92%',
+                flexDirection: msg.sender === 'user' ? 'row-reverse' : 'row'
+              }}>
+                {msg.sender === 'ai' && (
+                  <div style={{
+                    width: '26px',
+                    height: '26px',
+                    borderRadius: '8px',
+                    background: '#2563eb',
+                    color: '#ffffff',
+                    fontSize: '0.68rem',
+                    fontWeight: 900,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    marginTop: '2px'
+                  }}>
+                    AI
+                  </div>
+                )}
 
-        {/* Inline AI Chat Thread Area (Expands downward inside Hero Card) */}
-        {isInlineChatExpanded && (
-          <div style={{
-            background: '#f8fafc',
-            border: '1px solid #e2e8f0',
-            borderRadius: '16px',
-            padding: '1rem',
-            marginBottom: '0.85rem',
-            maxHeight: '340px',
-            overflowY: 'auto',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.85rem'
-          }}>
-            {chatMessages.map((msg) => (
-              <div 
-                key={msg.id}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: msg.sender === 'user' ? 'flex-end' : 'flex-start',
-                  gap: '0.2rem'
-                }}
-              >
                 <div style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '0.45rem',
-                  maxWidth: '92%',
-                  flexDirection: msg.sender === 'user' ? 'row-reverse' : 'row'
+                  padding: '0.75rem 1rem',
+                  borderRadius: '14px',
+                  borderTopLeftRadius: msg.sender === 'ai' ? '2px' : '14px',
+                  borderTopRightRadius: msg.sender === 'user' ? '2px' : '14px',
+                  fontSize: '0.85rem',
+                  lineHeight: 1.55,
+                  background: msg.sender === 'user' ? 'linear-gradient(135deg, #2563eb, #1d4ed8)' : '#ffffff',
+                  color: msg.sender === 'user' ? '#ffffff' : '#0f172a',
+                  border: msg.sender === 'user' ? 'none' : '1px solid #e2e8f0',
+                  boxShadow: '0 2px 6px rgba(0, 0, 0, 0.04)'
                 }}>
-                  {msg.sender === 'ai' && (
-                    <div style={{
-                      width: '26px',
-                      height: '26px',
-                      borderRadius: '8px',
-                      background: '#2563eb',
-                      color: '#ffffff',
-                      fontSize: '0.68rem',
-                      fontWeight: 900,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0,
-                      marginTop: '2px'
-                    }}>
-                      AI
+                  <p style={{ margin: 0, whiteSpace: 'pre-wrap', fontWeight: msg.sender === 'user' ? 600 : 500 }}>{msg.text}</p>
+
+                  {/* Suggestion Chips */}
+                  {msg.suggestionChips && (
+                    <div style={{ marginTop: '0.65rem', paddingTop: '0.65rem', borderTop: '1px solid #f1f5f9', display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
+                      {msg.suggestionChips.map((chip, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => handleSendMessage(chip)}
+                          style={{
+                            background: '#eff6ff',
+                            border: '1px solid #bfdbfe',
+                            color: '#1d4ed8',
+                            fontSize: '0.74rem',
+                            fontWeight: 700,
+                            padding: '0.3rem 0.65rem',
+                            borderRadius: '9999px',
+                            cursor: 'pointer',
+                            textAlign: 'left'
+                          }}
+                        >
+                          ✨ {chip}
+                        </button>
+                      ))}
                     </div>
                   )}
 
-                  <div style={{
-                    padding: '0.75rem 1rem',
-                    borderRadius: '14px',
-                    borderTopLeftRadius: msg.sender === 'ai' ? '2px' : '14px',
-                    borderTopRightRadius: msg.sender === 'user' ? '2px' : '14px',
-                    fontSize: '0.85rem',
-                    lineHeight: 1.55,
-                    background: msg.sender === 'user' ? 'linear-gradient(135deg, #2563eb, #1d4ed8)' : '#ffffff',
-                    color: msg.sender === 'user' ? '#ffffff' : '#0f172a',
-                    border: msg.sender === 'user' ? 'none' : '1px solid #e2e8f0',
-                    boxShadow: '0 2px 6px rgba(0, 0, 0, 0.04)'
-                  }}>
-                    <p style={{ margin: 0, whiteSpace: 'pre-wrap', fontWeight: msg.sender === 'user' ? 600 : 500 }}>{msg.text}</p>
-
-                    {/* Suggestion Chips */}
-                    {msg.suggestionChips && (
-                      <div style={{ marginTop: '0.65rem', paddingTop: '0.65rem', borderTop: '1px solid #f1f5f9', display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
-                        {msg.suggestionChips.map((chip, idx) => (
-                          <button
-                            key={idx}
-                            type="button"
-                            onClick={() => handleSendMessage(chip)}
-                            style={{
-                              background: '#eff6ff',
-                              border: '1px solid #bfdbfe',
-                              color: '#1d4ed8',
-                              fontSize: '0.74rem',
-                              fontWeight: 700,
-                              padding: '0.3rem 0.65rem',
-                              borderRadius: '9999px',
-                              cursor: 'pointer',
-                              textAlign: 'left'
-                            }}
-                          >
-                            ✨ {chip}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Rich Full-AI Summary Card */}
-                    {msg.itinerarySummary && (
-                      <div style={{ marginTop: '0.65rem', paddingTop: '0.65rem', borderTop: '1px solid #f1f5f9' }}>
-                        <div style={{ background: '#f1f5f9', borderRadius: '10px', padding: '0.75rem', border: '1px solid #e2e8f0' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
-                            <h4 style={{ fontSize: '0.8rem', fontWeight: 800, color: '#1e40af', margin: 0, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                              <Compass size={14} />
-                              <span>{msg.itinerarySummary.title}</span>
-                            </h4>
-                            <span style={{ fontSize: '0.65rem', padding: '0.12rem 0.4rem', borderRadius: '4px', background: '#d1fae5', color: '#065f46', fontWeight: 800 }}>
-                              {msg.itinerarySummary.days}일치 완벽 생성
-                            </span>
-                          </div>
-
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                            {msg.itinerarySummary.dailySchedules?.map((ds, idx) => (
-                              <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.73rem', padding: '0.2rem 0', borderBottom: '1px solid #e2e8f0' }}>
-                                <span style={{ fontWeight: 700, color: '#1e293b' }}>{ds.dateLabel || `${ds.day}일차 - ${ds.city}`}</span>
-                                <span style={{ color: '#64748b' }}>{ds.spots?.length || 4}개 명소 (좌표100% 매칭)</span>
-                              </div>
-                            ))}
-                          </div>
-
-                          {/* Quick Map Action Button inside Chat Bubble */}
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (onGenerateItinerary) {
-                                onGenerateItinerary(msg.parsedIntent, msg.fullAiResult);
-                              }
-                            }}
-                            style={{
-                              width: '100%',
-                              marginTop: '0.65rem',
-                              padding: '0.45rem',
-                              borderRadius: '8px',
-                              background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
-                              color: '#ffffff',
-                              fontWeight: 800,
-                              fontSize: '0.76rem',
-                              border: 'none',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              gap: '0.3rem',
-                              boxShadow: '0 4px 10px rgba(37, 99, 235, 0.2)'
-                            }}
-                          >
-                            <MapPin size={13} />
-                            <span>📍 5일치 완벽 지도 & 코스 렌더링 보기</span>
-                          </button>
+                  {/* Rich Full-AI Summary Card */}
+                  {msg.itinerarySummary && (
+                    <div style={{ marginTop: '0.65rem', paddingTop: '0.65rem', borderTop: '1px solid #f1f5f9' }}>
+                      <div style={{ background: '#f1f5f9', borderRadius: '10px', padding: '0.75rem', border: '1px solid #e2e8f0' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+                          <h4 style={{ fontSize: '0.8rem', fontWeight: 800, color: '#1e40af', margin: 0, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                            <Compass size={14} />
+                            <span>{msg.itinerarySummary.title}</span>
+                          </h4>
+                          <span style={{ fontSize: '0.65rem', padding: '0.12rem 0.4rem', borderRadius: '4px', background: '#d1fae5', color: '#065f46', fontWeight: 800 }}>
+                            {msg.itinerarySummary.days}일치 완벽 생성
+                          </span>
                         </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                          {msg.itinerarySummary.dailySchedules?.map((ds, idx) => (
+                            <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.73rem', padding: '0.2rem 0', borderBottom: '1px solid #e2e8f0' }}>
+                              <span style={{ fontWeight: 700, color: '#1e293b' }}>{ds.dateLabel || `${ds.day}일차 - ${ds.city}`}</span>
+                              <span style={{ color: '#64748b' }}>{ds.spots?.length || 4}개 명소 (좌표100% 매칭)</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Quick Map Action Button inside Chat Bubble */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (onGenerateItinerary) {
+                              onGenerateItinerary(msg.parsedIntent, msg.fullAiResult);
+                            }
+                          }}
+                          style={{
+                            width: '100%',
+                            marginTop: '0.65rem',
+                            padding: '0.45rem',
+                            borderRadius: '8px',
+                            background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+                            color: '#ffffff',
+                            fontWeight: 800,
+                            fontSize: '0.76rem',
+                            border: 'none',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '0.3rem',
+                            boxShadow: '0 4px 10px rgba(37, 99, 235, 0.2)'
+                          }}
+                        >
+                          <MapPin size={13} />
+                          <span>📍 5일치 완벽 지도 & 코스 렌더링 보기</span>
+                        </button>
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
-                <span style={{ fontSize: '0.62rem', color: '#94a3b8', padding: '0 0.2rem' }}>{msg.timestamp}</span>
               </div>
-            ))}
+              <span style={{ fontSize: '0.62rem', color: '#94a3b8', padding: '0 0.2rem' }}>{msg.timestamp}</span>
+            </div>
+          ))}
 
-            {isGenerating && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#1e40af', fontSize: '0.76rem', padding: '0.45rem 0.75rem', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '10px', width: 'fit-content' }}>
-                <Sparkles size={15} color="#2563eb" style={{ animation: 'spin 1.5s linear infinite' }} />
-                <span>Gemini 1.5 AI가 100% 정품 명소와 날씨/미식/코디를 직조하는 중...</span>
-              </div>
-            )}
-            <div ref={chatScrollRef} />
-          </div>
-        )}
+          {isGenerating && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#1e40af', fontSize: '0.76rem', padding: '0.45rem 0.75rem', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '10px', width: 'fit-content' }}>
+              <Sparkles size={15} color="#2563eb" style={{ animation: 'spin 1.5s linear infinite' }} />
+              <span>Gemini 1.5 AI가 100% 정품 명소와 날씨/미식/코디를 직조하는 중...</span>
+            </div>
+          )}
+          <div ref={chatScrollRef} />
+        </div>
+      )}
 
-        {/* Input Bar at Bottom of Hero Card (Contains BOTH [💬 대화] & [✨ 코스 추천] buttons ALWAYS) */}
-        <form onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }} style={{
-          maxWidth: '680px',
-          margin: '0 auto',
-          position: 'relative'
+      {/* Input Bar at Bottom of Hero Card (Supports Enter Key Submit & Toggle Label) */}
+      <form onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }} style={{
+        maxWidth: '680px',
+        margin: '0 auto',
+        position: 'relative'
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          background: '#ffffff',
+          border: isListening ? '2px solid #ef4444' : '1.5px solid #2563eb',
+          borderRadius: '9999px',
+          padding: isMobile ? '0.25rem 0.3rem 0.25rem 0.75rem' : '0.35rem 0.4rem 0.35rem 1rem',
+          boxShadow: isListening ? '0 0 15px rgba(239, 68, 68, 0.25)' : '0 6px 20px rgba(37, 99, 235, 0.1)'
         }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            background: '#ffffff',
-            border: isListening ? '2px solid #ef4444' : '1.5px solid #2563eb',
-            borderRadius: '9999px',
-            padding: isMobile ? '0.25rem 0.3rem 0.25rem 0.75rem' : '0.35rem 0.4rem 0.35rem 1rem',
-            boxShadow: isListening ? '0 0 15px rgba(239, 68, 68, 0.25)' : '0 6px 20px rgba(37, 99, 235, 0.1)'
-          }}>
-            <Sparkles style={{ width: isMobile ? '16px' : '20px', height: isMobile ? '16px' : '20px', color: '#2563eb', flexShrink: 0, marginRight: '0.35rem' }} />
+          <Sparkles style={{ width: isMobile ? '16px' : '20px', height: isMobile ? '16px' : '20px', color: '#2563eb', flexShrink: 0, marginRight: '0.35rem' }} />
 
-            <input
-              type="text"
-              value={promptText}
-              onChange={(e) => setPromptText(e.target.value)}
-              placeholder={isListening ? (t.voiceListening || '말씀하세요... 🎧 (음성 인식 중)') : (t.aiPromptPlaceholder || '어디로 떠나고 싶으신가요? 💬')}
-              style={{
-                width: '100%',
-                background: 'transparent',
-                border: 'none',
-                outline: 'none',
-                color: '#0f172a',
-                fontSize: isMobile ? '0.82rem' : '0.9rem',
-                fontWeight: 600,
-                padding: isMobile ? '0.35rem 0' : '0.5rem 0'
-              }}
-            />
+          <input
+            type="text"
+            value={promptText}
+            onChange={(e) => setPromptText(e.target.value)}
+            placeholder={isListening ? (t.voiceListening || '말씀하세요... 🎧 (음성 인식 중)') : (t.aiPromptPlaceholder || '어디로 떠나고 싶으신가요? 💬 (Enter 키 전송)')}
+            style={{
+              width: '100%',
+              background: 'transparent',
+              border: 'none',
+              outline: 'none',
+              color: '#0f172a',
+              fontSize: isMobile ? '0.82rem' : '0.9rem',
+              fontWeight: 600,
+              padding: isMobile ? '0.35rem 0' : '0.5rem 0'
+            }}
+          />
 
-            {promptText && promptText.length > 0 && (
-              <button
-                type="button"
-                onClick={() => setPromptText('')}
-                title="검색어 지우기 ✕"
-                style={{
-                  width: isMobile ? '28px' : '32px',
-                  height: isMobile ? '28px' : '32px',
-                  borderRadius: '9999px',
-                  border: 'none',
-                  background: '#f1f5f9',
-                  color: '#64748b',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  flexShrink: 0,
-                  marginRight: '0.25rem'
-                }}
-              >
-                <X style={{ width: isMobile ? '13px' : '14px', height: isMobile ? '13px' : '14px' }} />
-              </button>
-            )}
-
-            {isSpeechSupported && (
-              <button
-                type="button"
-                onClick={toggleListening}
-                title={t.voiceBtnTooltip || '음성 인식 시작 🎙️'}
-                style={{
-                  width: isMobile ? '30px' : '36px',
-                  height: isMobile ? '30px' : '36px',
-                  borderRadius: '9999px',
-                  border: 'none',
-                  background: isListening ? '#ef4444' : '#f1f5f9',
-                  color: isListening ? '#ffffff' : '#475569',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  flexShrink: 0,
-                  marginRight: '0.35rem'
-                }}
-              >
-                {isListening ? <MicOff style={{ width: isMobile ? '14px' : '16px', height: isMobile ? '14px' : '16px' }} /> : <Mic style={{ width: isMobile ? '14px' : '16px', height: isMobile ? '14px' : '16px' }} />}
-              </button>
-            )}
-
-            {/* Button 1: 💬 AI 대화 (Expands Hero Card Inline) */}
-            <button
-              type="submit"
-              title="AI 컨시어지 1:1 대화하기 💬"
-              style={{
-                padding: isMobile ? '0.35rem 0.65rem' : '0.45rem 0.85rem',
-                borderRadius: '9999px',
-                background: '#eff6ff',
-                color: '#2563eb',
-                fontWeight: 800,
-                fontSize: isMobile ? '0.74rem' : '0.8rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.3rem',
-                cursor: 'pointer',
-                flexShrink: 0,
-                marginRight: '0.3rem',
-                border: '1px solid #bfdbfe'
-              }}
-            >
-              <MessageSquare style={{ width: isMobile ? '13px' : '15px', height: isMobile ? '13px' : '15px' }} />
-              <span>대화</span>
-            </button>
-
-            {/* Button 2: ✨ 코스 추천 (Directly queries and opens full 5-day Itinerary Map Modal) */}
+          {promptText && promptText.length > 0 && (
             <button
               type="button"
-              onClick={handleDirectCourseGeneration}
-              title="AI 5일치 코스 지도 모달 생성 ✨"
+              onClick={() => setPromptText('')}
+              title="검색어 지우기 ✕"
               style={{
-                padding: isMobile ? '0.35rem 0.75rem' : '0.45rem 0.95rem',
+                width: isMobile ? '28px' : '32px',
+                height: isMobile ? '28px' : '32px',
                 borderRadius: '9999px',
                 border: 'none',
-                background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
-                color: '#ffffff',
-                fontWeight: 800,
-                fontSize: isMobile ? '0.74rem' : '0.8rem',
+                background: '#f1f5f9',
+                color: '#64748b',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.3rem',
+                justifyContent: 'center',
                 cursor: 'pointer',
                 flexShrink: 0,
-                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)'
+                marginRight: '0.25rem'
               }}
             >
-              <Sparkles style={{ width: isMobile ? '13px' : '15px', height: isMobile ? '13px' : '15px' }} />
-              <span>코스 추천</span>
+              <X style={{ width: isMobile ? '13px' : '14px', height: isMobile ? '13px' : '14px' }} />
             </button>
-          </div>
-        </form>
-      </div>
-    </>
+          )}
+
+          {isSpeechSupported && (
+            <button
+              type="button"
+              onClick={toggleListening}
+              title={t.voiceBtnTooltip || '음성 인식 시작 🎙️'}
+              style={{
+                width: isMobile ? '30px' : '36px',
+                height: isMobile ? '30px' : '36px',
+                borderRadius: '9999px',
+                border: 'none',
+                background: isListening ? '#ef4444' : '#f1f5f9',
+                color: isListening ? '#ffffff' : '#475569',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                flexShrink: 0,
+                marginRight: '0.35rem'
+              }}
+            >
+              {isListening ? <MicOff style={{ width: isMobile ? '14px' : '16px', height: isMobile ? '14px' : '16px' }} /> : <Mic style={{ width: isMobile ? '14px' : '16px', height: isMobile ? '14px' : '16px' }} />}
+            </button>
+          )}
+
+          {/* Button 1: 💬 AI 대화 / 대화 펼치기 (Supports Enter key submit & restores chat history) */}
+          <button
+            type="submit"
+            title="AI 컨시어지 1:1 대화하기 💬 (Enter 키)"
+            style={{
+              padding: isMobile ? '0.35rem 0.65rem' : '0.45rem 0.85rem',
+              borderRadius: '9999px',
+              background: (!isInlineChatExpanded && hasExistingHistory) ? '#dbeafe' : '#eff6ff',
+              color: '#2563eb',
+              fontWeight: 800,
+              fontSize: isMobile ? '0.74rem' : '0.8rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.3rem',
+              cursor: 'pointer',
+              flexShrink: 0,
+              marginRight: '0.3rem',
+              border: '1px solid #bfdbfe'
+            }}
+          >
+            <MessageSquare style={{ width: isMobile ? '13px' : '15px', height: isMobile ? '13px' : '15px' }} />
+            <span>{(!isInlineChatExpanded && hasExistingHistory) ? '대화 펼치기' : '대화'}</span>
+          </button>
+
+          {/* Button 2: ✨ 코스 추천 (Directly queries and opens full 5-day Itinerary Map Modal) */}
+          <button
+            type="button"
+            onClick={handleDirectCourseGeneration}
+            title="AI 5일치 코스 지도 모달 생성 ✨"
+            style={{
+              padding: isMobile ? '0.35rem 0.75rem' : '0.45rem 0.95rem',
+              borderRadius: '9999px',
+              border: 'none',
+              background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+              color: '#ffffff',
+              fontWeight: 800,
+              fontSize: isMobile ? '0.74rem' : '0.8rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.3rem',
+              cursor: 'pointer',
+              flexShrink: 0,
+              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)'
+            }}
+          >
+            <Sparkles style={{ width: isMobile ? '13px' : '15px', height: isMobile ? '13px' : '15px' }} />
+            <span>코스 추천</span>
+          </button>
+        </div>
+      </form>
+    </div>
   );
 }
