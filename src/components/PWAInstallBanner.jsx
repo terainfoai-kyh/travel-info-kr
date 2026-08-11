@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Smartphone, Download, X, Share, PlusSquare, Sparkles } from 'lucide-react';
+import { Smartphone, Download, X, Share, Monitor, Sparkles } from 'lucide-react';
 
 const PWA_I18N = {
   ko: {
@@ -7,8 +7,13 @@ const PWA_I18N = {
     bannerDesc: '바탕화면에 추가하고 터치 한 번으로 빠르게 접속하세요!',
     badgeNew: 'NEW',
     installBtn: '바로가기 추가',
-    guideModalTitle: '핸드폰 홈 화면에 추가하는 방법',
-    guideModalSub: '카카오톡이나 브라우저를 매번 열 필요 없이, 스마트폰 홈 화면(바탕화면)에 1초 만에 바로가기 앱을 추가해 보세요!',
+    desktopTitle: '💻 PC 데스크톱 전용 앱 설치',
+    desktopDesc: '주소창 없이 독립 창으로 1초 만에 깔끔하게 실행하세요!',
+    desktopInstallBtn: '앱 설치하기',
+    guideModalTitle: '홈 화면에 추가하는 방법',
+    guideModalSub: '스마트폰 홈 화면(바탕화면)에 1초 만에 바로가기 앱을 추가해 보세요!',
+    desktopGuideModalTitle: 'PC 데스크톱 앱 설치 방법',
+    desktopGuideModalSub: '브라우저 주소창 우측의 [앱 설치] 아이콘(💻)을 클릭하시거나 아래 버튼을 누르시면 전용 창으로 바로 실행됩니다!',
     step1Title: '1. 브라우저 메뉴 열기',
     step1DescKakao: '카카오톡 우측 하단 (⋮ 또는 ⚙️) ➔ "다른 브라우저로 열기" 선택 후',
     step1DescGeneral: '하단/상단 브라우저 공유 또는 설정 메뉴 터치',
@@ -22,8 +27,13 @@ const PWA_I18N = {
     bannerDesc: 'Add shortcut to home screen for 1-tap fast access!',
     badgeNew: 'NEW',
     installBtn: 'Add Shortcut',
+    desktopTitle: '💻 Install Desktop App',
+    desktopDesc: 'Run in standalone desktop window with 1-click!',
+    desktopInstallBtn: 'Install App',
     guideModalTitle: 'How to Add to Home Screen',
-    guideModalSub: 'Access K-Travel instantly from your smartphone home screen without opening browser links every time!',
+    guideModalSub: 'Access K-Travel instantly from your smartphone home screen!',
+    desktopGuideModalTitle: 'How to Install Desktop App',
+    desktopGuideModalSub: 'Click the install icon in your browser address bar or click Install to run in standalone desktop window!',
     step1Title: '1. Open Browser Menu',
     step1DescKakao: 'In KakaoTalk, select (⋮) ➔ "Open in External Browser"',
     step1DescGeneral: 'Tap Share or Menu icon in your mobile browser',
@@ -36,11 +46,16 @@ const PWA_I18N = {
     bannerTitle: '📱 ホーム画面に追加',
     bannerDesc: 'ホーム画面に追加してワンタップで即アクセス！',
     badgeNew: 'NEW',
-    installBtn: '追加する',
+    installBtn: '追加하는',
+    desktopTitle: '💻 PCデスクトップアプリをインストール',
+    desktopDesc: 'アドレスバーなしの専用ウィンドウで1秒起動！',
+    desktopInstallBtn: 'アプリをインストール',
     guideModalTitle: 'ホーム画面への追加方法',
-    guideModalSub: '毎回ブラウザを開く必要なく、スマホのホーム画面から1タップでアクセスできます！',
+    guideModalSub: 'スマホのホーム画面から1タップでアクセスできます！',
+    desktopGuideModalTitle: 'PCアプリのインストール方法',
+    desktopGuideModalSub: 'アドレスバー右側のインストールアイコンをクリックして専用ウィンドウで起動できます！',
     step1Title: '1. ブラウザメニューを開く',
-    step1DescKakao: 'カカ오トーク右下 (⋮) ➔ "他のブラウザで開く" を選択',
+    step1DescKakao: 'カカオトーク右下 (⋮) ➔ "他のブラウザで開く" を選択',
     step1DescGeneral: 'ブラウザの共有または menu アイコンをタップ',
     step2Title: '2. "ホーム画面に追加" を選択',
     step2DescIOS: 'iPhone: 共有 (📤) ➔ "ホーム画面に追加 (➕)"',
@@ -52,8 +67,13 @@ const PWA_I18N = {
     bannerDesc: '添加快捷方式，主屏幕一键快速访问！',
     badgeNew: 'NEW',
     installBtn: '添加快捷方式',
+    desktopTitle: '💻 安装 PC 桌面应用',
+    desktopDesc: '无地址栏独立窗口，一键快速运行！',
+    desktopInstallBtn: '安装应用',
     guideModalTitle: '如何添加至手机主屏幕',
-    guideModalSub: '无需每次打开浏览器，主屏幕一键直达 Korea Travel 快捷应用！',
+    guideModalSub: '主屏幕一键直达 Korea Travel 快捷应用！',
+    desktopGuideModalTitle: '如何安装 PC 桌面应用',
+    desktopGuideModalSub: '点击浏览器地址栏右侧的安装图标，即可作为独立桌面应用运行！',
     step1Title: '1. 打开浏览器菜单',
     step1DescKakao: 'KakaoTalk 右下角 (⋮) ➔ 选择"用其他浏览器打开"',
     step1DescGeneral: '点击浏览器下方或右上角分享/菜单图标',
@@ -67,8 +87,13 @@ const PWA_I18N = {
     bannerDesc: '新增快捷方式，主畫面一鍵快速訪問！',
     badgeNew: 'NEW',
     installBtn: '新增快捷方式',
+    desktopTitle: '💻 安裝 PC 桌面應用',
+    desktopDesc: '無地址欄獨立視窗，一鍵快速運行！',
+    desktopInstallBtn: '安裝應用',
     guideModalTitle: '如何新增至手機主畫面',
-    guideModalSub: '無需每次打開瀏覽器，主畫面一鍵直達 Korea Travel 快捷應用！',
+    guideModalSub: '主畫面一鍵直達 Korea Travel 快捷應用！',
+    desktopGuideModalTitle: '如何安裝 PC 桌面應用',
+    desktopGuideModalSub: '點擊瀏覽器地址欄右側的安裝圖標，即可作為獨立桌面應用運行！',
     step1Title: '1. 打開瀏覽器菜單',
     step1DescKakao: 'KakaoTalk 右下角 (⋮) ➔ 選擇"用其他瀏覽器打開"',
     step1DescGeneral: '點擊瀏覽器下方或右上角分享/菜單圖標',
@@ -82,8 +107,13 @@ const PWA_I18N = {
     bannerDesc: 'Mit 1-Klick direkt vom Startbildschirm zugreifen!',
     badgeNew: 'NEU',
     installBtn: 'Hinzufügen',
+    desktopTitle: '💻 Desktop-App installieren',
+    desktopDesc: 'Im eigenen Fenster ohne Adressleiste ausführen!',
+    desktopInstallBtn: 'App installieren',
     guideModalTitle: 'Zum Startbildschirm hinzufügen',
-    guideModalSub: 'Greifen Sie mit 1 Klick direkt von Ihrem Smartphone-Startbildschirm zu!',
+    guideModalSub: 'Greifen Sie mit 1 Klick direkt von Ihrem Startbildschirm zu!',
+    desktopGuideModalTitle: 'Desktop-App installieren',
+    desktopGuideModalSub: 'Klicken Sie auf das Installationssymbol in der Adressleiste!',
     step1Title: '1. Browser-Menü öffnen',
     step1DescKakao: 'In KakaoTalk (⋮) ➔ "In externem Browser öffnen"',
     step1DescGeneral: 'Tippen Sie im Browser auf Teilen/Menü',
@@ -97,8 +127,13 @@ const PWA_I18N = {
     bannerDesc: 'Ajoutez un raccourci pour un accès rapide en 1 clic !',
     badgeNew: 'NOUVEAU',
     installBtn: 'Ajouter',
+    desktopTitle: '💻 Installer l\'application Desktop',
+    desktopDesc: 'Exécutez dans une fenêtre dédiée sans barre d\'adresse !',
+    desktopInstallBtn: 'Installer l\'application',
     guideModalTitle: 'Ajouter à l\'écran d\'accueil',
     guideModalSub: 'Accédez instantanément à K-Travel depuis votre écran d\'accueil !',
+    desktopGuideModalTitle: 'Installer l\'application Desktop',
+    desktopGuideModalSub: 'Cliquez sur l\'icône d\'installation dans la barre d\'adresse !',
     step1Title: '1. Ouvrir le menu du navigateur',
     step1DescKakao: 'Dans KakaoTalk (⋮) ➔ "Ouvrir dans le navigateur"',
     step1DescGeneral: 'Appuyez sur Partager ou Menu dans votre navigateur',
@@ -112,8 +147,13 @@ const PWA_I18N = {
     bannerDesc: '¡Añade un acceso directo para acceder en 1 toque!',
     badgeNew: 'NUEVO',
     installBtn: 'Añadir',
+    desktopTitle: '💻 Instalar aplicación de escritorio',
+    desktopDesc: '¡Ejecútala en una ventana dedicada sin barra de direcciones!',
+    desktopInstallBtn: 'Instalar aplicación',
     guideModalTitle: 'Añadir a la pantalla de inicio',
-    guideModalSub: 'Accede al instante a K-Travel desde la pantalla de inicio de tu smartphone.',
+    guideModalSub: 'Accede al instante a K-Travel desde la pantalla de inicio.',
+    desktopGuideModalTitle: 'Instalar aplicación de escritorio',
+    desktopGuideModalSub: '¡Haz clic en el icono de instalación de la barra de direcciones!',
     step1Title: '1. Abrir menú del navegador',
     step1DescKakao: 'En KakaoTalk (⋮) ➔ "Abrir en navegador externo"',
     step1DescGeneral: 'Toca Compartir o Menú en tu navegador',
@@ -127,8 +167,13 @@ const PWA_I18N = {
     bannerDesc: 'Быстрый доступ в 1 касание с главного экрана!',
     badgeNew: 'NEW',
     installBtn: 'Добавить',
+    desktopTitle: '💻 Установить приложение для ПК',
+    desktopDesc: 'Запуск в отдельном окне без адресной строки!',
+    desktopInstallBtn: 'Установить',
     guideModalTitle: 'Как добавить на экран «Домой»',
-    guideModalSub: 'Мгновенный доступ к K-Travel прямо с экрана смартфона без поиска ссылок!',
+    guideModalSub: 'Мгновенный доступ к K-Travel прямо с экрана смартфона!',
+    desktopGuideModalTitle: 'Как установить приложение для ПК',
+    desktopGuideModalSub: 'Нажмите иконку установки в адресной строке браузера!',
     step1Title: '1. Откройте меню браузера',
     step1DescKakao: 'В KakaoTalk (⋮) ➔ "Открыть в браузере"',
     step1DescGeneral: 'Нажмите иконку Поделиться или Меню',
@@ -143,12 +188,12 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
   const t = PWA_I18N[lang] || PWA_I18N.ko;
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showBanner, setShowBanner] = useState(false);
-  const [showIOSGuide, setShowIOSGuide] = useState(false);
+  const [showGuideModal, setShowGuideModal] = useState(false);
   const [isKakaoInApp, setIsKakaoInApp] = useState(false);
-  const [isIOS, setIsIOS] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
 
   useEffect(() => {
-    // 1. Check if user is already running in Standalone PWA Mode (opened from Home Screen App Icon)
+    // 1. Check if user is already running in Standalone PWA Mode (opened from Home Screen / Desktop App Icon)
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
       || window.navigator.standalone === true 
       || document.referrer.includes('android-app://');
@@ -161,12 +206,11 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
     const ua = (navigator.userAgent || '').toLowerCase();
     const isMobileDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini|mobile|kakaotalk/i.test(ua) || window.innerWidth <= 1024;
     const kakao = ua.includes('kakaotalk');
-    const ios = ua.includes('iphone') || ua.includes('ipad') || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
     setIsKakaoInApp(kakao);
-    setIsIOS(ios);
+    setIsDesktop(!isMobileDevice);
 
-    // 2. Check dismissal with 24-hour expiration so real mobile testing is smooth
+    // 2. Check dismissal with 24-hour expiration check
     const dismissedTimestamp = localStorage.getItem('ktravel_pwa_banner_dismissed_at');
     if (dismissedTimestamp) {
       const pastHours = (Date.now() - parseInt(dismissedTimestamp, 10)) / (1000 * 60 * 60);
@@ -175,7 +219,7 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
       }
     }
 
-    // 3. Listen for Chrome/Android/Samsung PWA install prompt
+    // 3. Listen for Chrome/Android/Samsung/Edge PWA install prompt
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
@@ -192,10 +236,8 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     window.addEventListener('appinstalled', handleAppInstalled);
 
-    // If on real mobile device or mobile viewport, show banner
-    if (isMobileDevice) {
-      setShowBanner(true);
-    }
+    // Show banner for both desktop PC and mobile
+    setShowBanner(true);
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -214,8 +256,7 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
         window.location.href = chromeIntent;
         return;
       }
-      // iOS KakaoTalk guide modal
-      setShowIOSGuide(true);
+      setShowGuideModal(true);
       return;
     }
 
@@ -227,7 +268,7 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
       }
       setDeferredPrompt(null);
     } else {
-      setShowIOSGuide(true);
+      setShowGuideModal(true);
     }
   };
 
@@ -238,9 +279,15 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
 
   if (!showBanner) return null;
 
+  const currentTitle = isDesktop ? t.desktopTitle : t.bannerTitle;
+  const currentDesc = isDesktop ? t.desktopDesc : t.bannerDesc;
+  const currentBtnLabel = isKakaoInApp 
+    ? (lang === 'ko' ? '크롬/삼성인터넷 열기' : t.installBtn)
+    : (isDesktop ? t.desktopInstallBtn : t.installBtn);
+
   return (
     <>
-      {/* Floating PWA Shortcut Banner - Compact 320px+ Responsive Layout */}
+      {/* Floating Smart PWA Shortcut Banner - PC & Mobile Dual Support */}
       <div 
         className="animate-fade-in"
         style={{
@@ -248,7 +295,7 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
           bottom: '1.15rem',
           left: '0.75rem',
           right: '0.75rem',
-          maxWidth: '480px',
+          maxWidth: '520px',
           margin: '0 auto',
           zIndex: 9999,
           background: 'rgba(15, 23, 42, 0.96)',
@@ -273,14 +320,14 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
           <div style={{ minWidth: 0, flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
               <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#38bdf8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {t.bannerTitle}
+                {currentTitle}
               </span>
               <span style={{ background: '#f59e0b', color: '#000', fontSize: '0.6rem', fontWeight: 900, padding: '0.05rem 0.3rem', borderRadius: '3px', flexShrink: 0 }}>
                 {t.badgeNew}
               </span>
             </div>
             <p style={{ fontSize: '0.72rem', color: '#cbd5e1', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {t.bannerDesc}
+              {currentDesc}
             </p>
           </div>
         </div>
@@ -304,8 +351,8 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
               boxShadow: '0 2px 8px rgba(37, 99, 235, 0.4)'
             }}
           >
-            <Download size={13} />
-            <span>{isKakaoInApp ? (lang === 'ko' ? '크롬/삼성인터넷 열기' : t.installBtn) : t.installBtn}</span>
+            {isDesktop ? <Monitor size={13} /> : <Download size={13} />}
+            <span>{currentBtnLabel}</span>
           </button>
 
           <button
@@ -330,9 +377,9 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
         </div>
       </div>
 
-      {/* iOS / Mobile Home Screen Shortcut Guide Modal */}
-      {showIOSGuide && (
-        <div className="modal-overlay-backdrop" onClick={() => setShowIOSGuide(false)} style={{ zIndex: 10000 }}>
+      {/* PC Desktop & Mobile PWA Guide Modal */}
+      {showGuideModal && (
+        <div className="modal-overlay-backdrop" onClick={() => setShowGuideModal(false)} style={{ zIndex: 10000 }}>
           <div 
             className="animate-fade-in glass-panel"
             style={{
@@ -350,15 +397,17 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
                 <img src="/pwa-192x192.png" alt="Travel Korea" style={{ width: '30px', height: '30px', borderRadius: '8px' }} />
-                <h3 style={{ fontSize: '1rem', fontWeight: 800, margin: 0 }}>{t.guideModalTitle}</h3>
+                <h3 style={{ fontSize: '1rem', fontWeight: 800, margin: 0 }}>
+                  {isDesktop ? t.desktopGuideModalTitle : t.guideModalTitle}
+                </h3>
               </div>
-              <button onClick={() => setShowIOSGuide(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+              <button onClick={() => setShowGuideModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
                 <X size={20} />
               </button>
             </div>
 
             <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: 1.55, marginBottom: '1.15rem' }}>
-              {t.guideModalSub}
+              {isDesktop ? t.desktopGuideModalSub : t.guideModalSub}
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.35rem' }}>
@@ -367,7 +416,7 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
                 <div>
                   <div style={{ fontWeight: 700, fontSize: '0.83rem' }}>{t.step1Title}</div>
                   <div style={{ fontSize: '0.76rem', color: 'var(--text-muted)' }}>
-                    {isKakaoInApp ? t.step1DescKakao : t.step1DescGeneral}
+                    {isDesktop ? '크롬/엣지 주소창 우측 상단 [앱 설치 (💻)] 아이콘 터치' : (isKakaoInApp ? t.step1DescKakao : t.step1DescGeneral)}
                   </div>
                 </div>
               </div>
@@ -376,14 +425,15 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
                 <div style={{ background: 'var(--accent-primary)', color: '#fff', fontWeight: 900, borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', flexShrink: 0 }}>2</div>
                 <div>
                   <div style={{ fontWeight: 700, fontSize: '0.83rem' }}>{t.step2Title}</div>
-                  <div style={{ fontSize: '0.76rem', color: 'var(--text-muted)' }}>{t.step2DescIOS}</div>
-                  <div style={{ fontSize: '0.76rem', color: 'var(--text-muted)' }}>{t.step2DescAndroid}</div>
+                  <div style={{ fontSize: '0.76rem', color: 'var(--text-muted)' }}>
+                    {isDesktop ? '설치 클릭 ➔ 데스크톱 바탕화면 및 작업표시줄 단독 앱 생성' : t.step2DescIOS}
+                  </div>
                 </div>
               </div>
             </div>
 
             <button
-              onClick={() => setShowIOSGuide(false)}
+              onClick={() => setShowGuideModal(false)}
               className="btn-primary"
               style={{ width: '100%', padding: '0.6rem', fontSize: '0.85rem', fontWeight: 800 }}
             >
