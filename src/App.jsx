@@ -285,6 +285,15 @@ export default function App() {
                 lang
               });
 
+              // Fallback if targetKeyword returned 0 spots (e.g. demographic words like '50대')
+              if ((!fetchedSpots || fetchedSpots.length === 0) && targetKeyword) {
+                fetchedSpots = await fetchTourSpots({
+                  ...newFilters,
+                  keyword: '',
+                  lang
+                });
+              }
+
               // Pinpoint TourAPI Keyword Search for User Mentioned Landmarks (e.g. "화성행궁", "방화수류정", "명동")
               if (parsed.userLandmarks && parsed.userLandmarks.length > 0) {
                 const pinpointSpots = await fetchPinpointLandmarkSpots(parsed.userLandmarks, lang);
@@ -314,8 +323,7 @@ export default function App() {
               console.error('Error fetching itinerary spots:', err);
             } finally {
               setIsLoading(false);
-              // CRITICAL: Only open itinerary modal if matching spots exist! If 0 items, remain on main screen with 0-item message!
-              if (fetchedSpots && fetchedSpots.length > 0) {
+              if ((fetchedSpots && fetchedSpots.length > 0) || fullAiResult) {
                 setIsItineraryOpen(true);
               } else {
                 setIsItineraryOpen(false);
