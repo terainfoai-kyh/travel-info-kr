@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Sparkles, Send, Mic, MicOff, X, Compass, MapPin, Calendar, Heart, MessageSquare, RefreshCw, Shirt, Utensils, CloudSun, Hotel } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
 import { geminiParseNaturalPrompt, geminiGenerateFullItinerary } from '../services/geminiNlpService';
@@ -11,6 +12,13 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
   const [isGenerating, setIsGenerating] = useState(false);
   const chatEndRef = useRef(null);
 
+  // Sync inputText when initialPrompt changes
+  useEffect(() => {
+    if (initialPrompt) {
+      setInputText(initialPrompt);
+    }
+  }, [initialPrompt]);
+
   // Initialize welcoming greeting
   useEffect(() => {
     if (isOpen && messages.length === 0) {
@@ -22,15 +30,15 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
         suggestionChips: getSuggestionChips(lang)
       };
       setMessages([welcomeBubble]);
+
+      // Automatically process initial prompt if passed from header
+      if (initialPrompt && initialPrompt.trim().length > 0) {
+        setTimeout(() => {
+          handleSendMessage(initialPrompt);
+        }, 150);
+      }
     }
   }, [isOpen, lang]);
-
-  // Handle initial prompt passed from search header
-  useEffect(() => {
-    if (initialPrompt && isOpen && messages.length === 1) {
-      handleSendMessage(initialPrompt);
-    }
-  }, [initialPrompt, isOpen]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -41,7 +49,7 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
       case 'en': return "Hello! I am your AI Travel Concierge for Korea. 🇰🇷 Where would you like to travel? Feel free to ask like '1st day Suwon -> 2nd day Myeongdong' or 'I am in my 50s planning a 3-day family trip'!";
       case 'ja': return "こんにちは！韓国旅行AIコンシェルジュです。🇰🇷 どこへ旅行したいですか？「1日目水原→2日目明洞」や「50代家族旅行3泊4日」など気軽にお尋ねください！";
       case 'zh': return "您好！我是您的韩国旅游AI管家。🇰🇷 想去哪里旅行？您可以随时告诉我，如“第1天水原->第2天明洞”或“50多岁家庭3天4夜游”！";
-      case 'zht': return "您好！我是您的韓國旅遊AI管家。🇰🇷 想去哪裡旅行？您可以隨時告訴我，如「第1天水原->第2天明洞」或「50多歲家庭3天4夜遊」！";
+      case 'zht': return "您好！我是您的韓國旅遊AI管家。🇰🇷 想去哪裡旅行？您可以隨時告訴我，如「第1天水原->第2天明동」或「50多歲家庭3天4夜遊」！";
       case 'de': return "Hallo! Ich bin Ihr Korea-Reise-AI-Concierge. 🇰🇷 Wohin möchten Sie reisen?";
       case 'fr': return "Bonjour! Je suis votre concierge de voyage IA pour la Corée. 🇰🇷 Où souhaitez-vous voyager?";
       case 'es': return "¡Hola! Soy tu asistente de viajes de IA para Corea. 🇰🇷 ¿A dónde te gustaría viajar?";
@@ -152,15 +160,15 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
 
   if (!isOpen) return null;
 
-  return (
+  const modalContent = (
     <div style={{
       position: 'fixed',
       inset: 0,
-      zIndex: 999999,
+      zIndex: 9999999,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      background: 'rgba(15, 23, 42, 0.55)',
+      background: 'rgba(15, 23, 42, 0.65)',
       backdropFilter: 'blur(8px)',
       padding: '1rem'
     }}>
@@ -173,7 +181,7 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
         height: '82vh',
         display: 'flex',
         flexDirection: 'column',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
         overflow: 'hidden'
       }}>
         {/* Chat Window Header */}
@@ -324,7 +332,7 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
                   {msg.itinerarySummary && (
                     <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid #f1f5f9' }}>
                       <div style={{ background: '#f1f5f9', borderRadius: '12px', padding: '0.85rem', border: '1px solid #e2e8f0' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyBetween: 'space-between', marginBottom: '0.5rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                           <h4 style={{ fontSize: '0.82rem', fontWeight: 800, color: '#1e40af', margin: 0, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                             <Compass size={15} />
                             <span>{msg.itinerarySummary.title}</span>
@@ -336,7 +344,7 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                           {msg.itinerarySummary.dailySchedules?.map((ds, idx) => (
-                            <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyBetween: 'space-between', fontSize: '0.75rem', padding: '0.25rem 0', borderBottom: '1px solid #e2e8f0' }}>
+                            <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.75rem', padding: '0.25rem 0', borderBottom: '1px solid #e2e8f0' }}>
                               <span style={{ fontWeight: 700, color: '#1e293b' }}>{ds.dateLabel || `${ds.day}일차 - ${ds.city}`}</span>
                               <span style={{ color: '#64748b' }}>{ds.spots?.length || 4}개 명소 (좌표100% 매칭)</span>
                             </div>
@@ -468,4 +476,6 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }
