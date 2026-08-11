@@ -336,29 +336,32 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
             border: themeMode === 'light' ? '1px solid #cbd5e1' : '1px solid rgba(255, 255, 255, 0.15)',
             boxSizing: 'border-box'
           }}>
-            <button
-              onClick={() => {
-                window.dispatchEvent(new CustomEvent('open-pwa-install-modal'));
-                setIsMenuOpen(false);
-              }}
-              style={{
-                background: 'linear-gradient(135deg, #0284c7, #2563eb)',
-                border: 'none',
-                color: '#ffffff',
-                padding: '0.35rem 0.75rem',
-                borderRadius: 'var(--radius-md)',
-                fontSize: '0.78rem',
-                fontWeight: 800,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.35rem',
-                boxShadow: '0 2px 8px rgba(37, 99, 235, 0.3)'
-              }}
-            >
-              <Download size={14} color="#ffffff" />
-              <span>{isMobile ? (t.installAppBtnShort || '앱 설치') : (t.installAppBtn || '💻 앱 설치')}</span>
-            </button>
+            {/* Mobile-Only App Install Button in Slide Menu (Prevents Desktop Menu Duplication) */}
+            {isMobile && (
+              <button
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent('open-pwa-install-modal'));
+                  setIsMenuOpen(false);
+                }}
+                style={{
+                  background: 'linear-gradient(135deg, #0284c7, #2563eb)',
+                  border: 'none',
+                  color: '#ffffff',
+                  padding: '0.35rem 0.75rem',
+                  borderRadius: 'var(--radius-md)',
+                  fontSize: '0.78rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.35rem',
+                  boxShadow: '0 2px 8px rgba(37, 99, 235, 0.3)'
+                }}
+              >
+                <Download size={14} color="#ffffff" />
+                <span>{t.installAppBtnShort || '앱 설치'}</span>
+              </button>
+            )}
             <button onClick={onOpenGuidePR} style={{ background: themeMode === 'light' ? 'var(--bg-secondary)' : 'rgba(30, 41, 59, 0.95)', border: themeMode === 'light' ? '1px solid var(--border-highlight)' : '1px solid rgba(56, 189, 248, 0.5)', color: themeMode === 'light' ? 'var(--text-main)' : '#ffffff', padding: '0.35rem 0.7rem', borderRadius: 'var(--radius-md)', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem', transition: 'all 0.2s ease' }}>
               <BookOpen size={14} color={themeMode === 'light' ? 'var(--accent-primary)' : '#38bdf8'} />
               <span>{t.userGuideBtn || '이용가이드 & 홍보관'}</span>
