@@ -315,8 +315,28 @@ export const PROVINCE_ADDR_PREFIXES = [
   { prefix: '세종', key: '세종' }
 ];
 
+const SUB_CITY_TO_PROVINCE_MAP = [
+  { key: '서울', sub: ['서울', '명동', '성수', '홍대', '강남', '종로', '잠실', '이태원', '신촌', '여의도', 'seoul', 'myeongdong', 'seongsu'] },
+  { key: '경기', sub: ['경기', '수원', '파주', '용인', '성남', '분당', '가평', '고양', '일산', '부천', '안양', '화성', '동탄', 'suwon', 'paju'] },
+  { key: '인천', sub: ['인천', '송도', '영종도', '강화도', '차이나타운', 'incheon', 'songdo'] },
+  { key: '강원', sub: ['강원', '강릉', '속초', '양양', '춘천', '평창', '설악산', 'gangneung', 'sokcho', 'gangwon'] },
+  { key: '부산', sub: ['부산', '해운대', '광안리', '서면', '영도', '기장', 'busan', 'haeundae'] },
+  { key: '제주', sub: ['제주', '서귀포', '애월', '성산', '중문', '우도', 'jeju', 'seogwipo'] },
+  { key: '전북', sub: ['전북', '전주', '전주한옥', '군산', '익산', 'jeonju'] },
+  { key: '경북', sub: ['경북', '경주', '포항', '안동', 'gyeongju'] },
+  { key: '전남', sub: ['전남', '여수', '순천', '목포', 'yeosu'] },
+  { key: '경남', sub: ['경남', '통영', '거제', '창원', '남해'] }
+];
+
 export function getSpotProvinceKey(spot) {
   if (!spot) return '서울';
+
+  const searchStr = `${spot.region || ''} ${spot.location || ''} ${spot.addr1 || ''} ${spot.title || ''}`.trim().toLowerCase();
+  for (const item of SUB_CITY_TO_PROVINCE_MAP) {
+    if (item.sub.some(s => searchStr.includes(s.toLowerCase()))) {
+      return item.key;
+    }
+  }
 
   // Layer 1: Check 5-digit Korean Zipcode (zipcode)
   if (spot.zipcode) {
@@ -617,7 +637,14 @@ export function generateSmartItinerary({
       const activeProvKey = getSpotProvinceKey({ region: dayActiveCity, location: dayActiveCity });
       if (activeProvKey && activeProvKey !== '한국') {
         targetProvince = activeProvKey;
-        provincePool = REGION_PRESETS[activeProvKey] || pool;
+        const apiProvSpots = spots.filter(s => getSpotProvinceKey(s) === activeProvKey);
+        if (apiProvSpots.length >= 3) {
+          provincePool = apiProvSpots;
+        } else {
+          provincePool = (REGION_PRESETS[activeProvKey] && REGION_PRESETS[activeProvKey].length > 0)
+            ? REGION_PRESETS[activeProvKey]
+            : pool;
+        }
       }
     } else if (region === '전국' || region === '전체') {
       const firstSpotRegion = spots[0] ? getSpotProvinceKey(spots[0]) : '';
