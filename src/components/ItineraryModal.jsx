@@ -163,6 +163,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
         daySeeds,
         rainyMode,
         refreshSeed,
+        nightKeyword: filters?.nightKeyword || '',
         spots
       });
 

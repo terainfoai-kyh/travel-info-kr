@@ -32,10 +32,15 @@ export function parseNaturalPrompt(text) {
     { name: '세종', keys: ['세종', 'sejong', '세종시', '세종 특별자치시', '世宗', 'Седжон'] }
   ];
 
+  // Region & Major City Map (Find earliest appearing region in user's prompt text)
+  let earliestRegionIdx = Infinity;
   for (const item of regionMap) {
-    if (item.keys.some(k => raw.toLowerCase().includes(k))) {
-      region = item.name;
-      break;
+    for (const k of item.keys) {
+      const idx = raw.toLowerCase().indexOf(k.toLowerCase());
+      if (idx !== -1 && idx < earliestRegionIdx) {
+        earliestRegionIdx = idx;
+        region = item.name;
+      }
     }
   }
 
@@ -63,7 +68,7 @@ export function parseNaturalPrompt(text) {
     });
   }
 
-  // Detect sub-city keyword (e.g. 성수동, 수원, 강릉, 속초, 여수, 경주, 전주, 통영, 가평, 해운대, 서귀포)
+  // Detect sub-city keyword sorted by EARLIEST appearance index in user's prompt text
   const subCities = [
     '성수동', '성수', '강남', '홍대', '명동', '이태원', '잠실', '종로', '익선동', '연남동', '압구정', '청담',
     '수원', '용인', '성남', '분당', '파주', '가평', '고양', '일산', '부천', '안양', '화성', '동탄', '남양주', '평택', '의정부', '시흥', '김포', '안산', '광명', '행궁동',
@@ -79,15 +84,20 @@ export function parseNaturalPrompt(text) {
     '천안', '아산', '공주', '부여', '보령', '태안', '대천', '안면도'
   ];
 
-  let detectedSubCity = '';
+  const matchedSubCities = [];
   for (const city of subCities) {
-    if (raw.toLowerCase().includes(city)) {
-      detectedSubCity = city;
-      break;
+    const idx = raw.toLowerCase().indexOf(city.toLowerCase());
+    if (idx !== -1) {
+      matchedSubCities.push({ city, idx });
     }
   }
 
-  // Priority for detected sub-city over junk fragments or conjunctions
+  // Sort by appearance position in raw string
+  matchedSubCities.sort((a, b) => a.idx - b.idx);
+
+  let detectedSubCity = matchedSubCities.length > 0 ? matchedSubCities[0].city : '';
+
+  // Priority for earliest detected sub-city over junk fragments or conjunctions
   if (detectedSubCity) {
     cleanKeyword = detectedSubCity;
   } else {
@@ -138,10 +148,10 @@ export default function AIChatPromptHeader({ lang = 'ko', filters, onGenerateIti
   const [headerBottom, setHeaderBottom] = useState(132);
   const recognitionRef = useRef(null);
 
-  // Sync promptText when filters.keyword is reset (e.g. when reset button is clicked)
+  // Sync promptText ONLY when filters.keyword is explicitly reset to empty string
   useEffect(() => {
-    if (filters && filters.keyword !== undefined) {
-      setPromptText(filters.keyword);
+    if (filters && filters.keyword === '') {
+      setPromptText('');
     }
   }, [filters?.keyword]);
 

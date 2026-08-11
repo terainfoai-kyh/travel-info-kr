@@ -468,6 +468,7 @@ export function generateSmartItinerary({
   daySeeds = {},
   rainyMode = false,
   refreshSeed = 0,
+  nightKeyword = '',
   spots = []
 }) {
   const GYEONGBOKGUNG_FALLBACK_IMG = '/default-spot.png';
@@ -673,7 +674,19 @@ export function generateSmartItinerary({
       if (d === 1 && activeSearchSpots[s] && activeSearchSpots[s].title) {
         targetSpot = activeSearchSpots[s];
         globalUsedTitles.add(targetSpot.title.toLowerCase().replace(/\s+/g, ''));
-      } else {
+      } else if (s === targetSlotsCount - 1 && nightKeyword) {
+        // If user specified a night/hotel area (e.g. "명동"), pick a candidate matching nightKeyword for the last night slot
+        const nightMatch = combinedCandidates.find(c => {
+          const txt = `${c.title || ''} ${c.location || ''} ${c.addr1 || ''}`.toLowerCase();
+          return txt.includes(nightKeyword.toLowerCase()) && !globalUsedTitles.has((c.title || '').toLowerCase().replace(/\s+/g, ''));
+        });
+        if (nightMatch) {
+          targetSpot = nightMatch;
+          globalUsedTitles.add(targetSpot.title.toLowerCase().replace(/\s+/g, ''));
+        }
+      }
+
+      if (!targetSpot) {
         // Find first candidate that hasn't been used yet across the entire itinerary
         for (let cIdx = 0; cIdx < combinedCandidates.length; cIdx++) {
           const candidateIdx = ((d - 1) * 4 + s + dSeed + cIdx) % combinedCandidates.length;
