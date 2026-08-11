@@ -210,12 +210,16 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
     setIsKakaoInApp(kakao);
     setIsDesktop(!isMobileDevice);
 
-    // 2. Check dismissal with 24-hour expiration check
-    const dismissedTimestamp = localStorage.getItem('ktravel_pwa_banner_dismissed_at');
-    if (dismissedTimestamp) {
-      const pastHours = (Date.now() - parseInt(dismissedTimestamp, 10)) / (1000 * 60 * 60);
-      if (pastHours < 24 && !window.location.search.includes('pwa=')) {
-        return;
+    // 2. Check dismissal with 24-hour expiration check (Supports ?pwa=reset to force reset)
+    if (window.location.search.includes('pwa=reset')) {
+      localStorage.removeItem('ktravel_pwa_banner_dismissed_at');
+    } else {
+      const dismissedTimestamp = localStorage.getItem('ktravel_pwa_banner_dismissed_at');
+      if (dismissedTimestamp) {
+        const pastHours = (Date.now() - parseInt(dismissedTimestamp, 10)) / (1000 * 60 * 60);
+        if (pastHours < 24 && !window.location.search.includes('pwa=')) {
+          return;
+        }
       }
     }
 
