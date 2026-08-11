@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, Mic, MicOff, ArrowRight, Camera, X } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
+import { geminiParseNaturalPrompt } from '../services/geminiNlpService';
 
 /**
  * Natural language query parser to extract region, days, and clean keywords
@@ -319,18 +320,20 @@ export default function AIChatPromptHeader({ lang = 'ko', filters, onGenerateIti
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     if (e) e.preventDefault();
     if (!promptText.trim()) return;
     if (onGenerateItinerary) {
-      onGenerateItinerary(parseNaturalPrompt(promptText));
+      const parsed = await geminiParseNaturalPrompt(promptText, lang, parseNaturalPrompt);
+      onGenerateItinerary(parsed);
     }
   };
 
-  const handleChipClick = (sampleText) => {
+  const handleChipClick = async (sampleText) => {
     setPromptText(sampleText);
     if (onGenerateItinerary) {
-      onGenerateItinerary(parseNaturalPrompt(sampleText));
+      const parsed = await geminiParseNaturalPrompt(sampleText, lang, parseNaturalPrompt);
+      onGenerateItinerary(parsed);
     }
   };
 
