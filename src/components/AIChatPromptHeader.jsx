@@ -47,9 +47,9 @@ export function parseNaturalPrompt(text) {
     .replace(/\s+/g, ' ')
     .trim();
 
-  // Phase 2: Strip particle suffixes
+  // Phase 2: Strip particle suffixes and conjunctions
   cleanKeyword = cleanKeyword
-    .replace(/(에서|으로|로|에|의|가|는|은|을|를|좀|곳)/gi, ' ')
+    .replace(/(에서|으로|로|에|의|가|는|은|을|를|좀|곳|및|과|와|하고|이랑|또는)/gi, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 
@@ -87,15 +87,15 @@ export function parseNaturalPrompt(text) {
     }
   }
 
-  // Phase 4: Final fragment check. If remaining keyword is a meaningless fragment or junk intent, clear to ""
-  const junkFragments = ['가', '볼', '가볼', '곳', '만한', '에', '로', '좀', '추천', '가 볼', '가 볼 만한', '볼 만한', '포함', '코스', '여행'];
-  if (junkFragments.includes(cleanKeyword) || cleanKeyword.length <= 1 || /^[\s가볼곳만한에로좀추천포함코스여행]+$/i.test(cleanKeyword)) {
-    cleanKeyword = '';
-  }
-
-  // If cleanKeyword became empty, BUT a specific sub-city was mentioned (e.g. "성수동"), set cleanKeyword to that sub-city!
-  if (!cleanKeyword && detectedSubCity) {
+  // Priority for detected sub-city over junk fragments or conjunctions
+  if (detectedSubCity) {
     cleanKeyword = detectedSubCity;
+  } else {
+    // Phase 4: Final fragment check. If remaining keyword is a meaningless fragment or junk intent, clear to ""
+    const junkFragments = ['가', '볼', '가볼', '곳', '만한', '에', '로', '좀', '추천', '가 볼', '가 볼 만한', '볼 만한', '포함', '코스', '여행', '및', '과', '와'];
+    if (junkFragments.includes(cleanKeyword) || cleanKeyword.length <= 1 || /^[\s가볼곳만한에로좀추천포함코스여행및과와]+$/i.test(cleanKeyword)) {
+      cleanKeyword = '';
+    }
   }
 
   // Days detection
