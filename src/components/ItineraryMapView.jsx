@@ -124,6 +124,11 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
   const mapContainerRef = useRef(null);
   const leafletMapRef = useRef(null);
 
+  // Reset active spot selection whenever activeDay or itinerary changes
+  useEffect(() => {
+    setActiveSpotIdx(0);
+  }, [activeDay, itinerary]);
+
   // Synchronize Leaflet interactive touch & drag handlers based on isMapUnlocked state
   useEffect(() => {
     if (!leafletMapRef.current) return;

@@ -89,6 +89,11 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
     }
   }, [isOpen, filters?.startDate, filters?.endDate, customPickedSpots?.length]);
 
+  // Auto-reset activeMapDay to 1 whenever trip duration (selectedDays), startDate, or filters change
+  useEffect(() => {
+    setActiveMapDay(1);
+  }, [selectedDays, customStartDate, rainyMode, refreshSeed]);
+
   const [startTime, setStartTime] = useState('09:30');
   const [endTime, setEndTime] = useState('20:00');
   const [dayTimes, setDayTimes] = useState({});
@@ -686,6 +691,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
         {/* Conditional View Rendering: Map View vs Timeline List View */}
         {viewMode === 'map' ? (
           <ItineraryMapView
+            key={`map-view-${selectedDays}-${activeMapDay}-${refreshSeed}-${rainyMode}`}
             itinerary={itinerary}
             activeDay={activeMapDay}
             onChangeDay={setActiveMapDay}
