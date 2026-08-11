@@ -142,6 +142,7 @@ export default function App() {
   const [allTourSpots, setAllTourSpots] = useState([]);
   const [recommendations, setRecommendations] = useState({ foods: [], outfits: [] });
   const [selectedSpot, setSelectedSpot] = useState(null);
+  const [fullAiItinerary, setFullAiItinerary] = useState(null);
   const [page, setPage] = useState(1);
   const [bookmarks, setBookmarks] = useState(() => {
     try {
