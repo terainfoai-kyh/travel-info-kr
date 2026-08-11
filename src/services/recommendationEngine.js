@@ -477,6 +477,7 @@ export function generateSmartItinerary({
   rainyMode = false,
   refreshSeed = 0,
   nightKeyword = '',
+  day2Keyword = '',
   spots = []
 }) {
   const GYEONGBOKGUNG_FALLBACK_IMG = '/default-spot.png';
@@ -606,12 +607,15 @@ export function generateSmartItinerary({
 
     let targetProvince = region;
     let provincePool = pool;
-    // Multi-Day Region Inheritance: If Day 1 night keyword specified a new region, Day 2+ inherits the new region
-    if (d > 1 && nightKeyword) {
-      const inheritedKey = getSpotProvinceKey({ region: nightKeyword, location: nightKeyword });
-      if (inheritedKey && inheritedKey !== '한국') {
-        targetProvince = inheritedKey;
-        provincePool = REGION_PRESETS[inheritedKey] || pool;
+    // Multi-Day Region Inheritance & Override: If Day 2 explicitly specifies a region (e.g., return to Suwon), use day2Keyword. Otherwise inherit Day 1 night region.
+    if (d > 1) {
+      const activeKeyword = (d === 2 && day2Keyword) ? day2Keyword : (day2Keyword || nightKeyword);
+      if (activeKeyword) {
+        const inheritedKey = getSpotProvinceKey({ region: activeKeyword, location: activeKeyword });
+        if (inheritedKey && inheritedKey !== '한국') {
+          targetProvince = inheritedKey;
+          provincePool = REGION_PRESETS[inheritedKey] || pool;
+        }
       }
     } else if (region === '전국' || region === '전체') {
       const firstSpotRegion = spots[0] ? getSpotProvinceKey(spots[0]) : '';

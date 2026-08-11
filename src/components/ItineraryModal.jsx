@@ -170,6 +170,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
         rainyMode,
         refreshSeed,
         nightKeyword: filters?.nightKeyword || '',
+        day2Keyword: filters?.day2Keyword || '',
         spots
       });
 

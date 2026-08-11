@@ -153,9 +153,33 @@ export function parseNaturalPrompt(text) {
     }
   }
 
+  // Detect Day 2 explicit region return (e.g., "다음날 다시 수원에서 노는 코스")
+  let day2KeywordIntent = '';
+  if (/(다음날|이튿날|2일차|둘째날|둘째 날|next day|day 2|day2|翌日|2日目|第二天|다음 날)/i.test(rawLower)) {
+    const nextDayMatchIdx = rawLower.search(/(다음날|이튿날|2일차|둘째날|둘째 날|next day|day 2|day2|翌日|2日目|第二天|다음 날)/i);
+    const afterNextDayText = rawLower.substring(nextDayMatchIdx);
+    const day2Matches = [];
+    for (const item of multilingualSubCityMap) {
+      for (const k of item.keys) {
+        const idx = afterNextDayText.indexOf(k.toLowerCase());
+        if (idx !== -1) {
+          day2Matches.push({ city: item.canonical, idx });
+          break;
+        }
+      }
+    }
+    day2Matches.sort((a, b) => a.idx - b.idx);
+    if (day2Matches.length > 0) {
+      day2KeywordIntent = day2Matches[0].city;
+    }
+  }
+
   // Auto-inject nightKeywordIntent into userLandmarks so pinpoint TourAPI query always fetches the night spot
   if (nightKeywordIntent && !userLandmarks.includes(nightKeywordIntent)) {
     userLandmarks.push(nightKeywordIntent);
+  }
+  if (day2KeywordIntent && !userLandmarks.includes(day2KeywordIntent)) {
+    userLandmarks.push(day2KeywordIntent);
   }
 
   return {
@@ -165,6 +189,7 @@ export function parseNaturalPrompt(text) {
     raw,
     rainyMode: rainyModeIntent,
     nightKeyword: nightKeywordIntent,
+    day2Keyword: day2KeywordIntent,
     userLandmarks
   };
 }

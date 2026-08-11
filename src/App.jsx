@@ -267,6 +267,7 @@ export default function App() {
               days: parsed.days || filters.days || 2,
               rainyMode: parsed.rainyMode || false,
               nightKeyword: parsed.nightKeyword || '',
+              day2Keyword: parsed.day2Keyword || '',
               userLandmarks: parsed.userLandmarks || []
             };
             setFilters(newFilters);
