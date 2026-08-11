@@ -624,21 +624,35 @@ export function generateSmartItinerary({
     const dStartH = parseHourMin(dStartTime, 9.5);
     const dEndH = parseHourMin(dEndTime, 20.0);
     const dDuration = Math.max(3, dEndH - dStartH);
-    const dStep = dDuration / 3;
 
-    const dayTimeSlots = [
-      { time: formatTimeSlot(dStartH), slotName: '오전 명소 & 상쾌한 출발', icon: 'Sun' },
-      { time: formatTimeSlot(dStartH + dStep), slotName: '낮 일정 & 핵심 랜드마크', icon: 'MapPin' },
-      { time: formatTimeSlot(dStartH + dStep * 2), slotName: '오후 관광 & K-컬처 체험', icon: 'Camera' },
-      { time: formatTimeSlot(dEndH), slotName: '야경 탐방 & 도심 산책', icon: 'Moon' }
-    ];
-
-    const daySpots = [];
     const fallbackPreset = REGION_PRESETS[targetProvince] || REGION_PRESETS['경기'] || REGION_PRESETS['서울'];
     const activeSearchSpots = (Array.isArray(spots) && spots.length > 0) ? spots : [];
     const combinedCandidates = [...activeSearchSpots, ...provincePool, ...fallbackPreset, ...(REGION_PRESETS['서울'] || [])];
 
-    for (let s = 0; s < 4; s++) {
+    // Determine exact target slots count for this day (1..4)
+    // When user's active search result has 1~3 items on Day 1, strictly match search count to prevent pulling external fallbacks
+    let targetSlotsCount = 4;
+    if (d === 1 && activeSearchSpots.length > 0 && activeSearchSpots.length < 4) {
+      targetSlotsCount = activeSearchSpots.length;
+    }
+
+    const dStep = targetSlotsCount > 1 ? dDuration / (targetSlotsCount - 1) : 0;
+    const dayTimeSlots = [];
+    for (let i = 0; i < targetSlotsCount; i++) {
+      const slotH = dStartH + (dStep * i);
+      let slotName = '명소 탐방';
+      let icon = 'MapPin';
+      if (i === 0) { slotName = '오전 명소 & 상쾌한 출발'; icon = 'Sun'; }
+      else if (i === targetSlotsCount - 1) { slotName = '야경 탐방 & 코스 마무리'; icon = 'Moon'; }
+      else if (i === 1) { slotName = '낮 일정 & 핵심 랜드마크'; icon = 'Camera'; }
+      else { slotName = '오후 관광 & K-컬처 체험'; icon = 'Camera'; }
+
+      dayTimeSlots.push({ time: formatTimeSlot(slotH), slotName, icon });
+    }
+
+    const daySpots = [];
+
+    for (let s = 0; s < targetSlotsCount; s++) {
       let targetSpot = null;
 
       // On Day 1, strictly bind user's active search result spots to slots 1..N
