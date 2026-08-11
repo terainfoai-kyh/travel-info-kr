@@ -243,23 +243,23 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Sleek 2-Row Sticky Header (Clean Layout) */}
+        {/* Sleek 2-Row Sticky Header with Integrated Day Tabs & Options Panel (Scroll-Proof) */}
         <div style={{
           position: 'sticky',
           top: '-1.25rem',
           zIndex: 150,
           display: 'flex',
           flexDirection: 'column',
-          gap: '0.45rem',
-          padding: '0.65rem 0.85rem',
+          gap: '0.5rem',
+          padding: '1.25rem 0.85rem 0.65rem 0.85rem',
           margin: '-1.25rem -1.25rem 0.85rem -1.25rem',
           background: 'var(--bg-secondary)',
           borderBottom: '1px solid var(--border-color)',
           borderRadius: 'var(--radius-lg) var(--radius-lg) 0 0',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-          backdropFilter: 'blur(12px)'
+          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.18)',
+          backdropFilter: 'blur(16px)'
         }}>
-          {/* Row 1: Title on Left & Close Button on Right */}
+          {/* Row 1: Title, Badges & Close Button */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: '0.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', minWidth: 0, overflow: 'hidden' }}>
               <div style={{
@@ -276,6 +276,40 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
               <h2 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }} className="gradient-text">
                 {t.aiItineraryMainTitle || 'AI 코스 추천'}
               </h2>
+
+              <span 
+                title={t.aiTrustBadgeDesc || '한국관광공사 Official DB 100% 연동 인증 코스'}
+                style={{
+                  fontSize: '0.72rem',
+                  fontWeight: 700,
+                  color: '#10b981',
+                  background: 'rgba(16, 185, 129, 0.12)',
+                  border: '1px solid rgba(16, 185, 129, 0.3)',
+                  padding: '0.15rem 0.45rem',
+                  borderRadius: 'var(--radius-full)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.2rem',
+                  cursor: 'pointer',
+                  flexShrink: 0
+                }}
+              >
+                <ShieldCheck size={12} color="#10b981" />
+                <span>{t.aiTrustBadgeTitleShort || '공식 DB 연동'}</span>
+              </span>
+
+              <span style={{
+                fontSize: '0.74rem',
+                fontWeight: 800,
+                background: 'var(--bg-card)',
+                color: 'var(--accent-primary)',
+                border: '1px solid var(--border-highlight)',
+                padding: '0.15rem 0.5rem',
+                borderRadius: 'var(--radius-full)',
+                flexShrink: 0
+              }}>
+                📍 {getBadgeI18n('region', region)} · {selectedDays === 1 ? (t.dayTrip1Day || '당일치기') : `${selectedDays}${t.daysCountUnit || '일간'}`}
+              </span>
             </div>
 
             {/* Top-Right Sticky Close Button (Guaranteed Padding to Prevent Mobile Overflow Clipping) */}
@@ -311,112 +345,20 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
             </button>
           </div>
 
-          {/* Row 2: Badges Bar on Top Sub-line & View Switcher Tab on Bottom right above Map */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.45rem' }}>
-            {/* Official DB Badge & Region/Days Badge Side-by-Side */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
-              <span 
-                title={t.aiTrustBadgeDesc || '한국관광공사 Official DB 100% 연동 인증 코스'}
-                style={{
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  color: '#10b981',
-                  background: 'rgba(16, 185, 129, 0.12)',
-                  border: '1px solid rgba(16, 185, 129, 0.3)',
-                  padding: '0.18rem 0.5rem',
-                  borderRadius: 'var(--radius-full)',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.25rem',
-                  cursor: 'pointer'
-                }}
-              >
-                <ShieldCheck size={13} color="#10b981" />
-                <span>{t.aiTrustBadgeTitleShort || '공식 DB 연동'}</span>
-              </span>
-
-              <span style={{
-                fontSize: '0.78rem',
-                fontWeight: 800,
-                background: 'var(--bg-card)',
-                color: 'var(--accent-primary)',
-                border: '1px solid var(--border-highlight)',
-                padding: '0.18rem 0.55rem',
-                borderRadius: 'var(--radius-full)'
-              }}>
-                📍 {getBadgeI18n('region', region)} · {selectedDays === 1 ? (t.dayTrip1Day || '당일치기') : `${selectedDays}${t.daysCountUnit || '일간'}`}
-              </span>
-            </div>
-
-            {/* View Switcher Pills Pinned Right Above Map */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              background: 'var(--bg-primary)',
-              padding: '0.2rem',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--border-color)'
-            }}>
-              <button
-                type="button"
-                onClick={() => setViewMode('map')}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.3rem',
-                  background: viewMode === 'map' ? 'var(--accent-gradient)' : 'transparent',
-                  color: viewMode === 'map' ? '#ffffff' : 'var(--text-muted)',
-                  border: 'none',
-                  padding: '0.35rem 0.75rem',
-                  borderRadius: 'var(--radius-sm)',
-                  fontSize: '0.78rem',
-                  fontWeight: 800,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                <Compass size={14} />
-                <span>{t.mapViewShort || '🗺️ 지도'}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setViewMode('list')}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.3rem',
-                  background: viewMode === 'list' ? 'var(--accent-gradient)' : 'transparent',
-                  color: viewMode === 'list' ? '#ffffff' : 'var(--text-muted)',
-                  border: 'none',
-                  padding: '0.35rem 0.75rem',
-                  borderRadius: 'var(--radius-sm)',
-                  fontSize: '0.78rem',
-                  fontWeight: 800,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                <Calendar size={14} />
-                <span>{t.listViewShort || '📋 일정 목록'}</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Row 3: Sticky Day Selector Tabs (Horizontal Swipeable Bar) & Quick Action Controls */}
+          {/* Row 2: Sticky Day Selector Tabs (Horizontal Swipe Bar) + View Switcher & Action Controls */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            gap: '0.5rem',
+            gap: '0.45rem',
             overflowX: 'auto',
             whiteSpace: 'nowrap',
-            paddingTop: '0.25rem',
+            paddingTop: '0.3rem',
             borderTop: '1px solid var(--border-color)',
             scrollbarWidth: 'none',
             msOverflowStyle: 'none'
           }}>
-            {/* Day Selector Buttons */}
+            {/* Day Selector Buttons (Horizontal Swipeable Bar) */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexShrink: 0 }}>
               <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', marginRight: '0.1rem', flexShrink: 0 }}>
                 {t.selectDayLabel || '일차:'}
@@ -447,8 +389,64 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
               ))}
             </div>
 
-            {/* Quick Action Controls: Options Toggle & AI Regenerate */}
+            {/* Right Group: View Switcher & Quick Action Controls */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexShrink: 0 }}>
+              {/* View Switcher Pills */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                background: 'var(--bg-primary)',
+                padding: '0.15rem',
+                borderRadius: 'var(--radius-md)',
+                border: '1px solid var(--border-color)',
+                flexShrink: 0
+              }}>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('map')}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.25rem',
+                    background: viewMode === 'map' ? 'var(--accent-gradient)' : 'transparent',
+                    color: viewMode === 'map' ? '#ffffff' : 'var(--text-muted)',
+                    border: 'none',
+                    padding: '0.25rem 0.55rem',
+                    borderRadius: 'var(--radius-sm)',
+                    fontSize: '0.74rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <Compass size={13} />
+                  <span>{t.mapViewShort || '🗺️ 지도'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setViewMode('list')}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.25rem',
+                    background: viewMode === 'list' ? 'var(--accent-gradient)' : 'transparent',
+                    color: viewMode === 'list' ? '#ffffff' : 'var(--text-muted)',
+                    border: 'none',
+                    padding: '0.25rem 0.55rem',
+                    borderRadius: 'var(--radius-sm)',
+                    fontSize: '0.74rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <Calendar size={13} />
+                  <span>{t.listViewShort || '📋 일정'}</span>
+                </button>
+              </div>
+
+              {/* Options Toggle Button */}
               <button
                 type="button"
                 onClick={() => setIsOptionsExpanded(!isOptionsExpanded)}
@@ -458,12 +456,12 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                   border: isOptionsExpanded ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)',
                   padding: '0.25rem 0.55rem',
                   borderRadius: 'var(--radius-full)',
-                  fontSize: '0.75rem',
+                  fontSize: '0.74rem',
                   fontWeight: 800,
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.25rem',
+                  gap: '0.2rem',
                   transition: 'all 0.2s ease',
                   flexShrink: 0
                 }}
@@ -471,6 +469,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                 <span>{isOptionsExpanded ? (t.toggleOptionsCollapse || (lang === 'en' ? '▲ Hide' : '▲ 접기')) : (t.toggleOptionsExpand || (lang === 'en' ? '⚙️ Filter ▼' : '⚙️ 조건 변경 ▼'))}</span>
               </button>
 
+              {/* AI Regenerate Button */}
               <button
                 type="button"
                 onClick={() => {
@@ -483,12 +482,12 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                   color: '#ffffff',
                   padding: '0.25rem 0.55rem',
                   borderRadius: 'var(--radius-full)',
-                  fontSize: '0.75rem',
+                  fontSize: '0.74rem',
                   fontWeight: 800,
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.25rem',
+                  gap: '0.2rem',
                   boxShadow: '0 2px 6px rgba(192, 132, 252, 0.3)',
                   flexShrink: 0
                 }}
@@ -497,97 +496,8 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                 <Sparkles size={12} />
                 <span>{t.reRecommendAiBtnShort || (lang === 'ko' ? '🔄 다시추천' : '🔄 Re-AI')}</span>
               </button>
-            </div>
-          </div>
-        </div>
 
-        {/* Sleek Option 1: 1-Row Compact Summary Accordion Toolbar */}
-        <div style={{
-          margin: '0 0 1rem 0',
-          background: 'var(--bg-primary)',
-          borderRadius: 'var(--radius-md)',
-          border: '1px solid var(--border-highlight)',
-          overflow: 'hidden',
-          boxShadow: 'var(--shadow-sm)'
-        }}>
-          {/* Always Visible 1-Row Compact Summary & Quick Action Bar */}
-          <div style={{
-            padding: '0.55rem 0.85rem',
-            background: 'var(--bg-secondary)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: '0.5rem'
-          }}>
-            {/* Active Summary Info & Expand Toggle Button */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-              <span style={{
-                fontSize: '0.82rem',
-                fontWeight: 800,
-                color: 'var(--text-main)',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.35rem',
-                background: 'var(--bg-card)',
-                padding: '0.25rem 0.6rem',
-                borderRadius: 'var(--radius-sm)',
-                border: '1px solid var(--border-color)'
-              }}>
-                🗓️ {selectedDays === 1 ? (t.dayTrip1Day || '당일치기') : `${selectedDays - 1}${t.nightsLabel || '박'}${selectedDays}${t.daysLabel || '일'}`} · {customStartDate}
-              </span>
-
-              <button
-                type="button"
-                onClick={() => setIsOptionsExpanded(!isOptionsExpanded)}
-                style={{
-                  background: isOptionsExpanded ? 'rgba(56, 189, 248, 0.2)' : 'var(--bg-primary)',
-                  color: isOptionsExpanded ? 'var(--accent-primary)' : 'var(--text-main)',
-                  border: isOptionsExpanded ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)',
-                  padding: '0.25rem 0.65rem',
-                  borderRadius: 'var(--radius-full)',
-                  fontSize: '0.78rem',
-                  fontWeight: 800,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.3rem',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                <span>{isOptionsExpanded ? (t.toggleOptionsCollapse || (lang === 'en' ? '🔼 Hide Options ▲' : '🔼 조건 접기 ▲')) : (t.toggleOptionsExpand || (lang === 'en' ? '⚙️ Change Options ▼' : '⚙️ 조건 변경 ▼'))}</span>
-              </button>
-            </div>
-
-            {/* Quick Action Buttons */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-              <button
-                type="button"
-                onClick={() => {
-                  setSwappedSpots({});
-                  setRefreshSeed(prev => prev + 1);
-                }}
-                style={{
-                  background: 'linear-gradient(135deg, #818cf8 0%, #c084fc 100%)',
-                  border: 'none',
-                  color: '#ffffff',
-                  padding: '0.35rem 0.7rem',
-                  borderRadius: 'var(--radius-md)',
-                  fontSize: '0.78rem',
-                  fontWeight: 800,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.35rem',
-                  transition: 'all 0.2s ease',
-                  boxShadow: '0 2px 8px rgba(192, 132, 252, 0.35)'
-                }}
-                title="시간/날짜 조건에 맞춰 AI 추천 코스 갱신하기"
-              >
-                <Sparkles size={14} />
-                <span>{t.reRecommendAiBtn || 'AI 코스 다시 추천 🔄'}</span>
-              </button>
-
+              {/* Copy Course Button */}
               <button
                 type="button"
                 onClick={handleCopyItinerary}
@@ -595,37 +505,39 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                   background: copied ? '#22c55e' : 'var(--accent-gradient)',
                   border: 'none',
                   color: '#ffffff',
-                  padding: '0.35rem 0.7rem',
-                  borderRadius: 'var(--radius-md)',
-                  fontSize: '0.78rem',
+                  padding: '0.25rem 0.55rem',
+                  borderRadius: 'var(--radius-full)',
+                  fontSize: '0.74rem',
                   fontWeight: 800,
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.35rem',
-                  transition: 'all 0.2s ease',
-                  boxShadow: '0 2px 8px rgba(37, 99, 235, 0.3)'
+                  gap: '0.2rem',
+                  boxShadow: '0 2px 6px rgba(37, 99, 235, 0.3)',
+                  flexShrink: 0
                 }}
               >
-                {copied ? <Check size={14} /> : <Copy size={14} />}
-                <span>{copied ? (t.copiedToast || '복사완료!') : (t.copyCourseBtn || '코스 복사')}</span>
+                {copied ? <Check size={12} /> : <Copy size={12} />}
+                <span>{copied ? (t.copiedToast || '복사완료!') : (t.copyCourseBtn || '복사')}</span>
               </button>
             </div>
           </div>
 
-          {/* Collapsible Accordion Panel for Detailed Condition Options */}
+          {/* Integrated Collapsible Options Panel Inside Sticky Header (Scroll-Proof) */}
           {isOptionsExpanded && (
             <div style={{
-              padding: '0.85rem 1rem',
+              padding: '0.75rem 0.85rem',
+              marginTop: '0.35rem',
               borderTop: '1px solid var(--border-color)',
               display: 'flex',
               flexDirection: 'column',
-              gap: '0.85rem',
-              background: 'var(--bg-primary)'
+              gap: '0.75rem',
+              background: 'var(--bg-primary)',
+              borderRadius: 'var(--radius-md)'
             }}>
               {/* Days buttons (Up to 5 Days) */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)' }}>{t.tripDurationTitle || '여행 기간:'}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-main)' }}>{t.tripDurationTitle || '여행 기간:'}</span>
                 {[1, 2, 3, 4, 5].map(d => (
                   <button
                     key={d}
@@ -634,9 +546,9 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                       background: selectedDays === d ? 'var(--accent-gradient)' : 'var(--bg-secondary)',
                       color: selectedDays === d ? '#ffffff' : 'var(--text-muted)',
                       border: selectedDays === d ? 'none' : '1px solid var(--border-color)',
-                      padding: '0.3rem 0.75rem',
+                      padding: '0.25rem 0.65rem',
                       borderRadius: 'var(--radius-full)',
-                      fontSize: '0.78rem',
+                      fontSize: '0.76rem',
                       fontWeight: 800,
                       cursor: 'pointer',
                       transition: 'all 0.2s ease'
@@ -648,7 +560,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
               </div>
 
               {/* Interactive Controls (Start Date, Rainy Mode Toggle, Time Selector) */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                 {/* Rainy Mode Toggle */}
                 <button
                   type="button"
@@ -657,23 +569,23 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                     background: rainyMode ? 'linear-gradient(135deg, #0284c7, #38bdf8)' : 'var(--bg-secondary)',
                     border: rainyMode ? 'none' : '1px solid var(--border-color)',
                     color: rainyMode ? '#ffffff' : 'var(--text-main)',
-                    padding: '0.35rem 0.75rem',
+                    padding: '0.3rem 0.65rem',
                     borderRadius: 'var(--radius-full)',
-                    fontSize: '0.78rem',
+                    fontSize: '0.76rem',
                     fontWeight: 800,
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.35rem',
+                    gap: '0.3rem',
                     transition: 'all 0.2s ease'
                   }}
                 >
-                  <CloudRain size={14} color={rainyMode ? '#ffffff' : '#38bdf8'} />
+                  <CloudRain size={13} color={rainyMode ? '#ffffff' : '#38bdf8'} />
                   <span>{t.rainyModeLabel || '비 오는 날 (실내 코스)'}</span>
                 </button>
 
                 {/* Date Picker Input */}
-                <div style={{ position: 'relative', width: '155px' }}>
+                <div style={{ position: 'relative', width: '150px' }}>
                   <DatePicker
                     ref={datePickerRef}
                     selected={startDateObj}
@@ -687,8 +599,8 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                     icon={
                       <svg 
                         xmlns="http://www.w3.org/2000/svg" 
-                        width="15" 
-                        height="15" 
+                        width="14" 
+                        height="14" 
                         viewBox="0 0 24 24" 
                         fill="none" 
                         stroke="currentColor" 
@@ -711,8 +623,8 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                 </div>
 
                 {/* Daily Start ~ End Time Selector */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', padding: '0.35rem 0.65rem', borderRadius: 'var(--radius-md)' }}>
-                  <Clock size={14} color="var(--accent-primary)" />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', padding: '0.3rem 0.55rem', borderRadius: 'var(--radius-md)' }}>
+                  <Clock size={13} color="var(--accent-primary)" />
                   <select
                     value={startTime}
                     onChange={(e) => setStartTime(e.target.value)}
@@ -720,7 +632,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                       background: 'transparent',
                       border: 'none',
                       color: 'var(--text-main)',
-                      fontSize: '0.78rem',
+                      fontSize: '0.76rem',
                       fontWeight: 800,
                       outline: 'none',
                       cursor: 'pointer'
@@ -744,7 +656,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                       background: 'transparent',
                       border: 'none',
                       color: 'var(--text-main)',
-                      fontSize: '0.78rem',
+                      fontSize: '0.76rem',
                       fontWeight: 800,
                       outline: 'none',
                       cursor: 'pointer'
