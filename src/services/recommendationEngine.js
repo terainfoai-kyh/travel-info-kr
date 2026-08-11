@@ -543,8 +543,8 @@ export function generateSmartItinerary({
     '경기': [
       { id: 'p-21', title: '수원 화성 & 방화수류정', location: '경기도 수원시 팔달구 정조로 825', rating: 4.9, tags: ['유네스코', '세계문화유산', '야경명소', '수원'], lat: 37.2858, lng: 127.0145, image: GYEONGBOKGUNG_FALLBACK_IMG },
       { id: 'p-22', title: '수원 행궁동 카페거리 & 화성행궁', location: '경기도 수원시 팔달구 신풍로23번길 61', rating: 4.8, tags: ['카페거리', '데이트', 'K-드라마', '수원'], lat: 37.2825, lng: 127.0122, image: GYEONGBOKGUNG_FALLBACK_IMG },
-      { id: 'p-23', title: '광명동굴 & 미디어아트', location: '경기도 광명시 가학로85번길 142', rating: 4.7, tags: ['동굴탐험', '와인동굴', '실내코스'], lat: 37.4262, lng: 126.8661, image: GYEONGBOKGUNG_FALLBACK_IMG },
-      { id: 'p-24', title: '파주 헤이리 예술마을 & 프로방스', location: '경기도 파주시 탄현면 헤이리마을길 70-21', rating: 4.7, tags: ['예술', '박물관', '드라이브'], lat: 37.7891, lng: 126.6983, image: GYEONGBOKGUNG_FALLBACK_IMG }
+      { id: 'p-23', title: '수원화성박물관 & 연무대 활쏘기', location: '경기도 수원시 팔달구 창룡대로 21', rating: 4.8, tags: ['박물관', '활쏘기체험', '문화재', '수원'], lat: 37.2842, lng: 127.0201, image: GYEONGBOKGUNG_FALLBACK_IMG },
+      { id: 'p-24', title: '수원 광교호수공원 & 앨리웨이', location: '경기도 수원시 영통구 광교호수공원로 57', rating: 4.9, tags: ['호수공원', '야경명소', '산책로', '수원'], lat: 37.2831, lng: 127.0588, image: GYEONGBOKGUNG_FALLBACK_IMG }
     ]
   };
 
