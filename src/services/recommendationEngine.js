@@ -607,15 +607,16 @@ export function generateSmartItinerary({
 
     let targetProvince = region;
     let provincePool = pool;
-    // Multi-Day Region Inheritance & Override: If Day 2 explicitly specifies a region (e.g., return to Suwon), use day2Keyword. Otherwise inherit Day 1 night region.
-    if (d > 1) {
-      const activeKeyword = (d === 2 && day2Keyword) ? day2Keyword : (day2Keyword || nightKeyword);
-      if (activeKeyword) {
-        const inheritedKey = getSpotProvinceKey({ region: activeKeyword, location: activeKeyword });
-        if (inheritedKey && inheritedKey !== '한국') {
-          targetProvince = inheritedKey;
-          provincePool = REGION_PRESETS[inheritedKey] || pool;
-        }
+    // Multi-Day Per-Day Schedule (dailyRegions array from Gemini LLM)
+    const dayPlan = (Array.isArray(dailyRegions) && dailyRegions[d - 1]) ? dailyRegions[d - 1] : null;
+    const dayActiveCity = dayPlan?.daytime || (d === 2 ? (day2Keyword || nightKeyword) : (d > 2 ? (day2Keyword || region) : region));
+    const dayNightCity = dayPlan?.night || (d === 1 ? nightKeyword : dayActiveCity);
+
+    if (dayActiveCity) {
+      const activeProvKey = getSpotProvinceKey({ region: dayActiveCity, location: dayActiveCity });
+      if (activeProvKey && activeProvKey !== '한국') {
+        targetProvince = activeProvKey;
+        provincePool = REGION_PRESETS[activeProvKey] || pool;
       }
     } else if (region === '전국' || region === '전체') {
       const firstSpotRegion = spots[0] ? getSpotProvinceKey(spots[0]) : '';

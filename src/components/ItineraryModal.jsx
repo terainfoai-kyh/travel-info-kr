@@ -171,6 +171,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
         refreshSeed,
         nightKeyword: filters?.nightKeyword || '',
         day2Keyword: filters?.day2Keyword || '',
+        dailyRegions: filters?.dailyRegions || [],
         spots
       });
 
