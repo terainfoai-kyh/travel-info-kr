@@ -354,14 +354,18 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
             paddingTop: '0.3rem',
             borderTop: '1px solid var(--border-color)'
           }}>
-            {/* Left Fixed Container (100% Pinned, Never Scrolls) */}
+            {/* Left Fixed Container (100% Pinned with Embossed Card Background & Right Drop Shadow) */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
               gap: '0.35rem',
               flexShrink: 0,
-              paddingRight: '0.45rem',
-              borderRight: '1px solid var(--border-color)'
+              padding: '0.2rem 0.5rem 0.2rem 0.25rem',
+              background: 'var(--bg-primary)',
+              borderRadius: 'var(--radius-md)',
+              border: '1px solid var(--border-highlight)',
+              boxShadow: '4px 0 10px rgba(0, 0, 0, 0.18)',
+              zIndex: 10
             }}>
               {/* Item 1 (Far Left Pinned): Compact Single Toggle Button for View Switcher (Map ⇄ List) */}
               <button
