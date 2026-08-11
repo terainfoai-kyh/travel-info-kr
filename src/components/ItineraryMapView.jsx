@@ -341,34 +341,55 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-      {/* Day Selector Buttons */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-        <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-          <Map size={16} color="var(--accent-primary)" />
-          {t.selectDayLabel || '일차 선택:'}
+      {/* Sticky Day Selector & Filter Navigation Bar (Always Visible at Top When Scrolling) */}
+      <div style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 110,
+        background: 'var(--bg-secondary)',
+        backdropFilter: 'blur(12px)',
+        border: '1px solid var(--border-color)',
+        padding: '0.5rem 0.75rem',
+        borderRadius: 'var(--radius-md)',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.5rem',
+        overflowX: 'auto',
+        whiteSpace: 'nowrap',
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none'
+      }}>
+        <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.3rem', flexShrink: 0 }}>
+          <Map size={15} color="var(--accent-primary)" />
+          <span>{t.selectDayLabel || '일차 선택:'}</span>
         </span>
-        {itinerary.map(d => (
-          <button
-            key={d.day}
-            onClick={() => {
-              onChangeDay(d.day);
-              setActiveSpotIdx(0);
-            }}
-            style={{
-              background: activeDay === d.day ? 'var(--accent-gradient)' : 'var(--bg-primary)',
-              color: activeDay === d.day ? '#ffffff' : 'var(--text-main)',
-              border: activeDay === d.day ? 'none' : '1px solid var(--border-color)',
-              padding: '0.35rem 0.85rem',
-              borderRadius: 'var(--radius-full)',
-              fontSize: '0.8rem',
-              fontWeight: 800,
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-          >
-            {getDayBtnText(d, lang)}
-          </button>
-        ))}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0 }}>
+          {itinerary.map(d => (
+            <button
+              key={d.day}
+              onClick={() => {
+                onChangeDay(d.day);
+                setActiveSpotIdx(0);
+              }}
+              style={{
+                background: activeDay === d.day ? 'var(--accent-gradient)' : 'var(--bg-card)',
+                color: activeDay === d.day ? '#ffffff' : 'var(--text-main)',
+                border: activeDay === d.day ? 'none' : '1px solid var(--border-color)',
+                padding: '0.3rem 0.75rem',
+                borderRadius: 'var(--radius-full)',
+                fontSize: '0.78rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                flexShrink: 0,
+                whiteSpace: 'nowrap'
+              }}
+            >
+              {getDayBtnText(d, lang)}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Interactive Main Map & Route Card */}
@@ -381,47 +402,50 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
       }}>
         {/* Map Header Action Bar */}
         <div style={{
-          padding: '0.85rem 1.1rem',
+          padding: '0.75rem 0.95rem',
           background: 'var(--bg-secondary)',
           borderBottom: '1px solid var(--border-color)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           flexWrap: 'wrap',
-          gap: '0.65rem'
+          gap: '0.55rem'
         }}>
           <div>
-            <div style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              <Compass size={18} color="var(--accent-primary)" />
+            <div style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <Compass size={17} color="var(--accent-primary)" />
               <span>{getI18nDayHeaderTitle(currentDayData, currentDayData?.region, lang)}</span>
             </div>
           </div>
 
           {/* Map Navigation Buttons: Google Maps Route & KakaoMap Directions */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap', width: '100%', maxWidth: '380px' }}>
             <a
               href={buildGoogleRouteUrl()}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-primary"
               style={{
-                padding: '0.4rem 0.85rem',
-                fontSize: '0.78rem',
+                padding: '0.38rem 0.65rem',
+                fontSize: '0.75rem',
                 fontWeight: 800,
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.35rem',
+                justifyContent: 'center',
+                gap: '0.3rem',
                 textDecoration: 'none',
                 borderRadius: 'var(--radius-full)',
                 background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
                 color: '#ffffff',
-                boxShadow: '0 2px 8px rgba(37, 99, 235, 0.3)'
+                boxShadow: '0 2px 8px rgba(37, 99, 235, 0.3)',
+                flex: '1 1 0%',
+                whiteSpace: 'nowrap'
               }}
               title="Google Maps Route Navigation"
             >
-              <Navigation size={14} />
-              <span>{t.openGoogleRoute || '🗺️ 구글지도 경로연결'}</span>
-              <ExternalLink size={12} />
+              <Navigation size={13} />
+              <span>{t.openGoogleRouteShort || (lang === 'ko' ? '🗺️ 구글지도' : '🗺️ Google Maps')}</span>
+              <ExternalLink size={11} />
             </a>
 
             <a
@@ -429,24 +453,27 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
               target="_blank"
               rel="noopener noreferrer"
               style={{
-                padding: '0.4rem 0.85rem',
-                fontSize: '0.78rem',
+                padding: '0.38rem 0.65rem',
+                fontSize: '0.75rem',
                 fontWeight: 800,
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.35rem',
+                justifyContent: 'center',
+                gap: '0.3rem',
                 textDecoration: 'none',
                 borderRadius: 'var(--radius-full)',
                 background: '#fee500',
                 color: '#191919',
                 border: '1px solid #e5d000',
-                boxShadow: '0 2px 8px rgba(254, 229, 0, 0.4)'
+                boxShadow: '0 2px 8px rgba(254, 229, 0, 0.4)',
+                flex: '1 1 0%',
+                whiteSpace: 'nowrap'
               }}
               title="카카오맵 길찾기 (KakaoMap Directions)"
             >
-              <Navigation size={14} color="#191919" />
-              <span>{t.openKakaoRoute || '💛 카카오맵 길찾기'}</span>
-              <ExternalLink size={12} color="#191919" />
+              <Navigation size={13} color="#191919" />
+              <span>{t.openKakaoRouteShort || (lang === 'ko' ? '💛 카카오맵' : '💛 KakaoMap')}</span>
+              <ExternalLink size={11} color="#191919" />
             </a>
           </div>
         </div>

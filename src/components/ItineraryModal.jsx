@@ -260,24 +260,25 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
           backdropFilter: 'blur(12px)'
         }}>
           {/* Row 1: Title on Left & Close Button on Right */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', minWidth: 0, overflow: 'hidden' }}>
               <div style={{
                 background: 'rgba(56, 189, 248, 0.2)',
                 padding: '0.35rem',
                 borderRadius: 'var(--radius-sm)',
                 color: 'var(--accent-primary)',
                 display: 'flex',
-                alignItems: 'center'
+                alignItems: 'center',
+                flexShrink: 0
               }}>
                 <Sparkles size={16} />
               </div>
-              <h2 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0 }} className="gradient-text">
+              <h2 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }} className="gradient-text">
                 {t.aiItineraryMainTitle || 'AI 코스 추천'}
               </h2>
             </div>
 
-            {/* Top-Right Sticky Close Button */}
+            {/* Top-Right Sticky Close Button (Guaranteed Padding to Prevent Mobile Overflow Clipping) */}
             <button
               onClick={onClose}
               aria-label="닫기"
@@ -285,8 +286,8 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                 background: 'rgba(15, 23, 42, 0.92)',
                 border: '1px solid rgba(255, 255, 255, 0.3)',
                 color: '#ffffff',
-                width: '30px',
-                height: '30px',
+                width: '32px',
+                height: '32px',
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
@@ -294,7 +295,8 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                 cursor: 'pointer',
                 boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
                 transition: 'all 0.2s ease',
-                flexShrink: 0
+                flexShrink: 0,
+                marginRight: '0.2rem'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'scale(1.1)';
