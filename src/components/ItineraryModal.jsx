@@ -300,6 +300,25 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
     setTimeout(() => setCopied(false), 2500);
   };
 
+  const getBadgeI18n = (type, value) => {
+    const curLang = lang || 'ko';
+    if (type === 'region') {
+      const map = {
+        '전국': { en: 'All Korea', ja: '全国', zh: '全国', zht: '全國', de: 'Ganz Korea', fr: 'Toute la Corée', es: 'Toda Corea', ru: 'Вся Корея' },
+        '서울': { en: 'Seoul', ja: 'ソウル', zh: '首尔', zht: '首爾', de: 'Seoul', fr: 'Séoul', es: 'Seúl', ru: 'Сеул' },
+        '제주': { en: 'Jeju', ja: '済州', zh: '济州', zht: '濟州', de: 'Jeju', fr: 'Jeju', es: 'Jeju', ru: 'Чеджу' },
+        '부산': { en: 'Busan', ja: '釜山', zh: '釜山', zht: '釜山', de: 'Busan', fr: 'Busan', es: 'Busan', ru: 'Пусан' },
+        '강원': { en: 'Gangwon', ja: '江原', zh: '江原', zht: '江原', de: 'Gangwon', fr: 'Gangwon', es: 'Gangwon', ru: 'Кангвон' },
+        '경주': { en: 'Gyeongju', ja: '慶州', zh: '庆州', zht: '慶州', de: 'Gyeongju', fr: 'Gyeongju', es: 'Gyeongju', ru: 'Кёнджу' },
+        '전주': { en: 'Jeonju', ja: '全州', zh: '全州', zht: '全州', de: 'Jeonju', fr: 'Jeonju', es: 'Jeonju', ru: 'Чонджу' },
+        '인천': { en: 'Incheon', ja: '仁川', zh: '仁川', zht: '仁川', de: 'Incheon', fr: 'Incheon', es: 'Incheon', ru: 'Инчхон' },
+        '경기': { en: 'Gyeonggi', ja: '京畿', zh: '京畿', zht: '京畿', de: 'Gyeonggi', fr: 'Gyeonggi', es: 'Gyeonggi', ru: 'Кёнги' }
+      };
+      return map[value]?.[curLang] || value;
+    }
+    return value;
+  };
+
   const getMapLink = (spotTitle, location) => {
     const query = encodeURIComponent(`${spotTitle} ${location}`);
     if (lang === 'ko') {
