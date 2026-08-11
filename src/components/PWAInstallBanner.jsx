@@ -158,16 +158,22 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
       return;
     }
 
-    // 2. Check if user dismissed the banner recently
-    const isDismissed = localStorage.getItem('ktravel_pwa_banner_dismissed');
-    if (isDismissed) return;
-
     const ua = (navigator.userAgent || '').toLowerCase();
+    const isMobileDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini|mobile|kakaotalk/i.test(ua) || window.innerWidth <= 1024;
     const kakao = ua.includes('kakaotalk');
     const ios = ua.includes('iphone') || ua.includes('ipad') || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
     setIsKakaoInApp(kakao);
     setIsIOS(ios);
+
+    // 2. Check dismissal with 24-hour expiration so real mobile testing is smooth
+    const dismissedTimestamp = localStorage.getItem('ktravel_pwa_banner_dismissed_at');
+    if (dismissedTimestamp) {
+      const pastHours = (Date.now() - parseInt(dismissedTimestamp, 10)) / (1000 * 60 * 60);
+      if (pastHours < 24 && !window.location.search.includes('pwa=')) {
+        return;
+      }
+    }
 
     // 3. Listen for Chrome/Android/Samsung PWA install prompt
     const handleBeforeInstallPrompt = (e) => {
@@ -180,14 +186,14 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
     const handleAppInstalled = () => {
       setShowBanner(false);
       setDeferredPrompt(null);
-      localStorage.setItem('ktravel_pwa_banner_dismissed', 'true');
+      localStorage.setItem('ktravel_pwa_banner_dismissed_at', String(Date.now()));
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     window.addEventListener('appinstalled', handleAppInstalled);
 
-    // If in mobile view, show banner to guide home screen shortcut
-    if (kakao || ios || window.innerWidth <= 768) {
+    // If on real mobile device or mobile viewport, show banner
+    if (isMobileDevice) {
       setShowBanner(true);
     }
 
@@ -212,7 +218,7 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
 
   const handleDismiss = () => {
     setShowBanner(false);
-    localStorage.setItem('ktravel_pwa_banner_dismissed', 'true');
+    localStorage.setItem('ktravel_pwa_banner_dismissed_at', String(Date.now()));
   };
 
   if (!showBanner) return null;
