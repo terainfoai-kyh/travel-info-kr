@@ -41,6 +41,10 @@ export const TRANSLATIONS = {
     listViewShort: '📋 일정 목록',
     openMenu: '메뉴',
     closeMenu: '메뉴 닫기',
+    installAppBtn: "💻 앱 설치",
+    installAppBtnShort: "앱 설치",
+    installAppBtn: "💻 앱 설치",
+    installAppBtnShort: "앱 설치",
     installAppBtn: '💻 앱 설치',
     installAppBtnShort: '앱 설치',
 
@@ -382,6 +386,8 @@ export const TRANSLATIONS = {
     closeMenu: 'Cerrar',
     installAppBtn: "💻 Instalar app",
     installAppBtnShort: "Instalar",
+    installAppBtn: "💻 Instalar app",
+    installAppBtnShort: "Instalar",
 
     noSpotsResult: 'No se encontraron resultados para \'{keyword}\'',
     noSpotsDesc: '¿No encuentras lo que buscas? Revisa las sugerencias de búsqueda o usa la búsqueda por voz con IA.',
@@ -480,6 +486,10 @@ export const TRANSLATIONS = {
     listViewShort: '📋 Itinerary',
     openMenu: 'Menu',
     closeMenu: 'Close Menu',
+    installAppBtn: "💻 Install App",
+    installAppBtnShort: "Install App",
+    installAppBtn: "💻 Install App",
+    installAppBtnShort: "Install App",
     installAppBtn: "💻 Install App",
     installAppBtnShort: "Install App",
 
@@ -889,6 +899,10 @@ export const TRANSLATIONS = {
     closeMenu: '閉じる',
     installAppBtn: "💻 アプリをインストール",
     installAppBtnShort: "アプリ",
+    installAppBtn: "💻 アプリをインストール",
+    installAppBtnShort: "アプリ",
+    installAppBtn: "💻 アプリをインストール",
+    installAppBtnShort: "アプリ",
 
 
     noSpotsResult: '「{keyword}」の検索結果がありません',
@@ -1259,6 +1273,10 @@ export const TRANSLATIONS = {
     listViewShort: '📋 行程列表',
     openMenu: '菜单',
     closeMenu: '关闭菜单',
+    installAppBtn: "💻 安装应用",
+    installAppBtnShort: "安装应用",
+    installAppBtn: "💻 安装应用",
+    installAppBtnShort: "安装应用",
     installAppBtn: "💻 安装应用",
     installAppBtnShort: "安装应用",
 
@@ -1653,6 +1671,10 @@ export const TRANSLATIONS = {
     closeMenu: '關閉選單',
     installAppBtn: "💻 安裝應用",
     installAppBtnShort: "安裝應用",
+    installAppBtn: "💻 安裝應用",
+    installAppBtnShort: "安裝應用",
+    installAppBtn: "💻 安裝應用",
+    installAppBtnShort: "安裝應用",
 
 
     noSpotsResult: '未找到 「{keyword}」 的搜尋結果',
@@ -2027,6 +2049,10 @@ export const TRANSLATIONS = {
     closeMenu: 'Schließen',
     installAppBtn: "💻 App installieren",
     installAppBtnShort: "App installieren",
+    installAppBtn: "💻 App installieren",
+    installAppBtnShort: "App installieren",
+    installAppBtn: "💻 App installieren",
+    installAppBtnShort: "App installieren",
 
 
     noSpotsResult: 'Keine Ergebnisse für \'{keyword}\' gefunden',
@@ -2244,6 +2270,10 @@ export const TRANSLATIONS = {
     closeMenu: 'Fermer',
     installAppBtn: "💻 Installer l'app",
     installAppBtnShort: "Installer",
+    installAppBtn: "💻 Installer l'app",
+    installAppBtnShort: "Installer",
+    installAppBtn: "💻 Installer l'app",
+    installAppBtnShort: "Installer",
 
 
     noSpotsResult: 'Aucun résultat trouvé pour \'{keyword}\'',
@@ -2452,6 +2482,8 @@ export const TRANSLATIONS = {
     listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
     closeMenu: 'Cerrar',
+    installAppBtn: "💻 Instalar app",
+    installAppBtnShort: "Instalar",
     noSpotsResult: 'No se encontraron resultados para \'{keyword}\'',
     noSpotsDesc: '¿No encuentras lo que buscas? Revisa las sugerencias de búsqueda o usa la búsqueda por voz con IA.',
     tipRegionTheme: '💡 \'Región + Tema\' (ej. Café Seongsu, Comida Haeundae)',
@@ -2651,6 +2683,10 @@ export const TRANSLATIONS = {
     listViewShort: '📋 Список',
     openMenu: 'Меню',
     closeMenu: 'Закрыть',
+    installAppBtn: "💻 Установить приложение",
+    installAppBtnShort: "Установить",
+    installAppBtn: "💻 Установить приложение",
+    installAppBtnShort: "Установить",
     installAppBtn: "💻 Установить приложение",
     installAppBtnShort: "Установить",
 
