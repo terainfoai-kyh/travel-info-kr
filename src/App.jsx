@@ -268,6 +268,7 @@ export default function App() {
               rainyMode: parsed.rainyMode || false,
               nightKeyword: parsed.nightKeyword || '',
               day2Keyword: parsed.day2Keyword || '',
+              dailyRegions: parsed.dailyRegions || [],
               userLandmarks: parsed.userLandmarks || []
             };
             setFilters(newFilters);

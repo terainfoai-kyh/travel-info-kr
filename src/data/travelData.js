@@ -188,6 +188,63 @@ export const TRAVEL_SPOTS = [
       highlights: ['화성 성곽 야경 투어', '행리단길 한옥 카페', '열기구 플라잉수원'],
       bestSeason: '봄 / 가을'
     }
+  },
+  {
+    id: 'spot-11',
+    title: '인천 차이나타운 & 송도 센트럴파크',
+    category: 'culture',
+    region: '인천',
+    location: '인천광역시 중구 차이나타운로59번길 12',
+    rating: 4.81,
+    reviewsCount: 3200,
+    image: 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg',
+    description: '130년 역사의 이국적 문화와 미식, 첨단 도시 야경 산책이 매력적인 인천 대표 코스입니다.',
+    tags: ['인천', '차이나타운', '송도', '송도센트럴파크', '월미도'],
+    details: {
+      address: '인천광역시 중구 차이나타운로59번길 12',
+      hours: '24시간 운영',
+      contact: '032-777-1330',
+      highlights: ['원조 짜장면 미식', '송도 수상택시', '월미도 테마파크'],
+      bestSeason: '봄 / 가을'
+    }
+  },
+  {
+    id: 'spot-12',
+    title: '강원도 강릉 안목해변 커피거리',
+    category: 'nature',
+    region: '강원',
+    location: '강원특별자치도 강릉시 창해로 14',
+    rating: 4.89,
+    reviewsCount: 4100,
+    image: 'https://tong.visitkorea.or.kr/cms/resource/45/3505945_image2_1.jpg',
+    description: '푸른 동해 바다 뷰와 핸드드립 커피 향기가 어우러지는 대표적인 해변 커피 문화거리입니다.',
+    tags: ['강릉', '안목해변', '커피거리', '오션뷰', '경포대'],
+    details: {
+      address: '강원특별자치도 강릉시 창해로 14',
+      hours: '08:00 - 23:00 (카페별 다름)',
+      contact: '033-640-4414',
+      highlights: ['오션뷰 창가석', '수제 드립 커피', '경포호수 산책'],
+      bestSeason: '봄 / 여름 / 가을'
+    }
+  },
+  {
+    id: 'spot-13',
+    title: '강원도 속초 아바이마을 & 속초해수욕장',
+    category: 'food',
+    region: '강원',
+    location: '강원특별자치도 속초시 청호동 1076',
+    rating: 4.85,
+    reviewsCount: 3900,
+    image: 'https://tong.visitkorea.or.kr/cms/resource/45/3505945_image2_1.jpg',
+    description: '정겨운 갯배 체험과 오징어순대 미식, 속초아이 대관람차가 반겨주는 동해 감성 스팟입니다.',
+    tags: ['속초', '아바이마을', '속초해수욕장', '속초아이', '설악산'],
+    details: {
+      address: '강원특별자치도 속초시 청호동 1076',
+      hours: '08:00 - 22:00',
+      contact: '033-639-2690',
+      highlights: ['갯배 줄 끄기 체험', '아바이 오징어순대', '속초아이 대관람차'],
+      bestSeason: '사계절'
+    }
   }
 ];
 

@@ -634,16 +634,15 @@ export function generateSmartItinerary({
     const dayNightCity = dayPlan?.night || (d === 1 ? nightKeyword : dayActiveCity);
 
     if (dayActiveCity) {
-      const activeProvKey = getSpotProvinceKey({ region: dayActiveCity, location: dayActiveCity });
+      const activeProvKey = getSpotProvinceKey({ region: dayActiveCity, location: dayActiveCity, title: dayActiveCity });
       if (activeProvKey && activeProvKey !== '한국') {
         targetProvince = activeProvKey;
         const apiProvSpots = spots.filter(s => getSpotProvinceKey(s) === activeProvKey);
         if (apiProvSpots.length >= 3) {
           provincePool = apiProvSpots;
         } else {
-          provincePool = (REGION_PRESETS[activeProvKey] && REGION_PRESETS[activeProvKey].length > 0)
-            ? REGION_PRESETS[activeProvKey]
-            : pool;
+          const fallbackProvSpots = TRAVEL_SPOTS.filter(s => getSpotProvinceKey(s) === activeProvKey);
+          provincePool = (fallbackProvSpots.length >= 1) ? fallbackProvSpots : TRAVEL_SPOTS;
         }
       }
     } else if (region === '전국' || region === '전체') {
