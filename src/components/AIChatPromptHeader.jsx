@@ -105,7 +105,27 @@ export function parseNaturalPrompt(text) {
   else if (raw.includes('3박') || raw.includes('2박 3일') || raw.includes('2박3일') || raw.includes('3d') || raw.includes('3-day')) days = 3;
   else if (raw.includes('4박') || raw.includes('3박 4일') || raw.includes('3박4일') || raw.includes('4d') || raw.includes('4-day')) days = 4;
 
-  return { region, days, keyword: cleanKeyword, raw };
+  // Multi-clause intent detection (Rainy mode, Night/Hotel area intent)
+  const rainyModeIntent = /(비\s*오|비오|실내|우천|비가)/i.test(raw);
+  let nightKeywordIntent = '';
+  if (/(저녁|밤|야간|숙소|호텔)/i.test(raw)) {
+    const nightAreas = ['명동', '해운대', '광안리', '홍대', '성수', '서귀포', '이태원', '강남', '종로', '송도', '속초', '여수', '경주', '전주'];
+    for (const area of nightAreas) {
+      if (raw.includes(area)) {
+        nightKeywordIntent = area;
+        break;
+      }
+    }
+  }
+
+  return {
+    region,
+    days,
+    keyword: cleanKeyword,
+    raw,
+    rainyMode: rainyModeIntent,
+    nightKeyword: nightKeywordIntent
+  };
 }
 
 export default function AIChatPromptHeader({ lang = 'ko', filters, onGenerateItinerary }) {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import DatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { X, Calendar, Clock, MapPin, Sparkles, Navigation, Copy, Check, Filter, ShieldCheck, CloudRain, RefreshCw, Car, Bus, Utensils, Compass } from 'lucide-react';
+import { X, Calendar, Clock, MapPin, Sparkles, Navigation, Copy, Check, Filter, ShieldCheck, CloudRain, RefreshCw, Car, Bus, Utensils, Compass, Trash2, Plus } from 'lucide-react';
 import { generateSmartItinerary, generateCustomPickedItinerary, calculateTravelEstimate } from '../services/recommendationEngine';
 import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress } from '../i18n/translations';
 import { getI18nTravelNote } from '../i18n/travelChipI18n';
@@ -87,6 +87,8 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
   const [rainyMode, setRainyMode] = useState(false);
   const [refreshSeed, setRefreshSeed] = useState(0);
   const [swappedSpots, setSwappedSpots] = useState({});
+  const [deletedSpotKeys, setDeletedSpotKeys] = useState({});
+  const [addedSpotsMap, setAddedSpotsMap] = useState({});
   const [copied, setCopied] = useState(false);
   const [viewMode, setViewMode] = useState('map'); // 'map' | 'list'
   const [activeMapDay, setActiveMapDay] = useState(1);
@@ -103,10 +105,12 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
     }
   }, [isOpen, filters?.startDate, filters?.endDate, customPickedSpots?.length]);
 
-  // Auto-reset activeMapDay to 1 and clear spot swaps whenever ANY condition filter changes
+  // Auto-reset activeMapDay to 1 and clear spot modifications whenever ANY condition filter changes
   useEffect(() => {
     setActiveMapDay(1);
     setSwappedSpots({});
+    setDeletedSpotKeys({});
+    setAddedSpotsMap({});
   }, [selectedDays, customStartDate, rainyMode, startTime, endTime, refreshSeed]);
 
   if (!isOpen) return null;
@@ -162,20 +166,26 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
         spots
       });
 
-  // Apply spot swaps AND dynamically recalculate nextTravel between consecutive items
+  // Apply spot swaps, deletions, additions AND dynamically recalculate nextTravel between consecutive items
   const itinerary = baseItinerary.map((day, dIdx) => {
-    const updatedSchedule = day.schedule.map((item, sIdx) => {
-      const swapKey = `${dIdx}-${sIdx}`;
-      if (swappedSpots[swapKey]) {
-        return {
-          ...item,
-          ...swappedSpots[swapKey]
-        };
-      }
-      return item;
-    });
+    let updatedSchedule = day.schedule
+      .map((item, sIdx) => {
+        const swapKey = `${dIdx}-${sIdx}`;
+        if (swappedSpots[swapKey]) {
+          return {
+            ...item,
+            ...swappedSpots[swapKey]
+          };
+        }
+        return item;
+      })
+      .filter((_, sIdx) => !deletedSpotKeys[`${day.day}-${sIdx}`]);
 
-    // Recalculate travel estimates dynamically after swap
+    if (addedSpotsMap[day.day] && addedSpotsMap[day.day].length > 0) {
+      updatedSchedule = [...updatedSchedule, ...addedSpotsMap[day.day]];
+    }
+
+    // Recalculate travel estimates dynamically after swap/delete/add
     for (let i = 0; i < updatedSchedule.length - 1; i++) {
       updatedSchedule[i].nextTravel = calculateTravelEstimate(updatedSchedule[i], updatedSchedule[i + 1]);
     }
@@ -204,6 +214,41 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
         lat: newSpot.lat,
         lng: newSpot.lng
       }
+    }));
+  };
+
+  const handleDeleteSpot = (dayNum, sIdx) => {
+    const key = `${dayNum}-${sIdx}`;
+    setDeletedSpotKeys(prev => ({
+      ...prev,
+      [key]: true
+    }));
+  };
+
+  const handleAddSpot = (dayNum, dayPool) => {
+    const currentAdded = addedSpotsMap[dayNum] || [];
+    const pool = (dayPool && dayPool.length > 0) ? dayPool : (spots || []);
+    if (pool.length === 0) return;
+
+    const nextIdx = (currentAdded.length * 3 + 2) % pool.length;
+    const newSpot = pool[nextIdx] || pool[0];
+    if (!newSpot) return;
+
+    const formattedItem = {
+      time: '18:00',
+      slotName: '추천 추가 명소',
+      spotId: newSpot.id || `added-${Date.now()}`,
+      title: newSpot.title,
+      image: newSpot.image || '/default-spot.png',
+      location: newSpot.location || newSpot.addr1 || `${region} 중심가`,
+      rating: newSpot.rating || 4.8,
+      lat: newSpot.lat,
+      lng: newSpot.lng
+    };
+
+    setAddedSpotsMap(prev => ({
+      ...prev,
+      [dayNum]: [...(prev[dayNum] || []), formattedItem]
     }));
   };
 
@@ -929,11 +974,11 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                         </div>
                       </div>
 
-                      {/* Action Buttons: Swap Spot, Route Map, Nearby Food */}
+                      {/* Action Buttons: Swap Spot, Delete Spot, Route Map, Nearby Food */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
                         <button
                           type="button"
-                          onClick={() => handleSwapSpot(day.day, sIdx)}
+                          onClick={() => handleSwapSpot(day.day, sIdx, day.pool)}
                           style={{
                             background: 'var(--bg-secondary)',
                             border: '1px solid var(--border-color)',
@@ -951,6 +996,29 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                         >
                           <RefreshCw size={13} />
                           <span>{t.swapSpotBtn || '교체 🔄'}</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteSpot(day.day, sIdx)}
+                          style={{
+                            background: 'rgba(239, 68, 68, 0.1)',
+                            border: '1px solid rgba(239, 68, 68, 0.25)',
+                            color: '#ef4444',
+                            padding: '0.4rem 0.65rem',
+                            borderRadius: 'var(--radius-md)',
+                            fontSize: '0.75rem',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.25rem',
+                            transition: 'all 0.2s ease'
+                          }}
+                          title={t.deleteSpotBtn || '제외 🗑️'}
+                        >
+                          <Trash2 size={13} />
+                          <span>{t.deleteSpotBtn || '제외 🗑️'}</span>
                         </button>
 
                         <a
@@ -1054,6 +1122,32 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                   </React.Fragment>
                   );
                 })}
+              </div>
+
+              {/* Add Spot Button at Bottom of Each Day Block */}
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0.75rem' }}>
+                <button
+                  type="button"
+                  onClick={() => handleAddSpot(day.day, day.pool)}
+                  style={{
+                    background: 'var(--bg-secondary)',
+                    border: '1.5px dashed var(--accent-primary)',
+                    color: 'var(--accent-primary)',
+                    padding: '0.45rem 1rem',
+                    borderRadius: 'var(--radius-full)',
+                    fontSize: '0.8rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 2px 6px rgba(37, 99, 235, 0.12)'
+                  }}
+                >
+                  <Plus size={14} />
+                  <span>{t.addSpotBtn || `${day.day}일차 코스에 명소 추가 ➕`}</span>
+                </button>
               </div>
             </div>
           );

@@ -639,11 +639,15 @@ export function generateSmartItinerary({
     }
     const combinedCandidates = [...activeSearchSpots, ...provincePool, ...fallbackPreset, ...(REGION_PRESETS['서울'] || [])];
 
-    // Determine exact target slots count for this day (1..4)
-    // When user's active search result has 1~3 items on Day 1, strictly match search count to prevent pulling external fallbacks
+    // Determine dynamic target slots count based on departure start time (dStartH)
+    // Morning start (< 11.5): 4 slots
+    // Afternoon start (11.5 ~ 15.5): 3 slots
+    // Evening start (>= 15.5): 2 slots
     let targetSlotsCount = 4;
-    if (d === 1 && activeSearchSpots.length > 0 && activeSearchSpots.length < 4) {
-      targetSlotsCount = activeSearchSpots.length;
+    if (dStartH >= 15.5) {
+      targetSlotsCount = 2;
+    } else if (dStartH >= 11.5) {
+      targetSlotsCount = 3;
     }
 
     const dStep = targetSlotsCount > 1 ? dDuration / (targetSlotsCount - 1) : 0;
@@ -665,12 +669,9 @@ export function generateSmartItinerary({
     for (let s = 0; s < targetSlotsCount; s++) {
       let targetSpot = null;
 
-      // On Day 1, bind user's active search result spots with dynamic seed offset so changing duration/seed reshuffles Day 1 layout
-      const searchOffset = (refreshSeed + numDays - 1) % (activeSearchSpots.length || 1);
-      const searchIdx = (s + searchOffset) % (activeSearchSpots.length || 1);
-
-      if (d === 1 && activeSearchSpots[searchIdx] && activeSearchSpots[searchIdx].title) {
-        targetSpot = activeSearchSpots[searchIdx];
+      // On Day 1, bind user's active search result spot if available for slot s
+      if (d === 1 && activeSearchSpots[s] && activeSearchSpots[s].title) {
+        targetSpot = activeSearchSpots[s];
         globalUsedTitles.add(targetSpot.title.toLowerCase().replace(/\s+/g, ''));
       } else {
         // Find first candidate that hasn't been used yet across the entire itinerary
