@@ -345,157 +345,177 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
             </button>
           </div>
 
-          {/* Row 2: View Switcher (Item 1 Far Left) | Options Toggle (Item 2) | Day Selector Tabs (Item 3) | Actions (Item 4 Far Right) */}
+          {/* Row 2: Pinned Left Controls (View Toggle + Condition Filter) & Swipeable Right Day Tabs */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '0.4rem',
-            overflowX: 'auto',
-            whiteSpace: 'nowrap',
+            width: '100%',
+            gap: '0.45rem',
             paddingTop: '0.3rem',
-            borderTop: '1px solid var(--border-color)',
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none'
+            borderTop: '1px solid var(--border-color)'
           }}>
-            {/* Item 1 (Far Left): Compact Single Toggle Button for View Switcher (Map ⇄ List) */}
-            <button
-              type="button"
-              onClick={() => setViewMode(viewMode === 'map' ? 'list' : 'map')}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.25rem',
-                background: 'var(--accent-gradient)',
-                color: '#ffffff',
-                border: 'none',
-                padding: '0.25rem 0.6rem',
-                borderRadius: 'var(--radius-full)',
-                fontSize: '0.75rem',
-                fontWeight: 800,
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                flexShrink: 0,
-                boxShadow: '0 2px 6px rgba(37, 99, 235, 0.3)'
-              }}
-              title={viewMode === 'map' ? (t.switchToListView || '일정 목록으로 보기') : (t.switchToMapView || '지도 화면으로 보기')}
-            >
-              {viewMode === 'map' ? <Calendar size={13} /> : <Compass size={13} />}
-              <span>
-                {viewMode === 'map' 
-                  ? (t.listViewShortToggle || (lang === 'en' ? '📋 List ⇄' : '📋 일정 ⇄')) 
-                  : (t.mapViewShortToggle || (lang === 'en' ? '🗺️ Map ⇄' : '🗺️ 지도 ⇄'))
-                }
-              </span>
-            </button>
+            {/* Left Fixed Container (100% Pinned, Never Scrolls) */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              flexShrink: 0,
+              paddingRight: '0.45rem',
+              borderRight: '1px solid var(--border-color)'
+            }}>
+              {/* Item 1 (Far Left Pinned): Compact Single Toggle Button for View Switcher (Map ⇄ List) */}
+              <button
+                type="button"
+                onClick={() => setViewMode(viewMode === 'map' ? 'list' : 'map')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.25rem',
+                  background: 'var(--accent-gradient)',
+                  color: '#ffffff',
+                  border: 'none',
+                  padding: '0.25rem 0.6rem',
+                  borderRadius: 'var(--radius-full)',
+                  fontSize: '0.75rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  flexShrink: 0,
+                  boxShadow: '0 2px 6px rgba(37, 99, 235, 0.3)'
+                }}
+                title={viewMode === 'map' ? (t.switchToListView || '일정 목록으로 보기') : (t.switchToMapView || '지도 화면으로 보기')}
+              >
+                {viewMode === 'map' ? <Calendar size={13} /> : <Compass size={13} />}
+                <span>
+                  {viewMode === 'map' 
+                    ? (t.listViewShortToggle || (lang === 'en' ? '📋 List ⇄' : '📋 일정 ⇄')) 
+                    : (t.mapViewShortToggle || (lang === 'en' ? '🗺️ Map ⇄' : '🗺️ 지도 ⇄'))
+                  }
+                </span>
+              </button>
 
-            {/* Item 2 (Second): Options Toggle Button (Condition Change) */}
-            <button
-              type="button"
-              onClick={() => setIsOptionsExpanded(!isOptionsExpanded)}
-              style={{
-                background: isOptionsExpanded ? 'rgba(56, 189, 248, 0.2)' : 'var(--bg-card)',
-                color: isOptionsExpanded ? 'var(--accent-primary)' : 'var(--text-main)',
-                border: isOptionsExpanded ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)',
-                padding: '0.25rem 0.55rem',
-                borderRadius: 'var(--radius-full)',
-                fontSize: '0.74rem',
-                fontWeight: 800,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.2rem',
-                transition: 'all 0.2s ease',
-                flexShrink: 0
-              }}
-            >
-              <span>{isOptionsExpanded ? (t.toggleOptionsCollapse || (lang === 'en' ? '▲ Hide' : '▲ 접기')) : (t.toggleOptionsExpand || (lang === 'en' ? '⚙️ Filter ▼' : '⚙️ 조건 변경 ▼'))}</span>
-            </button>
-
-            {/* Item 3 (Center~Right): Day Selector Buttons (Horizontal Swipeable Bar) */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexShrink: 0 }}>
-              <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', marginRight: '0.1rem', flexShrink: 0 }}>
-                {t.selectDayLabel || '일차:'}
-              </span>
-              {itinerary.map(d => (
-                <button
-                  key={d.day}
-                  type="button"
-                  onClick={() => {
-                    setActiveMapDay(d.day);
-                  }}
-                  style={{
-                    background: activeMapDay === d.day ? 'var(--accent-gradient)' : 'var(--bg-card)',
-                    color: activeMapDay === d.day ? '#ffffff' : 'var(--text-main)',
-                    border: activeMapDay === d.day ? 'none' : '1px solid var(--border-color)',
-                    padding: '0.25rem 0.6rem',
-                    borderRadius: 'var(--radius-full)',
-                    fontSize: '0.75rem',
-                    fontWeight: 800,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    flexShrink: 0,
-                    whiteSpace: 'nowrap'
-                  }}
-                >
-                  {getDayBtnText(d, lang)}
-                </button>
-              ))}
+              {/* Item 2 (Second Pinned): Options Toggle Button (Condition Change) */}
+              <button
+                type="button"
+                onClick={() => setIsOptionsExpanded(!isOptionsExpanded)}
+                style={{
+                  background: isOptionsExpanded ? 'rgba(56, 189, 248, 0.2)' : 'var(--bg-card)',
+                  color: isOptionsExpanded ? 'var(--accent-primary)' : 'var(--text-main)',
+                  border: isOptionsExpanded ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                  padding: '0.25rem 0.55rem',
+                  borderRadius: 'var(--radius-full)',
+                  fontSize: '0.74rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.2rem',
+                  transition: 'all 0.2s ease',
+                  flexShrink: 0
+                }}
+              >
+                <span>{isOptionsExpanded ? (t.toggleOptionsCollapse || (lang === 'en' ? '▲ Hide' : '▲ 접기')) : (t.toggleOptionsExpand || (lang === 'en' ? '⚙️ Filter ▼' : '⚙️ 조건 변경 ▼'))}</span>
+              </button>
             </div>
 
-            {/* Item 4 (Far Right): Action Buttons (AI Regenerate & Copy Course) */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexShrink: 0 }}>
-              {/* AI Regenerate Button */}
-              <button
-                type="button"
-                onClick={() => {
-                  setSwappedSpots({});
-                  setRefreshSeed(prev => prev + 1);
-                }}
-                style={{
-                  background: 'linear-gradient(135deg, #818cf8 0%, #c084fc 100%)',
-                  border: 'none',
-                  color: '#ffffff',
-                  padding: '0.25rem 0.55rem',
-                  borderRadius: 'var(--radius-full)',
-                  fontSize: '0.74rem',
-                  fontWeight: 800,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.2rem',
-                  boxShadow: '0 2px 6px rgba(192, 132, 252, 0.3)',
-                  flexShrink: 0
-                }}
-                title="AI 코스 다시 추천"
-              >
-                <Sparkles size={12} />
-                <span>{t.reRecommendAiBtnShort || (lang === 'ko' ? '🔄 다시추천' : '🔄 Re-AI')}</span>
-              </button>
+            {/* Right Independent Swipeable Container (Day Selector Tabs & Quick Actions) */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '0.45rem',
+              overflowX: 'auto',
+              whiteSpace: 'nowrap',
+              flex: 1,
+              minWidth: 0,
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none'
+            }}>
+              {/* Item 3: Day Selector Buttons (Horizontal Swipeable Bar) */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexShrink: 0 }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', marginRight: '0.1rem', flexShrink: 0 }}>
+                  {t.selectDayLabel || '일차:'}
+                </span>
+                {itinerary.map(d => (
+                  <button
+                    key={d.day}
+                    type="button"
+                    onClick={() => {
+                      setActiveMapDay(d.day);
+                    }}
+                    style={{
+                      background: activeMapDay === d.day ? 'var(--accent-gradient)' : 'var(--bg-card)',
+                      color: activeMapDay === d.day ? '#ffffff' : 'var(--text-main)',
+                      border: activeMapDay === d.day ? 'none' : '1px solid var(--border-color)',
+                      padding: '0.25rem 0.6rem',
+                      borderRadius: 'var(--radius-full)',
+                      fontSize: '0.75rem',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      flexShrink: 0,
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    {getDayBtnText(d, lang)}
+                  </button>
+                ))}
+              </div>
 
-              {/* Copy Course Button */}
-              <button
-                type="button"
-                onClick={handleCopyItinerary}
-                style={{
-                  background: copied ? '#22c55e' : 'var(--accent-gradient)',
-                  border: 'none',
-                  color: '#ffffff',
-                  padding: '0.25rem 0.55rem',
-                  borderRadius: 'var(--radius-full)',
-                  fontSize: '0.74rem',
-                  fontWeight: 800,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.2rem',
-                  boxShadow: '0 2px 6px rgba(37, 99, 235, 0.3)',
-                  flexShrink: 0
-                }}
-              >
-                {copied ? <Check size={12} /> : <Copy size={12} />}
-                <span>{copied ? (t.copiedToast || '복사완료!') : (t.copyCourseBtn || '복사')}</span>
-              </button>
+              {/* Item 4 (Far Right): Action Buttons (AI Regenerate & Copy Course) */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexShrink: 0 }}>
+                {/* AI Regenerate Button */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSwappedSpots({});
+                    setRefreshSeed(prev => prev + 1);
+                  }}
+                  style={{
+                    background: 'linear-gradient(135deg, #818cf8 0%, #c084fc 100%)',
+                    border: 'none',
+                    color: '#ffffff',
+                    padding: '0.25rem 0.55rem',
+                    borderRadius: 'var(--radius-full)',
+                    fontSize: '0.74rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.2rem',
+                    boxShadow: '0 2px 6px rgba(192, 132, 252, 0.3)',
+                    flexShrink: 0
+                  }}
+                  title="AI 코스 다시 추천"
+                >
+                  <Sparkles size={12} />
+                  <span>{t.reRecommendAiBtnShort || (lang === 'ko' ? '🔄 다시추천' : '🔄 Re-AI')}</span>
+                </button>
+
+                {/* Copy Course Button */}
+                <button
+                  type="button"
+                  onClick={handleCopyItinerary}
+                  style={{
+                    background: copied ? '#22c55e' : 'var(--accent-gradient)',
+                    border: 'none',
+                    color: '#ffffff',
+                    padding: '0.25rem 0.55rem',
+                    borderRadius: 'var(--radius-full)',
+                    fontSize: '0.74rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.2rem',
+                    boxShadow: '0 2px 6px rgba(37, 99, 235, 0.3)',
+                    flexShrink: 0
+                  }}
+                >
+                  {copied ? <Check size={12} /> : <Copy size={12} />}
+                  <span>{copied ? (t.copiedToast || '복사완료!') : (t.copyCourseBtn || '복사')}</span>
+                </button>
+              </div>
             </div>
           </div>
 
