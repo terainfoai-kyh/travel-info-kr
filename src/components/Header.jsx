@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Compass, Globe, Sparkles, Sun, Moon, Heart, MapPin, Utensils, Luggage, Share2, Check, BookOpen, ChevronDown, ChevronUp, SlidersHorizontal } from 'lucide-react';
+import { Compass, Globe, Sparkles, Sun, Moon, Heart, MapPin, Utensils, Luggage, Share2, Check, BookOpen, ChevronDown, ChevronUp, SlidersHorizontal, Download } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
 
 const LANGUAGE_OPTIONS = [
@@ -224,8 +224,34 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
             </div>
           </div>
 
-          {/* Right Container: Compact Language Selector (Always Visible) & Menu Toggle Button */}
+          {/* Right Container: Permanent App Install Button, Compact Language Selector & Menu Toggle Button */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexShrink: 0, zIndex: 10 }}>
+            {/* Permanent App Install Badge Button */}
+            <button
+              onClick={() => {
+                window.dispatchEvent(new CustomEvent('open-pwa-install-modal'));
+              }}
+              style={{
+                background: themeMode === 'light' ? '#ffffff' : 'rgba(30, 41, 59, 0.95)',
+                color: themeMode === 'light' ? '#0284c7' : '#38bdf8',
+                border: themeMode === 'light' ? '1.5px solid #0284c7' : '1.5px solid rgba(56, 189, 248, 0.5)',
+                padding: '0.3rem 0.55rem',
+                borderRadius: 'var(--radius-md)',
+                fontSize: '0.76rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.3rem',
+                boxShadow: '0 1px 4px rgba(56, 189, 248, 0.2)',
+                whiteSpace: 'nowrap'
+              }}
+              title={t.installAppBtn || '💻 앱 설치'}
+            >
+              <Download size={13} />
+              <span>{isMobile ? (t.installAppBtnShort || '앱 설치') : (t.installAppBtn || '💻 앱 설치')}</span>
+            </button>
+
             {/* 100% Always-Visible Language Selector in Row 1 Header */}
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem', position: 'relative' }}>
               <Globe size={14} style={{ color: themeMode === 'light' ? '#0284c7' : '#38bdf8', flexShrink: 0 }} />

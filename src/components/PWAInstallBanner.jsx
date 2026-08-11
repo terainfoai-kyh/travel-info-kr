@@ -237,8 +237,15 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
       localStorage.setItem('ktravel_pwa_banner_dismissed_at', String(Date.now()));
     };
 
+    // 5. Listen for custom header button click event
+    const handleOpenInstallModal = () => {
+      setShowBanner(true);
+      handleInstallClick();
+    };
+
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     window.addEventListener('appinstalled', handleAppInstalled);
+    window.addEventListener('open-pwa-install-modal', handleOpenInstallModal);
 
     // Show banner for both desktop PC and mobile
     setShowBanner(true);
@@ -246,6 +253,7 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('appinstalled', handleAppInstalled);
+      window.removeEventListener('open-pwa-install-modal', handleOpenInstallModal);
     };
   }, []);
 
