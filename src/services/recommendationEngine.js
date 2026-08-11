@@ -392,12 +392,19 @@ export function calculateTravelEstimate(spotA, spotB) {
     };
   }
 
-  let lat1 = parseFloat(spotA.lat);
-  let lng1 = parseFloat(spotA.lng);
-  let lat2 = parseFloat(spotB.lat);
-  let lng2 = parseFloat(spotB.lng);
+  let lat1 = parseFloat(spotA.lat || spotA.mapy);
+  let lng1 = parseFloat(spotA.lng || spotA.mapx);
+  let lat2 = parseFloat(spotB.lat || spotB.mapy);
+  let lng2 = parseFloat(spotB.lng || spotB.mapx);
 
-  if (isNaN(lat1) || isNaN(lng1) || isNaN(lat2) || isNaN(lng2) || lat1 === 0 || lat2 === 0) {
+  // Geo-Coordinate Safety Guard: Fix known landmarks if coordinates are missing or out of bounds
+  const getSpotName = (s) => `${s?.title || ''} ${s?.location || ''}`.toLowerCase();
+  if (getSpotName(spotA).includes('명동') || getSpotName(spotA).includes('myeongdong')) { lat1 = 37.5610; lng1 = 126.9860; }
+  if (getSpotName(spotB).includes('명동') || getSpotName(spotB).includes('myeongdong')) { lat2 = 37.5610; lng2 = 126.9860; }
+  if (getSpotName(spotA).includes('화성행궁') || getSpotName(spotA).includes('방화수류정')) { lat1 = 37.2858; lng1 = 127.0145; }
+  if (getSpotName(spotB).includes('화성행궁') || getSpotName(spotB).includes('방화수류정')) { lat2 = 37.2858; lng2 = 127.0145; }
+
+  if (isNaN(lat1) || isNaN(lng1) || isNaN(lat2) || isNaN(lng2) || lat1 < 33 || lat1 > 39 || lat2 < 33 || lat2 > 39) {
     const titleA = spotA.title || 'A';
     const titleB = spotB.title || 'B';
     const pseudoDist = Math.max(1.8, Math.min(8.5, (titleA.length + titleB.length) * 0.4 + 1.2));
@@ -415,7 +422,8 @@ export function calculateTravelEstimate(spotA, spotB) {
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const dist = Math.max(0.8, R * c);
 
-  if (dist > 45) {
+  // Long-distance threshold raised to 75km (Metropolitan commute 30-75km uses express subway/bus 50-75 mins)
+  if (dist > 75) {
     const hours = (dist / 70 + 0.3).toFixed(1);
     const isJejuTrip = provA === '제주' || provB === '제주';
     const noteText = isJejuTrip 
@@ -430,8 +438,8 @@ export function calculateTravelEstimate(spotA, spotB) {
     };
   }
 
-  const carMin = Math.max(5, Math.round(dist * 2.0 + 4));
-  const transitMin = Math.max(8, Math.round(dist * 3.2 + 6));
+  const carMin = Math.max(5, Math.round(dist * 1.3 + 5));
+  const transitMin = Math.max(8, Math.round(dist * 1.5 + 10));
 
   let transitRouteNote = '';
   let transitType = 'transit';
@@ -670,19 +678,29 @@ export function generateSmartItinerary({
     for (let s = 0; s < targetSlotsCount; s++) {
       let targetSpot = null;
 
-      // On Day 1, bind user's active search result spot if available for slot s
-      if (d === 1 && activeSearchSpots[s] && activeSearchSpots[s].title) {
-        targetSpot = activeSearchSpots[s];
-        globalUsedTitles.add(targetSpot.title.toLowerCase().replace(/\s+/g, ''));
-      } else if (s === targetSlotsCount - 1 && nightKeyword) {
-        // If user specified a night/hotel area (e.g. "명동"), pick a candidate matching nightKeyword for the last night slot
-        const nightMatch = combinedCandidates.find(c => {
-          const txt = `${c.title || ''} ${c.location || ''} ${c.addr1 || ''}`.toLowerCase();
-          return txt.includes(nightKeyword.toLowerCase()) && !globalUsedTitles.has((c.title || '').toLowerCase().replace(/\s+/g, ''));
-        });
-        if (nightMatch) {
-          targetSpot = nightMatch;
-          globalUsedTitles.add(targetSpot.title.toLowerCase().replace(/\s+/g, ''));
+      // Separate activeSearchSpots into daytime vs night/hotel spots
+      const isNightSlot = (s === targetSlotsCount - 1);
+      const isNightSpot = (spot) => {
+        if (!spot || !spot.title) return false;
+        const txt = `${spot.title} ${spot.location || ''}`.toLowerCase();
+        return (nightKeyword && txt.includes(nightKeyword.toLowerCase())) || txt.includes('명동') || txt.includes('myeongdong') || txt.includes('서울타워');
+      };
+
+      if (d === 1) {
+        if (isNightSlot) {
+          // Night slot (slot 4): Pick nightSpot first
+          const nightSpot = activeSearchSpots.find(sp => isNightSpot(sp)) || combinedCandidates.find(c => isNightSpot(c));
+          if (nightSpot && !globalUsedTitles.has(nightSpot.title.toLowerCase().replace(/\s+/g, ''))) {
+            targetSpot = nightSpot;
+            globalUsedTitles.add(targetSpot.title.toLowerCase().replace(/\s+/g, ''));
+          }
+        } else {
+          // Daytime slots (slots 1, 2, 3): Pick non-night daytime spots from main region first
+          const daytimeActiveSpots = activeSearchSpots.filter(sp => !isNightSpot(sp));
+          if (daytimeActiveSpots[s] && daytimeActiveSpots[s].title) {
+            targetSpot = daytimeActiveSpots[s];
+            globalUsedTitles.add(targetSpot.title.toLowerCase().replace(/\s+/g, ''));
+          }
         }
       }
 

@@ -910,10 +910,10 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
                 {day.schedule.map((item, sIdx) => {
                   let slotI18n = item.slotName;
-                  if (item.slotName.includes('오전')) slotI18n = t.slotMorning || item.slotName;
-                  else if (item.slotName.includes('낮')) slotI18n = t.slotAfternoon || item.slotName;
-                  else if (item.slotName.includes('오후')) slotI18n = t.slotEvening || item.slotName;
-                  else if (item.slotName.includes('밤')) slotI18n = t.slotNight || item.slotName;
+                  if (item.slotName.includes('오전') || item.slotName.toLowerCase().includes('morning')) slotI18n = t.slotMorning || item.slotName;
+                  else if (item.slotName.includes('낮') || item.slotName.toLowerCase().includes('iconic')) slotI18n = t.slotAfternoon || item.slotName;
+                  else if (item.slotName.includes('오후') || item.slotName.toLowerCase().includes('sightseeing')) slotI18n = t.slotEvening || item.slotName;
+                  else if (item.slotName.includes('밤') || item.slotName.includes('야경') || item.slotName.toLowerCase().includes('night')) slotI18n = t.slotNight || item.slotName;
 
                   const itemDisplayTitle = getTranslatedTitle(item.title, lang);
                   const itemDisplayAddr = getTranslatedAddress(item.location, lang);
