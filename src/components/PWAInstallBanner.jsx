@@ -148,7 +148,17 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
   const [isIOS, setIsIOS] = useState(false);
 
   useEffect(() => {
-    // Check if dismissed recently
+    // 1. Check if user is already running in Standalone PWA Mode (opened from Home Screen App Icon)
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
+      || window.navigator.standalone === true 
+      || document.referrer.includes('android-app://');
+    
+    if (isStandalone) {
+      setShowBanner(false);
+      return;
+    }
+
+    // 2. Check if user dismissed the banner recently
     const isDismissed = localStorage.getItem('ktravel_pwa_banner_dismissed');
     if (isDismissed) return;
 
@@ -159,14 +169,22 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
     setIsKakaoInApp(kakao);
     setIsIOS(ios);
 
-    // Listen for Chrome/Android/Samsung PWA install prompt
+    // 3. Listen for Chrome/Android/Samsung PWA install prompt
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
       setShowBanner(true);
     };
 
+    // 4. Listen for appinstalled event (Hide banner immediately when install completes)
+    const handleAppInstalled = () => {
+      setShowBanner(false);
+      setDeferredPrompt(null);
+      localStorage.setItem('ktravel_pwa_banner_dismissed', 'true');
+    };
+
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
 
     // If in mobile view, show banner to guide home screen shortcut
     if (kakao || ios || window.innerWidth <= 768) {
@@ -175,6 +193,7 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, []);
 
