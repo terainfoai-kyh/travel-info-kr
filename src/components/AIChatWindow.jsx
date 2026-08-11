@@ -160,31 +160,31 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
     <div style={{
       position: 'fixed',
       inset: 0,
-      zIndex: 9999,
+      zIndex: 999999,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      background: 'rgba(15, 23, 42, 0.75)',
-      backdropFilter: 'blur(12px)',
+      background: 'rgba(15, 23, 42, 0.55)',
+      backdropFilter: 'blur(8px)',
       padding: '1rem'
     }}>
       <div style={{
-        background: '#0f172a',
-        border: '1px solid rgba(56, 189, 248, 0.3)',
+        background: '#ffffff',
+        border: '1px solid #cbd5e1',
         borderRadius: '20px',
         width: '100%',
         maxWidth: '720px',
         height: '82vh',
         display: 'flex',
         flexDirection: 'column',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.75)',
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
         overflow: 'hidden'
       }}>
         {/* Chat Window Header */}
         <div style={{
           padding: '1rem 1.25rem',
-          background: '#1e293b',
-          borderBottom: '1px solid rgba(51, 65, 85, 0.8)',
+          background: 'linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%)',
+          borderBottom: '1px solid #e2e8f0',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between'
@@ -194,23 +194,23 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
               width: '38px',
               height: '38px',
               borderRadius: '12px',
-              background: 'linear-gradient(135deg, #2563eb, #9333ea)',
+              background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               color: '#ffffff',
-              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)'
+              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)'
             }}>
               <Sparkles size={20} />
             </div>
             <div>
-              <h3 style={{ color: '#ffffff', fontWeight: 800, fontSize: '0.95rem', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <h3 style={{ color: '#0f172a', fontWeight: 800, fontSize: '0.95rem', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <span>AI Travel Concierge</span>
-                <span style={{ fontSize: '0.65rem', padding: '0.15rem 0.5rem', borderRadius: '9999px', background: 'rgba(56, 189, 248, 0.2)', color: '#38bdf8', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+                <span style={{ fontSize: '0.65rem', padding: '0.15rem 0.5rem', borderRadius: '9999px', background: '#dbeafe', color: '#1e40af', border: '1px solid #bfdbfe', fontWeight: 800 }}>
                   Gemini 1.5 Flash
                 </span>
               </h3>
-              <p style={{ color: '#94a3b8', fontSize: '0.74rem', margin: '0.15rem 0 0 0' }}>
+              <p style={{ color: '#64748b', fontSize: '0.74rem', margin: '0.15rem 0 0 0', fontWeight: 600 }}>
                 실시간 인스타 핫플 & 날씨 / 미식 / 코디 100% 맞춤 생성
               </p>
             </div>
@@ -222,9 +222,9 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
               width: '32px',
               height: '32px',
               borderRadius: '50%',
-              background: 'rgba(51, 65, 85, 0.6)',
-              border: 'none',
-              color: '#cbd5e1',
+              background: '#f1f5f9',
+              border: '1px solid #cbd5e1',
+              color: '#475569',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -243,7 +243,8 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
           padding: '1.25rem',
           display: 'flex',
           flexDirection: 'column',
-          gap: '1rem'
+          gap: '1rem',
+          background: '#f8fafc'
         }}>
           {messages.map((msg) => (
             <div 
@@ -289,25 +290,25 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
                     borderTopRightRadius: msg.sender === 'user' ? '4px' : '16px',
                     fontSize: '0.88rem',
                     lineHeight: 1.6,
-                    background: msg.sender === 'user' ? 'linear-gradient(135deg, #2563eb, #1d4ed8)' : '#1e293b',
-                    color: msg.sender === 'user' ? '#ffffff' : '#f8fafc',
-                    border: msg.sender === 'user' ? 'none' : '1px solid #334155',
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
+                    background: msg.sender === 'user' ? 'linear-gradient(135deg, #2563eb, #1d4ed8)' : '#ffffff',
+                    color: msg.sender === 'user' ? '#ffffff' : '#0f172a',
+                    border: msg.sender === 'user' ? 'none' : '1px solid #e2e8f0',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
                   }}
                 >
-                  <p style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{msg.text}</p>
+                  <p style={{ margin: 0, whiteSpace: 'pre-wrap', fontWeight: msg.sender === 'user' ? 600 : 500 }}>{msg.text}</p>
 
                   {/* Suggestion Chips in Welcome Message */}
                   {msg.suggestionChips && (
-                    <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid #334155', display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                    <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid #f1f5f9', display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
                       {msg.suggestionChips.map((chip, idx) => (
                         <button
                           key={idx}
                           onClick={() => handleSendMessage(chip)}
                           style={{
-                            background: 'rgba(37, 99, 235, 0.15)',
-                            border: '1px solid rgba(56, 189, 248, 0.3)',
-                            color: '#38bdf8',
+                            background: '#eff6ff',
+                            border: '1px solid #bfdbfe',
+                            color: '#1d4ed8',
                             fontSize: '0.76rem',
                             fontWeight: 700,
                             padding: '0.35rem 0.75rem',
@@ -325,23 +326,23 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
 
                   {/* Generated Itinerary Rich Summary Card */}
                   {msg.itinerarySummary && (
-                    <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid #334155' }}>
-                      <div style={{ background: '#0f172a', borderRadius: '12px', padding: '0.85rem', border: '1px solid #334155' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                          <h4 style={{ fontSize: '0.82rem', fontWeight: 800, color: '#fbbf24', margin: 0, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                    <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid #f1f5f9' }}>
+                      <div style={{ background: '#f1f5f9', borderRadius: '12px', padding: '0.85rem', border: '1px solid #e2e8f0' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyBetween: 'space-between', marginBottom: '0.5rem' }}>
+                          <h4 style={{ fontSize: '0.82rem', fontWeight: 800, color: '#1e40af', margin: 0, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                             <Compass size={15} />
                             <span>{msg.itinerarySummary.title}</span>
                           </h4>
-                          <span style={{ fontSize: '0.65rem', padding: '0.15rem 0.45rem', borderRadius: '4px', background: 'rgba(16, 185, 129, 0.2)', color: '#34d399', fontWeight: 800 }}>
+                          <span style={{ fontSize: '0.65rem', padding: '0.15rem 0.45rem', borderRadius: '4px', background: '#d1fae5', color: '#065f46', fontWeight: 800 }}>
                             {msg.itinerarySummary.days}일치 완벽 생성
                           </span>
                         </div>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                           {msg.itinerarySummary.dailySchedules?.map((ds, idx) => (
-                            <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.75rem', padding: '0.25rem 0', borderBottom: '1px solid #1e293b' }}>
-                              <span style={{ fontWeight: 700, color: '#e2e8f0' }}>{ds.dateLabel || `${ds.day}일차 - ${ds.city}`}</span>
-                              <span style={{ color: '#94a3b8' }}>{ds.spots?.length || 4}개 명소 (좌표100% 매칭)</span>
+                            <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyBetween: 'space-between', fontSize: '0.75rem', padding: '0.25rem 0', borderBottom: '1px solid #e2e8f0' }}>
+                              <span style={{ fontWeight: 700, color: '#1e293b' }}>{ds.dateLabel || `${ds.day}일차 - ${ds.city}`}</span>
+                              <span style={{ color: '#64748b' }}>{ds.spots?.length || 4}개 명소 (좌표100% 매칭)</span>
                             </div>
                           ))}
                         </div>
@@ -368,7 +369,7 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
                             alignItems: 'center',
                             justifyContent: 'center',
                             gap: '0.35rem',
-                            boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)'
+                            boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)'
                           }}
                         >
                           <MapPin size={14} />
@@ -379,13 +380,13 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
                   )}
                 </div>
               </div>
-              <span style={{ fontSize: '0.65rem', color: '#64748b', padding: '0 0.25rem' }}>{msg.timestamp}</span>
+              <span style={{ fontSize: '0.65rem', color: '#94a3b8', padding: '0 0.25rem' }}>{msg.timestamp}</span>
             </div>
           ))}
 
           {isGenerating && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#94a3b8', fontSize: '0.78rem', padding: '0.5rem 0.85rem', background: '#1e293b', borderRadius: '12px', width: 'fit-content' }}>
-              <Sparkles size={16} color="#38bdf8" style={{ animation: 'spin 1.5s linear infinite' }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#1e40af', fontSize: '0.78rem', padding: '0.5rem 0.85rem', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '12px', width: 'fit-content' }}>
+              <Sparkles size={16} color="#2563eb" style={{ animation: 'spin 1.5s linear infinite' }} />
               <span>Gemini 1.5 AI가 100% 정품 명소와 날씨/미식/코디를 직조하는 중...</span>
             </div>
           )}
@@ -395,8 +396,8 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
         {/* Input Bar */}
         <div style={{
           padding: '0.85rem 1.25rem',
-          background: '#1e293b',
-          borderTop: '1px solid rgba(51, 65, 85, 0.8)'
+          background: '#ffffff',
+          borderTop: '1px solid #e2e8f0'
         }}>
           <form 
             onSubmit={(e) => {
@@ -407,10 +408,10 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem',
-              background: '#0f172a',
+              background: '#f8fafc',
               borderRadius: '12px',
               padding: '0.5rem 0.85rem',
-              border: '1px solid #334155'
+              border: '1px solid #cbd5e1'
             }}
           >
             <input 
@@ -422,8 +423,9 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
                 flex: 1,
                 background: 'transparent',
                 border: 'none',
-                color: '#ffffff',
+                color: '#0f172a',
                 fontSize: '0.85rem',
+                fontWeight: 600,
                 outline: 'none'
               }}
             />
@@ -435,8 +437,8 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
                 padding: '0.4rem',
                 borderRadius: '8px',
                 border: 'none',
-                background: isListening ? 'rgba(239, 68, 68, 0.2)' : 'transparent',
-                color: isListening ? '#ef4444' : '#94a3b8',
+                background: isListening ? 'rgba(239, 68, 68, 0.15)' : 'transparent',
+                color: isListening ? '#ef4444' : '#64748b',
                 cursor: 'pointer'
               }}
             >
@@ -459,7 +461,7 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.35rem',
-                boxShadow: '0 2px 8px rgba(37, 99, 235, 0.3)'
+                boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)'
               }}
             >
               <span>전송</span>
