@@ -6,7 +6,7 @@ import { generateSmartItinerary, generateCustomPickedItinerary, calculateTravelE
 import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress } from '../i18n/translations';
 import { getI18nTravelNote } from '../i18n/travelChipI18n';
 import { buildAgodaDeepLink, buildKlookDeepLink } from '../services/apiConfig';
-import ItineraryMapView from './ItineraryMapView';
+import ItineraryMapView, { getDayBtnText } from './ItineraryMapView';
 import { useModalHistory } from '../hooks/useModalHistory';
 
 function getI18nDayHeaderTitle(dayObj, region, lang = 'ko') {

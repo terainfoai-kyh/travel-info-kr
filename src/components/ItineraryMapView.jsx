@@ -50,7 +50,7 @@ function getI18nDayHeaderTitle(dayObj, region, lang = 'ko') {
   }
 }
 
-function getDayBtnText(d, lang) {
+export function getDayBtnText(d, lang) {
   const dNum = d.day || 1;
   let dowStr = '';
   if (d.dateStr) {
