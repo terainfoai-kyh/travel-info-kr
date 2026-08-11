@@ -103,10 +103,11 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
     }
   }, [isOpen, filters?.startDate, filters?.endDate, customPickedSpots?.length]);
 
-  // Auto-reset activeMapDay to 1 whenever trip duration (selectedDays), startDate, or filters change
+  // Auto-reset activeMapDay to 1 and clear spot swaps whenever ANY condition filter changes
   useEffect(() => {
     setActiveMapDay(1);
-  }, [selectedDays, customStartDate, rainyMode, refreshSeed]);
+    setSwappedSpots({});
+  }, [selectedDays, customStartDate, rainyMode, startTime, endTime, refreshSeed]);
 
   if (!isOpen) return null;
 

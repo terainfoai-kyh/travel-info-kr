@@ -212,6 +212,9 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
       leafletMapRef.current.remove();
       leafletMapRef.current = null;
     }
+    if (mapContainerRef.current) {
+      mapContainerRef.current._leaflet_id = null;
+    }
 
     // Calculate latLngs with micro-spread if coordinates are identical
     const baseLat = parseFloat(schedule[0]?.lat) || 37.5665;

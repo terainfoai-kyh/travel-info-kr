@@ -568,7 +568,7 @@ export function generateSmartItinerary({
       const fullTxt = `${s.title || ''} ${s.location || ''} ${s.tags?.join(' ') || ''}`.toLowerCase();
       return indoorKeywords.some(kw => fullTxt.includes(kw));
     });
-    if (indoorPool.length >= 3) {
+    if (indoorPool.length >= 1) {
       pool = indoorPool;
     }
   }
@@ -626,7 +626,17 @@ export function generateSmartItinerary({
     const dDuration = Math.max(3, dEndH - dStartH);
 
     const fallbackPreset = REGION_PRESETS[targetProvince] || REGION_PRESETS['경기'] || REGION_PRESETS['서울'];
-    const activeSearchSpots = (Array.isArray(spots) && spots.length > 0) ? spots : [];
+    let activeSearchSpots = (Array.isArray(spots) && spots.length > 0) ? spots : [];
+    if (rainyMode) {
+      const indoorKeywords = ['박물관', '미술관', '몰', '카페', '실내', '아쿠아리움', '전시관', '백화점', '쇼핑', '시장', '온천', '공연장', '체험관'];
+      const indoorActiveSearch = activeSearchSpots.filter(s => {
+        const fullTxt = `${s.title || ''} ${s.location || ''} ${s.tags?.join(' ') || ''}`.toLowerCase();
+        return indoorKeywords.some(kw => fullTxt.includes(kw));
+      });
+      if (indoorActiveSearch.length >= 1) {
+        activeSearchSpots = indoorActiveSearch;
+      }
+    }
     const combinedCandidates = [...activeSearchSpots, ...provincePool, ...fallbackPreset, ...(REGION_PRESETS['서울'] || [])];
 
     // Determine exact target slots count for this day (1..4)
