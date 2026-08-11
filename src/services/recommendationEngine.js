@@ -690,7 +690,20 @@ export function generateSmartItinerary({
       if (d === 1) {
         if (isNightSlot) {
           // Night slot (slot 4): Pick nightSpot first
-          const nightSpot = activeSearchSpots.find(sp => isNightSpot(sp)) || combinedCandidates.find(c => isNightSpot(c));
+          let nightSpot = activeSearchSpots.find(sp => isNightSpot(sp)) || combinedCandidates.find(c => isNightSpot(c));
+          if (!nightSpot && nightKeyword) {
+            // Cross-region fallback: If main region candidates have no match for nightKeyword (e.g. '명동' during a Gyeonggi trip), create a dedicated fallback spot
+            nightSpot = {
+              id: `pin-night-${Date.now()}`,
+              title: nightKeyword.includes('명동') ? 'N서울타워 & 명동거리' : `${nightKeyword} 야경 & 숙소 인근`,
+              location: nightKeyword.includes('명동') ? '서울특별시 중구 명동길 43' : `${nightKeyword} 중심가`,
+              lat: nightKeyword.includes('명동') ? 37.5610 : 37.5665,
+              lng: nightKeyword.includes('명동') ? 126.9860 : 126.9780,
+              rating: 4.9,
+              tags: ['야경명소', nightKeyword, '숙소근처'],
+              image: GYEONGBOKGUNG_FALLBACK_IMG
+            };
+          }
           if (nightSpot && !globalUsedTitles.has(nightSpot.title.toLowerCase().replace(/\s+/g, ''))) {
             targetSpot = nightSpot;
             globalUsedTitles.add(targetSpot.title.toLowerCase().replace(/\s+/g, ''));

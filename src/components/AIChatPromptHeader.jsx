@@ -114,9 +114,9 @@ export function parseNaturalPrompt(text) {
 
   // Extract explicit landmark names mentioned in user prompt across languages
   const multilingualLandmarks = [
-    { canonical: '화성행궁', keys: ['화성행궁', 'hwaseong fortress', 'hwaseong', '華城行宮', '华城行宫', '水原華城'] },
+    { canonical: '화성행궁', keys: ['화성행궁', '행궁동', 'hwaseong fortress', 'hwaseong', 'haenggung', '華城行宮', '华城行宫', '水原華城'] },
     { canonical: '방화수류정', keys: ['방화수류정', 'banghwasuryujeong', '訪花隨柳亭', '访花随柳亭'] },
-    { canonical: '명동', keys: ['명동', 'myeongdong', '明洞', 'ミョンドン'] },
+    { canonical: '명동', keys: ['명동', 'myeongdong', 'myeong-dong', '明洞', 'ミョンドン'] },
     { canonical: 'N서울타워', keys: ['n서울타워', 'seoul tower', 'n seoul tower', 'n首尔塔', 'n首爾塔', 'Nソウルタワー'] },
     { canonical: '경복궁', keys: ['경복궁', 'gyeongbokgung', '景福宮', '景福宫', 'キョンボックン'] },
     { canonical: '해운대', keys: ['해운대', 'haeundae', '海雲台', '海云台'] },
@@ -135,7 +135,7 @@ export function parseNaturalPrompt(text) {
   // Multi-clause intent detection across 9 languages (Rainy mode, Night/Hotel/Stay area intent)
   const rainyModeIntent = /(비\s*오|비오|실내|우천|비가|rain|indoor|雨|室内|дождь|regen|pluie|lluvia)/i.test(rawLower);
   let nightKeywordIntent = '';
-  if (/(저녁|밤|야간|숙소|호텔|잘거야|자고|자야|자다|숙박|묵을|묵고|자려|stay|sleep|hotel|night|evening|夜|宿|酒店|宿泊|泊まる|泊まり|отель|ночь|остановиться|schlafen|übernachten|dormir|pernoctar)/i.test(rawLower)) {
+  if (/(저녁|밤|야간|숙소|호텔|잘\s*거야|잘거야|자고|자야|자다|숙박|묵을|묵고|자려|stay|sleep|hotel|night|evening|夜|宿|酒店|宿泊|泊まる|泊まり|отель|ночь|остановиться|schlafen|übernachten|dormir|pernoctar)/i.test(rawLower)) {
     const matchedNightSubCities = [];
     for (const item of multilingualSubCityMap) {
       for (const k of item.keys) {
@@ -151,6 +151,11 @@ export function parseNaturalPrompt(text) {
     if (matchedNightSubCities.length > 0) {
       nightKeywordIntent = matchedNightSubCities[0].city;
     }
+  }
+
+  // Auto-inject nightKeywordIntent into userLandmarks so pinpoint TourAPI query always fetches the night spot
+  if (nightKeywordIntent && !userLandmarks.includes(nightKeywordIntent)) {
+    userLandmarks.push(nightKeywordIntent);
   }
 
   return {
