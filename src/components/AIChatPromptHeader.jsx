@@ -149,8 +149,7 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
   const [isInlineChatExpanded, setIsInlineChatExpanded] = useState(false);
   const [chatMessages, setChatMessages] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
-  const recognitionRef = useRef(null);
-  const chatScrollRef = useRef(null);
+  const chatContainerRef = useRef(null);
 
   useEffect(() => {
     if (filters && filters.keyword === '') {
@@ -188,9 +187,10 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
     }
   }, [lang]);
 
+  // Scroll ONLY inside inner chat container without moving the outer page window!
   useEffect(() => {
-    if (isInlineChatExpanded) {
-      chatScrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (isInlineChatExpanded && chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [chatMessages, isGenerating, isInlineChatExpanded]);
 
@@ -357,8 +357,10 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
 
       {/* Inline AI Chat Thread Area (Expands downward inside Hero Card with smooth scroll) */}
       {isInlineChatExpanded && (
-        <div style={{
-          background: '#f8fafc',
+        <div 
+          ref={chatContainerRef}
+          style={{
+            background: '#f8fafc',
           border: '1px solid #e2e8f0',
           borderRadius: '16px',
           padding: '1rem',
