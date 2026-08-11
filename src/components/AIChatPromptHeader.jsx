@@ -74,10 +74,15 @@ export function parseNaturalPrompt(text) {
   // Days detection (Check full multilingual patterns: "1박 2일", "2 days", "2日", "2天1夜", "2 tage", "2 jours", etc.)
   let days = 3;
   const rawLower = raw.toLowerCase();
-  if (/(1박\s*2일|1박2일|2d|2-day|2\s*days|2days|2日|2日間|2天|2天1夜|兩天|2\s*tage|2\s*jours|2\s*días|2\s*дня)/i.test(rawLower)) days = 2;
-  else if (/(2박\s*3일|2박3일|3d|3-day|3\s*days|3days|3日|3日間|3天|3天2夜|3\s*tage|3\s*jours|3\s*días|3\s*дня)/i.test(rawLower)) days = 3;
-  else if (/(3박\s*4일|3박4일|4d|4-day|4\s*days|4days|4日|4日間|4天|4天3夜|4\s*tage|4\s*jours|4\s*días|4\s*дня)/i.test(rawLower)) days = 4;
-  else if (/(1박|하루|당일|1d|1-day|1\tag|1\s*day|1day|1日|1天|1\s*jour|1\s*día|1\s*день)/i.test(rawLower)) days = 1;
+  const maxDayMatch = rawLower.match(/([1-7])일차/g);
+  if (maxDayMatch) {
+    const maxDayNum = Math.max(...maxDayMatch.map(m => parseInt(m.replace(/\D/g, ''), 10)));
+    if (maxDayNum >= 1 && maxDayNum <= 7) days = maxDayNum;
+  } else if (/(4박\s*5일|4박5일|5d|5-day|5\s*days|5days|5일차|5일|5日|5日間|5天|5\s*tage|5\s*jours)/i.test(rawLower)) days = 5;
+  else if (/(3박\s*4일|3박4일|4d|4-day|4\s*days|4days|4일차|4일|4日|4日間|4天|4\s*tage|4\s*jours)/i.test(rawLower)) days = 4;
+  else if (/(2박\s*3일|2박3일|3d|3-day|3\s*days|3days|3일차|3일|3日|3日間|3天)/i.test(rawLower)) days = 3;
+  else if (/(1박\s*2일|1박2일|2d|2-day|2\s*days|2days|2일차|2일|2日|2日間|2天)/i.test(rawLower)) days = 2;
+  else if (/(1박|하루|당일|1d|1-day|1일차|1일|1\tag|1\s*day)/i.test(rawLower)) days = 1;
 
   // Multilingual Sub-Cities & Endonyms Dictionary
   const multilingualSubCityMap = [
@@ -113,6 +118,23 @@ export function parseNaturalPrompt(text) {
 
   if (detectedSubCity) {
     cleanKeyword = detectedSubCity;
+  }
+
+  // Build dailyRegions array sequentially for unique cities (e.g., 수원 -> 명동 -> 인천 -> 강릉 -> 속초)
+  const uniqueCities = [...new Set(matchedSubCities.map(m => m.city))];
+  const dailyRegions = [];
+  if (uniqueCities.length > 0) {
+    uniqueCities.forEach((city, index) => {
+      dailyRegions.push({
+        day: index + 1,
+        daytime: city,
+        night: uniqueCities[index + 1] || city
+      });
+    });
+  }
+
+  if (dailyRegions.length > days) {
+    days = dailyRegions.length;
   }
 
   // Extract explicit landmark names mentioned in user prompt across languages
@@ -215,6 +237,7 @@ export function parseNaturalPrompt(text) {
     rainyMode: rainyModeIntent,
     nightKeyword: nightKeywordIntent,
     day2Keyword: day2KeywordIntent,
+    dailyRegions,
     userLandmarks
   };
 }
