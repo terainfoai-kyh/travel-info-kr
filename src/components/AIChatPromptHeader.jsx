@@ -147,8 +147,9 @@ export function parseNaturalPrompt(text) {
         while (pos !== -1) {
           let minDist = 99999;
           for (const sIdx of stayIndices) {
-            const dist = Math.abs(pos - sIdx);
-            if (dist < minDist) minDist = dist;
+            // Sub-cities appearing after or immediately before stay keyword (pos >= sIdx - 2) get high priority
+            const forwardDist = pos >= (sIdx - 2) ? (pos - sIdx + 2) : (sIdx - pos + 200);
+            if (forwardDist < minDist) minDist = forwardDist;
           }
           subCityDistances.push({ city: item.canonical, dist: minDist, pos });
           pos = rawLower.indexOf(kLower, pos + 1);
