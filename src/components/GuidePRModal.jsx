@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, BookOpen, Megaphone, Sparkles, MapPin, Map, Compass, ShieldCheck, Mail, ExternalLink, Check, Copy, Navigation, Utensils, Sun, Globe } from 'lucide-react';
+import { useModalHistory } from '../hooks/useModalHistory';
 
 const GUIDE_PR_TRANSLATIONS = {
   ko: {
@@ -239,6 +240,8 @@ const GUIDE_PR_TRANSLATIONS = {
 };
 
 export default function GuidePRModal({ isOpen, onClose, lang = 'ko', onOpenPartnerInquiry }) {
+  useModalHistory(isOpen, onClose, 'guide-pr');
+
   const t = GUIDE_PR_TRANSLATIONS[lang] || GUIDE_PR_TRANSLATIONS.ko;
   const [activeTab, setActiveTab] = useState('manual'); // 'manual' | 'pr'
   const [copiedEmail, setCopiedEmail] = useState(false);

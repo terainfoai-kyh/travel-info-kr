@@ -7,6 +7,7 @@ import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress } from '../i18n/
 import { getI18nTravelNote } from '../i18n/travelChipI18n';
 import { buildAgodaDeepLink, buildKlookDeepLink } from '../services/apiConfig';
 import ItineraryMapView from './ItineraryMapView';
+import { useModalHistory } from '../hooks/useModalHistory';
 
 function getI18nDayHeaderTitle(dayObj, region, lang = 'ko') {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
@@ -55,6 +56,8 @@ function getI18nDayHeaderTitle(dayObj, region, lang = 'ko') {
 }
 
 export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, onSelectSpot, customPickedSpots = [] }) {
+  useModalHistory(isOpen, onClose, 'itinerary-modal');
+
   const getInitialDays = () => {
     if (customPickedSpots && customPickedSpots.length > 0) {
       return Math.min(Math.max(Math.ceil(customPickedSpots.length / 4), 1), 5);

@@ -4,8 +4,11 @@ import { fetchSpotDetailCommon, fetchSpotDetailImages, fetchSpotDetailIntro } fr
 import { PUBLIC_API_CONFIG, buildAgodaDeepLink, buildKlookDeepLink, buildKKdayDeepLink } from '../services/apiConfig';
 import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress, getTranslatedTheme, getTranslatedReview, getTranslatedOverview, getTranslatedDetailText } from '../i18n/translations';
 import TravelImageWithFallback from './TravelImageWithFallback';
+import { useModalHistory } from '../hooks/useModalHistory';
 
 export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggleBookmark, lang = 'ko' }) {
+  useModalHistory(!!spot, onClose, 'travel-detail');
+
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
   const [detailData, setDetailData] = useState(null);
   const [introData, setIntroData] = useState(null);

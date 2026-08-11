@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { X, Heart, Trash2, Share2, Copy, Check, ExternalLink, MapPin, Sparkles } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
 import TravelImageWithFallback from './TravelImageWithFallback';
+import { useModalHistory } from '../hooks/useModalHistory';
 
 export default function WishlistDrawer({ isOpen, onClose, wishlistSpots, onRemoveWishlist, onSelectSpot, lang }) {
+  useModalHistory(isOpen, onClose, 'wishlist-drawer');
+
   const [copied, setCopied] = useState(false);
 
   if (!isOpen) return null;

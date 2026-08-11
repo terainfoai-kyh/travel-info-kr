@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { X, Mail, Send, Check, Copy, Building, Sparkles, Loader2 } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
+import { useModalHistory } from '../hooks/useModalHistory';
 
 export default function PartnerInquiryModal({ isOpen, onClose, lang = 'ko' }) {
+  useModalHistory(isOpen, onClose, 'partner-inquiry');
+
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
 
   const [form, setForm] = useState({
