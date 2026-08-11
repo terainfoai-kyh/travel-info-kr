@@ -3,6 +3,8 @@ import { Smartphone, Download, X, Share, Monitor, Sparkles } from 'lucide-react'
 
 const PWA_I18N = {
   ko: {
+    installFailTipTitle: '앱 다운로드/설치가 잘 안 되시나요?',
+    installFailTipDesc: '카카오톡/네이버 등 메신저 내부에서 접속하셨다면 우측 상단 [⋮] 버튼 ➔ [다른 브라우저로 열기]를 눌러 크롬/사파리에서 접속하시면 1초 만에 설치됩니다!',
     bannerTitle: '📱 스마트폰 홈 화면 바로가기',
     bannerDesc: '바탕화면에 추가하고 터치 한 번으로 빠르게 접속하세요!',
     badgeNew: 'NEW',
@@ -23,6 +25,8 @@ const PWA_I18N = {
     confirmBtn: '확인'
   },
   en: {
+    installFailTipTitle: 'Having trouble installing the app?',
+    installFailTipDesc: 'If opened inside KakaoTalk, Naver, or Social Apps, tap [⋮] at top right ➔ "Open in External Browser" and use Chrome or Safari for 1-tap fast install!',
     bannerTitle: '📱 Add to Home Screen',
     bannerDesc: 'Add shortcut to home screen for 1-tap fast access!',
     badgeNew: 'NEW',
@@ -43,6 +47,8 @@ const PWA_I18N = {
     confirmBtn: 'Got it'
   },
   ja: {
+    installFailTipTitle: 'アプリの追加がうまくいきませんか？',
+    installFailTipDesc: 'LINEやカカオトーク等のアプリ内ブラウザから閲覧中の場合は、右上 [⋮] ➔ 「他のブラウザで開く」を選択し、ChromeやSafariでアクセスすると即座に追加できます！',
     bannerTitle: '📱 ホーム画面に追加',
     bannerDesc: 'ホーム画面に追加してワンタップで即アクセス！',
     badgeNew: 'NEW',
@@ -63,6 +69,8 @@ const PWA_I18N = {
     confirmBtn: 'OK'
   },
   zh: {
+    installFailTipTitle: '无法下载或添加快捷应用？',
+    installFailTipDesc: '如果是在微信/Kakao等应用内置浏览器中打开，请点击右上角 [⋮] ➔ 选择"用其他浏览器打开"，使用 Chrome 或 Safari 即可一键完成添加！',
     bannerTitle: '📱 添加至手机主屏幕',
     bannerDesc: '添加快捷方式，主屏幕一键快速访问！',
     badgeNew: 'NEW',
@@ -83,6 +91,8 @@ const PWA_I18N = {
     confirmBtn: '我知道了'
   },
   zht: {
+    installFailTipTitle: '無法下載或新增快捷應用？',
+    installFailTipDesc: '如果是在LINE/Kakao等應用內置瀏覽器中打開，請點擊右上角 [⋮] ➔ 選擇"用其他瀏覽器打開"，使用 Chrome 或 Safari 即可一鍵完成新增！',
     bannerTitle: '📱 新增至手機主畫面',
     bannerDesc: '新增快捷方式，主畫面一鍵快速訪問！',
     badgeNew: 'NEW',
@@ -103,6 +113,8 @@ const PWA_I18N = {
     confirmBtn: '我知道了'
   },
   de: {
+    installFailTipTitle: 'Probleme bei der App-Installation?',
+    installFailTipDesc: 'Falls in KakaoTalk/In-App-Browser geöffnet, tippen Sie oben rechts auf [⋮] ➔ "In externem Browser öffnen" und nutzen Sie Chrome oder Safari für die 1-Klick-Installation!',
     bannerTitle: '📱 Zum Startbildschirm hinzufügen',
     bannerDesc: 'Mit 1-Klick direkt vom Startbildschirm zugreifen!',
     badgeNew: 'NEU',
@@ -123,6 +135,8 @@ const PWA_I18N = {
     confirmBtn: 'Verstanden'
   },
   fr: {
+    installFailTipTitle: 'Problème lors de l\'installation ?',
+    installFailTipDesc: 'Si ouvert dans un navigateur in-app, appuyez sur [⋮] en haut à droite ➔ "Ouvrir dans le navigateur" pour installer via Chrome ou Safari !',
     bannerTitle: '📱 Ajouter à l\'écran d\'accueil',
     bannerDesc: 'Ajoutez un raccourci pour un accès rapide en 1 clic !',
     badgeNew: 'NOUVEAU',
@@ -143,6 +157,8 @@ const PWA_I18N = {
     confirmBtn: 'D\'accord'
   },
   es: {
+    installFailTipTitle: '¿Problemas para instalar la aplicación?',
+    installFailTipDesc: 'Si abriste desde KakaoTalk/navegador in-app, toca [⋮] arriba a la derecha ➔ "Abrir en navegador externo" e instala en 1 toque desde Chrome o Safari.',
     bannerTitle: '📱 Añadir a la pantalla de inicio',
     bannerDesc: '¡Añade un acceso directo para acceder en 1 toque!',
     badgeNew: 'NUEVO',
@@ -163,6 +179,8 @@ const PWA_I18N = {
     confirmBtn: 'Entendido'
   },
   ru: {
+    installFailTipTitle: 'Не получается установить приложение?',
+    installFailTipDesc: 'Если вы открыли ссылку внутри мессенджера, нажмите [⋮] вверху справа ➔ «Открыть в браузере» и используйте Chrome или Safari для установки!',
     bannerTitle: '📱 Добавить на экран «Домой»',
     bannerDesc: 'Быстрый доступ в 1 касание с главного экрана!',
     badgeNew: 'NEW',
@@ -453,9 +471,34 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
               </button>
             </div>
 
-            <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: 1.55, marginBottom: '1.15rem' }}>
+            <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: 1.55, marginBottom: '0.85rem' }}>
               {isDesktop ? t.desktopGuideModalSub : t.guideModalSub}
             </p>
+
+            {/* Solution A Tip Box: In-App Browser & Install Troubleshooting Tip */}
+            <div style={{
+              background: 'rgba(56, 189, 248, 0.08)',
+              border: '1px solid rgba(56, 189, 248, 0.3)',
+              padding: '0.65rem 0.85rem',
+              borderRadius: 'var(--radius-md)',
+              fontSize: '0.76rem',
+              color: 'var(--text-main)',
+              lineHeight: 1.5,
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '0.45rem',
+              marginBottom: '1.15rem'
+            }}>
+              <Sparkles size={16} color="var(--accent-primary)" style={{ flexShrink: 0, marginTop: '2px' }} />
+              <div>
+                <div style={{ fontWeight: 800, color: 'var(--accent-primary)', marginBottom: '0.15rem' }}>
+                  💡 {t.installFailTipTitle || '앱 다운로드/설치가 잘 안 되시나요?'}
+                </div>
+                <div>
+                  {t.installFailTipDesc || '카카오톡/네이버 등 메신저 내부에서 접속하셨다면 우측 상단 [⋮] 버튼 ➔ [다른 브라우저로 열기]를 눌러 크롬/사파리에서 접속하시면 1초 만에 설치됩니다!'}
+                </div>
+              </div>
+            </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.35rem' }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem', background: 'var(--bg-primary)', padding: '0.7rem 0.85rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
