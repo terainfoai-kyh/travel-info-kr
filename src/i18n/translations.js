@@ -484,7 +484,9 @@ export const TRANSLATIONS = {
       'location': '위치기반 주변 관광 (내주변/반경)',
       'festival': '행사/축제 정보',
       'stay': '숙박/호텔 정보'
-    }
+    },
+    deleteSpotBtn: "제외 🗑️",
+    addSpotBtn: "코스에 명소 추가 ➕",
   },
   en: {
     mapLockScrollShort: '🔒 Scroll Priority',
@@ -883,7 +885,9 @@ export const TRANSLATIONS = {
       'location': 'Location-based Nearby Tour (Radius)',
       'festival': 'Events & Festivals Info',
       'stay': 'Stay & Hotel Info'
-    }
+    },
+    deleteSpotBtn: "Remove 🗑️",
+    addSpotBtn: "Add Spot to Itinerary ➕",
   },
   ja: {
     mapLockScrollShort: '🔒 スクロール優先',
@@ -1265,7 +1269,9 @@ export const TRANSLATIONS = {
       'location': '位置情報周辺観光 (周辺/半径)',
       'festival': 'イベント・お祭り情報',
       'stay': '宿泊・ホテル情報'
-    }
+    },
+    deleteSpotBtn: "除外 🗑️",
+    addSpotBtn: "コースにスポット追加 ➕",
   },
   zh: {
     mapLockScrollShort: '🔒 优先滑动',
@@ -1667,7 +1673,9 @@ export const TRANSLATIONS = {
       'location': '基于位置的周边观光 (周边/半径)',
       'festival': '活动/庆典信息',
       'stay': '住宿/酒店信息'
-    }
+    },
+    deleteSpotBtn: "移除 🗑️",
+    addSpotBtn: "添加景点到行程 ➕",
   },
   zht: {
     mapLockScrollShort: '🔒 優先滑動',
@@ -2051,7 +2059,9 @@ export const TRANSLATIONS = {
       'location': '基於位置的周邊觀光 (周邊/半徑)',
       'festival': '活動/慶典資訊',
       'stay': '住宿/酒店資訊'
-    }
+    },
+    deleteSpotBtn: "移除 🗑️",
+    addSpotBtn: "新增景點至行程 ➕",
   },
   de: {
     mapLockScrollShort: '🔒 Scroll-Modus',
@@ -2278,7 +2288,10 @@ export const TRANSLATIONS = {
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
-    closeMenu: 'Cerrar', 'all': 'Alle Dienste (TourAPI)', 'area': 'Regional-Sehenswürdigkeiten', 'location': 'In der Nähe (Radius)', 'festival': 'Events & Festivals', 'stay': 'Unterkunft & Hotels' }
+    closeMenu: 'Cerrar', 'all': 'Alle Dienste (TourAPI)', 'area': 'Regional-Sehenswürdigkeiten', 'location': 'In der Nähe (Radius)', 'festival': 'Events & Festivals', 'stay': 'Unterkunft & Hotels' },
+
+    deleteSpotBtn: "Entfernen 🗑️",
+    addSpotBtn: "Ort zum Reiseplan hinzufügen ➕",
   },
   fr: {
     mapLockScrollShort: '🔒 Défilement prioritaire',
@@ -2517,7 +2530,10 @@ export const TRANSLATIONS = {
     mapViewShort: '🗺️ Mapa',
     listViewShort: '📋 Itinerario',
     openMenu: 'Menú',
-    closeMenu: 'Cerrar', 'all': 'Tous les Services (TourAPI)', 'area': 'Attractions Régionales', 'location': 'À Proximité (Rayon)', 'festival': 'Événements & Festivals', 'stay': 'Hôtels & Hébergements' }
+    closeMenu: 'Cerrar', 'all': 'Tous les Services (TourAPI)', 'area': 'Attractions Régionales', 'location': 'À Proximité (Rayon)', 'festival': 'Événements & Festivals', 'stay': 'Hôtels & Hébergements' },
+
+    deleteSpotBtn: "Supprimer 🗑️",
+    addSpotBtn: "Ajouter un lieu à l’itinéraire ➕",
   },
   es: {
     openGoogleRoute: '🗺️ Google Maps Ruta',

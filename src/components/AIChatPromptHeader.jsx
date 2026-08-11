@@ -68,80 +68,77 @@ export function parseNaturalPrompt(text) {
     });
   }
 
-  // Detect sub-city keyword sorted by EARLIEST appearance index in user's prompt text
-  const subCities = [
-    '성수동', '성수', '강남', '홍대', '명동', '이태원', '잠실', '종로', '익선동', '연남동', '압구정', '청담',
-    '수원', '용인', '성남', '분당', '파주', '가평', '고양', '일산', '부천', '안양', '화성', '동탄', '남양주', '평택', '의정부', '시흥', '김포', '안산', '광명', '행궁동',
-    '서귀포', '애월', '성산', '중문', '우도', '한라산',
-    '해운대', '광안리', '서면', '영도', '기장', '태종대', '자갈치', '남포동',
-    '송도', '영종도', '강화도', '차이나타운',
-    '속초', '강릉', '춘천', '평창', '양양', '동해', '삼척', '원주', '설악산', '경포대', '정선', '홍천',
-    '경주', '포항', '안동', '구미', '영주', '울릉도', '독도', '보문단지',
-    '창원', '거제', '통영', '남해', '진주', '양산', '외도',
-    '전주', '군산', '익산', '남원', '무주', '한옥마을',
-    '여수', '순천', '목포', '담양', '보성', '향일암',
-    '청주', '충주', '제천', '단양', '청남대',
-    '천안', '아산', '공주', '부여', '보령', '태안', '대천', '안면도'
+
+
+  // Days detection (Check full multilingual patterns: "1박 2일", "2 days", "2日", "2天1夜", "2 tage", "2 jours", etc.)
+  let days = 3;
+  const rawLower = raw.toLowerCase();
+  if (/(1박\s*2일|1박2일|2d|2-day|2\s*days|2days|2日|2日間|2天|2天1夜|兩天|2\s*tage|2\s*jours|2\s*días|2\s*дня)/i.test(rawLower)) days = 2;
+  else if (/(2박\s*3일|2박3일|3d|3-day|3\s*days|3days|3日|3日間|3天|3天2夜|3\s*tage|3\s*jours|3\s*días|3\s*дня)/i.test(rawLower)) days = 3;
+  else if (/(3박\s*4일|3박4일|4d|4-day|4\s*days|4days|4日|4日間|4天|4天3夜|4\s*tage|4\s*jours|4\s*días|4\s*дня)/i.test(rawLower)) days = 4;
+  else if (/(1박|하루|당일|1d|1-day|1\tag|1\s*day|1day|1日|1天|1\s*jour|1\s*día|1\s*день)/i.test(rawLower)) days = 1;
+
+  // Multilingual Sub-Cities & Endonyms Dictionary
+  const multilingualSubCityMap = [
+    { canonical: '수원', keys: ['수원', 'suwon', '水原', 'スウォン', 'сувон', '행궁동', '화성행궁'] },
+    { canonical: '명동', keys: ['명동', 'myeongdong', 'myeong-dong', '明洞', 'ミョンドン', 'мёндон'] },
+    { canonical: '성수동', keys: ['성수동', '성수', 'seongsu', 'seongsudong', '聖水', 'ソンス', 'сонсу'] },
+    { canonical: '해운대', keys: ['해운대', 'haeundae', '海雲台', '海云台', 'ヘウンデ', 'хэундэ'] },
+    { canonical: '광안리', keys: ['광안리', 'gwangalli', '廣安里', '广安里', 'クァンアンリ', 'квананли'] },
+    { canonical: '서귀포', keys: ['서귀포', 'seogwipo', '西歸浦', '西归浦', 'ソ귀포', 'соквипхо'] },
+    { canonical: '강릉', keys: ['강릉', 'gangneung', '江陵', 'カンヌン', 'каннын'] },
+    { canonical: '속초', keys: ['속초', 'sokcho', '束草', 'ソクチョ', 'сокчхо'] },
+    { canonical: '경주', keys: ['경주', 'gyeongju', '慶州', '庆州', 'キョンジュ', 'кёнджу'] },
+    { canonical: '전주', keys: ['전주', 'jeonju', '全州', 'チョンジュ', 'чонджу'] },
+    { canonical: '여수', keys: ['여수', 'yeosu', '麗水', '丽水', 'ヨス', 'ёсу'] }
   ];
 
   const matchedSubCities = [];
-  for (const city of subCities) {
-    const idx = raw.toLowerCase().indexOf(city.toLowerCase());
-    if (idx !== -1) {
-      matchedSubCities.push({ city, idx });
+  for (const item of multilingualSubCityMap) {
+    for (const k of item.keys) {
+      const idx = rawLower.indexOf(k.toLowerCase());
+      if (idx !== -1) {
+        matchedSubCities.push({ city: item.canonical, idx });
+        break;
+      }
     }
   }
 
   // Sort by appearance position in raw string
   matchedSubCities.sort((a, b) => a.idx - b.idx);
-
   let detectedSubCity = matchedSubCities.length > 0 ? matchedSubCities[0].city : '';
 
-  // Priority for earliest detected sub-city over junk fragments or conjunctions
   if (detectedSubCity) {
     cleanKeyword = detectedSubCity;
-  } else {
-    // Phase 4: Final fragment check. If remaining keyword is a meaningless fragment or junk intent, clear to ""
-    const junkFragments = ['가', '볼', '가볼', '곳', '만한', '에', '로', '좀', '추천', '가 볼', '가 볼 만한', '볼 만한', '포함', '코스', '여행', '및', '과', '와'];
-    if (junkFragments.includes(cleanKeyword) || cleanKeyword.length <= 1 || /^[\s가볼곳만한에로좀추천포함코스여행및과와]+$/i.test(cleanKeyword)) {
-      cleanKeyword = '';
-    }
   }
 
-  // Days detection (Check full "1박 2일" / "2박 3일" patterns BEFORE single "1박" to prevent 1박2일 from matching 1박)
-  let days = 3;
-  if (raw.includes('1박 2일') || raw.includes('1박2일')) days = 2;
-  else if (raw.includes('2박 3일') || raw.includes('2박3일')) days = 3;
-  else if (raw.includes('3박 4일') || raw.includes('3박4일')) days = 4;
-  else if (raw.includes('4박 5일') || raw.includes('4박5일')) days = 5;
-  else if (raw.includes('1박') || raw.includes('하루') || raw.includes('당일') || raw.includes('1d') || raw.includes('1-day')) days = 1;
-  else if (raw.includes('2박') || raw.includes('2d') || raw.includes('2-day')) days = 2;
-  else if (raw.includes('3박') || raw.includes('3d') || raw.includes('3-day')) days = 3;
-  else if (raw.includes('4박') || raw.includes('4d') || raw.includes('4-day')) days = 4;
-
-  // Extract explicit landmark names mentioned in user prompt (e.g. "화성행궁", "방화수류정", "명동", "성심당")
-  const landmarkKeywords = [
-    '화성행궁', '방화수류정', '행궁동', '명동', '경복궁', 'N서울타워', '북촌한옥마을', 'DDP', '성수동', '해운대', '광안리',
-    '감천문화마을', '태종대', '성산일출봉', '협재', '한라산', '섭지코지', '경포대', '속초관광수산시장', '설악산', '정동진',
-    '전주한옥마을', '경기전', '군산', '마이산', '불국사', '보문단지', '첨성대', '안동하회마을', '해동용궁사', '여수', '향일암',
-    '순천만', '담양', '보성', '청남대', '충주호', '도담삼봉', '안면도', '성심당', '유성온천', '동성로', '팔공산'
+  // Extract explicit landmark names mentioned in user prompt across languages
+  const multilingualLandmarks = [
+    { canonical: '화성행궁', keys: ['화성행궁', 'hwaseong fortress', 'hwaseong', '華城行宮', '华城行宫', '水原華城'] },
+    { canonical: '방화수류정', keys: ['방화수류정', 'banghwasuryujeong', '訪花隨柳亭', '访花随柳亭'] },
+    { canonical: '명동', keys: ['명동', 'myeongdong', '明洞', 'ミョンドン'] },
+    { canonical: 'N서울타워', keys: ['n서울타워', 'seoul tower', 'n seoul tower', 'n首尔塔', 'n首爾塔', 'Nソウルタワー'] },
+    { canonical: '경복궁', keys: ['경복궁', 'gyeongbokgung', '景福宮', '景福宫', 'キョンボックン'] },
+    { canonical: '해운대', keys: ['해운대', 'haeundae', '海雲台', '海云台'] },
+    { canonical: '성산일출봉', keys: ['성산일출봉', 'seongsan', '城山日出峰'] },
+    { canonical: '전주한옥마을', keys: ['전주한옥마을', '한옥마을', 'hanok village', '韓屋村', '韩屋村'] },
+    { canonical: '성심당', keys: ['성심당', 'sungsimdang', '聖心堂', '圣心堂'] }
   ];
 
   const userLandmarks = [];
-  for (const lm of landmarkKeywords) {
-    if (raw.includes(lm)) {
-      userLandmarks.push(lm);
+  for (const lmItem of multilingualLandmarks) {
+    if (lmItem.keys.some(k => rawLower.includes(k.toLowerCase()))) {
+      userLandmarks.push(lmItem.canonical);
     }
   }
 
-  // Multi-clause intent detection (Rainy mode, Night/Hotel area intent)
-  const rainyModeIntent = /(비\s*오|비오|실내|우천|비가)/i.test(raw);
+  // Multi-clause intent detection across languages (Rainy mode, Night/Hotel area intent)
+  const rainyModeIntent = /(비\s*오|비오|실내|우천|비가|rain|indoor|雨|室内|дождь|regen|pluie|lluvia)/i.test(rawLower);
   let nightKeywordIntent = '';
-  if (/(저녁|밤|야간|숙소|호텔)/i.test(raw)) {
-    const nightAreas = ['명동', '해운대', '광안리', '홍대', '성수', '서귀포', '이태원', '강남', '종로', '송도', '속초', '여수', '경주', '전주'];
-    for (const area of nightAreas) {
-      if (raw.includes(area)) {
-        nightKeywordIntent = area;
+  if (/(저녁|밤|야간|숙소|호텔|evening|night|hotel|stay|夜|宿|酒店|отель|ночь|nacht|nuit|noche)/i.test(rawLower)) {
+    for (const item of multilingualSubCityMap) {
+      if (item.keys.some(k => rawLower.includes(k.toLowerCase()))) {
+        nightKeywordIntent = item.canonical;
         break;
       }
     }

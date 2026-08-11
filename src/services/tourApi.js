@@ -583,6 +583,11 @@ export async function fetchPinpointLandmarkSpots(landmarks = [], lang = 'ko') {
   if (lang === 'en') apiBase = PUBLIC_API_CONFIG.ENG_BASE;
   else if (lang === 'ja') apiBase = PUBLIC_API_CONFIG.JPN_BASE;
   else if (lang === 'zh') apiBase = PUBLIC_API_CONFIG.CHS_BASE;
+  else if (lang === 'zht') apiBase = PUBLIC_API_CONFIG.CHT_BASE;
+  else if (lang === 'de') apiBase = PUBLIC_API_CONFIG.GER_BASE;
+  else if (lang === 'fr') apiBase = PUBLIC_API_CONFIG.FRE_BASE;
+  else if (lang === 'es') apiBase = PUBLIC_API_CONFIG.SPN_BASE;
+  else if (lang === 'ru') apiBase = PUBLIC_API_CONFIG.RUS_BASE;
 
   const pinpointSpots = [];
 
