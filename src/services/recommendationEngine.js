@@ -665,9 +665,12 @@ export function generateSmartItinerary({
     for (let s = 0; s < targetSlotsCount; s++) {
       let targetSpot = null;
 
-      // On Day 1, strictly bind user's active search result spots to slots 1..N
-      if (d === 1 && activeSearchSpots[s] && activeSearchSpots[s].title) {
-        targetSpot = activeSearchSpots[s];
+      // On Day 1, bind user's active search result spots with dynamic seed offset so changing duration/seed reshuffles Day 1 layout
+      const searchOffset = (refreshSeed + numDays - 1) % (activeSearchSpots.length || 1);
+      const searchIdx = (s + searchOffset) % (activeSearchSpots.length || 1);
+
+      if (d === 1 && activeSearchSpots[searchIdx] && activeSearchSpots[searchIdx].title) {
+        targetSpot = activeSearchSpots[searchIdx];
         globalUsedTitles.add(targetSpot.title.toLowerCase().replace(/\s+/g, ''));
       } else {
         // Find first candidate that hasn't been used yet across the entire itinerary
@@ -813,13 +816,6 @@ export function generateCustomPickedItinerary({
     const dayOfWeek = WEEKDAYS[curDate.getDay()];
     const formattedDate = `${year}.${month}.${dateNum} (${dayOfWeek})`;
 
-    const dayTimeSlots = [
-      { time: '09:30', slotName: '오전 명소 & 상쾌한 출발', icon: 'Sun' },
-      { time: '13:00', slotName: '낮 일정 & 핵심 랜드마크', icon: 'MapPin' },
-      { time: '16:30', slotName: '오후 관광 & K-컬처 체험', icon: 'Camera' },
-      { time: '20:00', slotName: '야경 탐방 & 도심 산책', icon: 'Moon' }
-    ];
-
     const dayGroup = daysByProvince[d - 1] || daysByProvince[0];
     const dayProv = dayGroup.province;
     const dayPicked = [...dayGroup.spots];
@@ -827,7 +823,16 @@ export function generateCustomPickedItinerary({
     // If dayPicked has fewer than 4 spots, auto-fill with nearby spots from allSpots in the SAME province!
     if (dayPicked.length > 0 && dayPicked.length < 4 && allSpots.length > 0) {
       const existingIds = new Set(dayPicked.map(s => s.id));
-      const nearbyExtra = allSpots.filter(s => getSpotProvinceKey(s) === dayProv && !existingIds.has(s.id));
+      let candidateSpots = allSpots;
+      if (rainyMode) {
+        const indoorKeywords = ['박물관', '미술관', '몰', '카페', '실내', '아쿠아리움', '전시관', '백화점', '쇼핑', '시장', '온천', '공연장', '체험관'];
+        const indoorCandidateSpots = allSpots.filter(s => {
+          const fullTxt = `${s.title || ''} ${s.location || ''} ${s.tags?.join(' ') || ''}`.toLowerCase();
+          return indoorKeywords.some(kw => fullTxt.includes(kw));
+        });
+        if (indoorCandidateSpots.length >= 1) candidateSpots = indoorCandidateSpots;
+      }
+      const nearbyExtra = candidateSpots.filter(s => getSpotProvinceKey(s) === dayProv && !existingIds.has(s.id));
 
       for (let extra of nearbyExtra) {
         if (dayPicked.length >= 4) break;
@@ -835,6 +840,22 @@ export function generateCustomPickedItinerary({
         existingIds.add(extra.id);
       }
     }
+
+    const startH = parseHourMin(startTime, 9.5);
+    const endH = parseHourMin(endTime, 20.0);
+    const duration = Math.max(3, endH - startH);
+    const step = dayPicked.length > 1 ? duration / (dayPicked.length - 1) : 0;
+
+    const dayTimeSlots = dayPicked.map((_, sIdx) => {
+      const slotH = startH + (step * sIdx);
+      let slotName = '추천 관광';
+      let icon = 'MapPin';
+      if (sIdx === 0) { slotName = '오전 명소 & 상쾌한 출발'; icon = 'Sun'; }
+      else if (sIdx === dayPicked.length - 1) { slotName = '야경 탐방 & 도심 산책'; icon = 'Moon'; }
+      else if (sIdx === 1) { slotName = '낮 일정 & 핵심 랜드마크'; icon = 'MapPin'; }
+      else { slotName = '오후 관광 & K-컬처 체험'; icon = 'Camera'; }
+      return { time: formatTimeSlot(slotH), slotName, icon };
+    });
 
     const daySpots = dayPicked.map((spot, sIdx) => ({
       time: dayTimeSlots[sIdx]?.time || '10:00',

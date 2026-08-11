@@ -408,6 +408,14 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
               <Compass size={17} color="var(--accent-primary)" />
               <span>{getI18nDayHeaderTitle(currentDayData, currentDayData?.region, lang)}</span>
             </div>
+            {currentDayData?.dateStr && (
+              <div style={{ fontSize: '0.74rem', fontWeight: 700, color: 'var(--accent-primary)', marginTop: '0.15rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                <span>📅 {currentDayData.dateStr}</span>
+                {schedule[0]?.time && schedule[schedule.length - 1]?.time && (
+                  <span>· 🕒 {schedule[0].time} ~ {schedule[schedule.length - 1].time}</span>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Map Navigation Buttons: Google Maps Route & KakaoMap Directions */}
