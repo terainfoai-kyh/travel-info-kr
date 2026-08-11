@@ -605,11 +605,13 @@ export function generateSmartItinerary({
     const formattedDate = `${year}.${month}.${dateNum} (${dayOfWeek})`;
 
     let targetProvince = region;
+    let provincePool = pool;
     // Multi-Day Region Inheritance: If Day 1 night keyword specified a new region, Day 2+ inherits the new region
     if (d > 1 && nightKeyword) {
       const inheritedKey = getSpotProvinceKey({ region: nightKeyword, location: nightKeyword });
       if (inheritedKey && inheritedKey !== '한국') {
         targetProvince = inheritedKey;
+        provincePool = REGION_PRESETS[inheritedKey] || pool;
       }
     } else if (region === '전국' || region === '전체') {
       const firstSpotRegion = spots[0] ? getSpotProvinceKey(spots[0]) : '';
