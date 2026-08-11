@@ -597,7 +597,9 @@ export async function fetchPinpointLandmarkSpots(landmarks = [], lang = 'ko') {
       const url = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=5&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=B&keyword=${encodeURIComponent(lm)}`;
       const res = await fetch(url);
       if (res.ok) {
-        const data = await res.json();
+        const rawText = await res.text();
+        if (!rawText || !rawText.trim().startsWith('{')) continue;
+        const data = JSON.parse(rawText);
         const items = data.response?.body?.items?.item || [];
         const rawItem = Array.isArray(items) ? items[0] : items;
         if (rawItem && rawItem.title) {

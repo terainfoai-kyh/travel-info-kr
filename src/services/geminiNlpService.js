@@ -56,43 +56,52 @@ IMPORTANT: Output ONLY raw JSON without markdown backticks (\`\`\`json).`;
     }
   };
 
-  try {
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(requestPayload)
-    });
+  const candidateModels = [
+    'gemini-1.5-flash',
+    'gemini-2.0-flash',
+    'gemini-1.5-flash-latest',
+    'gemini-1.5-pro'
+  ];
 
-    if (res.ok) {
-      const data = await res.json();
-      const textOutput = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-      const cleanJson = textOutput.replace(/```json/gi, '').replace(/```/g, '').trim();
-      const parsed = JSON.parse(cleanJson);
-
-      const dailyRegions = Array.isArray(parsed.dailyRegions) ? parsed.dailyRegions : [];
-      // Extract all unique landmarks across dailyRegions
-      const extractedLandmarks = [...(Array.isArray(parsed.userLandmarks) ? parsed.userLandmarks : [])];
-      dailyRegions.forEach(d => {
-        if (d.daytime && !extractedLandmarks.includes(d.daytime)) extractedLandmarks.push(d.daytime);
-        if (d.night && !extractedLandmarks.includes(d.night)) extractedLandmarks.push(d.night);
+  for (const modelName of candidateModels) {
+    try {
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${GEMINI_API_KEY}`;
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestPayload)
       });
 
-      return {
-        region: parsed.region || (dailyRegions[0]?.daytime ? getProvinceFromCity(dailyRegions[0].daytime) : '경기'),
-        days: parseInt(parsed.days, 10) || Math.max(dailyRegions.length, 2),
-        keyword: parsed.keyword || dailyRegions[0]?.daytime || '',
-        nightKeyword: parsed.nightKeyword || dailyRegions[0]?.night || '',
-        day2Keyword: parsed.day2Keyword || dailyRegions[1]?.daytime || '',
-        dailyRegions,
-        userLandmarks: extractedLandmarks,
-        rainyMode: !!parsed.rainyMode,
-        raw: rawPrompt,
-        isLlmParsed: true
-      };
+      if (res.ok) {
+        const data = await res.json();
+        const textOutput = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        const cleanJson = textOutput.replace(/```json/gi, '').replace(/```/g, '').trim();
+        const parsed = JSON.parse(cleanJson);
+
+        const dailyRegions = Array.isArray(parsed.dailyRegions) ? parsed.dailyRegions : [];
+        // Extract all unique landmarks across dailyRegions
+        const extractedLandmarks = [...(Array.isArray(parsed.userLandmarks) ? parsed.userLandmarks : [])];
+        dailyRegions.forEach(d => {
+          if (d.daytime && !extractedLandmarks.includes(d.daytime)) extractedLandmarks.push(d.daytime);
+          if (d.night && !extractedLandmarks.includes(d.night)) extractedLandmarks.push(d.night);
+        });
+
+        return {
+          region: parsed.region || (dailyRegions[0]?.daytime ? getProvinceFromCity(dailyRegions[0].daytime) : '경기'),
+          days: parseInt(parsed.days, 10) || Math.max(dailyRegions.length, 2),
+          keyword: parsed.keyword || dailyRegions[0]?.daytime || '',
+          nightKeyword: parsed.nightKeyword || dailyRegions[0]?.night || '',
+          day2Keyword: parsed.day2Keyword || dailyRegions[1]?.daytime || '',
+          dailyRegions,
+          userLandmarks: extractedLandmarks,
+          rainyMode: !!parsed.rainyMode,
+          raw: rawPrompt,
+          isLlmParsed: true
+        };
+      }
+    } catch (err) {
+      console.warn(`Gemini LLM model ${modelName} call failed, trying fallback:`, err);
     }
-  } catch (err) {
-    console.warn('Gemini LLM NLP endpoint unavailable, seamlessly falling back to local engine:', err);
   }
 
   // Zero-Failure Fallback: Use local parser if Gemini API key missing or offline
