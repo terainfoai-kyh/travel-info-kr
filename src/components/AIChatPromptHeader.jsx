@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, Mic, MicOff, ArrowRight, Camera, X, MessageSquare, Send, MapPin, Compass, ChevronDown, ChevronUp, Trash2, Volume2, VolumeX } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
-import { geminiParseNaturalPrompt, geminiGenerateFullItinerary, isGreetingQuery, isAffirmativeYes, checkAmbiguousRegionQuery } from '../services/geminiNlpService';
+import { geminiParseNaturalPrompt, geminiGenerateFullItinerary, isGreetingQuery, isAffirmativeYes, checkAmbiguousRegionQuery, checkMissingPublicDbQuery } from '../services/geminiNlpService';
 
 /**
  * Web SpeechSynthesis TTS helper to speak AI responses out loud in natural voice
@@ -328,6 +328,26 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
         };
         setChatMessages(prev => [...prev, ambBubble]);
         setIsGenerating(false);
+      }, 400);
+      return;
+    }
+
+    // Check 3: Missing Public DB Spot Query -> 100% Conversational Decision Confirmation!
+    const missingCheck = checkMissingPublicDbQuery(query, lang);
+    if (missingCheck.isMissing) {
+      setTimeout(() => {
+        const missingBubble = {
+          id: `ai-${Date.now()}`,
+          sender: 'ai',
+          text: missingCheck.aiText,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          suggestionChips: missingCheck.chips
+        };
+        setChatMessages(prev => [...prev, missingBubble]);
+        setIsGenerating(false);
+        if (isAutoTtsEnabled) {
+          speakText(missingCheck.aiText, lang);
+        }
       }, 400);
       return;
     }

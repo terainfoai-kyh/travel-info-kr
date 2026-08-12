@@ -31,6 +31,48 @@ export function checkAmbiguousRegionQuery(rawPrompt) {
   return { isAmbiguous: false };
 }
 
+export function checkMissingPublicDbQuery(rawPrompt, lang = 'ko') {
+  if (!rawPrompt || typeof rawPrompt !== 'string') return { isMissing: false };
+  const clean = extractCleanUserPrompt(rawPrompt).toLowerCase().trim();
+  
+  const missingKeywords = ['신상', '팝업', '팝업스토어', '특수', '비등록', '미등록', '인스타핫플', '골목카페', '미등록장소'];
+  const isExplicitMissing = missingKeywords.some(k => clean.includes(k));
+
+  if (isExplicitMissing) {
+    if (lang === 'en') {
+      return {
+        isMissing: true,
+        spotName: clean,
+        aiText: `The requested spot '${clean}' is a newly featured spot not in our public database. 💡 How would you like to proceed?\n\n1️⃣ Build itinerary using Instagram & Web Trends\n2️⃣ Recommend nearby verified public landmarks\n3️⃣ Search another location`,
+        chips: ['1) Use Instagram Trends', '2) Recommend Nearby Spots', '3) Search New Area']
+      };
+    }
+    if (lang === 'ja') {
+      return {
+        isMissing: true,
+        spotName: clean,
+        aiText: `リクエストされた場所 '${clean}' は公的DB未登録の最新スポットです。💡 どのようにご案内いたしましょうか？\n\n1️⃣ Instagram・Webトレンド情報で作成\n2️⃣ 周辺の公式認証名所を推薦\n3️⃣ 別の地域を検索`,
+        chips: ['1) トレンド情報で作成', '2) 周辺の公式名所を推薦', '3) 別の地域を検索']
+      };
+    }
+    if (lang === 'zh' || lang === 'zht') {
+      return {
+        isMissing: true,
+        spotName: clean,
+        aiText: `您请求的地方 '${clean}' 是未在公共DB注册的新景点。💡 您希望如何处理？\n\n1️⃣ 使用Instagram/网络趋势信息\n2️⃣ 推荐周边公认官方景点\n3️⃣ 搜索其他区域`,
+        chips: ['1) 使用网络趋势', '2) 推荐周边景点', '3) 搜索其他区域']
+      };
+    }
+    return {
+      isMissing: true,
+      spotName: clean,
+      aiText: `요청하신 '${clean}'은(는) 공공 DB에 정식 미등록된 신상/특수 장소입니다! 💡 어떻게 진행해 드릴까요?\n\n1️⃣ 인스타/웹 실시간 트렌드 정보로 작성할까요?\n2️⃣ 인근의 공공 인증 대표 명소를 대신 추천해 드릴까요?\n3️⃣ 다른 지역/장소를 다시 검색하시겠어요?`,
+      chips: ['1) 인스타/웹 트렌드로 작성', '2) 인근 대표 명소 추천', '3) 다른 장소 재검색']
+    };
+  }
+  return { isMissing: false };
+}
+
 let fallbackTurnCounter = 0;
 
 function getProvinceFromCity(cityName) {
