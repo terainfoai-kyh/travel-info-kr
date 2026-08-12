@@ -715,24 +715,26 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
             type="submit"
             title="AI 컨시어지 대화 전송 (Enter 키)"
             style={{
-              padding: isMobile ? '0.4rem 0.8rem' : '0.5rem 1.1rem',
+              padding: isMobile ? '0.45rem 0.75rem' : '0.5rem 1.1rem',
               borderRadius: '9999px',
               border: 'none',
-              background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+              background: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)',
               color: '#ffffff',
               fontWeight: 800,
               fontSize: isMobile ? '0.78rem' : '0.85rem',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.35rem',
+              gap: '0.3rem',
               cursor: 'pointer',
               flexShrink: 0,
+              whiteSpace: 'nowrap',
+              minWidth: 'fit-content',
               boxShadow: '0 4px 14px rgba(37, 99, 235, 0.35)',
               transition: 'all 0.2s ease'
             }}
           >
-            <span>{isInlineChatExpanded ? '전송' : 'AI 질문하기'}</span>
-            <Send style={{ width: isMobile ? '13px' : '15px', height: isMobile ? '13px' : '15px' }} />
+            <span>{isInlineChatExpanded ? '전송' : (isMobile ? 'AI 질문' : 'AI 질문하기')}</span>
+            <Send style={{ width: isMobile ? '12px' : '15px', height: isMobile ? '12px' : '15px' }} />
           </button>
         </div>
       </form>

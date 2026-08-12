@@ -9,25 +9,34 @@ export default function FloatingAIDock({
   isChatExpanded = false
 }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
+  const [isMobile, setIsMobile] = React.useState(typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <div
       className="floating-ai-dock-container"
       style={{
         position: 'fixed',
-        bottom: '24px',
-        right: '24px',
+        bottom: isMobile ? '16px' : '24px',
+        left: isMobile ? '50%' : 'auto',
+        right: isMobile ? 'auto' : '24px',
+        transform: isMobile ? 'translateX(-50%)' : 'none',
         zIndex: 900,
         display: 'flex',
         alignItems: 'center',
         gap: '0.6rem',
-        padding: '0.5rem 0.75rem 0.5rem 1.1rem',
+        padding: isMobile ? '0.4rem 0.65rem 0.4rem 0.95rem' : '0.5rem 0.75rem 0.5rem 1.1rem',
         borderRadius: '9999px',
-        background: 'rgba(15, 23, 42, 0.85)',
+        background: 'rgba(15, 23, 42, 0.92)',
         backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',
-        border: '1.5px solid rgba(59, 130, 246, 0.4)',
-        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.35), 0 0 20px rgba(59, 130, 246, 0.3)',
+        border: '1.5px solid rgba(56, 189, 248, 0.4)',
+        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.35), 0 0 20px rgba(56, 189, 248, 0.25)',
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         maxWidth: '92vw',
         width: 'fit-content'
