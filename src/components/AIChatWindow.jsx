@@ -391,7 +391,7 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
           {isGenerating && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#1e40af', fontSize: '0.78rem', padding: '0.5rem 0.85rem', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '12px', width: 'fit-content' }}>
               <Sparkles size={16} color="#2563eb" style={{ animation: 'spin 1.5s linear infinite' }} />
-              <span>Gemini 1.5 AI가 100% 정품 명소와 날씨/미식/코디를 직조하는 중...</span>
+              <span>Vora AI가 100% 맞춤 일정과 실시간 날씨/미식을 디자인하는 중...</span>
             </div>
           )}
           <div ref={chatEndRef} />

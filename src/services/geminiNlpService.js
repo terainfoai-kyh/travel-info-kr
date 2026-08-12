@@ -153,7 +153,7 @@ IMPORTANT: Output ONLY raw JSON without markdown backticks.`;
     }
   };
 
-  const candidateModels = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-3.5-flash', 'gemini-pro-latest'];
+  const candidateModels = ['gemini-flash-latest', 'gemini-1.5-flash-latest', 'gemini-flash-lite-latest'];
 
   for (const modelName of candidateModels) {
     try {
@@ -257,7 +257,7 @@ Output ONLY raw JSON matching this EXACT schema:
       }
     };
 
-    const candidateModels = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-3.5-flash', 'gemini-pro-latest'];
+    const candidateModels = ['gemini-flash-latest', 'gemini-1.5-flash-latest', 'gemini-flash-lite-latest'];
 
     for (const modelName of candidateModels) {
       try {

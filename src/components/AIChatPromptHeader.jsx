@@ -851,7 +851,7 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
           {isGenerating && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#1e40af', fontSize: '0.76rem', padding: '0.45rem 0.75rem', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '10px', width: 'fit-content' }}>
               <Sparkles size={15} color="#2563eb" style={{ animation: 'spin 1.5s linear infinite' }} />
-              <span>Gemini 1.5 AI가 100% 정품 명소와 날씨/미식/코디를 직조하는 중...</span>
+              <span>Vora AI가 100% 맞춤 일정과 실시간 날씨/미식을 디자인하는 중...</span>
             </div>
           )}
         </div>
