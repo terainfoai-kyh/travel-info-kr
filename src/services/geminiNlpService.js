@@ -11,6 +11,13 @@ export function isInvalidOrNonTravelQuery(text) {
   return nonTravelList.some(k => clean === k || clean.includes(k));
 }
 
+export function isCasualChatQuery(text) {
+  if (!text || typeof text !== 'string') return false;
+  const clean = extractCleanUserPrompt(text).toLowerCase().trim();
+  const casualRegex = /^(오늘\s*뭐해|오늘\s*뭐하지|뭐하지|심심해|심심하다|뭐해|뭐하니|심심한데|머하지|뭐할까|놀아줘)$/i;
+  return casualRegex.test(clean) || clean.includes('오늘 뭐해') || clean.includes('뭐하지') || clean.includes('심심해') || clean.includes('놀아줘');
+}
+
 export function isGreetingQuery(text) {
   if (!text || typeof text !== 'string') return false;
   const clean = extractCleanUserPrompt(text).toLowerCase().trim();
@@ -153,7 +160,7 @@ IMPORTANT: Output ONLY raw JSON without markdown backticks.`;
     }
   };
 
-  const candidateModels = ['gemini-flash-latest', 'gemini-1.5-flash-latest', 'gemini-flash-lite-latest'];
+  const candidateModels = ['gemini-flash-latest', 'gemini-flash-lite-latest', 'gemma-4-26b-a4b-it'];
 
   for (const modelName of candidateModels) {
     try {
@@ -257,7 +264,7 @@ Output ONLY raw JSON matching this EXACT schema:
       }
     };
 
-    const candidateModels = ['gemini-flash-latest', 'gemini-1.5-flash-latest', 'gemini-flash-lite-latest'];
+    const candidateModels = ['gemini-flash-latest', 'gemini-flash-lite-latest', 'gemma-4-26b-a4b-it'];
 
     for (const modelName of candidateModels) {
       try {

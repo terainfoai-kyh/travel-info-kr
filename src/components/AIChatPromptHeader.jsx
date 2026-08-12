@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, Mic, MicOff, ArrowRight, Camera, X, MessageSquare, Send, MapPin, Compass, ChevronDown, ChevronUp, Trash2, Volume2, VolumeX } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
-import { geminiParseNaturalPrompt, geminiGenerateFullItinerary, isGreetingQuery, isAffirmativeYes, checkAmbiguousRegionQuery, checkMissingPublicDbQuery, isInvalidOrNonTravelQuery } from '../services/geminiNlpService';
+import { geminiParseNaturalPrompt, geminiGenerateFullItinerary, isGreetingQuery, isAffirmativeYes, checkAmbiguousRegionQuery, checkMissingPublicDbQuery, isInvalidOrNonTravelQuery, isCasualChatQuery } from '../services/geminiNlpService';
 
 /**
  * Web SpeechSynthesis TTS helper to speak AI responses out loud in natural voice
@@ -387,6 +387,28 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
       return;
     } else {
       setOffTopicCount(0); // Reset on valid travel query
+    }
+
+    if (isCasualChatQuery(query)) {
+      setTimeout(() => {
+        const casualBubble = {
+          id: `ai-${Date.now()}`,
+          sender: 'ai',
+          text: `오늘 같은 날은 산뜻하게 기분 전환하러 떠나기 딱 좋은 날이에요! ☀️ 서울 성수동 팝업스토어나 수원 행리단길 감성 카페, 아니면 시원한 강릉 안목해변 바다로 힐링하러 떠나볼까요? 어디로 안내해 드릴까요? 😊`,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          suggestionChips: [
+            '성수동 팝업스토어 & 카페 투어',
+            '수원 행리단길 & 방화수류정 피크닉',
+            '강릉 안목해변 커피거리 바다 산책'
+          ]
+        };
+        setChatMessages(prev => [...prev, casualBubble]);
+        setIsGenerating(false);
+        if (isAutoTtsEnabled) {
+          speakText(casualBubble.text, lang);
+        }
+      }, 400);
+      return;
     }
 
     if (isGreetingQuery(query)) {
