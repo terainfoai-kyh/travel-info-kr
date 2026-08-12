@@ -306,7 +306,7 @@ function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
   // Positive inclusion detection
   const isIncludeMyeongdong = /(명동|서울)/i.test(promptLower);
   const isIncludeGangneung = /(강릉|동해)/i.test(promptLower);
-  const isIncludeSamcheok = /(삼척)/i.test(promptLower);
+  const isIncludeSamcheok = /(삼척|삼청)/i.test(promptLower);
   const isIncludeSuwon = /(수원)/i.test(promptLower);
 
   if (isIncludeMyeongdong) {
