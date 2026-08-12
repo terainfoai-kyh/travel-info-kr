@@ -19,7 +19,7 @@ function getProvinceFromCity(cityName) {
   if (cityName.includes('부산') || cityName.includes('해운대') || cityName.includes('광안리')) return '부산';
   if (cityName.includes('제주') || cityName.includes('서귀포')) return '제주';
   if (cityName.includes('인천') || cityName.includes('송도')) return '인천';
-  if (cityName.includes('강릉') || cityName.includes('속초')) return '강원';
+  if (cityName.includes('강릉') || cityName.includes('속초') || cityName.includes('삼척') || cityName.includes('강원')) return '강원';
   if (cityName.includes('전주')) return '전북';
   if (cityName.includes('경주')) return '경북';
   if (cityName.includes('여수')) return '전남';
@@ -251,6 +251,12 @@ function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
       { id: `incheon-3`, title: '월미도 테마파크 & 등대길', location: '인천광역시 중구 월미문화로 81', lat: 37.4765, lng: 126.5985, rating: 4.6, category: '액티비티/레저', tags: ['월미도', '디스코팡팡'], image: 'http://tong.visitkorea.or.kr/cms/resource/70/2660570_image2_1.jpg', isInstagramHotspot: false },
       { id: `incheon-4`, title: '송도 한옥마을 & 렌드마크 로드', location: '인천광역시 연수구 테크노파크로 180', lat: 37.3910, lng: 126.6398, rating: 4.8, category: '역사/문화', tags: ['한옥마을', '송도야경'], image: 'http://tong.visitkorea.or.kr/cms/resource/80/2660580_image2_1.jpg', isInstagramHotspot: true }
     ],
+    '삼척 맹방해변': [
+      { id: `samcheok-1`, title: '삼척 맹방해변 & BTS 버터 촬영지', location: '강원특별자치도 삼척시 근덕면 맹방해변로 228', lat: 37.3975, lng: 129.2155, rating: 4.9, category: 'K-컬처/이벤트', tags: ['BTS버터촬영지', '맹방해변'], image: 'http://tong.visitkorea.or.kr/cms/resource/10/2660510_image2_1.jpg', isInstagramHotspot: true },
+      { id: `samcheok-2`, title: '삼척 환선굴 & 대금굴 (유네스코 지질공원)', location: '강원특별자치도 삼척시 신기면 환선로 800', lat: 37.3275, lng: 129.0205, rating: 4.9, category: '자연/힐링', tags: ['환선굴', '동굴탐험'], image: 'http://tong.visitkorea.or.kr/cms/resource/20/2660520_image2_1.jpg', isInstagramHotspot: true },
+      { id: `samcheok-3`, title: '삼척 장호항 & 해양레일바이크', location: '강원특별자치도 삼척시 근덕면 장호항길 80', lat: 37.2885, lng: 129.3185, rating: 4.9, category: '액티비티/레저', tags: ['한국의나폴리', '투명카누'], image: 'http://tong.visitkorea.or.kr/cms/resource/30/2660530_image2_1.jpg', isInstagramHotspot: true },
+      { id: `samcheok-4`, title: '삼척 촛대바위 & 해가사터 산책로', location: '강원특별자치도 삼척시 수로부인길 33', lat: 37.4412, lng: 129.1802, rating: 4.8, category: '역사/문화', tags: ['촛대바위', '해안산책로'], image: 'http://tong.visitkorea.or.kr/cms/resource/40/2660540_image2_1.jpg', isInstagramHotspot: false }
+    ],
     '제주 애월해변': [
       { id: `jeju-1`, title: '애월 한담해변 산책로', location: '제주특별자치도 제주시 애월읍 애월로 11', lat: 33.4625, lng: 126.3115, rating: 4.9, category: '자연/힐링', tags: ['애월해변', '에메랄드바다'], image: 'http://tong.visitkorea.or.kr/cms/resource/15/2660515_image2_1.jpg', isInstagramHotspot: true },
       { id: `jeju-2`, title: '협재 해수욕장 & 비양도 뷰', location: '제주특별자치도 제주시 한림읍 한림로 329', lat: 33.3940, lng: 126.2395, rating: 4.9, category: '자연/힐링', tags: ['협재해변', '비양도'], image: 'http://tong.visitkorea.or.kr/cms/resource/25/2660525_image2_1.jpg', isInstagramHotspot: true },
@@ -278,7 +284,7 @@ function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
     '여수 밤바다': [
       { id: `yeosu-1`, title: '여수 돌산공원 & 케이블카', location: '전라남도 여수시 돌산읍 돌산로 3600', lat: 34.7305, lng: 127.7455, rating: 4.9, category: '자연/힐링', tags: ['돌산대교', '해상케이블카'], image: 'http://tong.visitkorea.or.kr/cms/resource/35/2660635_image2_1.jpg', isInstagramHotspot: true },
       { id: `yeosu-2`, title: '오동도 동백나무 숲길', location: '전라남도 여수시 오동도로 242', lat: 34.7452, lng: 127.7665, rating: 4.9, category: '자연/힐링', tags: ['오동도', '등대전망대'], image: 'http://tong.visitkorea.or.kr/cms/resource/45/2660645_image2_1.jpg', isInstagramHotspot: true },
-      { id: `yeosu-3`, title: '향일암 (일출 명소)', location: '전라남도 여수시 돌산읍 향일암로 60', lat: 34.5925, lng: 127.8085, rating: 4.9, category: '역사/문화', tags: ['향일암', '관음성지'], image: 'http://tong.visitkorea.or.kr/cms/resource/55/2660655_image2_1.jpg', isInstagramHotspot: true },
+      { id: `yeosu-3`, title: '향일암 (일출 명소)', location: '전라남도 여수시 돌산읍 향일암로 60', lat: 34.5925, lng: 127.8085, rating: 4.9, category: '역사/문화', tags: ['향일암', '관음성지'], image: 'http://tong.visitkorea.or.kr/cms/resource/55/2660555_image2_1.jpg', isInstagramHotspot: true },
       { id: `yeosu-4`, title: '여수 낭만포차거리', location: '전라남도 여수시 하멜로 102', lat: 34.7385, lng: 127.7412, rating: 4.7, category: '미식/쇼핑', tags: ['여수밤바다', '삼합'], image: 'http://tong.visitkorea.or.kr/cms/resource/65/2660665_image2_1.jpg', isInstagramHotspot: true }
     ],
     '경주 보문단지': [
@@ -298,10 +304,15 @@ function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
   const isExcludeSeoul = /(서울\s*빼|서울\s*말고|서울\s*제외|서울\s*아닌)/i.test(promptLower);
 
   // Positive inclusion detection
-  const isIncludeGangneung = /(강릉|동해|속초)/i.test(promptLower);
+  const isIncludeGangneung = /(강릉|동해)/i.test(promptLower);
+  const isIncludeSamcheok = /(삼척)/i.test(promptLower);
   const isIncludeSuwon = /(수원)/i.test(promptLower);
 
-  if (isExcludeIncheon) {
+  if (isIncludeGangneung && isIncludeSamcheok) {
+    selectedCities = ['강릉 안목해변', '삼척 맹방해변', '강릉 안목해변'];
+  } else if (isIncludeSamcheok) {
+    selectedCities = ['삼척 맹방해변', '강릉 안목해변', '삼척 맹방해변'];
+  } else if (isExcludeIncheon) {
     if (isIncludeGangneung && isIncludeSuwon) {
       selectedCities = ['서울 성수동', '강릉 안목해변', '수원 화성행궁', '제주 애월해변', '부산 해운대'];
     } else if (isIncludeGangneung) {
@@ -317,8 +328,8 @@ function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
     selectedCities = ['제주 애월해변', '부산 해운대', '강릉 안목해변', '서울 성수동', '인천 송도'];
   } else if (promptLower.includes('부산')) {
     selectedCities = ['부산 해운대', '경주 보문단지', '여수 밤바다', '제주 애월해변', '강릉 안목해변'];
-  } else if (promptLower.includes('강릉') || promptLower.includes('속초') || promptLower.includes('강원')) {
-    selectedCities = ['강릉 안목해변', '서울 성수동', '인천 송도', '수원 화성행궁', '제주 애월해변'];
+  } else if (promptLower.includes('강릉') || promptLower.includes('속초') || promptLower.includes('강원') || promptLower.includes('삼척')) {
+    selectedCities = ['강릉 안목해변', '삼척 맹방해변', '강릉 안목해변', '제주 애월해변', '부산 해운대'];
   } else if (promptLower.includes('전주') || promptLower.includes('여수') || promptLower.includes('전라')) {
     selectedCities = ['전주 한옥마을', '여수 밤바다', '부산 해운대', '경주 보문단지', '제주 애월해변'];
   } else if (promptLower.includes('경주') || promptLower.includes('포항') || promptLower.includes('경상')) {
@@ -338,7 +349,7 @@ function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
       city: cityName,
       weather: { temp: '23°C', condition: '맑음 ☀️', rainProbability: '10%', dust: '좋음' },
       foodRecommendation: {
-        dishName: cityName.includes('수원') ? '수원 왕갈비 & 통닭' : (cityName.includes('제주') ? '제주 흑돼지 & 갈치조림' : (cityName.includes('부산') ? '부산 돼지국밥 & 씨앗호떡' : (cityName.includes('여수') ? '여수 돌게장 & 삼합' : '지역 대표 명품 미식'))),
+        dishName: cityName.includes('수원') ? '수원 왕갈비 & 통닭' : (cityName.includes('제주') ? '제주 흑돼지 & 갈치조림' : (cityName.includes('부산') ? '부산 돼지국밥 & 씨앗호떡' : (cityName.includes('여수') ? '여수 돌게장 & 삼합' : (cityName.includes('삼척') ? '삼척 곰치국 & 물회' : '지역 대표 명품 미식')))),
         restaurantName: '대한민국 공공데이터 인증 대표 맛집',
         description: '한국관광공사 공식 추천 대표 특산 식재료 요리'
       },
@@ -356,7 +367,9 @@ function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
   });
 
   let summaryText = `'${cleanPrompt}' 요청에 맞춰 최적의 ${days}일치 맞춤 코스를 100% 정품 명소와 실시간 날씨/미식 정보로 정성껏 준비했습니다! 📍`;
-  if (isExcludeIncheon) {
+  if (isIncludeSamcheok || isIncludeGangneung) {
+    summaryText = `요청하신 대로 동해의 절경이 펼쳐지는 ${isIncludeSamcheok ? '강릉과 삼척 ' : '강릉 '}맞춤 코스를 ${days}일치로 정성껏 설계했습니다! 📍`;
+  } else if (isExcludeIncheon) {
     summaryText = `요청하신 대로 인천을 제외하고, ${isIncludeGangneung ? '강릉과 ' : ''}수원을 포함한 ${days}일치 맞춤 여행 코스로 새롭게 구성했습니다! 📍`;
   }
 
