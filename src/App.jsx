@@ -22,6 +22,7 @@ import CustomCourseFloatingBar from './components/CustomCourseFloatingBar';
 import GuidePRModal from './components/GuidePRModal';
 import AIChatPromptHeader from './components/AIChatPromptHeader';
 import PWAInstallBanner from './components/PWAInstallBanner';
+import FloatingAIDock from './components/FloatingAIDock';
 
 export default function App() {
   // Auto-detect browser locale
@@ -782,6 +783,17 @@ export default function App() {
 
       {/* PWA Home Screen Shortcut Banner & Guide */}
       <PWAInstallBanner lang={lang} />
+
+      {/* Sticky Bottom Thumb-Zone Floating AI Concierge Dock */}
+      <FloatingAIDock
+        lang={lang}
+        onOpenChat={() => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        onStartVoice={() => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+      />
     </div>
   );
 }

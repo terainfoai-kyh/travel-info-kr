@@ -648,53 +648,29 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
             </button>
           )}
 
-          {/* Button 1: 💬 AI 대화 / 대화 펼치기 (Supports Enter key submit & restores chat history) */}
+          {/* Single Sleek AI Send Button for Pure Conversational UX */}
           <button
             type="submit"
-            title="AI 컨시어지 1:1 대화하기 💬 (Enter 키)"
+            title="AI 컨시어지 대화 전송 (Enter 키)"
             style={{
-              padding: isMobile ? '0.35rem 0.65rem' : '0.45rem 0.85rem',
-              borderRadius: '9999px',
-              background: (!isInlineChatExpanded && hasExistingHistory) ? '#dbeafe' : '#eff6ff',
-              color: '#2563eb',
-              fontWeight: 800,
-              fontSize: isMobile ? '0.74rem' : '0.8rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.3rem',
-              cursor: 'pointer',
-              flexShrink: 0,
-              marginRight: '0.3rem',
-              border: '1px solid #bfdbfe'
-            }}
-          >
-            <MessageSquare style={{ width: isMobile ? '13px' : '15px', height: isMobile ? '13px' : '15px' }} />
-            <span>{(!isInlineChatExpanded && hasExistingHistory) ? '대화 펼치기' : '대화'}</span>
-          </button>
-
-          {/* Button 2: ✨ 코스 추천 (Directly queries and opens full 5-day Itinerary Map Modal) */}
-          <button
-            type="button"
-            onClick={handleDirectCourseGeneration}
-            title="AI 5일치 코스 지도 모달 생성 ✨"
-            style={{
-              padding: isMobile ? '0.35rem 0.75rem' : '0.45rem 0.95rem',
+              padding: isMobile ? '0.4rem 0.8rem' : '0.5rem 1.1rem',
               borderRadius: '9999px',
               border: 'none',
               background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
               color: '#ffffff',
               fontWeight: 800,
-              fontSize: isMobile ? '0.74rem' : '0.8rem',
+              fontSize: isMobile ? '0.78rem' : '0.85rem',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.3rem',
+              gap: '0.35rem',
               cursor: 'pointer',
               flexShrink: 0,
-              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)'
+              boxShadow: '0 4px 14px rgba(37, 99, 235, 0.35)',
+              transition: 'all 0.2s ease'
             }}
           >
-            <Sparkles style={{ width: isMobile ? '13px' : '15px', height: isMobile ? '13px' : '15px' }} />
-            <span>코스 추천</span>
+            <span>{isInlineChatExpanded ? '전송' : 'AI 질문하기'}</span>
+            <Send style={{ width: isMobile ? '13px' : '15px', height: isMobile ? '13px' : '15px' }} />
           </button>
         </div>
       </form>
