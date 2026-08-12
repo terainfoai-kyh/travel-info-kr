@@ -196,11 +196,30 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
               <Sparkles size={isMobile ? 18 : 22} color="#ffffff" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }} />
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexShrink: 1, minWidth: 0 }}>
-              <h1 style={{ fontSize: isMobile ? '1.05rem' : '1.25rem', fontWeight: 800, lineHeight: 1.1, margin: 0, whiteSpace: 'nowrap' }} className="gradient-text">
-                <span className="desktop-title-text">{t.title}</span>
-                <span className="mobile-title-text">K-Travel AI</span>
-              </h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 1, minWidth: 0, cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+              <span style={{
+                fontSize: isMobile ? '1.05rem' : '1.2rem',
+                fontWeight: 900,
+                letterSpacing: '-0.04em',
+                color: themeMode === 'light' ? '#0f172a' : '#f8fafc',
+                textTransform: 'uppercase'
+              }}>
+                K-TRAVEL
+              </span>
+              <span style={{
+                fontSize: '0.68rem',
+                fontWeight: 900,
+                padding: '0.12rem 0.45rem',
+                borderRadius: '6px',
+                background: 'linear-gradient(135deg, #2563eb 0%, #8b5cf6 100%)',
+                color: '#ffffff',
+                letterSpacing: '0.05em',
+                boxShadow: '0 2px 8px rgba(37, 99, 235, 0.35)',
+                flexShrink: 0
+              }}>
+                AI
+              </span>
+            </div>
               {!isMobile && (
                 <span style={{
                     background: 'linear-gradient(135deg, #10b981, #059669)',
@@ -221,7 +240,6 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
                 </span>
               )}
             </div>
-          </div>
 
           {/* Right Container: Compact Language Selector & Menu Toggle Button */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexShrink: 0, zIndex: 10 }}>
