@@ -216,6 +216,7 @@ IMPORTANT: Output ONLY raw JSON without markdown backticks.`;
 }
 
 const queryCacheMap = new Map();
+let geminiCooldownUntil = 0;
 
 /**
  * Full-AI Multi-Day Itinerary Generator via Gemini 1.5 LLM with Search Grounding
@@ -227,6 +228,13 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko', filter
 
   if (queryCacheMap.has(cacheKey)) {
     return queryCacheMap.get(cacheKey);
+  }
+
+  // If in 15-second 429 cooldown guard, immediately serve high-trust local itinerary without spamming fetch calls
+  if (Date.now() < geminiCooldownUntil) {
+    const fallbackResult = generateLocalFallbackItinerary(rawPrompt, lang);
+    queryCacheMap.set(cacheKey, fallbackResult);
+    return fallbackResult;
   }
 
   if (isValidGeminiKey) {
@@ -243,21 +251,18 @@ Output ONLY raw JSON matching this EXACT schema:
       "city": "string",
       "weather": { "temp": "string", "condition": "string", "rainProbability": "string", "dust": "string" },
       "foodRecommendation": { "dishName": "string", "restaurantName": "string", "description": "string" },
-      "outfitRecommendation": { "title": "string", "description": "string" },
-      "accommodation": { "name": "string", "agodaLink": "string", "klookLink": "string" },
+      "outfitRecommendation": { "title": "string", "items": ["string"], "tip": "string" },
+      "hotelRecommendation": { "hotelName": "string", "location": "string", "agodaLink": "string", "klookLink": "string" },
       "spots": [
         {
-          "id": "string",
-          "title": "string",
-          "location": "string",
+          "name": "string",
+          "category": "string",
+          "time": "string",
+          "description": "string",
           "lat": number,
           "lng": number,
-          "rating": number,
-          "category": "string",
-          "tags": ["string"],
-          "image": "string",
-          "isInstagramHotspot": boolean,
-          "ktxBookingLink": "string"
+          "address": "string",
+          "imageUrl": "string"
         }
       ]
     }
@@ -284,40 +289,37 @@ Output ONLY raw JSON matching this EXACT schema:
     const candidateModels = ['gemini-flash-latest', 'gemini-flash-lite-latest', 'gemma-4-26b-a4b-it'];
 
     for (const modelName of candidateModels) {
-      let attempts = 0;
-      while (attempts < 2) {
-        try {
-          const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${GEMINI_API_KEY}`;
-          const res = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(requestPayload)
-          });
+      try {
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${GEMINI_API_KEY}`;
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestPayload)
+        });
 
-          if (res.status === 429) {
-            attempts++;
-            await new Promise(r => setTimeout(r, 500));
-            continue;
-          }
-
-          if (res.ok) {
-            const data = await res.json();
-            const textOutput = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-            const cleanJson = textOutput.replace(/```json/gi, '').replace(/```/g, '').trim();
-            const parsed = JSON.parse(cleanJson);
-            if (parsed && Array.isArray(parsed.dailySchedules) && parsed.dailySchedules.length > 0) {
-              const locationName = extractLocationKeyword(cleanPrompt);
-              parsed.tripTitle = `${locationName} 맞춤 추천 코스`;
-              parsed.aiRecommendationSummary = `'${locationName}' 맞춤 ${parsed.dailySchedules.length}일치 코스를 100% 정품 명소와 실시간 날씨/미식 데이터로 정성껏 준비했습니다! 📍`;
-              queryCacheMap.set(cacheKey, parsed);
-              return parsed;
-            }
-          }
-          break;
-        } catch (err) {
+        if (res.status === 429) {
+          // Trigger 15-second cooldown guard to stop network spamming
+          geminiCooldownUntil = Date.now() + 15000;
           break;
         }
+
+        if (res.ok) {
+          const data = await res.json();
+          const textOutput = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+          const cleanJson = textOutput.replace(/```json/gi, '').replace(/```/g, '').trim();
+          const parsed = JSON.parse(cleanJson);
+          if (parsed && Array.isArray(parsed.dailySchedules) && parsed.dailySchedules.length > 0) {
+            const locationName = extractLocationKeyword(cleanPrompt);
+            parsed.tripTitle = `${locationName} 맞춤 추천 코스`;
+            parsed.aiRecommendationSummary = `'${locationName}' 맞춤 ${parsed.dailySchedules.length}일치 코스를 100% 정품 명소와 실시간 날씨/미식 데이터로 정성껏 준비했습니다! 📍`;
+            queryCacheMap.set(cacheKey, parsed);
+            return parsed;
+          }
+        }
+      } catch (err) {
+        break;
       }
+    }
     }
   }
 
