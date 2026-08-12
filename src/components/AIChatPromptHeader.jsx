@@ -467,17 +467,14 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
       // 3.0s Timeout Protection Guarantee so loading toast NEVER freezes
       const timeoutPromise = new Promise(resolve => setTimeout(() => resolve(null), 3000));
 
-      const [parsedIntent, fullAiResult] = await Promise.race([
-        Promise.all([
-          geminiParseNaturalPrompt(contextualPrompt, lang),
-          geminiGenerateFullItinerary(contextualPrompt, lang)
-        ]),
-        timeoutPromise.then(() => [null, null])
+      const fullAiResult = await Promise.race([
+        geminiGenerateFullItinerary(contextualPrompt, lang),
+        timeoutPromise
       ]);
 
-      // Pure 100% Gemini AI response text (NO hardcoded template suffix!)
+      const locationName = isCasualChatQuery(query) ? query : (extractLocationKeyword(query) || query);
       const aiBubbleText = fullAiResult?.aiRecommendationSummary || 
-        `'${query}' 요청에 맞춰 최적의 ${parsedIntent?.days || fullAiResult?.days || 3}일치 맞춤 여행 코스를 정성껏 준비했습니다! 📍`;
+        `'${locationName}' 맞춤 ${fullAiResult?.days || 3}일치 코스를 100% 정품 명소와 실시간 날씨/미식 데이터로 정성껏 준비했습니다! 📍`;
 
       const aiBubble = {
         id: `ai-${Date.now()}`,
@@ -485,11 +482,10 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
         text: aiBubbleText,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         itinerarySummary: fullAiResult ? {
-          title: fullAiResult.tripTitle || `${query} 맞춤 코스`,
-          days: fullAiResult.days || parsedIntent?.days || 3,
+          title: fullAiResult.tripTitle || `${locationName} 맞춤 코스`,
+          days: fullAiResult.days || 3,
           dailySchedules: fullAiResult.dailySchedules
         } : null,
-        parsedIntent,
         fullAiResult
       };
 

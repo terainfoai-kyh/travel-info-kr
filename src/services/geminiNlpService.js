@@ -215,12 +215,19 @@ IMPORTANT: Output ONLY raw JSON without markdown backticks.`;
   return fallbackParser ? fallbackParser(cleanPrompt) : null;
 }
 
+const queryCacheMap = new Map();
+
 /**
  * Full-AI Multi-Day Itinerary Generator via Gemini 1.5 LLM with Search Grounding
  */
 export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko', filters = {}) {
   if (!rawPrompt || rawPrompt.trim().length < 2) return null;
   const cleanPrompt = extractCleanUserPrompt(rawPrompt);
+  const cacheKey = `${cleanPrompt}_${lang}`.toLowerCase();
+
+  if (queryCacheMap.has(cacheKey)) {
+    return queryCacheMap.get(cacheKey);
+  }
 
   if (isValidGeminiKey) {
     const systemInstruction = `You are a World-Class Korea Travel AI Concierge. Generate a complete 100% accurate, high-trust multi-day itinerary JSON.
@@ -302,6 +309,7 @@ Output ONLY raw JSON matching this EXACT schema:
               const locationName = extractLocationKeyword(cleanPrompt);
               parsed.tripTitle = `${locationName} 맞춤 추천 코스`;
               parsed.aiRecommendationSummary = `'${locationName}' 맞춤 ${parsed.dailySchedules.length}일치 코스를 100% 정품 명소와 실시간 날씨/미식 데이터로 정성껏 준비했습니다! 📍`;
+              queryCacheMap.set(cacheKey, parsed);
               return parsed;
             }
           }
@@ -314,7 +322,9 @@ Output ONLY raw JSON matching this EXACT schema:
   }
 
   // High-Trust Intelligent Local Zero-Shot Fallback Engine
-  return generateLocalFallbackItinerary(rawPrompt, lang);
+  const fallbackResult = generateLocalFallbackItinerary(rawPrompt, lang);
+  queryCacheMap.set(cacheKey, fallbackResult);
+  return fallbackResult;
 }
 
 function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
