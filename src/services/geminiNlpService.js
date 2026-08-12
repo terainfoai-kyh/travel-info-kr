@@ -102,6 +102,16 @@ function getProvinceFromCity(cityName) {
   return '경기';
 }
 
+export function extractLocationKeyword(text) {
+  if (!text || typeof text !== 'string') return '추천 장소';
+  let clean = extractCleanUserPrompt(text).trim();
+  clean = clean.replace(/^(난\s*|나\s*|저\s*|저는\s*|우리는\s*|저희\s*)/i, '');
+  clean = clean.replace(/(에\s*가보고\s*싶어|에\s*가고\s*싶어|에\s*가고\s*싶다|에\s*갈래|에\s*가볼래|가보고\s*싶어|가고\s*싶어|가고\s*싶다|갈래|가볼래|에\s*가볼까|가볼까|에\s*가자|가자)/gi, '');
+  clean = clean.replace(/(추천해줘|추천해\s*주세요|알려줘|알려주세요|보여줘|보여주세요|찾아줘|찾아주세요|코스\s*짜줘)/gi, '');
+  clean = clean.trim();
+  return clean || '추천 장소';
+}
+
 function extractCleanUserPrompt(rawPrompt) {
   if (!rawPrompt) return '추천 코스';
   if (typeof rawPrompt !== 'string') return '추천 코스';
@@ -267,27 +277,38 @@ Output ONLY raw JSON matching this EXACT schema:
     const candidateModels = ['gemini-flash-latest', 'gemini-flash-lite-latest', 'gemma-4-26b-a4b-it'];
 
     for (const modelName of candidateModels) {
-      try {
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${GEMINI_API_KEY}`;
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(requestPayload)
-        });
+      let attempts = 0;
+      while (attempts < 2) {
+        try {
+          const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${GEMINI_API_KEY}`;
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestPayload)
+          });
 
-        if (res.ok) {
-          const data = await res.json();
-          const textOutput = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-          const cleanJson = textOutput.replace(/```json/gi, '').replace(/```/g, '').trim();
-          const parsed = JSON.parse(cleanJson);
-          if (parsed && Array.isArray(parsed.dailySchedules) && parsed.dailySchedules.length > 0) {
-            parsed.tripTitle = `${cleanPrompt} 맞춤 추천 코스`;
-            parsed.aiRecommendationSummary = `'${cleanPrompt}' 요청에 맞춰 최적의 ${parsed.dailySchedules.length}일치 코스를 100% 정품 명소와 실시간 날씨/미식 데이터로 정성껏 준비했습니다! 📍`;
-            return parsed;
+          if (res.status === 429) {
+            attempts++;
+            await new Promise(r => setTimeout(r, 500));
+            continue;
           }
+
+          if (res.ok) {
+            const data = await res.json();
+            const textOutput = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            const cleanJson = textOutput.replace(/```json/gi, '').replace(/```/g, '').trim();
+            const parsed = JSON.parse(cleanJson);
+            if (parsed && Array.isArray(parsed.dailySchedules) && parsed.dailySchedules.length > 0) {
+              const locationName = extractLocationKeyword(cleanPrompt);
+              parsed.tripTitle = `${locationName} 맞춤 추천 코스`;
+              parsed.aiRecommendationSummary = `'${locationName}' 맞춤 ${parsed.dailySchedules.length}일치 코스를 100% 정품 명소와 실시간 날씨/미식 데이터로 정성껏 준비했습니다! 📍`;
+              return parsed;
+            }
+          }
+          break;
+        } catch (err) {
+          break;
         }
-      } catch (err) {
-        // Quiet fallback
       }
     }
   }
@@ -463,9 +484,10 @@ function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
     };
   });
 
-  let summaryText = `'${cleanPrompt}' 요청에 맞춰 최적의 ${days}일치 맞춤 코스를 100% 정품 명소와 실시간 날씨/미식 정보로 정성껏 준비했습니다! 📍`;
+  const locationName = extractLocationKeyword(cleanPrompt);
+  let summaryText = `'${locationName}' 맞춤 ${days}일치 코스를 100% 정품 명소와 실시간 날씨/미식 정보로 정성껏 준비했습니다! 📍`;
   if (isIncludeMyeongdong) {
-    summaryText = `요청하신 명동/서울 코스를 1일차에 추가하여 최적의 ${days}일치 맞춤 코스로 새롭게 구성했습니다! 📍`;
+    summaryText = `요청하신 명동/서울 코스를 포함하여 최적의 ${days}일치 맞춤 코스로 새롭게 구성했습니다! 📍`;
   } else if (isIncludeSamcheok || isIncludeGangneung) {
     summaryText = `요청하신 대로 동해의 절경이 펼쳐지는 ${isIncludeSamcheok ? '강릉과 삼척 ' : '강릉 '}맞춤 코스를 ${days}일치로 정성껏 설계했습니다! 📍`;
   } else if (isExcludeIncheon) {
@@ -473,7 +495,7 @@ function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
   }
 
   // Clean title without raw user query questions
-  let cleanTripTitle = `${cleanPrompt} 맞춤 추천 코스`;
+  let cleanTripTitle = `${locationName} 맞춤 추천 코스`;
   if (cleanPrompt.includes('명동은 왜') || cleanPrompt.includes('명동')) {
     cleanTripTitle = `서울 명동 & 주요 도심 ${days}일 맞춤 코스`;
   }
