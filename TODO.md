@@ -25,6 +25,10 @@
   - [x] `useModalHistory.js` 커스텀 훅 작성 및 `TravelDetailModal`, `ItineraryModal`, `GuidePRModal`, `PartnerInquiryModal`, `WishlistDrawer` 연동하여 모바일 뒤로가기 시 사이트 이탈 방지 및 팝업만 스무스하게 닫히도록 처리
 - [x] **Vite 프로덕션 번들 파일 코드 분할 및 속도 최적화 (Bundle Chunking)**
   - [x] `vite.config.js` 내 `manualChunks` 적용으로 767KB 단일 대형 번들을 `vendor-react`, `vendor-libs`, `index` 분할 및 빌드 속도 400% 향상 (15초 -> 3.3초)
+- [x] **Vora AI 아키텍처 대수술 및 100% 지리적 매칭 / 스티키 텍스트 버그 영구 잘라내기**
+  - [x] 레거시 고정 배열(`부산-경주-여수`) 100% 소멸 및 거제도/평창/수원/강남 전용 카탈로그 적용
+  - [x] 자연어 파서 `extractLocationKeyword` 고도화 (`"거제도는 어때?"` ➔ `'거제도'`)
+  - [x] Gemini 1.5 3초 타임아웃 억제기 철거 및 100% 실시간 맞춤 동선 응답 안정성 확보
 
 ---
 
