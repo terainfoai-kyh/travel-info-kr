@@ -255,8 +255,9 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
       const parsedIntent = await geminiParseNaturalPrompt(query, lang);
       const fullAiResult = await geminiGenerateFullItinerary(contextualPrompt, lang);
 
+      // Clean single-turn AI summary without raw debug context
       const aiBubbleText = fullAiResult?.aiRecommendationSummary || 
-        `'${query}'에 맞춰 최적의 ${parsedIntent?.days || 3}일치 여행 일정을 100% 정품 명소와 실시간 미식/날씨로 구성했습니다! 📍`;
+        `'${query}' 요청에 맞춰 최적의 ${parsedIntent?.days || fullAiResult?.days || 3}일치 맞춤 여행 코스를 정성껏 준비했습니다! 📍`;
 
       const aiBubble = {
         id: `ai-${Date.now()}`,
@@ -265,7 +266,7 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         itinerarySummary: fullAiResult ? {
           title: fullAiResult.tripTitle || `${query} 맞춤 코스`,
-          days: fullAiResult.days,
+          days: fullAiResult.days || parsedIntent?.days || 3,
           dailySchedules: fullAiResult.dailySchedules
         } : null,
         parsedIntent,
@@ -479,35 +480,52 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
                           ))}
                         </div>
 
-                        {/* Quick Map Action Button inside Chat Bubble */}
-                        <button
-                          type="button"
+                        {/* Option 1: Sleek Mini-Map Route Tile Card inside Chat Bubble */}
+                        <div
                           onClick={() => {
                             if (onGenerateItinerary) {
                               onGenerateItinerary(msg.parsedIntent, msg.fullAiResult);
                             }
                           }}
                           style={{
-                            width: '100%',
                             marginTop: '0.65rem',
-                            padding: '0.45rem',
-                            borderRadius: '8px',
-                            background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
-                            color: '#ffffff',
-                            fontWeight: 800,
-                            fontSize: '0.76rem',
-                            border: 'none',
+                            padding: '0.55rem 0.75rem',
+                            borderRadius: '10px',
+                            background: '#eff6ff',
+                            border: '1.5px dashed #3b82f6',
+                            color: '#1d4ed8',
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '0.3rem',
-                            boxShadow: '0 4px 10px rgba(37, 99, 235, 0.2)'
+                            justifyContent: 'space-between',
+                            transition: 'all 0.2s ease',
+                            boxShadow: '0 2px 5px rgba(59, 130, 246, 0.08)'
                           }}
                         >
-                          <MapPin size={13} />
-                          <span>📍 5일치 완벽 지도 & 코스 렌더링 보기</span>
-                        </button>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                            <div style={{
+                              width: '28px',
+                              height: '28px',
+                              borderRadius: '6px',
+                              background: '#3b82f6',
+                              color: '#ffffff',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              flexShrink: 0
+                            }}>
+                              <MapPin size={15} />
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.05rem' }}>
+                              <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#1e3a8a' }}>
+                                🗺️ 이 코스 전체 지도에서 확인하기
+                              </span>
+                              <span style={{ fontSize: '0.66rem', color: '#2563eb', fontWeight: 600 }}>
+                                {msg.itinerarySummary.days || 3}일치 코스 및 동선 시각화 팝업 열기 ➔
+                              </span>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   )}

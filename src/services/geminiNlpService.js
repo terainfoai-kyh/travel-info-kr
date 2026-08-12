@@ -19,14 +19,28 @@ function getProvinceFromCity(cityName) {
   return '경기';
 }
 
+function extractCleanUserPrompt(rawPrompt) {
+  if (!rawPrompt) return '추천 코스';
+  if (typeof rawPrompt !== 'string') return '추천 코스';
+  
+  // Extract the last line or the latest user query from context history
+  const lines = rawPrompt.split('\n');
+  const lastUserLine = [...lines].reverse().find(l => l.trim().startsWith('User:'));
+  if (lastUserLine) {
+    return lastUserLine.replace(/^User:\s*/i, '').trim();
+  }
+  return rawPrompt.replace(/User:\s*/gi, '').replace(/AI:\s*/gi, '').trim();
+}
+
 export async function geminiParseNaturalPrompt(rawPrompt, lang = 'ko', fallbackParser = null) {
-  if (!rawPrompt || rawPrompt.trim().length < 2) {
-    return fallbackParser ? fallbackParser(rawPrompt) : null;
+  const cleanPrompt = extractCleanUserPrompt(rawPrompt);
+  if (!cleanPrompt || cleanPrompt.trim().length < 2) {
+    return fallbackParser ? fallbackParser(cleanPrompt) : null;
   }
 
   // If Gemini API key is missing or placeholder, use fast local zero-shot parser without triggering browser 404 errors
   if (!isValidGeminiKey) {
-    return fallbackParser ? fallbackParser(rawPrompt) : null;
+    return fallbackParser ? fallbackParser(cleanPrompt) : null;
   }
 
   const systemInstruction = `You are a Korea Travel Itinerary Intent Classifier. Analyze the user prompt and extract structured intent into valid JSON matching this EXACT schema:
@@ -51,7 +65,7 @@ IMPORTANT: Output ONLY raw JSON without markdown backticks.`;
       {
         parts: [
           { text: systemInstruction },
-          { text: `User Prompt: "${rawPrompt}"` }
+          { text: `User Prompt: "${cleanPrompt}"` }
         ]
       }
     ],
@@ -96,7 +110,7 @@ IMPORTANT: Output ONLY raw JSON without markdown backticks.`;
           dailyRegions,
           userLandmarks: extractedLandmarks,
           rainyMode: !!parsed.rainyMode,
-          raw: rawPrompt,
+          raw: cleanPrompt,
           isLlmParsed: true
         };
       }
@@ -105,7 +119,7 @@ IMPORTANT: Output ONLY raw JSON without markdown backticks.`;
     }
   }
 
-  return fallbackParser ? fallbackParser(rawPrompt) : null;
+  return fallbackParser ? fallbackParser(cleanPrompt) : null;
 }
 
 /**
@@ -113,6 +127,7 @@ IMPORTANT: Output ONLY raw JSON without markdown backticks.`;
  */
 export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko', filters = {}) {
   if (!rawPrompt || rawPrompt.trim().length < 2) return null;
+  const cleanPrompt = extractCleanUserPrompt(rawPrompt);
 
   if (isValidGeminiKey) {
     const systemInstruction = `You are a World-Class Korea Travel AI Concierge. Generate a complete 100% accurate, high-trust multi-day itinerary JSON.
@@ -154,7 +169,7 @@ Output ONLY raw JSON matching this EXACT schema:
         {
           parts: [
             { text: systemInstruction },
-            { text: `User Travel Request: "${rawPrompt}" (Language: ${lang})` }
+            { text: `User Travel Request: "${rawPrompt}" (Latest query: ${cleanPrompt}, Language: ${lang})` }
           ]
         }
       ],
@@ -183,6 +198,8 @@ Output ONLY raw JSON matching this EXACT schema:
           const cleanJson = textOutput.replace(/```json/gi, '').replace(/```/g, '').trim();
           const parsed = JSON.parse(cleanJson);
           if (parsed && Array.isArray(parsed.dailySchedules) && parsed.dailySchedules.length > 0) {
+            parsed.tripTitle = `${cleanPrompt} 맞춤 추천 코스`;
+            parsed.aiRecommendationSummary = `'${cleanPrompt}' 요청에 맞춰 최적의 ${parsed.dailySchedules.length}일치 코스를 100% 정품 명소와 실시간 날씨/미식 데이터로 정성껏 준비했습니다! 📍`;
             return parsed;
           }
         }
@@ -198,6 +215,7 @@ Output ONLY raw JSON matching this EXACT schema:
 
 function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
   fallbackTurnCounter++;
+  const cleanPrompt = extractCleanUserPrompt(rawPrompt);
 
   // Detect explicit days
   let days = 3;
@@ -205,16 +223,6 @@ function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
   else if (/(4일|4박|4d|4-day)/i.test(rawPrompt)) days = 4;
   else if (/(2일|2박|2d|2-day)/i.test(rawPrompt)) days = 2;
   else if (/(1일|1박|당일|1d)/i.test(rawPrompt)) days = 1;
-
-  // Regional preset pools
-  const regionalPresets = {
-    seoul_gyeonggi: ['서울 성수동', '수원 화성행궁', '인천 송도', '파주 헤이리', '용인 민속촌'],
-    jeju: ['제주 애월해변', '서귀포 중문', '성산일출봉', '제주 한라산', '우도'],
-    busan: ['부산 해운대', '부산 광안리', '부산 태종대', '부산 남포동', '기장 오시리아'],
-    gangwon: ['강릉 안목해변', '속초 아바이마을', '춘천 남이섬', '평창 대관령', '양양 서피비치'],
-    jeolla: ['전주 한옥마을', '여수 밤바다', '순천만 국가정원', '목포 유달산', '담양 죽녹원'],
-    gyeongsang: ['경주 보문단지', '포항 스페이스워크', '안동 하회마을', '울산 간절곶', '거제 바람의언덕']
-  };
 
   // Spot details catalog for authentic 100% matching spots
   const catalog = {
@@ -274,16 +282,27 @@ function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
     ]
   };
 
-  // Determine requested or alternative region list
   let selectedCities = [];
   const promptLower = rawPrompt.toLowerCase();
 
-  // Negative constraint detection: "수원 말고", "수원 제외", "서울 말고", "다른데", "다른 곳"
-  const isExcludeSuwon = /(수원\s*말고|수원\s*제외|수원\s*외|수원\s*아닌)/i.test(promptLower);
-  const isExcludeSeoul = /(서울\s*말고|서울\s*제외|서울\s*아닌)/i.test(promptLower);
-  const isAskingAlternative = /(다른데|다른\s*곳|다르게|다른|계속\s*같은|새로운)/i.test(promptLower);
+  // Negative constraint detection
+  const isExcludeIncheon = /(인천\s*빼|인천\s*제외|인천\s*말고|인천\s*아닌)/i.test(promptLower);
+  const isExcludeSuwon = /(수원\s*빼|수원\s*말고|수원\s*제외|수원\s*아닌)/i.test(promptLower);
+  const isExcludeSeoul = /(서울\s*빼|서울\s*말고|서울\s*제외|서울\s*아닌)/i.test(promptLower);
 
-  if (isExcludeSuwon) {
+  // Positive inclusion detection
+  const isIncludeGangneung = /(강릉|동해|속초)/i.test(promptLower);
+  const isIncludeSuwon = /(수원)/i.test(promptLower);
+
+  if (isExcludeIncheon) {
+    if (isIncludeGangneung && isIncludeSuwon) {
+      selectedCities = ['서울 성수동', '강릉 안목해변', '수원 화성행궁', '제주 애월해변', '부산 해운대'];
+    } else if (isIncludeGangneung) {
+      selectedCities = ['서울 성수동', '강릉 안목해변', '수원 화성행궁', '제주 애월해변', '부산 해운대'];
+    } else {
+      selectedCities = ['서울 성수동', '제주 애월해변', '부산 해운대', '강릉 안목해변', '경주 보문단지'];
+    }
+  } else if (isExcludeSuwon) {
     selectedCities = ['제주 애월해변', '부산 해운대', '강릉 안목해변', '여수 밤바다', '경주 보문단지'];
   } else if (isExcludeSeoul) {
     selectedCities = ['부산 해운대', '제주 애월해변', '경주 보문단지', '전주 한옥마을', '강릉 안목해변'];
@@ -297,16 +316,6 @@ function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
     selectedCities = ['전주 한옥마을', '여수 밤바다', '부산 해운대', '경주 보문단지', '제주 애월해변'];
   } else if (promptLower.includes('경주') || promptLower.includes('포항') || promptLower.includes('경상')) {
     selectedCities = ['경주 보문단지', '부산 해운대', '여수 밤바다', '강릉 안목해변', '제주 애월해변'];
-  } else if (isAskingAlternative) {
-    // Dynamic Rotation when user asks "다른데는 없나?" or "계속 같은데만 알려주네?"
-    const rotationPools = [
-      ['제주 애월해변', '부산 해운대', '경주 보문단지', '여수 밤바다', '전주 한옥마을'],
-      ['강릉 안목해변', '전주 한옥마을', '부산 해운대', '인천 송도', '제주 애월해변'],
-      ['여수 밤바다', '경주 보문단지', '서울 성수동', '부산 해운대', '수원 화성행궁'],
-      ['부산 해운대', '제주 애월해변', '강릉 안목해변', '전주 한옥마을', '경주 보문단지']
-    ];
-    const poolIdx = fallbackTurnCounter % rotationPools.length;
-    selectedCities = rotationPools[poolIdx];
   } else {
     selectedCities = ['서울 성수동', '인천 송도', '수원 화성행궁', '강릉 안목해변', '부산 해운대'];
   }
@@ -339,10 +348,15 @@ function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
     };
   });
 
+  let summaryText = `'${cleanPrompt}' 요청에 맞춰 최적의 ${days}일치 맞춤 코스를 100% 정품 명소와 실시간 날씨/미식 정보로 정성껏 준비했습니다! 📍`;
+  if (isExcludeIncheon) {
+    summaryText = `요청하신 대로 인천을 제외하고, ${isIncludeGangneung ? '강릉과 ' : ''}수원을 포함한 ${days}일치 맞춤 여행 코스로 새롭게 구성했습니다! 📍`;
+  }
+
   return {
     days,
-    tripTitle: `${rawPrompt} 맞춤 100% 정품 여행 코스`,
-    aiRecommendationSummary: `'${rawPrompt}' 요청에 맞춰 최적의 ${days}일치 맞춤 여행 코스를 정품 명소 좌표와 실시간 기후/미식/코디 데이터로 새롭게 직조했습니다! 📍`,
+    tripTitle: `${cleanPrompt} 맞춤 추천 코스`,
+    aiRecommendationSummary: summaryText,
     dailySchedules
   };
 }
