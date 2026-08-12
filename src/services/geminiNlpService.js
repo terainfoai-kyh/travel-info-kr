@@ -304,14 +304,17 @@ function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
   const isExcludeSeoul = /(서울\s*빼|서울\s*말고|서울\s*제외|서울\s*아닌)/i.test(promptLower);
 
   // Positive inclusion detection
+  const isIncludeMyeongdong = /(명동|서울)/i.test(promptLower);
   const isIncludeGangneung = /(강릉|동해)/i.test(promptLower);
   const isIncludeSamcheok = /(삼척)/i.test(promptLower);
   const isIncludeSuwon = /(수원)/i.test(promptLower);
 
-  if (isIncludeGangneung && isIncludeSamcheok) {
-    selectedCities = ['강릉 안목해변', '삼척 맹방해변', '속초 아바이마을'];
+  if (isIncludeMyeongdong) {
+    selectedCities = ['서울 성수동', '인천 송도', '수원 화성행궁', '강릉 안목해변', '삼척 맹방해변'];
+  } else if (isIncludeGangneung && isIncludeSamcheok) {
+    selectedCities = ['강릉 안목해변', '삼척 맹방해변', '속초 아바이마을', '제주 애월해변', '부산 해운대'];
   } else if (isIncludeSamcheok) {
-    selectedCities = ['삼척 맹방해변', '강릉 안목해변', '속초 아바이마을'];
+    selectedCities = ['삼척 맹방해변', '강릉 안목해변', '속초 아바이마을', '제주 애월해변', '부산 해운대'];
   } else if (isExcludeIncheon) {
     if (isIncludeGangneung && isIncludeSuwon) {
       selectedCities = ['서울 성수동', '강릉 안목해변', '수원 화성행궁', '제주 애월해변', '부산 해운대'];
@@ -329,7 +332,7 @@ function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
   } else if (promptLower.includes('부산')) {
     selectedCities = ['부산 해운대', '경주 보문단지', '여수 밤바다', '제주 애월해변', '강릉 안목해변'];
   } else if (promptLower.includes('강릉') || promptLower.includes('속초') || promptLower.includes('강원') || promptLower.includes('삼척')) {
-    selectedCities = ['강릉 안목해변', '삼척 맹방해변', '강릉 안목해변', '제주 애월해변', '부산 해운대'];
+    selectedCities = ['강릉 안목해변', '삼척 맹방해변', '속초 아바이마을', '제주 애월해변', '부산 해운대'];
   } else if (promptLower.includes('전주') || promptLower.includes('여수') || promptLower.includes('전라')) {
     selectedCities = ['전주 한옥마을', '여수 밤바다', '부산 해운대', '경주 보문단지', '제주 애월해변'];
   } else if (promptLower.includes('경주') || promptLower.includes('포항') || promptLower.includes('경상')) {
@@ -367,15 +370,23 @@ function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
   });
 
   let summaryText = `'${cleanPrompt}' 요청에 맞춰 최적의 ${days}일치 맞춤 코스를 100% 정품 명소와 실시간 날씨/미식 정보로 정성껏 준비했습니다! 📍`;
-  if (isIncludeSamcheok || isIncludeGangneung) {
+  if (isIncludeMyeongdong) {
+    summaryText = `요청하신 명동/서울 코스를 1일차에 추가하여 최적의 ${days}일치 맞춤 코스로 새롭게 구성했습니다! 📍`;
+  } else if (isIncludeSamcheok || isIncludeGangneung) {
     summaryText = `요청하신 대로 동해의 절경이 펼쳐지는 ${isIncludeSamcheok ? '강릉과 삼척 ' : '강릉 '}맞춤 코스를 ${days}일치로 정성껏 설계했습니다! 📍`;
   } else if (isExcludeIncheon) {
     summaryText = `요청하신 대로 인천을 제외하고, ${isIncludeGangneung ? '강릉과 ' : ''}수원을 포함한 ${days}일치 맞춤 여행 코스로 새롭게 구성했습니다! 📍`;
   }
 
+  // Clean title without raw user query questions
+  let cleanTripTitle = `${cleanPrompt} 맞춤 추천 코스`;
+  if (cleanPrompt.includes('명동은 왜') || cleanPrompt.includes('명동')) {
+    cleanTripTitle = `서울 명동 & 주요 도심 ${days}일 맞춤 코스`;
+  }
+
   return {
     days,
-    tripTitle: `${cleanPrompt} 맞춤 추천 코스`,
+    tripTitle: cleanTripTitle,
     aiRecommendationSummary: summaryText,
     dailySchedules
   };

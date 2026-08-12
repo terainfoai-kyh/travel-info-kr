@@ -735,10 +735,10 @@ export default function App() {
       <FloatingAIDock
         lang={lang}
         onOpenChat={() => {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+          window.dispatchEvent(new CustomEvent('vora:openChat'));
         }}
         onStartVoice={() => {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+          window.dispatchEvent(new CustomEvent('vora:startVoice'));
         }}
       />
     </div>

@@ -188,6 +188,30 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
     }
   }, [lang]);
 
+  // Listen for floating dock open chat & voice events
+  useEffect(() => {
+    const handleOpenChatEvent = () => {
+      setIsInlineChatExpanded(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+    const handleVoiceEvent = () => {
+      setIsInlineChatExpanded(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.start();
+          setIsListening(true);
+        } catch (e) {}
+      }
+    };
+    window.addEventListener('vora:openChat', handleOpenChatEvent);
+    window.addEventListener('vora:startVoice', handleVoiceEvent);
+    return () => {
+      window.removeEventListener('vora:openChat', handleOpenChatEvent);
+      window.removeEventListener('vora:startVoice', handleVoiceEvent);
+    };
+  }, []);
+
   // Scroll ONLY inside inner chat container without moving the outer page window!
   useEffect(() => {
     if (isInlineChatExpanded && chatContainerRef.current) {
@@ -753,7 +777,7 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
               transition: 'all 0.2s ease'
             }}
           >
-            <span>{isInlineChatExpanded ? '전송' : (isMobile ? 'AI 질문' : 'AI 질문하기')}</span>
+            <span>{isInlineChatExpanded ? (t.send || '전송') : (isMobile ? (t.askAiShort || 'AI 질문') : (t.askAi || 'AI 질문하기'))}</span>
             <Send style={{ width: isMobile ? '12px' : '15px', height: isMobile ? '12px' : '15px' }} />
           </button>
         </div>
@@ -768,9 +792,9 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
         marginTop: isMobile ? '0.85rem' : '1.1rem'
       }}>
         {[
-          '🌊 강릉 & 삼척 2박3일 동해안 바다',
-          '☔ 비오는 날 실내 박물관 & 감성 카페',
-          '🏯 전주 한옥마을 부모님 힐링 코스'
+          t.scenarioPill1 || '🌊 강릉 & 삼척 2박3일 동해안 바다',
+          t.scenarioPill2 || '☔ 비오는 날 실내 박물관 & 감성 카페',
+          t.scenarioPill3 || '🏯 전주 한옥마을 부모님 힐링 코스'
         ].map((pill, idx) => (
           <button
             key={idx}
