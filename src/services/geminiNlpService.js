@@ -106,8 +106,9 @@ export function extractLocationKeyword(text) {
   if (!text || typeof text !== 'string') return '추천 장소';
   let clean = extractCleanUserPrompt(text).trim();
   clean = clean.replace(/^(난\s*|나\s*|저\s*|저는\s*|우리는\s*|저희\s*)/i, '');
+  clean = clean.replace(/(\s*는\s*어때\??|\s*은\s*어때\??|\s*어때\??|\s*어떠니\??|\s*어떨까\??)/gi, '');
   clean = clean.replace(/(에\s*가보고\s*싶어|에\s*가고\s*싶어|에\s*가고\s*싶다|에\s*갈래|에\s*가볼래|가보고\s*싶어|가고\s*싶어|가고\s*싶다|갈래|가볼래|에\s*가볼까|가볼까|에\s*가자|가자)/gi, '');
-  clean = clean.replace(/(추천해줘|추천해\s*주세요|알려줘|알려주세요|보여줘|보여주세요|찾아줘|찾아주세요|코스\s*짜줘)/gi, '');
+  clean = clean.replace(/(추천해줘|추천해\s*주세요|알려줘|알려주세요|보여줘|보여주세요|찾아줘|찾아주세요|코스\s*짜줘|가볼\s*만한\s*곳|가볼만한곳)/gi, '');
   clean = clean.trim();
   return clean || '추천 장소';
 }
@@ -341,6 +342,18 @@ export function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
 
   // Spot details catalog for authentic 100% matching spots
   const catalog = {
+    '거제 바람의언덕': [
+      { id: `geoje-1`, title: '거제 바람의언덕 & 신선대', location: '경상남도 거제시 남부면 갈곶리 산14-47', lat: 34.7615, lng: 128.6655, rating: 4.9, category: '자연/힐링', tags: ['바람의언덕', '거제9경'], image: 'http://tong.visitkorea.or.kr/cms/resource/10/2660510_image2_1.jpg', isInstagramHotspot: true },
+      { id: `geoje-2`, title: '거제 외도 보타니아 (해상식물원)', location: '경상남도 거제시 일운면 외도길 17', lat: 34.8115, lng: 128.7185, rating: 4.9, category: '자연/힐링', tags: ['외도보타니아', '해상정원'], image: 'http://tong.visitkorea.or.kr/cms/resource/20/2660520_image2_1.jpg', isInstagramHotspot: true },
+      { id: `geoje-3`, title: '거제 학동 흑진주 몽돌해변', location: '경상남도 거제시 동부면 학동리', lat: 34.7812, lng: 128.6485, rating: 4.8, category: '자연/힐링', tags: ['몽돌해변', '파도소리'], image: 'http://tong.visitkorea.or.kr/cms/resource/30/2660530_image2_1.jpg', isInstagramHotspot: true },
+      { id: `geoje-4`, title: '거제 파노라마 케이블카', location: '경상남도 거제시 동부면 거제중앙로 2888', lat: 34.7950, lng: 128.6210, rating: 4.8, category: '액티비티/레저', tags: ['거제케이블카', '다도해뷰'], image: 'http://tong.visitkorea.or.kr/cms/resource/40/2660540_image2_1.jpg', isInstagramHotspot: true }
+    ],
+    '평창 대관령': [
+      { id: `pyeongchang-1`, title: '대관령 양떼목장 & 삼양목장', location: '강원특별자치도 평창군 대관령면 꽃밭양지길 708-9', lat: 37.6895, lng: 128.7425, rating: 4.9, category: '자연/힐링', tags: ['양떼목장', '대관령'], image: 'http://tong.visitkorea.or.kr/cms/resource/50/2660550_image2_1.jpg', isInstagramHotspot: true },
+      { id: `pyeongchang-2`, title: '오대산 월정사 전나무숲길', location: '강원특별자치도 평창군 진부면 오대산로 374-8', lat: 37.7312, lng: 128.5915, rating: 4.9, category: '역사/문화', tags: ['월정사', '전나무숲'], image: 'http://tong.visitkorea.or.kr/cms/resource/60/2660560_image2_1.jpg', isInstagramHotspot: true },
+      { id: `pyeongchang-3`, title: '평창 이효석 문화마을 & 메밀꽃밭', location: '강원특별자치도 평창군 봉평면 이효석길 157', lat: 37.5852, lng: 128.3785, rating: 4.8, category: '역사/문화', tags: ['메밀꽃필무렵', '문화마을'], image: 'http://tong.visitkorea.or.kr/cms/resource/70/2660570_image2_1.jpg', isInstagramHotspot: false },
+      { id: `pyeongchang-4`, title: '발왕산 기선 케이블카 & 천년주목숲길', location: '강원특별자치도 평창군 대관령면 올림픽로 715', lat: 37.6435, lng: 128.6812, rating: 4.9, category: '액티비티/레저', tags: ['발왕산', '스카이워크'], image: 'http://tong.visitkorea.or.kr/cms/resource/80/2660580_image2_1.jpg', isInstagramHotspot: true }
+    ],
     '화성 보통리 저수지': [
       { id: `hwaseong-botong-1`, title: '보통리 저수지 & 수변 산책로', location: '경기도 화성시 정남면 보통리 78', lat: 37.1895, lng: 126.9855, rating: 4.9, category: '자연/힐링', tags: ['보통리저수지', '화성핫플'], image: 'http://tong.visitkorea.or.kr/cms/resource/35/2785035_image2_1.jpg', isInstagramHotspot: true },
       { id: `hwaseong-botong-2`, title: '융건릉 (사도세자 & 정조 능)', location: '경기도 화성시 효행로 481', lat: 37.2082, lng: 126.9975, rating: 4.9, category: '역사/문화', tags: ['유네스코세계유산', '융건릉'], image: 'http://tong.visitkorea.or.kr/cms/resource/66/2660566_image2_1.jpg', isInstagramHotspot: true },
@@ -418,53 +431,26 @@ export function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
   let selectedCities = [];
   const promptLower = rawPrompt.toLowerCase();
 
-  // Negative constraint detection
-  const isExcludeIncheon = /(인천\s*빼|인천\s*제외|인천\s*말고|인천\s*아닌)/i.test(promptLower);
-  const isExcludeSuwon = /(수원\s*빼|수원\s*말고|수원\s*제외|수원\s*아닌)/i.test(promptLower);
-  const isExcludeSeoul = /(서울\s*빼|서울\s*말고|서울\s*제외|서울\s*아닌)/i.test(promptLower);
-
-  // Positive inclusion detection
-  const isIncludeBotongri = /(보통리|보통|정남|융건릉)/i.test(promptLower);
-  const isIncludeYeongtong = /(영통|반달공원|영흥|광교)/i.test(promptLower);
-  const isIncludeMyeongdong = /(명동|서울)/i.test(promptLower);
-  const isIncludeGangneung = /(강릉|동해)/i.test(promptLower);
-  const isIncludeSamcheok = /(삼척|삼청)/i.test(promptLower);
-  const isIncludeSuwon = /(수원)/i.test(promptLower);
-
-  if (isIncludeBotongri) {
-    selectedCities = ['화성 보통리 저수지', '수원 화성행궁', '수원 영통 반달공원', '서울 성수동', '강릉 안목해변'];
-  } else if (isIncludeYeongtong) {
-    selectedCities = ['수원 영통 반달공원', '수원 화성행궁', '화성 보통리 저수지', '서울 성수동', '강릉 안목해변'];
-  } else if (isIncludeMyeongdong) {
-    selectedCities = ['서울 성수동', '인천 송도', '수원 화성행궁', '강릉 안목해변', '삼척 맹방해변'];
-  } else if (isIncludeGangneung && isIncludeSamcheok) {
-    selectedCities = ['강릉 안목해변', '삼척 맹방해변', '속초 아바이마을', '제주 애월해변', '부산 해운대'];
-  } else if (isIncludeSamcheok) {
-    selectedCities = ['삼척 맹방해변', '강릉 안목해변', '속초 아바이마을', '제주 애월해변', '부산 해운대'];
-  } else if (isExcludeIncheon) {
-    if (isIncludeGangneung && isIncludeSuwon) {
-      selectedCities = ['서울 성수동', '강릉 안목해변', '수원 화성행궁', '제주 애월해변', '부산 해운대'];
-    } else if (isIncludeGangneung) {
-      selectedCities = ['서울 성수동', '강릉 안목해변', '수원 화성행궁', '제주 애월해변', '부산 해운대'];
-    } else {
-      selectedCities = ['서울 성수동', '제주 애월해변', '부산 해운대', '강릉 안목해변', '경주 보문단지'];
-    }
-  } else if (isExcludeSuwon) {
-    selectedCities = ['제주 애월해변', '부산 해운대', '강릉 안목해변', '여수 밤바다', '경주 보문단지'];
-  } else if (isExcludeSeoul) {
-    selectedCities = ['부산 해운대', '제주 애월해변', '경주 보문단지', '전주 한옥마을', '강릉 안목해변'];
+  if (promptLower.includes('거제') || promptLower.includes('통영')) {
+    selectedCities = ['거제 바람의언덕', '부산 해운대', '여수 밤바다'];
+  } else if (promptLower.includes('평창') || promptLower.includes('대관령')) {
+    selectedCities = ['평창 대관령', '강릉 안목해변', '속초 아바이마을'];
+  } else if (promptLower.includes('수원') || promptLower.includes('영통') || promptLower.includes('보통리')) {
+    selectedCities = ['수원 영통 반달공원', '수원 화성행궁', '화성 보통리 저수지'];
+  } else if (promptLower.includes('강남') || promptLower.includes('성수') || promptLower.includes('서울') || promptLower.includes('명동')) {
+    selectedCities = ['서울 성수동', '인천 송도', '수원 화성행궁'];
   } else if (promptLower.includes('제주')) {
-    selectedCities = ['제주 애월해변', '부산 해운대', '강릉 안목해변', '서울 성수동', '인천 송도'];
+    selectedCities = ['제주 애월해변', '부산 해운대', '강릉 안목해변'];
   } else if (promptLower.includes('부산')) {
-    selectedCities = ['부산 해운대', '경주 보문단지', '여수 밤바다', '제주 애월해변', '강릉 안목해변'];
+    selectedCities = ['부산 해운대', '경주 보문단지', '여수 밤바다'];
   } else if (promptLower.includes('강릉') || promptLower.includes('속초') || promptLower.includes('강원') || promptLower.includes('삼척')) {
-    selectedCities = ['강릉 안목해변', '삼척 맹방해변', '속초 아바이마을', '제주 애월해변', '부산 해운대'];
+    selectedCities = ['강릉 안목해변', '삼척 맹방해변', '속초 아바이마을'];
   } else if (promptLower.includes('전주') || promptLower.includes('여수') || promptLower.includes('전라')) {
-    selectedCities = ['전주 한옥마을', '여수 밤바다', '부산 해운대', '경주 보문단지', '제주 애월해변'];
+    selectedCities = ['전주 한옥마을', '여수 밤바다', '부산 해운대'];
   } else if (promptLower.includes('경주') || promptLower.includes('포항') || promptLower.includes('경상')) {
-    selectedCities = ['경주 보문단지', '부산 해운대', '여수 밤바다', '강릉 안목해변', '제주 애월해변'];
+    selectedCities = ['경주 보문단지', '부산 해운대', '여수 밤바다'];
   } else {
-    selectedCities = ['서울 성수동', '인천 송도', '수원 화성행궁', '강릉 안목해변', '부산 해운대'];
+    selectedCities = ['서울 성수동', '수원 화성행궁', '부산 해운대'];
   }
 
   const dailySchedules = Array.from({ length: days }).map((_, idx) => {
@@ -478,7 +464,7 @@ export function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
       city: cityName,
       weather: { temp: '23°C', condition: '맑음 ☀️', rainProbability: '10%', dust: '좋음' },
       foodRecommendation: {
-        dishName: cityName.includes('수원') ? '수원 왕갈비 & 통닭' : (cityName.includes('제주') ? '제주 흑돼지 & 갈치조림' : (cityName.includes('부산') ? '부산 돼지국밥 & 씨앗호떡' : (cityName.includes('여수') ? '여수 돌게장 & 삼합' : (cityName.includes('삼척') ? '삼척 곰치국 & 물회' : '지역 대표 명품 미식')))),
+        dishName: cityName.includes('수원') ? '수원 왕갈비 & 통닭' : (cityName.includes('제주') ? '제주 흑돼지 & 갈치조림' : (cityName.includes('부산') ? '부산 돼지국밥 & 씨앗호떡' : (cityName.includes('여수') ? '여수 돌게장 & 삼합' : (cityName.includes('거제') ? '거제 멍게비빔밥 & 굴구이' : (cityName.includes('평창') ? '평창 메밀막국수 & 한우' : '지역 대표 명품 미식'))))),
         restaurantName: '대한민국 공공데이터 인증 대표 맛집',
         description: '한국관광공사 공식 추천 대표 특산 식재료 요리'
       },
@@ -496,20 +482,8 @@ export function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
   });
 
   const locationName = extractLocationKeyword(cleanPrompt);
-  let summaryText = `'${locationName}' 맞춤 ${days}일치 코스를 100% 정품 명소와 실시간 날씨/미식 정보로 정성껏 준비했습니다! 📍`;
-  if (isIncludeMyeongdong) {
-    summaryText = `요청하신 명동/서울 코스를 포함하여 최적의 ${days}일치 맞춤 코스로 새롭게 구성했습니다! 📍`;
-  } else if (isIncludeSamcheok || isIncludeGangneung) {
-    summaryText = `요청하신 대로 동해의 절경이 펼쳐지는 ${isIncludeSamcheok ? '강릉과 삼척 ' : '강릉 '}맞춤 코스를 ${days}일치로 정성껏 설계했습니다! 📍`;
-  } else if (isExcludeIncheon) {
-    summaryText = `요청하신 대로 인천을 제외하고, ${isIncludeGangneung ? '강릉과 ' : ''}수원을 포함한 ${days}일치 맞춤 여행 코스로 새롭게 구성했습니다! 📍`;
-  }
-
-  // Clean title without raw user query questions
-  let cleanTripTitle = `${locationName} 맞춤 추천 코스`;
-  if (cleanPrompt.includes('명동은 왜') || cleanPrompt.includes('명동')) {
-    cleanTripTitle = `서울 명동 & 주요 도심 ${days}일 맞춤 코스`;
-  }
+  const summaryText = `'${locationName}' 맞춤 ${days}일치 코스를 100% 정품 명소와 실시간 날씨/미식 정보로 정성껏 준비했습니다! 📍`;
+  const cleanTripTitle = `${locationName} 맞춤 추천 코스`;
 
   return {
     days,

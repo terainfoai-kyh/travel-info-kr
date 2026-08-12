@@ -464,14 +464,7 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
         .join('\n');
       const contextualPrompt = historyContext ? `${historyContext}\nUser: ${query}` : query;
 
-      const timeoutPromise = new Promise(resolve => setTimeout(() => resolve(null), 3000));
-
-      const rawResult = await Promise.race([
-        geminiGenerateFullItinerary(contextualPrompt, lang),
-        timeoutPromise
-      ]);
-
-      const fullAiResult = rawResult || generateLocalFallbackItinerary(query, lang);
+      const fullAiResult = (await geminiGenerateFullItinerary(contextualPrompt, lang)) || generateLocalFallbackItinerary(query, lang);
       const locationName = isCasualChatQuery(query) ? query : (extractLocationKeyword(query) || query);
       const aiBubbleText = fullAiResult.aiRecommendationSummary || 
         `'${locationName}' 맞춤 ${fullAiResult.days || 3}일치 코스를 100% 정품 명소와 실시간 날씨/미식 데이터로 정성껏 준비했습니다! 📍`;
