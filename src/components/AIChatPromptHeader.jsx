@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, Mic, MicOff, ArrowRight, Camera, X, MessageSquare, Send, MapPin, Compass, ChevronDown, ChevronUp, Trash2, Volume2, VolumeX } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
-import { geminiParseNaturalPrompt, geminiGenerateFullItinerary, isGreetingQuery, isAffirmativeYes, checkAmbiguousRegionQuery, checkMissingPublicDbQuery } from '../services/geminiNlpService';
+import { geminiParseNaturalPrompt, geminiGenerateFullItinerary, isGreetingQuery, isAffirmativeYes, checkAmbiguousRegionQuery, checkMissingPublicDbQuery, isInvalidOrNonTravelQuery } from '../services/geminiNlpService';
 
 /**
  * Web SpeechSynthesis TTS helper to speak AI responses out loud in natural voice
@@ -347,6 +347,29 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
         setIsGenerating(false);
         if (isAutoTtsEnabled) {
           speakText(missingCheck.aiText, lang);
+        }
+      }, 400);
+      return;
+    }
+
+    // Check 4: Invalid or Non-Travel Query ("푸틴", "주식", "ㅋㅋ") -> Friendly Travel Guide Prompt!
+    if (isInvalidOrNonTravelQuery(query)) {
+      setTimeout(() => {
+        const nonTravelBubble = {
+          id: `ai-${Date.now()}`,
+          sender: 'ai',
+          text: `요청하신 **'${query}'**은(는) 여행 목적지나 도시명이 아닙니다! ✈️ 떠나고 싶으신 대한민국 관광명소나 도시(예: **'강릉 2박3일'**, **'성수동 핫플'**, **'수원 화성'**, **'삼척 맹방해변'**)를 말씀해 주시면 100% 정품 맞춤 코스를 정성껏 준비해 드릴게요! 😊`,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          suggestionChips: [
+            '강릉 2박3일 커피거리 코스',
+            '성수동 핫플 & 팝업스토어',
+            '삼척 맹방해변 & BTS 버터 촬영지'
+          ]
+        };
+        setChatMessages(prev => [...prev, nonTravelBubble]);
+        setIsGenerating(false);
+        if (isAutoTtsEnabled) {
+          speakText(nonTravelBubble.text, lang);
         }
       }, 400);
       return;

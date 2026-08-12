@@ -2,7 +2,14 @@
 // 100% Free Tier (1,500 requests/day, $0 cost)
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
-const isValidGeminiKey = GEMINI_API_KEY && GEMINI_API_KEY.startsWith('AIzaSy') && GEMINI_API_KEY.length > 20;
+const isValidGeminiKey = Boolean(GEMINI_API_KEY && GEMINI_API_KEY.length > 15);
+
+export function isInvalidOrNonTravelQuery(text) {
+  if (!text || typeof text !== 'string') return false;
+  const clean = extractCleanUserPrompt(text).toLowerCase().trim();
+  const nonTravelList = ['푸틴', '바이든', '트럼프', '대통령', '주식', '코인', '비트코인', '수학', '게임', '롤', 'lol', '시위', '정치'];
+  return nonTravelList.some(k => clean === k || clean.includes(k));
+}
 
 export function isGreetingQuery(text) {
   if (!text || typeof text !== 'string') return false;
