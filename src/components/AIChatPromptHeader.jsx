@@ -1,7 +1,29 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, Mic, MicOff, ArrowRight, Camera, X, MessageSquare, Send, MapPin, Compass, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
+import { Sparkles, Mic, MicOff, ArrowRight, Camera, X, MessageSquare, Send, MapPin, Compass, ChevronDown, ChevronUp, Trash2, Volume2, VolumeX } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
 import { geminiParseNaturalPrompt, geminiGenerateFullItinerary, isGreetingQuery, isAffirmativeYes, checkAmbiguousRegionQuery } from '../services/geminiNlpService';
+
+/**
+ * Web SpeechSynthesis TTS helper to speak AI responses out loud in natural voice
+ */
+export function speakText(text, lang = 'ko') {
+  if (typeof window === 'undefined' || !window.speechSynthesis) return;
+  try {
+    window.speechSynthesis.cancel();
+    const cleanText = text
+      .replace(/[*#_~`[\]]/g, '')
+      .replace(/https?:\/\/\S+/g, '')
+      .replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '');
+    
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.lang = lang === 'en' ? 'en-US' : (lang === 'ja' ? 'ja-JP' : (lang === 'zh' ? 'zh-CN' : 'ko-KR'));
+    utterance.rate = 1.05;
+    utterance.pitch = 1.0;
+    window.speechSynthesis.speak(utterance);
+  } catch (err) {
+    console.warn('TTS error:', err);
+  }
+}
 
 /**
  * Natural language query parser to extract region, days, and clean keywords
@@ -149,6 +171,7 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
   const [isInlineChatExpanded, setIsInlineChatExpanded] = useState(false);
   const [chatMessages, setChatMessages] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isAutoTtsEnabled, setIsAutoTtsEnabled] = useState(true);
   const chatContainerRef = useRef(null);
   const recognitionRef = useRef(null);
 
@@ -362,6 +385,9 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
       };
 
       setChatMessages(prev => [...prev, aiBubble]);
+      if (isAutoTtsEnabled) {
+        speakText(aiBubbleText, lang);
+      }
     } catch (err) {
       console.error("Inline AI Chat Generation Error:", err);
       const errorBubble = {
@@ -514,6 +540,27 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
               <span>Vora AI 실시간 대화창</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <button
+                type="button"
+                onClick={() => setIsAutoTtsEnabled(prev => !prev)}
+                title={isAutoTtsEnabled ? "음성 안내 끄기 🔇" : "음성 안내 켜기 🔊"}
+                style={{
+                  padding: '0.25rem 0.65rem',
+                  borderRadius: '9999px',
+                  background: isAutoTtsEnabled ? '#eff6ff' : '#ffffff',
+                  border: isAutoTtsEnabled ? '1px solid #3b82f6' : '1px solid #cbd5e1',
+                  color: isAutoTtsEnabled ? '#1d4ed8' : '#64748b',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.3rem',
+                  cursor: 'pointer'
+                }}
+              >
+                {isAutoTtsEnabled ? <Volume2 size={13} color="#2563eb" /> : <VolumeX size={13} color="#64748b" />}
+                <span>{isAutoTtsEnabled ? '음성 소리 ON' : '음성 소리 OFF'}</span>
+              </button>
               <button
                 type="button"
                 onClick={() => {
