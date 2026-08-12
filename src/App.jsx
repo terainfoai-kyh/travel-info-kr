@@ -341,40 +341,7 @@ export default function App() {
           </div>
         ) : (
           <>
-            {/* 1. Tour Spots Grid */}
-            <div id="tour-spots">
-              <TourSpotGrid
-                spots={paginatedSpots}
-                page={page}
-                setPage={setPage}
-                totalPages={totalPages}
-                lang={lang}
-                themeMode={themeMode}
-                onSelectSpot={(spot) => setSelectedSpot(spot)}
-                onOpenItinerary={() => setIsItineraryOpen(true)}
-                filters={filters}
-                selectedCourseSpotIds={selectedCourseSpotIds}
-                onToggleCourseSpot={handleToggleCourseSpot}
-                onResetFilters={async (newF) => {
-                  const updated = {
-                    ...filters,
-                    nightKeyword: '',
-                    userLandmarks: [],
-                    ...newF
-                  };
-                  setFilters(updated);
-                  setIsLoading(true);
-                  try {
-                    const spots = await fetchTourSpots({ ...updated, lang });
-                    setAllTourSpots(spots);
-                  } catch (err) {
-                    console.error(err);
-                  } finally {
-                    setIsLoading(false);
-                  }
-                }}
-              />
-            </div>
+
 
             {/* 2. Travel Essentials Hub Section */}
             <div id="travel-essentials">
