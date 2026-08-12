@@ -23,8 +23,10 @@ import GuidePRModal from './components/GuidePRModal';
 import AIChatPromptHeader from './components/AIChatPromptHeader';
 import PWAInstallBanner from './components/PWAInstallBanner';
 import FloatingAIDock from './components/FloatingAIDock';
+import AITestWorkbench from './components/AITestWorkbench';
 
 export default function App() {
+
   // Auto-detect browser locale
   const [lang, setLang] = useState(detectBrowserLanguage());
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
@@ -255,8 +257,12 @@ export default function App() {
 
       {/* Main Container */}
       <main style={{ maxWidth: '1280px', width: '100%', margin: '0 auto', padding: '0 1.5rem 0.5rem 1.5rem', flex: 1, position: 'relative', zIndex: 1 }}>
+        {/* Standalone AI Test Workbench (Sandbox) */}
+        <AITestWorkbench lang={lang} />
+
         {/* Conversational & Voice AI Prompt Header */}
         <div id="ai-prompt-hero">
+
           <AIChatPromptHeader 
             lang={lang} 
             filters={filters}
