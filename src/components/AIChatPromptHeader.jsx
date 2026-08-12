@@ -410,6 +410,30 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
       return;
     }
 
+    // Check 5: Trending spot / Hotspot general query ("요즘 뜨는 장소는", "핫플")
+    const isTrendingQuery = /(요즘\s*뜨는|핫플|인스타\s*핫플|인기\s*장소|추천\s*장소|가볼\s*만한|trending|hotspot)/i.test(query);
+    if (isTrendingQuery) {
+      setTimeout(() => {
+        const trendingBubble = {
+          id: `ai-${Date.now()}`,
+          sender: 'ai',
+          text: `요즘 SNS와 인스타그램에서 가장 뜨는 대한민국 TOP 3 핫플입니다! 🔥\n\n1️⃣ **서울 성수동 카페거리 & 팝업스토어** (MZ 감성 핫플)\n2️⃣ **수원 행궁동 행리단길 & 방화수류정** (피크닉 & 고즈넉한 한옥)\n3️⃣ **강릉 안목해변 커피거리 & BTS 버터 촬영지** (시원한 오션뷰)\n\n이 중 어디로 3일치 코스를 짜드릴까요? ✈️`,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          suggestionChips: [
+            '성수동 핫플 2박3일 코스',
+            '수원 행리단길 & 화성행궁 코스',
+            '강릉 안목해변 커피거리 코스'
+          ]
+        };
+        setChatMessages(prev => [...prev, trendingBubble]);
+        setIsGenerating(false);
+        if (isAutoTtsEnabled) {
+          speakText(trendingBubble.text, lang);
+        }
+      }, 400);
+      return;
+    }
+
     try {
       // Build multi-turn conversation history context for Gemini LLM
       const historyContext = chatMessages
@@ -418,14 +442,20 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
         .join('\n');
       const contextualPrompt = historyContext ? `${historyContext}\nUser: ${query}` : query;
 
-      const parsedIntent = await geminiParseNaturalPrompt(contextualPrompt, lang);
-      const fullAiResult = await geminiGenerateFullItinerary(contextualPrompt, lang);
+      // 3.0s Timeout Protection Guarantee so loading toast NEVER freezes
+      const timeoutPromise = new Promise(resolve => setTimeout(() => resolve(null), 3000));
 
-      // Clean single-turn AI summary with conversational prompt
-      const baseSummary = fullAiResult?.aiRecommendationSummary || 
+      const [parsedIntent, fullAiResult] = await Promise.race([
+        Promise.all([
+          geminiParseNaturalPrompt(contextualPrompt, lang),
+          geminiGenerateFullItinerary(contextualPrompt, lang)
+        ]),
+        timeoutPromise.then(() => [null, null])
+      ]);
+
+      // Pure 100% Gemini AI response text (NO hardcoded template suffix!)
+      const aiBubbleText = fullAiResult?.aiRecommendationSummary || 
         `'${query}' 요청에 맞춰 최적의 ${parsedIntent?.days || fullAiResult?.days || 3}일치 맞춤 여행 코스를 정성껏 준비했습니다! 📍`;
-      
-      const aiBubbleText = `${baseSummary}\n\n💬 바로 상세 일정표와 지도를 화면에 보여드릴까요? ('응', '그래', 'OK'라고 말씀해 보세요!)`;
 
       const aiBubble = {
         id: `ai-${Date.now()}`,
