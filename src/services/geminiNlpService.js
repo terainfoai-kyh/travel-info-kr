@@ -2,7 +2,14 @@
 // 100% Free Tier (1,500 requests/day, $0 cost)
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
-const isValidGeminiKey = GEMINI_API_KEY && GEMINI_API_KEY.length > 20 && !GEMINI_API_KEY.startsWith('AQ.') && GEMINI_API_KEY !== 'YOUR_GEMINI_API_KEY';
+const isValidGeminiKey = GEMINI_API_KEY && GEMINI_API_KEY.length > 10 && GEMINI_API_KEY !== 'YOUR_GEMINI_API_KEY';
+
+export function isGreetingQuery(text) {
+  if (!text || typeof text !== 'string') return false;
+  const clean = extractCleanUserPrompt(text).toLowerCase().trim();
+  const greetingRegex = /^(안녕|안녕하세요|안녕하세여|하이|hi|hello|반가워|반갑습니다|반가워요|고마워|고맙습니다|감사합니다|감사해요|누구야|누구니|반가움|ㅎㅇ|ㅎㅎ|ㅋㅋ)$/i;
+  return greetingRegex.test(clean) || (clean.length <= 4 && (clean.includes('안녕') || clean.includes('반가') || clean.includes('하이') || clean.includes('고마') || clean.includes('감사')));
+}
 
 let fallbackTurnCounter = 0;
 

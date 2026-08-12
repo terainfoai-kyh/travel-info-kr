@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, Mic, MicOff, ArrowRight, Camera, X, MessageSquare, Send, MapPin, Compass, ChevronDown, ChevronUp } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
-import { geminiParseNaturalPrompt, geminiGenerateFullItinerary } from '../services/geminiNlpService';
+import { geminiParseNaturalPrompt, geminiGenerateFullItinerary, isGreetingQuery } from '../services/geminiNlpService';
 
 /**
  * Natural language query parser to extract region, days, and clean keywords
@@ -243,6 +243,27 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
 
     setChatMessages(prev => [...prev, userBubble]);
     setIsGenerating(true);
+
+    if (isGreetingQuery(query)) {
+      setTimeout(() => {
+        const greetingBubble = {
+          id: `ai-${Date.now()}`,
+          sender: 'ai',
+          text: "안녕하세요! 😊 대한민국 여행 AI 컨시어지입니다. 오늘 어떤 분들과 어디로 여행을 떠나고 싶으신가요? ✈️ (예: '50대 부모님 모시고 강릉 힐링 코스')",
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          suggestionChips: [
+            '50대 부모님과 강릉 힐링 2박3일',
+            '성수동 핫플 & 팝업스토어 코스',
+            '1일차 수원 ➔ 2일차 명동 ➔ 3일차 인천'
+          ],
+          itinerarySummary: null,
+          fullAiResult: null
+        };
+        setChatMessages(prev => [...prev, greetingBubble]);
+        setIsGenerating(false);
+      }, 400);
+      return;
+    }
 
     try {
       // Build multi-turn conversation history context for Gemini LLM
