@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, Mic, MicOff, ArrowRight, Camera, X, MessageSquare, Send, MapPin, Compass, ChevronDown, ChevronUp, Trash2, Volume2, VolumeX } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
-import { geminiParseNaturalPrompt, geminiGenerateFullItinerary, isGreetingQuery, isAffirmativeYes, checkAmbiguousRegionQuery, checkMissingPublicDbQuery, isInvalidOrNonTravelQuery, isCasualChatQuery } from '../services/geminiNlpService';
+import { geminiParseNaturalPrompt, geminiGenerateFullItinerary, isGreetingQuery, isAffirmativeYes, checkAmbiguousRegionQuery, checkMissingPublicDbQuery, isInvalidOrNonTravelQuery, isCasualChatQuery, extractLocationKeyword } from '../services/geminiNlpService';
 
 /**
  * Web SpeechSynthesis TTS helper to speak AI responses out loud in natural voice
