@@ -327,19 +327,19 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
       width: '100%',
       marginBottom: isMobile ? '1rem' : '1.5rem',
       borderRadius: isMobile ? '20px' : '28px',
-      background: 'rgba(15, 23, 42, 0.85)',
-      backdropFilter: 'blur(20px)',
-      WebkitBackdropFilter: 'blur(20px)',
-      border: '1.5px solid rgba(59, 130, 246, 0.3)',
+      background: 'rgba(255, 255, 255, 0.85)',
+      backdropFilter: 'blur(24px)',
+      WebkitBackdropFilter: 'blur(24px)',
+      border: '2px solid rgba(255, 255, 255, 0.95)',
       padding: isMobile ? '1.25rem 1rem' : '2.25rem 2rem',
-      boxShadow: '0 20px 50px rgba(0, 0, 0, 0.4), 0 0 30px rgba(37, 99, 235, 0.25)',
-      color: '#ffffff',
+      boxShadow: '0 20px 45px rgba(2, 132, 199, 0.12), 0 4px 15px rgba(0, 0, 0, 0.05)',
+      color: '#0f172a',
       position: 'relative',
       overflow: 'hidden',
       boxSizing: 'border-box',
       transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
     }}>
-      {/* Ambient Video Background Layer */}
+      {/* Bright Oceanic Video Background Layer */}
       <div style={{
         position: 'absolute',
         top: 0,
@@ -348,17 +348,17 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
         height: '100%',
         zIndex: 0,
         pointerEvents: 'none',
-        opacity: 0.35
+        opacity: 0.5
       }}>
         <video
           autoPlay
           loop
           muted
           playsInline
-          poster="https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=1200&q=80"
+          poster="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80"
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         >
-          <source src="https://assets.mixkit.co/videos/preview/mixkit-aerial-view-of-city-traffic-at-night-41547-large.mp4" type="video/mp4" />
+          <source src="https://assets.mixkit.co/videos/preview/mixkit-beautiful-aerial-view-of-the-beach-and-the-sea-41548-large.mp4" type="video/mp4" />
         </video>
         <div style={{
           position: 'absolute',
@@ -366,7 +366,7 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
           left: 0,
           width: '100%',
           height: '100%',
-          background: 'linear-gradient(to bottom, rgba(9, 13, 22, 0.6) 0%, rgba(15, 23, 42, 0.95) 100%)'
+          background: 'linear-gradient(180deg, rgba(240, 247, 255, 0.45) 0%, rgba(240, 247, 255, 0.9) 70%, #f0f7ff 100%)'
         }} />
       </div>
 
@@ -376,17 +376,18 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
           <p style={{
             fontSize: isMobile ? '0.72rem' : '0.82rem',
             fontWeight: 800,
-            color: '#93c5fd',
-            background: 'rgba(37, 99, 235, 0.2)',
-            border: '1px solid rgba(147, 197, 253, 0.35)',
+            color: '#0284c7',
+            background: 'rgba(2, 132, 199, 0.12)',
+            border: '1.5px solid rgba(2, 132, 199, 0.3)',
             padding: '0.25rem 0.85rem',
             borderRadius: '9999px',
             display: 'inline-flex',
             alignItems: 'center',
             gap: '0.35rem',
-            marginBottom: '0.65rem'
+            marginBottom: '0.65rem',
+            boxShadow: '0 2px 10px rgba(2, 132, 199, 0.15)'
           }}>
-            <Sparkles size={14} color="#60a5fa" />
+            <Sparkles size={14} color="#0284c7" />
             <span>Live Gemini 1.5 AI Concierge</span>
           </p>
 
@@ -396,26 +397,26 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
             lineHeight: 1.25,
             letterSpacing: '-0.02em',
             margin: '0 0 0.5rem 0',
-            color: '#ffffff'
+            color: '#0f172a'
           }}>
             대한민국 100% 정품 여행,<br />
             <span style={{
-              background: 'linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%)',
+              background: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent'
-            }}>AI와 대화로 완성하세요</span>
+            }}>AI와 대화로 완벽하게</span>
           </h2>
 
           <p style={{
             fontSize: isMobile ? '0.78rem' : '0.92rem',
-            color: '#94a3b8',
-            maxWidth: '560px',
+            color: '#475569',
+            maxWidth: '580px',
             margin: '0 auto',
             lineHeight: 1.5,
-            fontWeight: 500
+            fontWeight: 600
           }}>
-            복잡한 버튼이나 칙칙한 사진 카드 없이, 오직 말(Voice)과 글(Text)로<br />
-            실시간 날씨와 100% 검증된 관광공사 공식 동선을 설계해 드립니다.
+            어둡고 딱딱한 카드 없이, 에메랄드빛 시원한 비주얼과 함께<br />
+            실시간 날씨 및 관광공사 정품 동선을 대화로 경험해 보세요.
           </p>
         </div>
 
@@ -739,13 +740,13 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
       {/* 1-Click Conversational Scenario Pills */}
       <div style={{
         display: 'flex',
-        gap: '0.5rem',
+        gap: '0.6rem',
         justifyContent: 'center',
         flexWrap: 'wrap',
-        marginTop: isMobile ? '0.75rem' : '1rem'
+        marginTop: isMobile ? '0.85rem' : '1.1rem'
       }}>
         {[
-          '🌊 강릉 & 삼척 2박3일 동해안 바다 코스',
+          '🌊 강릉 & 삼척 2박3일 동해안 바다',
           '☔ 비오는 날 실내 박물관 & 감성 카페',
           '🏯 전주 한옥마을 부모님 힐링 코스'
         ].map((pill, idx) => (
@@ -754,16 +755,16 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
             type="button"
             onClick={() => handleSendMessage(pill)}
             style={{
-              background: 'rgba(255, 255, 255, 0.08)',
-              border: '1px solid rgba(255, 255, 255, 0.16)',
-              color: '#cbd5e1',
-              padding: isMobile ? '0.35rem 0.75rem' : '0.4rem 0.95rem',
+              background: 'rgba(239, 246, 255, 0.9)',
+              border: '1.5px solid #bfdbfe',
+              color: '#1e40af',
+              padding: isMobile ? '0.4rem 0.8rem' : '0.45rem 1rem',
               borderRadius: '9999px',
-              fontSize: isMobile ? '0.72rem' : '0.78rem',
-              fontWeight: 600,
+              fontSize: isMobile ? '0.74rem' : '0.8rem',
+              fontWeight: 700,
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              backdropFilter: 'blur(6px)'
+              boxShadow: '0 2px 6px rgba(37, 99, 235, 0.06)'
             }}
           >
             {pill}

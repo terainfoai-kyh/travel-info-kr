@@ -15,14 +15,13 @@ export default function FloatingAIDock({
       className="floating-ai-dock-container"
       style={{
         position: 'fixed',
-        bottom: '20px',
-        left: '50%',
-        transform: 'translateX(-50%)',
+        bottom: '24px',
+        right: '24px',
         zIndex: 900,
         display: 'flex',
         alignItems: 'center',
         gap: '0.6rem',
-        padding: '0.45rem 0.65rem 0.45rem 1rem',
+        padding: '0.5rem 0.75rem 0.5rem 1.1rem',
         borderRadius: '9999px',
         background: 'rgba(15, 23, 42, 0.85)',
         backdropFilter: 'blur(16px)',
