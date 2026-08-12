@@ -172,6 +172,7 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
   const [chatMessages, setChatMessages] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isAutoTtsEnabled, setIsAutoTtsEnabled] = useState(false); // Default OFF!
+  const [offTopicCount, setOffTopicCount] = useState(0);
   const chatContainerRef = useRef(null);
   const recognitionRef = useRef(null);
 
@@ -352,27 +353,40 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
       return;
     }
 
-    // Check 4: Invalid or Non-Travel Query ("푸틴", "주식", "ㅋㅋ") -> Friendly Travel Guide Prompt!
+    // Check 4: Invalid or Non-Travel Multi-Turn Escalation ("푸틴", "주식", "ㅋㅋ")
     if (isInvalidOrNonTravelQuery(query)) {
+      const nextCount = offTopicCount + 1;
+      setOffTopicCount(nextCount);
       setTimeout(() => {
+        let aiText = '';
+        let chips = [];
+        if (nextCount === 1) {
+          aiText = `요청하신 **'${query}'** 이야기를 나누며 마음 졸이시는 것보다, 시원한 동해 바다나 수목원에서 힐링 여행을 떠나보는 건 어떨까요? 🌊 수원의 영통 반달공원과 광교호수공원, 강릉 안목해변 코스를 준비해 드릴까요? 😊`;
+          chips = ['수원 영통 & 광교 힐링 코스', '강릉 안목해변 커피거리', '성수동 감성 카페 투어'];
+        } else if (nextCount === 2) {
+          aiText = `아이쿠, 답답하셨군요! 😅 제가 주식/전문 분야 전담은 아니지만, 대한민국 구석구석 숨은 명소와 맛집을 안내해 드리는 데는 최고의 **Vora 여행 AI**입니다! 💜 답답함을 씻어낼 1박2일 힐링 코스를 추천해 드릴까요?`;
+          chips = ['1박2일 힐링 코스 추천', '수원 화성행궁 감성 산책', '서울 근교 힐링 스팟'];
+        } else {
+          aiText = `저는 오직 여행자님께 행복한 여행 추억을 선물하기 위해 태어난 **Vora 여행 AI**입니다! ✈️ 복잡한 생각은 잠시 비워두고, 아래 중 어떤 스타일의 여행으로 마음을 달래볼까요?`;
+          chips = ['1) 답답함 훌훌 털어내는 바다 힐링 코스', '2) 스트레스 싹 날리는 미식 기행', '3) 주말 당일치기 감성 핫플'];
+        }
+
         const nonTravelBubble = {
           id: `ai-${Date.now()}`,
           sender: 'ai',
-          text: `요청하신 **'${query}'**은(는) 여행 목적지나 도시명이 아닙니다! ✈️ 떠나고 싶으신 대한민국 관광명소나 도시(예: **'강릉 2박3일'**, **'성수동 핫플'**, **'수원 화성'**, **'삼척 맹방해변'**)를 말씀해 주시면 100% 정품 맞춤 코스를 정성껏 준비해 드릴게요! 😊`,
+          text: aiText,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          suggestionChips: [
-            '강릉 2박3일 커피거리 코스',
-            '성수동 핫플 & 팝업스토어',
-            '삼척 맹방해변 & BTS 버터 촬영지'
-          ]
+          suggestionChips: chips
         };
         setChatMessages(prev => [...prev, nonTravelBubble]);
         setIsGenerating(false);
         if (isAutoTtsEnabled) {
-          speakText(nonTravelBubble.text, lang);
+          speakText(aiText, lang);
         }
       }, 400);
       return;
+    } else {
+      setOffTopicCount(0); // Reset on valid travel query
     }
 
     if (isGreetingQuery(query)) {

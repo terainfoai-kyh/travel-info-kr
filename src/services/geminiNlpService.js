@@ -153,7 +153,7 @@ IMPORTANT: Output ONLY raw JSON without markdown backticks.`;
     }
   };
 
-  const candidateModels = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro'];
+  const candidateModels = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-3.5-flash', 'gemini-pro-latest'];
 
   for (const modelName of candidateModels) {
     try {
@@ -257,7 +257,7 @@ Output ONLY raw JSON matching this EXACT schema:
       }
     };
 
-    const candidateModels = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro'];
+    const candidateModels = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-3.5-flash', 'gemini-pro-latest'];
 
     for (const modelName of candidateModels) {
       try {
@@ -393,9 +393,9 @@ function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
   const isIncludeSuwon = /(수원)/i.test(promptLower);
 
   if (isIncludeBotongri) {
-    selectedCities = ['화성 보통리 저수지', '수원 화성행궁', '강릉 안목해변', '인천 송도', '부산 해운대'];
+    selectedCities = ['화성 보통리 저수지', '수원 화성행궁', '수원 영통 반달공원', '서울 성수동', '강릉 안목해변'];
   } else if (isIncludeYeongtong) {
-    selectedCities = ['수원 영통 반달공원', '수원 화성행궁', '강릉 안목해변', '인천 송도', '부산 해운대'];
+    selectedCities = ['수원 영통 반달공원', '수원 화성행궁', '화성 보통리 저수지', '서울 성수동', '강릉 안목해변'];
   } else if (isIncludeMyeongdong) {
     selectedCities = ['서울 성수동', '인천 송도', '수원 화성행궁', '강릉 안목해변', '삼척 맹방해변'];
   } else if (isIncludeGangneung && isIncludeSamcheok) {
