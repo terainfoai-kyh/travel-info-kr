@@ -320,7 +320,6 @@ Output ONLY raw JSON matching this EXACT schema:
         break;
       }
     }
-    }
   }
 
   // High-Trust Intelligent Local Zero-Shot Fallback Engine
