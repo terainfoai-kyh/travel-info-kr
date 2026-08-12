@@ -422,50 +422,67 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
           </p>
         </div>
 
-        {/* Toggle [ ✕ 대화 접기 ] Collapse Button */}
-        {isInlineChatExpanded && (
-          <button
-            type="button"
-            onClick={() => setIsInlineChatExpanded(false)}
-            title="대화창 접기 ✕"
+      {/* Inline AI Chat Thread Area (Distinct Panel Container with Dedicated Header Bar) */}
+      {isInlineChatExpanded && (
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.95)',
+          border: '2px solid #bfdbfe',
+          borderRadius: '20px',
+          boxShadow: '0 16px 40px rgba(37, 99, 235, 0.12), 0 4px 12px rgba(0, 0, 0, 0.04)',
+          overflow: 'hidden',
+          marginBottom: '1.25rem',
+          marginTop: '1rem'
+        }}>
+          {/* Chat Panel Header Bar */}
+          <div style={{
+            background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+            borderBottom: '1px solid #bfdbfe',
+            padding: '0.65rem 1.1rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}>
+            <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#1e40af', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <Sparkles size={15} color="#0284c7" />
+              <span>Vora AI 실시간 대화창</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsInlineChatExpanded(false)}
+              title="대화창 접기 ✕"
+              style={{
+                padding: '0.25rem 0.65rem',
+                borderRadius: '9999px',
+                background: '#ffffff',
+                border: '1px solid #cbd5e1',
+                color: '#475569',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.3rem',
+                cursor: 'pointer'
+              }}
+            >
+              <X size={13} />
+              <span>대화 접기</span>
+            </button>
+          </div>
+
+          {/* Chat Messages Body */}
+          <div 
+            ref={chatContainerRef}
             style={{
-              padding: '0.35rem 0.75rem',
-              borderRadius: '9999px',
-              background: '#f1f5f9',
-              border: '1px solid #cbd5e1',
-              color: '#475569',
-              fontSize: '0.75rem',
-              fontWeight: 700,
+              padding: '1.1rem',
+              maxHeight: '340px',
+              overflowY: 'auto',
               display: 'flex',
-              alignItems: 'center',
-              gap: '0.3rem',
-              cursor: 'pointer',
-              flexShrink: 0
+              flexDirection: 'column',
+              gap: '0.85rem',
+              background: 'rgba(248, 250, 252, 0.6)',
+              scrollBehavior: 'smooth'
             }}
           >
-            <X size={14} />
-            <span>대화 접기</span>
-          </button>
-        )}
-      </div>
-
-      {/* Inline AI Chat Thread Area (Expands downward inside Hero Card with smooth scroll) */}
-      {isInlineChatExpanded && (
-        <div 
-          ref={chatContainerRef}
-          style={{
-            background: '#f8fafc',
-          border: '1px solid #e2e8f0',
-          borderRadius: '16px',
-          padding: '1rem',
-          marginBottom: '0.85rem',
-          maxHeight: '380px',
-          overflowY: 'auto',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '0.85rem',
-          scrollBehavior: 'smooth'
-        }}>
           {chatMessages.map((msg) => (
             <div 
               key={msg.id}
@@ -628,6 +645,7 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
             </div>
           )}
         </div>
+      </div>
       )}
 
       {/* Input Bar at Bottom of Hero Card (Supports Enter Key Submit & Toggle Label) */}
@@ -776,5 +794,6 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
         ))}
       </div>
     </div>
-  );
+  </div>
+);
 }
