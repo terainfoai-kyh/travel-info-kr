@@ -258,8 +258,8 @@ export default function App() {
         <AIChatPromptHeader 
           lang={lang} 
           filters={filters}
-          onGenerateItinerary={async (parsed, fullAiResult = null) => {
-            if (!parsed) return;
+          onGenerateItinerary={async (parsedInput, fullAiResult = null) => {
+            const parsed = parsedInput || (fullAiResult ? { region: fullAiResult.dailySchedules?.[0]?.city || '전국', days: fullAiResult.days || 3, keyword: fullAiResult.dailySchedules?.[0]?.city || '' } : { region: '전국', days: 3, keyword: '' });
             if (fullAiResult) {
               setFullAiItinerary(fullAiResult);
             }

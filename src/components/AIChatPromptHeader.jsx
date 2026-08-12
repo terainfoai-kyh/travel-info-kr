@@ -505,7 +505,8 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
                         <div
                           onClick={() => {
                             if (onGenerateItinerary) {
-                              onGenerateItinerary(msg.parsedIntent, msg.fullAiResult);
+                              const intent = msg.parsedIntent || parseNaturalPrompt(msg.text);
+                              onGenerateItinerary(intent, msg.fullAiResult);
                             }
                           }}
                           style={{

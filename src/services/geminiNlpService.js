@@ -2,7 +2,7 @@
 // 100% Free Tier (1,500 requests/day, $0 cost)
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
-const isValidGeminiKey = GEMINI_API_KEY && GEMINI_API_KEY.length > 10 && GEMINI_API_KEY !== 'YOUR_GEMINI_API_KEY';
+const isValidGeminiKey = GEMINI_API_KEY && GEMINI_API_KEY.startsWith('AIzaSy') && GEMINI_API_KEY.length > 20;
 
 export function isGreetingQuery(text) {
   if (!text || typeof text !== 'string') return false;
@@ -309,9 +309,9 @@ function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
   const isIncludeSuwon = /(수원)/i.test(promptLower);
 
   if (isIncludeGangneung && isIncludeSamcheok) {
-    selectedCities = ['강릉 안목해변', '삼척 맹방해변', '강릉 안목해변'];
+    selectedCities = ['강릉 안목해변', '삼척 맹방해변', '속초 아바이마을'];
   } else if (isIncludeSamcheok) {
-    selectedCities = ['삼척 맹방해변', '강릉 안목해변', '삼척 맹방해변'];
+    selectedCities = ['삼척 맹방해변', '강릉 안목해변', '속초 아바이마을'];
   } else if (isExcludeIncheon) {
     if (isIncludeGangneung && isIncludeSuwon) {
       selectedCities = ['서울 성수동', '강릉 안목해변', '수원 화성행궁', '제주 애월해변', '부산 해운대'];
