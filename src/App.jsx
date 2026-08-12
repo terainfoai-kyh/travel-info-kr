@@ -28,7 +28,7 @@ export default function App() {
   // Auto-detect browser locale
   const [lang, setLang] = useState(detectBrowserLanguage());
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
-  const [showSplash, setShowSplash] = useState(true);
+  const [showSplash, setShowSplash] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [isPartnerOpen, setIsPartnerOpen] = useState(false);
   const [isGuidePROpen, setIsGuidePROpen] = useState(false);
@@ -504,14 +504,6 @@ export default function App() {
         isOpen={isPartnerOpen}
         onClose={() => setIsPartnerOpen(false)}
         lang={lang}
-      />
-
-      {/* Floating Action AI Button (Bottom-Right Corner) */}
-      <AIFloatingButton
-        onOpenItinerary={() => setIsItineraryOpen(true)}
-        lang={lang}
-        themeMode={themeMode}
-        hasCustomBar={selectedCourseSpotIds.length > 0}
       />
 
       {/* Footer */}

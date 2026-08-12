@@ -325,36 +325,97 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
   return (
     <div style={{
       width: '100%',
-      marginBottom: isMobile ? '0.5rem' : '0.85rem',
-      borderRadius: isMobile ? '16px' : '22px',
-      background: '#ffffff',
-      border: '1px solid #cbd5e1',
-      padding: isMobile ? '0.75rem 0.85rem' : '1rem 1.35rem',
-      boxShadow: '0 10px 30px rgba(15, 23, 42, 0.06)',
-      color: '#0f172a',
+      marginBottom: isMobile ? '1rem' : '1.5rem',
+      borderRadius: isMobile ? '20px' : '28px',
+      background: 'rgba(15, 23, 42, 0.85)',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
+      border: '1.5px solid rgba(59, 130, 246, 0.3)',
+      padding: isMobile ? '1.25rem 1rem' : '2.25rem 2rem',
+      boxShadow: '0 20px 50px rgba(0, 0, 0, 0.4), 0 0 30px rgba(37, 99, 235, 0.25)',
+      color: '#ffffff',
       position: 'relative',
+      overflow: 'hidden',
       boxSizing: 'border-box',
       transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
     }}>
-      {/* Header Badge Row & Toggle Collapse Button */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: isMobile ? '0.5rem' : '0.75rem' }}>
-        <div style={{ width: isInlineChatExpanded ? 'auto' : '100%', textAlign: isInlineChatExpanded ? 'left' : 'center' }}>
+      {/* Ambient Video Background Layer */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: 0,
+        pointerEvents: 'none',
+        opacity: 0.35
+      }}>
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          poster="https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=1200&q=80"
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        >
+          <source src="https://assets.mixkit.co/videos/preview/mixkit-aerial-view-of-city-traffic-at-night-41547-large.mp4" type="video/mp4" />
+        </video>
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          background: 'linear-gradient(to bottom, rgba(9, 13, 22, 0.6) 0%, rgba(15, 23, 42, 0.95) 100%)'
+        }} />
+      </div>
+
+      <div style={{ position: 'relative', zIndex: 1 }}>
+        {/* Header Title & Hero Message */}
+        <div style={{ textAlign: 'center', marginBottom: isMobile ? '1rem' : '1.5rem' }}>
           <p style={{
-            fontSize: isMobile ? '0.7rem' : '0.82rem',
-            fontWeight: 700,
-            color: '#0284c7',
-            background: 'rgba(56, 189, 248, 0.14)',
-            border: '1px solid rgba(56, 189, 248, 0.35)',
-            padding: isMobile ? '0.2rem 0.6rem' : '0.25rem 0.8rem',
+            fontSize: isMobile ? '0.72rem' : '0.82rem',
+            fontWeight: 800,
+            color: '#93c5fd',
+            background: 'rgba(37, 99, 235, 0.2)',
+            border: '1px solid rgba(147, 197, 253, 0.35)',
+            padding: '0.25rem 0.85rem',
             borderRadius: '9999px',
             display: 'inline-flex',
             alignItems: 'center',
             gap: '0.35rem',
-            margin: '0 auto',
-            boxShadow: '0 2px 6px rgba(56, 189, 248, 0.1)'
+            marginBottom: '0.65rem'
           }}>
-            <Sparkles size={isMobile ? 13 : 15} color="#0284c7" />
-            <span>{t.subtitle || '✨ AI가 안내하는 실시간 날씨 · 맞춤 명소 · 맛집 & 코디'}</span>
+            <Sparkles size={14} color="#60a5fa" />
+            <span>Live Gemini 1.5 AI Concierge</span>
+          </p>
+
+          <h2 style={{
+            fontSize: isMobile ? '1.35rem' : '2.1rem',
+            fontWeight: 900,
+            lineHeight: 1.25,
+            letterSpacing: '-0.02em',
+            margin: '0 0 0.5rem 0',
+            color: '#ffffff'
+          }}>
+            대한민국 100% 정품 여행,<br />
+            <span style={{
+              background: 'linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}>AI와 대화로 완성하세요</span>
+          </h2>
+
+          <p style={{
+            fontSize: isMobile ? '0.78rem' : '0.92rem',
+            color: '#94a3b8',
+            maxWidth: '560px',
+            margin: '0 auto',
+            lineHeight: 1.5,
+            fontWeight: 500
+          }}>
+            복잡한 버튼이나 칙칙한 사진 카드 없이, 오직 말(Voice)과 글(Text)로<br />
+            실시간 날씨와 100% 검증된 관광공사 공식 동선을 설계해 드립니다.
           </p>
         </div>
 
@@ -674,6 +735,41 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
           </button>
         </div>
       </form>
+
+      {/* 1-Click Conversational Scenario Pills */}
+      <div style={{
+        display: 'flex',
+        gap: '0.5rem',
+        justifyContent: 'center',
+        flexWrap: 'wrap',
+        marginTop: isMobile ? '0.75rem' : '1rem'
+      }}>
+        {[
+          '🌊 강릉 & 삼척 2박3일 동해안 바다 코스',
+          '☔ 비오는 날 실내 박물관 & 감성 카페',
+          '🏯 전주 한옥마을 부모님 힐링 코스'
+        ].map((pill, idx) => (
+          <button
+            key={idx}
+            type="button"
+            onClick={() => handleSendMessage(pill)}
+            style={{
+              background: 'rgba(255, 255, 255, 0.08)',
+              border: '1px solid rgba(255, 255, 255, 0.16)',
+              color: '#cbd5e1',
+              padding: isMobile ? '0.35rem 0.75rem' : '0.4rem 0.95rem',
+              borderRadius: '9999px',
+              fontSize: isMobile ? '0.72rem' : '0.78rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              backdropFilter: 'blur(6px)'
+            }}
+          >
+            {pill}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

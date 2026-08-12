@@ -183,18 +183,17 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
             <div className="header-logo" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{
               width: isMobile ? '34px' : '40px',
               height: isMobile ? '34px' : '40px',
-              borderRadius: '10px',
-              overflow: 'hidden',
+              borderRadius: '12px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 4px 14px rgba(56, 189, 248, 0.35)',
-              border: '2px solid rgba(56, 189, 248, 0.5)',
-              background: '#ffffff',
+              boxShadow: '0 0 15px rgba(37, 99, 235, 0.4)',
+              border: '1.5px solid rgba(147, 197, 253, 0.4)',
+              background: 'linear-gradient(135deg, #2563eb 0%, #8b5cf6 100%)',
               flexShrink: 0,
               cursor: 'pointer'
             }}>
-              <img src="/logo.png" alt="K-Travel Logo" style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scale(1.1)' }} />
+              <Sparkles size={isMobile ? 18 : 22} color="#ffffff" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }} />
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexShrink: 1, minWidth: 0 }}>
