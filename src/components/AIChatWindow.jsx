@@ -99,14 +99,11 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
     setIsGenerating(true);
 
     try {
-      // 1. Natural language parse
-      const parsedIntent = await geminiParseNaturalPrompt(query, lang);
-      
-      // 2. Full-AI 5-day itinerary generation with Search Grounding
+      // Streamlined single Gemini 1.5 call
       const fullAiResult = await geminiGenerateFullItinerary(query, lang);
 
       const aiBubbleText = fullAiResult?.aiRecommendationSummary || 
-        `${query}에 맞춰 최적의 ${parsedIntent?.days || 3}일치 코스를 100% 정품 명소 좌표와 날씨/미식/코디 정보로 설계했습니다! 📍`;
+        `'${query}' 맞춤 ${fullAiResult?.days || 3}일치 코스를 100% 정품 명소 좌표와 날씨/미식/코디 정보로 설계했습니다! 📍`;
 
       const aiBubble = {
         id: `ai-${Date.now()}`,
@@ -115,10 +112,9 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         itinerarySummary: fullAiResult ? {
           title: fullAiResult.tripTitle || `${query} 맞춤 코스`,
-          days: fullAiResult.days,
+          days: fullAiResult.days || 3,
           dailySchedules: fullAiResult.dailySchedules
         } : null,
-        parsedIntent,
         fullAiResult
       };
 
