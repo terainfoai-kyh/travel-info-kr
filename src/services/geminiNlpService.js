@@ -328,7 +328,7 @@ Output ONLY raw JSON matching this EXACT schema:
   return fallbackResult;
 }
 
-function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
+export function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
   fallbackTurnCounter++;
   const cleanPrompt = extractCleanUserPrompt(rawPrompt);
 
