@@ -333,6 +333,11 @@ export default function App() {
           }} 
         />
 
+        {/* Realtime Weather Widget directly below AI Prompt Box */}
+        <div id="weather-info" style={{ marginBottom: '1.5rem' }}>
+          <WeatherWidget weatherData={weatherData} lang={lang} />
+        </div>
+
         {/* Loading Indicator */}
         {isLoading ? (
           <div style={{ textAlign: 'center', padding: '4rem 0', color: 'var(--accent-primary)' }}>
@@ -341,34 +346,17 @@ export default function App() {
           </div>
         ) : (
           <>
-
-
-            {/* 2. Travel Essentials Hub Section */}
+            {/* 1. Travel Essentials Hub Section */}
             <div id="travel-essentials">
               <TravelEssentialsSection lang={lang} filters={filters} />
             </div>
 
-            {/* 3. Weather Info */}
-            <div id="weather-info">
-              <WeatherWidget weatherData={weatherData} lang={lang} />
-            </div>
-
-            {/* 4. AI Lifestyle Recommendations */}
+            {/* 2. AI Lifestyle Recommendations */}
             <div id="ai-lifestyle">
               <AILifestyleSection
                 foods={recommendations.foods}
                 outfits={recommendations.outfits}
                 filters={filters}
-                lang={lang}
-                themeMode={themeMode}
-              />
-            </div>
-
-            {/* 5. Google Maps View */}
-            <div id="google-map">
-              <GoogleMapView
-                selectedSpot={selectedSpot}
-                allSpots={paginatedSpots}
                 lang={lang}
                 themeMode={themeMode}
               />
