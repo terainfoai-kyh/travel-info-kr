@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Sparkles, Send, Mic, MicOff, X, Compass, MapPin, Calendar, Heart, MessageSquare, RefreshCw, Shirt, Utensils, CloudSun, Hotel } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
-import { geminiParseNaturalPrompt, geminiGenerateFullItinerary } from '../services/geminiNlpService';
+import { geminiParseNaturalPrompt, geminiGenerateFullItinerary, generateLocalFallbackItinerary, extractLocationKeyword } from '../services/geminiNlpService';
 
 export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateItinerary, initialPrompt = '' }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
@@ -99,22 +99,23 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
     setIsGenerating(true);
 
     try {
-      // Streamlined single Gemini 1.5 call
-      const fullAiResult = await geminiGenerateFullItinerary(query, lang);
+      const rawResult = await geminiGenerateFullItinerary(query, lang);
+      const fullAiResult = rawResult || generateLocalFallbackItinerary(query, lang);
+      const locationName = extractLocationKeyword(query) || query;
 
-      const aiBubbleText = fullAiResult?.aiRecommendationSummary || 
-        `'${query}' 맞춤 ${fullAiResult?.days || 3}일치 코스를 100% 정품 명소 좌표와 날씨/미식/코디 정보로 설계했습니다! 📍`;
+      const aiBubbleText = fullAiResult.aiRecommendationSummary || 
+        `'${locationName}' 맞춤 ${fullAiResult.days || 3}일치 코스를 100% 정품 명소 좌표와 날씨/미식/코디 정보로 설계했습니다! 📍`;
 
       const aiBubble = {
         id: `ai-${Date.now()}`,
         sender: 'ai',
         text: aiBubbleText,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        itinerarySummary: fullAiResult ? {
-          title: fullAiResult.tripTitle || `${query} 맞춤 코스`,
+        itinerarySummary: {
+          title: fullAiResult.tripTitle || `${locationName} 맞춤 추천 코스`,
           days: fullAiResult.days || 3,
-          dailySchedules: fullAiResult.dailySchedules
-        } : null,
+          dailySchedules: fullAiResult.dailySchedules || []
+        },
         fullAiResult
       };
 

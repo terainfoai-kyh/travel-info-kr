@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, Mic, MicOff, ArrowRight, Camera, X, MessageSquare, Send, MapPin, Compass, ChevronDown, ChevronUp, Trash2, Volume2, VolumeX } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
-import { geminiParseNaturalPrompt, geminiGenerateFullItinerary, isGreetingQuery, isAffirmativeYes, checkAmbiguousRegionQuery, checkMissingPublicDbQuery, isInvalidOrNonTravelQuery, isCasualChatQuery, extractLocationKeyword } from '../services/geminiNlpService';
+import { geminiParseNaturalPrompt, geminiGenerateFullItinerary, generateLocalFallbackItinerary, isGreetingQuery, isAffirmativeYes, checkAmbiguousRegionQuery, checkMissingPublicDbQuery, isInvalidOrNonTravelQuery, isCasualChatQuery, extractLocationKeyword } from '../services/geminiNlpService';
 
 /**
  * Web SpeechSynthesis TTS helper to speak AI responses out loud in natural voice
@@ -464,28 +464,28 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
         .join('\n');
       const contextualPrompt = historyContext ? `${historyContext}\nUser: ${query}` : query;
 
-      // 3.0s Timeout Protection Guarantee so loading toast NEVER freezes
       const timeoutPromise = new Promise(resolve => setTimeout(() => resolve(null), 3000));
 
-      const fullAiResult = await Promise.race([
+      const rawResult = await Promise.race([
         geminiGenerateFullItinerary(contextualPrompt, lang),
         timeoutPromise
       ]);
 
+      const fullAiResult = rawResult || generateLocalFallbackItinerary(query, lang);
       const locationName = isCasualChatQuery(query) ? query : (extractLocationKeyword(query) || query);
-      const aiBubbleText = fullAiResult?.aiRecommendationSummary || 
-        `'${locationName}' 맞춤 ${fullAiResult?.days || 3}일치 코스를 100% 정품 명소와 실시간 날씨/미식 데이터로 정성껏 준비했습니다! 📍`;
+      const aiBubbleText = fullAiResult.aiRecommendationSummary || 
+        `'${locationName}' 맞춤 ${fullAiResult.days || 3}일치 코스를 100% 정품 명소와 실시간 날씨/미식 데이터로 정성껏 준비했습니다! 📍`;
 
       const aiBubble = {
         id: `ai-${Date.now()}`,
         sender: 'ai',
         text: aiBubbleText,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        itinerarySummary: fullAiResult ? {
-          title: fullAiResult.tripTitle || `${locationName} 맞춤 코스`,
+        itinerarySummary: {
+          title: fullAiResult.tripTitle || `${locationName} 맞춤 추천 코스`,
           days: fullAiResult.days || 3,
-          dailySchedules: fullAiResult.dailySchedules
-        } : null,
+          dailySchedules: fullAiResult.dailySchedules || []
+        },
         fullAiResult
       };
 
