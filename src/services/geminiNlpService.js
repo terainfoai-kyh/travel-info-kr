@@ -295,6 +295,12 @@ function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
 
   // Spot details catalog for authentic 100% matching spots
   const catalog = {
+    '화성 보통리 저수지': [
+      { id: `hwaseong-botong-1`, title: '보통리 저수지 & 수변 산책로', location: '경기도 화성시 정남면 보통리 78', lat: 37.1895, lng: 126.9855, rating: 4.9, category: '자연/힐링', tags: ['보통리저수지', '화성핫플'], image: 'http://tong.visitkorea.or.kr/cms/resource/35/2785035_image2_1.jpg', isInstagramHotspot: true },
+      { id: `hwaseong-botong-2`, title: '융건릉 (사도세자 & 정조 능)', location: '경기도 화성시 효행로 481', lat: 37.2082, lng: 126.9975, rating: 4.9, category: '역사/문화', tags: ['유네스코세계유산', '융건릉'], image: 'http://tong.visitkorea.or.kr/cms/resource/66/2660566_image2_1.jpg', isInstagramHotspot: true },
+      { id: `hwaseong-botong-3`, title: '용주사 (정조대왕 효심 사찰)', location: '경기도 화성시 용주로 136', lat: 37.2105, lng: 127.0045, rating: 4.8, category: '역사/문화', tags: ['용주사', '천년고찰'], image: 'http://tong.visitkorea.or.kr/cms/resource/40/2800140_image2_1.jpg', isInstagramHotspot: false },
+      { id: `hwaseong-botong-4`, title: '보통리 저수지 대형 감성 베이커리 카페', location: '경기도 화성시 정남면 세자로 303', lat: 37.1878, lng: 126.9865, rating: 4.8, category: '미식/쇼핑', tags: ['저수지뷰', '베이커리카페'], image: 'http://tong.visitkorea.or.kr/cms/resource/12/2612012_image2_1.jpg', isInstagramHotspot: true }
+    ],
     '수원 영통 반달공원': [
       { id: `suwon-bandal-1`, title: '영통 반달공원 & 영흥수목원', location: '경기도 수원시 영통구 반달로 43', lat: 37.2475, lng: 127.0725, rating: 4.9, category: '자연/힐링', tags: ['반달공원', '영통핫플'], image: 'http://tong.visitkorea.or.kr/cms/resource/35/2785035_image2_1.jpg', isInstagramHotspot: true },
       { id: `suwon-bandal-2`, title: '광교호수공원 & 프라이부르크 전망대', location: '경기도 수원시 영통구 광교호수로 165', lat: 37.2842, lng: 127.0585, rating: 4.9, category: '자연/힐링', tags: ['광교호수공원', '야경스팟'], image: 'http://tong.visitkorea.or.kr/cms/resource/66/2660566_image2_1.jpg', isInstagramHotspot: true },
@@ -372,13 +378,16 @@ function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
   const isExcludeSeoul = /(서울\s*빼|서울\s*말고|서울\s*제외|서울\s*아닌)/i.test(promptLower);
 
   // Positive inclusion detection
+  const isIncludeBotongri = /(보통리|보통|정남|융건릉)/i.test(promptLower);
   const isIncludeYeongtong = /(영통|반달공원|영흥|광교)/i.test(promptLower);
   const isIncludeMyeongdong = /(명동|서울)/i.test(promptLower);
   const isIncludeGangneung = /(강릉|동해)/i.test(promptLower);
   const isIncludeSamcheok = /(삼척|삼청)/i.test(promptLower);
   const isIncludeSuwon = /(수원)/i.test(promptLower);
 
-  if (isIncludeYeongtong) {
+  if (isIncludeBotongri) {
+    selectedCities = ['화성 보통리 저수지', '수원 화성행궁', '강릉 안목해변', '인천 송도', '부산 해운대'];
+  } else if (isIncludeYeongtong) {
     selectedCities = ['수원 영통 반달공원', '수원 화성행궁', '강릉 안목해변', '인천 송도', '부산 해운대'];
   } else if (isIncludeMyeongdong) {
     selectedCities = ['서울 성수동', '인천 송도', '수원 화성행궁', '강릉 안목해변', '삼척 맹방해변'];

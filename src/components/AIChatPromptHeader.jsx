@@ -171,7 +171,7 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
   const [isInlineChatExpanded, setIsInlineChatExpanded] = useState(false);
   const [chatMessages, setChatMessages] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isAutoTtsEnabled, setIsAutoTtsEnabled] = useState(true);
+  const [isAutoTtsEnabled, setIsAutoTtsEnabled] = useState(false); // Default OFF!
   const chatContainerRef = useRef(null);
   const recognitionRef = useRef(null);
 
@@ -562,7 +562,15 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
               <button
                 type="button"
-                onClick={() => setIsAutoTtsEnabled(prev => !prev)}
+                onClick={() => {
+                  setIsAutoTtsEnabled(prev => {
+                    const next = !prev;
+                    if (!next && typeof window !== 'undefined' && window.speechSynthesis) {
+                      window.speechSynthesis.cancel();
+                    }
+                    return next;
+                  });
+                }}
                 title={isAutoTtsEnabled ? "음성 안내 끄기 🔇" : "음성 안내 켜기 🔊"}
                 style={{
                   padding: '0.25rem 0.65rem',
