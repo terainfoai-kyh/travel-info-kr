@@ -43,7 +43,7 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
       
       const regionName = getBadgeI18n('region', filters?.region || '서울');
       const themeName = getBadgeI18n('theme', filters?.theme || '전체');
-      const shareTitle = `K-Travel AI | 대한민국 스마트 여행 가이드`;
+      const shareTitle = `Vora AI | 대한민국 스마트 여행 가이드`;
       const shareText = `✈️ AI 맞춤 [${regionName} / ${themeName}] 여행 가이드! ☀️ 실시간 날씨 & 추천 코스:`;
 
       // Try Native Web Share API ONLY on mobile devices (prevents Windows Desktop Chrome hangs)

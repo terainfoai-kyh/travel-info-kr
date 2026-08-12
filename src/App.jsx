@@ -518,7 +518,7 @@ export default function App() {
         zIndex: 2
       }}>
         <div style={{ marginBottom: '0.65rem', fontWeight: 600, color: 'var(--text-main)' }}>
-          © 2026 {t.travelKorea || '대한민국 여행 정보'} (K-Travel Explorer) ·{' '}
+          © 2026 {t.travelKorea || '대한민국 여행 정보'} (Vora Explorer) ·{' '}
           <a
             href="https://koreatravel.cc"
             target="_blank"

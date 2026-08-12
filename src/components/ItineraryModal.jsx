@@ -282,7 +282,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
   };
 
   const handleCopyItinerary = () => {
-    let summaryText = `[K-Travel Explorer] ${region} ${selectedDays}박 ${selectedDays + 1}일 추천 코스 (${customStartDate} 출발)\n`;
+    let summaryText = `[Vora Explorer] ${region} ${selectedDays}박 ${selectedDays + 1}일 추천 코스 (${customStartDate} 출발)\n`;
     if (rainyMode) summaryText += `🌧️ 비 오는 날 실내 전용 코스 적용\n`;
     summaryText += `📍 상세 조건: 지역(${region}) · 테마(${theme}) · 성별(${filters?.gender || '무관'}) · 연령대(${filters?.age || '전체'})\n\n`;
     

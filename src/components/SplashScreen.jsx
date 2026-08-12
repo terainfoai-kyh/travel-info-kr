@@ -96,7 +96,7 @@ export default function SplashScreen({ onFinish, lang = 'ko' }) {
         }}>
           <img
             src="/logo.png"
-            alt="K-Travel AI Logo"
+            alt="Vora AI Logo"
             style={{
               width: '100%',
               height: '100%',
@@ -114,7 +114,7 @@ export default function SplashScreen({ onFinish, lang = 'ko' }) {
           letterSpacing: '-0.02em',
           margin: '0 0 0.5rem 0'
         }}>
-          K-Travel AI
+          Vora AI
         </h1>
 
         <p style={{

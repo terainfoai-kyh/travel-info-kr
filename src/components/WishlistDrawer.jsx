@@ -19,7 +19,7 @@ export default function WishlistDrawer({ isOpen, onClose, wishlistSpots, onRemov
 
     if (navigator.share) {
       navigator.share({
-        title: 'K-Travel Explorer - 내 찜한 여행 코스',
+        title: 'Vora Explorer - 내 찜한 여행 코스',
         text: `대한민국 추천 여행지 ${wishlistSpots.length}곳 코스를 공유합니다!`,
         url: shareUrl
       }).catch(() => {});
