@@ -295,6 +295,12 @@ function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
 
   // Spot details catalog for authentic 100% matching spots
   const catalog = {
+    '수원 영통 반달공원': [
+      { id: `suwon-bandal-1`, title: '영통 반달공원 & 영흥수목원', location: '경기도 수원시 영통구 반달로 43', lat: 37.2475, lng: 127.0725, rating: 4.9, category: '자연/힐링', tags: ['반달공원', '영통핫플'], image: 'http://tong.visitkorea.or.kr/cms/resource/35/2785035_image2_1.jpg', isInstagramHotspot: true },
+      { id: `suwon-bandal-2`, title: '광교호수공원 & 프라이부르크 전망대', location: '경기도 수원시 영통구 광교호수로 165', lat: 37.2842, lng: 127.0585, rating: 4.9, category: '자연/힐링', tags: ['광교호수공원', '야경스팟'], image: 'http://tong.visitkorea.or.kr/cms/resource/66/2660566_image2_1.jpg', isInstagramHotspot: true },
+      { id: `suwon-bandal-3`, title: '수원 화성행궁 & 행리단길', location: '경기도 수원시 팔달구 신풍로 23', lat: 37.2845, lng: 127.0145, rating: 4.9, category: '역사/문화', tags: ['유네스코세계유산', '화성행궁'], image: 'http://tong.visitkorea.or.kr/cms/resource/40/2800140_image2_1.jpg', isInstagramHotspot: true },
+      { id: `suwon-bandal-4`, title: '영통 중심상가 감성 먹거리타운', location: '경기도 수원시 영통구 봉영로 1612', lat: 37.2512, lng: 127.0712, rating: 4.8, category: '미식/쇼핑', tags: ['영통맛집', '카페거리'], image: 'http://tong.visitkorea.or.kr/cms/resource/12/2612012_image2_1.jpg', isInstagramHotspot: false }
+    ],
     '수원 화성행궁': [
       { id: `suwon-1`, title: '수원 화성행궁', location: '경기도 수원시 팔달구 신풍로 23', lat: 37.2845, lng: 127.0145, rating: 4.9, category: '역사/문화', tags: ['유네스코세계유산', '화성행궁'], image: 'http://tong.visitkorea.or.kr/cms/resource/35/2785035_image2_1.jpg', isInstagramHotspot: true },
       { id: `suwon-2`, title: '방화수류정 (동북각루)', location: '경기도 수원시 팔달구 수원천로392번길 44-6', lat: 37.2882, lng: 127.0175, rating: 4.9, category: '자연/힐링', tags: ['피크닉핫플', '용연'], image: 'http://tong.visitkorea.or.kr/cms/resource/66/2660566_image2_1.jpg', isInstagramHotspot: true },
@@ -366,12 +372,15 @@ function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
   const isExcludeSeoul = /(서울\s*빼|서울\s*말고|서울\s*제외|서울\s*아닌)/i.test(promptLower);
 
   // Positive inclusion detection
+  const isIncludeYeongtong = /(영통|반달공원|영흥|광교)/i.test(promptLower);
   const isIncludeMyeongdong = /(명동|서울)/i.test(promptLower);
   const isIncludeGangneung = /(강릉|동해)/i.test(promptLower);
   const isIncludeSamcheok = /(삼척|삼청)/i.test(promptLower);
   const isIncludeSuwon = /(수원)/i.test(promptLower);
 
-  if (isIncludeMyeongdong) {
+  if (isIncludeYeongtong) {
+    selectedCities = ['수원 영통 반달공원', '수원 화성행궁', '강릉 안목해변', '인천 송도', '부산 해운대'];
+  } else if (isIncludeMyeongdong) {
     selectedCities = ['서울 성수동', '인천 송도', '수원 화성행궁', '강릉 안목해변', '삼척 맹방해변'];
   } else if (isIncludeGangneung && isIncludeSamcheok) {
     selectedCities = ['강릉 안목해변', '삼척 맹방해변', '속초 아바이마을', '제주 애월해변', '부산 해운대'];

@@ -734,7 +734,7 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
                             <span>{msg.itinerarySummary.title}</span>
                           </h4>
                           <span style={{ fontSize: '0.65rem', padding: '0.12rem 0.4rem', borderRadius: '4px', background: '#d1fae5', color: '#065f46', fontWeight: 800 }}>
-                            {msg.itinerarySummary.days}일치 완벽 생성
+                            {msg.itinerarySummary.days}일치 코스 생성
                           </span>
                         </div>
 
@@ -742,7 +742,7 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
                           {msg.itinerarySummary.dailySchedules?.map((ds, idx) => (
                             <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.73rem', padding: '0.2rem 0', borderBottom: '1px solid #e2e8f0' }}>
                               <span style={{ fontWeight: 700, color: '#1e293b' }}>{ds.dateLabel || `${ds.day}일차 - ${ds.city}`}</span>
-                              <span style={{ color: '#64748b' }}>{ds.spots?.length || 4}개 명소 (좌표100% 매칭)</span>
+                              <span style={{ color: '#64748b' }}>{ds.spots?.length || 4}개 추천 명소</span>
                             </div>
                           ))}
                         </div>
