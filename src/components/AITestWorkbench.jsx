@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Sparkles, MapPin, Search, ShieldCheck, ShieldAlert, Cpu, ExternalLink, Code, Play, RefreshCw, CheckCircle2, Mic } from 'lucide-react';
 import { validateTravelQuery } from '../hooks/useInputGuard';
 import { useQuotaLimit } from '../hooks/useQuotaLimit';
-import { extractLocationKeyword, isCasualChatQuery, isGreetingQuery } from '../services/geminiNlpService';
+import { extractLocationKeyword } from '../services/geminiNlpService';
 import { fetchTourSpots } from '../services/tourApi';
 import { getAgodaHotelSearchUrl, getKlookActivitySearchUrl } from '../services/affiliateService';
 
@@ -105,77 +105,155 @@ export default function AITestWorkbench({ lang = 'ko' }) {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-4 md:p-6 bg-slate-900 text-slate-100 rounded-3xl shadow-2xl border border-slate-800 my-6">
+    <div style={{
+      width: '100%',
+      backgroundColor: '#0f172a',
+      color: '#f8fafc',
+      borderRadius: '24px',
+      padding: '1.5rem',
+      margin: '1.5rem 0',
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+      boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)',
+      fontFamily: 'var(--font-family)'
+    }}>
       
-      {/* Top Header Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 pb-6 mb-6 border-b border-slate-800">
-        <div className="flex items-center gap-3">
-          <div className="p-3 bg-purple-600/20 text-purple-400 rounded-2xl border border-purple-500/30">
-            <Cpu className="w-6 h-6 animate-pulse" />
+      {/* Header Bar */}
+      <div style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '1rem',
+        paddingBottom: '1rem',
+        marginBottom: '1.5rem',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div style={{
+            padding: '0.6rem',
+            backgroundColor: 'rgba(168, 85, 247, 0.15)',
+            color: '#c084fc',
+            borderRadius: '16px',
+            border: '1px solid rgba(168, 85, 247, 0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <Cpu size={24} />
           </div>
           <div>
-            <h2 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-              Vora AI 독립형 테스트 워크벤치 <span className="text-xs px-2.5 py-1 bg-purple-500/20 text-purple-300 rounded-full font-semibold border border-purple-500/30">Developer Sandbox</span>
+            <h2 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              Vora AI 독립형 테스트 워크벤치
+              <span style={{ fontSize: '0.7rem', padding: '0.2rem 0.6rem', backgroundColor: 'rgba(168, 85, 247, 0.2)', color: '#e9d5ff', borderRadius: '9999px', border: '1px solid rgba(168, 85, 247, 0.4)', fontWeight: 600 }}>
+                Developer Sandbox
+              </span>
             </h2>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p style={{ fontSize: '0.75rem', color: '#94a3b8', margin: '0.2rem 0 0 0' }}>
               자연어 파싱, 1차 방어 가드, 지도용 위도/경도 기초 데이터 정합성을 직접 검증합니다.
             </p>
           </div>
         </div>
 
         {/* Developer Bypass Toggle Switch */}
-        <div className="flex items-center gap-3 bg-slate-800/80 px-4 py-2.5 rounded-2xl border border-slate-700">
-          <span className="text-xs font-semibold text-slate-300">
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.75rem',
+          backgroundColor: '#1e293b',
+          padding: '0.5rem 1rem',
+          borderRadius: '16px',
+          border: '1px solid rgba(255, 255, 255, 0.08)'
+        }}>
+          <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#cbd5e1' }}>
             선배님 전용 무제한 치트키:
           </span>
           <button
             onClick={() => toggleDevBypass()}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-              isDevBypass 
-                ? 'bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20' 
-                : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
-            }`}
+            style={{
+              padding: '0.4rem 0.8rem',
+              borderRadius: '12px',
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              border: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              transition: 'all 0.2s ease',
+              backgroundColor: isDevBypass ? '#10b981' : 'rgba(244, 63, 94, 0.2)',
+              color: isDevBypass ? '#022c22' : '#fca5a5',
+              boxShadow: isDevBypass ? '0 4px 12px rgba(16, 185, 129, 0.3)' : 'none'
+            }}
           >
-            {isDevBypass ? <ShieldCheck className="w-4 h-4" /> : <ShieldAlert className="w-4 h-4" />}
+            {isDevBypass ? <ShieldCheck size={16} /> : <ShieldAlert size={16} />}
             {isDevBypass ? '무제한 모드 ON (99,999회)' : '일일 5회 제한 모드'}
           </button>
         </div>
       </div>
 
-      {/* Grid 2 Panel Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Grid 2 Column Layout */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
         
         {/* Left Panel: Test Prompt & Controls */}
-        <div className="bg-slate-950/60 p-5 rounded-2xl border border-slate-800/80 space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-slate-200 flex items-center gap-2">
+        <div style={{
+          backgroundColor: '#020617',
+          padding: '1.25rem',
+          borderRadius: '18px',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1rem'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <h3 style={{ fontSize: '0.85rem', fontWeight: 700, color: '#e2e8f0', margin: 0 }}>
               💬 [1] 자연어 프롬프트 & STT 음성 테스트
             </h3>
-            <span className="text-xs text-slate-400">
-              남은 티켓: <strong className="text-emerald-400 font-mono text-sm">{isDevBypass ? '무제한' : `${remainingQuota}회`}</strong>
+            <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+              남은 티켓: <strong style={{ color: '#34d399', fontFamily: 'monospace' }}>{isDevBypass ? '무제한' : `${remainingQuota}회`}</strong>
             </span>
           </div>
 
-          <div className="relative">
+          <div style={{ position: 'relative' }}>
             <textarea
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               rows={3}
               placeholder="자연어 질문을 입력하세요 (예: 거제도 2박3일 오션뷰 카페 코스 짜줘)"
-              className="w-full p-3.5 bg-slate-900 border border-slate-700/80 rounded-xl text-slate-100 text-sm focus:outline-none focus:border-purple-500 transition-all resize-none"
+              style={{
+                width: '100%',
+                padding: '0.85rem',
+                backgroundColor: '#0f172a',
+                border: '1px solid #334155',
+                borderRadius: '14px',
+                color: '#f8fafc',
+                fontSize: '0.85rem',
+                outline: 'none',
+                resize: 'none',
+                boxSizing: 'border-box'
+              }}
             />
             
             {/* Voice STT Button */}
             <button
               onClick={handleStartVoiceSTT}
-              className={`absolute bottom-3 right-3 p-2 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                isListening 
-                  ? 'bg-rose-500 text-white animate-pulse' 
-                  : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
-              }`}
-              title="다국어 음성 인식 테스트"
+              style={{
+                position: 'absolute',
+                bottom: '0.75rem',
+                right: '0.75rem',
+                padding: '0.4rem 0.75rem',
+                borderRadius: '10px',
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.3rem',
+                backgroundColor: isListening ? '#ef4444' : '#1e293b',
+                color: '#ffffff'
+              }}
             >
-              <Mic className="w-4 h-4" />
+              <Mic size={14} />
               {isListening ? '듣는 중...' : '음성 입력'}
             </button>
           </div>
@@ -184,20 +262,43 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           <button
             onClick={handleRunPipeline}
             disabled={isLoading}
-            className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-5-0 hover:to-blue-500 text-white font-bold rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 text-sm disabled:opacity-50"
+            style={{
+              width: '100%',
+              padding: '0.85rem',
+              background: 'linear-gradient(135deg, #9333ea 0%, #2563eb 100%)',
+              color: '#ffffff',
+              fontWeight: 700,
+              borderRadius: '14px',
+              border: 'none',
+              cursor: isLoading ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem',
+              fontSize: '0.85rem',
+              boxShadow: '0 4px 14px rgba(147, 51, 234, 0.3)',
+              opacity: isLoading ? 0.6 : 1
+            }}
           >
-            {isLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4 fill-white" />}
+            {isLoading ? <RefreshCw size={16} className="animate-spin" /> : <Play size={16} fill="#ffffff" />}
             {isLoading ? 'AI 분석 & 기초 데이터 파싱 중...' : '🚀 AI 파이프라인 실행 및 기초 데이터 추출'}
           </button>
 
           {/* Guard Check Status Notice */}
           {guardStatus && (
-            <div className={`p-3.5 rounded-xl border text-xs leading-relaxed flex items-start gap-2.5 ${
-              guardStatus.isValid 
-                ? 'bg-emerald-950/40 border-emerald-800/60 text-emerald-300' 
-                : 'bg-rose-950/40 border-rose-800/60 text-rose-300'
-            }`}>
-              {guardStatus.isValid ? <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400 mt-0.5" /> : <ShieldAlert className="w-4 h-4 shrink-0 text-rose-400 mt-0.5" />}
+            <div style={{
+              padding: '0.85rem',
+              borderRadius: '14px',
+              fontSize: '0.75rem',
+              lineHeight: '1.5',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '0.5rem',
+              backgroundColor: guardStatus.isValid ? 'rgba(6, 78, 59, 0.4)' : 'rgba(136, 19, 55, 0.4)',
+              border: guardStatus.isValid ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid rgba(244, 63, 94, 0.4)',
+              color: guardStatus.isValid ? '#6ee7b7' : '#fca5a5'
+            }}>
+              {guardStatus.isValid ? <CheckCircle2 size={16} style={{ color: '#34d399', shrink: 0 }} /> : <ShieldAlert size={16} style={{ color: '#f87171', shrink: 0 }} />}
               <div>
                 <strong>[1차 로컬 방어 가드 결과]:</strong> {guardStatus.isValid ? '정상 승인 (Pass)' : guardStatus.message}
               </div>
@@ -206,60 +307,78 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         </div>
 
         {/* Right Panel: Map Geo-Coordinates & Raw Data Inspector */}
-        <div className="bg-slate-950/60 p-5 rounded-2xl border border-slate-800/80 space-y-4">
-          <h3 className="text-sm font-bold text-slate-200 flex items-center gap-2">
+        <div style={{
+          backgroundColor: '#020617',
+          padding: '1.25rem',
+          borderRadius: '18px',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1rem'
+        }}>
+          <h3 style={{ fontSize: '0.85rem', fontWeight: 700, color: '#e2e8f0', margin: 0 }}>
             📊 [2] 기초 데이터 & 지도 좌표 정합성 검증
           </h3>
 
           {parsedMeta ? (
-            <div className="space-y-4">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               
               {/* Metadata Card */}
-              <div className="p-3.5 bg-slate-900 rounded-xl border border-slate-800 grid grid-cols-3 gap-2 text-center text-xs">
+              <div style={{
+                padding: '0.85rem',
+                backgroundColor: '#0f172a',
+                borderRadius: '14px',
+                border: '1px solid #1e293b',
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: '0.5rem',
+                textAlign: 'center',
+                fontSize: '0.75rem'
+              }}>
                 <div>
-                  <span className="text-slate-400 block text-[11px]">추출 타겟 지역</span>
-                  <strong className="text-purple-400 text-sm font-bold">{parsedMeta.targetCity}</strong>
+                  <span style={{ color: '#94a3b8', display: 'block', fontSize: '0.68rem' }}>추출 타겟 지역</span>
+                  <strong style={{ color: '#c084fc', fontSize: '0.9rem', fontWeight: 700 }}>{parsedMeta.targetCity}</strong>
                 </div>
                 <div>
-                  <span className="text-slate-400 block text-[11px]">여행 기간</span>
-                  <strong className="text-blue-400 text-sm font-bold">{parsedMeta.days}일 코스</strong>
+                  <span style={{ color: '#94a3b8', display: 'block', fontSize: '0.68rem' }}>여행 기간</span>
+                  <strong style={{ color: '#60a5fa', fontSize: '0.9rem', fontWeight: 700 }}>{parsedMeta.days}일 코스</strong>
                 </div>
                 <div>
-                  <span className="text-slate-400 block text-[11px]">추출 테마</span>
-                  <strong className="text-emerald-400 text-sm font-bold">{parsedMeta.theme}</strong>
+                  <span style={{ color: '#94a3b8', display: 'block', fontSize: '0.68rem' }}>추출 테마</span>
+                  <strong style={{ color: '#34d399', fontSize: '0.9rem', fontWeight: 700 }}>{parsedMeta.theme}</strong>
                 </div>
               </div>
 
               {/* Map Geo-Coordinates Table */}
               <div>
-                <h4 className="text-xs font-semibold text-slate-400 mb-2 flex items-center justify-between">
-                  <span>🗺️ 지도 렌더링용 기초 명소 좌표 데이터 ({fetchedSpots.length}건)</span>
-                  <span className="text-[10px] text-purple-400 bg-purple-950/60 px-2 py-0.5 rounded border border-purple-800/50">TourAPI 4.0 정품</span>
-                </h4>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#cbd5e1' }}>🗺️ 지도 렌더링용 기초 명소 좌표 데이터 ({fetchedSpots.length}건)</span>
+                  <span style={{ fontSize: '0.65rem', color: '#c084fc', backgroundColor: 'rgba(168, 85, 247, 0.2)', padding: '0.1rem 0.5rem', borderRadius: '4px', border: '1px solid rgba(168, 85, 247, 0.3)' }}>TourAPI 4.0 정품</span>
+                </div>
 
-                <div className="overflow-x-auto rounded-xl border border-slate-800">
-                  <table className="w-full text-left text-xs text-slate-300">
-                    <thead className="bg-slate-900 text-slate-400 text-[11px] uppercase border-b border-slate-800">
+                <div style={{ overflowX: 'auto', borderRadius: '12px', border: '1px solid #1e293b' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.75rem', color: '#cbd5e1' }}>
+                    <thead style={{ backgroundColor: '#0f172a', color: '#94a3b8', borderBottom: '1px solid #1e293b' }}>
                       <tr>
-                        <th className="p-2.5">명소 이름</th>
-                        <th className="p-2.5">위도 (lat)</th>
-                        <th className="p-2.5">경도 (lng)</th>
-                        <th className="p-2.5">대표 주소</th>
+                        <th style={{ padding: '0.6rem 0.75rem' }}>명소 이름</th>
+                        <th style={{ padding: '0.6rem 0.75rem' }}>위도 (lat)</th>
+                        <th style={{ padding: '0.6rem 0.75rem' }}>경도 (lng)</th>
+                        <th style={{ padding: '0.6rem 0.75rem' }}>대표 주소</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800/60">
+                    <tbody>
                       {fetchedSpots.length > 0 ? (
                         fetchedSpots.map((spot, idx) => (
-                          <tr key={spot.id || idx} className="hover:bg-slate-900/50">
-                            <td className="p-2.5 font-medium text-white">{spot.title}</td>
-                            <td className="p-2.5 font-mono text-purple-300">{spot.lat || spot.mapy || '37.5665'}</td>
-                            <td className="p-2.5 font-mono text-blue-300">{spot.lng || spot.mapx || '126.9780'}</td>
-                            <td className="p-2.5 text-slate-400 truncate max-w-[140px]">{spot.location || spot.addr1 || '중심가'}</td>
+                          <tr key={spot.id || idx} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                            <td style={{ padding: '0.6rem 0.75rem', fontWeight: 600, color: '#ffffff' }}>{spot.title}</td>
+                            <td style={{ padding: '0.6rem 0.75rem', fontFamily: 'monospace', color: '#d8b4fe' }}>{spot.lat || spot.mapy || '37.5665'}</td>
+                            <td style={{ padding: '0.6rem 0.75rem', fontFamily: 'monospace', color: '#93c5fd' }}>{spot.lng || spot.mapx || '126.9780'}</td>
+                            <td style={{ padding: '0.6rem 0.75rem', color: '#94a3b8', maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{spot.location || spot.addr1 || '중심가'}</td>
                           </tr>
                         ))
                       ) : (
                         <tr>
-                          <td colSpan={4} className="p-4 text-center text-slate-500">
+                          <td colSpan={4} style={{ padding: '1rem', textAlign: 'center', color: '#64748b' }}>
                             수신된 명소 데이터가 없습니다.
                           </td>
                         </tr>
@@ -270,32 +389,32 @@ export default function AITestWorkbench({ lang = 'ko' }) {
               </div>
 
               {/* Affiliate Partner URLs Preview */}
-              <div className="p-3 bg-slate-900 rounded-xl border border-slate-800/80 space-y-1.5 text-xs">
-                <span className="text-slate-400 font-semibold block text-[11px]">🛍️ 제휴 파트너 URL 자동 생성 뷰:</span>
-                <div className="flex flex-wrap gap-2 pt-1">
-                  <a href={parsedMeta.agodaUrl} target="_blank" rel="noopener noreferrer" className="px-2.5 py-1.5 bg-blue-950/60 hover:bg-blue-900/60 text-blue-300 rounded-lg border border-blue-800/60 flex items-center gap-1">
-                    🏨 아고다 {parsedMeta.targetCity} 숙소 <ExternalLink className="w-3 h-3" />
+              <div style={{ padding: '0.75rem', backgroundColor: '#0f172a', borderRadius: '12px', border: '1px solid #1e293b', fontSize: '0.75rem' }}>
+                <span style={{ color: '#94a3b8', fontWeight: 600, display: 'block', marginBottom: '0.4rem', fontSize: '0.7rem' }}>🛍️ 제휴 파트너 URL 자동 생성 뷰:</span>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  <a href={parsedMeta.agodaUrl} target="_blank" rel="noopener noreferrer" style={{ padding: '0.4rem 0.75rem', backgroundColor: 'rgba(30, 58, 138, 0.4)', color: '#93c5fd', borderRadius: '8px', border: '1px solid rgba(59, 130, 246, 0.3)', textDecoration: 'none', display: 'flex', items: 'center', gap: '0.3rem' }}>
+                    🏨 아고다 {parsedMeta.targetCity} 숙소 <ExternalLink size={12} />
                   </a>
-                  <a href={parsedMeta.klookUrl} target="_blank" rel="noopener noreferrer" className="px-2.5 py-1.5 bg-orange-950/60 hover:bg-orange-900/60 text-orange-300 rounded-lg border border-orange-800/60 flex items-center gap-1">
-                    🎟️ 클룩 {parsedMeta.targetCity} 액티비티 <ExternalLink className="w-3 h-3" />
+                  <a href={parsedMeta.klookUrl} target="_blank" rel="noopener noreferrer" style={{ padding: '0.4rem 0.75rem', backgroundColor: 'rgba(124, 45, 18, 0.4)', color: '#fdba74', borderRadius: '8px', border: '1px solid rgba(249, 115, 22, 0.3)', textDecoration: 'none', display: 'flex', items: 'center', gap: '0.3rem' }}>
+                    🎟️ 클룩 {parsedMeta.targetCity} 액티비티 <ExternalLink size={12} />
                   </a>
                 </div>
               </div>
 
             </div>
           ) : (
-            <div className="p-8 text-center text-slate-500 text-xs border border-dashed border-slate-800 rounded-xl">
+            <div style={{ padding: '2rem 1rem', textAlign: 'center', color: '#64748b', fontSize: '0.75rem', border: '1px dashed #1e293b', borderRadius: '14px' }}>
               왼쪽 대화 입력창에서 [🚀 AI 파이프라인 실행] 버튼을 누르시면 기초 데이터 및 위도/경도 좌표가 이곳에 표시됩니다.
             </div>
           )}
 
           {/* Raw JSON Debugger */}
           {rawJson && (
-            <details className="mt-4 text-xs">
-              <summary className="cursor-pointer text-slate-400 hover:text-slate-200 font-mono flex items-center gap-1">
-                <Code className="w-3.5 h-3.5" /> Raw JSON 파싱 구조체 디버그 보기
+            <details style={{ marginTop: '0.5rem', fontSize: '0.75rem' }}>
+              <summary style={{ cursor: 'pointer', color: '#94a3b8', fontFamily: 'monospace', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                <Code size={14} /> Raw JSON 파싱 구조체 디버그 보기
               </summary>
-              <pre className="mt-2 p-3 bg-black/60 rounded-xl text-[11px] font-mono text-emerald-400 overflow-x-auto max-h-48 border border-slate-800">
+              <pre style={{ marginTop: '0.5rem', padding: '0.75rem', backgroundColor: '#000000', borderRadius: '12px', color: '#34d399', fontSize: '0.7rem', fontFamily: 'monospace', overflowX: 'auto', maxHeight: '180px', border: '1px solid #1e293b' }}>
                 {JSON.stringify(rawJson, null, 2)}
               </pre>
             </details>
