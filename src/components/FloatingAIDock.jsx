@@ -79,7 +79,7 @@ export default function FloatingAIDock({
             alignItems: 'center',
             gap: '0.3rem'
           }}>
-            <span>{t.floatingAiDockBtn || 'K-Travel AI 대화하기'}</span>
+            <span>{t.floatingAiDockBtn || 'Vora AI 대화하기'}</span>
             <Compass size={13} color="#93c5fd" />
           </span>
           <span style={{

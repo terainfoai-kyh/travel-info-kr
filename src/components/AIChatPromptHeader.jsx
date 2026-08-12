@@ -392,19 +392,20 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
           </p>
 
           <h2 style={{
-            fontSize: isMobile ? '1.35rem' : '2.1rem',
+            fontSize: isMobile ? '1.25rem' : '2.1rem',
             fontWeight: 900,
-            lineHeight: 1.25,
+            lineHeight: 1.3,
             letterSpacing: '-0.02em',
             margin: '0 0 0.5rem 0',
-            color: '#0f172a'
+            color: '#0f172a',
+            wordBreak: 'keep-all'
           }}>
-            대한민국 100% 정품 여행,<br />
+            새로운 눈으로 바라보는 한국,<br />
             <span style={{
               background: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent'
-            }}>AI와 대화로 완벽하게</span>
+            }}>AI 대화로 완벽하게</span>
           </h2>
 
           <p style={{
@@ -413,10 +414,11 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
             maxWidth: '580px',
             margin: '0 auto',
             lineHeight: 1.5,
-            fontWeight: 600
+            fontWeight: 600,
+            wordBreak: 'keep-all'
           }}>
-            어둡고 딱딱한 카드 없이, 에메랄드빛 시원한 비주얼과 함께<br />
-            실시간 날씨 및 관광공사 정품 동선을 대화로 경험해 보세요.
+            복잡한 버튼이나 칙칙한 사진 카드 없이, 오직 말과 글만으로<br />
+            실시간 기후와 관광공사 정품 동선을 추천해 드립니다.
           </p>
         </div>
 
