@@ -256,9 +256,10 @@ export default function App() {
       {/* Main Container */}
       <main style={{ maxWidth: '1280px', width: '100%', margin: '0 auto', padding: '0 1.5rem 0.5rem 1.5rem', flex: 1, position: 'relative', zIndex: 1 }}>
         {/* Conversational & Voice AI Prompt Header */}
-        <AIChatPromptHeader 
-          lang={lang} 
-          filters={filters}
+        <div id="ai-prompt-hero">
+          <AIChatPromptHeader 
+            lang={lang} 
+            filters={filters}
           onGenerateItinerary={async (parsedInput, fullAiResult = null) => {
             const parsed = parsedInput || (fullAiResult ? { region: fullAiResult.dailySchedules?.[0]?.city || '전국', days: fullAiResult.days || 3, keyword: fullAiResult.dailySchedules?.[0]?.city || '' } : { region: '전국', days: 3, keyword: '' });
             if (fullAiResult) {
@@ -332,6 +333,7 @@ export default function App() {
             }
           }} 
         />
+        </div>
 
         {/* Realtime Weather Widget directly below AI Prompt Box */}
         <div id="weather-info" style={{ marginBottom: '1.5rem' }}>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, Mic, MicOff, ArrowRight, Camera, X, MessageSquare, Send, MapPin, Compass, ChevronDown, ChevronUp } from 'lucide-react';
+import { Sparkles, Mic, MicOff, ArrowRight, Camera, X, MessageSquare, Send, MapPin, Compass, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
-import { geminiParseNaturalPrompt, geminiGenerateFullItinerary, isGreetingQuery } from '../services/geminiNlpService';
+import { geminiParseNaturalPrompt, geminiGenerateFullItinerary, isGreetingQuery, isAffirmativeYes, checkAmbiguousRegionQuery } from '../services/geminiNlpService';
 
 /**
  * Natural language query parser to extract region, days, and clean keywords
@@ -268,6 +268,47 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
     setChatMessages(prev => [...prev, userBubble]);
     setIsGenerating(true);
 
+    // Check 1: Affirmative YES response ("응", "오케이", "좋아", "보여줘") -> Open itinerary modal!
+    if (isAffirmativeYes(query)) {
+      const lastAiMsg = [...chatMessages].reverse().find(m => m.sender === 'ai' && (m.fullAiResult || m.parsedIntent));
+      if (lastAiMsg) {
+        setTimeout(() => {
+          const yesBubble = {
+            id: `ai-${Date.now()}`,
+            sender: 'ai',
+            text: "네! 요청하신 100% 정품 명소와 실시간 날씨로 구성된 맞춤 상세 일정표와 동선 지도를 화면에 바로 열어드립니다! 🗺️✨",
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          };
+          setChatMessages(prev => [...prev, yesBubble]);
+          setIsGenerating(false);
+          if (onGenerateItinerary) {
+            onGenerateItinerary(lastAiMsg.parsedIntent || parseNaturalPrompt(query), lastAiMsg.fullAiResult);
+          }
+        }, 300);
+        return;
+      }
+    }
+
+    // Check 2: Ambiguous Region Queries ("삼청", "삼청동") -> Friendly Clarification!
+    const ambiguousCheck = checkAmbiguousRegionQuery(query);
+    if (ambiguousCheck.isAmbiguous) {
+      setTimeout(() => {
+        const ambBubble = {
+          id: `ai-${Date.now()}`,
+          sender: 'ai',
+          text: ambiguousCheck.aiText,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          suggestionChips: [
+            '강원도 삼척 바다 3일 코스 추천해줘',
+            '서울 종로 삼청동 한옥마을 코스 추천해줘'
+          ]
+        };
+        setChatMessages(prev => [...prev, ambBubble]);
+        setIsGenerating(false);
+      }, 400);
+      return;
+    }
+
     if (isGreetingQuery(query)) {
       setTimeout(() => {
         const greetingBubble = {
@@ -297,12 +338,14 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
         .join('\n');
       const contextualPrompt = historyContext ? `${historyContext}\nUser: ${query}` : query;
 
-      const parsedIntent = await geminiParseNaturalPrompt(query, lang);
+      const parsedIntent = await geminiParseNaturalPrompt(contextualPrompt, lang);
       const fullAiResult = await geminiGenerateFullItinerary(contextualPrompt, lang);
 
-      // Clean single-turn AI summary without raw debug context
-      const aiBubbleText = fullAiResult?.aiRecommendationSummary || 
+      // Clean single-turn AI summary with conversational prompt
+      const baseSummary = fullAiResult?.aiRecommendationSummary || 
         `'${query}' 요청에 맞춰 최적의 ${parsedIntent?.days || fullAiResult?.days || 3}일치 맞춤 여행 코스를 정성껏 준비했습니다! 📍`;
+      
+      const aiBubbleText = `${baseSummary}\n\n💬 바로 상세 일정표와 지도를 화면에 보여드릴까요? ('응', '그래', 'OK'라고 말씀해 보세요!)`;
 
       const aiBubble = {
         id: `ai-${Date.now()}`,
@@ -470,27 +513,58 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
               <Sparkles size={15} color="#0284c7" />
               <span>Vora AI 실시간 대화창</span>
             </div>
-            <button
-              type="button"
-              onClick={() => setIsInlineChatExpanded(false)}
-              title="대화창 접기 ✕"
-              style={{
-                padding: '0.25rem 0.65rem',
-                borderRadius: '9999px',
-                background: '#ffffff',
-                border: '1px solid #cbd5e1',
-                color: '#475569',
-                fontSize: '0.75rem',
-                fontWeight: 700,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.3rem',
-                cursor: 'pointer'
-              }}
-            >
-              <X size={13} />
-              <span>대화 접기</span>
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setChatMessages([{
+                    id: 'init-welcome',
+                    sender: 'ai',
+                    text: '안녕하세요! 대한민국 여행 AI 컨시어지입니다. 🇰🇷 어디로 떠나고 싶으신가요? 편하게 말씀해 주세요!',
+                    suggestionChips: ['1일차 수원 ➔ 2일차 명동 ➔ 3일차 인천', '성수동 핫플 & 팝업스토어', '50대 부모님 모시고 떠나는 가족 힐링 3박4일'],
+                    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                  }]);
+                }}
+                title="대화 내용 지우기 🗑️"
+                style={{
+                  padding: '0.25rem 0.65rem',
+                  borderRadius: '9999px',
+                  background: '#ffffff',
+                  border: '1px solid #cbd5e1',
+                  color: '#ef4444',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.3rem',
+                  cursor: 'pointer'
+                }}
+              >
+                <Trash2 size={13} />
+                <span>대화 지우기</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsInlineChatExpanded(false)}
+                title="대화창 접기 ✕"
+                style={{
+                  padding: '0.25rem 0.65rem',
+                  borderRadius: '9999px',
+                  background: '#ffffff',
+                  border: '1px solid #cbd5e1',
+                  color: '#475569',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.3rem',
+                  cursor: 'pointer'
+                }}
+              >
+                <X size={13} />
+                <span>대화 접기</span>
+              </button>
+            </div>
           </div>
 
           {/* Chat Messages Body */}

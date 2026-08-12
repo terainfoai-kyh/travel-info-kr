@@ -90,9 +90,10 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
   };
 
   const NAV_ITEMS = [
-    { id: 'weather-info', label: t.navWeather || '실시간 기후', icon: Sun },
-    { id: 'travel-essentials', label: t.navEssentials || '여행 필수 가이드', icon: Luggage },
-    { id: 'ai-lifestyle', label: t.navLifestyle || 'AI 맛집 & 코디', icon: Utensils }
+    { id: 'ai-prompt-hero', label: t.navAiConcierge || '✨ AI 대화', icon: Sparkles },
+    { id: 'weather-info', label: t.navWeather || '☀️ 실시간 기후', icon: Sun },
+    { id: 'travel-essentials', label: t.navEssentials || '🧳 여행 필수 가이드', icon: Luggage },
+    { id: 'ai-lifestyle', label: t.navLifestyle || '🍲 AI 맛집 & 코디', icon: Utensils }
   ];
 
   // Helper function to translate badges safely inside header

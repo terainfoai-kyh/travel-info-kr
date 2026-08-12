@@ -11,6 +11,26 @@ export function isGreetingQuery(text) {
   return greetingRegex.test(clean) || (clean.length <= 4 && (clean.includes('안녕') || clean.includes('반가') || clean.includes('하이') || clean.includes('고마') || clean.includes('감사')));
 }
 
+export function isAffirmativeYes(text) {
+  if (!text || typeof text !== 'string') return false;
+  const clean = text.toLowerCase().trim();
+  const yesRegex = /^(응|어|네|예|그래|좋아|좋아요|ㅇㅇ|ㅇㅋ|오케이|ok|okay|yes|yep|sure|보여줘|확인|진행해|볼래|볼게요|보여주세요)$/i;
+  return yesRegex.test(clean) || clean.includes('보여') || clean.includes('좋아') || clean.includes('오케이') || clean.includes('확인');
+}
+
+export function checkAmbiguousRegionQuery(rawPrompt) {
+  if (!rawPrompt || typeof rawPrompt !== 'string') return { isAmbiguous: false };
+  const clean = extractCleanUserPrompt(rawPrompt).toLowerCase().trim();
+  if (clean === '삼청' || clean === '삼청동') {
+    return {
+      isAmbiguous: true,
+      query: clean,
+      aiText: "아, '삼청'을 말씀하셨군요! 🌊 동해 바다가 펼쳐지는 강원도 **'삼척'**을 찾으시나요, 아니면 서울 종로구의 고즈넉한 **'삼청동'** 한옥마을을 찾으시나요? 편하게 말씀해 주시면 바로 맞춤 코스를 준비해 드릴게요! 😊"
+    };
+  }
+  return { isAmbiguous: false };
+}
+
 let fallbackTurnCounter = 0;
 
 function getProvinceFromCity(cityName) {
