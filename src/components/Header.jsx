@@ -204,7 +204,7 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
                 color: themeMode === 'light' ? '#0f172a' : '#f8fafc',
                 textTransform: 'uppercase'
               }}>
-                K-TRAVEL
+                TripK
               </span>
               <span style={{
                 fontSize: '0.68rem',
