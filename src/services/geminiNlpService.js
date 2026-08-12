@@ -21,11 +21,11 @@ export function isAffirmativeYes(text) {
 export function checkAmbiguousRegionQuery(rawPrompt) {
   if (!rawPrompt || typeof rawPrompt !== 'string') return { isAmbiguous: false };
   const clean = extractCleanUserPrompt(rawPrompt).toLowerCase().trim();
-  if (clean === '삼청' || clean === '삼청동') {
+  if (clean === '삼청' || clean === '삼청동' || clean === 'ㅅㅊ') {
     return {
       isAmbiguous: true,
       query: clean,
-      aiText: "아, '삼청'을 말씀하셨군요! 🌊 동해 바다가 펼쳐지는 강원도 **'삼척'**을 찾으시나요, 아니면 서울 종로구의 고즈넉한 **'삼청동'** 한옥마을을 찾으시나요? 편하게 말씀해 주시면 바로 맞춤 코스를 준비해 드릴게요! 😊"
+      aiText: "아, 초성 또는 지명 **'ㅅㅊ' / '삼청'**을 말씀하셨군요! 🌊 동해 바다가 펼쳐지는 강원도 **'삼척'**이나 **'속초'**를 찾으시나요, 아니면 서울 종로의 고즈넉한 **'삼청동'** 한옥마을을 찾으시나요? 편하게 말씀해 주시면 바로 맞춤 코스를 준비해 드릴게요! 😊"
     };
   }
   return { isAmbiguous: false };
