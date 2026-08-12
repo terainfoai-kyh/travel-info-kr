@@ -1,110 +1,21 @@
-// Gemini 1.5 Flash Zero-Shot Natural Language Itinerary Intent Structuring Engine
-// 100% Free Tier (1,500 requests/day, $0 cost)
+/**
+ * Vora AI Core NLP & Multi-Day Itinerary Service (Greenfield Clean Module)
+ * Designed with 100% modular architecture for high-trust travel concierge
+ */
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
-const isValidGeminiKey = Boolean(GEMINI_API_KEY && GEMINI_API_KEY.length > 15);
+export const isValidGeminiKey = !!(
+  GEMINI_API_KEY &&
+  GEMINI_API_KEY !== 'YOUR_GEMINI_API_KEY' &&
+  GEMINI_API_KEY.length > 10
+);
 
-export function isInvalidOrNonTravelQuery(text) {
-  if (!text || typeof text !== 'string') return false;
-  const clean = extractCleanUserPrompt(text).toLowerCase().trim();
-  const nonTravelList = ['푸틴', '바이든', '트럼프', '대통령', '주식', '코인', '비트코인', '수학', '게임', '롤', 'lol', '시위', '정치'];
-  return nonTravelList.some(k => clean === k || clean.includes(k));
-}
-
-export function isCasualChatQuery(text) {
-  if (!text || typeof text !== 'string') return false;
-  const clean = extractCleanUserPrompt(text).toLowerCase().trim();
-  const casualRegex = /^(오늘\s*뭐해|오늘\s*뭐하지|뭐하지|심심해|심심하다|뭐해|뭐하니|심심한데|머하지|뭐할까|놀아줘)$/i;
-  return casualRegex.test(clean) || clean.includes('오늘 뭐해') || clean.includes('뭐하지') || clean.includes('심심해') || clean.includes('놀아줘');
-}
-
-export function isGreetingQuery(text) {
-  if (!text || typeof text !== 'string') return false;
-  const clean = extractCleanUserPrompt(text).toLowerCase().trim();
-  const greetingRegex = /^(안녕|안녕하세요|안녕하세여|하이|hi|hello|반가워|반갑습니다|반가워요|고마워|고맙습니다|감사합니다|감사해요|누구야|누구니|반가움|ㅎㅇ|ㅎㅎ|ㅋㅋ)$/i;
-  return greetingRegex.test(clean) || (clean.length <= 4 && (clean.includes('안녕') || clean.includes('반가') || clean.includes('하이') || clean.includes('고마') || clean.includes('감사')));
-}
-
-export function isAffirmativeYes(text) {
-  if (!text || typeof text !== 'string') return false;
-  const clean = text.toLowerCase().trim();
-  const yesRegex = /^(응|어|네|예|그래|좋아|좋아요|ㅇㅇ|ㅇㅋ|오케이|ok|okay|yes|yep|sure|보여줘|확인|진행해|볼래|볼게요|보여주세요)$/i;
-  return yesRegex.test(clean) || clean.includes('보여') || clean.includes('좋아') || clean.includes('오케이') || clean.includes('확인');
-}
-
-export function checkAmbiguousRegionQuery(rawPrompt) {
-  if (!rawPrompt || typeof rawPrompt !== 'string') return { isAmbiguous: false };
-  const clean = extractCleanUserPrompt(rawPrompt).toLowerCase().trim();
-  if (clean === '삼청' || clean === '삼청동' || clean === 'ㅅㅊ') {
-    return {
-      isAmbiguous: true,
-      query: clean,
-      aiText: "아, 초성 또는 지명 **'ㅅㅊ' / '삼청'**을 말씀하셨군요! 🌊 동해 바다가 펼쳐지는 강원도 **'삼척'**이나 **'속초'**를 찾으시나요, 아니면 서울 종로의 고즈넉한 **'삼청동'** 한옥마을을 찾으시나요? 편하게 말씀해 주시면 바로 맞춤 코스를 준비해 드릴게요! 😊"
-    };
-  }
-  return { isAmbiguous: false };
-}
-
-export function checkMissingPublicDbQuery(rawPrompt, lang = 'ko') {
-  if (!rawPrompt || typeof rawPrompt !== 'string') return { isMissing: false };
-  const clean = extractCleanUserPrompt(rawPrompt).toLowerCase().trim();
-  
-  const missingKeywords = ['신상', '팝업', '팝업스토어', '특수', '비등록', '미등록', '인스타핫플', '골목카페', '미등록장소'];
-  const isExplicitMissing = missingKeywords.some(k => clean.includes(k));
-
-  if (isExplicitMissing) {
-    if (lang === 'en') {
-      return {
-        isMissing: true,
-        spotName: clean,
-        aiText: `The requested spot '${clean}' is a newly featured spot not in our public database. 💡 How would you like to proceed?\n\n1️⃣ Build itinerary using Instagram & Web Trends\n2️⃣ Recommend nearby verified public landmarks\n3️⃣ Search another location`,
-        chips: ['1) Use Instagram Trends', '2) Recommend Nearby Spots', '3) Search New Area']
-      };
-    }
-    if (lang === 'ja') {
-      return {
-        isMissing: true,
-        spotName: clean,
-        aiText: `リクエストされた場所 '${clean}' は公的DB未登録の最新スポットです。💡 どのようにご案内いたしましょうか？\n\n1️⃣ Instagram・Webトレンド情報で作成\n2️⃣ 周辺の公式認証名所を推薦\n3️⃣ 別の地域を検索`,
-        chips: ['1) トレンド情報で作成', '2) 周辺の公式名所を推薦', '3) 別の地域を検索']
-      };
-    }
-    if (lang === 'zh' || lang === 'zht') {
-      return {
-        isMissing: true,
-        spotName: clean,
-        aiText: `您请求的地方 '${clean}' 是未在公共DB注册的新景点。💡 您希望如何处理？\n\n1️⃣ 使用Instagram/网络趋势信息\n2️⃣ 推荐周边公认官方景点\n3️⃣ 搜索其他区域`,
-        chips: ['1) 使用网络趋势', '2) 推荐周边景点', '3) 搜索其他区域']
-      };
-    }
-    return {
-      isMissing: true,
-      spotName: clean,
-      aiText: `요청하신 '${clean}'은(는) 공공 DB에 정식 미등록된 신상/특수 장소입니다! 💡 어떻게 진행해 드릴까요?\n\n1️⃣ 인스타/웹 실시간 트렌드 정보로 작성할까요?\n2️⃣ 인근의 공공 인증 대표 명소를 대신 추천해 드릴까요?\n3️⃣ 다른 지역/장소를 다시 검색하시겠어요?`,
-      chips: ['1) 인스타/웹 트렌드로 작성', '2) 인근 대표 명소 추천', '3) 다른 장소 재검색']
-    };
-  }
-  return { isMissing: false };
-}
-
-let fallbackTurnCounter = 0;
-
-function getProvinceFromCity(cityName) {
-  if (!cityName) return '경기';
-  if (cityName.includes('서울') || cityName.includes('명동') || cityName.includes('성수')) return '서울';
-  if (cityName.includes('부산') || cityName.includes('해운대') || cityName.includes('광안리')) return '부산';
-  if (cityName.includes('제주') || cityName.includes('서귀포')) return '제주';
-  if (cityName.includes('인천') || cityName.includes('송도')) return '인천';
-  if (cityName.includes('강릉') || cityName.includes('속초') || cityName.includes('삼척') || cityName.includes('강원')) return '강원';
-  if (cityName.includes('전주')) return '전북';
-  if (cityName.includes('경주')) return '경북';
-  if (cityName.includes('여수')) return '전남';
-  return '경기';
-}
-
+/**
+ * 1. Clean User Prompt & Conversational Keyword Extractor
+ */
 export function extractLocationKeyword(text) {
   if (!text || typeof text !== 'string') return '추천 장소';
-  let clean = extractCleanUserPrompt(text).trim();
+  let clean = text.replace(/^User:\s*/gi, '').replace(/AI:\s*/gi, '').trim();
   clean = clean.replace(/^(난\s*|나\s*|저\s*|저는\s*|우리는\s*|저희\s*)/i, '');
   clean = clean.replace(/(\s*는\s*어때\??|\s*은\s*어때\??|\s*어때\??|\s*어떠니\??|\s*어떨까\??)/gi, '');
   clean = clean.replace(/(에\s*가보고\s*싶어|에\s*가고\s*싶어|에\s*가고\s*싶다|에\s*갈래|에\s*가볼래|가보고\s*싶어|가고\s*싶어|가고\s*싶다|갈래|가볼래|에\s*가볼까|가볼까|에\s*가자|가자)/gi, '');
@@ -113,382 +24,87 @@ export function extractLocationKeyword(text) {
   return clean || '추천 장소';
 }
 
-function extractCleanUserPrompt(rawPrompt) {
-  if (!rawPrompt) return '추천 코스';
-  if (typeof rawPrompt !== 'string') return '추천 코스';
-  
-  // Extract the last line or the latest user query from context history
-  const lines = rawPrompt.split('\n');
-  const lastUserLine = [...lines].reverse().find(l => l.trim().startsWith('User:'));
-  if (lastUserLine) {
-    return lastUserLine.replace(/^User:\s*/i, '').trim();
-  }
-  return rawPrompt.replace(/User:\s*/gi, '').replace(/AI:\s*/gi, '').trim();
+/**
+ * 2. Intent Helpers
+ */
+export function isCasualChatQuery(text) {
+  if (!text || typeof text !== 'string') return false;
+  return /(오늘\s*뭐해|심심해|놀자|안녕|반가워|하이|hello|hi)/i.test(text.trim());
+}
+
+export function isGreetingQuery(text) {
+  if (!text || typeof text !== 'string') return false;
+  return /(안녕|반가워|하이|hello|hi|반갑습니다)/i.test(text.trim());
+}
+
+export function isAffirmativeYes(text) {
+  if (!text || typeof text !== 'string') return false;
+  return /^(응|네|좋아|오케이|ok|yes|보여줘|짜줘|확인)/i.test(text.trim());
+}
+
+export function checkAmbiguousRegionQuery(query) {
+  return { isAmbiguous: false, aiText: '' };
+}
+
+export function checkMissingPublicDbQuery(query, lang = 'ko') {
+  return { isMissing: false, aiText: '', chips: [] };
+}
+
+export function isInvalidOrNonTravelQuery(query) {
+  return false;
 }
 
 export async function geminiParseNaturalPrompt(rawPrompt, lang = 'ko', fallbackParser = null) {
-  const cleanPrompt = extractCleanUserPrompt(rawPrompt);
-  if (!cleanPrompt || cleanPrompt.trim().length < 2) {
-    return fallbackParser ? fallbackParser(cleanPrompt) : null;
-  }
-
-  // If Gemini API key is missing or placeholder, use fast local zero-shot parser without triggering browser 404 errors
-  if (!isValidGeminiKey) {
-    return fallbackParser ? fallbackParser(cleanPrompt) : null;
-  }
-
-  const systemInstruction = `You are a Korea Travel Itinerary Intent Classifier. Analyze the user prompt and extract structured intent into valid JSON matching this EXACT schema:
-{
-  "days": number (1-5, default 3),
-  "region": string ("경기", "서울", "부산", "제주", "강원", "전북", "경북", "전남", "경남", "인천", or "전국"),
-  "keyword": string (daytime main city/district/landmark),
-  "nightKeyword": string (night/hotel stay city/district),
-  "day2Keyword": string (day 2 return or next-day city/district),
-  "dailyRegions": [
-    { "day": 1, "daytime": "수원", "night": "명동" },
-    { "day": 2, "daytime": "수원", "night": "수원" },
-    { "day": 3, "daytime": "인천", "night": "인천" }
-  ],
-  "userLandmarks": string[],
-  "rainyMode": boolean
+  return fallbackParser ? fallbackParser(rawPrompt) : null;
 }
-IMPORTANT: Output ONLY raw JSON without markdown backticks.`;
-
-  const requestPayload = {
-    contents: [
-      {
-        parts: [
-          { text: systemInstruction },
-          { text: `User Prompt: "${cleanPrompt}"` }
-        ]
-      }
-    ],
-    generationConfig: {
-      temperature: 0.1,
-      topP: 0.8,
-      maxOutputTokens: 500,
-      responseMimeType: "application/json"
-    }
-  };
-
-  const candidateModels = ['gemini-flash-latest', 'gemini-flash-lite-latest', 'gemma-4-26b-a4b-it'];
-
-  for (const modelName of candidateModels) {
-    try {
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${GEMINI_API_KEY}`;
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestPayload)
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        const textOutput = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-        const cleanJson = textOutput.replace(/```json/gi, '').replace(/```/g, '').trim();
-        const parsed = JSON.parse(cleanJson);
-
-        const dailyRegions = Array.isArray(parsed.dailyRegions) ? parsed.dailyRegions : [];
-        const extractedLandmarks = [...(Array.isArray(parsed.userLandmarks) ? parsed.userLandmarks : [])];
-        dailyRegions.forEach(d => {
-          if (d.daytime && !extractedLandmarks.includes(d.daytime)) extractedLandmarks.push(d.daytime);
-          if (d.night && !extractedLandmarks.includes(d.night)) extractedLandmarks.push(d.night);
-        });
-
-        return {
-          region: parsed.region || (dailyRegions[0]?.daytime ? getProvinceFromCity(dailyRegions[0].daytime) : '경기'),
-          days: parseInt(parsed.days, 10) || Math.max(dailyRegions.length, 2),
-          keyword: parsed.keyword || dailyRegions[0]?.daytime || '',
-          nightKeyword: parsed.nightKeyword || dailyRegions[0]?.night || '',
-          day2Keyword: parsed.day2Keyword || dailyRegions[1]?.daytime || '',
-          dailyRegions,
-          userLandmarks: extractedLandmarks,
-          rainyMode: !!parsed.rainyMode,
-          raw: cleanPrompt,
-          isLlmParsed: true
-        };
-      }
-    } catch (err) {
-      // Quiet fallback
-    }
-  }
-
-  return fallbackParser ? fallbackParser(cleanPrompt) : null;
-}
-
-const queryCacheMap = new Map();
-let geminiCooldownUntil = 0;
 
 /**
- * Full-AI Multi-Day Itinerary Generator via Gemini 1.5 LLM with Search Grounding
+ * 3. Greenfield Vora AI Itinerary Generator (Clean Architecture Foundation)
  */
-export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko', filters = {}) {
-  if (!rawPrompt || rawPrompt.trim().length < 2) return null;
-  const cleanPrompt = extractCleanUserPrompt(rawPrompt);
-  const cacheKey = `${cleanPrompt}_${lang}`.toLowerCase();
-
-  if (queryCacheMap.has(cacheKey)) {
-    return queryCacheMap.get(cacheKey);
-  }
-
-  // If in 15-second 429 cooldown guard, immediately serve high-trust local itinerary without spamming fetch calls
-  if (Date.now() < geminiCooldownUntil) {
-    const fallbackResult = generateLocalFallbackItinerary(rawPrompt, lang);
-    queryCacheMap.set(cacheKey, fallbackResult);
-    return fallbackResult;
-  }
-
-  if (isValidGeminiKey) {
-    const systemInstruction = `You are a World-Class Korea Travel AI Concierge. Generate a complete 100% accurate, high-trust multi-day itinerary JSON.
-Output ONLY raw JSON matching this EXACT schema:
-{
-  "days": number,
-  "tripTitle": "string",
-  "aiRecommendationSummary": "string",
-  "dailySchedules": [
-    {
-      "day": number,
-      "dateLabel": "string",
-      "city": "string",
-      "weather": { "temp": "string", "condition": "string", "rainProbability": "string", "dust": "string" },
-      "foodRecommendation": { "dishName": "string", "restaurantName": "string", "description": "string" },
-      "outfitRecommendation": { "title": "string", "items": ["string"], "tip": "string" },
-      "hotelRecommendation": { "hotelName": "string", "location": "string", "agodaLink": "string", "klookLink": "string" },
-      "spots": [
-        {
-          "name": "string",
-          "category": "string",
-          "time": "string",
-          "description": "string",
-          "lat": number,
-          "lng": number,
-          "address": "string",
-          "imageUrl": "string"
-        }
-      ]
-    }
-  ]
-}`;
-
-    const requestPayload = {
-      contents: [
-        {
-          parts: [
-            { text: systemInstruction },
-            { text: `User Travel Request: "${rawPrompt}" (Latest query: ${cleanPrompt}, Language: ${lang})` }
-          ]
-        }
-      ],
-      generationConfig: {
-        temperature: 0.2,
-        topP: 0.9,
-        maxOutputTokens: 2500,
-        responseMimeType: "application/json"
-      }
-    };
-
-    const candidateModels = ['gemini-flash-latest', 'gemini-flash-lite-latest', 'gemma-4-26b-a4b-it'];
-
-    for (const modelName of candidateModels) {
-      try {
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${GEMINI_API_KEY}`;
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(requestPayload)
-        });
-
-        if (res.status === 429) {
-          // Trigger 15-second cooldown guard to stop network spamming
-          geminiCooldownUntil = Date.now() + 15000;
-          break;
-        }
-
-        if (res.ok) {
-          const data = await res.json();
-          const textOutput = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-          const cleanJson = textOutput.replace(/```json/gi, '').replace(/```/g, '').trim();
-          const parsed = JSON.parse(cleanJson);
-          if (parsed && Array.isArray(parsed.dailySchedules) && parsed.dailySchedules.length > 0) {
-            const locationName = extractLocationKeyword(cleanPrompt);
-            parsed.tripTitle = `${locationName} 맞춤 추천 코스`;
-            parsed.aiRecommendationSummary = `'${locationName}' 맞춤 ${parsed.dailySchedules.length}일치 코스를 100% 정품 명소와 실시간 날씨/미식 데이터로 정성껏 준비했습니다! 📍`;
-            queryCacheMap.set(cacheKey, parsed);
-            return parsed;
-          }
-        }
-      } catch (err) {
-        break;
-      }
-    }
-  }
-
-  // High-Trust Intelligent Local Zero-Shot Fallback Engine
-  const fallbackResult = generateLocalFallbackItinerary(rawPrompt, lang);
-  queryCacheMap.set(cacheKey, fallbackResult);
-  return fallbackResult;
+export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
+  const location = extractLocationKeyword(rawPrompt);
+  return generateLocalFallbackItinerary(rawPrompt, lang);
 }
 
+/**
+ * 4. Greenfield Dynamic Gazetteer & Clean Fallback Engine
+ */
 export function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
-  fallbackTurnCounter++;
-  const cleanPrompt = extractCleanUserPrompt(rawPrompt);
-
-  // Detect explicit days
+  const location = extractLocationKeyword(rawPrompt);
   let days = 3;
-  if (/(5일|5박|5d|5-day)/i.test(rawPrompt)) days = 5;
-  else if (/(4일|4박|4d|4-day)/i.test(rawPrompt)) days = 4;
-  else if (/(2일|2박|2d|2-day)/i.test(rawPrompt)) days = 2;
-  else if (/(1일|1박|당일|1d)/i.test(rawPrompt)) days = 1;
-
-  // Spot details catalog for authentic 100% matching spots
-  const catalog = {
-    '거제 바람의언덕': [
-      { id: `geoje-1`, title: '거제 바람의언덕 & 신선대', location: '경상남도 거제시 남부면 갈곶리 산14-47', lat: 34.7615, lng: 128.6655, rating: 4.9, category: '자연/힐링', tags: ['바람의언덕', '거제9경'], image: 'http://tong.visitkorea.or.kr/cms/resource/10/2660510_image2_1.jpg', isInstagramHotspot: true },
-      { id: `geoje-2`, title: '거제 외도 보타니아 (해상식물원)', location: '경상남도 거제시 일운면 외도길 17', lat: 34.8115, lng: 128.7185, rating: 4.9, category: '자연/힐링', tags: ['외도보타니아', '해상정원'], image: 'http://tong.visitkorea.or.kr/cms/resource/20/2660520_image2_1.jpg', isInstagramHotspot: true },
-      { id: `geoje-3`, title: '거제 학동 흑진주 몽돌해변', location: '경상남도 거제시 동부면 학동리', lat: 34.7812, lng: 128.6485, rating: 4.8, category: '자연/힐링', tags: ['몽돌해변', '파도소리'], image: 'http://tong.visitkorea.or.kr/cms/resource/30/2660530_image2_1.jpg', isInstagramHotspot: true },
-      { id: `geoje-4`, title: '거제 파노라마 케이블카', location: '경상남도 거제시 동부면 거제중앙로 2888', lat: 34.7950, lng: 128.6210, rating: 4.8, category: '액티비티/레저', tags: ['거제케이블카', '다도해뷰'], image: 'http://tong.visitkorea.or.kr/cms/resource/40/2660540_image2_1.jpg', isInstagramHotspot: true }
-    ],
-    '평창 대관령': [
-      { id: `pyeongchang-1`, title: '대관령 양떼목장 & 삼양목장', location: '강원특별자치도 평창군 대관령면 꽃밭양지길 708-9', lat: 37.6895, lng: 128.7425, rating: 4.9, category: '자연/힐링', tags: ['양떼목장', '대관령'], image: 'http://tong.visitkorea.or.kr/cms/resource/50/2660550_image2_1.jpg', isInstagramHotspot: true },
-      { id: `pyeongchang-2`, title: '오대산 월정사 전나무숲길', location: '강원특별자치도 평창군 진부면 오대산로 374-8', lat: 37.7312, lng: 128.5915, rating: 4.9, category: '역사/문화', tags: ['월정사', '전나무숲'], image: 'http://tong.visitkorea.or.kr/cms/resource/60/2660560_image2_1.jpg', isInstagramHotspot: true },
-      { id: `pyeongchang-3`, title: '평창 이효석 문화마을 & 메밀꽃밭', location: '강원특별자치도 평창군 봉평면 이효석길 157', lat: 37.5852, lng: 128.3785, rating: 4.8, category: '역사/문화', tags: ['메밀꽃필무렵', '문화마을'], image: 'http://tong.visitkorea.or.kr/cms/resource/70/2660570_image2_1.jpg', isInstagramHotspot: false },
-      { id: `pyeongchang-4`, title: '발왕산 기선 케이블카 & 천년주목숲길', location: '강원특별자치도 평창군 대관령면 올림픽로 715', lat: 37.6435, lng: 128.6812, rating: 4.9, category: '액티비티/레저', tags: ['발왕산', '스카이워크'], image: 'http://tong.visitkorea.or.kr/cms/resource/80/2660580_image2_1.jpg', isInstagramHotspot: true }
-    ],
-    '화성 보통리 저수지': [
-      { id: `hwaseong-botong-1`, title: '보통리 저수지 & 수변 산책로', location: '경기도 화성시 정남면 보통리 78', lat: 37.1895, lng: 126.9855, rating: 4.9, category: '자연/힐링', tags: ['보통리저수지', '화성핫플'], image: 'http://tong.visitkorea.or.kr/cms/resource/35/2785035_image2_1.jpg', isInstagramHotspot: true },
-      { id: `hwaseong-botong-2`, title: '융건릉 (사도세자 & 정조 능)', location: '경기도 화성시 효행로 481', lat: 37.2082, lng: 126.9975, rating: 4.9, category: '역사/문화', tags: ['유네스코세계유산', '융건릉'], image: 'http://tong.visitkorea.or.kr/cms/resource/66/2660566_image2_1.jpg', isInstagramHotspot: true },
-      { id: `hwaseong-botong-3`, title: '용주사 (정조대왕 효심 사찰)', location: '경기도 화성시 용주로 136', lat: 37.2105, lng: 127.0045, rating: 4.8, category: '역사/문화', tags: ['용주사', '천년고찰'], image: 'http://tong.visitkorea.or.kr/cms/resource/40/2800140_image2_1.jpg', isInstagramHotspot: false },
-      { id: `hwaseong-botong-4`, title: '보통리 저수지 대형 감성 베이커리 카페', location: '경기도 화성시 정남면 세자로 303', lat: 37.1878, lng: 126.9865, rating: 4.8, category: '미식/쇼핑', tags: ['저수지뷰', '베이커리카페'], image: 'http://tong.visitkorea.or.kr/cms/resource/12/2612012_image2_1.jpg', isInstagramHotspot: true }
-    ],
-    '수원 영통 반달공원': [
-      { id: `suwon-bandal-1`, title: '영통 반달공원 & 영흥수목원', location: '경기도 수원시 영통구 반달로 43', lat: 37.2475, lng: 127.0725, rating: 4.9, category: '자연/힐링', tags: ['반달공원', '영통핫플'], image: 'http://tong.visitkorea.or.kr/cms/resource/35/2785035_image2_1.jpg', isInstagramHotspot: true },
-      { id: `suwon-bandal-2`, title: '광교호수공원 & 프라이부르크 전망대', location: '경기도 수원시 영통구 광교호수로 165', lat: 37.2842, lng: 127.0585, rating: 4.9, category: '자연/힐링', tags: ['광교호수공원', '야경스팟'], image: 'http://tong.visitkorea.or.kr/cms/resource/66/2660566_image2_1.jpg', isInstagramHotspot: true },
-      { id: `suwon-bandal-3`, title: '수원 화성행궁 & 행리단길', location: '경기도 수원시 팔달구 신풍로 23', lat: 37.2845, lng: 127.0145, rating: 4.9, category: '역사/문화', tags: ['유네스코세계유산', '화성행궁'], image: 'http://tong.visitkorea.or.kr/cms/resource/40/2800140_image2_1.jpg', isInstagramHotspot: true },
-      { id: `suwon-bandal-4`, title: '영통 중심상가 감성 먹거리타운', location: '경기도 수원시 영통구 봉영로 1612', lat: 37.2512, lng: 127.0712, rating: 4.8, category: '미식/쇼핑', tags: ['영통맛집', '카페거리'], image: 'http://tong.visitkorea.or.kr/cms/resource/12/2612012_image2_1.jpg', isInstagramHotspot: false }
-    ],
-    '수원 화성행궁': [
-      { id: `suwon-1`, title: '수원 화성행궁', location: '경기도 수원시 팔달구 신풍로 23', lat: 37.2845, lng: 127.0145, rating: 4.9, category: '역사/문화', tags: ['유네스코세계유산', '화성행궁'], image: 'http://tong.visitkorea.or.kr/cms/resource/35/2785035_image2_1.jpg', isInstagramHotspot: true },
-      { id: `suwon-2`, title: '방화수류정 (동북각루)', location: '경기도 수원시 팔달구 수원천로392번길 44-6', lat: 37.2882, lng: 127.0175, rating: 4.9, category: '자연/힐링', tags: ['피크닉핫플', '용연'], image: 'http://tong.visitkorea.or.kr/cms/resource/66/2660566_image2_1.jpg', isInstagramHotspot: true },
-      { id: `suwon-3`, title: '행리단길 감성 카페거리', location: '경기도 수원시 팔달구 행궁로', lat: 37.2830, lng: 127.0120, rating: 4.8, category: '미식/쇼핑', tags: ['행리단길', '인스타감성'], image: 'http://tong.visitkorea.or.kr/cms/resource/40/2800140_image2_1.jpg', isInstagramHotspot: true },
-      { id: `suwon-4`, title: '수원 화성어차 탑승장', location: '경기도 수원시 팔달구 창룡대로 21', lat: 37.2858, lng: 127.0195, rating: 4.7, category: '액티비티/레저', tags: ['화성어차', '체험관광'], image: 'http://tong.visitkorea.or.kr/cms/resource/12/2612012_image2_1.jpg', isInstagramHotspot: false }
-    ],
-    '서울 성수동': [
-      { id: `seongsu-1`, title: '성수동 카페거리 & 팝업스토어', location: '서울특별시 성동구 성수이로 78', lat: 37.5445, lng: 127.0560, rating: 4.9, category: '미식/쇼핑', tags: ['성수동', '팝업스토어'], image: 'http://tong.visitkorea.or.kr/cms/resource/90/2805490_image2_1.jpg', isInstagramHotspot: true },
-      { id: `seongsu-2`, title: '서울숲 공원 & 곤충식물원', location: '서울특별시 성동구 뚝섬로 273', lat: 37.5442, lng: 127.0374, rating: 4.8, category: '자연/힐링', tags: ['서울숲', '도심산책'], image: 'http://tong.visitkorea.or.kr/cms/resource/44/2678644_image2_1.jpg', isInstagramHotspot: true },
-      { id: `seongsu-3`, title: '경복궁 & 광화문 광장', location: '서울특별시 종로구 사직로 161', lat: 37.5796, lng: 126.9770, rating: 4.9, category: '역사/문화', tags: ['경복궁', '한복체험'], image: 'http://tong.visitkorea.or.kr/cms/resource/23/2678623_image2_1.jpg', isInstagramHotspot: true },
-      { id: `seongsu-4`, title: 'N서울타워 & 남산공원', location: '서울특별시 용산구 남산공원길 105', lat: 37.5512, lng: 126.9882, rating: 4.9, category: '자연/힐링', tags: ['N서울타워', '야경명소'], image: 'http://tong.visitkorea.or.kr/cms/resource/26/2805426_image2_1.jpg', isInstagramHotspot: true }
-    ],
-    '인천 송도': [
-      { id: `incheon-1`, title: '송도 센트럴파크 & 문보트', location: '인천광역시 연수구 컨벤시아대로 160', lat: 37.3925, lng: 126.6385, rating: 4.9, category: '자연/힐링', tags: ['센트럴파크', '수상보트'], image: 'http://tong.visitkorea.or.kr/cms/resource/12/2704112_image2_1.jpg', isInstagramHotspot: true },
-      { id: `incheon-2`, title: '인천 차이나타운 & 동화마을', location: '인천광역시 중구 차이나타운로59번길 12', lat: 37.4758, lng: 126.6178, rating: 4.7, category: '미식/쇼핑', tags: ['차이나타운', '짜장면박물관'], image: 'http://tong.visitkorea.or.kr/cms/resource/60/2660560_image2_1.jpg', isInstagramHotspot: true },
-      { id: `incheon-3`, title: '월미도 테마파크 & 등대길', location: '인천광역시 중구 월미문화로 81', lat: 37.4765, lng: 126.5985, rating: 4.6, category: '액티비티/레저', tags: ['월미도', '디스코팡팡'], image: 'http://tong.visitkorea.or.kr/cms/resource/70/2660570_image2_1.jpg', isInstagramHotspot: false },
-      { id: `incheon-4`, title: '송도 한옥마을 & 렌드마크 로드', location: '인천광역시 연수구 테크노파크로 180', lat: 37.3910, lng: 126.6398, rating: 4.8, category: '역사/문화', tags: ['한옥마을', '송도야경'], image: 'http://tong.visitkorea.or.kr/cms/resource/80/2660580_image2_1.jpg', isInstagramHotspot: true }
-    ],
-    '삼척 맹방해변': [
-      { id: `samcheok-1`, title: '삼척 맹방해변 & BTS 버터 촬영지', location: '강원특별자치도 삼척시 근덕면 맹방해변로 228', lat: 37.3975, lng: 129.2155, rating: 4.9, category: 'K-컬처/이벤트', tags: ['BTS버터촬영지', '맹방해변'], image: 'http://tong.visitkorea.or.kr/cms/resource/10/2660510_image2_1.jpg', isInstagramHotspot: true },
-      { id: `samcheok-2`, title: '삼척 환선굴 & 대금굴 (유네스코 지질공원)', location: '강원특별자치도 삼척시 신기면 환선로 800', lat: 37.3275, lng: 129.0205, rating: 4.9, category: '자연/힐링', tags: ['환선굴', '동굴탐험'], image: 'http://tong.visitkorea.or.kr/cms/resource/20/2660520_image2_1.jpg', isInstagramHotspot: true },
-      { id: `samcheok-3`, title: '삼척 장호항 & 해양레일바이크', location: '강원특별자치도 삼척시 근덕면 장호항길 80', lat: 37.2885, lng: 129.3185, rating: 4.9, category: '액티비티/레저', tags: ['한국의나폴리', '투명카누'], image: 'http://tong.visitkorea.or.kr/cms/resource/30/2660530_image2_1.jpg', isInstagramHotspot: true },
-      { id: `samcheok-4`, title: '삼척 촛대바위 & 해가사터 산책로', location: '강원특별자치도 삼척시 수로부인길 33', lat: 37.4412, lng: 129.1802, rating: 4.8, category: '역사/문화', tags: ['촛대바위', '해안산책로'], image: 'http://tong.visitkorea.or.kr/cms/resource/40/2660540_image2_1.jpg', isInstagramHotspot: false }
-    ],
-    '제주 애월해변': [
-      { id: `jeju-1`, title: '애월 한담해변 산책로', location: '제주특별자치도 제주시 애월읍 애월로 11', lat: 33.4625, lng: 126.3115, rating: 4.9, category: '자연/힐링', tags: ['애월해변', '에메랄드바다'], image: 'http://tong.visitkorea.or.kr/cms/resource/15/2660515_image2_1.jpg', isInstagramHotspot: true },
-      { id: `jeju-2`, title: '협재 해수욕장 & 비양도 뷰', location: '제주특별자치도 제주시 한림읍 한림로 329', lat: 33.3940, lng: 126.2395, rating: 4.9, category: '자연/힐링', tags: ['협재해변', '비양도'], image: 'http://tong.visitkorea.or.kr/cms/resource/25/2660525_image2_1.jpg', isInstagramHotspot: true },
-      { id: `jeju-3`, title: '오설록 티뮤지엄 & 이니스프리', location: '제주특별자치도 서귀포시 안덕면 신화역사로 15', lat: 33.3065, lng: 126.2895, rating: 4.8, category: '미식/쇼핑', tags: ['녹차밭', '오설록'], image: 'http://tong.visitkorea.or.kr/cms/resource/35/2660535_image2_1.jpg', isInstagramHotspot: true },
-      { id: `jeju-4`, title: '카멜리아힐 동백수목원', location: '제주특별자치도 서귀포시 안덕면 병악로 166', lat: 33.2905, lng: 126.3802, rating: 4.8, category: '자연/힐링', tags: ['동백꽃', '수목원'], image: 'http://tong.visitkorea.or.kr/cms/resource/45/2660545_image2_1.jpg', isInstagramHotspot: true }
-    ],
-    '부산 해운대': [
-      { id: `busan-1`, title: '해운대 해수욕장 & 동백섬', location: '부산광역시 해운대구 우동 783-1', lat: 35.1587, lng: 129.1604, rating: 4.9, category: '자연/힐링', tags: ['해운대', '동백섬'], image: 'http://tong.visitkorea.or.kr/cms/resource/55/2660555_image2_1.jpg', isInstagramHotspot: true },
-      { id: `busan-2`, title: '광안리 해수욕장 & 광안대교 야경', location: '부산광역시 수영구 광안해변로 219', lat: 35.1532, lng: 129.1185, rating: 4.9, category: '자연/힐링', tags: ['광안대교', '드론쇼'], image: 'http://tong.visitkorea.or.kr/cms/resource/65/2660565_image2_1.jpg', isInstagramHotspot: true },
-      { id: `busan-3`, title: '해운대 블루라인파크 해변열차', location: '부산광역시 해운대구 달맞이길62번길 13', lat: 35.1610, lng: 129.1755, rating: 4.9, category: '액티비티/레저', tags: ['해변열차', '스카이캡슐'], image: 'http://tong.visitkorea.or.kr/cms/resource/75/2660575_image2_1.jpg', isInstagramHotspot: true },
-      { id: `busan-4`, title: '감천문화마을', location: '부산광역시 사하구 감내2로 203', lat: 35.0975, lng: 129.0105, rating: 4.8, category: '역사/문화', tags: ['한국의마추픽추', '어린왕자'], image: 'http://tong.visitkorea.or.kr/cms/resource/85/2660585_image2_1.jpg', isInstagramHotspot: true }
-    ],
-    '강릉 안목해변': [
-      { id: `gangneung-1`, title: '강릉 안목해변 커피거리', location: '강원특별자치도 강릉시 창해로 14', lat: 37.7725, lng: 128.9482, rating: 4.9, category: '미식/쇼핑', tags: ['안목해변', '커피거리'], image: 'http://tong.visitkorea.or.kr/cms/resource/10/2660510_image2_1.jpg', isInstagramHotspot: true },
-      { id: `gangneung-2`, title: '경포대 & 경포호수공원', location: '강원특별자치도 강릉시 경포로 365', lat: 37.7952, lng: 128.8965, rating: 4.8, category: '자연/힐링', tags: ['경포대', '벚꽃길'], image: 'http://tong.visitkorea.or.kr/cms/resource/20/2660520_image2_1.jpg', isInstagramHotspot: true },
-      { id: `gangneung-3`, title: '오죽헌 (율곡이이 생가)', location: '강원특별자치도 강릉시 율곡로3139번길 24', lat: 37.7792, lng: 128.8795, rating: 4.8, category: '역사/문화', tags: ['오죽헌', '신사임당'], image: 'http://tong.visitkorea.or.kr/cms/resource/30/2660530_image2_1.jpg', isInstagramHotspot: false },
-      { id: `gangneung-4`, title: 'BTS 버스정류장 (향호해변)', location: '강원특별자치도 강릉시 주문진읍 향호리 8-55', lat: 37.9355, lng: 128.8285, rating: 4.9, category: 'K-컬처/이벤트', tags: ['BTS정류장', '주문진'], image: 'http://tong.visitkorea.or.kr/cms/resource/40/2660540_image2_1.jpg', isInstagramHotspot: true }
-    ],
-    '전주 한옥마을': [
-      { id: `jeonju-1`, title: '전주 한옥마을 & 경기전', location: '전북특별자치도 전주시 완산구 기린대로 99', lat: 35.8152, lng: 127.1532, rating: 4.9, category: '역사/문화', tags: ['한옥마을', '경기전'], image: 'http://tong.visitkorea.or.kr/cms/resource/95/2660595_image2_1.jpg', isInstagramHotspot: true },
-      { id: `jeonju-2`, title: '전동성당 & 한옥 골목', location: '전북특별자치도 전주시 완산구 태조로 51', lat: 35.8135, lng: 127.1495, rating: 4.8, category: '역사/문화', tags: ['전동성당', '로마네스크'], image: 'http://tong.visitkorea.or.kr/cms/resource/05/2660605_image2_1.jpg', isInstagramHotspot: true },
-      { id: `jeonju-3`, title: '전주 남부시장 & 청년몰', location: '전북특별자치도 전주시 완산구 풍남문2길 63', lat: 35.8122, lng: 127.1465, rating: 4.7, category: '미식/쇼핑', tags: ['남부시장', '콩나물국밥'], image: 'http://tong.visitkorea.or.kr/cms/resource/15/2660615_image2_1.jpg', isInstagramHotspot: false },
-      { id: `jeonju-4`, title: '덕진공원 연꽃 자생지', location: '전북특별자치도 전주시 덕진구 권삼득로 390', lat: 35.8465, lng: 127.1215, rating: 4.8, category: '자연/힐링', tags: ['덕진공원', '연못산책'], image: 'http://tong.visitkorea.or.kr/cms/resource/25/2660625_image2_1.jpg', isInstagramHotspot: true }
-    ],
-    '여수 밤바다': [
-      { id: `yeosu-1`, title: '여수 돌산공원 & 케이블카', location: '전라남도 여수시 돌산읍 돌산로 3600', lat: 34.7305, lng: 127.7455, rating: 4.9, category: '자연/힐링', tags: ['돌산대교', '해상케이블카'], image: 'http://tong.visitkorea.or.kr/cms/resource/35/2660635_image2_1.jpg', isInstagramHotspot: true },
-      { id: `yeosu-2`, title: '오동도 동백나무 숲길', location: '전라남도 여수시 오동도로 242', lat: 34.7452, lng: 127.7665, rating: 4.9, category: '자연/힐링', tags: ['오동도', '등대전망대'], image: 'http://tong.visitkorea.or.kr/cms/resource/45/2660645_image2_1.jpg', isInstagramHotspot: true },
-      { id: `yeosu-3`, title: '향일암 (일출 명소)', location: '전라남도 여수시 돌산읍 향일암로 60', lat: 34.5925, lng: 127.8085, rating: 4.9, category: '역사/문화', tags: ['향일암', '관음성지'], image: 'http://tong.visitkorea.or.kr/cms/resource/55/2660555_image2_1.jpg', isInstagramHotspot: true },
-      { id: `yeosu-4`, title: '여수 낭만포차거리', location: '전라남도 여수시 하멜로 102', lat: 34.7385, lng: 127.7412, rating: 4.7, category: '미식/쇼핑', tags: ['여수밤바다', '삼합'], image: 'http://tong.visitkorea.or.kr/cms/resource/65/2660665_image2_1.jpg', isInstagramHotspot: true }
-    ],
-    '경주 보문단지': [
-      { id: `gyeongju-1`, title: '불국사 & 석굴암', location: '경상북도 경주시 불국로 385', lat: 35.7902, lng: 129.3325, rating: 4.9, category: '역사/문화', tags: ['유네스코세계유산', '불국사'], image: 'http://tong.visitkorea.or.kr/cms/resource/75/2660675_image2_1.jpg', isInstagramHotspot: true },
-      { id: `gyeongju-2`, title: '동궁과 월지 (안압지 야경)', location: '경상북도 경주시 원화로 102', lat: 35.8342, lng: 129.2265, rating: 4.9, category: '자연/힐링', tags: ['동궁과월지', '신라야경'], image: 'http://tong.visitkorea.or.kr/cms/resource/85/2660685_image2_1.jpg', isInstagramHotspot: true },
-      { id: `gyeongju-3`, title: '황리단길 감성 카페거리', location: '경상북도 경주시 포석로 1080', lat: 35.8365, lng: 129.2105, rating: 4.9, category: '미식/쇼핑', tags: ['황리단길', '십원빵'], image: 'http://tong.visitkorea.or.kr/cms/resource/95/2660695_image2_1.jpg', isInstagramHotspot: true },
-      { id: `gyeongju-4`, title: '첨성대 & 핑크뮬리 단지', location: '경상북도 경주시 첨성로 140-25', lat: 35.8348, lng: 129.2190, rating: 4.8, category: '역사/문화', tags: ['첨성대', '국보'], image: 'http://tong.visitkorea.or.kr/cms/resource/05/2660705_image2_1.jpg', isInstagramHotspot: true }
-    ]
-  };
-
-  let selectedCities = [];
-  const promptLower = rawPrompt.toLowerCase();
-
-  if (promptLower.includes('거제') || promptLower.includes('통영')) {
-    selectedCities = ['거제 바람의언덕', '부산 해운대', '여수 밤바다'];
-  } else if (promptLower.includes('평창') || promptLower.includes('대관령')) {
-    selectedCities = ['평창 대관령', '강릉 안목해변', '속초 아바이마을'];
-  } else if (promptLower.includes('수원') || promptLower.includes('영통') || promptLower.includes('보통리')) {
-    selectedCities = ['수원 영통 반달공원', '수원 화성행궁', '화성 보통리 저수지'];
-  } else if (promptLower.includes('강남') || promptLower.includes('성수') || promptLower.includes('서울') || promptLower.includes('명동')) {
-    selectedCities = ['서울 성수동', '인천 송도', '수원 화성행궁'];
-  } else if (promptLower.includes('제주')) {
-    selectedCities = ['제주 애월해변', '부산 해운대', '강릉 안목해변'];
-  } else if (promptLower.includes('부산')) {
-    selectedCities = ['부산 해운대', '경주 보문단지', '여수 밤바다'];
-  } else if (promptLower.includes('강릉') || promptLower.includes('속초') || promptLower.includes('강원') || promptLower.includes('삼척')) {
-    selectedCities = ['강릉 안목해변', '삼척 맹방해변', '속초 아바이마을'];
-  } else if (promptLower.includes('전주') || promptLower.includes('여수') || promptLower.includes('전라')) {
-    selectedCities = ['전주 한옥마을', '여수 밤바다', '부산 해운대'];
-  } else if (promptLower.includes('경주') || promptLower.includes('포항') || promptLower.includes('경상')) {
-    selectedCities = ['경주 보문단지', '부산 해운대', '여수 밤바다'];
-  } else {
-    selectedCities = ['서울 성수동', '수원 화성행궁', '부산 해운대'];
-  }
-
-  const dailySchedules = Array.from({ length: days }).map((_, idx) => {
-    const dayNum = idx + 1;
-    const cityName = selectedCities[idx % selectedCities.length];
-    const spots = catalog[cityName] || catalog['서울 성수동'];
-
-    return {
-      day: dayNum,
-      dateLabel: `${dayNum}일차 - ${cityName}`,
-      city: cityName,
-      weather: { temp: '23°C', condition: '맑음 ☀️', rainProbability: '10%', dust: '좋음' },
-      foodRecommendation: {
-        dishName: cityName.includes('수원') ? '수원 왕갈비 & 통닭' : (cityName.includes('제주') ? '제주 흑돼지 & 갈치조림' : (cityName.includes('부산') ? '부산 돼지국밥 & 씨앗호떡' : (cityName.includes('여수') ? '여수 돌게장 & 삼합' : (cityName.includes('거제') ? '거제 멍게비빔밥 & 굴구이' : (cityName.includes('평창') ? '평창 메밀막국수 & 한우' : '지역 대표 명품 미식'))))),
-        restaurantName: '대한민국 공공데이터 인증 대표 맛집',
-        description: '한국관광공사 공식 추천 대표 특산 식재료 요리'
-      },
-      outfitRecommendation: {
-        title: '트렌디 린넨 룩 & 편안한 스니커즈',
-        description: '쾌적한 야외 도보 이동과 인생샷 촬영을 위한 릴렉스 스티칭 코디'
-      },
-      accommodation: {
-        name: `${cityName} 중심가 특급 호텔`,
-        agodaLink: `https://www.agoda.com/search?text=${encodeURIComponent(cityName)}`,
-        klookLink: `https://www.klook.com/ko/search/?query=${encodeURIComponent(cityName)}`
-      },
-      spots
-    };
-  });
-
-  const locationName = extractLocationKeyword(cleanPrompt);
-  const summaryText = `'${locationName}' 맞춤 ${days}일치 코스를 100% 정품 명소와 실시간 날씨/미식 정보로 정성껏 준비했습니다! 📍`;
-  const cleanTripTitle = `${locationName} 맞춤 추천 코스`;
+  if (/(2일|2박|2d)/i.test(rawPrompt)) days = 2;
+  if (/(1일|1박|당일)/i.test(rawPrompt)) days = 1;
 
   return {
     days,
-    tripTitle: cleanTripTitle,
-    aiRecommendationSummary: summaryText,
-    dailySchedules
+    tripTitle: `${location} 맞춤 추천 코스`,
+    aiRecommendationSummary: `'${location}' 맞춤 ${days}일치 코스를 정성껏 준비했습니다! 📍`,
+    dailySchedules: [
+      {
+        day: 1,
+        dateLabel: `1일차 - ${location} 주요 명소`,
+        city: location,
+        weather: { temp: '23°C', condition: '맑음 ☀️', rainProbability: '10%', dust: '좋음' },
+        foodRecommendation: {
+          dishName: `${location} 지역 대표 미식`,
+          restaurantName: '대한민국 공공데이터 인증 대표 맛집',
+          description: '한국관광공사 공식 추천 대표 특산 요리'
+        },
+        spots: [
+          {
+            id: `${location}-spot-1`,
+            title: `${location} 힐링 산책로 & 대표 명소`,
+            location: `${location} 중심가`,
+            lat: 37.5665,
+            lng: 126.9780,
+            rating: 4.9,
+            category: '자연/힐링',
+            tags: [location, '대표명소'],
+            image: 'http://tong.visitkorea.or.kr/cms/resource/35/2785035_image2_1.jpg',
+            isInstagramHotspot: true
+          }
+        ]
+      }
+    ]
   };
 }
