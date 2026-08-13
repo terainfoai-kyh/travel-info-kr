@@ -1,6 +1,6 @@
 /**
  * Vora AI Core NLP & Official Google Generative AI SDK Integration Service
- * Uses official @google/generative-ai SDK to resolve REST endpoint 404 & CORS errors 100%
+ * Uses official @google/generative-ai SDK with clean environment variable binding
  */
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
@@ -18,13 +18,14 @@ const VALID_KOREAN_CITIES = [
   '제주', '제주도', '제주특별자치도', '서귀포'
 ];
 
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_GEMINI_FREE_KEY || 'AQ.Ab8RN6KwKIdJmZ8x8OgJtXcdCFJnvw6lusi3ZiuWAwFLdqsexg';
+export function getActiveGeminiKey() {
+  return import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_GEMINI_FREE_KEY || '';
+}
 
-export const isValidGeminiKey = !!(
-  GEMINI_API_KEY &&
-  GEMINI_API_KEY !== 'YOUR_GEMINI_API_KEY' &&
-  GEMINI_API_KEY.length > 5
-);
+export function isValidGeminiKey() {
+  const key = getActiveGeminiKey();
+  return !!(key && key !== 'YOUR_GEMINI_API_KEY' && key.length > 5);
+}
 
 export function isCasualChatQuery(text) {
   if (!text || typeof text !== 'string') return false;
@@ -68,20 +69,23 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
   if (/(역사|문화|유적|한옥)/i.test(rawPrompt)) theme = '역사/문화';
   if (/(카페|오션뷰|해변|바다)/i.test(rawPrompt)) theme = '오션뷰/카페';
 
+  const apiKey = getActiveGeminiKey();
   let lastApiError = null;
 
-  // Try Official Google Generative AI SDK with model candidates (gemini-1.5-flash, gemini-1.5-pro, gemini-2.0-flash)
-  const candidateModelNames = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro'];
+  // Supported model candidates for @google/generative-ai SDK
+  const candidateModelNames = ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-1.5-pro', 'gemini-2.0-flash-exp'];
 
-  if (isValidGeminiKey) {
-    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+  if (apiKey && apiKey.length > 5) {
+    const genAI = new GoogleGenerativeAI(apiKey);
 
     for (const modelName of candidateModelNames) {
       try {
         const model = genAI.getGenerativeModel({ model: modelName });
-        const systemPrompt = `You are Vora AI, an empathetic Korean Travel Concierge for global travelers. Answer the user prompt: '${rawPrompt}' in a warm, polite 1:1 conversational tone in Korean. Address the user respectfully as '선배님'. Target city: ${targetCity}, duration: ${days} days, theme: ${theme}. Keep response clear and concise (under 200 words).`;
+        const promptText = `You are Vora AI, an empathetic Korean Travel Concierge for global travelers. Answer prompt: '${rawPrompt}' in a warm, polite 1:1 conversational tone in Korean. Address user respectfully as '선배님'. Target city: ${targetCity}, duration: ${days} days, theme: ${theme}. Keep response clear and concise (under 200 words).`;
 
-        const result = await model.generateContent(systemPrompt);
+        const result = await model.generateContent({
+          contents: [{ role: 'user', parts: [{ text: promptText }] }]
+        });
         const responseText = result?.response?.text();
 
         if (responseText) {
@@ -99,6 +103,8 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
         console.warn(`[Google SDK Model Exception - ${modelName}]`, err);
       }
     }
+  } else {
+    lastApiError = 'API key missing in VITE_GEMINI_API_KEY environment variable';
   }
 
   // Pure Gemini SDK Mode Error Reporting
