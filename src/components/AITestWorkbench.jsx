@@ -280,7 +280,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     else if (/(1일|당일|1박)/i.test(query)) days = 1;
 
     try {
-      // 🛡️ Bulletproof Individual Error Handlers (NEVER THROW EXCEPTION TO OUTER CATCH!)
       const [aiBriefing, rawSpotsInitial] = await Promise.all([
         geminiGenerateFullItinerary(query, lang).catch(() => ({
           targetCity: initialCity,
@@ -432,7 +431,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
 
     } catch (err) {
       console.warn('Pipeline execution error fallback:', err);
-      // Bulletproof Fallback: Never render empty "추천 정보를 준비했습니다" without spots!
       const fallbackCity = initialCity && initialCity !== '전국' ? initialCity : '추천';
       const fallbackSpots = await fetchTourSpots({ region: fallbackCity, lang }).catch(() => []);
       const voraMsgId = `vora-${Date.now()}`;
@@ -640,7 +638,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         </div>
       </div>
 
-      {/* 🔥 RESPONSIVE HYBRID UX LAYOUT CONTAINER */}
+      {/* 🔥 RESPONSIVE HYBRID UX LAYOUT CONTAINER (PC: Left Rich Text Only | Right Fixed Cards Only) */}
       <div style={{
         display: 'flex',
         flexDirection: isDesktop ? 'row' : 'column',
@@ -648,7 +646,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         alignItems: 'flex-start'
       }}>
 
-        {/* LEFT COLUMN: CHAT STREAM & INPUT */}
+        {/* LEFT COLUMN: CHAT STREAM & INPUT (PC: 60% Width | Mobile: 100% Width) */}
         <div style={{
           flex: isDesktop ? '1 1 58%' : '1 1 100%',
           width: '100%',
@@ -709,6 +707,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
                     </span>
                   )}
 
+                  {/* 🌟 RICH AI ITINERARY TEXT BRIEFING */}
                   {msg.text}
 
                   {msg.isGuardWarning && (
@@ -734,8 +733,8 @@ export default function AITestWorkbench({ lang = 'ko' }) {
                     </div>
                   )}
 
-                  {/* SPOT CARDS CONTAINER */}
-                  {msg.spots && msg.spots.length > 0 && (
+                  {/* 📱 MOBILE VIEW ONLY: ACCORDION TOGGLE & CARDS (PC HAS ZERO INLINE CARDS ON LEFT!) */}
+                  {!isDesktop && msg.spots && msg.spots.length > 0 && (
                     <div style={{ marginTop: '0.6rem', paddingTop: '0.6rem', borderTop: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                       <button
                         onClick={(e) => {
@@ -760,7 +759,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
                       >
                         <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
                           🗺️ {msg.targetCity || '추천'} 1:1 명소 코스 ({msg.spots.length}건)
-                          {isDesktop && <span style={{ fontSize: '0.68rem', fontWeight: 600, color: '#9333ea', opacity: 0.8 }}>(우측 패널 고정 뷰)</span>}
                         </span>
                         {expandedMobileMsgs[msg.id] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                       </button>
@@ -927,7 +925,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
 
         </div>
 
-        {/* 🖥️ PC DESKTOP ONLY: 2-COLUMN RIGHT FIXED PANEL */}
+        {/* 🖥️ PC DESKTOP ONLY: 2-COLUMN RIGHT FIXED PANEL (DEDICATED EXCLUSIVE CARD LIST) */}
         {isDesktop && (
           <div style={{
             flex: '1 1 42%',
