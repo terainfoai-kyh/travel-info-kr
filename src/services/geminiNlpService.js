@@ -248,7 +248,27 @@ CRITICAL RULES FOR "summary" AND "dailyPlaces":
     }
   }
 
-  // Graceful Fallback if API fails
+  // Detect if query is an invalid place (e.g. 징수, asdf)
+  const isKnownCity = VALID_KOREAN_CITIES.some(c => rawPrompt.includes(c));
+  const isKnownTravelKw = /(여행|추천|코스|맛집|가볼만한곳|야경|오션뷰|카페|해변|산|궁|성|계곡|공원|전망대|호수|수목원|식물원|투어|힐링)/i.test(rawPrompt);
+  const isInvalidInput = !isKnownCity && !isKnownTravelKw;
+
+  if (isInvalidInput) {
+    return {
+      targetCity: null,
+      days,
+      theme,
+      isHelpQuery: isHelp,
+      isUnknownPlace: true,
+      tripTitle: '여행지 안내',
+      aiRecommendationSummary: `${greetingPrefix} 입력해 주신 '${rawPrompt.trim()}'(은)는 대한민국 대표 관광지나 지명으로 확인되지 않았습니다. 혹시 전북 장수(논개사당, 방화동 휴양림)나 다른 멋진 여행지를 찾으시나요?`,
+      dailyPlaces: [],
+      success: false,
+      apiError: lastApiError
+    };
+  }
+
+  // Graceful Fallback if API fails for valid queries
   let defaultSummary = `${greetingPrefix}\n\n1일차: ${targetCity} 대표 명소를 탐색하고 여유로운 휴식을 즐깁니다.\n2일차: ${targetCity} 유명 힐링 코스와 지역 맛집을 탐방합니다.\n3일차: ${targetCity} 아름다운 전망대에서 일정을 마무리합니다.`;
   let defaultDailyPlaces = [
     { day: 1, places: [`${targetCity} 명소`] },

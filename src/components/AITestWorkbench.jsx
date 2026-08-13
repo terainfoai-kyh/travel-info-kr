@@ -403,16 +403,20 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           }
         }
 
-        if (sequentialSpots.length === 0 && rawSpots.length > 0) {
-          sequentialSpots = rawSpots.slice(0, Math.max(days, 5)).map((s, idx) => ({
-            ...s,
-            assignedDay: Math.min(days, Math.floor(idx / 2) + 1)
-          }));
+        if (isUnknownPlace) {
+          spotsToRender = [];
+        } else {
+          if (sequentialSpots.length === 0 && rawSpots.length > 0 && displayCity !== '전국' && displayCity !== '추천') {
+            sequentialSpots = rawSpots.slice(0, Math.max(days, 5)).map((s, idx) => ({
+              ...s,
+              assignedDay: Math.min(days, Math.floor(idx / 2) + 1)
+            }));
+          }
+          spotsToRender = sequentialSpots;
         }
 
-        spotsToRender = sequentialSpots;
-        agodaUrl = getAgodaHotelSearchUrl(displayCity);
-        klookUrl = getKlookActivitySearchUrl(displayCity);
+        agodaUrl = isUnknownPlace ? null : getAgodaHotelSearchUrl(displayCity);
+        klookUrl = isUnknownPlace ? null : getKlookActivitySearchUrl(displayCity);
       }
 
       const voraMsgId = `vora-${Date.now()}`;
