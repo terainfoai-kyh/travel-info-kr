@@ -205,7 +205,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     return results;
   };
 
-  // Execute Conversational AI Pipeline with Parallel AI + TourAPI Fetch (Under 2s Speed)
+  // Execute Conversational AI Pipeline with Parallel AI + TourAPI Fetch & 2nd-Tier City Inference
   const handleSendMessage = async (customText = null) => {
     const query = (customText || inputPrompt).trim();
     if (!query || isLoading) return;
@@ -289,7 +289,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
 
     // 4. Increment Quota & Execute Pipeline
     incrementQuota();
-    const targetCity = extractLocationKeyword(query);
+    let initialCity = extractLocationKeyword(query);
     
     // Robust "X박 Y일" Duration Parsing (2박3일 -> 3 days)
     let days = 3;
@@ -301,9 +301,9 @@ export default function AITestWorkbench({ lang = 'ko' }) {
 
     // 🔥 ULTRA FAST PARALLEL EXECUTION: Fire Gemini AI AND TourAPI Regional Search simultaneously at millisecond 0!
     try {
-      const [aiBriefing, rawSpots] = await Promise.all([
+      const [aiBriefing, rawSpotsInitial] = await Promise.all([
         geminiGenerateFullItinerary(query, lang),
-        (!isMeta && targetCity && targetCity !== '전국') ? fetchTourSpots({ region: targetCity, lang }) : Promise.resolve([])
+        (initialCity && initialCity !== '전국') ? fetchTourSpots({ region: initialCity, lang }) : Promise.resolve([])
       ]);
 
       logAnalyticsEvent('CHAT', { inputTokens: 120, outputTokens: 350 });
@@ -311,9 +311,26 @@ export default function AITestWorkbench({ lang = 'ko' }) {
       let spotsToRender = [];
       let agodaUrl = null;
       let klookUrl = null;
+      let displayCity = initialCity;
 
-      if (!isMeta && targetCity && targetCity !== '전국') {
+      if (!isMeta) {
         const summaryText = aiBriefing?.aiRecommendationSummary || '';
+
+        // 2nd-Tier City Auto-Inference: If user typed landmark only without city (initialCity === '전국'), infer city from Gemini's text!
+        if (displayCity === '전국') {
+          const inferredCity = extractLocationKeyword(summaryText);
+          if (inferredCity && inferredCity !== '전국') {
+            displayCity = inferredCity;
+          } else {
+            displayCity = '추천';
+          }
+        }
+
+        let rawSpots = rawSpotsInitial;
+        if (rawSpots.length === 0 && displayCity !== '전국' && displayCity !== '추천') {
+          rawSpots = await fetchTourSpots({ region: displayCity, lang });
+        }
+
         const lines = summaryText.split('\n').map(l => l.trim()).filter(Boolean);
 
         // Collect all extracted landmarks per day
@@ -386,8 +403,8 @@ export default function AITestWorkbench({ lang = 'ko' }) {
                 sequentialSpots.push({
                   id: `syn-${Date.now()}-${item.name}`,
                   title: item.name,
-                  location: `${targetCity} 추천 장소`,
-                  addr1: `${targetCity} ${d}일차 명소`,
+                  location: `${displayCity} 추천 장소`,
+                  addr1: `${displayCity} ${d}일차 명소`,
                   assignedDay: d,
                   isQuoted: true
                 });
@@ -398,7 +415,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
 
         // Pad with remaining rawSpots if total count < min target (min 5 spots)
         const targetCount = Math.max(days, 5);
-        if (sequentialSpots.length < targetCount) {
+        if (sequentialSpots.length < targetCount && rawSpots.length > 0) {
           for (const rem of rawSpots) {
             if (sequentialSpots.length >= targetCount) break;
             if (!addedTitles.has(rem.title)) {
@@ -409,9 +426,9 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           }
         }
 
-        spotsToRender = sequentialSpots.slice(0, Math.max(sequentialSpots.length, targetCount));
-        agodaUrl = getAgodaHotelSearchUrl(targetCity);
-        klookUrl = getKlookActivitySearchUrl(targetCity);
+        spotsToRender = sequentialSpots;
+        agodaUrl = getAgodaHotelSearchUrl(displayCity);
+        klookUrl = getKlookActivitySearchUrl(displayCity);
       }
 
       const voraResponse = {
@@ -419,7 +436,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         sender: 'vora',
         text: aiBriefing?.aiRecommendationSummary || `안녕하세요! 여행 조력자 보라입니다. 😊`,
         timestamp: new Date().toLocaleTimeString(),
-        targetCity,
+        targetCity: displayCity,
         days,
         spots: spotsToRender,
         agodaUrl,
@@ -434,9 +451,9 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         {
           id: `vora-${Date.now()}`,
           sender: 'vora',
-          text: `안녕하세요! 여행 조력자 보라입니다. 😊 '${targetCity}' 추천 정보를 준비했습니다.`,
+          text: `안녕하세요! 여행 조력자 보라입니다. 😊 추천 정보를 준비했습니다.`,
           timestamp: new Date().toLocaleTimeString(),
-          targetCity,
+          targetCity: initialCity,
           days
         }
       ]);
@@ -713,7 +730,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
               {msg.spots && msg.spots.length > 0 && (
                 <div style={{ marginTop: '0.6rem', paddingTop: '0.6rem', borderTop: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#7e22ce', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                    🗺️ {msg.targetCity} 추천 순서 1:1 완벽 동기화 코스 ({msg.spots.length}건):
+                    🗺️ {msg.targetCity || '추천'} 순서 1:1 완벽 동기화 코스 ({msg.spots.length}건):
                   </span>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
