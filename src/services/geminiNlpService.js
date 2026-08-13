@@ -1,7 +1,7 @@
 /**
  * Vora AI Core NLP & Official Google Generative AI Service
  * Features Multi-Key Auto-Fallback, Dynamic Multilingual (ko/en/ja/zh),
- * Regex Output Sanitization, Exact "X박 Y일" Duration Parsing & 1~5 Day Complete Bullet Itineraries.
+ * Clean Suffix Stripping for City Extraction (창원주변 -> 창원), Exact "X박 Y일" Duration Parsing & 1~5 Day Complete Bullet Itineraries.
  */
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
@@ -50,9 +50,26 @@ export function isMetaHelpQuery(text) {
   return /(여기서\s*뭘|뭐할\s*수|무슨\s*기능|어떻게\s*사용|사용법|도움말|help|what\s*can\s*i|how\s*to\s*use)/i.test(text.trim());
 }
 
+/**
+ * Clean & Accurate City Name Extraction
+ * Strips suffixes like 주변/근처/인근 before matching to prevent "창원주변" matching "원주"!
+ */
 export function extractLocationKeyword(text) {
   if (!text || typeof text !== 'string') return '전국';
-  const clean = text.trim();
+  let clean = text.trim();
+
+  // Strip trailing noise words to prevent false substring overlaps (e.g. 창원주변 -> 창원)
+  clean = clean.replace(/(주변|근처|인근|여행|추천|코스|맛집|가볼만한곳|여행지)/g, ' ').trim();
+
+  // 1. Exact match check
+  for (const city of VALID_KOREAN_CITIES) {
+    const regex = new RegExp(`(?:^|\\s)${city}(?:$|\\s)`, 'i');
+    if (regex.test(clean)) {
+      return city;
+    }
+  }
+
+  // 2. Substring check
   for (const city of VALID_KOREAN_CITIES) {
     if (clean.includes(city)) {
       return city;
@@ -86,13 +103,13 @@ export function sanitizeGeminiOutput(text) {
 
 /**
  * Dynamic Multilingual Gemini AI Generator
- * Robust "X박 Y일" regex duration parsing (2박3일 -> 3 days), maxOutputTokens: 1500, temperature: 0.5.
+ * Accurate city extraction, robust "X박 Y일" duration parsing, maxOutputTokens: 1500, temperature: 0.5.
  */
 export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
   const isHelp = isMetaHelpQuery(rawPrompt);
   const targetCity = extractLocationKeyword(rawPrompt);
 
-  // Exact Korean "X박 Y일" Duration Parsing Logic Fix
+  // Exact Korean "X박 Y일" Duration Parsing Logic
   let days = 3;
   if (/(5일|4박\s*5일|5박|5d)/i.test(rawPrompt)) days = 5;
   else if (/(4일|3박\s*4일|4박|4d)/i.test(rawPrompt)) days = 4;

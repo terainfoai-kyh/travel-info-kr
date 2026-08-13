@@ -19,8 +19,9 @@ export default function AITestWorkbench({ lang = 'ko' }) {
   const [isVirtualGoogleLogin, setIsVirtualGoogleLogin] = useState(false);
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
 
-  // 3. Dynamic Animated Loading Dots State
-  const [loadingDots, setLoadingDots] = useState('.');
+  // 3. Dynamic High-Visibility Animated Loading Dots & Status Step State
+  const [loadingDots, setLoadingDots] = useState('●');
+  const [loadingStepText, setLoadingStepText] = useState('한국관광공사 정품 DB에서 추천 명소 탐색 중');
 
   // 4. Chat History Stream State
   const [chatHistory, setChatHistory] = useState([
@@ -43,22 +44,43 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [chatHistory, isLoading, loadingDots]);
 
-  // Loading Dots Interval Animation ( . -> .. -> ... )
+  // High-Visibility Animated Wave Dots & Rotating Status Step Text (No Emojis)
   useEffect(() => {
-    let timer;
+    let timerDots;
+    let timerStep;
     if (isLoading) {
-      setLoadingDots('.');
-      timer = setInterval(() => {
+      setLoadingDots('●');
+      setLoadingStepText('한국관광공사 정품 DB에서 추천 명소 탐색 중');
+
+      // Large bold wave dots: ● -> ● ● -> ● ● ● -> ● ● ● ●
+      timerDots = setInterval(() => {
         setLoadingDots(prev => {
-          if (prev === '.') return '..';
-          if (prev === '..') return '...';
-          return '.';
+          if (prev === '●') return '● ●';
+          if (prev === '● ●') return '● ● ●';
+          if (prev === '● ● ●') return '● ● ● ●';
+          return '●';
         });
-      }, 400);
+      }, 350);
+
+      // Rotating status text (every 900ms, no emojis)
+      let stepCount = 0;
+      const steps = [
+        '한국관광공사 정품 DB에서 추천 명소 탐색 중',
+        'GPS 지도 좌표 및 위치 데이터 1:1 동기화 중',
+        '100% 맞춤 여행 일정을 정돈하고 있습니다'
+      ];
+
+      timerStep = setInterval(() => {
+        stepCount = (stepCount + 1) % steps.length;
+        setLoadingStepText(steps[stepCount]);
+      }, 900);
     } else {
-      setLoadingDots('.');
+      setLoadingDots('●');
     }
-    return () => clearInterval(timer);
+    return () => {
+      clearInterval(timerDots);
+      clearInterval(timerStep);
+    };
   }, [isLoading]);
 
   // Dev Simulator: Handle Tier Cycle
@@ -149,7 +171,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     return colors[(dayIndex - 1) % colors.length];
   };
 
-  // Extract Korean Nouns and Quoted Places from Line
+  // Extract Korean Nouns and Quoted Places from Line (Includes 다리, 문, 광장, 시장, 고개, 폭포, 동굴, 온천, 포구 etc.)
   const extractPlacesFromLine = (line) => {
     const results = [];
     
@@ -161,10 +183,13 @@ export default function AITestWorkbench({ lang = 'ko' }) {
       }
     }
 
-    // 2. Korean Landmark Nouns (e.g. 바람의 언덕, 신선대, 구조라 해변, 샛바람소리길, 매미성, 외도 보타니아)
-    const landmarkRegex = /([가-힣]{2,8}(?:산|해변|해수욕장|언덕|성|길|공원|타워|궁|사|대|동|리|항|포|섬|교|전망대|테마파크|수목원|식물원|보타니아))/g;
+    // 2. Korean Landmark Nouns (Includes 다리, 문, 광장, 시장, 고개, 폭포, 동굴, 온천, 포구, 대교, 야경, 해변)
+    const landmarkRegex = /([가-힣]{2,10}(?:다리|대교|해변|해수욕장|언덕|성|길|공원|타워|궁|사|대|동|리|항|포|섬|교|전망대|테마파크|수목원|식물원|보타니아|문|광장|시장|고개|폭포|동굴|온천|포구))/g;
     const matches = Array.from(line.matchAll(landmarkRegex)).map(m => m[1].trim());
-    for (const m of matches) {
+    for (let m of matches) {
+      // Normalize typos (e.g. 콰이어강의 다리 -> 콰이강의 다리)
+      if (m.includes('콰이어강')) m = m.replace('콰이어강', '콰이강');
+
       if (m.length >= 2 && !results.some(r => r.name === m)) {
         results.push({ name: m, isQuoted: false });
       }
@@ -771,24 +796,24 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           </div>
         ))}
 
-        {/* Clean Animated Dots Stream Loading Indicator */}
+        {/* Clean & Sophisticated High-Visibility Loading Card (No Emojis) */}
         {isLoading && (
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '0.5rem',
-            padding: '0.6rem 0.9rem',
+            gap: '0.65rem',
+            padding: '0.75rem 1.1rem',
             backgroundColor: '#ffffff',
-            borderRadius: '12px',
-            border: '1px solid #e2e8f0',
+            borderRadius: '14px',
+            border: '1px solid #d8b4fe',
             color: '#7e22ce',
-            fontSize: '0.8rem',
-            fontWeight: 600,
-            maxWidth: '85%',
-            boxShadow: '0 3px 8px rgba(0, 0, 0, 0.04)'
+            fontSize: '0.82rem',
+            fontWeight: 700,
+            maxWidth: '88%',
+            boxShadow: '0 4px 12px rgba(147, 51, 234, 0.08)'
           }}>
-            <RefreshCw size={15} className="animate-spin" style={{ color: '#9333ea' }} />
-            <span>한국관광공사 정품 DB & GPS 지도 좌표 검색 중{loadingDots}</span>
+            <RefreshCw size={17} className="animate-spin" style={{ color: '#9333ea' }} />
+            <span>{loadingStepText} <strong style={{ color: '#7e22ce', fontSize: '0.95rem' }}>{loadingDots}</strong></span>
           </div>
         )}
 
