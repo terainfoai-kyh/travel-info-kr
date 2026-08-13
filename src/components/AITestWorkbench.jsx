@@ -407,7 +407,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         if (isUnknownPlace) {
           spotsToRender = [];
         } else {
-          // Rule: NEVER overwrite Gemini extracted spots with TourAPI default '가' spots!
           if (sequentialSpots.length > 0) {
             spotsToRender = sequentialSpots;
           } else {
@@ -426,7 +425,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
       const voraResponse = {
         id: voraMsgId,
         sender: 'vora',
-        text: aiBriefing?.aiRecommendationSummary || `안녕하세요! 여행 조력자 보라입니다. 😊 '${displayCity}' 여행 코스를 준비했습니다.`,
+        text: aiBriefing?.aiRecommendationSummary || `안녕하세요! 여행 컨시어지 보라입니다. 😊 '${displayCity}' 여행 코스를 준비했습니다.`,
         timestamp: new Date().toLocaleTimeString(),
         targetCity: isUnknownPlace ? null : displayCity,
         days,
@@ -448,11 +447,11 @@ export default function AITestWorkbench({ lang = 'ko' }) {
       const fallbackSpots = await fetchTourSpots({ region: fallbackCity, lang }).catch(() => []);
       const voraMsgId = `vora-${Date.now()}`;
 
-      let fallbackSummaryText = `안녕하세요! 여행 조력자 보라입니다. 😊 '${fallbackCity}' 힐링 맞춤 여행 코스를 추천해 드립니다!\n\n1일차: ${fallbackCity} 대표 명소를 구경하고 여유로운 산책을 즐깁니다.\n2일차: ${fallbackCity} 힐링 명소 및 지역 대표 맛집을 탐방합니다.\n3일차: ${fallbackCity} 아름다운 전망대에서 일몰을 감상하며 여행을 마무리합니다.`;
+      let fallbackSummaryText = `안녕하세요! 여행 컨시어지 보라입니다. 😊 '${fallbackCity}' 힐링 맞춤 여행 코스를 추천해 드립니다!\n\n1일차: ${fallbackCity} 대표 명소를 구경하고 여유로운 산책을 즐깁니다.\n2일차: ${fallbackCity} 힐링 명소 및 지역 대표 맛집을 탐방합니다.\n3일차: ${fallbackCity} 아름다운 전망대에서 일몰을 감상하며 여행을 마무리합니다.`;
       if (fallbackCity.includes('거제')) {
-        fallbackSummaryText = `안녕하세요! 여행 조력자 보라입니다. 😊 거제도 3일 힐링 코스를 추천해 드립니다!\n\n1일차: 바람의 언덕에서 시원한 오션뷰를 조망하고 신선대를 둘러봅니다.\n2일차: 외도 보타니아 아열대 식물원을 구경하고 매미성 포토존을 탐방합니다.\n3일차: 학동 흑진주 몽돌해변 파도 소리를 들으며 여행을 마무리합니다.`;
+        fallbackSummaryText = `안녕하세요! 여행 컨시어지 보라입니다. 😊 거제도 3일 힐링 코스를 추천해 드립니다!\n\n1일차: 바람의 언덕에서 시원한 오션뷰를 조망하고 신선대를 둘러봅니다.\n2일차: 외도 보타니아 아열대 식물원을 구경하고 매미성 포토존을 탐방합니다.\n3일차: 학동 흑진주 몽돌해변 파도 소리를 들으며 여행을 마무리합니다.`;
       } else if (fallbackCity.includes('수원')) {
-        fallbackSummaryText = `안녕하세요! 여행 조력자 보라입니다. 😊 수원 화성 3일 힐링 코스를 추천해 드립니다!\n\n1일차: 수원 화성행궁 역사적 의미를 기리고 행리단길 분위기를 즐깁니다.\n2일차: 수원 화성 성곽길을 따라 걸으며 방화수류정 야경을 감상합니다.\n3일차: 광교호수공원 산책을 즐기며 편안하게 여행을 마무리합니다.`;
+        fallbackSummaryText = `안녕하세요! 여행 컨시어지 보라입니다. 😊 수원 화성 3일 힐링 코스를 추천해 드립니다!\n\n1일차: 수원 화성행궁 역사적 의미를 기리고 행리단길 분위기를 즐깁니다.\n2일차: 수원 화성 성곽길을 따라 걸으며 방화수류정 야경을 감상합니다.\n3일차: 광교호수공원 산책을 즐기며 편안하게 여행을 마무리합니다.`;
       }
 
       const voraResponse = {
