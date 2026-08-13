@@ -11,7 +11,7 @@ import AdminAnalyticsDashboard from './AdminAnalyticsDashboard';
 // Meta/Action Blacklist Words preventing "마무리", "산책", "이동" from being rendered as spots
 const EXCLUDED_META_WORDS = [
   '마무리', '출발', '도착', '산책', '관람', '이동', '식사', '점심', '저녁', '아침', '숙박', '휴식',
-  '자유시간', '일정', '코스', '여행', '추천', '감상', '즐깁니다', '마무리합니다', '보냅니다', '둘러봅니다', '보태어', '이어집니다'
+  '자유시간', '일정', '코스', '여행', '추천', '감상', '즐깁니다', '마무리합니다', '보냅니다', '둘러봅니다', '보태어', '이어집니다', '체험'
 ];
 
 export default function AITestWorkbench({ lang = 'ko' }) {
@@ -177,22 +177,28 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     return colors[(dayIndex - 1) % colors.length];
   };
 
-  // Extract Korean Nouns and Quoted Places from Line (Filters out EXCLUDED_META_WORDS like 마무리, 산책, 식사)
+  // Extract Korean Nouns and Quoted Places from Line (Supports Spaced Compound Names like "저도 콰이강의 다리", "창원 문신미술관", "마산해양드라마세트장")
   const extractPlacesFromLine = (line) => {
     const results = [];
     
     // 1. Quoted names ('W181', '외도널서리', '심해', '온더선셋' etc.)
-    const quoted = Array.from(line.matchAll(/['"‘“]([^'"’”]+)['"’”]/g)).map(m => m[1].trim());
+    const quoted = Array.from(line.matchAll(/['"‘“]([^'"<ctrl42>’”]+)['"’”]/g)).map(m => m[1].trim());
     for (const q of quoted) {
       if (q.length >= 2 && !EXCLUDED_META_WORDS.includes(q) && !results.some(r => r.name === q)) {
         results.push({ name: q, isQuoted: true });
       }
     }
 
-    // 2. Korean Landmark Nouns (Includes 다리, 문, 광장, 시장, 고개, 폭포, 동굴, 온천, 포구, 대교, 야경, 해변)
-    const landmarkRegex = /([가-힣]{2,10}(?:다리|대교|해변|해수욕장|언덕|성|길|공원|타워|궁|사|대|동|리|항|포|섬|교|전망대|테마파크|수목원|식물원|보타니아|문|광장|시장|고개|폭포|동굴|온천|포구))/g;
-    const matches = Array.from(line.matchAll(landmarkRegex)).map(m => m[1].trim());
+    // 2. Korean Spaced & Compound Landmark Nouns (Includes 다리, 세트장, 미술관, 박물관, 기념관, 생태공원, 조각공원, 수목원 etc.)
+    const landmarkSuffixes = '다리|대교|해변|해수욕장|언덕|성|길|공원|타워|궁|사|대|동|리|항|포|섬|교|전망대|테마파크|수목원|식물원|보타니아|문|광장|시장|고개|폭포|동굴|온천|포구|세트장|미술관|박물관|기념관|생태공원|조각공원|유원지|리조트|휴양림|체험장|마을|거리|골목|산성|서원|향교|생가';
+    const landmarkRegex = new RegExp(`(?:[가-힣A-Za-z0-9]+\\s*){1,4}(?:${landmarkSuffixes})`, 'g');
+
+    const matches = Array.from(line.matchAll(landmarkRegex)).map(m => m[0].trim());
     for (let m of matches) {
+      // Clean leading prepositions (e.g. "창원 마산해양드라마세트장에서" -> "마산해양드라마세트장")
+      m = m.replace(/^(창원|경남|부산|서울|인천|강원|제주|전남|전북|충남|충북)\s+/, '').trim();
+      m = m.replace(/(에서|으로|부터|까지|을|를|과|와|의)$/, '').trim();
+
       // Normalize typos (e.g. 콰이어강 -> 콰이강)
       if (m.includes('콰이어강')) m = m.replace('콰이어강', '콰이강');
 
@@ -365,7 +371,9 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         for (const pSpot of pinpointResults) {
           pinpointMap.set(pSpot.title.toLowerCase(), pSpot);
           for (const lmName of landmarkNamesList) {
-            if (pSpot.title.includes(lmName) || lmName.includes(pSpot.title)) {
+            const cleanLm = lmName.replace(/\s+/g, '').toLowerCase();
+            const cleanTitle = pSpot.title.replace(/\s+/g, '').toLowerCase();
+            if (cleanTitle.includes(cleanLm) || cleanLm.includes(cleanTitle)) {
               pinpointMap.set(lmName.toLowerCase(), pSpot);
             }
           }
@@ -385,7 +393,11 @@ export default function AITestWorkbench({ lang = 'ko' }) {
 
             // 2. Try rawSpots Match
             if (!matchedSpot) {
-              matchedSpot = rawSpots.find(s => s.title.toLowerCase().includes(nameLower) || nameLower.includes(s.title.toLowerCase()));
+              const cleanItemName = nameLower.replace(/\s+/g, '');
+              matchedSpot = rawSpots.find(s => {
+                const sClean = s.title.replace(/\s+/g, '').toLowerCase();
+                return sClean.includes(cleanItemName) || cleanItemName.includes(sClean);
+              });
             }
 
             if (matchedSpot) {
