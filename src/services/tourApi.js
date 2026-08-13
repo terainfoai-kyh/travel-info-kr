@@ -1,4 +1,4 @@
-import { PUBLIC_API_CONFIG, REGION_META, THEME_META } from './apiConfig';
+import { PUBLIC_API_CONFIG, REGION_META, THEME_META, getDynamicRegionMeta } from './apiConfig';
 import { TRAVEL_SPOTS } from '../data/travelData';
 
 // 한국관광공사 TourAPI 4.0 - 공통정보조회 (/detailCommon2)
@@ -309,7 +309,7 @@ export async function fetchTourSpots({
   startDate = '',
   lang = 'ko'
 }) {
-  const regionMeta = REGION_META[region] || REGION_META['서울'];
+  const regionMeta = getDynamicRegionMeta(region);
   const contentTypeId = THEME_META[theme];
   // Trim spaces and normalize spaces (e.g. '성산 일출봉' -> '성산일출봉')
   const cleanKw = keyword.trim();
