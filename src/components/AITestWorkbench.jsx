@@ -239,8 +239,23 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           const locStr = `${s.location || ''} ${s.title || ''} ${s.addr1 || ''}`.toLowerCase();
           return locStr.includes(cityLower);
         });
-        const filteredSpots = matchedCitySpots.length >= 2 ? matchedCitySpots : rawSpots;
-        spotsToRender = filteredSpots.slice(0, 5);
+
+        // Ensure target spot count matches days (min 5 spots)
+        const targetCount = Math.max(days, 5);
+        let finalSpots = matchedCitySpots;
+        if (finalSpots.length < targetCount) {
+          // Fill remaining from rawSpots to guarantee 5 spots for any city
+          const spotIds = new Set(finalSpots.map(s => s.id || s.title));
+          for (const s of rawSpots) {
+            if (finalSpots.length >= targetCount) break;
+            const sid = s.id || s.title;
+            if (!spotIds.has(sid)) {
+              spotIds.add(sid);
+              finalSpots.push(s);
+            }
+          }
+        }
+        spotsToRender = finalSpots.slice(0, targetCount);
         agodaUrl = getAgodaHotelSearchUrl(targetCity);
         klookUrl = getKlookActivitySearchUrl(targetCity);
       }

@@ -1,7 +1,7 @@
 /**
  * Vora AI Core NLP & Official Google Generative AI Service
- * Features Multi-Key Auto-Fallback, GenerationConfig (maxOutputTokens: 1200),
- * SystemInstruction (Greeting: "안녕하세요! 여행 조력자 보라입니다.") & Intent Discerning.
+ * Features Multi-Key Auto-Fallback, GenerationConfig (maxOutputTokens: 1500),
+ * SystemInstruction (Greeting: "안녕하세요! 여행 조력자 보라입니다.") & 1~5 Day Complete Bullet Itineraries.
  */
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
@@ -73,7 +73,7 @@ export function isAffirmativeYes(text) {
 
 /**
  * Optimized Gemini AI Generator
- * Supports 1 to 5 days itinerary, maxOutputTokens: 1200 to prevent text truncation.
+ * Supports 1 to 5 days itinerary, maxOutputTokens: 1500, 1-line bullet points per day ending in Korean period (.).
  */
 export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
   const isHelp = isMetaHelpQuery(rawPrompt);
@@ -101,9 +101,9 @@ If the user asks general usage questions (e.g., "여기서는 뭘 할 수 있지
 2. 한국관광공사 정품 명소 & 지도 GPS 좌표
 3. 최저가 숙소 (아고다) & 액티비티 (클룩) 연동
 4. 다국어 지원 (영어/일본어/중국어)
-If the user asks for travel recommendations, provide a concise course for ${days} days with complete sentences ending with proper Korean periods (.).`;
+If the user asks for travel recommendations, provide a concise course for ${days} days using clean 1-line bullet points for each day (e.g., 1일차: ..., 2일차: ..., 3일차: ..., etc.). Ensure every single day from 1 to ${days} is fully covered and ends with a proper period (.).`;
 
-  const promptText = `User input: '${rawPrompt}'. Target city: ${targetCity}, duration: ${days} days, theme: ${theme}. Respond in clear, complete Korean.`;
+  const promptText = `User input: '${rawPrompt}'. Target city: ${targetCity}, duration: ${days} days, theme: ${theme}. Write a concise ${days}-day itinerary in clear, complete Korean.`;
 
   const modelCandidates = ['gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite'];
   let lastApiError = null;
@@ -117,7 +117,7 @@ If the user asks for travel recommendations, provide a concise course for ${days
           model: modelName,
           systemInstruction: systemInstruction,
           generationConfig: {
-            maxOutputTokens: 1200,
+            maxOutputTokens: 1500,
             temperature: 0.7
           }
         });
@@ -152,7 +152,7 @@ If the user asks for travel recommendations, provide a concise course for ${days
             body: JSON.stringify({
               contents: [{ parts: [{ text: `${systemInstruction}\n\n${promptText}` }] }],
               generationConfig: {
-                maxOutputTokens: 1200,
+                maxOutputTokens: 1500,
                 temperature: 0.7
               }
             })
