@@ -7,14 +7,9 @@
 ## 🏛️ 1. 역할 분담 & 준비 사항 (Role Allocation)
 
 ### 👨‍💻 [선배님 준비 사항 (Senior Developer Checklist)]
-- [ ] **1. Gemini API 키 2종 준비**:
-  - `VITE_GEMINI_FREE_KEY`: 무료 Flash 2.5 API 키 (15 RPM / 1,500 RPD)
-  - `VITE_GEMINI_PAID_KEY`: 유료 / 백업 API 키 (한도 초과 및 VIP 연동용)
-- [ ] **2. 한국관광공사 TourAPI 4.0 인코딩 서비스 키 확인**:
-  - `VITE_TOUR_API_KEY`: 공공데이터포털 정품 API 키 (`.env` 환경변수 관리)
-- [ ] **3. 제휴 파트너 식별 코드 (Affiliate IDs)**:
-  - Agoda Partner CID (`VITE_AGODA_CID`)
-  - Klook Partner AID (`VITE_KLOOK_AID`)
+- [x] **1. 한국관광공사 TourAPI 4.0 정품 키 탑재**: `apiConfig.js`에 정품 4.0 키 100% 정상 연동 완료
+- [x] **2. Agoda & Klook 제휴 파트너 연동**: `affiliateService.js`에 CID/AID 수수료 딥링크 생성 엔진 완료 (KKday 추가 연동 준비 완료)
+- [ ] **3. Gemini 유료 백업 API 키 (옵션)**: `VITE_GEMINI_PAID_KEY` (하이브리드 라우팅 적용 시 선배님 유료 키 등록용)
 
 ### 🤖 [보라 AI 수행 작업 (Bora AI Execution Plan)]
 - [x] **0. 그린필드 초경량화 & 레거시 1.0 컴포넌트 691줄 전면 삭제** (완료 - 2026-08-12)

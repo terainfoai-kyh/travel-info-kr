@@ -13,15 +13,38 @@ export const isValidGeminiKey = !!(
 /**
  * 1. Clean User Prompt & Conversational Keyword Extractor
  */
+
+
+/**
+ * Modern AI Intent & Administrative Location Extractor
+ * Strictly validates locations against administrative cities to prevent abstract words like '사랑' from becoming targetCity!
+ */
+const VALID_KOREAN_CITIES = [
+  '서울', '인천', '대전', '대구', '광주', '부산', '울산', '세종',
+  '경기', '경기도', '수원', '성남', '용인', '고양', '부천', '화성', '안산', '남양주', '안양', '평택', '의정부', '파주', '시흥', '김포', '광명', '군포', '이천', '오산', '하남', '양주', '구리', '안성', '포천', '의왕', '여주', '양평', '동두천', '가평', '연천',
+  '강원', '강원도', '강원특별자치도', '강릉', '속초', '양양', '춘천', '원주', '동해', '태백', '삼척', '홍천', '횡성', '영월', '평창', '정선', '철원', '화천', '양구', '인제', '고성',
+  '충북', '충청북도', '청주', '충주', '제천', '보은', '옥천', '영동', '증평', '진천', '괴산', '음성', '단양',
+  '충남', '충청남도', '천안', '공주', '보령', '아산', '서산', '논산', '계룡', '당진', '금산', '부여', '서천', '청양', '홍성', '예산', '태안',
+  '경북', '경상북도', '포항', '경주', '김천', '안동', '구미', '영주', '영천', '상주', '문경', '경산', '군위', '의성', '청송', '영양', '영덕', '청도', '고령', '성주', '칠곡', '예천', '봉화', '울진', '울릉',
+  '경남', '경상남도', '창원', '진주', '통영', '사천', '김해', '밀양', '거제', '거제도', '양산', '의령', '함안', '창녕', '고성', '남해', '하동', '산청', '함양', '거창', '합천',
+  '전북', '전라북도', '전북특별자치도', '전주', '군산', '익산', '정읍', '남원', '김제', '완주', '진안', '무주', '장수', '임실', '순창', '고창', '부안',
+  '전남', '전라남도', '목포', '여수', '순천', '나주', '광양', '담양', '곡성', '구례', '고흥', '보성', '화순', '장흥', '강진', '해남', '영암', '무안', '함평', '영광', '장성', '완도', '진도', '신안',
+  '제주', '제주도', '제주특별자치도', '서귀포'
+];
+
 export function extractLocationKeyword(text) {
-  if (!text || typeof text !== 'string') return '추천 장소';
-  let clean = text.replace(/^User:\s*/gi, '').replace(/AI:\s*/gi, '').trim();
-  clean = clean.replace(/^(난\s*|나\s*|저\s*|저는\s*|우리는\s*|저희\s*)/i, '');
-  clean = clean.replace(/(\s*는\s*어때\??|\s*은\s*어때\??|\s*어때\??|\s*어떠니\??|\s*어떨까\??)/gi, '');
-  clean = clean.replace(/(에\s*가보고\s*싶어|에\s*가고\s*싶어|에\s*가고\s*싶다|에\s*갈래|에\s*가볼래|가보고\s*싶어|가고\s*싶어|가고\s*싶다|갈래|가볼래|에\s*가볼까|가볼까|에\s*가자|가자)/gi, '');
-  clean = clean.replace(/(추천해줘|추천해\s*주세요|알려줘|알려주세요|보여줘|보여주세요|찾아줘|찾아주세요|코스\s*짜줘|가볼\s*만한\s*곳|가볼만한곳)/gi, '');
-  clean = clean.trim();
-  return clean || '추천 장소';
+  if (!text || typeof text !== 'string') return '전국';
+  const clean = text.trim();
+
+  // Find valid administrative city in prompt
+  for (const city of VALID_KOREAN_CITIES) {
+    if (clean.includes(city)) {
+      return city;
+    }
+  }
+
+  // Abstract words ('사랑', '맛집', '힐링', etc.) default to '전국'
+  return '전국';
 }
 
 /**
