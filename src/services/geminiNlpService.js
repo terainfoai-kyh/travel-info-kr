@@ -16,7 +16,7 @@ const VALID_KOREAN_CITIES = [
   '제주', '제주도', '제주특별자치도', '서귀포'
 ];
 
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_GEMINI_FREE_KEY || 'AQ.Ab8RN6KwKIdJmZ8x8OgJtXcdCFJnvw6lusi3ZiuWAwFLdqsexg';
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_GEMINI_FREE_KEY || '';
 export const isValidGeminiKey = !!(
   GEMINI_API_KEY &&
   GEMINI_API_KEY !== 'YOUR_GEMINI_API_KEY' &&
@@ -42,7 +42,7 @@ export function extractLocationKeyword(text) {
     }
   }
 
-  // Abstract words ('사랑', '맛집', '힐링', etc.) default to '전국'
+  // Seasonal or abstract words default to '전국'
   return '전국';
 }
 
@@ -73,27 +73,24 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
   if (/(역사|문화|유적|한옥)/i.test(rawPrompt)) theme = '역사/문화';
   if (/(카페|오션뷰|해변|바다)/i.test(rawPrompt)) theme = '오션뷰/카페';
 
-  // Multi-Endpoint Fallback (v1beta & v1 endpoints for gemini-2.5-flash / gemini-2.0-flash / gemini-1.5-flash)
-  const candidateEndpoints = [
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`,
-    `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`
-  ];
+  const isSeasonalAutumn = /(가을|단풍|억새|낙엽)/i.test(rawPrompt);
+  const isSeasonalSpring = /(봄|벚꽃|꽃놀이)/i.test(rawPrompt);
 
+  // Gemini API Call if Valid Key Present
   if (isValidGeminiKey) {
+    const candidateEndpoints = [
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`
+    ];
     for (const endpointUrl of candidateEndpoints) {
       try {
         const response = await fetch(endpointUrl, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-goog-api-key': GEMINI_API_KEY
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             contents: [{
               parts: [{
-                text: `You are Vora AI, an empathetic Korean Travel Concierge for global travelers. Generate a warm 1:1 conversational briefing in Korean for: '${rawPrompt}'. Target city: ${targetCity}, duration: ${days} days, theme: ${theme}. Address the user respectfully as '선배님'. Keep response clear, engaging, and under 300 words.`
+                text: `You are Vora AI, an empathetic Korean Travel Concierge for global travelers. Generate a warm 1:1 conversational briefing in Korean for prompt: '${rawPrompt}'. Target city: ${targetCity}, duration: ${days} days, theme: ${theme}. Address the user respectfully as '선배님'. Keep response clear, engaging, and under 250 words.`
               }]
             }]
           })
@@ -118,10 +115,22 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
     }
   }
 
-  // Vora AI High-Trust Conversational Storytelling Engine (Zero-Latency Fallback)
+  // Vora AI High-Trust Conversational Storytelling Engine (Zero-Latency Intelligent Fallback)
   let storytellingBriefing = '';
 
-  if (theme === '커플/데이트' || /(사랑|연인|커플)/i.test(rawPrompt)) {
+  if (isSeasonalAutumn) {
+    storytellingBriefing = `안녕하세요, 선배님! 선선한 바람과 붉은 단풍이 아름다운 '가을'이군요! 🍁🍂\n\n` +
+      `가을빛으로 물든 설악산 단풍 산책과 오션뷰 감성 카페가 가득한 '속초·강릉' 가을 힐링 3일 여행을 추천해 드립니다!\n\n` +
+      `📍 1일차: 단풍 명소 설악산 산책 & 속초 오션뷰 카페\n` +
+      `📍 2일차: 강릉 경포호 억새길 산책 & 초당순두부 미식\n` +
+      `📍 3일차: 정동진 바다부채길 산책 & 로컬 맛집 탐방`;
+  } else if (isSeasonalSpring) {
+    storytellingBriefing = `안녕하세요, 선배님! 화사한 벚꽃이 피어나는 설레는 '봄' 여행이군요! 🌸🍃\n\n` +
+      `봄꽃 축제와 낭만이 함께하는 '진해·경주' 봄꽃 탐방 코스를 추천합니다!\n\n` +
+      `📍 1일차: 벚꽃 명소 산책 & 낭만 야경 투어\n` +
+      `📍 2일차: 세계문화유산 유적지 산책 & 로컬 전통 미식\n` +
+      `📍 3일차: 감성 카페거리 & 인생샷 명소`;
+  } else if (theme === '커플/데이트' || /(사랑|연인|커플)/i.test(rawPrompt)) {
     storytellingBriefing = `안녕하세요, 선배님! 사랑하는 연인과 떠나는 낭만적인 ${days}일 데이트 코스군요! 💕\n\n` +
       `탁 트인 오션뷰와 밤바다 야경, 감성 카페가 어우러진 '${targetCity === '전국' ? '여수·순천' : targetCity}' 힐링 데이트 코스를 정성껏 구성했습니다!\n\n` +
       `📍 1일차: 낭만 야경 투어 & 로맨틱 오션뷰 산책\n` +
@@ -142,10 +151,10 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
   }
 
   return {
-    targetCity: targetCity === '전국' ? (theme === '커플/데이트' ? '여수' : (theme === '미식/맛집' ? '전주' : '제주')) : targetCity,
+    targetCity: isSeasonalAutumn ? '속초' : (isSeasonalSpring ? '경주' : (targetCity === '전국' ? (theme === '커플/데이트' ? '여수' : (theme === '미식/맛집' ? '전주' : '제주')) : targetCity)),
     days,
     theme,
-    tripTitle: `'${targetCity}' ${days}일 맞춤 ${theme} 코스`,
+    tripTitle: isSeasonalAutumn ? '속초·강릉 가을 단풍 힐링 코스' : `'${targetCity}' ${days}일 맞춤 ${theme} 코스`,
     aiRecommendationSummary: storytellingBriefing,
     success: true
   };
