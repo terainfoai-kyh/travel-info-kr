@@ -24,7 +24,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     {
       id: 'welcome-1',
       sender: 'vora',
-      text: '안녕하세요! 여행 조력자 보라입니다. 😊\n\n매일 무료로 제공되는 5회의 AI 대화로 나만의 대한민국 맞춤 여행 코스(1일~5일)를 받아보세요!\n\n떠나고 싶은 지역이나 여행 스타일(예: 거제도 2박3일 오션뷰 카페, 수원 화성행궁 야경)을 자유롭게 물어보세요!',
+      text: '안녕하세요! 여행 컨시어지 보라입니다. 😊\n\n매일 무료로 제공되는 5회의 AI 대화로 나만의 대한민국 맞춤 여행 코스(1일~5일)를 받아보세요!\n\n떠나고 싶은 지역이나 여행 스타일(예: 거제도 2박3일 오션뷰 카페, 수원 화성행궁 야경)을 자유롭게 물어보세요!',
       timestamp: new Date().toLocaleTimeString(),
       chips: ['거제도 2박3일 오션뷰 카페', '수원 화성행궁 야경 힐링', '제주도 3박4일 맛집 탐방', '여기서 뭘 할 수 있지?']
     }
@@ -280,7 +280,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         {
           id: `vora-${Date.now()}`,
           sender: 'vora',
-          text: `안녕하세요! 여행 조력자 보라입니다. 😊 '${targetCity}' 추천 정보를 준비했습니다.`,
+          text: `안녕하세요! 여행 컨시어지 보라입니다. 😊 '${targetCity}' 추천 정보를 준비했습니다.`,
           timestamp: new Date().toLocaleTimeString(),
           targetCity,
           days

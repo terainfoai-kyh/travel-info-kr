@@ -109,7 +109,7 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
 
   // Dynamic Multilingual System Instructions (Rule 5 & 9)
   let langInstruction = 'ALWAYS respond in 100% complete, natural, polite Korean ending with proper Korean periods (.). NEVER output English thought notes or meta commentary.';
-  let greetingPrefix = '안녕하세요! 여행 조력자 보라입니다.';
+  let greetingPrefix = '안녕하세요! 여행 컨시어지 보라입니다. 😊';
 
   if (lang === 'en') {
     langInstruction = 'ALWAYS respond in 100% polite, natural English ending with proper punctuation. NEVER output internal thought notes or meta commentary.';
