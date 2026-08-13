@@ -28,7 +28,7 @@ export const isValidGeminiKey = !!(
  */
 export function isCasualChatQuery(text) {
   if (!text || typeof text !== 'string') return false;
-  return /(오늘\s*뭐해|심심해|놀자|안녕|반가워|하이|hello|hi)/i.test(text.trim());
+  return /(오늘\s*뭐해|심심해|놀자|안녕|반가워|하이|hello|hi|넌\s*누구|너\s*누구)/i.test(text.trim());
 }
 
 export function extractLocationKeyword(text) {
@@ -48,7 +48,7 @@ export function extractLocationKeyword(text) {
 
 export function isGreetingQuery(text) {
   if (!text || typeof text !== 'string') return false;
-  return /(안녕|반가워|하이|hello|hi|반갑습니다)/i.test(text.trim());
+  return /(안녕|반가워|하이|hello|hi|반갑습니다|넌\s*누구|너\s*누구)/i.test(text.trim());
 }
 
 export function isAffirmativeYes(text) {
@@ -73,39 +73,48 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
   if (/(역사|문화|유적|한옥)/i.test(rawPrompt)) theme = '역사/문화';
   if (/(카페|오션뷰|해변|바다)/i.test(rawPrompt)) theme = '오션뷰/카페';
 
-  // Real Gemini API Call if Valid Key Present (Support Header & Query Key)
+  // Multi-Endpoint Fallback (v1beta & v1 endpoints for gemini-2.5-flash / gemini-2.0-flash / gemini-1.5-flash)
+  const candidateEndpoints = [
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`,
+    `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`
+  ];
+
   if (isValidGeminiKey) {
-    try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-goog-api-key': GEMINI_API_KEY
-        },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: `You are Vora AI, an empathetic Korean Travel Concierge for global travelers. Generate a warm 1:1 conversational briefing in Korean for: '${rawPrompt}'. Target city: ${targetCity}, duration: ${days} days, theme: ${theme}. Address the user respectfully as '선배님'. Keep response clear, engaging, and under 300 words.`
+    for (const endpointUrl of candidateEndpoints) {
+      try {
+        const response = await fetch(endpointUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': GEMINI_API_KEY
+          },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{
+                text: `You are Vora AI, an empathetic Korean Travel Concierge for global travelers. Generate a warm 1:1 conversational briefing in Korean for: '${rawPrompt}'. Target city: ${targetCity}, duration: ${days} days, theme: ${theme}. Address the user respectfully as '선배님'. Keep response clear, engaging, and under 300 words.`
+              }]
             }]
-          }]
-        })
-      });
-      if (response.ok) {
-        const data = await response.json();
-        const aiResponseText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (aiResponseText) {
-          return {
-            targetCity,
-            days,
-            theme,
-            tripTitle: `'${targetCity}' ${days}일 맞춤 ${theme} 대화 코스`,
-            aiRecommendationSummary: aiResponseText,
-            success: true
-          };
+          })
+        });
+        if (response.ok) {
+          const data = await response.json();
+          const aiResponseText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (aiResponseText) {
+            return {
+              targetCity,
+              days,
+              theme,
+              tripTitle: `'${targetCity}' ${days}일 맞춤 ${theme} 대화 코스`,
+              aiRecommendationSummary: aiResponseText,
+              success: true
+            };
+          }
         }
+      } catch (err) {
+        console.warn('Gemini endpoint call retry:', err);
       }
-    } catch (err) {
-      console.warn('Gemini API call fallback to Vora High-Trust Storytelling Engine:', err);
     }
   }
 
