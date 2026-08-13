@@ -149,7 +149,31 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     return colors[(dayIndex - 1) % colors.length];
   };
 
-  // Execute Conversational AI Pipeline with Sequential 1:1 Spot Alignment
+  // Extract Korean Nouns and Quoted Places from Line
+  const extractPlacesFromLine = (line) => {
+    const results = [];
+    
+    // 1. Quoted names ('W181', '외도널서리', '심해', '온더선셋' etc.)
+    const quoted = Array.from(line.matchAll(/['"‘“]([^'"’”]+)['"’”]/g)).map(m => m[1].trim());
+    for (const q of quoted) {
+      if (q.length >= 2 && !results.includes(q)) {
+        results.push({ name: q, isQuoted: true });
+      }
+    }
+
+    // 2. Korean Landmark Nouns (e.g. 바람의 언덕, 신선대, 구조라 해변, 샛바람소리길, 매미성, 외도 보타니아)
+    const landmarkRegex = /([가-힣]{2,8}(?:산|해변|해수욕장|언덕|성|길|공원|타워|궁|사|대|동|리|항|포|섬|교|전망대|테마파크|수목원|식물원|보타니아))/g;
+    const matches = Array.from(line.matchAll(landmarkRegex)).map(m => m[1].trim());
+    for (const m of matches) {
+      if (m.length >= 2 && !results.some(r => r.name === m)) {
+        results.push({ name: m, isQuoted: false });
+      }
+    }
+
+    return results;
+  };
+
+  // Execute Conversational AI Pipeline with Pinpoint TourAPI Landmark Extraction & 1:1 Sequential Alignment
   const handleSendMessage = async (customText = null) => {
     const query = (customText || inputPrompt).trim();
     if (!query || isLoading) return;
@@ -247,7 +271,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     const aiBriefing = await geminiGenerateFullItinerary(query, lang);
     logAnalyticsEvent('CHAT', { inputTokens: 120, outputTokens: 350 });
 
-    // Fetch & Sequential 1:1 Spot Alignment Engine
+    // Fetch & Pinpoint TourAPI Landmark Alignment Pipeline
     try {
       let spotsToRender = [];
       let agodaUrl = null;
@@ -256,16 +280,14 @@ export default function AITestWorkbench({ lang = 'ko' }) {
       if (!isMeta && targetCity && targetCity !== '전국') {
         const rawSpots = await fetchTourSpots({ region: targetCity, lang });
         const summaryText = aiBriefing?.aiRecommendationSummary || '';
-        
-        // Split AI text by line to extract daily recommendations (1일차, 2일차, 3일차...)
         const lines = summaryText.split('\n').map(l => l.trim()).filter(Boolean);
-        const dayMap = new Map(); // dayNum -> spotArray
 
-        for (let d = 1; d <= days; d++) {
-          dayMap.set(d, []);
-        }
+        // Collect all extracted landmarks per day
+        const dayExtractedMap = new Map();
+        const allLandmarkNames = new Set();
 
-        // Parse line by line to map spots sequentially
+        for (let d = 1; d <= days; d++) dayExtractedMap.set(d, []);
+
         for (const line of lines) {
           let dayNum = 1;
           const dayMatch = line.match(/(\d+)일차/);
@@ -273,54 +295,74 @@ export default function AITestWorkbench({ lang = 'ko' }) {
             dayNum = Math.min(days, parseInt(dayMatch[1], 10));
           }
 
-          // 1. Quoted names in this line (e.g. 'W181', '외도널서리', '온더선셋')
-          const quotedNames = Array.from(line.matchAll(/['"‘“]([^'"’”]+)['"’”]/g)).map(m => m[1].trim());
-          
-          // 2. Cross-reference TourAPI spots appearing in this line
-          const lineLower = line.toLowerCase();
-          const lineSpots = [];
+          const extractedItems = extractPlacesFromLine(line);
+          const currentDayItems = dayExtractedMap.get(dayNum) || [];
 
-          for (const spot of rawSpots) {
-            const titleClean = spot.title.replace(/\([^)]*\)/g, '').trim().toLowerCase();
-            if (titleClean.length >= 2 && lineLower.includes(titleClean)) {
-              if (!lineSpots.some(s => s.title === spot.title)) {
-                lineSpots.push({ ...spot, assignedDay: dayNum });
-              }
+          for (const item of extractedItems) {
+            if (!allLandmarkNames.has(item.name)) {
+              allLandmarkNames.add(item.name);
+              currentDayItems.push(item);
             }
           }
-
-          // Add quoted private spots if not in DB
-          for (const qName of quotedNames) {
-            if (qName.length >= 2 && !lineSpots.some(s => s.title.includes(qName))) {
-              lineSpots.push({
-                id: `syn-${Date.now()}-${qName}`,
-                title: qName,
-                location: `${targetCity} 추천 장소`,
-                addr1: `${targetCity} ${dayNum}일차 명소`,
-                assignedDay: dayNum
-              });
-            }
-          }
-
-          const existingDayList = dayMap.get(dayNum) || [];
-          dayMap.set(dayNum, [...existingDayList, ...lineSpots]);
+          dayExtractedMap.set(dayNum, currentDayItems);
         }
 
-        // Combine sequential day spots
+        // Asynchronously query TourAPI for unquoted landmark nouns via searchKeyword2
+        const landmarkNamesList = Array.from(allLandmarkNames);
+        const pinpointResults = await fetchPinpointLandmarkSpots(landmarkNamesList, lang);
+        const pinpointMap = new Map();
+        for (const pSpot of pinpointResults) {
+          pinpointMap.set(pSpot.title.toLowerCase(), pSpot);
+          for (const lmName of landmarkNamesList) {
+            if (pSpot.title.includes(lmName) || lmName.includes(pSpot.title)) {
+              pinpointMap.set(lmName.toLowerCase(), pSpot);
+            }
+          }
+        }
+
+        // Assemble Sequential Spots Day by Day
         let sequentialSpots = [];
         const addedTitles = new Set();
 
         for (let d = 1; d <= days; d++) {
-          const dSpots = dayMap.get(d) || [];
-          for (const s of dSpots) {
-            if (!addedTitles.has(s.title)) {
-              addedTitles.add(s.title);
-              sequentialSpots.push(s);
+          const itemsForDay = dayExtractedMap.get(d) || [];
+          for (const item of itemsForDay) {
+            const nameLower = item.name.toLowerCase();
+            
+            // 1. Try Pinpoint TourAPI Match
+            let matchedSpot = pinpointMap.get(nameLower);
+
+            // 2. Try rawSpots Match
+            if (!matchedSpot) {
+              matchedSpot = rawSpots.find(s => s.title.toLowerCase().includes(nameLower) || nameLower.includes(s.title.toLowerCase()));
+            }
+
+            if (matchedSpot) {
+              if (!addedTitles.has(matchedSpot.title)) {
+                addedTitles.add(matchedSpot.title);
+                sequentialSpots.push({
+                  ...matchedSpot,
+                  assignedDay: d
+                });
+              }
+            } else {
+              // 3. Synthesize Spot Card for Quoted or Special Cafe/Spot Name
+              if (!addedTitles.has(item.name)) {
+                addedTitles.add(item.name);
+                sequentialSpots.push({
+                  id: `syn-${Date.now()}-${item.name}`,
+                  title: item.name,
+                  location: `${targetCity} 추천 장소`,
+                  addr1: `${targetCity} ${d}일차 명소`,
+                  assignedDay: d,
+                  isQuoted: true
+                });
+              }
             }
           }
         }
 
-        // Pad with remaining rawSpots if count < min target
+        // Pad with remaining rawSpots if total count < min target (min 5 spots)
         const targetCount = Math.max(days, 5);
         if (sequentialSpots.length < targetCount) {
           for (const rem of rawSpots) {
