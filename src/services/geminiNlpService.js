@@ -125,7 +125,7 @@ Return your response ONLY as a valid JSON object matching this schema:
 {
   "isUnknownPlace": boolean,
   "summary": "String",
-  "targetCity": "${targetCity}",
+  "targetCity": "String",
   "dailyPlaces": [
     { "day": 1, "places": ["Exact landmark 1", "Exact landmark 2"] },
     { "day": 2, "places": ["Exact landmark 3", "Exact landmark 4"] }
@@ -133,19 +133,19 @@ Return your response ONLY as a valid JSON object matching this schema:
 }
 
 CRITICAL RULES FOR "summary" AND "dailyPlaces":
-1. IF USER INPUT IS INVALID/GIBBERISH (e.g. '징수', 'asdf'):
-   - Set isUnknownPlace: true, dailyPlaces: [].
+1. IF USER INPUT IS NOT A VALID KOREAN TRAVEL DESTINATION/CITY (e.g. '징수', 'asdf', '1234', random non-place text):
+   - Set isUnknownPlace: true, targetCity: null, dailyPlaces: [].
    - Set summary: "${greetingPrefix} 입력해 주신 여행지는 대한민국 관광지나 지명으로 확인되지 않았습니다. 혹시 전북 장수(논개사당, 방화동 휴양림)나 다른 멋진 여행지를 찾으시나요?".
 
-2. OTHERWISE (VALID KOREAN TRAVEL QUERY like '거제도 2박3일', '수원 화성행궁'):
+2. OTHERWISE (VALID KOREAN TRAVEL QUERY like '거제도 2박3일', '수원 화성행궁', '제주도'):
    - Set isUnknownPlace: false.
    - MANDATORY: Write a rich, warm, multiline summary starting with "${greetingPrefix}".
-   - MUST explicitly detail each day line-by-line using real iconic landmarks in ${targetCity}:
-     "안녕하세요! 여행 조력자 보라입니다. 😊 ${targetCity} ${days}일 맞춤 여행 코스를 소개합니다!
+   - MUST explicitly detail each day line-by-line using real iconic landmarks in the target destination:
+     "안녕하세요! 여행 조력자 보라입니다. 😊 [여행지] ${days}일 맞춤 여행 코스를 소개합니다!
 
-1일차: ${targetCity} 대표 명소인 [명소1]에서 바다를 조망하고, 이어지는 [명소2]를 구경합니다.
-2일차: ${targetCity}의 힐링 장소인 [명소3]에서 시간을 보낸 뒤 [명소4]를 탐방합니다.
-3일차: ${targetCity}의 [명소5]에서 멋진 일몰을 감상하며 여행을 마무리합니다."
+1일차: [여행지] 대표 명소인 [명소1]에서 바다를 조망하고, 이어지는 [명소2]를 구경합니다.
+2일차: [여행지]의 힐링 장소인 [명소3]에서 시간을 보낸 뒤 [명소4]를 탐방합니다.
+3일차: [여행지]의 [명소5]에서 멋진 일몰을 감상하며 여행을 마무리합니다."
    - Populate "dailyPlaces" with the EXACT landmark names used in your summary:
      dailyPlaces: [
        { "day": 1, "places": ["명소1", "명소2"] },
