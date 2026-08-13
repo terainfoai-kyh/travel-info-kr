@@ -474,18 +474,23 @@ export async function fetchTourSpots({
         }
 
         const preset = COORD_PRESETS[idx % COORD_PRESETS.length];
-        const rawLat = parseFloat(item.mapy);
-        const rawLng = parseFloat(item.mapx);
+        const rawLat = parseFloat(item.mapy || item.lat);
+        const rawLng = parseFloat(item.mapx || item.lng);
+
+        // Regional fallback coordinates to prevent all spots from defaulting to Seoul!
+        let itemRegionMeta = getDynamicRegionMeta(item.region || item.addr1 || region);
+        let fallbackLat = itemRegionMeta?.lat || preset.lat;
+        let fallbackLng = itemRegionMeta?.lng || preset.lng;
 
         return {
-          id: item.contentid || item.crsIdx || `api-${idx}`,
+          id: item.contentid || item.crsIdx || item.id || `api-${idx}`,
           title: titleClean,
-          region: region === '전국' ? '한국' : region,
+          region: region === '전국' ? (item.region || '한국') : region,
           theme: theme === '전체' ? '관광' : theme,
           image: validImage,
-          location: item.addr1 || item.sigun || item.createdtime || preset.loc,
-          lat: (!isNaN(rawLat) && rawLat > 0) ? rawLat : preset.lat,
-          lng: (!isNaN(rawLng) && rawLng > 0) ? rawLng : preset.lng,
+          location: item.location || item.addr1 || item.sigun || preset.loc,
+          lat: (!isNaN(rawLat) && rawLat > 0) ? rawLat : fallbackLat,
+          lng: (!isNaN(rawLng) && rawLng > 0) ? rawLng : fallbackLng,
           rating: (4.5 + (idx % 5) * 0.1).toFixed(1),
           tags: [theme, region, cleanKw, '관광공사추천'].filter(Boolean)
         };

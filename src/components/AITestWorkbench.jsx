@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, MapPin, Search, ShieldCheck, ShieldAlert, Cpu, ExternalLink, Code, Play, RefreshCw, CheckCircle2, Mic, Send, Zap, PlusCircle, UserCheck, Crown, MessageSquare, Trash2 } from 'lucide-react';
 import { validateTravelQuery } from '../hooks/useInputGuard';
 import { useQuotaLimit } from '../hooks/useQuotaLimit';
-import { extractLocationKeyword, isGreetingQuery } from '../services/geminiNlpService';
+import { extractLocationKeyword, isGreetingQuery, geminiGenerateFullItinerary } from '../services/geminiNlpService';
 import { fetchTourSpots } from '../services/tourApi';
 import { getAgodaHotelSearchUrl, getKlookActivitySearchUrl } from '../services/affiliateService';
 
@@ -192,12 +192,10 @@ export default function AITestWorkbench({ lang = 'ko' }) {
 
     incrementQuota();
 
-    // 4. Extract Location & Fetch TourAPI 4.0 Authenticated Data
-    const targetCity = extractLocationKeyword(query);
-    let days = 3;
-    if (/(1일|1박|당일)/i.test(query)) days = 1;
-    if (/(2일|2박)/i.test(query)) days = 2;
-    if (/(4일|4박)/i.test(query)) days = 4;
+    // 4. Call P1 Conversational Gemini Storytelling Engine & TourAPI 4.0
+    const aiBriefing = await geminiGenerateFullItinerary(query, lang);
+    const targetCity = aiBriefing?.targetCity || extractLocationKeyword(query);
+    const days = aiBriefing?.days || 3;
 
     try {
       const rawSpots = await fetchTourSpots({ region: targetCity, lang });
@@ -223,7 +221,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
       const voraResponse = {
         id: `vora-${Date.now()}`,
         sender: 'vora',
-        text: `네, 선배님! '${targetCity}' 맞춤 ${days}일치 코스를 정품 관광공사 DB와 실시간 지도 위도/경도 좌표로 정성껏 준비했습니다! 📍`,
+        text: aiBriefing?.aiRecommendationSummary || `네, 선배님! '${targetCity}' 맞춤 ${days}일치 코스를 정품 관광공사 DB와 실시간 지도 위도/경도 좌표로 정성껏 준비했습니다! 📍`,
         timestamp: new Date().toLocaleTimeString(),
         targetCity,
         days,
@@ -234,6 +232,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           query,
           targetCity,
           days,
+          aiBriefing,
           spotsCount: spotsToRender.length,
           spots: spotsToRender
         }
