@@ -141,7 +141,7 @@ CRITICAL RULES FOR "summary" AND "dailyPlaces":
    - Set isUnknownPlace: false.
    - MANDATORY: Write a rich, warm, multiline summary starting with "${greetingPrefix}".
    - MUST explicitly detail each day line-by-line using real iconic landmarks in the target destination:
-     "안녕하세요! 여행 조력자 보라입니다. 😊 [여행지] ${days}일 맞춤 여행 코스를 소개합니다!
+     "안녕하세요! 여행 컨시어지 보라입니다. 😊 [여행지] ${days}일 맞춤 여행 코스를 소개합니다!
 
 1일차: [여행지] 대표 명소인 [명소1]에서 바다를 조망하고, 이어지는 [명소2]를 구경합니다.
 2일차: [여행지]의 힐링 장소인 [명소3]에서 시간을 보낸 뒤 [명소4]를 탐방합니다.
