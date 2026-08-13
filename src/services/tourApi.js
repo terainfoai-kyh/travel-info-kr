@@ -580,7 +580,7 @@ export async function fetchTourSpots({
   });
 }
 
-// Pinpoint TourAPI Keyword Search for User Mentioned Landmarks (Ultra-Fast Parallel Execution)
+// Pinpoint TourAPI Keyword Search for User Mentioned Landmarks
 export async function fetchPinpointLandmarkSpots(landmarks = [], lang = 'ko') {
   if (!Array.isArray(landmarks) || landmarks.length === 0) return [];
   
@@ -594,31 +594,19 @@ export async function fetchPinpointLandmarkSpots(landmarks = [], lang = 'ko') {
   else if (lang === 'es') apiBase = PUBLIC_API_CONFIG.SPN_BASE;
   else if (lang === 'ru') apiBase = PUBLIC_API_CONFIG.RUS_BASE;
 
-  // Filter out noise/generic region words and cap at max 8 landmarks
-  const NOISE_WORDS = ['한국', '대한민국', '경상남도', '경상북도', '전라남도', '전라북도', '충청남도', '충청북도', '경기도', '강원도', '제주도', '창원시', '거제시', '수원시'];
-  const validLandmarks = Array.from(new Set(landmarks))
-    .filter(lm => lm && lm.length >= 2 && !NOISE_WORDS.includes(lm))
-    .slice(0, 8);
+  const pinpointSpots = [];
 
-  if (validLandmarks.length === 0) return [];
-
-  // Parallel Execution with 2.5s AbortController Timeout Per Request
-  const fetchPromises = validLandmarks.map(async (lm) => {
+  for (const lm of landmarks) {
+    if (!lm || lm.length < 2) continue;
     try {
-      const url = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=3&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=B&keyword=${encodeURIComponent(lm)}`;
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2500); // 2.5s Timeout Guard!
-
-      const res = await fetch(url, { signal: controller.signal });
-      clearTimeout(timeoutId);
-
+      const url = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=5&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=B&keyword=${encodeURIComponent(lm)}`;
+      const res = await fetch(url);
       if (res.ok) {
         const rawText = await res.text();
-        if (!rawText || !rawText.trim().startsWith('{')) return null;
+        if (!rawText || !rawText.trim().startsWith('{')) continue;
         const data = JSON.parse(rawText);
         const items = data.response?.body?.items?.item || [];
         const rawItem = Array.isArray(items) ? items[0] : items;
-
         if (rawItem && rawItem.title) {
           let rawImg = rawItem.firstimage || rawItem.firstimage2 || '';
           if (rawImg) rawImg = rawImg.replace(/^http:\/\//i, 'https://');
@@ -627,7 +615,7 @@ export async function fetchPinpointLandmarkSpots(landmarks = [], lang = 'ko') {
             rawImg = '/default-spot.png';
           }
 
-          return {
+          pinpointSpots.push({
             id: rawItem.contentid || `pin-${Date.now()}-${Math.random()}`,
             contentId: rawItem.contentid,
             title: rawItem.title,
@@ -641,16 +629,13 @@ export async function fetchPinpointLandmarkSpots(landmarks = [], lang = 'ko') {
             lng: parseFloat(rawItem.mapx) || 127.0145,
             tel: rawItem.tel || '',
             tags: ['관광명소', '핫플레이스', lm]
-          };
+          });
         }
       }
     } catch (err) {
-      console.warn(`Pinpoint query for ${lm} failed or timed out:`, err);
+      console.warn(`Pinpoint query for ${lm} failed:`, err);
     }
-    return null;
-  });
+  }
 
-  const results = await Promise.all(fetchPromises);
-  return results.filter(Boolean);
+  return pinpointSpots;
 }
-

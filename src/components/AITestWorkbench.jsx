@@ -1,34 +1,30 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, MapPin, Search, ShieldCheck, ShieldAlert, Cpu, ExternalLink, Code, Play, RefreshCw, CheckCircle2, Mic, Send, Zap, PlusCircle, UserCheck, Crown, MessageSquare, Trash2, BarChart3 } from 'lucide-react';
+import { Sparkles, MapPin, Search, ShieldCheck, ShieldAlert, Cpu, ExternalLink, Code, Play, RefreshCw, CheckCircle2, Mic, Send, Zap, PlusCircle, UserCheck, Crown, MessageSquare, Trash2 } from 'lucide-react';
 import { validateTravelQuery } from '../hooks/useInputGuard';
 import { useQuotaLimit } from '../hooks/useQuotaLimit';
 import { extractLocationKeyword, isGreetingQuery, isMetaHelpQuery, geminiGenerateFullItinerary } from '../services/geminiNlpService';
-import { fetchTourSpots, fetchPinpointLandmarkSpots } from '../services/tourApi';
+import { fetchTourSpots } from '../services/tourApi';
 import { getAgodaHotelSearchUrl, getKlookActivitySearchUrl } from '../services/affiliateService';
-import { logAnalyticsEvent } from '../services/analyticsService';
-import AdminAnalyticsDashboard from './AdminAnalyticsDashboard';
 
 export default function AITestWorkbench({ lang = 'ko' }) {
   // 1. Quota & Dev Bypass Hook State
   const { usedCount, remainingQuota, dailyLimit, canProceed, isDevBypass, toggleDevBypass, incrementQuota } = useQuotaLimit(5);
 
-  // 2. Dev Test Simulator & Admin Dashboard States
+  // 2. Dev Test Simulator States
   const [virtualTier, setVirtualTier] = useState('dev'); // 'guest', 'user', 'vip', 'depleted', 'dev'
   const [virtualQuotaLimit, setVirtualQuotaLimit] = useState(5);
   const [extraRechargeCount, setExtraRechargeCount] = useState(0);
   const [isVirtualGoogleLogin, setIsVirtualGoogleLogin] = useState(false);
-  const [showAdminDashboard, setShowAdminDashboard] = useState(false);
 
-  // 3. Dynamic High-Visibility Animated Loading Dots & Status Step State
-  const [loadingDots, setLoadingDots] = useState('●');
-  const [loadingStepText, setLoadingStepText] = useState('한국관광공사 정품 DB에서 추천 명소 탐색 중');
+  // 3. Dynamic Animated Loading Dots State
+  const [loadingDots, setLoadingDots] = useState('.');
 
   // 4. Chat History Stream State
   const [chatHistory, setChatHistory] = useState([
     {
       id: 'welcome-1',
       sender: 'vora',
-      text: '안녕하세요! 여행 컨시어지 보라입니다. 😊\n\n매일 무료로 제공되는 5회의 AI 대화로 나만의 대한민국 맞춤 여행 코스(1일~5일)를 받아보세요!\n\n떠나고 싶은 지역이나 여행 스타일(예: 거제도 2박3일 오션뷰 카페, 수원 화성행궁 야경)을 자유롭게 물어보세요!',
+      text: '안녕하세요! 여행 조력자 보라입니다. 😊\n\n매일 무료로 제공되는 5회의 AI 대화로 나만의 대한민국 맞춤 여행 코스(1일~5일)를 받아보세요!\n\n떠나고 싶은 지역이나 여행 스타일(예: 거제도 2박3일 오션뷰 카페, 수원 화성행궁 야경)을 자유롭게 물어보세요!',
       timestamp: new Date().toLocaleTimeString(),
       chips: ['거제도 2박3일 오션뷰 카페', '수원 화성행궁 야경 힐링', '제주도 3박4일 맛집 탐방', '여기서 뭘 할 수 있지?']
     }
@@ -44,43 +40,22 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [chatHistory, isLoading, loadingDots]);
 
-  // High-Visibility Animated Wave Dots & Rotating Status Step Text (No Emojis)
+  // Loading Dots Interval Animation ( . -> .. -> ... )
   useEffect(() => {
-    let timerDots;
-    let timerStep;
+    let timer;
     if (isLoading) {
-      setLoadingDots('●');
-      setLoadingStepText('한국관광공사 정품 DB에서 추천 명소 탐색 중');
-
-      // Large bold wave dots: ● -> ● ● -> ● ● ● -> ● ● ● ●
-      timerDots = setInterval(() => {
+      setLoadingDots('.');
+      timer = setInterval(() => {
         setLoadingDots(prev => {
-          if (prev === '●') return '● ●';
-          if (prev === '● ●') return '● ● ●';
-          if (prev === '● ● ●') return '● ● ● ●';
-          return '●';
+          if (prev === '.') return '..';
+          if (prev === '..') return '...';
+          return '.';
         });
-      }, 350);
-
-      // Rotating status text (every 900ms, no emojis)
-      let stepCount = 0;
-      const steps = [
-        '한국관광공사 정품 DB에서 추천 명소 탐색 중',
-        'GPS 지도 좌표 및 위치 데이터 1:1 동기화 중',
-        '100% 맞춤 여행 일정을 정돈하고 있습니다'
-      ];
-
-      timerStep = setInterval(() => {
-        stepCount = (stepCount + 1) % steps.length;
-        setLoadingStepText(steps[stepCount]);
-      }, 900);
+      }, 400);
     } else {
-      setLoadingDots('●');
+      setLoadingDots('.');
     }
-    return () => {
-      clearInterval(timerDots);
-      clearInterval(timerStep);
-    };
+    return () => clearInterval(timer);
   }, [isLoading]);
 
   // Dev Simulator: Handle Tier Cycle
@@ -112,7 +87,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
   // Dev Simulator: Virtual Recharge +5
   const handleRechargeExtra = () => {
     setExtraRechargeCount(prev => prev + 5);
-    logAnalyticsEvent('VIDEO_AD');
     alert('⚡ [테스트 충전] +5회 무료 대화가 가상으로 즉시 충전되었습니다!');
   };
 
@@ -123,7 +97,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     if (nextState) {
       setVirtualQuotaLimit(15);
       setVirtualTier('user');
-      logAnalyticsEvent('LOGIN');
       alert('🔑 [가상 구글 로그인 완료] 일일 한도가 15회로 확장되었습니다!');
     } else {
       setVirtualQuotaLimit(5);
@@ -159,19 +132,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     }
   };
 
-  // Helper function to get Day Badge styling
-  const getDayBadgeStyle = (dayIndex) => {
-    const colors = [
-      { bg: '#f3e8ff', text: '#7e22ce', border: '#e9d5ff' }, // Day 1 Purple
-      { bg: '#dbeafe', text: '#1d4ed8', border: '#bfdbfe' }, // Day 2 Blue
-      { bg: '#d1fae5', text: '#047857', border: '#a7f3d0' }, // Day 3 Green
-      { bg: '#ffedd5', text: '#c2410c', border: '#fed7aa' }, // Day 4 Orange
-      { bg: '#fce7f3', text: '#be185d', border: '#fbcfe8' }  // Day 5 Pink
-    ];
-    return colors[(dayIndex - 1) % colors.length];
-  };
-
-  // Execute Conversational AI Pipeline with Gemini Native Structured JSON Architecture
+  // Execute Conversational AI Pipeline
   const handleSendMessage = async (customText = null) => {
     const query = (customText || inputPrompt).trim();
     if (!query || isLoading) return;
@@ -255,140 +216,48 @@ export default function AITestWorkbench({ lang = 'ko' }) {
 
     // 4. Increment Quota & Execute Pipeline
     incrementQuota();
-    let initialCity = extractLocationKeyword(query);
-    
-    // Robust "X박 Y일" Duration Parsing (2박3일 -> 3 days)
+    const targetCity = extractLocationKeyword(query);
     let days = 3;
-    if (/(5일|4박\s*5일|5박|5d)/i.test(query)) days = 5;
-    else if (/(4일|3박\s*4일|4박|4d)/i.test(query)) days = 4;
-    else if (/(3일|2박\s*3일|3박|3d)/i.test(query)) days = 3;
-    else if (/(2일|1박\s*2일|2박|2d)/i.test(query)) days = 2;
-    else if (/(1일|당일|1박)/i.test(query)) days = 1;
+    if (/(5일|5박|5d)/i.test(query)) days = 5;
+    else if (/(4일|4박|4d)/i.test(query)) days = 4;
+    else if (/(2일|2박|2d)/i.test(query)) days = 2;
+    else if (/(1일|1박|당일)/i.test(query)) days = 1;
 
-    // 🔥 ULTRA FAST PARALLEL EXECUTION: Fire Gemini AI AND TourAPI Regional Search simultaneously at millisecond 0!
+    // Execute Gemini AI
+    const aiBriefing = await geminiGenerateFullItinerary(query, lang);
+
+    // Fetch Official TourAPI Spots ONLY if query is NOT a meta help query
     try {
-      const [aiBriefing, rawSpotsInitial] = await Promise.all([
-        geminiGenerateFullItinerary(query, lang),
-        (initialCity && initialCity !== '전국') ? fetchTourSpots({ region: initialCity, lang }) : Promise.resolve([])
-      ]);
-
-      logAnalyticsEvent('CHAT', { inputTokens: 120, outputTokens: 350 });
-
       let spotsToRender = [];
       let agodaUrl = null;
       let klookUrl = null;
-      let displayCity = aiBriefing?.targetCity || initialCity;
-      const isUnknownPlace = aiBriefing?.isUnknownPlace || false;
 
-      // Clean 0 Spot Cards Display for Non-Existent/Unrecognized Cities
-      if (!isMeta && !isUnknownPlace) {
-        const summaryText = aiBriefing?.aiRecommendationSummary || '';
+      if (!isMeta && targetCity && targetCity !== '전국') {
+        const rawSpots = await fetchTourSpots({ region: targetCity, lang });
+        const cityLower = targetCity.toLowerCase();
+        const matchedCitySpots = rawSpots.filter(s => {
+          const locStr = `${s.location || ''} ${s.title || ''} ${s.addr1 || ''}`.toLowerCase();
+          return locStr.includes(cityLower);
+        });
 
-        // 2nd-Tier City Auto-Inference: If user typed landmark only without city (initialCity === '전국')
-        if (displayCity === '전국') {
-          const inferredCity = extractLocationKeyword(summaryText);
-          if (inferredCity && inferredCity !== '전국') {
-            displayCity = inferredCity;
-          } else {
-            displayCity = '추천';
-          }
-        }
-
-        let rawSpots = rawSpotsInitial;
-        if (rawSpots.length === 0 && displayCity !== '전국' && displayCity !== '추천') {
-          rawSpots = await fetchTourSpots({ region: displayCity, lang });
-        }
-
-        const dayExtractedMap = new Map();
-        const allLandmarkNames = new Set();
-        for (let d = 1; d <= days; d++) dayExtractedMap.set(d, []);
-
-        // 🚀 Native Gemini Structured JSON Extraction (100% Zero Regex!)
-        const dailyPlaces = aiBriefing?.dailyPlaces || [];
-        if (dailyPlaces && dailyPlaces.length > 0) {
-          for (const item of dailyPlaces) {
-            const dayNum = Math.min(days, Math.max(1, item.day || 1));
-            const places = item.places || [];
-            const currentList = dayExtractedMap.get(dayNum) || [];
-
-            for (let placeName of places) {
-              if (typeof placeName === 'string') {
-                placeName = placeName.trim();
-                placeName = placeName.replace(/^(창원|경남|부산|서울|인천|강원|제주|전남|전북|충남|충북)\s+/, '').trim();
-                if (placeName.length >= 2 && !allLandmarkNames.has(placeName)) {
-                  allLandmarkNames.add(placeName);
-                  currentList.push({ name: placeName });
-                }
-              }
-            }
-            dayExtractedMap.set(dayNum, currentList);
-          }
-        }
-
-        // Asynchronously query TourAPI for clean landmark names via searchKeyword2 (Ultra-Fast Parallel)
-        const landmarkNamesList = Array.from(allLandmarkNames);
-        const pinpointResults = await fetchPinpointLandmarkSpots(landmarkNamesList, lang);
-        const pinpointMap = new Map();
-        for (const pSpot of pinpointResults) {
-          pinpointMap.set(pSpot.title.toLowerCase(), pSpot);
-          for (const lmName of landmarkNamesList) {
-            const cleanLm = lmName.replace(/\s+/g, '').toLowerCase();
-            const cleanTitle = pSpot.title.replace(/\s+/g, '').toLowerCase();
-            if (cleanTitle.includes(cleanLm) || cleanLm.includes(cleanTitle)) {
-              pinpointMap.set(lmName.toLowerCase(), pSpot);
+        // Ensure target spot count matches days (min 5 spots)
+        const targetCount = Math.max(days, 5);
+        let finalSpots = matchedCitySpots;
+        if (finalSpots.length < targetCount) {
+          // Fill remaining from rawSpots to guarantee 5 spots for any city
+          const spotIds = new Set(finalSpots.map(s => s.id || s.title));
+          for (const s of rawSpots) {
+            if (finalSpots.length >= targetCount) break;
+            const sid = s.id || s.title;
+            if (!spotIds.has(sid)) {
+              spotIds.add(sid);
+              finalSpots.push(s);
             }
           }
         }
-
-        // Assemble Sequential Spots Day by Day
-        let sequentialSpots = [];
-        const addedTitles = new Set();
-
-        for (let d = 1; d <= days; d++) {
-          const itemsForDay = dayExtractedMap.get(d) || [];
-          for (const item of itemsForDay) {
-            const nameLower = item.name.toLowerCase();
-            
-            // 1. Try Pinpoint TourAPI Match
-            let matchedSpot = pinpointMap.get(nameLower);
-
-            // 2. Try rawSpots Match
-            if (!matchedSpot) {
-              const cleanItemName = nameLower.replace(/\s+/g, '');
-              matchedSpot = rawSpots.find(s => {
-                const sClean = s.title.replace(/\s+/g, '').toLowerCase();
-                return sClean.includes(cleanItemName) || cleanItemName.includes(sClean);
-              });
-            }
-
-            if (matchedSpot) {
-              if (!addedTitles.has(matchedSpot.title)) {
-                addedTitles.add(matchedSpot.title);
-                sequentialSpots.push({
-                  ...matchedSpot,
-                  assignedDay: d
-                });
-              }
-            } else {
-              // 3. Synthesize Spot Card for Quoted or Special Cafe/Spot Name
-              if (!addedTitles.has(item.name)) {
-                addedTitles.add(item.name);
-                sequentialSpots.push({
-                  id: `syn-${Date.now()}-${item.name}`,
-                  title: item.name,
-                  location: `${displayCity} 추천 장소`,
-                  addr1: `${displayCity} ${d}일차 명소`,
-                  assignedDay: d,
-                  isQuoted: true
-                });
-              }
-            }
-          }
-        }
-
-        spotsToRender = sequentialSpots;
-        agodaUrl = getAgodaHotelSearchUrl(displayCity);
-        klookUrl = getKlookActivitySearchUrl(displayCity);
+        spotsToRender = finalSpots.slice(0, targetCount);
+        agodaUrl = getAgodaHotelSearchUrl(targetCity);
+        klookUrl = getKlookActivitySearchUrl(targetCity);
       }
 
       const voraResponse = {
@@ -396,9 +265,9 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         sender: 'vora',
         text: aiBriefing?.aiRecommendationSummary || `안녕하세요! 여행 조력자 보라입니다. 😊`,
         timestamp: new Date().toLocaleTimeString(),
-        targetCity: isUnknownPlace ? null : displayCity,
+        targetCity,
         days,
-        spots: isUnknownPlace ? [] : spotsToRender,
+        spots: spotsToRender,
         agodaUrl,
         klookUrl
       };
@@ -411,9 +280,9 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         {
           id: `vora-${Date.now()}`,
           sender: 'vora',
-          text: `안녕하세요! 여행 컨시어지 보라입니다. 😊 추천 정보를 준비했습니다.`,
+          text: `안녕하세요! 여행 조력자 보라입니다. 😊 '${targetCity}' 추천 정보를 준비했습니다.`,
           timestamp: new Date().toLocaleTimeString(),
-          targetCity: initialCity,
+          targetCity,
           days
         }
       ]);
@@ -458,27 +327,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         </div>
 
         <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.4rem' }}>
-          {/* Senior Private Admin Analytics Toggle */}
-          <button
-            onClick={() => setShowAdminDashboard(prev => !prev)}
-            style={{
-              padding: '0.3rem 0.65rem',
-              borderRadius: '8px',
-              fontSize: '0.72rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              border: 'none',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.3rem',
-              backgroundColor: showAdminDashboard ? '#7e22ce' : '#f3e8ff',
-              color: showAdminDashboard ? '#ffffff' : '#7e22ce'
-            }}
-          >
-            <BarChart3 size={13} />
-            {showAdminDashboard ? '👑 관리자 통계 닫기' : '👑 선배님 관리자 통계 대시보드'}
-          </button>
-
           <button
             onClick={() => toggleDevBypass()}
             style={{
@@ -561,9 +409,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         </div>
       </div>
 
-      {/* SENIOR PRIVATE ADMIN ANALYTICS DASHBOARD VIEW */}
-      {showAdminDashboard && <AdminAnalyticsDashboard />}
-
       {/* CHAT CONTAINER HEADER */}
       <div style={{
         display: 'flex',
@@ -608,7 +453,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         </div>
       </div>
 
-      {/* CHAT MESSAGES STREAM CONTAINER */}
+      {/* CHAT MESSAGES STREAM CONTAINER WITH PADDING-BOTTOM FIX FOR FULL SCROLLING */}
       <div style={{
         backgroundColor: '#f8fafc',
         borderRadius: '16px',
@@ -686,58 +531,26 @@ export default function AITestWorkbench({ lang = 'ko' }) {
                 </div>
               )}
 
-              {/* 100% Sequential 1:1 Synchronized Geo-Coordinates & Spot Cards */}
+              {/* Value-First Parsed Geo-Coordinates & Spot Cards */}
               {msg.spots && msg.spots.length > 0 && (
                 <div style={{ marginTop: '0.6rem', paddingTop: '0.6rem', borderTop: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#7e22ce', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                    🗺️ {msg.targetCity || '추천'} 순서 1:1 완벽 동기화 코스 ({msg.spots.length}건):
+                    🗺️ {msg.targetCity} 정품 명소 및 지도 GPS 좌표 ({msg.spots.length}건):
                   </span>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
-                    {msg.spots.map((spot, idx) => {
-                      const dayNum = spot.assignedDay || 1;
-                      const badgeStyle = getDayBadgeStyle(dayNum);
-                      const mapSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.title + ' ' + (spot.location || spot.addr1 || ''))}`;
-
-                      return (
-                        <div key={spot.id || idx} style={{ padding: '0.55rem 0.7rem', backgroundColor: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
-                          <div style={{ flex: 1 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.2rem' }}>
-                              <span style={{ padding: '0.15rem 0.45rem', borderRadius: '6px', fontSize: '0.65rem', fontWeight: 700, backgroundColor: badgeStyle.bg, color: badgeStyle.text, border: `1px solid ${badgeStyle.border}` }}>
-                                {dayNum}일차 명소
-                              </span>
-                              <strong style={{ color: '#0f172a', fontSize: '0.78rem' }}>{idx + 1}. {spot.title}</strong>
-                            </div>
-                            <span style={{ color: '#64748b', fontSize: '0.68rem', display: 'block' }}>
-                              📍 {spot.location || spot.addr1 || '중심가'}
-                            </span>
-                          </div>
-
-                          {/* Clean Map Button Replacing Raw lat/lng Debug Text */}
-                          <a
-                            href={mapSearchUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{
-                              padding: '0.3rem 0.55rem',
-                              backgroundColor: '#ffffff',
-                              color: '#2563eb',
-                              border: '1px solid #bfdbfe',
-                              borderRadius: '8px',
-                              textDecoration: 'none',
-                              fontSize: '0.68rem',
-                              fontWeight: 600,
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '0.25rem',
-                              whiteSpace: 'nowrap'
-                            }}
-                          >
-                            <MapPin size={12} /> 지도 위치
-                          </a>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                    {msg.spots.map((spot, idx) => (
+                      <div key={spot.id || idx} style={{ padding: '0.5rem 0.65rem', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyBetween: 'space-between', gap: '0.4rem' }}>
+                        <div>
+                          <strong style={{ color: '#0f172a', display: 'block' }}>{idx + 1}. {spot.title}</strong>
+                          <span style={{ color: '#64748b', fontSize: '0.68rem' }}>📍 {spot.location || spot.addr1 || '중심가'}</span>
                         </div>
-                      );
-                    })}
+                        <div style={{ textAlign: 'right', fontFamily: 'monospace', fontSize: '0.65rem', color: '#2563eb' }}>
+                          <div>lat: {spot.lat || spot.mapy || '37.5665'}</div>
+                          <div>lng: {spot.lng || spot.mapx || '126.9780'}</div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
 
                   {/* Value-First Call To Action Affiliate Chips */}
@@ -782,24 +595,24 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           </div>
         ))}
 
-        {/* Clean & Sophisticated High-Visibility Loading Card (No Emojis) */}
+        {/* Clean Animated Dots Stream Loading Indicator */}
         {isLoading && (
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '0.65rem',
-            padding: '0.75rem 1.1rem',
+            gap: '0.5rem',
+            padding: '0.6rem 0.9rem',
             backgroundColor: '#ffffff',
-            borderRadius: '14px',
-            border: '1px solid #d8b4fe',
+            borderRadius: '12px',
+            border: '1px solid #e2e8f0',
             color: '#7e22ce',
-            fontSize: '0.82rem',
-            fontWeight: 700,
-            maxWidth: '88%',
-            boxShadow: '0 4px 12px rgba(147, 51, 234, 0.08)'
+            fontSize: '0.8rem',
+            fontWeight: 600,
+            maxWidth: '85%',
+            boxShadow: '0 3px 8px rgba(0, 0, 0, 0.04)'
           }}>
-            <RefreshCw size={17} className="animate-spin" style={{ color: '#9333ea' }} />
-            <span>{loadingStepText} <strong style={{ color: '#7e22ce', fontSize: '0.95rem' }}>{loadingDots}</strong></span>
+            <RefreshCw size={15} className="animate-spin" style={{ color: '#9333ea' }} />
+            <span>한국관광공사 정품 DB & GPS 지도 좌표 검색 중{loadingDots}</span>
           </div>
         )}
 
