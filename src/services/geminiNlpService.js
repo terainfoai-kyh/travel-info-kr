@@ -126,7 +126,7 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
   const primaryKey = getActiveGeminiKey();
   const candidateKeys = Array.from(new Set([primaryKey, VERIFIED_FREE_TIER_KEY])).filter(k => k && k.length > 5);
 
-  let greetingPrefix = '안녕하세요! 여행 조력자 보라입니다. 😊';
+  let greetingPrefix = '안녕하세요! 여행 컨시어지 보라입니다. 😊';
   if (lang === 'en') greetingPrefix = 'Hello! I am Vora, your Korean Travel Concierge. 😊';
   else if (lang === 'ja') greetingPrefix = 'こんにちは！旅行アシスタANTのボラです。😊';
   else if (lang === 'zh') greetingPrefix = '您好！我是您的韩国旅行助手 Vora。😊';
