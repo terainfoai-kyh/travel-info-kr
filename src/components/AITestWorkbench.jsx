@@ -24,7 +24,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     {
       id: 'welcome-1',
       sender: 'vora',
-      text: '안녕하세요! 여행 조력자 보라입니다. 😊\n\n오늘 제공된 무료 AI 티켓 5장으로 대한민국 맞춤 여행 코스를 받아보세요! (기본 1일~5일 코스 지원)\n\n떠나고 싶은 지역이나 여행 스타일(예: 거제도 2박3일 오션뷰 카페, 수원 화성행궁 야경)을 자유롭게 물어보세요!',
+      text: '안녕하세요! 여행 조력자 보라입니다. 😊\n\n매일 무료로 제공되는 5회의 AI 대화로 나만의 대한민국 맞춤 여행 코스(1일~5일)를 받아보세요!\n\n떠나고 싶은 지역이나 여행 스타일(예: 거제도 2박3일 오션뷰 카페, 수원 화성행궁 야경)을 자유롭게 물어보세요!',
       timestamp: new Date().toLocaleTimeString(),
       chips: ['거제도 2박3일 오션뷰 카페', '수원 화성행궁 야경 힐링', '제주도 3박4일 맛집 탐방', '여기서 뭘 할 수 있지?']
     }
@@ -87,7 +87,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
   // Dev Simulator: Virtual Recharge +5
   const handleRechargeExtra = () => {
     setExtraRechargeCount(prev => prev + 5);
-    alert('⚡ [테스트 충전] +5회 무료 티켓이 가상으로 즉시 충전되었습니다!');
+    alert('⚡ [테스트 충전] +5회 무료 대화가 가상으로 즉시 충전되었습니다!');
   };
 
   // Dev Simulator: Virtual Google Login Toggle
@@ -139,7 +139,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
 
     const totalLimit = virtualQuotaLimit + extraRechargeCount;
     const nextAskIndex = Math.min(totalLimit, usedCount + 1);
-    const quotaTag = isDevBypass ? '[ ⚡ 무제한 ]' : `[ ${nextAskIndex}/${totalLimit}회 ]`;
+    const quotaTag = isDevBypass ? '[ ⚡ 무제한 ]' : `[ 오늘 대화 ${nextAskIndex}/${totalLimit}회 ]`;
 
     // Add User Message to Chat Stream with Quota Tag
     const userMsgId = `user-${Date.now()}`;
@@ -204,7 +204,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           {
             id: `vora-${Date.now()}`,
             sender: 'vora',
-            text: `안녕하세요! 여행 조력자 보라입니다.\n\n⚠️ 오늘 제공된 무료 AI 티켓 (${totalLimit}회)을 모두 소비하셨습니다.`,
+            text: `안녕하세요! 여행 조력자 보라입니다.\n\n⚠️ 오늘 제공된 무료 대화 (${totalLimit}회)를 모두 소비하셨습니다.`,
             timestamp: new Date().toLocaleTimeString(),
             isQuotaExceededNotice: true
           }
@@ -433,7 +433,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           {isDevBypass ? (
             <>⚡ 무제한 패스 (UNLIMITED)</>
           ) : (
-            <>🎟️ 오늘 남은 AI 티켓: <span style={{ color: '#b45309' }}>{Math.max(0, (virtualQuotaLimit + extraRechargeCount) - usedCount)}</span> / {virtualQuotaLimit + extraRechargeCount}회</>
+            <>🎟️ 오늘 남은 무료 대화: <span style={{ color: '#b45309' }}>{Math.max(0, (virtualQuotaLimit + extraRechargeCount) - usedCount)}</span> / {virtualQuotaLimit + extraRechargeCount}회</>
           )}
         </div>
       </div>
