@@ -278,8 +278,10 @@ export default function AITestWorkbench({ lang = 'ko' }) {
       let agodaUrl = null;
       let klookUrl = null;
       let displayCity = aiBriefing?.targetCity || initialCity;
+      const isUnknownPlace = aiBriefing?.isUnknownPlace || false;
 
-      if (!isMeta) {
+      // Clean 0 Spot Cards Display for Non-Existent/Unrecognized Cities
+      if (!isMeta && !isUnknownPlace) {
         const summaryText = aiBriefing?.aiRecommendationSummary || '';
 
         // 2nd-Tier City Auto-Inference: If user typed landmark only without city (initialCity === '전국')
@@ -312,30 +314,11 @@ export default function AITestWorkbench({ lang = 'ko' }) {
             for (let placeName of places) {
               if (typeof placeName === 'string') {
                 placeName = placeName.trim();
-                // Clean leading city prefixes (e.g. "창원 마산해양드라마세트장" -> "마산해양드라마세트장")
                 placeName = placeName.replace(/^(창원|경남|부산|서울|인천|강원|제주|전남|전북|충남|충북)\s+/, '').trim();
                 if (placeName.length >= 2 && !allLandmarkNames.has(placeName)) {
                   allLandmarkNames.add(placeName);
                   currentList.push({ name: placeName });
                 }
-              }
-            }
-            dayExtractedMap.set(dayNum, currentList);
-          }
-        } else {
-          // Fallback parsing if dailyPlaces is empty
-          const lines = summaryText.split('\n').map(l => l.trim()).filter(Boolean);
-          for (const line of lines) {
-            let dayNum = 1;
-            const dayMatch = line.match(/(\d+)일차/);
-            if (dayMatch && dayMatch[1]) dayNum = Math.min(days, parseInt(dayMatch[1], 10));
-
-            const quoted = Array.from(line.matchAll(/['"‘“]([^'"’”]+)['"’”]/g)).map(m => m[1].trim());
-            const currentList = dayExtractedMap.get(dayNum) || [];
-            for (const q of quoted) {
-              if (q.length >= 2 && !allLandmarkNames.has(q)) {
-                allLandmarkNames.add(q);
-                currentList.push({ name: q });
               }
             }
             dayExtractedMap.set(dayNum, currentList);
@@ -403,19 +386,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           }
         }
 
-        // Pad with remaining rawSpots if total count < min target (min 5 spots)
-        const targetCount = Math.max(days, 5);
-        if (sequentialSpots.length < targetCount && rawSpots.length > 0) {
-          for (const rem of rawSpots) {
-            if (sequentialSpots.length >= targetCount) break;
-            if (!addedTitles.has(rem.title)) {
-              addedTitles.add(rem.title);
-              const fallbackDay = Math.min(days, Math.floor((sequentialSpots.length / targetCount) * days) + 1);
-              sequentialSpots.push({ ...rem, assignedDay: fallbackDay });
-            }
-          }
-        }
-
         spotsToRender = sequentialSpots;
         agodaUrl = getAgodaHotelSearchUrl(displayCity);
         klookUrl = getKlookActivitySearchUrl(displayCity);
@@ -426,9 +396,9 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         sender: 'vora',
         text: aiBriefing?.aiRecommendationSummary || `안녕하세요! 여행 조력자 보라입니다. 😊`,
         timestamp: new Date().toLocaleTimeString(),
-        targetCity: displayCity,
+        targetCity: isUnknownPlace ? null : displayCity,
         days,
-        spots: spotsToRender,
+        spots: isUnknownPlace ? [] : spotsToRender,
         agodaUrl,
         klookUrl
       };
