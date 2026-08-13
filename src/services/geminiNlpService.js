@@ -1,6 +1,7 @@
 /**
  * Vora AI Core NLP & Official Google Generative AI Service
- * Features 3-Layer Universal Auth Engine & standard production models
+ * Clean environment variable binding (ZERO hardcoded key fallbacks)
+ * 3-Layer Universal Auth Engine & Active Google DeepMind production models
  */
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
@@ -29,8 +30,7 @@ export function getActiveGeminiKey() {
     return envKey.trim();
   }
 
-  // Fallback active key from 선배님's verified GCP project
-  return 'AQ.Ab8RN6KStX8BYnMvtKNSPOUZ6Br6krmiYV5e7w7QfAHA8Ma7Tg';
+  return '';
 }
 
 export function isValidGeminiKey() {
@@ -65,7 +65,7 @@ export function isAffirmativeYes(text) {
 }
 
 /**
- * 100% Multi-Layer Universal Gemini AI Concierge Generator
+ * 100% Pure Official Google Generative AI SDK & REST Fallback Engine
  */
 export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
   const targetCity = extractLocationKeyword(rawPrompt);
@@ -84,10 +84,10 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
   let lastApiError = null;
   const promptText = `You are Vora AI, an empathetic Korean Travel Concierge for global travelers. Answer prompt: '${rawPrompt}' in a warm, polite 1:1 conversational tone in Korean. Address user respectfully as '선배님'. Target city: ${targetCity}, duration: ${days} days, theme: ${theme}. Keep response clear and concise (under 200 words).`;
 
-  const modelCandidates = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash'];
+  const modelCandidates = ['gemini-1.5-flash-8b', 'gemini-1.5-flash', 'gemini-1.5-pro'];
 
   if (apiKey && apiKey.length > 5) {
-    // 1. Try Official SDK
+    // Layer 1: Official Google SDK
     for (const modelName of modelCandidates) {
       try {
         const genAI = new GoogleGenerativeAI(apiKey);
@@ -110,73 +110,76 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
       }
     }
 
-    // 2. Try Direct REST API with Authorization Bearer
-    for (const modelName of modelCandidates) {
-      try {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`
-          },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: promptText }] }]
-          })
-        });
-        const data = await res.json();
-        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    // Layer 2: Direct REST API (v1 & v1beta) with ?key=
+    for (const ver of ['v1', 'v1beta']) {
+      for (const modelName of modelCandidates) {
+        try {
+          const res = await fetch(`https://generativelanguage.googleapis.com/${ver}/models/${modelName}:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: promptText }] }]
+            })
+          });
+          const data = await res.json();
+          const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
-        if (res.ok && text) {
-          return {
-            targetCity,
-            days,
-            theme,
-            tripTitle: `'${targetCity}' ${days}일 맞춤 대화 코스`,
-            aiRecommendationSummary: text,
-            success: true
-          };
-        } else if (data?.error?.message) {
-          lastApiError = data.error.message;
+          if (res.ok && text) {
+            return {
+              targetCity,
+              days,
+              theme,
+              tripTitle: `'${targetCity}' ${days}일 맞춤 대화 코스`,
+              aiRecommendationSummary: text,
+              success: true
+            };
+          } else if (data?.error?.message) {
+            lastApiError = data.error.message;
+          }
+        } catch (err) {
+          lastApiError = err?.message || String(err);
         }
-      } catch (err) {
-        lastApiError = err?.message || String(err);
       }
     }
 
-    // 3. Try Direct REST API with x-goog-api-key
-    for (const modelName of modelCandidates) {
-      try {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-goog-api-key': apiKey
-          },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: promptText }] }]
-          })
-        });
-        const data = await res.json();
-        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    // Layer 3: Direct REST API with Authorization Bearer (OAuth token fallback)
+    for (const ver of ['v1', 'v1beta']) {
+      for (const modelName of modelCandidates) {
+        try {
+          const res = await fetch(`https://generativelanguage.googleapis.com/${ver}/models/${modelName}:generateContent`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: promptText }] }]
+            })
+          });
+          const data = await res.json();
+          const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
-        if (res.ok && text) {
-          return {
-            targetCity,
-            days,
-            theme,
-            tripTitle: `'${targetCity}' ${days}일 맞춤 대화 코스`,
-            aiRecommendationSummary: text,
-            success: true
-          };
-        } else if (data?.error?.message) {
-          lastApiError = data.error.message;
+          if (res.ok && text) {
+            return {
+              targetCity,
+              days,
+              theme,
+              tripTitle: `'${targetCity}' ${days}일 맞춤 대화 코스`,
+              aiRecommendationSummary: text,
+              success: true
+            };
+          } else if (data?.error?.message) {
+            lastApiError = data.error.message;
+          }
+        } catch (err) {
+          lastApiError = err?.message || String(err);
         }
-      } catch (err) {
-        lastApiError = err?.message || String(err);
       }
     }
   } else {
-    lastApiError = 'API key missing';
+    lastApiError = 'API key missing in VITE_GEMINI_API_KEY environment variable';
   }
 
   return {
