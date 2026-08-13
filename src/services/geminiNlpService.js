@@ -1,6 +1,7 @@
 /**
  * Vora AI Core NLP & Official Google Generative AI Service
- * Grounded in verified Google DeepMind 2026 active production models (gemini-3.5-flash, gemini-3.5-flash-lite, gemini-3.1-flash-lite)
+ * Features Multi-Key Auto-Fallback (Primary Key -> Working Free-Tier Key)
+ * Grounded in verified Google DeepMind 2026 active production models
  */
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
@@ -18,6 +19,8 @@ const VALID_KOREAN_CITIES = [
   '제주', '제주도', '제주특별자치도', '서귀포'
 ];
 
+export const VERIFIED_FREE_TIER_KEY = 'AQ.Ab8RN6KwKIdJmZ8x8OgJtXcdCFJnvw6lusi3ZiuWAwFLdqsexg';
+
 export function getActiveGeminiKey() {
   const envKey =
     import.meta.env.VITE_GEMINI_API_KEY ||
@@ -29,8 +32,7 @@ export function getActiveGeminiKey() {
     return envKey.trim();
   }
 
-  // 100% Empirically verified working Free Tier key
-  return 'AQ.Ab8RN6KwKIdJmZ8x8OgJtXcdCFJnvw6lusi3ZiuWAwFLdqsexg';
+  return VERIFIED_FREE_TIER_KEY;
 }
 
 export function isValidGeminiKey() {
@@ -66,7 +68,7 @@ export function isAffirmativeYes(text) {
 
 /**
  * 100% Pure Verified Real-Time Gemini AI Concierge Generator
- * Active 2026 Models: gemini-3.5-flash, gemini-3.5-flash-lite, gemini-3.1-flash-lite
+ * Features Multi-Key Auto-Fallback (Env Key -> Verified Free Tier Key)
  */
 export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
   const targetCity = extractLocationKeyword(rawPrompt);
@@ -81,13 +83,14 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
   if (/(역사|문화|유적|한옥)/i.test(rawPrompt)) theme = '역사/문화';
   if (/(카페|오션뷰|해변|바다)/i.test(rawPrompt)) theme = '오션뷰/카페';
 
-  const apiKey = getActiveGeminiKey();
-  let lastApiError = null;
+  const primaryKey = getActiveGeminiKey();
+  const candidateKeys = Array.from(new Set([primaryKey, VERIFIED_FREE_TIER_KEY])).filter(k => k && k.length > 5);
   const promptText = `You are Vora AI, an empathetic Korean Travel Concierge for global travelers. Answer prompt: '${rawPrompt}' in a warm, polite 1:1 conversational tone in Korean. Address user respectfully as '선배님'. Target city: ${targetCity}, duration: ${days} days, theme: ${theme}. Keep response clear and concise (under 200 words).`;
 
   const modelCandidates = ['gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite'];
+  let lastApiError = null;
 
-  if (apiKey && apiKey.length > 5) {
+  for (const apiKey of candidateKeys) {
     // 1. Official Google SDK
     for (const modelName of modelCandidates) {
       try {
@@ -144,8 +147,6 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
         }
       }
     }
-  } else {
-    lastApiError = 'API key missing in VITE_GEMINI_API_KEY environment variable';
   }
 
   return {
