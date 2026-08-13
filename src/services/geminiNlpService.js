@@ -83,8 +83,8 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
   const apiKey = getActiveGeminiKey();
   let lastApiError = null;
 
-  // Supported model candidates for @google/generative-ai SDK
-  const candidateModelNames = ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-1.5-pro', 'gemini-2.0-flash-exp'];
+  // Standard API Key supported production models
+  const candidateModelNames = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-1.5-flash-8b'];
 
   if (apiKey && apiKey.length > 5) {
     const genAI = new GoogleGenerativeAI(apiKey);
@@ -94,9 +94,7 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
         const model = genAI.getGenerativeModel({ model: modelName });
         const promptText = `You are Vora AI, an empathetic Korean Travel Concierge for global travelers. Answer prompt: '${rawPrompt}' in a warm, polite 1:1 conversational tone in Korean. Address user respectfully as '선배님'. Target city: ${targetCity}, duration: ${days} days, theme: ${theme}. Keep response clear and concise (under 200 words).`;
 
-        const result = await model.generateContent({
-          contents: [{ role: 'user', parts: [{ text: promptText }] }]
-        });
+        const result = await model.generateContent(promptText);
         const responseText = result?.response?.text();
 
         if (responseText) {

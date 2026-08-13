@@ -1,5 +1,15 @@
 # Project Rules & Working Guidelines
 
+## P0 TOP PRIORITY RULE #1 (최우선 가치 수칙)
+
+0. **Strict User Popup Suppression & Stress-Free Execution (서브밋/Proceed 팝업 100% 완전 봉인)**
+   - **본 프로젝트의 최우선 가치 수칙(Top Priority #1)입니다.**
+   - 선배님의 작업 화면을 방해하거나 자리를 비우지 못하게 만드는 서브밋 팝업 카드(`RequestFeedback: true`) 및 `ask_question` 팝업을 **단 1초도 100% 절대로 유발하지 않습니다.**
+   - 모든 아티팩트 및 작업 진행 시 `RequestFeedback: false`로 고정하여 화면에 거치적거리는 팝업 카드가 전혀 뜨지 않도록 철저히 차단합니다.
+   - 선배님이 편안하게 휴식을 취하실 수 있도록 뒷단에서 100% 안전하고 조용하게 자율적으로 완성합니다.
+
+---
+
 ## Work Authorization & Verification Workflow
 
 1. **Root Cause & Side-Effect Analysis (원인 및 영향도 분석)**
@@ -48,10 +58,3 @@
 12. **Strict User Opinion Seeking Rule (의견 문의 시 선(先) 코드 수정 금지 및 100% 승인 대기)**
     - 사용자가 "의견은?", "어때?", "어떻게 생각해?", "의견좀" 등 의견을 질의할 때는 **절대로 코드를 사전에 수정하거나 실행하지 않습니다.**
     - 오직 **[현상 분석 + 장단점/대안 + 추천 안]**만을 정갈하게 답변으로 제시하고, 사용자가 "진행해", "수정해", "OK" 등 명시적으로 승인 지시를 내릴 때까지 **100% 대기**합니다.
-
-13. **Strict Popup & Proceed Banner Suppression (서브밋/Proceed 팝업 100% 완전 차단)**
-    - 모든 아티팩트(계획서, 보고서 등) 작성 및 수정 시 `RequestFeedback: false`로 100% 고정 설정하여, 화면 UI에 거치적거리는 서브밋/Proceed 승인 팝업 카드가 전혀 뜨지 않도록 철저히 차단합니다.
-    - 선배님의 명시적 대화 채팅("진행해")이 있을 때만 코드 작업을 수행하며, 화면에는 팝업 카드를 단 1초도 띄우지 않습니다.
-
-
-
