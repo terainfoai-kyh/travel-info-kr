@@ -1,6 +1,6 @@
 /**
  * Vora AI Core NLP & Pure Gemini API Concierge Service
- * Deletes all internal canned fallback logic and routes 100% to Google Gemini AI API
+ * Uses Google ListModels API to dynamically discover available models for the user's API Key
  */
 
 const VALID_KOREAN_CITIES = [
@@ -50,8 +50,44 @@ export function isAffirmativeYes(text) {
   return /^(응|네|좋아|오케이|ok|yes|보여줘|짜줘|확인)/i.test(text.trim());
 }
 
+let cachedAvailableModel = null;
+
 /**
- * 100% Pure Google Gemini API Concierge Generator (Internal Fake Fallbacks Removed)
+ * Dynamically query Google ListModels API to find the exact model supported for this API key
+ */
+async function getAvailableGeminiModel() {
+  if (cachedAvailableModel) return cachedAvailableModel;
+
+  try {
+    const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${GEMINI_API_KEY}`, {
+      headers: { 'x-goog-api-key': GEMINI_API_KEY }
+    });
+
+    if (listRes.ok) {
+      const listData = await listRes.json();
+      const models = listData?.models || [];
+      const validModel = models.find(m =>
+        m.name &&
+        m.supportedGenerationMethods &&
+        m.supportedGenerationMethods.includes('generateContent')
+      );
+
+      if (validModel) {
+        // validModel.name is like "models/gemini-1.5-flash-8b"
+        cachedAvailableModel = validModel.name.replace(/^models\//, '');
+        return cachedAvailableModel;
+      }
+    }
+  } catch (err) {
+    console.warn('[ListModels API Exception]', err);
+  }
+
+  // Default fallback candidates if ListModels fails
+  return 'gemini-1.5-flash-latest';
+}
+
+/**
+ * 100% Pure Google Gemini API Concierge Generator
  */
 export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
   const targetCity = extractLocationKeyword(rawPrompt);
@@ -66,12 +102,12 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
   if (/(역사|문화|유적|한옥)/i.test(rawPrompt)) theme = '역사/문화';
   if (/(카페|오션뷰|해변|바다)/i.test(rawPrompt)) theme = '오션뷰/카페';
 
-  // Endpoints to resolve 404 (tries Gemini 2.0 Flash, 1.5 Flash, 1.5 Pro)
+  // Discover valid model dynamically from Google ListModels API
+  const activeModel = await getAvailableGeminiModel();
   const candidateEndpoints = [
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${GEMINI_API_KEY}`,
-    `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`
+    `https://generativelanguage.googleapis.com/v1beta/models/${activeModel}:generateContent?key=${GEMINI_API_KEY}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-8b:generateContent?key=${GEMINI_API_KEY}`,
+    `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-8b:generateContent?key=${GEMINI_API_KEY}`
   ];
 
   let lastApiError = null;
@@ -87,7 +123,7 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
         body: JSON.stringify({
           contents: [{
             parts: [{
-              text: `You are Vora AI, an empathetic Korean Travel Concierge for global travelers. Answer the user prompt: '${rawPrompt}' in a warm, polite 1:1 conversational tone in Korean. Address the user respectfully as '선배님'. Target city: ${targetCity}, duration: ${days} days, theme: ${theme}. Keep response clear and concise (under 250 words).`
+              text: `You are Vora AI, an empathetic Korean Travel Concierge for global travelers. Answer the user prompt: '${rawPrompt}' in a warm, polite 1:1 conversational tone in Korean. Address the user respectfully as '선배님'. Target city: ${targetCity}, duration: ${days} days, theme: ${theme}. Keep response clear and concise (under 200 words).`
             }]
           }]
         })
@@ -108,8 +144,8 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
         }
       } else {
         const errText = await response.text().catch(() => '');
-        lastApiError = `Google API Http ${response.status}: ${errText}`;
-        console.warn(`[Gemini API Endpoint Error ${response.status}]`, endpointUrl, errText);
+        lastApiError = `Http ${response.status}: ${errText}`;
+        console.warn(`[Gemini API Error ${response.status}]`, endpointUrl, errText);
       }
     } catch (err) {
       lastApiError = err?.message || String(err);
@@ -117,13 +153,13 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
     }
   }
 
-  // 100% Pure Gemini Mode: If all Gemini API calls fail, report exact API error status instead of fake text!
+  // Report exact Google API error details
   return {
     targetCity,
     days,
     theme,
     tripTitle: `'${targetCity}' 여행`,
-    aiRecommendationSummary: `⚠️ 구글 Gemini AI API 통신 오류 발생 (${lastApiError || 'API key / Generative Language API disabled'})`,
+    aiRecommendationSummary: `⚠️ 구글 Gemini API 통신 오류 (${lastApiError || 'Model not enabled for this key'})`,
     success: false,
     apiError: lastApiError
   };
