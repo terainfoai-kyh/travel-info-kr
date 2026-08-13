@@ -1,6 +1,6 @@
 /**
  * Vora AI Core NLP & Official Google Generative AI Service
- * Features Multi-Key Auto-Fallback, GenerationConfig (maxOutputTokens: 300),
+ * Features Multi-Key Auto-Fallback, GenerationConfig (maxOutputTokens: 1000),
  * SystemInstruction (Greeting: "안녕하세요! 여행 조력자 보라입니다.") & Intent Discerning.
  */
 
@@ -73,7 +73,7 @@ export function isAffirmativeYes(text) {
 
 /**
  * Optimized Gemini AI Generator
- * Uses maxOutputTokens: 300 for 50%+ token savings & 0.4s ultra-fast latency.
+ * Solves sentence truncation by setting maxOutputTokens: 1000 and enforcing complete Korean sentences.
  */
 export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
   const isHelp = isMetaHelpQuery(rawPrompt);
@@ -94,20 +94,21 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
 
   const systemInstruction = `You are Vora AI, an empathetic Korean Travel Concierge for global travelers visiting Korea.
 ALWAYS start your response warmly with: "안녕하세요! 여행 조력자 보라입니다."
-If the user asks general platform usage questions (e.g., "여기서는 뭘 할 수 있지?", "what can I do here?"), introduce your 4 core services concisely:
+ALWAYS respond in 100% complete, natural Korean sentences. NEVER truncate sentences mid-word or output English markdown like "Day 1:*".
+If the user asks general usage questions (e.g., "여기서는 뭘 할 수 있지?", "what can I do here?"), introduce your 4 core services warmly:
 1. 1:1 맞춤 여행 일정 추천
 2. 한국관광공사 정품 명소 & 지도 GPS 좌표
 3. 최저가 숙소 (아고다) & 액티비티 (클룩) 연동
 4. 다국어 지원 (영어/일본어/중국어)
-If the user asks for travel recommendations or itineraries, provide a concise 3-step course (under 150 words) using clean bullet points. Keep all responses clear, concise, and helpful.`;
+If the user asks for travel recommendations, provide a concise 3-step course with complete sentences ending with proper punctuation.`;
 
-  const promptText = `User input: '${rawPrompt}'. Target city: ${targetCity}, duration: ${days} days, theme: ${theme}. Respond in Korean.`;
+  const promptText = `User input: '${rawPrompt}'. Target city: ${targetCity}, duration: ${days} days, theme: ${theme}. Respond in clear, complete Korean.`;
 
   const modelCandidates = ['gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite'];
   let lastApiError = null;
 
   for (const apiKey of candidateKeys) {
-    // 1. Official Google SDK with generationConfig
+    // 1. Official Google SDK
     for (const modelName of modelCandidates) {
       try {
         const genAI = new GoogleGenerativeAI(apiKey);
@@ -115,7 +116,7 @@ If the user asks for travel recommendations or itineraries, provide a concise 3-
           model: modelName,
           systemInstruction: systemInstruction,
           generationConfig: {
-            maxOutputTokens: 300,
+            maxOutputTokens: 1000,
             temperature: 0.7
           }
         });
@@ -150,7 +151,7 @@ If the user asks for travel recommendations or itineraries, provide a concise 3-
             body: JSON.stringify({
               contents: [{ parts: [{ text: `${systemInstruction}\n\n${promptText}` }] }],
               generationConfig: {
-                maxOutputTokens: 300,
+                maxOutputTokens: 1000,
                 temperature: 0.7
               }
             })

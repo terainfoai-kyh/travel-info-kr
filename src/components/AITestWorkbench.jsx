@@ -16,7 +16,10 @@ export default function AITestWorkbench({ lang = 'ko' }) {
   const [extraRechargeCount, setExtraRechargeCount] = useState(0);
   const [isVirtualGoogleLogin, setIsVirtualGoogleLogin] = useState(false);
 
-  // 3. Chat History Stream State
+  // 3. Dynamic Animated Loading Step State
+  const [loadingStep, setLoadingStep] = useState(0);
+
+  // 4. Chat History Stream State
   const [chatHistory, setChatHistory] = useState([
     {
       id: 'welcome-1',
@@ -35,7 +38,21 @@ export default function AITestWorkbench({ lang = 'ko' }) {
   // Auto-scroll to bottom of chat
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [chatHistory, isLoading]);
+  }, [chatHistory, isLoading, loadingStep]);
+
+  // Loading Step Interval Animation
+  useEffect(() => {
+    let timer;
+    if (isLoading) {
+      setLoadingStep(1);
+      timer = setInterval(() => {
+        setLoadingStep(prev => (prev >= 3 ? 1 : prev + 1));
+      }, 500);
+    } else {
+      setLoadingStep(0);
+    }
+    return () => clearInterval(timer);
+  }, [isLoading]);
 
   // Dev Simulator: Handle Tier Cycle
   const handleCycleVirtualTier = () => {
@@ -179,7 +196,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           {
             id: `vora-${Date.now()}`,
             sender: 'vora',
-            text: `안녕하세요! 여행 조력자 보라입니다.\n\n⚠️ 선배님! 오늘 제공된 AI 티켓 (${currentLimit}회)을 모두 소비하셨습니다.`,
+            text: `안녕하세요! 여행 조력자 보라입니다.\n\n⚠️ 오늘 제공된 AI 티켓 (${currentLimit}회)을 모두 소비하셨습니다.`,
             timestamp: new Date().toLocaleTimeString(),
             isQuotaExceededNotice: true
           }
@@ -250,6 +267,8 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     }
   };
 
+  const userLabel = lang === 'en' ? '👤 You' : (lang === 'ja' ? '👤 あなた' : (lang === 'zh' ? '👤 我' : '👤 나'));
+
   return (
     <div style={{
       width: '100%',
@@ -266,31 +285,30 @@ export default function AITestWorkbench({ lang = 'ko' }) {
       {/* 🛠️ TOP SENIOR DEVELOPER TEST SIMULATOR CONTROL BAR */}
       <div style={{
         backgroundColor: '#f1f5f9',
-        padding: '0.85rem 1rem',
-        borderRadius: '18px',
+        padding: '0.75rem 1rem',
+        borderRadius: '16px',
         border: '1px solid #cbd5e1',
-        marginBottom: '1.25rem',
+        marginBottom: '1rem',
         display: 'flex',
         flexWrap: 'wrap',
         alignItems: 'center',
         justifyContent: 'space-between',
-        gap: '0.75rem'
+        gap: '0.6rem'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Cpu size={20} style={{ color: '#7e22ce' }} />
-          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0f172a' }}>
-            🛠️ 선배님 전용 AI 쿼터 & 회원 등급 테스트 제어판:
+          <Cpu size={18} style={{ color: '#7e22ce' }} />
+          <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#0f172a' }}>
+            🛠️ AI 쿼터 & 회원 등급 제어판:
           </span>
         </div>
 
-        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.5rem' }}>
-          {/* Button 1: Toggle Dev Bypass */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.4rem' }}>
           <button
             onClick={() => toggleDevBypass()}
             style={{
-              padding: '0.35rem 0.7rem',
-              borderRadius: '10px',
-              fontSize: '0.75rem',
+              padding: '0.3rem 0.65rem',
+              borderRadius: '8px',
+              fontSize: '0.72rem',
               fontWeight: 700,
               cursor: 'pointer',
               border: 'none',
@@ -301,17 +319,16 @@ export default function AITestWorkbench({ lang = 'ko' }) {
               color: isDevBypass ? '#ffffff' : '#be123c'
             }}
           >
-            {isDevBypass ? <Zap size={14} /> : <ShieldAlert size={14} />}
+            {isDevBypass ? <Zap size={13} /> : <ShieldAlert size={13} />}
             {isDevBypass ? '무제한 모드 ON' : '유저 제한 모드'}
           </button>
 
-          {/* Button 2: Virtual Recharge +5 */}
           <button
             onClick={handleRechargeExtra}
             style={{
-              padding: '0.35rem 0.7rem',
-              borderRadius: '10px',
-              fontSize: '0.75rem',
+              padding: '0.3rem 0.65rem',
+              borderRadius: '8px',
+              fontSize: '0.72rem',
               fontWeight: 700,
               cursor: 'pointer',
               border: 'none',
@@ -322,17 +339,16 @@ export default function AITestWorkbench({ lang = 'ko' }) {
               color: '#ffffff'
             }}
           >
-            <PlusCircle size={14} />
+            <PlusCircle size={13} />
             +5회 즉시 충전 {extraRechargeCount > 0 && `(+${extraRechargeCount})`}
           </button>
 
-          {/* Button 3: Virtual Google Login Toggle */}
           <button
             onClick={handleToggleVirtualGoogleLogin}
             style={{
-              padding: '0.35rem 0.7rem',
-              borderRadius: '10px',
-              fontSize: '0.75rem',
+              padding: '0.3rem 0.65rem',
+              borderRadius: '8px',
+              fontSize: '0.72rem',
               fontWeight: 700,
               cursor: 'pointer',
               border: 'none',
@@ -343,17 +359,16 @@ export default function AITestWorkbench({ lang = 'ko' }) {
               color: '#ffffff'
             }}
           >
-            <UserCheck size={14} />
-            {isVirtualGoogleLogin ? '🔑 구글 로그인 상태 (15회)' : '🔒 비회원 상태 (5회)'}
+            <UserCheck size={13} />
+            {isVirtualGoogleLogin ? '🔑 구글 로그인 상태' : '🔒 비회원 상태'}
           </button>
 
-          {/* Button 4: Cycle Virtual Tier */}
           <button
             onClick={handleCycleVirtualTier}
             style={{
-              padding: '0.35rem 0.7rem',
-              borderRadius: '10px',
-              fontSize: '0.75rem',
+              padding: '0.3rem 0.65rem',
+              borderRadius: '8px',
+              fontSize: '0.72rem',
               fontWeight: 700,
               cursor: 'pointer',
               border: '1px solid rgba(147, 51, 234, 0.3)',
@@ -364,8 +379,8 @@ export default function AITestWorkbench({ lang = 'ko' }) {
               gap: '0.3rem'
             }}
           >
-            <Crown size={14} />
-            가상 등급: <strong style={{ color: '#6b21a8' }}>{virtualTier.toUpperCase()}</strong> (클릭하여 전환)
+            <Crown size={13} />
+            등급: <strong style={{ color: '#6b21a8' }}>{virtualTier.toUpperCase()}</strong>
           </button>
         </div>
       </div>
@@ -375,39 +390,39 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingBottom: '0.85rem',
-        marginBottom: '1rem',
+        paddingBottom: '0.65rem',
+        marginBottom: '0.85rem',
         borderBottom: '1px solid #e2e8f0'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-          <div style={{ padding: '0.5rem', backgroundColor: '#9333ea', color: '#ffffff', borderRadius: '12px', display: 'flex' }}>
-            <Sparkles size={20} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ padding: '0.4rem', backgroundColor: '#9333ea', color: '#ffffff', borderRadius: '10px', display: 'flex' }}>
+            <Sparkles size={18} />
           </div>
           <div>
-            <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
+            <h3 style={{ fontSize: '0.98rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
               Vora AI 1:1 대화형 여행 컨시어지
             </h3>
-            <span style={{ fontSize: '0.72rem', color: '#64748b' }}>
-              선(先) AI 답변 100% 노출 ➔ 후(後) 맞춤 숙소/티켓/가입 혜택 연결
+            <span style={{ fontSize: '0.7rem', color: '#64748b' }}>
+              맞춤 여행 일정 ➔ 한국관광공사 정품 명소 & 지도 GPS 연동
             </span>
           </div>
         </div>
 
         {/* Realtime Quota Info Badge */}
         <div style={{
-          padding: '0.4rem 0.85rem',
+          padding: '0.35rem 0.75rem',
           borderRadius: '9999px',
-          fontSize: '0.75rem',
+          fontSize: '0.72rem',
           fontWeight: 700,
           backgroundColor: isDevBypass ? '#d1fae5' : '#dbeafe',
           color: isDevBypass ? '#065f46' : '#1e40af',
           border: isDevBypass ? '1px solid #a7f3d0' : '1px solid #bfdbfe',
           display: 'flex',
           alignItems: 'center',
-          gap: '0.4rem'
+          gap: '0.3rem'
         }}>
           {isDevBypass ? (
-            <>⚡ 선배님 무제한 패스 (UNLIMITED)</>
+            <>⚡ 무제한 패스 (UNLIMITED)</>
           ) : (
             <>🎟️ 오늘 남은 AI 티켓: <span style={{ color: '#b45309' }}>{Math.max(0, (virtualQuotaLimit + extraRechargeCount) - usedCount)}</span> / {virtualQuotaLimit + extraRechargeCount}회</>
           )}
@@ -417,16 +432,16 @@ export default function AITestWorkbench({ lang = 'ko' }) {
       {/* CHAT MESSAGES STREAM CONTAINER */}
       <div style={{
         backgroundColor: '#f8fafc',
-        borderRadius: '18px',
-        padding: '1.25rem',
+        borderRadius: '16px',
+        padding: '1rem',
         minHeight: '380px',
         maxHeight: '520px',
         overflowY: 'auto',
         display: 'flex',
         flexDirection: 'column',
-        gap: '1.25rem',
+        gap: '0.6rem',
         border: '1px solid #cbd5e1',
-        marginBottom: '1rem'
+        marginBottom: '0.85rem'
       }}>
         {chatHistory.map((msg) => (
           <div
@@ -435,49 +450,49 @@ export default function AITestWorkbench({ lang = 'ko' }) {
               display: 'flex',
               flexDirection: 'column',
               alignItems: msg.sender === 'user' ? 'flex-end' : 'flex-start',
-              gap: '0.4rem'
+              gap: '0.2rem'
             }}
           >
             {/* Sender Label & Timestamp */}
-            <div style={{ fontSize: '0.7rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              <span>{msg.sender === 'user' ? '👤 선배님' : '🤖 Vora AI'}</span>
+            <div style={{ fontSize: '0.68rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.3rem', marginBottom: '0.1rem' }}>
+              <span>{msg.sender === 'user' ? userLabel : '🤖 Vora AI'}</span>
               <span>• {msg.timestamp}</span>
             </div>
 
             {/* Message Bubble */}
             <div style={{
               maxWidth: '85%',
-              padding: '0.9rem 1.1rem',
-              borderRadius: msg.sender === 'user' ? '18px 4px 18px 18px' : '4px 18px 18px 18px',
+              padding: '0.65rem 0.95rem',
+              borderRadius: msg.sender === 'user' ? '16px 4px 16px 16px' : '4px 16px 16px 16px',
               backgroundColor: msg.sender === 'user' ? '#2563eb' : '#ffffff',
               color: msg.sender === 'user' ? '#ffffff' : '#0f172a',
-              fontSize: '0.88rem',
-              lineHeight: '1.6',
+              fontSize: '0.85rem',
+              lineHeight: '1.5',
               whiteSpace: 'pre-wrap',
-              boxShadow: msg.sender === 'user' ? '0 4px 12px rgba(37, 99, 235, 0.2)' : '0 4px 12px rgba(0, 0, 0, 0.05)',
+              boxShadow: msg.sender === 'user' ? '0 3px 8px rgba(37, 99, 235, 0.18)' : '0 3px 8px rgba(0, 0, 0, 0.04)',
               border: msg.sender === 'user' ? 'none' : '1px solid #e2e8f0'
             }}>
               {msg.text}
 
               {/* Guard Warning Highlight */}
               {msg.isGuardWarning && (
-                <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid #f1f5f9', color: '#dc2626', fontSize: '0.78rem' }}>
+                <div style={{ marginTop: '0.4rem', paddingTop: '0.4rem', borderTop: '1px solid #f1f5f9', color: '#dc2626', fontSize: '0.75rem' }}>
                   💡 대한민국 관공서/관광 명소 및 미식 질문을 입력해 주시면 감사하겠습니다!
                 </div>
               )}
 
               {/* Quota Exceeded Action Card */}
               {msg.isQuotaExceededNotice && (
-                <div style={{ marginTop: '0.85rem', paddingTop: '0.85rem', borderTop: '1px solid #f1f5f9', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <div style={{ marginTop: '0.6rem', paddingTop: '0.6rem', borderTop: '1px solid #f1f5f9', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                   <button
                     onClick={handleRechargeExtra}
-                    style={{ padding: '0.5rem 0.85rem', backgroundColor: '#10b981', color: '#ffffff', fontWeight: 700, borderRadius: '10px', border: 'none', cursor: 'pointer', fontSize: '0.78rem', textAlign: 'center' }}
+                    style={{ padding: '0.45rem 0.75rem', backgroundColor: '#10b981', color: '#ffffff', fontWeight: 700, borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '0.75rem', textAlign: 'center' }}
                   >
                     🎬 15초 짧은 광고 시청하고 오늘 +3회 즉시 충전하기
                   </button>
                   <button
                     onClick={handleToggleVirtualGoogleLogin}
-                    style={{ padding: '0.5rem 0.85rem', backgroundColor: '#ea580c', color: '#ffffff', fontWeight: 700, borderRadius: '10px', border: 'none', cursor: 'pointer', fontSize: '0.78rem', textAlign: 'center' }}
+                    style={{ padding: '0.45rem 0.75rem', backgroundColor: '#ea580c', color: '#ffffff', fontWeight: 700, borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '0.75rem', textAlign: 'center' }}
                   >
                     🔴 Google 3초 로그인하고 매일 15회로 확장하기
                   </button>
@@ -486,19 +501,19 @@ export default function AITestWorkbench({ lang = 'ko' }) {
 
               {/* Value-First Parsed Geo-Coordinates & Spot Cards */}
               {msg.spots && msg.spots.length > 0 && (
-                <div style={{ marginTop: '0.85rem', paddingTop: '0.85rem', borderTop: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#7e22ce', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                <div style={{ marginTop: '0.6rem', paddingTop: '0.6rem', borderTop: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#7e22ce', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
                     🗺️ {msg.targetCity} 정품 명소 및 지도 GPS 좌표 ({msg.spots.length}건):
                   </span>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                     {msg.spots.map((spot, idx) => (
-                      <div key={spot.id || idx} style={{ padding: '0.6rem 0.75rem', backgroundColor: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '0.78rem', display: 'flex', alignItems: 'center', justifyBetween: 'space-between', gap: '0.5rem' }}>
+                      <div key={spot.id || idx} style={{ padding: '0.5rem 0.65rem', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyBetween: 'space-between', gap: '0.4rem' }}>
                         <div>
                           <strong style={{ color: '#0f172a', display: 'block' }}>{idx + 1}. {spot.title}</strong>
-                          <span style={{ color: '#64748b', fontSize: '0.7rem' }}>📍 {spot.location || spot.addr1 || '중심가'}</span>
+                          <span style={{ color: '#64748b', fontSize: '0.68rem' }}>📍 {spot.location || spot.addr1 || '중심가'}</span>
                         </div>
-                        <div style={{ textAlign: 'right', fontFamily: 'monospace', fontSize: '0.68rem', color: '#2563eb' }}>
+                        <div style={{ textAlign: 'right', fontFamily: 'monospace', fontSize: '0.65rem', color: '#2563eb' }}>
                           <div>lat: {spot.lat || spot.mapy || '37.5665'}</div>
                           <div>lng: {spot.lng || spot.mapx || '126.9780'}</div>
                         </div>
@@ -508,12 +523,12 @@ export default function AITestWorkbench({ lang = 'ko' }) {
 
                   {/* Value-First Call To Action Affiliate Chips */}
                   {msg.agodaUrl && msg.klookUrl && (
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', pt: '0.4rem', marginTop: '0.4rem' }}>
-                      <a href={msg.agodaUrl} target="_blank" rel="noopener noreferrer" style={{ padding: '0.35rem 0.65rem', backgroundColor: '#eff6ff', color: '#1d4ed8', borderRadius: '8px', border: '1px solid #bfdbfe', textDecoration: 'none', fontSize: '0.72rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
-                        🏨 아고다 {msg.targetCity} 할인 숙소 <ExternalLink size={12} />
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', pt: '0.3rem', marginTop: '0.3rem' }}>
+                      <a href={msg.agodaUrl} target="_blank" rel="noopener noreferrer" style={{ padding: '0.3rem 0.55rem', backgroundColor: '#eff6ff', color: '#1d4ed8', borderRadius: '6px', border: '1px solid #bfdbfe', textDecoration: 'none', fontSize: '0.7rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                        🏨 아고다 {msg.targetCity} 할인 숙소 <ExternalLink size={11} />
                       </a>
-                      <a href={msg.klookUrl} target="_blank" rel="noopener noreferrer" style={{ padding: '0.35rem 0.65rem', backgroundColor: '#fff7ed', color: '#c2410c', borderRadius: '8px', border: '1px solid #ffedd5', textDecoration: 'none', fontSize: '0.72rem', display: 'flex', items: 'center', gap: '0.2rem' }}>
-                        🎟️ 클룩 {msg.targetCity} 액티비티 <ExternalLink size={12} />
+                      <a href={msg.klookUrl} target="_blank" rel="noopener noreferrer" style={{ padding: '0.3rem 0.55rem', backgroundColor: '#fff7ed', color: '#c2410c', borderRadius: '6px', border: '1px solid #ffedd5', textDecoration: 'none', fontSize: '0.7rem', display: 'flex', items: 'center', gap: '0.2rem' }}>
+                        🎟️ 클룩 {msg.targetCity} 액티비티 <ExternalLink size={11} />
                       </a>
                     </div>
                   )}
@@ -523,21 +538,21 @@ export default function AITestWorkbench({ lang = 'ko' }) {
 
             {/* Quick Suggestion Chips */}
             {msg.chips && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginTop: '0.3rem' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginTop: '0.2rem' }}>
                 {msg.chips.map((chipText, cIdx) => (
                   <button
                     key={cIdx}
                     onClick={() => handleSendMessage(chipText)}
                     style={{
-                      padding: '0.35rem 0.75rem',
+                      padding: '0.3rem 0.65rem',
                       borderRadius: '9999px',
-                      fontSize: '0.72rem',
+                      fontSize: '0.7rem',
                       fontWeight: 600,
                       backgroundColor: '#ffffff',
                       color: '#334155',
                       border: '1px solid #cbd5e1',
                       cursor: 'pointer',
-                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.03)'
+                      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.02)'
                     }}
                   >
                     📍 {chipText}
@@ -548,23 +563,28 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           </div>
         ))}
 
+        {/* Dynamic 3-Step Animated Stream Loading UX */}
         {isLoading && (
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '0.6rem',
-            padding: '0.8rem 1rem',
+            gap: '0.5rem',
+            padding: '0.65rem 0.95rem',
             backgroundColor: '#ffffff',
-            borderRadius: '14px',
+            borderRadius: '12px',
             border: '1px solid #e2e8f0',
             color: '#7e22ce',
-            fontSize: '0.82rem',
+            fontSize: '0.8rem',
             fontWeight: 600,
             maxWidth: '85%',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.04)'
+            boxShadow: '0 3px 8px rgba(0, 0, 0, 0.04)'
           }}>
-            <RefreshCw size={16} className="animate-spin" style={{ color: '#9333ea' }} />
-            <span>🔮 보라 AI가 구글 AI 분석 및 한국관광공사 DB를 0.4초 만에 추출하고 있습니다...</span>
+            <RefreshCw size={15} className="animate-spin" style={{ color: '#9333ea' }} />
+            <span>
+              {loadingStep === 1 && '🔮 보라 AI가 질문의 의미를 분석하고 있습니다.'}
+              {loadingStep === 2 && '📍 한국관광공사 정품 DB & GPS 지도 좌표 검색 중..'}
+              {loadingStep === 3 && '✨ 100% 맞춤 여행 추천 코스를 가공하고 있습니다...'}
+            </span>
           </div>
         )}
 
@@ -572,7 +592,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
       </div>
 
       {/* INPUT FORM CONTAINER */}
-      <div style={{ display: 'flex', gap: '0.5rem', position: 'relative' }}>
+      <div style={{ display: 'flex', gap: '0.4rem', position: 'relative' }}>
         <input
           type="text"
           value={inputPrompt}
@@ -581,12 +601,12 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           placeholder="어디로 떠나고 싶으신가요? (예: 수원 2박3일 맛집 코스, 여기서는 뭘 할 수 있지?)"
           style={{
             flex: 1,
-            padding: '0.85rem 1rem',
+            padding: '0.75rem 0.9rem',
             backgroundColor: '#ffffff',
             border: '1px solid #cbd5e1',
-            borderRadius: '14px',
+            borderRadius: '12px',
             color: '#0f172a',
-            fontSize: '0.85rem',
+            fontSize: '0.82rem',
             outline: 'none'
           }}
         />
@@ -595,10 +615,10 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         <button
           onClick={handleStartVoiceSTT}
           style={{
-            padding: '0 0.85rem',
+            padding: '0 0.75rem',
             backgroundColor: isListening ? '#ef4444' : '#f1f5f9',
             color: isListening ? '#ffffff' : '#334155',
-            borderRadius: '14px',
+            borderRadius: '12px',
             border: '1px solid #cbd5e1',
             cursor: 'pointer',
             display: 'flex',
@@ -607,7 +627,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           }}
           title="음성 인식"
         >
-          <Mic size={18} />
+          <Mic size={17} />
         </button>
 
         {/* Send Button */}
@@ -615,20 +635,20 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           onClick={() => handleSendMessage()}
           disabled={isLoading || !inputPrompt.trim()}
           style={{
-            padding: '0 1.25rem',
+            padding: '0 1.1rem',
             background: 'linear-gradient(135deg, #9333ea 0%, #2563eb 100%)',
             color: '#ffffff',
             fontWeight: 700,
-            borderRadius: '14px',
+            borderRadius: '12px',
             border: 'none',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.4rem',
+            gap: '0.3rem',
             opacity: (isLoading || !inputPrompt.trim()) ? 0.5 : 1
           }}
         >
-          <Send size={16} />
+          <Send size={15} />
           <span>전송</span>
         </button>
       </div>
