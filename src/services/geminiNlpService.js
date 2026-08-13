@@ -132,26 +132,16 @@ Return your response ONLY as a valid JSON object matching this schema:
   ]
 }
 
-CRITICAL RULES FOR "summary" AND "dailyPlaces":
-1. IF USER INPUT IS NOT A VALID KOREAN TRAVEL DESTINATION/CITY (e.g. '푸틴', '징수', 'asdf', '1234', random non-place text):
+CRITICAL INSTRUCTIONS:
+1. IF USER INPUT IS NOT A VALID KOREAN TRAVEL DESTINATION (e.g. '푸틴', '징수', 'asdf'):
    - Set isUnknownPlace: true, targetCity: null, dailyPlaces: [].
-   - Dynamically write a polite context-aware summary starting with "${greetingPrefix}" explaining that the user's input is not a recognized Korean destination, and invite them to enter a real travel location (e.g. Seoul, Jeju, Busan, Geoje, etc.).
+   - Dynamically write a polite context-aware summary starting with "${greetingPrefix}" explaining that the input is not a recognized Korean destination, and invite them to enter a real travel location (e.g. Seoul, Jeju, Busan, Geoje, Suwon, etc.).
 
-2. OTHERWISE (VALID KOREAN TRAVEL QUERY like '거제도 2박3일', '수원 화성행궁', '제주도'):
+2. OTHERWISE (VALID KOREAN TRAVEL QUERY like '거제도 2박3일 오션뷰 카페', '수원 화성행궁 야경', '제주도'):
    - Set isUnknownPlace: false.
-   - MANDATORY: Write a rich, warm, multiline summary starting with "${greetingPrefix}".
-   - MUST explicitly detail each day line-by-line using real iconic landmarks in the target destination:
-     "안녕하세요! 여행 컨시어지 보라입니다. 😊 [여행지] ${days}일 맞춤 여행 코스를 소개합니다!
-
-1일차: [여행지] 대표 명소인 [명소1]에서 바다를 조망하고, 이어지는 [명소2]를 구경합니다.
-2일차: [여행지]의 힐링 장소인 [명소3]에서 시간을 보낸 뒤 [명소4]를 탐방합니다.
-3일차: [여행지]의 [명소5]에서 멋진 일몰을 감상하며 여행을 마무리합니다."
-   - Populate "dailyPlaces" with the EXACT landmark names used in your summary:
-     dailyPlaces: [
-       { "day": 1, "places": ["명소1", "명소2"] },
-       { "day": 2, "places": ["명소3", "명소4"] },
-       { "day": 3, "places": ["명소5"] }
-     ]
+   - Write a rich, natural, warm, multiline travel itinerary recommendation in Korean, tailored specifically to the user's requested theme and duration. Start with "${greetingPrefix}".
+   - Break down the itinerary naturally by day (1일차, 2일차, etc.) using real iconic landmarks, restaurants, or cafes in that destination.
+   - Populate "dailyPlaces" with the exact landmark names mentioned in your summary so they can be synchronized with the map.
 
 3. Return ONLY valid JSON without markdown code fences.`;
 
