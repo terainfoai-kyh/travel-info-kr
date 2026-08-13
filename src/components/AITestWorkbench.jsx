@@ -980,7 +980,15 @@ export default function AITestWorkbench({ lang = 'ko' }) {
             </div>
 
             {/* Desktop Spot Cards List */}
-            {activeSpotMessage?.spots && activeSpotMessage.spots.length > 0 ? (
+            {isLoading ? (
+              <div style={{ padding: '3.5rem 1rem', textAlign: 'center', color: '#7e22ce', fontSize: '0.84rem', fontWeight: 700 }}>
+                <RefreshCw size={30} className="animate-spin" style={{ margin: '0 auto 0.75rem auto', display: 'block', color: '#9333ea' }} />
+                <span>{loadingStepText}</span>
+                <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '0.4rem', fontWeight: 500 }}>
+                  새로운 여행 질문에 맞춰 1:1 명소 코스를 실시간 동기화 중입니다...
+                </div>
+              </div>
+            ) : activeSpotMessage?.spots && activeSpotMessage.spots.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 {activeSpotMessage.spots.map((spot, idx) => {
                   const dayNum = spot.assignedDay || 1;
