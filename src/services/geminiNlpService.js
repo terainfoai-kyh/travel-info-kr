@@ -1,7 +1,7 @@
 /**
  * Vora AI Core NLP & Official Google Generative AI Service
- * Features Multi-Key Auto-Fallback, Dynamic Multilingual (ko/en/ja/zh),
- * Clean Suffix Stripping for City Extraction (창원주변 -> 창원), Exact "X박 Y일" Duration Parsing & 1~5 Day Complete Bullet Itineraries.
+ * Features Native Structured JSON Output Architecture, Multi-Key Auto-Fallback,
+ * Dynamic Multilingual (ko/en/ja/zh), Clean Suffix Stripping for City Extraction, Exact "X박 Y일" Duration Parsing.
  */
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
@@ -58,7 +58,7 @@ export function extractLocationKeyword(text) {
   if (!text || typeof text !== 'string') return '전국';
   let clean = text.trim();
 
-  // Strip trailing noise words to prevent false substring overlaps (e.g. 창원주변 -> 창원)
+  // Strip trailing noise words to prevent false substring overlaps
   clean = clean.replace(/(주변|근처|인근|여행|추천|코스|맛집|가볼만한곳|여행지)/g, ' ').trim();
 
   // 1. Exact match check
@@ -102,8 +102,8 @@ export function sanitizeGeminiOutput(text) {
 }
 
 /**
- * Dynamic Multilingual Gemini AI Generator
- * Accurate city extraction, robust "X박 Y일" duration parsing, maxOutputTokens: 1500, temperature: 0.5.
+ * Gemini Native Structured JSON Output Generator
+ * Returns both polite human summary text AND a clean JSON array of daily place names!
  */
 export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
   const isHelp = isMetaHelpQuery(rawPrompt);
@@ -113,8 +113,8 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
   let days = 3;
   if (/(5일|4박\s*5일|5박|5d)/i.test(rawPrompt)) days = 5;
   else if (/(4일|3박\s*4일|4박|4d)/i.test(rawPrompt)) days = 4;
-  else if (/(3일|2박\s*3일|3박|3d)/i.test(rawPrompt)) days = 3; // "2박 3일" -> 3 days!
-  else if (/(2일|1박\s*2일|2박|2d)/i.test(rawPrompt)) days = 2; // "1박 2일" -> 2 days!
+  else if (/(3일|2박\s*3일|3박|3d)/i.test(rawPrompt)) days = 3;
+  else if (/(2일|1박\s*2일|2박|2d)/i.test(rawPrompt)) days = 2;
   else if (/(1일|당일|1박)/i.test(rawPrompt)) days = 1;
 
   let theme = '힐링/자연';
@@ -126,32 +126,28 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
   const primaryKey = getActiveGeminiKey();
   const candidateKeys = Array.from(new Set([primaryKey, VERIFIED_FREE_TIER_KEY])).filter(k => k && k.length > 5);
 
-  let langInstruction = 'ALWAYS respond in 100% complete, natural, polite Korean ending with proper Korean periods (.). NEVER output English thought notes or meta commentary.';
-  let greetingPrefix = '안녕하세요! 여행 조력자 보라입니다.';
-
-  if (lang === 'en') {
-    langInstruction = 'ALWAYS respond in 100% polite, natural English ending with proper punctuation. NEVER output internal thought notes or meta commentary.';
-    greetingPrefix = 'Hello! I am Vora, your Korean Travel Concierge.';
-  } else if (lang === 'ja') {
-    langInstruction = 'ALWAYS respond in 100% polite, natural Japanese ending with proper Japanese punctuation (。). NEVER output internal thought notes or meta commentary.';
-    greetingPrefix = 'こんにちは！旅行アシスタントのボラです。';
-  } else if (lang === 'zh') {
-    langInstruction = 'ALWAYS respond in 100% polite, natural Chinese ending with proper Chinese punctuation (。). NEVER output internal thought notes or meta commentary.';
-    greetingPrefix = '您好！我是您的韩国旅行助手 Vora。';
-  }
+  let greetingPrefix = '안녕하세요! 여행 조력자 보라입니다. 😊';
+  if (lang === 'en') greetingPrefix = 'Hello! I am Vora, your Korean Travel Concierge. 😊';
+  else if (lang === 'ja') greetingPrefix = 'こんにちは！旅行アシスタントのボラです。😊';
+  else if (lang === 'zh') greetingPrefix = '您好！我是您的韩国旅行助手 Vora。😊';
 
   const systemInstruction = `You are Vora AI, an empathetic Korean Travel Concierge for global travelers visiting Korea.
-ALWAYS start your response warmly with: "${greetingPrefix}"
-${langInstruction}
-Do NOT output any markdown headers starting with "*Self-Correction*" or internal notes.
-If the user asks general usage questions (e.g., "여기서는 뭘 할 수 있지?", "what can I do here?"), introduce your 4 core services warmly:
-1. 1:1 맞춤 여행 일정 추천 (1일~5일 코스 지원)
-2. 한국관광공사 정품 명소 & 지도 GPS 좌표
-3. 최저가 숙소 (아고다) & 액티비티 (클룩) 연동
-4. 다국어 지원 (영어/일본어/중국어)
-If the user asks for travel recommendations, provide a concise course for exactly ${days} days using clean 1-line bullet points for each day from 1일차 up to ${days}일차 (e.g., 1일차: ..., 2일차: ..., 3일차: ..., etc.). Ensure every single day from 1일차 to ${days}일차 is fully covered and ends with a proper period.`;
+Return your output ONLY as a valid JSON object matching this schema:
+{
+  "summary": "Polite human itinerary response starting with '${greetingPrefix}'. Provide a concise itinerary for ${days} days with clean bullet points starting with '1일차: ...', '2일차: ...' up to '${days}일차: ...'.",
+  "targetCity": "${targetCity}",
+  "dailyPlaces": [
+    { "day": 1, "places": ["Exact landmark name 1", "Exact landmark name 2"] },
+    { "day": 2, "places": ["Exact landmark name 3", "Exact landmark name 4"] }
+  ]
+}
 
-  const promptText = `User input: '${rawPrompt}'. Target city: ${targetCity}, duration: ${days} days, theme: ${theme}. Write a concise ${days}-day itinerary.`;
+CRITICAL RULES FOR "dailyPlaces":
+1. Include ONLY exact landmark/tourist spot/cafe/restaurant names mentioned in your summary text for that day.
+2. DO NOT include meta words like "마무리", "산책", "관람", "이동", "식사", "출발", "도착", "편안하게".
+3. Return clean JSON without markdown code fences if possible.`;
+
+  const promptText = `User input: '${rawPrompt}'. Target city: ${targetCity}, duration: ${days} days, theme: ${theme}. Generate JSON output.`;
 
   const modelCandidates = ['gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite'];
   let lastApiError = null;
@@ -165,24 +161,28 @@ If the user asks for travel recommendations, provide a concise course for exactl
           model: modelName,
           systemInstruction: systemInstruction,
           generationConfig: {
+            responseMimeType: "application/json",
             maxOutputTokens: 1500,
-            temperature: 0.5
+            temperature: 0.3
           }
         });
         const result = await model.generateContent(promptText);
-        const text = result?.response?.text();
-        const cleanText = sanitizeGeminiOutput(text);
-
-        if (cleanText) {
-          return {
-            targetCity,
-            days,
-            theme,
-            isHelpQuery: isHelp,
-            tripTitle: isHelp ? '보라 AI 안내' : `'${targetCity}' ${days}일 맞춤 대화 코스`,
-            aiRecommendationSummary: cleanText,
-            success: true
-          };
+        const rawText = result?.response?.text();
+        
+        if (rawText) {
+          const parsed = parseGeminiJsonResponse(rawText, greetingPrefix, targetCity, days);
+          if (parsed && parsed.summary) {
+            return {
+              targetCity: parsed.targetCity || targetCity,
+              days,
+              theme,
+              isHelpQuery: isHelp,
+              tripTitle: isHelp ? '보라 AI 안내' : `'${parsed.targetCity || targetCity}' ${days}일 맞춤 대화 코스`,
+              aiRecommendationSummary: parsed.summary,
+              dailyPlaces: parsed.dailyPlaces || [],
+              success: true
+            };
+          }
         }
       } catch (err) {
         lastApiError = err?.message || String(err);
@@ -194,7 +194,7 @@ If the user asks for travel recommendations, provide a concise course for exactl
       for (const modelName of modelCandidates) {
         try {
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 4000); // 4.0s Timeout Guard!
+          const timeoutId = setTimeout(() => controller.abort(), 4000);
 
           const res = await fetch(`https://generativelanguage.googleapis.com/${ver}/models/${modelName}:generateContent?key=${apiKey}`, {
             method: 'POST',
@@ -205,27 +205,31 @@ If the user asks for travel recommendations, provide a concise course for exactl
             body: JSON.stringify({
               contents: [{ parts: [{ text: `${systemInstruction}\n\n${promptText}` }] }],
               generationConfig: {
+                responseMimeType: "application/json",
                 maxOutputTokens: 1500,
-                temperature: 0.5
+                temperature: 0.3
               }
             })
           });
           clearTimeout(timeoutId);
 
           const data = await res.json();
-          const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-          const cleanText = sanitizeGeminiOutput(text);
+          const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
-          if (res.ok && cleanText) {
-            return {
-              targetCity,
-              days,
-              theme,
-              isHelpQuery: isHelp,
-              tripTitle: isHelp ? '보라 AI 안내' : `'${targetCity}' ${days}일 맞춤 대화 코스`,
-              aiRecommendationSummary: cleanText,
-              success: true
-            };
+          if (res.ok && rawText) {
+            const parsed = parseGeminiJsonResponse(rawText, greetingPrefix, targetCity, days);
+            if (parsed && parsed.summary) {
+              return {
+                targetCity: parsed.targetCity || targetCity,
+                days,
+                theme,
+                isHelpQuery: isHelp,
+                tripTitle: isHelp ? '보라 AI 안내' : `'${parsed.targetCity || targetCity}' ${days}일 맞춤 대화 코스`,
+                aiRecommendationSummary: parsed.summary,
+                dailyPlaces: parsed.dailyPlaces || [],
+                success: true
+              };
+            }
           } else if (data?.error?.message) {
             lastApiError = data.error.message;
           }
@@ -243,7 +247,34 @@ If the user asks for travel recommendations, provide a concise course for exactl
     isHelpQuery: isHelp,
     tripTitle: `'${targetCity}' 여행`,
     aiRecommendationSummary: `${greetingPrefix}\n\n⚠️ 통신 연결이 일시적으로 지연되었습니다. 궁금하신 여행지를 편하게 말씀해 주세요!`,
+    dailyPlaces: [],
     success: false,
     apiError: lastApiError
   };
+}
+
+/**
+ * Robust JSON Parser for Gemini Output
+ */
+function parseGeminiJsonResponse(rawText, greetingPrefix, defaultCity, defaultDays) {
+  if (!rawText || typeof rawText !== 'string') return null;
+  let cleanText = rawText.trim();
+  cleanText = cleanText.replace(/```json/gi, '').replace(/```/g, '').trim();
+
+  try {
+    const json = JSON.parse(cleanText);
+    const summary = sanitizeGeminiOutput(json.summary || cleanText);
+    return {
+      summary: summary || greetingPrefix,
+      targetCity: json.targetCity || defaultCity,
+      dailyPlaces: Array.isArray(json.dailyPlaces) ? json.dailyPlaces : []
+    };
+  } catch (e) {
+    // If JSON parsing fails fallback to raw text
+    return {
+      summary: sanitizeGeminiOutput(cleanText),
+      targetCity: defaultCity,
+      dailyPlaces: []
+    };
+  }
 }
