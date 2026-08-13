@@ -13,7 +13,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
   const { usedCount, remainingQuota, dailyLimit, canProceed, isDevBypass, toggleDevBypass, incrementQuota } = useQuotaLimit(5);
 
   // 2. Dev Test Simulator & Admin Dashboard States
-  const [virtualTier, setVirtualTier] = useState('dev'); // 'guest', 'user', 'vip', 'depleted', 'dev'
+  const [virtualTier, setVirtualTier] = useState('dev');
   const [virtualQuotaLimit, setVirtualQuotaLimit] = useState(5);
   const [extraRechargeCount, setExtraRechargeCount] = useState(0);
   const [isVirtualGoogleLogin, setIsVirtualGoogleLogin] = useState(false);
@@ -32,8 +32,10 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // 4. Mobile Accordion Toggle States (msgId -> boolean)
+  // 4. Mobile Accordion Toggle States & PC Selected Message State
   const [expandedMobileMsgs, setExpandedMobileMsgs] = useState({});
+  const [selectedMsgId, setSelectedMsgId] = useState(null);
+
   const toggleMobileAccordion = (msgId) => {
     setExpandedMobileMsgs(prev => ({
       ...prev,
@@ -45,7 +47,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
   const [loadingDots, setLoadingDots] = useState('●');
   const [loadingStepText, setLoadingStepText] = useState('한국관광공사 정품 DB에서 추천 명소 탐색 중');
 
-  // 6. Chat History Stream State
+  // 6. Chat History Stream State with Sample Initial Course
   const [chatHistory, setChatHistory] = useState([
     {
       id: 'welcome-1',
@@ -61,15 +63,16 @@ export default function AITestWorkbench({ lang = 'ko' }) {
   const [isListening, setIsListening] = useState(false);
   const chatEndRef = useRef(null);
 
-  // Get Latest Active AI Spot Course for PC Right Fixed Panel
-  const latestAiSpotMessage = chatHistory.slice().reverse().find(m => m.sender === 'vora' && m.spots && m.spots.length > 0);
+  // Get Currently Selected AI Spot Message for PC Right Fixed Panel
+  const activeSpotMessage = chatHistory.find(m => m.id === selectedMsgId && m.spots && m.spots.length > 0) ||
+    chatHistory.slice().reverse().find(m => m.sender === 'vora' && m.spots && m.spots.length > 0);
 
   // Auto-scroll to bottom of chat
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [chatHistory, isLoading, loadingDots]);
 
-  // High-Visibility Animated Wave Dots & Rotating Status Step Text (No Emojis)
+  // High-Visibility Animated Wave Dots & Rotating Status Step Text
   useEffect(() => {
     let timerDots;
     let timerStep;
@@ -106,7 +109,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     };
   }, [isLoading]);
 
-  // Dev Simulator: Handle Tier Cycle
   const handleCycleVirtualTier = () => {
     if (virtualTier === 'dev') {
       setVirtualTier('guest');
@@ -132,14 +134,12 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     }
   };
 
-  // Dev Simulator: Virtual Recharge +5
   const handleRechargeExtra = () => {
     setExtraRechargeCount(prev => prev + 5);
     logAnalyticsEvent('VIDEO_AD');
     alert('⚡ [테스트 충전] +5회 무료 대화가 가상으로 즉시 충전되었습니다!');
   };
 
-  // Dev Simulator: Virtual Google Login Toggle
   const handleToggleVirtualGoogleLogin = () => {
     const nextState = !isVirtualGoogleLogin;
     setIsVirtualGoogleLogin(nextState);
@@ -155,7 +155,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     }
   };
 
-  // STT Voice Input Test
   const handleStartVoiceSTT = () => {
     if (typeof window === 'undefined') return;
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -182,19 +181,17 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     }
   };
 
-  // Helper function to get Day Badge styling
   const getDayBadgeStyle = (dayIndex) => {
     const colors = [
-      { bg: '#f3e8ff', text: '#7e22ce', border: '#e9d5ff' }, // Day 1 Purple
-      { bg: '#dbeafe', text: '#1d4ed8', border: '#bfdbfe' }, // Day 2 Blue
-      { bg: '#d1fae5', text: '#047857', border: '#a7f3d0' }, // Day 3 Green
-      { bg: '#ffedd5', text: '#c2410c', border: '#fed7aa' }, // Day 4 Orange
-      { bg: '#fce7f3', text: '#be185d', border: '#fbcfe8' }  // Day 5 Pink
+      { bg: '#f3e8ff', text: '#7e22ce', border: '#e9d5ff' },
+      { bg: '#dbeafe', text: '#1d4ed8', border: '#bfdbfe' },
+      { bg: '#d1fae5', text: '#047857', border: '#a7f3d0' },
+      { bg: '#ffedd5', text: '#c2410c', border: '#fed7aa' },
+      { bg: '#fce7f3', text: '#be185d', border: '#fbcfe8' }
     ];
     return colors[(dayIndex - 1) % colors.length];
   };
 
-  // Execute Conversational AI Pipeline with Gemini Native Structured JSON Architecture
   const handleSendMessage = async (customText = null) => {
     const query = (customText || inputPrompt).trim();
     if (!query || isLoading) return;
@@ -216,7 +213,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     if (!customText) setInputPrompt('');
     setIsLoading(true);
 
-    // 1. Check Casual Greeting Query
     if (isGreetingQuery(query)) {
       setTimeout(() => {
         setChatHistory(prev => [
@@ -234,7 +230,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
       return;
     }
 
-    // 2. 1차 로컬 입력 방어 검증 (useInputGuard)
     const isMeta = isMetaHelpQuery(query);
     if (!isMeta) {
       const guardResult = validateTravelQuery(query, lang);
@@ -257,7 +252,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
       }
     }
 
-    // 3. 2차 AI 쿼터 및 회원 등급 검증 (useQuotaLimit)
     if (!isDevBypass && usedCount >= totalLimit) {
       setTimeout(() => {
         setChatHistory(prev => [
@@ -275,7 +269,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
       return;
     }
 
-    // 4. Increment Quota & Execute Pipeline
     incrementQuota();
     let initialCity = extractLocationKeyword(query);
     
@@ -363,7 +356,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           const itemsForDay = dayExtractedMap.get(d) || [];
           for (const item of itemsForDay) {
             const nameLower = item.name.toLowerCase();
-            
             let matchedSpot = pinpointMap.get(nameLower);
 
             if (!matchedSpot) {
@@ -410,8 +402,9 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         klookUrl = getKlookActivitySearchUrl(displayCity);
       }
 
+      const voraMsgId = `vora-${Date.now()}`;
       const voraResponse = {
-        id: `vora-${Date.now()}`,
+        id: voraMsgId,
         sender: 'vora',
         text: aiBriefing?.aiRecommendationSummary || `안녕하세요! 여행 조력자 보라입니다. 😊`,
         timestamp: new Date().toLocaleTimeString(),
@@ -423,10 +416,10 @@ export default function AITestWorkbench({ lang = 'ko' }) {
       };
 
       setChatHistory(prev => [...prev, voraResponse]);
+      setSelectedMsgId(voraMsgId);
 
-      // Auto expand accordion on mobile for new message
-      if (voraResponse.id && spotsToRender.length > 0) {
-        setExpandedMobileMsgs(prev => ({ ...prev, [voraResponse.id]: true }));
+      if (voraMsgId && spotsToRender.length > 0) {
+        setExpandedMobileMsgs(prev => ({ ...prev, [voraMsgId]: true }));
       }
 
     } catch (err) {
@@ -462,7 +455,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
       fontFamily: 'var(--font-family)'
     }}>
       
-      {/* 🛠️ TOP SENIOR DEVELOPER TEST SIMULATOR CONTROL BAR */}
+      {/* 🛠️ TOP CONTROL BAR */}
       <div style={{
         backgroundColor: '#f1f5f9',
         padding: '0.75rem 1rem',
@@ -483,7 +476,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         </div>
 
         <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.4rem' }}>
-          {/* Senior Private Admin Analytics Toggle */}
           <button
             onClick={() => setShowAdminDashboard(prev => !prev)}
             style={{
@@ -586,7 +578,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         </div>
       </div>
 
-      {/* SENIOR PRIVATE ADMIN ANALYTICS DASHBOARD VIEW */}
       {showAdminDashboard && <AdminAnalyticsDashboard />}
 
       {/* CHAT CONTAINER HEADER */}
@@ -612,7 +603,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           </div>
         </div>
 
-        {/* Realtime Quota Info Badge */}
         <div style={{
           padding: '0.35rem 0.75rem',
           borderRadius: '9999px',
@@ -633,7 +623,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         </div>
       </div>
 
-      {/* 🔥 RESPONSIVE HYBRID UX LAYOUT CONTAINER (PC: 2-Column Split | Mobile: Accordion Toggle) */}
+      {/* 🔥 RESPONSIVE HYBRID UX LAYOUT CONTAINER */}
       <div style={{
         display: 'flex',
         flexDirection: isDesktop ? 'row' : 'column',
@@ -641,7 +631,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         alignItems: 'flex-start'
       }}>
 
-        {/* LEFT COLUMN: CHAT STREAM & INPUT (PC: 60% Width | Mobile: 100% Width) */}
+        {/* LEFT COLUMN: CHAT STREAM & INPUT */}
         <div style={{
           flex: isDesktop ? '1 1 58%' : '1 1 100%',
           width: '100%',
@@ -668,11 +658,13 @@ export default function AITestWorkbench({ lang = 'ko' }) {
             {chatHistory.map((msg) => (
               <div
                 key={msg.id}
+                onClick={() => msg.spots && msg.spots.length > 0 && setSelectedMsgId(msg.id)}
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: msg.sender === 'user' ? 'flex-end' : 'flex-start',
-                  gap: '0.15rem'
+                  gap: '0.15rem',
+                  cursor: (msg.spots && msg.spots.length > 0) ? 'pointer' : 'default'
                 }}
               >
                 {/* Sender Label & Timestamp */}
@@ -692,9 +684,8 @@ export default function AITestWorkbench({ lang = 'ko' }) {
                   lineHeight: '1.5',
                   whiteSpace: 'pre-wrap',
                   boxShadow: msg.sender === 'user' ? '0 3px 8px rgba(37, 99, 235, 0.18)' : '0 3px 8px rgba(0, 0, 0, 0.04)',
-                  border: msg.sender === 'user' ? 'none' : '1px solid #e2e8f0'
+                  border: (isDesktop && activeSpotMessage?.id === msg.id) ? '2px solid #9333ea' : (msg.sender === 'user' ? 'none' : '1px solid #e2e8f0')
                 }}>
-                  {/* User Quota Badge Tag */}
                   {msg.sender === 'user' && msg.quotaTag && (
                     <span style={{ fontSize: '0.68rem', opacity: 0.85, marginRight: '0.4rem', fontWeight: 600 }}>
                       {msg.quotaTag}
@@ -703,14 +694,12 @@ export default function AITestWorkbench({ lang = 'ko' }) {
 
                   {msg.text}
 
-                  {/* Guard Warning Highlight */}
                   {msg.isGuardWarning && (
                     <div style={{ marginTop: '0.4rem', paddingTop: '0.4rem', borderTop: '1px solid #f1f5f9', color: '#dc2626', fontSize: '0.75rem' }}>
                       💡 대한민국 관공서/관광 명소 및 미식 질문을 입력해 주시면 감사하겠습니다!
                     </div>
                   )}
 
-                  {/* Quota Exceeded Action Card */}
                   {msg.isQuotaExceededNotice && (
                     <div style={{ marginTop: '0.6rem', paddingTop: '0.6rem', borderTop: '1px solid #f1f5f9', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                       <button
@@ -728,11 +717,16 @@ export default function AITestWorkbench({ lang = 'ko' }) {
                     </div>
                   )}
 
-                  {/* 📱 MOBILE VIEW ONLY: Accordion Toggle Button & Collapsible Spot Cards Container */}
-                  {!isDesktop && msg.spots && msg.spots.length > 0 && (
+                  {/* SPOT CARDS CONTAINER (RENDERED FOR BOTH PC AND MOBILE) */}
+                  {msg.spots && msg.spots.length > 0 && (
                     <div style={{ marginTop: '0.6rem', paddingTop: '0.6rem', borderTop: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                      {/* Accordion Header / Toggle */}
                       <button
-                        onClick={() => toggleMobileAccordion(msg.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleMobileAccordion(msg.id);
+                          setSelectedMsgId(msg.id);
+                        }}
                         style={{
                           width: '100%',
                           padding: '0.45rem 0.75rem',
@@ -750,11 +744,12 @@ export default function AITestWorkbench({ lang = 'ko' }) {
                       >
                         <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
                           🗺️ {msg.targetCity || '추천'} 1:1 명소 코스 ({msg.spots.length}건)
+                          {isDesktop && <span style={{ fontSize: '0.68rem', fontWeight: 600, color: '#9333ea', opacity: 0.8 }}>(우측 패널 고정 뷰)</span>}
                         </span>
                         {expandedMobileMsgs[msg.id] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                       </button>
 
-                      {/* Collapsible Mobile Spot Cards */}
+                      {/* Collapsible Spot Cards */}
                       {expandedMobileMsgs[msg.id] && (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', marginTop: '0.3rem' }}>
                           {msg.spots.map((spot, idx) => {
@@ -780,6 +775,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
                                   href={mapSearchUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
+                                  onClick={(e) => e.stopPropagation()}
                                   style={{ padding: '0.25rem 0.5rem', backgroundColor: '#ffffff', color: '#2563eb', border: '1px solid #bfdbfe', borderRadius: '8px', textDecoration: 'none', fontSize: '0.66rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.2rem', whiteSpace: 'nowrap' }}
                                 >
                                   <MapPin size={11} /> 지도
@@ -791,10 +787,10 @@ export default function AITestWorkbench({ lang = 'ko' }) {
                           {/* Value-First Call To Action Affiliate Chips */}
                           {msg.agodaUrl && msg.klookUrl && (
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginTop: '0.2rem' }}>
-                              <a href={msg.agodaUrl} target="_blank" rel="noopener noreferrer" style={{ padding: '0.3rem 0.5rem', backgroundColor: '#eff6ff', color: '#1d4ed8', borderRadius: '6px', border: '1px solid #bfdbfe', textDecoration: 'none', fontSize: '0.68rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                              <a href={msg.agodaUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ padding: '0.3rem 0.5rem', backgroundColor: '#eff6ff', color: '#1d4ed8', borderRadius: '6px', border: '1px solid #bfdbfe', textDecoration: 'none', fontSize: '0.68rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
                                 🏨 아고다 {msg.targetCity} 할인 숙소 <ExternalLink size={10} />
                               </a>
-                              <a href={msg.klookUrl} target="_blank" rel="noopener noreferrer" style={{ padding: '0.3rem 0.5rem', backgroundColor: '#fff7ed', color: '#c2410c', borderRadius: '6px', border: '1px solid #ffedd5', textDecoration: 'none', fontSize: '0.68rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                              <a href={msg.klookUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ padding: '0.3rem 0.5rem', backgroundColor: '#fff7ed', color: '#c2410c', borderRadius: '6px', border: '1px solid #ffedd5', textDecoration: 'none', fontSize: '0.68rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
                                 🎟️ 클룩 {msg.targetCity} 액티비티 <ExternalLink size={10} />
                               </a>
                             </div>
@@ -832,7 +828,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
               </div>
             ))}
 
-            {/* Clean & Sophisticated High-Visibility Loading Card (No Emojis) */}
+            {/* Clean Loading Card */}
             {isLoading && (
               <div style={{
                 display: 'flex',
@@ -876,7 +872,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
               }}
             />
 
-            {/* Mic STT Button */}
             <button
               onClick={handleStartVoiceSTT}
               style={{
@@ -895,7 +890,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
               <Mic size={17} />
             </button>
 
-            {/* Send Button */}
             <button
               onClick={() => handleSendMessage()}
               disabled={isLoading || !inputPrompt.trim()}
@@ -920,7 +914,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
 
         </div>
 
-        {/* 🖥️ PC DESKTOP ONLY: 2-COLUMN RIGHT FIXED PANEL (Sticky 40% Width) */}
+        {/* 🖥️ PC DESKTOP ONLY: 2-COLUMN RIGHT FIXED PANEL */}
         {isDesktop && (
           <div style={{
             flex: '1 1 42%',
@@ -946,20 +940,20 @@ export default function AITestWorkbench({ lang = 'ko' }) {
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                 <Compass size={18} style={{ color: '#7e22ce' }} />
                 <h4 style={{ fontSize: '0.9rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
-                  {latestAiSpotMessage ? `🗺️ ${latestAiSpotMessage.targetCity || '추천'} 1:1 명소 코스` : '🗺️ 추천 여행 코스 전용 패널'}
+                  {activeSpotMessage ? `🗺️ ${activeSpotMessage.targetCity || '추천'} 1:1 명소 코스` : '🗺️ 추천 여행 코스 전용 패널'}
                 </h4>
               </div>
-              {latestAiSpotMessage?.spots && (
+              {activeSpotMessage?.spots && (
                 <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#7e22ce', backgroundColor: '#f3e8ff', padding: '0.2rem 0.55rem', borderRadius: '9999px' }}>
-                  {latestAiSpotMessage.spots.length}건 동기화
+                  {activeSpotMessage.spots.length}건 동기화
                 </span>
               )}
             </div>
 
             {/* Desktop Spot Cards List */}
-            {latestAiSpotMessage?.spots && latestAiSpotMessage.spots.length > 0 ? (
+            {activeSpotMessage?.spots && activeSpotMessage.spots.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                {latestAiSpotMessage.spots.map((spot, idx) => {
+                {activeSpotMessage.spots.map((spot, idx) => {
                   const dayNum = spot.assignedDay || 1;
                   const badgeStyle = getDayBadgeStyle(dayNum);
                   const mapSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.title + ' ' + (spot.location || spot.addr1 || ''))}`;
@@ -1004,14 +998,14 @@ export default function AITestWorkbench({ lang = 'ko' }) {
                 })}
 
                 {/* PC Affiliate Buttons */}
-                {latestAiSpotMessage.agodaUrl && latestAiSpotMessage.klookUrl && (
+                {activeSpotMessage.agodaUrl && activeSpotMessage.klookUrl && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginTop: '0.6rem', paddingTop: '0.6rem', borderTop: '1px solid #e2e8f0' }}>
-                    <a href={latestAiSpotMessage.agodaUrl} target="_blank" rel="noopener noreferrer" style={{ padding: '0.45rem 0.75rem', backgroundColor: '#eff6ff', color: '#1d4ed8', borderRadius: '8px', border: '1px solid #bfdbfe', textDecoration: 'none', fontSize: '0.74rem', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span>🏨 아고다 {latestAiSpotMessage.targetCity} 할인 숙소 예약</span>
+                    <a href={activeSpotMessage.agodaUrl} target="_blank" rel="noopener noreferrer" style={{ padding: '0.45rem 0.75rem', backgroundColor: '#eff6ff', color: '#1d4ed8', borderRadius: '8px', border: '1px solid #bfdbfe', textDecoration: 'none', fontSize: '0.74rem', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <span>🏨 아고다 {activeSpotMessage.targetCity} 할인 숙소 예약</span>
                       <ExternalLink size={13} />
                     </a>
-                    <a href={latestAiSpotMessage.klookUrl} target="_blank" rel="noopener noreferrer" style={{ padding: '0.45rem 0.75rem', backgroundColor: '#fff7ed', color: '#c2410c', borderRadius: '8px', border: '1px solid #ffedd5', textDecoration: 'none', fontSize: '0.74rem', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span>🎟️ 클룩 {latestAiSpotMessage.targetCity} 액티비티 예약</span>
+                    <a href={activeSpotMessage.klookUrl} target="_blank" rel="noopener noreferrer" style={{ padding: '0.45rem 0.75rem', backgroundColor: '#fff7ed', color: '#c2410c', borderRadius: '8px', border: '1px solid #ffedd5', textDecoration: 'none', fontSize: '0.74rem', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <span>🎟️ 클룩 {activeSpotMessage.targetCity} 액티비티 예약</span>
                       <ExternalLink size={13} />
                     </a>
                   </div>
