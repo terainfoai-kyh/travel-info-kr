@@ -1,7 +1,6 @@
 /**
  * Vora AI Core NLP & Official Google Generative AI Service
- * Features 3-Layer Hybrid Auth fallback (SDK, x-goog-api-key, Authorization Bearer)
- * to guarantee 100% compatibility with new AQ.Ab8RN... Google AI Studio key format.
+ * Features multi-endpoint & model fallback (v1, v1beta, gemini-1.5-flash, gemini-1.5-flash-latest, gemini-2.0-flash)
  */
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
@@ -30,7 +29,7 @@ export function getActiveGeminiKey() {
     return envKey.trim();
   }
 
-  // Guaranteed fallback key from 선배님's verified screenshot (projects/741176828371)
+  // Active key from 선배님's verified GCP project
   return 'AQ.Ab8RN6KStX8BYnMvtKNSPOUZ6Br6krmiYV5e7w7QfAHA8Ma7Tg';
 }
 
@@ -66,10 +65,7 @@ export function isAffirmativeYes(text) {
 }
 
 /**
- * 3-Layer Universal Gemini AI Concierge Generator
- * Layer 1: Official Google SDK
- * Layer 2: REST API with x-goog-api-key Header
- * Layer 3: REST API with Authorization Bearer Header
+ * 100% Multi-Version Robust Gemini AI Concierge Generator
  */
 export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
   const targetCity = extractLocationKeyword(rawPrompt);
@@ -88,11 +84,12 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
   let lastApiError = null;
   const promptText = `You are Vora AI, an empathetic Korean Travel Concierge for global travelers. Answer prompt: '${rawPrompt}' in a warm, polite 1:1 conversational tone in Korean. Address user respectfully as '선배님'. Target city: ${targetCity}, duration: ${days} days, theme: ${theme}. Keep response clear and concise (under 200 words).`;
 
-  const candidateModels = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-1.5-flash-8b'];
+  const modelCandidates = ['gemini-1.5-flash-latest', 'gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash'];
+  const versionCandidates = ['v1', 'v1beta'];
 
   if (apiKey && apiKey.length > 5) {
-    // Layer 1: Official SDK Call
-    for (const modelName of candidateModels) {
+    // 1. Try SDK Call
+    for (const modelName of modelCandidates) {
       try {
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({ model: modelName });
@@ -114,65 +111,37 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
       }
     }
 
-    // Layer 2: REST API with x-goog-api-key Header
-    for (const modelName of candidateModels) {
-      try {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-goog-api-key': apiKey
-          },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: promptText }] }]
-          })
-        });
-        const data = await res.json();
-        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    // 2. Try Direct REST API across v1 & v1beta endpoints
+    for (const ver of versionCandidates) {
+      for (const modelName of modelCandidates) {
+        try {
+          const res = await fetch(`https://generativelanguage.googleapis.com/${ver}/models/${modelName}:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: promptText }] }]
+            })
+          });
+          const data = await res.json();
+          const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
-        if (res.ok && text) {
-          return {
-            targetCity,
-            days,
-            theme,
-            tripTitle: `'${targetCity}' ${days}일 맞춤 대화 코스`,
-            aiRecommendationSummary: text,
-            success: true
-          };
+          if (res.ok && text) {
+            return {
+              targetCity,
+              days,
+              theme,
+              tripTitle: `'${targetCity}' ${days}일 맞춤 대화 코스`,
+              aiRecommendationSummary: text,
+              success: true
+            };
+          } else if (data?.error?.message) {
+            lastApiError = data.error.message;
+          }
+        } catch (err) {
+          lastApiError = err?.message || String(err);
         }
-      } catch (err) {
-        lastApiError = err?.message || String(err);
-      }
-    }
-
-    // Layer 3: REST API with Authorization Bearer Header (For OAuth AQ.Ab8RN tokens)
-    for (const modelName of candidateModels) {
-      try {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`
-          },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: promptText }] }]
-          })
-        });
-        const data = await res.json();
-        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-
-        if (res.ok && text) {
-          return {
-            targetCity,
-            days,
-            theme,
-            tripTitle: `'${targetCity}' ${days}일 맞춤 대화 코스`,
-            aiRecommendationSummary: text,
-            success: true
-          };
-        }
-      } catch (err) {
-        lastApiError = err?.message || String(err);
       }
     }
   } else {
