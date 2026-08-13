@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, MapPin, Search, ShieldCheck, ShieldAlert, Cpu, ExternalLink, Code, Play, RefreshCw, CheckCircle2, Mic, Send, Zap, PlusCircle, UserCheck, Crown, MessageSquare, Trash2, BarChart3 } from 'lucide-react';
+import { Sparkles, MapPin, Search, ShieldCheck, ShieldAlert, Cpu, ExternalLink, Code, Play, RefreshCw, CheckCircle2, Mic, Send, Zap, PlusCircle, UserCheck, Crown, MessageSquare, Trash2, BarChart3, ChevronDown, ChevronUp, Map, Compass } from 'lucide-react';
 import { validateTravelQuery } from '../hooks/useInputGuard';
 import { useQuotaLimit } from '../hooks/useQuotaLimit';
 import { extractLocationKeyword, isGreetingQuery, isMetaHelpQuery, geminiGenerateFullItinerary } from '../services/geminiNlpService';
@@ -19,11 +19,33 @@ export default function AITestWorkbench({ lang = 'ko' }) {
   const [isVirtualGoogleLogin, setIsVirtualGoogleLogin] = useState(false);
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
 
-  // 3. Dynamic High-Visibility Animated Loading Dots & Status Step State
+  // 3. Responsive Window Width Detection (Desktop >= 768px)
+  const [isDesktop, setIsDesktop] = useState(true);
+  useEffect(() => {
+    const handleResize = () => {
+      if (typeof window !== 'undefined') {
+        setIsDesktop(window.innerWidth >= 768);
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // 4. Mobile Accordion Toggle States (msgId -> boolean)
+  const [expandedMobileMsgs, setExpandedMobileMsgs] = useState({});
+  const toggleMobileAccordion = (msgId) => {
+    setExpandedMobileMsgs(prev => ({
+      ...prev,
+      [msgId]: !prev[msgId]
+    }));
+  };
+
+  // 5. Dynamic High-Visibility Animated Loading Dots & Status Step State
   const [loadingDots, setLoadingDots] = useState('●');
   const [loadingStepText, setLoadingStepText] = useState('한국관광공사 정품 DB에서 추천 명소 탐색 중');
 
-  // 4. Chat History Stream State
+  // 6. Chat History Stream State
   const [chatHistory, setChatHistory] = useState([
     {
       id: 'welcome-1',
@@ -39,6 +61,9 @@ export default function AITestWorkbench({ lang = 'ko' }) {
   const [isListening, setIsListening] = useState(false);
   const chatEndRef = useRef(null);
 
+  // Get Latest Active AI Spot Course for PC Right Fixed Panel
+  const latestAiSpotMessage = chatHistory.slice().reverse().find(m => m.sender === 'vora' && m.spots && m.spots.length > 0);
+
   // Auto-scroll to bottom of chat
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
@@ -52,7 +77,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
       setLoadingDots('●');
       setLoadingStepText('한국관광공사 정품 DB에서 추천 명소 탐색 중');
 
-      // Large bold wave dots: ● -> ● ● -> ● ● ● -> ● ● ● ●
       timerDots = setInterval(() => {
         setLoadingDots(prev => {
           if (prev === '●') return '● ●';
@@ -62,7 +86,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         });
       }, 350);
 
-      // Rotating status text (every 900ms, no emojis)
       let stepCount = 0;
       const steps = [
         '한국관광공사 정품 DB에서 추천 명소 탐색 중',
@@ -180,7 +203,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     const nextAskIndex = Math.min(totalLimit, usedCount + 1);
     const quotaTag = isDevBypass ? '[ ⚡ 무제한 ]' : `[ 오늘 대화 ${nextAskIndex}/${totalLimit}회 ]`;
 
-    // Add User Message to Chat Stream with Quota Tag
     const userMsgId = `user-${Date.now()}`;
     const userMsg = {
       id: userMsgId,
@@ -257,7 +279,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     incrementQuota();
     let initialCity = extractLocationKeyword(query);
     
-    // Robust "X박 Y일" Duration Parsing (2박3일 -> 3 days)
     let days = 3;
     if (/(5일|4박\s*5일|5박|5d)/i.test(query)) days = 5;
     else if (/(4일|3박\s*4일|4박|4d)/i.test(query)) days = 4;
@@ -265,7 +286,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     else if (/(2일|1박\s*2일|2박|2d)/i.test(query)) days = 2;
     else if (/(1일|당일|1박)/i.test(query)) days = 1;
 
-    // 🔥 ULTRA FAST PARALLEL EXECUTION: Fire Gemini AI AND TourAPI Regional Search simultaneously at millisecond 0!
     try {
       const [aiBriefing, rawSpotsInitial] = await Promise.all([
         geminiGenerateFullItinerary(query, lang),
@@ -280,11 +300,9 @@ export default function AITestWorkbench({ lang = 'ko' }) {
       let displayCity = aiBriefing?.targetCity || initialCity;
       const isUnknownPlace = aiBriefing?.isUnknownPlace || false;
 
-      // Clean 0 Spot Cards Display for Non-Existent/Unrecognized Cities
       if (!isMeta && !isUnknownPlace) {
         const summaryText = aiBriefing?.aiRecommendationSummary || '';
 
-        // 2nd-Tier City Auto-Inference: If user typed landmark only without city (initialCity === '전국')
         if (displayCity === '전국') {
           const inferredCity = extractLocationKeyword(summaryText);
           if (inferredCity && inferredCity !== '전국') {
@@ -303,7 +321,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         const allLandmarkNames = new Set();
         for (let d = 1; d <= days; d++) dayExtractedMap.set(d, []);
 
-        // 🚀 Native Gemini Structured JSON Extraction (100% Zero Regex!)
         const dailyPlaces = aiBriefing?.dailyPlaces || [];
         if (dailyPlaces && dailyPlaces.length > 0) {
           for (const item of dailyPlaces) {
@@ -325,7 +342,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           }
         }
 
-        // Asynchronously query TourAPI for clean landmark names via searchKeyword2 (Ultra-Fast Parallel)
         const landmarkNamesList = Array.from(allLandmarkNames);
         const pinpointResults = await fetchPinpointLandmarkSpots(landmarkNamesList, lang);
         const pinpointMap = new Map();
@@ -340,7 +356,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           }
         }
 
-        // Assemble Sequential Spots Day by Day
         let sequentialSpots = [];
         const addedTitles = new Set();
 
@@ -349,10 +364,8 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           for (const item of itemsForDay) {
             const nameLower = item.name.toLowerCase();
             
-            // 1. Try Pinpoint TourAPI Match
             let matchedSpot = pinpointMap.get(nameLower);
 
-            // 2. Try rawSpots Match
             if (!matchedSpot) {
               const cleanItemName = nameLower.replace(/\s+/g, '');
               matchedSpot = rawSpots.find(s => {
@@ -370,7 +383,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
                 });
               }
             } else {
-              // 3. Synthesize Spot Card for Quoted or Special Cafe/Spot Name
               if (!addedTitles.has(item.name)) {
                 addedTitles.add(item.name);
                 sequentialSpots.push({
@@ -404,6 +416,12 @@ export default function AITestWorkbench({ lang = 'ko' }) {
       };
 
       setChatHistory(prev => [...prev, voraResponse]);
+
+      // Auto expand accordion on mobile for new message
+      if (voraResponse.id && spotsToRender.length > 0) {
+        setExpandedMobileMsgs(prev => ({ ...prev, [voraResponse.id]: true }));
+      }
+
     } catch (err) {
       console.warn('Pipeline execution error:', err);
       setChatHistory(prev => [
@@ -608,264 +626,399 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         </div>
       </div>
 
-      {/* CHAT MESSAGES STREAM CONTAINER */}
+      {/* 🔥 RESPONSIVE HYBRID UX LAYOUT CONTAINER (PC: 2-Column Split | Mobile: Accordion Toggle) */}
       <div style={{
-        backgroundColor: '#f8fafc',
-        borderRadius: '16px',
-        padding: '1rem 1rem 2.5rem 1rem',
-        minHeight: '380px',
-        maxHeight: '560px',
-        overflowY: 'auto',
         display: 'flex',
-        flexDirection: 'column',
-        gap: '0.6rem',
-        border: '1px solid #cbd5e1',
-        marginBottom: '0.85rem',
-        scrollBehavior: 'smooth'
+        flexDirection: isDesktop ? 'row' : 'column',
+        gap: '1.25rem',
+        alignItems: 'flex-start'
       }}>
-        {chatHistory.map((msg) => (
-          <div
-            key={msg.id}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: msg.sender === 'user' ? 'flex-end' : 'flex-start',
-              gap: '0.15rem'
-            }}
-          >
-            {/* Sender Label & Timestamp */}
-            <div style={{ fontSize: '0.68rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.3rem', marginBottom: '0.1rem' }}>
-              <span>{msg.sender === 'user' ? userLabel : '🤖 Vora AI'}</span>
-              <span>• {msg.timestamp}</span>
-            </div>
 
-            {/* Message Bubble */}
-            <div style={{
-              maxWidth: '88%',
-              padding: '0.65rem 0.95rem',
-              borderRadius: msg.sender === 'user' ? '16px 4px 16px 16px' : '4px 16px 16px 16px',
-              backgroundColor: msg.sender === 'user' ? '#2563eb' : '#ffffff',
-              color: msg.sender === 'user' ? '#ffffff' : '#0f172a',
-              fontSize: '0.84rem',
-              lineHeight: '1.5',
-              whiteSpace: 'pre-wrap',
-              boxShadow: msg.sender === 'user' ? '0 3px 8px rgba(37, 99, 235, 0.18)' : '0 3px 8px rgba(0, 0, 0, 0.04)',
-              border: msg.sender === 'user' ? 'none' : '1px solid #e2e8f0'
-            }}>
-              {/* User Quota Badge Tag */}
-              {msg.sender === 'user' && msg.quotaTag && (
-                <span style={{ fontSize: '0.68rem', opacity: 0.85, marginRight: '0.4rem', fontWeight: 600 }}>
-                  {msg.quotaTag}
-                </span>
-              )}
+        {/* LEFT COLUMN: CHAT STREAM & INPUT (PC: 60% Width | Mobile: 100% Width) */}
+        <div style={{
+          flex: isDesktop ? '1 1 58%' : '1 1 100%',
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          minWidth: 0
+        }}>
 
-              {msg.text}
-
-              {/* Guard Warning Highlight */}
-              {msg.isGuardWarning && (
-                <div style={{ marginTop: '0.4rem', paddingTop: '0.4rem', borderTop: '1px solid #f1f5f9', color: '#dc2626', fontSize: '0.75rem' }}>
-                  💡 대한민국 관공서/관광 명소 및 미식 질문을 입력해 주시면 감사하겠습니다!
+          {/* CHAT MESSAGES STREAM CONTAINER */}
+          <div style={{
+            backgroundColor: '#f8fafc',
+            borderRadius: '16px',
+            padding: '1rem 1rem 2.5rem 1rem',
+            minHeight: '380px',
+            maxHeight: '560px',
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.6rem',
+            border: '1px solid #cbd5e1',
+            marginBottom: '0.85rem',
+            scrollBehavior: 'smooth'
+          }}>
+            {chatHistory.map((msg) => (
+              <div
+                key={msg.id}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: msg.sender === 'user' ? 'flex-end' : 'flex-start',
+                  gap: '0.15rem'
+                }}
+              >
+                {/* Sender Label & Timestamp */}
+                <div style={{ fontSize: '0.68rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.3rem', marginBottom: '0.1rem' }}>
+                  <span>{msg.sender === 'user' ? userLabel : '🤖 Vora AI'}</span>
+                  <span>• {msg.timestamp}</span>
                 </div>
-              )}
 
-              {/* Quota Exceeded Action Card */}
-              {msg.isQuotaExceededNotice && (
-                <div style={{ marginTop: '0.6rem', paddingTop: '0.6rem', borderTop: '1px solid #f1f5f9', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                  <button
-                    onClick={handleRechargeExtra}
-                    style={{ padding: '0.45rem 0.75rem', backgroundColor: '#10b981', color: '#ffffff', fontWeight: 700, borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '0.75rem', textAlign: 'center' }}
-                  >
-                    🎬 15초 짧은 광고 시청하고 오늘 +3회 즉시 충전하기
-                  </button>
-                  <button
-                    onClick={handleToggleVirtualGoogleLogin}
-                    style={{ padding: '0.45rem 0.75rem', backgroundColor: '#ea580c', color: '#ffffff', fontWeight: 700, borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '0.75rem', textAlign: 'center' }}
-                  >
-                    🔴 Google 3초 로그인하고 매일 15회로 확장하기
-                  </button>
-                </div>
-              )}
+                {/* Message Bubble */}
+                <div style={{
+                  maxWidth: '92%',
+                  padding: '0.65rem 0.95rem',
+                  borderRadius: msg.sender === 'user' ? '16px 4px 16px 16px' : '4px 16px 16px 16px',
+                  backgroundColor: msg.sender === 'user' ? '#2563eb' : '#ffffff',
+                  color: msg.sender === 'user' ? '#ffffff' : '#0f172a',
+                  fontSize: '0.84rem',
+                  lineHeight: '1.5',
+                  whiteSpace: 'pre-wrap',
+                  boxShadow: msg.sender === 'user' ? '0 3px 8px rgba(37, 99, 235, 0.18)' : '0 3px 8px rgba(0, 0, 0, 0.04)',
+                  border: msg.sender === 'user' ? 'none' : '1px solid #e2e8f0'
+                }}>
+                  {/* User Quota Badge Tag */}
+                  {msg.sender === 'user' && msg.quotaTag && (
+                    <span style={{ fontSize: '0.68rem', opacity: 0.85, marginRight: '0.4rem', fontWeight: 600 }}>
+                      {msg.quotaTag}
+                    </span>
+                  )}
 
-              {/* 100% Sequential 1:1 Synchronized Geo-Coordinates & Spot Cards */}
-              {msg.spots && msg.spots.length > 0 && (
-                <div style={{ marginTop: '0.6rem', paddingTop: '0.6rem', borderTop: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#7e22ce', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                    🗺️ {msg.targetCity || '추천'} 순서 1:1 완벽 동기화 코스 ({msg.spots.length}건):
-                  </span>
+                  {msg.text}
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
-                    {msg.spots.map((spot, idx) => {
-                      const dayNum = spot.assignedDay || 1;
-                      const badgeStyle = getDayBadgeStyle(dayNum);
-                      const mapSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.title + ' ' + (spot.location || spot.addr1 || ''))}`;
+                  {/* Guard Warning Highlight */}
+                  {msg.isGuardWarning && (
+                    <div style={{ marginTop: '0.4rem', paddingTop: '0.4rem', borderTop: '1px solid #f1f5f9', color: '#dc2626', fontSize: '0.75rem' }}>
+                      💡 대한민국 관공서/관광 명소 및 미식 질문을 입력해 주시면 감사하겠습니다!
+                    </div>
+                  )}
 
-                      return (
-                        <div key={spot.id || idx} style={{ padding: '0.55rem 0.7rem', backgroundColor: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
-                          <div style={{ flex: 1 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.2rem' }}>
-                              <span style={{ padding: '0.15rem 0.45rem', borderRadius: '6px', fontSize: '0.65rem', fontWeight: 700, backgroundColor: badgeStyle.bg, color: badgeStyle.text, border: `1px solid ${badgeStyle.border}` }}>
-                                {dayNum}일차 명소
-                              </span>
-                              <strong style={{ color: '#0f172a', fontSize: '0.78rem' }}>{idx + 1}. {spot.title}</strong>
+                  {/* Quota Exceeded Action Card */}
+                  {msg.isQuotaExceededNotice && (
+                    <div style={{ marginTop: '0.6rem', paddingTop: '0.6rem', borderTop: '1px solid #f1f5f9', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                      <button
+                        onClick={handleRechargeExtra}
+                        style={{ padding: '0.45rem 0.75rem', backgroundColor: '#10b981', color: '#ffffff', fontWeight: 700, borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '0.75rem', textAlign: 'center' }}
+                      >
+                        🎬 15초 짧은 광고 시청하고 오늘 +3회 즉시 충전하기
+                      </button>
+                      <button
+                        onClick={handleToggleVirtualGoogleLogin}
+                        style={{ padding: '0.45rem 0.75rem', backgroundColor: '#ea580c', color: '#ffffff', fontWeight: 700, borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '0.75rem', textAlign: 'center' }}
+                      >
+                        🔴 Google 3초 로그인하고 매일 15회로 확장하기
+                      </button>
+                    </div>
+                  )}
+
+                  {/* 📱 MOBILE VIEW ONLY: Accordion Toggle Button & Collapsible Spot Cards Container */}
+                  {!isDesktop && msg.spots && msg.spots.length > 0 && (
+                    <div style={{ marginTop: '0.6rem', paddingTop: '0.6rem', borderTop: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                      <button
+                        onClick={() => toggleMobileAccordion(msg.id)}
+                        style={{
+                          width: '100%',
+                          padding: '0.45rem 0.75rem',
+                          backgroundColor: '#f3e8ff',
+                          color: '#7e22ce',
+                          border: '1px solid #e9d5ff',
+                          borderRadius: '10px',
+                          fontSize: '0.75rem',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between'
+                        }}
+                      >
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                          🗺️ {msg.targetCity || '추천'} 1:1 명소 코스 ({msg.spots.length}건)
+                        </span>
+                        {expandedMobileMsgs[msg.id] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                      </button>
+
+                      {/* Collapsible Mobile Spot Cards */}
+                      {expandedMobileMsgs[msg.id] && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', marginTop: '0.3rem' }}>
+                          {msg.spots.map((spot, idx) => {
+                            const dayNum = spot.assignedDay || 1;
+                            const badgeStyle = getDayBadgeStyle(dayNum);
+                            const mapSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.title + ' ' + (spot.location || spot.addr1 || ''))}`;
+
+                            return (
+                              <div key={spot.id || idx} style={{ padding: '0.5rem 0.65rem', backgroundColor: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '0.74rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.4rem' }}>
+                                <div style={{ flex: 1 }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', marginBottom: '0.15rem' }}>
+                                    <span style={{ padding: '0.1rem 0.4rem', borderRadius: '6px', fontSize: '0.63rem', fontWeight: 700, backgroundColor: badgeStyle.bg, color: badgeStyle.text, border: `1px solid ${badgeStyle.border}` }}>
+                                      {dayNum}일차 명소
+                                    </span>
+                                    <strong style={{ color: '#0f172a', fontSize: '0.76rem' }}>{idx + 1}. {spot.title}</strong>
+                                  </div>
+                                  <span style={{ color: '#64748b', fontSize: '0.66rem', display: 'block' }}>
+                                    📍 {spot.location || spot.addr1 || '중심가'}
+                                  </span>
+                                </div>
+
+                                <a
+                                  href={mapSearchUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  style={{ padding: '0.25rem 0.5rem', backgroundColor: '#ffffff', color: '#2563eb', border: '1px solid #bfdbfe', borderRadius: '8px', textDecoration: 'none', fontSize: '0.66rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.2rem', whiteSpace: 'nowrap' }}
+                                >
+                                  <MapPin size={11} /> 지도
+                                </a>
+                              </div>
+                            );
+                          })}
+
+                          {/* Value-First Call To Action Affiliate Chips */}
+                          {msg.agodaUrl && msg.klookUrl && (
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginTop: '0.2rem' }}>
+                              <a href={msg.agodaUrl} target="_blank" rel="noopener noreferrer" style={{ padding: '0.3rem 0.5rem', backgroundColor: '#eff6ff', color: '#1d4ed8', borderRadius: '6px', border: '1px solid #bfdbfe', textDecoration: 'none', fontSize: '0.68rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                                🏨 아고다 {msg.targetCity} 할인 숙소 <ExternalLink size={10} />
+                              </a>
+                              <a href={msg.klookUrl} target="_blank" rel="noopener noreferrer" style={{ padding: '0.3rem 0.5rem', backgroundColor: '#fff7ed', color: '#c2410c', borderRadius: '6px', border: '1px solid #ffedd5', textDecoration: 'none', fontSize: '0.68rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                                🎟️ 클룩 {msg.targetCity} 액티비티 <ExternalLink size={10} />
+                              </a>
                             </div>
-                            <span style={{ color: '#64748b', fontSize: '0.68rem', display: 'block' }}>
-                              📍 {spot.location || spot.addr1 || '중심가'}
-                            </span>
-                          </div>
-
-                          {/* Clean Map Button Replacing Raw lat/lng Debug Text */}
-                          <a
-                            href={mapSearchUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{
-                              padding: '0.3rem 0.55rem',
-                              backgroundColor: '#ffffff',
-                              color: '#2563eb',
-                              border: '1px solid #bfdbfe',
-                              borderRadius: '8px',
-                              textDecoration: 'none',
-                              fontSize: '0.68rem',
-                              fontWeight: 600,
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '0.25rem',
-                              whiteSpace: 'nowrap'
-                            }}
-                          >
-                            <MapPin size={12} /> 지도 위치
-                          </a>
+                          )}
                         </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* Value-First Call To Action Affiliate Chips */}
-                  {msg.agodaUrl && msg.klookUrl && (
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', pt: '0.3rem', marginTop: '0.3rem' }}>
-                      <a href={msg.agodaUrl} target="_blank" rel="noopener noreferrer" style={{ padding: '0.3rem 0.55rem', backgroundColor: '#eff6ff', color: '#1d4ed8', borderRadius: '6px', border: '1px solid #bfdbfe', textDecoration: 'none', fontSize: '0.7rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
-                        🏨 아고다 {msg.targetCity} 할인 숙소 <ExternalLink size={11} />
-                      </a>
-                      <a href={msg.klookUrl} target="_blank" rel="noopener noreferrer" style={{ padding: '0.3rem 0.55rem', backgroundColor: '#fff7ed', color: '#c2410c', borderRadius: '6px', border: '1px solid #ffedd5', textDecoration: 'none', fontSize: '0.7rem', display: 'flex', items: 'center', gap: '0.2rem' }}>
-                        🎟️ 클룩 {msg.targetCity} 액티비티 <ExternalLink size={11} />
-                      </a>
+                      )}
                     </div>
                   )}
                 </div>
+
+                {/* Quick Suggestion Chips */}
+                {msg.chips && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginTop: '0.2rem' }}>
+                    {msg.chips.map((chipText, cIdx) => (
+                      <button
+                        key={cIdx}
+                        onClick={() => handleSendMessage(chipText)}
+                        style={{
+                          padding: '0.3rem 0.65rem',
+                          borderRadius: '9999px',
+                          fontSize: '0.7rem',
+                          fontWeight: 600,
+                          backgroundColor: '#ffffff',
+                          color: '#334155',
+                          border: '1px solid #cbd5e1',
+                          cursor: 'pointer',
+                          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.02)'
+                        }}
+                      >
+                        📍 {chipText}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+
+            {/* Clean & Sophisticated High-Visibility Loading Card (No Emojis) */}
+            {isLoading && (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.65rem',
+                padding: '0.75rem 1.1rem',
+                backgroundColor: '#ffffff',
+                borderRadius: '14px',
+                border: '1px solid #d8b4fe',
+                color: '#7e22ce',
+                fontSize: '0.82rem',
+                fontWeight: 700,
+                maxWidth: '88%',
+                boxShadow: '0 4px 12px rgba(147, 51, 234, 0.08)'
+              }}>
+                <RefreshCw size={17} className="animate-spin" style={{ color: '#9333ea' }} />
+                <span>{loadingStepText} <strong style={{ color: '#7e22ce', fontSize: '0.95rem' }}>{loadingDots}</strong></span>
+              </div>
+            )}
+
+            <div ref={chatEndRef} style={{ height: '10px' }} />
+          </div>
+
+          {/* INPUT FORM CONTAINER */}
+          <div style={{ display: 'flex', gap: '0.4rem', position: 'relative' }}>
+            <input
+              type="text"
+              value={inputPrompt}
+              onChange={(e) => setInputPrompt(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+              placeholder="어디로 떠나고 싶으신가요? (예: 수원 2박3일 맛집 코스, 거제도 4박5일 힐링)"
+              style={{
+                flex: 1,
+                padding: '0.75rem 0.9rem',
+                backgroundColor: '#ffffff',
+                border: '1px solid #cbd5e1',
+                borderRadius: '12px',
+                color: '#0f172a',
+                fontSize: '0.82rem',
+                outline: 'none'
+              }}
+            />
+
+            {/* Mic STT Button */}
+            <button
+              onClick={handleStartVoiceSTT}
+              style={{
+                padding: '0 0.75rem',
+                backgroundColor: isListening ? '#ef4444' : '#f1f5f9',
+                color: isListening ? '#ffffff' : '#334155',
+                borderRadius: '12px',
+                border: '1px solid #cbd5e1',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+              title="음성 인식"
+            >
+              <Mic size={17} />
+            </button>
+
+            {/* Send Button */}
+            <button
+              onClick={() => handleSendMessage()}
+              disabled={isLoading || !inputPrompt.trim()}
+              style={{
+                padding: '0 1.1rem',
+                background: 'linear-gradient(135deg, #9333ea 0%, #2563eb 100%)',
+                color: '#ffffff',
+                fontWeight: 700,
+                borderRadius: '12px',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.3rem',
+                opacity: (isLoading || !inputPrompt.trim()) ? 0.5 : 1
+              }}
+            >
+              <Send size={15} />
+              <span>전송</span>
+            </button>
+          </div>
+
+        </div>
+
+        {/* 🖥️ PC DESKTOP ONLY: 2-COLUMN RIGHT FIXED PANEL (Sticky 40% Width) */}
+        {isDesktop && (
+          <div style={{
+            flex: '1 1 42%',
+            width: '100%',
+            backgroundColor: '#f8fafc',
+            borderRadius: '16px',
+            padding: '1rem',
+            border: '1px solid #cbd5e1',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.03)',
+            position: 'sticky',
+            top: '1rem',
+            maxHeight: '620px',
+            overflowY: 'auto'
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              paddingBottom: '0.65rem',
+              marginBottom: '0.85rem',
+              borderBottom: '1px solid #e2e8f0'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <Compass size={18} style={{ color: '#7e22ce' }} />
+                <h4 style={{ fontSize: '0.9rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
+                  {latestAiSpotMessage ? `🗺️ ${latestAiSpotMessage.targetCity || '추천'} 1:1 명소 코스` : '🗺️ 추천 여행 코스 전용 패널'}
+                </h4>
+              </div>
+              {latestAiSpotMessage?.spots && (
+                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#7e22ce', backgroundColor: '#f3e8ff', padding: '0.2rem 0.55rem', borderRadius: '9999px' }}>
+                  {latestAiSpotMessage.spots.length}건 동기화
+                </span>
               )}
             </div>
 
-            {/* Quick Suggestion Chips */}
-            {msg.chips && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginTop: '0.2rem' }}>
-                {msg.chips.map((chipText, cIdx) => (
-                  <button
-                    key={cIdx}
-                    onClick={() => handleSendMessage(chipText)}
-                    style={{
-                      padding: '0.3rem 0.65rem',
-                      borderRadius: '9999px',
-                      fontSize: '0.7rem',
-                      fontWeight: 600,
-                      backgroundColor: '#ffffff',
-                      color: '#334155',
-                      border: '1px solid #cbd5e1',
-                      cursor: 'pointer',
-                      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.02)'
-                    }}
-                  >
-                    📍 {chipText}
-                  </button>
-                ))}
+            {/* Desktop Spot Cards List */}
+            {latestAiSpotMessage?.spots && latestAiSpotMessage.spots.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {latestAiSpotMessage.spots.map((spot, idx) => {
+                  const dayNum = spot.assignedDay || 1;
+                  const badgeStyle = getDayBadgeStyle(dayNum);
+                  const mapSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.title + ' ' + (spot.location || spot.addr1 || ''))}`;
+
+                  return (
+                    <div key={spot.id || idx} style={{ padding: '0.6rem 0.75rem', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '0.76rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', boxShadow: '0 2px 5px rgba(0,0,0,0.02)' }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.2rem' }}>
+                          <span style={{ padding: '0.15rem 0.45rem', borderRadius: '6px', fontSize: '0.65rem', fontWeight: 700, backgroundColor: badgeStyle.bg, color: badgeStyle.text, border: `1px solid ${badgeStyle.border}` }}>
+                            {dayNum}일차 명소
+                          </span>
+                          <strong style={{ color: '#0f172a', fontSize: '0.8rem' }}>{idx + 1}. {spot.title}</strong>
+                        </div>
+                        <span style={{ color: '#64748b', fontSize: '0.68rem', display: 'block' }}>
+                          📍 {spot.location || spot.addr1 || '중심가'}
+                        </span>
+                      </div>
+
+                      <a
+                        href={mapSearchUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          padding: '0.3rem 0.55rem',
+                          backgroundColor: '#f8fafc',
+                          color: '#2563eb',
+                          border: '1px solid #bfdbfe',
+                          borderRadius: '8px',
+                          textDecoration: 'none',
+                          fontSize: '0.68rem',
+                          fontWeight: 600,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.25rem',
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        <MapPin size={12} /> 지도 위치
+                      </a>
+                    </div>
+                  );
+                })}
+
+                {/* PC Affiliate Buttons */}
+                {latestAiSpotMessage.agodaUrl && latestAiSpotMessage.klookUrl && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginTop: '0.6rem', paddingTop: '0.6rem', borderTop: '1px solid #e2e8f0' }}>
+                    <a href={latestAiSpotMessage.agodaUrl} target="_blank" rel="noopener noreferrer" style={{ padding: '0.45rem 0.75rem', backgroundColor: '#eff6ff', color: '#1d4ed8', borderRadius: '8px', border: '1px solid #bfdbfe', textDecoration: 'none', fontSize: '0.74rem', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <span>🏨 아고다 {latestAiSpotMessage.targetCity} 할인 숙소 예약</span>
+                      <ExternalLink size={13} />
+                    </a>
+                    <a href={latestAiSpotMessage.klookUrl} target="_blank" rel="noopener noreferrer" style={{ padding: '0.45rem 0.75rem', backgroundColor: '#fff7ed', color: '#c2410c', borderRadius: '8px', border: '1px solid #ffedd5', textDecoration: 'none', fontSize: '0.74rem', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <span>🎟️ 클룩 {latestAiSpotMessage.targetCity} 액티비티 예약</span>
+                      <ExternalLink size={13} />
+                    </a>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div style={{ padding: '3rem 1rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.78rem' }}>
+                <Map size={32} style={{ margin: '0 auto 0.5rem auto', color: '#cbd5e1', display: 'block' }} />
+                <span>왼쪽 Vora AI 대화창에서 원하시는 여행지나 일정을 물어보시면, 정품 명소 지도 코스가 이 우측 패널에 자동으로 동기화됩니다!</span>
               </div>
             )}
           </div>
-        ))}
-
-        {/* Clean & Sophisticated High-Visibility Loading Card (No Emojis) */}
-        {isLoading && (
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.65rem',
-            padding: '0.75rem 1.1rem',
-            backgroundColor: '#ffffff',
-            borderRadius: '14px',
-            border: '1px solid #d8b4fe',
-            color: '#7e22ce',
-            fontSize: '0.82rem',
-            fontWeight: 700,
-            maxWidth: '88%',
-            boxShadow: '0 4px 12px rgba(147, 51, 234, 0.08)'
-          }}>
-            <RefreshCw size={17} className="animate-spin" style={{ color: '#9333ea' }} />
-            <span>{loadingStepText} <strong style={{ color: '#7e22ce', fontSize: '0.95rem' }}>{loadingDots}</strong></span>
-          </div>
         )}
 
-        <div ref={chatEndRef} style={{ height: '10px' }} />
-      </div>
-
-      {/* INPUT FORM CONTAINER */}
-      <div style={{ display: 'flex', gap: '0.4rem', position: 'relative' }}>
-        <input
-          type="text"
-          value={inputPrompt}
-          onChange={(e) => setInputPrompt(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-          placeholder="어디로 떠나고 싶으신가요? (예: 수원 2박3일 맛집 코스, 거제도 4박5일 힐링)"
-          style={{
-            flex: 1,
-            padding: '0.75rem 0.9rem',
-            backgroundColor: '#ffffff',
-            border: '1px solid #cbd5e1',
-            borderRadius: '12px',
-            color: '#0f172a',
-            fontSize: '0.82rem',
-            outline: 'none'
-          }}
-        />
-
-        {/* Mic STT Button */}
-        <button
-          onClick={handleStartVoiceSTT}
-          style={{
-            padding: '0 0.75rem',
-            backgroundColor: isListening ? '#ef4444' : '#f1f5f9',
-            color: isListening ? '#ffffff' : '#334155',
-            borderRadius: '12px',
-            border: '1px solid #cbd5e1',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-          title="음성 인식"
-        >
-          <Mic size={17} />
-        </button>
-
-        {/* Send Button */}
-        <button
-          onClick={() => handleSendMessage()}
-          disabled={isLoading || !inputPrompt.trim()}
-          style={{
-            padding: '0 1.1rem',
-            background: 'linear-gradient(135deg, #9333ea 0%, #2563eb 100%)',
-            color: '#ffffff',
-            fontWeight: 700,
-            borderRadius: '12px',
-            border: 'none',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.3rem',
-            opacity: (isLoading || !inputPrompt.trim()) ? 0.5 : 1
-          }}
-        >
-          <Send size={15} />
-          <span>전송</span>
-        </button>
       </div>
 
     </div>
