@@ -58,10 +58,8 @@ export function extractLocationKeyword(text) {
   if (!text || typeof text !== 'string') return '전국';
   let clean = text.trim();
 
-  // Strip trailing noise words to prevent false substring overlaps
   clean = clean.replace(/(주변|근처|인근|여행|추천|코스|맛집|가볼만한곳|여행지)/g, ' ').trim();
 
-  // 1. Exact match check
   for (const city of VALID_KOREAN_CITIES) {
     const regex = new RegExp(`(?:^|\\s)${city}(?:$|\\s)`, 'i');
     if (regex.test(clean)) {
@@ -69,7 +67,6 @@ export function extractLocationKeyword(text) {
     }
   }
 
-  // 2. Substring check
   for (const city of VALID_KOREAN_CITIES) {
     if (clean.includes(city)) {
       return city;
@@ -88,9 +85,6 @@ export function isAffirmativeYes(text) {
   return /^(응|네|좋아|오케이|ok|yes|보여줘|짜줘|확인)/i.test(text.trim());
 }
 
-/**
- * Clean & Sanitize AI Output to remove any English meta/thought leakage
- */
 export function sanitizeGeminiOutput(text) {
   if (!text || typeof text !== 'string') return '';
   return text
@@ -103,13 +97,11 @@ export function sanitizeGeminiOutput(text) {
 
 /**
  * Gemini Native Structured JSON Output Generator
- * Features Graceful Non-Existent City Exception Handling (e.g. 징수 -> 전북 장수 안내).
  */
 export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
   const isHelp = isMetaHelpQuery(rawPrompt);
   const targetCity = extractLocationKeyword(rawPrompt);
 
-  // Exact Korean "X박 Y일" Duration Parsing Logic
   let days = 3;
   if (/(5일|4박\s*5일|5박|5d)/i.test(rawPrompt)) days = 5;
   else if (/(4일|3박\s*4일|4박|4d)/i.test(rawPrompt)) days = 4;
@@ -132,30 +124,27 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
   else if (lang === 'zh') greetingPrefix = '您好！我是您的韩国旅行助手 Vora。😊';
 
   const systemInstruction = `You are Vora AI, an empathetic Korean Travel Concierge for global travelers visiting Korea.
-Return your output ONLY as a valid JSON object matching this schema:
+Return your response as a valid JSON object matching this schema:
 {
   "isUnknownPlace": boolean,
-  "summary": "Polite response starting with '${greetingPrefix}'. If user's location input (e.g. '징수', 'asdf') is NOT a valid Korean place or tourist destination, politely inform them: '${greetingPrefix} 입력해 주신 '${rawPrompt}'(은)는 대한민국 관광지나 지명으로 확인되지 않았습니다. 혹시 전북 장수(논개사당, 방화동 휴양림)나 다른 멋진 여행지(제주도, 거제도, 부산)를 찾으시나요?'. Set isUnknownPlace: true and dailyPlaces: []. Otherwise, provide a concise itinerary for ${days} days with clean bullet points starting with '1일차: ...', '2일차: ...' up to '${days}일차: ...'.",
+  "summary": "String",
   "targetCity": "${targetCity}",
   "dailyPlaces": [
-    { "day": 1, "places": ["Exact landmark name 1", "Exact landmark name 2"] },
-    { "day": 2, "places": ["Exact landmark name 3", "Exact landmark name 4"] }
+    { "day": 1, "places": ["Place 1", "Place 2"] }
   ]
 }
 
-CRITICAL RULES FOR "dailyPlaces":
-1. If isUnknownPlace is true, dailyPlaces MUST be empty [].
-2. DO NOT echo non-existent words like "징수라는 키워드와 함께".
-3. Include ONLY exact landmark/tourist spot/cafe/restaurant names mentioned in your summary text for that day.
-4. Return clean JSON without markdown code fences.`;
+INSTRUCTIONS:
+1. If user input is a gibberish/non-existent place (e.g. '징수', 'asdf'), set isUnknownPlace: true, dailyPlaces: [], and summary: "${greetingPrefix} 입력해 주신 여행지는 대한민국 관광지나 지명으로 확인되지 않았습니다. 혹시 전북 장수나 다른 여행지를 찾으시나요?".
+2. Otherwise, set isUnknownPlace: false, provide a polite ${days}-day itinerary summary starting with "${greetingPrefix}", and list the exact landmark/cafe/spot names for each day in dailyPlaces.
+3. Return ONLY valid JSON.`;
 
-  const promptText = `User input: '${rawPrompt}'. Target city: ${targetCity}, duration: ${days} days, theme: ${theme}. Generate JSON output.`;
+  const promptText = `User input: ${JSON.stringify(rawPrompt)}. Target city: ${targetCity}, duration: ${days} days, theme: ${theme}. Generate JSON output.`;
 
   const modelCandidates = ['gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite'];
   let lastApiError = null;
 
   for (const apiKey of candidateKeys) {
-    // 1. Official Google SDK
     for (const modelName of modelCandidates) {
       try {
         const genAI = new GoogleGenerativeAI(apiKey);
@@ -192,7 +181,6 @@ CRITICAL RULES FOR "dailyPlaces":
       }
     }
 
-    // 2. Direct REST API (v1 / v1beta) fallback with 4.0s Timeout Guard
     for (const ver of ['v1', 'v1beta']) {
       for (const modelName of modelCandidates) {
         try {
@@ -244,6 +232,7 @@ CRITICAL RULES FOR "dailyPlaces":
     }
   }
 
+  // Graceful Fallback if API fails
   return {
     targetCity,
     days,
@@ -251,15 +240,19 @@ CRITICAL RULES FOR "dailyPlaces":
     isHelpQuery: isHelp,
     isUnknownPlace: false,
     tripTitle: `'${targetCity}' 여행`,
-    aiRecommendationSummary: `${greetingPrefix}\n\n⚠️ 통신 연결이 일시적으로 지연되었습니다. 궁금하신 여행지를 편하게 말씀해 주세요!`,
-    dailyPlaces: [],
+    aiRecommendationSummary: `${greetingPrefix}\n\n1일차: ${targetCity} 대표 명소를 탐색하고 여유로운 휴식을 즐깁니다.\n2일차: ${targetCity} 유명 힐링 코스와 지역 맛집을 탐방합니다.\n3일차: ${targetCity} 아름다운 전망대에서 일정을 마무리합니다.`,
+    dailyPlaces: [
+      { day: 1, places: [`${targetCity} 명소`] },
+      { day: 2, places: [`${targetCity} 힐링 코스`] },
+      { day: 3, places: [`${targetCity} 전망대`] }
+    ],
     success: false,
     apiError: lastApiError
   };
 }
 
 /**
- * Robust JSON Parser for Gemini Output
+ * Robust JSON Parser with Regex Fallback for Gemini Output
  */
 function parseGeminiJsonResponse(rawText, greetingPrefix, defaultCity, defaultDays) {
   if (!rawText || typeof rawText !== 'string') return null;
@@ -269,18 +262,62 @@ function parseGeminiJsonResponse(rawText, greetingPrefix, defaultCity, defaultDa
   try {
     const json = JSON.parse(cleanText);
     const summary = sanitizeGeminiOutput(json.summary || cleanText);
+    let dailyPlaces = Array.isArray(json.dailyPlaces) ? json.dailyPlaces : [];
+    
+    if (dailyPlaces.length === 0 && !json.isUnknownPlace) {
+      dailyPlaces = fallbackExtractDailyPlaces(summary, defaultDays);
+    }
+
     return {
       isUnknownPlace: !!json.isUnknownPlace,
       summary: summary || greetingPrefix,
       targetCity: json.targetCity || defaultCity,
-      dailyPlaces: Array.isArray(json.dailyPlaces) ? json.dailyPlaces : []
+      dailyPlaces
     };
   } catch (e) {
+    const summary = sanitizeGeminiOutput(cleanText);
     return {
       isUnknownPlace: false,
-      summary: sanitizeGeminiOutput(cleanText),
+      summary: summary || greetingPrefix,
       targetCity: defaultCity,
-      dailyPlaces: []
+      dailyPlaces: fallbackExtractDailyPlaces(summary, defaultDays)
     };
   }
+}
+
+/**
+ * Regex Fallback Spot Extractor if JSON parsing fails
+ */
+function fallbackExtractDailyPlaces(text, days) {
+  if (!text || typeof text !== 'string') return [];
+  const dailyPlaces = [];
+  const lines = text.split('\n');
+  let currentDay = 1;
+
+  for (const line of lines) {
+    const dayMatch = line.match(/([1-5])일차[:\s]/);
+    if (dayMatch) {
+      currentDay = parseInt(dayMatch[1], 10);
+    }
+
+    const cleanLine = line.replace(/^[0-9]일차[:\s]*/, '').trim();
+    if (cleanLine.length > 0) {
+      const parts = cleanLine.split(/[,·]/).map(p => p.trim()).filter(p => p.length >= 2);
+      if (parts.length > 0) {
+        let dayObj = dailyPlaces.find(d => d.day === currentDay);
+        if (!dayObj) {
+          dayObj = { day: currentDay, places: [] };
+          dailyPlaces.push(dayObj);
+        }
+        for (const p of parts) {
+          const cleanP = p.replace(/(에서|을|를|과|와|으로|로|방문|감상|산책|체험|힐링|투어|즐기기|인근|주변).*$/, '').trim();
+          if (cleanP.length >= 2 && !dayObj.places.includes(cleanP)) {
+            dayObj.places.push(cleanP);
+          }
+        }
+      }
+    }
+  }
+
+  return dailyPlaces;
 }

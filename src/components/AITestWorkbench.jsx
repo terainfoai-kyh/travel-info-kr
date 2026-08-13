@@ -398,6 +398,13 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           }
         }
 
+        if (sequentialSpots.length === 0 && rawSpots.length > 0) {
+          sequentialSpots = rawSpots.slice(0, Math.max(days, 5)).map((s, idx) => ({
+            ...s,
+            assignedDay: Math.min(days, Math.floor(idx / 2) + 1)
+          }));
+        }
+
         spotsToRender = sequentialSpots;
         agodaUrl = getAgodaHotelSearchUrl(displayCity);
         klookUrl = getKlookActivitySearchUrl(displayCity);
