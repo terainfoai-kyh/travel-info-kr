@@ -407,13 +407,15 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         if (isUnknownPlace) {
           spotsToRender = [];
         } else {
-          if (sequentialSpots.length === 0 && rawSpots.length > 0 && displayCity !== '전국' && displayCity !== '추천') {
-            sequentialSpots = rawSpots.slice(0, Math.max(days, 5)).map((s, idx) => ({
+          // Rule: NEVER overwrite Gemini extracted spots with TourAPI default '가' spots!
+          if (sequentialSpots.length > 0) {
+            spotsToRender = sequentialSpots;
+          } else {
+            spotsToRender = rawSpots.slice(0, Math.max(days, 5)).map((s, idx) => ({
               ...s,
               assignedDay: Math.min(days, Math.floor(idx / 2) + 1)
             }));
           }
-          spotsToRender = sequentialSpots;
         }
 
         agodaUrl = isUnknownPlace ? null : getAgodaHotelSearchUrl(displayCity);

@@ -283,6 +283,13 @@ CRITICAL RULES FOR "summary" AND "dailyPlaces":
       { day: 2, places: ['외도 보타니아', '매미성'] },
       { day: 3, places: ['학동 흑진주 몽돌해변'] }
     ];
+  } else if (targetCity.includes('제주')) {
+    defaultSummary = `${greetingPrefix} 제주도 3일 맞춤 여행 코스를 추천해 드립니다!\n\n1일차: 성산일출봉 장관을 조망하고 섭지코지 해안 산책길을 걸어봅니다.\n2일차: 협재해수욕장 에메랄드빛 바다를 즐기고 오설록 티뮤지엄을 탐방합니다.\n3일차: 한라산 국립공원의 청정 숲길을 걸으며 여행을 마무리합니다.`;
+    defaultDailyPlaces = [
+      { day: 1, places: ['성산일출봉', '섭지코지'] },
+      { day: 2, places: ['협재해수욕장', '오설록 티뮤지엄'] },
+      { day: 3, places: ['한라산 국립공원'] }
+    ];
   } else if (targetCity.includes('수원')) {
     defaultSummary = `${greetingPrefix} 수원 화성 3일 힐링 코스를 추천해 드립니다!\n\n1일차: 수원 화성행궁 역사적 의미를 기리고 행리단길 분위기를 즐깁니다.\n2일차: 수원 화성 성곽길을 따라 걸으며 방화수류정 야경을 감상합니다.\n3일차: 광교호수공원 산책을 즐기며 편안하게 여행을 마무리합니다.`;
     defaultDailyPlaces = [
