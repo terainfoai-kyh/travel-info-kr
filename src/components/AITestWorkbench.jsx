@@ -148,18 +148,18 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     }
 
     // 2. 1차 로컬 입력 방어 검증 (useInputGuard)
-    const guardCheck = validateTravelQuery(query, lang);
-
-    if (!guardCheck.isValid) {
+    const guardResult = validateTravelQuery(query, lang);
+    if (!guardResult.isValid) {
       setTimeout(() => {
         setChatHistory(prev => [
           ...prev,
           {
             id: `vora-${Date.now()}`,
             sender: 'vora',
-            text: guardCheck.message,
+            text: guardResult.reason,
             timestamp: new Date().toLocaleTimeString(),
-            isGuardWarning: true
+            isGuardWarning: true,
+            chips: ['서울 경복궁 맛집 코스', '부산 해운대 1박2일', '제주도 카페 탐방']
           }
         ]);
         setIsLoading(false);
@@ -167,22 +167,18 @@ export default function AITestWorkbench({ lang = 'ko' }) {
       return;
     }
 
-    // 3. Check Quota Limit (Simulator aware)
-    const currentEffectiveLimit = virtualQuotaLimit + extraRechargeCount;
-    const isExceeded = !isDevBypass && virtualTier === 'depleted';
-
-    if (isExceeded) {
+    // 3. 2차 AI 쿼터 및 회원 등급 검증 (useQuotaLimit)
+    const currentLimit = virtualQuotaLimit + extraRechargeCount;
+    if (!isDevBypass && usedCount >= currentLimit) {
       setTimeout(() => {
         setChatHistory(prev => [
           ...prev,
           {
             id: `vora-${Date.now()}`,
             sender: 'vora',
-            text: `🎟️ 오늘 기본 제공되는 무료 AI 생성 횟수를 모두 사용하셨습니다! 매일 자정(00:00)에 5회가 자동 충전됩니다.\n\n아래 선택지를 통해 즉시 충전하거나 제휴 혜택을 이용하실 수 있습니다:`,
+            text: `⚠️ 선배님! 오늘 제공된 AI 티켓 (${currentLimit}회)을 모두 소비하셨습니다.`,
             timestamp: new Date().toLocaleTimeString(),
-            isQuotaExceededNotice: true,
-            agodaUrl: getAgodaHotelSearchUrl('한국'),
-            klookUrl: getKlookActivitySearchUrl('한국')
+            isQuotaExceededNotice: true
           }
         ]);
         setIsLoading(false);
@@ -190,13 +186,18 @@ export default function AITestWorkbench({ lang = 'ko' }) {
       return;
     }
 
+    // 4. Increment Quota & Execute Pipeline
     incrementQuota();
+    const targetCity = extractLocationKeyword(query);
+    let days = 3;
+    if (/(2일|2박|2d)/i.test(query)) days = 2;
+    if (/(1일|1박|당일)/i.test(query)) days = 1;
+    if (/(4일|4박|4d)/i.test(query)) days = 4;
 
-    // 4. Call P1 Conversational Gemini Storytelling Engine & TourAPI 4.0
+    // Execute Gemini AI
     const aiBriefing = await geminiGenerateFullItinerary(query, lang);
-    const targetCity = aiBriefing?.targetCity || extractLocationKeyword(query);
-    const days = aiBriefing?.days || 3;
 
+    // Fetch Official TourAPI Spots
     try {
       const rawSpots = await fetchTourSpots({ region: targetCity, lang });
       
@@ -260,22 +261,22 @@ export default function AITestWorkbench({ lang = 'ko' }) {
   return (
     <div style={{
       width: '100%',
-      backgroundColor: '#0f172a',
-      color: '#f8fafc',
+      backgroundColor: '#ffffff',
+      color: '#0f172a',
       borderRadius: '24px',
       padding: '1.25rem',
       margin: '1rem 0',
-      border: '1px solid rgba(255, 255, 255, 0.1)',
-      boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)',
+      border: '1px solid #cbd5e1',
+      boxShadow: '0 10px 30px rgba(0, 0, 0, 0.06)',
       fontFamily: 'var(--font-family)'
     }}>
       
       {/* 🛠️ TOP SENIOR DEVELOPER TEST SIMULATOR CONTROL BAR */}
       <div style={{
-        backgroundColor: '#1e293b',
+        backgroundColor: '#f1f5f9',
         padding: '0.85rem 1rem',
         borderRadius: '18px',
-        border: '1px solid rgba(168, 85, 247, 0.3)',
+        border: '1px solid #cbd5e1',
         marginBottom: '1.25rem',
         display: 'flex',
         flexWrap: 'wrap',
@@ -284,8 +285,8 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         gap: '0.75rem'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Cpu size={20} style={{ color: '#c084fc' }} />
-          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#ffffff' }}>
+          <Cpu size={20} style={{ color: '#7e22ce' }} />
+          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0f172a' }}>
             🛠️ 선배님 전용 AI 쿼터 & 회원 등급 테스트 제어판:
           </span>
         </div>
@@ -304,8 +305,8 @@ export default function AITestWorkbench({ lang = 'ko' }) {
               display: 'flex',
               alignItems: 'center',
               gap: '0.3rem',
-              backgroundColor: isDevBypass ? '#10b981' : 'rgba(244, 63, 94, 0.2)',
-              color: isDevBypass ? '#022c22' : '#fca5a5'
+              backgroundColor: isDevBypass ? '#10b981' : '#ffe4e6',
+              color: isDevBypass ? '#ffffff' : '#be123c'
             }}
           >
             {isDevBypass ? <Zap size={14} /> : <ShieldAlert size={14} />}
@@ -325,7 +326,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
               display: 'flex',
               alignItems: 'center',
               gap: '0.3rem',
-              backgroundColor: '#3b82f6',
+              backgroundColor: '#2563eb',
               color: '#ffffff'
             }}
           >
@@ -346,7 +347,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
               display: 'flex',
               alignItems: 'center',
               gap: '0.3rem',
-              backgroundColor: isVirtualGoogleLogin ? '#ea580c' : '#475569',
+              backgroundColor: isVirtualGoogleLogin ? '#ea580c' : '#64748b',
               color: '#ffffff'
             }}
           >
@@ -363,16 +364,16 @@ export default function AITestWorkbench({ lang = 'ko' }) {
               fontSize: '0.75rem',
               fontWeight: 700,
               cursor: 'pointer',
-              border: '1px solid rgba(168, 85, 247, 0.4)',
-              backgroundColor: 'rgba(168, 85, 247, 0.2)',
-              color: '#e9d5ff',
+              border: '1px solid rgba(147, 51, 234, 0.3)',
+              backgroundColor: 'rgba(147, 51, 234, 0.1)',
+              color: '#7e22ce',
               display: 'flex',
               alignItems: 'center',
               gap: '0.3rem'
             }}
           >
             <Crown size={14} />
-            가상 등급: <strong style={{ color: '#facc15' }}>{virtualTier.toUpperCase()}</strong> (클릭하여 전환)
+            가상 등급: <strong style={{ color: '#6b21a8' }}>{virtualTier.toUpperCase()}</strong> (클릭하여 전환)
           </button>
         </div>
       </div>
@@ -384,17 +385,17 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         justifyContent: 'space-between',
         paddingBottom: '0.85rem',
         marginBottom: '1rem',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
+        borderBottom: '1px solid #e2e8f0'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
           <div style={{ padding: '0.5rem', backgroundColor: '#9333ea', color: '#ffffff', borderRadius: '12px', display: 'flex' }}>
             <Sparkles size={20} />
           </div>
           <div>
-            <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: '#ffffff' }}>
+            <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
               Vora AI 1:1 대화형 여행 컨시어지
             </h3>
-            <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
+            <span style={{ fontSize: '0.72rem', color: '#64748b' }}>
               선(先) AI 답변 100% 노출 ➔ 후(後) 맞춤 숙소/티켓/가입 혜택 연결
             </span>
           </div>
@@ -406,9 +407,9 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           borderRadius: '9999px',
           fontSize: '0.75rem',
           fontWeight: 700,
-          backgroundColor: isDevBypass ? 'rgba(16, 185, 129, 0.2)' : 'rgba(59, 130, 246, 0.2)',
-          color: isDevBypass ? '#6ee7b7' : '#93c5fd',
-          border: isDevBypass ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid rgba(59, 130, 246, 0.4)',
+          backgroundColor: isDevBypass ? '#d1fae5' : '#dbeafe',
+          color: isDevBypass ? '#065f46' : '#1e40af',
+          border: isDevBypass ? '1px solid #a7f3d0' : '1px solid #bfdbfe',
           display: 'flex',
           alignItems: 'center',
           gap: '0.4rem'
@@ -416,14 +417,14 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           {isDevBypass ? (
             <>⚡ 선배님 무제한 패스 (UNLIMITED)</>
           ) : (
-            <>🎟️ 오늘 남은 AI 티켓: <span style={{ color: '#facc15' }}>{Math.max(0, (virtualQuotaLimit + extraRechargeCount) - usedCount)}</span> / {virtualQuotaLimit + extraRechargeCount}회</>
+            <>🎟️ 오늘 남은 AI 티켓: <span style={{ color: '#b45309' }}>{Math.max(0, (virtualQuotaLimit + extraRechargeCount) - usedCount)}</span> / {virtualQuotaLimit + extraRechargeCount}회</>
           )}
         </div>
       </div>
 
       {/* CHAT MESSAGES STREAM CONTAINER */}
       <div style={{
-        backgroundColor: '#020617',
+        backgroundColor: '#f8fafc',
         borderRadius: '18px',
         padding: '1.25rem',
         minHeight: '380px',
@@ -432,7 +433,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         display: 'flex',
         flexDirection: 'column',
         gap: '1.25rem',
-        border: '1px solid rgba(255, 255, 255, 0.08)',
+        border: '1px solid #cbd5e1',
         marginBottom: '1rem'
       }}>
         {chatHistory.map((msg) => (
@@ -456,29 +457,29 @@ export default function AITestWorkbench({ lang = 'ko' }) {
               maxWidth: '85%',
               padding: '0.9rem 1.1rem',
               borderRadius: msg.sender === 'user' ? '18px 4px 18px 18px' : '4px 18px 18px 18px',
-              backgroundColor: msg.sender === 'user' ? '#2563eb' : '#1e293b',
-              color: '#ffffff',
+              backgroundColor: msg.sender === 'user' ? '#2563eb' : '#ffffff',
+              color: msg.sender === 'user' ? '#ffffff' : '#0f172a',
               fontSize: '0.88rem',
               lineHeight: '1.6',
               whiteSpace: 'pre-wrap',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
-              border: msg.sender === 'user' ? 'none' : '1px solid rgba(255, 255, 255, 0.08)'
+              boxShadow: msg.sender === 'user' ? '0 4px 12px rgba(37, 99, 235, 0.2)' : '0 4px 12px rgba(0, 0, 0, 0.05)',
+              border: msg.sender === 'user' ? 'none' : '1px solid #e2e8f0'
             }}>
               {msg.text}
 
               {/* Guard Warning Highlight */}
               {msg.isGuardWarning && (
-                <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid rgba(255, 255, 255, 0.1)', color: '#fca5a5', fontSize: '0.78rem' }}>
+                <div style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid #f1f5f9', color: '#dc2626', fontSize: '0.78rem' }}>
                   💡 대한민국 관공서/관광 명소 및 미식 질문을 입력해 주시면 감사하겠습니다!
                 </div>
               )}
 
               {/* Quota Exceeded Action Card */}
               {msg.isQuotaExceededNotice && (
-                <div style={{ marginTop: '0.85rem', paddingTop: '0.85rem', borderTop: '1px solid rgba(255, 255, 255, 0.15)', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <div style={{ marginTop: '0.85rem', paddingTop: '0.85rem', borderTop: '1px solid #f1f5f9', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   <button
                     onClick={handleRechargeExtra}
-                    style={{ padding: '0.5rem 0.85rem', backgroundColor: '#10b981', color: '#022c22', fontWeight: 700, borderRadius: '10px', border: 'none', cursor: 'pointer', fontSize: '0.78rem', textAlign: 'center' }}
+                    style={{ padding: '0.5rem 0.85rem', backgroundColor: '#10b981', color: '#ffffff', fontWeight: 700, borderRadius: '10px', border: 'none', cursor: 'pointer', fontSize: '0.78rem', textAlign: 'center' }}
                   >
                     🎬 15초 짧은 광고 시청하고 오늘 +3회 즉시 충전하기
                   </button>
@@ -493,19 +494,19 @@ export default function AITestWorkbench({ lang = 'ko' }) {
 
               {/* Value-First Parsed Geo-Coordinates & Spot Cards */}
               {msg.spots && msg.spots.length > 0 && (
-                <div style={{ marginTop: '0.85rem', paddingTop: '0.85rem', borderTop: '1px solid rgba(255, 255, 255, 0.15)', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#c084fc', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                <div style={{ marginTop: '0.85rem', paddingTop: '0.85rem', borderTop: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#7e22ce', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
                     🗺️ {msg.targetCity} 정품 명소 및 지도 GPS 좌표 ({msg.spots.length}건):
                   </span>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                     {msg.spots.map((spot, idx) => (
-                      <div key={spot.id || idx} style={{ padding: '0.6rem 0.75rem', backgroundColor: '#0f172a', borderRadius: '10px', border: '1px solid #334155', fontSize: '0.78rem', display: 'flex', alignItems: 'center', justifyBetween: 'space-between', gap: '0.5rem' }}>
+                      <div key={spot.id || idx} style={{ padding: '0.6rem 0.75rem', backgroundColor: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '0.78rem', display: 'flex', alignItems: 'center', justifyBetween: 'space-between', gap: '0.5rem' }}>
                         <div>
-                          <strong style={{ color: '#ffffff', display: 'block' }}>{idx + 1}. {spot.title}</strong>
-                          <span style={{ color: '#94a3b8', fontSize: '0.7rem' }}>📍 {spot.location || spot.addr1 || '중심가'}</span>
+                          <strong style={{ color: '#0f172a', display: 'block' }}>{idx + 1}. {spot.title}</strong>
+                          <span style={{ color: '#64748b', fontSize: '0.7rem' }}>📍 {spot.location || spot.addr1 || '중심가'}</span>
                         </div>
-                        <div style={{ textAlign: 'right', fontFamily: 'monospace', fontSize: '0.68rem', color: '#93c5fd' }}>
+                        <div style={{ textAlign: 'right', fontFamily: 'monospace', fontSize: '0.68rem', color: '#2563eb' }}>
                           <div>lat: {spot.lat || spot.mapy || '37.5665'}</div>
                           <div>lng: {spot.lng || spot.mapx || '126.9780'}</div>
                         </div>
@@ -515,10 +516,10 @@ export default function AITestWorkbench({ lang = 'ko' }) {
 
                   {/* Value-First Call To Action Affiliate Chips */}
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', pt: '0.4rem', marginTop: '0.4rem' }}>
-                    <a href={msg.agodaUrl} target="_blank" rel="noopener noreferrer" style={{ padding: '0.35rem 0.65rem', backgroundColor: 'rgba(30, 58, 138, 0.5)', color: '#93c5fd', borderRadius: '8px', border: '1px solid rgba(59, 130, 246, 0.4)', textDecoration: 'none', fontSize: '0.72rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                    <a href={msg.agodaUrl} target="_blank" rel="noopener noreferrer" style={{ padding: '0.35rem 0.65rem', backgroundColor: '#eff6ff', color: '#1d4ed8', borderRadius: '8px', border: '1px solid #bfdbfe', textDecoration: 'none', fontSize: '0.72rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
                       🏨 아고다 {msg.targetCity} 할인 숙소 <ExternalLink size={12} />
                     </a>
-                    <a href={msg.klookUrl} target="_blank" rel="noopener noreferrer" style={{ padding: '0.35rem 0.65rem', backgroundColor: 'rgba(124, 45, 18, 0.5)', color: '#fdba74', borderRadius: '8px', border: '1px solid rgba(249, 115, 22, 0.4)', textDecoration: 'none', fontSize: '0.72rem', display: 'flex', items: 'center', gap: '0.2rem' }}>
+                    <a href={msg.klookUrl} target="_blank" rel="noopener noreferrer" style={{ padding: '0.35rem 0.65rem', backgroundColor: '#fff7ed', color: '#c2410c', borderRadius: '8px', border: '1px solid #ffedd5', textDecoration: 'none', fontSize: '0.72rem', display: 'flex', items: 'center', gap: '0.2rem' }}>
                       🎟️ 클룩 {msg.targetCity} 액티비티 <ExternalLink size={12} />
                     </a>
                   </div>
@@ -538,10 +539,11 @@ export default function AITestWorkbench({ lang = 'ko' }) {
                       borderRadius: '9999px',
                       fontSize: '0.72rem',
                       fontWeight: 600,
-                      backgroundColor: '#1e293b',
-                      color: '#cbd5e1',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      cursor: 'pointer'
+                      backgroundColor: '#ffffff',
+                      color: '#334155',
+                      border: '1px solid #cbd5e1',
+                      cursor: 'pointer',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.03)'
                     }}
                   >
                     📍 {chipText}
@@ -553,7 +555,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         ))}
 
         {isLoading && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#c084fc', fontSize: '0.8rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#7e22ce', fontSize: '0.8rem' }}>
             <RefreshCw size={16} className="animate-spin" />
             <span>Vora AI가 한국관광공사 정품 DB와 위도/경도 좌표를 추출하고 있습니다...</span>
           </div>
@@ -573,10 +575,10 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           style={{
             flex: 1,
             padding: '0.85rem 1rem',
-            backgroundColor: '#020617',
-            border: '1px solid #334155',
+            backgroundColor: '#ffffff',
+            border: '1px solid #cbd5e1',
             borderRadius: '14px',
-            color: '#ffffff',
+            color: '#0f172a',
             fontSize: '0.85rem',
             outline: 'none'
           }}
@@ -587,10 +589,10 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           onClick={handleStartVoiceSTT}
           style={{
             padding: '0 0.85rem',
-            backgroundColor: isListening ? '#ef4444' : '#1e293b',
-            color: '#ffffff',
+            backgroundColor: isListening ? '#ef4444' : '#f1f5f9',
+            color: isListening ? '#ffffff' : '#334155',
             borderRadius: '14px',
-            border: '1px solid #334155',
+            border: '1px solid #cbd5e1',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
