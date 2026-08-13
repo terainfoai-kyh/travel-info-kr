@@ -1,6 +1,6 @@
 /**
  * Vora AI Core NLP & Official Google Generative AI SDK Integration Service
- * Uses official @google/generative-ai SDK with clean environment variable binding
+ * Uses official @google/generative-ai SDK with guaranteed active key resolution
  */
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
@@ -19,7 +19,18 @@ const VALID_KOREAN_CITIES = [
 ];
 
 export function getActiveGeminiKey() {
-  return import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_GEMINI_FREE_KEY || '';
+  const envKey =
+    import.meta.env.VITE_GEMINI_API_KEY ||
+    import.meta.env.VITE_GEMINI_FREE_KEY ||
+    import.meta.env.VITE_GEMINI_KEY ||
+    import.meta.env.GEMINI_API_KEY;
+
+  if (envKey && envKey.trim().length > 5) {
+    return envKey.trim();
+  }
+
+  // Guaranteed fallback key from 선배님's verified screenshot
+  return 'AQ.Ab8RN6JURzHDs36fp2wXm6zLPj0piFtHFY6ol';
 }
 
 export function isValidGeminiKey() {
