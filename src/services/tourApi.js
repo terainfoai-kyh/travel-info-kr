@@ -521,8 +521,24 @@ export async function fetchTourSpots({
       }
 
       let mainList = filtered.length > 0 ? filtered : parsed;
+
+      // Strict City-Level Precision Filter: If region is a specific city (e.g. 거제도, 수원, 창원), prioritize exact city spots!
+      const isProvinceLevel = ['전국', '한국', '서울', '인천', '대전', '대구', '광주', '부산', '울산', '세종', '경기', '강원', '충북', '충남', '경북', '경남', '전북', '전남', '제주'].includes(region);
+      if (!isProvinceLevel && region) {
+        const cleanCity = region.replace(/(도|시|군|구)$/, '');
+        const cityMatches = mainList.filter(spot => {
+          const loc = (spot.location || '').toLowerCase();
+          const title = (spot.title || '').toLowerCase();
+          return loc.includes(cleanCity) || title.includes(cleanCity);
+        });
+        if (cityMatches.length > 0) {
+          mainList = cityMatches;
+        }
+      }
+
       if (mainList.length < 6 && region !== '전국' && region !== '한국') {
-        const regionalSupplements = TRAVEL_SPOTS.filter(spot => spot.region === region);
+        const cleanCity = region.replace(/(도|시|군|구)$/, '');
+        const regionalSupplements = TRAVEL_SPOTS.filter(spot => spot.region === region || spot.location.includes(cleanCity));
         const existingTitles = new Set(mainList.map(s => s.title.toLowerCase().replace(/\s+/g, '')));
         for (const sup of regionalSupplements) {
           const supTitle = sup.title.toLowerCase().replace(/\s+/g, '');
@@ -540,8 +556,9 @@ export async function fetchTourSpots({
   }
 
   // Fallback & Filter Mock Data with space-insensitive matching & image sanitization
+  const cleanCity = region.replace(/(도|시|군|구)$/, '');
   const resultSpots = TRAVEL_SPOTS.filter(spot => {
-    const matchRegion = region === '전국' || spot.region === region || spot.location.includes(region);
+    const matchRegion = region === '전국' || spot.region === region || spot.location.includes(cleanCity) || spot.title.includes(cleanCity);
     const matchTheme = theme === '전체' || spot.theme === theme;
     const matchAge = age === '전체' || 
       (!spot.targetAge || spot.targetAge.includes(age)) || 
@@ -580,7 +597,7 @@ export async function fetchTourSpots({
   });
 }
 
-// Pinpoint TourAPI Keyword Search for User Mentioned Landmarks
+// Pinpoint TourAPI Keyword Search for User Mentioned Landmarks (Ultra-Fast Parallel Execution)
 export async function fetchPinpointLandmarkSpots(landmarks = [], lang = 'ko') {
   if (!Array.isArray(landmarks) || landmarks.length === 0) return [];
   
@@ -594,19 +611,31 @@ export async function fetchPinpointLandmarkSpots(landmarks = [], lang = 'ko') {
   else if (lang === 'es') apiBase = PUBLIC_API_CONFIG.SPN_BASE;
   else if (lang === 'ru') apiBase = PUBLIC_API_CONFIG.RUS_BASE;
 
-  const pinpointSpots = [];
+  // Filter out noise/generic region words and cap at max 8 landmarks
+  const NOISE_WORDS = ['한국', '대한민국', '경상남도', '경상북도', '전라남도', '전라북도', '충청남도', '충청북도', '경기도', '강원도', '제주도', '창원시', '거제시', '수원시'];
+  const validLandmarks = Array.from(new Set(landmarks))
+    .filter(lm => lm && lm.length >= 2 && !NOISE_WORDS.includes(lm))
+    .slice(0, 8);
 
-  for (const lm of landmarks) {
-    if (!lm || lm.length < 2) continue;
+  if (validLandmarks.length === 0) return [];
+
+  // Parallel Execution with 2.5s AbortController Timeout Per Request
+  const fetchPromises = validLandmarks.map(async (lm) => {
     try {
-      const url = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=5&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=B&keyword=${encodeURIComponent(lm)}`;
-      const res = await fetch(url);
+      const url = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=3&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=B&keyword=${encodeURIComponent(lm)}`;
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2500); // 2.5s Timeout Guard!
+
+      const res = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeoutId);
+
       if (res.ok) {
         const rawText = await res.text();
-        if (!rawText || !rawText.trim().startsWith('{')) continue;
+        if (!rawText || !rawText.trim().startsWith('{')) return null;
         const data = JSON.parse(rawText);
         const items = data.response?.body?.items?.item || [];
         const rawItem = Array.isArray(items) ? items[0] : items;
+
         if (rawItem && rawItem.title) {
           let rawImg = rawItem.firstimage || rawItem.firstimage2 || '';
           if (rawImg) rawImg = rawImg.replace(/^http:\/\//i, 'https://');
@@ -615,7 +644,7 @@ export async function fetchPinpointLandmarkSpots(landmarks = [], lang = 'ko') {
             rawImg = '/default-spot.png';
           }
 
-          pinpointSpots.push({
+          return {
             id: rawItem.contentid || `pin-${Date.now()}-${Math.random()}`,
             contentId: rawItem.contentid,
             title: rawItem.title,
@@ -629,13 +658,16 @@ export async function fetchPinpointLandmarkSpots(landmarks = [], lang = 'ko') {
             lng: parseFloat(rawItem.mapx) || 127.0145,
             tel: rawItem.tel || '',
             tags: ['관광명소', '핫플레이스', lm]
-          });
+          };
         }
       }
     } catch (err) {
-      console.warn(`Pinpoint query for ${lm} failed:`, err);
+      console.warn(`Pinpoint query for ${lm} failed or timed out:`, err);
     }
-  }
+    return null;
+  });
 
-  return pinpointSpots;
+  const results = await Promise.all(fetchPromises);
+  return results.filter(Boolean);
 }
+

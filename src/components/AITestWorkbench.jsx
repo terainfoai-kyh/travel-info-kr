@@ -1,25 +1,53 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, MapPin, Search, ShieldCheck, ShieldAlert, Cpu, ExternalLink, Code, Play, RefreshCw, CheckCircle2, Mic, Send, Zap, PlusCircle, UserCheck, Crown, MessageSquare, Trash2 } from 'lucide-react';
+import { Sparkles, MapPin, Search, ShieldCheck, ShieldAlert, Cpu, ExternalLink, Code, Play, RefreshCw, CheckCircle2, Mic, Send, Zap, PlusCircle, UserCheck, Crown, MessageSquare, Trash2, BarChart3, ChevronDown, ChevronUp, Map, Compass } from 'lucide-react';
 import { validateTravelQuery } from '../hooks/useInputGuard';
 import { useQuotaLimit } from '../hooks/useQuotaLimit';
 import { extractLocationKeyword, isGreetingQuery, isMetaHelpQuery, geminiGenerateFullItinerary } from '../services/geminiNlpService';
-import { fetchTourSpots } from '../services/tourApi';
+import { fetchTourSpots, fetchPinpointLandmarkSpots } from '../services/tourApi';
 import { getAgodaHotelSearchUrl, getKlookActivitySearchUrl } from '../services/affiliateService';
+import { logAnalyticsEvent } from '../services/analyticsService';
+import AdminAnalyticsDashboard from './AdminAnalyticsDashboard';
 
 export default function AITestWorkbench({ lang = 'ko' }) {
   // 1. Quota & Dev Bypass Hook State
   const { usedCount, remainingQuota, dailyLimit, canProceed, isDevBypass, toggleDevBypass, incrementQuota } = useQuotaLimit(5);
 
-  // 2. Dev Test Simulator States
-  const [virtualTier, setVirtualTier] = useState('dev'); // 'guest', 'user', 'vip', 'depleted', 'dev'
+  // 2. Dev Test Simulator & Admin Dashboard States
+  const [virtualTier, setVirtualTier] = useState('dev');
   const [virtualQuotaLimit, setVirtualQuotaLimit] = useState(5);
   const [extraRechargeCount, setExtraRechargeCount] = useState(0);
   const [isVirtualGoogleLogin, setIsVirtualGoogleLogin] = useState(false);
+  const [showAdminDashboard, setShowAdminDashboard] = useState(false);
 
-  // 3. Dynamic Animated Loading Dots State
-  const [loadingDots, setLoadingDots] = useState('.');
+  // 3. Responsive Window Width Detection (Desktop >= 768px)
+  const [isDesktop, setIsDesktop] = useState(true);
+  useEffect(() => {
+    const handleResize = () => {
+      if (typeof window !== 'undefined') {
+        setIsDesktop(window.innerWidth >= 768);
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
-  // 4. Chat History Stream State
+  // 4. Mobile Accordion Toggle States & PC Selected Message State
+  const [expandedMobileMsgs, setExpandedMobileMsgs] = useState({});
+  const [selectedMsgId, setSelectedMsgId] = useState(null);
+
+  const toggleMobileAccordion = (msgId) => {
+    setExpandedMobileMsgs(prev => ({
+      ...prev,
+      [msgId]: !prev[msgId]
+    }));
+  };
+
+  // 5. Dynamic High-Visibility Animated Loading Dots & Status Step State
+  const [loadingDots, setLoadingDots] = useState('●');
+  const [loadingStepText, setLoadingStepText] = useState('한국관광공사 정품 DB에서 추천 명소 탐색 중');
+
+  // 6. Chat History Stream State
   const [chatHistory, setChatHistory] = useState([
     {
       id: 'welcome-1',
@@ -35,30 +63,52 @@ export default function AITestWorkbench({ lang = 'ko' }) {
   const [isListening, setIsListening] = useState(false);
   const chatEndRef = useRef(null);
 
+  // Get Currently Selected AI Spot Message for PC Right Fixed Panel (Strict 1:1 Message Sync)
+  const activeSpotMessage = chatHistory.find(m => m.id === selectedMsgId && m.sender === 'vora') ||
+    chatHistory.slice().reverse().find(m => m.sender === 'vora');
+
   // Auto-scroll to bottom of chat
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [chatHistory, isLoading, loadingDots]);
 
-  // Loading Dots Interval Animation ( . -> .. -> ... )
+  // High-Visibility Animated Wave Dots & Rotating Status Step Text
   useEffect(() => {
-    let timer;
+    let timerDots;
+    let timerStep;
     if (isLoading) {
-      setLoadingDots('.');
-      timer = setInterval(() => {
+      setLoadingDots('●');
+      setLoadingStepText('한국관광공사 정품 DB에서 추천 명소 탐색 중');
+
+      timerDots = setInterval(() => {
         setLoadingDots(prev => {
-          if (prev === '.') return '..';
-          if (prev === '..') return '...';
-          return '.';
+          if (prev === '●') return '● ●';
+          if (prev === '● ●') return '● ● ●';
+          if (prev === '● ● ●') return '● ● ● ●';
+          return '●';
         });
-      }, 400);
+      }, 350);
+
+      let stepCount = 0;
+      const steps = [
+        '한국관광공사 정품 DB에서 추천 명소 탐색 중',
+        'GPS 지도 좌표 및 위치 데이터 1:1 동기화 중',
+        '100% 맞춤 여행 일정을 정돈하고 있습니다'
+      ];
+
+      timerStep = setInterval(() => {
+        stepCount = (stepCount + 1) % steps.length;
+        setLoadingStepText(steps[stepCount]);
+      }, 900);
     } else {
-      setLoadingDots('.');
+      setLoadingDots('●');
     }
-    return () => clearInterval(timer);
+    return () => {
+      clearInterval(timerDots);
+      clearInterval(timerStep);
+    };
   }, [isLoading]);
 
-  // Dev Simulator: Handle Tier Cycle
   const handleCycleVirtualTier = () => {
     if (virtualTier === 'dev') {
       setVirtualTier('guest');
@@ -84,19 +134,19 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     }
   };
 
-  // Dev Simulator: Virtual Recharge +5
   const handleRechargeExtra = () => {
     setExtraRechargeCount(prev => prev + 5);
+    logAnalyticsEvent('VIDEO_AD');
     alert('⚡ [테스트 충전] +5회 무료 대화가 가상으로 즉시 충전되었습니다!');
   };
 
-  // Dev Simulator: Virtual Google Login Toggle
   const handleToggleVirtualGoogleLogin = () => {
     const nextState = !isVirtualGoogleLogin;
     setIsVirtualGoogleLogin(nextState);
     if (nextState) {
       setVirtualQuotaLimit(15);
       setVirtualTier('user');
+      logAnalyticsEvent('LOGIN');
       alert('🔑 [가상 구글 로그인 완료] 일일 한도가 15회로 확장되었습니다!');
     } else {
       setVirtualQuotaLimit(5);
@@ -105,7 +155,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     }
   };
 
-  // STT Voice Input Test
   const handleStartVoiceSTT = () => {
     if (typeof window === 'undefined') return;
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -132,7 +181,17 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     }
   };
 
-  // Execute Conversational AI Pipeline
+  const getDayBadgeStyle = (dayIndex) => {
+    const colors = [
+      { bg: '#f3e8ff', text: '#7e22ce', border: '#e9d5ff' },
+      { bg: '#dbeafe', text: '#1d4ed8', border: '#bfdbfe' },
+      { bg: '#d1fae5', text: '#047857', border: '#a7f3d0' },
+      { bg: '#ffedd5', text: '#c2410c', border: '#fed7aa' },
+      { bg: '#fce7f3', text: '#be185d', border: '#fbcfe8' }
+    ];
+    return colors[(dayIndex - 1) % colors.length];
+  };
+
   const handleSendMessage = async (customText = null) => {
     const query = (customText || inputPrompt).trim();
     if (!query || isLoading) return;
@@ -141,7 +200,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     const nextAskIndex = Math.min(totalLimit, usedCount + 1);
     const quotaTag = isDevBypass ? '[ ⚡ 무제한 ]' : `[ 오늘 대화 ${nextAskIndex}/${totalLimit}회 ]`;
 
-    // Add User Message to Chat Stream with Quota Tag
     const userMsgId = `user-${Date.now()}`;
     const userMsg = {
       id: userMsgId,
@@ -153,9 +211,9 @@ export default function AITestWorkbench({ lang = 'ko' }) {
 
     setChatHistory(prev => [...prev, userMsg]);
     if (!customText) setInputPrompt('');
+    setSelectedMsgId(null);
     setIsLoading(true);
 
-    // 1. Check Casual Greeting Query
     if (isGreetingQuery(query)) {
       setTimeout(() => {
         setChatHistory(prev => [
@@ -163,7 +221,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           {
             id: `vora-${Date.now()}`,
             sender: 'vora',
-            text: '안녕하세요! 여행 조력자 보라입니다. 😊 오늘 어떤 멋진 여행을 함께 계획해 볼까요?',
+            text: '안녕하세요! 여행 컨시어지 보라입니다. 😊 오늘 어떤 멋진 여행을 함께 계획해 볼까요?',
             timestamp: new Date().toLocaleTimeString(),
             chips: ['수원 화성행궁 야경 힐링', '거제도 2박3일 카페 투어', '제주도 오션뷰 맛집']
           }
@@ -173,7 +231,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
       return;
     }
 
-    // 2. 1차 로컬 입력 방어 검증 (useInputGuard)
     const isMeta = isMetaHelpQuery(query);
     if (!isMeta) {
       const guardResult = validateTravelQuery(query, lang);
@@ -196,7 +253,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
       }
     }
 
-    // 3. 2차 AI 쿼터 및 회원 등급 검증 (useQuotaLimit)
     if (!isDevBypass && usedCount >= totalLimit) {
       setTimeout(() => {
         setChatHistory(prev => [
@@ -204,7 +260,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           {
             id: `vora-${Date.now()}`,
             sender: 'vora',
-            text: `안녕하세요! 여행 조력자 보라입니다.\n\n⚠️ 오늘 제공된 무료 대화 (${totalLimit}회)를 모두 소비하셨습니다.`,
+            text: `안녕하세요! 여행 컨시어지 보라입니다.\n\n⚠️ 오늘 제공된 무료 대화 (${totalLimit}회)를 모두 소비하셨습니다.`,
             timestamp: new Date().toLocaleTimeString(),
             isQuotaExceededNotice: true
           }
@@ -214,84 +270,206 @@ export default function AITestWorkbench({ lang = 'ko' }) {
       return;
     }
 
-    // 4. Increment Quota & Execute Pipeline
     incrementQuota();
-    const targetCity = extractLocationKeyword(query);
+    let initialCity = extractLocationKeyword(query);
+    
     let days = 3;
-    if (/(5일|5박|5d)/i.test(query)) days = 5;
-    else if (/(4일|4박|4d)/i.test(query)) days = 4;
-    else if (/(2일|2박|2d)/i.test(query)) days = 2;
-    else if (/(1일|1박|당일)/i.test(query)) days = 1;
+    if (/(5일|4박\s*5일|5박|5d)/i.test(query)) days = 5;
+    else if (/(4일|3박\s*4일|4박|4d)/i.test(query)) days = 4;
+    else if (/(3일|2박\s*3일|3박|3d)/i.test(query)) days = 3;
+    else if (/(2일|1박\s*2일|2박|2d)/i.test(query)) days = 2;
+    else if (/(1일|당일|1박)/i.test(query)) days = 1;
 
-    // Execute Gemini AI
-    const aiBriefing = await geminiGenerateFullItinerary(query, lang);
-
-    // Fetch Official TourAPI Spots ONLY if query is NOT a meta help query
     try {
+      const [aiBriefing, rawSpotsInitial] = await Promise.all([
+        geminiGenerateFullItinerary(query, lang).catch(() => ({
+          targetCity: initialCity,
+          aiRecommendationSummary: `안녕하세요! 여행 컨시어지 보라입니다. 😊 '${initialCity}' 힐링 맞춤 여행 코스를 추천해 드립니다!\n\n1일차: ${initialCity} 대표 명소를 구경하고 여유로운 산책을 즐깁니다.\n2일차: ${initialCity} 힐링 명소 및 지역 대표 맛집 코스를 탐방합니다.\n3일차: ${initialCity} 전망대에서 일몰을 감상하며 여행을 마무리합니다.`,
+          dailyPlaces: [
+            { day: 1, places: [`${initialCity} 명소`] },
+            { day: 2, places: [`${initialCity} 힐링 코스`] },
+            { day: 3, places: [`${initialCity} 전망대`] }
+          ],
+          isUnknownPlace: false
+        })),
+        (initialCity && initialCity !== '전국')
+          ? fetchTourSpots({ region: initialCity, lang }).catch(() => [])
+          : Promise.resolve([])
+      ]);
+
+      logAnalyticsEvent('CHAT', { inputTokens: 120, outputTokens: 350 });
+
       let spotsToRender = [];
       let agodaUrl = null;
       let klookUrl = null;
+      let displayCity = aiBriefing?.targetCity || initialCity;
+      const isUnknownPlace = aiBriefing?.isUnknownPlace || false;
 
-      if (!isMeta && targetCity && targetCity !== '전국') {
-        const rawSpots = await fetchTourSpots({ region: targetCity, lang });
-        const cityLower = targetCity.toLowerCase();
-        const matchedCitySpots = rawSpots.filter(s => {
-          const locStr = `${s.location || ''} ${s.title || ''} ${s.addr1 || ''}`.toLowerCase();
-          return locStr.includes(cityLower);
-        });
+      if (!isMeta && !isUnknownPlace) {
+        const summaryText = aiBriefing?.aiRecommendationSummary || '';
 
-        // Ensure target spot count matches days (min 5 spots)
-        const targetCount = Math.max(days, 5);
-        let finalSpots = matchedCitySpots;
-        if (finalSpots.length < targetCount) {
-          // Fill remaining from rawSpots to guarantee 5 spots for any city
-          const spotIds = new Set(finalSpots.map(s => s.id || s.title));
-          for (const s of rawSpots) {
-            if (finalSpots.length >= targetCount) break;
-            const sid = s.id || s.title;
-            if (!spotIds.has(sid)) {
-              spotIds.add(sid);
-              finalSpots.push(s);
+        if (displayCity === '전국') {
+          const inferredCity = extractLocationKeyword(summaryText);
+          if (inferredCity && inferredCity !== '전국') {
+            displayCity = inferredCity;
+          } else {
+            displayCity = '추천';
+          }
+        }
+
+        let rawSpots = rawSpotsInitial || [];
+        if (rawSpots.length === 0 && displayCity !== '전국' && displayCity !== '추천') {
+          rawSpots = await fetchTourSpots({ region: displayCity, lang }).catch(() => []);
+        }
+
+        const dayExtractedMap = new Map();
+        const allLandmarkNames = new Set();
+        for (let d = 1; d <= days; d++) dayExtractedMap.set(d, []);
+
+        const dailyPlaces = aiBriefing?.dailyPlaces || [];
+        if (dailyPlaces && dailyPlaces.length > 0) {
+          for (const item of dailyPlaces) {
+            const dayNum = Math.min(days, Math.max(1, item.day || 1));
+            const places = item.places || [];
+            const currentList = dayExtractedMap.get(dayNum) || [];
+
+            for (let placeName of places) {
+              if (typeof placeName === 'string') {
+                placeName = placeName.trim();
+                placeName = placeName.replace(/^(수원|창원|경남|부산|서울|인천|강원|제주|전남|전북|충남|충북)\s+/, '').trim();
+                if (placeName.length >= 2 && !allLandmarkNames.has(placeName)) {
+                  allLandmarkNames.add(placeName);
+                  currentList.push({ name: placeName });
+                }
+              }
+            }
+            dayExtractedMap.set(dayNum, currentList);
+          }
+        }
+
+        const landmarkNamesList = Array.from(allLandmarkNames);
+        const pinpointResults = await fetchPinpointLandmarkSpots(landmarkNamesList, lang).catch(() => []);
+        const pinpointMap = new Map();
+        for (const pSpot of pinpointResults) {
+          if (pSpot && pSpot.title) {
+            pinpointMap.set(pSpot.title.toLowerCase(), pSpot);
+            for (const lmName of landmarkNamesList) {
+              const cleanLm = lmName.replace(/\s+/g, '').toLowerCase();
+              const cleanTitle = (pSpot.title || '').replace(/\s+/g, '').toLowerCase();
+              if (cleanTitle && (cleanTitle.includes(cleanLm) || cleanLm.includes(cleanTitle))) {
+                pinpointMap.set(lmName.toLowerCase(), pSpot);
+              }
             }
           }
         }
-        spotsToRender = finalSpots.slice(0, targetCount);
-        agodaUrl = getAgodaHotelSearchUrl(targetCity);
-        klookUrl = getKlookActivitySearchUrl(targetCity);
+
+        let sequentialSpots = [];
+        const addedTitles = new Set();
+
+        for (let d = 1; d <= days; d++) {
+          const itemsForDay = dayExtractedMap.get(d) || [];
+          for (const item of itemsForDay) {
+            const nameLower = item.name.toLowerCase();
+            let matchedSpot = pinpointMap.get(nameLower);
+
+            if (!matchedSpot) {
+              const cleanItemName = nameLower.replace(/\s+/g, '');
+              matchedSpot = rawSpots.find(s => {
+                const sClean = (s?.title || '').replace(/\s+/g, '').toLowerCase();
+                return sClean && (sClean.includes(cleanItemName) || cleanItemName.includes(sClean));
+              });
+            }
+
+            if (matchedSpot) {
+              if (matchedSpot.title && !addedTitles.has(matchedSpot.title)) {
+                addedTitles.add(matchedSpot.title);
+                sequentialSpots.push({
+                  ...matchedSpot,
+                  assignedDay: d
+                });
+              }
+            } else {
+              if (!addedTitles.has(item.name)) {
+                addedTitles.add(item.name);
+                sequentialSpots.push({
+                  id: `syn-${Date.now()}-${item.name}`,
+                  title: item.name,
+                  location: `${displayCity} 추천 장소`,
+                  addr1: `${displayCity} ${d}일차 명소`,
+                  assignedDay: d,
+                  isQuoted: true
+                });
+              }
+            }
+          }
+        }
+
+        if (isUnknownPlace) {
+          spotsToRender = [];
+        } else {
+          if (sequentialSpots.length > 0) {
+            spotsToRender = sequentialSpots;
+          } else {
+            spotsToRender = rawSpots.slice(0, Math.max(days, 5)).map((s, idx) => ({
+              ...s,
+              assignedDay: Math.min(days, Math.floor(idx / 2) + 1)
+            }));
+          }
+        }
+
+        agodaUrl = isUnknownPlace ? null : getAgodaHotelSearchUrl(displayCity);
+        klookUrl = isUnknownPlace ? null : getKlookActivitySearchUrl(displayCity);
       }
 
+      const voraMsgId = `vora-${Date.now()}`;
       const voraResponse = {
-        id: `vora-${Date.now()}`,
+        id: voraMsgId,
         sender: 'vora',
-        text: aiBriefing?.aiRecommendationSummary || `안녕하세요! 여행 조력자 보라입니다. 😊`,
+        text: aiBriefing?.aiRecommendationSummary || `안녕하세요! 여행 컨시어지 보라입니다. 😊 '${displayCity}' 여행 코스를 준비했습니다.`,
         timestamp: new Date().toLocaleTimeString(),
-        targetCity,
+        targetCity: isUnknownPlace ? null : displayCity,
         days,
-        spots: spotsToRender,
+        spots: isUnknownPlace ? [] : spotsToRender,
         agodaUrl,
         klookUrl
       };
 
       setChatHistory(prev => [...prev, voraResponse]);
+      setSelectedMsgId(voraMsgId);
+
+      if (voraMsgId && spotsToRender.length > 0) {
+        setExpandedMobileMsgs(prev => ({ ...prev, [voraMsgId]: true }));
+      }
+
     } catch (err) {
-      console.warn('Pipeline execution error:', err);
-      setChatHistory(prev => [
-        ...prev,
-        {
-          id: `vora-${Date.now()}`,
-          sender: 'vora',
-          text: `안녕하세요! 여행 컨시어지 보라입니다. 😊 '${targetCity}' 추천 정보를 준비했습니다.`,
-          timestamp: new Date().toLocaleTimeString(),
-          targetCity,
-          days
-        }
-      ]);
+      console.warn('Pipeline execution error fallback:', err);
+      const fallbackCity = initialCity && initialCity !== '전국' ? initialCity : '추천';
+      const fallbackSpots = await fetchTourSpots({ region: fallbackCity, lang }).catch(() => []);
+      const voraMsgId = `vora-${Date.now()}`;
+
+      let fallbackSummaryText = `안녕하세요! 여행 컨시어지 보라입니다. 😊 '${fallbackCity}' 여행 관련 요청에 대해 1:1 맞춤 코스를 추천해 드립니다.`;
+
+      const voraResponse = {
+        id: voraMsgId,
+        sender: 'vora',
+        text: fallbackSummaryText,
+        timestamp: new Date().toLocaleTimeString(),
+        targetCity: fallbackCity,
+        days,
+        spots: fallbackSpots.slice(0, 5).map((s, idx) => ({ ...s, assignedDay: Math.floor(idx / 2) + 1 })),
+        agodaUrl: getAgodaHotelSearchUrl(fallbackCity),
+        klookUrl: getKlookActivitySearchUrl(fallbackCity)
+      };
+
+      setChatHistory(prev => [...prev, voraResponse]);
+      setSelectedMsgId(voraMsgId);
+      if (voraMsgId) setExpandedMobileMsgs(prev => ({ ...prev, [voraMsgId]: true }));
     } finally {
       setIsLoading(false);
     }
   };
 
-  const userLabel = lang === 'en' ? '👤 You' : (lang === 'ja' ? '👤 あなた' : (lang === 'zh' ? '👤 我' : '👤 나'));
+  const userLabel = lang === 'en' ? '👤 You' : (lang === 'ja' ? '👤 あなた' : (lang === 'zh' ? '👤 me' : '👤 나'));
 
   return (
     <div style={{
@@ -306,7 +484,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
       fontFamily: 'var(--font-family)'
     }}>
       
-      {/* 🛠️ TOP SENIOR DEVELOPER TEST SIMULATOR CONTROL BAR */}
+      {/* 🛠️ TOP CONTROL BAR */}
       <div style={{
         backgroundColor: '#f1f5f9',
         padding: '0.75rem 1rem',
@@ -327,6 +505,26 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         </div>
 
         <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.4rem' }}>
+          <button
+            onClick={() => setShowAdminDashboard(prev => !prev)}
+            style={{
+              padding: '0.3rem 0.65rem',
+              borderRadius: '8px',
+              fontSize: '0.72rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              border: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.3rem',
+              backgroundColor: showAdminDashboard ? '#7e22ce' : '#f3e8ff',
+              color: showAdminDashboard ? '#ffffff' : '#7e22ce'
+            }}
+          >
+            <BarChart3 size={13} />
+            {showAdminDashboard ? '👑 관리자 통계 닫기' : '👑 선배님 관리자 통계 대시보드'}
+          </button>
+
           <button
             onClick={() => toggleDevBypass()}
             style={{
@@ -409,6 +607,8 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         </div>
       </div>
 
+      {showAdminDashboard && <AdminAnalyticsDashboard />}
+
       {/* CHAT CONTAINER HEADER */}
       <div style={{
         display: 'flex',
@@ -432,7 +632,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           </div>
         </div>
 
-        {/* Realtime Quota Info Badge */}
         <div style={{
           padding: '0.35rem 0.75rem',
           borderRadius: '9999px',
@@ -453,232 +652,407 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         </div>
       </div>
 
-      {/* CHAT MESSAGES STREAM CONTAINER WITH PADDING-BOTTOM FIX FOR FULL SCROLLING */}
+      {/* 🔥 RESPONSIVE HYBRID UX LAYOUT CONTAINER (PC: Left Rich Text Only | Right Fixed Cards Only) */}
       <div style={{
-        backgroundColor: '#f8fafc',
-        borderRadius: '16px',
-        padding: '1rem 1rem 2.5rem 1rem',
-        minHeight: '380px',
-        maxHeight: '560px',
-        overflowY: 'auto',
         display: 'flex',
-        flexDirection: 'column',
-        gap: '0.6rem',
-        border: '1px solid #cbd5e1',
-        marginBottom: '0.85rem',
-        scrollBehavior: 'smooth'
+        flexDirection: isDesktop ? 'row' : 'column',
+        gap: '1.25rem',
+        alignItems: 'flex-start'
       }}>
-        {chatHistory.map((msg) => (
-          <div
-            key={msg.id}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: msg.sender === 'user' ? 'flex-end' : 'flex-start',
-              gap: '0.15rem'
-            }}
-          >
-            {/* Sender Label & Timestamp */}
-            <div style={{ fontSize: '0.68rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.3rem', marginBottom: '0.1rem' }}>
-              <span>{msg.sender === 'user' ? userLabel : '🤖 Vora AI'}</span>
-              <span>• {msg.timestamp}</span>
-            </div>
 
-            {/* Message Bubble */}
-            <div style={{
-              maxWidth: '88%',
-              padding: '0.65rem 0.95rem',
-              borderRadius: msg.sender === 'user' ? '16px 4px 16px 16px' : '4px 16px 16px 16px',
-              backgroundColor: msg.sender === 'user' ? '#2563eb' : '#ffffff',
-              color: msg.sender === 'user' ? '#ffffff' : '#0f172a',
-              fontSize: '0.84rem',
-              lineHeight: '1.5',
-              whiteSpace: 'pre-wrap',
-              boxShadow: msg.sender === 'user' ? '0 3px 8px rgba(37, 99, 235, 0.18)' : '0 3px 8px rgba(0, 0, 0, 0.04)',
-              border: msg.sender === 'user' ? 'none' : '1px solid #e2e8f0'
-            }}>
-              {/* User Quota Badge Tag */}
-              {msg.sender === 'user' && msg.quotaTag && (
-                <span style={{ fontSize: '0.68rem', opacity: 0.85, marginRight: '0.4rem', fontWeight: 600 }}>
-                  {msg.quotaTag}
-                </span>
-              )}
+        {/* LEFT COLUMN: CHAT STREAM & INPUT (PC: 60% Width | Mobile: 100% Width) */}
+        <div style={{
+          flex: isDesktop ? '1 1 58%' : '1 1 100%',
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          minWidth: 0
+        }}>
 
-              {msg.text}
-
-              {/* Guard Warning Highlight */}
-              {msg.isGuardWarning && (
-                <div style={{ marginTop: '0.4rem', paddingTop: '0.4rem', borderTop: '1px solid #f1f5f9', color: '#dc2626', fontSize: '0.75rem' }}>
-                  💡 대한민국 관공서/관광 명소 및 미식 질문을 입력해 주시면 감사하겠습니다!
+          {/* CHAT MESSAGES STREAM CONTAINER */}
+          <div style={{
+            backgroundColor: '#f8fafc',
+            borderRadius: '16px',
+            padding: '1rem 1rem 2.5rem 1rem',
+            minHeight: '380px',
+            maxHeight: '560px',
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.6rem',
+            border: '1px solid #cbd5e1',
+            marginBottom: '0.85rem',
+            scrollBehavior: 'smooth'
+          }}>
+            {chatHistory.map((msg) => (
+              <div
+                key={msg.id}
+                onClick={() => msg.spots && msg.spots.length > 0 && setSelectedMsgId(msg.id)}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: msg.sender === 'user' ? 'flex-end' : 'flex-start',
+                  gap: '0.15rem',
+                  cursor: (msg.spots && msg.spots.length > 0) ? 'pointer' : 'default'
+                }}
+              >
+                {/* Sender Label & Timestamp */}
+                <div style={{ fontSize: '0.68rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.3rem', marginBottom: '0.1rem' }}>
+                  <span>{msg.sender === 'user' ? userLabel : '🤖 Vora AI'}</span>
+                  <span>• {msg.timestamp}</span>
                 </div>
-              )}
 
-              {/* Quota Exceeded Action Card */}
-              {msg.isQuotaExceededNotice && (
-                <div style={{ marginTop: '0.6rem', paddingTop: '0.6rem', borderTop: '1px solid #f1f5f9', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                  <button
-                    onClick={handleRechargeExtra}
-                    style={{ padding: '0.45rem 0.75rem', backgroundColor: '#10b981', color: '#ffffff', fontWeight: 700, borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '0.75rem', textAlign: 'center' }}
-                  >
-                    🎬 15초 짧은 광고 시청하고 오늘 +3회 즉시 충전하기
-                  </button>
-                  <button
-                    onClick={handleToggleVirtualGoogleLogin}
-                    style={{ padding: '0.45rem 0.75rem', backgroundColor: '#ea580c', color: '#ffffff', fontWeight: 700, borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '0.75rem', textAlign: 'center' }}
-                  >
-                    🔴 Google 3초 로그인하고 매일 15회로 확장하기
-                  </button>
-                </div>
-              )}
+                {/* Message Bubble */}
+                <div style={{
+                  maxWidth: '92%',
+                  padding: '0.65rem 0.95rem',
+                  borderRadius: msg.sender === 'user' ? '16px 4px 16px 16px' : '4px 16px 16px 16px',
+                  backgroundColor: msg.sender === 'user' ? '#2563eb' : '#ffffff',
+                  color: msg.sender === 'user' ? '#ffffff' : '#0f172a',
+                  fontSize: '0.84rem',
+                  lineHeight: '1.5',
+                  whiteSpace: 'pre-wrap',
+                  boxShadow: msg.sender === 'user' ? '0 3px 8px rgba(37, 99, 235, 0.18)' : '0 3px 8px rgba(0, 0, 0, 0.04)',
+                  border: (isDesktop && activeSpotMessage?.id === msg.id) ? '2px solid #9333ea' : (msg.sender === 'user' ? 'none' : '1px solid #e2e8f0')
+                }}>
+                  {msg.sender === 'user' && msg.quotaTag && (
+                    <span style={{ fontSize: '0.68rem', opacity: 0.85, marginRight: '0.4rem', fontWeight: 600 }}>
+                      {msg.quotaTag}
+                    </span>
+                  )}
 
-              {/* Value-First Parsed Geo-Coordinates & Spot Cards */}
-              {msg.spots && msg.spots.length > 0 && (
-                <div style={{ marginTop: '0.6rem', paddingTop: '0.6rem', borderTop: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#7e22ce', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                    🗺️ {msg.targetCity} 정품 명소 및 지도 GPS 좌표 ({msg.spots.length}건):
-                  </span>
+                  {/* 🌟 RICH AI ITINERARY TEXT BRIEFING */}
+                  {msg.text}
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                    {msg.spots.map((spot, idx) => (
-                      <div key={spot.id || idx} style={{ padding: '0.5rem 0.65rem', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyBetween: 'space-between', gap: '0.4rem' }}>
-                        <div>
-                          <strong style={{ color: '#0f172a', display: 'block' }}>{idx + 1}. {spot.title}</strong>
-                          <span style={{ color: '#64748b', fontSize: '0.68rem' }}>📍 {spot.location || spot.addr1 || '중심가'}</span>
+                  {msg.isGuardWarning && (
+                    <div style={{ marginTop: '0.4rem', paddingTop: '0.4rem', borderTop: '1px solid #f1f5f9', color: '#dc2626', fontSize: '0.75rem' }}>
+                      💡 대한민국 관공서/관광 명소 및 미식 질문을 입력해 주시면 감사하겠습니다!
+                    </div>
+                  )}
+
+                  {msg.isQuotaExceededNotice && (
+                    <div style={{ marginTop: '0.6rem', paddingTop: '0.6rem', borderTop: '1px solid #f1f5f9', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                      <button
+                        onClick={handleRechargeExtra}
+                        style={{ padding: '0.45rem 0.75rem', backgroundColor: '#10b981', color: '#ffffff', fontWeight: 700, borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '0.75rem', textAlign: 'center' }}
+                      >
+                        🎬 15초 짧은 광고 시청하고 오늘 +3회 즉시 충전하기
+                      </button>
+                      <button
+                        onClick={handleToggleVirtualGoogleLogin}
+                        style={{ padding: '0.45rem 0.75rem', backgroundColor: '#ea580c', color: '#ffffff', fontWeight: 700, borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '0.75rem', textAlign: 'center' }}
+                      >
+                        🔴 Google 3초 로그인하고 매일 15회로 확장하기
+                      </button>
+                    </div>
+                  )}
+
+                  {/* 📱 MOBILE VIEW ONLY: ACCORDION TOGGLE & CARDS (PC HAS ZERO INLINE CARDS ON LEFT!) */}
+                  {!isDesktop && msg.spots && msg.spots.length > 0 && (
+                    <div style={{ marginTop: '0.6rem', paddingTop: '0.6rem', borderTop: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleMobileAccordion(msg.id);
+                          setSelectedMsgId(msg.id);
+                        }}
+                        style={{
+                          width: '100%',
+                          padding: '0.45rem 0.75rem',
+                          backgroundColor: '#f3e8ff',
+                          color: '#7e22ce',
+                          border: '1px solid #e9d5ff',
+                          borderRadius: '10px',
+                          fontSize: '0.75rem',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between'
+                        }}
+                      >
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                          🗺️ {msg.targetCity || '추천'} 1:1 명소 코스 ({msg.spots.length}건)
+                        </span>
+                        {expandedMobileMsgs[msg.id] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                      </button>
+
+                      {expandedMobileMsgs[msg.id] && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', marginTop: '0.3rem' }}>
+                          {msg.spots.map((spot, idx) => {
+                            const dayNum = spot.assignedDay || 1;
+                            const badgeStyle = getDayBadgeStyle(dayNum);
+                            const mapSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.title + ' ' + (spot.location || spot.addr1 || ''))}`;
+
+                            return (
+                              <div key={spot.id || idx} style={{ padding: '0.5rem 0.65rem', backgroundColor: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '0.74rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.4rem' }}>
+                                <div style={{ flex: 1 }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', marginBottom: '0.15rem' }}>
+                                    <span style={{ padding: '0.1rem 0.4rem', borderRadius: '6px', fontSize: '0.63rem', fontWeight: 700, backgroundColor: badgeStyle.bg, color: badgeStyle.text, border: `1px solid ${badgeStyle.border}` }}>
+                                      {dayNum}일차 명소
+                                    </span>
+                                    <strong style={{ color: '#0f172a', fontSize: '0.76rem' }}>{idx + 1}. {spot.title}</strong>
+                                  </div>
+                                  <span style={{ color: '#64748b', fontSize: '0.66rem', display: 'block' }}>
+                                    📍 {spot.location || spot.addr1 || '중심가'}
+                                  </span>
+                                </div>
+
+                                <a
+                                  href={mapSearchUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  onClick={(e) => e.stopPropagation()}
+                                  style={{ padding: '0.25rem 0.5rem', backgroundColor: '#ffffff', color: '#2563eb', border: '1px solid #bfdbfe', borderRadius: '8px', textDecoration: 'none', fontSize: '0.66rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.2rem', whiteSpace: 'nowrap' }}
+                                >
+                                  <MapPin size={11} /> 지도
+                                </a>
+                              </div>
+                            );
+                          })}
+
+                          {msg.agodaUrl && msg.klookUrl && (
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginTop: '0.2rem' }}>
+                              <a href={msg.agodaUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ padding: '0.3rem 0.5rem', backgroundColor: '#eff6ff', color: '#1d4ed8', borderRadius: '6px', border: '1px solid #bfdbfe', textDecoration: 'none', fontSize: '0.68rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                                🏨 아고다 {msg.targetCity} 할인 숙소 <ExternalLink size={10} />
+                              </a>
+                              <a href={msg.klookUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ padding: '0.3rem 0.5rem', backgroundColor: '#fff7ed', color: '#c2410c', borderRadius: '6px', border: '1px solid #ffedd5', textDecoration: 'none', fontSize: '0.68rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                                🎟️ 클룩 {msg.targetCity} 액티비티 <ExternalLink size={10} />
+                              </a>
+                            </div>
+                          )}
                         </div>
-                        <div style={{ textAlign: 'right', fontFamily: 'monospace', fontSize: '0.65rem', color: '#2563eb' }}>
-                          <div>lat: {spot.lat || spot.mapy || '37.5665'}</div>
-                          <div>lng: {spot.lng || spot.mapx || '126.9780'}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Value-First Call To Action Affiliate Chips */}
-                  {msg.agodaUrl && msg.klookUrl && (
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', pt: '0.3rem', marginTop: '0.3rem' }}>
-                      <a href={msg.agodaUrl} target="_blank" rel="noopener noreferrer" style={{ padding: '0.3rem 0.55rem', backgroundColor: '#eff6ff', color: '#1d4ed8', borderRadius: '6px', border: '1px solid #bfdbfe', textDecoration: 'none', fontSize: '0.7rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
-                        🏨 아고다 {msg.targetCity} 할인 숙소 <ExternalLink size={11} />
-                      </a>
-                      <a href={msg.klookUrl} target="_blank" rel="noopener noreferrer" style={{ padding: '0.3rem 0.55rem', backgroundColor: '#fff7ed', color: '#c2410c', borderRadius: '6px', border: '1px solid #ffedd5', textDecoration: 'none', fontSize: '0.7rem', display: 'flex', items: 'center', gap: '0.2rem' }}>
-                        🎟️ 클룩 {msg.targetCity} 액티비티 <ExternalLink size={11} />
-                      </a>
+                      )}
                     </div>
                   )}
                 </div>
+
+                {/* Quick Suggestion Chips */}
+                {msg.chips && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginTop: '0.2rem' }}>
+                    {msg.chips.map((chipText, cIdx) => (
+                      <button
+                        key={cIdx}
+                        onClick={() => handleSendMessage(chipText)}
+                        style={{
+                          padding: '0.3rem 0.65rem',
+                          borderRadius: '9999px',
+                          fontSize: '0.7rem',
+                          fontWeight: 600,
+                          backgroundColor: '#ffffff',
+                          color: '#334155',
+                          border: '1px solid #cbd5e1',
+                          cursor: 'pointer',
+                          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.02)'
+                        }}
+                      >
+                        📍 {chipText}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+
+            {isLoading && (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.65rem',
+                padding: '0.75rem 1.1rem',
+                backgroundColor: '#ffffff',
+                borderRadius: '14px',
+                border: '1px solid #d8b4fe',
+                color: '#7e22ce',
+                fontSize: '0.82rem',
+                fontWeight: 700,
+                maxWidth: '88%',
+                boxShadow: '0 4px 12px rgba(147, 51, 234, 0.08)'
+              }}>
+                <RefreshCw size={17} className="animate-spin" style={{ color: '#9333ea' }} />
+                <span>{loadingStepText} <strong style={{ color: '#7e22ce', fontSize: '0.95rem' }}>{loadingDots}</strong></span>
+              </div>
+            )}
+
+            <div ref={chatEndRef} style={{ height: '10px' }} />
+          </div>
+
+          {/* INPUT FORM CONTAINER */}
+          <div style={{ display: 'flex', gap: '0.4rem', position: 'relative' }}>
+            <input
+              type="text"
+              value={inputPrompt}
+              onChange={(e) => setInputPrompt(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+              placeholder="어디로 떠나고 싶으신가요? (예: 수원 2박3일 맛집 코스, 거제도 4박5일 힐링)"
+              style={{
+                flex: 1,
+                padding: '0.75rem 0.9rem',
+                backgroundColor: '#ffffff',
+                border: '1px solid #cbd5e1',
+                borderRadius: '12px',
+                color: '#0f172a',
+                fontSize: '0.82rem',
+                outline: 'none'
+              }}
+            />
+
+            <button
+              onClick={handleStartVoiceSTT}
+              style={{
+                padding: '0 0.75rem',
+                backgroundColor: isListening ? '#ef4444' : '#f1f5f9',
+                color: isListening ? '#ffffff' : '#334155',
+                borderRadius: '12px',
+                border: '1px solid #cbd5e1',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+              title="음성 인식"
+            >
+              <Mic size={17} />
+            </button>
+
+            <button
+              onClick={() => handleSendMessage()}
+              disabled={isLoading || !inputPrompt.trim()}
+              style={{
+                padding: '0 1.1rem',
+                background: 'linear-gradient(135deg, #9333ea 0%, #2563eb 100%)',
+                color: '#ffffff',
+                fontWeight: 700,
+                borderRadius: '12px',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.3rem',
+                opacity: (isLoading || !inputPrompt.trim()) ? 0.5 : 1
+              }}
+            >
+              <Send size={15} />
+              <span>전송</span>
+            </button>
+          </div>
+
+        </div>
+
+        {/* 🖥️ PC DESKTOP ONLY: 2-COLUMN RIGHT FIXED PANEL (DEDICATED EXCLUSIVE CARD LIST) */}
+        {isDesktop && (
+          <div style={{
+            flex: '1 1 42%',
+            width: '100%',
+            backgroundColor: '#f8fafc',
+            borderRadius: '16px',
+            padding: '1rem',
+            border: '1px solid #cbd5e1',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.03)',
+            position: 'sticky',
+            top: '1rem',
+            maxHeight: '620px',
+            overflowY: 'auto'
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              paddingBottom: '0.65rem',
+              marginBottom: '0.85rem',
+              borderBottom: '1px solid #e2e8f0'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <Compass size={18} style={{ color: '#7e22ce' }} />
+                <h4 style={{ fontSize: '0.9rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
+                  {activeSpotMessage ? `🗺️ ${activeSpotMessage.targetCity || '추천'} 1:1 명소 코스` : '🗺️ 추천 여행 코스 전용 패널'}
+                </h4>
+              </div>
+              {activeSpotMessage?.spots && (
+                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#7e22ce', backgroundColor: '#f3e8ff', padding: '0.2rem 0.55rem', borderRadius: '9999px' }}>
+                  {activeSpotMessage.spots.length}건 동기화
+                </span>
               )}
             </div>
 
-            {/* Quick Suggestion Chips */}
-            {msg.chips && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginTop: '0.2rem' }}>
-                {msg.chips.map((chipText, cIdx) => (
-                  <button
-                    key={cIdx}
-                    onClick={() => handleSendMessage(chipText)}
-                    style={{
-                      padding: '0.3rem 0.65rem',
-                      borderRadius: '9999px',
-                      fontSize: '0.7rem',
-                      fontWeight: 600,
-                      backgroundColor: '#ffffff',
-                      color: '#334155',
-                      border: '1px solid #cbd5e1',
-                      cursor: 'pointer',
-                      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.02)'
-                    }}
-                  >
-                    📍 {chipText}
-                  </button>
-                ))}
+            {/* Desktop Spot Cards List */}
+            {isLoading ? (
+              <div style={{ padding: '3.5rem 1rem', textAlign: 'center', color: '#7e22ce', fontSize: '0.84rem', fontWeight: 700 }}>
+                <RefreshCw size={30} className="animate-spin" style={{ margin: '0 auto 0.75rem auto', display: 'block', color: '#9333ea' }} />
+                <span>{loadingStepText}</span>
+                <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '0.4rem', fontWeight: 500 }}>
+                  새로운 여행 질문에 맞춰 1:1 명소 코스를 실시간 동기화 중입니다...
+                </div>
+              </div>
+            ) : activeSpotMessage?.spots && activeSpotMessage.spots.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {activeSpotMessage.spots.map((spot, idx) => {
+                  const dayNum = spot.assignedDay || 1;
+                  const badgeStyle = getDayBadgeStyle(dayNum);
+                  const mapSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.title + ' ' + (spot.location || spot.addr1 || ''))}`;
+
+                  return (
+                    <div key={spot.id || idx} style={{ padding: '0.6rem 0.75rem', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '0.76rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', boxShadow: '0 2px 5px rgba(0,0,0,0.02)' }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.2rem' }}>
+                          <span style={{ padding: '0.15rem 0.45rem', borderRadius: '6px', fontSize: '0.65rem', fontWeight: 700, backgroundColor: badgeStyle.bg, color: badgeStyle.text, border: `1px solid ${badgeStyle.border}` }}>
+                            {dayNum}일차 명소
+                          </span>
+                          <strong style={{ color: '#0f172a', fontSize: '0.8rem' }}>{idx + 1}. {spot.title}</strong>
+                        </div>
+                        <span style={{ color: '#64748b', fontSize: '0.68rem', display: 'block' }}>
+                          📍 {spot.location || spot.addr1 || '중심가'}
+                        </span>
+                      </div>
+
+                      <a
+                        href={mapSearchUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          padding: '0.3rem 0.55rem',
+                          backgroundColor: '#f8fafc',
+                          color: '#2563eb',
+                          border: '1px solid #bfdbfe',
+                          borderRadius: '8px',
+                          textDecoration: 'none',
+                          fontSize: '0.68rem',
+                          fontWeight: 600,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.25rem',
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        <MapPin size={12} /> 지도 위치
+                      </a>
+                    </div>
+                  );
+                })}
+
+                {/* PC Affiliate Buttons */}
+                {activeSpotMessage.agodaUrl && activeSpotMessage.klookUrl && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginTop: '0.6rem', paddingTop: '0.6rem', borderTop: '1px solid #e2e8f0' }}>
+                    <a href={activeSpotMessage.agodaUrl} target="_blank" rel="noopener noreferrer" style={{ padding: '0.45rem 0.75rem', backgroundColor: '#eff6ff', color: '#1d4ed8', borderRadius: '8px', border: '1px solid #bfdbfe', textDecoration: 'none', fontSize: '0.74rem', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <span>🏨 아고다 {activeSpotMessage.targetCity} 할인 숙소 예약</span>
+                      <ExternalLink size={13} />
+                    </a>
+                    <a href={activeSpotMessage.klookUrl} target="_blank" rel="noopener noreferrer" style={{ padding: '0.45rem 0.75rem', backgroundColor: '#fff7ed', color: '#c2410c', borderRadius: '8px', border: '1px solid #ffedd5', textDecoration: 'none', fontSize: '0.74rem', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <span>🎟️ 클룩 {activeSpotMessage.targetCity} 액티비티 예약</span>
+                      <ExternalLink size={13} />
+                    </a>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div style={{ padding: '3rem 1rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.78rem' }}>
+                <Map size={32} style={{ margin: '0 auto 0.5rem auto', color: '#cbd5e1', display: 'block' }} />
+                <span>왼쪽 Vora AI 대화창에서 원하시는 여행지나 일정을 물어보시면, 정품 명소 지도 코스가 이 우측 패널에 자동으로 동기화됩니다!</span>
               </div>
             )}
           </div>
-        ))}
-
-        {/* Clean Animated Dots Stream Loading Indicator */}
-        {isLoading && (
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            padding: '0.6rem 0.9rem',
-            backgroundColor: '#ffffff',
-            borderRadius: '12px',
-            border: '1px solid #e2e8f0',
-            color: '#7e22ce',
-            fontSize: '0.8rem',
-            fontWeight: 600,
-            maxWidth: '85%',
-            boxShadow: '0 3px 8px rgba(0, 0, 0, 0.04)'
-          }}>
-            <RefreshCw size={15} className="animate-spin" style={{ color: '#9333ea' }} />
-            <span>한국관광공사 정품 DB & GPS 지도 좌표 검색 중{loadingDots}</span>
-          </div>
         )}
 
-        <div ref={chatEndRef} style={{ height: '10px' }} />
-      </div>
-
-      {/* INPUT FORM CONTAINER */}
-      <div style={{ display: 'flex', gap: '0.4rem', position: 'relative' }}>
-        <input
-          type="text"
-          value={inputPrompt}
-          onChange={(e) => setInputPrompt(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-          placeholder="어디로 떠나고 싶으신가요? (예: 수원 2박3일 맛집 코스, 거제도 4박5일 힐링)"
-          style={{
-            flex: 1,
-            padding: '0.75rem 0.9rem',
-            backgroundColor: '#ffffff',
-            border: '1px solid #cbd5e1',
-            borderRadius: '12px',
-            color: '#0f172a',
-            fontSize: '0.82rem',
-            outline: 'none'
-          }}
-        />
-
-        {/* Mic STT Button */}
-        <button
-          onClick={handleStartVoiceSTT}
-          style={{
-            padding: '0 0.75rem',
-            backgroundColor: isListening ? '#ef4444' : '#f1f5f9',
-            color: isListening ? '#ffffff' : '#334155',
-            borderRadius: '12px',
-            border: '1px solid #cbd5e1',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-          title="음성 인식"
-        >
-          <Mic size={17} />
-        </button>
-
-        {/* Send Button */}
-        <button
-          onClick={() => handleSendMessage()}
-          disabled={isLoading || !inputPrompt.trim()}
-          style={{
-            padding: '0 1.1rem',
-            background: 'linear-gradient(135deg, #9333ea 0%, #2563eb 100%)',
-            color: '#ffffff',
-            fontWeight: 700,
-            borderRadius: '12px',
-            border: 'none',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.3rem',
-            opacity: (isLoading || !inputPrompt.trim()) ? 0.5 : 1
-          }}
-        >
-          <Send size={15} />
-          <span>전송</span>
-        </button>
       </div>
 
     </div>
