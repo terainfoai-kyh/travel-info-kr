@@ -1,6 +1,6 @@
 /**
  * Vora AI Core NLP & Official Google Generative AI Service
- * Features Multi-Key Auto-Fallback, GenerationConfig (maxOutputTokens: 1000),
+ * Features Multi-Key Auto-Fallback, GenerationConfig (maxOutputTokens: 1200),
  * SystemInstruction (Greeting: "안녕하세요! 여행 조력자 보라입니다.") & Intent Discerning.
  */
 
@@ -73,15 +73,16 @@ export function isAffirmativeYes(text) {
 
 /**
  * Optimized Gemini AI Generator
- * Solves sentence truncation by setting maxOutputTokens: 1000 and enforcing complete Korean sentences.
+ * Supports 1 to 5 days itinerary, maxOutputTokens: 1200 to prevent text truncation.
  */
 export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
   const isHelp = isMetaHelpQuery(rawPrompt);
   const targetCity = extractLocationKeyword(rawPrompt);
   let days = 3;
-  if (/(2일|2박|2d)/i.test(rawPrompt)) days = 2;
-  if (/(1일|1박|당일)/i.test(rawPrompt)) days = 1;
-  if (/(4일|4박|4d)/i.test(rawPrompt)) days = 4;
+  if (/(5일|5박|5d)/i.test(rawPrompt)) days = 5;
+  else if (/(4일|4박|4d)/i.test(rawPrompt)) days = 4;
+  else if (/(2일|2박|2d)/i.test(rawPrompt)) days = 2;
+  else if (/(1일|1박|당일)/i.test(rawPrompt)) days = 1;
 
   let theme = '힐링/자연';
   if (/(맛집|미식|먹방|음식)/i.test(rawPrompt)) theme = '미식/맛집';
@@ -94,13 +95,13 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
 
   const systemInstruction = `You are Vora AI, an empathetic Korean Travel Concierge for global travelers visiting Korea.
 ALWAYS start your response warmly with: "안녕하세요! 여행 조력자 보라입니다."
-ALWAYS respond in 100% complete, natural Korean sentences. NEVER truncate sentences mid-word or output English markdown like "Day 1:*".
+ALWAYS respond in 100% complete, natural Korean sentences ending with proper Korean periods (.). NEVER truncate sentences mid-word or output English markdown like "Day 1:*".
 If the user asks general usage questions (e.g., "여기서는 뭘 할 수 있지?", "what can I do here?"), introduce your 4 core services warmly:
-1. 1:1 맞춤 여행 일정 추천
+1. 1:1 맞춤 여행 일정 추천 (1일~5일 코스 지원)
 2. 한국관광공사 정품 명소 & 지도 GPS 좌표
 3. 최저가 숙소 (아고다) & 액티비티 (클룩) 연동
 4. 다국어 지원 (영어/일본어/중국어)
-If the user asks for travel recommendations, provide a concise 3-step course with complete sentences ending with proper punctuation.`;
+If the user asks for travel recommendations, provide a concise course for ${days} days with complete sentences ending with proper Korean periods (.).`;
 
   const promptText = `User input: '${rawPrompt}'. Target city: ${targetCity}, duration: ${days} days, theme: ${theme}. Respond in clear, complete Korean.`;
 
@@ -116,7 +117,7 @@ If the user asks for travel recommendations, provide a concise 3-step course wit
           model: modelName,
           systemInstruction: systemInstruction,
           generationConfig: {
-            maxOutputTokens: 1000,
+            maxOutputTokens: 1200,
             temperature: 0.7
           }
         });
@@ -151,7 +152,7 @@ If the user asks for travel recommendations, provide a concise 3-step course wit
             body: JSON.stringify({
               contents: [{ parts: [{ text: `${systemInstruction}\n\n${promptText}` }] }],
               generationConfig: {
-                maxOutputTokens: 1000,
+                maxOutputTokens: 1200,
                 temperature: 0.7
               }
             })

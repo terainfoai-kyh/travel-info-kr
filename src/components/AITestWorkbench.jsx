@@ -16,15 +16,15 @@ export default function AITestWorkbench({ lang = 'ko' }) {
   const [extraRechargeCount, setExtraRechargeCount] = useState(0);
   const [isVirtualGoogleLogin, setIsVirtualGoogleLogin] = useState(false);
 
-  // 3. Dynamic Animated Loading Step State
-  const [loadingStep, setLoadingStep] = useState(0);
+  // 3. Dynamic Animated Loading Dots State
+  const [loadingDots, setLoadingDots] = useState('.');
 
   // 4. Chat History Stream State
   const [chatHistory, setChatHistory] = useState([
     {
       id: 'welcome-1',
       sender: 'vora',
-      text: '안녕하세요! 여행 조력자 보라입니다. 😊 대한민국 구석구석 떠나고 싶은 여행지를 자유롭게 말씀해 주세요!\n\n아래 추천 키워드를 누르시거나 궁금하신 점을 물어보세요!',
+      text: '안녕하세요! 여행 조력자 보라입니다. 😊\n\n오늘 제공된 무료 AI 티켓 5장으로 대한민국 맞춤 여행 코스를 받아보세요! (기본 1일~5일 코스 지원)\n\n떠나고 싶은 지역이나 여행 스타일(예: 거제도 2박3일 오션뷰 카페, 수원 화성행궁 야경)을 자유롭게 물어보세요!',
       timestamp: new Date().toLocaleTimeString(),
       chips: ['거제도 2박3일 오션뷰 카페', '수원 화성행궁 야경 힐링', '제주도 3박4일 맛집 탐방', '여기서 뭘 할 수 있지?']
     }
@@ -38,18 +38,22 @@ export default function AITestWorkbench({ lang = 'ko' }) {
   // Auto-scroll to bottom of chat
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [chatHistory, isLoading, loadingStep]);
+  }, [chatHistory, isLoading, loadingDots]);
 
-  // Loading Step Interval Animation
+  // Loading Dots Interval Animation ( . -> .. -> ... )
   useEffect(() => {
     let timer;
     if (isLoading) {
-      setLoadingStep(1);
+      setLoadingDots('.');
       timer = setInterval(() => {
-        setLoadingStep(prev => (prev >= 3 ? 1 : prev + 1));
-      }, 500);
+        setLoadingDots(prev => {
+          if (prev === '.') return '..';
+          if (prev === '..') return '...';
+          return '.';
+        });
+      }, 400);
     } else {
-      setLoadingStep(0);
+      setLoadingDots('.');
     }
     return () => clearInterval(timer);
   }, [isLoading]);
@@ -133,12 +137,17 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     const query = (customText || inputPrompt).trim();
     if (!query || isLoading) return;
 
-    // Add User Message to Chat Stream
+    const totalLimit = virtualQuotaLimit + extraRechargeCount;
+    const nextAskIndex = Math.min(totalLimit, usedCount + 1);
+    const quotaTag = isDevBypass ? '[ ⚡ 무제한 ]' : `[ ${nextAskIndex}/${totalLimit}회 ]`;
+
+    // Add User Message to Chat Stream with Quota Tag
     const userMsgId = `user-${Date.now()}`;
     const userMsg = {
       id: userMsgId,
       sender: 'user',
       text: query,
+      quotaTag: quotaTag,
       timestamp: new Date().toLocaleTimeString()
     };
 
@@ -188,15 +197,14 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     }
 
     // 3. 2차 AI 쿼터 및 회원 등급 검증 (useQuotaLimit)
-    const currentLimit = virtualQuotaLimit + extraRechargeCount;
-    if (!isDevBypass && usedCount >= currentLimit) {
+    if (!isDevBypass && usedCount >= totalLimit) {
       setTimeout(() => {
         setChatHistory(prev => [
           ...prev,
           {
             id: `vora-${Date.now()}`,
             sender: 'vora',
-            text: `안녕하세요! 여행 조력자 보라입니다.\n\n⚠️ 오늘 제공된 AI 티켓 (${currentLimit}회)을 모두 소비하셨습니다.`,
+            text: `안녕하세요! 여행 조력자 보라입니다.\n\n⚠️ 오늘 제공된 무료 AI 티켓 (${totalLimit}회)을 모두 소비하셨습니다.`,
             timestamp: new Date().toLocaleTimeString(),
             isQuotaExceededNotice: true
           }
@@ -210,9 +218,10 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     incrementQuota();
     const targetCity = extractLocationKeyword(query);
     let days = 3;
-    if (/(2일|2박|2d)/i.test(query)) days = 2;
-    if (/(1일|1박|당일)/i.test(query)) days = 1;
-    if (/(4일|4박|4d)/i.test(query)) days = 4;
+    if (/(5일|5박|5d)/i.test(query)) days = 5;
+    else if (/(4일|4박|4d)/i.test(query)) days = 4;
+    else if (/(2일|2박|2d)/i.test(query)) days = 2;
+    else if (/(1일|1박|당일)/i.test(query)) days = 1;
 
     // Execute Gemini AI
     const aiBriefing = await geminiGenerateFullItinerary(query, lang);
@@ -403,7 +412,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
               Vora AI 1:1 대화형 여행 컨시어지
             </h3>
             <span style={{ fontSize: '0.7rem', color: '#64748b' }}>
-              맞춤 여행 일정 ➔ 한국관광공사 정품 명소 & 지도 GPS 연동
+              맞춤 여행 일정 (1~5일) ➔ 한국관광공사 정품 명소 & 지도 GPS 연동
             </span>
           </div>
         </div>
@@ -439,7 +448,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         overflowY: 'auto',
         display: 'flex',
         flexDirection: 'column',
-        gap: '0.6rem',
+        gap: '0.5rem',
         border: '1px solid #cbd5e1',
         marginBottom: '0.85rem'
       }}>
@@ -450,7 +459,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
               display: 'flex',
               flexDirection: 'column',
               alignItems: msg.sender === 'user' ? 'flex-end' : 'flex-start',
-              gap: '0.2rem'
+              gap: '0.15rem'
             }}
           >
             {/* Sender Label & Timestamp */}
@@ -462,16 +471,23 @@ export default function AITestWorkbench({ lang = 'ko' }) {
             {/* Message Bubble */}
             <div style={{
               maxWidth: '85%',
-              padding: '0.65rem 0.95rem',
+              padding: '0.6rem 0.9rem',
               borderRadius: msg.sender === 'user' ? '16px 4px 16px 16px' : '4px 16px 16px 16px',
               backgroundColor: msg.sender === 'user' ? '#2563eb' : '#ffffff',
               color: msg.sender === 'user' ? '#ffffff' : '#0f172a',
-              fontSize: '0.85rem',
+              fontSize: '0.84rem',
               lineHeight: '1.5',
               whiteSpace: 'pre-wrap',
               boxShadow: msg.sender === 'user' ? '0 3px 8px rgba(37, 99, 235, 0.18)' : '0 3px 8px rgba(0, 0, 0, 0.04)',
               border: msg.sender === 'user' ? 'none' : '1px solid #e2e8f0'
             }}>
+              {/* User Quota Badge Tag */}
+              {msg.sender === 'user' && msg.quotaTag && (
+                <span style={{ fontSize: '0.68rem', opacity: 0.85, marginRight: '0.4rem', fontWeight: 600 }}>
+                  {msg.quotaTag}
+                </span>
+              )}
+
               {msg.text}
 
               {/* Guard Warning Highlight */}
@@ -563,13 +579,13 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           </div>
         ))}
 
-        {/* Dynamic 3-Step Animated Stream Loading UX */}
+        {/* Clean Animated Dots Stream Loading Indicator */}
         {isLoading && (
           <div style={{
             display: 'flex',
             alignItems: 'center',
             gap: '0.5rem',
-            padding: '0.65rem 0.95rem',
+            padding: '0.6rem 0.9rem',
             backgroundColor: '#ffffff',
             borderRadius: '12px',
             border: '1px solid #e2e8f0',
@@ -580,11 +596,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
             boxShadow: '0 3px 8px rgba(0, 0, 0, 0.04)'
           }}>
             <RefreshCw size={15} className="animate-spin" style={{ color: '#9333ea' }} />
-            <span>
-              {loadingStep === 1 && '🔮 보라 AI가 질문의 의미를 분석하고 있습니다.'}
-              {loadingStep === 2 && '📍 한국관광공사 정품 DB & GPS 지도 좌표 검색 중..'}
-              {loadingStep === 3 && '✨ 100% 맞춤 여행 추천 코스를 가공하고 있습니다...'}
-            </span>
+            <span>한국관광공사 정품 DB & GPS 지도 좌표 검색 중{loadingDots}</span>
           </div>
         )}
 
@@ -598,7 +610,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           value={inputPrompt}
           onChange={(e) => setInputPrompt(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-          placeholder="어디로 떠나고 싶으신가요? (예: 수원 2박3일 맛집 코스, 여기서는 뭘 할 수 있지?)"
+          placeholder="어디로 떠나고 싶으신가요? (예: 수원 2박3일 맛집 코스, 거제도 4박5일 힐링)"
           style={{
             flex: 1,
             padding: '0.75rem 0.9rem',
