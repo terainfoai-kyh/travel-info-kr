@@ -3,7 +3,7 @@ import { Sparkles, MapPin, Search, ShieldCheck, ShieldAlert, Cpu, ExternalLink, 
 import { validateTravelQuery } from '../hooks/useInputGuard';
 import { useQuotaLimit } from '../hooks/useQuotaLimit';
 import { extractLocationKeyword, isGreetingQuery, isMetaHelpQuery, geminiGenerateFullItinerary } from '../services/geminiNlpService';
-import { fetchTourSpots } from '../services/tourApi';
+import { fetchTourSpots, fetchPinpointLandmarkSpots } from '../services/tourApi';
 import { getAgodaHotelSearchUrl, getKlookActivitySearchUrl } from '../services/affiliateService';
 import { logAnalyticsEvent } from '../services/analyticsService';
 import AdminAnalyticsDashboard from './AdminAnalyticsDashboard';
@@ -149,7 +149,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     return colors[(dayIndex - 1) % colors.length];
   };
 
-  // Execute Conversational AI Pipeline with 1:1 Recommended Spot Matching
+  // Execute Conversational AI Pipeline with Sequential 1:1 Spot Alignment
   const handleSendMessage = async (customText = null) => {
     const query = (customText || inputPrompt).trim();
     if (!query || isLoading) return;
@@ -247,7 +247,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     const aiBriefing = await geminiGenerateFullItinerary(query, lang);
     logAnalyticsEvent('CHAT', { inputTokens: 120, outputTokens: 350 });
 
-    // Fetch & 1:1 Synchronize TourAPI Spots with Gemini Recommended Text
+    // Fetch & Sequential 1:1 Spot Alignment Engine
     try {
       let spotsToRender = [];
       let agodaUrl = null;
@@ -256,58 +256,84 @@ export default function AITestWorkbench({ lang = 'ko' }) {
       if (!isMeta && targetCity && targetCity !== '전국') {
         const rawSpots = await fetchTourSpots({ region: targetCity, lang });
         const summaryText = aiBriefing?.aiRecommendationSummary || '';
-        const textLower = summaryText.toLowerCase();
+        
+        // Split AI text by line to extract daily recommendations (1일차, 2일차, 3일차...)
+        const lines = summaryText.split('\n').map(l => l.trim()).filter(Boolean);
+        const dayMap = new Map(); // dayNum -> spotArray
 
-        // 1. Extract Quoted Spot Names (e.g. '시방리', '외도널서리', '글래씨스') from AI Text
-        const quotedMatches = Array.from(summaryText.matchAll(/['"‘“]([^'"’”]+)['"’”]/g)).map(m => m[1].trim());
+        for (let d = 1; d <= days; d++) {
+          dayMap.set(d, []);
+        }
 
-        // 2. Cross-reference TourAPI Spots with AI Text
-        const matchedFromDB = [];
-        const remainingDB = [];
+        // Parse line by line to map spots sequentially
+        for (const line of lines) {
+          let dayNum = 1;
+          const dayMatch = line.match(/(\d+)일차/);
+          if (dayMatch && dayMatch[1]) {
+            dayNum = Math.min(days, parseInt(dayMatch[1], 10));
+          }
 
-        for (const spot of rawSpots) {
-          const titleClean = spot.title.replace(/\([^)]*\)/g, '').trim().toLowerCase();
-          if (titleClean.length >= 2 && textLower.includes(titleClean)) {
-            matchedFromDB.push(spot);
-          } else {
-            remainingDB.push(spot);
+          // 1. Quoted names in this line (e.g. 'W181', '외도널서리', '온더선셋')
+          const quotedNames = Array.from(line.matchAll(/['"‘“]([^'"’”]+)['"’”]/g)).map(m => m[1].trim());
+          
+          // 2. Cross-reference TourAPI spots appearing in this line
+          const lineLower = line.toLowerCase();
+          const lineSpots = [];
+
+          for (const spot of rawSpots) {
+            const titleClean = spot.title.replace(/\([^)]*\)/g, '').trim().toLowerCase();
+            if (titleClean.length >= 2 && lineLower.includes(titleClean)) {
+              if (!lineSpots.some(s => s.title === spot.title)) {
+                lineSpots.push({ ...spot, assignedDay: dayNum });
+              }
+            }
+          }
+
+          // Add quoted private spots if not in DB
+          for (const qName of quotedNames) {
+            if (qName.length >= 2 && !lineSpots.some(s => s.title.includes(qName))) {
+              lineSpots.push({
+                id: `syn-${Date.now()}-${qName}`,
+                title: qName,
+                location: `${targetCity} 추천 장소`,
+                addr1: `${targetCity} ${dayNum}일차 명소`,
+                assignedDay: dayNum
+              });
+            }
+          }
+
+          const existingDayList = dayMap.get(dayNum) || [];
+          dayMap.set(dayNum, [...existingDayList, ...lineSpots]);
+        }
+
+        // Combine sequential day spots
+        let sequentialSpots = [];
+        const addedTitles = new Set();
+
+        for (let d = 1; d <= days; d++) {
+          const dSpots = dayMap.get(d) || [];
+          for (const s of dSpots) {
+            if (!addedTitles.has(s.title)) {
+              addedTitles.add(s.title);
+              sequentialSpots.push(s);
+            }
           }
         }
 
-        // 3. Build Synchronized Spot List prioritizing AI-mentioned spots
-        let combinedSpots = [...matchedFromDB];
-
-        // If AI mentioned specific names in quotes not in TourAPI DB (e.g. private cafes/spots), synthesize spot objects
-        for (const qName of quotedMatches) {
-          if (qName.length >= 2 && !combinedSpots.some(s => s.title.includes(qName))) {
-            combinedSpots.push({
-              id: `syn-${Date.now()}-${qName}`,
-              title: qName,
-              location: `${targetCity} 명소`,
-              addr1: `${targetCity} 일대 추천 장소`,
-              isAiQuoted: true
-            });
-          }
-        }
-
-        // Pad with remaining DB spots to reach target count (min 5 spots or matching days)
+        // Pad with remaining rawSpots if count < min target
         const targetCount = Math.max(days, 5);
-        for (const rem of remainingDB) {
-          if (combinedSpots.length >= targetCount) break;
-          if (!combinedSpots.some(s => s.title === rem.title)) {
-            combinedSpots.push(rem);
+        if (sequentialSpots.length < targetCount) {
+          for (const rem of rawSpots) {
+            if (sequentialSpots.length >= targetCount) break;
+            if (!addedTitles.has(rem.title)) {
+              addedTitles.add(rem.title);
+              const fallbackDay = Math.min(days, Math.floor((sequentialSpots.length / targetCount) * days) + 1);
+              sequentialSpots.push({ ...rem, assignedDay: fallbackDay });
+            }
           }
         }
 
-        // 4. Attach Day Badges (1일차, 2일차...) to Spot Objects
-        spotsToRender = combinedSpots.slice(0, targetCount).map((spot, idx) => {
-          const dayNum = Math.min(days, Math.floor((idx / targetCount) * days) + 1);
-          return {
-            ...spot,
-            assignedDay: dayNum
-          };
-        });
-
+        spotsToRender = sequentialSpots.slice(0, Math.max(sequentialSpots.length, targetCount));
         agodaUrl = getAgodaHotelSearchUrl(targetCity);
         klookUrl = getKlookActivitySearchUrl(targetCity);
       }
@@ -607,16 +633,16 @@ export default function AITestWorkbench({ lang = 'ko' }) {
                 </div>
               )}
 
-              {/* 100% Synchronized Geo-Coordinates & Spot Cards with Day Badges & Clean Map Buttons */}
+              {/* 100% Sequential 1:1 Synchronized Geo-Coordinates & Spot Cards */}
               {msg.spots && msg.spots.length > 0 && (
                 <div style={{ marginTop: '0.6rem', paddingTop: '0.6rem', borderTop: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#7e22ce', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                    🗺️ {msg.targetCity} 추천 명소 1:1 동기화 코스 ({msg.spots.length}건):
+                    🗺️ {msg.targetCity} 추천 순서 1:1 완벽 동기화 코스 ({msg.spots.length}건):
                   </span>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
                     {msg.spots.map((spot, idx) => {
-                      const dayNum = spot.assignedDay || (Math.min(msg.days || 3, Math.floor((idx / msg.spots.length) * (msg.days || 3)) + 1));
+                      const dayNum = spot.assignedDay || 1;
                       const badgeStyle = getDayBadgeStyle(dayNum);
                       const mapSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.title + ' ' + (spot.location || spot.addr1 || ''))}`;
 
