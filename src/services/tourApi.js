@@ -521,8 +521,24 @@ export async function fetchTourSpots({
       }
 
       let mainList = filtered.length > 0 ? filtered : parsed;
+
+      // Strict City-Level Precision Filter: If region is a specific city (e.g. 거제도, 수원, 창원), prioritize exact city spots!
+      const isProvinceLevel = ['전국', '한국', '서울', '인천', '대전', '대구', '광주', '부산', '울산', '세종', '경기', '강원', '충북', '충남', '경북', '경남', '전북', '전남', '제주'].includes(region);
+      if (!isProvinceLevel && region) {
+        const cleanCity = region.replace(/(도|시|군|구)$/, '');
+        const cityMatches = mainList.filter(spot => {
+          const loc = (spot.location || '').toLowerCase();
+          const title = (spot.title || '').toLowerCase();
+          return loc.includes(cleanCity) || title.includes(cleanCity);
+        });
+        if (cityMatches.length > 0) {
+          mainList = cityMatches;
+        }
+      }
+
       if (mainList.length < 6 && region !== '전국' && region !== '한국') {
-        const regionalSupplements = TRAVEL_SPOTS.filter(spot => spot.region === region);
+        const cleanCity = region.replace(/(도|시|군|구)$/, '');
+        const regionalSupplements = TRAVEL_SPOTS.filter(spot => spot.region === region || spot.location.includes(cleanCity));
         const existingTitles = new Set(mainList.map(s => s.title.toLowerCase().replace(/\s+/g, '')));
         for (const sup of regionalSupplements) {
           const supTitle = sup.title.toLowerCase().replace(/\s+/g, '');
@@ -540,8 +556,9 @@ export async function fetchTourSpots({
   }
 
   // Fallback & Filter Mock Data with space-insensitive matching & image sanitization
+  const cleanCity = region.replace(/(도|시|군|구)$/, '');
   const resultSpots = TRAVEL_SPOTS.filter(spot => {
-    const matchRegion = region === '전국' || spot.region === region || spot.location.includes(region);
+    const matchRegion = region === '전국' || spot.region === region || spot.location.includes(cleanCity) || spot.title.includes(cleanCity);
     const matchTheme = theme === '전체' || spot.theme === theme;
     const matchAge = age === '전체' || 
       (!spot.targetAge || spot.targetAge.includes(age)) || 
