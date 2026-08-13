@@ -133,9 +133,9 @@ Return your response ONLY as a valid JSON object matching this schema:
 }
 
 CRITICAL RULES FOR "summary" AND "dailyPlaces":
-1. IF USER INPUT IS NOT A VALID KOREAN TRAVEL DESTINATION/CITY (e.g. '징수', 'asdf', '1234', random non-place text):
+1. IF USER INPUT IS NOT A VALID KOREAN TRAVEL DESTINATION/CITY (e.g. '푸틴', '징수', 'asdf', '1234', random non-place text):
    - Set isUnknownPlace: true, targetCity: null, dailyPlaces: [].
-   - Set summary: "${greetingPrefix} 입력해 주신 여행지는 대한민국 관광지나 지명으로 확인되지 않았습니다. 혹시 전북 장수(논개사당, 방화동 휴양림)나 다른 멋진 여행지를 찾으시나요?".
+   - Dynamically write a polite context-aware summary starting with "${greetingPrefix}" explaining that the user's input is not a recognized Korean destination, and invite them to enter a real travel location (e.g. Seoul, Jeju, Busan, Geoje, etc.).
 
 2. OTHERWISE (VALID KOREAN TRAVEL QUERY like '거제도 2박3일', '수원 화성행궁', '제주도'):
    - Set isUnknownPlace: false.
@@ -261,7 +261,7 @@ CRITICAL RULES FOR "summary" AND "dailyPlaces":
       isHelpQuery: isHelp,
       isUnknownPlace: true,
       tripTitle: '여행지 안내',
-      aiRecommendationSummary: `${greetingPrefix} 입력해 주신 '${rawPrompt.trim()}'(은)는 대한민국 대표 관광지나 지명으로 확인되지 않았습니다. 혹시 전북 장수(논개사당, 방화동 휴양림)나 다른 멋진 여행지를 찾으시나요?`,
+      aiRecommendationSummary: `${greetingPrefix} 입력해 주신 '${rawPrompt.trim()}'(은)는 대한민국 대표 관광지나 지명으로 확인되지 않았습니다. 원하시는 여행지(예: 서울, 제주, 부산, 거제도 등)나 코스를 자유롭게 말씀해 주시면 맞춤 여행을 추천해 드릴게요!`,
       dailyPlaces: [],
       success: false,
       apiError: lastApiError
