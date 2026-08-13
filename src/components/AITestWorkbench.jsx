@@ -52,7 +52,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     {
       id: 'welcome-1',
       sender: 'vora',
-      text: '안녕하세요! 여행 조력자 보라입니다. 😊\n\n매일 무료로 제공되는 5회의 AI 대화로 나만의 대한민국 맞춤 여행 코스(1일~5일)를 받아보세요!\n\n떠나고 싶은 지역이나 여행 스타일(예: 거제도 2박3일 오션뷰 카페, 수원 화성행궁 야경)을 자유롭게 물어보세요!',
+      text: '안녕하세요! 여행 컨시어지 보라입니다. 😊\n\n매일 무료로 제공되는 5회의 AI 대화로 나만의 대한민국 맞춤 여행 코스(1일~5일)를 받아보세요!\n\n떠나고 싶은 지역이나 여행 스타일(예: 거제도 2박3일 오션뷰 카페, 수원 화성행궁 야경)을 자유롭게 물어보세요!',
       timestamp: new Date().toLocaleTimeString(),
       chips: ['거제도 2박3일 오션뷰 카페', '수원 화성행궁 야경 힐링', '제주도 3박4일 맛집 탐방', '여기서 뭘 할 수 있지?']
     }
@@ -220,7 +220,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           {
             id: `vora-${Date.now()}`,
             sender: 'vora',
-            text: '안녕하세요! 여행 조력자 보라입니다. 😊 오늘 어떤 멋진 여행을 함께 계획해 볼까요?',
+            text: '안녕하세요! 여행 컨시어지 보라입니다. 😊 오늘 어떤 멋진 여행을 함께 계획해 볼까요?',
             timestamp: new Date().toLocaleTimeString(),
             chips: ['수원 화성행궁 야경 힐링', '거제도 2박3일 카페 투어', '제주도 오션뷰 맛집']
           }
@@ -259,7 +259,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           {
             id: `vora-${Date.now()}`,
             sender: 'vora',
-            text: `안녕하세요! 여행 조력자 보라입니다.\n\n⚠️ 오늘 제공된 무료 대화 (${totalLimit}회)를 모두 소비하셨습니다.`,
+            text: `안녕하세요! 여행 컨시어지 보라입니다.\n\n⚠️ 오늘 제공된 무료 대화 (${totalLimit}회)를 모두 소비하셨습니다.`,
             timestamp: new Date().toLocaleTimeString(),
             isQuotaExceededNotice: true
           }
@@ -283,7 +283,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
       const [aiBriefing, rawSpotsInitial] = await Promise.all([
         geminiGenerateFullItinerary(query, lang).catch(() => ({
           targetCity: initialCity,
-          aiRecommendationSummary: `안녕하세요! 여행 조력자 보라입니다. 😊 '${initialCity}' 힐링 맞춤 여행 코스를 추천해 드립니다!\n\n1일차: ${initialCity} 대표 명소를 구경하고 여유로운 산책을 즐깁니다.\n2일차: ${initialCity} 힐링 명소 및 지역 대표 맛집 코스를 탐방합니다.\n3일차: ${initialCity} 전망대에서 일몰을 감상하며 여행을 마무리합니다.`,
+          aiRecommendationSummary: `안녕하세요! 여행 컨시어지 보라입니다. 😊 '${initialCity}' 힐링 맞춤 여행 코스를 추천해 드립니다!\n\n1일차: ${initialCity} 대표 명소를 구경하고 여유로운 산책을 즐깁니다.\n2일차: ${initialCity} 힐링 명소 및 지역 대표 맛집 코스를 탐방합니다.\n3일차: ${initialCity} 전망대에서 일몰을 감상하며 여행을 마무리합니다.`,
           dailyPlaces: [
             { day: 1, places: [`${initialCity} 명소`] },
             { day: 2, places: [`${initialCity} 힐링 코스`] },
