@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, MapPin, Search, ShieldCheck, ShieldAlert, Cpu, ExternalLink, Code, Play, RefreshCw, CheckCircle2, Mic, Send, Zap, PlusCircle, UserCheck, Crown, MessageSquare, Trash2 } from 'lucide-react';
 import { validateTravelQuery } from '../hooks/useInputGuard';
 import { useQuotaLimit } from '../hooks/useQuotaLimit';
-import { extractLocationKeyword, isGreetingQuery, geminiGenerateFullItinerary } from '../services/geminiNlpService';
+import { extractLocationKeyword, isGreetingQuery, isMetaHelpQuery, geminiGenerateFullItinerary } from '../services/geminiNlpService';
 import { fetchTourSpots } from '../services/tourApi';
 import { getAgodaHotelSearchUrl, getKlookActivitySearchUrl } from '../services/affiliateService';
 
@@ -21,9 +21,9 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     {
       id: 'welcome-1',
       sender: 'vora',
-      text: '안녕하세요, 선배님! 대한민국 여행 AI 가이드 보라(Vora)입니다! 😊 어디로 떠나고 싶으신가요?\n\n아래 추천 버튼을 누르시거나 자유롭게 자연어로 말씀해 주세요!',
+      text: '안녕하세요! 여행 조력자 보라입니다. 😊 대한민국 구석구석 떠나고 싶은 여행지를 자유롭게 말씀해 주세요!\n\n아래 추천 키워드를 누르시거나 궁금하신 점을 물어보세요!',
       timestamp: new Date().toLocaleTimeString(),
-      chips: ['거제도 2박3일 오션뷰 카페', '수원 화성행궁 야경 힐링', '제주도 3박4일 맛집 탐방', '안녕 보라야']
+      chips: ['거제도 2박3일 오션뷰 카페', '수원 화성행궁 야경 힐링', '제주도 3박4일 맛집 탐방', '여기서 뭘 할 수 있지?']
     }
   ]);
 
@@ -137,7 +137,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           {
             id: `vora-${Date.now()}`,
             sender: 'vora',
-            text: '안녕하세요, 선배님! 반가워요! 😊 오늘도 멋진 한국 여행 코스를 짜드릴 준비가 되어있습니다. 어디로 떠나고 싶으신가요?',
+            text: '안녕하세요! 여행 조력자 보라입니다. 😊 오늘 어떤 멋진 여행을 함께 계획해 볼까요?',
             timestamp: new Date().toLocaleTimeString(),
             chips: ['수원 화성행궁 야경 힐링', '거제도 2박3일 카페 투어', '제주도 오션뷰 맛집']
           }
@@ -148,23 +148,26 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     }
 
     // 2. 1차 로컬 입력 방어 검증 (useInputGuard)
-    const guardResult = validateTravelQuery(query, lang);
-    if (!guardResult.isValid) {
-      setTimeout(() => {
-        setChatHistory(prev => [
-          ...prev,
-          {
-            id: `vora-${Date.now()}`,
-            sender: 'vora',
-            text: guardResult.reason,
-            timestamp: new Date().toLocaleTimeString(),
-            isGuardWarning: true,
-            chips: ['서울 경복궁 맛집 코스', '부산 해운대 1박2일', '제주도 카페 탐방']
-          }
-        ]);
-        setIsLoading(false);
-      }, 300);
-      return;
+    const isMeta = isMetaHelpQuery(query);
+    if (!isMeta) {
+      const guardResult = validateTravelQuery(query, lang);
+      if (!guardResult.isValid) {
+        setTimeout(() => {
+          setChatHistory(prev => [
+            ...prev,
+            {
+              id: `vora-${Date.now()}`,
+              sender: 'vora',
+              text: guardResult.reason,
+              timestamp: new Date().toLocaleTimeString(),
+              isGuardWarning: true,
+              chips: ['서울 경복궁 맛집 코스', '부산 해운대 1박2일', '제주도 카페 탐방']
+            }
+          ]);
+          setIsLoading(false);
+        }, 300);
+        return;
+      }
     }
 
     // 3. 2차 AI 쿼터 및 회원 등급 검증 (useQuotaLimit)
@@ -176,7 +179,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           {
             id: `vora-${Date.now()}`,
             sender: 'vora',
-            text: `⚠️ 선배님! 오늘 제공된 AI 티켓 (${currentLimit}회)을 모두 소비하셨습니다.`,
+            text: `안녕하세요! 여행 조력자 보라입니다.\n\n⚠️ 선배님! 오늘 제공된 AI 티켓 (${currentLimit}회)을 모두 소비하셨습니다.`,
             timestamp: new Date().toLocaleTimeString(),
             isQuotaExceededNotice: true
           }
@@ -197,46 +200,35 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     // Execute Gemini AI
     const aiBriefing = await geminiGenerateFullItinerary(query, lang);
 
-    // Fetch Official TourAPI Spots
+    // Fetch Official TourAPI Spots ONLY if query is NOT a meta help query
     try {
-      const rawSpots = await fetchTourSpots({ region: targetCity, lang });
-      
-      // Fix Suwon / Target City Location Matching Filter
-      let filteredSpots = rawSpots;
-      if (targetCity && targetCity !== '전국' && targetCity !== '추천 장소') {
+      let spotsToRender = [];
+      let agodaUrl = null;
+      let klookUrl = null;
+
+      if (!isMeta && targetCity && targetCity !== '전국') {
+        const rawSpots = await fetchTourSpots({ region: targetCity, lang });
         const cityLower = targetCity.toLowerCase();
         const matchedCitySpots = rawSpots.filter(s => {
           const locStr = `${s.location || ''} ${s.title || ''} ${s.addr1 || ''}`.toLowerCase();
           return locStr.includes(cityLower);
         });
-        if (matchedCitySpots.length >= 2) {
-          filteredSpots = matchedCitySpots;
-        }
+        const filteredSpots = matchedCitySpots.length >= 2 ? matchedCitySpots : rawSpots;
+        spotsToRender = filteredSpots.slice(0, 5);
+        agodaUrl = getAgodaHotelSearchUrl(targetCity);
+        klookUrl = getKlookActivitySearchUrl(targetCity);
       }
-
-      const spotsToRender = filteredSpots.slice(0, 5);
-
-      const agodaUrl = getAgodaHotelSearchUrl(targetCity);
-      const klookUrl = getKlookActivitySearchUrl(targetCity);
 
       const voraResponse = {
         id: `vora-${Date.now()}`,
         sender: 'vora',
-        text: aiBriefing?.aiRecommendationSummary || `네, 선배님! '${targetCity}' 맞춤 ${days}일치 코스를 정품 관광공사 DB와 실시간 지도 위도/경도 좌표로 정성껏 준비했습니다! 📍`,
+        text: aiBriefing?.aiRecommendationSummary || `안녕하세요! 여행 조력자 보라입니다. 😊`,
         timestamp: new Date().toLocaleTimeString(),
         targetCity,
         days,
         spots: spotsToRender,
         agodaUrl,
-        klookUrl,
-        rawJsonDebug: {
-          query,
-          targetCity,
-          days,
-          aiBriefing,
-          spotsCount: spotsToRender.length,
-          spots: spotsToRender
-        }
+        klookUrl
       };
 
       setChatHistory(prev => [...prev, voraResponse]);
@@ -247,7 +239,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         {
           id: `vora-${Date.now()}`,
           sender: 'vora',
-          text: `네, 선배님! '${targetCity}' 맞춤 추천 명소를 정성껏 구성하여 안내드립니다.`,
+          text: `안녕하세요! 여행 조력자 보라입니다. 😊 '${targetCity}' 추천 정보를 준비했습니다.`,
           timestamp: new Date().toLocaleTimeString(),
           targetCity,
           days
@@ -515,14 +507,16 @@ export default function AITestWorkbench({ lang = 'ko' }) {
                   </div>
 
                   {/* Value-First Call To Action Affiliate Chips */}
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', pt: '0.4rem', marginTop: '0.4rem' }}>
-                    <a href={msg.agodaUrl} target="_blank" rel="noopener noreferrer" style={{ padding: '0.35rem 0.65rem', backgroundColor: '#eff6ff', color: '#1d4ed8', borderRadius: '8px', border: '1px solid #bfdbfe', textDecoration: 'none', fontSize: '0.72rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
-                      🏨 아고다 {msg.targetCity} 할인 숙소 <ExternalLink size={12} />
-                    </a>
-                    <a href={msg.klookUrl} target="_blank" rel="noopener noreferrer" style={{ padding: '0.35rem 0.65rem', backgroundColor: '#fff7ed', color: '#c2410c', borderRadius: '8px', border: '1px solid #ffedd5', textDecoration: 'none', fontSize: '0.72rem', display: 'flex', items: 'center', gap: '0.2rem' }}>
-                      🎟️ 클룩 {msg.targetCity} 액티비티 <ExternalLink size={12} />
-                    </a>
-                  </div>
+                  {msg.agodaUrl && msg.klookUrl && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', pt: '0.4rem', marginTop: '0.4rem' }}>
+                      <a href={msg.agodaUrl} target="_blank" rel="noopener noreferrer" style={{ padding: '0.35rem 0.65rem', backgroundColor: '#eff6ff', color: '#1d4ed8', borderRadius: '8px', border: '1px solid #bfdbfe', textDecoration: 'none', fontSize: '0.72rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                        🏨 아고다 {msg.targetCity} 할인 숙소 <ExternalLink size={12} />
+                      </a>
+                      <a href={msg.klookUrl} target="_blank" rel="noopener noreferrer" style={{ padding: '0.35rem 0.65rem', backgroundColor: '#fff7ed', color: '#c2410c', borderRadius: '8px', border: '1px solid #ffedd5', textDecoration: 'none', fontSize: '0.72rem', display: 'flex', items: 'center', gap: '0.2rem' }}>
+                        🎟️ 클룩 {msg.targetCity} 액티비티 <ExternalLink size={12} />
+                      </a>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -555,9 +549,22 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         ))}
 
         {isLoading && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#7e22ce', fontSize: '0.8rem' }}>
-            <RefreshCw size={16} className="animate-spin" />
-            <span>Vora AI가 한국관광공사 정품 DB와 위도/경도 좌표를 추출하고 있습니다...</span>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.6rem',
+            padding: '0.8rem 1rem',
+            backgroundColor: '#ffffff',
+            borderRadius: '14px',
+            border: '1px solid #e2e8f0',
+            color: '#7e22ce',
+            fontSize: '0.82rem',
+            fontWeight: 600,
+            maxWidth: '85%',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.04)'
+          }}>
+            <RefreshCw size={16} className="animate-spin" style={{ color: '#9333ea' }} />
+            <span>🔮 보라 AI가 구글 AI 분석 및 한국관광공사 DB를 0.4초 만에 추출하고 있습니다...</span>
           </div>
         )}
 
@@ -571,7 +578,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           value={inputPrompt}
           onChange={(e) => setInputPrompt(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-          placeholder="어디로 떠나고 싶으신가요? (예: 수원 2박3일 맛집 코스, 거제도 오션뷰 카페)"
+          placeholder="어디로 떠나고 싶으신가요? (예: 수원 2박3일 맛집 코스, 여기서는 뭘 할 수 있지?)"
           style={{
             flex: 1,
             padding: '0.85rem 1rem',
