@@ -139,8 +139,7 @@ CRITICAL INSTRUCTIONS:
 
 2. OTHERWISE (VALID KOREAN TRAVEL QUERY like '거제도 2박3일 오션뷰 카페', '수원 화성행궁 야경', '제주도'):
    - Set isUnknownPlace: false.
-   - Write a rich, natural, warm, multiline travel itinerary recommendation in Korean, tailored specifically to the user's requested theme and duration. Start with "${greetingPrefix}".
-   - Break down the itinerary naturally by day (1일차, 2일차, etc.) using real iconic landmarks, restaurants, or cafes in that destination.
+   - Write a rich, natural, warm, multiline travel itinerary recommendation in Korean, starting with "${greetingPrefix}". Detail each day (1일차, 2일차, 3일차 등) with real iconic landmarks and attractions in that destination.
    - Populate "dailyPlaces" with the exact landmark names mentioned in your summary so they can be synchronized with the map.
 
 3. Return ONLY valid JSON without markdown code fences.`;
