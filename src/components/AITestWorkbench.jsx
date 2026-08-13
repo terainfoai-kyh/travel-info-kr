@@ -37,7 +37,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
 
   // Auto-scroll to bottom of chat
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [chatHistory, isLoading, loadingDots]);
 
   // Loading Dots Interval Animation ( . -> .. -> ... )
@@ -453,19 +453,20 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         </div>
       </div>
 
-      {/* CHAT MESSAGES STREAM CONTAINER */}
+      {/* CHAT MESSAGES STREAM CONTAINER WITH PADDING-BOTTOM FIX FOR FULL SCROLLING */}
       <div style={{
         backgroundColor: '#f8fafc',
         borderRadius: '16px',
-        padding: '1rem',
+        padding: '1rem 1rem 2.5rem 1rem',
         minHeight: '380px',
-        maxHeight: '520px',
+        maxHeight: '560px',
         overflowY: 'auto',
         display: 'flex',
         flexDirection: 'column',
-        gap: '0.5rem',
+        gap: '0.6rem',
         border: '1px solid #cbd5e1',
-        marginBottom: '0.85rem'
+        marginBottom: '0.85rem',
+        scrollBehavior: 'smooth'
       }}>
         {chatHistory.map((msg) => (
           <div
@@ -485,8 +486,8 @@ export default function AITestWorkbench({ lang = 'ko' }) {
 
             {/* Message Bubble */}
             <div style={{
-              maxWidth: '85%',
-              padding: '0.6rem 0.9rem',
+              maxWidth: '88%',
+              padding: '0.65rem 0.95rem',
               borderRadius: msg.sender === 'user' ? '16px 4px 16px 16px' : '4px 16px 16px 16px',
               backgroundColor: msg.sender === 'user' ? '#2563eb' : '#ffffff',
               color: msg.sender === 'user' ? '#ffffff' : '#0f172a',
@@ -615,7 +616,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           </div>
         )}
 
-        <div ref={chatEndRef} />
+        <div ref={chatEndRef} style={{ height: '10px' }} />
       </div>
 
       {/* INPUT FORM CONTAINER */}

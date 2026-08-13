@@ -1,7 +1,7 @@
 /**
  * Vora AI Core NLP & Official Google Generative AI Service
- * Features Multi-Key Auto-Fallback, GenerationConfig (maxOutputTokens: 1500),
- * SystemInstruction (Greeting: "안녕하세요! 여행 조력자 보라입니다.") & 1~5 Day Complete Bullet Itineraries.
+ * Features Multi-Key Auto-Fallback, Dynamic Multilingual (ko/en/ja/zh),
+ * Regex Output Sanitization, & 1~5 Day Complete Bullet Itineraries.
  */
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
@@ -72,8 +72,22 @@ export function isAffirmativeYes(text) {
 }
 
 /**
- * Optimized Gemini AI Generator
- * Supports 1 to 5 days itinerary, maxOutputTokens: 1500, 1-line bullet points per day ending in Korean period (.).
+ * Clean & Sanitize AI Output to remove any English meta/thought leakage
+ */
+export function sanitizeGeminiOutput(text) {
+  if (!text || typeof text !== 'string') return '';
+  return text
+    .replace(/\*Self-Correction[^*]*\*/gi, '')
+    .replace(/\*Internal Note[^*]*\*/gi, '')
+    .replace(/Drafting Notes?:?[^\n]*/gi, '')
+    .replace(/^[\s\n\r]+/, '')
+    .trim();
+}
+
+/**
+ * Dynamic Multilingual Gemini AI Generator
+ * Supports 1 to 5 days itinerary, maxOutputTokens: 1500, temperature: 0.5,
+ * Strict multilingual system instructions, and Sanitization Filter.
  */
 export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
   const isHelp = isMetaHelpQuery(rawPrompt);
@@ -93,17 +107,33 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
   const primaryKey = getActiveGeminiKey();
   const candidateKeys = Array.from(new Set([primaryKey, VERIFIED_FREE_TIER_KEY])).filter(k => k && k.length > 5);
 
+  // Dynamic Multilingual System Instructions (Rule 5 & 9)
+  let langInstruction = 'ALWAYS respond in 100% complete, natural, polite Korean ending with proper Korean periods (.). NEVER output English thought notes or meta commentary.';
+  let greetingPrefix = '안녕하세요! 여행 조력자 보라입니다.';
+
+  if (lang === 'en') {
+    langInstruction = 'ALWAYS respond in 100% polite, natural English ending with proper punctuation. NEVER output internal thought notes or meta commentary.';
+    greetingPrefix = 'Hello! I am Vora, your Korean Travel Concierge.';
+  } else if (lang === 'ja') {
+    langInstruction = 'ALWAYS respond in 100% polite, natural Japanese ending with proper Japanese punctuation (。). NEVER output internal thought notes or meta commentary.';
+    greetingPrefix = 'こんにちは！旅行アシスタントのボラです。';
+  } else if (lang === 'zh') {
+    langInstruction = 'ALWAYS respond in 100% polite, natural Chinese ending with proper Chinese punctuation (。). NEVER output internal thought notes or meta commentary.';
+    greetingPrefix = '您好！我是您的韩国旅行助手 Vora。';
+  }
+
   const systemInstruction = `You are Vora AI, an empathetic Korean Travel Concierge for global travelers visiting Korea.
-ALWAYS start your response warmly with: "안녕하세요! 여행 조력자 보라입니다."
-ALWAYS respond in 100% complete, natural Korean sentences ending with proper Korean periods (.). NEVER truncate sentences mid-word or output English markdown like "Day 1:*".
+ALWAYS start your response warmly with: "${greetingPrefix}"
+${langInstruction}
+Do NOT output any markdown headers starting with "*Self-Correction*" or internal notes.
 If the user asks general usage questions (e.g., "여기서는 뭘 할 수 있지?", "what can I do here?"), introduce your 4 core services warmly:
 1. 1:1 맞춤 여행 일정 추천 (1일~5일 코스 지원)
 2. 한국관광공사 정품 명소 & 지도 GPS 좌표
 3. 최저가 숙소 (아고다) & 액티비티 (클룩) 연동
 4. 다국어 지원 (영어/일본어/중국어)
-If the user asks for travel recommendations, provide a concise course for ${days} days using clean 1-line bullet points for each day (e.g., 1일차: ..., 2일차: ..., 3일차: ..., etc.). Ensure every single day from 1 to ${days} is fully covered and ends with a proper period (.).`;
+If the user asks for travel recommendations, provide a concise course for ${days} days using clean 1-line bullet points for each day (e.g., 1일차: ..., 2일차: ..., 3일차: ..., etc.). Ensure every single day from 1 to ${days} is fully covered and ends with a proper period.`;
 
-  const promptText = `User input: '${rawPrompt}'. Target city: ${targetCity}, duration: ${days} days, theme: ${theme}. Write a concise ${days}-day itinerary in clear, complete Korean.`;
+  const promptText = `User input: '${rawPrompt}'. Target city: ${targetCity}, duration: ${days} days, theme: ${theme}. Write a concise ${days}-day itinerary.`;
 
   const modelCandidates = ['gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite'];
   let lastApiError = null;
@@ -118,20 +148,21 @@ If the user asks for travel recommendations, provide a concise course for ${days
           systemInstruction: systemInstruction,
           generationConfig: {
             maxOutputTokens: 1500,
-            temperature: 0.7
+            temperature: 0.5
           }
         });
         const result = await model.generateContent(promptText);
         const text = result?.response?.text();
+        const cleanText = sanitizeGeminiOutput(text);
 
-        if (text) {
+        if (cleanText) {
           return {
             targetCity,
             days,
             theme,
             isHelpQuery: isHelp,
             tripTitle: isHelp ? '보라 AI 안내' : `'${targetCity}' ${days}일 맞춤 대화 코스`,
-            aiRecommendationSummary: text,
+            aiRecommendationSummary: cleanText,
             success: true
           };
         }
@@ -153,21 +184,22 @@ If the user asks for travel recommendations, provide a concise course for ${days
               contents: [{ parts: [{ text: `${systemInstruction}\n\n${promptText}` }] }],
               generationConfig: {
                 maxOutputTokens: 1500,
-                temperature: 0.7
+                temperature: 0.5
               }
             })
           });
           const data = await res.json();
           const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+          const cleanText = sanitizeGeminiOutput(text);
 
-          if (res.ok && text) {
+          if (res.ok && cleanText) {
             return {
               targetCity,
               days,
               theme,
               isHelpQuery: isHelp,
               tripTitle: isHelp ? '보라 AI 안내' : `'${targetCity}' ${days}일 맞춤 대화 코스`,
-              aiRecommendationSummary: text,
+              aiRecommendationSummary: cleanText,
               success: true
             };
           } else if (data?.error?.message) {
@@ -186,7 +218,7 @@ If the user asks for travel recommendations, provide a concise course for ${days
     theme,
     isHelpQuery: isHelp,
     tripTitle: `'${targetCity}' 여행`,
-    aiRecommendationSummary: `안녕하세요! 여행 조력자 보라입니다.\n\n⚠️ 통신 연결이 일시적으로 지연되었습니다. 궁금하신 여행지를 편하게 말씀해 주세요!`,
+    aiRecommendationSummary: `${greetingPrefix}\n\n⚠️ 통신 연결이 일시적으로 지연되었습니다. 궁금하신 여행지를 편하게 말씀해 주세요!`,
     success: false,
     apiError: lastApiError
   };
