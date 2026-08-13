@@ -1,7 +1,7 @@
 /**
  * Vora AI Core NLP & Official Google Generative AI Service
- * Features Native Structured JSON Output Architecture, Multi-Key Auto-Fallback,
- * Dynamic Multilingual (ko/en/ja/zh), Clean Suffix Stripping for City Extraction, Exact "X박 Y일" Duration Parsing.
+ * Features Native Structured JSON Output Architecture, Non-Existent City Exception Handling,
+ * Multi-Key Auto-Fallback, Dynamic Multilingual (ko/en/ja/zh), Clean Suffix Stripping for City Extraction.
  */
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
@@ -103,7 +103,7 @@ export function sanitizeGeminiOutput(text) {
 
 /**
  * Gemini Native Structured JSON Output Generator
- * Returns both polite human summary text AND a clean JSON array of daily place names!
+ * Features Graceful Non-Existent City Exception Handling (e.g. 징수 -> 전북 장수 안내).
  */
 export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
   const isHelp = isMetaHelpQuery(rawPrompt);
@@ -128,13 +128,14 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
 
   let greetingPrefix = '안녕하세요! 여행 조력자 보라입니다. 😊';
   if (lang === 'en') greetingPrefix = 'Hello! I am Vora, your Korean Travel Concierge. 😊';
-  else if (lang === 'ja') greetingPrefix = 'こんにちは！旅行アシスタントのボラです。😊';
+  else if (lang === 'ja') greetingPrefix = 'こんにちは！旅行アシスタANTのボラです。😊';
   else if (lang === 'zh') greetingPrefix = '您好！我是您的韩国旅行助手 Vora。😊';
 
   const systemInstruction = `You are Vora AI, an empathetic Korean Travel Concierge for global travelers visiting Korea.
 Return your output ONLY as a valid JSON object matching this schema:
 {
-  "summary": "Polite human itinerary response starting with '${greetingPrefix}'. Provide a concise itinerary for ${days} days with clean bullet points starting with '1일차: ...', '2일차: ...' up to '${days}일차: ...'.",
+  "isUnknownPlace": boolean,
+  "summary": "Polite response starting with '${greetingPrefix}'. If user's location input (e.g. '징수', 'asdf') is NOT a valid Korean place or tourist destination, politely inform them: '${greetingPrefix} 입력해 주신 '${rawPrompt}'(은)는 대한민국 관광지나 지명으로 확인되지 않았습니다. 혹시 전북 장수(논개사당, 방화동 휴양림)나 다른 멋진 여행지(제주도, 거제도, 부산)를 찾으시나요?'. Set isUnknownPlace: true and dailyPlaces: []. Otherwise, provide a concise itinerary for ${days} days with clean bullet points starting with '1일차: ...', '2일차: ...' up to '${days}일차: ...'.",
   "targetCity": "${targetCity}",
   "dailyPlaces": [
     { "day": 1, "places": ["Exact landmark name 1", "Exact landmark name 2"] },
@@ -143,9 +144,10 @@ Return your output ONLY as a valid JSON object matching this schema:
 }
 
 CRITICAL RULES FOR "dailyPlaces":
-1. Include ONLY exact landmark/tourist spot/cafe/restaurant names mentioned in your summary text for that day.
-2. DO NOT include meta words like "마무리", "산책", "관람", "이동", "식사", "출발", "도착", "편안하게".
-3. Return clean JSON without markdown code fences if possible.`;
+1. If isUnknownPlace is true, dailyPlaces MUST be empty [].
+2. DO NOT echo non-existent words like "징수라는 키워드와 함께".
+3. Include ONLY exact landmark/tourist spot/cafe/restaurant names mentioned in your summary text for that day.
+4. Return clean JSON without markdown code fences.`;
 
   const promptText = `User input: '${rawPrompt}'. Target city: ${targetCity}, duration: ${days} days, theme: ${theme}. Generate JSON output.`;
 
@@ -177,9 +179,10 @@ CRITICAL RULES FOR "dailyPlaces":
               days,
               theme,
               isHelpQuery: isHelp,
+              isUnknownPlace: parsed.isUnknownPlace || false,
               tripTitle: isHelp ? '보라 AI 안내' : `'${parsed.targetCity || targetCity}' ${days}일 맞춤 대화 코스`,
               aiRecommendationSummary: parsed.summary,
-              dailyPlaces: parsed.dailyPlaces || [],
+              dailyPlaces: parsed.isUnknownPlace ? [] : (parsed.dailyPlaces || []),
               success: true
             };
           }
@@ -224,9 +227,10 @@ CRITICAL RULES FOR "dailyPlaces":
                 days,
                 theme,
                 isHelpQuery: isHelp,
+                isUnknownPlace: parsed.isUnknownPlace || false,
                 tripTitle: isHelp ? '보라 AI 안내' : `'${parsed.targetCity || targetCity}' ${days}일 맞춤 대화 코스`,
                 aiRecommendationSummary: parsed.summary,
-                dailyPlaces: parsed.dailyPlaces || [],
+                dailyPlaces: parsed.isUnknownPlace ? [] : (parsed.dailyPlaces || []),
                 success: true
               };
             }
@@ -245,6 +249,7 @@ CRITICAL RULES FOR "dailyPlaces":
     days,
     theme,
     isHelpQuery: isHelp,
+    isUnknownPlace: false,
     tripTitle: `'${targetCity}' 여행`,
     aiRecommendationSummary: `${greetingPrefix}\n\n⚠️ 통신 연결이 일시적으로 지연되었습니다. 궁금하신 여행지를 편하게 말씀해 주세요!`,
     dailyPlaces: [],
@@ -265,13 +270,14 @@ function parseGeminiJsonResponse(rawText, greetingPrefix, defaultCity, defaultDa
     const json = JSON.parse(cleanText);
     const summary = sanitizeGeminiOutput(json.summary || cleanText);
     return {
+      isUnknownPlace: !!json.isUnknownPlace,
       summary: summary || greetingPrefix,
       targetCity: json.targetCity || defaultCity,
       dailyPlaces: Array.isArray(json.dailyPlaces) ? json.dailyPlaces : []
     };
   } catch (e) {
-    // If JSON parsing fails fallback to raw text
     return {
+      isUnknownPlace: false,
       summary: sanitizeGeminiOutput(cleanText),
       targetCity: defaultCity,
       dailyPlaces: []
