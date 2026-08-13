@@ -132,6 +132,18 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     }
   };
 
+  // Helper function to get Day Badge styling
+  const getDayBadgeStyle = (dayIndex) => {
+    const colors = [
+      { bg: '#f3e8ff', text: '#7e22ce', border: '#e9d5ff' }, // Day 1 Purple
+      { bg: '#dbeafe', text: '#1d4ed8', border: '#bfdbfe' }, // Day 2 Blue
+      { bg: '#d1fae5', text: '#047857', border: '#a7f3d0' }, // Day 3 Green
+      { bg: '#ffedd5', text: '#c2410c', border: '#fed7aa' }, // Day 4 Orange
+      { bg: '#fce7f3', text: '#be185d', border: '#fbcfe8' }  // Day 5 Pink
+    ];
+    return colors[(dayIndex - 1) % colors.length];
+  };
+
   // Execute Conversational AI Pipeline
   const handleSendMessage = async (customText = null) => {
     const query = (customText || inputPrompt).trim();
@@ -217,11 +229,14 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     // 4. Increment Quota & Execute Pipeline
     incrementQuota();
     const targetCity = extractLocationKeyword(query);
+    
+    // Robust "X박 Y일" Duration Parsing (2박3일 -> 3 days)
     let days = 3;
-    if (/(5일|5박|5d)/i.test(query)) days = 5;
-    else if (/(4일|4박|4d)/i.test(query)) days = 4;
-    else if (/(2일|2박|2d)/i.test(query)) days = 2;
-    else if (/(1일|1박|당일)/i.test(query)) days = 1;
+    if (/(5일|4박\s*5일|5박|5d)/i.test(query)) days = 5;
+    else if (/(4일|3박\s*4일|4박|4d)/i.test(query)) days = 4;
+    else if (/(3일|2박\s*3일|3박|3d)/i.test(query)) days = 3;
+    else if (/(2일|1박\s*2일|2박|2d)/i.test(query)) days = 2;
+    else if (/(1일|당일|1박)/i.test(query)) days = 1;
 
     // Execute Gemini AI
     const aiBriefing = await geminiGenerateFullItinerary(query, lang);
@@ -244,7 +259,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         const targetCount = Math.max(days, 5);
         let finalSpots = matchedCitySpots;
         if (finalSpots.length < targetCount) {
-          // Fill remaining from rawSpots to guarantee 5 spots for any city
           const spotIds = new Set(finalSpots.map(s => s.id || s.title));
           for (const s of rawSpots) {
             if (finalSpots.length >= targetCount) break;
@@ -255,7 +269,16 @@ export default function AITestWorkbench({ lang = 'ko' }) {
             }
           }
         }
-        spotsToRender = finalSpots.slice(0, targetCount);
+
+        // Attach Day Badges (1일차, 2일차...) to Spot Objects
+        spotsToRender = finalSpots.slice(0, targetCount).map((spot, idx) => {
+          const dayNum = Math.min(days, Math.floor((idx / targetCount) * days) + 1);
+          return {
+            ...spot,
+            assignedDay: dayNum
+          };
+        });
+
         agodaUrl = getAgodaHotelSearchUrl(targetCity);
         klookUrl = getKlookActivitySearchUrl(targetCity);
       }
@@ -453,7 +476,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         </div>
       </div>
 
-      {/* CHAT MESSAGES STREAM CONTAINER WITH PADDING-BOTTOM FIX FOR FULL SCROLLING */}
+      {/* CHAT MESSAGES STREAM CONTAINER WITH PADDING-BOTTOM FIX */}
       <div style={{
         backgroundColor: '#f8fafc',
         borderRadius: '16px',
@@ -531,26 +554,58 @@ export default function AITestWorkbench({ lang = 'ko' }) {
                 </div>
               )}
 
-              {/* Value-First Parsed Geo-Coordinates & Spot Cards */}
+              {/* Value-First Parsed Geo-Coordinates & Spot Cards with Day Badges & Clean Map Buttons */}
               {msg.spots && msg.spots.length > 0 && (
                 <div style={{ marginTop: '0.6rem', paddingTop: '0.6rem', borderTop: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#7e22ce', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                    🗺️ {msg.targetCity} 정품 명소 및 지도 GPS 좌표 ({msg.spots.length}건):
+                    🗺️ {msg.targetCity} 정품 명소 & 일자별 여행 코스 ({msg.spots.length}건):
                   </span>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                    {msg.spots.map((spot, idx) => (
-                      <div key={spot.id || idx} style={{ padding: '0.5rem 0.65rem', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyBetween: 'space-between', gap: '0.4rem' }}>
-                        <div>
-                          <strong style={{ color: '#0f172a', display: 'block' }}>{idx + 1}. {spot.title}</strong>
-                          <span style={{ color: '#64748b', fontSize: '0.68rem' }}>📍 {spot.location || spot.addr1 || '중심가'}</span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+                    {msg.spots.map((spot, idx) => {
+                      const dayNum = spot.assignedDay || (Math.min(msg.days || 3, Math.floor((idx / msg.spots.length) * (msg.days || 3)) + 1));
+                      const badgeStyle = getDayBadgeStyle(dayNum);
+                      const mapSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.title + ' ' + (spot.location || spot.addr1 || ''))}`;
+
+                      return (
+                        <div key={spot.id || idx} style={{ padding: '0.55rem 0.7rem', backgroundColor: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.2rem' }}>
+                              <span style={{ padding: '0.15rem 0.45rem', borderRadius: '6px', fontSize: '0.65rem', fontWeight: 700, backgroundColor: badgeStyle.bg, color: badgeStyle.text, border: `1px solid ${badgeStyle.border}` }}>
+                                {dayNum}일차 명소
+                              </span>
+                              <strong style={{ color: '#0f172a', fontSize: '0.78rem' }}>{idx + 1}. {spot.title}</strong>
+                            </div>
+                            <span style={{ color: '#64748b', fontSize: '0.68rem', display: 'block' }}>
+                              📍 {spot.location || spot.addr1 || '중심가'}
+                            </span>
+                          </div>
+
+                          {/* Clean Map Button Replacing Raw lat/lng Debug Text */}
+                          <a
+                            href={mapSearchUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              padding: '0.3rem 0.55rem',
+                              backgroundColor: '#ffffff',
+                              color: '#2563eb',
+                              border: '1px solid #bfdbfe',
+                              borderRadius: '8px',
+                              textDecoration: 'none',
+                              fontSize: '0.68rem',
+                              fontWeight: 600,
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.25rem',
+                              whiteSpace: 'nowrap'
+                            }}
+                          >
+                            <MapPin size={12} /> 지도 위치
+                          </a>
                         </div>
-                        <div style={{ textAlign: 'right', fontFamily: 'monospace', fontSize: '0.65rem', color: '#2563eb' }}>
-                          <div>lat: {spot.lat || spot.mapy || '37.5665'}</div>
-                          <div>lng: {spot.lng || spot.mapx || '126.9780'}</div>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
 
                   {/* Value-First Call To Action Affiliate Chips */}

@@ -1,7 +1,7 @@
 /**
  * Vora AI Core NLP & Official Google Generative AI Service
  * Features Multi-Key Auto-Fallback, Dynamic Multilingual (ko/en/ja/zh),
- * Regex Output Sanitization, & 1~5 Day Complete Bullet Itineraries.
+ * Regex Output Sanitization, Exact "X박 Y일" Duration Parsing & 1~5 Day Complete Bullet Itineraries.
  */
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
@@ -86,17 +86,19 @@ export function sanitizeGeminiOutput(text) {
 
 /**
  * Dynamic Multilingual Gemini AI Generator
- * Supports 1 to 5 days itinerary, maxOutputTokens: 1500, temperature: 0.5,
- * Strict multilingual system instructions, and Sanitization Filter.
+ * Robust "X박 Y일" regex duration parsing (2박3일 -> 3 days), maxOutputTokens: 1500, temperature: 0.5.
  */
 export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
   const isHelp = isMetaHelpQuery(rawPrompt);
   const targetCity = extractLocationKeyword(rawPrompt);
+
+  // Exact Korean "X박 Y일" Duration Parsing Logic Fix
   let days = 3;
-  if (/(5일|5박|5d)/i.test(rawPrompt)) days = 5;
-  else if (/(4일|4박|4d)/i.test(rawPrompt)) days = 4;
-  else if (/(2일|2박|2d)/i.test(rawPrompt)) days = 2;
-  else if (/(1일|1박|당일)/i.test(rawPrompt)) days = 1;
+  if (/(5일|4박\s*5일|5박|5d)/i.test(rawPrompt)) days = 5;
+  else if (/(4일|3박\s*4일|4박|4d)/i.test(rawPrompt)) days = 4;
+  else if (/(3일|2박\s*3일|3박|3d)/i.test(rawPrompt)) days = 3; // "2박 3일" -> 3 days!
+  else if (/(2일|1박\s*2일|2박|2d)/i.test(rawPrompt)) days = 2; // "1박 2일" -> 2 days!
+  else if (/(1일|당일|1박)/i.test(rawPrompt)) days = 1;
 
   let theme = '힐링/자연';
   if (/(맛집|미식|먹방|음식)/i.test(rawPrompt)) theme = '미식/맛집';
@@ -107,7 +109,6 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko') {
   const primaryKey = getActiveGeminiKey();
   const candidateKeys = Array.from(new Set([primaryKey, VERIFIED_FREE_TIER_KEY])).filter(k => k && k.length > 5);
 
-  // Dynamic Multilingual System Instructions (Rule 5 & 9)
   let langInstruction = 'ALWAYS respond in 100% complete, natural, polite Korean ending with proper Korean periods (.). NEVER output English thought notes or meta commentary.';
   let greetingPrefix = '안녕하세요! 여행 조력자 보라입니다.';
 
@@ -131,7 +132,7 @@ If the user asks general usage questions (e.g., "여기서는 뭘 할 수 있지
 2. 한국관광공사 정품 명소 & 지도 GPS 좌표
 3. 최저가 숙소 (아고다) & 액티비티 (클룩) 연동
 4. 다국어 지원 (영어/일본어/중국어)
-If the user asks for travel recommendations, provide a concise course for ${days} days using clean 1-line bullet points for each day (e.g., 1일차: ..., 2일차: ..., 3일차: ..., etc.). Ensure every single day from 1 to ${days} is fully covered and ends with a proper period.`;
+If the user asks for travel recommendations, provide a concise course for exactly ${days} days using clean 1-line bullet points for each day from 1일차 up to ${days}일차 (e.g., 1일차: ..., 2일차: ..., 3일차: ..., etc.). Ensure every single day from 1일차 to ${days}일차 is fully covered and ends with a proper period.`;
 
   const promptText = `User input: '${rawPrompt}'. Target city: ${targetCity}, duration: ${days} days, theme: ${theme}. Write a concise ${days}-day itinerary.`;
 
