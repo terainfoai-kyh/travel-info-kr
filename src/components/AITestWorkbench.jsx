@@ -1,20 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, MapPin, Search, ShieldCheck, ShieldAlert, Cpu, ExternalLink, Code, Play, RefreshCw, CheckCircle2, Mic, Send, Zap, PlusCircle, UserCheck, Crown, MessageSquare, Trash2 } from 'lucide-react';
+import { Sparkles, MapPin, Search, ShieldCheck, ShieldAlert, Cpu, ExternalLink, Code, Play, RefreshCw, CheckCircle2, Mic, Send, Zap, PlusCircle, UserCheck, Crown, MessageSquare, Trash2, BarChart3 } from 'lucide-react';
 import { validateTravelQuery } from '../hooks/useInputGuard';
 import { useQuotaLimit } from '../hooks/useQuotaLimit';
 import { extractLocationKeyword, isGreetingQuery, isMetaHelpQuery, geminiGenerateFullItinerary } from '../services/geminiNlpService';
 import { fetchTourSpots } from '../services/tourApi';
 import { getAgodaHotelSearchUrl, getKlookActivitySearchUrl } from '../services/affiliateService';
+import { logAnalyticsEvent } from '../services/analyticsService';
+import AdminAnalyticsDashboard from './AdminAnalyticsDashboard';
 
 export default function AITestWorkbench({ lang = 'ko' }) {
   // 1. Quota & Dev Bypass Hook State
   const { usedCount, remainingQuota, dailyLimit, canProceed, isDevBypass, toggleDevBypass, incrementQuota } = useQuotaLimit(5);
 
-  // 2. Dev Test Simulator States
+  // 2. Dev Test Simulator & Admin Dashboard States
   const [virtualTier, setVirtualTier] = useState('dev'); // 'guest', 'user', 'vip', 'depleted', 'dev'
   const [virtualQuotaLimit, setVirtualQuotaLimit] = useState(5);
   const [extraRechargeCount, setExtraRechargeCount] = useState(0);
   const [isVirtualGoogleLogin, setIsVirtualGoogleLogin] = useState(false);
+  const [showAdminDashboard, setShowAdminDashboard] = useState(false);
 
   // 3. Dynamic Animated Loading Dots State
   const [loadingDots, setLoadingDots] = useState('.');
@@ -87,6 +90,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
   // Dev Simulator: Virtual Recharge +5
   const handleRechargeExtra = () => {
     setExtraRechargeCount(prev => prev + 5);
+    logAnalyticsEvent('VIDEO_AD');
     alert('⚡ [테스트 충전] +5회 무료 대화가 가상으로 즉시 충전되었습니다!');
   };
 
@@ -97,6 +101,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     if (nextState) {
       setVirtualQuotaLimit(15);
       setVirtualTier('user');
+      logAnalyticsEvent('LOGIN');
       alert('🔑 [가상 구글 로그인 완료] 일일 한도가 15회로 확장되었습니다!');
     } else {
       setVirtualQuotaLimit(5);
@@ -238,8 +243,9 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     else if (/(2일|1박\s*2일|2박|2d)/i.test(query)) days = 2;
     else if (/(1일|당일|1박)/i.test(query)) days = 1;
 
-    // Execute Gemini AI
+    // Execute Gemini AI & Log Analytics
     const aiBriefing = await geminiGenerateFullItinerary(query, lang);
+    logAnalyticsEvent('CHAT', { inputTokens: 120, outputTokens: 350 });
 
     // Fetch Official TourAPI Spots ONLY if query is NOT a meta help query
     try {
@@ -350,6 +356,27 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         </div>
 
         <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.4rem' }}>
+          {/* Senior Private Admin Analytics Toggle */}
+          <button
+            onClick={() => setShowAdminDashboard(prev => !prev)}
+            style={{
+              padding: '0.3rem 0.65rem',
+              borderRadius: '8px',
+              fontSize: '0.72rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              border: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.3rem',
+              backgroundColor: showAdminDashboard ? '#7e22ce' : '#f3e8ff',
+              color: showAdminDashboard ? '#ffffff' : '#7e22ce'
+            }}
+          >
+            <BarChart3 size={13} />
+            {showAdminDashboard ? '👑 관리자 통계 닫기' : '👑 선배님 관리자 통계 대시보드'}
+          </button>
+
           <button
             onClick={() => toggleDevBypass()}
             style={{
@@ -432,6 +459,9 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         </div>
       </div>
 
+      {/* SENIOR PRIVATE ADMIN ANALYTICS DASHBOARD VIEW */}
+      {showAdminDashboard && <AdminAnalyticsDashboard />}
+
       {/* CHAT CONTAINER HEADER */}
       <div style={{
         display: 'flex',
@@ -476,7 +506,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         </div>
       </div>
 
-      {/* CHAT MESSAGES STREAM CONTAINER WITH PADDING-BOTTOM FIX */}
+      {/* CHAT MESSAGES STREAM CONTAINER */}
       <div style={{
         backgroundColor: '#f8fafc',
         borderRadius: '16px',
