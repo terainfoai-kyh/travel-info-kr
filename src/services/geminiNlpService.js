@@ -189,15 +189,19 @@ If the user asks for travel recommendations, provide a concise course for exactl
       }
     }
 
-    // 2. Direct REST API (v1 / v1beta) fallback
+    // 2. Direct REST API (v1 / v1beta) fallback with 4.0s Timeout Guard
     for (const ver of ['v1', 'v1beta']) {
       for (const modelName of modelCandidates) {
         try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 4000); // 4.0s Timeout Guard!
+
           const res = await fetch(`https://generativelanguage.googleapis.com/${ver}/models/${modelName}:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
             },
+            signal: controller.signal,
             body: JSON.stringify({
               contents: [{ parts: [{ text: `${systemInstruction}\n\n${promptText}` }] }],
               generationConfig: {
@@ -206,6 +210,8 @@ If the user asks for travel recommendations, provide a concise course for exactl
               }
             })
           });
+          clearTimeout(timeoutId);
+
           const data = await res.json();
           const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
           const cleanText = sanitizeGeminiOutput(text);

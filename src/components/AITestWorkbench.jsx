@@ -8,6 +8,12 @@ import { getAgodaHotelSearchUrl, getKlookActivitySearchUrl } from '../services/a
 import { logAnalyticsEvent } from '../services/analyticsService';
 import AdminAnalyticsDashboard from './AdminAnalyticsDashboard';
 
+// Meta/Action Blacklist Words preventing "마무리", "산책", "이동" from being rendered as spots
+const EXCLUDED_META_WORDS = [
+  '마무리', '출발', '도착', '산책', '관람', '이동', '식사', '점심', '저녁', '아침', '숙박', '휴식',
+  '자유시간', '일정', '코스', '여행', '추천', '감상', '즐깁니다', '마무리합니다', '보냅니다', '둘러봅니다', '보태어', '이어집니다'
+];
+
 export default function AITestWorkbench({ lang = 'ko' }) {
   // 1. Quota & Dev Bypass Hook State
   const { usedCount, remainingQuota, dailyLimit, canProceed, isDevBypass, toggleDevBypass, incrementQuota } = useQuotaLimit(5);
@@ -171,14 +177,14 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     return colors[(dayIndex - 1) % colors.length];
   };
 
-  // Extract Korean Nouns and Quoted Places from Line (Includes 다리, 문, 광장, 시장, 고개, 폭포, 동굴, 온천, 포구 etc.)
+  // Extract Korean Nouns and Quoted Places from Line (Filters out EXCLUDED_META_WORDS like 마무리, 산책, 식사)
   const extractPlacesFromLine = (line) => {
     const results = [];
     
     // 1. Quoted names ('W181', '외도널서리', '심해', '온더선셋' etc.)
     const quoted = Array.from(line.matchAll(/['"‘“]([^'"’”]+)['"’”]/g)).map(m => m[1].trim());
     for (const q of quoted) {
-      if (q.length >= 2 && !results.includes(q)) {
+      if (q.length >= 2 && !EXCLUDED_META_WORDS.includes(q) && !results.some(r => r.name === q)) {
         results.push({ name: q, isQuoted: true });
       }
     }
@@ -187,10 +193,11 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     const landmarkRegex = /([가-힣]{2,10}(?:다리|대교|해변|해수욕장|언덕|성|길|공원|타워|궁|사|대|동|리|항|포|섬|교|전망대|테마파크|수목원|식물원|보타니아|문|광장|시장|고개|폭포|동굴|온천|포구))/g;
     const matches = Array.from(line.matchAll(landmarkRegex)).map(m => m[1].trim());
     for (let m of matches) {
-      // Normalize typos (e.g. 콰이어강의 다리 -> 콰이강의 다리)
+      // Normalize typos (e.g. 콰이어강 -> 콰이강)
       if (m.includes('콰이어강')) m = m.replace('콰이어강', '콰이강');
 
-      if (m.length >= 2 && !results.some(r => r.name === m)) {
+      // Filter out meta blacklist words (e.g. 마무리, 산책, 이동)
+      if (m.length >= 2 && !EXCLUDED_META_WORDS.includes(m) && !results.some(r => r.name === m)) {
         results.push({ name: m, isQuoted: false });
       }
     }
@@ -198,7 +205,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     return results;
   };
 
-  // Execute Conversational AI Pipeline with Pinpoint TourAPI Landmark Extraction & 1:1 Sequential Alignment
+  // Execute Conversational AI Pipeline with Parallel AI + TourAPI Fetch (Under 2s Speed)
   const handleSendMessage = async (customText = null) => {
     const query = (customText || inputPrompt).trim();
     if (!query || isLoading) return;
@@ -292,18 +299,20 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     else if (/(2일|1박\s*2일|2박|2d)/i.test(query)) days = 2;
     else if (/(1일|당일|1박)/i.test(query)) days = 1;
 
-    // Execute Gemini AI & Log Analytics
-    const aiBriefing = await geminiGenerateFullItinerary(query, lang);
-    logAnalyticsEvent('CHAT', { inputTokens: 120, outputTokens: 350 });
-
-    // Fetch & Pinpoint TourAPI Landmark Alignment Pipeline
+    // 🔥 ULTRA FAST PARALLEL EXECUTION: Fire Gemini AI AND TourAPI Regional Search simultaneously at millisecond 0!
     try {
+      const [aiBriefing, rawSpots] = await Promise.all([
+        geminiGenerateFullItinerary(query, lang),
+        (!isMeta && targetCity && targetCity !== '전국') ? fetchTourSpots({ region: targetCity, lang }) : Promise.resolve([])
+      ]);
+
+      logAnalyticsEvent('CHAT', { inputTokens: 120, outputTokens: 350 });
+
       let spotsToRender = [];
       let agodaUrl = null;
       let klookUrl = null;
 
       if (!isMeta && targetCity && targetCity !== '전국') {
-        const rawSpots = await fetchTourSpots({ region: targetCity, lang });
         const summaryText = aiBriefing?.aiRecommendationSummary || '';
         const lines = summaryText.split('\n').map(l => l.trim()).filter(Boolean);
 
@@ -332,7 +341,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           dayExtractedMap.set(dayNum, currentDayItems);
         }
 
-        // Asynchronously query TourAPI for unquoted landmark nouns via searchKeyword2
+        // Asynchronously query TourAPI for unquoted landmark nouns via searchKeyword2 (Ultra-Fast Parallel)
         const landmarkNamesList = Array.from(allLandmarkNames);
         const pinpointResults = await fetchPinpointLandmarkSpots(landmarkNamesList, lang);
         const pinpointMap = new Map();
@@ -371,8 +380,8 @@ export default function AITestWorkbench({ lang = 'ko' }) {
                 });
               }
             } else {
-              // 3. Synthesize Spot Card for Quoted or Special Cafe/Spot Name
-              if (!addedTitles.has(item.name)) {
+              // 3. Synthesize Spot Card for Quoted or Special Cafe/Spot Name (Filtering out meta words)
+              if (!addedTitles.has(item.name) && !EXCLUDED_META_WORDS.includes(item.name)) {
                 addedTitles.add(item.name);
                 sequentialSpots.push({
                   id: `syn-${Date.now()}-${item.name}`,
