@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { Loader2 } from 'lucide-react';
 import Header from './components/Header';
 import PWAInstallBanner from './components/PWAInstallBanner';
 import AIChatPromptHeader from './components/AIChatPromptHeader';
+import WeatherWidget from './components/WeatherWidget';
+import TravelEssentialsSection from './components/TravelEssentialsSection';
 import AITestWorkbench from './components/AITestWorkbench';
 import TravelDetailModal from './components/TravelDetailModal';
 import ItineraryModal from './components/ItineraryModal';
@@ -21,6 +24,8 @@ export default function App() {
     theme: '전체',
     days: 3
   });
+
+  const [weatherData, setWeatherData] = useState(null);
 
   // Modals & Drawers state
   const [isItineraryOpen, setIsItineraryOpen] = useState(false);
