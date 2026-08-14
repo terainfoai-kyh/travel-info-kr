@@ -314,10 +314,11 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           }
         }
 
-        // Safety fallback if LLM response returned zero spots
+        // Safety fallback if LLM response returned zero spots: MANDATORY Single Source of Truth!
         if (spotsToRender.length === 0) {
           const fallbackResult = generateLocalFallbackItinerary(query, lang);
           displayCity = fallbackResult.targetCity || displayCity;
+          aiBriefing.aiRecommendationSummary = fallbackResult.aiRecommendationSummary;
           spotsToRender = (fallbackResult.dailySchedules || []).flatMap(ds => 
             (ds.spots || []).map(sp => ({
               ...sp,

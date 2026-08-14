@@ -49,11 +49,27 @@ export function isMetaHelpQuery(text) {
   return /(여기서\s*뭘|뭐할\s*수|무슨\s*기능|어떻게\s*사용|사용법|도움말|help|what\s*can\s*i|how\s*to\s*use)/i.test(text.trim());
 }
 
+const SUB_LOCATION_MAP = {
+  '행궁동': '수원', '행리단길': '수원', '화성행궁': '수원', '방화수류정': '수원', '광교': '수원',
+  '해운대': '부산', '광안리': '부산', '서면': '부산', '남포동': '부산', '태종대': '부산', '감천': '부산',
+  '성수': '서울', '홍대': '서울', '강남': '서울', '명동': '서울', '이태원': '서울', '삼청동': '서울', '익선동': '서울', '여의도': '서울',
+  '동피랑': '통영', '디피랑': '통영',
+  '안목': '강릉', '경포대': '강릉', '오죽헌': '강릉',
+  '성산': '제주', '협재': '제주', '우도': '제주', '서귀포': '제주', '애월': '제주',
+  '바람의언덕': '거제', '외도': '거제', '매미성': '거제', '몽돌': '거제'
+};
+
 export function extractLocationKeyword(text) {
   if (!text || typeof text !== 'string') return '전국';
   let clean = text.trim();
 
   clean = clean.replace(/(주변|근처|인근|여행|추천|코스|맛집|가볼만한곳|여행지)/g, ' ').trim();
+
+  for (const [sub, city] of Object.entries(SUB_LOCATION_MAP)) {
+    if (clean.includes(sub)) {
+      return city;
+    }
+  }
 
   for (const city of VALID_KOREAN_CITIES) {
     const regex = new RegExp(`(?:^|\\s)${city}(?:$|\\s)`, 'i');
