@@ -5,6 +5,7 @@ import PWAInstallBanner from './components/PWAInstallBanner';
 import AIChatPromptHeader from './components/AIChatPromptHeader';
 import WeatherWidget from './components/WeatherWidget';
 import TravelEssentialsSection from './components/TravelEssentialsSection';
+import AILifestyleSection from './components/AILifestyleSection';
 import AITestWorkbench from './components/AITestWorkbench';
 import TravelDetailModal from './components/TravelDetailModal';
 import ItineraryModal from './components/ItineraryModal';
@@ -26,6 +27,9 @@ export default function App() {
   });
 
   const [weatherData, setWeatherData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [recommendations, setRecommendations] = useState({ foods: [], outfits: [] });
+  const [fullAiItinerary, setFullAiItinerary] = useState(null);
 
   // Modals & Drawers state
   const [isItineraryOpen, setIsItineraryOpen] = useState(false);
