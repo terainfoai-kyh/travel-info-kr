@@ -87,7 +87,7 @@ export default function SearchFilterForm({ filters, setFilters, onSearch, lang }
     if (type === 'arrange') {
       const map = {
         A: { ko: '추천순 (시그니처)', en: 'Recommended', ja: 'おすすめ順', zh: '推荐顺序', zht: '推薦順序', de: 'Empfohlen', fr: 'Recommandé', es: 'Recomendado', ru: 'Рекомендуемые' },
-        O: { ko: '제목순', en: 'By Title', ja: 'タイトル順', zh: '按标题', zht: '按標題', de: 'Nach Titel', fr: 'Par titre', es: 'Por título', ru: 'По названию' },
+        // O: { ko: '제목순', en: 'By Title' } // Removed to guarantee zero interference with Vora AI (Gemini) ordering
         Q: { ko: '최근 수정일순', en: 'Recently Modified', ja: '最近の更新順', zh: '按最近修改', zht: '按最近修改', de: 'Zuletzt geändert', fr: 'Modifié récemment', es: 'Modificado recientemente', ru: 'Недавно измененные' },
         R: { ko: '최근 등록일순', en: 'Recently Created', ja: '最近の登録順', zh: '按最近创建', zht: '按最近創建', de: 'Zuletzt erstellt', fr: 'Créé récemment', es: 'Creado recientemente', ru: 'Недавно созданные' }
       };
