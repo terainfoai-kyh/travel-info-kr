@@ -109,6 +109,7 @@ export function sanitizeGeminiOutput(text) {
 /**
  * 3. Master Gazetteer Catalog (8 Landmarks per city, popularity ordered, zero alphabetical sorting)
  */
+const GAZETTEER_CATALOG = {
   '창원': [
     { title: '진해 여좌천 로망스다리 & 벚꽃길', location: '경상남도 창원시 진해구 여좌동', lat: 35.1534, lng: 128.6601, rating: 4.9, tags: ['벚꽃명소', '로망스다리', '포토존'], image: 'http://tong.visitkorea.or.kr/cms/resource/35/2785035_image2_1.jpg' },
     { title: '창원 해양공원 & 솔병산 짚트랙', location: '경상남도 창원시 진해구 명동로 62', lat: 35.1095, lng: 128.7214, rating: 4.8, tags: ['해양공원', '타워전망대', '짚트랙'], image: 'http://tong.visitkorea.or.kr/cms/resource/35/2785035_image2_1.jpg' },
