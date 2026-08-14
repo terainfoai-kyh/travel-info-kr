@@ -407,11 +407,19 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         if (isUnknownPlace) {
           spotsToRender = [];
         } else {
-          if (sequentialSpots.length === 0 && rawSpots.length > 0 && displayCity !== '전국' && displayCity !== '추천') {
-            sequentialSpots = rawSpots.slice(0, Math.max(days, 5)).map((s, idx) => ({
-              ...s,
-              assignedDay: Math.min(days, Math.floor(idx / 2) + 1)
-            }));
+          if (sequentialSpots.length === 0 && displayCity !== '전국' && displayCity !== '추천') {
+            // [Fix & Safety] Completely eliminated rawSpots fallback (Gabojong Galbi, Gawon, etc.)
+            // Always rely on 100% authentic landmarks from generateLocalFallbackItinerary
+            const localFallback = generateLocalFallbackItinerary(query, lang);
+            const fallbackSpots = (localFallback.dailySchedules || []).flatMap(ds => 
+              (ds.spots || []).map(sp => ({
+                ...sp,
+                assignedDay: ds.day || 1
+              }))
+            );
+            if (fallbackSpots.length > 0) {
+              sequentialSpots = fallbackSpots;
+            }
           }
           spotsToRender = sequentialSpots;
         }
