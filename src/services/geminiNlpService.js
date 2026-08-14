@@ -39,8 +39,13 @@ export function sanitizeGeminiOutput(text) {
 }
 
 export function extractLocationKeyword(text) {
-  if (!text || typeof text !== 'string') return '';
-  return text.trim().replace(/(주변|근처|인근|여행|추천|코스|맛집|가볼만한곳|여행지|\d+일|\d+박)/gi, '').trim();
+  if (!text || typeof text !== 'string') return '대한민국';
+  const clean = text.trim()
+    .replace(/\[.*?\]/g, '')
+    .replace(/(주변|근처|인근|여행|추천|코스|맛집|카페|오션뷰|야경|힐링|탐방|가볼만한곳|여행지|\d+일|\d+박|\d+d)/gi, ' ')
+    .trim();
+  const words = clean.split(/\s+/).filter(w => w.length > 0);
+  return words[0] || '대한민국';
 }
 
 export function isGreetingQuery(text) {
