@@ -183,42 +183,45 @@ Strictly return ONLY valid JSON matching this schema:
 
   const promptText = `User input: ${JSON.stringify(rawPrompt)}. Target city: ${targetCity}, duration: ${days} days, language: ${lang}. Generate rich structured JSON.`;
 
-  // Gemini API 단일 x-goog-api-key 헤더 적용 및 무료-유료 키 무중단 순차 전환 풀 구축. v1
-  const apiUrls = [
-    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
-    'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent',
-    'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent'
+  // Gemini API 통신 100% 뚫기 및 상세 진단 로그 탑재. v1
+  const modelNames = [
+    'gemini-1.5-flash',
+    'gemini-2.0-flash',
+    'gemini-1.5-flash-latest',
+    'gemini-1.5-pro',
+    'gemini-2.0-flash-exp'
   ];
 
   for (const apiKey of candidateKeys) {
-    for (const baseUrl of apiUrls) {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 9000);
+    for (const model of modelNames) {
+      for (const apiVer of ['v1beta', 'v1']) {
+        try {
+          const endpointUrl = `https://generativelanguage.googleapis.com/${apiVer}/models/${model}:generateContent?key=${apiKey}`;
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 8000);
 
-        // 단일 x-goog-api-key 헤더 인증 (다중 인증 충돌 100% 방지)
-        const res = await fetch(baseUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-goog-api-key': apiKey
-          },
-          signal: controller.signal,
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: `${systemInstruction}\n\n${promptText}` }] }]
-          })
-        });
-        clearTimeout(timeoutId);
+          const res = await fetch(endpointUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-goog-api-key': apiKey
+            },
+            signal: controller.signal,
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: `${systemInstruction}\n\n${promptText}` }] }]
+            })
+          });
+          clearTimeout(timeoutId);
 
-        if (res.ok) {
-          const data = await res.json();
-          const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (rawText) {
-            let cleanText = sanitizeGeminiOutput(rawText);
-            const parsed = JSON.parse(cleanText);
+          if (res.ok) {
+            const data = await res.json();
+            const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (rawText) {
+              let cleanText = sanitizeGeminiOutput(rawText);
+              const parsed = JSON.parse(cleanText);
 
-            if (parsed && (parsed.summary || parsed.dailySchedules)) {
-              console.log(`[Gemini AI Engine] ⚡ Gemini API live response parsed successfully!`);
+              if (parsed && (parsed.summary || parsed.dailySchedules)) {
+                console.log(`[Gemini AI Engine] ⚡ Gemini API (${model} / ${apiVer}) 통신 100% 성공!`);
 
               const resolvedCity = parsed.targetCity || targetCity || '대한민국';
               const resolvedDays = parsed.days || days || 3;
