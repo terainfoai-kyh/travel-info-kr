@@ -82,13 +82,61 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
         }
       } catch (e) { console.error(e); }
 
-      setLoadingDetail(true);
+      setLoadingDetail(false);
       setGalleryImages([]);
       setIntroData(null);
+      setDetailData({
+        title: spot.title,
+        overview: spot.description || `${spot.title}은(는) 아름다운 경관과 다양한 즐길 거리가 있는 대한민국 대표 관광 명소입니다.`,
+        addr1: spot.location || spot.addr1 || '상세 주소 정보 제공',
+        firstimage: spot.image || ''
+      });
 
-      if (String(spot.id).startsWith('t-')) {
-        // Search real contentId by title for mock spots
-        const searchUrl = `${PUBLIC_API_CONFIG.SEARCH_KEYWORD_URL}?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=1&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&keyword=${encodeURIComponent(spot.title.split('&')[0].trim())}`;
+      // 1. Direct PK (contentId) lookup if hidden property exists
+      const targetContentId = spot.contentId || (isNaN(Number(spot.id)) ? null : spot.id);
+      if (targetContentId) {
+        const cType = spot.contentTypeId || '14';
+        Promise.all([
+          fetchSpotDetailCommon(targetContentId, lang),
+          fetchSpotDetailImages(targetContentId, lang),
+          fetchSpotDetailIntro(targetContentId, cType, lang)
+        ]).then(([commonRes, imagesRes, introRes]) => {
+          setDetailData({
+            title: commonRes?.title || spot.title,
+            overview: commonRes?.overview || spot.description || `${spot.title}은(는) 대한민국 대표 관광 명소입니다.`,
+            addr1: commonRes?.addr1 || spot.location || spot.addr1 || '상세 주소 정보 제공',
+            firstimage: commonRes?.firstimage || spot.image || ''
+          });
+          setIntroData(introRes);
+          if (imagesRes && imagesRes.length > 0) {
+            setGalleryImages(imagesRes);
+          }
+          setLoadingDetail(false);
+        }).catch(() => {
+          setDetailData({
+            title: spot.title,
+            overview: spot.description || `${spot.title}은(는) 대한민국 대표 관광 명소입니다.`,
+            addr1: spot.location || spot.addr1 || '상세 주소 정보 제공',
+            firstimage: spot.image || ''
+          });
+          setIntroData(null);
+          setLoadingDetail(false);
+        });
+        return;
+      }
+
+      const isSearchRequired = String(spot.id).startsWith('t-') || String(spot.id).startsWith('ai-spot-') || isNaN(Number(spot.id));
+      if (isSearchRequired) {
+        const rawTitle = (spot.title || '').replace(/^(\d+[\.\s\-\:]+|Day\s*\d+[\s\-\:]+|\[\d+일차\])/gi, '');
+        const searchKeyword = spot.searchKeyword || rawTitle
+          .split('&')[0]
+          .split('+')[0]
+          .split(',')[0]
+          .split(' 및 ')[0]
+          .split('(')[0]
+          .split('-')[0]
+          .trim() || spot.title;
+        const searchUrl = `${PUBLIC_API_CONFIG.SEARCH_KEYWORD_URL}?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=1&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&keyword=${encodeURIComponent(searchKeyword)}`;
         fetch(searchUrl)
           .then(res => res.json())
           .then(data => {
@@ -104,7 +152,12 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
             return [null, [], null];
           })
           .then(([commonRes, imagesRes, introRes]) => {
-            setDetailData(commonRes);
+            setDetailData({
+              title: commonRes?.title || spot.title,
+              overview: commonRes?.overview || spot.description || `${spot.title}은(는) 아름다운 경관과 다양한 즐길 거리가 있는 대한민국 대표 관광 명소입니다.`,
+              addr1: commonRes?.addr1 || spot.location || spot.addr1 || '상세 주소 정보 제공',
+              firstimage: commonRes?.firstimage || spot.image || ''
+            });
             setIntroData(introRes);
             if (imagesRes && imagesRes.length > 0) {
               setGalleryImages(imagesRes);
@@ -112,7 +165,11 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
             setLoadingDetail(false);
           })
           .catch(() => {
-            setDetailData(null);
+            setDetailData({
+              title: spot.title,
+              overview: spot.description || `${spot.title}은(는) 아름다운 경관과 다양한 즐길 거리가 있는 대한민국 대표 관광 명소입니다.`,
+              addr1: spot.location || spot.addr1 || '상세 주소 정보 제공'
+            });
             setIntroData(null);
             setLoadingDetail(false);
           });
@@ -137,7 +194,21 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
   if (!spot) return null;
 
   return (
-    <div className="modal-overlay-backdrop">
+    <div 
+      className="modal-overlay-backdrop"
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 99999,
+        backgroundColor: 'rgba(15, 23, 42, 0.75)',
+        backdropFilter: 'blur(8px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '1rem',
+        overflowY: 'auto'
+      }}
+    >
       <div 
         className="animate-fade-in glass-panel modal-responsive-card"
         style={{
@@ -145,7 +216,12 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
           border: '1px solid var(--border-color)',
           borderRadius: 'var(--radius-lg)',
           boxShadow: 'var(--shadow-xl)',
-          padding: '1.25rem 1.25rem'
+          padding: '1.25rem 1.25rem',
+          maxWidth: '850px',
+          width: '100%',
+          maxHeight: '88vh',
+          overflowY: 'auto',
+          margin: 'auto'
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -191,7 +267,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
           <TravelImageWithFallback 
             src={(() => {
               const apiFirstImg = detailData?.firstimage || '';
-              const isBadImg = apiFirstImg.includes('794101_image2_1.jpg') || apiFirstImg.toLowerCase().includes('toilet') || apiFirstImg.toLowerCase().includes('restroom') || apiFirstImg.toLowerCase().includes('화장실');
+              const isBadImg = apiFirstImg.includes('794101_image2_1.jpg') || apiFirstImg.includes('2785035_image2_1.jpg') || apiFirstImg.includes('2784860_image2_1.jpg') || apiFirstImg.toLowerCase().includes('toilet') || apiFirstImg.toLowerCase().includes('restroom') || apiFirstImg.toLowerCase().includes('화장실');
               if (!isBadImg && apiFirstImg) return apiFirstImg;
               return spot.image;
             })()} 
@@ -671,15 +747,29 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
               border: '1px solid var(--border-color)',
               position: 'relative'
             }}>
-              <iframe
-                title={`Map-${spot.title}`}
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                loading="lazy"
-                allowFullScreen
-                src={`https://maps.google.com/maps?q=${spot.lat || 37.5665},${spot.lng || 126.9780}&hl=${lang}&z=15&output=embed`}
-              />
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((spot.title || '') + ' ' + (spot.location || spot.addr1 || ''))}`}
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  width: '100%',
+                  height: '100%',
+                  background: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)',
+                  color: '#ffffff',
+                  fontWeight: 800,
+                  fontSize: '0.92rem',
+                  textDecoration: 'none',
+                  borderRadius: 'var(--radius-md)',
+                  boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)'
+                }}
+              >
+                <MapPin size={20} color="#ffffff" />
+                <span>📍 구글 지도(GPS) 실시간 위치 보기 ↗</span>
+              </a>
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
               <a
@@ -794,7 +884,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
               {t.highlightsTitle}
             </h4>
             <ul style={{ listStyle: 'none', paddingLeft: 0, display: 'flex', flexDirection: 'column', gap: '0.55rem' }}>
-              {(spot.details?.highlights || t.highlightsBullets).map((h, idx) => (
+              {(spot.details?.highlights || t.highlightsBullets || ['대한민국 대표 관광지', '편리한 접근성 및 추천 코스']).map((h, idx) => (
                 <li key={idx} style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -846,7 +936,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                       <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>{rev.date}</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', color: '#f59e0b', marginBottom: '0.4rem' }}>
-                      {[...Array(rev.rating)].map((_, i) => (
+                      {[...Array(Math.max(1, Math.min(5, Number(rev?.rating) || 5)))].map((_, i) => (
                         <Star key={i} size={14} fill="#f59e0b" color="#f59e0b" />
                       ))}
                     </div>

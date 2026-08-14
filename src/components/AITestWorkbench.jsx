@@ -8,7 +8,7 @@ import { getAgodaHotelSearchUrl, getKlookActivitySearchUrl } from '../services/a
 import { logAnalyticsEvent } from '../services/analyticsService';
 import AdminAnalyticsDashboard from './AdminAnalyticsDashboard';
 
-export default function AITestWorkbench({ lang = 'ko' }) {
+export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks = [], onToggleBookmark }) {
   // 1. Quota & Dev Bypass Hook State
   const { usedCount, remainingQuota, dailyLimit, canProceed, isDevBypass, toggleDevBypass, incrementQuota } = useQuotaLimit(5);
 
@@ -62,13 +62,27 @@ export default function AITestWorkbench({ lang = 'ko' }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const chatEndRef = useRef(null);
+  const inputRef = useRef(null);
+  const chatContainerRef = useRef(null);
 
-  // PC Right Fixed Panel: Dynamically bind to the latest vora message containing recommended spots
-  const activeSpotMessage = [...chatHistory].reverse().find(msg => msg.sender === 'vora' && msg.spots && msg.spots.length > 0) || null;
+  // PC Right Fixed Panel: Strictly bind ONLY to the latest vora message (Clear if latest response has no spots or is loading)
+  const latestVoraMessage = [...chatHistory].reverse().find(msg => msg.sender === 'vora') || null;
+  const activeSpotMessage = (!isLoading && latestVoraMessage && Array.isArray(latestVoraMessage.spots) && latestVoraMessage.spots.length > 0)
+    ? latestVoraMessage
+    : null;
 
-  // Auto-scroll to bottom of chat
+  // Auto-scroll to bottom of chat container & Auto-focus input box after response
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    if (!isLoading) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+        inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 50);
+    }
   }, [chatHistory, isLoading, loadingDots]);
 
   // High-Visibility Animated Wave Dots & Rotating Status Step Text
@@ -213,16 +227,17 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     setSelectedMsgId(null);
     setIsLoading(true);
 
-    if (isGreetingQuery(query)) {
+    if (isGreetingQuery(query) || isMetaHelpQuery(query)) {
       setTimeout(() => {
         setChatHistory(prev => [
           ...prev,
           {
             id: `vora-${Date.now()}`,
             sender: 'vora',
-            text: '안녕하세요! 여행 컨시어지 보라입니다. 😊 오늘 어떤 멋진 여행을 함께 계획해 볼까요?',
+            text: '안녕하세요! 여행 컨시어지 Vora AI입니다. 😊\n\n저는 대한민국 맞춤 여행을 도와드리는 AI 컨시어지입니다:\n\n📍 **지역별 맞춤 코스 설계**: "제주도 3박4일", "부산 해운대 1박2일"\n🌿 **테마별 명소 추천**: "거제도 오션뷰 카페", "수원 화성행궁 야경 힐링"\n🚗 **동선 및 위치 동기화**: 1일차~5일차 일자별 정품 명소 & 지도 위치 제공\n\n떠나고 싶으신 지역이나 여행 스타일을 자유롭게 물어보세요!',
             timestamp: new Date().toLocaleTimeString(),
-            chips: ['수원 화성행궁 야경 힐링', '거제도 2박3일 카페 투어', '제주도 오션뷰 맛집']
+            spots: [],
+            chips: ['거제도 2박3일 오션뷰 카페', '수원 화성행궁 야경 힐링', '제주도 3박4일 맛집 탐방', '여기서 뭘 할 수 있지?']
           }
         ]);
         setIsLoading(false);
@@ -243,7 +258,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
               text: guardResult.reason,
               timestamp: new Date().toLocaleTimeString(),
               isGuardWarning: true,
-              chips: ['서울 경복궁 맛집 코스', '부산 해운대 1박2일', '제주도 카페 탐방']
+              chips: ['거제도 2박3일 오션뷰 카페', '수원 화성행궁 야경 힐링', '제주도 3박4일 맛집 탐방', '여기서 뭘 할 수 있지?']
             }
           ]);
           setIsLoading(false);
@@ -565,20 +580,22 @@ export default function AITestWorkbench({ lang = 'ko' }) {
         }}>
 
           {/* CHAT MESSAGES STREAM CONTAINER */}
-          <div style={{
-            backgroundColor: '#f8fafc',
-            borderRadius: '16px',
-            padding: '1rem 1rem 2.5rem 1rem',
-            minHeight: '380px',
-            maxHeight: '560px',
-            overflowY: 'auto',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.6rem',
-            border: '1px solid #cbd5e1',
-            marginBottom: '0.85rem',
-            scrollBehavior: 'smooth'
-          }}>
+          <div
+            ref={chatContainerRef}
+            style={{
+              backgroundColor: '#f8fafc',
+              borderRadius: '16px',
+              padding: '1rem 1rem 2.5rem 1rem',
+              minHeight: '380px',
+              maxHeight: '560px',
+              overflowY: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.6rem',
+              border: '1px solid #cbd5e1',
+              marginBottom: '0.85rem',
+              scrollBehavior: 'smooth'
+            }}>
             {chatHistory.map((msg) => (
               <div
                 key={msg.id}
@@ -681,7 +698,10 @@ export default function AITestWorkbench({ lang = 'ko' }) {
 
                             return (
                               <div key={spot.id || idx} style={{ padding: '0.5rem 0.65rem', backgroundColor: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '0.74rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.4rem' }}>
-                                <div style={{ flex: 1 }}>
+                                <div 
+                                  onClick={() => onOpenDetail && onOpenDetail(spot)}
+                                  style={{ flex: 1, cursor: 'pointer' }}
+                                >
                                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', marginBottom: '0.15rem' }}>
                                     <span style={{ padding: '0.1rem 0.4rem', borderRadius: '6px', fontSize: '0.63rem', fontWeight: 700, backgroundColor: badgeStyle.bg, color: badgeStyle.text, border: `1px solid ${badgeStyle.border}` }}>
                                       {dayNum}일차 명소
@@ -775,6 +795,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           {/* INPUT FORM CONTAINER */}
           <div style={{ display: 'flex', gap: '0.4rem', position: 'relative' }}>
             <input
+              ref={inputRef}
               type="text"
               value={inputPrompt}
               onChange={(e) => setInputPrompt(e.target.value)}
@@ -883,7 +904,10 @@ export default function AITestWorkbench({ lang = 'ko' }) {
                     border: '1px solid #e2e8f0',
                     boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
                   }}>
-                    <div style={{ flex: 1, minWidth: 0, paddingRight: '0.5rem' }}>
+                    <div 
+                      onClick={() => onOpenDetail && onOpenDetail(spot)}
+                      style={{ flex: 1, minWidth: 0, paddingRight: '0.5rem', cursor: 'pointer' }}
+                    >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.25rem' }}>
                         <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#9333ea', backgroundColor: '#f3e8ff', padding: '0.15rem 0.45rem', borderRadius: '4px', whiteSpace: 'nowrap' }}>
                           {spot.assignedDay ? `${spot.assignedDay}일차 명소` : '추천 명소'}
@@ -897,8 +921,11 @@ export default function AITestWorkbench({ lang = 'ko' }) {
                         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{spot.location || spot.addr1 || '상세 위치 제공'}</span>
                       </div>
                     </div>
-                    <button 
-                      onClick={() => onOpenDetail && onOpenDetail(spot)}
+                    <a 
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.title + ' ' + (spot.location || spot.addr1 || ''))}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
                       style={{
                         display: 'flex',
                         alignItems: 'center',
@@ -911,12 +938,13 @@ export default function AITestWorkbench({ lang = 'ko' }) {
                         borderRadius: '8px',
                         cursor: 'pointer',
                         fontWeight: 600,
-                        whiteSpace: 'nowrap'
+                        whiteSpace: 'nowrap',
+                        textDecoration: 'none'
                       }}
                     >
-                      <Compass size={12} />
-                      <span>상세 정보</span>
-                    </button>
+                      <MapPin size={12} color="#0284c7" />
+                      <span>지도 위치</span>
+                    </a>
                   </div>
                 ))}
 
@@ -954,6 +982,12 @@ export default function AITestWorkbench({ lang = 'ko' }) {
                     <span>↗</span>
                   </a>
                 </div>
+              </div>
+            ) : isLoading ? (
+              <div style={{ padding: '2.5rem 1rem', textAlign: 'center', color: '#9333ea', fontSize: '0.8rem' }}>
+                <Sparkles size={32} className="animate-spin" style={{ margin: '0 auto 0.75rem auto', color: '#9333ea', display: 'block' }} />
+                <div style={{ fontWeight: 700, marginBottom: '0.35rem', fontSize: '0.85rem' }}>⚡ Vora AI 맞춤 여행 코스 분석 중...</div>
+                <span style={{ fontSize: '0.74rem', color: '#64748b' }}>우측 명소 패널을 깨끗하게 초기화 후 한국관광공사 정품 코스로 동기화합니다.</span>
               </div>
             ) : (
               <div style={{ padding: '3rem 1rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.78rem' }}>
