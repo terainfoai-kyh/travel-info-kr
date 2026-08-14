@@ -483,6 +483,12 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
       };
 
       setChatMessages(prev => [...prev, aiBubble]);
+
+      // [Fix & Sync] Instantly pass fullAiResult to App level state so ItineraryModal & Right Panel update immediately
+      if (onGenerateItinerary) {
+        onGenerateItinerary(parseNaturalPrompt(query), fullAiResult);
+      }
+
       if (isAutoTtsEnabled) {
         speakText(aiBubbleText, lang);
       }

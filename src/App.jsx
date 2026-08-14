@@ -262,9 +262,15 @@ export default function App() {
             filters={filters}
           onGenerateItinerary={async (parsedInput, fullAiResult = null) => {
             const parsed = parsedInput || (fullAiResult ? { region: fullAiResult.dailySchedules?.[0]?.city || '전국', days: fullAiResult.days || 3, keyword: fullAiResult.dailySchedules?.[0]?.city || '' } : { region: '전국', days: 3, keyword: '' });
+            
+            // [Fix & Sync] If fullAiResult is provided, bind it immediately to App state and skip TourAPI overwriting
             if (fullAiResult) {
               setFullAiItinerary(fullAiResult);
+              const targetRegion = fullAiResult.dailySchedules?.[0]?.city || parsed.region || '전국';
+              setFilters(prev => ({ ...prev, region: targetRegion, days: fullAiResult.days || 3 }));
+              return;
             }
+
             const targetRegion = parsed.region || '전국';
             const targetKeyword = parsed.keyword || '';
             const newFilters = {
