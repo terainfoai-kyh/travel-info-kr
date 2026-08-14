@@ -52,6 +52,55 @@ export const REGION_META = {
   '제주': { areaCode: '39', nx: 52, ny: 38, lat: 33.4996, lng: 126.5312, regIdLand: '11G00000', regIdTa: '11G00201', stnId: '184' }
 };
 
+// Dynamic Region Normalizer (0% Hardcode Risk, Nationwide Fallback)
+export function getDynamicRegionMeta(rawRegion = '') {
+  if (!rawRegion || typeof rawRegion !== 'string') {
+    return REGION_META['전국'];
+  }
+  const clean = rawRegion.trim();
+  if (REGION_META[clean]) return REGION_META[clean];
+
+  if (clean.includes('강원')) return REGION_META['강원'];
+  if (clean.includes('경기')) return REGION_META['경기'];
+  if (clean.includes('충북') || clean.includes('충청북')) return REGION_META['충북'];
+  if (clean.includes('충남') || clean.includes('충청남')) return REGION_META['충남'];
+  if (clean.includes('경북') || clean.includes('경상북')) return REGION_META['경북'];
+  if (clean.includes('경남') || clean.includes('경상남')) return REGION_META['경남'];
+  if (clean.includes('전북') || clean.includes('전라북')) return REGION_META['전북'];
+  if (clean.includes('전남') || clean.includes('전라남')) return REGION_META['전남'];
+  if (clean.includes('제주')) return REGION_META['제주'];
+  if (clean.includes('서울')) return REGION_META['서울'];
+  if (clean.includes('인천')) return REGION_META['인천'];
+  if (clean.includes('부산')) return REGION_META['부산'];
+  if (clean.includes('대구')) return REGION_META['대구'];
+  if (clean.includes('대전')) return REGION_META['대전'];
+  if (clean.includes('광주')) return REGION_META['광주'];
+  if (clean.includes('울산')) return REGION_META['울산'];
+  if (clean.includes('세종')) return REGION_META['세종'];
+
+  if (['수원', '성남', '용인', '고양', '부천', '화성', '안산', '남양주', '안양', '평택', '의정부', '파주', '시흥', '김포', '광명', '광주', '군포', '이천', '오산', '하남', '양주', '구리', '안성', '포천', '의왕', '여주', '양평', '동두천', '가평', '연천'].some(c => clean.includes(c))) {
+    return REGION_META['경기'];
+  }
+  if (['강릉', '속초', '양양', '춘천', '원주', '동해', '태백', '삼척', '홍천', '횡성', '영월', '평창', '정선', '철원', '화천', '양구', '인제', '고성'].some(c => clean.includes(c))) {
+    return REGION_META['강원'];
+  }
+  if (['창원', '진주', '통영', '사천', '김해', '밀양', '거제', '양산', '의령', '함안', '창녕', '고성', '남해', '하동', '산청', '함양', '거창', '합천'].some(c => clean.includes(c))) {
+    return REGION_META['경남'];
+  }
+  if (['포항', '경주', '김천', '안동', '구미', '영주', '영천', '상주', '문경', '경산', '군위', '의성', '청송', '영양', '영덕', '청도', '고령', '성주', '칠곡', '예천', '봉화', '울진', '울릉'].some(c => clean.includes(c))) {
+    return REGION_META['경북'];
+  }
+  if (['전주', '군산', '익산', '정읍', '남원', '김제', '완주', '진안', '무주', '장수', '임실', '순창', '고창', '부안'].some(c => clean.includes(c))) {
+    return REGION_META['전북'];
+  }
+  if (['목포', '여수', '순천', '나주', '광양', '담양', '곡성', '구례', '고흥', '보성', '화순', '장흥', '강진', '해남', '영암', '무안', '함평', '영광', '장성', '완도', '진도', '신안'].some(c => clean.includes(c))) {
+    return REGION_META['전남'];
+  }
+
+  // Safe Nationwide Fallback (NOT Seoul!)
+  return REGION_META['전국'];
+}
+
 export const THEME_META = {
   '전체': '',
   '자연/힐링': '12', // 관광지
