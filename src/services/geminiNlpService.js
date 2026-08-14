@@ -214,6 +214,26 @@ Strictly return ONLY valid JSON matching this schema:
                 ? generatedSummary 
                 : builtStory;
 
+              const dailySchedules = [];
+              const dailyPlaces = [];
+              for (let d = 0; d < days; d++) {
+                const spotA = liveSpots[d * 2] || liveSpots[0];
+                const spotB = liveSpots[d * 2 + 1];
+                const daySpots = [];
+                const placeNames = [];
+                if (spotA) { placeNames.push(spotA.title); daySpots.push({ ...spotA, id: `${targetCity}-live-${d+1}-1` }); }
+                if (spotB) { placeNames.push(spotB.title); daySpots.push({ ...spotB, id: `${targetCity}-live-${d+1}-2` }); }
+                dailyPlaces.push({ day: d + 1, places: placeNames });
+                dailySchedules.push({
+                  day: d + 1,
+                  dateLabel: `${d + 1}일차 - ${parsed.targetCity || targetCity} 명소 코스`,
+                  city: parsed.targetCity || targetCity,
+                  weather: { temp: '23°C', condition: '맑음 ☀️', rainProbability: '10%', dust: '좋음' },
+                  foodRecommendation: { dishName: `${parsed.targetCity || targetCity} 지역 대표 미식`, restaurantName: '한국관광공사 인증 대표 맛집', description: '지역 특산물로 요리한 정품 대표 미식' },
+                  spots: daySpots
+                });
+              }
+
               return {
                 targetCity: parsed.targetCity || targetCity,
                 days,
@@ -224,8 +244,8 @@ Strictly return ONLY valid JSON matching this schema:
                 engineMode: 'GEMINI_AI',
                 tripTitle: `'${parsed.cleanKeyword || parsed.targetCity || targetCity}' ${days}일 맞춤 대화 코스`,
                 aiRecommendationSummary: finalSummaryText,
-                dailySchedules: [],
-                dailyPlaces: [],
+                dailySchedules,
+                dailyPlaces,
                 spots: liveSpots && liveSpots.length > 0 ? liveSpots : [],
                 agodaUrl: getAgodaHotelSearchUrl(parsed.targetCity || targetCity),
                 klookUrl: getKlookActivitySearchUrl(parsed.targetCity || targetCity)
