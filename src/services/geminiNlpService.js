@@ -205,9 +205,10 @@ Strictly return ONLY valid JSON matching this schema:
           if (rawText) {
             let cleanText = rawText.trim().replace(/```json/gi, '').replace(/```/g, '').trim();
             const parsed = JSON.parse(cleanText);
-            if (parsed && parsed.summary) {
+            if (parsed) {
               console.log(`[Gemini AI Router] ⚡ 1순위 Gemini API 정품 라이브 수신 성공!`);
               const liveSpots = await fetchDynamicRealtimeSpots(parsed.cleanKeyword || rawPrompt, lang);
+              const richStoryText = buildStorySummaryText(rawPrompt, parsed.targetCity || targetCity, days, liveSpots);
               return {
                 targetCity: parsed.targetCity || targetCity,
                 days,
@@ -217,7 +218,7 @@ Strictly return ONLY valid JSON matching this schema:
                 isFallbackMode: false,
                 engineMode: 'GEMINI_AI',
                 tripTitle: `'${parsed.cleanKeyword || parsed.targetCity || targetCity}' ${days}일 맞춤 대화 코스`,
-                aiRecommendationSummary: parsed.summary,
+                aiRecommendationSummary: richStoryText,
                 dailySchedules: [],
                 dailyPlaces: [],
                 spots: liveSpots && liveSpots.length > 0 ? liveSpots : [],
