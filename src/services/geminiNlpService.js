@@ -3,7 +3,6 @@
  * Guarantees 100% synchronization between text summary and itinerary card list without sorting or hardcoded if-statements.
  */
 
-import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const VALID_KOREAN_CITIES = [
   '서울', '인천', '대전', '대구', '광주', '부산', '울산', '세종',
@@ -290,43 +289,9 @@ CRITICAL RULES FOR "summary" AND "dailyPlaces":
   const modelCandidates = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro'];
   let lastApiError = null;
 
-  for (const apiKey of candidateKeys) {
-    for (const modelName of modelCandidates) {
-      try {
-        const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({
-          model: modelName,
-          systemInstruction: systemInstruction,
-          generationConfig: {
-            responseMimeType: "application/json",
-            maxOutputTokens: 1800,
-            temperature: 0.3
-          }
-        });
-        const result = await model.generateContent(promptText);
-        const rawText = result?.response?.text();
-        
-        if (rawText) {
-          const parsed = parseGeminiJsonResponse(rawText, greetingPrefix, targetCity, days);
-          if (parsed && parsed.summary) {
-            return {
-              targetCity: parsed.targetCity || targetCity,
-              days,
-              theme,
-              isHelpQuery: isHelp,
-              isUnknownPlace: parsed.isUnknownPlace || false,
-              tripTitle: isHelp ? '보라 AI 안내' : `'${parsed.targetCity || targetCity}' ${days}일 맞춤 대화 코스`,
-              aiRecommendationSummary: parsed.summary,
-              dailyPlaces: parsed.isUnknownPlace ? [] : (parsed.dailyPlaces || []),
-              success: true
-            };
-          }
-        }
-      } catch (err) {
-        lastApiError = err?.message || String(err);
-      }
-    }
 
+
+  for (const apiKey of candidateKeys) {
     for (const ver of ['v1', 'v1beta']) {
       for (const modelName of modelCandidates) {
         try {
