@@ -263,11 +263,17 @@ export default function App() {
           onGenerateItinerary={async (parsedInput, fullAiResult = null) => {
             const parsed = parsedInput || (fullAiResult ? { region: fullAiResult.dailySchedules?.[0]?.city || '전국', days: fullAiResult.days || 3, keyword: fullAiResult.dailySchedules?.[0]?.city || '' } : { region: '전국', days: 3, keyword: '' });
             
-            // [Fix & Sync] If fullAiResult is provided, bind it immediately to App state and skip TourAPI overwriting
+            // [Fix & Sync] Instantly bind fullAiResult and flatten its spots into allTourSpots
+            // This ensures both TourSpotGrid and ItineraryModal display 100% AI recommended spots in exact order
             if (fullAiResult) {
               setFullAiItinerary(fullAiResult);
               const targetRegion = fullAiResult.dailySchedules?.[0]?.city || parsed.region || '전국';
               setFilters(prev => ({ ...prev, region: targetRegion, days: fullAiResult.days || 3 }));
+
+              const flattenedSpots = (fullAiResult.dailySchedules || []).flatMap(ds => ds.spots || []);
+              if (flattenedSpots.length > 0) {
+                setAllTourSpots(flattenedSpots);
+              }
               return;
             }
 

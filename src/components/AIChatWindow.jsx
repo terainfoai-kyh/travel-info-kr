@@ -120,6 +120,11 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
       };
 
       setMessages(prev => [...prev, aiBubble]);
+
+      // [Fix & Sync] Instantly pass fullAiResult to App level state so TourSpotGrid & ItineraryModal update 100%
+      if (onGenerateItinerary) {
+        onGenerateItinerary(parseNaturalPrompt(query), fullAiResult);
+      }
     } catch (err) {
       console.error("AI Chat Generation Error:", err);
       const errorBubble = {
