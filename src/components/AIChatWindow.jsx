@@ -339,11 +339,24 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
                           </span>
                         </div>
 
+                        {/* [Fix & Synchronization Guarantee] Render synchronized spot order sequence (❶, ❷, ❸, ❹) matching the map modal */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                           {msg.itinerarySummary.dailySchedules?.map((ds, idx) => (
-                            <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.75rem', padding: '0.25rem 0', borderBottom: '1px solid #e2e8f0' }}>
-                              <span style={{ fontWeight: 700, color: '#1e293b' }}>{ds.dateLabel || `${ds.day}일차 - ${ds.city}`}</span>
-                              <span style={{ color: '#64748b' }}>{ds.spots?.length || 4}개 명소 (좌표100% 매칭)</span>
+                            <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem', padding: '0.35rem 0', borderBottom: '1px solid #e2e8f0' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.75rem' }}>
+                                <span style={{ fontWeight: 700, color: '#1e293b' }}>{ds.dateLabel || `${ds.day}일차 - ${ds.city || '전국'}`}</span>
+                                <span style={{ color: '#64748b' }}>{ds.spots?.length || 4}개 명소 100% 동기화</span>
+                              </div>
+                              {/* Synchronized Spot Sequence Order Badges */}
+                              {Array.isArray(ds.spots) && ds.spots.length > 0 && (
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem', marginTop: '0.15rem' }}>
+                                  {ds.spots.map((sp, sIdx) => (
+                                    <span key={sIdx} style={{ fontSize: '0.68rem', padding: '0.1rem 0.4rem', borderRadius: '4px', background: '#ffffff', color: '#1e40af', border: '1px solid #bfdbfe', fontWeight: 600 }}>
+                                      {['❶', '❷', '❸', '❹', '❺'][sIdx] || (sIdx + 1)} {sp.title}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
                             </div>
                           ))}
                         </div>

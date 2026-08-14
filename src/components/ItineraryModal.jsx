@@ -127,6 +127,9 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
 
   const isCustomMode = customPickedSpots && customPickedSpots.length > 0;
 
+  // [Fix & Synchronization Guarantee]
+  // 제미나이가 생성한 AI 일정(fullAiItinerary)이 들어왔을 때, 왼쪽 하단 AI 카드와 오른쪽 모달/지도 간의 명소 순서(Array Index 0, 1, 2, 3...)를 100% 보존합니다.
+  // 로컬 추천 엔진의 시각/좌표 기반 재정렬(Sort)이 개입되어 순서가 뒤섞이는 현상을 방지하고, 제미나이 원본 ds.spots 배열 순서 그대로 1:1 매핑합니다.
   const mapFullAiToItinerary = (fullAi, totalDays, startDate) => {
     if (!fullAi || !Array.isArray(fullAi.dailySchedules)) return null;
     const startDt = startDate ? new Date(startDate) : new Date();
@@ -138,11 +141,12 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
       const dStr = String(curDate.getDate()).padStart(2, '0');
       const dateStr = `${y}-${m}-${dStr}`;
 
+      // Preserve original Gemini spot order 100% without sorting or re-ordering
       const rawSpots = Array.isArray(ds.spots) ? ds.spots : [];
       const schedule = rawSpots.map((sp, sIdx) => ({
         time: sIdx === 0 ? '09:30' : (sIdx === 1 ? '13:00' : (sIdx === 2 ? '16:30' : '20:00')),
         slotName: sIdx === 0 ? '오전 명소 & 출발' : (sIdx === 1 ? '점심 & 랜드마크' : (sIdx === 2 ? '오후 관광 & 체험' : '야경 & 마감')),
-        spotId: sp.id || `fullai-${ds.day}-${sIdx}`,
+        spotId: sp.id || `fullai-${ds.day || (idx + 1)}-${sIdx}`,
         title: sp.title,
         location: sp.location || sp.addr1 || `${ds.city || '전국'} 중심가`,
         lat: parseFloat(sp.lat) || 37.5665,
