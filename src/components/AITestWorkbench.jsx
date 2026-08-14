@@ -306,50 +306,23 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
       const isUnknownPlace = aiBriefing?.isUnknownPlace || false;
 
       if (!isMeta && !isUnknownPlace) {
-        // Priority 1: If dailySchedules with spot objects exist (from fallback/catalog), use them directly
-        if (aiBriefing?.dailySchedules && aiBriefing.dailySchedules.length > 0) {
+        if (aiBriefing?.spots && Array.isArray(aiBriefing.spots) && aiBriefing.spots.length > 0) {
+          spotsToRender = aiBriefing.spots;
+        } else if (aiBriefing?.dailySchedules && aiBriefing.dailySchedules.length > 0) {
           spotsToRender = aiBriefing.dailySchedules.flatMap(ds => 
             (ds.spots || []).map(sp => ({
               ...sp,
               assignedDay: ds.day || 1
             }))
           );
-        } else if (aiBriefing?.dailyPlaces && aiBriefing.dailyPlaces.length > 0) {
-          // Priority 2: If LLM returned dailyPlaces with landmark name strings, map them cleanly
-          let daySpotIdx = 1;
-          for (const dp of aiBriefing.dailyPlaces) {
-            const dayNum = dp.day || 1;
-            const placeNames = dp.places || [];
-            for (const pName of placeNames) {
-              if (pName && typeof pName === 'string' && pName.trim().length > 1) {
-                spotsToRender.push({
-                  id: `spot-${Date.now()}-${daySpotIdx++}`,
-                  title: pName.trim(),
-                  location: `${displayCity} 명소`,
-                  addr1: `${displayCity} ${dayNum}일차 추천 코스`,
-                  assignedDay: dayNum,
-                  isInstagramHotspot: true
-                });
-              }
-            }
-          }
-        }
-
-        // Priority 3: Safety Fallback if spotsToRender is still empty
-        if (spotsToRender.length === 0) {
-          const fallbackResult = generateLocalFallbackItinerary(query, lang);
+        } else {
+          const fallbackResult = await generateLocalFallbackItinerary(query, lang);
           displayCity = fallbackResult.targetCity || displayCity;
-          aiBriefing.aiRecommendationSummary = fallbackResult.aiRecommendationSummary;
-          spotsToRender = (fallbackResult.dailySchedules || []).flatMap(ds => 
-            (ds.spots || []).map(sp => ({
-              ...sp,
-              assignedDay: ds.day || 1
-            }))
-          );
+          spotsToRender = fallbackResult.spots || [];
         }
 
-        agodaUrl = isUnknownPlace ? null : getAgodaHotelSearchUrl(displayCity);
-        klookUrl = isUnknownPlace ? null : getKlookActivitySearchUrl(displayCity);
+        agodaUrl = isUnknownPlace ? null : (aiBriefing?.agodaUrl || getAgodaHotelSearchUrl(displayCity));
+        klookUrl = isUnknownPlace ? null : (aiBriefing?.klookUrl || getKlookActivitySearchUrl(displayCity));
       }
 
       const voraMsgId = `vora-${Date.now()}`;

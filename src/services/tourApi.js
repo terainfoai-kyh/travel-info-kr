@@ -531,8 +531,13 @@ export async function fetchTourSpots({
         let fallbackLat = itemRegionMeta?.lat || preset.lat;
         let fallbackLng = itemRegionMeta?.lng || preset.lng;
 
+        const cId = String(item.contentid || item.crsIdx || item.id || `api-${idx}`);
+        const cTypeId = String(item.contenttypeid || '12');
+
         return {
-          id: item.contentid || item.crsIdx || item.id || `api-${idx}`,
+          id: cId,
+          contentId: cId,
+          contentTypeId: cTypeId,
           title: titleClean,
           region: region === '전국' ? (item.region || '한국') : region,
           theme: theme === '전체' ? '관광' : theme,

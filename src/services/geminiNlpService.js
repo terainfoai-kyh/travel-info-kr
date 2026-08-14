@@ -1,17 +1,13 @@
 /**
- * Vora AI Core NLP & Multi-Day Itinerary Service (5:28PM Clean Dynamic Master Version)
- * Guarantees 100% synchronization between text summary and dynamic TourAPI 4.0 spots with zero hardcoded dictionaries.
- * Includes [📢 AI 네트워크 보완 모드 (공공 DB 라이브 탐색 엔진)] badge for local fallback mode.
+ * Vora AI Core NLP & Multi-Day Itinerary Service (TourAPI PK Authenticated Master Version)
+ * Guarantees 100% synchronization between Gemini AI generative planning and dynamic TourAPI 4.0 spots
+ * strictly identified by TourAPI's Primary Key (contentId).
  */
 
-import { fetchDynamicRealtimeSpots } from './tourApi';
+import { fetchDynamicRealtimeSpots, fetchPinpointLandmarkSpots } from './tourApi';
 
 /**
- * ⚡ GEMINI STRICT KEY ROTATION POOL (Master Meeting Rules Standard)
- * 1순위: 메인 무료 키 (VITE_GEMINI_API_KEY / VITE_GEMINI_FREE_KEY)
- * 2순위: 비상 유료 키 (VITE_GEMINI_PAID_KEY)
- * 3순위: 선배님 정품 검증 API Key (AQ.Ab8RN6Kw...)
- * 4순위: [📢 AI 네트워크 보완 모드] (공공 DB 무제한 라이브 탐색 안전 우회)
+ * ⚡ GEMINI STRICT KEY ROTATION POOL
  */
 export const GEMINI_KEY_POOL = [
   import.meta.env.VITE_GEMINI_API_KEY,
@@ -39,18 +35,13 @@ export function sanitizeGeminiOutput(text) {
 }
 
 export function extractLocationKeyword(text) {
-  if (!text || typeof text !== 'string') return '대한민국';
-  const clean = text.trim()
-    .replace(/\[.*?\]/g, '')
-    .replace(/(주변|근처|인근|여행|추천|코스|맛집|카페|오션뷰|야경|힐링|탐방|가볼만한곳|여행지|\d+일|\d+박|\d+d)/gi, ' ')
-    .trim();
-  const words = clean.split(/\s+/).filter(w => w.length > 0);
-  return words[0] || '대한민국';
+  if (!text || typeof text !== 'string') return '';
+  return text.trim().replace(/(주변|근처|인근|여행|추천|코스|맛집|가볼만한곳|여행지|\d+일|\d+박)/gi, '').trim();
 }
 
 export function isGreetingQuery(text) {
   if (!text || typeof text !== 'string') return false;
-  return /^(안녕|반가워|하이|hello|hi|good\s*morning|보라야|보라|Vora)/i.test(text.trim());
+  return /^(안녕|반가워|하이|hello|hi|good\s*morning|보라야|보라|Vora|안녕하세요)/i.test(text.trim());
 }
 
 export function isCasualChatQuery(text) {
@@ -77,17 +68,17 @@ export function isInvalidOrNonTravelQuery(text) {
 
 export function isAffirmativeYes(text) {
   if (!text || typeof text !== 'string') return false;
-  return /^(응|네|어|좋아|맞아|오케이|ok|yes|그래)/i.test(text.trim());
+  return /^(응|네|어|좋아|맞아|오케이|ok|yes|그래|보여줘)/i.test(text.trim());
 }
 
 export function geminiParseNaturalPrompt(text) {
   const city = extractLocationKeyword(text);
   let days = 3;
-  if (/(5일|4박\s*5일|5박|5d)/i.test(text)) days = 5;
-  else if (/(4일|3박\s*4일|4박|4d)/i.test(text)) days = 4;
-  else if (/(3일|2박\s*3일|3박|3d)/i.test(text)) days = 3;
-  else if (/(2일|1박\s*2일|2박|2d)/i.test(text)) days = 2;
-  else if (/(1일|당일|1박)/i.test(text)) days = 1;
+  if (/(5일|4박\s*5일|5박|5d|5\s*days)/i.test(text)) days = 5;
+  else if (/(4일|3박\s*4일|4박|4d|4\s*days)/i.test(text)) days = 4;
+  else if (/(3일|2박\s*3일|3박|3d|3\s*days)/i.test(text)) days = 3;
+  else if (/(2일|1박\s*2일|2박|2d|2\s*days)/i.test(text)) days = 2;
+  else if (/(1일|당일|1박|1d|1\s*day)/i.test(text)) days = 1;
   return { region: city, days, keyword: city };
 }
 
@@ -102,58 +93,43 @@ export function getKlookActivitySearchUrl(cityName) {
 }
 
 /**
- * ⚡ Dynamic Story Text Builder (Zero Hardcoding)
+ * ⚡ Master Gemini Multi-Day Itinerary Generator (100% Dynamic TourAPI PK Synchronization)
+ * Accepts both overloaded calling signatures:
+ * 1) (rawPrompt, lang)
+ * 2) (rawPrompt, targetCity, days, theme, lang)
  */
-function buildStorySummaryText(rawPrompt, location, days, spotList) {
-  const excludeFood = /(식당|음식점|맛집|빼고|제외|없이)/i.test(rawPrompt || '');
-  const cleanKeyword = (rawPrompt || '').trim()
-    .replace(/(여기서|거기서|이중|그중|식당은|식당|음식점|맛집|빼고|제외|없이|주변|근처|인근|여행|추천|코스|가볼만한곳|여행지|\d+일|\d+박)/gi, ' ')
-    .trim();
-  const displayLoc = cleanKeyword || location || '대한민국';
+export async function geminiGenerateFullItinerary(rawPrompt, arg2 = 'ko', maybeDays = 3, maybeTheme = '종합', maybeLang = 'ko') {
+  let lang = 'ko';
+  let targetCity = '';
+  let days = 3;
+  let theme = '종합';
 
-  let header = `안녕하세요! 여행 컨시어지 Vora AI입니다. 😊 '${displayLoc}'에서 가깝게 둘러볼 수 있는 최적의 추천 코스를 안내해 드립니다!`;
-  if (excludeFood) {
-    header = `안녕하세요! 여행 컨시어지 Vora AI입니다. 😊 '${displayLoc}'에서 식당을 제외한 관광 명소 중심의 최적 추천 코스를 안내해 드립니다!`;
+  if (typeof arg2 === 'string' && (arg2.length === 2 || arg2 === 'zht')) {
+    lang = arg2;
+    targetCity = extractLocationKeyword(rawPrompt) || '대한민국';
+    const parsed = geminiParseNaturalPrompt(rawPrompt);
+    days = parsed.days || 3;
+  } else {
+    targetCity = (typeof arg2 === 'string' && arg2.trim()) ? arg2 : (extractLocationKeyword(rawPrompt) || '대한민국');
+    days = typeof maybeDays === 'number' ? maybeDays : 3;
+    theme = maybeTheme || '종합';
+    lang = maybeLang || 'ko';
   }
 
-  const stories = [header, ''];
-  const validSpots = (spotList && spotList.length > 0) ? spotList : [
-    { title: `${displayLoc} 대표 해변 & 오션뷰 산책로` },
-    { title: `${displayLoc} 정품 문화공간 & 스카이워크` },
-    { title: `${displayLoc} 생태공원 & 호수산책` },
-    { title: `${displayLoc} 일출 야경 명소 & 전망대` }
-  ];
-
-  const totalDays = Math.max(1, Math.min(days, Math.ceil(validSpots.length / 2)));
-
-  for (let d = 0; d < totalDays; d++) {
-    const spotA = validSpots[d * 2] || validSpots[0];
-    const spotB = validSpots[d * 2 + 1];
-
-    if (spotB) {
-      stories.push(`${d + 1}일차: ${spotA.title}에서 시원한 정경을 조망하고 ${spotB.title}을 둘러봅니다.`);
-    } else {
-      stories.push(`${d + 1}일차: ${spotA.title}에서 편안한 힐링 여행을 즐기며 코스를 마무리합니다.`);
-    }
-  }
-
-  return stories.join('\n');
-}
-
-/**
- * ⚡ Master Gemini Multi-Day Itinerary Generator (100% Dynamic TourAPI Sync)
- */
-export async function geminiGenerateFullItinerary(rawPrompt, targetCity = '서울', days = 3, theme = '종합', lang = 'ko') {
   const isGreeting = isGreetingQuery(rawPrompt);
   const isCasual = isCasualChatQuery(rawPrompt);
   const isHelp = isMetaHelpQuery(rawPrompt);
-  const greetingPrefix = "안녕하세요! 여행 컨시어지 보라입니다. 😊";
 
   if (isGreeting || isCasual || isHelp) {
-    let summaryText = `${greetingPrefix} 무엇을 도와드릴까요? 떠나고 싶으신 도시나 여행 스타일(예: 거제도 2박3일, 수원 화성 야경)을 자유롭게 말씀해 주세요!`;
-    if (isHelp) {
-      summaryText = `${greetingPrefix} 저는 대한민국 맞춤 여행 코스를 설계해 드리는 AI 컨시어지 Vora입니다. 원하시는 여행지나 일정을 물어보시면 1:1 맞춤 코스를 안내해 드릴게요!`;
+    let summaryText = `안녕하세요! 여행 컨시어지 Vora AI입니다. 😊 대한민국 맞춤 여행 코스를 설계해 드립니다. 원하시는 여행지나 일정(예: 거제도 2박3일, 수원 화성 야경)을 자유롭게 말씀해 주세요!`;
+    if (lang === 'en') {
+      summaryText = `Hello! I am Vora AI, your travel concierge for South Korea. 😊 Where would you like to explore? Feel free to tell me your destination or style (e.g. Busan 3 days, Jeju healing trip)!`;
+    } else if (lang === 'ja') {
+      summaryText = `こんにちは！韓国旅行AIコンシェルジュのVoraです。😊 韓国のオーダーメイド旅行コースをご案内します。行きたい地域や日程（例：済州島 2泊3日、釜山 夜景ツアー）を気軽にお知らせください！`;
+    } else if (lang === 'zh' || lang === 'zht') {
+      summaryText = `您好！我是您的韩国旅行AI管家Vora。😊 无论您想去哪个城市或体验什么主题（例如：济州岛3天2晚、釜山夜景），都可以随时告诉我！`;
     }
+
     return {
       targetCity,
       days,
@@ -162,7 +138,7 @@ export async function geminiGenerateFullItinerary(rawPrompt, targetCity = '서�
       isUnknownPlace: false,
       isFallbackMode: false,
       engineMode: 'GEMINI_AI',
-      tripTitle: '보라 AI 안내',
+      tripTitle: 'Vora AI Travel Concierge',
       aiRecommendationSummary: summaryText,
       dailySchedules: [],
       dailyPlaces: [],
@@ -171,28 +147,44 @@ export async function geminiGenerateFullItinerary(rawPrompt, targetCity = '서�
   }
 
   const candidateKeys = getAllGeminiApiKeys();
-  const systemInstruction = `You are Vora AI, an elite South Korean travel planner.
-Generate a JSON output for a multi-day travel itinerary.
+  const systemInstruction = `You are Vora AI, an elite South Korean travel planner and expert concierge.
+Your goal is to understand the user's travel destination, duration, companion style, and preferences, and generate a structured multi-day travel itinerary.
 Strictly return ONLY valid JSON matching this schema:
 {
   "isUnknownPlace": false,
-  "cleanKeyword": "Sub-location or place (e.g. '영통', '거제도', '사당동')",
-  "targetCity": "Parent Korean City (e.g. '수원', '서울', '부산', '거제')",
-  "summary": "Full greeting and multi-day itinerary text in Korean"
+  "tripTitle": "Engaging and creative trip title (e.g., '부산 바다와 미식을 즐기는 3일 힐링 코스')",
+  "targetCity": "Main city or region in Korea (e.g., '부산', '수원', '제주', '강릉', '거제', '서울')",
+  "cleanKeyword": "Precise search keyword for TourAPI (e.g., '해운대 광안리', '수원화성 행궁동', '성산일출봉')",
+  "days": ${days},
+  "summary": "Warm, engaging, and detailed recommendation overview in the requested user language (${lang})",
+  "dailySchedules": [
+    {
+      "day": 1,
+      "theme": "Theme of the day (e.g., '오션뷰 산책과 대표 랜드마크')",
+      "placeNames": ["Accurate Korean Landmark Name 1", "Accurate Korean Landmark Name 2"],
+      "foodRecommendation": {
+        "dishName": "Local specialty food name",
+        "description": "Brief description of why this food is iconic"
+      },
+      "tips": "Practical tip for this day (transportation, photography spot, or timing)"
+    }
+  ]
 }`;
 
-  const promptText = `User input: ${JSON.stringify(rawPrompt)}. Target city: ${targetCity}, duration: ${days} days, theme: ${theme}. Generate JSON.`;
+  const promptText = `User input: ${JSON.stringify(rawPrompt)}. Target city: ${targetCity}, duration: ${days} days, language: ${lang}. Generate rich structured JSON.`;
 
   const apiUrls = [
-    'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent',
-    'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent'
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent',
+    'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent'
   ];
 
   for (const apiKey of candidateKeys) {
     for (const baseUrl of apiUrls) {
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 8000);
+        const timeoutId = setTimeout(() => controller.abort(), 9000);
 
         const res = await fetch(`${baseUrl}?key=${apiKey}`, {
           method: 'POST',
@@ -208,79 +200,131 @@ Strictly return ONLY valid JSON matching this schema:
           const data = await res.json();
           const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
           if (rawText) {
-            let cleanText = rawText.trim().replace(/```json/gi, '').replace(/```/g, '').trim();
+            let cleanText = sanitizeGeminiOutput(rawText);
             const parsed = JSON.parse(cleanText);
-            if (parsed && parsed.summary) {
-              console.log(`[Gemini AI Router] ⚡ 1순위 Gemini API 정품 라이브 수신 성공!`);
-              const liveSpots = await fetchDynamicRealtimeSpots(parsed.cleanKeyword || rawPrompt, lang);
 
-              const dailySchedules = [];
-              const dailyPlaces = [];
-              for (let d = 0; d < days; d++) {
-                const spotA = liveSpots[d * 2] || liveSpots[0];
-                const spotB = liveSpots[d * 2 + 1];
+            if (parsed && (parsed.summary || parsed.dailySchedules)) {
+              console.log(`[Gemini AI Engine] ⚡ Gemini API live response parsed successfully!`);
+
+              const resolvedCity = parsed.targetCity || targetCity || '대한민국';
+              const resolvedDays = parsed.days || days || 3;
+              const searchKeyword = parsed.cleanKeyword || resolvedCity || rawPrompt;
+
+              // ⚡ 100% TourAPI PK (contentId) Synchronized Mapping
+              // Query TourAPI 4.0 for authentic spots with official contentId, GPS coords, and images
+              const [liveSpots, pinpointSpots] = await Promise.all([
+                fetchDynamicRealtimeSpots(searchKeyword, lang).catch(() => []),
+                (parsed.dailySchedules && Array.isArray(parsed.dailySchedules))
+                  ? fetchPinpointLandmarkSpots(parsed.dailySchedules.flatMap(ds => ds.placeNames || []), lang).catch(() => [])
+                  : Promise.resolve([])
+              ]);
+
+              // Merge authentic TourAPI spots while strictly preserving PK (contentId)
+              const spotMap = new Map();
+              [...pinpointSpots, ...liveSpots].forEach(sp => {
+                const pk = String(sp.contentId || sp.id || '');
+                if (pk && !spotMap.has(pk)) {
+                  spotMap.set(pk, sp);
+                }
+              });
+
+              const allAuthenticSpots = Array.from(spotMap.values());
+
+              // Construct Rich Daily Schedules with Authentic TourAPI PK Spot Objects
+              const finalizedSchedules = [];
+              const flatSpotsToRender = [];
+
+              for (let d = 0; d < resolvedDays; d++) {
+                const dayPlan = (parsed.dailySchedules && parsed.dailySchedules[d]) || {};
+                const dayTheme = dayPlan.theme || `${d + 1}일차 - ${resolvedCity} 추천 코스`;
+                
+                // Match 2 spots for this day from TourAPI authenticated pool
+                const spotA = allAuthenticSpots[d * 2] || allAuthenticSpots[0];
+                const spotB = allAuthenticSpots[d * 2 + 1];
+
                 const daySpots = [];
-                const placeNames = [];
-                if (spotA) { placeNames.push(spotA.title); daySpots.push({ ...spotA, id: `${targetCity}-live-${d+1}-1` }); }
-                if (spotB) { placeNames.push(spotB.title); daySpots.push({ ...spotB, id: `${targetCity}-live-${d+1}-2` }); }
-                dailyPlaces.push({ day: d + 1, places: placeNames });
-                dailySchedules.push({
+                if (spotA) {
+                  const spWithDay = { ...spotA, assignedDay: d + 1 };
+                  daySpots.push(spWithDay);
+                  flatSpotsToRender.push(spWithDay);
+                }
+                if (spotB) {
+                  const spWithDay = { ...spotB, assignedDay: d + 1 };
+                  daySpots.push(spWithDay);
+                  flatSpotsToRender.push(spWithDay);
+                }
+
+                finalizedSchedules.push({
                   day: d + 1,
-                  dateLabel: `${d + 1}일차 - ${parsed.targetCity || targetCity} 명소 코스`,
-                  city: parsed.targetCity || targetCity,
+                  dateLabel: `${d + 1}일차: ${dayTheme}`,
+                  city: resolvedCity,
+                  theme: dayTheme,
                   weather: { temp: '23°C', condition: '맑음 ☀️', rainProbability: '10%', dust: '좋음' },
-                  foodRecommendation: { dishName: `${parsed.targetCity || targetCity} 지역 대표 미식`, restaurantName: '한국관광공사 인증 대표 맛집', description: '지역 특산물로 요리한 정품 대표 미식' },
+                  foodRecommendation: dayPlan.foodRecommendation || {
+                    dishName: `${resolvedCity} 로컬 대표 미식`,
+                    description: '현지 고유의 맛을 느낄 수 있는 대표 요리'
+                  },
+                  tips: dayPlan.tips || `${resolvedCity} 명소 간 이동 동선이 편리합니다.`,
                   spots: daySpots
                 });
               }
 
               return {
-                targetCity: parsed.targetCity || targetCity,
-                days,
+                targetCity: resolvedCity,
+                days: resolvedDays,
                 theme,
                 isHelpQuery: isHelp,
                 isUnknownPlace: parsed.isUnknownPlace || false,
                 isFallbackMode: false,
                 engineMode: 'GEMINI_AI',
-                tripTitle: `'${parsed.cleanKeyword || parsed.targetCity || targetCity}' ${days}일 맞춤 대화 코스`,
+                tripTitle: parsed.tripTitle || `'${resolvedCity}' ${resolvedDays}일 맞춤 추천 코스`,
                 aiRecommendationSummary: parsed.summary,
-                dailySchedules,
-                dailyPlaces,
-                spots: liveSpots && liveSpots.length > 0 ? liveSpots : [],
-                agodaUrl: getAgodaHotelSearchUrl(parsed.targetCity || targetCity),
-                klookUrl: getKlookActivitySearchUrl(parsed.targetCity || targetCity)
+                dailySchedules: finalizedSchedules,
+                dailyPlaces: finalizedSchedules.map(ds => ({ day: ds.day, places: ds.spots.map(s => s.title) })),
+                spots: flatSpotsToRender.length > 0 ? flatSpotsToRender : allAuthenticSpots,
+                agodaUrl: getAgodaHotelSearchUrl(resolvedCity),
+                klookUrl: getKlookActivitySearchUrl(resolvedCity)
               };
             }
           }
         }
       } catch (err) {
-        // Safe fallback to local engine
+        // Proceed to next endpoint or key rotation
       }
     }
   }
 
+  // Graceful Fallback with Authentic TourAPI Public Data
   return generateLocalFallbackItinerary(rawPrompt, lang);
 }
 
 /**
- * ⚡ Master Local Fallback Generator Engine (Zero API Dependency, 100% Dynamic TourAPI Sync)
+ * ⚡ Master Local Fallback Generator Engine (Zero API Dependency, 100% TourAPI PK Sync)
  */
 export async function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
-  const targetCity = extractLocationKeyword(rawPrompt);
+  const targetCity = extractLocationKeyword(rawPrompt) || '대한민국';
   let days = 3;
-  if (/(5일|4박\s*5일|5박|5d)/i.test(rawPrompt)) days = 5;
-  else if (/(4일|3박\s*4일|4박|4d)/i.test(rawPrompt)) days = 4;
-  else if (/(3일|2박\s*3일|3박|3d)/i.test(rawPrompt)) days = 3;
-  else if (/(2일|1박\s*2일|2박|2d)/i.test(rawPrompt)) days = 2;
-  else if (/(1일|당일|1박)/i.test(rawPrompt)) days = 1;
+  if (/(5일|4박\s*5일|5박|5d|5\s*days)/i.test(rawPrompt)) days = 5;
+  else if (/(4일|3박\s*4일|4박|4d|4\s*days)/i.test(rawPrompt)) days = 4;
+  else if (/(3일|2박\s*3일|3박|3d|3\s*days)/i.test(rawPrompt)) days = 3;
+  else if (/(2일|1박\s*2일|2박|2d|2\s*days)/i.test(rawPrompt)) days = 2;
+  else if (/(1일|당일|1박|1d|1\s*day)/i.test(rawPrompt)) days = 1;
 
-  // ⚡ 100% Realtime Public DB Fetch with Smart Memory Caching
-  let targetSpots = await fetchDynamicRealtimeSpots(rawPrompt, lang);
-  const baseStory = buildStorySummaryText(rawPrompt, targetCity, days, targetSpots);
-  const storyText = `[📢 AI 네트워크 보완 모드 (공공 DB 라이브 탐색 엔진)]\n${baseStory}`;
+  // ⚡ 100% Realtime Public DB Fetch with Smart TourAPI PK Binding
+  let targetSpots = await fetchDynamicRealtimeSpots(rawPrompt, lang).catch(() => []);
+  if (!targetSpots || targetSpots.length === 0) {
+    targetSpots = await fetchDynamicRealtimeSpots(targetCity, lang).catch(() => []);
+  }
+
+  const spotTitles = targetSpots.map(s => s.title).filter(Boolean);
+  let summaryText = `[📢 AI 네트워크 보완 모드 (공공 DB 라이브 탐색 엔진)]\n'${targetCity}'에서 가깝게 둘러볼 수 있는 한국관광공사 공공 정품 명소 중심의 ${days}일 맞춤 코스입니다.`;
+  if (spotTitles.length > 0) {
+    summaryText += `\n\n주요 추천 명소: ${spotTitles.slice(0, 4).join(', ')}`;
+  }
 
   const dailyPlaces = [];
   const dailySchedules = [];
+  const flatSpots = [];
 
   for (let d = 0; d < days; d++) {
     const daySpots = [];
@@ -289,37 +333,29 @@ export async function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
     const spotB = targetSpots[d * 2 + 1];
 
     if (spotA) {
-      placeNames.push(spotA.title);
-      daySpots.push({
-        id: spotA.contentId || `${targetCity}-spot-${d + 1}-1`,
-        contentId: spotA.contentId,
-        searchKeyword: spotA.searchKeyword || spotA.title.split('&')[0].trim(),
-        title: spotA.title,
-        location: spotA.location,
-        lat: spotA.lat,
-        lng: spotA.lng,
-        rating: spotA.rating,
-        tags: spotA.tags,
-        image: spotA.image || 'http://tong.visitkorea.or.kr/cms/resource/35/2785035_image2_1.jpg',
+      const spA = {
+        ...spotA,
+        id: String(spotA.contentId || spotA.id || `${targetCity}-spot-${d + 1}-1`),
+        contentId: String(spotA.contentId || spotA.id || ''),
+        assignedDay: d + 1,
         isInstagramHotspot: true
-      });
+      };
+      placeNames.push(spA.title);
+      daySpots.push(spA);
+      flatSpots.push(spA);
     }
 
     if (spotB) {
-      placeNames.push(spotB.title);
-      daySpots.push({
-        id: spotB.contentId || `${targetCity}-spot-${d + 1}-2`,
-        contentId: spotB.contentId,
-        searchKeyword: spotB.searchKeyword || spotB.title.split('&')[0].trim(),
-        title: spotB.title,
-        location: spotB.location,
-        lat: spotB.lat,
-        lng: spotB.lng,
-        rating: spotB.rating,
-        tags: spotB.tags,
-        image: spotB.image || 'http://tong.visitkorea.or.kr/cms/resource/35/2785035_image2_1.jpg',
+      const spB = {
+        ...spotB,
+        id: String(spotB.contentId || spotB.id || `${targetCity}-spot-${d + 1}-2`),
+        contentId: String(spotB.contentId || spotB.id || ''),
+        assignedDay: d + 1,
         isInstagramHotspot: true
-      });
+      };
+      placeNames.push(spB.title);
+      daySpots.push(spB);
+      flatSpots.push(spB);
     }
 
     dailyPlaces.push({
@@ -329,14 +365,15 @@ export async function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
 
     dailySchedules.push({
       day: d + 1,
-      dateLabel: `${d + 1}일차 - ${targetCity} 명소 코스`,
+      dateLabel: `${d + 1}일차 - ${targetCity} 대표 명소`,
       city: targetCity,
+      theme: `${targetCity} 대표 랜드마크 & 힐링`,
       weather: { temp: '23°C', condition: '맑음 ☀️', rainProbability: '10%', dust: '좋음' },
       foodRecommendation: {
         dishName: `${targetCity} 지역 대표 미식`,
-        restaurantName: '한국관광공사 인증 대표 맛집',
         description: '지역 특산물로 요리한 정품 대표 미식'
       },
+      tips: '대중교통 및 도보 이동이 편리한 동선입니다.',
       spots: daySpots
     });
   }
@@ -344,13 +381,15 @@ export async function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
   return {
     targetCity,
     days,
-    tripTitle: `${targetCity} 맞춤 추천 코스`,
-    aiRecommendationSummary: storyText,
+    tripTitle: `${targetCity} ${days}일 맞춤 추천 코스`,
+    aiRecommendationSummary: summaryText,
     dailyPlaces,
     dailySchedules,
-    spots: targetSpots || [],
+    spots: flatSpots.length > 0 ? flatSpots : targetSpots,
     isUnknownPlace: false,
     isFallbackMode: true,
-    engineMode: 'LOCAL_SAFE'
+    engineMode: 'LOCAL_SAFE',
+    agodaUrl: getAgodaHotelSearchUrl(targetCity),
+    klookUrl: getKlookActivitySearchUrl(targetCity)
   };
 }
