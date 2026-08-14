@@ -58,14 +58,15 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     }
   ]);
 
+  const [selectedMsgId, setSelectedMsgId] = useState(null);
   const [inputPrompt, setInputPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const chatEndRef = useRef(null);
 
   // Get Currently Selected AI Spot Message for PC Right Fixed Panel (Strict 1:1 Message Sync)
-  const activeSpotMessage = chatHistory.find(m => m.id === selectedMsgId && m.sender === 'vora') ||
-    chatHistory.slice().reverse().find(m => m.sender === 'vora');
+  const activeSpotMessage = (selectedMsgId && chatHistory.find(m => m.id === selectedMsgId && m.sender === 'vora' && m.spots && m.spots.length > 0)) ||
+    chatHistory.slice().reverse().find(m => m.sender === 'vora' && m.spots && m.spots.length > 0);
 
   // Auto-scroll to bottom of chat
   useEffect(() => {
