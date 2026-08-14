@@ -14,7 +14,8 @@ export const GEMINI_KEY_POOL = [
   import.meta.env.VITE_GEMINI_FREE_KEY,
   import.meta.env.VITE_GEMINI_PAID_KEY,
   import.meta.env.VITE_GEMINI_KEY,
-  'AQ.Ab8RN6KwKIdJmZ8x8OgJtXcdCFJnvw6lusi3ZiuWAwFLdqsexg'
+  'AQ.Ab8RN6KwKIdJmZ8x8OgJtXcdCFJnvw6lusi3ZiuWAwFLdqsexg',
+  'AQ.Ab8RN6LhKxJi5EUjbuDedS3vLY8v5UFd6QnV4dCzQy2anZ9-QQ'
 ].filter(k => k && typeof k === 'string' && k.trim().length > 5);
 
 export function getAllGeminiApiKeys() {
@@ -146,21 +147,30 @@ export async function geminiGenerateFullItinerary(rawPrompt, arg2 = 'ko', maybeD
     };
   }
 
+  // 해당 세부 지역을 기준으로 가장 가깝고 이동하기 좋은 주변 명소 동선 v1
   const candidateKeys = getAllGeminiApiKeys();
   const systemInstruction = `You are Vora AI, an elite South Korean travel planner and expert concierge.
 Your goal is to understand the user's travel destination, duration, companion style, and preferences, and generate a structured multi-day travel itinerary.
+
+[CRITICAL SUB-DISTRICT & PROXIMITY RESOLUTION RULES]
+1. If the user specifies a neighborhood, dong, station, or sub-district in Korea (e.g. '영통', '광교', '인계동', '판교', '성수동', '사당', '해운대', '월미도', '애월', '서귀포', '황리단길'):
+   - NEVER reject the query or say it is an unknown place.
+   - Resolve it to its parent Korean administrative city (e.g. '영통' -> targetCity: '수원', '판교' -> targetCity: '성남', '성수동' -> targetCity: '서울', '해운대' -> targetCity: '부산').
+   - Set cleanKeyword to include both the specific sub-area and parent city for accurate TourAPI matching (e.g. '영통 광교 수원', '해운대 부산').
+   - Recommend authentic nearby attractions starting from that specific sub-location in optimal proximity and travel route order (e.g. For '영통': 광교호수공원, 수원화성, 행리단길, 방화수류정).
+
 Strictly return ONLY valid JSON matching this schema:
 {
   "isUnknownPlace": false,
-  "tripTitle": "Engaging and creative trip title (e.g., '부산 바다와 미식을 즐기는 3일 힐링 코스')",
-  "targetCity": "Main city or region in Korea (e.g., '부산', '수원', '제주', '강릉', '거제', '서울')",
-  "cleanKeyword": "Precise search keyword for TourAPI (e.g., '해운대 광안리', '수원화성 행궁동', '성산일출봉')",
+  "tripTitle": "Engaging and creative trip title (e.g., '수원 영통 & 광교 중심 3일 힐링 코스')",
+  "targetCity": "Main city or region in Korea (e.g., '수원', '부산', '제주', '강릉', '거제', '서울')",
+  "cleanKeyword": "Precise search keyword for TourAPI (e.g., '영통 광교 수원', '해운대 광안리', '수원화성 행궁동')",
   "days": ${days},
-  "summary": "Warm, engaging, and detailed recommendation overview in the requested user language (${lang})",
+  "summary": "Warm, engaging, and detailed recommendation overview in the requested user language (${lang}) explaining the proximity route starting from the requested sub-area",
   "dailySchedules": [
     {
       "day": 1,
-      "theme": "Theme of the day (e.g., '오션뷰 산책과 대표 랜드마크')",
+      "theme": "Theme of the day (e.g., '영통 중심 호수산책과 랜드마크 코스')",
       "placeNames": ["Accurate Korean Landmark Name 1", "Accurate Korean Landmark Name 2"],
       "foodRecommendation": {
         "dishName": "Local specialty food name",
@@ -173,11 +183,11 @@ Strictly return ONLY valid JSON matching this schema:
 
   const promptText = `User input: ${JSON.stringify(rawPrompt)}. Target city: ${targetCity}, duration: ${days} days, language: ${lang}. Generate rich structured JSON.`;
 
+  // Gemini API 단일 x-goog-api-key 헤더 적용 및 무료-유료 키 무중단 순차 전환 풀 구축. v1
   const apiUrls = [
     'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
     'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent',
-    'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent',
-    'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent'
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent'
   ];
 
   for (const apiKey of candidateKeys) {
@@ -186,9 +196,13 @@ Strictly return ONLY valid JSON matching this schema:
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 9000);
 
-        const res = await fetch(`${baseUrl}?key=${apiKey}`, {
+        // 단일 x-goog-api-key 헤더 인증 (다중 인증 충돌 100% 방지)
+        const res = await fetch(baseUrl, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': apiKey
+          },
           signal: controller.signal,
           body: JSON.stringify({
             contents: [{ parts: [{ text: `${systemInstruction}\n\n${promptText}` }] }]
