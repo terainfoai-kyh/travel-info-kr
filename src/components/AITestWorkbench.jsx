@@ -281,149 +281,38 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     else if (/(1일|당일|1박)/i.test(query)) days = 1;
 
     try {
-      const [aiBriefing, rawSpotsInitial] = await Promise.all([
-        geminiGenerateFullItinerary(query, lang).catch(() => {
-          const fb = generateLocalFallbackItinerary(query, lang);
-          return {
-            targetCity: fb.targetCity || initialCity,
-            aiRecommendationSummary: fb.aiRecommendationSummary,
-            dailyPlaces: (fb.dailySchedules || []).map(ds => ({
-              day: ds.day,
-              places: (ds.spots || []).map(s => s.title)
-            })),
-            isUnknownPlace: false
-          };
-        }),
-        (initialCity && initialCity !== '전국')
-          ? fetchTourSpots({ region: initialCity, lang }).catch(() => [])
-          : Promise.resolve([])
-      ]);
-
+      // 100% Pure Vora AI (Gemini 1.5) & Master Gazetteer Catalog Direct Binding Engine (Zero TourAPI Interference)
+      const aiBriefing = await geminiGenerateFullItinerary(query, lang).catch(() => generateLocalFallbackItinerary(query, lang));
       logAnalyticsEvent('CHAT', { inputTokens: 120, outputTokens: 350 });
 
       let spotsToRender = [];
       let agodaUrl = null;
       let klookUrl = null;
-      let displayCity = aiBriefing?.targetCity || initialCity;
+      let displayCity = aiBriefing?.targetCity || initialCity || extractLocationKeyword(query) || '추천';
       const isUnknownPlace = aiBriefing?.isUnknownPlace || false;
 
       if (!isMeta && !isUnknownPlace) {
-        const summaryText = aiBriefing?.aiRecommendationSummary || '';
-
-        if (displayCity === '전국') {
-          const inferredCity = extractLocationKeyword(summaryText);
-          if (inferredCity && inferredCity !== '전국') {
-            displayCity = inferredCity;
-          } else {
-            displayCity = '추천';
-          }
+        // Direct extraction of spots from Gemini dailySchedules
+        const directDailySchedules = aiBriefing?.dailySchedules || [];
+        if (directDailySchedules.length > 0) {
+          spotsToRender = directDailySchedules.flatMap(ds => 
+            (ds.spots || []).map(sp => ({
+              ...sp,
+              assignedDay: ds.day || 1
+            }))
+          );
         }
 
-        let rawSpots = rawSpotsInitial || [];
-        if (rawSpots.length === 0 && displayCity !== '전국' && displayCity !== '추천') {
-          rawSpots = await fetchTourSpots({ region: displayCity, lang }).catch(() => []);
-        }
-
-        const dayExtractedMap = new Map();
-        const allLandmarkNames = new Set();
-        for (let d = 1; d <= days; d++) dayExtractedMap.set(d, []);
-
-        const dailyPlaces = aiBriefing?.dailyPlaces || [];
-        if (dailyPlaces && dailyPlaces.length > 0) {
-          for (const item of dailyPlaces) {
-            const dayNum = Math.min(days, Math.max(1, item.day || 1));
-            const places = item.places || [];
-            const currentList = dayExtractedMap.get(dayNum) || [];
-
-            for (let placeName of places) {
-              if (typeof placeName === 'string') {
-                placeName = placeName.trim();
-                placeName = placeName.replace(/^(수원|창원|경남|부산|서울|인천|강원|제주|전남|전북|충남|충북)\s+/, '').trim();
-                if (placeName.length >= 2 && !allLandmarkNames.has(placeName)) {
-                  allLandmarkNames.add(placeName);
-                  currentList.push({ name: placeName });
-                }
-              }
-            }
-            dayExtractedMap.set(dayNum, currentList);
-          }
-        }
-
-        const landmarkNamesList = Array.from(allLandmarkNames);
-        const pinpointResults = await fetchPinpointLandmarkSpots(landmarkNamesList, lang).catch(() => []);
-        const pinpointMap = new Map();
-        for (const pSpot of pinpointResults) {
-          if (pSpot && pSpot.title) {
-            pinpointMap.set(pSpot.title.toLowerCase(), pSpot);
-            for (const lmName of landmarkNamesList) {
-              const cleanLm = lmName.replace(/\s+/g, '').toLowerCase();
-              const cleanTitle = (pSpot.title || '').replace(/\s+/g, '').toLowerCase();
-              if (cleanTitle && (cleanTitle.includes(cleanLm) || cleanLm.includes(cleanTitle))) {
-                pinpointMap.set(lmName.toLowerCase(), pSpot);
-              }
-            }
-          }
-        }
-
-        let sequentialSpots = [];
-        const addedTitles = new Set();
-
-        for (let d = 1; d <= days; d++) {
-          const itemsForDay = dayExtractedMap.get(d) || [];
-          for (const item of itemsForDay) {
-            const nameLower = item.name.toLowerCase();
-            let matchedSpot = pinpointMap.get(nameLower);
-
-            if (!matchedSpot) {
-              const cleanItemName = nameLower.replace(/\s+/g, '');
-              matchedSpot = rawSpots.find(s => {
-                const sClean = (s?.title || '').replace(/\s+/g, '').toLowerCase();
-                return sClean && (sClean.includes(cleanItemName) || cleanItemName.includes(sClean));
-              });
-            }
-
-            if (matchedSpot) {
-              if (matchedSpot.title && !addedTitles.has(matchedSpot.title)) {
-                addedTitles.add(matchedSpot.title);
-                sequentialSpots.push({
-                  ...matchedSpot,
-                  assignedDay: d
-                });
-              }
-            } else {
-              if (!addedTitles.has(item.name)) {
-                addedTitles.add(item.name);
-                sequentialSpots.push({
-                  id: `syn-${Date.now()}-${item.name}`,
-                  title: item.name,
-                  location: `${displayCity} 추천 장소`,
-                  addr1: `${displayCity} ${d}일차 명소`,
-                  assignedDay: d,
-                  isQuoted: true
-                });
-              }
-            }
-          }
-        }
-
-        if (isUnknownPlace) {
-          spotsToRender = [];
-        } else {
-          if (sequentialSpots.length === 0 && displayCity !== '전국' && displayCity !== '추천') {
-            // [Fix & Safety] Completely eliminated rawSpots fallback (Gabojong Galbi, Gawon, etc.)
-            // Always rely on 100% authentic landmarks from generateLocalFallbackItinerary
-            const localFallback = generateLocalFallbackItinerary(query, lang);
-            const fallbackSpots = (localFallback.dailySchedules || []).flatMap(ds => 
-              (ds.spots || []).map(sp => ({
-                ...sp,
-                assignedDay: ds.day || 1
-              }))
-            );
-            if (fallbackSpots.length > 0) {
-              sequentialSpots = fallbackSpots;
-            }
-          }
-          spotsToRender = sequentialSpots;
+        // Safety fallback if LLM response returned zero spots
+        if (spotsToRender.length === 0) {
+          const fallbackResult = generateLocalFallbackItinerary(query, lang);
+          displayCity = fallbackResult.targetCity || displayCity;
+          spotsToRender = (fallbackResult.dailySchedules || []).flatMap(ds => 
+            (ds.spots || []).map(sp => ({
+              ...sp,
+              assignedDay: ds.day || 1
+            }))
+          );
         }
 
         agodaUrl = isUnknownPlace ? null : getAgodaHotelSearchUrl(displayCity);
