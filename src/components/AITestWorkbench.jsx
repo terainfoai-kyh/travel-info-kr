@@ -281,7 +281,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     else if (/(1일|당일|1박)/i.test(query)) days = 1;
 
     try {
-      // 100% Pure Vora AI (Gemini 1.5) & Master Gazetteer Catalog Direct Binding Engine (Zero TourAPI Interference)
+      // Clean Architecture: Guaranteed Single Atomic Tuple Result
       const aiBriefing = await geminiGenerateFullItinerary(query, lang).catch(() => generateLocalFallbackItinerary(query, lang));
       logAnalyticsEvent('CHAT', { inputTokens: 120, outputTokens: 350 });
 
@@ -292,11 +292,18 @@ export default function AITestWorkbench({ lang = 'ko' }) {
       const isUnknownPlace = aiBriefing?.isUnknownPlace || false;
 
       if (!isMeta && !isUnknownPlace) {
-        // Direct extraction of spot names from Gemini dailyPlaces
-        const dailyPlaces = aiBriefing?.dailyPlaces || [];
-        if (dailyPlaces.length > 0) {
+        // Priority 1: If dailySchedules with spot objects exist (from fallback/catalog), use them directly
+        if (aiBriefing?.dailySchedules && aiBriefing.dailySchedules.length > 0) {
+          spotsToRender = aiBriefing.dailySchedules.flatMap(ds => 
+            (ds.spots || []).map(sp => ({
+              ...sp,
+              assignedDay: ds.day || 1
+            }))
+          );
+        } else if (aiBriefing?.dailyPlaces && aiBriefing.dailyPlaces.length > 0) {
+          // Priority 2: If LLM returned dailyPlaces with landmark name strings, map them cleanly
           let daySpotIdx = 1;
-          for (const dp of dailyPlaces) {
+          for (const dp of aiBriefing.dailyPlaces) {
             const dayNum = dp.day || 1;
             const placeNames = dp.places || [];
             for (const pName of placeNames) {
@@ -314,7 +321,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
           }
         }
 
-        // Safety fallback if LLM response returned zero spots: MANDATORY Single Source of Truth!
+        // Priority 3: Safety Fallback if spotsToRender is still empty
         if (spotsToRender.length === 0) {
           const fallbackResult = generateLocalFallbackItinerary(query, lang);
           displayCity = fallbackResult.targetCity || displayCity;
@@ -352,34 +359,7 @@ export default function AITestWorkbench({ lang = 'ko' }) {
       }
 
     } catch (err) {
-      console.warn('Pipeline execution error fallback, engaging local fallback generator:', err);
-      const fallbackResult = generateLocalFallbackItinerary(query, lang);
-      const fallbackCity = initialCity && initialCity !== '전국' ? initialCity : (fallbackResult.targetCity || '추천');
-      const voraMsgId = `vora-${Date.now()}`;
-
-      // Extract 100% clean spots from fallbackResult dailySchedules
-      const fallbackSpots = (fallbackResult.dailySchedules || []).flatMap(ds => 
-        (ds.spots || []).map(sp => ({
-          ...sp,
-          assignedDay: ds.day || 1
-        }))
-      );
-
-      const voraResponse = {
-        id: voraMsgId,
-        sender: 'vora',
-        text: fallbackResult.aiRecommendationSummary || `안녕하세요! 여행 조력자 보라입니다. 😊 '${fallbackCity}' 힐링 코스를 추천해 드립니다!`,
-        timestamp: new Date().toLocaleTimeString(),
-        targetCity: fallbackCity,
-        days: fallbackResult.days || days,
-        spots: fallbackSpots,
-        agodaUrl: getAgodaHotelSearchUrl(fallbackCity),
-        klookUrl: getKlookActivitySearchUrl(fallbackCity)
-      };
-
-      setChatHistory(prev => [...prev, voraResponse]);
-      setSelectedMsgId(voraMsgId);
-      if (voraMsgId) setExpandedMobileMsgs(prev => ({ ...prev, [voraMsgId]: true }));
+      console.warn('Pipeline execution error fallback:', err);
     } finally {
       setIsLoading(false);
     }
