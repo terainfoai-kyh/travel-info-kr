@@ -441,3 +441,87 @@ function parseGeminiJsonResponse(rawText, greetingPrefix, defaultCity, defaultDa
   }
 }
 
+/**
+ * 7. Master Local Fallback Generator Engine (Zero API Dependency, 100% Spot Sync)
+ */
+export function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
+  const targetCity = extractLocationKeyword(rawPrompt);
+  let days = 3;
+  if (/(5일|4박\s*5일|5박|5d)/i.test(rawPrompt)) days = 5;
+  else if (/(4일|3박\s*4일|4박|4d)/i.test(rawPrompt)) days = 4;
+  else if (/(3일|2박\s*3일|3박|3d)/i.test(rawPrompt)) days = 3;
+  else if (/(2일|1박\s*2일|2박|2d)/i.test(rawPrompt)) days = 2;
+  else if (/(1일|당일|1박)/i.test(rawPrompt)) days = 1;
+
+  const targetSpots = getGazetteerSpots(targetCity);
+  const storyText = buildStorySummaryText(targetCity, days, targetSpots);
+
+  const dailyPlaces = [];
+  const dailySchedules = [];
+
+  for (let d = 0; d < days; d++) {
+    const daySpots = [];
+    const placeNames = [];
+    const spotA = targetSpots[d * 2] || targetSpots[0];
+    const spotB = targetSpots[d * 2 + 1];
+
+    if (spotA) {
+      placeNames.push(spotA.title);
+      daySpots.push({
+        id: `${targetCity}-spot-${d + 1}-1`,
+        title: spotA.title,
+        location: spotA.location,
+        lat: spotA.lat,
+        lng: spotA.lng,
+        rating: spotA.rating,
+        tags: spotA.tags,
+        image: spotA.image || 'http://tong.visitkorea.or.kr/cms/resource/35/2785035_image2_1.jpg',
+        isInstagramHotspot: true
+      });
+    }
+
+    if (spotB) {
+      placeNames.push(spotB.title);
+      daySpots.push({
+        id: `${targetCity}-spot-${d + 1}-2`,
+        title: spotB.title,
+        location: spotB.location,
+        lat: spotB.lat,
+        lng: spotB.lng,
+        rating: spotB.rating,
+        tags: spotB.tags,
+        image: spotB.image || 'http://tong.visitkorea.or.kr/cms/resource/35/2785035_image2_1.jpg',
+        isInstagramHotspot: true
+      });
+    }
+
+    dailyPlaces.push({
+      day: d + 1,
+      places: placeNames
+    });
+
+    dailySchedules.push({
+      day: d + 1,
+      dateLabel: `${d + 1}일차 - ${targetCity} 명소 코스`,
+      city: targetCity,
+      weather: { temp: '23°C', condition: '맑음 ☀️', rainProbability: '10%', dust: '좋음' },
+      foodRecommendation: {
+        dishName: `${targetCity} 지역 대표 미식`,
+        restaurantName: '한국관광공사 인증 대표 맛집',
+        description: '지역 특산물로 요리한 정품 대표 미식'
+      },
+      spots: daySpots
+    });
+  }
+
+  return {
+    targetCity,
+    days,
+    tripTitle: `${targetCity} 맞춤 추천 코스`,
+    aiRecommendationSummary: storyText,
+    dailyPlaces,
+    dailySchedules,
+    isUnknownPlace: false
+  };
+}
+
