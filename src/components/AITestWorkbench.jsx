@@ -58,7 +58,6 @@ export default function AITestWorkbench({ lang = 'ko' }) {
     }
   ]);
 
-  const [selectedMsgId, setSelectedMsgId] = useState(null);
   const [inputPrompt, setInputPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
