@@ -16,6 +16,12 @@ export default function App() {
   const [lang, setLang] = useState(detectBrowserLanguage());
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
 
+  const [filters, setFilters] = useState({
+    region: '전국',
+    theme: '전체',
+    days: 3
+  });
+
   // Modals & Drawers state
   const [isItineraryOpen, setIsItineraryOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
