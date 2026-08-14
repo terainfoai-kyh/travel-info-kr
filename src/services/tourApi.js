@@ -304,7 +304,7 @@ export async function fetchTourSpots({
   age = '전체', 
   gender = '무관', 
   keyword = '', 
-  arrange = 'O',
+  arrange = 'B',
   apiServiceType = 'area',
   startDate = '',
   lang = 'ko'
@@ -416,22 +416,16 @@ export async function fetchTourSpots({
           if (isAttractionB && !isAttractionA) return 1;
         }
 
-        if (arrange === 'O') {
-          const titleA = String(a.title || a.crsNm || a.themeNm || a.spotNm || '');
-          const titleB = String(b.title || b.crsNm || b.themeNm || b.spotNm || '');
-          return titleA.localeCompare(titleB, 'ko-KR');
-        }
+        // [Fix & Safety] Completely eliminated legacy localeCompare alphabetical sorting ('O')
+        // Always prioritize image quality and popularity (readcount)
+        const hasImgA = !!(a.firstimage || a.firstimage2);
+        const hasImgB = !!(b.firstimage || b.firstimage2);
+        if (hasImgA && !hasImgB) return -1;
+        if (!hasImgA && hasImgB) return 1;
 
-        if (arrange === 'A' || arrange === 'B') {
-          const hasImgA = !!(a.firstimage || a.firstimage2);
-          const hasImgB = !!(b.firstimage || b.firstimage2);
-          if (hasImgA && !hasImgB) return -1;
-          if (!hasImgA && hasImgB) return 1;
-
-          const countA = parseInt(a.readcount || 0, 10);
-          const countB = parseInt(b.readcount || 0, 10);
-          if (countA !== countB) return countB - countA;
-        }
+        const countA = parseInt(a.readcount || 0, 10);
+        const countB = parseInt(b.readcount || 0, 10);
+        if (countA !== countB) return countB - countA;
 
         return 0;
       });
