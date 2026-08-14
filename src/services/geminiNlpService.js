@@ -183,13 +183,13 @@ Strictly return ONLY valid JSON matching this schema:
 
   const promptText = `User input: ${JSON.stringify(rawPrompt)}. Target city: ${targetCity}, duration: ${days} days, language: ${lang}. Generate rich structured JSON.`;
 
-  // Gemini API 통신 100% 뚫기 및 상세 진단 로그 탑재. v1
+  // 구글 2026 최신 공식 모델(gemini-2.5-flash, gemini-2.5-pro)로 모델 엔드포인트 교체 및 통신 개통. v1
   const modelNames = [
-    'gemini-1.5-flash',
-    'gemini-2.0-flash',
-    'gemini-1.5-flash-latest',
-    'gemini-1.5-pro',
-    'gemini-2.0-flash-exp'
+    'gemini-2.5-flash',
+    'gemini-2.5-pro',
+    'gemini-1.5-flash-002',
+    'gemini-1.5-pro-002',
+    'gemini-1.5-flash-8b'
   ];
 
   for (const apiKey of candidateKeys) {
