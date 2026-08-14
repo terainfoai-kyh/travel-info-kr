@@ -445,6 +445,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                 </div>
               );
             })()}
+          </div>
           {/* Instagram Hotspot & Live Photo Gallery Section */}
           <div style={{
             marginBottom: '2rem',
