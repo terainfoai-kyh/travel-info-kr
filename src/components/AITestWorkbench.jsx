@@ -64,9 +64,8 @@ export default function AITestWorkbench({ lang = 'ko' }) {
   const [isListening, setIsListening] = useState(false);
   const chatEndRef = useRef(null);
 
-  // Get Currently Selected AI Spot Message for PC Right Fixed Panel (Strict 1:1 Message Sync)
-  const activeSpotMessage = (selectedMsgId && chatHistory.find(m => m.id === selectedMsgId && m.sender === 'vora' && m.spots && m.spots.length > 0)) ||
-    chatHistory.slice().reverse().find(m => m.sender === 'vora' && m.spots && m.spots.length > 0);
+  // PC Right Fixed Panel placeholder
+  const activeSpotMessage = null;
 
   // Auto-scroll to bottom of chat
   useEffect(() => {
