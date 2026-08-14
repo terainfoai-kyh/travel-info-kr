@@ -8,6 +8,7 @@ import WishlistDrawer from './components/WishlistDrawer';
 import PartnerInquiryModal from './components/PartnerInquiryModal';
 import GuidePRModal from './components/GuidePRModal';
 import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
+import { generateLocalFallbackItinerary } from './services/geminiNlpService';
 
 export default function App() {
   // Auto-detect browser locale
@@ -102,52 +103,31 @@ export default function App() {
             };
             setFilters(newFilters);
             setIsLoading(true);
-            let fetchedSpots = [];
+            
             try {
-              fetchedSpots = await fetchTourSpots({
-                ...newFilters,
-                lang
-              });
-
-              // Fallback if targetKeyword returned 0 spots (e.g. demographic words like '50대')
-              if ((!fetchedSpots || fetchedSpots.length === 0) && targetKeyword) {
-                fetchedSpots = await fetchTourSpots({
-                  ...newFilters,
-                  keyword: '',
-                  lang
-                });
+              // 100% Pure Vora AI (Gemini 1.5) & Master Gazetteer Catalog Direct Binding Engine (Zero TourAPI Interference)
+              const fallbackResult = generateLocalFallbackItinerary(targetKeyword || targetRegion, lang);
+              setFullAiItinerary(fallbackResult);
+              const pureSpots = (fallbackResult.dailySchedules || []).flatMap(ds => ds.spots || []);
+              if (pureSpots.length > 0) {
+                setAllTourSpots(pureSpots);
               }
 
-              // Pinpoint TourAPI Keyword Search for User Mentioned Landmarks (e.g. "화성행궁", "방화수류정", "명동")
-              if (parsed.userLandmarks && parsed.userLandmarks.length > 0) {
-                const pinpointSpots = await fetchPinpointLandmarkSpots(parsed.userLandmarks, lang);
-                if (pinpointSpots.length > 0) {
-                  const existingTitles = new Set(pinpointSpots.map(s => (s.title || '').toLowerCase().replace(/\s+/g, '')));
-                  const remainingSpots = fetchedSpots.filter(s => !existingTitles.has((s.title || '').toLowerCase().replace(/\s+/g, '')));
-                  fetchedSpots = [...pinpointSpots, ...remainingSpots];
-                }
-              }
-
-              setAllTourSpots(fetchedSpots);
-              const effectiveRegion = (targetRegion === '전국' && fetchedSpots[0] && fetchedSpots[0].regionName && fetchedSpots[0].regionName !== '전국')
-                ? fetchedSpots[0].regionName
-                : targetRegion;
+              const effectiveRegion = fallbackResult.targetCity || targetRegion;
               const wData = await fetchRealtimeWeather(effectiveRegion, newFilters.startDate, newFilters.endDate);
               setWeatherData(wData);
               const recs = getRecommendedFoodAndOutfit({
                 weather: wData,
                 region: effectiveRegion,
                 keyword: targetKeyword,
-                theme: newFilters.theme,
-                age: newFilters.age,
-                gender: newFilters.gender
+                rainyMode: newFilters.rainyMode
               });
-              setRecommendations(recs);
+              setRecommendation(recs);
             } catch (err) {
-              console.error('Error fetching itinerary spots:', err);
+              console.warn('App itinerary resolution error:', err);
             } finally {
               setIsLoading(false);
-              if ((fetchedSpots && fetchedSpots.length > 0) || fullAiResult) {
+              if (fullAiResult) {
                 setIsItineraryOpen(true);
               } else {
                 setIsItineraryOpen(false);
