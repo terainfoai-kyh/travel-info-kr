@@ -445,6 +445,75 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                 </div>
               );
             })()}
+          {/* Instagram Hotspot & Live Photo Gallery Section */}
+          <div style={{
+            marginBottom: '2rem',
+            padding: '1.25rem',
+            borderRadius: 'var(--radius-lg)',
+            background: 'linear-gradient(135deg, #fdf2f8 0%, #fae8ff 50%, #eff6ff 100%)',
+            border: '1.5px solid #f0abfc',
+            boxShadow: '0 4px 14px rgba(217, 70, 239, 0.12)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+              <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#86198f', margin: 0, display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                <span>🔥 인스타그램 핫플 & 실시간 갤러리</span>
+              </h4>
+              <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#c026d3', background: '#ffffff', padding: '0.2rem 0.6rem', borderRadius: '9999px', border: '1px solid #f0abfc' }}>
+                #포토존 #인생샷 핫플
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap' }}>
+              <a
+                href={`https://www.instagram.com/explore/tags/${encodeURIComponent((displayTitle || spot.title).replace(/\s+/g, ''))}/`}
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  flex: 1,
+                  minWidth: '200px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  padding: '0.75rem 1.1rem',
+                  background: 'linear-gradient(135deg, #ec4899 0%, #833ab4 50%, #fd1d1d 100%)',
+                  color: '#ffffff',
+                  fontWeight: 800,
+                  fontSize: '0.88rem',
+                  borderRadius: '12px',
+                  textDecoration: 'none',
+                  boxShadow: '0 4px 12px rgba(236, 72, 153, 0.3)',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <span>📸 인스타 #{displayTitle || spot.title} 실시간 보기 ↗</span>
+              </a>
+
+              <a
+                href={`https://www.google.com/search?tbm=isch&q=${encodeURIComponent((displayTitle || spot.title) + ' ' + (spot.location || ''))}`}
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  flex: 1,
+                  minWidth: '200px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  padding: '0.75rem 1.1rem',
+                  background: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)',
+                  color: '#ffffff',
+                  fontWeight: 800,
+                  fontSize: '0.88rem',
+                  borderRadius: '12px',
+                  textDecoration: 'none',
+                  boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <span>🔍 구글 실시간 갤러리 감상 ↗</span>
+              </a>
+            </div>
           </div>
 
           {/* Partner Offers & Affiliate Links Block */}

@@ -112,16 +112,36 @@ export default function TourSpotGrid({
                     position: 'absolute',
                     top: '0.75rem',
                     left: '0.75rem',
-                    background: 'rgba(15, 23, 42, 0.75)',
-                    backdropFilter: 'blur(8px)',
-                    color: '#38bdf8',
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
-                    padding: '0.25rem 0.6rem',
-                    borderRadius: 'var(--radius-full)',
-                    border: '1px solid rgba(56, 189, 248, 0.3)'
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.35rem'
                   }}>
-                    {getTranslatedTheme(spot.theme, lang)}
+                    <div style={{
+                      background: 'rgba(15, 23, 42, 0.75)',
+                      backdropFilter: 'blur(8px)',
+                      color: '#38bdf8',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      padding: '0.25rem 0.6rem',
+                      borderRadius: 'var(--radius-full)',
+                      border: '1px solid rgba(56, 189, 248, 0.3)'
+                    }}>
+                      {getTranslatedTheme(spot.theme, lang)}
+                    </div>
+                    <div style={{
+                      background: 'linear-gradient(135deg, #ec4899 0%, #833ab4 100%)',
+                      color: '#ffffff',
+                      fontSize: '0.7rem',
+                      fontWeight: 800,
+                      padding: '0.2rem 0.55rem',
+                      borderRadius: 'var(--radius-full)',
+                      boxShadow: '0 2px 8px rgba(236, 72, 153, 0.35)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.2rem'
+                    }}>
+                      <span>🔥 인스타 핫플</span>
+                    </div>
                   </div>
 
                   {/* Rating Tag */}
