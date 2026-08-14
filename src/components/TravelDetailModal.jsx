@@ -980,6 +980,5 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
           </div>
         </div>
       </div>
-    </div>
   );
 }
