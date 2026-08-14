@@ -38,6 +38,29 @@ export function isValidGeminiKey() {
   return !!(key && key !== 'YOUR_GEMINI_API_KEY' && key.length > 5);
 }
 
+export function geminiParseNaturalPrompt(text) {
+  const city = extractLocationKeyword(text);
+  let days = 3;
+  if (/(5일|4박\s*5일|5박|5d)/i.test(text)) days = 5;
+  else if (/(4일|3박\s*4일|4박|4d)/i.test(text)) days = 4;
+  else if (/(3일|2박\s*3일|3박|3d)/i.test(text)) days = 3;
+  else if (/(2일|1박\s*2일|2박|2d)/i.test(text)) days = 2;
+  else if (/(1일|당일|1박)/i.test(text)) days = 1;
+  return { region: city, days, keyword: city };
+}
+
+export function checkAmbiguousRegionQuery() {
+  return false;
+}
+
+export function checkMissingPublicDbQuery() {
+  return false;
+}
+
+export function isInvalidOrNonTravelQuery() {
+  return false;
+}
+
 export function isCasualChatQuery(text) {
   if (!text || typeof text !== 'string') return false;
   return /(오늘\s*뭐해|심심해|놀자|안녕|반가워|하이|hello|hi|넌\s*누구|너\s*누구)/i.test(text.trim());
