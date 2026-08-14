@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import PWAInstallBanner from './components/PWAInstallBanner';
+import AIChatPromptHeader from './components/AIChatPromptHeader';
 import AITestWorkbench from './components/AITestWorkbench';
 import TravelDetailModal from './components/TravelDetailModal';
 import ItineraryModal from './components/ItineraryModal';
