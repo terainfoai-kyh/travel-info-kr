@@ -326,13 +326,13 @@ export async function fetchTourSpots({
   else if (lang === 'es') apiBase = PUBLIC_API_CONFIG.SPN_BASE;
   else if (lang === 'ru') apiBase = PUBLIC_API_CONFIG.RUS_BASE;
 
-  // Convert app arrange filter to official TourAPI 4.0 arrange code
+  // Convert app arrange filter to official TourAPI 4.0 arrange code (Defaulting to B: Popularity/Views)
   let apiArrange = 'B';
   if (arrange === 'A') apiArrange = 'B';      // 추천순 -> TourAPI 'B' (조회수/인기순)
-  else if (arrange === 'O') apiArrange = 'A'; // 명칭순 -> TourAPI 'A' (제목순)
+  else if (arrange === 'O') apiArrange = 'B'; // 인기순 -> TourAPI 'B' (조회수/인기순)
   else if (arrange === 'Q') apiArrange = 'C'; // 수정일순 -> TourAPI 'C' (수정일순)
   else if (arrange === 'R') apiArrange = 'D'; // 등록일순 -> TourAPI 'D' (등록일순)
-  else apiArrange = arrange;
+  else apiArrange = 'B';
 
   // Map Korean contentTypeId (12, 14, 28, 39) to Foreign Multilingual TourAPI contentTypeId (75, 76, 77, 82)
   let effectiveContentTypeId = contentTypeId;

@@ -1,4 +1,8 @@
 # Project Rules & Working Guidelines
+## Autonomous Execution & Minimized Interactive Prompting
+- **단순 질문 및 정보 문의**: 설명 요청, 현상 문의, 질문 시에는 절대로 계획서(implementation_plan.md)나 승인 팝업(Submit 버튼)을 띄우지 않고 대화창에서 즉각 답변합니다.
+- **인터랙티브 팝업 최소화**: 단순 UI/구현 선택 시 ask_question 팝업(Submit 버튼)을 남발하지 않고 최선의 추천 옵션을 자율 선택하여 진행합니다.
+- **신속 실행**: 사용자가 "바로 진행해", "수정해" 등 명시적으로 지시한 경우 추가 승인 대기 팝업 없이 코드를 신속히 수정합니다.
 
 ## Work Authorization & Verification Workflow
 
