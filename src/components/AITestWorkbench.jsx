@@ -860,15 +860,101 @@ export default function AITestWorkbench({ lang = 'ko' }) {
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                 <Compass size={18} style={{ color: '#7e22ce' }} />
                 <h4 style={{ fontSize: '0.9rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
-                  🗺️ 추천 여행 코스 전용 패널
+                  🗺️ 추천 1:1 명소 코스
                 </h4>
               </div>
+              <span style={{ fontSize: '0.72rem', color: '#9333ea', backgroundColor: '#f3e8ff', padding: '0.2rem 0.55rem', borderRadius: '12px', fontWeight: 600 }}>
+                5건 동기화
+              </span>
             </div>
 
-            {/* Desktop Right Panel: Fixed Empty Guide Placeholder Only */}
-            <div style={{ padding: '3rem 1rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.78rem' }}>
-              <Map size={32} style={{ margin: '0 auto 0.5rem auto', color: '#cbd5e1', display: 'block' }} />
-              <span>왼쪽 Vora AI 대화창에서 원하시는 여행지나 일정을 물어보시면, 정품 명소 지도 코스가 이 우측 패널에 자동으로 동기화됩니다!</span>
+            {/* Desktop Right Panel List matching Image 1 */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {[
+                { day: '1일차 명소', num: '1', title: '가가책방', addr: '충청남도 공주시 당간지주길 10 (반죽동)' },
+                { day: '1일차 명소', num: '2', title: '가거도', addr: '전남광주통합특별시 신안군 흑산면 가거도길 38-2' },
+                { day: '2일차 명소', num: '3', title: '가계해수욕장', addr: '전남광주통합특별시 진도군 고군면 신비의바닷길 47' },
+                { day: '2일차 명소', num: '4', title: '가고파 꼬부랑길 벽화마을', addr: '경상남도 창원시 마산합포구 성호서7길 15-8' },
+                { day: '3일차 명소', num: '5', title: '가고파캠핑장', addr: '경상남도 산청군 시천면 지리산대로1478번길 31-10' }
+              ].map((item, idx) => (
+                <div key={idx} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  backgroundColor: '#ffffff',
+                  padding: '0.75rem 0.9rem',
+                  borderRadius: '12px',
+                  border: '1px solid #e2e8f0',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+                }}>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.25rem' }}>
+                      <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#9333ea', backgroundColor: '#f3e8ff', padding: '0.15rem 0.45rem', borderRadius: '4px' }}>
+                        {item.day}
+                      </span>
+                      <span style={{ fontSize: '0.88rem', fontWeight: 700, color: '#1e293b' }}>
+                        {item.num}. {item.title}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                      <MapPin size={12} color="#ef4444" />
+                      <span>{item.addr}</span>
+                    </div>
+                  </div>
+                  <button style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.25rem',
+                    padding: '0.35rem 0.65rem',
+                    fontSize: '0.72rem',
+                    color: '#0284c7',
+                    backgroundColor: '#f0f9ff',
+                    border: '1px solid #bae6fd',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontWeight: 600,
+                    whiteSpace: 'nowrap'
+                  }}>
+                    <Compass size={12} />
+                    <span>지도 위치</span>
+                  </button>
+                </div>
+              ))}
+
+              <div style={{ marginTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                <a href="https://www.agoda.com" target="_blank" rel="noreferrer" style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '0.65rem 0.85rem',
+                  backgroundColor: '#f0f9ff',
+                  borderRadius: '8px',
+                  border: '1px solid #bae6fd',
+                  color: '#0369a1',
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  textDecoration: 'none'
+                }}>
+                  <span>🏨 아고다 추천 할인 숙소 예약</span>
+                  <span>↗</span>
+                </a>
+                <a href="https://www.klook.com" target="_blank" rel="noreferrer" style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '0.65rem 0.85rem',
+                  backgroundColor: '#fff7ed',
+                  borderRadius: '8px',
+                  border: '1px solid #fed7aa',
+                  color: '#c2410c',
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  textDecoration: 'none'
+                }}>
+                  <span>🎟️ 클룩 추천 액티비티 예약</span>
+                  <span>↗</span>
+                </a>
+              </div>
             </div>
           </div>
         )}

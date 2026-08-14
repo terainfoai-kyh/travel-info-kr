@@ -81,124 +81,15 @@ export default function App() {
       />
 
       {/* Main Container */}
-      <main style={{ maxWidth: '1280px', width: '100%', margin: '0 auto', padding: '0 1.5rem 0.5rem 1.5rem', flex: 1, position: 'relative', zIndex: 1 }}>
-        {/* Conversational & Voice AI Prompt Header */}
-        <div id="ai-prompt-hero">
-          <AIChatPromptHeader 
-            lang={lang} 
-            filters={filters}
-          onGenerateItinerary={async (parsedInput, fullAiResult = null) => {
-            const parsed = parsedInput || (fullAiResult ? { region: fullAiResult.dailySchedules?.[0]?.city || '전국', days: fullAiResult.days || 3, keyword: fullAiResult.dailySchedules?.[0]?.city || '' } : { region: '전국', days: 3, keyword: '' });
-            
-            // [Fix & Sync] Instantly bind fullAiResult and flatten its spots into allTourSpots
-            // This ensures both TourSpotGrid and ItineraryModal display 100% AI recommended spots in exact order
-            if (fullAiResult) {
-              setFullAiItinerary(fullAiResult);
-              const targetRegion = fullAiResult.dailySchedules?.[0]?.city || parsed.region || '전국';
-              setFilters(prev => ({ ...prev, region: targetRegion, days: fullAiResult.days || 3 }));
-
-              let flattenedSpots = (fullAiResult.dailySchedules || []).flatMap(ds => ds.spots || []);
-              
-              if (flattenedSpots.length === 0 && fullAiResult.dailyPlaces && fullAiResult.dailyPlaces.length > 0) {
-                let spotIndex = 1;
-                const regionName = fullAiResult.targetCity || '추천';
-                flattenedSpots = fullAiResult.dailyPlaces.flatMap(dp => 
-                  (dp.places || []).map(pName => ({
-                    id: `ai-spot-${Date.now()}-${spotIndex++}`,
-                    title: typeof pName === 'string' ? pName.trim() : pName,
-                    location: `${regionName} 대표 명소`,
-                    addr1: `${regionName} ${dp.day || 1}일차 코스`,
-                    assignedDay: dp.day || 1,
-                    isInstagramHotspot: true
-                  }))
-                );
-              }
-
-              if (flattenedSpots.length > 0) {
-                setAllTourSpots(flattenedSpots);
-              }
-              return;
-            }
-
-            const targetRegion = parsed.region || '전국';
-            const targetKeyword = parsed.keyword || '';
-            const newFilters = {
-              ...filters,
-              region: targetRegion,
-              keyword: targetKeyword,
-              days: parsed.days || 3,
-              rainyMode: parsed.rainyMode || false,
-              nightKeyword: parsed.nightKeyword || '',
-              day2Keyword: parsed.day2Keyword || '',
-              dailyRegions: parsed.dailyRegions || [],
-              userLandmarks: parsed.userLandmarks || []
-            };
-            setFilters(newFilters);
-            setIsLoading(true);
-            
-            try {
-              // 100% Pure Vora AI (Gemini 1.5) & Master Gazetteer Catalog Direct Binding Engine (Zero TourAPI Interference)
-              const fallbackResult = generateLocalFallbackItinerary(targetKeyword || targetRegion, lang);
-              setFullAiItinerary(fallbackResult);
-              const pureSpots = (fallbackResult.dailySchedules || []).flatMap(ds => ds.spots || []);
-              if (pureSpots.length > 0) {
-                setAllTourSpots(pureSpots);
-              }
-
-              const effectiveRegion = fallbackResult.targetCity || targetRegion;
-              const wData = await fetchRealtimeWeather(effectiveRegion, newFilters.startDate, newFilters.endDate);
-              setWeatherData(wData);
-              const recs = getRecommendedFoodAndOutfit({
-                weather: wData,
-                region: effectiveRegion,
-                keyword: targetKeyword,
-                rainyMode: newFilters.rainyMode
-              });
-              setRecommendation(recs);
-            } catch (err) {
-              console.warn('App itinerary resolution error:', err);
-            } finally {
-              setIsLoading(false);
-              if (fullAiResult) {
-                setIsItineraryOpen(true);
-              } else {
-                setIsItineraryOpen(false);
-              }
-            }
-          }} 
+      <main style={{ maxWidth: '1280px', width: '100%', margin: '0 auto', padding: '0 1.5rem 1.5rem 1.5rem', flex: 1, position: 'relative', zIndex: 1 }}>
+        <AITestWorkbench 
+          lang={lang} 
+          onOpenDetail={(spot) => setSelectedSpot(spot)}
+          bookmarks={bookmarks}
+          onToggleBookmark={(spotId) => {
+            setBookmarks(prev => prev.includes(spotId) ? prev.filter(id => id !== spotId) : [...prev, spotId]);
+          }}
         />
-        </div>
-
-        {/* Realtime Weather Widget directly below AI Prompt Box */}
-        <div id="weather-info" style={{ marginBottom: '1.5rem' }}>
-          <WeatherWidget weatherData={weatherData} lang={lang} />
-        </div>
-
-        {/* Loading Indicator */}
-        {isLoading ? (
-          <div style={{ textAlign: 'center', padding: '4rem 0', color: 'var(--accent-primary)' }}>
-            <Loader2 size={40} className="animate-spin" style={{ margin: '0 auto 1rem auto' }} />
-            <p style={{ fontWeight: 600 }}>{t.loadingData || '실시간 기후 및 공공데이터를 조회 중입니다...'}</p>
-          </div>
-        ) : (
-          <>
-            {/* 1. Travel Essentials Hub Section */}
-            <div id="travel-essentials">
-              <TravelEssentialsSection lang={lang} filters={filters} />
-            </div>
-
-            {/* 2. AI Lifestyle Recommendations */}
-            <div id="ai-lifestyle">
-              <AILifestyleSection
-                foods={recommendations.foods}
-                outfits={recommendations.outfits}
-                filters={filters}
-                lang={lang}
-                themeMode={themeMode}
-              />
-            </div>
-          </>
-        )}
       </main>
 
       {/* Footer */}
