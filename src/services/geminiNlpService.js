@@ -427,63 +427,17 @@ function parseGeminiJsonResponse(rawText, greetingPrefix, defaultCity, defaultDa
   let cleanText = rawText.trim();
   cleanText = cleanText.replace(/```json/gi, '').replace(/```/g, '').trim();
 
-  const targetSpots = getGazetteerSpots(location);
-  const storyText = buildStorySummaryText(location, days, targetSpots);
-
-  // Group spots into daily schedules matching the story text 1:1
-  const dailySchedules = [];
-  for (let d = 0; d < days; d++) {
-    const daySpots = [];
-    const spotA = targetSpots[d * 2] || targetSpots[0];
-    const spotB = targetSpots[d * 2 + 1];
-
-    if (spotA) {
-      daySpots.push({
-        id: `${location}-spot-${d + 1}-1`,
-        title: spotA.title,
-        location: spotA.location,
-        lat: spotA.lat,
-        lng: spotA.lng,
-        rating: spotA.rating,
-        tags: spotA.tags,
-        image: spotA.image || 'http://tong.visitkorea.or.kr/cms/resource/35/2785035_image2_1.jpg',
-        isInstagramHotspot: true
-      });
-    }
-
-    if (spotB) {
-      daySpots.push({
-        id: `${location}-spot-${d + 1}-2`,
-        title: spotB.title,
-        location: spotB.location,
-        lat: spotB.lat,
-        lng: spotB.lng,
-        rating: spotB.rating,
-        tags: spotB.tags,
-        image: spotB.image || 'http://tong.visitkorea.or.kr/cms/resource/35/2785035_image2_1.jpg',
-        isInstagramHotspot: true
-      });
-    }
-
-    dailySchedules.push({
-      day: d + 1,
-      dateLabel: `${d + 1}일차 - ${location} 명소 코스`,
-      city: location,
-      weather: { temp: '23°C', condition: '맑음 ☀️', rainProbability: '10%', dust: '좋음' },
-      foodRecommendation: {
-        dishName: `${location} 지역 대표 미식`,
-        restaurantName: '한국관광공사 인증 대표 맛집',
-        description: '지역 특산물로 요리한 정품 대표 미식'
-      },
-      spots: daySpots
-    });
+  try {
+    const parsed = JSON.parse(cleanText);
+    return {
+      isUnknownPlace: parsed.isUnknownPlace || false,
+      targetCity: parsed.targetCity || defaultCity,
+      summary: parsed.summary || `${greetingPrefix} '${defaultCity}' 맞춤 여행 코스를 안내해 드립니다!`,
+      dailyPlaces: parsed.dailyPlaces || []
+    };
+  } catch (err) {
+    console.warn('Gemini JSON Parse Exception:', err);
+    return null;
   }
-
-  return {
-    days,
-    tripTitle: `${location} 맞춤 추천 코스`,
-    aiRecommendationSummary: storyText,
-    dailySchedules
-  };
 }
 

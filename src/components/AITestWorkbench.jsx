@@ -292,15 +292,26 @@ export default function AITestWorkbench({ lang = 'ko' }) {
       const isUnknownPlace = aiBriefing?.isUnknownPlace || false;
 
       if (!isMeta && !isUnknownPlace) {
-        // Direct extraction of spots from Gemini dailySchedules
-        const directDailySchedules = aiBriefing?.dailySchedules || [];
-        if (directDailySchedules.length > 0) {
-          spotsToRender = directDailySchedules.flatMap(ds => 
-            (ds.spots || []).map(sp => ({
-              ...sp,
-              assignedDay: ds.day || 1
-            }))
-          );
+        // Direct extraction of spot names from Gemini dailyPlaces
+        const dailyPlaces = aiBriefing?.dailyPlaces || [];
+        if (dailyPlaces.length > 0) {
+          let daySpotIdx = 1;
+          for (const dp of dailyPlaces) {
+            const dayNum = dp.day || 1;
+            const placeNames = dp.places || [];
+            for (const pName of placeNames) {
+              if (pName && typeof pName === 'string' && pName.trim().length > 1) {
+                spotsToRender.push({
+                  id: `spot-${Date.now()}-${daySpotIdx++}`,
+                  title: pName.trim(),
+                  location: `${displayCity} 명소`,
+                  addr1: `${displayCity} ${dayNum}일차 추천 코스`,
+                  assignedDay: dayNum,
+                  isInstagramHotspot: true
+                });
+              }
+            }
+          }
         }
 
         // Safety fallback if LLM response returned zero spots
