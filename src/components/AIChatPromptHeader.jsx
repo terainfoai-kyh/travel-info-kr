@@ -464,10 +464,10 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
         .join('\n');
       const contextualPrompt = historyContext ? `${historyContext}\nUser: ${query}` : query;
 
-      const fullAiResult = (await geminiGenerateFullItinerary(contextualPrompt, lang)) || generateLocalFallbackItinerary(query, lang);
-      const locationName = isCasualChatQuery(query) ? query : (extractLocationKeyword(query) || query);
-      const aiBubbleText = fullAiResult.aiRecommendationSummary || 
-        `'${locationName}' 맞춤 ${fullAiResult.days || 3}일치 코스를 100% 정품 명소와 실시간 날씨/미식 데이터로 정성껏 준비했습니다! 📍`;
+      const fullAiResult = await geminiGenerateFullItinerary(contextualPrompt, lang).catch(() => generateLocalFallbackItinerary(query, lang));
+      const locationName = fullAiResult?.targetCity || (isCasualChatQuery(query) ? query : (extractLocationKeyword(query) || query));
+      const aiBubbleText = fullAiResult?.aiRecommendationSummary || 
+        `'${locationName}' 맞춤 ${fullAiResult?.days || 3}일치 코스를 100% 정품 명소와 실시간 날씨/미식 데이터로 정성껏 준비했습니다! 📍`;
 
       const aiBubble = {
         id: `ai-${Date.now()}`,
@@ -475,9 +475,9 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
         text: aiBubbleText,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         itinerarySummary: {
-          title: fullAiResult.tripTitle || `${locationName} 맞춤 추천 코스`,
-          days: fullAiResult.days || 3,
-          dailySchedules: fullAiResult.dailySchedules || []
+          title: fullAiResult?.tripTitle || `${locationName} 맞춤 추천 코스`,
+          days: fullAiResult?.days || 3,
+          dailySchedules: fullAiResult?.dailySchedules || []
         },
         fullAiResult
       };
@@ -485,8 +485,8 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
       setChatMessages(prev => [...prev, aiBubble]);
 
       // [Fix & Sync] Instantly pass fullAiResult to App level state so ItineraryModal & Right Panel update immediately
-      if (onGenerateItinerary) {
-        onGenerateItinerary(parseNaturalPrompt(query), fullAiResult);
+      if (onGenerateItinerary && fullAiResult) {
+        onGenerateItinerary(null, fullAiResult);
       }
 
       if (isAutoTtsEnabled) {

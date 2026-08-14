@@ -81,7 +81,23 @@ export default function App() {
               const targetRegion = fullAiResult.dailySchedules?.[0]?.city || parsed.region || '전국';
               setFilters(prev => ({ ...prev, region: targetRegion, days: fullAiResult.days || 3 }));
 
-              const flattenedSpots = (fullAiResult.dailySchedules || []).flatMap(ds => ds.spots || []);
+              let flattenedSpots = (fullAiResult.dailySchedules || []).flatMap(ds => ds.spots || []);
+              
+              if (flattenedSpots.length === 0 && fullAiResult.dailyPlaces && fullAiResult.dailyPlaces.length > 0) {
+                let spotIndex = 1;
+                const regionName = fullAiResult.targetCity || '추천';
+                flattenedSpots = fullAiResult.dailyPlaces.flatMap(dp => 
+                  (dp.places || []).map(pName => ({
+                    id: `ai-spot-${Date.now()}-${spotIndex++}`,
+                    title: typeof pName === 'string' ? pName.trim() : pName,
+                    location: `${regionName} 대표 명소`,
+                    addr1: `${regionName} ${dp.day || 1}일차 코스`,
+                    assignedDay: dp.day || 1,
+                    isInstagramHotspot: true
+                  }))
+                );
+              }
+
               if (flattenedSpots.length > 0) {
                 setAllTourSpots(flattenedSpots);
               }
