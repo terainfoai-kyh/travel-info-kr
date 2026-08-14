@@ -861,83 +861,16 @@ export default function AITestWorkbench({ lang = 'ko' }) {
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                 <Compass size={18} style={{ color: '#7e22ce' }} />
                 <h4 style={{ fontSize: '0.9rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
-                  {activeSpotMessage ? `🗺️ ${activeSpotMessage.targetCity || '추천'} 1:1 명소 코스` : '🗺️ 추천 여행 코스 전용 패널'}
+                  🗺️ 추천 여행 코스 전용 패널
                 </h4>
               </div>
-              {activeSpotMessage?.spots && (
-                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#7e22ce', backgroundColor: '#f3e8ff', padding: '0.2rem 0.55rem', borderRadius: '9999px' }}>
-                  {activeSpotMessage.spots.length}건 동기화
-                </span>
-              )}
             </div>
 
-            {/* Desktop Spot Cards List */}
-            {activeSpotMessage?.spots && activeSpotMessage.spots.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                {activeSpotMessage.spots.map((spot, idx) => {
-                  const dayNum = spot.assignedDay || 1;
-                  const badgeStyle = getDayBadgeStyle(dayNum);
-                  const mapSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.title + ' ' + (spot.location || spot.addr1 || ''))}`;
-
-                  return (
-                    <div key={spot.id || idx} style={{ padding: '0.6rem 0.75rem', backgroundColor: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '0.76rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', boxShadow: '0 2px 5px rgba(0,0,0,0.02)' }}>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.2rem' }}>
-                          <span style={{ padding: '0.15rem 0.45rem', borderRadius: '6px', fontSize: '0.65rem', fontWeight: 700, backgroundColor: badgeStyle.bg, color: badgeStyle.text, border: `1px solid ${badgeStyle.border}` }}>
-                            {dayNum}일차 명소
-                          </span>
-                          <strong style={{ color: '#0f172a', fontSize: '0.8rem' }}>{idx + 1}. {spot.title}</strong>
-                        </div>
-                        <span style={{ color: '#64748b', fontSize: '0.68rem', display: 'block' }}>
-                          📍 {spot.location || spot.addr1 || '중심가'}
-                        </span>
-                      </div>
-
-                      <a
-                        href={mapSearchUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          padding: '0.3rem 0.55rem',
-                          backgroundColor: '#f8fafc',
-                          color: '#2563eb',
-                          border: '1px solid #bfdbfe',
-                          borderRadius: '8px',
-                          textDecoration: 'none',
-                          fontSize: '0.68rem',
-                          fontWeight: 600,
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.25rem',
-                          whiteSpace: 'nowrap'
-                        }}
-                      >
-                        <MapPin size={12} /> 지도 위치
-                      </a>
-                    </div>
-                  );
-                })}
-
-                {/* PC Affiliate Buttons */}
-                {activeSpotMessage.agodaUrl && activeSpotMessage.klookUrl && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginTop: '0.6rem', paddingTop: '0.6rem', borderTop: '1px solid #e2e8f0' }}>
-                    <a href={activeSpotMessage.agodaUrl} target="_blank" rel="noopener noreferrer" style={{ padding: '0.45rem 0.75rem', backgroundColor: '#eff6ff', color: '#1d4ed8', borderRadius: '8px', border: '1px solid #bfdbfe', textDecoration: 'none', fontSize: '0.74rem', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span>🏨 아고다 {activeSpotMessage.targetCity} 할인 숙소 예약</span>
-                      <ExternalLink size={13} />
-                    </a>
-                    <a href={activeSpotMessage.klookUrl} target="_blank" rel="noopener noreferrer" style={{ padding: '0.45rem 0.75rem', backgroundColor: '#fff7ed', color: '#c2410c', borderRadius: '8px', border: '1px solid #ffedd5', textDecoration: 'none', fontSize: '0.74rem', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span>🎟️ 클룩 {activeSpotMessage.targetCity} 액티비티 예약</span>
-                      <ExternalLink size={13} />
-                    </a>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div style={{ padding: '3rem 1rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.78rem' }}>
-                <Map size={32} style={{ margin: '0 auto 0.5rem auto', color: '#cbd5e1', display: 'block' }} />
-                <span>왼쪽 Vora AI 대화창에서 원하시는 여행지나 일정을 물어보시면, 정품 명소 지도 코스가 이 우측 패널에 자동으로 동기화됩니다!</span>
-              </div>
-            )}
+            {/* Desktop Right Panel: Fixed Empty Guide Placeholder Only */}
+            <div style={{ padding: '3rem 1rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.78rem' }}>
+              <Map size={32} style={{ margin: '0 auto 0.5rem auto', color: '#cbd5e1', display: 'block' }} />
+              <span>왼쪽 Vora AI 대화창에서 원하시는 여행지나 일정을 물어보시면, 정품 명소 지도 코스가 이 우측 패널에 자동으로 동기화됩니다!</span>
+            </div>
           </div>
         )}
 
