@@ -183,13 +183,14 @@ Strictly return ONLY valid JSON matching this schema:
 
   const promptText = `User input: ${JSON.stringify(rawPrompt)}. Target city: ${targetCity}, duration: ${days} days, language: ${lang}. Generate rich structured JSON.`;
 
-  // 구글 2026 최신 공식 모델(gemini-2.5-flash, gemini-2.5-pro)로 모델 엔드포인트 교체 및 통신 개통. v1
+  // ListModels 공식 검증 모델(gemini-2.5-flash, gemini-flash-latest 등) 전면 적용 및 일자별 코스 포맷 복원. v1
   const modelNames = [
     'gemini-2.5-flash',
+    'gemini-flash-latest',
     'gemini-2.5-pro',
-    'gemini-1.5-flash-002',
-    'gemini-1.5-pro-002',
-    'gemini-1.5-flash-8b'
+    'gemini-pro-latest',
+    'gemini-2.5-flash-lite',
+    'gemini-3.7-flash'
   ];
 
   for (const apiKey of candidateKeys) {
@@ -333,11 +334,19 @@ export async function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
     targetSpots = await fetchDynamicRealtimeSpots(targetCity, lang).catch(() => []);
   }
 
-  const spotTitles = targetSpots.map(s => s.title).filter(Boolean);
-  let summaryText = `[📢 AI 네트워크 보완 모드 (공공 DB 라이브 탐색 엔진)]\n'${targetCity}'에서 가깝게 둘러볼 수 있는 한국관광공사 공공 정품 명소 중심의 ${days}일 맞춤 코스입니다.`;
-  if (spotTitles.length > 0) {
-    summaryText += `\n\n주요 추천 명소: ${spotTitles.slice(0, 4).join(', ')}`;
+  const dailyStories = [];
+  for (let d = 0; d < days; d++) {
+    const spotA = targetSpots[d * 2] || targetSpots[0];
+    const spotB = targetSpots[d * 2 + 1];
+    if (spotA && spotB) {
+      dailyStories.push(`${d + 1}일차: ${spotA.title}에서 시원한 정경을 즐기고 ${spotB.title}을 둘러봅니다.`);
+    } else if (spotA) {
+      dailyStories.push(`${d + 1}일차: ${spotA.title}에서 여유로운 힐링 산책과 여행을 즐깁니다.`);
+    }
   }
+
+  const baseStory = dailyStories.length > 0 ? dailyStories.join('\n') : `'${targetCity}'에서 가깝게 둘러볼 수 있는 추천 코스입니다.`;
+  const summaryText = `[📢 AI 네트워크 보완 모드 (공공 DB 라이브 탐색 엔진)]\n'${targetCity}' 맞춤 추천 코스를 안내해 드립니다!\n\n${baseStory}`;
 
   const dailyPlaces = [];
   const dailySchedules = [];
