@@ -282,16 +282,18 @@ export default function AITestWorkbench({ lang = 'ko' }) {
 
     try {
       const [aiBriefing, rawSpotsInitial] = await Promise.all([
-        geminiGenerateFullItinerary(query, lang).catch(() => ({
-          targetCity: initialCity,
-          aiRecommendationSummary: `안녕하세요! 여행 컨시어지 보라입니다. 😊 '${initialCity}' 힐링 맞춤 여행 코스를 추천해 드립니다!\n\n1일차: ${initialCity} 대표 명소를 구경하고 여유로운 산책을 즐깁니다.\n2일차: ${initialCity} 힐링 명소 및 지역 대표 맛집 코스를 탐방합니다.\n3일차: ${initialCity} 전망대에서 일몰을 감상하며 여행을 마무리합니다.`,
-          dailyPlaces: [
-            { day: 1, places: [`${initialCity} 명소`] },
-            { day: 2, places: [`${initialCity} 힐링 코스`] },
-            { day: 3, places: [`${initialCity} 전망대`] }
-          ],
-          isUnknownPlace: false
-        })),
+        geminiGenerateFullItinerary(query, lang).catch(() => {
+          const fb = generateLocalFallbackItinerary(query, lang);
+          return {
+            targetCity: fb.targetCity || initialCity,
+            aiRecommendationSummary: fb.aiRecommendationSummary,
+            dailyPlaces: (fb.dailySchedules || []).map(ds => ({
+              day: ds.day,
+              places: (ds.spots || []).map(s => s.title)
+            })),
+            isUnknownPlace: false
+          };
+        }),
         (initialCity && initialCity !== '전국')
           ? fetchTourSpots({ region: initialCity, lang }).catch(() => [])
           : Promise.resolve([])
