@@ -1048,29 +1048,35 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
 
             {/* Review List */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-              {mockReviews.slice(0, showAllReviews ? mockReviews.length : 3).map((rev) => (
-                <div key={rev.id} style={{
-                  padding: '0.85rem',
-                  backgroundColor: '#f8fafc',
-                  borderRadius: '12px',
-                  border: '1px solid #e2e8f0'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                      <span style={{ fontWeight: 700, fontSize: '0.82rem', color: '#1e293b' }}>{rev.author}</span>
-                      <span style={{ fontSize: '0.72rem', color: '#64748b' }}>({rev.ageGroup})</span>
+              {mockReviews.slice(0, showAllReviews ? mockReviews.length : 3).map((rawRev) => {
+                const rev = getTranslatedReview(rawRev, lang) || rawRev;
+                const reviewText = typeof rev === 'string' 
+                  ? rev 
+                  : (typeof rev.content === 'string' ? rev.content : (rev.content?.text || ''));
+                return (
+                  <div key={rev.id || Math.random()} style={{
+                    padding: '0.85rem',
+                    backgroundColor: '#f8fafc',
+                    borderRadius: '12px',
+                    border: '1px solid #e2e8f0'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                        <span style={{ fontWeight: 700, fontSize: '0.82rem', color: '#1e293b' }}>{rev.author}</span>
+                        <span style={{ fontSize: '0.72rem', color: '#64748b' }}>({rev.ageGroup})</span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.15rem' }}>
+                        {[...Array(rev.rating || 5)].map((_, i) => (
+                          <Star key={i} size={12} fill="#f59e0b" color="#f59e0b" />
+                        ))}
+                      </div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.15rem' }}>
-                      {[...Array(rev.rating || 5)].map((_, i) => (
-                        <Star key={i} size={12} fill="#f59e0b" color="#f59e0b" />
-                      ))}
-                    </div>
+                    <p style={{ margin: 0, fontSize: '0.82rem', color: '#475569', lineHeight: 1.5 }}>
+                      {reviewText}
+                    </p>
                   </div>
-                  <p style={{ margin: 0, fontSize: '0.82rem', color: '#475569', lineHeight: 1.5 }}>
-                    {getTranslatedReview(rev.content, lang)}
-                  </p>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {mockReviews.length > 3 && (
