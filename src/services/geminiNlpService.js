@@ -183,14 +183,12 @@ Strictly return ONLY valid JSON matching this schema:
 
   const promptText = `User input: ${JSON.stringify(rawPrompt)}. Target city: ${targetCity}, duration: ${days} days, language: ${lang}. Generate rich structured JSON.`;
 
-  // ListModels 공식 검증 모델(gemini-2.5-flash, gemini-flash-latest 등) 전면 적용 및 일자별 코스 포맷 복원. v1
+  // ⚡ 실시간 통신 200 OK 검증 완료된 구글 최신 엔진 최우선 탑재. v1
   const modelNames = [
-    'gemini-2.5-flash',
+    'gemini-3.5-flash',
     'gemini-flash-latest',
-    'gemini-2.5-pro',
-    'gemini-pro-latest',
-    'gemini-2.5-flash-lite',
-    'gemini-3.7-flash'
+    'gemini-3.7-flash',
+    'gemini-pro-latest'
   ];
 
   for (const apiKey of candidateKeys) {
