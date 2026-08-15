@@ -7,40 +7,47 @@ const POPULAR_CITIES = [
   '서울', '거제', '부산', '제주', '경주', '강릉', '전주', '여수', '속초', '수원'
 ];
 
+const CITY_I18N = {
+  '서울': { en: 'Seoul', ja: 'ソウル', zh: '首尔', zht: '首爾' },
+  '거제': { en: 'Geoje', ja: '巨済', zh: '巨济', zht: '巨濟' },
+  '부산': { en: 'Busan', ja: '釜山', zh: '釜山', zht: '釜山' },
+  '제주': { en: 'Jeju', ja: '済州', zh: '济州', zht: '濟州' },
+  '경주': { en: 'Gyeongju', ja: '慶州', zh: '庆州', zht: '慶州' },
+  '강릉': { en: 'Gangneung', ja: '江陵', zh: '江陵', zht: '江陵' },
+  '전주': { en: 'Jeonju', ja: '全州', zh: '全州', zht: '全州' },
+  '여수': { en: 'Yeosu', ja: '麗水', zh: '丽水', zht: '麗水' },
+  '속초': { en: 'Sokcho', ja: '束草', zh: '束草', zht: '束草' },
+  '수원': { en: 'Suwon', ja: '水原', zh: '水原', zht: '水原' }
+};
+
+export function getCityName(city, lang = 'ko') {
+  if (CITY_I18N[city] && CITY_I18N[city][lang]) {
+    return CITY_I18N[city][lang];
+  }
+  return city;
+}
+
 // Curated Regional Signature Food Data
 const REGIONAL_FOOD_DATA = {
   서울: [
-    { name: '종로·광장시장 마약김밥 & 빈대떡', tag: 'K-스트리트푸드', desc: '바삭한 녹두빈대떡과 겨자소스에 찍어먹는 원조 마약김밥', place: '종로 광장시장' },
-    { name: '명동 명품 설렁탕 & 칼국수', tag: '정통 한식', desc: '진한 사골 육수에 부드러운 양지와 겉절이 김치의 환상 조합', place: '명동 음식문화거리' },
-    { name: '신당동 원조 즉석 떡볶이', tag: 'K-분식', desc: '고추장과 춘장 베이스의 감칠맛 넘치는 추억의 즉석 떡볶이', place: '신당동 떡볶이 타운' }
+    { name: '종로·광장시장 마약김밥 & 빈대떡', enName: 'Gwangjang Market Mini Gimbap & Mung Bean Pancake (Bindaetteok)', jaName: '広蔵市場 麻薬キンパ＆緑豆ピンデトック', zhName: '广藏市场 迷你紫菜包饭与绿豆煎饼', tag: 'K-스트리트푸드', enTag: 'K-Street Food', jaTag: 'K-屋台グルメ', zhTag: '韩国街头美食', desc: '바삭한 녹두빈대떡과 겨자소스에 찍어먹는 원조 마약김밥', enDesc: 'Crispy savory mung bean pancakes paired with famous mini gimbap dipped in mustard sauce.', jaDesc: 'カリカリの緑豆ピンデトックと特製マスタードタレで味わう麻薬キンパ。', zhDesc: '香脆绿豆煎饼配以招牌芥末酱蘸食的迷你紫菜包饭。', place: '종로 광장시장' },
+    { name: '명동 명품 설렁탕 & 칼국수', enName: 'Myeongdong Ox Bone Soup (Seolleongtang) & Kalguksu', jaName: '明洞 ソルロンタン＆カルグクス', zhName: '明洞 经典雪浓汤与手工刀切面', tag: '정통 한식', enTag: 'Authentic K-Food', jaTag: '正統派韓国料理', zhTag: '正宗韩式料理', desc: '진한 사골 육수에 부드러운 양지와 겉절이 김치의 환상 조합', enDesc: 'Rich ox bone broth with tender beef slices and freshly made kimchi.', jaDesc: 'コク深い牛骨スープに柔らかい牛肉と浅漬けキムチの絶妙なハーモニー。', zhDesc: '浓郁牛骨高汤搭配鲜嫩牛肉片与现拌爽口泡菜。', place: '명동 음식문화거리' },
+    { name: '신당동 원조 즉석 떡볶이', enName: 'Sindang-dong Original Tabletop Tteokbokki', jaName: '新堂洞 元祖トッポッキ鍋', zhName: '新堂洞 原祖即食炒年糕锅', tag: 'K-분식', enTag: 'K-Snack', jaTag: 'K-スナック', zhTag: '韩国特色小吃', desc: '고추장과 춘장 베이스의 감칠맛 넘치는 추억의 즉석 떡볶이', enDesc: 'Flavorful spicy and sweet simmered rice cakes made right at your table.', jaDesc: 'コチュジャンと黒味噌ベースの旨味たっぷりテーブル調理トッポッキ。', zhDesc: '以秘制辣椒酱与甜面酱为底料现煮现吃的人气年糕火锅。', place: '신당동 떡볶이 타운' }
   ],
   거제: [
-    { name: '거제 굴구이 & 굴코스 요리', tag: '겨울·봄 바다별미', desc: '청정 거제 바다에서 갓 채취한 싱싱한 굴을 통째로 쪄먹는 별미', place: '거제도 거제면·칠천도' },
-    { name: '거제 멍게·성게 비빔밥', tag: '해산물 로컬푸드', desc: '향긋한 바다 내음 가득한 성게알과 멍게를 참기름과 쓱쓱 비벼먹는 별미', place: '포로수용소 인근 및 지세포항' },
-    { name: '바람의 핫도그 & 몽돌 해물라면', tag: '인기 관광 디저트', desc: '바람의 언덕 명물 핫도그와 통문어가 들어간 해물 라면', place: '도장포 마을 & 바람의 언덕' }
+    { name: '거제 굴구이 & 굴코스 요리', enName: 'Geoje Steamed Fresh Oysters & Course Meal', jaName: '巨済 焼き牡蠣＆牡蠣フルコース', zhName: '巨济 鲜蒸生蚝与生蚝全席', tag: '바다별미', enTag: 'Seafood Specialty', jaTag: '海の味覚', zhTag: '海鲜特色', desc: '청정 거제 바다에서 갓 채취한 싱싱한 굴을 통째로 쪄먹는 별미', enDesc: 'Freshly harvested plump oysters steamed directly from Geoje clean sea waters.', jaDesc: '巨済の清らかな海で獲れた新鮮な牡蠣を丸ごと蒸して楽しむ逸品。', zhDesc: '产自巨济清澈海域现捞现蒸的肥美生蚝大餐。', place: '거제도 거제면·칠천도' },
+    { name: '거제 멍게·성게 비빔밥', enName: 'Geoje Sea Urchin & Sea Squirt Bibimbap', jaName: '巨済 ウニ・ホヤビビンバ', zhName: '巨济 海胆与海鞘拌饭', tag: '해산물 로컬푸드', enTag: 'Local Seafood', jaTag: '郷土海鮮料理', zhTag: '当地海鲜名吃', desc: '향긋한 바다 내음 가득한 성게알과 멍게를 참기름과 쓱쓱 비벼먹는 별미', enDesc: 'Ocean-scented fresh sea urchin roe and sea squirt mixed with rice and sesame oil.', jaDesc: '海の香り豊かなウニとホヤにごま油をかけて香ばしく混ぜて食べるご馳走。', zhDesc: '满口海香的鲜海胆与海鞘淋上香油拌饭，鲜美无比。', place: '포로수용소 인근 및 지세포항' },
+    { name: '바람의 핫도그 & 몽돌 해물라면', enName: 'Windy Hill Hotdog & Mongdol Seafood Ramyeon', jaName: '風の丘名物ホットドッグ＆海鮮ラーメン', zhName: '风之丘特制热狗与海鲜拉面', tag: '인기 디저트', enTag: 'Popular Snack', jaTag: '人気スイーツ', zhTag: '人气名吃', desc: '바람의 언덕 명물 핫도그와 통문어가 들어간 해물 라면', enDesc: 'Famous Windy Hill specialty corn dog and hearty whole octopus ramen.', jaDesc: '風の丘名物ホットドッグとタコが丸ごと入った海鮮ラーメン。', zhDesc: '风之丘标志性脆皮热狗与整只章鱼浓香海鲜拉面。', place: '도장포 마을 & 바람의 언덕' }
   ],
   부산: [
-    { name: '부산 원조 돼지국밥', tag: '부산 소울푸드', desc: '뽀얗고 진한 돼지 사골 국물에 부추무침과 다대기를 듬뿍 넣어 먹는 든든한 한끼', place: '서면 국밥골목 & 해운대' },
-    { name: '해운대·초량 부산 밀면', tag: '시원한 면요리', desc: '살얼음 동동 띄운 한방 육수에 쫄깃한 면발과 매콤달콤 양념장', place: '초량 및 해운대 전통시장' },
-    { name: '남포동 씨앗호떡 & 비빔당면', tag: '길거리 먹거리', desc: '견과류가 듬뿍 들어간 고소한 찹쌀호떡과 매콤한 비빔당면', place: '남포동 BIFF 광장' }
+    { name: '부산 원조 돼지국밥', enName: 'Busan Original Pork Soup with Rice (Dwaeji Gukbap)', jaName: '釜山 元祖デジクッパ (豚骨スープご飯)', zhName: '釜山 原祖猪肉汤饭', tag: '부산 소울푸드', enTag: 'Busan Soul Food', jaTag: '釜山ソウルフード', zhTag: '釜山灵魂美食', desc: '뽀얗고 진한 돼지 사골 국물에 부추무침과 다대기를 듬뿍 넣어 먹는 든든한 한끼', enDesc: 'Rich pork bone broth served with tender pork slices, chives, and spicy sauce.', jaDesc: '濃厚な豚骨スープにニラと辛味タレをたっぷり入れて楽しむ釜山の名物。', zhDesc: '浓白猪骨原汤加入鲜嫩猪肉片、拌韭菜与秘制辣酱的暖心一餐。', place: '서면 국밥골목 & 해운대' },
+    { name: '해운대·초량 부산 밀면', enName: 'Haeundae Choryang Chilled Wheat Noodles (Milmyeon)', jaName: '海雲台・草梁 釜山冷製ミルミョン', zhName: '海云台草梁 釜山小麦冷面', tag: '시원한 면요리', enTag: 'Refreshing Noodles', jaTag: '爽快麺料理', zhTag: '清爽冷面', desc: '살얼음 동동 띄운 한방 육수에 쫄깃한 면발과 매콤달콤 양념장', enDesc: 'Chewy wheat noodles in icy herbal broth topped with sweet spicy sauce.', jaDesc: '氷の浮かぶ特製スープにもちもち麺と甘辛タレが絶妙な夏の定番。', zhDesc: '冰爽药膳高汤配以劲道小麦面条与甜辣秘制调料。', place: '초량 및 해운대 전통시장' },
+    { name: '남포동 씨앗호떡 & 비빔당면', enName: 'Nampodong Seed Hotteok & Spicy Glass Noodles', jaName: '南浦洞 種入りホットク＆ビビンタンミョン', zhName: '南浦洞 坚果糖饼与拌杂粉', tag: '길거리 먹거리', enTag: 'Street Snacks', jaTag: '屋台名物', zhTag: '街头特色小吃', desc: '견과류가 듬뿍 들어간 고소한 찹쌀호떡과 매콤한 비빔당면', enDesc: 'Sweet chewy pancake packed with nuts and seeds, plus savory glass noodles.', jaDesc: 'ナッツ類がぎっしり詰まった香ばしいホットクと辛味春雨。', zhDesc: '香脆软糯且包裹丰富坚果的特色糖饼与爽口拌粉条。', place: '남포동 BIFF 광장' }
   ],
   제주: [
-    { name: '제주 흑돼지 근고기 구이', tag: '제주 대표 미식', desc: '두툼한 제주산 흑돼지를 참숯에 구워 멜젓(멸치젓)에 콕 찍어먹는 풍미', place: '중문관광단지 & 흑돼지거리' },
-    { name: '통갈치 조림 & 갈치구이', tag: '제주 은갈치', desc: '길쭉한 전용 냄비에 전복, 문어와 함께 매콤하게 조려낸 통갈치', place: '성산일출봉 인근' },
-    { name: '제주 고기국수 & 돔베고기', tag: '전통 향토음식', desc: '담백한 고기 육수에 중면과 야들야들 삶아낸 돔베고기 수육', place: '제주시 고기국수 거리' }
-  ],
-  경주: [
-    { name: '경주 한우 물회 & 육회비빔밥', tag: '경주 별미', desc: '시원하고 매콤달콤한 살얼음 육수에 신선한 한우 육회가 듬뿍', place: '보문관광단지' },
-    { name: '황리단길 십원빵 & 황남빵', tag: 'K-디저트', desc: '모짜렐라 치즈가 길게 늘어나는 십원빵과 전통 팥 앙금 황남빵', place: '황리단길' },
-    { name: '경주 맷돌 순두부찌개', tag: '전통 두부요리', desc: '국내산 콩으로 매일 새벽 직접 맷돌로 갈아 만든 고소한 순두부', place: '보문 순두부 골목' }
-  ],
-  강릉: [
-    { name: '강릉 초당 순두부 짬뽕 (짬뽕순두부)', tag: '전국 3대 짬뽕', desc: '얼큰한 불맛 짬뽕 국물에 몽글몽글 고소한 초당 순두부의 퓨전', place: '강릉 초당두부마을' },
-    { name: '안목해변 카페거리 스페셜티 커피', tag: '커피 메카', desc: '푸른 동해 바다를 바라보며 즐기는 대한민국 1세대 바리스타 커피', place: '안목해변 커피거리' }
-  ],
-  전주: [
-    { name: '전주 전통 육회 비빔밥', tag: '유네스코 미식도시', desc: '사골 밥에 놋그릇, 10여 가지 제철 나물과 신선한 육회의 품격', place: '전주 한옥마을' },
-    { name: '전주 콩나물국밥 & 모주', tag: '해장 1번지', desc: '개운하고 시원한 콩나물국에 수란과 달콤한 계피향 한방 모주', place: '남부시장 콩나물국밥 골목' }
+    { name: '제주 흑돼지 근고기 구이', enName: 'Jeju Black Pork Charcoal BBQ', jaName: '済州 黒豚炭火焼き', zhName: '济州 特级黑猪肉炭火烤肉', tag: '제주 대표 미식', enTag: 'Jeju Signature BBQ', jaTag: '済州を代表する美食', zhTag: '济州代表性美食', desc: '두툼한 제주산 흑돼지를 참숯에 구워 멜젓(멸치젓)에 콕 찍어먹는 풍미', enDesc: 'Thick local black pork grilled over charcoal and dipped in savory salted anchovy sauce.', jaDesc: 'ジューシーな黒豚を炭火で焼き、特製イワシ塩辛タレにつけて食べる極上の味。', zhDesc: '厚切济州黑猪肉经木炭炙烤后蘸取特制银鱼酱，风味独特醇香。', place: '중문관광단지 & 흑돼지거리' },
+    { name: '통갈치 조림 & 갈치구이', enName: 'Jeju Whole Silver Cutlassfish Stew & Grilled Fish', jaName: '済州 太刀魚の煮付け＆塩焼き', zhName: '济州 巨型整条带鱼锅与烤带鱼', tag: '제주 은갈치', enTag: 'Silver Cutlassfish', jaTag: '済州特産太刀魚', zhTag: '济州特产银带鱼', desc: '길쭉한 전용 냄비에 전복, 문어와 함께 매콤하게 조려낸 통갈치', enDesc: 'Freshly braised whole silver fish cooked with abalone and octopus in a long pan.', jaDesc: '専用の長鍋でアワビやタコと一緒に甘辛く煮込んだ豪華な太刀魚料理。', zhDesc: '在特制长锅中与鲍鱼、章鱼一同慢炖的浓香整条带鱼料理。', place: '성산일출봉 인근' },
+    { name: '제주 고기국수 & 돔베고기', enName: 'Jeju Pork Noodle Soup & Boiled Sliced Pork (Dombe Meat)', jaName: '済州 肉うどん＆ドムベコギ (茹で豚肉)', zhName: '济州 浓汤猪肉面与白切猪肉', tag: '전통 향토음식', enTag: 'Traditional Local', jaTag: '伝統郷土料理', zhTag: '传统特色乡土料理', desc: '담백한 고기 육수에 중면과 야들야들 삶아낸 돔베고기 수육', enDesc: 'Savory pork broth noodles served with tender boiled pork on a wooden board.', jaDesc: 'あっさりとした肉スープに中太麺と柔らかい茹で豚肉の郷土料理。', zhDesc: '醇厚清甜猪肉高汤配面条及木板盛装的鲜嫩白切猪肉。', place: '제주시 고기국수 거리' }
   ]
 };
 
@@ -55,8 +62,13 @@ export default function FoodOutfitModal({ isOpen, onClose, lang = 'ko', initialC
 
   const handleAskGemini = () => {
     onClose();
+    const cityLabel = getCityName(selectedCity, lang);
+    const promptText = lang === 'en' ? `Recommend authentic local gourmet restaurants, trendy cafes, and weather styling tips for ${cityLabel}` :
+                       lang === 'ja' ? `${cityLabel}の地元民おすすめ名店グルメ・感性カフェ・天気別服装コーデを教えて` :
+                       lang === 'zh' || lang === 'zht' ? `请推荐${cityLabel}当地人必吃美食餐厅、人气网红咖啡馆及天气穿搭指南` :
+                       `${selectedCity} 현지인 추천 진짜 맛집과 감성 카페, 날씨 맞춤 코디 알려줘`;
     window.dispatchEvent(new CustomEvent('vora-trigger-quick-prompt', {
-      detail: { prompt: `${selectedCity} 현지인 추천 진짜 맛집과 감성 카페, 날씨 맞춤 코디 알려줘` }
+      detail: { prompt: promptText }
     }));
     const inputEl = document.querySelector('textarea') || document.querySelector('input[type="text"]');
     if (inputEl) {
@@ -122,7 +134,10 @@ export default function FoodOutfitModal({ isOpen, onClose, lang = 'ko', initialC
             <div style={{ minWidth: 0, flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
                 <h3 style={{ fontSize: isMobile ? '0.98rem' : '1.15rem', fontWeight: 900, margin: 0, color: 'var(--text-main, #0f172a)' }}>
-                  🍴 AI 대표 맛집 & K-컬처 코디 가이드
+                  🍴 {lang === 'en' ? 'AI Regional Gourmet & K-Fashion Guide' :
+                      lang === 'ja' ? 'AI 地域別名物グルメ＆K-ファッション案内' :
+                      lang === 'zh' || lang === 'zht' ? 'AI 地区特色美食与韩系穿搭指南' :
+                      'AI 대표 맛집 & K-컬처 코디 가이드'}
                 </h3>
                 <span style={{
                   fontSize: '0.65rem',
@@ -135,11 +150,14 @@ export default function FoodOutfitModal({ isOpen, onClose, lang = 'ko', initialC
                   whiteSpace: 'nowrap',
                   flexShrink: 0
                 }}>
-                  Gemini AI 분석
+                  Gemini AI
                 </span>
               </div>
               <p style={{ fontSize: '0.74rem', color: 'var(--text-muted, #64748b)', margin: '0.1rem 0 0 0' }}>
-                대한민국 16개 권역 대표 향토 미식과 사진 잘 나오는 K-패션 스타일링
+                {lang === 'en' ? 'Authentic regional culinary delights and photogenic K-styling tips' :
+                 lang === 'ja' ? '韓国各地域の郷土グルメと写真映えするK-ファッションスタイル' :
+                 lang === 'zh' || lang === 'zht' ? '韩国精选地道特色美食与上镜韩风服饰搭配技巧' :
+                 '대한민국 16개 권역 대표 향토 미식과 사진 잘 나오는 K-패션 스타일링'}
               </p>
             </div>
           </div>
@@ -176,7 +194,7 @@ export default function FoodOutfitModal({ isOpen, onClose, lang = 'ko', initialC
           scrollbarWidth: 'none'
         }}>
           <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748b', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '0.2rem', flexShrink: 0 }}>
-            <MapPin size={13} /> 지역:
+            <MapPin size={13} /> {lang === 'en' ? 'City:' : lang === 'ja' ? '地域:' : lang === 'zh' || lang === 'zht' ? '地区:' : '지역:'}
           </span>
           {POPULAR_CITIES.map(city => (
             <button
@@ -196,7 +214,7 @@ export default function FoodOutfitModal({ isOpen, onClose, lang = 'ko', initialC
                 flexShrink: 0
               }}
             >
-              {city}
+              {getCityName(city, lang)}
             </button>
           ))}
         </div>
@@ -228,7 +246,7 @@ export default function FoodOutfitModal({ isOpen, onClose, lang = 'ko', initialC
             }}
           >
             <Utensils size={14} />
-            <span>[{selectedCity}] 대표 시그니처 미식 (3선)</span>
+            <span>[{getCityName(selectedCity, lang)}] {lang === 'en' ? 'Signature Food Top 3' : lang === 'ja' ? '代表シグネチャーグルメ (3選)' : lang === 'zh' || lang === 'zht' ? '精选特色美食 (前3名)' : '대표 시그니처 미식 (3선)'}</span>
           </button>
 
           <button
@@ -250,7 +268,7 @@ export default function FoodOutfitModal({ isOpen, onClose, lang = 'ko', initialC
             }}
           >
             <Shirt size={14} />
-            <span>[{selectedCity}] 여행 K-패션 코디 팁</span>
+            <span>[{getCityName(selectedCity, lang)}] {lang === 'en' ? 'K-Fashion Styling Tips' : lang === 'ja' ? '旅行K-ファッションコーデ' : lang === 'zh' || lang === 'zht' ? '旅行韩系穿搭建议' : '여행 K-패션 코디 팁'}</span>
           </button>
         </div>
 
@@ -287,7 +305,7 @@ export default function FoodOutfitModal({ isOpen, onClose, lang = 'ko', initialC
                     padding: '0.15rem 0.5rem',
                     borderRadius: '6px'
                   }}>
-                    {item.tag}
+                    {lang === 'en' ? (item.enTag || item.tag) : lang === 'ja' ? (item.jaTag || item.tag) : lang === 'zh' || lang === 'zht' ? (item.zhTag || item.tag) : item.tag}
                   </span>
                   <span style={{ fontSize: '0.75rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
                     <MapPin size={12} color="#ea580c" />
@@ -296,11 +314,11 @@ export default function FoodOutfitModal({ isOpen, onClose, lang = 'ko', initialC
                 </div>
 
                 <div style={{ fontSize: '1.02rem', fontWeight: 900, color: 'var(--text-main, #0f172a)' }}>
-                  {item.name}
+                  {lang === 'en' ? (item.enName || item.name) : lang === 'ja' ? (item.jaName || item.name) : lang === 'zh' || lang === 'zht' ? (item.zhName || item.name) : item.name}
                 </div>
 
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-muted, #475569)', lineHeight: 1.45 }}>
-                  {item.desc}
+                  {lang === 'en' ? (item.enDesc || item.desc) : lang === 'ja' ? (item.jaDesc || item.desc) : lang === 'zh' || lang === 'zht' ? (item.zhDesc || item.desc) : item.desc}
                 </div>
               </div>
             ))
@@ -317,13 +335,13 @@ export default function FoodOutfitModal({ isOpen, onClose, lang = 'ko', initialC
               }}>
                 <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#9333ea', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                   <Shirt size={18} />
-                  <span>{selectedCity} 도심 & 자연 관광 인생샷 K-스타일링</span>
+                  <span>[{getCityName(selectedCity, lang)}] {lang === 'en' ? 'Urban & Scenic K-Styling Photo Tips' : lang === 'ja' ? '街歩き＆自然観光 映えK-スタイリング' : lang === 'zh' || lang === 'zht' ? '都市与风景名胜绝美韩系拍照穿搭' : '도심 & 자연 관광 인생샷 K-스타일링'}</span>
                 </div>
                 <div style={{ fontSize: '0.8rem', color: '#475569', lineHeight: 1.5 }}>
-                  📸 <strong>촬영 꿀팁</strong>: 명소의 푸른 바다/전통 기와 배경과 대비되는 밝은 아이보리, 파스텔 톤 또는 모던 캐주얼 셋업을 추천합니다.
+                  📸 <strong>{lang === 'en' ? 'Photo Tip' : lang === 'ja' ? '撮影のコツ' : lang === 'zh' || lang === 'zht' ? '拍照建议' : '촬영 꿀팁'}</strong>: {lang === 'en' ? 'Wear bright ivory, pastel tones, or smart casual outfits that contrast beautifully with blue seas and traditional tiled roof landscapes.' : lang === 'ja' ? '青い海や伝統的な瓦屋根の風景と美しく調和する明るいアイボリーやパステルカラー、きれいめカジュアルコーデがおすすめです。' : lang === 'zh' || lang === 'zht' ? '建议选择明亮米白色、温柔马卡龙色系或利落韩系休闲套装，与蓝海和传统瓦房背景形成绝美对比。' : '명소의 푸른 바다/전통 기와 배경과 대비되는 밝은 아이보리, 파스텔 톤 또는 모던 캐주얼 셋업을 추천합니다.'}
                 </div>
                 <div style={{ fontSize: '0.8rem', color: '#475569', lineHeight: 1.5 }}>
-                  👟 <strong>발 편한 여행 슈즈</strong>: 하루 평균 1만 보 이상 걷는 관광 코스 특성상 푹신한 쿠셔닝 스니커즈나 워킹화가 필수입니다.
+                  👟 <strong>{lang === 'en' ? 'Comfortable Footwear' : lang === 'ja' ? '快適な靴' : lang === 'zh' || lang === 'zht' ? '舒适鞋履' : '발 편한 여행 슈즈'}</strong>: {lang === 'en' ? 'Since walking 10,000+ steps a day is common, cushioned sneakers or walking shoes are essential.' : lang === 'ja' ? '1日平均1万歩以上歩く観光コースのため、クッション性の高いスニーカーやウォーキングシューズが必須です。' : lang === 'zh' || lang === 'zht' ? '韩国游览平均每日步行超1万步，轻便且缓震良好的运动鞋或健步鞋必不可少。' : '하루 평균 1만 보 이상 걷는 관광 코스 특성상 푹신한 쿠셔닝 스니커즈나 워킹화가 필수입니다.'}
                 </div>
               </div>
 
@@ -336,7 +354,7 @@ export default function FoodOutfitModal({ isOpen, onClose, lang = 'ko', initialC
                 color: '#6b21a8',
                 lineHeight: 1.45
               }}>
-                ✨ <strong>한복 체험 팁</strong>: 경복궁(서울), 한옥마을(전주), 황리단길(경주) 등 전통 명소에서는 한복 대여 착용 시 고궁 무료입장 혜택이 적용됩니다!
+                ✨ <strong>{lang === 'en' ? 'Hanbok Benefit' : lang === 'ja' ? '韓服(チマチョゴリ)特典' : lang === 'zh' || lang === 'zht' ? '韩服体验特权' : '한복 체험 팁'}</strong>: {lang === 'en' ? 'At major traditional sites like Gyeongbokgung Palace (Seoul) and Hanok Villages (Jeonju/Gyeongju), wearing a rented Hanbok grants FREE royal palace admission!' : lang === 'ja' ? '景福宮(ソウル)や韓屋村(全州・慶州)など伝統名所では、レンタル韓服を着用して入場すると古宮の入場料が無料になります！' : lang === 'zh' || lang === 'zht' ? '在首尔景福宫、全州韩屋村及庆州等传统古迹，身着租赁的韩服可直接享受免门票免费入宫特权！' : '경복궁(서울), 한옥마을(전주), 황리단길(경주) 등 전통 명소에서는 한복 대여 착용 시 고궁 무료입장 혜택이 적용됩니다!'}
               </div>
             </div>
           )}
@@ -372,7 +390,10 @@ export default function FoodOutfitModal({ isOpen, onClose, lang = 'ko', initialC
             }}
           >
             <Sparkles size={16} />
-            <span>🤖 제미나이에게 [{selectedCity}] 1:1 맛집·코디 질문하기 ➔</span>
+            <span>🤖 {lang === 'en' ? `Ask Gemini AI 1:1 for ${getCityName(selectedCity, lang)} Food & Fashion ➔` :
+                        lang === 'ja' ? `Geminiに [${getCityName(selectedCity, lang)}] 1:1 グルメ・コーデを質問 ➔` :
+                        lang === 'zh' || lang === 'zht' ? `向 Gemini AI 1对1 咨询 [${getCityName(selectedCity, lang)}] 美食穿搭 ➔` :
+                        `제미나이에게 [${selectedCity}] 1:1 맛집·코디 질문하기 ➔`}</span>
           </button>
 
           <button
@@ -388,7 +409,7 @@ export default function FoodOutfitModal({ isOpen, onClose, lang = 'ko', initialC
               cursor: 'pointer'
             }}
           >
-            닫기
+            {lang === 'en' ? 'Close' : lang === 'ja' ? '閉じる' : lang === 'zh' || lang === 'zht' ? '关闭' : '닫기'}
           </button>
         </div>
       </div>

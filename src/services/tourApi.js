@@ -77,8 +77,18 @@ export async function fetchDynamicRealtimeSpots(query, lang = 'ko') {
     return DYNAMIC_SPOT_CACHE.get(cacheKey);
   }
 
+  let apiBase = PUBLIC_API_CONFIG.TOUR_API_BASE || 'https://apis.data.go.kr/B551011/KorService2';
+  if (lang === 'en') apiBase = PUBLIC_API_CONFIG.ENG_BASE;
+  else if (lang === 'ja') apiBase = PUBLIC_API_CONFIG.JPN_BASE;
+  else if (lang === 'zh') apiBase = PUBLIC_API_CONFIG.CHS_BASE;
+  else if (lang === 'zht') apiBase = PUBLIC_API_CONFIG.CHT_BASE;
+  else if (lang === 'de') apiBase = PUBLIC_API_CONFIG.GER_BASE;
+  else if (lang === 'fr') apiBase = PUBLIC_API_CONFIG.FRE_BASE;
+  else if (lang === 'es') apiBase = PUBLIC_API_CONFIG.SPN_BASE;
+  else if (lang === 'ru') apiBase = PUBLIC_API_CONFIG.RUS_BASE;
+
   try {
-    const searchUrl = `${PUBLIC_API_CONFIG.SEARCH_KEYWORD_URL}?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&keyword=${encodeURIComponent(cleanQ)}&numOfRows=20&pageNo=1`;
+    const searchUrl = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&keyword=${encodeURIComponent(cleanQ)}&numOfRows=20&pageNo=1`;
     const res = await fetch(searchUrl);
     if (!res.ok) return [];
     const data = await res.json();
@@ -669,9 +679,9 @@ export async function fetchPinpointLandmarkSpots(landmarks = [], lang = 'ko', ta
   const cleanTargetCity = targetCity ? targetCity.replace(/(도|시|군|구)$/, '').trim() : '';
 
   // Filter out noise/generic region words and strip parentheses/brackets e.g. "거제식물원(정글돔)" -> "거제식물원"
-  const NOISE_WORDS = ['한국', '대한민국', '경상남도', '경상북도', '전라남도', '전라북도', '충청남도', '충청북도', '경기도', '강원도', '제주도', '창원시', '거제시', '수원시'];
+  const NOISE_WORDS = ['한국', '대한민국', '경상남도', '경상북도', '전라남도', '전라북도', '충청남도', '충청북도', '경기도', '강원도', '제주도', '창원시', '거제시', '수원시', 'KOREA', 'SOUTH KOREA'];
   const validLandmarks = Array.from(new Set(landmarks.map(lm => String(lm).replace(/\(.*?\)/g, '').replace(/\[.*?\]/g, '').trim()).filter(Boolean)))
-    .filter(lm => lm && lm.length >= 2 && !NOISE_WORDS.includes(lm))
+    .filter(lm => lm && lm.length >= 2 && !NOISE_WORDS.includes(lm.toUpperCase()))
     .slice(0, 12);
 
   if (validLandmarks.length === 0) return [];
@@ -679,7 +689,7 @@ export async function fetchPinpointLandmarkSpots(landmarks = [], lang = 'ko', ta
   // Parallel Execution with 3.5s AbortController Timeout Per Request
   const fetchPromises = validLandmarks.map(async (lm) => {
     try {
-      // 🎯 1차 시도: 원본 정제 키워드로 검색 (예: "구조라 해수욕장", "거제 파노라마 케이블카")
+      // 🎯 1차 시도: 원본 정제 키워드로 검색 (예: "구조라 해수욕장", "Gyeongbokgung")
       let url = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=10&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=B&keyword=${encodeURIComponent(lm)}`;
       let controller = new AbortController();
       let timeoutId = setTimeout(() => controller.abort(), 3500);
@@ -696,16 +706,11 @@ export async function fetchPinpointLandmarkSpots(landmarks = [], lang = 'ko', ta
         }
       }
 
-      // 🎯 2차 시도: 0건이면 복합 부가어('정글돔', '스카이워크', '전망대', '카페', '식당', '맛집', '거리' 등) 떼고 정밀 2차 검색 (예: "거제식물원 정글돔" -> "거제식물원", "심해 카페" -> "심해")
+      // 🎯 2차 시도 (규칙 13): 0건이면 공백 및 특수문자 제거 압축 검색 (예: "N-Seoul Tower" -> "NSEOULTOWER", "거제 파노라마 케이블카" -> "거제파노라마케이블카")
       if (!rawItems || (Array.isArray(rawItems) && rawItems.length === 0)) {
-        const strippedKeyword = lm
-          .replace(/\s*(정글돔|스카이워크|케이블카|전망대|리조트|파크|거리|거리일대).*/gi, '')
-          .replace(/\s+(카페|식당|맛집|베이커리|호텔|펜션)$/gi, '')
-          .replace(/^카페\s+/i, '')
-          .trim();
-
-        if (strippedKeyword && strippedKeyword !== lm && strippedKeyword.length >= 2) {
-          const url2 = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=10&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=B&keyword=${encodeURIComponent(strippedKeyword)}`;
+        const compressedKeyword = lm.replace(/[\s\-\_\.\,\(\)\[\]]/g, '');
+        if (compressedKeyword && compressedKeyword !== lm && compressedKeyword.length >= 2) {
+          const url2 = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=10&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=B&keyword=${encodeURIComponent(compressedKeyword)}`;
           const c2 = new AbortController();
           const t2 = setTimeout(() => c2.abort(), 3000);
           const res2 = await fetch(url2, { signal: c2.signal }).catch(() => null);
@@ -720,12 +725,37 @@ export async function fetchPinpointLandmarkSpots(landmarks = [], lang = 'ko', ta
         }
       }
 
+      // 🎯 3차 시도: 부가어/접미사 떼고 정밀 검색 (예: "거제식물원 정글돔" -> "거제식물원")
+      if (!rawItems || (Array.isArray(rawItems) && rawItems.length === 0)) {
+        const strippedKeyword = lm
+          .replace(/\s*(정글돔|스카이워크|케이블카|전망대|리조트|파크|거리|거리일대).*/gi, '')
+          .replace(/\s+(카페|식당|맛집|베이커리|호텔|펜션)$/gi, '')
+          .replace(/^카페\s+/i, '')
+          .trim();
+
+        if (strippedKeyword && strippedKeyword !== lm && strippedKeyword.length >= 2) {
+          const url3 = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=10&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=B&keyword=${encodeURIComponent(strippedKeyword)}`;
+          const c3 = new AbortController();
+          const t3 = setTimeout(() => c3.abort(), 3000);
+          const res3 = await fetch(url3, { signal: c3.signal }).catch(() => null);
+          clearTimeout(t3);
+          if (res3 && res3.ok) {
+            const rawText3 = await res3.text().catch(() => '');
+            if (rawText3 && rawText3.trim().startsWith('{')) {
+              const data3 = JSON.parse(rawText3);
+              rawItems = data3.response?.body?.items?.item || [];
+            }
+          }
+        }
+      }
+
       const items = Array.isArray(rawItems) ? rawItems : (rawItems ? [rawItems] : []);
 
-      // 🎯 Priority 1: Match item whose address contains cleanTargetCity (e.g. 거제, 수원, 제주)
+      // 🎯 Priority 1: Match item whose address contains cleanTargetCity with Case-Insensitive comparison (.toUpperCase())
       let rawItem = null;
       if (cleanTargetCity && items.length > 0) {
-        rawItem = items.find(i => i.addr1 && i.addr1.includes(cleanTargetCity));
+        const upperCity = cleanTargetCity.toUpperCase();
+        rawItem = items.find(i => i.addr1 && i.addr1.toUpperCase().includes(upperCity));
       }
       if (!rawItem && items.length > 0) {
         rawItem = items[0];

@@ -8,6 +8,104 @@ const POPULAR_CITIES = [
   '서울', '거제', '부산', '제주', '경주', '강릉', '인천', '전주', '여수', '속초', '수원'
 ];
 
+const CITY_I18N = {
+  '서울': { en: 'Seoul', ja: 'ソウル', zh: '首尔', zht: '首爾' },
+  '거제': { en: 'Geoje', ja: '巨済', zh: '巨济', zht: '巨濟' },
+  '부산': { en: 'Busan', ja: '釜山', zh: '釜山', zht: '釜山' },
+  '제주': { en: 'Jeju', ja: '済州', zh: '济州', zht: '濟州' },
+  '경주': { en: 'Gyeongju', ja: '慶州', zh: '庆州', zht: '慶州' },
+  '강릉': { en: 'Gangneung', ja: '江陵', zh: '江陵', zht: '江陵' },
+  '인천': { en: 'Incheon', ja: '仁川', zh: '仁川', zht: '仁川' },
+  '전주': { en: 'Jeonju', ja: '全州', zh: '全州', zht: '全州' },
+  '여수': { en: 'Yeosu', ja: '麗水', zh: '丽水', zht: '麗水' },
+  '속초': { en: 'Sokcho', ja: '束草', zh: '束草', zht: '束草' },
+  '수원': { en: 'Suwon', ja: '水原', zh: '水原', zht: '水原' }
+};
+
+export function getCityName(city, lang = 'ko') {
+  if (CITY_I18N[city] && CITY_I18N[city][lang]) {
+    return CITY_I18N[city][lang];
+  }
+  return city;
+}
+
+export function getTranslatedWeatherText(text, lang = 'ko') {
+  if (!text) return '';
+  if (lang === 'en') {
+    if (text.includes('맑음')) return 'Sunny';
+    if (text.includes('구름')) return 'Partly Cloudy';
+    if (text.includes('흐림')) return 'Overcast';
+    if (text.includes('비')) return 'Rainy';
+    if (text.includes('눈')) return 'Snowy';
+  } else if (lang === 'ja') {
+    if (text.includes('맑음')) return '晴れ';
+    if (text.includes('구름')) return '曇りがち';
+    if (text.includes('흐림')) return '曇り';
+    if (text.includes('비')) return '雨';
+    if (text.includes('눈')) return '雪';
+  } else if (lang === 'zh') {
+    if (text.includes('맑음')) return '晴朗';
+    if (text.includes('구름')) return '多云';
+    if (text.includes('흐림')) return '阴天';
+    if (text.includes('비')) return '有雨';
+    if (text.includes('눈')) return '有雪';
+  } else if (lang === 'zht') {
+    if (text.includes('맑음')) return '晴朗';
+    if (text.includes('구름')) return '多雲';
+    if (text.includes('흐림')) return '陰天';
+    if (text.includes('비')) return '有雨';
+    if (text.includes('눈')) return '有雪';
+  }
+  return text;
+}
+
+export function getMultilingualOutfitTip(tempStr, lang = 'ko') {
+  const tempNum = parseInt((tempStr || '20').replace(/[^0-9\-]/g, ''), 10) || 20;
+  if (tempNum >= 28) {
+    switch (lang) {
+      case 'en': return '☀️ Hot summer weather. Breathable t-shirts, linen shorts/pants, sunglasses, and UV protection hats recommended.';
+      case 'ja': return '☀️ 暑い夏日です。通気性の良い半袖Tシャツ、リネンパンツ、サングラス、日よけ帽子をおすすめします。';
+      case 'zh': return '☀️ 天气炎热。建议穿着透气短袖、亚麻长裤，佩戴太阳镜及遮阳帽。';
+      case 'zht': return '☀️ 天氣炎熱。建議穿著透氣短袖、亞麻長褲，配戴太陽眼鏡及遮陽帽。';
+      default: return '☀️ 무더운 날씨입니다. 통풍이 잘되는 반팔 티셔츠, 린넨 바지, 선글라스, 자외선 차단 모자를 추천합니다.';
+    }
+  }
+  if (tempNum >= 23) {
+    switch (lang) {
+      case 'en': return '🌤️ Pleasant weather for outdoor activities. Light shirts, cotton pants, and comfortable walking shoes recommended.';
+      case 'ja': return '🌤️ 屋外観光に最適な快適な気候です。薄手のシャツや半袖、綿パンツ、歩きやすい靴がおすすめです。';
+      case 'zh': return '🌤️ 适合户外游览的舒适天气。推荐薄衬衫、短袖、棉质长裤和舒适步行鞋。';
+      case 'zht': return '🌤️ 適合戶外遊覽的舒適天氣。推薦薄襯衫、短袖、棉質長褲和舒適步行鞋。';
+      default: return '🌤️ 야외 활동하기 좋은 쾌적한 날씨입니다. 얇은 셔츠나 반팔, 가벼운 면바지 및 편안한 워킹화가 좋습니다.';
+    }
+  }
+  if (tempNum >= 17) {
+    switch (lang) {
+      case 'en': return '🍂 Temperature fluctuates between day & night. Bring a light cardigan, windbreaker jacket, and pants.';
+      case 'ja': return '🍂 昼夜の寒暖差があります。軽いカーディガン、ウインドブレーカーやジャケット、長ズボンをご用意ください。';
+      case 'zh': return '🍂 昼夜温差较大。建议准备轻便开衫、防风外套或夹克以及长裤。';
+      case 'zht': return '🍂 晝夜溫差較大。建議準備輕便開衫、防風外套或夾克以及長褲。';
+      default: return '🍂 일교차가 있을 수 있습니다. 가벼운 가디건, 바람막이나 자켓, 긴바지를 준비하세요.';
+    }
+  }
+  if (tempNum >= 10) {
+    switch (lang) {
+      case 'en': return '🧥 Chilly weather. Thick knit sweaters, trench coat or jacket, and scarf recommended.';
+      case 'ja': return '🧥 肌寒い天気です。厚手のニット、トレンチコートやジャケット、スカーフの着用をおすすめします。';
+      case 'zh': return '🧥 天气微凉。建议穿着厚针织衫、风衣或夹克，佩戴围巾。';
+      case 'zht': return '🧥 天氣微涼。建議穿著厚針織衫、風衣或夾克，配戴圍巾。';
+      default: return '🧥 쌀쌀한 날씨입니다. 도톰한 니트, 트렌치코트나 자켓, 스카프를 착용하면 좋습니다.';
+    }
+  }
+  switch (lang) {
+    case 'en': return '❄️ Cold winter weather. Warm padded down jacket, scarf, gloves, thermal innerwear, and hot packs recommended.';
+    case 'ja': return '❄️ 寒い冬の天気です。暖かいダウンジャケット、マフラー、手袋、保温インナー、カイロをお持ちください。';
+    case 'zh': return '❄️ 寒冷冬日。请准备保暖羽绒服、围巾、手套、保暖内衣及暖宝宝。';
+    case 'zht': return '❄️ 寒冷冬日。請準備保暖羽絨服、圍巾、手套、保暖內衣及暖暖包。';
+    default: return '❄️ 추운 겨울 날씨입니다. 따뜻한 패딩 점퍼, 목도리, 장갑, 보온 내의와 핫팩을 챙기세요.';
+  }
+}
+
 export default function WeatherModal({ isOpen, onClose, lang = 'ko', initialRegion = '서울' }) {
   if (!isOpen) return null;
 
@@ -47,16 +145,6 @@ export default function WeatherModal({ isOpen, onClose, lang = 'ko', initialRegi
       case 'Sun':
       default: return <Sun size={size} color="#f59e0b" />;
     }
-  };
-
-  // Deterministic outfit tip based on temperature
-  const getOutfitTip = (tempStr) => {
-    const tempNum = parseInt((tempStr || '20').replace(/[^0-9\-]/g, ''), 10) || 20;
-    if (tempNum >= 28) return '☀️ 무더운 날씨입니다. 통풍이 잘되는 반팔 티셔츠, 린넨 바지, 선글라스, 자외선 차단 모자를 추천합니다.';
-    if (tempNum >= 23) return '🌤️ 야외 활동하기 좋은 쾌적한 날씨입니다. 얇은 셔츠나 반팔, 가벼운 면바지 및 편안한 워킹화가 좋습니다.';
-    if (tempNum >= 17) return '🍂 일교차가 있을 수 있습니다. 가벼운 가디건, 바람막이나 자켓, 긴바지를 준비하세요.';
-    if (tempNum >= 10) return '🧥 쌀쌀한 날씨입니다. 도톰한 니트, 트렌치코트나 자켓, 스카프를 착용하면 좋습니다.';
-    return '❄️ 추운 겨울 날씨입니다. 따뜻한 패딩 점퍼, 목도리, 장갑, 보온 내의와 핫팩을 챙기세요.';
   };
 
   const modalNode = (
@@ -118,7 +206,7 @@ export default function WeatherModal({ isOpen, onClose, lang = 'ko', initialRegi
             <div style={{ minWidth: 0, flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
                 <h3 style={{ fontSize: isMobile ? '0.98rem' : '1.15rem', fontWeight: 900, margin: 0, color: 'var(--text-main, #0f172a)', whiteSpace: 'nowrap' }}>
-                  ☀️ 기상청(KMA) 실시간 기후 센터
+                  ☀️ {t.navWeather || '실시간 기후 센터'} ({getCityName(selectedCity, lang)})
                 </h3>
                 <span style={{
                   fontSize: '0.65rem',
@@ -131,11 +219,14 @@ export default function WeatherModal({ isOpen, onClose, lang = 'ko', initialRegi
                   whiteSpace: 'nowrap',
                   flexShrink: 0
                 }}>
-                  100% 연동
+                  KMA 100%
                 </span>
               </div>
               <p style={{ fontSize: '0.74rem', color: 'var(--text-muted, #64748b)', margin: '0.1rem 0 0 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                전국 16개 권역 실시간 기상관측 데이터 & 7일 예보
+                {lang === 'en' ? 'Korea Meteorological Administration Realtime & 7-Day Forecast' :
+                 lang === 'ja' ? '韓国気象庁(KMA) リアルタイム気象＆7日間週間予報' :
+                 lang === 'zh' || lang === 'zht' ? '韩国气象厅 实时气象数据及7日预报' :
+                 '전국 16개 권역 실시간 기상관측 데이터 & 7일 예보'}
               </p>
             </div>
           </div>
@@ -172,7 +263,7 @@ export default function WeatherModal({ isOpen, onClose, lang = 'ko', initialRegi
           scrollbarWidth: 'none'
         }}>
           <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748b', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '0.2rem', flexShrink: 0 }}>
-            <MapPin size={13} /> 지역:
+            <MapPin size={13} /> {lang === 'en' ? 'City:' : lang === 'ja' ? '地域:' : lang === 'zh' || lang === 'zht' ? '地区:' : '지역:'}
           </span>
           {POPULAR_CITIES.map(city => (
             <button
@@ -192,7 +283,7 @@ export default function WeatherModal({ isOpen, onClose, lang = 'ko', initialRegi
                 flexShrink: 0
               }}
             >
-              {city}
+              {getCityName(city, lang)}
             </button>
           ))}
         </div>
@@ -242,14 +333,14 @@ export default function WeatherModal({ isOpen, onClose, lang = 'ko', initialRegi
                         borderRadius: '6px',
                         flexShrink: 0
                       }}>
-                        {weatherData.region} 오늘
+                        {getCityName(weatherData.region, lang)} {lang === 'en' ? 'Today' : lang === 'ja' ? '本日' : lang === 'zh' || lang === 'zht' ? '今日' : '오늘'}
                       </span>
                       <span style={{ fontSize: '0.74rem', color: '#64748b' }}>
-                        {weatherData.forecastDate} 기준
+                        {weatherData.forecastDate}
                       </span>
                     </div>
                     <div style={{ fontSize: isMobile ? '1.2rem' : '1.4rem', fontWeight: 900, color: 'var(--text-main, #0f172a)' }}>
-                      {weatherData.weatherText}
+                      {getTranslatedWeatherText(weatherData.weatherText, lang)}
                     </div>
                   </div>
                 </div>
@@ -258,14 +349,18 @@ export default function WeatherModal({ isOpen, onClose, lang = 'ko', initialRegi
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                     <Thermometer size={isMobile ? 20 : 24} color="#ef4444" />
                     <div>
-                      <div style={{ fontSize: '0.7rem', color: '#64748b' }}>현재 기온</div>
+                      <div style={{ fontSize: '0.7rem', color: '#64748b' }}>
+                        {lang === 'en' ? 'Current' : lang === 'ja' ? '現在気温' : lang === 'zh' || lang === 'zht' ? '当前气温' : '현재 기온'}
+                      </div>
                       <div style={{ fontSize: isMobile ? '1.15rem' : '1.3rem', fontWeight: 900, color: '#ef4444' }}>{weatherData.temperature}</div>
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                     <Umbrella size={isMobile ? 20 : 24} color="#0284c7" />
                     <div>
-                      <div style={{ fontSize: '0.7rem', color: '#64748b' }}>강수확률</div>
+                      <div style={{ fontSize: '0.7rem', color: '#64748b' }}>
+                        {lang === 'en' ? 'Precipitation' : lang === 'ja' ? '降水確率' : lang === 'zh' || lang === 'zht' ? '降水概率' : '강수확률'}
+                      </div>
                       <div style={{ fontSize: isMobile ? '1.15rem' : '1.3rem', fontWeight: 900, color: '#0284c7' }}>{weatherData.rainProbability}</div>
                     </div>
                   </div>
@@ -285,10 +380,13 @@ export default function WeatherModal({ isOpen, onClose, lang = 'ko', initialRegi
                 <Shirt size={18} color="#9333ea" style={{ flexShrink: 0, marginTop: '2px' }} />
                 <div>
                   <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#9333ea', marginBottom: '0.15rem' }}>
-                    👗 AI 오늘 날씨 맞춤 코디 가이드
+                    👗 {lang === 'en' ? 'AI Weather Outfit Styling Guide' :
+                        lang === 'ja' ? 'AI 天気別おすすめコーディネート' :
+                        lang === 'zh' || lang === 'zht' ? 'AI 天气穿搭造型建议' :
+                        '👗 AI 오늘 날씨 맞춤 코디 가이드'}
                   </div>
                   <div style={{ fontSize: '0.75rem', color: '#475569', lineHeight: 1.45 }}>
-                    {getOutfitTip(weatherData.temperature)}
+                    {getMultilingualOutfitTip(weatherData.temperature, lang)}
                   </div>
                 </div>
               </div>
@@ -306,7 +404,10 @@ export default function WeatherModal({ isOpen, onClose, lang = 'ko', initialRegi
                     gap: '0.35rem'
                   }}>
                     <Calendar size={14} color="#0284c7" />
-                    기상청 7일 주간 중기예보 전망
+                    {lang === 'en' ? '7-Day Mid-term Weather Forecast' :
+                     lang === 'ja' ? '気象庁 7日間週間天気予報' :
+                     lang === 'zh' || lang === 'zht' ? '韩国气象厅 7日周预报' :
+                     '기상청 7일 주간 중기예보 전망'}
                   </div>
 
                   <div style={{
@@ -327,13 +428,16 @@ export default function WeatherModal({ isOpen, onClose, lang = 'ko', initialRegi
                         gap: '0.2rem'
                       }}>
                         <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#0284c7' }}>
-                          +{mid.dayOffset}일 후
+                          {lang === 'en' ? `+${mid.dayOffset} Days` :
+                           lang === 'ja' ? `+${mid.dayOffset}日後` :
+                           lang === 'zh' || lang === 'zht' ? `+${mid.dayOffset}天后` :
+                           `+${mid.dayOffset}일 후`}
                         </span>
                         <div style={{ margin: '0.1rem 0' }}>
                           {renderIcon(mid.weatherIcon, 22)}
                         </div>
                         <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-main, #0f172a)' }}>
-                          {mid.weatherText}
+                          {getTranslatedWeatherText(mid.weatherText, lang)}
                         </span>
                         <div style={{ fontSize: '0.68rem', color: '#64748b' }}>
                           🌧️ {mid.pop}
@@ -361,7 +465,10 @@ export default function WeatherModal({ isOpen, onClose, lang = 'ko', initialRegi
           fontSize: '0.72rem',
           color: '#94a3b8'
         }}>
-          <span>데이터 출처: 대한민국 기상청</span>
+          <span>{lang === 'en' ? 'Data: Korea Meteorological Administration' :
+                 lang === 'ja' ? 'データ提供: 大韓民国気象庁' :
+                 lang === 'zh' || lang === 'zht' ? '数据来源: 大韩民国气象厅' :
+                 '데이터 출처: 대한민국 기상청'}</span>
           <button
             onClick={onClose}
             style={{
@@ -375,7 +482,7 @@ export default function WeatherModal({ isOpen, onClose, lang = 'ko', initialRegi
               cursor: 'pointer'
             }}
           >
-            닫기
+            {lang === 'en' ? 'Close' : lang === 'ja' ? '閉じる' : lang === 'zh' || lang === 'zht' ? '关闭' : '닫기'}
           </button>
         </div>
       </div>

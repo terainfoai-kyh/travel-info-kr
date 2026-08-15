@@ -379,108 +379,110 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
       fontFamily: 'var(--font-family)'
     }}>
       
-      {/* 🛠️ TOP CONTROL BAR */}
-      <div style={{
-        backgroundColor: '#f1f5f9',
-        padding: '0.75rem 1rem',
-        borderRadius: '16px',
-        border: '1px solid #cbd5e1',
-        marginBottom: '1rem',
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: '0.6rem'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Cpu size={18} style={{ color: '#7e22ce' }} />
-          <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#0f172a' }}>
-            🛠️ AI 쿼터 & 회원 등급 제어판:
-          </span>
+      {/* 🛠️ TOP CONTROL BAR (Dev / Admin mode only) */}
+      {(typeof window !== 'undefined' && (window.location.search.includes('dev=true') || window.location.hostname === 'localhost' || window.sessionStorage.getItem('vora_dev_mode') === 'true')) && (
+        <div style={{
+          backgroundColor: '#f1f5f9',
+          padding: '0.75rem 1rem',
+          borderRadius: '16px',
+          border: '1px solid #cbd5e1',
+          marginBottom: '1rem',
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '0.6rem'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Cpu size={18} style={{ color: '#7e22ce' }} />
+            <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#0f172a' }}>
+              🛠️ AI 쿼터 & 회원 등급 제어판 (Dev Mode):
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.4rem' }}>
+            <button
+              onClick={() => toggleDevBypass()}
+              style={{
+                padding: '0.3rem 0.65rem',
+                borderRadius: '8px',
+                fontSize: '0.72rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                border: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.3rem',
+                backgroundColor: isDevBypass ? '#10b981' : '#ffe4e6',
+                color: isDevBypass ? '#ffffff' : '#be123c'
+              }}
+            >
+              {isDevBypass ? <Zap size={13} /> : <ShieldAlert size={13} />}
+              {isDevBypass ? '무제한 모드 ON' : '유저 제한 모드'}
+            </button>
+
+            <button
+              onClick={handleRechargeExtra}
+              style={{
+                padding: '0.3rem 0.65rem',
+                borderRadius: '8px',
+                fontSize: '0.72rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                border: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.3rem',
+                backgroundColor: '#2563eb',
+                color: '#ffffff'
+              }}
+            >
+              <PlusCircle size={13} />
+              +5회 즉시 충전 {extraRechargeCount > 0 && `(+${extraRechargeCount})`}
+            </button>
+
+            <button
+              onClick={handleToggleVirtualGoogleLogin}
+              style={{
+                padding: '0.3rem 0.65rem',
+                borderRadius: '8px',
+                fontSize: '0.72rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                border: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.3rem',
+                backgroundColor: isVirtualGoogleLogin ? '#ea580c' : '#64748b',
+                color: '#ffffff'
+              }}
+            >
+              <UserCheck size={13} />
+              {isVirtualGoogleLogin ? '🔑 구글 로그인 상태' : '🔒 비회원 상태'}
+            </button>
+
+            <button
+              onClick={handleCycleVirtualTier}
+              style={{
+                padding: '0.3rem 0.65rem',
+                borderRadius: '8px',
+                fontSize: '0.72rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.3rem',
+                backgroundColor: '#faf5ff',
+                color: '#7e22ce',
+                border: '1px solid #d8b4fe'
+              }}
+            >
+              <Crown size={13} />
+              등급: <strong>{userTier}</strong>
+            </button>
+          </div>
         </div>
-
-        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.4rem' }}>
-          <button
-            onClick={() => toggleDevBypass()}
-            style={{
-              padding: '0.3rem 0.65rem',
-              borderRadius: '8px',
-              fontSize: '0.72rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              border: 'none',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.3rem',
-              backgroundColor: isDevBypass ? '#10b981' : '#ffe4e6',
-              color: isDevBypass ? '#ffffff' : '#be123c'
-            }}
-          >
-            {isDevBypass ? <Zap size={13} /> : <ShieldAlert size={13} />}
-            {isDevBypass ? '무제한 모드 ON' : '유저 제한 모드'}
-          </button>
-
-          <button
-            onClick={handleRechargeExtra}
-            style={{
-              padding: '0.3rem 0.65rem',
-              borderRadius: '8px',
-              fontSize: '0.72rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              border: 'none',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.3rem',
-              backgroundColor: '#2563eb',
-              color: '#ffffff'
-            }}
-          >
-            <PlusCircle size={13} />
-            +5회 즉시 충전 {extraRechargeCount > 0 && `(+${extraRechargeCount})`}
-          </button>
-
-          <button
-            onClick={handleToggleVirtualGoogleLogin}
-            style={{
-              padding: '0.3rem 0.65rem',
-              borderRadius: '8px',
-              fontSize: '0.72rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              border: 'none',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.3rem',
-              backgroundColor: isVirtualGoogleLogin ? '#ea580c' : '#64748b',
-              color: '#ffffff'
-            }}
-          >
-            <UserCheck size={13} />
-            {isVirtualGoogleLogin ? '🔑 구글 로그인 상태' : '🔒 비회원 상태'}
-          </button>
-
-          <button
-            onClick={handleCycleVirtualTier}
-            style={{
-              padding: '0.3rem 0.65rem',
-              borderRadius: '8px',
-              fontSize: '0.72rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              border: '1px solid rgba(147, 51, 234, 0.3)',
-              backgroundColor: 'rgba(147, 51, 234, 0.1)',
-              color: '#7e22ce',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.3rem'
-            }}
-          >
-            <Crown size={13} />
-            등급: <strong style={{ color: '#6b21a8' }}>{virtualTier.toUpperCase()}</strong>
-          </button>
-        </div>
-      </div>
+      )}
 
       {/* CHAT CONTAINER HEADER */}
       <div style={{

@@ -418,7 +418,15 @@ export default function CourseMapViewModal({
                 overflow: 'hidden',
                 textOverflow: 'ellipsis'
               }}>
-                🗺️ {regionName} {availableDays.length > 1 ? `${availableDays.length}일 코스` : '당일 코스'} 스마트 동선
+                🗺️ {regionName} {availableDays.length > 1 ?
+                  (lang === 'en' ? `${availableDays.length}-Day Smart Route` :
+                   lang === 'ja' ? `${availableDays.length}日間スマートコース` :
+                   lang === 'zh' || lang === 'zht' ? `${availableDays.length}日游智慧路线` :
+                   `${availableDays.length}일 코스 스마트 동선`) :
+                  (lang === 'en' ? '1-Day Smart Route' :
+                   lang === 'ja' ? '日帰りスマートコース' :
+                   lang === 'zh' || lang === 'zht' ? '一日游智慧路线' :
+                   '당일 코스 스마트 동선')}
               </h3>
               <p style={{
                 fontSize: isDesktop ? '0.72rem' : '0.66rem',
@@ -428,7 +436,10 @@ export default function CourseMapViewModal({
                 overflow: 'hidden',
                 textOverflow: 'ellipsis'
               }}>
-                한국관광공사 TourAPI 4.0 정품 GPS 연동
+                {lang === 'en' ? 'Korea Tourism Organization TourAPI 4.0 Verified GPS' :
+                 lang === 'ja' ? '韓国観光公社 TourAPI 4.0 公式GPS連動' :
+                 lang === 'zh' || lang === 'zht' ? '韩国观光公社 TourAPI 4.0 官方认证GPS' :
+                 '한국관광공사 TourAPI 4.0 정품 GPS 연동'}
               </p>
             </div>
           </div>
@@ -454,12 +465,13 @@ export default function CourseMapViewModal({
               }}
             >
               {copied ? <Check size={12} /> : <Share2 size={12} />}
-              <span>{copied ? '복사됨!' : '코스 복사'}</span>
+              <span>{copied ? (lang === 'en' ? 'Copied!' : lang === 'ja' ? 'コピー完了!' : lang === 'zh' || lang === 'zht' ? '已复制!' : '복사됨!') :
+                              (lang === 'en' ? 'Copy Course' : lang === 'ja' ? 'コースコピー' : lang === 'zh' || lang === 'zht' ? '复制路线' : '코스 복사')}</span>
             </button>
 
             <button
               onClick={onClose}
-              aria-label="닫기"
+              aria-label={lang === 'en' ? 'Close' : lang === 'ja' ? '閉じる' : lang === 'zh' || lang === 'zht' ? '关闭' : '닫기'}
               style={{
                 backgroundColor: '#f1f5f9',
                 border: '1px solid #cbd5e1',
@@ -525,7 +537,7 @@ export default function CourseMapViewModal({
                     transition: 'all 0.2s ease'
                   }}
                 >
-                  <span>{icon} {dNum}일차</span>
+                  <span>{icon} {lang === 'en' ? `Day ${dNum}` : lang === 'ja' ? `${dNum}日目` : lang === 'zh' || lang === 'zht' ? `第${dNum}天` : `${dNum}일차`}</span>
                   <span style={{
                     fontSize: '0.68rem',
                     backgroundColor: isActive ? 'rgba(255,255,255,0.25)' : '#f1f5f9',
@@ -533,7 +545,7 @@ export default function CourseMapViewModal({
                     padding: '0.1rem 0.4rem',
                     borderRadius: '9999px'
                   }}>
-                    {count}곳
+                    {count}{lang === 'en' ? ' spots' : lang === 'ja' ? 'ヶ所' : lang === 'zh' || lang === 'zht' ? '处' : '곳'}
                   </span>
                 </button>
               );
@@ -560,10 +572,16 @@ export default function CourseMapViewModal({
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
               <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#1e293b' }}>
-                📍 {currentDay}일차 추천 일정 ({currentDaySpots.length}개 명소)
+                📍 {lang === 'en' ? `Day ${currentDay} Itinerary (${currentDaySpots.length} spots)` :
+                    lang === 'ja' ? `${currentDay}日目のおすすめ日程 (${currentDaySpots.length}スポット)` :
+                    lang === 'zh' || lang === 'zht' ? `第${currentDay}天推荐行程 (${currentDaySpots.length}个景点)` :
+                    `${currentDay}일차 추천 일정 (${currentDaySpots.length}개 명소)`}
               </div>
               <span style={{ fontSize: '0.7rem', color: '#9333ea', fontWeight: 700, backgroundColor: '#f3e8ff', padding: '0.2rem 0.5rem', borderRadius: '6px' }}>
-                ① ➔ ② ➔ ③ 순서대로 추천
+                {lang === 'en' ? 'Recommended: ① ➔ ② ➔ ③' :
+                 lang === 'ja' ? '巡回順: ① ➔ ② ➔ ③' :
+                 lang === 'zh' || lang === 'zht' ? '推荐顺序: ① ➔ ② ➔ ③' :
+                 '① ➔ ② ➔ ③ 순서대로 추천'}
               </span>
             </div>
 
@@ -623,13 +641,15 @@ export default function CourseMapViewModal({
                         </strong>
                       </div>
                       <span style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 600 }}>
-                        {idx === 0 ? '🌅 오전' : (idx === 1 ? '☀️ 오후' : '🌙 저녁/야경')}
+                        {idx === 0 ? (lang === 'en' ? '🌅 Morning' : lang === 'ja' ? '🌅 午前' : lang === 'zh' || lang === 'zht' ? '🌅 上午' : '🌅 오전') :
+                         (idx === 1 ? (lang === 'en' ? '☀️ Afternoon' : lang === 'ja' ? '☀️ 午後' : lang === 'zh' || lang === 'zht' ? '☀️ 下午' : '☀️ 오후') :
+                                      (lang === 'en' ? '🌙 Evening' : lang === 'ja' ? '🌙 夕方・夜景' : lang === 'zh' || lang === 'zht' ? '🌙 傍晚/夜景' : '🌙 저녁/야경'))}
                       </span>
                     </div>
 
                     <div style={{ fontSize: '0.74rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                       <MapPin size={12} color="#ef4444" style={{ flexShrink: 0 }} />
-                      <span>{spot.location || spot.addr1 || '상세 주소 제공'}</span>
+                      <span>{spot.location || spot.addr1 || (lang === 'en' ? 'Location details available' : '상세 주소 제공')}</span>
                     </div>
 
                     {/* CARD BUTTONS */}
@@ -679,7 +699,7 @@ export default function CourseMapViewModal({
                         }}
                       >
                         <MapPin size={11} />
-                        <span>지도 길찾기</span>
+                        <span>{lang === 'en' ? 'Google Map' : lang === 'ja' ? '地図' : lang === 'zh' || lang === 'zht' ? '谷歌地图' : '지도 길찾기'}</span>
                       </a>
                     </div>
                   </div>
@@ -711,7 +731,9 @@ export default function CourseMapViewModal({
                         borderRadius: '12px'
                       }}>
                         {idx === 0 ? <Footprints size={12} /> : <Bus size={12} />}
-                        <span>{idx === 0 ? '🚶 도보 약 15분 (800m)' : '🚌 대중교통 약 10~15분'}</span>
+                        <span>{idx === 0 ?
+                          (lang === 'en' ? '🚶 Walk ~15 min (800m)' : lang === 'ja' ? '🚶 徒歩約15分 (800m)' : lang === 'zh' || lang === 'zht' ? '🚶 步行约15分钟 (800m)' : '🚶 도보 약 15분 (800m)') :
+                          (lang === 'en' ? '🚌 Transit ~10-15 min' : lang === 'ja' ? '🚌 公共交通約10~15分' : lang === 'zh' || lang === 'zht' ? '🚌 公交/地铁约10~15分钟' : '🚌 대중교통 약 10~15분')}</span>
                       </div>
                     </div>
                   )}

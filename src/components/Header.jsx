@@ -318,7 +318,7 @@ export default function Header({
               }}
             >
               <Sparkles size={14} color="#9333ea" />
-              <span>AI 대화</span>
+              <span>{t.navAiChat || 'AI 대화'}</span>
             </button>
 
             {/* 2. ☀️ KMA Live Weather Pill Badge (Click to open full WeatherModal) */}
@@ -385,7 +385,7 @@ export default function Header({
               }}
             >
               <Luggage size={14} color="#0284c7" />
-              <span>여행 필수템</span>
+              <span>{t.navEssentials || '여행 필수템'}</span>
             </button>
 
             {/* 4. 🍲 AI 맛집 & 코디 */}
@@ -417,7 +417,7 @@ export default function Header({
               }}
             >
               <Utensils size={14} color="#ea580c" />
-              <span>AI 맛집 & 코디</span>
+              <span>{t.navLifestyle || t.navFoodOutfit || 'AI 맛집 & 코디'}</span>
             </button>
           </nav>
         )}
@@ -556,7 +556,7 @@ export default function Header({
               {isMobile && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', paddingBottom: '0.45rem', borderBottom: themeMode === 'light' ? '1px solid #f1f5f9' : '1px solid rgba(255,255,255,0.1)' }}>
                   <div style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 800, padding: '0.2rem 0.5rem' }}>
-                    바로가기
+                    {t.quickLinks || '바로가기'}
                   </div>
 
                   <button
@@ -581,7 +581,7 @@ export default function Header({
                     }}
                   >
                     <Sun size={15} color="#f59e0b" />
-                    <span>실시간 날씨 ({liveWeather.city} {liveWeather.temp})</span>
+                    <span>{t.navWeather || '실시간 날씨'} ({liveWeather.city} {liveWeather.temp})</span>
                   </button>
 
                   <button
@@ -606,7 +606,7 @@ export default function Header({
                     }}
                   >
                     <Luggage size={15} color="#0284c7" />
-                    <span>여행 필수템 & 제휴 할인</span>
+                    <span>{t.navEssentials || '여행 필수템 & 제휴 할인'}</span>
                   </button>
 
                   <button
@@ -631,7 +631,7 @@ export default function Header({
                     }}
                   >
                     <Utensils size={15} color="#ea580c" />
-                    <span>AI 맛집 & K-코디 가이드</span>
+                    <span>{t.navLifestyle || t.navFoodOutfit || 'AI 맛집 & K-코디 가이드'}</span>
                   </button>
                 </div>
               )}
