@@ -665,6 +665,9 @@ export async function fetchPinpointLandmarkSpots(landmarks = [], lang = 'ko', ta
   else if (lang === 'es') apiBase = PUBLIC_API_CONFIG.SPN_BASE;
   else if (lang === 'ru') apiBase = PUBLIC_API_CONFIG.RUS_BASE;
 
+  // 🎯 [지명 정규화 v4] '거제도' -> '거제', '제주도' -> '제주', '수원시' -> '수원', '해운대구' -> '해운대'
+  const cleanTargetCity = targetCity ? targetCity.replace(/(도|시|군|구)$/, '').trim() : '';
+
   // Filter out noise/generic region words and cap at max 8 landmarks
   const NOISE_WORDS = ['한국', '대한민국', '경상남도', '경상북도', '전라남도', '전라북도', '충청남도', '충청북도', '경기도', '강원도', '제주도', '창원시', '거제시', '수원시'];
   const validLandmarks = Array.from(new Set(landmarks))
@@ -690,10 +693,10 @@ export async function fetchPinpointLandmarkSpots(landmarks = [], lang = 'ko', ta
         const rawItems = data.response?.body?.items?.item || [];
         const items = Array.isArray(rawItems) ? rawItems : (rawItems ? [rawItems] : []);
 
-        // 🎯 Priority 1: Match item whose address contains targetCity (e.g. 거제, 수원, 제주)
+        // 🎯 Priority 1: Match item whose address contains cleanTargetCity (e.g. 거제, 수원, 제주)
         let rawItem = null;
-        if (targetCity && items.length > 0) {
-          rawItem = items.find(i => i.addr1 && i.addr1.includes(targetCity));
+        if (cleanTargetCity && items.length > 0) {
+          rawItem = items.find(i => i.addr1 && i.addr1.includes(cleanTargetCity));
         }
         if (!rawItem && items.length > 0) {
           rawItem = items[0];

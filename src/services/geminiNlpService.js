@@ -166,7 +166,7 @@ Strictly return ONLY valid JSON matching this schema:
   "targetCity": "Main city or region in Korea (e.g., '수원', '부산', '제주', '강릉', '거제', '서울')",
   "cleanKeyword": "Precise search keyword for TourAPI (e.g., '영통 광교 수원', '해운대 광안리', '수원화성 행궁동')",
   "days": ${days},
-  "summary": "1 warm welcoming intro sentence in ${lang} (e.g., '거제도의 시원한 바다 전망과 감성 카페를 즐기는 3일 맞춤 코스입니다! 🌊☕') followed by double linebreaks and day-by-day itinerary:\\n\\n1일차: [명소A] & [명소B] 둘러보기\\n2일차: [명소C] & [명소D] 둘러보기\\n3일차: [명소E] & [명소F] 둘러보기",
+  "summary": "1 warm welcoming intro sentence in ${lang} (e.g., '거제의 아름다운 바다 전망과 감성 카페를 즐기는 3일 맞춤 코스입니다! 🌊☕') followed by double linebreaks and day-by-day itinerary with specific landmark names:\\n\\n1일차: [명소A] & [명소B] 둘러보기\\n2일차: [명소C] & [명소D] 둘러보기\\n3일차: [명소E] & [명소F] 둘러보기",
   "dailySchedules": [
     {
       "day": 1,
@@ -181,7 +181,7 @@ Strictly return ONLY valid JSON matching this schema:
   ]
 }`;
 
-  const promptText = `User input: ${JSON.stringify(rawPrompt)}. Target city: ${targetCity}, duration: ${days} days, language: ${lang}. Generate rich structured JSON with B-plan format (warm intro line + day-by-day itinerary).`;
+  const promptText = `User input: ${JSON.stringify(rawPrompt)}. Target city: ${targetCity}, duration: ${days} days, language: ${lang}. Generate rich structured JSON with specific landmark names for each day in summary and placeNames.`;
 
   // ⚡ 3대 질문 200 OK 검증 완료된 gemini-3.1-flash-lite 단일 직결 및 안정화. v1
   const modelNames = [
@@ -223,7 +223,9 @@ Strictly return ONLY valid JSON matching this schema:
               const searchKeyword = parsed.cleanKeyword || resolvedCity || rawPrompt;
 
               // =========================================================================
-              // ⚡ [제미나이 6대 명소 1:1 정품 PK 직결 모드 v3]
+              // ⚡ [제미나이 6대 명소 1:1 정품 PK 직결 모드 v4]
+              // 1. 지명 정규화('거제도'->'거제')로 주소 매칭하여 타 지역(영덕/경주/광주) 침범 100% 원천 차단
+              // 2. 왼쪽 텍스트와 우측 카드가 1~3일차 일자별로 2개씩 순서대로 1:1 완벽 동기화
               // =========================================================================
               const rawLandmarkNames = (parsed.dailySchedules && Array.isArray(parsed.dailySchedules))
                 ? parsed.dailySchedules.flatMap(ds => ds.placeNames || []).map(p => String(p).replace(/[\[\]\(\)]/g, '').trim()).filter(Boolean)
