@@ -14,6 +14,7 @@ import PartnerInquiryModal from './components/PartnerInquiryModal';
 import GuidePRModal from './components/GuidePRModal';
 import WeatherModal from './components/WeatherModal';
 import TravelEssentialsModal from './components/TravelEssentialsModal';
+import FoodOutfitModal from './components/FoodOutfitModal';
 import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
 import { generateLocalFallbackItinerary } from './services/geminiNlpService';
 
@@ -36,6 +37,7 @@ export default function App() {
   // Modals & Drawers state
   const [isWeatherOpen, setIsWeatherOpen] = useState(false);
   const [isEssentialsOpen, setIsEssentialsOpen] = useState(false);
+  const [isFoodOutfitOpen, setIsFoodOutfitOpen] = useState(false);
   const [isItineraryOpen, setIsItineraryOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isPartnerOpen, setIsPartnerOpen] = useState(false);
@@ -132,6 +134,7 @@ export default function App() {
         onOpenGuidePR={() => setIsGuidePROpen(true)}
         onOpenWeather={() => setIsWeatherOpen(true)}
         onOpenEssentials={() => setIsEssentialsOpen(true)}
+        onOpenFoodOutfit={() => setIsFoodOutfitOpen(true)}
       />
 
       {/* Main Container */}
@@ -181,6 +184,15 @@ export default function App() {
           onClose={() => setIsEssentialsOpen(false)}
           lang={lang}
           targetRegion="서울"
+        />
+      )}
+
+      {isFoodOutfitOpen && (
+        <FoodOutfitModal
+          isOpen={isFoodOutfitOpen}
+          onClose={() => setIsFoodOutfitOpen(false)}
+          lang={lang}
+          initialCity="서울"
         />
       )}
 

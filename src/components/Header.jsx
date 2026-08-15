@@ -34,7 +34,8 @@ export default function Header({
   onOpenItinerary, 
   onOpenGuidePR,
   onOpenWeather,
-  onOpenEssentials
+  onOpenEssentials,
+  onOpenFoodOutfit
 }) {
   const activeLang = currentLang || lang || 'ko';
   const handleLangChange = onLanguageChange || setLang;
@@ -124,11 +125,22 @@ export default function Header({
     } catch (e) {}
   };
 
+  const handleFocusAIChat = () => {
+    setIsMenuOpen(false);
+    const inputEl = document.querySelector('textarea') || document.querySelector('input[placeholder*="질문"]') || document.querySelector('input[type="text"]');
+    if (inputEl) {
+      inputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => inputEl.focus(), 300);
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   const scrollToSection = (id) => {
     setActiveSection(id);
     setIsMenuOpen(false);
     if (id === 'ai-prompt-hero' || id === 'tour-spots') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      handleFocusAIChat();
       return;
     }
     const elem = document.getElementById(id);
@@ -379,7 +391,7 @@ export default function Header({
             {/* 4. 🍲 AI 맛집 & 코디 */}
             <button
               type="button"
-              onClick={() => scrollToSection('ai-prompt-hero')}
+              onClick={() => onOpenFoodOutfit && onOpenFoodOutfit()}
               style={{
                 background: 'transparent',
                 color: themeMode === 'light' ? '#334155' : '#cbd5e1',
@@ -592,6 +604,31 @@ export default function Header({
                   >
                     <Luggage size={15} color="#0284c7" />
                     <span>여행 필수템 & 제휴 할인</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      onOpenFoodOutfit && onOpenFoodOutfit();
+                    }}
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      padding: '0.45rem 0.65rem',
+                      borderRadius: '10px',
+                      border: 'none',
+                      backgroundColor: 'transparent',
+                      color: themeMode === 'light' ? '#334155' : '#e2e8f0',
+                      fontSize: '0.8rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      textAlign: 'left'
+                    }}
+                  >
+                    <Utensils size={15} color="#ea580c" />
+                    <span>AI 맛집 & K-코디 가이드</span>
                   </button>
                 </div>
               )}
