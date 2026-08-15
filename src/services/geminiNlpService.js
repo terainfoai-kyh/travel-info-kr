@@ -312,8 +312,25 @@ Strictly return ONLY valid JSON matching this schema:
     }
   }
 
-  // Graceful Fallback with Authentic TourAPI Public Data
-  return generateLocalFallbackItinerary(rawPrompt, lang);
+  // ⚡ [순수 Gemini AI 직결 검증 모드] 로컬 폴백 호출부 주석 처리. v1
+  // return generateLocalFallbackItinerary(rawPrompt, lang);
+
+  return {
+    targetCity: targetCity || '대한민국',
+    days,
+    theme,
+    isHelpQuery: false,
+    isUnknownPlace: false,
+    isFallbackMode: false,
+    engineMode: 'GEMINI_DIRECT_DEBUG',
+    tripTitle: 'Vora AI (Gemini 직결 모드)',
+    aiRecommendationSummary: `[⚠️ Gemini API 통신 점검] 현재 등록된 키 풀로 구글 제미나이 API 응답을 수신하지 못했습니다. 개발자 도구(F12) 콘솔의 에러 로그를 확인해 주세요.`,
+    dailySchedules: [],
+    dailyPlaces: [],
+    spots: [],
+    agodaUrl: getAgodaHotelSearchUrl(targetCity),
+    klookUrl: getKlookActivitySearchUrl(targetCity)
+  };
 }
 
 /**

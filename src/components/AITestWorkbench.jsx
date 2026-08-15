@@ -296,7 +296,7 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
 
     try {
       // Clean Architecture: Guaranteed Single Atomic Tuple Result
-      const aiBriefing = await geminiGenerateFullItinerary(query, lang).catch(() => generateLocalFallbackItinerary(query, lang));
+      const aiBriefing = await geminiGenerateFullItinerary(query, lang);
       logAnalyticsEvent('CHAT', { inputTokens: 120, outputTokens: 350 });
 
       let spotsToRender = [];
