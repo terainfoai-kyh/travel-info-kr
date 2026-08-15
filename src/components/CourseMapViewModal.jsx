@@ -24,6 +24,14 @@ const REGION_COORDS = {
   '여수': [34.7604, 127.6622],
   '속초': [38.2070, 128.5918],
   '거제': [34.8806, 128.6211],
+  '통영': [34.8544, 128.4332],
+  '남해': [34.8377, 127.8924],
+  '평창': [37.3708, 128.3902],
+  '가평': [37.8313, 127.5097],
+  '양양': [38.0754, 128.6189],
+  '안동': [36.5684, 128.7294],
+  '포항': [36.0190, 129.3435],
+  '춘천': [37.8813, 127.7298],
   'default': [37.5665, 126.9780]
 };
 
@@ -31,11 +39,22 @@ function getApproxCoords(spot, regionName, idx) {
   let lat = parseFloat(spot?.mapy || spot?.lat);
   let lng = parseFloat(spot?.mapx || spot?.lng);
 
+  const matchedRegion = Object.keys(REGION_COORDS).find(r => regionName && regionName.includes(r)) || 'default';
+  const base = REGION_COORDS[matchedRegion] || REGION_COORDS['default'];
+
   if (!isNaN(lat) && !isNaN(lng) && lat > 30 && lat < 45 && lng > 120 && lng < 135) {
+    // If targeted region is NOT Seoul, but coordinates are near default Seoul (37.5665), replace with region!
+    if (matchedRegion !== '서울' && matchedRegion !== 'default') {
+      const distFromBase = Math.sqrt(Math.pow(lat - base[0], 2) + Math.pow(lng - base[1], 2));
+      if (distFromBase > 1.2) {
+        const offsetLat = ((idx % 3) - 1) * 0.012 + (Math.sin(idx + 1) * 0.005);
+        const offsetLng = (((idx + 1) % 3) - 1) * 0.015 + (Math.cos(idx + 1) * 0.005);
+        return [base[0] + offsetLat, base[1] + offsetLng];
+      }
+    }
     return [lat, lng];
   }
 
-  const base = REGION_COORDS[regionName] || REGION_COORDS['default'];
   // Micro-spread offsets for distinct marker pins
   const offsetLat = ((idx % 3) - 1) * 0.012 + (Math.sin(idx + 1) * 0.005);
   const offsetLng = (((idx + 1) % 3) - 1) * 0.015 + (Math.cos(idx + 1) * 0.005);
@@ -98,91 +117,85 @@ export default function CourseMapViewModal({
   // Dynamically load Leaflet library if not already loaded
   useEffect(() => {
     if (!isOpen) return;
-    let isMounted = true;
 
-    const loadLeaflet = () => {
-      if (window.L) {
-        if (isMounted) setIsLeafletReady(true);
-        return;
-      }
+    if (window.L) {
+      setIsLeafletReady(true);
+      return;
+    }
 
-      if (!document.getElementById('leaflet-css')) {
-        const link = document.createElement('link');
-        link.id = 'leaflet-css';
-        link.rel = 'stylesheet';
-        link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-        document.head.appendChild(link);
-      }
+    // Add Leaflet CSS
+    const existingLink = document.getElementById('leaflet-css');
+    if (!existingLink) {
+      const link = document.createElement('link');
+      link.id = 'leaflet-css';
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      link.integrity = 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';
+      link.crossOrigin = '';
+      document.head.appendChild(link);
+    }
 
-      if (!document.getElementById('leaflet-js')) {
-        const script = document.createElement('script');
-        script.id = 'leaflet-js';
-        script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-        script.onload = () => {
-          if (isMounted) setIsLeafletReady(true);
-        };
-        document.head.appendChild(script);
-      } else {
-        const timer = setInterval(() => {
-          if (window.L) {
-            clearInterval(timer);
-            if (isMounted) setIsLeafletReady(true);
-          }
-        }, 100);
-      }
-    };
-
-    loadLeaflet();
-    return () => { isMounted = false; };
+    // Add Leaflet JS
+    const existingScript = document.getElementById('leaflet-js');
+    if (!existingScript) {
+      const script = document.createElement('script');
+      script.id = 'leaflet-js';
+      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      script.integrity = 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=';
+      script.crossOrigin = '';
+      script.onload = () => {
+        setIsLeafletReady(true);
+      };
+      document.body.appendChild(script);
+    } else {
+      existingScript.addEventListener('load', () => setIsLeafletReady(true));
+    }
   }, [isOpen]);
 
-  // Render & Update Leaflet Interactive Map
+  // Initialize and update Leaflet Map
   useEffect(() => {
-    if (!isOpen || !isLeafletReady || !window.L || !mapContainerRef.current) return;
-    if (currentDaySpots.length === 0) return;
+    if (!isOpen || !isLeafletReady || !mapContainerRef.current || !window.L) return;
 
     const L = window.L;
 
-    // Clean up existing map instance
+    // Destroy previous map instance cleanly
     if (leafletMapRef.current) {
-      leafletMapRef.current.remove();
+      try {
+        leafletMapRef.current.remove();
+      } catch (e) {}
       leafletMapRef.current = null;
     }
-    if (mapContainerRef.current) {
-      mapContainerRef.current._leaflet_id = null;
-    }
 
+    if (currentDaySpots.length === 0) return;
+
+    // Get approximate coords for all spots in the active day
     const coordsList = currentDaySpots.map((spot, idx) => getApproxCoords(spot, regionName, idx));
 
-    // On PC: Always enable interactive mouse drag and wheel zoom. On Mobile: toggle with isMapUnlocked
+    // Calculate center
+    const avgLat = coordsList.reduce((sum, c) => sum + c[0], 0) / coordsList.length;
+    const avgLng = coordsList.reduce((sum, c) => sum + c[1], 0) / coordsList.length;
+
     const map = L.map(mapContainerRef.current, {
-      zoomControl: false,
-      attributionControl: false,
-      dragging: isDesktop ? true : isMapUnlocked,
-      touchZoom: isDesktop ? true : isMapUnlocked,
-      scrollWheelZoom: isDesktop ? true : isMapUnlocked,
-      doubleClickZoom: isDesktop ? true : isMapUnlocked
+      center: [avgLat, avgLng],
+      zoom: 12,
+      zoomControl: true,
+      dragging: isDesktop || isMapUnlocked,
+      touchZoom: isDesktop || isMapUnlocked,
+      scrollWheelZoom: isDesktop || isMapUnlocked
     });
 
     leafletMapRef.current = map;
 
-    // Tile layer: OSM for Korean, CartoDB Voyager for Multilingual
-    const tileUrl = (lang === 'ko')
-      ? 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+    // OpenStreetMap standard tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 18
+    }).addTo(map);
 
-    L.tileLayer(tileUrl, { maxZoom: 19 }).addTo(map);
-
-    // Numbered colorful custom markers
-    const markerColors = ['#9333ea', '#2563eb', '#16a34a', '#ea580c', '#0891b2'];
-
-    coordsList.forEach(([lat, lng], idx) => {
-      const spot = currentDaySpots[idx];
-      const color = markerColors[idx % markerColors.length];
-      const title = getTranslatedTitle(spot.title, lang);
-
-      const customIcon = L.divIcon({
-        className: 'custom-course-pin',
+    // Numbered Badge Icon Generator
+    const createNumberedIcon = (num, color = '#9333ea') => {
+      return L.divIcon({
+        className: 'custom-map-marker',
         html: `
           <div style="
             background: linear-gradient(135deg, ${color} 0%, #1e1b4b 100%);
@@ -200,26 +213,53 @@ export default function CourseMapViewModal({
             cursor: pointer;
             transition: transform 0.2s ease;
           ">
-            ${idx + 1}
+            ${num}
           </div>
         `,
         iconSize: [32, 32],
-        iconAnchor: [16, 16]
+        iconAnchor: [16, 16],
+        popupAnchor: [0, -18]
       });
+    };
 
-      const marker = L.marker([lat, lng], { icon: customIcon }).addTo(map);
+    const markers = [];
+    const latLngs = [];
+
+    currentDaySpots.forEach((spot, idx) => {
+      const [lat, lng] = coordsList[idx];
+      latLngs.push([lat, lng]);
+
+      const marker = L.marker([lat, lng], {
+        icon: createNumberedIcon(idx + 1, idx === 0 ? '#10b981' : (idx === currentDaySpots.length - 1 ? '#ef4444' : '#9333ea'))
+      }).addTo(map);
+
+      const title = getTranslatedTitle(spot.title, lang);
+      const addr = getTranslatedAddress(spot.addr1 || spot.location || '', lang);
+      const detailBtn = getSpotDetailButtonLabel(lang);
+
       marker.bindPopup(`
-        <div style="font-family: inherit; padding: 4px;">
-          <div style="font-size: 11px; font-weight: 800; color: ${color}; margin-bottom: 2px;">${currentDay}일차 · NO.${idx + 1}</div>
-          <div style="font-size: 13px; font-weight: 800; color: #0f172a; margin-bottom: 4px;">${title}</div>
-          <div style="font-size: 11px; color: #64748b;">${spot.location || spot.addr1 || ''}</div>
+        <div style="font-family: inherit; padding: 4px 2px; min-width: 170px;">
+          <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+            <span style="background: #9333ea; color: #fff; font-size: 10px; font-weight: 800; padding: 1px 6px; border-radius: 99px;">
+              ${currentDay}일차 #${idx + 1}
+            </span>
+            <strong style="font-size: 13px; color: #0f172a; word-break: break-all;">${title}</strong>
+          </div>
+          <p style="font-size: 11px; color: #64748b; margin: 0 0 8px 0; line-height: 1.3;">${addr || '대한민국 관광 명소'}</p>
+          <div style="display: flex; gap: 6px;">
+            <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(title + ' ' + addr)}" target="_blank" style="flex: 1; text-align: center; background: #2563eb; color: #fff; font-size: 11px; font-weight: 700; padding: 4px 6px; border-radius: 6px; text-decoration: none;">
+              구글 길찾기 ↗
+            </a>
+          </div>
         </div>
       `);
+
+      markers.push(marker);
     });
 
-    // Draw Polyline connecting all spots in order
-    if (coordsList.length > 1) {
-      L.polyline(coordsList, {
+    // Draw route polyline between spots if >= 2 spots
+    if (latLngs.length >= 2) {
+      L.polyline(latLngs, {
         color: '#9333ea',
         weight: 4,
         opacity: 0.85,
@@ -229,51 +269,75 @@ export default function CourseMapViewModal({
       }).addTo(map);
     }
 
-    // Auto fit bounds to enclose all spots
-    try {
-      const bounds = L.latLngBounds(coordsList);
-      map.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
-    } catch (e) {}
+    // Fit map bounds to encompass all markers nicely
+    if (latLngs.length > 0) {
+      const bounds = L.latLngBounds(latLngs);
+      map.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
+    }
 
-  }, [isOpen, isLeafletReady, currentDay, isMapUnlocked, isDesktop, lang, spots]);
+    // Invalidate size after layout stabilization
+    const timer = setTimeout(() => {
+      if (leafletMapRef.current) {
+        leafletMapRef.current.invalidateSize();
+      }
+    }, 250);
+
+    return () => {
+      clearTimeout(timer);
+      if (leafletMapRef.current) {
+        try {
+          leafletMapRef.current.remove();
+        } catch (e) {}
+        leafletMapRef.current = null;
+      }
+    };
+  }, [isOpen, isLeafletReady, currentDay, isMapUnlocked, spots]);
 
   if (!isOpen) return null;
 
-  // Build Google Maps Multi-Waypoint Navigation URL
+  const handleCopyCourse = () => {
+    try {
+      const lines = [
+        `🗺️ [Vora AI] ${regionName} ${availableDays.length > 1 ? `${availableDays.length}일 코스` : '당일 코스'} 추천 일정`,
+        ''
+      ];
+
+      availableDays.forEach(dayNum => {
+        lines.push(`📌 [${dayNum}일차]`);
+        const daySpots = daysGroup[dayNum] || [];
+        daySpots.forEach((s, idx) => {
+          lines.push(`  ${idx + 1}. ${getTranslatedTitle(s.title, lang)} (${getTranslatedAddress(s.addr1 || s.location, lang)})`);
+        });
+        lines.push('');
+      });
+
+      lines.push(`👉 Vora AI 실시간 여행 컨시어지: ${window.location.origin}`);
+      const textToCopy = lines.join('\n');
+
+      navigator.clipboard.writeText(textToCopy);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch (e) {}
+  };
+
   const buildGoogleMapsMultiStopUrl = () => {
     if (currentDaySpots.length === 0) return 'https://www.google.com/maps';
     if (currentDaySpots.length === 1) {
-      const s = currentDaySpots[0];
-      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.title + ' ' + (s.location || s.addr1 || ''))}`;
+      const spot = currentDaySpots[0];
+      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.title + ' ' + (spot.location || spot.addr1 || ''))}`;
+    }
+    const origin = encodeURIComponent(currentDaySpots[0].title + ' ' + (currentDaySpots[0].location || currentDaySpots[0].addr1 || ''));
+    const destination = encodeURIComponent(currentDaySpots[currentDaySpots.length - 1].title + ' ' + (currentDaySpots[currentDaySpots.length - 1].location || currentDaySpots[currentDaySpots.length - 1].addr1 || ''));
+    
+    if (currentDaySpots.length === 2) {
+      return `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&travelmode=driving`;
     }
 
-    const origin = currentDaySpots[0].title + ' ' + (currentDaySpots[0].location || currentDaySpots[0].addr1 || '');
-    const destination = currentDaySpots[currentDaySpots.length - 1].title + ' ' + (currentDaySpots[currentDaySpots.length - 1].location || currentDaySpots[currentDaySpots.length - 1].addr1 || '');
-    const waypoints = currentDaySpots.slice(1, -1).map(s => s.title + ' ' + (s.location || s.addr1 || '')).join('|');
-
-    let url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`;
-    if (waypoints) {
-      url += `&waypoints=${encodeURIComponent(waypoints)}`;
-    }
-    url += '&travelmode=transit';
-    return url;
+    const waypoints = currentDaySpots.slice(1, -1).map(s => encodeURIComponent(s.title + ' ' + (s.location || s.addr1 || ''))).join('|');
+    return `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&waypoints=${waypoints}&travelmode=driving`;
   };
 
-  const handleCopyCourse = () => {
-    let summaryText = `[Vora AI] ${regionName} ${currentDay}일차 추천 코스 동선:\n`;
-    currentDaySpots.forEach((s, idx) => {
-      summaryText += `${idx + 1}. ${s.title} (${s.location || s.addr1 || ''})\n`;
-    });
-    summaryText += `\n구글 지도 경로: ${buildGoogleMapsMultiStopUrl()}`;
-
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(summaryText);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
-
-  const dayIcons = ['🏰', '🌿', '☕', '🌊', '🏯'];
+  const dayIcons = ['🏰', '🌿', '☕', '🌅', '🌌'];
 
   const modalNode = (
     <div
@@ -286,11 +350,12 @@ export default function CourseMapViewModal({
         backdropFilter: 'blur(10px)',
         WebkitBackdropFilter: 'blur(10px)',
         display: 'flex',
-        alignItems: 'flex-start',
+        alignItems: isDesktop ? 'center' : 'flex-end',
         justifyContent: 'center',
-        padding: isDesktop ? '2rem 1.5rem 2.5rem 1.5rem' : '1rem 0.75rem 2rem 0.75rem',
+        padding: isDesktop ? '1.5rem' : '0',
         overflowY: 'auto',
-        WebkitOverflowScrolling: 'touch'
+        WebkitOverflowScrolling: 'touch',
+        boxSizing: 'border-box'
       }}
       onClick={(e) => {
         if (e.target === e.currentTarget) {
@@ -303,12 +368,12 @@ export default function CourseMapViewModal({
         style={{
           backgroundColor: '#ffffff',
           color: '#0f172a',
-          borderRadius: '24px',
+          borderRadius: isDesktop ? '24px' : '20px 20px 0 0',
           border: '1.5px solid #e2e8f0',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
           maxWidth: '1040px',
           width: '100%',
-          maxHeight: isDesktop ? 'calc(100vh - 4.5rem)' : 'calc(100vh - 2.5rem)',
+          maxHeight: isDesktop ? 'calc(100vh - 4.5rem)' : '92vh',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
@@ -319,18 +384,19 @@ export default function CourseMapViewModal({
       >
         {/* TOP HEADER */}
         <div style={{
-          padding: isDesktop ? '1.2rem 1.5rem' : '1rem 1.15rem',
+          padding: isDesktop ? '1.1rem 1.4rem' : '0.75rem 0.95rem',
           borderBottom: '1px solid #e2e8f0',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
+          gap: '0.45rem',
           background: 'linear-gradient(135deg, #faf5ff 0%, #ffffff 100%)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', minWidth: 0, flex: 1 }}>
             <div style={{
-              width: '38px',
-              height: '38px',
-              borderRadius: '12px',
+              width: isDesktop ? '36px' : '30px',
+              height: isDesktop ? '36px' : '30px',
+              borderRadius: isDesktop ? '12px' : '9px',
               backgroundColor: '#9333ea',
               color: '#ffffff',
               display: 'flex',
@@ -339,38 +405,56 @@ export default function CourseMapViewModal({
               boxShadow: '0 4px 12px rgba(147, 51, 234, 0.3)',
               flexShrink: 0
             }}>
-              <Compass size={20} />
+              <Compass size={isDesktop ? 18 : 16} />
             </div>
-            <div>
-              <h3 style={{ fontSize: isDesktop ? '1.15rem' : '1rem', fontWeight: 900, margin: 0, color: '#0f172a', letterSpacing: '-0.3px' }}>
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <h3 style={{
+                fontSize: isDesktop ? '1.1rem' : '0.92rem',
+                fontWeight: 900,
+                margin: 0,
+                color: '#0f172a',
+                letterSpacing: '-0.3px',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+              }}>
                 🗺️ {regionName} {availableDays.length > 1 ? `${availableDays.length}일 코스` : '당일 코스'} 스마트 동선
               </h3>
-              <p style={{ fontSize: '0.72rem', color: '#64748b', margin: 0 }}>
-                한국관광공사 TourAPI 4.0 정품 명소 & 실시간 GPS 연동
+              <p style={{
+                fontSize: isDesktop ? '0.72rem' : '0.66rem',
+                color: '#64748b',
+                margin: 0,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+              }}>
+                한국관광공사 TourAPI 4.0 정품 GPS 연동
               </p>
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexShrink: 0 }}>
             <button
               onClick={handleCopyCourse}
               style={{
-                padding: '0.4rem 0.65rem',
+                padding: isDesktop ? '0.4rem 0.65rem' : '0.32rem 0.5rem',
                 backgroundColor: copied ? '#dcfce7' : '#f1f5f9',
                 color: copied ? '#15803d' : '#334155',
                 border: copied ? '1px solid #86efac' : '1px solid #cbd5e1',
-                borderRadius: '10px',
-                fontSize: '0.74rem',
-                fontWeight: 700,
+                borderRadius: '8px',
+                fontSize: isDesktop ? '0.74rem' : '0.7rem',
+                fontWeight: 800,
                 cursor: 'pointer',
-                display: 'flex',
+                display: 'inline-flex',
                 alignItems: 'center',
-                gap: '0.3rem',
+                gap: '0.25rem',
+                whiteSpace: 'nowrap',
+                flexShrink: 0,
                 transition: 'all 0.2s ease'
               }}
             >
-              {copied ? <Check size={13} /> : <Share2 size={13} />}
-              <span>{copied ? '복사 완료!' : '코스 복사'}</span>
+              {copied ? <Check size={12} /> : <Share2 size={12} />}
+              <span>{copied ? '복사됨!' : '코스 복사'}</span>
             </button>
 
             <button
@@ -380,8 +464,8 @@ export default function CourseMapViewModal({
                 backgroundColor: '#f1f5f9',
                 border: '1px solid #cbd5e1',
                 color: '#475569',
-                width: '34px',
-                height: '34px',
+                width: isDesktop ? '34px' : '28px',
+                height: isDesktop ? '34px' : '28px',
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
@@ -399,7 +483,7 @@ export default function CourseMapViewModal({
                 e.currentTarget.style.color = '#475569';
               }}
             >
-              <X size={17} strokeWidth={2.5} />
+              <X size={isDesktop ? 16 : 14} />
             </button>
           </div>
         </div>
@@ -638,24 +722,25 @@ export default function CourseMapViewModal({
 
           {/* RIGHT: INTERACTIVE LEAFLET MAP VIEW */}
           <div style={{
-            flex: isDesktop ? '1 1 50%' : '1 1 auto',
+            flex: isDesktop ? '1 1 50%' : '0 0 auto',
             display: 'flex',
             flexDirection: 'column',
             backgroundColor: '#f1f5f9',
-            minHeight: isDesktop ? '340px' : '260px',
+            height: isDesktop ? '100%' : '165px',
+            minHeight: isDesktop ? '340px' : '165px',
             position: 'relative'
           }}>
             {/* MAP FLOATING CONTROLS */}
             <div style={{
               position: 'absolute',
-              top: '0.65rem',
-              left: '0.65rem',
-              right: '0.65rem',
+              top: '0.45rem',
+              left: '0.45rem',
+              right: '0.45rem',
               zIndex: 1000,
               display: 'flex',
               alignItems: 'center',
               justifyContent: isDesktop ? 'flex-end' : 'space-between',
-              gap: '0.5rem',
+              gap: '0.35rem',
               pointerEvents: 'none'
             }}>
               {/* Map Lock/Unlock Button (MOBILE ONLY) */}
@@ -666,21 +751,21 @@ export default function CourseMapViewModal({
                     pointerEvents: 'auto',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.35rem',
-                    padding: '0.35rem 0.65rem',
-                    borderRadius: '10px',
+                    gap: '0.25rem',
+                    padding: '0.25rem 0.5rem',
+                    borderRadius: '8px',
                     border: isMapUnlocked ? '1.5px solid #86efac' : '1.5px solid #cbd5e1',
                     backgroundColor: isMapUnlocked ? 'rgba(240, 253, 244, 0.95)' : 'rgba(255, 255, 255, 0.95)',
                     color: isMapUnlocked ? '#166534' : '#334155',
-                    fontSize: '0.72rem',
+                    fontSize: '0.68rem',
                     fontWeight: 800,
                     cursor: 'pointer',
                     boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
                     backdropFilter: 'blur(6px)'
                   }}
                 >
-                  {isMapUnlocked ? <Unlock size={13} color="#16a34a" /> : <Lock size={13} color="#64748b" />}
-                  <span>{isMapUnlocked ? '지도 조작 가능 ⇄' : '터치 스크롤 고정 🔒'}</span>
+                  {isMapUnlocked ? <Unlock size={12} color="#16a34a" /> : <Lock size={12} color="#64748b" />}
+                  <span>{isMapUnlocked ? '조작 가능 ⇄' : '스크롤 고정 🔒'}</span>
                 </button>
               )}
 
@@ -693,12 +778,12 @@ export default function CourseMapViewModal({
                   pointerEvents: 'auto',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.35rem',
-                  padding: '0.4rem 0.8rem',
-                  borderRadius: '12px',
+                  gap: '0.25rem',
+                  padding: isDesktop ? '0.4rem 0.8rem' : '0.25rem 0.55rem',
+                  borderRadius: isDesktop ? '12px' : '8px',
                   backgroundColor: '#2563eb',
                   color: '#ffffff',
-                  fontSize: '0.74rem',
+                  fontSize: isDesktop ? '0.74rem' : '0.68rem',
                   fontWeight: 800,
                   textDecoration: 'none',
                   boxShadow: '0 4px 12px rgba(37, 99, 235, 0.35)',
@@ -707,7 +792,7 @@ export default function CourseMapViewModal({
                 onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.03)'}
                 onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
               >
-                <Navigation size={13} />
+                <Navigation size={12} />
                 <span>구글맵 전체 경로 ↗</span>
               </a>
             </div>
@@ -717,8 +802,8 @@ export default function CourseMapViewModal({
               ref={mapContainerRef}
               style={{
                 width: '100%',
-                height: '100%',
-                minHeight: isDesktop ? '340px' : '260px',
+                height: isDesktop ? '100%' : '165px',
+                minHeight: isDesktop ? '340px' : '165px',
                 backgroundColor: '#e2e8f0'
               }}
             />
