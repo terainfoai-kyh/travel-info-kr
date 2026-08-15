@@ -222,47 +222,42 @@ Strictly return ONLY valid JSON matching this schema:
               const resolvedDays = parsed.days || days || 3;
               const searchKeyword = parsed.cleanKeyword || resolvedCity || rawPrompt;
 
-              // ⚡ 100% TourAPI PK (contentId) & GPS Coordinates (mapx/mapy) Synchronized Mapping
+              // =========================================================================
+              // ⚡ [제미나이 6대 명소 1:1 정품 PK 직결 모드 v2]
+              // =========================================================================
               const rawLandmarkNames = (parsed.dailySchedules && Array.isArray(parsed.dailySchedules))
                 ? parsed.dailySchedules.flatMap(ds => ds.placeNames || []).map(p => String(p).replace(/[\[\]\(\)]/g, '').trim()).filter(Boolean)
                 : [];
 
-              const [liveSpots, pinpointSpots, cityFallbackSpots] = await Promise.all([
-                fetchDynamicRealtimeSpots(searchKeyword, lang).catch(() => []),
-                rawLandmarkNames.length > 0 ? fetchPinpointLandmarkSpots(rawLandmarkNames, lang).catch(() => []) : Promise.resolve([]),
-                fetchDynamicRealtimeSpots(resolvedCity, lang).catch(() => [])
-              ]);
+              // 오직 제미나이가 추천한 실제 명소명들만 TourAPI 정밀 조회
+              const pinpointSpots = rawLandmarkNames.length > 0 
+                ? await fetchPinpointLandmarkSpots(rawLandmarkNames, lang).catch(() => [])
+                : [];
 
-              // Merge authentic TourAPI spots while strictly preserving PK (contentId)
-              const spotMap = new Map();
-              [...pinpointSpots, ...liveSpots, ...cityFallbackSpots].forEach(sp => {
-                const pk = String(sp.contentId || sp.id || '');
-                if (pk && !spotMap.has(pk)) {
-                  spotMap.set(pk, sp);
-                }
-              });
-
-              let allAuthenticSpots = Array.from(spotMap.values());
-              if (allAuthenticSpots.length === 0) {
-                allAuthenticSpots = TRAVEL_SPOTS.filter(s => s.region === resolvedCity || s.title?.includes(resolvedCity));
-              }
-
-              // Construct Rich Daily Schedules with Authentic TourAPI PK Spot Objects
               const finalizedSchedules = [];
               const flatSpotsToRender = [];
+              const usedContentIds = new Set();
 
               for (let d = 0; d < resolvedDays; d++) {
                 const dayPlan = (parsed.dailySchedules && parsed.dailySchedules[d]) || {};
                 const dayTheme = dayPlan.theme || `${d + 1}일차 - ${resolvedCity} 추천 코스`;
                 const dayPlaceNames = (dayPlan.placeNames || []).map(p => String(p).replace(/[\[\]\(\)]/g, '').trim()).filter(Boolean);
-                
-                // Match exact TourAPI pinpoint spots for this day's recommendations
-                let spotA = pinpointSpots.find(sp => dayPlaceNames[0] && (sp.title?.includes(dayPlaceNames[0]) || dayPlaceNames[0].includes(sp.title)))
-                  || allAuthenticSpots[d * 2] 
-                  || allAuthenticSpots[0];
 
-                let spotB = pinpointSpots.find(sp => dayPlaceNames[1] && (sp.title?.includes(dayPlaceNames[1]) || dayPlaceNames[1].includes(sp.title)))
-                  || allAuthenticSpots[d * 2 + 1];
+                // 1일차~3일차 첫 번째 명소 1:1 매칭
+                const nameA = dayPlaceNames[0];
+                let spotA = pinpointSpots.find(sp => !usedContentIds.has(sp.contentId) && nameA && (sp.title?.includes(nameA) || nameA.includes(sp.title)));
+                if (!spotA && pinpointSpots.length > 0) {
+                  spotA = pinpointSpots.find(sp => !usedContentIds.has(sp.contentId));
+                }
+                if (spotA) usedContentIds.add(spotA.contentId);
+
+                // 1일차~3일차 두 번째 명소 1:1 매칭
+                const nameB = dayPlaceNames[1];
+                let spotB = pinpointSpots.find(sp => !usedContentIds.has(sp.contentId) && nameB && (sp.title?.includes(nameB) || nameB.includes(sp.title)));
+                if (!spotB && pinpointSpots.length > 0) {
+                  spotB = pinpointSpots.find(sp => !usedContentIds.has(sp.contentId));
+                }
+                if (spotB) usedContentIds.add(spotB.contentId);
 
                 const daySpots = [];
                 if (spotA) {
@@ -270,7 +265,7 @@ Strictly return ONLY valid JSON matching this schema:
                   daySpots.push(spWithDay);
                   flatSpotsToRender.push(spWithDay);
                 }
-                if (spotB && spotB.contentId !== spotA?.contentId) {
+                if (spotB) {
                   const spWithDay = { ...spotB, assignedDay: d + 1 };
                   daySpots.push(spWithDay);
                   flatSpotsToRender.push(spWithDay);
@@ -314,7 +309,7 @@ Strictly return ONLY valid JSON matching this schema:
                 aiRecommendationSummary: finalSummary,
                 dailySchedules: finalizedSchedules,
                 dailyPlaces: finalizedSchedules.map(ds => ({ day: ds.day, places: ds.spots.map(s => s.title) })),
-                spots: flatSpotsToRender.length > 0 ? flatSpotsToRender : allAuthenticSpots,
+                spots: flatSpotsToRender,
                 agodaUrl: getAgodaHotelSearchUrl(resolvedCity),
                 klookUrl: getKlookActivitySearchUrl(resolvedCity)
               };
