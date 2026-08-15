@@ -162,11 +162,11 @@ Your goal is to understand the user's travel destination, duration, companion st
 Strictly return ONLY valid JSON matching this schema:
 {
   "isUnknownPlace": false,
-  "tripTitle": "Engaging and creative trip title (e.g., '수원 영통 & 광교 중심 3일 힐링 코스')",
+  "tripTitle": "Engaging trip title (e.g., '수원 영통 & 광교 중심 3일 힐링 코스')",
   "targetCity": "Main city or region in Korea (e.g., '수원', '부산', '제주', '강릉', '거제', '서울')",
   "cleanKeyword": "Precise search keyword for TourAPI (e.g., '영통 광교 수원', '해운대 광안리', '수원화성 행궁동')",
   "days": ${days},
-  "summary": "Warm, engaging, and detailed recommendation overview in the requested user language (${lang}) explaining the proximity route starting from the requested sub-area",
+  "summary": "Must format strictly day by day with linebreaks:\\n1일차: [명소A] & [명소B] 둘러보기\\n2일차: [명소C] & [명소D] 둘러보기\\n3일차: [명소E] & [명소F] 둘러보기",
   "dailySchedules": [
     {
       "day": 1,
@@ -181,46 +181,43 @@ Strictly return ONLY valid JSON matching this schema:
   ]
 }`;
 
-  const promptText = `User input: ${JSON.stringify(rawPrompt)}. Target city: ${targetCity}, duration: ${days} days, language: ${lang}. Generate rich structured JSON.`;
+  const promptText = `User input: ${JSON.stringify(rawPrompt)}. Target city: ${targetCity}, duration: ${days} days, language: ${lang}. Generate rich structured JSON with day-by-day summary format.`;
 
-  // ⚡ 실시간 통신 200 OK 검증 완료된 구글 최신 엔진 최우선 탑재. v1
+  // ⚡ [제미나이 개통 성공] 200 OK 검증된 gemini-3.5-flash 초고속 직결. v1
   const modelNames = [
     'gemini-3.5-flash',
-    'gemini-flash-latest',
-    'gemini-3.7-flash',
-    'gemini-pro-latest'
+    'gemini-flash-latest'
   ];
 
   for (const apiKey of candidateKeys) {
     for (const model of modelNames) {
-      for (const apiVer of ['v1beta', 'v1']) {
-        try {
-          const endpointUrl = `https://generativelanguage.googleapis.com/${apiVer}/models/${model}:generateContent?key=${apiKey}`;
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 8000);
+      try {
+        const endpointUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-          const res = await fetch(endpointUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'x-goog-api-key': apiKey
-            },
-            signal: controller.signal,
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: `${systemInstruction}\n\n${promptText}` }] }]
-            })
-          });
-          clearTimeout(timeoutId);
+        const res = await fetch(endpointUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': apiKey
+          },
+          signal: controller.signal,
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: `${systemInstruction}\n\n${promptText}` }] }]
+          })
+        });
+        clearTimeout(timeoutId);
 
-          if (res.ok) {
-            const data = await res.json();
-            const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (rawText) {
-              let cleanText = sanitizeGeminiOutput(rawText);
-              const parsed = JSON.parse(cleanText);
+        if (res.ok) {
+          const data = await res.json();
+          const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (rawText) {
+            let cleanText = sanitizeGeminiOutput(rawText);
+            const parsed = JSON.parse(cleanText);
 
-              if (parsed && (parsed.summary || parsed.dailySchedules)) {
-                console.log(`[Gemini AI Engine] ⚡ Gemini API (${model} / ${apiVer}) 통신 100% 성공!`);
+            if (parsed && (parsed.summary || parsed.dailySchedules)) {
+              console.log(`[Gemini AI Engine] ⚡ Gemini API (${model}) 초고속 실시간 응답 성공!`);
 
               const resolvedCity = parsed.targetCity || targetCity || '대한민국';
               const resolvedDays = parsed.days || days || 3;
@@ -285,6 +282,16 @@ Strictly return ONLY valid JSON matching this schema:
                 });
               }
 
+              let finalSummary = parsed.summary || '';
+              if (finalizedSchedules && finalizedSchedules.length > 0 && !finalSummary.includes('1일차')) {
+                const dailyLines = finalizedSchedules.map(ds => {
+                  const spotNames = ds.spots.map(s => s.title).filter(Boolean);
+                  const spotsText = spotNames.length >= 2 ? `${spotNames[0]} & ${spotNames[1]}` : (spotNames[0] || `${ds.city} 명소`);
+                  return `${ds.day}일차: ${spotsText}에서 ${ds.theme || '즐거운 여행'}을 만끽합니다.`;
+                });
+                finalSummary = dailyLines.join('\n');
+              }
+
               return {
                 targetCity: resolvedCity,
                 days: resolvedDays,
@@ -294,19 +301,18 @@ Strictly return ONLY valid JSON matching this schema:
                 isFallbackMode: false,
                 engineMode: 'GEMINI_AI',
                 tripTitle: parsed.tripTitle || `'${resolvedCity}' ${resolvedDays}일 맞춤 추천 코스`,
-                aiRecommendationSummary: parsed.summary,
+                aiRecommendationSummary: finalSummary,
                 dailySchedules: finalizedSchedules,
                 dailyPlaces: finalizedSchedules.map(ds => ({ day: ds.day, places: ds.spots.map(s => s.title) })),
                 spots: flatSpotsToRender.length > 0 ? flatSpotsToRender : allAuthenticSpots,
                 agodaUrl: getAgodaHotelSearchUrl(resolvedCity),
                 klookUrl: getKlookActivitySearchUrl(resolvedCity)
               };
-              }
             }
           }
-        } catch (err) {
-          // Proceed to next endpoint or key rotation
         }
+      } catch (err) {
+        // Proceed to next endpoint or key rotation
       }
     }
   }
