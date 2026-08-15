@@ -14,6 +14,21 @@ export function detectBrowserLanguage() {
   return 'en';
 }
 
+export function getMapSearchBtnLabel(foodName, lang = 'ko') {
+  const cleanName = foodName ? foodName.split('&')[0].trim() : '';
+  switch (lang) {
+    case 'en': return `Search Nearby ${cleanName} Restaurants ↗`;
+    case 'ja': return `周辺の ${cleanName} グルメマップ検索 ↗`;
+    case 'zh': return `搜索周边 ${cleanName} 美食地图 ↗`;
+    case 'zht': return `搜尋周邊 ${cleanName} 美食地圖 ↗`;
+    case 'de': return `Umgebende ${cleanName} Restaurants suchen ↗`;
+    case 'fr': return `Rechercher les restaurants de ${cleanName} ↗`;
+    case 'es': return `Buscar restaurantes de ${cleanName} cercanos ↗`;
+    case 'ru': return `Поиск ресторанов ${cleanName} поблизости ↗`;
+    default: return `주변 ${cleanName} 맛집 지도 검색 ↗`;
+  }
+}
+
 export function getSpotDetailButtonLabel(lang = 'ko', isShort = false) {
   if (isShort) {
     switch (lang) {
