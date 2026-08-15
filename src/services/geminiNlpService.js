@@ -301,11 +301,12 @@ Strictly return ONLY valid JSON matching this schema:
                 agodaUrl: getAgodaHotelSearchUrl(resolvedCity),
                 klookUrl: getKlookActivitySearchUrl(resolvedCity)
               };
+              }
             }
           }
+        } catch (err) {
+          // Proceed to next endpoint or key rotation
         }
-      } catch (err) {
-        // Proceed to next endpoint or key rotation
       }
     }
   }
