@@ -228,7 +228,7 @@ Strictly return ONLY valid JSON matching this schema:
               // 2. 왼쪽 텍스트와 우측 카드가 1~3일차 일자별로 2개씩 순서대로 1:1 완벽 동기화
               // =========================================================================
               const rawLandmarkNames = (parsed.dailySchedules && Array.isArray(parsed.dailySchedules))
-                ? parsed.dailySchedules.flatMap(ds => ds.placeNames || []).map(p => String(p).replace(/[\[\]\(\)]/g, '').trim()).filter(Boolean)
+                ? parsed.dailySchedules.flatMap(ds => ds.placeNames || []).map(p => String(p).replace(/\(.*?\)/g, '').replace(/\[.*?\]/g, '').trim()).filter(Boolean)
                 : [];
 
               // 오직 제미나이가 추천한 실제 명소명들만 TourAPI 정밀 조회 (targetCity 주소 일치 우선)
@@ -243,28 +243,26 @@ Strictly return ONLY valid JSON matching this schema:
               for (let d = 0; d < resolvedDays; d++) {
                 const dayPlan = (parsed.dailySchedules && parsed.dailySchedules[d]) || {};
                 const dayTheme = dayPlan.theme || `${d + 1}일차 - ${resolvedCity} 추천 코스`;
-                const dayPlaceNames = (dayPlan.placeNames || []).map(p => String(p).replace(/[\[\]\(\)]/g, '').trim()).filter(Boolean);
+                const dayPlaceNames = (dayPlan.placeNames || []).map(p => String(p).trim()).filter(Boolean);
 
                 const daySpots = [];
 
-                // 1일차~3일차 첫 번째 명소 매칭
-                const nameA = dayPlaceNames[0];
-                let spotA = pinpointSpots.find(sp => !usedContentIds.has(sp.contentId) && nameA && (sp.title?.includes(nameA) || nameA.includes(sp.title)));
-                if (spotA) {
-                  usedContentIds.add(spotA.contentId);
-                  const spWithDay = { ...spotA, assignedDay: d + 1 };
-                  daySpots.push(spWithDay);
-                  flatSpotsToRender.push(spWithDay);
-                }
+                // 🎯 1일차~3일차 추천된 모든 명소(1~3개)를 빠짐없이 전수 1:1 매칭
+                for (const rawName of dayPlaceNames) {
+                  const cleanName = String(rawName).replace(/\(.*?\)/g, '').replace(/\[.*?\]/g, '').trim();
+                  if (!cleanName) continue;
 
-                // 1일차~3일차 두 번째 명소 매칭
-                const nameB = dayPlaceNames[1];
-                let spotB = pinpointSpots.find(sp => !usedContentIds.has(sp.contentId) && nameB && (sp.title?.includes(nameB) || nameB.includes(sp.title)));
-                if (spotB) {
-                  usedContentIds.add(spotB.contentId);
-                  const spWithDay = { ...spotB, assignedDay: d + 1 };
-                  daySpots.push(spWithDay);
-                  flatSpotsToRender.push(spWithDay);
+                  const spot = pinpointSpots.find(sp => 
+                    !usedContentIds.has(sp.contentId) && 
+                    (sp.title?.includes(cleanName) || cleanName.includes(sp.title))
+                  );
+
+                  if (spot) {
+                    usedContentIds.add(spot.contentId);
+                    const spWithDay = { ...spot, assignedDay: d + 1 };
+                    daySpots.push(spWithDay);
+                    flatSpotsToRender.push(spWithDay);
+                  }
                 }
 
                 finalizedSchedules.push({

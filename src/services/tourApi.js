@@ -665,14 +665,14 @@ export async function fetchPinpointLandmarkSpots(landmarks = [], lang = 'ko', ta
   else if (lang === 'es') apiBase = PUBLIC_API_CONFIG.SPN_BASE;
   else if (lang === 'ru') apiBase = PUBLIC_API_CONFIG.RUS_BASE;
 
-  // 🎯 [지명 정규화 v4] '거제도' -> '거제', '제주도' -> '제주', '수원시' -> '수원', '해운대구' -> '해운대'
+  // 🎯 [지명 정규화 v5] '거제도' -> '거제', '제주도' -> '제주', '수원시' -> '수원', '해운대구' -> '해운대'
   const cleanTargetCity = targetCity ? targetCity.replace(/(도|시|군|구)$/, '').trim() : '';
 
-  // Filter out noise/generic region words and cap at max 8 landmarks
+  // Filter out noise/generic region words and strip parentheses/brackets e.g. "거제식물원(정글돔)" -> "거제식물원"
   const NOISE_WORDS = ['한국', '대한민국', '경상남도', '경상북도', '전라남도', '전라북도', '충청남도', '충청북도', '경기도', '강원도', '제주도', '창원시', '거제시', '수원시'];
-  const validLandmarks = Array.from(new Set(landmarks))
+  const validLandmarks = Array.from(new Set(landmarks.map(lm => String(lm).replace(/\(.*?\)/g, '').replace(/\[.*?\]/g, '').trim()).filter(Boolean)))
     .filter(lm => lm && lm.length >= 2 && !NOISE_WORDS.includes(lm))
-    .slice(0, 8);
+    .slice(0, 12);
 
   if (validLandmarks.length === 0) return [];
 
