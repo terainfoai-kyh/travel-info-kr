@@ -316,9 +316,7 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
             }))
           );
         } else {
-          const fallbackResult = await generateLocalFallbackItinerary(query, lang);
-          displayCity = fallbackResult.targetCity || displayCity;
-          spotsToRender = fallbackResult.spots || [];
+          spotsToRender = [];
         }
 
         agodaUrl = isUnknownPlace ? null : (aiBriefing?.agodaUrl || getAgodaHotelSearchUrl(displayCity));
@@ -388,26 +386,6 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
         </div>
 
         <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.4rem' }}>
-          <button
-            onClick={() => setShowAdminDashboard(prev => !prev)}
-            style={{
-              padding: '0.3rem 0.65rem',
-              borderRadius: '8px',
-              fontSize: '0.72rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              border: 'none',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.3rem',
-              backgroundColor: showAdminDashboard ? '#7e22ce' : '#f3e8ff',
-              color: showAdminDashboard ? '#ffffff' : '#7e22ce'
-            }}
-          >
-            <BarChart3 size={13} />
-            {showAdminDashboard ? '👑 관리자 통계 닫기' : '👑 선배님 관리자 통계 대시보드'}
-          </button>
-
           <button
             onClick={() => toggleDevBypass()}
             style={{
@@ -489,8 +467,6 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
           </button>
         </div>
       </div>
-
-      {showAdminDashboard && <AdminAnalyticsDashboard />}
 
       {/* CHAT CONTAINER HEADER */}
       <div style={{
