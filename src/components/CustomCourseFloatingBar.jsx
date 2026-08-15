@@ -7,23 +7,58 @@ export default function CustomCourseFloatingBar({ selectedCount = 0, onBuildRout
 
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
 
-  const textCount = lang === 'ko' ? `📍 ${selectedCount}개 장소 선택됨` :
-                    lang === 'ja' ? `📍 ${selectedCount}ヶ所選択中` :
-                    lang === 'zh' ? `📍 已选择 ${selectedCount} 个景点` :
-                    lang === 'zht' ? `📍 已選擇 ${selectedCount} 個景點` :
-                    `📍 ${selectedCount} spots selected`;
+  const FLOATING_I18N = {
+    ko: {
+      count: `📍 ${selectedCount}개 장소 선택됨`,
+      build: '✨ 최적 동선 코스 만들기',
+      clear: '선택 취소'
+    },
+    en: {
+      count: `📍 ${selectedCount} spots selected`,
+      build: '✨ Generate Optimal Route',
+      clear: 'Clear'
+    },
+    ja: {
+      count: `📍 ${selectedCount}ヶ所選択中`,
+      build: '✨ 最適ルートを作成',
+      clear: '解除'
+    },
+    zh: {
+      count: `📍 已选择 ${selectedCount} 个景点`,
+      build: '✨ 生成最佳路线',
+      clear: '取消'
+    },
+    zht: {
+      count: `📍 已選擇 ${selectedCount} 個景點`,
+      build: '✨ 生成最佳路線',
+      clear: '取消'
+    },
+    de: {
+      count: `📍 ${selectedCount} Orte ausgewählt`,
+      build: '✨ Optimale Route erstellen',
+      clear: 'Aufheben'
+    },
+    fr: {
+      count: `📍 ${selectedCount} lieux sélectionnés`,
+      build: '✨ Générer l\'itinéraire optimal',
+      clear: 'Effacer'
+    },
+    es: {
+      count: `📍 ${selectedCount} lugares seleccionados`,
+      build: '✨ Generar ruta óptima',
+      clear: 'Cancelar'
+    },
+    ru: {
+      count: `📍 Выбрано мест: ${selectedCount}`,
+      build: '✨ Создать оптимальный маршрут',
+      clear: 'Сброс'
+    }
+  };
 
-  const textBuild = lang === 'ko' ? '✨ 최적 동선 코스 만들기' :
-                    lang === 'ja' ? '✨ 最適ルートを作成' :
-                    lang === 'zh' ? '✨ 生成最佳路线' :
-                    lang === 'zht' ? '✨ 生成最佳路線' :
-                    '✨ Generate Optimal Route';
-
-  const textClear = lang === 'ko' ? '선택 취소' :
-                    lang === 'ja' ? '解除' :
-                    lang === 'zh' ? '取消' :
-                    lang === 'zht' ? '取消' :
-                    'Clear';
+  const fi = FLOATING_I18N[lang] || FLOATING_I18N.en;
+  const textCount = fi.count;
+  const textBuild = fi.build;
+  const textClear = fi.clear;
 
   return (
     <div 

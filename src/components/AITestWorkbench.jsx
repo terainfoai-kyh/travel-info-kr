@@ -356,21 +356,21 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
     }
   ]);
 
-  // Update initial welcome message if user hasn't sent messages yet and changes language
+  // Reset chat history and state completely whenever user changes language
   useEffect(() => {
-    setChatHistory(prev => {
-      if (prev.length === 1 && prev[0].id === 'welcome-1') {
-        return [{
-          id: 'welcome-1',
-          sender: 'vora',
-          text: wt.welcomeText,
-          timestamp: new Date().toLocaleTimeString(),
-          chips: wt.chips
-        }];
+    setChatHistory([
+      {
+        id: `welcome-${Date.now()}`,
+        sender: 'vora',
+        text: wt.welcomeText,
+        timestamp: new Date().toLocaleTimeString(),
+        chips: wt.chips
       }
-      return prev;
-    });
-  }, [lang, wt]);
+    ]);
+    setSelectedMsgId(null);
+    setInputPrompt('');
+    setExpandedMobileMsgs({});
+  }, [lang]);
 
   const [inputPrompt, setInputPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);

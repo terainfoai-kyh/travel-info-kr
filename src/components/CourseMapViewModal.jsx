@@ -8,6 +8,189 @@ import {
 import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress, getSpotDetailButtonLabel, getCloseButtonLabel } from '../i18n/translations';
 import { useModalHistory } from '../hooks/useModalHistory';
 
+const COURSE_MAP_I18N = {
+  ko: {
+    subtitle: '한국관광공사 TourAPI 4.0 정품 GPS 연동',
+    copyCourse: '코스 복사',
+    copied: '복사됨!',
+    close: '닫기',
+    dayTab: '{day}일차',
+    spotsCount: '{count}곳',
+    dayItineraryTitle: '📍 {day}일차 추천 일정 ({count}개 명소)',
+    recommendedOrder: '① ➔ ② ➔ ③ 순서대로 추천',
+    morning: '🌅 오전',
+    afternoon: '☀️ 오후',
+    evening: '🌙 저녁/야경',
+    locationProvided: '상세 주소 제공',
+    googleMap: '지도 길찾기',
+    walkTransit: '🚶 도보 약 15분 (800m)',
+    busTransit: '🚌 대중교통 약 10~15분',
+    mapUnlocked: '조작 가능 ⇄',
+    mapLocked: '스크롤 고정 🔒',
+    googleMultiStop: '구글맵 전체 경로 ↗'
+  },
+  en: {
+    subtitle: 'Official GPS Synchronization via TourAPI 4.0',
+    copyCourse: 'Copy Course',
+    copied: 'Copied!',
+    close: 'Close',
+    dayTab: 'Day {day}',
+    spotsCount: '{count} spots',
+    dayItineraryTitle: '📍 Day {day} Itinerary ({count} spots)',
+    recommendedOrder: 'Recommended: ① ➔ ② ➔ ③',
+    morning: '🌅 Morning',
+    afternoon: '☀️ Afternoon',
+    evening: '🌙 Evening / Night',
+    locationProvided: 'Location details available',
+    googleMap: 'Google Maps',
+    walkTransit: '🚶 Walk ~15 min (800m)',
+    busTransit: '🚌 Transit ~10-15 min',
+    mapUnlocked: 'Interactive ⇄',
+    mapLocked: 'Scroll Locked 🔒',
+    googleMultiStop: 'Open Full Google Route ↗'
+  },
+  ja: {
+    subtitle: '韓国観光公社 TourAPI 4.0 公式GPS連動',
+    copyCourse: 'コースコピー',
+    copied: 'コピー完了!',
+    close: '閉じる',
+    dayTab: '{day}日目',
+    spotsCount: '{count}ヶ所',
+    dayItineraryTitle: '📍 {day}日目のおすすめ日程 ({count}スポット)',
+    recommendedOrder: '巡回順: ① ➔ ② ➔ ③',
+    morning: '🌅 午前',
+    afternoon: '☀️ 午後',
+    evening: '🌙 夕方・夜景',
+    locationProvided: '詳細位置情報',
+    googleMap: '地図',
+    walkTransit: '🚶 徒歩約15分 (800m)',
+    busTransit: '🚌 公共交通約10~15分',
+    mapUnlocked: '操作可能 ⇄',
+    mapLocked: 'スクロール固定 🔒',
+    googleMultiStop: 'Googleマップ全体ルート ↗'
+  },
+  zh: {
+    subtitle: '韩国观光公社 TourAPI 4.0 官方认证GPS',
+    copyCourse: '复制路线',
+    copied: '已复制!',
+    close: '关闭',
+    dayTab: '第{day}天',
+    spotsCount: '{count}处',
+    dayItineraryTitle: '📍 第{day}天推荐行程 ({count}个景点)',
+    recommendedOrder: '推荐顺序: ① ➔ ② ➔ ③',
+    morning: '🌅 上午',
+    afternoon: '☀️ 下午',
+    evening: '🌙 傍晚/夜景',
+    locationProvided: '提供详细位置',
+    googleMap: '谷歌地图',
+    walkTransit: '🚶 步行约15分钟 (800m)',
+    busTransit: '🚌 公交/地铁约10~15分钟',
+    mapUnlocked: '可滑动 ⇄',
+    mapLocked: '页面锁定 🔒',
+    googleMultiStop: '谷歌地图完整路线 ↗'
+  },
+  zht: {
+    subtitle: '韓國觀光公社 TourAPI 4.0 官方認證GPS',
+    copyCourse: '複製路線',
+    copied: '已複製!',
+    close: '關閉',
+    dayTab: '第{day}天',
+    spotsCount: '{count}處',
+    dayItineraryTitle: '📍 第{day}天推薦行程 ({count}個景點)',
+    recommendedOrder: '推薦順序: ① ➔ ② ➔ ③',
+    morning: '🌅 上午',
+    afternoon: '☀️ 下午',
+    evening: '🌙 傍晚/夜景',
+    locationProvided: '提供詳細位置',
+    googleMap: '谷歌地圖',
+    walkTransit: '🚶 步行約15分鐘 (800m)',
+    busTransit: '🚌 公交/地鐵約10~15分鐘',
+    mapUnlocked: '可滑動 ⇄',
+    mapLocked: '頁面鎖定 🔒',
+    googleMultiStop: '谷歌地圖完整路線 ↗'
+  },
+  de: {
+    subtitle: 'Offizielle GPS-Synchronisation via TourAPI 4.0',
+    copyCourse: 'Route kopieren',
+    copied: 'Kopiert!',
+    close: 'Schließen',
+    dayTab: 'Tag {day}',
+    spotsCount: '{count} Orte',
+    dayItineraryTitle: '📍 Tag {day} Reiseroute ({count} Orte)',
+    recommendedOrder: 'Empfohlene Reihenfolge: ① ➔ ② ➔ ③',
+    morning: '🌅 Vormittag',
+    afternoon: '☀️ Nachmittag',
+    evening: '🌙 Abend / Nachtsicht',
+    locationProvided: 'Standortdetails verfügbar',
+    googleMap: 'Google Maps',
+    walkTransit: '🚶 Zu Fuß ca. 15 Min. (800m)',
+    busTransit: '🚌 ÖPNV ca. 10~15 Min.',
+    mapUnlocked: 'Interaktiv ⇄',
+    mapLocked: 'Scroll fixiert 🔒',
+    googleMultiStop: 'Gesamte Route in Google Maps ↗'
+  },
+  fr: {
+    subtitle: 'Synchronisation GPS officielle via TourAPI 4.0',
+    copyCourse: 'Copier l\'itinéraire',
+    copied: 'Copié !',
+    close: 'Fermer',
+    dayTab: 'Jour {day}',
+    spotsCount: '{count} lieux',
+    dayItineraryTitle: '📍 Itinéraire du Jour {day} ({count} lieux)',
+    recommendedOrder: 'Ordre conseillé : ① ➔ ② ➔ ③',
+    morning: '🌅 Matin',
+    afternoon: '☀️ Après-midi',
+    evening: '🌙 Soirée / Vue Nocturne',
+    locationProvided: 'Adresse détaillée disponible',
+    googleMap: 'Google Maps',
+    walkTransit: '🚶 Marche ~15 min (800m)',
+    busTransit: '🚌 Transports ~10-15 min',
+    mapUnlocked: 'Interactif ⇄',
+    mapLocked: 'Défilement bloqué 🔒',
+    googleMultiStop: 'Itinéraire complet sur Google Maps ↗'
+  },
+  es: {
+    subtitle: 'Sincronización GPS oficial mediante TourAPI 4.0',
+    copyCourse: 'Copiar ruta',
+    copied: '¡Copiado!',
+    close: 'Cerrar',
+    dayTab: 'Día {day}',
+    spotsCount: '{count} lugares',
+    dayItineraryTitle: '📍 Itinerario del Día {day} ({count} lugares)',
+    recommendedOrder: 'Orden recomendado: ① ➔ ② ➔ ③',
+    morning: '🌅 Mañana',
+    afternoon: '☀️ Tarde',
+    evening: '🌙 Noche / Vista Nocturna',
+    locationProvided: 'Ubicación detallada disponible',
+    googleMap: 'Google Maps',
+    walkTransit: '🚶 A pie ~15 min (800m)',
+    busTransit: '🚌 Transporte público ~10-15 min',
+    mapUnlocked: 'Interactivo ⇄',
+    mapLocked: 'Desplazamiento bloqueado 🔒',
+    googleMultiStop: 'Ver ruta completa en Google Maps ↗'
+  },
+  ru: {
+    subtitle: 'Официальная GPS-синхронизация через TourAPI 4.0',
+    copyCourse: 'Копировать маршрут',
+    copied: 'Скопировано!',
+    close: 'Закрыть',
+    dayTab: 'День {day}',
+    spotsCount: '{count} мест',
+    dayItineraryTitle: '📍 Маршрут на {day}-й день ({count} мест)',
+    recommendedOrder: 'Рекомендуемый порядок: ① ➔ ② ➔ ③',
+    morning: '🌅 Утро',
+    afternoon: '☀️ День',
+    evening: '🌙 Вечер / Ночной вид',
+    locationProvided: 'Точный адрес доступен',
+    googleMap: 'Google Карты',
+    walkTransit: '🚶 Пешком ~15 мин (800м)',
+    busTransit: '🚌 Транспорт ~10-15 мин',
+    mapUnlocked: 'Управление картой ⇄',
+    mapLocked: 'Скролл заблокирован 🔒',
+    googleMultiStop: 'Полный маршрут на Google Картах ↗'
+  }
+};
+
 // Approximate city center coordinates for graceful map fallbacks
 const REGION_COORDS = {
   '서울': [37.5665, 126.9780],
@@ -72,6 +255,7 @@ export default function CourseMapViewModal({
   useModalHistory(isOpen, onClose, 'course-map-modal');
 
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
+  const cmi = COURSE_MAP_I18N[lang] || COURSE_MAP_I18N.en;
   const [activeDay, setActiveDay] = useState(1);
   const [isMapUnlocked, setIsMapUnlocked] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -436,10 +620,7 @@ export default function CourseMapViewModal({
                 overflow: 'hidden',
                 textOverflow: 'ellipsis'
               }}>
-                {lang === 'en' ? 'Korea Tourism Organization TourAPI 4.0 Verified GPS' :
-                 lang === 'ja' ? '韓国観光公社 TourAPI 4.0 公式GPS連動' :
-                 lang === 'zh' || lang === 'zht' ? '韩国观光公社 TourAPI 4.0 官方认证GPS' :
-                 '한국관광공사 TourAPI 4.0 정품 GPS 연동'}
+                {cmi.subtitle}
               </p>
             </div>
           </div>
@@ -465,13 +646,12 @@ export default function CourseMapViewModal({
               }}
             >
               {copied ? <Check size={12} /> : <Share2 size={12} />}
-              <span>{copied ? (lang === 'en' ? 'Copied!' : lang === 'ja' ? 'コピー完了!' : lang === 'zh' || lang === 'zht' ? '已复制!' : '복사됨!') :
-                              (lang === 'en' ? 'Copy Course' : lang === 'ja' ? 'コースコピー' : lang === 'zh' || lang === 'zht' ? '复制路线' : '코스 복사')}</span>
+              <span>{copied ? cmi.copied : cmi.copyCourse}</span>
             </button>
 
             <button
               onClick={onClose}
-              aria-label={lang === 'en' ? 'Close' : lang === 'ja' ? '閉じる' : lang === 'zh' || lang === 'zht' ? '关闭' : '닫기'}
+              aria-label={cmi.close}
               style={{
                 backgroundColor: '#f1f5f9',
                 border: '1px solid #cbd5e1',
@@ -537,7 +717,7 @@ export default function CourseMapViewModal({
                     transition: 'all 0.2s ease'
                   }}
                 >
-                  <span>{icon} {lang === 'en' ? `Day ${dNum}` : lang === 'ja' ? `${dNum}日目` : lang === 'zh' || lang === 'zht' ? `第${dNum}天` : `${dNum}일차`}</span>
+                  <span>{icon} {cmi.dayTab.replace('{day}', dNum)}</span>
                   <span style={{
                     fontSize: '0.68rem',
                     backgroundColor: isActive ? 'rgba(255,255,255,0.25)' : '#f1f5f9',
@@ -545,7 +725,7 @@ export default function CourseMapViewModal({
                     padding: '0.1rem 0.4rem',
                     borderRadius: '9999px'
                   }}>
-                    {count}{lang === 'en' ? ' spots' : lang === 'ja' ? 'ヶ所' : lang === 'zh' || lang === 'zht' ? '处' : '곳'}
+                    {cmi.spotsCount.replace('{count}', count)}
                   </span>
                 </button>
               );
@@ -572,16 +752,10 @@ export default function CourseMapViewModal({
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
               <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#1e293b' }}>
-                📍 {lang === 'en' ? `Day ${currentDay} Itinerary (${currentDaySpots.length} spots)` :
-                    lang === 'ja' ? `${currentDay}日目のおすすめ日程 (${currentDaySpots.length}スポット)` :
-                    lang === 'zh' || lang === 'zht' ? `第${currentDay}天推荐行程 (${currentDaySpots.length}个景点)` :
-                    `${currentDay}일차 추천 일정 (${currentDaySpots.length}개 명소)`}
+                {cmi.dayItineraryTitle.replace('{day}', currentDay).replace('{count}', currentDaySpots.length)}
               </div>
               <span style={{ fontSize: '0.7rem', color: '#9333ea', fontWeight: 700, backgroundColor: '#f3e8ff', padding: '0.2rem 0.5rem', borderRadius: '6px' }}>
-                {lang === 'en' ? 'Recommended: ① ➔ ② ➔ ③' :
-                 lang === 'ja' ? '巡回順: ① ➔ ② ➔ ③' :
-                 lang === 'zh' || lang === 'zht' ? '推荐顺序: ① ➔ ② ➔ ③' :
-                 '① ➔ ② ➔ ③ 순서대로 추천'}
+                {cmi.recommendedOrder}
               </span>
             </div>
 
@@ -641,15 +815,13 @@ export default function CourseMapViewModal({
                         </strong>
                       </div>
                       <span style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 600 }}>
-                        {idx === 0 ? (lang === 'en' ? '🌅 Morning' : lang === 'ja' ? '🌅 午前' : lang === 'zh' || lang === 'zht' ? '🌅 上午' : '🌅 오전') :
-                         (idx === 1 ? (lang === 'en' ? '☀️ Afternoon' : lang === 'ja' ? '☀️ 午後' : lang === 'zh' || lang === 'zht' ? '☀️ 下午' : '☀️ 오후') :
-                                      (lang === 'en' ? '🌙 Evening' : lang === 'ja' ? '🌙 夕方・夜景' : lang === 'zh' || lang === 'zht' ? '🌙 傍晚/夜景' : '🌙 저녁/야경'))}
+                        {idx === 0 ? cmi.morning : (idx === 1 ? cmi.afternoon : cmi.evening)}
                       </span>
                     </div>
 
                     <div style={{ fontSize: '0.74rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                       <MapPin size={12} color="#ef4444" style={{ flexShrink: 0 }} />
-                      <span>{spot.location || spot.addr1 || (lang === 'en' ? 'Location details available' : '상세 주소 제공')}</span>
+                      <span>{spot.location || spot.addr1 || cmi.locationProvided}</span>
                     </div>
 
                     {/* CARD BUTTONS */}
@@ -699,7 +871,7 @@ export default function CourseMapViewModal({
                         }}
                       >
                         <MapPin size={11} />
-                        <span>{lang === 'en' ? 'Google Map' : lang === 'ja' ? '地図' : lang === 'zh' || lang === 'zht' ? '谷歌地图' : '지도 길찾기'}</span>
+                        <span>{cmi.googleMap}</span>
                       </a>
                     </div>
                   </div>
@@ -731,9 +903,7 @@ export default function CourseMapViewModal({
                         borderRadius: '12px'
                       }}>
                         {idx === 0 ? <Footprints size={12} /> : <Bus size={12} />}
-                        <span>{idx === 0 ?
-                          (lang === 'en' ? '🚶 Walk ~15 min (800m)' : lang === 'ja' ? '🚶 徒歩約15分 (800m)' : lang === 'zh' || lang === 'zht' ? '🚶 步行约15分钟 (800m)' : '🚶 도보 약 15분 (800m)') :
-                          (lang === 'en' ? '🚌 Transit ~10-15 min' : lang === 'ja' ? '🚌 公共交通約10~15分' : lang === 'zh' || lang === 'zht' ? '🚌 公交/地铁约10~15分钟' : '🚌 대중교통 약 10~15분')}</span>
+                        <span>{idx === 0 ? cmi.walkTransit : cmi.busTransit}</span>
                       </div>
                     </div>
                   )}
@@ -787,7 +957,7 @@ export default function CourseMapViewModal({
                   }}
                 >
                   {isMapUnlocked ? <Unlock size={12} color="#16a34a" /> : <Lock size={12} color="#64748b" />}
-                  <span>{isMapUnlocked ? '조작 가능 ⇄' : '스크롤 고정 🔒'}</span>
+                  <span>{isMapUnlocked ? cmi.mapUnlocked : cmi.mapLocked}</span>
                 </button>
               )}
 
@@ -815,7 +985,7 @@ export default function CourseMapViewModal({
                 onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
               >
                 <Navigation size={12} />
-                <span>구글맵 전체 경로 ↗</span>
+                <span>{cmi.googleMultiStop}</span>
               </a>
             </div>
 
