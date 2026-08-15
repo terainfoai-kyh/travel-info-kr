@@ -232,6 +232,37 @@ export default function Header({
               LIVE
             </span>
           )}
+
+          {/* Mobile Live Weather Pill Badge (Click to open WeatherModal) */}
+          {isMobile && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenWeather && onOpenWeather();
+              }}
+              style={{
+                background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(2, 132, 199, 0.12))',
+                color: themeMode === 'light' ? '#0f172a' : '#ffffff',
+                border: '1px solid rgba(245, 158, 11, 0.35)',
+                padding: '0.2rem 0.45rem',
+                borderRadius: '999px',
+                fontSize: '0.72rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.2rem',
+                whiteSpace: 'nowrap',
+                flexShrink: 0,
+                boxShadow: '0 1px 3px rgba(245, 158, 11, 0.1)'
+              }}
+              title="실시간 날씨 상세 보기"
+            >
+              {renderWeatherIcon(liveWeather.icon)}
+              <span>{liveWeather.city} {liveWeather.temp}</span>
+            </button>
+          )}
         </div>
 
         {/* CENTER: DESKTOP SLIM NAVIGATION & LIVE WEATHER CAPSULE BAR */}
