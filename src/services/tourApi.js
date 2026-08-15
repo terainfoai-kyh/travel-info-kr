@@ -696,10 +696,15 @@ export async function fetchPinpointLandmarkSpots(landmarks = [], lang = 'ko', ta
         }
       }
 
-      // 🎯 2차 시도: 0건이면 접미사('카페', '식당', '맛집', '베이커리') 떼고 2차 검색 (예: "심해 카페" -> "심해")
-      if ((!rawItems || (Array.isArray(rawItems) && rawItems.length === 0)) && /(카페|식당|맛집|베이커리|리조트|공원)$/.test(lm)) {
-        const strippedKeyword = lm.replace(/(카페|식당|맛집|베이커리|리조트|공원)$/, '').trim();
-        if (strippedKeyword && strippedKeyword.length >= 2) {
+      // 🎯 2차 시도: 0건이면 복합 부가어('정글돔', '스카이워크', '전망대', '카페', '식당', '맛집', '거리' 등) 떼고 정밀 2차 검색 (예: "거제식물원 정글돔" -> "거제식물원", "심해 카페" -> "심해")
+      if (!rawItems || (Array.isArray(rawItems) && rawItems.length === 0)) {
+        const strippedKeyword = lm
+          .replace(/\s*(정글돔|스카이워크|케이블카|전망대|리조트|파크|거리|거리일대).*/gi, '')
+          .replace(/\s+(카페|식당|맛집|베이커리|호텔|펜션)$/gi, '')
+          .replace(/^카페\s+/i, '')
+          .trim();
+
+        if (strippedKeyword && strippedKeyword !== lm && strippedKeyword.length >= 2) {
           const url2 = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=10&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=B&keyword=${encodeURIComponent(strippedKeyword)}`;
           const c2 = new AbortController();
           const t2 = setTimeout(() => c2.abort(), 3000);

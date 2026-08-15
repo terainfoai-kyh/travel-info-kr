@@ -91,7 +91,6 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
         console.error(e);
       }
 
-      // Fetch authentic TourAPI data using PK (contentId)
       const targetContentId = spot.contentId || (isNaN(Number(spot.id)) ? null : spot.id);
       const cType = spot.contentTypeId || '12';
 
@@ -134,7 +133,65 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
           setLoadingDetail(false);
         });
       } else {
-        setLoadingDetail(false);
+        // 🎯 2차 자동 검색: contentId가 없는 스마트 카드도 공공 TourAPI 전산망에서 즉시 찾아 사진 및 상세정보 연동
+        const rawTitle = (spot.title || '').replace(/^(\d+[\.\s\-\:]+|Day\s*\d+[\s\-\:]+|\[\d+일차\])/gi, '');
+        const cleanKeyword = spot.searchKeyword || rawTitle
+          .replace(/\(.*?\)/g, '')
+          .replace(/^카페\s+/i, '')
+          .replace(/\s*(정글돔|스카이워크|케이블카|전망대|리조트|파크|거리|거리일대).*/gi, '')
+          .replace(/\s+(카페|식당|맛집|베이커리|호텔|펜션)$/gi, '')
+          .trim() || spot.title;
+
+        const searchUrl = `${PUBLIC_API_CONFIG.SEARCH_KEYWORD_URL}?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=5&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=B&keyword=${encodeURIComponent(cleanKeyword)}`;
+        fetch(searchUrl)
+          .then(res => res.json())
+          .then(data => {
+            const items = data.response?.body?.items?.item || [];
+            const arr = Array.isArray(items) ? items : (items ? [items] : []);
+            const matched = arr[0];
+            if (matched && matched.contentid) {
+              const realContentId = matched.contentid;
+              const realCType = matched.contenttypeid || '12';
+              return Promise.all([
+                fetchSpotDetailCommon(realContentId, lang).catch(() => null),
+                fetchSpotDetailImages(realContentId, lang).catch(() => []),
+                fetchSpotDetailIntro(realContentId, realCType, lang).catch(() => null)
+              ]).then(([commonRes, imagesRes, introRes]) => {
+                if (commonRes) {
+                  setDetailData(prev => ({
+                    ...prev,
+                    title: commonRes.title || matched.title || prev.title,
+                    overview: commonRes.overview || prev.overview,
+                    addr1: commonRes.addr1 || matched.addr1 || prev.addr1,
+                    firstimage: commonRes.firstimage || matched.firstimage || prev.firstimage,
+                    homepage: commonRes.homepage || prev.homepage,
+                    tel: commonRes.tel || prev.tel
+                  }));
+                }
+                setIntroData(introRes);
+                const allImgs = [];
+                const mainImg = commonRes?.firstimage || matched.firstimage || spot.image;
+                if (mainImg && !mainImg.includes('default-spot')) {
+                  allImgs.push(mainImg.replace(/^http:\/\//i, 'https://'));
+                }
+                if (Array.isArray(imagesRes) && imagesRes.length > 0) {
+                  imagesRes.forEach(img => {
+                    const cleanImg = img.replace(/^http:\/\//i, 'https://');
+                    if (!allImgs.includes(cleanImg)) {
+                      allImgs.push(cleanImg);
+                    }
+                  });
+                }
+                setGalleryImages(allImgs);
+                setLoadingDetail(false);
+              });
+            } else {
+              setLoadingDetail(false);
+            }
+          })
+          .catch(() => {
+            setLoadingDetail(false);
+          });
       }
     }
   }, [spot, lang]);
@@ -193,8 +250,8 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
         position: 'fixed',
         inset: 0,
         zIndex: 99999,
-        backgroundColor: 'rgba(15, 23, 42, 0.75)',
-        backdropFilter: 'blur(10px)',
+        backgroundColor: 'rgba(15, 23, 42, 0.35)',
+        backdropFilter: 'blur(8px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
