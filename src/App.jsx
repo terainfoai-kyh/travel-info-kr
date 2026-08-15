@@ -12,6 +12,8 @@ import ItineraryModal from './components/ItineraryModal';
 import WishlistDrawer from './components/WishlistDrawer';
 import PartnerInquiryModal from './components/PartnerInquiryModal';
 import GuidePRModal from './components/GuidePRModal';
+import WeatherModal from './components/WeatherModal';
+import TravelEssentialsModal from './components/TravelEssentialsModal';
 import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
 import { generateLocalFallbackItinerary } from './services/geminiNlpService';
 
@@ -32,6 +34,8 @@ export default function App() {
   const [fullAiItinerary, setFullAiItinerary] = useState(null);
 
   // Modals & Drawers state
+  const [isWeatherOpen, setIsWeatherOpen] = useState(false);
+  const [isEssentialsOpen, setIsEssentialsOpen] = useState(false);
   const [isItineraryOpen, setIsItineraryOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isPartnerOpen, setIsPartnerOpen] = useState(false);
@@ -126,6 +130,8 @@ export default function App() {
         onOpenWishlist={() => setIsWishlistOpen(true)}
         onOpenItinerary={() => setIsItineraryOpen(true)}
         onOpenGuidePR={() => setIsGuidePROpen(true)}
+        onOpenWeather={() => setIsWeatherOpen(true)}
+        onOpenEssentials={() => setIsEssentialsOpen(true)}
       />
 
       {/* Main Container */}
@@ -157,6 +163,24 @@ export default function App() {
             (typeof b === 'string' && (b === selectedSpot.id || b === selectedSpot.contentId || b === selectedSpot.title))
           )}
           onToggleBookmark={(spot) => handleToggleBookmark(spot || selectedSpot)}
+        />
+      )}
+
+      {isWeatherOpen && (
+        <WeatherModal
+          isOpen={isWeatherOpen}
+          onClose={() => setIsWeatherOpen(false)}
+          lang={lang}
+          initialRegion="서울"
+        />
+      )}
+
+      {isEssentialsOpen && (
+        <TravelEssentialsModal
+          isOpen={isEssentialsOpen}
+          onClose={() => setIsEssentialsOpen(false)}
+          lang={lang}
+          targetRegion="서울"
         />
       )}
 

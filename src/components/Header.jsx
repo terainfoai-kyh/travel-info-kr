@@ -2,9 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   Compass, Globe, Sparkles, Sun, Moon, Heart, 
   MapPin, Utensils, Luggage, Share2, Check, BookOpen, 
-  ChevronDown, ChevronUp, Menu, X, Download, Monitor
+  ChevronDown, ChevronUp, Menu, X, Download, Monitor,
+  Cloud, CloudRain, Thermometer
 } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
+import { fetchRealtimeWeather } from '../services/weatherApi';
 
 const LANGUAGE_OPTIONS = [
   { value: 'ko', label: '한국어 (KO)', short: 'KO' },
@@ -30,7 +32,9 @@ export default function Header({
   wishlistCount = 0, 
   onOpenWishlist, 
   onOpenItinerary, 
-  onOpenGuidePR 
+  onOpenGuidePR,
+  onOpenWeather,
+  onOpenEssentials
 }) {
   const activeLang = currentLang || lang || 'ko';
   const handleLangChange = onLanguageChange || setLang;
@@ -42,6 +46,31 @@ export default function Header({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth <= 840 : false);
   const menuDropdownRef = useRef(null);
+
+  // ☀️ Live Weather state from Korea Meteorological Administration (기상청)
+  const [liveWeather, setLiveWeather] = useState({
+    temp: '19°C',
+    text: '맑음',
+    icon: 'Sun',
+    city: '서울'
+  });
+
+  useEffect(() => {
+    let isMounted = true;
+    fetchRealtimeWeather('서울')
+      .then(data => {
+        if (isMounted && data && data.temperature) {
+          setLiveWeather({
+            temp: data.temperature,
+            text: data.weatherText || '맑음',
+            icon: data.weatherIcon || 'Sun',
+            city: data.region || '서울'
+          });
+        }
+      })
+      .catch(() => {});
+    return () => { isMounted = false; };
+  }, []);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 840);
@@ -95,32 +124,6 @@ export default function Header({
     } catch (e) {}
   };
 
-  const NAV_ITEMS = [
-    { id: 'ai-prompt-hero', label: t.navAiConcierge || 'AI 대화', icon: Sparkles },
-    { id: 'weather-info', label: t.navWeather || '실시간 기후', icon: Sun },
-    { id: 'travel-essentials', label: t.navEssentials || '여행 필수 가이드', icon: Luggage },
-    { id: 'ai-lifestyle', label: t.navLifestyle || 'AI 맛집 & 코디', icon: Utensils }
-  ];
-
-  // Scrollspy logic
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollPos = window.scrollY + 140;
-      for (let i = NAV_ITEMS.length - 1; i >= 0; i--) {
-        const elem = document.getElementById(NAV_ITEMS[i].id);
-        if (elem) {
-          const top = elem.offsetTop;
-          if (scrollPos >= top) {
-            setActiveSection(NAV_ITEMS[i].id);
-            break;
-          }
-        }
-      }
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [NAV_ITEMS]);
-
   const scrollToSection = (id) => {
     setActiveSection(id);
     setIsMenuOpen(false);
@@ -133,6 +136,15 @@ export default function Header({
       const yOffset = -70;
       const y = elem.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  };
+
+  const renderWeatherIcon = (iconName) => {
+    switch (iconName) {
+      case 'Cloud': return <Cloud size={14} color="#38bdf8" />;
+      case 'CloudRain': return <CloudRain size={14} color="#818cf8" />;
+      case 'Sun':
+      default: return <Sun size={14} color="#f59e0b" />;
     }
   };
 
@@ -222,65 +234,148 @@ export default function Header({
           )}
         </div>
 
-        {/* CENTER: DESKTOP SLIM NAVIGATION BAR */}
+        {/* CENTER: DESKTOP SLIM NAVIGATION & LIVE WEATHER CAPSULE BAR */}
         {!isMobile && (
           <nav style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '0.4rem',
+            gap: '0.35rem',
             backgroundColor: themeMode === 'light' ? 'rgba(255, 255, 255, 0.75)' : 'rgba(30, 41, 59, 0.65)',
             padding: '0.25rem 0.35rem',
             borderRadius: '9999px',
             border: themeMode === 'light' ? '1px solid #cbd5e1' : '1px solid rgba(255, 255, 255, 0.1)',
             boxShadow: '0 1px 4px rgba(0, 0, 0, 0.03)'
           }}>
-            {NAV_ITEMS.map((item) => {
-              const Icon = item.icon;
-              const isActive = activeSection === item.id;
+            {/* 1. AI 대화 */}
+            <button
+              type="button"
+              onClick={() => scrollToSection('ai-prompt-hero')}
+              style={{
+                background: 'transparent',
+                color: themeMode === 'light' ? '#334155' : '#cbd5e1',
+                border: 'none',
+                padding: '0.35rem 0.7rem',
+                borderRadius: '9999px',
+                fontSize: '0.78rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                whiteSpace: 'nowrap',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#9333ea';
+                e.currentTarget.style.backgroundColor = themeMode === 'light' ? 'rgba(147, 51, 234, 0.08)' : 'rgba(255, 255, 255, 0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = themeMode === 'light' ? '#334155' : '#cbd5e1';
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+            >
+              <Sparkles size={14} color="#9333ea" />
+              <span>AI 대화</span>
+            </button>
 
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => scrollToSection(item.id)}
-                  style={{
-                    background: isActive
-                      ? 'linear-gradient(135deg, #9333ea, #2563eb)'
-                      : 'transparent',
-                    color: isActive
-                      ? '#ffffff'
-                      : (themeMode === 'light' ? '#334155' : '#cbd5e1'),
-                    border: 'none',
-                    padding: '0.35rem 0.75rem',
-                    borderRadius: '9999px',
-                    fontSize: '0.78rem',
-                    fontWeight: isActive ? 800 : 700,
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.35rem',
-                    whiteSpace: 'nowrap',
-                    transition: 'all 0.2s ease',
-                    boxShadow: isActive ? '0 2px 8px rgba(147, 51, 234, 0.25)' : 'none'
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.color = '#9333ea';
-                      e.currentTarget.style.backgroundColor = themeMode === 'light' ? 'rgba(147, 51, 234, 0.08)' : 'rgba(255, 255, 255, 0.1)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.color = themeMode === 'light' ? '#334155' : '#cbd5e1';
-                      e.currentTarget.style.backgroundColor = 'transparent';
-                    }
-                  }}
-                >
-                  <Icon size={14} />
-                  <span>{item.label}</span>
-                </button>
-              );
-            })}
+            {/* 2. ☀️ KMA Live Weather Pill Badge (Click to open full WeatherModal) */}
+            <button
+              type="button"
+              onClick={() => onOpenWeather && onOpenWeather()}
+              style={{
+                background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(2, 132, 199, 0.12))',
+                color: themeMode === 'light' ? '#0f172a' : '#ffffff',
+                border: '1px solid rgba(245, 158, 11, 0.35)',
+                padding: '0.35rem 0.75rem',
+                borderRadius: '9999px',
+                fontSize: '0.78rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                whiteSpace: 'nowrap',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 1px 3px rgba(245, 158, 11, 0.15)'
+              }}
+              title="대한민국 기상청(KMA) 100% 실시간 연동 기후 정보 보기"
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#0284c7';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'rgba(245, 158, 11, 0.35)';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              {renderWeatherIcon(liveWeather.icon)}
+              <span>{liveWeather.city} {liveWeather.temp} · {liveWeather.text}</span>
+              <ChevronDown size={12} color="#64748b" />
+            </button>
+
+            {/* 3. 🧳 여행 필수템 (Affiliate Monetization Modal Trigger) */}
+            <button
+              type="button"
+              onClick={() => onOpenEssentials && onOpenEssentials()}
+              style={{
+                background: 'transparent',
+                color: themeMode === 'light' ? '#334155' : '#cbd5e1',
+                border: 'none',
+                padding: '0.35rem 0.7rem',
+                borderRadius: '9999px',
+                fontSize: '0.78rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                whiteSpace: 'nowrap',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#0284c7';
+                e.currentTarget.style.backgroundColor = themeMode === 'light' ? 'rgba(2, 132, 199, 0.08)' : 'rgba(255, 255, 255, 0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = themeMode === 'light' ? '#334155' : '#cbd5e1';
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+            >
+              <Luggage size={14} color="#0284c7" />
+              <span>여행 필수템</span>
+            </button>
+
+            {/* 4. 🍲 AI 맛집 & 코디 */}
+            <button
+              type="button"
+              onClick={() => scrollToSection('ai-prompt-hero')}
+              style={{
+                background: 'transparent',
+                color: themeMode === 'light' ? '#334155' : '#cbd5e1',
+                border: 'none',
+                padding: '0.35rem 0.7rem',
+                borderRadius: '9999px',
+                fontSize: '0.78rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                whiteSpace: 'nowrap',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#ea580c';
+                e.currentTarget.style.backgroundColor = themeMode === 'light' ? 'rgba(234, 88, 12, 0.08)' : 'rgba(255, 255, 255, 0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = themeMode === 'light' ? '#334155' : '#cbd5e1';
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+            >
+              <Utensils size={14} color="#ea580c" />
+              <span>AI 맛집 & 코디</span>
+            </button>
           </nav>
         )}
 
@@ -391,7 +486,7 @@ export default function Header({
             )}
           </button>
 
-          {/* 🌟 SLEEK FLOATING DROPDOWN MENU CARD (Zero Page Pushing) */}
+          {/* 🌟 FLOATING DROPDOWN MENU CARD */}
           {isMenuOpen && (
             <div
               className="animate-fade-in"
@@ -399,7 +494,7 @@ export default function Header({
                 position: 'absolute',
                 top: 'calc(100% + 8px)',
                 right: 0,
-                width: isMobile ? '230px' : '250px',
+                width: isMobile ? '240px' : '260px',
                 backgroundColor: themeMode === 'light' ? '#ffffff' : '#1e293b',
                 borderRadius: '16px',
                 border: themeMode === 'light' ? '1.5px solid #e2e8f0' : '1px solid rgba(255, 255, 255, 0.15)',
@@ -411,39 +506,62 @@ export default function Header({
                 zIndex: 10000
               }}
             >
-              {/* Mobile Only: Section Navigation List */}
+              {/* Mobile Quick Links */}
               {isMobile && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', paddingBottom: '0.45rem', borderBottom: themeMode === 'light' ? '1px solid #f1f5f9' : '1px solid rgba(255,255,255,0.1)' }}>
                   <div style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 800, padding: '0.2rem 0.5rem' }}>
                     바로가기
                   </div>
-                  {NAV_ITEMS.map((item) => {
-                    const Icon = item.icon;
-                    return (
-                      <button
-                        key={item.id}
-                        onClick={() => scrollToSection(item.id)}
-                        style={{
-                          width: '100%',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.5rem',
-                          padding: '0.45rem 0.65rem',
-                          borderRadius: '10px',
-                          border: 'none',
-                          backgroundColor: activeSection === item.id ? (themeMode === 'light' ? '#f3e8ff' : 'rgba(147,51,234,0.25)') : 'transparent',
-                          color: activeSection === item.id ? '#9333ea' : (themeMode === 'light' ? '#334155' : '#e2e8f0'),
-                          fontSize: '0.8rem',
-                          fontWeight: 700,
-                          cursor: 'pointer',
-                          textAlign: 'left'
-                        }}
-                      >
-                        <Icon size={14} color="#9333ea" />
-                        <span>{item.label}</span>
-                      </button>
-                    );
-                  })}
+
+                  <button
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      onOpenWeather && onOpenWeather();
+                    }}
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      padding: '0.45rem 0.65rem',
+                      borderRadius: '10px',
+                      border: 'none',
+                      backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                      color: '#0f172a',
+                      fontSize: '0.8rem',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      textAlign: 'left'
+                    }}
+                  >
+                    <Sun size={15} color="#f59e0b" />
+                    <span>실시간 날씨 ({liveWeather.city} {liveWeather.temp})</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      onOpenEssentials && onOpenEssentials();
+                    }}
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      padding: '0.45rem 0.65rem',
+                      borderRadius: '10px',
+                      border: 'none',
+                      backgroundColor: 'transparent',
+                      color: themeMode === 'light' ? '#334155' : '#e2e8f0',
+                      fontSize: '0.8rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      textAlign: 'left'
+                    }}
+                  >
+                    <Luggage size={15} color="#0284c7" />
+                    <span>여행 필수템 & 제휴 할인</span>
+                  </button>
                 </div>
               )}
 
