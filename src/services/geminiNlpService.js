@@ -252,16 +252,49 @@ Strictly return ONLY valid JSON matching this schema:
                   const cleanName = String(rawName).replace(/\(.*?\)/g, '').replace(/\[.*?\]/g, '').trim();
                   if (!cleanName) continue;
 
-                  const spot = pinpointSpots.find(sp => 
-                    !usedContentIds.has(sp.contentId) && 
+                  let spot = pinpointSpots.find(sp => 
+                    (sp.contentId ? !usedContentIds.has(sp.contentId) : !usedContentIds.has(sp.id)) && 
                     (sp.title?.includes(cleanName) || cleanName.includes(sp.title))
                   );
 
+                  if (!spot) {
+                    const stripped = cleanName.replace(/(카페|식당|맛집|베이커리|리조트|공원)$/, '').trim();
+                    if (stripped && stripped.length >= 2) {
+                      spot = pinpointSpots.find(sp => 
+                        (sp.contentId ? !usedContentIds.has(sp.contentId) : !usedContentIds.has(sp.id)) && 
+                        (sp.title?.includes(stripped) || stripped.includes(sp.title))
+                      );
+                    }
+                  }
+
                   if (spot) {
-                    usedContentIds.add(spot.contentId);
+                    if (spot.contentId) usedContentIds.add(spot.contentId);
+                    else usedContentIds.add(spot.id);
                     const spWithDay = { ...spot, assignedDay: d + 1 };
                     daySpots.push(spWithDay);
                     flatSpotsToRender.push(spWithDay);
+                  } else {
+                    // 🎯 3차: 신상 핫플 스마트 AI 카드 즉시 생성 (누락 0% 보장)
+                    const aiSpot = {
+                      id: `ai-hotspot-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+                      contentId: null,
+                      title: cleanName,
+                      region: resolvedCity || '한국',
+                      theme: 'AI 추천 핫플레이스',
+                      contentTypeId: '39',
+                      rating: 4.9,
+                      image: '/default-spot.png',
+                      location: `대한민국 ${resolvedCity} 일대 (지도 길찾기 연동)`,
+                      lat: 37.2858,
+                      lng: 127.0145,
+                      tel: '',
+                      tags: ['AI추천', '감성핫플', cleanName],
+                      isAiSmartPlace: true,
+                      assignedDay: d + 1
+                    };
+                    usedContentIds.add(aiSpot.id);
+                    daySpots.push(aiSpot);
+                    flatSpotsToRender.push(aiSpot);
                   }
                 }
 
@@ -280,7 +313,8 @@ Strictly return ONLY valid JSON matching this schema:
                 });
               }
 
-              let finalSummary = parsed.summary || '';
+              // 🎯 대괄호 [ ] 표시 자동 정제 (예: [매미성] & [심해 카페] -> 매미성 & 심해 카페)
+              let finalSummary = (parsed.summary || '').replace(/\[([^\]]+)\]/g, '$1');
               if (!finalSummary.includes('1일차') && finalizedSchedules && finalizedSchedules.length > 0) {
                 const intro = `${resolvedCity}의 매력과 특색을 온전히 만끽하는 ${resolvedDays}일 맞춤 코스입니다! ✨\n\n`;
                 const dailyLines = finalizedSchedules.map(ds => {
