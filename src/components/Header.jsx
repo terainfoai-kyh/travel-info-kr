@@ -299,6 +299,47 @@ export default function Header({ currentLang, setLang, filters, themeMode, setTh
               </select>
             </div>
 
+            {/* 100% Always-Visible Wishlist Heart Button in Row 1 */}
+            <button
+              onClick={onOpenWishlist}
+              style={{
+                background: wishlistCount > 0 
+                  ? (themeMode === 'light' ? '#fef2f2' : 'rgba(239, 68, 68, 0.15)') 
+                  : (themeMode === 'light' ? '#ffffff' : 'rgba(30, 41, 59, 0.95)'),
+                color: wishlistCount > 0 ? '#ef4444' : (themeMode === 'light' ? '#0f172a' : '#ffffff'),
+                border: wishlistCount > 0 
+                  ? '1.5px solid #fecaca' 
+                  : (themeMode === 'light' ? '1px solid #cbd5e1' : '1px solid rgba(255, 255, 255, 0.25)'),
+                padding: '0.3rem 0.6rem',
+                borderRadius: 'var(--radius-md)',
+                fontSize: '0.78rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                boxShadow: wishlistCount > 0 ? '0 2px 8px rgba(239, 68, 68, 0.2)' : '0 1px 3px rgba(0,0,0,0.05)',
+                transition: 'all 0.2s ease',
+                whiteSpace: 'nowrap'
+              }}
+              title={t.wishlistBtn || '찜목록'}
+            >
+              <Heart size={14} fill={wishlistCount > 0 ? '#ef4444' : 'none'} color="#ef4444" />
+              {!isMobile && <span>{t.wishlistBtn || '찜목록'}</span>}
+              {wishlistCount > 0 && (
+                <span style={{
+                  background: '#ef4444',
+                  color: '#ffffff',
+                  fontSize: '0.68rem',
+                  fontWeight: 900,
+                  padding: '0.08rem 0.38rem',
+                  borderRadius: '999px'
+                }}>
+                  {wishlistCount}
+                </span>
+              )}
+            </button>
+
             <button
               onClick={() => setIsMenuOpen(prev => !prev)}
               style={{
