@@ -159,6 +159,12 @@ Your goal is to understand the user's travel destination, duration, companion st
    - Set cleanKeyword to include both the specific sub-area and parent city for accurate TourAPI matching (e.g. '영통 광교 수원', '해운대 부산').
    - Recommend authentic nearby attractions starting from that specific sub-location in optimal proximity and travel route order (e.g. For '영통': 광교호수공원, 수원화성, 행리단길, 방화수류정).
 
+[UNKNOWN / TYPO PLACE RESOLUTION RULES]
+2. If the user's destination is an unknown place, meaningless typo, or non-existent region in South Korea (e.g., '징수', '아틀란티스', '엘도라도', 'qwerty'):
+   - Set "isUnknownPlace": true, "days": 0, "dailySchedules": [], "targetCity": "".
+   - In "summary", do NOT fabricate a fake trip. Politely and engagingly ask back in ${lang}:
+     e.g., "'[User Word]'는 대한민국 공식 관광지로 확인되지 않는 지명입니다. 혹시 '[유사도시 1]'이나 '[유사도시 2]'를 검색하신 건가요? 원하시는 여행지를 알려주시면 나만의 멋진 맞춤 일정을 짜드릴게요! 😊"
+
 Strictly return ONLY valid JSON matching this schema:
 {
   "isUnknownPlace": false,
@@ -217,6 +223,21 @@ Strictly return ONLY valid JSON matching this schema:
 
             if (parsed && (parsed.summary || parsed.dailySchedules)) {
               console.log(`[Gemini AI Engine] ⚡ Gemini API (${model}) 초고속 실시간 응답 성공!`);
+
+              if (parsed.isUnknownPlace === true) {
+                return {
+                  targetCity: '',
+                  days: 0,
+                  isUnknownPlace: true,
+                  tripTitle: parsed.tripTitle || '여행지 확인 안내',
+                  summary: (parsed.summary || '').replace(/\[([^\]]+)\]/g, '$1'),
+                  dailySchedules: [],
+                  spots: [],
+                  hotels: [],
+                  agodaUrl: null,
+                  klookUrl: null
+                };
+              }
 
               const resolvedCity = parsed.targetCity || targetCity || '대한민국';
               const resolvedDays = parsed.days || days || 3;
