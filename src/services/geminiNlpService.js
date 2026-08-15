@@ -193,7 +193,7 @@ Strictly return ONLY valid JSON matching this schema:
       try {
         const endpointUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        const timeoutId = setTimeout(() => controller.abort(), 12000);
 
         const res = await fetch(endpointUrl, {
           method: 'POST',
