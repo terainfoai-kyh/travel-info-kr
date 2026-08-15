@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   X, Star, MapPin, Clock, Phone, SunMedium, CheckCircle, Heart, 
   Globe, Loader2, Hotel, Ticket, ExternalLink, Sparkles, ChevronLeft, 
-  ChevronRight, Car, Ban, Baby, Dog, Navigation
+  ChevronRight, Car, Ban, Baby, Dog, Navigation, Camera
 } from 'lucide-react';
 import { fetchSpotDetailCommon, fetchSpotDetailImages, fetchSpotDetailIntro } from '../services/tourApi';
 import { PUBLIC_API_CONFIG, buildAgodaDeepLink, buildKlookDeepLink, buildKKdayDeepLink } from '../services/apiConfig';
@@ -223,17 +223,17 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
             top: '1rem',
             right: '1rem',
             zIndex: 100,
-            backgroundColor: 'rgba(15, 23, 42, 0.85)',
-            border: '2px solid rgba(255, 255, 255, 0.5)',
+            backgroundColor: 'rgba(15, 23, 42, 0.75)',
+            border: '2px solid rgba(255, 255, 255, 0.6)',
             color: '#ffffff',
-            width: '40px',
-            height: '40px',
+            width: '38px',
+            height: '38px',
             borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.4)',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
             backdropFilter: 'blur(6px)',
             transition: 'transform 0.2s ease, background-color 0.2s ease'
           }}
@@ -243,14 +243,14 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.transform = 'scale(1)';
-            e.currentTarget.style.backgroundColor = 'rgba(15, 23, 42, 0.85)';
+            e.currentTarget.style.backgroundColor = 'rgba(15, 23, 42, 0.75)';
           }}
         >
-          <X size={22} strokeWidth={2.5} />
+          <X size={20} strokeWidth={2.5} />
         </button>
 
-        {/* 📸 HERO MULTI-PHOTO GALLERY SLIDER */}
-        <div style={{ position: 'relative', width: '100%', height: '340px', backgroundColor: '#0f172a', overflow: 'hidden' }}>
+        {/* 📸 HERO MULTI-PHOTO GALLERY SLIDER (BRIGHT & NATURAL LOOK) */}
+        <div style={{ position: 'relative', width: '100%', height: '360px', backgroundColor: '#f1f5f9', overflow: 'hidden' }}>
           <TravelImageWithFallback 
             src={currentHeroImage}
             spotTitle={displayTitle || spot.title}
@@ -258,11 +258,11 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
             showTitle={false}
           />
 
-          {/* Elegant Dark Gradient Overlay */}
+          {/* Soft Bottom-Only Gradient for Text Readability without Darkening the Photo */}
           <div style={{
             position: 'absolute',
             inset: 0,
-            background: 'linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.3) 50%, rgba(0, 0, 0, 0.1) 100%)'
+            background: 'linear-gradient(to top, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0.25) 35%, rgba(0, 0, 0, 0) 65%)'
           }} />
 
           {/* Left / Right Navigation Arrows if multiple photos */}
@@ -279,9 +279,9 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                   left: '1rem',
                   top: '50%',
                   transform: 'translateY(-50%)',
-                  backgroundColor: 'rgba(15, 23, 42, 0.7)',
-                  border: '1px solid rgba(255, 255, 255, 0.3)',
-                  color: '#ffffff',
+                  backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                  border: '1px solid rgba(255, 255, 255, 0.8)',
+                  color: '#1e293b',
                   width: '38px',
                   height: '38px',
                   borderRadius: '50%',
@@ -289,8 +289,17 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
-                  backdropFilter: 'blur(4px)',
-                  transition: 'background-color 0.2s ease'
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                  backdropFilter: 'blur(6px)',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#ffffff';
+                  e.currentTarget.style.transform = 'translateY(-50%) scale(1.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.85)';
+                  e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
                 }}
               >
                 <ChevronLeft size={22} />
@@ -307,9 +316,9 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                   right: '1rem',
                   top: '50%',
                   transform: 'translateY(-50%)',
-                  backgroundColor: 'rgba(15, 23, 42, 0.7)',
-                  border: '1px solid rgba(255, 255, 255, 0.3)',
-                  color: '#ffffff',
+                  backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                  border: '1px solid rgba(255, 255, 255, 0.8)',
+                  color: '#1e293b',
                   width: '38px',
                   height: '38px',
                   borderRadius: '50%',
@@ -317,8 +326,17 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
-                  backdropFilter: 'blur(4px)',
-                  transition: 'background-color 0.2s ease'
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                  backdropFilter: 'blur(6px)',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#ffffff';
+                  e.currentTarget.style.transform = 'translateY(-50%) scale(1.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.85)';
+                  e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
                 }}
               >
                 <ChevronRight size={22} />
@@ -329,14 +347,14 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                 position: 'absolute',
                 top: '1rem',
                 left: '1rem',
-                backgroundColor: 'rgba(15, 23, 42, 0.75)',
+                backgroundColor: 'rgba(15, 23, 42, 0.65)',
                 color: '#ffffff',
                 padding: '0.25rem 0.65rem',
                 borderRadius: '16px',
                 fontSize: '0.75rem',
                 fontWeight: 700,
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                backdropFilter: 'blur(4px)'
+                border: '1px solid rgba(255, 255, 255, 0.25)',
+                backdropFilter: 'blur(6px)'
               }}>
                 📷 {activeImgIndex + 1} / {galleryImages.length}
               </div>
@@ -360,14 +378,14 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
 
               {spot.tags && spot.tags.slice(0, 3).map((tagItem, i) => (
                 <span key={i} style={{
-                  backgroundColor: 'rgba(15, 23, 42, 0.75)',
-                  color: '#f1f5f9',
+                  backgroundColor: 'rgba(15, 23, 42, 0.65)',
+                  color: '#f8fafc',
                   border: '1px solid rgba(255, 255, 255, 0.3)',
                   fontSize: '0.75rem',
                   fontWeight: 600,
                   padding: '0.2rem 0.55rem',
                   borderRadius: '8px',
-                  backdropFilter: 'blur(4px)'
+                  backdropFilter: 'blur(6px)'
                 }}>
                   #{tagItem.replace(/^#/, '')}
                 </span>
@@ -378,7 +396,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
               fontSize: '1.85rem',
               fontWeight: 900,
               color: '#ffffff',
-              textShadow: '0 2px 8px rgba(0,0,0,0.85)',
+              textShadow: '0 2px 10px rgba(0,0,0,0.85)',
               margin: 0,
               letterSpacing: '-0.5px'
             }}>
@@ -391,7 +409,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
         {galleryImages.length > 1 && (
           <div style={{
             display: 'flex',
-            gap: '0.5rem',
+            gap: '0.55rem',
             padding: '0.75rem 1.5rem',
             backgroundColor: '#f8fafc',
             borderBottom: '1px solid #e2e8f0',
@@ -463,15 +481,15 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
             </button>
           </div>
 
-          {/* 🗺️ 3-MAP REAL-TIME NAVIGATION BAR (카카오 / 네이버 / 구글) */}
+          {/* 🗺️ SOPHISTICATED 3-MAP NAVIGATION BAR (REFINED PASTEL PILLS) */}
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
             gap: '0.65rem',
             marginBottom: '1.5rem',
             padding: '0.85rem',
-            backgroundColor: '#f1f5f9',
-            borderRadius: '14px',
+            backgroundColor: '#f8fafc',
+            borderRadius: '16px',
             border: '1px solid #e2e8f0'
           }}>
             {/* Kakao Map Navigation */}
@@ -483,19 +501,28 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '0.4rem',
-                padding: '0.65rem 0.85rem',
-                backgroundColor: '#fee500',
-                color: '#191919',
+                gap: '0.45rem',
+                padding: '0.7rem 0.85rem',
+                backgroundColor: '#fefce8',
+                border: '1.5px solid #fef08a',
+                color: '#854d0e',
                 fontWeight: 800,
-                fontSize: '0.82rem',
-                borderRadius: '10px',
+                fontSize: '0.84rem',
+                borderRadius: '12px',
                 textDecoration: 'none',
-                boxShadow: '0 2px 6px rgba(0,0,0,0.06)'
+                transition: 'transform 0.15s ease, box-shadow 0.15s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(234, 179, 8, 0.18)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = 'none';
               }}
             >
-              <Navigation size={15} />
-              <span>카카오맵 실시간 길찾기 ↗</span>
+              <Navigation size={15} color="#ca8a04" />
+              <span>카카오맵 길찾기 ↗</span>
             </a>
 
             {/* Naver Map Navigation */}
@@ -507,18 +534,27 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '0.4rem',
-                padding: '0.65rem 0.85rem',
-                backgroundColor: '#03c75a',
-                color: '#ffffff',
+                gap: '0.45rem',
+                padding: '0.7rem 0.85rem',
+                backgroundColor: '#f0fdf4',
+                border: '1.5px solid #bbf7d0',
+                color: '#166534',
                 fontWeight: 800,
-                fontSize: '0.82rem',
-                borderRadius: '10px',
+                fontSize: '0.84rem',
+                borderRadius: '12px',
                 textDecoration: 'none',
-                boxShadow: '0 2px 6px rgba(0,0,0,0.06)'
+                transition: 'transform 0.15s ease, box-shadow 0.15s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(22, 163, 74, 0.18)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = 'none';
               }}
             >
-              <Navigation size={15} />
+              <Navigation size={15} color="#16a34a" />
               <span>네이버지도 길찾기 ↗</span>
             </a>
 
@@ -531,19 +567,28 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '0.4rem',
-                padding: '0.65rem 0.85rem',
-                backgroundColor: '#2563eb',
-                color: '#ffffff',
+                gap: '0.45rem',
+                padding: '0.7rem 0.85rem',
+                backgroundColor: '#eff6ff',
+                border: '1.5px solid #bfdbfe',
+                color: '#1e40af',
                 fontWeight: 800,
-                fontSize: '0.82rem',
-                borderRadius: '10px',
+                fontSize: '0.84rem',
+                borderRadius: '12px',
                 textDecoration: 'none',
-                boxShadow: '0 2px 6px rgba(37,99,235,0.25)'
+                transition: 'transform 0.15s ease, box-shadow 0.15s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(37, 99, 235, 0.18)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = 'none';
               }}
             >
-              <MapPin size={15} />
-              <span>구글지도(GPS) ↗</span>
+              <MapPin size={15} color="#2563eb" />
+              <span>구글지도 (GPS) ↗</span>
             </a>
           </div>
 
@@ -693,38 +738,43 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   padding: '0.85rem 1.25rem',
-                  backgroundColor: '#f3e8ff',
-                  border: '1.5px solid #d8b4fe',
+                  backgroundColor: '#f5f3ff',
+                  border: '1.5px solid #ddd6fe',
                   borderRadius: '14px',
-                  color: '#6b21a8',
+                  color: '#6d28d9',
                   fontWeight: 800,
                   fontSize: '0.88rem',
                   textDecoration: 'none',
-                  boxShadow: '0 2px 6px rgba(124, 58, 237, 0.1)'
+                  boxShadow: '0 2px 6px rgba(124, 58, 237, 0.08)',
+                  transition: 'transform 0.15s ease'
                 }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <Globe size={18} color="#7c3aed" />
-                  <span>{displayTitle} 공식 웹사이트 / 예약 페이지 바로가기</span>
+                  <span>{displayTitle} 공식 웹사이트 바로가기</span>
                 </div>
                 <span>방문하기 ↗</span>
               </a>
             </div>
           )}
 
-          {/* 📸 INSTAGRAM & GOOGLE LIVE EXPLORE BANNER */}
+          {/* 📸 INSTAGRAM & GOOGLE LIVE EXPLORE BANNER (REFINED SOFT GLASS DESIGN) */}
           <div style={{
             marginBottom: '1.5rem',
-            padding: '1.1rem',
+            padding: '1.15rem',
             borderRadius: '16px',
-            background: 'linear-gradient(135deg, #fdf2f8 0%, #fae8ff 50%, #eff6ff 100%)',
-            border: '1px solid #f0abfc'
+            background: 'linear-gradient(135deg, #faf5ff 0%, #fdf4ff 50%, #f8fafc 100%)',
+            border: '1.5px solid #f3e8ff',
+            boxShadow: '0 2px 8px rgba(168, 85, 247, 0.05)'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-              <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#86198f' }}>
-                📸 실시간 인스타그램 & 포토존 둘러보기
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
+              <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#6b21a8', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <Camera size={16} color="#9333ea" />
+                <span>실시간 SNS 트렌드 & 포토존 갤러리</span>
               </span>
-              <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#c026d3', backgroundColor: '#ffffff', padding: '0.15rem 0.5rem', borderRadius: '12px' }}>
+              <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#7c3aed', backgroundColor: '#f3e8ff', padding: '0.2rem 0.6rem', borderRadius: '12px', border: '1px solid #e9d5ff' }}>
                 #인생샷명소
               </span>
             </div>
@@ -738,15 +788,19 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.35rem',
-                  padding: '0.65rem',
-                  background: 'linear-gradient(135deg, #ec4899, #833ab4)',
+                  gap: '0.4rem',
+                  padding: '0.7rem',
+                  background: 'linear-gradient(135deg, #d946ef 0%, #8b5cf6 100%)',
                   color: '#ffffff',
                   fontWeight: 800,
                   fontSize: '0.82rem',
-                  borderRadius: '10px',
-                  textDecoration: 'none'
+                  borderRadius: '12px',
+                  textDecoration: 'none',
+                  boxShadow: '0 4px 12px rgba(217, 70, 239, 0.2)',
+                  transition: 'transform 0.15s ease'
                 }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
               >
                 <span>인스타 실시간 피드 ↗</span>
               </a>
@@ -759,40 +813,45 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.35rem',
-                  padding: '0.65rem',
-                  backgroundColor: '#0284c7',
+                  gap: '0.4rem',
+                  padding: '0.7rem',
+                  background: 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)',
                   color: '#ffffff',
                   fontWeight: 800,
                   fontSize: '0.82rem',
-                  borderRadius: '10px',
-                  textDecoration: 'none'
+                  borderRadius: '12px',
+                  textDecoration: 'none',
+                  boxShadow: '0 4px 12px rgba(59, 130, 246, 0.2)',
+                  transition: 'transform 0.15s ease'
                 }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
               >
-                <span>구글 고화질 갤러리 ↗</span>
+                <span>구글 실시간 갤러리 ↗</span>
               </a>
             </div>
           </div>
 
-          {/* 🏨 PARTNER OFFERS (AGODA & KLOOK) */}
+          {/* 🏨 PARTNER OFFERS (ELEGANT SOFT SLATE CARD - NO HARSH BLACK) */}
           <div style={{
             marginBottom: '1.5rem',
-            padding: '1.1rem',
-            backgroundColor: '#0f172a',
+            padding: '1.15rem',
+            backgroundColor: '#f8fafc',
             borderRadius: '16px',
-            color: '#ffffff'
+            border: '1.5px solid #e2e8f0',
+            boxShadow: '0 4px 14px rgba(0, 0, 0, 0.03)'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <Sparkles size={14} color="#38bdf8" />
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
+              <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <Sparkles size={16} color="#6366f1" />
                 <span>주변 추천 숙소 및 액티비티 예약</span>
               </span>
-              <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#94a3b8' }}>
+              <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#4338ca', backgroundColor: '#e0e7ff', padding: '0.2rem 0.55rem', borderRadius: '8px' }}>
                 OFFICIAL PARTNER
               </span>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '0.65rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.65rem' }}>
               <a
                 href={buildAgodaDeepLink(spot.title, '2026-08-20', '2026-08-22')}
                 target="_blank"
@@ -801,17 +860,21 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.35rem',
-                  padding: '0.65rem',
-                  background: 'linear-gradient(135deg, #0284c7, #38bdf8)',
+                  gap: '0.4rem',
+                  padding: '0.75rem',
+                  background: 'linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%)',
                   color: '#ffffff',
                   fontWeight: 800,
-                  fontSize: '0.8rem',
-                  borderRadius: '10px',
-                  textDecoration: 'none'
+                  fontSize: '0.84rem',
+                  borderRadius: '12px',
+                  textDecoration: 'none',
+                  boxShadow: '0 4px 12px rgba(14, 165, 233, 0.25)',
+                  transition: 'transform 0.15s ease'
                 }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
               >
-                <Hotel size={14} />
+                <Hotel size={16} />
                 <span>아고다 특가 숙소 ↗</span>
               </a>
 
@@ -823,17 +886,21 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.35rem',
-                  padding: '0.65rem',
-                  background: 'linear-gradient(135deg, #f97316, #ea580c)',
+                  gap: '0.4rem',
+                  padding: '0.75rem',
+                  background: 'linear-gradient(135deg, #ea580c 0%, #f97316 100%)',
                   color: '#ffffff',
                   fontWeight: 800,
-                  fontSize: '0.8rem',
-                  borderRadius: '10px',
-                  textDecoration: 'none'
+                  fontSize: '0.84rem',
+                  borderRadius: '12px',
+                  textDecoration: 'none',
+                  boxShadow: '0 4px 12px rgba(249, 115, 22, 0.25)',
+                  transition: 'transform 0.15s ease'
                 }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
               >
-                <Ticket size={14} />
+                <Ticket size={16} />
                 <span>클룩 투어 & 티켓 ↗</span>
               </a>
             </div>
