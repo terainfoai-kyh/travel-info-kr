@@ -4,6 +4,128 @@ import { TRANSLATIONS } from '../i18n/translations';
 import TravelImageWithFallback from './TravelImageWithFallback';
 import { useModalHistory } from '../hooks/useModalHistory';
 
+const WISHLIST_I18N = {
+  ko: {
+    title: '내 찜한 여행지 목록',
+    count: '총 {count}곳의 명소 저장됨',
+    emptyTitle: '아직 찜한 여행지가 없습니다',
+    emptySub: '마음에 드는 관광지의 하트(❤️) 버튼을 눌러 나만의 여행 코스 보관함을 채워보세요!',
+    shareHeader: '카톡/SNS로 찜 코스 공유하기',
+    shareBtn: '1클릭 공유',
+    copiedText: '링크 복사완료!',
+    shareTitle: 'Vora AI - 내 찜한 여행 코스',
+    shareText: '대한민국 맞춤 여행지 {count}곳 코스를 공유합니다!'
+  },
+  en: {
+    title: 'My Saved Places',
+    count: '{count} spots saved',
+    emptyTitle: 'No saved spots yet',
+    emptySub: 'Tap the heart (❤️) icon on attractions to build your personalized Korea travel wishlist!',
+    shareHeader: 'Share saved itinerary',
+    shareBtn: '1-Click Share',
+    copiedText: 'Link Copied!',
+    shareTitle: 'Vora AI - My Saved Travel Places',
+    shareText: 'Check out my custom itinerary of {count} places in Korea!'
+  },
+  ja: {
+    title: 'お気に入り観光スポット',
+    count: '合計 {count}か所 保存済み',
+    emptyTitle: 'お気に入りの場所がまだありません',
+    emptySub: '気になる観光地のハート（❤️）ボタンを押して、あなただけの旅行リストを作成しましょう！',
+    shareHeader: 'SNSでお気に入りコースを共有',
+    shareBtn: '1タップ共有',
+    copiedText: 'リンクをコピーしました！',
+    shareTitle: 'Vora AI - お気に入り韓国旅行コース',
+    shareText: '韓国おすすめスポット {count}か所のコースを共有します！'
+  },
+  zh: {
+    title: '我的收藏旅游清单',
+    count: '已保存 {count} 个精选景点',
+    emptyTitle: '暂无收藏景点',
+    emptySub: '点击心仪景点的爱心（❤️）图标，打造属于您的专属韩国旅行收藏夹！',
+    shareHeader: '一键分享您的收藏行程',
+    shareBtn: '一键分享',
+    copiedText: '链接已复制！',
+    shareTitle: 'Vora AI - 我的韩国心愿行程',
+    shareText: '向您分享我的 {count} 个韩国精选旅游路线！'
+  },
+  zht: {
+    title: '我的收藏旅遊清單',
+    count: '已保存 {count} 個精選景點',
+    emptyTitle: '暫無收藏景點',
+    emptySub: '點擊心儀景點的愛心（❤️）圖示，打造屬於您的專屬韓國旅行收藏夾！',
+    shareHeader: '一鍵分享您的收藏行程',
+    shareBtn: '一鍵分享',
+    copiedText: '連結已複製！',
+    shareTitle: 'Vora AI - 我的韓國心願行程',
+    shareText: '向您分享我的 {count} 個韓國精選旅遊路線！'
+  },
+  de: {
+    title: 'Meine gemerkten Orte',
+    count: '{count} Orte gespeichert',
+    emptyTitle: 'Noch keine Orte gespeichert',
+    emptySub: 'Klicken Sie auf das Herz (❤️), um Ihre persönliche Wunschliste zu erstellen!',
+    shareHeader: 'Gespeicherte Route teilen',
+    shareBtn: '1-Klick Teilen',
+    copiedText: 'Link kopiert!',
+    shareTitle: 'Vora AI - Meine Reiseroute',
+    shareText: 'Schau dir meine maßgeschneiderte Route mit {count} Orten in Korea an!'
+  },
+  fr: {
+    title: 'Mes lieux enregistrés',
+    count: '{count} lieux enregistrés',
+    emptyTitle: 'Aucun lieu enregistré pour le moment',
+    emptySub: 'Cliquez sur le cœur (❤️) des attractions pour créer votre itinéraire personnalisé en Corée !',
+    shareHeader: 'Partager votre itinéraire',
+    shareBtn: 'Partager en 1 clic',
+    copiedText: 'Lien copié !',
+    shareTitle: 'Vora AI - Mes lieux favoris',
+    shareText: 'Découvrez ma sélection de {count} lieux incontournables en Corée !'
+  },
+  es: {
+    title: 'Mis lugares guardados',
+    count: '{count} lugares guardados',
+    emptyTitle: 'Aún no hay lugares guardados',
+    emptySub: '¡Toca el icono de corazón (❤️) en los lugares para crear tu lista de deseos de Corea!',
+    shareHeader: 'Comparte tu itinerario guardado',
+    shareBtn: 'Compartir en 1 clic',
+    copiedText: '¡Enlace copiado!',
+    shareTitle: 'Vora AI - Mis lugares guardados',
+    shareText: '¡Mira mi itinerario personalizado de {count} lugares en Corea!'
+  },
+  ru: {
+    title: 'Мои сохраненные места',
+    count: 'Сохранено: {count} мест',
+    emptyTitle: 'Список пока пуст',
+    emptySub: 'Нажимайте на сердечко (❤️) на карточках достопримечательностей, чтобы собрать свой маршрут по Корее!',
+    shareHeader: 'Поделиться сохраненным маршрутом',
+    shareBtn: 'Поделиться в 1 клик',
+    copiedText: 'Ссылка скопирована!',
+    shareTitle: 'Vora AI - Мой маршрут по Корее',
+    shareText: 'Посмотрите мой персональный маршрут из {count} мест в Корее!'
+  }
+};
+
+const REGION_MAP_I18N = {
+  '서울': { en: 'Seoul', ja: 'ソウル', zh: '首尔', zht: '首爾', de: 'Seoul', fr: 'Séoul', es: 'Seúl', ru: 'Сеул' },
+  '부산': { en: 'Busan', ja: '釜山', zh: '釜山', zht: '釜山', de: 'Busan', fr: 'Busan', es: 'Busan', ru: 'Пусан' },
+  '제주': { en: 'Jeju', ja: '済州', zh: '济州', zht: '濟州', de: 'Jeju', fr: 'Jeju', es: 'Jeju', ru: 'Чеджу' },
+  '제주도': { en: 'Jeju', ja: '済州島', zh: '济州岛', zht: '濟州島', de: 'Jeju', fr: 'Jeju', es: 'Jeju', ru: 'Чеджу' },
+  '인천': { en: 'Incheon', ja: '仁川', zh: '仁川', zht: '仁川', de: 'Incheon', fr: 'Incheon', es: 'Incheon', ru: 'Инчхон' },
+  '경상남도': { en: 'Gyeongnam', ja: '慶尚南道', zh: '庆尚南道', zht: '慶尚南道', de: 'Gyeongnam', fr: 'Gyeongnam', es: 'Gyeongnam', ru: 'Кёнсан-Намдо' },
+  '경남': { en: 'Gyeongnam', ja: '慶尚南道', zh: '庆尚南道', zht: '慶尚南道', de: 'Gyeongnam', fr: 'Gyeongnam', es: 'Gyeongnam', ru: 'Кёнсан-Намдо' },
+  '경상북도': { en: 'Gyeongbuk', ja: '慶尚北道', zh: '庆尚北道', zht: '慶尚北道', de: 'Gyeongbuk', fr: 'Gyeongbuk', es: 'Gyeongbuk', ru: 'Кёнсан-Пукто' },
+  '경북': { en: 'Gyeongbuk', ja: '慶尚北道', zh: '庆尚北道', zht: '慶尚北道', de: 'Gyeongbuk', fr: 'Gyeongbuk', es: 'Gyeongbuk', ru: 'Кёнсан-Пукто' },
+  '경기도': { en: 'Gyeonggi', ja: '京畿道', zh: '京畿道', zht: '京畿道', de: 'Gyeonggi', fr: 'Gyeonggi', es: 'Gyeonggi', ru: 'Кёнгидо' },
+  '경기': { en: 'Gyeonggi', ja: '京畿道', zh: '京畿道', zht: '京畿道', de: 'Gyeonggi', fr: 'Gyeonggi', es: 'Gyeonggi', ru: 'Кёнгидо' },
+  '강원도': { en: 'Gangwon', ja: '江原道', zh: '江原道', zht: '江原道', de: 'Gangwon', fr: 'Gangwon', es: 'Gangwon', ru: 'Канвондо' },
+  '강원': { en: 'Gangwon', ja: '江原道', zh: '江原道', zht: '江原道', de: 'Gangwon', fr: 'Gangwon', es: 'Gangwon', ru: 'Канвондо' },
+  '전라남도': { en: 'Jeonnam', ja: '全羅南道', zh: '全罗南道', zht: '全羅南道', de: 'Jeonnam', fr: 'Jeonnam', es: 'Jeonnam', ru: 'Чолла-Намдо' },
+  '전남': { en: 'Jeonnam', ja: '全羅南道', zh: '全罗南道', zht: '全羅南道', de: 'Jeonnam', fr: 'Jeonnam', es: 'Jeonnam', ru: 'Чолла-Намдо' },
+  '전라북도': { en: 'Jeonbuk', ja: '全羅北道', zh: '全罗北道', zht: '全羅北道', de: 'Jeonbuk', fr: 'Jeonbuk', es: 'Jeonbuk', ru: 'Чолла-Пукто' },
+  '전북': { en: 'Jeonbuk', ja: '全羅北道', zh: '全罗北道', zht: '全羅北道', de: 'Jeonbuk', fr: 'Jeonbuk', es: 'Jeonbuk', ru: 'Чолла-Пукто' }
+};
+
 export default function WishlistDrawer({ isOpen, onClose, wishlistSpots = [], onRemoveWishlist, onSelectSpot, lang = 'ko' }) {
   useModalHistory(isOpen, onClose, 'wishlist-drawer');
 
@@ -12,6 +134,15 @@ export default function WishlistDrawer({ isOpen, onClose, wishlistSpots = [], on
   if (!isOpen) return null;
 
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
+  const wt = WISHLIST_I18N[lang] || WISHLIST_I18N.ko;
+
+  const getRegionName = (reg) => {
+    if (!reg) return lang === 'en' ? 'Korea' : '추천';
+    if (REGION_MAP_I18N[reg] && REGION_MAP_I18N[reg][lang]) {
+      return REGION_MAP_I18N[reg][lang];
+    }
+    return reg;
+  };
 
   const handleShareLink = () => {
     const spotIds = (wishlistSpots || []).map(s => s.id || s.contentId || s.title).join(',');
@@ -19,8 +150,8 @@ export default function WishlistDrawer({ isOpen, onClose, wishlistSpots = [], on
 
     if (navigator.share) {
       navigator.share({
-        title: 'Vora AI - 내 찜한 여행 코스',
-        text: `대한민국 맞춤 여행지 ${wishlistSpots.length}곳 코스를 공유합니다!`,
+        title: wt.shareTitle,
+        text: wt.shareText.replace('{count}', wishlistSpots.length),
         url: shareUrl
       }).catch(() => {});
     } else {
@@ -88,10 +219,10 @@ export default function WishlistDrawer({ isOpen, onClose, wishlistSpots = [], on
             </div>
             <div>
               <h2 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0, color: '#1e293b' }}>
-                내 찜한 여행지 목록
+                {wt.title}
               </h2>
               <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600 }}>
-                총 <strong style={{ color: '#7c3aed' }}>{wishlistSpots.length}</strong>곳의 명소 저장됨
+                {wt.count.replace('{count}', wishlistSpots.length)}
               </span>
             </div>
           </div>
@@ -139,7 +270,7 @@ export default function WishlistDrawer({ isOpen, onClose, wishlistSpots = [], on
             boxShadow: '0 2px 6px rgba(0,0,0,0.02)'
           }}>
             <span style={{ fontSize: '0.82rem', color: '#475569', fontWeight: 700 }}>
-              카톡/SNS로 찜 코스 공유하기
+              {wt.shareHeader}
             </span>
             <button
               onClick={handleShareLink}
@@ -160,7 +291,7 @@ export default function WishlistDrawer({ isOpen, onClose, wishlistSpots = [], on
               }}
             >
               {copied ? <Check size={14} /> : <Share2 size={14} />}
-              <span>{copied ? '링크 복사완료!' : '1클릭 공유'}</span>
+              <span>{copied ? wt.copiedText : wt.shareBtn}</span>
             </button>
           </div>
         )}
@@ -208,7 +339,7 @@ export default function WishlistDrawer({ isOpen, onClose, wishlistSpots = [], on
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.2rem' }}>
                     <span style={{ fontSize: '0.7rem', color: '#7c3aed', backgroundColor: '#f3e8ff', padding: '0.1rem 0.45rem', borderRadius: '4px', fontWeight: 800 }}>
-                      {spot.region || '추천'}
+                      {getRegionName(spot.region)}
                     </span>
                     <span style={{ fontSize: '0.72rem', color: '#b45309', fontWeight: 700 }}>
                       ★ {spot.rating || 4.9}
@@ -230,7 +361,7 @@ export default function WishlistDrawer({ isOpen, onClose, wishlistSpots = [], on
                   <div style={{ fontSize: '0.75rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                     <MapPin size={12} color="#ef4444" style={{ flexShrink: 0 }} />
                     <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {spot.location || spot.addr1 || '대한민국 관광 명소'}
+                      {spot.location || spot.addr1 || (lang === 'en' ? 'Korea Travel Attraction' : '대한민국 관광 명소')}
                     </span>
                   </div>
                 </div>
@@ -290,10 +421,10 @@ export default function WishlistDrawer({ isOpen, onClose, wishlistSpots = [], on
                 <Compass size={38} strokeWidth={1.5} />
               </div>
               <p style={{ fontSize: '1rem', fontWeight: 800, color: '#1e293b', margin: 0 }}>
-                아직 찜한 여행지가 없습니다
+                {wt.emptyTitle}
               </p>
               <p style={{ fontSize: '0.82rem', color: '#64748b', maxWidth: '280px', lineHeight: 1.6, margin: 0 }}>
-                명소 상세창에서 <strong>[즐겨찾기 저장]</strong> 버튼을 누르면 나만의 특별한 여행 코스로 담깁니다!
+                {wt.emptySub}
               </p>
             </div>
           )}

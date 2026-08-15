@@ -129,6 +129,14 @@ export async function geminiGenerateFullItinerary(rawPrompt, arg2 = 'ko', maybeD
       summaryText = `こんにちは！韓国旅行AIコンシェルジュのVoraです。😊 韓国のオーダーメイド旅行コースをご案内します。行きたい地域や日程（例：済州島 2泊3日、釜山 夜景ツアー）を気軽にお知らせください！`;
     } else if (lang === 'zh' || lang === 'zht') {
       summaryText = `您好！我是您的韩国旅行AI管家Vora。😊 无论您想去哪个城市或体验什么主题（例如：济州岛3天2晚、釜山夜景），都可以随时告诉我！`;
+    } else if (lang === 'de') {
+      summaryText = `Hallo! Ich bin Vora AI, Ihr Reise-Concierge für Südkorea. 😊 Wohin möchten Sie reisen? Nennen Sie mir einfach Ihr Reiseziel oder Ihre Wünsche (z.B. 3 Tage Busan, 2 Tage Seoul Kulturreise)!`;
+    } else if (lang === 'fr') {
+      summaryText = `Bonjour ! Je suis Vora AI, votre concierge de voyage pour la Corée du Sud. 😊 Où souhaitez-vous aller ? Indiquez-moi votre destination ou vos envies (ex. 3 jours à Busan, 2 jours à Séoul) !`;
+    } else if (lang === 'es') {
+      summaryText = `¡Hola! Soy Vora AI, tu conserje de viajes para Corea del Sur. 😊 ¿A dónde te gustaría viajar? Cuéntame tu destino o estilo de viaje (ej. 3 días en Busan, 2 días en Seúl).`;
+    } else if (lang === 'ru') {
+      summaryText = `Здравствуйте! Я Vora AI, ваш персональный консьерж по Южной Корее. 😊 Куда бы вы хотели отправиться? Напишите город или пожелания (например, 3 дня в Пусане, 2 дня в Сеуле)!`;
     }
 
     return {
@@ -150,7 +158,7 @@ export async function geminiGenerateFullItinerary(rawPrompt, arg2 = 'ko', maybeD
   // 해당 세부 지역을 기준으로 가장 가깝고 이동하기 좋은 주변 명소 동선 v1
   const candidateKeys = getAllGeminiApiKeys();
   const systemInstruction = `You are Vora AI, an elite South Korean travel planner and expert concierge.
-Your goal is to understand the user's travel destination, duration, companion style, and preferences, and generate a structured multi-day travel itinerary.
+Your goal is to understand the user's travel destination, duration, companion style, and preferences, and generate a structured multi-day travel itinerary strictly written in language "${lang}".
 
 [CRITICAL SUB-DISTRICT & PROXIMITY RESOLUTION RULES]
 1. If the user specifies a neighborhood, dong, station, or sub-district in Korea (e.g. '영통', '광교', '인계동', '판교', '성수동', '사당', '해운대', '월미도', '애월', '서귀포', '황리단길'):
@@ -163,26 +171,37 @@ Your goal is to understand the user's travel destination, duration, companion st
 2. If the user's destination is an unknown place, meaningless typo, or non-existent region in South Korea (e.g., '징수', '아틀란티스', '엘도라도', 'qwerty'):
    - Set "isUnknownPlace": true, "days": 0, "dailySchedules": [], "targetCity": "".
    - In "summary", do NOT fabricate a fake trip. Politely and engagingly ask back in ${lang}:
-     e.g., "'[User Word]'는 대한민국 공식 관광지로 확인되지 않는 지명입니다. 혹시 '[유사도시 1]'이나 '[유사도시 2]'를 검색하신 건가요? 원하시는 여행지를 알려주시면 나만의 멋진 맞춤 일정을 짜드릴게요! 😊"
+     e.g., in language ${lang}, inform the user that this place is not a recognized Korean travel destination and invite them to enter a real Korean city or region.
+
+[MULTILINGUAL DAY PREFIX FORMATTING RULE]
+3. In "summary", the day prefix MUST match the requested language "${lang}":
+   - For English (en): "Day 1:", "Day 2:", "Day 3:"
+   - For German (de): "Tag 1:", "Tag 2:", "Tag 3:"
+   - For French (fr): "Jour 1:", "Jour 2:", "Jour 3:"
+   - For Spanish (es): "Día 1:", "Día 2:", "Día 3:"
+   - For Russian (ru): "День 1:", "День 2:", "День 3:"
+   - For Japanese (ja): "1日目:", "2日目:", "3日目:"
+   - For Chinese (zh/zht): "第1天:", "第2天:", "第3天:"
+   - For Korean (ko): "1일차:", "2일차:", "3일차:"
 
 Strictly return ONLY valid JSON matching this schema:
 {
   "isUnknownPlace": false,
-  "tripTitle": "Engaging trip title (e.g., '수원 영통 & 광교 중심 3일 힐링 코스')",
+  "tripTitle": "Engaging trip title in ${lang}",
   "targetCity": "Main city or region in Korea (e.g., '수원', '부산', '제주', '강릉', '거제', '서울')",
   "cleanKeyword": "Precise search keyword for TourAPI (e.g., '영통 광교 수원', '해운대 광안리', '수원화성 행궁동')",
   "days": ${days},
-  "summary": "1 warm welcoming intro sentence in ${lang} (e.g., '거제의 아름다운 바다 전망과 감성 카페를 즐기는 3일 맞춤 코스입니다! 🌊☕') followed by double linebreaks and day-by-day itinerary with specific landmark names:\\n\\n1일차: [명소A] & [명소B] 둘러보기\\n2일차: [명소C] & [명소D] 둘러보기\\n3일차: [명소E] & [명소F] 둘러보기",
+  "summary": "1 warm welcoming intro sentence in ${lang} followed by double linebreaks and day-by-day itinerary with localized Day prefixes and landmark names in ${lang}",
   "dailySchedules": [
     {
       "day": 1,
-      "theme": "Theme of the day (e.g., '영통 중심 호수산책과 랜드마크 코스')",
+      "theme": "Theme of the day in ${lang}",
       "placeNames": ["Accurate Korean Landmark Name 1", "Accurate Korean Landmark Name 2"],
       "foodRecommendation": {
-        "dishName": "Local specialty food name",
-        "description": "Brief description of why this food is iconic"
+        "dishName": "Local specialty food name in ${lang}",
+        "description": "Brief description of why this food is iconic in ${lang}"
       },
-      "tips": "Practical tip for this day (transportation, photography spot, or timing)"
+      "tips": "Practical tip for this day in ${lang}"
     }
   ]
 }`;

@@ -17,6 +17,8 @@ const WORKBENCH_I18N = {
     unlimitedBadge: '⚡ 무제한 패스 (UNLIMITED)',
     quotaRemaining: '🎟️ 오늘 남은 무료 대화:',
     quotaTimes: '회',
+    unlimitedTag: '[ ⚡ 무제한 ]',
+    quotaChatTag: '[ 오늘 대화 {current}/{total}회 ]',
     welcomeText: '안녕하세요! 여행 컨시어지 보라입니다. 😊\n\n매일 무료 5회의 AI 대화로 당일치기부터 최대 5박 일정까지 나만의 맞춤 여행 코스를 받아보세요!\n\n떠나고 싶은 지역이나 여행 스타일(예: 거제도 2박3일 오션뷰 카페, 수원 화성행궁 야경)을 자유롭게 물어보세요!',
     chips: ['📍 거제도 2박3일 오션뷰 카페', '📍 수원 화성행궁 야경 힐링', '📍 제주도 3박4일 맛집 탐방', '📍 여기서 뭘 할 수 있지?'],
     placeholder: '어디로 떠나고 싶으신가요? (예: 수원 2박3일 맛집 코스, 거제도 4박5일 힐링)',
@@ -28,7 +30,18 @@ const WORKBENCH_I18N = {
     agodaLink: '🏨 아고다 추천 할인 숙소 예약',
     klookLink: '🎟️ 클룩 추천 액티비티 예약',
     searchingSpots: '한국관광공사 정품 DB에서 추천 명소 탐색 중',
-    voiceRecognitionTitle: '음성 인식'
+    voiceRecognitionTitle: '음성 인식',
+    dayBadge: '{day}일차',
+    recommendSpot: '추천 명소',
+    viewRouteMap: '🗺️ 1·2·3일차 전체 지도 동선 보기',
+    detailMap: '상세 지도 ➔',
+    openMap: '열기 ➔',
+    syncedCount: '{count}건 동기화',
+    loadingSteps: [
+      '한국관광공사 정품 DB에서 추천 명소 탐색 중',
+      'GPS 지도 좌표 및 위치 데이터 1:1 동기화 중',
+      '100% 맞춤 여행 일정을 정돈하고 있습니다'
+    ]
   },
   en: {
     title: 'Vora AI 1:1 Travel Concierge',
@@ -36,6 +49,8 @@ const WORKBENCH_I18N = {
     unlimitedBadge: '⚡ Unlimited Pass',
     quotaRemaining: '🎟️ Free Chats Remaining Today:',
     quotaTimes: '',
+    unlimitedTag: '[ ⚡ Unlimited ]',
+    quotaChatTag: '[ Today Chat {current}/{total} ]',
     welcomeText: 'Hello! I am Vora, your Korea Travel AI Concierge. 😊\n\nEnjoy personalized 1 to 5-day travel itineraries tailored to your style with official Korea Tourism Organization data!\n\nFeel free to ask for any city or preference (e.g. 3-day Busan ocean view cafes, 2-day Seoul K-culture tour)!',
     chips: ['📍 3-Day Busan Ocean View Cafes', '📍 2-Day Seoul K-Culture Tour', '📍 4-Day Jeju Gourmet Exploration', '📍 What can I do here?'],
     placeholder: 'Where would you like to travel? (e.g. 3-day Busan trip, 2-day Seoul tour)',
@@ -47,7 +62,18 @@ const WORKBENCH_I18N = {
     agodaLink: '🏨 Book Discounted Hotels on Agoda',
     klookLink: '🎟️ Book Activities & Passes on Klook',
     searchingSpots: 'Searching official Korea Tourism Org database for verified attractions',
-    voiceRecognitionTitle: 'Voice Search'
+    voiceRecognitionTitle: 'Voice Search',
+    dayBadge: 'Day {day}',
+    recommendSpot: 'Recommended Spot',
+    viewRouteMap: '🗺️ View Full Day 1-2-3 Map Route',
+    detailMap: 'Detail Map ➔',
+    openMap: 'Open ➔',
+    syncedCount: '{count} Synced',
+    loadingSteps: [
+      'Searching official Korea Tourism Org database for attractions',
+      'Syncing GPS map coordinates & location data 1:1',
+      'Organizing 100% customized travel itinerary'
+    ]
   },
   ja: {
     title: 'Vora AI 1:1 旅行コンシェルジュ',
@@ -55,6 +81,8 @@ const WORKBENCH_I18N = {
     unlimitedBadge: '⚡ 無制限パス',
     quotaRemaining: '🎟️ 本日の無料対話残り:',
     quotaTimes: '回',
+    unlimitedTag: '[ ⚡ 無制限 ]',
+    quotaChatTag: '[ 本日の対話 {current}/{total}回 ]',
     welcomeText: 'こんにちは！韓国旅行コンシェルジュのボラです。😊\n\n日帰りから最大5泊まで、韓国観光公社公式データに基づいたあなただけの旅行コースをご案内します！\n\n行きたい都市や旅行スタイル（例：釜山2泊3日オーシャンビューカフェ、ソウル2泊3日K-Culture）をお気軽にご質問ください！',
     chips: ['📍 釜山 2泊3日 オーシャンビューカフェ', '📍 ソウル 2泊3日 K-Cultureツアー', '📍 済州島 3泊4日 グルメ旅', '📍 ここで何ができますか？'],
     placeholder: 'どこへ旅行したいですか？（例：釜山2泊3日グルメ、済州島3泊4日）',
@@ -66,7 +94,18 @@ const WORKBENCH_I18N = {
     agodaLink: '🏨 Agoda おすすめ割引ホテルを予約',
     klookLink: '🎟️ Klook おすすめアクティビティを予約',
     searchingSpots: '韓国観光公社公式DBからおすすめ名所を探索中',
-    voiceRecognitionTitle: '音声認識'
+    voiceRecognitionTitle: '音声認識',
+    dayBadge: '{day}日目',
+    recommendSpot: 'おすすめ名所',
+    viewRouteMap: '🗺️ 1・2・3日目 全体マップ動線を見る',
+    detailMap: '詳細地図 ➔',
+    openMap: '開く ➔',
+    syncedCount: '{count}件 同期',
+    loadingSteps: [
+      '韓国観光公社公式DBからおすすめ名所を探索中',
+      'GPS地図座標および位置データを1:1同期中',
+      '100%オーダーメイド旅行日程を整理しています'
+    ]
   },
   zh: {
     title: 'Vora AI 1:1 专属旅游顾问',
@@ -74,6 +113,8 @@ const WORKBENCH_I18N = {
     unlimitedBadge: '⚡ 无限通行证',
     quotaRemaining: '🎟️ 今日剩余免费对话:',
     quotaTimes: '次',
+    unlimitedTag: '[ ⚡ 无限使用 ]',
+    quotaChatTag: '[ 今日对话 {current}/{total}次 ]',
     welcomeText: '您好！我是您的专属韩国旅游 AI 顾问 Vora。😊\n\n基于韩国旅游发展局官方正品数据，为您量身定制 1 至 5 天的韩国个性化行程！\n\n请随时输入您想去的城市或旅行风格（例如：釜山海云台 3 天 2 晚海景咖啡馆、首尔 2 天 1 晚经典游）！',
     chips: ['📍 釜山 3天2晚 海景咖啡馆之旅', '📍 首尔 2天1晚 K-Culture 精华游', '📍 济州岛 4天3晚 美食探店', '📍 在这里可以体验什么？'],
     placeholder: '您想去哪里旅行？（例如：釜山3天2晚海景游、首尔2天1晚经典游）',
@@ -85,7 +126,18 @@ const WORKBENCH_I18N = {
     agodaLink: '🏨 在 Agoda 预订精选特惠酒店',
     klookLink: '🎟️ 在 Klook 预订推荐玩乐与门票',
     searchingSpots: '正在从韩国旅游发展局官方数据中检索精选景点',
-    voiceRecognitionTitle: '语音识别'
+    voiceRecognitionTitle: '语音识别',
+    dayBadge: '第{day}天',
+    recommendSpot: '推荐景点',
+    viewRouteMap: '🗺️ 查看第1·2·3天完整地图路线',
+    detailMap: '详细地图 ➔',
+    openMap: '打开 ➔',
+    syncedCount: '{count}条 已同步',
+    loadingSteps: [
+      '正在从韩国旅游发展局官方数据中检索精选景点',
+      '正在1:1同步GPS地图坐标与位置数据',
+      '正在整理100%专属定制旅游路线'
+    ]
   },
   zht: {
     title: 'Vora AI 1:1 專屬旅遊顧問',
@@ -93,6 +145,8 @@ const WORKBENCH_I18N = {
     unlimitedBadge: '⚡ 無限通行證',
     quotaRemaining: '🎟️ 今日剩餘免費對話:',
     quotaTimes: '次',
+    unlimitedTag: '[ ⚡ 無限使用 ]',
+    quotaChatTag: '[ 今日對話 {current}/{total}次 ]',
     welcomeText: '您好！我是您的專屬韓國旅遊 AI 顧問 Vora。😊\n\n基於韓國旅遊發展局官方正品數據，為您量身定制 1 至 5 天的韓國個性化行程！\n\n請隨時輸入您想去的城市或旅行偏好（例如：釜山海雲台 3 天 2 晚海景咖啡館、首爾 2 天 1 晚經典遊）！',
     chips: ['📍 釜山 3天2晚 海景咖啡館之旅', '📍 首爾 2天1晚 K-Culture 精華遊', '📍 濟州島 4天3晚 美食探店', '📍 在這裡可以體驗什麼？'],
     placeholder: '您想去哪裡旅行？（例如：釜山3天2晚海景遊、首爾2天1晚經典遊）',
@@ -104,7 +158,18 @@ const WORKBENCH_I18N = {
     agodaLink: '🏨 在 Agoda 預訂精選特惠飯店',
     klookLink: '🎟️ 在 Klook 預訂推薦玩樂與門票',
     searchingSpots: '正在從韓國旅遊發展局官方數據中檢索精選景點',
-    voiceRecognitionTitle: '語音識別'
+    voiceRecognitionTitle: '語音識別',
+    dayBadge: '第{day}天',
+    recommendSpot: '推薦景點',
+    viewRouteMap: '🗺️ 查看第1·2·3天完整地圖路線',
+    detailMap: '詳細地圖 ➔',
+    openMap: '打開 ➔',
+    syncedCount: '{count}條 已同步',
+    loadingSteps: [
+      '正在從韓國旅遊發展局官方數據中檢索精選景點',
+      '正在1:1同步GPS地圖座標與位置數據',
+      '正在整理100%專屬定制旅遊路線'
+    ]
   },
   de: {
     title: 'Vora AI 1:1 Reise-Concierge',
@@ -112,6 +177,8 @@ const WORKBENCH_I18N = {
     unlimitedBadge: '⚡ Unbegrenzter Pass',
     quotaRemaining: '🎟️ Heute verbleibende kostenlose Chats:',
     quotaTimes: '',
+    unlimitedTag: '[ ⚡ Unbegrenzt ]',
+    quotaChatTag: '[ Heutiger Chat {current}/{total} ]',
     welcomeText: 'Hallo! Ich bin Vora, Ihr KI-Reise-Concierge für Korea. 😊\n\nErhalten Sie maßgeschneiderte Reiserouten von 1 bis 5 Tagen basierend auf offiziellen Korea-Tourismusdaten!\n\nFragen Sie nach einer Region oder Vorliebe (z.B. 3 Tage Busan Café-Tour, 2 Tage Seoul Kulturreise)!',
     chips: ['📍 3 Tage Busan Meerblick-Cafés', '📍 2 Tage Seoul K-Kultur-Tour', '📍 4 Tage Jeju Kulinarik', '📍 Was kann ich hier tun?'],
     placeholder: 'Wohin möchten Sie reisen? (z.B. 3 Tage Busan, 2 Tage Seoul)',
@@ -123,7 +190,18 @@ const WORKBENCH_I18N = {
     agodaLink: '🏨 Hotels mit Rabatt auf Agoda buchen',
     klookLink: '🎟️ Aktivitäten & Pässe auf Klook buchen',
     searchingSpots: 'Suche nach verifizierten Attraktionen in der offiziellen Tourismus-DB',
-    voiceRecognitionTitle: 'Sprachsuche'
+    voiceRecognitionTitle: 'Sprachsuche',
+    dayBadge: 'Tag {day}',
+    recommendSpot: 'Empfohlener Ort',
+    viewRouteMap: '🗺️ Vollständige 1-2-3-Tage-Kartenroute ansehen',
+    detailMap: 'Detailkarte ➔',
+    openMap: 'Öffnen ➔',
+    syncedCount: '{count} gesynct',
+    loadingSteps: [
+      'Suche nach verifizierten Attraktionen in der offiziellen Tourismus-DB',
+      '1:1 Synchronisation von GPS-Koordinaten & Standortdaten',
+      '100% maßgeschneiderte Reiseroute wird zusammengestellt'
+    ]
   },
   fr: {
     title: 'Vora AI 1:1 Concierge de Voyage',
@@ -131,6 +209,8 @@ const WORKBENCH_I18N = {
     unlimitedBadge: '⚡ Pass Illimité',
     quotaRemaining: '🎟️ Conversations gratuites restantes :',
     quotaTimes: '',
+    unlimitedTag: '[ ⚡ Illimité ]',
+    quotaChatTag: '[ Chat du jour {current}/{total} ]',
     welcomeText: 'Bonjour ! Je suis Vora, votre concierge IA pour votre voyage en Corée. 😊\n\nProfitez d\'itinéraires personnalisés de 1 à 5 jours avec les données officielles de l\'Organisation du Tourisme de Corée !\n\nN\'hésitez pas à préciser vos envies (ex. 3 jours à Busan cafés vue mer, 2 jours à Séoul immersion culturelle) !',
     chips: ['📍 3 jours à Busan Cafés Vue Mer', '📍 2 jours à Séoul K-Culture', '📍 4 jours à Jeju Gastronomie', '📍 Que faire ici ?'],
     placeholder: 'Où souhaitez-vous voyager ? (ex. 3 jours à Busan, 2 jours à Séoul)',
@@ -142,7 +222,18 @@ const WORKBENCH_I18N = {
     agodaLink: '🏨 Réserver des hôtels avec réduction sur Agoda',
     klookLink: '🎟️ Réserver des activités & pass sur Klook',
     searchingSpots: 'Recherche des attractions officielles vérifiées',
-    voiceRecognitionTitle: 'Recherche Vocale'
+    voiceRecognitionTitle: 'Recherche Vocale',
+    dayBadge: 'Jour {day}',
+    recommendSpot: 'Lieu Recommandé',
+    viewRouteMap: '🗺️ Voir l\'itinéraire complet de la carte (Jours 1-2-3)',
+    detailMap: 'Carte détaillée ➔',
+    openMap: 'Ouvrir ➔',
+    syncedCount: '{count} synchronisé(s)',
+    loadingSteps: [
+      'Recherche des attractions officielles vérifiées',
+      'Synchronisation 1:1 des coordonnées GPS et localisation',
+      'Finalisation de votre itinéraire sur mesure à 100%'
+    ]
   },
   es: {
     title: 'Vora AI 1:1 Asistente de Viajes',
@@ -150,6 +241,8 @@ const WORKBENCH_I18N = {
     unlimitedBadge: '⚡ Pase Ilimitado',
     quotaRemaining: '🎟️ Chats gratuitos restantes hoy:',
     quotaTimes: '',
+    unlimitedTag: '[ ⚡ Ilimitado ]',
+    quotaChatTag: '[ Chat de hoy {current}/{total} ]',
     welcomeText: '¡Hola! Soy Vora, tu asistente de viajes IA para Corea. 😊\n\n¡Disfruta de itinerarios personalizados de 1 a 5 días con datos oficiales de la Organización de Turismo de Corea!\n\nPregúntame sobre cualquier destino o estilo (ej. 3 días en Busan cafés con vista al mar, 2 días en Seúl tour K-Culture).',
     chips: ['📍 3 días en Busan Cafés con Vista al Mar', '📍 2 días en Seúl Tour K-Culture', '📍 4 días en Jeju Tour Gastronómico', '📍 ¿Qué puedo hacer aquí?'],
     placeholder: '¿A dónde te gustaría viajar? (ej. 3 días en Busan, 2 días en Seúl)',
@@ -161,7 +254,18 @@ const WORKBENCH_I18N = {
     agodaLink: '🏨 Reservar hoteles con descuento en Agoda',
     klookLink: '🎟️ Reservar actividades y pases en Klook',
     searchingSpots: 'Buscando atracciones verificadas en la base de datos oficial',
-    voiceRecognitionTitle: 'Búsqueda por Voz'
+    voiceRecognitionTitle: 'Búsqueda por Voz',
+    dayBadge: 'Día {day}',
+    recommendSpot: 'Lugar Recomendado',
+    viewRouteMap: '🗺️ Ver ruta completa en el mapa (Días 1-2-3)',
+    detailMap: 'Mapa detallado ➔',
+    openMap: 'Abrir ➔',
+    syncedCount: '{count} sincronizado(s)',
+    loadingSteps: [
+      'Buscando atracciones verificadas en la base de datos oficial',
+      'Sincronizando coordenadas GPS y datos de ubicación 1:1',
+      'Organizando itinerario de viaje 100% personalizado'
+    ]
   },
   ru: {
     title: 'Vora AI 1:1 ИИ-консьерж по Корее',
@@ -169,6 +273,8 @@ const WORKBENCH_I18N = {
     unlimitedBadge: '⚡ Безлимитный доступ',
     quotaRemaining: '🎟️ Осталось бесплатных диалогов на сегодня:',
     quotaTimes: '',
+    unlimitedTag: '[ ⚡ Безлимит ]',
+    quotaChatTag: '[ Чат сегодня {current}/{total} ]',
     welcomeText: 'Здравствуйте! Я Vora, ваш ИИ-консьерж по путешествиям в Корею. 😊\n\nПолучайте персональные маршруты от 1 до 5 дней на основе официальных данных Национальной организации туризма Кореи!\n\nЗадайте любой вопрос по городам и стилям поездки (например: 3 дня в Пусане с кафе с видом на море, 2 дня в Сеуле по местам K-Culture)!',
     chips: ['📍 3 дня в Пусане с видовыми кафе', '📍 2 дня в Сеуле по местам K-Culture', '📍 4 дня на Чеджу гастротур', '📍 Что здесь можно посмотреть?'],
     placeholder: 'Куда вы хотите поехать? (например: 3 дня в Пусане, 2 дня в Сеуле)',
@@ -180,7 +286,18 @@ const WORKBENCH_I18N = {
     agodaLink: '🏨 Забронировать отель со скидкой на Agoda',
     klookLink: '🎟️ Забронировать билеты и активности на Klook',
     searchingSpots: 'Поиск проверенных достопримечательностей в официальной базе',
-    voiceRecognitionTitle: 'Голосовой ввод'
+    voiceRecognitionTitle: 'Голосовой ввод',
+    dayBadge: 'День {day}',
+    recommendSpot: 'Рекомендованное место',
+    viewRouteMap: '🗺️ Посмотреть полный маршрут на карте (1-2-3 день)',
+    detailMap: 'Подробная карта ➔',
+    openMap: 'Открыть ➔',
+    syncedCount: '{count} синхр.',
+    loadingSteps: [
+      'Поиск проверенных мест в базе туризма Кореи',
+      'Синхронизация GPS-координат и данных локаций 1:1',
+      'Формирование 100% индивидуального маршрута'
+    ]
   }
 };
 
@@ -842,7 +959,7 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
                         }}
                       >
                         <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                          🗺️ {msg.targetCity || '추천'} 1:1 명소 코스 ({msg.spots.length}건)
+                          🗺️ {msg.targetCity || (lang === 'en' ? 'Korea' : '추천')} {wt.rightPanelTitle} ({wt.syncedCount.replace('{count}', msg.spots.length)})
                         </span>
                         {expandedMobileMsgs[msg.id] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                       </button>
@@ -876,9 +993,9 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
                             }}
                           >
                             <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                              <Compass size={15} /> 🗺️ 1·2·3일차 전체 지도 동선 보기
+                              <Compass size={15} /> {wt.viewRouteMap}
                             </span>
-                            <span style={{ fontSize: '0.72rem', opacity: 0.9 }}>열기 ➔</span>
+                            <span style={{ fontSize: '0.72rem', opacity: 0.9 }}>{wt.openMap}</span>
                           </button>
 
                           {msg.spots.map((spot, idx) => {
@@ -907,7 +1024,7 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
                                 <div style={{ width: '100%' }}>
                                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.25rem', flexWrap: 'wrap' }}>
                                     <span style={{ padding: '0.15rem 0.45rem', borderRadius: '6px', fontSize: '0.68rem', fontWeight: 800, backgroundColor: badgeStyle.bg, color: badgeStyle.text, border: `1px solid ${badgeStyle.border}`, whiteSpace: 'nowrap' }}>
-                                      {dayNum}일차
+                                      {spot.assignedDay ? wt.dayBadge.replace('{day}', spot.assignedDay) : wt.recommendSpot}
                                     </span>
                                     <strong style={{ color: '#0f172a', fontSize: '0.86rem', fontWeight: 800, wordBreak: 'keep-all' }}>
                                       {idx + 1}. {spot.title}
@@ -915,7 +1032,7 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
                                   </div>
                                   <div style={{ color: '#64748b', fontSize: '0.72rem', display: 'flex', alignItems: 'center', gap: '0.25rem', wordBreak: 'keep-all' }}>
                                     <MapPin size={12} color="#ef4444" style={{ flexShrink: 0 }} />
-                                    <span>{spot.location || spot.addr1 || '상세 위치 제공'}</span>
+                                    <span>{spot.location || spot.addr1 || (lang === 'en' ? 'Location Provided' : '상세 위치 제공')}</span>
                                   </div>
                                 </div>
 
@@ -1183,7 +1300,7 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
               </div>
               {activeSpotMessage?.spots && (
                 <span style={{ fontSize: '0.72rem', color: '#9333ea', backgroundColor: '#f3e8ff', padding: '0.2rem 0.55rem', borderRadius: '12px', fontWeight: 600 }}>
-                  {activeSpotMessage.spots.length}건 동기화
+                  {wt.syncedCount.replace('{count}', activeSpotMessage.spots.length)}
                 </span>
               )}
             </div>
@@ -1224,9 +1341,9 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
                   }}
                 >
                   <span style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-                    <Compass size={16} /> 🗺️ 1·2·3일차 전체 지도 동선 보기
+                    <Compass size={16} /> {wt.viewRouteMap}
                   </span>
-                  <span style={{ fontSize: '0.75rem', opacity: 0.95 }}>상세 지도 ➔</span>
+                  <span style={{ fontSize: '0.75rem', opacity: 0.95 }}>{wt.detailMap}</span>
                 </button>
 
                 {activeSpotMessage.spots.map((spot, idx) => {
@@ -1265,7 +1382,7 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', marginBottom: '0.25rem' }}>
                           <span style={{ fontSize: '0.7rem', fontWeight: 700, backgroundColor: badgeStyle.bg, color: badgeStyle.text, border: `1px solid ${badgeStyle.border}`, padding: '0.15rem 0.45rem', borderRadius: '6px', whiteSpace: 'nowrap' }}>
-                            {spot.assignedDay ? `${spot.assignedDay}일차` : '추천 명소'}
+                            {spot.assignedDay ? wt.dayBadge.replace('{day}', spot.assignedDay) : wt.recommendSpot}
                           </span>
                           <span style={{ fontSize: '0.9rem', fontWeight: 800, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {idx + 1}. {spot.title}
@@ -1273,7 +1390,7 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
                         </div>
                         <div style={{ fontSize: '0.76rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.25rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           <MapPin size={12} color="#ef4444" style={{ flexShrink: 0 }} />
-                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{spot.location || spot.addr1 || '상세 위치 제공'}</span>
+                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{spot.location || spot.addr1 || (lang === 'en' ? 'Location Provided' : '상세 위치 제공')}</span>
                         </div>
                       </div>
 
