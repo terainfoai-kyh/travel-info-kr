@@ -71,6 +71,7 @@ export default function WeatherModal({ isOpen, onClose, lang = 'ko', initialRegi
         style={{
           width: '100%',
           maxWidth: '720px',
+          minHeight: '530px',
           maxHeight: '90vh',
           backgroundColor: 'var(--bg-primary, #ffffff)',
           borderRadius: '24px',
@@ -184,12 +185,16 @@ export default function WeatherModal({ isOpen, onClose, lang = 'ko', initialRegi
         </div>
 
         {/* Body Content */}
-        <div style={{ padding: '1.25rem 1.4rem', overflowY: 'auto', maxHeight: 'calc(90vh - 180px)' }}>
-          {loading ? (
-            <div style={{ padding: '3rem 0', textAlign: 'center', color: '#64748b' }}>
-              기상청 실시간 데이터를 조회하고 있습니다...
-            </div>
-          ) : weatherData ? (
+        <div style={{ 
+          padding: '1.25rem 1.4rem', 
+          overflowY: 'auto', 
+          minHeight: '380px',
+          maxHeight: 'calc(90vh - 180px)',
+          position: 'relative',
+          transition: 'opacity 0.2s ease',
+          opacity: loading ? 0.5 : 1
+        }}>
+          {weatherData ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
               {/* Today Hero Banner */}
               <div style={{
