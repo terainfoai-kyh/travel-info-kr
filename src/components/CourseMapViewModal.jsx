@@ -267,14 +267,15 @@ export default function CourseMapViewModal({
       style={{
         position: 'fixed',
         inset: 0,
-        zIndex: 99999,
-        backgroundColor: 'rgba(15, 23, 42, 0.55)',
+        zIndex: 999999,
+        backgroundColor: 'rgba(15, 23, 42, 0.65)',
         backdropFilter: 'blur(8px)',
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         justifyContent: 'center',
-        padding: '1rem',
-        overflowY: 'auto'
+        padding: '1.5rem 1rem 2.5rem 1rem',
+        overflowY: 'auto',
+        WebkitOverflowScrolling: 'touch'
       }}
     >
       <div
@@ -284,14 +285,14 @@ export default function CourseMapViewModal({
           color: '#0f172a',
           borderRadius: '24px',
           border: '1px solid #e2e8f0',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
           maxWidth: '1040px',
           width: '100%',
-          maxHeight: '92vh',
+          maxHeight: 'calc(100vh - 3.5rem)',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
-          margin: 'auto',
+          margin: '0 auto',
           position: 'relative'
         }}
       >

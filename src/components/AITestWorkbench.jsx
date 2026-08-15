@@ -850,6 +850,51 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
             <div ref={chatEndRef} style={{ height: '10px' }} />
           </div>
 
+          {/* 📱 MOBILE PERSISTENT FLOATING COURSE MAP BUTTON (Always in view above input bar) */}
+          {!isDesktop && activeSpotMessage?.spots && activeSpotMessage.spots.length > 0 && (
+            <div style={{
+              marginBottom: '0.65rem',
+              width: '100%'
+            }}>
+              <button
+                onClick={() => {
+                  setSelectedCourseSpots(activeSpotMessage.spots);
+                  setSelectedCourseRegion(activeSpotMessage.regionName || activeSpotMessage.targetCity || '추천');
+                  setIsCourseMapOpen(true);
+                }}
+                style={{
+                  width: '100%',
+                  padding: '0.7rem 1rem',
+                  background: 'linear-gradient(135deg, #9333ea 0%, #2563eb 100%)',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '14px',
+                  fontSize: '0.82rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  boxShadow: '0 4px 14px rgba(147, 51, 234, 0.3)',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                  <Compass size={17} /> 🗺️ {activeSpotMessage.regionName || activeSpotMessage.targetCity || '추천'} 1·2·3일차 지도 동선 ({activeSpotMessage.spots.length}곳)
+                </span>
+                <span style={{
+                  fontSize: '0.74rem',
+                  backgroundColor: 'rgba(255, 255, 255, 0.25)',
+                  padding: '0.2rem 0.6rem',
+                  borderRadius: '9999px',
+                  fontWeight: 700
+                }}>
+                  동선 열기 ➔
+                </span>
+              </button>
+            </div>
+          )}
+
           {/* INPUT FORM CONTAINER */}
           <div style={{ display: 'flex', gap: '0.4rem', position: 'relative' }}>
             <input
