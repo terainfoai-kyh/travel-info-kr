@@ -24,7 +24,11 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
   const [mockReviews, setMockReviews] = useState([]);
   const [showAllReviews, setShowAllReviews] = useState(false);
 
-  const displayTitle = getTranslatedTitle(spot?.title, lang);
+  const [localBookmarked, setLocalBookmarked] = useState(isBookmarked);
+
+  useEffect(() => {
+    setLocalBookmarked(isBookmarked);
+  }, [isBookmarked]);
   const displayRegion = spot?.region && spot.region !== '전국' && spot.region !== '한국'
     ? (t.regions?.[spot.region] || spot.region)
     : (t.countryBadge || '대한민국');
@@ -214,17 +218,20 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* TOP RIGHT CLOSE BUTTON */}
+        {/* TOP RIGHT STICKY FIXED CLOSE BUTTON */}
         <button
           onClick={onClose}
           aria-label="닫기"
           style={{
-            position: 'absolute',
+            position: 'sticky',
             top: '1rem',
-            right: '1rem',
+            float: 'right',
+            marginRight: '1rem',
+            marginTop: '1rem',
+            marginBottom: '-46px',
             zIndex: 100,
-            backgroundColor: 'rgba(15, 23, 42, 0.75)',
-            border: '2px solid rgba(255, 255, 255, 0.6)',
+            backgroundColor: 'rgba(15, 23, 42, 0.8)',
+            border: '2px solid rgba(255, 255, 255, 0.75)',
             color: '#ffffff',
             width: '38px',
             height: '38px',
@@ -233,8 +240,8 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-            backdropFilter: 'blur(6px)',
+            boxShadow: '0 4px 14px rgba(0, 0, 0, 0.35)',
+            backdropFilter: 'blur(8px)',
             transition: 'transform 0.2s ease, background-color 0.2s ease'
           }}
           onMouseEnter={(e) => {
@@ -243,7 +250,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.transform = 'scale(1)';
-            e.currentTarget.style.backgroundColor = 'rgba(15, 23, 42, 0.75)';
+            e.currentTarget.style.backgroundColor = 'rgba(15, 23, 42, 0.8)';
           }}
         >
           <X size={20} strokeWidth={2.5} />
@@ -460,24 +467,30 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
             </div>
 
             <button
-              onClick={() => onToggleBookmark && onToggleBookmark(spot.contentId || spot.id)}
+              onClick={() => {
+                setLocalBookmarked(prev => !prev);
+                if (onToggleBookmark) {
+                  onToggleBookmark(spot);
+                }
+              }}
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.4rem',
-                padding: '0.45rem 0.85rem',
+                padding: '0.5rem 0.95rem',
                 borderRadius: '10px',
-                border: isBookmarked ? '1px solid #fecaca' : '1px solid #e2e8f0',
-                backgroundColor: isBookmarked ? '#fef2f2' : '#ffffff',
-                color: isBookmarked ? '#ef4444' : '#475569',
-                fontSize: '0.82rem',
+                border: localBookmarked ? '1.5px solid #fecaca' : '1px solid #cbd5e1',
+                backgroundColor: localBookmarked ? '#fef2f2' : '#ffffff',
+                color: localBookmarked ? '#ef4444' : '#475569',
+                fontSize: '0.84rem',
                 fontWeight: 700,
                 cursor: 'pointer',
+                boxShadow: localBookmarked ? '0 2px 8px rgba(239, 68, 68, 0.15)' : '0 1px 3px rgba(0,0,0,0.04)',
                 transition: 'all 0.2s ease'
               }}
             >
-              <Heart size={16} fill={isBookmarked ? '#ef4444' : 'none'} color={isBookmarked ? '#ef4444' : '#64748b'} />
-              <span>{isBookmarked ? '저장됨' : '즐겨찾기 저장'}</span>
+              <Heart size={16} fill={localBookmarked ? '#ef4444' : 'none'} color={localBookmarked ? '#ef4444' : '#64748b'} />
+              <span>{localBookmarked ? '즐겨찾기 저장됨 ❤️' : '즐겨찾기 저장'}</span>
             </button>
           </div>
 

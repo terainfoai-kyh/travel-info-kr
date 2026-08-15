@@ -37,7 +37,55 @@ export default function App() {
   const [isPartnerOpen, setIsPartnerOpen] = useState(false);
   const [isGuidePROpen, setIsGuidePROpen] = useState(false);
   const [selectedSpot, setSelectedSpot] = useState(null);
-  const [bookmarks, setBookmarks] = useState([]);
+  // Persistent Bookmarks State
+  const [bookmarks, setBookmarks] = useState(() => {
+    try {
+      const saved = localStorage.getItem('ktravel_bookmarks');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+
+  const handleToggleBookmark = (spotToToggle) => {
+    if (!spotToToggle) return;
+    setBookmarks(prev => {
+      const spotId = typeof spotToToggle === 'object' 
+        ? (spotToToggle.contentId || spotToToggle.id || spotToToggle.title) 
+        : spotToToggle;
+      const spotTitle = typeof spotToToggle === 'object' ? spotToToggle.title : spotToToggle;
+      
+      const exists = prev.some(b => 
+        (typeof b === 'object' && ((b.contentId && b.contentId === spotId) || (b.id && b.id === spotId) || (b.title && b.title === spotTitle))) ||
+        (typeof b === 'string' && b === spotId)
+      );
+      
+      let updated;
+      if (exists) {
+        updated = prev.filter(b => 
+          typeof b === 'object' 
+            ? ((b.contentId && b.contentId !== spotId) && (b.id && b.id !== spotId) && (!spotTitle || b.title !== spotTitle))
+            : b !== spotId
+        );
+      } else {
+        const spotObj = typeof spotToToggle === 'object' ? {
+          id: spotToToggle.id || spotId,
+          contentId: spotToToggle.contentId || spotId,
+          title: spotToToggle.title || '추천 관광지',
+          location: spotToToggle.location || spotToToggle.addr1 || '상세 위치 제공',
+          image: spotToToggle.image || '/default-spot.png',
+          rating: spotToToggle.rating || 4.9,
+          region: spotToToggle.region || '추천',
+          tags: spotToToggle.tags || ['관광명소']
+        } : { id: spotId, title: spotId, location: '상세 위치 제공', image: '/default-spot.png', rating: 4.9 };
+        updated = [spotObj, ...prev];
+      }
+      try {
+        localStorage.setItem('ktravel_bookmarks', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+  };
 
   // Dark / Light Theme Mode
   const [themeMode, setThemeMode] = useState(() => {
@@ -86,9 +134,7 @@ export default function App() {
           lang={lang} 
           onOpenDetail={(spot) => setSelectedSpot(spot)}
           bookmarks={bookmarks}
-          onToggleBookmark={(spotId) => {
-            setBookmarks(prev => prev.includes(spotId) ? prev.filter(id => id !== spotId) : [...prev, spotId]);
-          }}
+          onToggleBookmark={(spot) => handleToggleBookmark(spot)}
         />
       </main>
 
@@ -106,6 +152,11 @@ export default function App() {
           onClose={() => setSelectedSpot(null)}
           lang={lang}
           themeMode={themeMode}
+          isBookmarked={bookmarks.some(b => 
+            (typeof b === 'object' && ((b.contentId && b.contentId === (selectedSpot.contentId || selectedSpot.id)) || (b.id && b.id === selectedSpot.id) || (b.title && b.title === selectedSpot.title))) ||
+            (typeof b === 'string' && (b === selectedSpot.id || b === selectedSpot.contentId || b === selectedSpot.title))
+          )}
+          onToggleBookmark={(spot) => handleToggleBookmark(spot || selectedSpot)}
         />
       )}
 
@@ -113,9 +164,12 @@ export default function App() {
         <WishlistDrawer
           isOpen={isWishlistOpen}
           onClose={() => setIsWishlistOpen(false)}
-          bookmarks={bookmarks}
-          onRemoveBookmark={(id) => setBookmarks(prev => prev.filter(b => b.id !== id))}
-          onSelectSpot={(spot) => setSelectedSpot(spot)}
+          wishlistSpots={bookmarks}
+          onRemoveWishlist={(id) => handleToggleBookmark({ id })}
+          onSelectSpot={(spot) => {
+            setIsWishlistOpen(false);
+            setSelectedSpot(spot);
+          }}
           lang={lang}
         />
       )}
