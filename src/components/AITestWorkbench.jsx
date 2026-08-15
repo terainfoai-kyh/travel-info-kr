@@ -6,6 +6,7 @@ import { extractLocationKeyword, isGreetingQuery, isMetaHelpQuery, geminiGenerat
 import { fetchTourSpots, fetchPinpointLandmarkSpots } from '../services/tourApi';
 import { getAgodaHotelSearchUrl, getKlookActivitySearchUrl } from '../services/affiliateService';
 import { logAnalyticsEvent } from '../services/analyticsService';
+import { TRANSLATIONS, getSpotDetailButtonLabel, getSpotMapButtonLabel } from '../i18n/translations';
 import AdminAnalyticsDashboard from './AdminAnalyticsDashboard';
 
 export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks = [], onToggleBookmark }) {
@@ -71,7 +72,7 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
     ? latestVoraMessage
     : null;
 
-  // Auto-scroll to bottom of chat container & Auto-focus input box after response
+  // Auto-scroll to bottom of chat container & Smart Auto-focus input box (Desktop PC Only)
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
@@ -79,7 +80,16 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     if (!isLoading) {
       setTimeout(() => {
-        inputRef.current?.focus();
+        // Smart device check: Only auto-focus on PC desktop (non-touch) devices to prevent virtual keyboard from popping up on mobile
+        const isTouchOrMobile = typeof window !== 'undefined' && (
+          window.innerWidth < 768 ||
+          'ontouchstart' in window ||
+          (navigator.maxTouchPoints && navigator.maxTouchPoints > 0) ||
+          (window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches)
+        );
+        if (!isTouchOrMobile) {
+          inputRef.current?.focus();
+        }
         inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }, 50);
     }
@@ -646,31 +656,86 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
                             const mapSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.title + ' ' + (spot.location || spot.addr1 || ''))}`;
 
                             return (
-                              <div key={spot.id || idx} style={{ padding: '0.5rem 0.65rem', backgroundColor: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '0.74rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.4rem' }}>
-                                <div 
-                                  onClick={() => onOpenDetail && onOpenDetail(spot)}
-                                  style={{ flex: 1, cursor: 'pointer' }}
-                                >
+                              <div 
+                                key={spot.id || idx} 
+                                onClick={() => onOpenDetail && onOpenDetail(spot)}
+                                style={{ 
+                                  padding: '0.55rem 0.65rem', 
+                                  backgroundColor: '#ffffff', 
+                                  borderRadius: '12px', 
+                                  border: '1px solid #e2e8f0', 
+                                  fontSize: '0.74rem', 
+                                  display: 'flex', 
+                                  alignItems: 'center', 
+                                  justifyContent: 'space-between', 
+                                  gap: '0.45rem',
+                                  cursor: 'pointer',
+                                  boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
+                                  transition: 'background-color 0.15s ease'
+                                }}
+                              >
+                                <div style={{ flex: 1, minWidth: 0 }}>
                                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', marginBottom: '0.15rem' }}>
-                                    <span style={{ padding: '0.1rem 0.4rem', borderRadius: '6px', fontSize: '0.63rem', fontWeight: 700, backgroundColor: badgeStyle.bg, color: badgeStyle.text, border: `1px solid ${badgeStyle.border}` }}>
-                                      {dayNum}일차 명소
+                                    <span style={{ padding: '0.1rem 0.4rem', borderRadius: '6px', fontSize: '0.62rem', fontWeight: 700, backgroundColor: badgeStyle.bg, color: badgeStyle.text, border: `1px solid ${badgeStyle.border}`, whiteSpace: 'nowrap' }}>
+                                      {dayNum}일차
                                     </span>
-                                    <strong style={{ color: '#0f172a', fontSize: '0.76rem' }}>{idx + 1}. {spot.title}</strong>
+                                    <strong style={{ color: '#0f172a', fontSize: '0.76rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                      {idx + 1}. {spot.title}
+                                    </strong>
                                   </div>
-                                  <span style={{ color: '#64748b', fontSize: '0.66rem', display: 'block' }}>
+                                  <span style={{ color: '#64748b', fontSize: '0.66rem', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                     📍 {spot.location || spot.addr1 || '중심가'}
                                   </span>
                                 </div>
 
-                                <a
-                                  href={mapSearchUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  onClick={(e) => e.stopPropagation()}
-                                  style={{ padding: '0.25rem 0.5rem', backgroundColor: '#ffffff', color: '#2563eb', border: '1px solid #bfdbfe', borderRadius: '8px', textDecoration: 'none', fontSize: '0.66rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.2rem', whiteSpace: 'nowrap' }}
-                                >
-                                  <MapPin size={11} /> 지도
-                                </a>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexShrink: 0 }} onClick={(e) => e.stopPropagation()}>
+                                  {/* Compact Detail Button */}
+                                  <button
+                                    onClick={() => onOpenDetail && onOpenDetail(spot)}
+                                    style={{
+                                      padding: '0.3rem 0.55rem',
+                                      backgroundColor: '#9333ea',
+                                      color: '#ffffff',
+                                      border: 'none',
+                                      borderRadius: '8px',
+                                      fontSize: '0.66rem',
+                                      fontWeight: 700,
+                                      cursor: 'pointer',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '0.2rem',
+                                      whiteSpace: 'nowrap',
+                                      boxShadow: '0 2px 5px rgba(147, 51, 234, 0.25)'
+                                    }}
+                                  >
+                                    <Sparkles size={11} />
+                                    <span>{getSpotDetailButtonLabel(lang, true)}</span>
+                                  </button>
+
+                                  {/* Compact Map Button */}
+                                  <a
+                                    href={mapSearchUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{
+                                      padding: '0.3rem 0.55rem',
+                                      backgroundColor: '#f0f9ff',
+                                      color: '#0284c7',
+                                      border: '1px solid #bae6fd',
+                                      borderRadius: '8px',
+                                      textDecoration: 'none',
+                                      fontSize: '0.66rem',
+                                      fontWeight: 600,
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '0.2rem',
+                                      whiteSpace: 'nowrap'
+                                    }}
+                                  >
+                                    <MapPin size={11} />
+                                    <span>{getSpotMapButtonLabel(lang, true)}</span>
+                                  </a>
+                                </div>
                               </div>
                             );
                           })}
@@ -842,60 +907,122 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
 
             {activeSpotMessage?.spots && activeSpotMessage.spots.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                {activeSpotMessage.spots.map((spot, idx) => (
-                  <div key={spot.id || idx} style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    backgroundColor: '#ffffff',
-                    padding: '0.75rem 0.9rem',
-                    borderRadius: '12px',
-                    border: '1px solid #e2e8f0',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
-                  }}>
+                {activeSpotMessage.spots.map((spot, idx) => {
+                  const dayNum = spot.assignedDay || 1;
+                  const badgeStyle = getDayBadgeStyle(dayNum);
+                  const mapSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.title + ' ' + (spot.location || spot.addr1 || ''))}`;
+
+                  return (
                     <div 
+                      key={spot.id || idx} 
                       onClick={() => onOpenDetail && onOpenDetail(spot)}
-                      style={{ flex: 1, minWidth: 0, paddingRight: '0.5rem', cursor: 'pointer' }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.25rem' }}>
-                        <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#9333ea', backgroundColor: '#f3e8ff', padding: '0.15rem 0.45rem', borderRadius: '4px', whiteSpace: 'nowrap' }}>
-                          {spot.assignedDay ? `${spot.assignedDay}일차 명소` : '추천 명소'}
-                        </span>
-                        <span style={{ fontSize: '0.88rem', fontWeight: 700, color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {idx + 1}. {spot.title}
-                        </span>
-                      </div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.2rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        <MapPin size={12} color="#ef4444" style={{ flexShrink: 0 }} />
-                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{spot.location || spot.addr1 || '상세 위치 제공'}</span>
-                      </div>
-                    </div>
-                    <a 
-                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.title + ' ' + (spot.location || spot.addr1 || ''))}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
                       style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '0.25rem',
-                        padding: '0.35rem 0.65rem',
-                        fontSize: '0.72rem',
-                        color: '#0284c7',
-                        backgroundColor: '#f0f9ff',
-                        border: '1px solid #bae6fd',
-                        borderRadius: '8px',
+                        justifyContent: 'space-between',
+                        backgroundColor: '#ffffff',
+                        padding: '0.85rem 1rem',
+                        borderRadius: '14px',
+                        border: '1.5px solid #e2e8f0',
+                        boxShadow: '0 2px 6px rgba(0,0,0,0.02)',
                         cursor: 'pointer',
-                        fontWeight: 600,
-                        whiteSpace: 'nowrap',
-                        textDecoration: 'none'
+                        transition: 'all 0.2s ease',
+                        gap: '0.75rem'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = '#9333ea';
+                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(147, 51, 234, 0.1)';
+                        e.currentTarget.style.transform = 'translateY(-1px)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor = '#e2e8f0';
+                        e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.02)';
+                        e.currentTarget.style.transform = 'translateY(0)';
                       }}
                     >
-                      <MapPin size={12} color="#0284c7" />
-                      <span>지도 위치</span>
-                    </a>
-                  </div>
-                ))}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', marginBottom: '0.25rem' }}>
+                          <span style={{ fontSize: '0.7rem', fontWeight: 700, backgroundColor: badgeStyle.bg, color: badgeStyle.text, border: `1px solid ${badgeStyle.border}`, padding: '0.15rem 0.45rem', borderRadius: '6px', whiteSpace: 'nowrap' }}>
+                            {spot.assignedDay ? `${spot.assignedDay}일차` : '추천 명소'}
+                          </span>
+                          <span style={{ fontSize: '0.9rem', fontWeight: 800, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {idx + 1}. {spot.title}
+                          </span>
+                        </div>
+                        <div style={{ fontSize: '0.76rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.25rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <MapPin size={12} color="#ef4444" style={{ flexShrink: 0 }} />
+                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{spot.location || spot.addr1 || '상세 위치 제공'}</span>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0 }} onClick={(e) => e.stopPropagation()}>
+                        {/* 🔍 Primary Action: Photos & Detail View */}
+                        <button
+                          onClick={() => onOpenDetail && onOpenDetail(spot)}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.3rem',
+                            padding: '0.45rem 0.75rem',
+                            fontSize: '0.76rem',
+                            color: '#ffffff',
+                            backgroundColor: '#9333ea',
+                            border: 'none',
+                            borderRadius: '10px',
+                            cursor: 'pointer',
+                            fontWeight: 700,
+                            whiteSpace: 'nowrap',
+                            boxShadow: '0 2px 6px rgba(147, 51, 234, 0.3)',
+                            transition: 'all 0.15s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#7e22ce';
+                            e.currentTarget.style.transform = 'scale(1.03)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = '#9333ea';
+                            e.currentTarget.style.transform = 'scale(1)';
+                          }}
+                        >
+                          <Sparkles size={12} />
+                          <span>{getSpotDetailButtonLabel(lang, false)}</span>
+                        </button>
+
+                        {/* 📍 Secondary Action: Google Maps Navigation */}
+                        <a 
+                          href={mapSearchUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.25rem',
+                            padding: '0.45rem 0.65rem',
+                            fontSize: '0.74rem',
+                            color: '#0284c7',
+                            backgroundColor: '#f0f9ff',
+                            border: '1px solid #bae6fd',
+                            borderRadius: '10px',
+                            cursor: 'pointer',
+                            fontWeight: 600,
+                            whiteSpace: 'nowrap',
+                            textDecoration: 'none',
+                            transition: 'all 0.15s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#e0f2fe';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = '#f0f9ff';
+                          }}
+                        >
+                          <MapPin size={12} color="#0284c7" />
+                          <span>{getSpotMapButtonLabel(lang, false)}</span>
+                        </a>
+                      </div>
+                    </div>
+                  );
+                })}
 
                 <div style={{ marginTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                   <a href="https://www.agoda.com" target="_blank" rel="noreferrer" style={{

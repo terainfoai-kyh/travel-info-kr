@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { fetchSpotDetailCommon, fetchSpotDetailImages, fetchSpotDetailIntro } from '../services/tourApi';
 import { PUBLIC_API_CONFIG, buildAgodaDeepLink, buildKlookDeepLink, buildKKdayDeepLink } from '../services/apiConfig';
-import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress, getTranslatedReview, getTranslatedOverview, getTranslatedDetailText } from '../i18n/translations';
+import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress, getTranslatedReview, getTranslatedOverview, getTranslatedDetailText, getCloseButtonLabel } from '../i18n/translations';
 import TravelImageWithFallback from './TravelImageWithFallback';
 import { useModalHistory } from '../hooks/useModalHistory';
 
@@ -250,7 +250,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
         position: 'fixed',
         inset: 0,
         zIndex: 99999,
-        backgroundColor: 'rgba(15, 23, 42, 0.35)',
+        backgroundColor: 'rgba(15, 23, 42, 0.45)',
         backdropFilter: 'blur(8px)',
         display: 'flex',
         alignItems: 'center',
@@ -258,7 +258,6 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
         padding: '1rem',
         overflowY: 'auto'
       }}
-      onClick={onClose}
     >
       <div 
         className="animate-fade-in"
@@ -1069,6 +1068,41 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                 {showAllReviews ? '리뷰 접기 ▲' : `리뷰 더보기 (${mockReviews.length - 3}개) ▼`}
               </button>
             )}
+          </div>
+
+          {/* 🚪 BOTTOM EXPLICIT CLOSE BUTTON */}
+          <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'center' }}>
+            <button
+              onClick={onClose}
+              style={{
+                padding: '0.75rem 2.5rem',
+                backgroundColor: '#f1f5f9',
+                color: '#334155',
+                border: '1px solid #cbd5e1',
+                borderRadius: '14px',
+                fontSize: '0.92rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.45rem',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#e2e8f0';
+                e.currentTarget.style.color = '#0f172a';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#f1f5f9';
+                e.currentTarget.style.color = '#334155';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              <X size={18} strokeWidth={2.5} />
+              <span>{getCloseButtonLabel(lang)}</span>
+            </button>
           </div>
 
         </div>

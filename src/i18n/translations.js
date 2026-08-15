@@ -14,18 +14,71 @@ export function detectBrowserLanguage() {
   return 'en';
 }
 
-export function getMapSearchBtnLabel(foodName, lang = 'ko') {
-  const cleanName = foodName ? foodName.split('&')[0].trim() : '';
+export function getSpotDetailButtonLabel(lang = 'ko', isShort = false) {
+  if (isShort) {
+    switch (lang) {
+      case 'en': return 'Detail';
+      case 'ja': return '詳細';
+      case 'zh': return '详情';
+      case 'zht': return '詳情';
+      case 'de': return 'Details';
+      case 'fr': return 'Détails';
+      case 'es': return 'Detalles';
+      case 'ru': return 'Инфо';
+      default: return '상세';
+    }
+  }
   switch (lang) {
-    case 'en': return `Search Nearby ${cleanName} Restaurants ↗`;
-    case 'ja': return `周辺の ${cleanName} グルメマップ検索 ↗`;
-    case 'zh': return `搜索周边 ${cleanName} 美食地图 ↗`;
-    case 'zht': return `搜尋周邊 ${cleanName} 美食地圖 ↗`;
-    case 'de': return `Umgebende ${cleanName} Restaurants suchen ↗`;
-    case 'fr': return `Rechercher les restaurants de ${cleanName} ↗`;
-    case 'es': return `Buscar restaurantes de ${cleanName} cercanos ↗`;
-    case 'ru': return `Поиск ресторанов ${cleanName} поблизости ↗`;
-    default: return `주변 ${cleanName} 맛집 지도 검색 ↗`;
+    case 'en': return '🔍 Photos & Details';
+    case 'ja': return '🔍 写真・詳細を見る';
+    case 'zh': return '🔍 照片·查看详情';
+    case 'zht': return '🔍 照片·查看詳情';
+    case 'de': return '🔍 Fotos & Details';
+    case 'fr': return '🔍 Photos & Détails';
+    case 'es': return '🔍 Fotos y detalles';
+    case 'ru': return '🔍 Фото и подробнее';
+    default: return '🔍 사진·상세보기';
+  }
+}
+
+export function getSpotMapButtonLabel(lang = 'ko', isShort = false) {
+  if (isShort) {
+    switch (lang) {
+      case 'en': return 'Map';
+      case 'ja': return '地図';
+      case 'zh': return '地图';
+      case 'zht': return '地圖';
+      case 'de': return 'Karte';
+      case 'fr': return 'Carte';
+      case 'es': return 'Mapa';
+      case 'ru': return 'Карта';
+      default: return '지도';
+    }
+  }
+  switch (lang) {
+    case 'en': return 'Google Map';
+    case 'ja': return 'Googleマップ';
+    case 'zh': return '谷歌地图';
+    case 'zht': return 'Google地圖';
+    case 'de': return 'Google Karte';
+    case 'fr': return 'Google Map';
+    case 'es': return 'Google Maps';
+    case 'ru': return 'Карта Google';
+    default: return '지도 위치';
+  }
+}
+
+export function getCloseButtonLabel(lang = 'ko') {
+  switch (lang) {
+    case 'en': return 'Close';
+    case 'ja': return '閉じる';
+    case 'zh': return '关闭';
+    case 'zht': return '關閉';
+    case 'de': return 'Schließen';
+    case 'fr': return 'Fermer';
+    case 'es': return 'Cerrar';
+    case 'ru': return 'Закрыть';
+    default: return '닫기';
   }
 }
 
