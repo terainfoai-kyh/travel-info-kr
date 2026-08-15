@@ -168,7 +168,7 @@ export function buildAgodaDeepLink(regionOrTitle, checkIn, checkOut, extraLocati
     .replace(/\(.*?\)/g, '')
     .trim() || '대한민국';
 
-  return `https://www.agoda.com/ko-kr/search?text=${encodeURIComponent(cleanTarget)}&cid=1972217&checkin=${finalCheckIn}&checkout=${finalCheckOut}&los=${los}&rooms=1&adults=2`;
+  return `https://www.agoda.com/partners/partnersearch.aspx?cid=1972217&searchText=${encodeURIComponent(cleanTarget)}&checkin=${finalCheckIn}&checkout=${finalCheckOut}&los=${los}&rooms=1&adults=2`;
 }
 
 export function buildKKdayDeepLink(query) {

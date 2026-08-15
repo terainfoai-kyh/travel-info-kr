@@ -8,7 +8,7 @@ const KLOOK_AID = import.meta.env.VITE_KLOOK_AID || '890123';  // 클룩 제휴 
 
 export function getAgodaHotelSearchUrl(city = 'Seoul') {
   const encodedCity = encodeURIComponent(city.trim());
-  return `https://www.agoda.com/search?text=${encodedCity}&cid=${AGODA_CID}&tag=travelkorea`;
+  return `https://www.agoda.com/partners/partnersearch.aspx?cid=${AGODA_CID}&searchText=${encodedCity}`;
 }
 
 export function getKlookActivitySearchUrl(city = 'Seoul') {
