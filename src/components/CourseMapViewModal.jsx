@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   X, MapPin, Sparkles, Navigation, Calendar, 
   ChevronRight, Compass, Car, Bus, Footprints, ExternalLink,
@@ -56,9 +57,22 @@ export default function CourseMapViewModal({
   const [isMapUnlocked, setIsMapUnlocked] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isLeafletReady, setIsLeafletReady] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(typeof window !== 'undefined' ? window.innerWidth >= 768 : true);
 
   const mapContainerRef = useRef(null);
   const leafletMapRef = useRef(null);
+
+  // Responsive desktop detection
+  useEffect(() => {
+    const handleResize = () => {
+      if (typeof window !== 'undefined') {
+        setIsDesktop(window.innerWidth >= 768);
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Group spots by assigned day (1~5)
   const daysGroup = {};
@@ -140,14 +154,14 @@ export default function CourseMapViewModal({
 
     const coordsList = currentDaySpots.map((spot, idx) => getApproxCoords(spot, regionName, idx));
 
-    // Initialize map centered at first spot or region
+    // On PC: Always enable interactive mouse drag and wheel zoom. On Mobile: toggle with isMapUnlocked
     const map = L.map(mapContainerRef.current, {
       zoomControl: false,
       attributionControl: false,
-      dragging: isMapUnlocked,
-      touchZoom: isMapUnlocked,
-      scrollWheelZoom: isMapUnlocked,
-      doubleClickZoom: isMapUnlocked
+      dragging: isDesktop ? true : isMapUnlocked,
+      touchZoom: isDesktop ? true : isMapUnlocked,
+      scrollWheelZoom: isDesktop ? true : isMapUnlocked,
+      doubleClickZoom: isDesktop ? true : isMapUnlocked
     });
 
     leafletMapRef.current = map;
@@ -221,7 +235,7 @@ export default function CourseMapViewModal({
       map.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
     } catch (e) {}
 
-  }, [isOpen, isLeafletReady, currentDay, isMapUnlocked, lang, spots]);
+  }, [isOpen, isLeafletReady, currentDay, isMapUnlocked, isDesktop, lang, spots]);
 
   if (!isOpen) return null;
 
@@ -261,21 +275,27 @@ export default function CourseMapViewModal({
 
   const dayIcons = ['🏰', '🌿', '☕', '🌊', '🏯'];
 
-  return (
+  const modalNode = (
     <div
       className="modal-overlay-backdrop"
       style={{
         position: 'fixed',
         inset: 0,
-        zIndex: 999999,
-        backgroundColor: 'rgba(15, 23, 42, 0.65)',
-        backdropFilter: 'blur(8px)',
+        zIndex: 9999999,
+        backgroundColor: 'rgba(15, 23, 42, 0.7)',
+        backdropFilter: 'blur(10px)',
+        WebkitBackdropFilter: 'blur(10px)',
         display: 'flex',
         alignItems: 'flex-start',
         justifyContent: 'center',
-        padding: '1.5rem 1rem 2.5rem 1rem',
+        padding: isDesktop ? '2rem 1.5rem 2.5rem 1.5rem' : '1rem 0.75rem 2rem 0.75rem',
         overflowY: 'auto',
         WebkitOverflowScrolling: 'touch'
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
       }}
     >
       <div
@@ -284,21 +304,22 @@ export default function CourseMapViewModal({
           backgroundColor: '#ffffff',
           color: '#0f172a',
           borderRadius: '24px',
-          border: '1px solid #e2e8f0',
+          border: '1.5px solid #e2e8f0',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
           maxWidth: '1040px',
           width: '100%',
-          maxHeight: 'calc(100vh - 3.5rem)',
+          maxHeight: isDesktop ? 'calc(100vh - 4.5rem)' : 'calc(100vh - 2.5rem)',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
           margin: '0 auto',
-          position: 'relative'
+          position: 'relative',
+          zIndex: 10000000
         }}
       >
         {/* TOP HEADER */}
         <div style={{
-          padding: '1.2rem 1.5rem',
+          padding: isDesktop ? '1.2rem 1.5rem' : '1rem 1.15rem',
           borderBottom: '1px solid #e2e8f0',
           display: 'flex',
           alignItems: 'center',
@@ -307,38 +328,39 @@ export default function CourseMapViewModal({
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
             <div style={{
-              width: '40px',
-              height: '40px',
+              width: '38px',
+              height: '38px',
               borderRadius: '12px',
               backgroundColor: '#9333ea',
               color: '#ffffff',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 4px 12px rgba(147, 51, 234, 0.3)'
+              boxShadow: '0 4px 12px rgba(147, 51, 234, 0.3)',
+              flexShrink: 0
             }}>
-              <Compass size={22} />
+              <Compass size={20} />
             </div>
             <div>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 900, margin: 0, color: '#0f172a', letterSpacing: '-0.3px' }}>
+              <h3 style={{ fontSize: isDesktop ? '1.15rem' : '1rem', fontWeight: 900, margin: 0, color: '#0f172a', letterSpacing: '-0.3px' }}>
                 🗺️ {regionName} {availableDays.length > 1 ? `${availableDays.length}일 코스` : '당일 코스'} 스마트 동선
               </h3>
-              <p style={{ fontSize: '0.75rem', color: '#64748b', margin: 0 }}>
-                한국관광공사 TourAPI 4.0 정품 명소 & GPS 실시간 지도 연동
+              <p style={{ fontSize: '0.72rem', color: '#64748b', margin: 0 }}>
+                한국관광공사 TourAPI 4.0 정품 명소 & 실시간 GPS 연동
               </p>
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
             <button
               onClick={handleCopyCourse}
               style={{
-                padding: '0.45rem 0.75rem',
+                padding: '0.4rem 0.65rem',
                 backgroundColor: copied ? '#dcfce7' : '#f1f5f9',
                 color: copied ? '#15803d' : '#334155',
                 border: copied ? '1px solid #86efac' : '1px solid #cbd5e1',
                 borderRadius: '10px',
-                fontSize: '0.75rem',
+                fontSize: '0.74rem',
                 fontWeight: 700,
                 cursor: 'pointer',
                 display: 'flex',
@@ -347,7 +369,7 @@ export default function CourseMapViewModal({
                 transition: 'all 0.2s ease'
               }}
             >
-              {copied ? <Check size={14} /> : <Share2 size={14} />}
+              {copied ? <Check size={13} /> : <Share2 size={13} />}
               <span>{copied ? '복사 완료!' : '코스 복사'}</span>
             </button>
 
@@ -358,14 +380,15 @@ export default function CourseMapViewModal({
                 backgroundColor: '#f1f5f9',
                 border: '1px solid #cbd5e1',
                 color: '#475569',
-                width: '36px',
-                height: '36px',
+                width: '34px',
+                height: '34px',
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'pointer',
-                transition: 'all 0.2s ease'
+                transition: 'all 0.2s ease',
+                flexShrink: 0
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = '#ef4444';
@@ -376,7 +399,7 @@ export default function CourseMapViewModal({
                 e.currentTarget.style.color = '#475569';
               }}
             >
-              <X size={18} strokeWidth={2.5} />
+              <X size={17} strokeWidth={2.5} />
             </button>
           </div>
         </div>
@@ -385,8 +408,8 @@ export default function CourseMapViewModal({
         {availableDays.length > 1 && (
           <div style={{
             display: 'flex',
-            gap: '0.5rem',
-            padding: '0.65rem 1.5rem',
+            gap: '0.45rem',
+            padding: '0.6rem 1.25rem',
             backgroundColor: '#f8fafc',
             borderBottom: '1px solid #e2e8f0',
             overflowX: 'auto',
@@ -404,14 +427,14 @@ export default function CourseMapViewModal({
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.4rem',
-                    padding: '0.5rem 0.95rem',
+                    gap: '0.35rem',
+                    padding: '0.45rem 0.85rem',
                     borderRadius: '12px',
                     border: isActive ? '2px solid #9333ea' : '1px solid #cbd5e1',
                     backgroundColor: isActive ? '#9333ea' : '#ffffff',
                     color: isActive ? '#ffffff' : '#334155',
                     fontWeight: 800,
-                    fontSize: '0.84rem',
+                    fontSize: '0.82rem',
                     cursor: 'pointer',
                     whiteSpace: 'nowrap',
                     boxShadow: isActive ? '0 4px 12px rgba(147, 51, 234, 0.25)' : '0 1px 3px rgba(0,0,0,0.02)',
@@ -420,10 +443,10 @@ export default function CourseMapViewModal({
                 >
                   <span>{icon} {dNum}일차</span>
                   <span style={{
-                    fontSize: '0.7rem',
+                    fontSize: '0.68rem',
                     backgroundColor: isActive ? 'rgba(255,255,255,0.25)' : '#f1f5f9',
                     color: isActive ? '#ffffff' : '#64748b',
-                    padding: '0.1rem 0.45rem',
+                    padding: '0.1rem 0.4rem',
                     borderRadius: '9999px'
                   }}>
                     {count}곳
@@ -438,24 +461,24 @@ export default function CourseMapViewModal({
         <div style={{
           flex: 1,
           display: 'flex',
-          flexDirection: window.innerWidth < 768 ? 'column-reverse' : 'row',
+          flexDirection: isDesktop ? 'row' : 'column-reverse',
           overflowY: 'auto',
           minHeight: '380px'
         }}>
           
           {/* LEFT: TIMELINE STEPPER LIST */}
           <div style={{
-            flex: '1 1 50%',
-            padding: '1.25rem',
+            flex: isDesktop ? '1 1 50%' : '1 1 auto',
+            padding: '1.15rem',
             overflowY: 'auto',
-            borderRight: '1px solid #e2e8f0',
+            borderRight: isDesktop ? '1px solid #e2e8f0' : 'none',
             backgroundColor: '#ffffff'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-              <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#1e293b' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
+              <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#1e293b' }}>
                 📍 {currentDay}일차 추천 일정 ({currentDaySpots.length}개 명소)
               </div>
-              <span style={{ fontSize: '0.72rem', color: '#9333ea', fontWeight: 700, backgroundColor: '#f3e8ff', padding: '0.2rem 0.5rem', borderRadius: '6px' }}>
+              <span style={{ fontSize: '0.7rem', color: '#9333ea', fontWeight: 700, backgroundColor: '#f3e8ff', padding: '0.2rem 0.5rem', borderRadius: '6px' }}>
                 ① ➔ ② ➔ ③ 순서대로 추천
               </span>
             </div>
@@ -473,8 +496,8 @@ export default function CourseMapViewModal({
                     style={{
                       display: 'flex',
                       flexDirection: 'column',
-                      gap: '0.5rem',
-                      padding: '0.85rem 1rem',
+                      gap: '0.45rem',
+                      padding: '0.8rem 0.95rem',
                       backgroundColor: '#f8fafc',
                       borderRadius: '16px',
                       border: '1.5px solid #e2e8f0',
@@ -498,30 +521,30 @@ export default function CourseMapViewModal({
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
                         <div style={{
-                          width: '24px',
-                          height: '24px',
+                          width: '22px',
+                          height: '22px',
                           borderRadius: '50%',
                           backgroundColor: '#9333ea',
                           color: '#ffffff',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          fontSize: '0.75rem',
+                          fontSize: '0.72rem',
                           fontWeight: 900
                         }}>
                           {idx + 1}
                         </div>
-                        <strong style={{ fontSize: '0.92rem', color: '#0f172a', fontWeight: 800 }}>
+                        <strong style={{ fontSize: '0.9rem', color: '#0f172a', fontWeight: 800 }}>
                           {title}
                         </strong>
                       </div>
-                      <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600 }}>
+                      <span style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 600 }}>
                         {idx === 0 ? '🌅 오전' : (idx === 1 ? '☀️ 오후' : '🌙 저녁/야경')}
                       </span>
                     </div>
 
-                    <div style={{ fontSize: '0.75rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                      <MapPin size={13} color="#ef4444" style={{ flexShrink: 0 }} />
+                    <div style={{ fontSize: '0.74rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                      <MapPin size={12} color="#ef4444" style={{ flexShrink: 0 }} />
                       <span>{spot.location || spot.addr1 || '상세 주소 제공'}</span>
                     </div>
 
@@ -531,7 +554,8 @@ export default function CourseMapViewModal({
                         onClick={() => onOpenDetail && onOpenDetail(spot)}
                         style={{
                           flex: 1,
-                          padding: '0.4rem 0.55rem',
+                          minWidth: 0,
+                          padding: '0.4rem 0.5rem',
                           backgroundColor: '#9333ea',
                           color: '#ffffff',
                           border: 'none',
@@ -555,7 +579,8 @@ export default function CourseMapViewModal({
                         rel="noopener noreferrer"
                         style={{
                           flex: 1,
-                          padding: '0.4rem 0.55rem',
+                          minWidth: 0,
+                          padding: '0.4rem 0.5rem',
                           backgroundColor: '#f0f9ff',
                           color: '#0284c7',
                           border: '1px solid #bae6fd',
@@ -581,27 +606,27 @@ export default function CourseMapViewModal({
                       display: 'flex',
                       alignItems: 'center',
                       gap: '0.5rem',
-                      padding: '0.65rem 0 0.65rem 1.75rem',
+                      padding: '0.55rem 0 0.55rem 1.6rem',
                       color: '#9333ea',
                       fontSize: '0.72rem',
                       fontWeight: 700
                     }}>
                       <div style={{
                         width: '2px',
-                        height: '24px',
+                        height: '22px',
                         backgroundColor: '#d8b4fe',
-                        marginLeft: '-18px',
-                        marginRight: '12px'
+                        marginLeft: '-16px',
+                        marginRight: '10px'
                       }} />
                       <div style={{
                         display: 'flex',
                         alignItems: 'center',
                         gap: '0.35rem',
                         backgroundColor: '#f3e8ff',
-                        padding: '0.2rem 0.6rem',
+                        padding: '0.15rem 0.55rem',
                         borderRadius: '12px'
                       }}>
-                        {idx === 0 ? <Footprints size={13} /> : <Bus size={13} />}
+                        {idx === 0 ? <Footprints size={12} /> : <Bus size={12} />}
                         <span>{idx === 0 ? '🚶 도보 약 15분 (800m)' : '🚌 대중교통 약 10~15분'}</span>
                       </div>
                     </div>
@@ -613,49 +638,51 @@ export default function CourseMapViewModal({
 
           {/* RIGHT: INTERACTIVE LEAFLET MAP VIEW */}
           <div style={{
-            flex: '1 1 50%',
+            flex: isDesktop ? '1 1 50%' : '1 1 auto',
             display: 'flex',
             flexDirection: 'column',
             backgroundColor: '#f1f5f9',
-            minHeight: '320px',
+            minHeight: isDesktop ? '340px' : '260px',
             position: 'relative'
           }}>
             {/* MAP FLOATING CONTROLS */}
             <div style={{
               position: 'absolute',
-              top: '0.75rem',
-              left: '0.75rem',
-              right: '0.75rem',
+              top: '0.65rem',
+              left: '0.65rem',
+              right: '0.65rem',
               zIndex: 1000,
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'space-between',
+              justifyContent: isDesktop ? 'flex-end' : 'space-between',
               gap: '0.5rem',
               pointerEvents: 'none'
             }}>
-              {/* Map Lock/Unlock Button */}
-              <button
-                onClick={() => setIsMapUnlocked(!isMapUnlocked)}
-                style={{
-                  pointerEvents: 'auto',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.35rem',
-                  padding: '0.4rem 0.75rem',
-                  borderRadius: '12px',
-                  border: isMapUnlocked ? '1.5px solid #86efac' : '1.5px solid #cbd5e1',
-                  backgroundColor: isMapUnlocked ? 'rgba(240, 253, 244, 0.95)' : 'rgba(255, 255, 255, 0.95)',
-                  color: isMapUnlocked ? '#166534' : '#334155',
-                  fontSize: '0.74rem',
-                  fontWeight: 800,
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                  backdropFilter: 'blur(6px)'
-                }}
-              >
-                {isMapUnlocked ? <Unlock size={14} color="#16a34a" /> : <Lock size={14} color="#64748b" />}
-                <span>{isMapUnlocked ? '지도 조작 가능 ⇄' : '터치 스크롤 고정 🔒'}</span>
-              </button>
+              {/* Map Lock/Unlock Button (MOBILE ONLY) */}
+              {!isDesktop && (
+                <button
+                  onClick={() => setIsMapUnlocked(!isMapUnlocked)}
+                  style={{
+                    pointerEvents: 'auto',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
+                    padding: '0.35rem 0.65rem',
+                    borderRadius: '10px',
+                    border: isMapUnlocked ? '1.5px solid #86efac' : '1.5px solid #cbd5e1',
+                    backgroundColor: isMapUnlocked ? 'rgba(240, 253, 244, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                    color: isMapUnlocked ? '#166534' : '#334155',
+                    fontSize: '0.72rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
+                    backdropFilter: 'blur(6px)'
+                  }}
+                >
+                  {isMapUnlocked ? <Unlock size={13} color="#16a34a" /> : <Lock size={13} color="#64748b" />}
+                  <span>{isMapUnlocked ? '지도 조작 가능 ⇄' : '터치 스크롤 고정 🔒'}</span>
+                </button>
+              )}
 
               {/* Google Maps Multi-Stop Link */}
               <a
@@ -667,11 +694,11 @@ export default function CourseMapViewModal({
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.35rem',
-                  padding: '0.45rem 0.85rem',
+                  padding: '0.4rem 0.8rem',
                   borderRadius: '12px',
                   backgroundColor: '#2563eb',
                   color: '#ffffff',
-                  fontSize: '0.75rem',
+                  fontSize: '0.74rem',
                   fontWeight: 800,
                   textDecoration: 'none',
                   boxShadow: '0 4px 12px rgba(37, 99, 235, 0.35)',
@@ -691,7 +718,7 @@ export default function CourseMapViewModal({
               style={{
                 width: '100%',
                 height: '100%',
-                minHeight: '340px',
+                minHeight: isDesktop ? '340px' : '260px',
                 backgroundColor: '#e2e8f0'
               }}
             />
@@ -699,10 +726,10 @@ export default function CourseMapViewModal({
 
         </div>
 
-        {/* BOTTOM FULL-WIDTH CLOSE BUTTON */}
+        {/* BOTTOM FULL-WIDTH CLOSE BUTTON (Option C: Light Outline Border Style) */}
         <div style={{
-          padding: '0.85rem 1.5rem',
-          backgroundColor: '#f8fafc',
+          padding: '0.75rem 1.5rem',
+          backgroundColor: '#ffffff',
           borderTop: '1px solid #e2e8f0',
           display: 'flex',
           justifyContent: 'center'
@@ -712,23 +739,31 @@ export default function CourseMapViewModal({
             style={{
               width: '100%',
               maxWidth: '380px',
-              padding: '0.75rem 1.5rem',
-              backgroundColor: '#0f172a',
-              color: '#ffffff',
-              border: 'none',
+              padding: '0.7rem 1.5rem',
+              backgroundColor: '#ffffff',
+              color: '#334155',
+              border: '1.5px solid #cbd5e1',
               borderRadius: '14px',
-              fontSize: '0.9rem',
+              fontSize: '0.88rem',
               fontWeight: 800,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '0.4rem',
-              boxShadow: '0 4px 14px rgba(15, 23, 42, 0.25)',
+              gap: '0.45rem',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
               transition: 'all 0.2s ease'
             }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1e293b'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0f172a'}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#f8fafc';
+              e.currentTarget.style.borderColor = '#94a3b8';
+              e.currentTarget.style.color = '#0f172a';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#ffffff';
+              e.currentTarget.style.borderColor = '#cbd5e1';
+              e.currentTarget.style.color = '#334155';
+            }}
           >
             <X size={18} strokeWidth={2.5} />
             <span>{getCloseButtonLabel(lang)}</span>
@@ -738,4 +773,7 @@ export default function CourseMapViewModal({
       </div>
     </div>
   );
+
+  // Use Portal to mount directly to document.body so sticky Header never covers it
+  return typeof document !== 'undefined' ? createPortal(modalNode, document.body) : modalNode;
 }
