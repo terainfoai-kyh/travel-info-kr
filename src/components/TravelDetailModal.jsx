@@ -29,6 +29,8 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
   useEffect(() => {
     setLocalBookmarked(isBookmarked);
   }, [isBookmarked]);
+
+  const displayTitle = getTranslatedTitle(spot?.title, lang);
   const displayRegion = spot?.region && spot.region !== '전국' && spot.region !== '한국'
     ? (t.regions?.[spot.region] || spot.region)
     : (t.countryBadge || '대한민국');
