@@ -412,9 +412,15 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
   useEffect(() => {
     let timerDots;
     let timerStep;
+    const currentSteps = (wt && wt.loadingSteps && wt.loadingSteps.length > 0) ? wt.loadingSteps : [
+      '한국관광공사 정품 DB에서 추천 명소 탐색 중',
+      'GPS 지도 좌표 및 위치 데이터 1:1 동기화 중',
+      '100% 맞춤 여행 일정을 정돈하고 있습니다'
+    ];
+
     if (isLoading) {
       setLoadingDots('●');
-      setLoadingStepText('한국관광공사 정품 DB에서 추천 명소 탐색 중');
+      setLoadingStepText(currentSteps[0]);
 
       timerDots = setInterval(() => {
         setLoadingDots(prev => {
@@ -426,15 +432,9 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
       }, 350);
 
       let stepCount = 0;
-      const steps = [
-        '한국관광공사 정품 DB에서 추천 명소 탐색 중',
-        'GPS 지도 좌표 및 위치 데이터 1:1 동기화 중',
-        '100% 맞춤 여행 일정을 정돈하고 있습니다'
-      ];
-
       timerStep = setInterval(() => {
-        stepCount = (stepCount + 1) % steps.length;
-        setLoadingStepText(steps[stepCount]);
+        stepCount = (stepCount + 1) % currentSteps.length;
+        setLoadingStepText(currentSteps[stepCount]);
       }, 900);
     } else {
       setLoadingDots('●');
@@ -443,7 +443,7 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
       clearInterval(timerDots);
       clearInterval(timerStep);
     };
-  }, [isLoading]);
+  }, [isLoading, wt]);
 
   const handleCycleVirtualTier = () => {
     if (virtualTier === 'dev') {
@@ -534,7 +534,9 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
 
     const totalLimit = virtualQuotaLimit + extraRechargeCount;
     const nextAskIndex = Math.min(totalLimit, usedCount + 1);
-    const quotaTag = isDevBypass ? '[ ⚡ 무제한 ]' : `[ 오늘 대화 ${nextAskIndex}/${totalLimit}회 ]`;
+    const quotaTag = isDevBypass 
+      ? (wt.unlimitedTag || '[ ⚡ Unlimited ]')
+      : (wt.quotaChatTag || '[ Today Chat {current}/{total} ]').replace('{current}', nextAskIndex).replace('{total}', totalLimit);
 
     const userMsgId = `user-${Date.now()}`;
     const userMsg = {

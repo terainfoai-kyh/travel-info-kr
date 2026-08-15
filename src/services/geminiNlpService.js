@@ -356,13 +356,39 @@ Strictly return ONLY valid JSON matching this schema:
               }
 
               // 🎯 대괄호 [ ] 표시 자동 정제 (예: [매미성] & [심해 카페] -> 매미성 & 심해 카페)
-              let finalSummary = (parsed.summary || '').replace(/\[([^\]]+)\]/g, '$1');
-              if (!finalSummary.includes('1일차') && finalizedSchedules && finalizedSchedules.length > 0) {
-                const intro = `${resolvedCity}의 매력과 특색을 온전히 만끽하는 ${resolvedDays}일 맞춤 코스입니다! ✨\n\n`;
+              let finalSummary = (parsed.summary || '').replace(/\[([^\]]+)\]/g, '$1').trim();
+              
+              // If Gemini summary is completely empty, generate multilingual itinerary summary
+              if (!finalSummary && finalizedSchedules && finalizedSchedules.length > 0) {
+                const INTRO_MAP = {
+                  ko: `${resolvedCity}의 매력과 특색을 온전히 만끽하는 ${resolvedDays}일 맞춤 코스입니다! ✨\n\n`,
+                  en: `A personalized ${resolvedDays}-day itinerary enjoying the charms and highlights of ${resolvedCity}! ✨\n\n`,
+                  ja: `${resolvedCity}の魅力を満喫する${resolvedDays}日間のオーダーメイドコースです！ ✨\n\n`,
+                  zh: `尽享${resolvedCity}独特魅力的${resolvedDays}天专属定制路线！ ✨\n\n`,
+                  zht: `盡享${resolvedCity}獨特魅力的${resolvedDays}天專屬定制路線！ ✨\n\n`,
+                  de: `Eine maßgeschneiderte ${resolvedDays}-Tage-Reiseroute zu den Höhepunkten von ${resolvedCity}! ✨\n\n`,
+                  fr: `Un itinéraire personnalisé de ${resolvedDays} jours pour découvrir les merveilles de ${resolvedCity} ! ✨\n\n`,
+                  es: `¡Un itinerario personalizado de ${resolvedDays} días para descubrir lo mejor de ${resolvedCity}! ✨\n\n`,
+                  ru: `Индивидуальный ${resolvedDays}-дневный маршрут по лучшим достопримечательностям города ${resolvedCity}! ✨\n\n`
+                };
+                const DAY_PREFIX_MAP = {
+                  ko: (day, text) => `${day}일차: ${text} 둘러보기`,
+                  en: (day, text) => `Day ${day}: Explore ${text}`,
+                  ja: (day, text) => `${day}日目: ${text}を巡る`,
+                  zh: (day, text) => `第${day}天: 游览 ${text}`,
+                  zht: (day, text) => `第${day}天: 遊覽 ${text}`,
+                  de: (day, text) => `Tag ${day}: ${text} erkunden`,
+                  fr: (day, text) => `Jour ${day} : Découverte de ${text}`,
+                  es: (day, text) => `Día ${day}: Recorrido por ${text}`,
+                  ru: (day, text) => `День ${day}: Экскурсия по ${text}`
+                };
+
+                const intro = INTRO_MAP[lang] || INTRO_MAP.en;
+                const formatter = DAY_PREFIX_MAP[lang] || DAY_PREFIX_MAP.en;
                 const dailyLines = finalizedSchedules.map(ds => {
                   const spotNames = ds.spots.map(s => s.title).filter(Boolean);
-                  const spotsText = spotNames.length >= 2 ? `${spotNames[0]} & ${spotNames[1]}` : (spotNames[0] || `${ds.city} 명소`);
-                  return `${ds.day}일차: ${spotsText} 둘러보기`;
+                  const spotsText = spotNames.length >= 2 ? `${spotNames[0]} & ${spotNames[1]}` : (spotNames[0] || `${ds.city}`);
+                  return formatter(ds.day, spotsText);
                 });
                 finalSummary = intro + dailyLines.join('\n');
               }
