@@ -62,3 +62,17 @@
 12. **Strict User Opinion Seeking Rule (의견 문의 시 선(先) 코드 수정 금지 및 100% 승인 대기)**
     - 사용자가 "의견은?", "어때?", "어떻게 생각해?", "의견좀" 등 의견을 질의할 때는 **절대로 코드를 사전에 수정하거나 실행하지 않습니다.**
     - 오직 **[현상 분석 + 장단점/대안 + 추천 안]**만을 정갈하게 답변으로 제시하고, 사용자가 "진행해", "수정해", "OK" 등 명시적으로 승인 지시를 내릴 때까지 **100% 대기**합니다.
+
+13. **Multilingual Application Standard & Mandatory Search Conditions (다국어 적용 기준 및 필수 조건)**
+    - **적용 시점**: 모든 핵심 기능 및 UI/UX 개발이 완료된 후 최종 다국어 고도화 단계에서 일괄 적용.
+    - **양방향 대소문자 정규화 (Case-Insensitive Unification)**:
+      - 검색어(Query)와 DB 응답값(Title, Addr) 모두 `.toUpperCase()`로 통일하여 대소문자 불일치(예: `Gyeongbokgung` vs `gyeongbokgung` vs `GYEONGBOKGUNG`)로 인한 검색 누락 100% 방지.
+    - **공백 및 특수문자 정규화 (Whitespace & Special Char Normalization)**:
+      - 공백(`\s`), 하이픈(`-`), 언더바(`_`), 마침표(`.`), 쉼표(`,`), 괄호(`()[]`)를 제거한 압축 문자열(`lm.replace(/[\s\-\_\.\,\(\)\[\]]/g, '').toUpperCase()`)로 상호 비교.
+    - **위치/도시명 다국어 매칭 통일**:
+      - `item.addr1.toUpperCase().includes(cleanTargetCity.toUpperCase())`
+    - **3중 스마트 연쇄 검색 (Multi-attempt Fallback Chain)**:
+      - 1차: 원본 검색어 (예: `N-Seoul Tower`)
+      - 2차: 공백/특수문자 제거 압축 검색어 (예: `NSEOULTOWER`)
+      - 3차: 도시명 결합 검색어 (예: `SEOUL NSEOULTOWER`)
+
