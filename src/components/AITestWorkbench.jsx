@@ -660,80 +660,84 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
                                 key={spot.id || idx} 
                                 onClick={() => onOpenDetail && onOpenDetail(spot)}
                                 style={{ 
-                                  padding: '0.55rem 0.65rem', 
+                                  padding: '0.75rem 0.85rem', 
                                   backgroundColor: '#ffffff', 
-                                  borderRadius: '12px', 
-                                  border: '1px solid #e2e8f0', 
-                                  fontSize: '0.74rem', 
+                                  borderRadius: '14px', 
+                                  border: '1.5px solid #e2e8f0', 
                                   display: 'flex', 
-                                  alignItems: 'center', 
-                                  justifyContent: 'space-between', 
-                                  gap: '0.45rem',
+                                  flexDirection: 'column', 
+                                  gap: '0.55rem',
                                   cursor: 'pointer',
-                                  boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
-                                  transition: 'background-color 0.15s ease'
+                                  boxShadow: '0 2px 6px rgba(0,0,0,0.03)',
+                                  transition: 'border-color 0.15s ease, transform 0.15s ease'
                                 }}
                               >
-                                <div style={{ flex: 1, minWidth: 0 }}>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', marginBottom: '0.15rem' }}>
-                                    <span style={{ padding: '0.1rem 0.4rem', borderRadius: '6px', fontSize: '0.62rem', fontWeight: 700, backgroundColor: badgeStyle.bg, color: badgeStyle.text, border: `1px solid ${badgeStyle.border}`, whiteSpace: 'nowrap' }}>
+                                {/* Row 1: Day Badge, Full Spot Title & Full Location */}
+                                <div style={{ width: '100%' }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.25rem', flexWrap: 'wrap' }}>
+                                    <span style={{ padding: '0.15rem 0.45rem', borderRadius: '6px', fontSize: '0.68rem', fontWeight: 800, backgroundColor: badgeStyle.bg, color: badgeStyle.text, border: `1px solid ${badgeStyle.border}`, whiteSpace: 'nowrap' }}>
                                       {dayNum}일차
                                     </span>
-                                    <strong style={{ color: '#0f172a', fontSize: '0.76rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                    <strong style={{ color: '#0f172a', fontSize: '0.86rem', fontWeight: 800, wordBreak: 'keep-all' }}>
                                       {idx + 1}. {spot.title}
                                     </strong>
                                   </div>
-                                  <span style={{ color: '#64748b', fontSize: '0.66rem', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                    📍 {spot.location || spot.addr1 || '중심가'}
-                                  </span>
+                                  <div style={{ color: '#64748b', fontSize: '0.72rem', display: 'flex', alignItems: 'center', gap: '0.25rem', wordBreak: 'keep-all' }}>
+                                    <MapPin size={12} color="#ef4444" style={{ flexShrink: 0 }} />
+                                    <span>{spot.location || spot.addr1 || '상세 위치 제공'}</span>
+                                  </div>
                                 </div>
 
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexShrink: 0 }} onClick={(e) => e.stopPropagation()}>
-                                  {/* Compact Detail Button */}
+                                {/* Row 2: 2 Full Touch Action Buttons */}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', width: '100%', paddingTop: '0.15rem' }} onClick={(e) => e.stopPropagation()}>
+                                  {/* 🔍 Primary Action: Photos & Detail */}
                                   <button
                                     onClick={() => onOpenDetail && onOpenDetail(spot)}
                                     style={{
-                                      padding: '0.3rem 0.55rem',
+                                      flex: 1,
+                                      padding: '0.45rem 0.65rem',
                                       backgroundColor: '#9333ea',
                                       color: '#ffffff',
                                       border: 'none',
-                                      borderRadius: '8px',
-                                      fontSize: '0.66rem',
+                                      borderRadius: '10px',
+                                      fontSize: '0.74rem',
                                       fontWeight: 700,
                                       cursor: 'pointer',
                                       display: 'flex',
                                       alignItems: 'center',
-                                      gap: '0.2rem',
+                                      justifyContent: 'center',
+                                      gap: '0.25rem',
                                       whiteSpace: 'nowrap',
-                                      boxShadow: '0 2px 5px rgba(147, 51, 234, 0.25)'
+                                      boxShadow: '0 2px 6px rgba(147, 51, 234, 0.25)'
                                     }}
                                   >
-                                    <Sparkles size={11} />
-                                    <span>{getSpotDetailButtonLabel(lang, true)}</span>
+                                    <Sparkles size={12} />
+                                    <span>{getSpotDetailButtonLabel(lang, false)}</span>
                                   </button>
 
-                                  {/* Compact Map Button */}
+                                  {/* 📍 Secondary Action: Google Maps */}
                                   <a
                                     href={mapSearchUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     style={{
-                                      padding: '0.3rem 0.55rem',
+                                      padding: '0.45rem 0.75rem',
                                       backgroundColor: '#f0f9ff',
                                       color: '#0284c7',
                                       border: '1px solid #bae6fd',
-                                      borderRadius: '8px',
+                                      borderRadius: '10px',
                                       textDecoration: 'none',
-                                      fontSize: '0.66rem',
+                                      fontSize: '0.74rem',
                                       fontWeight: 600,
                                       display: 'flex',
                                       alignItems: 'center',
-                                      gap: '0.2rem',
+                                      justifyContent: 'center',
+                                      gap: '0.25rem',
                                       whiteSpace: 'nowrap'
                                     }}
                                   >
-                                    <MapPin size={11} />
-                                    <span>{getSpotMapButtonLabel(lang, true)}</span>
+                                    <MapPin size={12} color="#0284c7" />
+                                    <span>{getSpotMapButtonLabel(lang, false)}</span>
                                   </a>
                                 </div>
                               </div>
