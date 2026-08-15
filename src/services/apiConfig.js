@@ -144,10 +144,7 @@ export const AGODA_CITY_MAP = {
   '경남': { id: 17172, slug: 'busan-kr' }
 };
 
-export function buildAgodaDeepLink(region, checkIn, checkOut) {
-  const cleanRegion = (region || '서울').trim();
-  const matched = AGODA_CITY_MAP[cleanRegion] || AGODA_CITY_MAP['서울'];
-  
+export function buildAgodaDeepLink(regionOrTitle, checkIn, checkOut, extraLocation = '') {
   let finalCheckIn = checkIn;
   let finalCheckOut = checkOut;
 
@@ -164,7 +161,14 @@ export function buildAgodaDeepLink(region, checkIn, checkOut) {
   const endMs = new Date(finalCheckOut).getTime();
   const los = Math.max(1, Math.round((endMs - startMs) / (1000 * 60 * 60 * 24)));
 
-  return `https://www.agoda.com/ko-kr/city/${matched.slug}.html?cid=1972217&city=${matched.id}&checkin=${finalCheckIn}&checkout=${finalCheckOut}&los=${los}&rooms=1&adults=2`;
+  // Combine title, region and location to build the most accurate search query
+  const rawTarget = `${regionOrTitle || ''} ${extraLocation || ''}`.trim();
+  const cleanTarget = rawTarget
+    .replace(/^(\d+[\.\s\-\:]+|Day\s*\d+[\s\-\:]+|\[\d+일차\])/gi, '')
+    .replace(/\(.*?\)/g, '')
+    .trim() || '대한민국';
+
+  return `https://www.agoda.com/ko-kr/search?text=${encodeURIComponent(cleanTarget)}&cid=1972217&checkin=${finalCheckIn}&checkout=${finalCheckOut}&los=${los}&rooms=1&adults=2`;
 }
 
 export function buildKKdayDeepLink(query) {

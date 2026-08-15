@@ -925,7 +925,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.65rem' }}>
               <a
-                href={buildAgodaDeepLink(spot.title, '2026-08-20', '2026-08-22')}
+                href={buildAgodaDeepLink(displayTitle || spot.title, '2026-08-20', '2026-08-22', detailData?.addr1 || spot.location || spot.region || '')}
                 target="_blank"
                 rel="noreferrer"
                 style={{
