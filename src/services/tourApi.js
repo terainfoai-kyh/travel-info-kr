@@ -679,7 +679,7 @@ export async function fetchPinpointLandmarkSpots(landmarks = [], lang = 'ko', ta
   // Parallel Execution with 3.5s AbortController Timeout Per Request
   const fetchPromises = validLandmarks.map(async (lm) => {
     try {
-      // 🎯 1차 시도: 원본 정제 키워드로 검색 (예: "외도널서리", "심해 카페")
+      // 🎯 1차 시도: 원본 정제 키워드로 검색 (예: "구조라 해수욕장", "거제 파노라마 케이블카")
       let url = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=10&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=B&keyword=${encodeURIComponent(lm)}`;
       let controller = new AbortController();
       let timeoutId = setTimeout(() => controller.abort(), 3500);

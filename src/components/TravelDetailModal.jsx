@@ -135,29 +135,50 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
         });
       } else {
         // 🎯 2차 자동 검색: contentId가 없는 스마트 카드도 공공 TourAPI 전산망에서 즉시 찾아 사진 및 상세정보 연동
-        const rawTitle = (spot.title || '').replace(/^(\d+[\.\s\-\:]+|Day\s*\d+[\s\-\:]+|\[\d+일차\])/gi, '');
-        const cleanKeyword = spot.searchKeyword || rawTitle
-          .replace(/\(.*?\)/g, '')
-          .replace(/^카페\s+/i, '')
-          .replace(/\s*(정글돔|스카이워크|케이블카|전망대|리조트|파크|거리|거리일대).*/gi, '')
-          .replace(/\s+(카페|식당|맛집|베이커리|호텔|펜션)$/gi, '')
-          .trim() || spot.title;
+        const rawTitle = (spot.title || '').replace(/^(\d+[\.\s\-\:]+|Day\s*\d+[\s\-\:]+|\[\d+일차\])/gi, '').trim();
+        const noSpaceKeyword = rawTitle.replace(/\(.*?\)/g, '').replace(/\s+/g, '').trim();
+        const cleanKeyword = spot.searchKeyword || rawTitle.replace(/\(.*?\)/g, '').trim();
 
-        const searchUrl = `${PUBLIC_API_CONFIG.SEARCH_KEYWORD_URL}?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=5&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=B&keyword=${encodeURIComponent(cleanKeyword)}`;
-        fetch(searchUrl)
-          .then(res => res.json())
-          .then(data => {
-            const items = data.response?.body?.items?.item || [];
-            const arr = Array.isArray(items) ? items : (items ? [items] : []);
-            const matched = arr[0];
-            if (matched && matched.contentid) {
-              const realContentId = matched.contentid;
-              const realCType = matched.contenttypeid || '12';
-              return Promise.all([
-                fetchSpotDetailCommon(realContentId, lang).catch(() => null),
-                fetchSpotDetailImages(realContentId, lang).catch(() => []),
-                fetchSpotDetailIntro(realContentId, realCType, lang).catch(() => null)
-              ]).then(([commonRes, imagesRes, introRes]) => {
+        const searchKeywordAsync = async () => {
+          // 1차: 원본 검색
+          let sUrl1 = `${PUBLIC_API_CONFIG.SEARCH_KEYWORD_URL}?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=5&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=B&keyword=${encodeURIComponent(cleanKeyword)}`;
+          let res1 = await fetch(sUrl1).then(r => r.json()).catch(() => null);
+          let items1 = res1?.response?.body?.items?.item || [];
+          let arr1 = Array.isArray(items1) ? items1 : (items1 ? [items1] : []);
+          if (arr1.length > 0) return arr1[0];
+
+          // 2차: 공백 제거 압축 검색 (예: "구조라해수욕장", "거제파노라마케이블카")
+          if (noSpaceKeyword && noSpaceKeyword !== cleanKeyword) {
+            let sUrl2 = `${PUBLIC_API_CONFIG.SEARCH_KEYWORD_URL}?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=5&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=B&keyword=${encodeURIComponent(noSpaceKeyword)}`;
+            let res2 = await fetch(sUrl2).then(r => r.json()).catch(() => null);
+            let items2 = res2?.response?.body?.items?.item || [];
+            let arr2 = Array.isArray(items2) ? items2 : (items2 ? [items2] : []);
+            if (arr2.length > 0) return arr2[0];
+          }
+
+          // 3차: 위치 기반 도시명 조합 검색
+          const cityMatch = (spot.location || spot.addr1 || '').match(/([가-힣]+(?:시|군|구))/);
+          if (cityMatch && cityMatch[1]) {
+            let cityClean = cityMatch[1].replace(/(시|군|구)$/, '');
+            let sUrl3 = `${PUBLIC_API_CONFIG.SEARCH_KEYWORD_URL}?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=5&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=B&keyword=${encodeURIComponent(cityClean + ' ' + noSpaceKeyword)}`;
+            let res3 = await fetch(sUrl3).then(r => r.json()).catch(() => null);
+            let items3 = res3?.response?.body?.items?.item || [];
+            let arr3 = Array.isArray(items3) ? items3 : (items3 ? [items3] : []);
+            if (arr3.length > 0) return arr3[0];
+          }
+
+          return null;
+        };
+
+        searchKeywordAsync().then((matched) => {
+          if (matched && matched.contentid) {
+            const realContentId = matched.contentid;
+            const realCType = matched.contenttypeid || '12';
+            return Promise.all([
+              fetchSpotDetailCommon(realContentId, lang).catch(() => null),
+              fetchSpotDetailImages(realContentId, lang).catch(() => []),
+              fetchSpotDetailIntro(realContentId, realCType, lang).catch(() => null)
+            ]).then(([commonRes, imagesRes, introRes]) => {
                 if (commonRes) {
                   setDetailData(prev => ({
                     ...prev,
