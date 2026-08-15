@@ -3607,16 +3607,6 @@ export function getTranslatedDetailText(text, lang = 'ko') {
 
   const TEXT_MAP = {
     en: {
-    openGoogleRoute: '🗺️ Google Maps Route',
-    openKakaoRoute: '💛 KakaoMap Directions',
-    openNaverRoute: '💚 Naver Map Directions',
-    aiTrustBadgeTitleShort: 'Official DB',
-    mapViewShort: '🗺️ Map',
-    listViewShort: '📋 Itinerary',
-    mapViewShort: '🗺️ Map',
-    listViewShort: '📋 Itinerary',
-    openMenu: 'Menu',
-    closeMenu: 'Close Menu',
       '09:00 - 18:00 (입장마감 17:00 / 매주 월요일 휴무)': '09:00 - 18:00 (Last Entry 17:00 / Closed Mondays)',
       '09:00 - 18:00 (매주 화요일 휴무)': '09:00 - 18:00 (Closed Tuesdays)',
       '관광안내콜센터 1330': 'Tourist Info Center 1330',
@@ -3631,17 +3621,22 @@ export function getTranslatedDetailText(text, lang = 'ko') {
       '인생샷 포토 스팟 및 야경 뷰포인트 추천': 'Recommended photo spots & stunning night view points',
       '대중교통 및 주차 시설 완비 (가족/연인/나홀로 여행 최적)': 'Convenient public transit & parking (ideal for family & solo travel)'
     },
+    ja: {
+      '09:00 - 18:00 (입장마감 17:00 / 매주 월요일 휴무)': '09:00 - 18:00 (入場締切 17:00 / 毎週月曜日休館)',
+      '09:00 - 18:00 (매주 화요일 휴무)': '09:00 - 18:00 (毎週火曜日休館)',
+      '관광안내콜센터 1330': '観光案内コールセンター 1330',
+      '봄/가을 맑은 날 최적 (사계절 방문 가능)': '春・秋の晴れた日が最適 (年中無休)',
+      '봄 / 가을': '春・秋',
+      '사계절': '四季',
+      '수문장 교대의식': '王宮守門将交代儀式',
+      '향원정 연못 정자': '香遠亭の池と東屋',
+      '근정전 밤 야경 투어': '勤政殿の夜景ツアー',
+      '한국관광공사 TourAPI 공식 인증 대표 명소': '韓国観光公社TourAPI公式認定の代表的スポット',
+      '지역 특색 미식 및 주변 로컬 감성 카페 연계 코스': '地域の特色あるグルメや人気ローカルカフェの連動コース',
+      '인생샷 포토 스팟 및 야경 뷰포인트 추천': '映え写真スポット＆夜景ビューポイントのオススメ',
+      '대중교통 및 주차 시설 완비 (가족/연인/나홀로 여행 최적)': '公共交通機関アクセス＆駐車場完備（ファミリー・一人旅に最適）'
+    },
     zh: {
-    openGoogleRoute: '🗺️ 谷歌地图路线',
-    openKakaoRoute: '💛 Kakao地图导航',
-    openNaverRoute: '💚 Naver地图导航',
-    aiTrustBadgeTitleShort: '官方DB联动',
-    mapViewShort: '🗺️ 地图',
-    listViewShort: '📋 行程列表',
-    mapViewShort: '🗺️ 地图',
-    listViewShort: '📋 行程列表',
-    openMenu: '菜单',
-    closeMenu: '关闭菜单',
       '09:00 - 18:00 (입장마감 17:00 / 매주 월요일 휴무)': '09:00 - 18:00 (截止入场 17:00 / 每周一闭馆)',
       '09:00 - 18:00 (매주 화요일 휴무)': '09:00 - 18:00 (每周二闭馆)',
       '관광안내콜센터 1330': '旅游咨询热线 1330',
@@ -3657,16 +3652,6 @@ export function getTranslatedDetailText(text, lang = 'ko') {
       '대중교통 및 주차 시설 완비 (가족/연인/나홀로 여행 최적)': '公共交通便利与停车设施完善（极度适合家庭与单人游）'
     },
     zht: {
-    openGoogleRoute: '🗺️ 谷歌地圖路線',
-    openKakaoRoute: '💛 Kakao地圖導航',
-    openNaverRoute: '💚 Naver地圖導航',
-    aiTrustBadgeTitleShort: '官方DB連動',
-    mapViewShort: '🗺️ 地圖',
-    listViewShort: '📋 行程列表',
-    mapViewShort: '🗺️ 地圖',
-    listViewShort: '📋 行程列表',
-    openMenu: '選單',
-    closeMenu: '關閉選單',
       '09:00 - 18:00 (입장마감 17:00 / 매주 월요일 휴무)': '09:00 - 18:00 (截止入場 17:00 / 每週一閉館)',
       '09:00 - 18:00 (매주 화요일 휴무)': '09:00 - 18:00 (每週二閉館)',
       '관광안내콜센터 1330': '旅遊諮詢熱線 1330',
@@ -3680,39 +3665,74 @@ export function getTranslatedDetailText(text, lang = 'ko') {
       '지역 특색 미식 및 주변 로컬 감성 카페 연계 코스': '聯動地方特色美食與周邊特色文青咖啡館路線',
       '인생샷 포토 스팟 및 야경 뷰포인트 추천': '推薦絕美打卡拍照點與迷人夜景觀景點',
       '대중교통 및 주차 시설 완비 (가족/연인/나홀로 여행 최적)': '公共交通便利與停車設施完善（極度適合家庭與單人遊）'
-    },
-    ja: {
-    openGoogleRoute: '🗺️ Googleマップルート',
-    openKakaoRoute: '💛 Kakaoマップ道案内',
-    openNaverRoute: '💚 Naverマップ道案内',
-    aiTrustBadgeTitleShort: '公式DB連動',
-    mapViewShort: '🗺️ 地図',
-    listViewShort: '📋 日程リスト',
-    mapViewShort: '🗺️ 地図',
-    listViewShort: '📋 日程リスト',
-    openMenu: 'メニュー',
-    closeMenu: '閉じる',
-      '09:00 - 18:00 (입장마감 17:00 / 매주 월요일 휴무)': '09:00 - 18:00 (入場締切 17:00 / 毎週月曜日休館)',
-      '09:00 - 18:00 (매주 화요일 휴무)': '09:00 - 18:00 (毎週火曜日休館)',
-      '관광안내콜센터 1330': '観光案内コールセンター 1330',
-      '봄/가을 맑은 날 최적 (사계절 방문 가능)': '春・秋の晴れた日が最適 (年中無休)',
-      '봄 / 가을': '春・秋',
-      '사계절': '四季',
-      '수문장 교대의식': '王宮守門将交代儀式',
-      '향원정 연못 정자': '香遠亭の池と東屋',
-      '근정전 밤 야경 투어': '勤政殿の夜景ツアー',
-      '한국관광공사 TourAPI 공식 인증 대표 명소': '韓国観光公社TourAPI公式認定の代表的スポット',
-      '지역 특색 미식 및 주변 로컬 감성 카페 연계 코스': '地域の特色あるグルメや人気ロー컬カフェの連動コース',
-      '인생샷 포토 스팟 및 야경 뷰포인트 추천': '映え写真スポット＆夜景ビューポイントのオススメ',
-      '대중교통 및 주차 시설 완비 (가족/연인/나홀로 여행 최적)': '公共交通機関アクセス＆駐車場完備（ファミリー・一人旅に最適）'
     }
   };
 
-  const list = TEXT_MAP[lang] || TEXT_MAP.zh || TEXT_MAP.en;
-  let str = list[text] || text;
+  const list = TEXT_MAP[lang] || TEXT_MAP.en;
+  let str = (list && list[text]) || text;
 
   if (lang !== 'ko' && typeof str === 'string' && /[\uAC00-\uD7A3]/.test(str)) {
     str = str
+      .replace(/주차\s*가능.*$/g, {
+        en: 'Parking Available (Nearby public/private parking available)',
+        ja: '駐車場あり (近隣の公営・専用駐車場完備)',
+        zh: '可停车 (附近备有公用/专用停车场)',
+        zht: '可停車 (附近備有公用/專用停車場)',
+        de: 'Parkplätze vorhanden (Öffentliche/private Parkplätze in der Nähe)',
+        fr: 'Parking disponible (Parkings publics et privés à proximité)',
+        es: 'Aparcamiento disponible (Estacionamiento público y privado cerca)',
+        ru: 'Парковка доступна (Рядом общественная/частная парковка)'
+      }[lang] || 'Parking Available')
+      .replace(/무료\s*관람.*$/g, {
+        en: 'Free Admission (Excluding special paid facilities)',
+        ja: '無料観覧 (一部有料施設を除く)',
+        zh: '免费参观 (部分收费设施除外)',
+        zht: '免費參觀 (部分收費設施除外)',
+        de: 'Kostenloser Eintritt (Außer spezielle kostenpflichtige Bereiche)',
+        fr: 'Entrée gratuite (Hors installations payantes spéciales)',
+        es: 'Entrada gratuita (Excepto instalaciones de pago especiales)',
+        ru: 'Вход свободный (Кроме платных зон)'
+      }[lang] || 'Free Admission')
+      .replace(/동반\s*가능.*$/g, {
+        en: 'Pets Allowed (Leash & carrier recommended)',
+        ja: 'ペット同伴可 (リード・ケージ着用推奨)',
+        zh: '可携带宠物 (建议佩戴牵引绳或航空箱)',
+        zht: '可攜帶寵物 (建議佩戴牽引繩或航空箱)',
+        de: 'Haustiere erlaubt (Leine & Box empfohlen)',
+        fr: 'Animaux acceptés (Laisse et cage recommandées)',
+        es: 'Mascotas permitidas (Se recomienda correa y transportín)',
+        ru: 'С животными разрешено (Рекомендуется поводок/переноска)'
+      }[lang] || 'Pets Allowed')
+      .replace(/유모차.*$/g, {
+        en: 'Stroller & Wheelchair accessible',
+        ja: 'ベビーカー・車椅子利用可能',
+        zh: '婴儿车及轮椅通行无障碍',
+        zht: '嬰兒車及輪椅通行無障礙',
+        de: 'Kinderwagen- & Rollstuhlgerecht',
+        fr: 'Accessible aux poussettes et fauteuils roulants',
+        es: 'Accesible para cochecitos y sillas de ruedas',
+        ru: 'Доступно для колясок и инвалидных кресел'
+      }[lang] || 'Stroller & Wheelchair accessible')
+      .replace(/상세\s*이용시간.*$/g, {
+        en: 'Detailed visiting hours available (Open daily recommended)',
+        ja: '詳細な利用時間案内（年中無休推奨）',
+        zh: '提供详细参观时间信息（建议全年开放）',
+        zht: '提供詳細參觀時間資訊（建議全年開放）',
+        de: 'Detaillierte Öffnungszeiten verfügbar',
+        fr: 'Horaires détaillés disponibles',
+        es: 'Horarios detallados disponibles',
+        ru: 'Подробный график работы'
+      }[lang] || 'Detailed visiting hours available')
+      .replace(/\(관광안내\)/g, {
+        en: '(Tourist Hotline)',
+        ja: '(観光案内ホットライン)',
+        zh: '(旅游咨询热线)',
+        zht: '(旅遊諮詢熱線)',
+        de: '(Touristen-Hotline)',
+        fr: '(Ligne d\'assistance touristique)',
+        es: '(Línea turística)',
+        ru: '(Справка для туристов)'
+      }[lang] || '(Tourist Hotline)')
       .replace(/매주\s*화요일\s*휴무/g, {
         en: 'Closed Tuesdays', zh: '每周二闭馆', zht: '每週二閉館', ja: '毎週火曜日休館', de: 'Dienstags geschlossen', fr: 'Fermé le mardi', es: 'Cerrado los martes', ru: 'Выходной: вторник'
       }[lang] || 'Closed Tuesdays')

@@ -11,9 +11,319 @@ import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress, getTranslatedRe
 import TravelImageWithFallback from './TravelImageWithFallback';
 import { useModalHistory } from '../hooks/useModalHistory';
 
+const DETAIL_MODAL_I18N = {
+  ko: {
+    certifiedBadge: '• 한국관광공사 정품 인증 관광지',
+    bookmarkSave: '즐겨찾기 저장',
+    bookmarkSaved: '즐겨찾기 저장됨 ❤️',
+    kakaoMap: '카카오맵 길찾기 ↗',
+    naverMap: '네이버지도 길찾기 ↗',
+    googleMap: '구글지도 (GPS) ↗',
+    overviewTitle: '관광지 상세 개요',
+    loadingOverview: '한국관광공사 정품 상세정보 수신 중...',
+    publicDataTitle: '공공데이터 정품 이용 안내',
+    locationLabel: '위치 및 주소',
+    hoursLabel: '이용 및 관람 시간',
+    holidayLabel: '쉬는날 (휴무일)',
+    parkingLabel: '주차 시설 및 요금',
+    feeLabel: '입장료 및 이용요금',
+    petLabel: '반려동물 동반 정보',
+    babyLabel: '유모차 및 보행 편의',
+    contactLabel: '문의 및 안내 전화',
+    officialWebsite: '공식 웹사이트 바로가기',
+    visitBtn: '방문하기 ↗',
+    snsTrends: '실시간 SNS 트렌드 & 포토존 갤러리',
+    photoTag: '#인생샷명소',
+    instaFeed: '인스타 실시간 피드 ↗',
+    googleGallery: '구글 실시간 갤러리 ↗',
+    partnerHeader: '주변 추천 숙소 및 액티비티 예약',
+    agodaDeal: '아고다 특가 숙소 ↗',
+    klookTours: '클룩 투어 & 티켓 ↗',
+    reviewsHeader: '💬 여행자 방문 리뷰 ({count})',
+    satisfaction: '평균 만족도 ★ {rating}',
+    reviewPlaceholder: '이 명소에 대한 생생한 후기를 남겨보세요...',
+    reviewSubmit: '등록',
+    collapseReviews: '리뷰 접기 ▲',
+    moreReviews: '리뷰 더보기 ({count}개) ▼'
+  },
+  en: {
+    certifiedBadge: '• KTO Certified Official Landmark',
+    bookmarkSave: 'Save Bookmark',
+    bookmarkSaved: 'Saved in Bookmarks ❤️',
+    kakaoMap: 'KakaoMap ↗',
+    naverMap: 'Naver Map ↗',
+    googleMap: 'Google Maps (GPS) ↗',
+    overviewTitle: 'Attraction Overview',
+    loadingOverview: 'Loading official KTO detailed info...',
+    publicDataTitle: 'Official Public Data Travel Guide',
+    locationLabel: 'Location & Address',
+    hoursLabel: 'Operating & Visiting Hours',
+    holidayLabel: 'Closed Days (Holidays)',
+    parkingLabel: 'Parking Facilities & Fees',
+    feeLabel: 'Admission & Ticket Fees',
+    petLabel: 'Pet Friendly Policy',
+    babyLabel: 'Stroller & Accessibility',
+    contactLabel: 'Contact & Inquiries',
+    officialWebsite: 'Visit Official Website',
+    visitBtn: 'Visit ↗',
+    snsTrends: 'Real-time SNS Trends & Photo Gallery',
+    photoTag: '#PhotoSpot',
+    instaFeed: 'Instagram Feed ↗',
+    googleGallery: 'Google Live Gallery ↗',
+    partnerHeader: 'Nearby Hotels & Activity Deals',
+    agodaDeal: 'Agoda Hotel Deals ↗',
+    klookTours: 'Klook Tours & Passes ↗',
+    reviewsHeader: '💬 Traveler Reviews ({count})',
+    satisfaction: 'Avg. Rating ★ {rating}',
+    reviewPlaceholder: 'Share your experience about this spot...',
+    reviewSubmit: 'Post',
+    collapseReviews: 'Collapse Reviews ▲',
+    moreReviews: 'Show More Reviews ({count}) ▼'
+  },
+  ja: {
+    certifiedBadge: '• 韓国観光公社公式認定スポット',
+    bookmarkSave: 'お気に入り保存',
+    bookmarkSaved: '保存済み ❤️',
+    kakaoMap: 'Kakaoマップ ↗',
+    naverMap: 'Naverマップ ↗',
+    googleMap: 'Googleマップ (GPS) ↗',
+    overviewTitle: '観光地 詳細概要',
+    loadingOverview: '韓国観光公社公式詳細データを受信中...',
+    publicDataTitle: '公的データ公式利用案内',
+    locationLabel: '位置および住所',
+    hoursLabel: '利用および観覧時間',
+    holidayLabel: '定休日（休館日）',
+    parkingLabel: '駐車場および料金',
+    feeLabel: '入場料および利用料金',
+    petLabel: 'ペット同伴情報',
+    babyLabel: 'ベビーカー・バリアフリー',
+    contactLabel: 'お問い合わせ・案内電話',
+    officialWebsite: '公式ウェブサイトへ移動',
+    visitBtn: '訪問する ↗',
+    snsTrends: 'リアルタイムSNSトレンド＆フォトスポット',
+    photoTag: '#映えスポット',
+    instaFeed: 'インスタグラム ↗',
+    googleGallery: 'Googleギャラリー ↗',
+    partnerHeader: '周辺のおすすめ宿泊＆アクティビティ予約',
+    agodaDeal: 'Agoda 特価ホテル ↗',
+    klookTours: 'Klook ツアー＆チケット ↗',
+    reviewsHeader: '💬 旅行者レビュー ({count})',
+    satisfaction: '平均満足度 ★ {rating}',
+    reviewPlaceholder: 'このスポットの感想を投稿してください...',
+    reviewSubmit: '登録',
+    collapseReviews: 'レビューを閉じる ▲',
+    moreReviews: 'レビューをもっと見る ({count}件) ▼'
+  },
+  zh: {
+    certifiedBadge: '• 韩国旅游发展局官方认证景点',
+    bookmarkSave: '收藏景点',
+    bookmarkSaved: '已收藏 ❤️',
+    kakaoMap: 'Kakao地图 ↗',
+    naverMap: 'Naver地图 ↗',
+    googleMap: '谷歌地图 (GPS) ↗',
+    overviewTitle: '景点详细概况',
+    loadingOverview: '正在获取韩国旅游发展局官方详细信息...',
+    publicDataTitle: '公共数据官方指南',
+    locationLabel: '位置与地址',
+    hoursLabel: '开放与参观时间',
+    holidayLabel: '休息日（公休日）',
+    parkingLabel: '停车设施及收费',
+    feeLabel: '门票及使用费',
+    petLabel: '宠物同行信息',
+    babyLabel: '婴儿车与无障碍设施',
+    contactLabel: '咨询及服务电话',
+    officialWebsite: '前往官方网站',
+    visitBtn: '前往访问 ↗',
+    snsTrends: '实时SNS热门与拍照打卡画廊',
+    photoTag: '#拍照胜地',
+    instaFeed: 'Instagram 动态 ↗',
+    googleGallery: '谷歌实景画廊 ↗',
+    partnerHeader: '周边推荐酒店与活动预订',
+    agodaDeal: 'Agoda 特惠酒店 ↗',
+    klookTours: 'Klook 门票与体验 ↗',
+    reviewsHeader: '💬 游客真实评价 ({count})',
+    satisfaction: '平均满意度 ★ {rating}',
+    reviewPlaceholder: '留下您对该景点的真实评价...',
+    reviewSubmit: '发布',
+    collapseReviews: '收起评价 ▲',
+    moreReviews: '查看更多评价 ({count}条) ▼'
+  },
+  zht: {
+    certifiedBadge: '• 韓國旅遊發展局官方認證景點',
+    bookmarkSave: '收藏景點',
+    bookmarkSaved: '已收藏 ❤️',
+    kakaoMap: 'Kakao地圖 ↗',
+    naverMap: 'Naver地圖 ↗',
+    googleMap: '谷歌地圖 (GPS) ↗',
+    overviewTitle: '景點詳細概況',
+    loadingOverview: '正在獲取韓國旅遊發展局官方詳細資訊...',
+    publicDataTitle: '公共數據官方指南',
+    locationLabel: '位置與地址',
+    hoursLabel: '開放與參觀時間',
+    holidayLabel: '休息日（公休日）',
+    parkingLabel: '停車設施及收費',
+    feeLabel: '門票及使用費',
+    petLabel: '寵物同行資訊',
+    babyLabel: '嬰兒車與無障礙設施',
+    contactLabel: '諮詢及服務電話',
+    officialWebsite: '前往官方網站',
+    visitBtn: '前往訪問 ↗',
+    snsTrends: '即時SNS熱門與打卡畫廊',
+    photoTag: '#打卡勝地',
+    instaFeed: 'Instagram 動態 ↗',
+    googleGallery: '谷歌實景畫廊 ↗',
+    partnerHeader: '周邊推薦飯店與活動預訂',
+    agodaDeal: 'Agoda 特惠飯店 ↗',
+    klookTours: 'Klook 門票與體驗 ↗',
+    reviewsHeader: '💬 遊客真實評價 ({count})',
+    satisfaction: '平均滿意度 ★ {rating}',
+    reviewPlaceholder: '留下您對該景點的真實評價...',
+    reviewSubmit: '發布',
+    collapseReviews: '收起評價 ▲',
+    moreReviews: '查看更多評價 ({count}條) ▼'
+  },
+  de: {
+    certifiedBadge: '• KTO Offiziell zertifizierte Attraktion',
+    bookmarkSave: 'Favorit speichern',
+    bookmarkSaved: 'Gespeichert ❤️',
+    kakaoMap: 'KakaoMap ↗',
+    naverMap: 'Naver Map ↗',
+    googleMap: 'Google Maps (GPS) ↗',
+    overviewTitle: 'Überblick über die Attraktion',
+    loadingOverview: 'Offizielle Daten der Korea-Tourismusorganisation werden geladen...',
+    publicDataTitle: 'Offizieller Tourismusführer',
+    locationLabel: 'Standort & Adresse',
+    hoursLabel: 'Öffnungs- & Besuchszeiten',
+    holidayLabel: 'Ruhetage (Geschlossen)',
+    parkingLabel: 'Parkmöglichkeiten & Gebühren',
+    feeLabel: 'Eintrittspreise & Gebühren',
+    petLabel: 'Haustiermitnahme',
+    babyLabel: 'Kinderwagen & Barrierefreiheit',
+    contactLabel: 'Kontakt & Anfragen',
+    officialWebsite: 'Offizielle Website besuchen',
+    visitBtn: 'Besuchen ↗',
+    snsTrends: 'Echtzeit-SNS-Trends & Fotogalerie',
+    photoTag: '#Fotospot',
+    instaFeed: 'Instagram Feed ↗',
+    googleGallery: 'Google Live-Galerie ↗',
+    partnerHeader: 'Empfohlene Hotels & Aktivitäten in der Nähe',
+    agodaDeal: 'Agoda Hotelangebote ↗',
+    klookTours: 'Klook Touren & Tickets ↗',
+    reviewsHeader: '💬 Bewertungen von Reisenden ({count})',
+    satisfaction: 'Durchschnitt ★ {rating}',
+    reviewPlaceholder: 'Teilen Sie Ihre Erfahrungen über diesen Ort...',
+    reviewSubmit: 'Senden',
+    collapseReviews: 'Bewertungen einklappen ▲',
+    moreReviews: 'Mehr Bewertungen ({count}) ▼'
+  },
+  fr: {
+    certifiedBadge: '• Attraction officielle certifiée par KTO',
+    bookmarkSave: 'Enregistrer',
+    bookmarkSaved: 'Enregistré ❤️',
+    kakaoMap: 'KakaoMap ↗',
+    naverMap: 'Naver Map ↗',
+    googleMap: 'Google Maps (GPS) ↗',
+    overviewTitle: 'Aperçu du site touristique',
+    loadingOverview: 'Chargement des détails officiels KTO...',
+    publicDataTitle: 'Guide touristique officiel',
+    locationLabel: 'Emplacement & Adresse',
+    hoursLabel: 'Horaires d\'ouverture',
+    holidayLabel: 'Jours de fermeture',
+    parkingLabel: 'Stationnement & Tarifs',
+    feeLabel: 'Tarifs d\'entrée & Billets',
+    petLabel: 'Animaux de compagnie',
+    babyLabel: 'Poussettes & Accessibilité',
+    contactLabel: 'Contact & Renseignements',
+    officialWebsite: 'Visiter le site officiel',
+    visitBtn: 'Visiter ↗',
+    snsTrends: 'Tendances SNS & Galerie Photo',
+    photoTag: '#SpotPhoto',
+    instaFeed: 'Flux Instagram ↗',
+    googleGallery: 'Galerie Google ↗',
+    partnerHeader: 'Hôtels & Activités recommandés',
+    agodaDeal: 'Offres hôtels Agoda ↗',
+    klookTours: 'Tours & Billets Klook ↗',
+    reviewsHeader: '💬 Avis des voyageurs ({count})',
+    satisfaction: 'Note moyenne ★ {rating}',
+    reviewPlaceholder: 'Partagez votre avis sur ce lieu...',
+    reviewSubmit: 'Publier',
+    collapseReviews: 'Réduire les avis ▲',
+    moreReviews: 'Voir plus d\'avis ({count}) ▼'
+  },
+  es: {
+    certifiedBadge: '• Atracción oficial certificada por KTO',
+    bookmarkSave: 'Guardar favorito',
+    bookmarkSaved: 'Guardado ❤️',
+    kakaoMap: 'KakaoMap ↗',
+    naverMap: 'Naver Map ↗',
+    googleMap: 'Google Maps (GPS) ↗',
+    overviewTitle: 'Descripción de la atracción',
+    loadingOverview: 'Cargando información oficial de KTO...',
+    publicDataTitle: 'Guía oficial de información turística',
+    locationLabel: 'Ubicación y dirección',
+    hoursLabel: 'Horarios de visita',
+    holidayLabel: 'Días de cierre (Festivos)',
+    parkingLabel: 'Aparcamiento y tarifas',
+    feeLabel: 'Entrada y tarifas',
+    petLabel: 'Política de mascotas',
+    babyLabel: 'Cochecitos y accesibilidad',
+    contactLabel: 'Contacto y consultas',
+    officialWebsite: 'Visitar sitio web oficial',
+    visitBtn: 'Visitar ↗',
+    snsTrends: 'Tendencias en redes y galería de fotos',
+    photoTag: '#PuntoFotográfico',
+    instaFeed: 'Feed de Instagram ↗',
+    googleGallery: 'Galería de Google ↗',
+    partnerHeader: 'Hoteles y actividades recomendados',
+    agodaDeal: 'Ofertas de hoteles Agoda ↗',
+    klookTours: 'Tours y pases Klook ↗',
+    reviewsHeader: '💬 Reseñas de viajeros ({count})',
+    satisfaction: 'Calificación media ★ {rating}',
+    reviewPlaceholder: 'Comparte tu experiencia en este lugar...',
+    reviewSubmit: 'Publicar',
+    collapseReviews: 'Ocultar reseñas ▲',
+    moreReviews: 'Ver más reseñas ({count}) ▼'
+  },
+  ru: {
+    certifiedBadge: '• Официальная достопримечательность KTO',
+    bookmarkSave: 'В закладки',
+    bookmarkSaved: 'В избранном ❤️',
+    kakaoMap: 'KakaoMap ↗',
+    naverMap: 'Naver Map ↗',
+    googleMap: 'Google Карты (GPS) ↗',
+    overviewTitle: 'Обзор достопримечательности',
+    loadingOverview: 'Загрузка официальных данных KTO...',
+    publicDataTitle: 'Официальный справочник туриста',
+    locationLabel: 'Адрес и расположение',
+    hoursLabel: 'Время работы и посещения',
+    holidayLabel: 'Выходные дни',
+    parkingLabel: 'Парковка и тарифы',
+    feeLabel: 'Стоимость билетов и входа',
+    petLabel: 'С домашними животными',
+    babyLabel: 'Коляски и доступная среда',
+    contactLabel: 'Контакты и справки',
+    officialWebsite: 'Официальный сайт',
+    visitBtn: 'Перейти ↗',
+    snsTrends: 'Тренды соцсетей и фотозона',
+    photoTag: '#Фотозона',
+    instaFeed: 'Лента Instagram ↗',
+    googleGallery: 'Галерея Google ↗',
+    partnerHeader: 'Рекомендованные отели и активности',
+    agodaDeal: 'Скидки на отели Agoda ↗',
+    klookTours: 'Туры и билеты Klook ↗',
+    reviewsHeader: '💬 Отзывы путешественников ({count})',
+    satisfaction: 'Средняя оценка ★ {rating}',
+    reviewPlaceholder: 'Поделитесь впечатлениями о месте...',
+    reviewSubmit: 'Отправить',
+    collapseReviews: 'Свернуть отзывы ▲',
+    moreReviews: 'Ещё отзывы ({count}) ▼'
+  }
+};
+
 export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggleBookmark, lang = 'ko' }) {
   useModalHistory(!!spot, onClose, 'travel-detail');
 
+  const dt = DETAIL_MODAL_I18N[lang] || DETAIL_MODAL_I18N.ko;
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
   const [detailData, setDetailData] = useState(null);
   const [introData, setIntroData] = useState(null);
@@ -544,7 +854,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                 <span>{spot.rating || 4.9}</span>
               </div>
               <span style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600 }}>
-                • 한국관광공사 정품 인증 관광지
+                {dt.certifiedBadge}
               </span>
             </div>
 
@@ -572,7 +882,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
               }}
             >
               <Heart size={16} fill={localBookmarked ? '#ef4444' : 'none'} color={localBookmarked ? '#ef4444' : '#64748b'} />
-              <span>{localBookmarked ? '즐겨찾기 저장됨 ❤️' : '즐겨찾기 저장'}</span>
+              <span>{localBookmarked ? dt.bookmarkSaved : dt.bookmarkSave}</span>
             </button>
           </div>
 
@@ -617,7 +927,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
               }}
             >
               <Navigation size={15} color="#ca8a04" />
-              <span>카카오맵 길찾기 ↗</span>
+              <span>{dt.kakaoMap}</span>
             </a>
 
             {/* Naver Map Navigation */}
@@ -650,7 +960,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
               }}
             >
               <Navigation size={15} color="#16a34a" />
-              <span>네이버지도 길찾기 ↗</span>
+              <span>{dt.naverMap}</span>
             </a>
 
             {/* Google Map (GPS) Navigation */}
@@ -683,7 +993,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
               }}
             >
               <MapPin size={15} color="#2563eb" />
-              <span>구글지도 (GPS) ↗</span>
+              <span>{dt.googleMap}</span>
             </a>
           </div>
 
@@ -698,7 +1008,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
           }}>
             <h4 style={{ fontSize: '1rem', fontWeight: 800, color: '#1e293b', marginBottom: '0.65rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
               <Sparkles size={16} color="#7c3aed" />
-              <span>관광지 상세 개요</span>
+              <span>{dt.overviewTitle}</span>
             </h4>
             <p style={{
               color: '#334155',
@@ -709,7 +1019,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
             }}>
               {loadingDetail ? (
                 <span style={{ color: '#7c3aed', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <Loader2 size={16} className="animate-spin" /> 한국관광공사 정품 상세정보 수신 중...
+                  <Loader2 size={16} className="animate-spin" /> {dt.loadingOverview}
                 </span>
               ) : (
                 getTranslatedOverview(detailData?.overview || spot.description || t.defaultOverview, spot?.title, lang)
@@ -721,7 +1031,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
           <div style={{ marginBottom: '1.5rem' }}>
             <h4 style={{ fontSize: '1rem', fontWeight: 800, color: '#1e293b', marginBottom: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
               <CheckCircle size={16} color="#10b981" />
-              <span>공공데이터 정품 이용 안내</span>
+              <span>{dt.publicDataTitle}</span>
             </h4>
 
             <div style={{
@@ -733,7 +1043,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
               <div style={{ backgroundColor: '#f8fafc', padding: '0.85rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#7c3aed', fontSize: '0.78rem', fontWeight: 700, marginBottom: '0.3rem' }}>
                   <MapPin size={14} />
-                  <span>위치 및 주소</span>
+                  <span>{dt.locationLabel}</span>
                 </div>
                 <div style={{ fontSize: '0.85rem', color: '#1e293b', fontWeight: 600, wordBreak: 'keep-all' }}>
                   {getTranslatedAddress(detailData?.addr1 || spot.location, lang)}
@@ -744,7 +1054,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
               <div style={{ backgroundColor: '#f8fafc', padding: '0.85rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#7c3aed', fontSize: '0.78rem', fontWeight: 700, marginBottom: '0.3rem' }}>
                   <Clock size={14} />
-                  <span>이용 및 관람 시간</span>
+                  <span>{dt.hoursLabel}</span>
                 </div>
                 <div style={{ fontSize: '0.85rem', color: '#1e293b', fontWeight: 600, wordBreak: 'keep-all' }}>
                   {getTranslatedDetailText(hoursText, lang)}
@@ -755,7 +1065,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
               <div style={{ backgroundColor: '#f8fafc', padding: '0.85rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#ef4444', fontSize: '0.78rem', fontWeight: 700, marginBottom: '0.3rem' }}>
                   <Ban size={14} />
-                  <span>쉬는날 (휴무일)</span>
+                  <span>{dt.holidayLabel}</span>
                 </div>
                 <div style={{ fontSize: '0.85rem', color: '#1e293b', fontWeight: 600, wordBreak: 'keep-all' }}>
                   {getTranslatedDetailText(restDateText, lang)}
@@ -766,7 +1076,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
               <div style={{ backgroundColor: '#f8fafc', padding: '0.85rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#0284c7', fontSize: '0.78rem', fontWeight: 700, marginBottom: '0.3rem' }}>
                   <Car size={14} />
-                  <span>주차 시설 및 요금</span>
+                  <span>{dt.parkingLabel}</span>
                 </div>
                 <div style={{ fontSize: '0.85rem', color: '#1e293b', fontWeight: 600, wordBreak: 'keep-all' }}>
                   {getTranslatedDetailText(parkingText, lang)}
@@ -777,7 +1087,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
               <div style={{ backgroundColor: '#f8fafc', padding: '0.85rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#10b981', fontSize: '0.78rem', fontWeight: 700, marginBottom: '0.3rem' }}>
                   <Ticket size={14} />
-                  <span>입장료 및 이용요금</span>
+                  <span>{dt.feeLabel}</span>
                 </div>
                 <div style={{ fontSize: '0.85rem', color: '#1e293b', fontWeight: 600, wordBreak: 'keep-all' }}>
                   {getTranslatedDetailText(feeText, lang)}
@@ -788,7 +1098,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
               <div style={{ backgroundColor: '#f8fafc', padding: '0.85rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#ea580c', fontSize: '0.78rem', fontWeight: 700, marginBottom: '0.3rem' }}>
                   <Dog size={14} />
-                  <span>반려동물 동반 정보</span>
+                  <span>{dt.petLabel}</span>
                 </div>
                 <div style={{ fontSize: '0.85rem', color: '#1e293b', fontWeight: 600, wordBreak: 'keep-all' }}>
                   {getTranslatedDetailText(petText, lang)}
@@ -799,7 +1109,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
               <div style={{ backgroundColor: '#f8fafc', padding: '0.85rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#0891b2', fontSize: '0.78rem', fontWeight: 700, marginBottom: '0.3rem' }}>
                   <Baby size={14} />
-                  <span>유모차 및 보행 편의</span>
+                  <span>{dt.babyLabel}</span>
                 </div>
                 <div style={{ fontSize: '0.85rem', color: '#1e293b', fontWeight: 600, wordBreak: 'keep-all' }}>
                   {getTranslatedDetailText(babyText, lang)}
@@ -810,7 +1120,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
               <div style={{ backgroundColor: '#f8fafc', padding: '0.85rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#7c3aed', fontSize: '0.78rem', fontWeight: 700, marginBottom: '0.3rem' }}>
                   <Phone size={14} />
-                  <span>문의 및 안내 전화</span>
+                  <span>{dt.contactLabel}</span>
                 </div>
                 <div style={{ fontSize: '0.85rem', color: '#1e293b', fontWeight: 600 }}>
                   <a href={`tel:${contactText.replace(/[^0-9\-]/g, '')}`} style={{ color: '#7c3aed', textDecoration: 'none', fontWeight: 700 }}>
@@ -848,9 +1158,9 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <Globe size={18} color="#7c3aed" />
-                  <span>{displayTitle} 공식 웹사이트 바로가기</span>
+                  <span>{displayTitle} {dt.officialWebsite}</span>
                 </div>
-                <span>방문하기 ↗</span>
+                <span>{dt.visitBtn}</span>
               </a>
             </div>
           )}
@@ -867,10 +1177,10 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
               <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#6b21a8', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                 <Camera size={16} color="#9333ea" />
-                <span>실시간 SNS 트렌드 & 포토존 갤러리</span>
+                <span>{dt.snsTrends}</span>
               </span>
               <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#7c3aed', backgroundColor: '#f3e8ff', padding: '0.2rem 0.6rem', borderRadius: '12px', border: '1px solid #e9d5ff' }}>
-                #인생샷명소
+                {dt.photoTag}
               </span>
             </div>
 
@@ -897,7 +1207,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                 onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
                 onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
               >
-                <span>인스타 실시간 피드 ↗</span>
+                <span>{dt.instaFeed}</span>
               </a>
 
               <a
@@ -922,7 +1232,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                 onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
                 onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
               >
-                <span>구글 실시간 갤러리 ↗</span>
+                <span>{dt.googleGallery}</span>
               </a>
             </div>
           </div>
@@ -939,7 +1249,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
               <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                 <Sparkles size={16} color="#6366f1" />
-                <span>주변 추천 숙소 및 액티비티 예약</span>
+                <span>{dt.partnerHeader}</span>
               </span>
               <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#4338ca', backgroundColor: '#e0e7ff', padding: '0.2rem 0.55rem', borderRadius: '8px' }}>
                 OFFICIAL PARTNER
@@ -970,7 +1280,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                 onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
               >
                 <Hotel size={16} />
-                <span>아고다 특가 숙소 ↗</span>
+                <span>{dt.agodaDeal}</span>
               </a>
 
               <a
@@ -996,7 +1306,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                 onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
               >
                 <Ticket size={16} />
-                <span>클룩 투어 & 티켓 ↗</span>
+                <span>{dt.klookTours}</span>
               </a>
             </div>
           </div>
@@ -1005,10 +1315,10 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
           <div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
               <h4 style={{ fontSize: '1rem', fontWeight: 800, color: '#1e293b', margin: 0 }}>
-                💬 여행자 방문 리뷰 ({mockReviews.length})
+                {dt.reviewsHeader.replace('{count}', mockReviews.length)}
               </h4>
               <span style={{ fontSize: '0.78rem', color: '#64748b' }}>
-                평균 만족도 ★ {spot.rating || 4.9}
+                {dt.satisfaction.replace('{rating}', spot.rating || 4.9)}
               </span>
             </div>
 
@@ -1018,7 +1328,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                 type="text"
                 value={newReviewText}
                 onChange={(e) => setNewReviewText(e.target.value)}
-                placeholder="이 명소에 대한 생생한 후기를 남겨보세요..."
+                placeholder={dt.reviewPlaceholder}
                 style={{
                   flex: 1,
                   padding: '0.65rem 0.85rem',
@@ -1042,7 +1352,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                   cursor: 'pointer'
                 }}
               >
-                등록
+                {dt.reviewSubmit}
               </button>
             </form>
 
@@ -1095,7 +1405,7 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                   cursor: 'pointer'
                 }}
               >
-                {showAllReviews ? '리뷰 접기 ▲' : `리뷰 더보기 (${mockReviews.length - 3}개) ▼`}
+                {showAllReviews ? dt.collapseReviews : dt.moreReviews.replace('{count}', mockReviews.length - 3)}
               </button>
             )}
           </div>
