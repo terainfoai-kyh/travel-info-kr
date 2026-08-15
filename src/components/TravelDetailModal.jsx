@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   X, Star, MapPin, Clock, Phone, SunMedium, CheckCircle, Heart, 
   Globe, Loader2, Hotel, Ticket, ExternalLink, Sparkles, ChevronLeft, 
@@ -243,20 +244,22 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
   const babyText = introData?.chkbabycarriage || introData?.chkbabycarriageculture || '유모차 및 휠체어 이동 가능';
   const contactText = introData?.infocenter || detailData?.tel || spot.tel || spot.details?.contact || '1330 (관광안내)';
 
-  return (
+  const modalNode = (
     <div 
       className="modal-overlay-backdrop"
       style={{
         position: 'fixed',
         inset: 0,
-        zIndex: 99999,
-        backgroundColor: 'rgba(15, 23, 42, 0.45)',
-        backdropFilter: 'blur(8px)',
+        zIndex: 10000005,
+        backgroundColor: 'rgba(15, 23, 42, 0.65)',
+        backdropFilter: 'blur(10px)',
+        WebkitBackdropFilter: 'blur(10px)',
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         justifyContent: 'center',
-        padding: '1rem',
-        overflowY: 'auto'
+        padding: '1.5rem 1rem 2.5rem 1rem',
+        overflowY: 'auto',
+        WebkitOverflowScrolling: 'touch'
       }}
     >
       <div 
@@ -1070,34 +1073,37 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
             )}
           </div>
 
-          {/* 🚪 BOTTOM EXPLICIT CLOSE BUTTON */}
-          <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'center' }}>
+          {/* 🚪 BOTTOM EXPLICIT CLOSE BUTTON (Option C Style) */}
+          <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'center' }}>
             <button
               onClick={onClose}
               style={{
-                padding: '0.75rem 2.5rem',
-                backgroundColor: '#f1f5f9',
+                width: '100%',
+                maxWidth: '380px',
+                padding: '0.7rem 1.5rem',
+                backgroundColor: '#ffffff',
                 color: '#334155',
-                border: '1px solid #cbd5e1',
+                border: '1.5px solid #cbd5e1',
                 borderRadius: '14px',
-                fontSize: '0.92rem',
-                fontWeight: 700,
+                fontSize: '0.88rem',
+                fontWeight: 800,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
+                justifyContent: 'center',
                 gap: '0.45rem',
-                boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
                 transition: 'all 0.2s ease'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#e2e8f0';
+                e.currentTarget.style.backgroundColor = '#f8fafc';
+                e.currentTarget.style.borderColor = '#94a3b8';
                 e.currentTarget.style.color = '#0f172a';
-                e.currentTarget.style.transform = 'translateY(-1px)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = '#f1f5f9';
+                e.currentTarget.style.backgroundColor = '#ffffff';
+                e.currentTarget.style.borderColor = '#cbd5e1';
                 e.currentTarget.style.color = '#334155';
-                e.currentTarget.style.transform = 'translateY(0)';
               }}
             >
               <X size={18} strokeWidth={2.5} />
@@ -1109,4 +1115,6 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined' ? createPortal(modalNode, document.body) : modalNode;
 }
