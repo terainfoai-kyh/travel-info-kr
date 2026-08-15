@@ -225,12 +225,14 @@ Strictly return ONLY valid JSON matching this schema:
               console.log(`[Gemini AI Engine] ⚡ Gemini API (${model}) 초고속 실시간 응답 성공!`);
 
               if (parsed.isUnknownPlace === true) {
+                const unknownSummary = (parsed.summary || '').replace(/\[([^\]]+)\]/g, '$1');
                 return {
                   targetCity: '',
                   days: 0,
                   isUnknownPlace: true,
                   tripTitle: parsed.tripTitle || '여행지 확인 안내',
-                  summary: (parsed.summary || '').replace(/\[([^\]]+)\]/g, '$1'),
+                  summary: unknownSummary,
+                  aiRecommendationSummary: unknownSummary,
                   dailySchedules: [],
                   spots: [],
                   hotels: [],

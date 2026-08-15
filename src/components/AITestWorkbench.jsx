@@ -327,7 +327,7 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
       const voraResponse = {
         id: voraMsgId,
         sender: 'vora',
-        text: aiBriefing?.aiRecommendationSummary || `안녕하세요! 여행 컨시어지 보라입니다. 😊 '${displayCity}' 여행 코스를 준비했습니다.`,
+        text: aiBriefing?.summary || aiBriefing?.aiRecommendationSummary || `안녕하세요! 여행 컨시어지 보라입니다. 😊 '${displayCity}' 여행 코스를 준비했습니다.`,
         timestamp: new Date().toLocaleTimeString(),
         targetCity: isUnknownPlace ? null : displayCity,
         days,
