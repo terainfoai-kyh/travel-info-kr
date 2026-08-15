@@ -178,7 +178,7 @@ export async function fetchSpotDetailImages(contentId, lang = 'ko') {
   else if (lang === 'es') baseUrl = `${PUBLIC_API_CONFIG.SPN_BASE}/detailImage2`;
   else if (lang === 'ru') baseUrl = `${PUBLIC_API_CONFIG.RUS_BASE}/detailImage2`;
 
-  const url = `${baseUrl}?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&contentId=${contentId}&imageYN=Y&subImageYN=Y`;
+  const url = `${baseUrl}?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&contentId=${contentId}&imageYN=Y&numOfRows=12`;
 
   try {
     const res = await fetch(url);
@@ -192,12 +192,12 @@ export async function fetchSpotDetailImages(contentId, lang = 'ko') {
           const imgStr = (img.originimgurl || img.imgname || '').toLowerCase();
           return !imgStr.includes('toilet') && !imgStr.includes('restroom') && !imgStr.includes('화장실') && !imgStr.includes('편의시설');
         })
-        .map(img => img.originimgurl || img.smallimageurl || '')
+        .map(img => (img.originimgurl || img.smallimageurl || '').replace(/^http:\/\//i, 'https://'))
         .filter(Boolean);
     } else if (itemsRaw && (itemsRaw.originimgurl || itemsRaw.smallimageurl)) {
       const imgStr = (itemsRaw.originimgurl || itemsRaw.imgname || '').toLowerCase();
       if (!imgStr.includes('toilet') && !imgStr.includes('restroom') && !imgStr.includes('화장실') && !imgStr.includes('편의시설')) {
-        return [itemsRaw.originimgurl || itemsRaw.smallimageurl];
+        return [(itemsRaw.originimgurl || itemsRaw.smallimageurl).replace(/^http:\/\//i, 'https://')];
       }
     }
   } catch (err) {

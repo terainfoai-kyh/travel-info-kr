@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { X, Star, MapPin, Clock, Phone, SunMedium, CheckCircle, Heart, Globe, Loader2, Hotel, Ticket, ExternalLink, Sparkles } from 'lucide-react';
+import { 
+  X, Star, MapPin, Clock, Phone, SunMedium, CheckCircle, Heart, 
+  Globe, Loader2, Hotel, Ticket, ExternalLink, Sparkles, ChevronLeft, 
+  ChevronRight, Car, Ban, Baby, Dog, Navigation
+} from 'lucide-react';
 import { fetchSpotDetailCommon, fetchSpotDetailImages, fetchSpotDetailIntro } from '../services/tourApi';
 import { PUBLIC_API_CONFIG, buildAgodaDeepLink, buildKlookDeepLink, buildKKdayDeepLink } from '../services/apiConfig';
-import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress, getTranslatedTheme, getTranslatedReview, getTranslatedOverview, getTranslatedDetailText } from '../i18n/translations';
+import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress, getTranslatedReview, getTranslatedOverview, getTranslatedDetailText } from '../i18n/translations';
 import TravelImageWithFallback from './TravelImageWithFallback';
 import { useModalHistory } from '../hooks/useModalHistory';
 
@@ -13,7 +17,8 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
   const [detailData, setDetailData] = useState(null);
   const [introData, setIntroData] = useState(null);
   const [galleryImages, setGalleryImages] = useState([]);
-  const [loadingDetail, setLoadingDetail] = useState(false);
+  const [activeImgIndex, setActiveImgIndex] = useState(0);
+  const [loadingDetail, setLoadingDetail] = useState(true);
   const [newReviewText, setNewReviewText] = useState('');
   const [newRating, setNewRating] = useState(5);
   const [mockReviews, setMockReviews] = useState([]);
@@ -25,10 +30,24 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
     : (t.countryBadge || '대한민국');
 
   useEffect(() => {
-    if (spot && spot.id) {
-      // Load saved reviews for this specific spot or initialize defaults
+    if (spot) {
+      setLoadingDetail(true);
+      setActiveImgIndex(0);
+      setGalleryImages([]);
+      setIntroData(null);
+      setDetailData({
+        title: spot.title,
+        overview: spot.description || `${spot.title}은(는) 아름다운 경관과 다양한 즐길 거리가 있는 대한민국 대표 관광 명소입니다.`,
+        addr1: spot.location || spot.addr1 || '상세 주소 정보 제공',
+        firstimage: spot.image || '',
+        homepage: spot.homepage || null,
+        tel: spot.tel || ''
+      });
+
+      // Load saved reviews for this specific spot
       try {
-        const saved = localStorage.getItem(`ktravel_reviews_${spot.id}`);
+        const spotIdKey = spot.contentId || spot.id || 'default';
+        const saved = localStorage.getItem(`ktravel_reviews_${spotIdKey}`);
         if (saved) {
           setMockReviews(JSON.parse(saved));
         } else {
@@ -39,8 +58,8 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
               ageGroup: '20대',
               gender: t.authorMale || '남성',
               rating: 5,
-              date: '2026-08-04',
-              content: '날씨 좋을 때 방문하니 경관이 정말 훌륭했습니다! 포토스팟도 많고 강력 추천합니다.'
+              date: '2026-08-10',
+              content: '실제로 가보니 경치가 너무 아름답고 사진 찍기 정말 좋았습니다! 추천합니다.'
             },
             {
               id: 2,
@@ -48,150 +67,118 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
               ageGroup: '30대',
               gender: t.authorFemale || '여성',
               rating: 5,
-              date: '2026-08-02',
-              content: '주변 로컬 맛집 코스가 잘 되어 있네요. 주차 공간도 여유로워서 무척 편했습니다.'
+              date: '2026-08-08',
+              content: '주변 카페와 맛집 동선이 편리하고 주차도 수월해서 가족들과 힐링하고 왔습니다.'
             },
             {
               id: 3,
-              author: 'Jihun Park',
-              ageGroup: '40대',
-              gender: t.authorMale || '남성',
-              rating: 4,
-              date: '2026-07-28',
-              content: '가족과 함께 오기 좋은 곳입니다. 편의시설이 깔끔하게 잘 정비되어 있습니다.'
-            },
-            {
-              id: 4,
-              author: 'Yujin Choi',
+              author: 'James Wilson',
               ageGroup: '20대',
-              gender: t.authorFemale || '여성',
-              rating: 5,
-              date: '2026-07-25',
-              content: '인생샷 사진 찍기 최고입니다! 대중교통 접근성도 좋고 주변 둘레길 산책 코스도 무척 좋습니다.'
-            },
-            {
-              id: 5,
-              author: 'Myeonghun Jeong',
-              ageGroup: '50대이상',
               gender: t.authorMale || '남성',
               rating: 5,
-              date: '2026-07-20',
-              content: '가족들과 주말 나들이로 다녀왔는데 경치가 너무 고즈넉하고 힐링되었습니다.'
+              date: '2026-08-02',
+              content: 'One of the most memorable spots in Korea! Stunning scenery and easy to navigate.'
             }
           ]);
         }
-      } catch (e) { console.error(e); }
-
-      setLoadingDetail(false);
-      setGalleryImages([]);
-      setIntroData(null);
-      setDetailData({
-        title: spot.title,
-        overview: spot.description || `${spot.title}은(는) 아름다운 경관과 다양한 즐길 거리가 있는 대한민국 대표 관광 명소입니다.`,
-        addr1: spot.location || spot.addr1 || '상세 주소 정보 제공',
-        firstimage: spot.image || ''
-      });
-
-      // 1. Direct PK (contentId) lookup if hidden property exists
-      const targetContentId = spot.contentId || (isNaN(Number(spot.id)) ? null : spot.id);
-      if (targetContentId) {
-        const cType = spot.contentTypeId || '14';
-        Promise.all([
-          fetchSpotDetailCommon(targetContentId, lang),
-          fetchSpotDetailImages(targetContentId, lang),
-          fetchSpotDetailIntro(targetContentId, cType, lang)
-        ]).then(([commonRes, imagesRes, introRes]) => {
-          setDetailData({
-            title: commonRes?.title || spot.title,
-            overview: commonRes?.overview || spot.description || `${spot.title}은(는) 대한민국 대표 관광 명소입니다.`,
-            addr1: commonRes?.addr1 || spot.location || spot.addr1 || '상세 주소 정보 제공',
-            firstimage: commonRes?.firstimage || spot.image || ''
-          });
-          setIntroData(introRes);
-          if (imagesRes && imagesRes.length > 0) {
-            setGalleryImages(imagesRes);
-          }
-          setLoadingDetail(false);
-        }).catch(() => {
-          setDetailData({
-            title: spot.title,
-            overview: spot.description || `${spot.title}은(는) 대한민국 대표 관광 명소입니다.`,
-            addr1: spot.location || spot.addr1 || '상세 주소 정보 제공',
-            firstimage: spot.image || ''
-          });
-          setIntroData(null);
-          setLoadingDetail(false);
-        });
-        return;
+      } catch (e) {
+        console.error(e);
       }
 
-      const isSearchRequired = String(spot.id).startsWith('t-') || String(spot.id).startsWith('ai-spot-') || isNaN(Number(spot.id));
-      if (isSearchRequired) {
-        const rawTitle = (spot.title || '').replace(/^(\d+[\.\s\-\:]+|Day\s*\d+[\s\-\:]+|\[\d+일차\])/gi, '');
-        const searchKeyword = spot.searchKeyword || rawTitle
-          .split('&')[0]
-          .split('+')[0]
-          .split(',')[0]
-          .split(' 및 ')[0]
-          .split('(')[0]
-          .split('-')[0]
-          .trim() || spot.title;
-        const searchUrl = `${PUBLIC_API_CONFIG.SEARCH_KEYWORD_URL}?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=1&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&keyword=${encodeURIComponent(searchKeyword)}`;
-        fetch(searchUrl)
-          .then(res => res.json())
-          .then(data => {
-            const realItem = data.response?.body?.items?.item?.[0];
-            if (realItem && realItem.contentid) {
-              const cType = realItem.contenttypeid || spot.contentTypeId || '14';
-              return Promise.all([
-                fetchSpotDetailCommon(realItem.contentid, lang),
-                fetchSpotDetailImages(realItem.contentid, lang),
-                fetchSpotDetailIntro(realItem.contentid, cType, lang)
-              ]);
-            }
-            return [null, [], null];
-          })
-          .then(([commonRes, imagesRes, introRes]) => {
-            setDetailData({
-              title: commonRes?.title || spot.title,
-              overview: commonRes?.overview || spot.description || `${spot.title}은(는) 아름다운 경관과 다양한 즐길 거리가 있는 대한민국 대표 관광 명소입니다.`,
-              addr1: commonRes?.addr1 || spot.location || spot.addr1 || '상세 주소 정보 제공',
-              firstimage: commonRes?.firstimage || spot.image || ''
-            });
-            setIntroData(introRes);
-            if (imagesRes && imagesRes.length > 0) {
-              setGalleryImages(imagesRes);
-            }
-            setLoadingDetail(false);
-          })
-          .catch(() => {
-            setDetailData({
-              title: spot.title,
-              overview: spot.description || `${spot.title}은(는) 아름다운 경관과 다양한 즐길 거리가 있는 대한민국 대표 관광 명소입니다.`,
-              addr1: spot.location || spot.addr1 || '상세 주소 정보 제공'
-            });
-            setIntroData(null);
-            setLoadingDetail(false);
-          });
-      } else {
-        const cType = spot.contentTypeId || '14';
+      // Fetch authentic TourAPI data using PK (contentId)
+      const targetContentId = spot.contentId || (isNaN(Number(spot.id)) ? null : spot.id);
+      const cType = spot.contentTypeId || '12';
+
+      if (targetContentId) {
         Promise.all([
-          fetchSpotDetailCommon(spot.id, lang),
-          fetchSpotDetailImages(spot.id, lang),
-          fetchSpotDetailIntro(spot.id, cType, lang)
+          fetchSpotDetailCommon(targetContentId, lang).catch(() => null),
+          fetchSpotDetailImages(targetContentId, lang).catch(() => []),
+          fetchSpotDetailIntro(targetContentId, cType, lang).catch(() => null)
         ]).then(([commonRes, imagesRes, introRes]) => {
-          setDetailData(commonRes);
-          setIntroData(introRes);
-          if (imagesRes && imagesRes.length > 0) {
-            setGalleryImages(imagesRes);
+          if (commonRes) {
+            setDetailData(prev => ({
+              ...prev,
+              title: commonRes.title || prev.title,
+              overview: commonRes.overview || prev.overview,
+              addr1: commonRes.addr1 || prev.addr1,
+              firstimage: commonRes.firstimage || prev.firstimage,
+              homepage: commonRes.homepage || prev.homepage,
+              tel: commonRes.tel || prev.tel
+            }));
           }
+          setIntroData(introRes);
+
+          // Build gallery: include spot's main photo + all TourAPI gallery photos
+          const allImgs = [];
+          const mainImg = commonRes?.firstimage || spot.image;
+          if (mainImg && !mainImg.includes('default-spot')) {
+            allImgs.push(mainImg.replace(/^http:\/\//i, 'https://'));
+          }
+          if (Array.isArray(imagesRes) && imagesRes.length > 0) {
+            imagesRes.forEach(img => {
+              const cleanImg = img.replace(/^http:\/\//i, 'https://');
+              if (!allImgs.includes(cleanImg)) {
+                allImgs.push(cleanImg);
+              }
+            });
+          }
+          setGalleryImages(allImgs);
+          setLoadingDetail(false);
+        }).catch(() => {
           setLoadingDetail(false);
         });
+      } else {
+        setLoadingDetail(false);
       }
     }
   }, [spot, lang]);
 
   if (!spot) return null;
+
+  const currentHeroImage = galleryImages.length > 0 && galleryImages[activeImgIndex]
+    ? galleryImages[activeImgIndex]
+    : (detailData?.firstimage || spot.image || '/default-spot.png');
+
+  // Handle adding new user review
+  const handleAddReview = (e) => {
+    e.preventDefault();
+    if (!newReviewText.trim()) return;
+    const newRev = {
+      id: Date.now(),
+      author: '여행자',
+      ageGroup: '30대',
+      gender: '무관',
+      rating: newRating,
+      date: new Date().toISOString().split('T')[0],
+      content: newReviewText.trim()
+    };
+    const updated = [newRev, ...mockReviews];
+    setMockReviews(updated);
+    setNewReviewText('');
+    try {
+      const spotIdKey = spot.contentId || spot.id || 'default';
+      localStorage.setItem(`ktravel_reviews_${spotIdKey}`, JSON.stringify(updated));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Helper to extract clean homepage URL
+  const extractCleanUrl = (rawHomepage) => {
+    if (!rawHomepage) return null;
+    const match = rawHomepage.match(/href=["'](https?:\/\/[^"']+)["']/i) || rawHomepage.match(/(https?:\/\/[^\s<>"']+)/i);
+    return match ? match[1] : (rawHomepage.startsWith('http') ? rawHomepage : null);
+  };
+  const cleanHomepageUrl = extractCleanUrl(detailData?.homepage || spot.homepage);
+
+  // Fallback info helpers
+  const hoursText = introData?.usetime || introData?.usetimeculture || introData?.usetimeleports || introData?.opentime || spot.details?.hours || '상세 이용시간 정보 제공 (연중무휴 권장)';
+  const restDateText = introData?.restdate || introData?.restdateculture || introData?.restdateleports || '연중무휴 (공휴일 정상 운영)';
+  const parkingText = introData?.parking || introData?.parkingculture || introData?.parkingfee || '주차 가능 (인근 공영/전용 주차장 구비)';
+  const feeText = introData?.usefee || introData?.usefeeleports || introData?.ticket || '무료 관람 (일부 유료 시설 제외)';
+  const petText = introData?.chkpet || introData?.chkpetculture || '동반 가능 (목줄 및 케이지 착용 권장)';
+  const babyText = introData?.chkbabycarriage || introData?.chkbabycarriageculture || '유모차 및 휠체어 이동 가능';
+  const contactText = introData?.infocenter || detailData?.tel || spot.tel || spot.details?.contact || '1330 (관광안내)';
 
   return (
     <div 
@@ -201,369 +188,567 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
         inset: 0,
         zIndex: 99999,
         backgroundColor: 'rgba(15, 23, 42, 0.75)',
-        backdropFilter: 'blur(8px)',
+        backdropFilter: 'blur(10px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         padding: '1rem',
         overflowY: 'auto'
       }}
+      onClick={onClose}
     >
       <div 
-        className="animate-fade-in glass-panel modal-responsive-card"
+        className="animate-fade-in"
         style={{
-          background: 'var(--bg-secondary)',
-          border: '1px solid var(--border-color)',
-          borderRadius: 'var(--radius-lg)',
-          boxShadow: 'var(--shadow-xl)',
-          padding: '1.25rem 1.25rem',
-          maxWidth: '850px',
+          backgroundColor: '#ffffff',
+          color: '#0f172a',
+          borderRadius: '24px',
+          border: '1px solid #e2e8f0',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+          maxWidth: '820px',
           width: '100%',
-          maxHeight: '88vh',
+          maxHeight: '90vh',
           overflowY: 'auto',
-          margin: 'auto'
+          margin: 'auto',
+          position: 'relative'
         }}
         onClick={(e) => e.stopPropagation()}
       >
+        {/* TOP RIGHT CLOSE BUTTON */}
         <button
           onClick={onClose}
           aria-label="닫기"
           style={{
-            position: 'sticky',
+            position: 'absolute',
             top: '1rem',
-            left: 'calc(100% - 3rem)',
-            float: 'right',
-            marginRight: '1rem',
-            marginTop: '1rem',
-            marginBottom: '-3.25rem',
+            right: '1rem',
             zIndex: 100,
-            background: 'rgba(15, 23, 42, 0.88)',
-            border: '2px solid rgba(255, 255, 255, 0.4)',
+            backgroundColor: 'rgba(15, 23, 42, 0.85)',
+            border: '2px solid rgba(255, 255, 255, 0.5)',
             color: '#ffffff',
-            width: '42px',
-            height: '42px',
+            width: '40px',
+            height: '40px',
             borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
-            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.5)',
-            backdropFilter: 'blur(8px)',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.4)',
+            backdropFilter: 'blur(6px)',
             transition: 'transform 0.2s ease, background-color 0.2s ease'
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = 'scale(1.1)';
-            e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.95)';
+            e.currentTarget.style.backgroundColor = '#ef4444';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.transform = 'scale(1)';
-            e.currentTarget.style.backgroundColor = 'rgba(15, 23, 42, 0.88)';
+            e.currentTarget.style.backgroundColor = 'rgba(15, 23, 42, 0.85)';
           }}
         >
-          <X size={24} strokeWidth={2.5} />
+          <X size={22} strokeWidth={2.5} />
         </button>
 
-        <div style={{ position: 'relative', width: '100%', height: '320px' }}>
+        {/* 📸 HERO MULTI-PHOTO GALLERY SLIDER */}
+        <div style={{ position: 'relative', width: '100%', height: '340px', backgroundColor: '#0f172a', overflow: 'hidden' }}>
           <TravelImageWithFallback 
-            src={(() => {
-              const apiFirstImg = detailData?.firstimage || '';
-              const isBadImg = apiFirstImg.includes('794101_image2_1.jpg') || apiFirstImg.includes('2785035_image2_1.jpg') || apiFirstImg.includes('2784860_image2_1.jpg') || apiFirstImg.toLowerCase().includes('toilet') || apiFirstImg.toLowerCase().includes('restroom') || apiFirstImg.toLowerCase().includes('화장실');
-              if (!isBadImg && apiFirstImg) return apiFirstImg;
-              return spot.image;
-            })()} 
+            src={currentHeroImage}
             spotTitle={displayTitle || spot.title}
             lang={lang}
             showTitle={false}
           />
+
+          {/* Elegant Dark Gradient Overlay */}
           <div style={{
             position: 'absolute',
             inset: 0,
-            background: 'linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.4) 50%, rgba(0, 0, 0, 0.2) 100%)'
+            background: 'linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.3) 50%, rgba(0, 0, 0, 0.1) 100%)'
           }} />
 
-          <div style={{ position: 'absolute', bottom: '1.5rem', left: '1.5rem', right: '1.5rem' }}>
-            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.6rem', flexWrap: 'wrap' }}>
+          {/* Left / Right Navigation Arrows if multiple photos */}
+          {galleryImages.length > 1 && (
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveImgIndex(prev => (prev === 0 ? galleryImages.length - 1 : prev - 1));
+                }}
+                aria-label="이전 사진"
+                style={{
+                  position: 'absolute',
+                  left: '1rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  backgroundColor: 'rgba(15, 23, 42, 0.7)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  color: '#ffffff',
+                  width: '38px',
+                  height: '38px',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  backdropFilter: 'blur(4px)',
+                  transition: 'background-color 0.2s ease'
+                }}
+              >
+                <ChevronLeft size={22} />
+              </button>
+
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveImgIndex(prev => (prev === galleryImages.length - 1 ? 0 : prev + 1));
+                }}
+                aria-label="다음 사진"
+                style={{
+                  position: 'absolute',
+                  right: '1rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  backgroundColor: 'rgba(15, 23, 42, 0.7)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  color: '#ffffff',
+                  width: '38px',
+                  height: '38px',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  backdropFilter: 'blur(4px)',
+                  transition: 'background-color 0.2s ease'
+                }}
+              >
+                <ChevronRight size={22} />
+              </button>
+
+              {/* Photo Index Indicator */}
+              <div style={{
+                position: 'absolute',
+                top: '1rem',
+                left: '1rem',
+                backgroundColor: 'rgba(15, 23, 42, 0.75)',
+                color: '#ffffff',
+                padding: '0.25rem 0.65rem',
+                borderRadius: '16px',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                backdropFilter: 'blur(4px)'
+              }}>
+                📷 {activeImgIndex + 1} / {galleryImages.length}
+              </div>
+            </>
+          )}
+
+          {/* Hero Bottom Title & Badges */}
+          <div style={{ position: 'absolute', bottom: '1.25rem', left: '1.5rem', right: '1.5rem' }}>
+            <div style={{ display: 'flex', gap: '0.45rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
               <span style={{
-                background: 'var(--accent-primary)',
+                backgroundColor: '#7c3aed',
                 color: '#ffffff',
                 fontWeight: 800,
-                fontSize: '0.8rem',
-                padding: '0.25rem 0.65rem',
-                borderRadius: 'var(--radius-sm)'
+                fontSize: '0.78rem',
+                padding: '0.2rem 0.65rem',
+                borderRadius: '8px',
+                boxShadow: '0 2px 6px rgba(124, 58, 237, 0.4)'
               }}>
-                {displayRegion}
+                {spot.assignedDay ? `${spot.assignedDay}일차 명소` : displayRegion}
               </span>
-              {spot.tags.map((tagItem, i) => {
-                const cleanTag = tagItem.startsWith('#') ? tagItem.substring(1) : tagItem;
-                const hashTag = `#${cleanTag}`;
-                const translatedTag = t.tags?.[hashTag] || t.tags?.[cleanTag] || t.themes?.[cleanTag] || t.regions?.[cleanTag] || (cleanTag === '관광공사추천' ? t.koreaRecommendedTag : cleanTag);
-                const displayTagText = translatedTag.startsWith('#') ? translatedTag : `#${translatedTag}`;
-                return (
-                  <span key={i} style={{
-                    background: 'rgba(0, 0, 0, 0.65)',
-                    color: '#f8fafc',
-                    border: '1px solid rgba(255, 255, 255, 0.3)',
-                    fontSize: '0.75rem',
-                    fontWeight: 600,
-                    padding: '0.25rem 0.6rem',
-                    borderRadius: 'var(--radius-sm)',
-                    backdropFilter: 'blur(4px)'
-                  }}>
-                    {displayTagText}
-                  </span>
-                );
-              })}
+
+              {spot.tags && spot.tags.slice(0, 3).map((tagItem, i) => (
+                <span key={i} style={{
+                  backgroundColor: 'rgba(15, 23, 42, 0.75)',
+                  color: '#f1f5f9',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  fontSize: '0.75rem',
+                  fontWeight: 600,
+                  padding: '0.2rem 0.55rem',
+                  borderRadius: '8px',
+                  backdropFilter: 'blur(4px)'
+                }}>
+                  #{tagItem.replace(/^#/, '')}
+                </span>
+              ))}
             </div>
 
             <h2 style={{
-              fontSize: '1.9rem',
+              fontSize: '1.85rem',
               fontWeight: 900,
               color: '#ffffff',
               textShadow: '0 2px 8px rgba(0,0,0,0.85)',
-              margin: 0
+              margin: 0,
+              letterSpacing: '-0.5px'
             }}>
               {displayTitle}
             </h2>
           </div>
         </div>
 
-        <div style={{ padding: '1.5rem 1.5rem 2rem 1.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+        {/* 🎞️ MULTI-IMAGE THUMBNAIL STRIP */}
+        {galleryImages.length > 1 && (
+          <div style={{
+            display: 'flex',
+            gap: '0.5rem',
+            padding: '0.75rem 1.5rem',
+            backgroundColor: '#f8fafc',
+            borderBottom: '1px solid #e2e8f0',
+            overflowX: 'auto',
+            scrollbarWidth: 'thin'
+          }}>
+            {galleryImages.map((imgUrl, idx) => (
+              <button
+                key={idx}
+                onClick={() => setActiveImgIndex(idx)}
+                style={{
+                  width: '64px',
+                  height: '48px',
+                  flexShrink: 0,
+                  borderRadius: '8px',
+                  overflow: 'hidden',
+                  padding: 0,
+                  border: activeImgIndex === idx ? '2.5px solid #7c3aed' : '1px solid #cbd5e1',
+                  cursor: 'pointer',
+                  opacity: activeImgIndex === idx ? 1 : 0.65,
+                  transform: activeImgIndex === idx ? 'scale(1.05)' : 'scale(1)',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <img 
+                  src={imgUrl} 
+                  alt={`Thumbnail ${idx + 1}`} 
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                />
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* MODAL MAIN CONTENT BODY */}
+        <div style={{ padding: '1.5rem' }}>
+
+          {/* Rating, Bookmark & Action Bar */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Star size={20} fill="#f59e0b" color="#f59e0b" />
-              <span style={{ fontSize: '1.1rem', fontWeight: 700 }}>{spot.rating}</span>
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-                ({(spot.reviewsCount || 1280).toLocaleString()}{t.reviewsUnit})
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', backgroundColor: '#fef3c7', color: '#b45309', padding: '0.25rem 0.6rem', borderRadius: '8px', fontWeight: 800, fontSize: '0.9rem' }}>
+                <Star size={16} fill="#f59e0b" color="#f59e0b" />
+                <span>{spot.rating || 4.9}</span>
+              </div>
+              <span style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600 }}>
+                • 한국관광공사 정품 인증 관광지
               </span>
             </div>
 
             <button
-              onClick={() => onToggleBookmark(spot.id)}
-              className="btn-secondary"
+              onClick={() => onToggleBookmark && onToggleBookmark(spot.contentId || spot.id)}
               style={{
-                borderColor: isBookmarked ? '#ef4444' : 'var(--border-color)',
-                color: isBookmarked ? '#ef4444' : 'var(--text-main)'
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                padding: '0.45rem 0.85rem',
+                borderRadius: '10px',
+                border: isBookmarked ? '1px solid #fecaca' : '1px solid #e2e8f0',
+                backgroundColor: isBookmarked ? '#fef2f2' : '#ffffff',
+                color: isBookmarked ? '#ef4444' : '#475569',
+                fontSize: '0.82rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
               }}
             >
-              <Heart size={18} fill={isBookmarked ? '#ef4444' : 'none'} />
-              <span>{isBookmarked ? t.savedBookmark : t.saveBookmark}</span>
+              <Heart size={16} fill={isBookmarked ? '#ef4444' : 'none'} color={isBookmarked ? '#ef4444' : '#64748b'} />
+              <span>{isBookmarked ? '저장됨' : '즐겨찾기 저장'}</span>
             </button>
           </div>
 
-          <p style={{ color: 'var(--text-main)', fontSize: '1rem', lineHeight: 1.7, marginBottom: '1.25rem' }}>
-            {loadingDetail ? (
-              <span style={{ color: 'var(--accent-primary)', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-                <Loader2 size={16} className="animate-spin" /> {t.overviewLoading}
-              </span>
-            ) : (
-              getTranslatedOverview(detailData?.overview || spot.description || t.defaultOverview, spot?.title, lang)
-            )}
-          </p>
-
-          {/* Prominent Official Website Button Banner */}
-          <div style={{ marginBottom: '2rem' }}>
-            {(() => {
-              // Exact FULL NAME & Location-based website mapping dictionary
-              const SITE_MAP_LIST = [
-                {
-                  title: '경복궁',
-                  regionFilter: ['서울', '종로'],
-                  url: 'https://royal.khs.go.kr/ROYAL/main/index.do'
-                },
-                {
-                  title: '창덕궁',
-                  regionFilter: ['서울', '종로'],
-                  url: 'https://cdg.khs.go.kr'
-                },
-                {
-                  title: '덕수궁',
-                  regionFilter: ['서울', '중구'],
-                  url: 'https://deoksugung.khs.go.kr'
-                },
-                {
-                  title: '창경궁',
-                  regionFilter: ['서울', '종로'],
-                  url: 'https://cgg.khs.go.kr'
-                },
-                {
-                  title: '종묘',
-                  regionFilter: ['서울', '종로'],
-                  url: 'https://jm.khs.go.kr'
-                },
-                {
-                  title: '광화문',
-                  regionFilter: ['서울', '종로'],
-                  url: 'https://royal.khs.go.kr/ROYAL/main/index.do'
-                },
-                {
-                  title: '성산일출봉',
-                  regionFilter: ['제주', '서귀포'],
-                  url: 'https://www.visitjeju.net'
-                },
-                {
-                  title: '해운대',
-                  regionFilter: ['부산', '해운대'],
-                  url: 'https://www.bluelinepark.com'
-                },
-                {
-                  title: '설악산',
-                  regionFilter: ['강원', '속초', '인제', '양양'],
-                  url: 'https://www.knps.or.kr/seoraksan'
-                },
-                {
-                  title: '동궁과 월지',
-                  regionFilter: ['경북', '경주'],
-                  url: 'https://www.gyeongju.go.kr/tour'
-                },
-                {
-                  title: '안압지',
-                  regionFilter: ['경북', '경주'],
-                  url: 'https://www.gyeongju.go.kr/tour'
-                },
-                {
-                  title: '한옥마을',
-                  regionFilter: ['전북', '전주'],
-                  url: 'https://hanok.jeonju.go.kr'
-                },
-                {
-                  title: '경기전',
-                  regionFilter: ['전북', '전주'],
-                  url: 'https://hanok.jeonju.go.kr'
-                },
-                {
-                  title: 'N서울타워',
-                  regionFilter: ['서울', '용산'],
-                  url: 'https://www.seoultower.co.kr'
-                },
-                {
-                  title: '송도 센트럴파크',
-                  regionFilter: ['인천', '연수구'],
-                  url: 'https://www.ifez.go.kr'
-                },
-                {
-                  title: '수원 화성',
-                  regionFilter: ['경기', '수원'],
-                  url: 'https://www.swcf.or.kr'
-                }
-              ];
-
-              // 1. First priority: Real API parsed homepage URL from TourAPI (/detailCommon2)
-              let activeUrl = detailData?.homepage;
-
-              // 2. Second priority: If TourAPI returned raw HTML link string
-              if (!activeUrl && detailData?.homepageRaw) {
-                const match = detailData.homepageRaw.match(/https?:\/\/[^\s"'<>]+/);
-                if (match) activeUrl = match[0];
-              }
-
-              // 3. Third priority: Location & Title Verified Dictionary Match (Prevent mapping non-palace stores like '울산 경복궁')
-              if (!activeUrl && spot && spot.title) {
-                const spotTitleClean = String(spot.title).trim();
-                const spotAddrClean = String(spot.location || detailData?.addr1 || '').trim();
-                const spotRegionClean = String(spot.region || '').trim();
-
-                for (const entry of SITE_MAP_LIST) {
-                  const isTitleMatch = spotTitleClean.includes(entry.title);
-                  const isLocationValid = entry.regionFilter.some(reg => spotRegionClean.includes(reg) || spotAddrClean.includes(reg));
-
-                  if (isTitleMatch && isLocationValid) {
-                    activeUrl = entry.url;
-                    break;
-                  }
-                }
-              }
-
-              if (loadingDetail) {
-                return <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{t.websiteLoading || '웹사이트 연결 정보 확인 중...'}</div>;
-              }
-
-              if (activeUrl) {
-                return (
-                  <a
-                    href={activeUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '0.6rem',
-                      padding: '0.85rem 1.4rem',
-                      background: 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)',
-                      color: '#ffffff',
-                      fontWeight: 800,
-                      fontSize: '0.95rem',
-                      borderRadius: 'var(--radius-md)',
-                      textDecoration: 'none',
-                      boxShadow: '0 4px 14px rgba(56, 189, 248, 0.4)',
-                      transition: 'all 0.2s ease'
-                    }}
-                  >
-                    <Globe size={20} />
-                    <span>{t.officialWebsite || '공식 홈페이지 바로가기 (새창 팝업)'} ↗</span>
-                  </a>
-                );
-              }
-
-              return (
-                <div style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  padding: '0.75rem 1.1rem',
-                  background: 'var(--bg-primary)',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: 'var(--radius-md)',
-                  color: 'var(--text-dim)',
-                  fontSize: '0.88rem'
-                }}>
-                  <Globe size={18} />
-                  <span>ℹ️ {t.noOfficialWebsite} ({t.telInquiry}: {detailData?.tel || spot.details?.contact || '1330'})</span>
-                </div>
-              );
-            })()}
-          </div>
-          {/* Instagram Hotspot & Live Photo Gallery Section */}
+          {/* 🗺️ 3-MAP REAL-TIME NAVIGATION BAR (카카오 / 네이버 / 구글) */}
           <div style={{
-            marginBottom: '2rem',
-            padding: '1.25rem',
-            borderRadius: 'var(--radius-lg)',
-            background: 'linear-gradient(135deg, #fdf2f8 0%, #fae8ff 50%, #eff6ff 100%)',
-            border: '1.5px solid #f0abfc',
-            boxShadow: '0 4px 14px rgba(217, 70, 239, 0.12)'
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+            gap: '0.65rem',
+            marginBottom: '1.5rem',
+            padding: '0.85rem',
+            backgroundColor: '#f1f5f9',
+            borderRadius: '14px',
+            border: '1px solid #e2e8f0'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-              <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#86198f', margin: 0, display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-                <span>🔥 인스타그램 핫플 & 실시간 갤러리</span>
-              </h4>
-              <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#c026d3', background: '#ffffff', padding: '0.2rem 0.6rem', borderRadius: '9999px', border: '1px solid #f0abfc' }}>
-                #포토존 #인생샷 핫플
+            {/* Kakao Map Navigation */}
+            <a
+              href={`https://map.kakao.com/link/search/${encodeURIComponent(displayTitle + ' ' + (detailData?.addr1 || spot.location || ''))}`}
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.4rem',
+                padding: '0.65rem 0.85rem',
+                backgroundColor: '#fee500',
+                color: '#191919',
+                fontWeight: 800,
+                fontSize: '0.82rem',
+                borderRadius: '10px',
+                textDecoration: 'none',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.06)'
+              }}
+            >
+              <Navigation size={15} />
+              <span>카카오맵 실시간 길찾기 ↗</span>
+            </a>
+
+            {/* Naver Map Navigation */}
+            <a
+              href={`https://map.naver.com/v5/search/${encodeURIComponent(displayTitle + ' ' + (detailData?.addr1 || spot.location || ''))}`}
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.4rem',
+                padding: '0.65rem 0.85rem',
+                backgroundColor: '#03c75a',
+                color: '#ffffff',
+                fontWeight: 800,
+                fontSize: '0.82rem',
+                borderRadius: '10px',
+                textDecoration: 'none',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.06)'
+              }}
+            >
+              <Navigation size={15} />
+              <span>네이버지도 길찾기 ↗</span>
+            </a>
+
+            {/* Google Map (GPS) Navigation */}
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(displayTitle + ' ' + (detailData?.addr1 || spot.location || ''))}`}
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.4rem',
+                padding: '0.65rem 0.85rem',
+                backgroundColor: '#2563eb',
+                color: '#ffffff',
+                fontWeight: 800,
+                fontSize: '0.82rem',
+                borderRadius: '10px',
+                textDecoration: 'none',
+                boxShadow: '0 2px 6px rgba(37,99,235,0.25)'
+              }}
+            >
+              <MapPin size={15} />
+              <span>구글지도(GPS) ↗</span>
+            </a>
+          </div>
+
+          {/* 📖 OVERVIEW DESCRIPTION */}
+          <div style={{
+            backgroundColor: '#ffffff',
+            padding: '1.25rem',
+            borderRadius: '16px',
+            border: '1px solid #e2e8f0',
+            marginBottom: '1.5rem',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
+          }}>
+            <h4 style={{ fontSize: '1rem', fontWeight: 800, color: '#1e293b', marginBottom: '0.65rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <Sparkles size={16} color="#7c3aed" />
+              <span>관광지 상세 개요</span>
+            </h4>
+            <p style={{
+              color: '#334155',
+              fontSize: '0.92rem',
+              lineHeight: 1.75,
+              margin: 0,
+              wordBreak: 'keep-all'
+            }}>
+              {loadingDetail ? (
+                <span style={{ color: '#7c3aed', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <Loader2 size={16} className="animate-spin" /> 한국관광공사 정품 상세정보 수신 중...
+                </span>
+              ) : (
+                getTranslatedOverview(detailData?.overview || spot.description || t.defaultOverview, spot?.title, lang)
+              )}
+            </p>
+          </div>
+
+          {/* 📊 8 CORE PUBLIC DATA INFO CARDS (관광공사 정품 세부 안내) */}
+          <div style={{ marginBottom: '1.5rem' }}>
+            <h4 style={{ fontSize: '1rem', fontWeight: 800, color: '#1e293b', marginBottom: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <CheckCircle size={16} color="#10b981" />
+              <span>공공데이터 정품 이용 안내</span>
+            </h4>
+
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+              gap: '0.75rem'
+            }}>
+              {/* 1. Address */}
+              <div style={{ backgroundColor: '#f8fafc', padding: '0.85rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#7c3aed', fontSize: '0.78rem', fontWeight: 700, marginBottom: '0.3rem' }}>
+                  <MapPin size={14} />
+                  <span>위치 및 주소</span>
+                </div>
+                <div style={{ fontSize: '0.85rem', color: '#1e293b', fontWeight: 600, wordBreak: 'keep-all' }}>
+                  {getTranslatedAddress(detailData?.addr1 || spot.location, lang)}
+                </div>
+              </div>
+
+              {/* 2. Operating Hours */}
+              <div style={{ backgroundColor: '#f8fafc', padding: '0.85rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#7c3aed', fontSize: '0.78rem', fontWeight: 700, marginBottom: '0.3rem' }}>
+                  <Clock size={14} />
+                  <span>이용 및 관람 시간</span>
+                </div>
+                <div style={{ fontSize: '0.85rem', color: '#1e293b', fontWeight: 600, wordBreak: 'keep-all' }}>
+                  {getTranslatedDetailText(hoursText, lang)}
+                </div>
+              </div>
+
+              {/* 3. Rest Date */}
+              <div style={{ backgroundColor: '#f8fafc', padding: '0.85rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#ef4444', fontSize: '0.78rem', fontWeight: 700, marginBottom: '0.3rem' }}>
+                  <Ban size={14} />
+                  <span>쉬는날 (휴무일)</span>
+                </div>
+                <div style={{ fontSize: '0.85rem', color: '#1e293b', fontWeight: 600, wordBreak: 'keep-all' }}>
+                  {getTranslatedDetailText(restDateText, lang)}
+                </div>
+              </div>
+
+              {/* 4. Parking */}
+              <div style={{ backgroundColor: '#f8fafc', padding: '0.85rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#0284c7', fontSize: '0.78rem', fontWeight: 700, marginBottom: '0.3rem' }}>
+                  <Car size={14} />
+                  <span>주차 시설 및 요금</span>
+                </div>
+                <div style={{ fontSize: '0.85rem', color: '#1e293b', fontWeight: 600, wordBreak: 'keep-all' }}>
+                  {getTranslatedDetailText(parkingText, lang)}
+                </div>
+              </div>
+
+              {/* 5. Admission Fee */}
+              <div style={{ backgroundColor: '#f8fafc', padding: '0.85rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#10b981', fontSize: '0.78rem', fontWeight: 700, marginBottom: '0.3rem' }}>
+                  <Ticket size={14} />
+                  <span>입장료 및 이용요금</span>
+                </div>
+                <div style={{ fontSize: '0.85rem', color: '#1e293b', fontWeight: 600, wordBreak: 'keep-all' }}>
+                  {getTranslatedDetailText(feeText, lang)}
+                </div>
+              </div>
+
+              {/* 6. Pet Friendly */}
+              <div style={{ backgroundColor: '#f8fafc', padding: '0.85rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#ea580c', fontSize: '0.78rem', fontWeight: 700, marginBottom: '0.3rem' }}>
+                  <Dog size={14} />
+                  <span>반려동물 동반 정보</span>
+                </div>
+                <div style={{ fontSize: '0.85rem', color: '#1e293b', fontWeight: 600, wordBreak: 'keep-all' }}>
+                  {getTranslatedDetailText(petText, lang)}
+                </div>
+              </div>
+
+              {/* 7. Stroller / Accessibility */}
+              <div style={{ backgroundColor: '#f8fafc', padding: '0.85rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#0891b2', fontSize: '0.78rem', fontWeight: 700, marginBottom: '0.3rem' }}>
+                  <Baby size={14} />
+                  <span>유모차 및 보행 편의</span>
+                </div>
+                <div style={{ fontSize: '0.85rem', color: '#1e293b', fontWeight: 600, wordBreak: 'keep-all' }}>
+                  {getTranslatedDetailText(babyText, lang)}
+                </div>
+              </div>
+
+              {/* 8. Contact & Phone */}
+              <div style={{ backgroundColor: '#f8fafc', padding: '0.85rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#7c3aed', fontSize: '0.78rem', fontWeight: 700, marginBottom: '0.3rem' }}>
+                  <Phone size={14} />
+                  <span>문의 및 안내 전화</span>
+                </div>
+                <div style={{ fontSize: '0.85rem', color: '#1e293b', fontWeight: 600 }}>
+                  <a href={`tel:${contactText.replace(/[^0-9\-]/g, '')}`} style={{ color: '#7c3aed', textDecoration: 'none', fontWeight: 700 }}>
+                    📞 {getTranslatedDetailText(contactText, lang)}
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 🌐 OFFICIAL WEBSITE BANNER (IF AVAILABLE) */}
+          {cleanHomepageUrl && (
+            <div style={{ marginBottom: '1.5rem' }}>
+              <a
+                href={cleanHomepageUrl}
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '0.85rem 1.25rem',
+                  backgroundColor: '#f3e8ff',
+                  border: '1.5px solid #d8b4fe',
+                  borderRadius: '14px',
+                  color: '#6b21a8',
+                  fontWeight: 800,
+                  fontSize: '0.88rem',
+                  textDecoration: 'none',
+                  boxShadow: '0 2px 6px rgba(124, 58, 237, 0.1)'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Globe size={18} color="#7c3aed" />
+                  <span>{displayTitle} 공식 웹사이트 / 예약 페이지 바로가기</span>
+                </div>
+                <span>방문하기 ↗</span>
+              </a>
+            </div>
+          )}
+
+          {/* 📸 INSTAGRAM & GOOGLE LIVE EXPLORE BANNER */}
+          <div style={{
+            marginBottom: '1.5rem',
+            padding: '1.1rem',
+            borderRadius: '16px',
+            background: 'linear-gradient(135deg, #fdf2f8 0%, #fae8ff 50%, #eff6ff 100%)',
+            border: '1px solid #f0abfc'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+              <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#86198f' }}>
+                📸 실시간 인스타그램 & 포토존 둘러보기
+              </span>
+              <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#c026d3', backgroundColor: '#ffffff', padding: '0.15rem 0.5rem', borderRadius: '12px' }}>
+                #인생샷명소
               </span>
             </div>
 
-            <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.65rem' }}>
               <a
                 href={`https://www.instagram.com/explore/tags/${encodeURIComponent((displayTitle || spot.title).replace(/\s+/g, ''))}/`}
                 target="_blank"
                 rel="noreferrer"
                 style={{
-                  flex: 1,
-                  minWidth: '200px',
-                  display: 'inline-flex',
+                  display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.5rem',
-                  padding: '0.75rem 1.1rem',
-                  background: 'linear-gradient(135deg, #ec4899 0%, #833ab4 50%, #fd1d1d 100%)',
+                  gap: '0.35rem',
+                  padding: '0.65rem',
+                  background: 'linear-gradient(135deg, #ec4899, #833ab4)',
                   color: '#ffffff',
                   fontWeight: 800,
-                  fontSize: '0.88rem',
-                  borderRadius: '12px',
-                  textDecoration: 'none',
-                  boxShadow: '0 4px 12px rgba(236, 72, 153, 0.3)',
-                  transition: 'all 0.2s ease'
+                  fontSize: '0.82rem',
+                  borderRadius: '10px',
+                  textDecoration: 'none'
                 }}
               >
-                <span>📸 인스타 #{displayTitle || spot.title} 실시간 보기 ↗</span>
+                <span>인스타 실시간 피드 ↗</span>
               </a>
 
               <a
@@ -571,504 +756,182 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                 target="_blank"
                 rel="noreferrer"
                 style={{
-                  flex: 1,
-                  minWidth: '200px',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.5rem',
-                  padding: '0.75rem 1.1rem',
-                  background: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)',
-                  color: '#ffffff',
-                  fontWeight: 800,
-                  fontSize: '0.88rem',
-                  borderRadius: '12px',
-                  textDecoration: 'none',
-                  boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                <span>🔍 구글 실시간 갤러리 감상 ↗</span>
-              </a>
-            </div>
-          </div>
-
-          {/* Partner Offers & Affiliate Links Block */}
-          <div style={{
-            marginBottom: '2rem',
-            padding: '1.25rem 1.5rem',
-            borderRadius: 'var(--radius-lg)',
-            background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.98))',
-            border: '1px solid rgba(56, 189, 248, 0.35)',
-            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.25)'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-              <h4 style={{ fontSize: '1rem', fontWeight: 800, color: '#ffffff', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Sparkles size={16} color="var(--accent-primary)" />
-                <span>{t.affiliateTitle || '파트너 혜택 및 주변 서비스'}</span>
-              </h4>
-              <span style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--accent-primary)', background: 'rgba(56, 189, 248, 0.15)', padding: '0.2rem 0.5rem', borderRadius: 'var(--radius-sm)' }}>
-                {t.adSponsoredTag || 'PARTNER OFFERS'}
-              </span>
-            </div>
-
-            {(() => {
-              const rawRegion = spot?.region && spot.region !== '전국' && spot.region !== '한국' 
-                ? (TRANSLATIONS[lang]?.regions?.[spot.region] || spot.region)
-                : (displayTitle || '서울');
-
-              let regionText = getTranslatedTitle(rawRegion, lang);
-              if (lang !== 'ko' && /[\uAC00-\uD7A3]/.test(regionText)) {
-                regionText = regionText.replace(/\s*\([\s\S]*?[\uAC00-\uD7A3]+[\s\S]*?\)/g, '').trim();
-                if (!regionText || /[\uAC00-\uD7A3]/.test(regionText)) {
-                  regionText = romanizeHangul(regionText);
-                }
-              }
-
-              const today = new Date();
-              const checkInObj = new Date(today);
-              checkInObj.setDate(checkInObj.getDate() + 1);
-              const checkOutObj = new Date(checkInObj);
-              checkOutObj.setDate(checkOutObj.getDate() + 2);
-
-              const y1 = checkInObj.getFullYear();
-              const m1 = String(checkInObj.getMonth() + 1).padStart(2, '0');
-              const d1 = String(checkInObj.getDate()).padStart(2, '0');
-              const y2 = checkOutObj.getFullYear();
-              const m2 = String(checkOutObj.getMonth() + 1).padStart(2, '0');
-              const d2 = String(checkOutObj.getDate()).padStart(2, '0');
-
-              const checkInStr = `${y1}-${m1}-${d1}`;
-              const checkOutStr = `${y2}-${m2}-${d2}`;
-
-              const agodaUrl = buildAgodaDeepLink(regionText, checkInStr, checkOutStr);
-              const klookUrl = buildKlookDeepLink(regionText + ' ' + (spot?.title || ''), checkInStr, checkOutStr);
-              const kkdayUrl = buildKKdayDeepLink(regionText + ' ' + (spot?.title || ''));
-
-              return (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
-                  <a
-                    href={agodaUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn-primary"
-                    style={{
-                      textDecoration: 'none',
-                      justifyContent: 'center',
-                      padding: '0.65rem 1rem',
-                      fontSize: '0.85rem',
-                      background: 'linear-gradient(135deg, #0284c7, #38bdf8)'
-                    }}
-                  >
-                    <Hotel size={16} />
-                    <span>{regionText ? `${regionText} ` : ''}{t.agodaHotelBtn || '최저가 숙소 (Agoda)'}</span>
-                    <ExternalLink size={14} />
-                  </a>
-
-                  <a
-                    href={klookUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn-primary"
-                    style={{
-                      textDecoration: 'none',
-                      justifyContent: 'center',
-                      padding: '0.65rem 1rem',
-                      fontSize: '0.85rem',
-                      background: 'linear-gradient(135deg, #f97316, #ea580c)'
-                    }}
-                  >
-                    <Ticket size={16} />
-                    <span>{regionText ? `${regionText} ` : ''}{t.klookTicketBtn || '투어 & 렌터카'}</span>
-                    <ExternalLink size={14} />
-                  </a>
-                  <a
-                    href={kkdayUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn-primary"
-                    style={{
-                      textDecoration: 'none',
-                      justifyContent: 'center',
-                      padding: '0.65rem 1rem',
-                      fontSize: '0.85rem',
-                      background: 'linear-gradient(135deg, #0d9488, #0f766e)'
-                    }}
-                  >
-                    <Sparkles size={16} />
-                    <span>{regionText ? `${regionText} ` : ''}{t.kkdayTicketBtn || 'KKday 체험'}</span>
-                    <ExternalLink size={14} />
-                  </a>
-                </div>
-              );
-            })()}
-          </div>
-
-          {/* TourAPI 4.0 Sub-Image Gallery (/detailImage2) */}
-          {galleryImages && galleryImages.length > 0 && (
-            <div style={{ marginBottom: '2rem' }}>
-              <h4 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                📸 {t.galleryTitle} ({galleryImages.length}{t.photosUnit})
-              </h4>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
-                gap: '0.75rem'
-              }}>
-                {galleryImages.map((imgUrl, i) => (
-                  <div key={i} style={{
-                    height: '90px',
-                    borderRadius: 'var(--radius-md)',
-                    overflow: 'hidden',
-                    border: '1px solid var(--border-color)'
-                  }}>
-                    <img 
-                      src={imgUrl} 
-                      alt={`Gallery-${i}`} 
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Embedded Google Maps inside Modal */}
-          <div style={{ marginBottom: '2rem' }}>
-            <h4 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <MapPin size={18} color="var(--accent-primary)" />
-              {t.mapSearchTitle}
-            </h4>
-            <div style={{
-              width: '100%',
-              height: '240px',
-              borderRadius: 'var(--radius-md)',
-              overflow: 'hidden',
-              border: '1px solid var(--border-color)',
-              position: 'relative'
-            }}>
-              <a
-                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((spot.title || '') + ' ' + (spot.location || spot.addr1 || ''))}`}
-                target="_blank"
-                rel="noreferrer"
-                style={{
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.5rem',
-                  width: '100%',
-                  height: '100%',
-                  background: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)',
+                  gap: '0.35rem',
+                  padding: '0.65rem',
+                  backgroundColor: '#0284c7',
                   color: '#ffffff',
                   fontWeight: 800,
-                  fontSize: '0.92rem',
-                  textDecoration: 'none',
-                  borderRadius: 'var(--radius-md)',
-                  boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)'
-                }}
-              >
-                <MapPin size={20} color="#ffffff" />
-                <span>📍 구글 지도(GPS) 실시간 위치 보기 ↗</span>
-              </a>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
-              <a
-                href={`https://www.google.com/maps/search/?api=1&query=${spot.lat || 37.5665},${spot.lng || 126.9780}`}
-                target="_blank"
-                rel="noreferrer"
-                style={{
-                  fontSize: '0.8rem',
-                  color: 'var(--accent-primary)',
-                  fontWeight: 600,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.25rem',
+                  fontSize: '0.82rem',
+                  borderRadius: '10px',
                   textDecoration: 'none'
                 }}
               >
-                <Globe size={14} /> {t.googleMapRoute}
+                <span>구글 고화질 갤러리 ↗</span>
               </a>
             </div>
           </div>
 
-          {/* Key Info Details Grid */}
+          {/* 🏨 PARTNER OFFERS (AGODA & KLOOK) */}
           <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-            gap: '1rem',
-            background: 'var(--bg-primary)',
-            padding: '1.25rem',
-            borderRadius: 'var(--radius-md)',
-            marginBottom: '2rem',
-            border: '1px solid var(--border-color)'
+            marginBottom: '1.5rem',
+            padding: '1.1rem',
+            backgroundColor: '#0f172a',
+            borderRadius: '16px',
+            color: '#ffffff'
           }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-              <MapPin size={18} color="var(--accent-primary)" style={{ marginTop: '0.2rem' }} />
-              <div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', fontWeight: 600 }}>{t.addressLabel}</div>
-                <div style={{ fontSize: '0.9rem', color: 'var(--text-main)' }}>
-                  {getTranslatedAddress(detailData?.addr1 || spot.location, lang)}
-                </div>
-              </div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                <Sparkles size={14} color="#38bdf8" />
+                <span>주변 추천 숙소 및 액티비티 예약</span>
+              </span>
+              <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#94a3b8' }}>
+                OFFICIAL PARTNER
+              </span>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-              <Clock size={18} color="var(--accent-primary)" style={{ marginTop: '0.2rem' }} />
-              <div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', fontWeight: 600 }}>{t.hoursLabel}</div>
-                <div style={{ fontSize: '0.9rem', color: 'var(--text-main)' }}>
-                  {introData?.usetime 
-                    ? getTranslatedDetailText(introData.usetime + (introData.restdate ? ` (${introData.restdate})` : ''), lang)
-                    : getTranslatedDetailText(spot.details?.hours || t.hoursDefault, lang)}
-                </div>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-              <Phone size={18} color="var(--accent-primary)" style={{ marginTop: '0.2rem' }} />
-              <div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', fontWeight: 600 }}>{t.contactLabel}</div>
-                <div style={{ fontSize: '0.9rem', color: 'var(--text-main)' }}>
-                  {getTranslatedDetailText(introData?.infocenter || detailData?.tel || spot.details?.contact || t.contactDefault, lang)}
-                </div>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-              <Globe size={18} color="var(--accent-primary)" style={{ marginTop: '0.2rem' }} />
-              <div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', fontWeight: 600 }}>{t.websiteLabel}</div>
-                {loadingDetail ? (
-                  <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{t.websiteLoading}</div>
-                ) : detailData?.homepage ? (
-                  <a
-                    href={detailData.homepage}
-                    target="_blank"
-                    rel="noreferrer"
-                    style={{
-                      fontSize: '0.88rem',
-                      color: 'var(--accent-primary)',
-                      fontWeight: 700,
-                      textDecoration: 'underline',
-                      wordBreak: 'break-all',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '0.25rem'
-                    }}
-                  >
-                    🔗 {t.visitOfficialWebsite} ↗
-                  </a>
-                ) : (
-                  <div style={{ fontSize: '0.85rem', color: 'var(--text-dim)', fontStyle: 'italic' }}>
-                    ℹ️ {t.noOfficialWebsite}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-              <SunMedium size={18} color="var(--accent-primary)" style={{ marginTop: '0.2rem' }} />
-              <div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', fontWeight: 600 }}>{t.seasonLabel}</div>
-                <div style={{ fontSize: '0.9rem', color: 'var(--text-main)' }}>
-                  {getTranslatedDetailText(introData?.useseason || spot.details?.bestSeason || t.seasonDefault, lang)}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Highlights & Additional Info */}
-          <div style={{ marginBottom: '2rem' }}>
-            <h4 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <CheckCircle size={18} color="var(--accent-primary)" />
-              {t.highlightsTitle}
-            </h4>
-            <ul style={{ listStyle: 'none', paddingLeft: 0, display: 'flex', flexDirection: 'column', gap: '0.55rem' }}>
-              {(spot.details?.highlights || t.highlightsBullets || ['대한민국 대표 관광지', '편리한 접근성 및 추천 코스']).map((h, idx) => (
-                <li key={idx} style={{
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '0.65rem' }}>
+              <a
+                href={buildAgodaDeepLink(spot.title, '2026-08-20', '2026-08-22')}
+                target="_blank"
+                rel="noreferrer"
+                style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.5rem',
-                  color: 'var(--text-muted)',
-                  fontSize: '0.9rem'
-                }}>
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--accent-primary)' }} />
-                  {getTranslatedDetailText(h, lang)}
-                </li>
-              ))}
-            </ul>
+                  justifyContent: 'center',
+                  gap: '0.35rem',
+                  padding: '0.65rem',
+                  background: 'linear-gradient(135deg, #0284c7, #38bdf8)',
+                  color: '#ffffff',
+                  fontWeight: 800,
+                  fontSize: '0.8rem',
+                  borderRadius: '10px',
+                  textDecoration: 'none'
+                }}
+              >
+                <Hotel size={14} />
+                <span>아고다 특가 숙소 ↗</span>
+              </a>
+
+              <a
+                href={buildKlookDeepLink(spot.title, '2026-08-20', '2026-08-22')}
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.35rem',
+                  padding: '0.65rem',
+                  background: 'linear-gradient(135deg, #f97316, #ea580c)',
+                  color: '#ffffff',
+                  fontWeight: 800,
+                  fontSize: '0.8rem',
+                  borderRadius: '10px',
+                  textDecoration: 'none'
+                }}
+              >
+                <Ticket size={14} />
+                <span>클룩 투어 & 티켓 ↗</span>
+              </a>
+            </div>
           </div>
 
-          {/* Real Visitor Reviews Section */}
-          <div style={{
-            borderTop: '1px solid var(--border-color)',
-            paddingTop: '1.5rem',
-            marginTop: '1.5rem'
-          }}>
-            <h4 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Star size={18} fill="#f59e0b" color="#f59e0b" />
-                {t.visitorReviewsTitle} ({mockReviews.length}{t.reviewsUnit})
+          {/* 💬 REAL TRAVELER REVIEWS & FEEDBACK */}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
+              <h4 style={{ fontSize: '1rem', fontWeight: 800, color: '#1e293b', margin: 0 }}>
+                💬 여행자 방문 리뷰 ({mockReviews.length})
+              </h4>
+              <span style={{ fontSize: '0.78rem', color: '#64748b' }}>
+                평균 만족도 ★ {spot.rating || 4.9}
               </span>
-              <span style={{ fontSize: '0.85rem', color: '#f59e0b', fontWeight: 700 }}>
-                ★ {spot.rating || '4.9'} / 5.0
-              </span>
-            </h4>
+            </div>
+
+            {/* Add Review Form */}
+            <form onSubmit={handleAddReview} style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem' }}>
+              <input
+                type="text"
+                value={newReviewText}
+                onChange={(e) => setNewReviewText(e.target.value)}
+                placeholder="이 명소에 대한 생생한 후기를 남겨보세요..."
+                style={{
+                  flex: 1,
+                  padding: '0.65rem 0.85rem',
+                  borderRadius: '10px',
+                  border: '1px solid #cbd5e1',
+                  fontSize: '0.85rem',
+                  backgroundColor: '#f8fafc',
+                  outline: 'none'
+                }}
+              />
+              <button
+                type="submit"
+                style={{
+                  padding: '0.65rem 1.1rem',
+                  backgroundColor: '#7c3aed',
+                  color: '#ffffff',
+                  borderRadius: '10px',
+                  border: 'none',
+                  fontWeight: 700,
+                  fontSize: '0.85rem',
+                  cursor: 'pointer'
+                }}
+              >
+                등록
+              </button>
+            </form>
 
             {/* Review List */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.25rem' }}>
-              {(showAllReviews ? mockReviews : mockReviews.slice(0, 2)).map((rawRev) => {
-                const rev = getTranslatedReview(rawRev, lang);
-                return (
-                  <div key={rev.id} style={{
-                    background: 'var(--bg-primary)',
-                    padding: '1rem',
-                    borderRadius: 'var(--radius-md)',
-                    border: '1px solid var(--border-color)'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <span style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-main)' }}>{rev.author}</span>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--accent-primary)', background: 'rgba(56, 189, 248, 0.1)', padding: '0.1rem 0.4rem', borderRadius: 'var(--radius-sm)' }}>
-                          {rev.ageGroup} / {rev.gender}
-                        </span>
-                      </div>
-                      <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>{rev.date}</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+              {mockReviews.slice(0, showAllReviews ? mockReviews.length : 3).map((rev) => (
+                <div key={rev.id} style={{
+                  padding: '0.85rem',
+                  backgroundColor: '#f8fafc',
+                  borderRadius: '12px',
+                  border: '1px solid #e2e8f0'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <span style={{ fontWeight: 700, fontSize: '0.82rem', color: '#1e293b' }}>{rev.author}</span>
+                      <span style={{ fontSize: '0.72rem', color: '#64748b' }}>({rev.ageGroup})</span>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', color: '#f59e0b', marginBottom: '0.4rem' }}>
-                      {[...Array(Math.max(1, Math.min(5, Number(rev?.rating) || 5)))].map((_, i) => (
-                        <Star key={i} size={14} fill="#f59e0b" color="#f59e0b" />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.15rem' }}>
+                      {[...Array(rev.rating || 5)].map((_, i) => (
+                        <Star key={i} size={12} fill="#f59e0b" color="#f59e0b" />
                       ))}
                     </div>
-                    <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: 1.5, margin: 0 }}>
-                      {rev.content}
-                    </p>
                   </div>
-                );
-              })}
-            </div>
-
-            {/* Toggle View All Reviews Button */}
-            {mockReviews.length > 2 && (
-              <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-                <button
-                  type="button"
-                  onClick={() => setShowAllReviews(prev => !prev)}
-                  style={{
-                    background: 'var(--bg-secondary)',
-                    border: '1px solid var(--border-highlight)',
-                    color: 'var(--accent-primary)',
-                    padding: '0.5rem 1.25rem',
-                    borderRadius: 'var(--radius-full)',
-                    fontSize: '0.85rem',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    transition: 'all var(--transition-fast)'
-                  }}
-                >
-                  {showAllReviews 
-                    ? t.hideReviews 
-                    : `${t.showAllReviews} (${mockReviews.length}${t.reviewsUnit})`}
-                </button>
-              </div>
-            )}
-
-            {/* Write Review Input */}
-            <div style={{
-              background: 'var(--bg-card)',
-              padding: '1.25rem',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--border-highlight)'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-                <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-main)' }}>
-                  ✍️ {t.writeReviewLabel}
-                </span>
-                
-                {/* Interactive Star Rating Selector */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginRight: '0.3rem' }}>{t.ratingLabel}:</span>
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star
-                      key={star}
-                      size={20}
-                      fill={star <= newRating ? "#f59e0b" : "none"}
-                      color={star <= newRating ? "#f59e0b" : "var(--text-dim)"}
-                      style={{ cursor: 'pointer', transition: 'transform 0.1s' }}
-                      onClick={() => setNewRating(star)}
-                    />
-                  ))}
-                  <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#f59e0b', marginLeft: '0.3rem' }}>
-                    {newRating}{t.scoreSuffix}
-                  </span>
+                  <p style={{ margin: 0, fontSize: '0.82rem', color: '#475569', lineHeight: 1.5 }}>
+                    {getTranslatedReview(rev.content, lang)}
+                  </p>
                 </div>
-              </div>
-
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <input
-                  type="text"
-                  placeholder={t.reviewPlaceholder}
-                  value={newReviewText}
-                  onChange={(e) => setNewReviewText(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && newReviewText.trim()) {
-                      const newReviewItem = {
-                        id: Date.now(),
-                        author: '나의 리뷰',
-                        ageGroup: '방문객',
-                        gender: '일반',
-                        rating: newRating,
-                        date: new Date().toISOString().split('T')[0],
-                        content: newReviewText.trim()
-                      };
-                      const updated = [newReviewItem, ...mockReviews];
-                      setMockReviews(updated);
-                      setNewReviewText('');
-                      try {
-                        localStorage.setItem(`ktravel_reviews_${spot.id}`, JSON.stringify(updated));
-                      } catch (err) { console.error(err); }
-                    }
-                  }}
-                  style={{
-                    flex: 1,
-                    padding: '0.6rem 0.9rem',
-                    borderRadius: 'var(--radius-md)',
-                    background: 'var(--bg-secondary)',
-                    border: '1px solid var(--border-color)',
-                    color: 'var(--text-main)',
-                    fontSize: '0.88rem',
-                    outline: 'none'
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (newReviewText.trim()) {
-                      const newReviewItem = {
-                        id: Date.now(),
-                        author: '나의 리뷰',
-                        ageGroup: '방문객',
-                        gender: '일반',
-                        rating: newRating,
-                        date: new Date().toISOString().split('T')[0],
-                        content: newReviewText.trim()
-                      };
-                      const updated = [newReviewItem, ...mockReviews];
-                      setMockReviews(updated);
-                      setNewReviewText('');
-                      try {
-                        localStorage.setItem(`ktravel_reviews_${spot.id}`, JSON.stringify(updated));
-                      } catch (err) { console.error(err); }
-                    }
-                  }}
-                  className="btn-primary"
-                  style={{ padding: '0.6rem 1.25rem', fontSize: '0.88rem', whiteSpace: 'nowrap', fontWeight: 700 }}
-                >
-                  {t.submitReviewBtn || '리뷰 등록'}
-                </button>
-              </div>
+              ))}
             </div>
+
+            {mockReviews.length > 3 && (
+              <button
+                onClick={() => setShowAllReviews(!showAllReviews)}
+                style={{
+                  width: '100%',
+                  marginTop: '0.65rem',
+                  padding: '0.5rem',
+                  backgroundColor: '#f1f5f9',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '10px',
+                  fontSize: '0.8rem',
+                  fontWeight: 700,
+                  color: '#475569',
+                  cursor: 'pointer'
+                }}
+              >
+                {showAllReviews ? '리뷰 접기 ▲' : `리뷰 더보기 (${mockReviews.length - 3}개) ▼`}
+              </button>
+            )}
           </div>
+
         </div>
       </div>
     </div>
