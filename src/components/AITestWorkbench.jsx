@@ -10,7 +10,183 @@ import { TRANSLATIONS, getSpotDetailButtonLabel, getSpotMapButtonLabel } from '.
 import AdminAnalyticsDashboard from './AdminAnalyticsDashboard';
 import CourseMapViewModal from './CourseMapViewModal';
 
+const WORKBENCH_I18N = {
+  ko: {
+    title: 'Vora AI 1:1 대화형 여행 컨시어지',
+    subtitle: '맞춤 여행 일정 (1~5일) ➔ 한국관광공사 정품 명소 & 지도 GPS 연동',
+    unlimitedBadge: '⚡ 무제한 패스 (UNLIMITED)',
+    quotaRemaining: '🎟️ 오늘 남은 무료 대화:',
+    quotaTimes: '회',
+    welcomeText: '안녕하세요! 여행 컨시어지 보라입니다. 😊\n\n매일 무료 5회의 AI 대화로 당일치기부터 최대 5박 일정까지 나만의 맞춤 여행 코스를 받아보세요!\n\n떠나고 싶은 지역이나 여행 스타일(예: 거제도 2박3일 오션뷰 카페, 수원 화성행궁 야경)을 자유롭게 물어보세요!',
+    chips: ['📍 거제도 2박3일 오션뷰 카페', '📍 수원 화성행궁 야경 힐링', '📍 제주도 3박4일 맛집 탐방', '📍 여기서 뭘 할 수 있지?'],
+    placeholder: '어디로 떠나고 싶으신가요? (예: 수원 2박3일 맛집 코스, 거제도 4박5일 힐링)',
+    sendBtn: '전송',
+    rightPanelTitle: '🗺️ 추천 1:1 명소 코스',
+    rightPanelPlaceholder: '왼쪽 Vora AI 대화창에서 원하시는 여행지나 일정을 물어보시면, 추천 명소 코스가 이 우측 패널에 자동으로 실시간 동기화됩니다!',
+    rightPanelLoadingTitle: '⚡ Vora AI 맞춤 여행 코스 분석 중...',
+    rightPanelLoadingSub: '우측 명소 패널을 깨끗하게 초기화 후 한국관광공사 정품 코스로 동기화합니다.',
+    agodaLink: '🏨 아고다 추천 할인 숙소 예약',
+    klookLink: '🎟️ 클룩 추천 액티비티 예약',
+    searchingSpots: '한국관광공사 정품 DB에서 추천 명소 탐색 중',
+    voiceRecognitionTitle: '음성 인식'
+  },
+  en: {
+    title: 'Vora AI 1:1 Travel Concierge',
+    subtitle: 'Custom Itineraries (1~5 Days) ➔ Korea Tourism Org (KTO) Official DB & GPS Navigation',
+    unlimitedBadge: '⚡ Unlimited Pass',
+    quotaRemaining: '🎟️ Free Chats Remaining Today:',
+    quotaTimes: '',
+    welcomeText: 'Hello! I am Vora, your Korea Travel AI Concierge. 😊\n\nEnjoy personalized 1 to 5-day travel itineraries tailored to your style with official Korea Tourism Organization data!\n\nFeel free to ask for any city or preference (e.g. 3-day Busan ocean view cafes, 2-day Seoul K-culture tour)!',
+    chips: ['📍 3-Day Busan Ocean View Cafes', '📍 2-Day Seoul K-Culture Tour', '📍 4-Day Jeju Gourmet Exploration', '📍 What can I do here?'],
+    placeholder: 'Where would you like to travel? (e.g. 3-day Busan trip, 2-day Seoul tour)',
+    sendBtn: 'Send',
+    rightPanelTitle: '🗺️ Recommended 1:1 Course',
+    rightPanelPlaceholder: 'Ask Vora AI in the left chat about your travel destination, and the recommended itinerary course will automatically sync in this panel in real time!',
+    rightPanelLoadingTitle: '⚡ Vora AI analyzing your custom travel course...',
+    rightPanelLoadingSub: 'Syncing official Korea Tourism Organization verified spots with GPS mapping.',
+    agodaLink: '🏨 Book Discounted Hotels on Agoda',
+    klookLink: '🎟️ Book Activities & Passes on Klook',
+    searchingSpots: 'Searching official Korea Tourism Org database for verified attractions',
+    voiceRecognitionTitle: 'Voice Search'
+  },
+  ja: {
+    title: 'Vora AI 1:1 旅行コンシェルジュ',
+    subtitle: 'オーダーメイド旅程 (1〜5泊) ➔ 韓国観光公社公式DB＆GPS連動',
+    unlimitedBadge: '⚡ 無制限パス',
+    quotaRemaining: '🎟️ 本日の無料対話残り:',
+    quotaTimes: '回',
+    welcomeText: 'こんにちは！韓国旅行コンシェルジュのボラです。😊\n\n日帰りから最大5泊まで、韓国観光公社公式データに基づいたあなただけの旅行コースをご案内します！\n\n行きたい都市や旅行スタイル（例：釜山2泊3日オーシャンビューカフェ、ソウル2泊3日K-Culture）をお気軽にご質問ください！',
+    chips: ['📍 釜山 2泊3日 オーシャンビューカフェ', '📍 ソウル 2泊3日 K-Cultureツアー', '📍 済州島 3泊4日 グルメ旅', '📍 ここで何ができますか？'],
+    placeholder: 'どこへ旅行したいですか？（例：釜山2泊3日グルメ、済州島3泊4日）',
+    sendBtn: '送信',
+    rightPanelTitle: '🗺️ おすすめ 1:1 コース',
+    rightPanelPlaceholder: '左側のAI対話ウィンドウで行きたい場所や日程を尋ねると、おすすめのコースがこの右側パネルに自動でリアルタイム同期されます！',
+    rightPanelLoadingTitle: '⚡ Vora AI おすすめコース分析中...',
+    rightPanelLoadingSub: '韓国観光公社公式名所DBとGPS地図をリアルタイム同期中。',
+    agodaLink: '🏨 Agoda おすすめ割引ホテルを予約',
+    klookLink: '🎟️ Klook おすすめアクティビティを予約',
+    searchingSpots: '韓国観光公社公式DBからおすすめ名所を探索中',
+    voiceRecognitionTitle: '音声認識'
+  },
+  zh: {
+    title: 'Vora AI 1:1 专属旅游顾问',
+    subtitle: '定制旅行行程 (1~5天) ➔ 韩国旅游发展局官方数据与地图 GPS 联动',
+    unlimitedBadge: '⚡ 无限通行证',
+    quotaRemaining: '🎟️ 今日剩余免费对话:',
+    quotaTimes: '次',
+    welcomeText: '您好！我是您的专属韩国旅游 AI 顾问 Vora。😊\n\n基于韩国旅游发展局官方正品数据，为您量身定制 1 至 5 天的韩国个性化行程！\n\n请随时输入您想去的城市或旅行风格（例如：釜山海云台 3 天 2 晚海景咖啡馆、首尔 2 天 1 晚经典游）！',
+    chips: ['📍 釜山 3天2晚 海景咖啡馆之旅', '📍 首尔 2天1晚 K-Culture 精华游', '📍 济州岛 4天3晚 美食探店', '📍 在这里可以体验什么？'],
+    placeholder: '您想去哪里旅行？（例如：釜山3天2晚海景游、首尔2天1晚经典游）',
+    sendBtn: '发送',
+    rightPanelTitle: '🗺️ 推荐 1:1 景点路线',
+    rightPanelPlaceholder: '在左侧 AI 对话框输入您想去的目的地或行程，推荐的景点路线将自动在此右侧面板实时同步！',
+    rightPanelLoadingTitle: '⚡ Vora AI 正在分析定制行程...',
+    rightPanelLoadingSub: '正在与韩国旅游发展局官方认证景点及 GPS 地图实时同步。',
+    agodaLink: '🏨 在 Agoda 预订精选特惠酒店',
+    klookLink: '🎟️ 在 Klook 预订推荐玩乐与门票',
+    searchingSpots: '正在从韩国旅游发展局官方数据中检索精选景点',
+    voiceRecognitionTitle: '语音识别'
+  },
+  zht: {
+    title: 'Vora AI 1:1 專屬旅遊顧問',
+    subtitle: '定制旅行行程 (1~5天) ➔ 韓國旅遊發展局官方數據與地圖 GPS 連動',
+    unlimitedBadge: '⚡ 無限通行證',
+    quotaRemaining: '🎟️ 今日剩餘免費對話:',
+    quotaTimes: '次',
+    welcomeText: '您好！我是您的專屬韓國旅遊 AI 顧問 Vora。😊\n\n基於韓國旅遊發展局官方正品數據，為您量身定制 1 至 5 天的韓國個性化行程！\n\n請隨時輸入您想去的城市或旅行偏好（例如：釜山海雲台 3 天 2 晚海景咖啡館、首爾 2 天 1 晚經典遊）！',
+    chips: ['📍 釜山 3天2晚 海景咖啡館之旅', '📍 首爾 2天1晚 K-Culture 精華遊', '📍 濟州島 4天3晚 美食探店', '📍 在這裡可以體驗什麼？'],
+    placeholder: '您想去哪裡旅行？（例如：釜山3天2晚海景遊、首爾2天1晚經典遊）',
+    sendBtn: '發送',
+    rightPanelTitle: '🗺️ 推薦 1:1 景點路線',
+    rightPanelPlaceholder: '在左側 AI 對話框輸入您想去的目的地或行程，推薦的景點路線將自動在此右側面板即時同步！',
+    rightPanelLoadingTitle: '⚡ Vora AI 正在分析定制行程...',
+    rightPanelLoadingSub: '正在與韓國旅遊發展局官方認證景點及 GPS 地圖即時同步。',
+    agodaLink: '🏨 在 Agoda 預訂精選特惠飯店',
+    klookLink: '🎟️ 在 Klook 預訂推薦玩樂與門票',
+    searchingSpots: '正在從韓國旅遊發展局官方數據中檢索精選景點',
+    voiceRecognitionTitle: '語音識別'
+  },
+  de: {
+    title: 'Vora AI 1:1 Reise-Concierge',
+    subtitle: 'Individuelle Reiserouten (1~5 Tage) ➔ Offizielle Korea-Tourismus-DB & GPS-Navigation',
+    unlimitedBadge: '⚡ Unbegrenzter Pass',
+    quotaRemaining: '🎟️ Heute verbleibende kostenlose Chats:',
+    quotaTimes: '',
+    welcomeText: 'Hallo! Ich bin Vora, Ihr KI-Reise-Concierge für Korea. 😊\n\nErhalten Sie maßgeschneiderte Reiserouten von 1 bis 5 Tagen basierend auf offiziellen Korea-Tourismusdaten!\n\nFragen Sie nach einer Region oder Vorliebe (z.B. 3 Tage Busan Café-Tour, 2 Tage Seoul Kulturreise)!',
+    chips: ['📍 3 Tage Busan Meerblick-Cafés', '📍 2 Tage Seoul K-Kultur-Tour', '📍 4 Tage Jeju Kulinarik', '📍 Was kann ich hier tun?'],
+    placeholder: 'Wohin möchten Sie reisen? (z.B. 3 Tage Busan, 2 Tage Seoul)',
+    sendBtn: 'Senden',
+    rightPanelTitle: '🗺️ Empfohlene 1:1 Route',
+    rightPanelPlaceholder: 'Fragen Sie Vora AI im linken Chat nach Ihrem Reiseziel – die empfohlene Route wird hier rechts in Echtzeit synchronisiert!',
+    rightPanelLoadingTitle: '⚡ Vora AI analysiert Ihre Route...',
+    rightPanelLoadingSub: 'Synchronisation mit offiziellen Korea-Tourismus-Daten.',
+    agodaLink: '🏨 Hotels mit Rabatt auf Agoda buchen',
+    klookLink: '🎟️ Aktivitäten & Pässe auf Klook buchen',
+    searchingSpots: 'Suche nach verifizierten Attraktionen in der offiziellen Tourismus-DB',
+    voiceRecognitionTitle: 'Sprachsuche'
+  },
+  fr: {
+    title: 'Vora AI 1:1 Concierge de Voyage',
+    subtitle: 'Itinéraires sur mesure (1~5 jours) ➔ Données officielles Tourisme Corée & GPS',
+    unlimitedBadge: '⚡ Pass Illimité',
+    quotaRemaining: '🎟️ Conversations gratuites restantes :',
+    quotaTimes: '',
+    welcomeText: 'Bonjour ! Je suis Vora, votre concierge IA pour votre voyage en Corée. 😊\n\nProfitez d\'itinéraires personnalisés de 1 à 5 jours avec les données officielles de l\'Organisation du Tourisme de Corée !\n\nN\'hésitez pas à préciser vos envies (ex. 3 jours à Busan cafés vue mer, 2 jours à Séoul immersion culturelle) !',
+    chips: ['📍 3 jours à Busan Cafés Vue Mer', '📍 2 jours à Séoul K-Culture', '📍 4 jours à Jeju Gastronomie', '📍 Que faire ici ?'],
+    placeholder: 'Où souhaitez-vous voyager ? (ex. 3 jours à Busan, 2 jours à Séoul)',
+    sendBtn: 'Envoyer',
+    rightPanelTitle: '🗺️ Parcours 1:1 Recommandé',
+    rightPanelPlaceholder: 'Demandez votre destination à Vora AI dans le chat à gauche : le parcours recommandé sera synchronisé ici en temps réel !',
+    rightPanelLoadingTitle: '⚡ Vora AI analyse votre itinéraire...',
+    rightPanelLoadingSub: 'Synchronisation avec les données officielles de l\'Organisation du Tourisme de Corée.',
+    agodaLink: '🏨 Réserver des hôtels avec réduction sur Agoda',
+    klookLink: '🎟️ Réserver des activités & pass sur Klook',
+    searchingSpots: 'Recherche des attractions officielles vérifiées',
+    voiceRecognitionTitle: 'Recherche Vocale'
+  },
+  es: {
+    title: 'Vora AI 1:1 Asistente de Viajes',
+    subtitle: 'Itinerarios a medida (1~5 días) ➔ BD Oficial de Turismo de Corea y Navegación GPS',
+    unlimitedBadge: '⚡ Pase Ilimitado',
+    quotaRemaining: '🎟️ Chats gratuitos restantes hoy:',
+    quotaTimes: '',
+    welcomeText: '¡Hola! Soy Vora, tu asistente de viajes IA para Corea. 😊\n\n¡Disfruta de itinerarios personalizados de 1 a 5 días con datos oficiales de la Organización de Turismo de Corea!\n\nPregúntame sobre cualquier destino o estilo (ej. 3 días en Busan cafés con vista al mar, 2 días en Seúl tour K-Culture).',
+    chips: ['📍 3 días en Busan Cafés con Vista al Mar', '📍 2 días en Seúl Tour K-Culture', '📍 4 días en Jeju Tour Gastronómico', '📍 ¿Qué puedo hacer aquí?'],
+    placeholder: '¿A dónde te gustaría viajar? (ej. 3 días en Busan, 2 días en Seúl)',
+    sendBtn: 'Enviar',
+    rightPanelTitle: '🗺️ Ruta 1:1 Recomendada',
+    rightPanelPlaceholder: 'Pregunta a Vora AI en el chat de la izquierda sobre tu destino y el recorrido recomendado se sincronizará aquí en tiempo real.',
+    rightPanelLoadingTitle: '⚡ Vora AI está analizando tu itinerario...',
+    rightPanelLoadingSub: 'Sincronizando atracciones verificadas de la Organización de Turismo de Corea.',
+    agodaLink: '🏨 Reservar hoteles con descuento en Agoda',
+    klookLink: '🎟️ Reservar actividades y pases en Klook',
+    searchingSpots: 'Buscando atracciones verificadas en la base de datos oficial',
+    voiceRecognitionTitle: 'Búsqueda por Voz'
+  },
+  ru: {
+    title: 'Vora AI 1:1 ИИ-консьерж по Корее',
+    subtitle: 'Индивидуальные маршруты (1~5 дней) ➔ Официальная база Национальной организации туризма Кореи и GPS',
+    unlimitedBadge: '⚡ Безлимитный доступ',
+    quotaRemaining: '🎟️ Осталось бесплатных диалогов на сегодня:',
+    quotaTimes: '',
+    welcomeText: 'Здравствуйте! Я Vora, ваш ИИ-консьерж по путешествиям в Корею. 😊\n\nПолучайте персональные маршруты от 1 до 5 дней на основе официальных данных Национальной организации туризма Кореи!\n\nЗадайте любой вопрос по городам и стилям поездки (например: 3 дня в Пусане с кафе с видом на море, 2 дня в Сеуле по местам K-Culture)!',
+    chips: ['📍 3 дня в Пусане с видовыми кафе', '📍 2 дня в Сеуле по местам K-Culture', '📍 4 дня на Чеджу гастротур', '📍 Что здесь можно посмотреть?'],
+    placeholder: 'Куда вы хотите поехать? (например: 3 дня в Пусане, 2 дня в Сеуле)',
+    sendBtn: 'Отправить',
+    rightPanelTitle: '🗺️ Рекомендованный 1:1 маршрут',
+    rightPanelPlaceholder: 'Спросите Vora AI в чате слева о вашем путешествии, и рекомендованный маршрут автоматически синхронизируется в этой панели в реальном времени!',
+    rightPanelLoadingTitle: '⚡ Vora AI составляет индивидуальный маршрут...',
+    rightPanelLoadingSub: 'Синхронизация с проверенными достопримечательностями туризма Кореи.',
+    agodaLink: '🏨 Забронировать отель со скидкой на Agoda',
+    klookLink: '🎟️ Забронировать билеты и активности на Klook',
+    searchingSpots: 'Поиск проверенных достопримечательностей в официальной базе',
+    voiceRecognitionTitle: 'Голосовой ввод'
+  }
+};
+
 export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks = [], onToggleBookmark }) {
+  const wt = WORKBENCH_I18N[lang] || WORKBENCH_I18N.ko;
+
   // 1. Quota & Dev Bypass Hook State
   const { usedCount, remainingQuota, dailyLimit, canProceed, isDevBypass, toggleDevBypass, incrementQuota } = useQuotaLimit(5);
 
@@ -50,18 +226,34 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
 
   // 5. Dynamic High-Visibility Animated Loading Dots & Status Step State
   const [loadingDots, setLoadingDots] = useState('●');
-  const [loadingStepText, setLoadingStepText] = useState('한국관광공사 정품 DB에서 추천 명소 탐색 중');
+  const [loadingStepText, setLoadingStepText] = useState(wt.searchingSpots);
 
   // 6. Chat History Stream State
   const [chatHistory, setChatHistory] = useState([
     {
       id: 'welcome-1',
       sender: 'vora',
-      text: '안녕하세요! 여행 컨시어지 보라입니다. 😊\n\n매일 무료 5회의 AI 대화로 당일치기부터 최대 5박 일정까지 나만의 맞춤 여행 코스를 받아보세요!\n\n떠나고 싶은 지역이나 여행 스타일(예: 거제도 2박3일 오션뷰 카페, 수원 화성행궁 야경)을 자유롭게 물어보세요!',
+      text: wt.welcomeText,
       timestamp: new Date().toLocaleTimeString(),
-      chips: ['거제도 2박3일 오션뷰 카페', '수원 화성행궁 야경 힐링', '제주도 3박4일 맛집 탐방', '여기서 뭘 할 수 있지?']
+      chips: wt.chips
     }
   ]);
+
+  // Update initial welcome message if user hasn't sent messages yet and changes language
+  useEffect(() => {
+    setChatHistory(prev => {
+      if (prev.length === 1 && prev[0].id === 'welcome-1') {
+        return [{
+          id: 'welcome-1',
+          sender: 'vora',
+          text: wt.welcomeText,
+          timestamp: new Date().toLocaleTimeString(),
+          chips: wt.chips
+        }];
+      }
+      return prev;
+    });
+  }, [lang, wt]);
 
   const [inputPrompt, setInputPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -499,10 +691,10 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
           </div>
           <div>
             <h3 style={{ fontSize: '0.98rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
-              Vora AI 1:1 대화형 여행 컨시어지
+              {wt.title}
             </h3>
             <span style={{ fontSize: '0.7rem', color: '#64748b' }}>
-              맞춤 여행 일정 (1~5일) ➔ 한국관광공사 정품 명소 & 지도 GPS 연동
+              {wt.subtitle}
             </span>
           </div>
         </div>
@@ -520,9 +712,9 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
           gap: '0.3rem'
         }}>
           {isDevBypass ? (
-            <>⚡ 무제한 패스 (UNLIMITED)</>
+            <>{wt.unlimitedBadge}</>
           ) : (
-            <>🎟️ 오늘 남은 무료 대화: <span style={{ color: '#b45309' }}>{Math.max(0, (virtualQuotaLimit + extraRechargeCount) - usedCount)}</span> / {virtualQuotaLimit + extraRechargeCount}회</>
+            <>{wt.quotaRemaining} <span style={{ color: '#b45309' }}>{Math.max(0, (virtualQuotaLimit + extraRechargeCount) - usedCount)}</span> / {virtualQuotaLimit + extraRechargeCount}{wt.quotaTimes}</>
           )}
         </div>
       </div>
@@ -905,7 +1097,7 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
               value={inputPrompt}
               onChange={(e) => setInputPrompt(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-              placeholder="어디로 떠나고 싶으신가요? (예: 수원 2박3일 맛집 코스, 거제도 4박5일 힐링)"
+              placeholder={wt.placeholder}
               style={{
                 flex: 1,
                 padding: '0.75rem 0.9rem',
@@ -931,7 +1123,7 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
                 alignItems: 'center',
                 justifyContent: 'center'
               }}
-              title="음성 인식"
+              title={wt.voiceRecognitionTitle}
             >
               <Mic size={17} />
             </button>
@@ -954,7 +1146,7 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
               }}
             >
               <Send size={15} />
-              <span>전송</span>
+              <span>{wt.sendBtn}</span>
             </button>
           </div>
 
@@ -986,7 +1178,7 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                 <Compass size={18} style={{ color: '#7e22ce' }} />
                 <h4 style={{ fontSize: '0.9rem', fontWeight: 700, margin: 0, color: '#0f172a' }}>
-                  🗺️ {activeSpotMessage ? `${activeSpotMessage.regionName || '추천'} 1:1 명소 코스` : '추천 1:1 명소 코스'}
+                  {activeSpotMessage ? `${activeSpotMessage.regionName || ''} ${wt.rightPanelTitle}` : wt.rightPanelTitle}
                 </h4>
               </div>
               {activeSpotMessage?.spots && (
@@ -1168,7 +1360,7 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
                     fontWeight: 700,
                     textDecoration: 'none'
                   }}>
-                    <span>🏨 아고다 추천 할인 숙소 예약</span>
+                    <span>{wt.agodaLink}</span>
                     <span>↗</span>
                   </a>
                   <a href="https://www.klook.com" target="_blank" rel="noreferrer" style={{
@@ -1184,7 +1376,7 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
                     fontWeight: 700,
                     textDecoration: 'none'
                   }}>
-                    <span>🎟️ 클룩 추천 액티비티 예약</span>
+                    <span>{wt.klookLink}</span>
                     <span>↗</span>
                   </a>
                 </div>
@@ -1192,13 +1384,13 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
             ) : isLoading ? (
               <div style={{ padding: '2.5rem 1rem', textAlign: 'center', color: '#9333ea', fontSize: '0.8rem' }}>
                 <Sparkles size={32} className="animate-spin" style={{ margin: '0 auto 0.75rem auto', color: '#9333ea', display: 'block' }} />
-                <div style={{ fontWeight: 700, marginBottom: '0.35rem', fontSize: '0.85rem' }}>⚡ Vora AI 맞춤 여행 코스 분석 중...</div>
-                <span style={{ fontSize: '0.74rem', color: '#64748b' }}>우측 명소 패널을 깨끗하게 초기화 후 한국관광공사 정품 코스로 동기화합니다.</span>
+                <div style={{ fontWeight: 700, marginBottom: '0.35rem', fontSize: '0.85rem' }}>{wt.rightPanelLoadingTitle}</div>
+                <span style={{ fontSize: '0.74rem', color: '#64748b' }}>{wt.rightPanelLoadingSub}</span>
               </div>
             ) : (
               <div style={{ padding: '3rem 1rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.78rem' }}>
                 <Map size={32} style={{ margin: '0 auto 0.5rem auto', color: '#cbd5e1', display: 'block' }} />
-                <span>왼쪽 Vora AI 대화창에서 원하시는 여행지나 일정을 물어보시면, 추천 명소 코스가 이 우측 패널에 자동으로 실시간 동기화됩니다!</span>
+                <span>{wt.rightPanelPlaceholder}</span>
               </div>
             )}
           </div>

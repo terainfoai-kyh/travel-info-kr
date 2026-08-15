@@ -19,9 +19,11 @@ const PWA_I18N = {
     step1Title: '1. 브라우저 메뉴 열기',
     step1DescKakao: '카카오톡 우측 하단 (⋮ 또는 ⚙️) ➔ "다른 브라우저로 열기" 선택 후',
     step1DescGeneral: '하단/상단 브라우저 공유 또는 설정 메뉴 터치',
+    desktopStep1Desc: '크롬/엣지 주소창 우측 상단 [앱 설치 (💻)] 아이콘 클릭',
     step2Title: '2. "홈 화면에 추가" (Add to Home Screen) 선택',
     step2DescIOS: '아이폰: 사파리 하단 공유(📤) 버튼 ➔ "홈 화면에 추가(➕)"',
     step2DescAndroid: '안드로이드: 더보기(⋮) 메뉴 ➔ "앱 설치" 또는 "홈 화면에 추가"',
+    desktopStep2Desc: '설치 클릭 ➔ 데스크톱 바탕화면 및 작업표시줄 단독 앱 생성',
     confirmBtn: '확인'
   },
   en: {
@@ -41,9 +43,11 @@ const PWA_I18N = {
     step1Title: '1. Open Browser Menu',
     step1DescKakao: 'In KakaoTalk, select (⋮) ➔ "Open in External Browser"',
     step1DescGeneral: 'Tap Share or Menu icon in your mobile browser',
+    desktopStep1Desc: 'Click [Install App (💻)] icon at top right of Chrome/Edge address bar',
     step2Title: '2. Select "Add to Home Screen"',
     step2DescIOS: 'iPhone: Tap Share (📤) ➔ "Add to Home Screen (➕)"',
     step2DescAndroid: 'Android: Tap Menu (⋮) ➔ "Install App" or "Add to Home Screen"',
+    desktopStep2Desc: 'Click Install ➔ Creates standalone desktop & taskbar app',
     confirmBtn: 'Got it'
   },
   ja: {
@@ -63,9 +67,11 @@ const PWA_I18N = {
     step1Title: '1. ブラウザメニューを開く',
     step1DescKakao: 'カカオトーク右下 (⋮) ➔ "他のブラウザで開く" を選択',
     step1DescGeneral: 'ブラウザの共有または menu アイコンをタップ',
+    desktopStep1Desc: 'Chrome/Edgeのアドレスバー右上の「アプリをインストール (💻)」をクリック',
     step2Title: '2. "ホーム画面に追加" を選択',
     step2DescIOS: 'iPhone: 共有 (📤) ➔ "ホーム画面に追加 (➕)"',
     step2DescAndroid: 'Android: メニュー (⋮) ➔ "アプリをインストール" または "ホーム画面に追加"',
+    desktopStep2Desc: 'インストールをクリック ➔ デスクトップ＆タスクバーに専用アプリを作成',
     confirmBtn: 'OK'
   },
   zh: {
@@ -85,9 +91,11 @@ const PWA_I18N = {
     step1Title: '1. 打开浏览器菜单',
     step1DescKakao: 'KakaoTalk 右下角 (⋮) ➔ 选择"用其他浏览器打开"',
     step1DescGeneral: '点击浏览器下方或右上角分享/菜单图标',
+    desktopStep1Desc: '点击 Chrome/Edge 浏览器地址栏右侧的 [安装应用 (💻)] 图标',
     step2Title: '2. 选择 "添加至主屏幕"',
     step2DescIOS: 'iPhone: 点击分享 (📤) ➔ "添加至主屏幕 (➕)"',
     step2DescAndroid: 'Android: 点击菜单 (⋮) ➔ "安装应用" 或 "添加至主屏幕"',
+    desktopStep2Desc: '点击安装 ➔ 生成桌面和任务栏独立应用快捷方式',
     confirmBtn: '我知道了'
   },
   zht: {
@@ -107,9 +115,11 @@ const PWA_I18N = {
     step1Title: '1. 打開瀏覽器菜單',
     step1DescKakao: 'KakaoTalk 右下角 (⋮) ➔ 選擇"用其他瀏覽器打開"',
     step1DescGeneral: '點擊瀏覽器下方或右上角分享/菜單圖標',
+    desktopStep1Desc: '點擊 Chrome/Edge 瀏覽器地址欄右側的 [安裝應用 (💻)] 圖標',
     step2Title: '2. 選擇 "新增至主畫面"',
     step2DescIOS: 'iPhone: 點擊分享 (📤) ➔ "新增至主畫面 (➕)"',
     step2DescAndroid: 'Android: 點擊菜單 (⋮) ➔ "安裝應用" 或 "新增至主畫面"',
+    desktopStep2Desc: '點擊安裝 ➔ 生成桌面和工作列獨立應用快捷方式',
     confirmBtn: '我知道了'
   },
   de: {
@@ -129,9 +139,11 @@ const PWA_I18N = {
     step1Title: '1. Browser-Menü öffnen',
     step1DescKakao: 'In KakaoTalk (⋮) ➔ "In externem Browser öffnen"',
     step1DescGeneral: 'Tippen Sie im Browser auf Teilen/Menü',
+    desktopStep1Desc: 'Klicken Sie in Chrome/Edge oben rechts auf [App installieren (💻)]',
     step2Title: '2. "Zum Startbildschirm" wählen',
     step2DescIOS: 'iPhone: Teilen (📤) ➔ "Zum Startbildschirm (➕)"',
     step2DescAndroid: 'Android: Menü (⋮) ➔ "App installieren"',
+    desktopStep2Desc: 'Klicken Sie auf Installieren ➔ Erstellt Desktop- & Taskleisten-App',
     confirmBtn: 'Verstanden'
   },
   fr: {
@@ -151,9 +163,11 @@ const PWA_I18N = {
     step1Title: '1. Ouvrir le menu du navigateur',
     step1DescKakao: 'Dans KakaoTalk (⋮) ➔ "Ouvrir dans le navigateur"',
     step1DescGeneral: 'Appuyez sur Partager ou Menu dans votre navigateur',
+    desktopStep1Desc: 'Cliquez sur [Installer l\'application (💻)] dans la barre d\'adresse Chrome/Edge',
     step2Title: '2. Sélectionner "Sur l\'écran d\'accueil"',
     step2DescIOS: 'iPhone : Partager (📤) ➔ "Sur l\'écran d\'accueil (➕)"',
     step2DescAndroid: 'Android : Menu (⋮) ➔ "Installer l\'application"',
+    desktopStep2Desc: 'Cliquez sur Installer ➔ Crée une application sur le bureau et la barre des tâches',
     confirmBtn: 'D\'accord'
   },
   es: {
@@ -173,9 +187,11 @@ const PWA_I18N = {
     step1Title: '1. Abrir menú del navegador',
     step1DescKakao: 'En KakaoTalk (⋮) ➔ "Abrir en navegador externo"',
     step1DescGeneral: 'Toca Compartir o Menú en tu navegador',
+    desktopStep1Desc: 'Haz clic en [Instalar aplicación (💻)] en la barra de Chrome/Edge',
     step2Title: '2. Seleccionar "Añadir a inicio"',
     step2DescIOS: 'iPhone: Compartir (📤) ➔ "Añadir a inicio (➕)"',
     step2DescAndroid: 'Android: Menú (⋮) ➔ "Instalar aplicación"',
+    desktopStep2Desc: 'Haz clic en Instalar ➔ Crea una app en el escritorio y barra de tareas',
     confirmBtn: 'Entendido'
   },
   ru: {
@@ -195,9 +211,11 @@ const PWA_I18N = {
     step1Title: '1. Откройте меню браузера',
     step1DescKakao: 'В KakaoTalk (⋮) ➔ "Открыть в браузере"',
     step1DescGeneral: 'Нажмите иконку Поделиться или Меню',
+    desktopStep1Desc: 'Нажмите [Установить приложение (💻)] в адресной строке Chrome/Edge',
     step2Title: '2. Выберите "На экран «Домой»"',
     step2DescIOS: 'iPhone: Поделиться (📤) ➔ "На экран «Домой» (➕)"',
     step2DescAndroid: 'Android: Меню (⋮) ➔ "Установить приложение"',
+    desktopStep2Desc: 'Нажмите «Установить» ➔ Создает отдельное приложение на рабочем столе и панели',
     confirmBtn: 'Понятно'
   }
 };
@@ -506,7 +524,7 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
                 <div>
                   <div style={{ fontWeight: 700, fontSize: '0.83rem' }}>{t.step1Title}</div>
                   <div style={{ fontSize: '0.76rem', color: 'var(--text-muted)' }}>
-                    {isDesktop ? '크롬/엣지 주소창 우측 상단 [앱 설치 (💻)] 아이콘 터치' : (isKakaoInApp ? t.step1DescKakao : t.step1DescGeneral)}
+                    {isDesktop ? t.desktopStep1Desc : (isKakaoInApp ? t.step1DescKakao : t.step1DescGeneral)}
                   </div>
                 </div>
               </div>
@@ -516,7 +534,7 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
                 <div>
                   <div style={{ fontWeight: 700, fontSize: '0.83rem' }}>{t.step2Title}</div>
                   <div style={{ fontSize: '0.76rem', color: 'var(--text-muted)' }}>
-                    {isDesktop ? '설치 클릭 ➔ 데스크톱 바탕화면 및 작업표시줄 단독 앱 생성' : t.step2DescIOS}
+                    {isDesktop ? t.desktopStep2Desc : t.step2DescIOS}
                   </div>
                 </div>
               </div>

@@ -20,6 +20,42 @@ const LANGUAGE_OPTIONS = [
   { value: 'ru', label: 'Русский (RU)', short: 'RU' }
 ];
 
+const HEADER_I18N = {
+  ko: { aiChat: 'AI 대화', guidePR: '이용가이드 & 홍보관', darkMode: '다크 모드', lightMode: '라이트 모드', menu: '메뉴', shareTrip: '여행 링크 공유' },
+  en: { aiChat: 'AI Chat', guidePR: 'User Guide & Promo Center', darkMode: 'Dark Mode', lightMode: 'Light Mode', menu: 'Menu', shareTrip: 'Share Conditions' },
+  ja: { aiChat: 'AI 対話', guidePR: '利用ガイド＆広報館', darkMode: 'ダークモード', lightMode: 'ライトモード', menu: 'メニュー', shareTrip: '旅行リンク共有' },
+  zh: { aiChat: 'AI 对话', guidePR: '使用指南与宣传馆', darkMode: '深色模式', lightMode: '浅色模式', menu: '菜单', shareTrip: '分享行程条件' },
+  zht: { aiChat: 'AI 對話', guidePR: '使用指南與宣傳館', darkMode: '深色模式', lightMode: '淺色模式', menu: '選單', shareTrip: '分享行程條件' },
+  de: { aiChat: 'AI-Chat', guidePR: 'Benutzerhandbuch & Info', darkMode: 'Dunkelmodus', lightMode: 'Hellmodus', menu: 'Menü', shareTrip: 'Reise teilen' },
+  fr: { aiChat: 'Chat IA', guidePR: 'Guide Utilisateur & Centre Promo', darkMode: 'Mode Sombre', lightMode: 'Mode Clair', menu: 'Menu', shareTrip: 'Partager le voyage' },
+  es: { aiChat: 'Chat IA', guidePR: 'Guía de Usuario & Centro Promo', darkMode: 'Modo Oscuro', lightMode: 'Modo Claro', menu: 'Menú', shareTrip: 'Compartir viaje' },
+  ru: { aiChat: 'ИИ-чат', guidePR: 'Руководство пользователя', darkMode: 'Темная тема', lightMode: 'Светлая тема', menu: 'Меню', shareTrip: 'Поделиться поездкой' }
+};
+
+const CITY_I18N = {
+  '서울': { en: 'Seoul', ja: 'ソウル', zh: '首尔', zht: '首爾', de: 'Seoul', fr: 'Séoul', es: 'Seúl', ru: 'Сеул' },
+  '거제도': { en: 'Geoje', ja: '巨済島', zh: '巨济岛', zht: '巨濟島', de: 'Geoje', fr: 'Geoje', es: 'Geoje', ru: 'Кодже' },
+  '거제': { en: 'Geoje', ja: '巨済島', zh: '巨济岛', zht: '巨濟島', de: 'Geoje', fr: 'Geoje', es: 'Geoje', ru: 'Кодже' },
+  '부산': { en: 'Busan', ja: '釜山', zh: '釜山', zht: '釜山', de: 'Busan', fr: 'Busan', es: 'Busan', ru: 'Пусан' },
+  '제주': { en: 'Jeju', ja: '済州島', zh: '济州岛', zht: '濟州島', de: 'Jeju', fr: 'Jeju', es: 'Jeju', ru: 'Чеджу' },
+  '인천': { en: 'Incheon', ja: '仁川', zh: '仁川', zht: '仁川', de: 'Incheon', fr: 'Incheon', es: 'Incheon', ru: 'Инчхон' },
+  '강원': { en: 'Gangwon', ja: '江原道', zh: '江原道', zht: '江原道', de: 'Gangwon', fr: 'Gangwon', es: 'Gangwon', ru: 'Канвондо' },
+  '경주': { en: 'Gyeongju', ja: '慶州', zh: '庆州', zht: '慶州', de: 'Gyeongju', fr: 'Gyeongju', es: 'Gyeongju', ru: 'Кёнджу' },
+  '수원': { en: 'Suwon', ja: '水原', zh: '水原', zht: '水原', de: 'Suwon', fr: 'Suwon', es: 'Suwon', ru: 'Сувон' }
+};
+
+const WEATHER_TEXT_I18N = {
+  '맑음': { en: 'Clear', ja: '快晴', zh: '晴朗', zht: '晴朗', de: 'Klar', fr: 'Ensoleillé', es: 'Despejado', ru: 'Ясно' },
+  '맑고 쾌청함': { en: 'Sunny', ja: '晴れ', zh: '晴朗', zht: '晴朗', de: 'Sonnig', fr: 'Ensoleillé', es: 'Soleado', ru: 'Солнечно' },
+  '구름 조금': { en: 'Partly Cloudy', ja: '薄曇り', zh: '少云', zht: '少雲', de: 'Leicht bewölkt', fr: 'Peu nuageux', es: 'Poco nublado', ru: 'Малооблачно' },
+  '구름많음': { en: 'Cloudy', ja: '曇り', zh: '多云', zht: '多雲', de: 'Bewölkt', fr: 'Nuageux', es: 'Nublado', ru: 'Облачно' },
+  '구름 많음': { en: 'Cloudy', ja: '曇り', zh: '多云', zht: '多雲', de: 'Bewölkt', fr: 'Nuageux', es: 'Nublado', ru: 'Облачно' },
+  '흐림': { en: 'Overcast', ja: '本曇り', zh: '阴天', zht: '陰天', de: 'Bedeckt', fr: 'Couvert', es: 'Nublado', ru: 'Пасмурно' },
+  '비': { en: 'Rainy', ja: '雨', zh: '降雨', zht: '降雨', de: 'Regen', fr: 'Pluie', es: 'Lluvia', ru: 'Дождь' },
+  '소나기': { en: 'Showers', ja: 'にわか雨', zh: '阵雨', zht: '陣雨', de: 'Schauer', fr: 'Averses', es: 'Chubascos', ru: 'Ливень' },
+  '눈': { en: 'Snow', ja: '雪', zh: '降雪', zht: '降雪', de: 'Schnee', fr: 'Neige', es: 'Nieve', ru: 'Снег' }
+};
+
 export default function Header({ 
   currentLang, 
   lang,
@@ -42,6 +78,7 @@ export default function Header({
   const toggleTheme = onToggleTheme || (() => setThemeMode && setThemeMode(prev => prev === 'dark' ? 'light' : 'dark'));
 
   const t = TRANSLATIONS[activeLang] || TRANSLATIONS.ko;
+  const ht = HEADER_I18N[activeLang] || HEADER_I18N.ko;
   const [activeSection, setActiveSection] = useState('tour-spots');
   const [showToast, setShowToast] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -318,7 +355,7 @@ export default function Header({
               }}
             >
               <Sparkles size={14} color="#9333ea" />
-              <span>{t.navAiChat || 'AI 대화'}</span>
+              <span>{ht.aiChat}</span>
             </button>
 
             {/* 2. ☀️ KMA Live Weather Pill Badge (Click to open full WeatherModal) */}
@@ -352,7 +389,7 @@ export default function Header({
               }}
             >
               {renderWeatherIcon(liveWeather.icon)}
-              <span>{liveWeather.city} {liveWeather.temp} · {liveWeather.text}</span>
+              <span>{(CITY_I18N[liveWeather.city] && CITY_I18N[liveWeather.city][activeLang]) || liveWeather.city} {liveWeather.temp} · {(WEATHER_TEXT_I18N[liveWeather.text] && WEATHER_TEXT_I18N[liveWeather.text][activeLang]) || liveWeather.text}</span>
               <ChevronDown size={12} color="#64748b" />
             </button>
 
@@ -526,7 +563,7 @@ export default function Header({
             {isMobile ? (isMenuOpen ? <X size={15} /> : <Menu size={15} />) : (
               <>
                 <Menu size={14} />
-                <span>메뉴</span>
+                <span>{ht.menu}</span>
                 {isMenuOpen ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
               </>
             )}
@@ -581,7 +618,7 @@ export default function Header({
                     }}
                   >
                     <Sun size={15} color="#f59e0b" />
-                    <span>{t.navWeather || '실시간 날씨'} ({liveWeather.city} {liveWeather.temp})</span>
+                    <span>{t.navWeather || '실시간 날씨'} ({(CITY_I18N[liveWeather.city] && CITY_I18N[liveWeather.city][activeLang]) || liveWeather.city} {liveWeather.temp})</span>
                   </button>
 
                   <button
@@ -658,7 +695,7 @@ export default function Header({
               >
                 <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   {themeMode === 'light' ? <Moon size={14} color="#64748b" /> : <Sun size={14} color="#f59e0b" />}
-                  <span>{themeMode === 'light' ? '다크 모드' : '라이트 모드'}</span>
+                  <span>{themeMode === 'light' ? ht.darkMode : ht.lightMode}</span>
                 </span>
                 <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>
                   {themeMode === 'light' ? 'OFF' : 'ON'}
@@ -688,7 +725,7 @@ export default function Header({
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
                 <BookOpen size={14} color="#3b82f6" />
-                <span>{t.guidePrBtn || '이용가이드 & 홍보관'}</span>
+                <span>{ht.guidePR}</span>
               </button>
 
               <button
@@ -711,7 +748,7 @@ export default function Header({
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
                 <Share2 size={14} color="#10b981" />
-                <span>{t.shareBtn || '여행 링크 공유'}</span>
+                <span>{ht.shareTrip}</span>
               </button>
 
               <button
