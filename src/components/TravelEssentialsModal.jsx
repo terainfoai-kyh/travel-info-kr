@@ -4,9 +4,6 @@ import { Wifi, CreditCard, Hotel, DollarSign, ExternalLink, Sparkles, ShieldChec
 import { TRANSLATIONS } from '../i18n/translations';
 import { buildAgodaDeepLink, buildKlookDeepLink, buildKKdayDeepLink } from '../services/apiConfig';
 
-export default function TravelEssentialsModal({ isOpen, onClose, lang = 'ko', targetRegion = '서울' }) {
-  if (!isOpen) return null;
-
 const ESSENTIALS_I18N = {
   ko: {
     modalTitle: '✈️ 한국 여행 필수템 & 공식 제휴 혜택관',
