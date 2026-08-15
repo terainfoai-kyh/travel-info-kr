@@ -183,10 +183,9 @@ Strictly return ONLY valid JSON matching this schema:
 
   const promptText = `User input: ${JSON.stringify(rawPrompt)}. Target city: ${targetCity}, duration: ${days} days, language: ${lang}. Generate rich structured JSON with day-by-day summary format.`;
 
-  // ⚡ [제미나이 개통 성공] 200 OK 검증된 gemini-3.5-flash 초고속 직결. v1
+  // ⚡ 3대 질문 200 OK 검증 완료된 gemini-3.1-flash-lite 단일 직결 및 안정화. v1
   const modelNames = [
-    'gemini-3.5-flash',
-    'gemini-flash-latest'
+    'gemini-3.1-flash-lite'
   ];
 
   for (const apiKey of candidateKeys) {
