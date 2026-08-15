@@ -166,7 +166,7 @@ Strictly return ONLY valid JSON matching this schema:
   "targetCity": "Main city or region in Korea (e.g., '수원', '부산', '제주', '강릉', '거제', '서울')",
   "cleanKeyword": "Precise search keyword for TourAPI (e.g., '영통 광교 수원', '해운대 광안리', '수원화성 행궁동')",
   "days": ${days},
-  "summary": "Must format strictly day by day with linebreaks:\\n1일차: [명소A] & [명소B] 둘러보기\\n2일차: [명소C] & [명소D] 둘러보기\\n3일차: [명소E] & [명소F] 둘러보기",
+  "summary": "1 warm welcoming intro sentence in ${lang} (e.g., '거제도의 시원한 바다 전망과 감성 카페를 즐기는 3일 맞춤 코스입니다! 🌊☕') followed by double linebreaks and day-by-day itinerary:\\n\\n1일차: [명소A] & [명소B] 둘러보기\\n2일차: [명소C] & [명소D] 둘러보기\\n3일차: [명소E] & [명소F] 둘러보기",
   "dailySchedules": [
     {
       "day": 1,
@@ -181,7 +181,7 @@ Strictly return ONLY valid JSON matching this schema:
   ]
 }`;
 
-  const promptText = `User input: ${JSON.stringify(rawPrompt)}. Target city: ${targetCity}, duration: ${days} days, language: ${lang}. Generate rich structured JSON with day-by-day summary format.`;
+  const promptText = `User input: ${JSON.stringify(rawPrompt)}. Target city: ${targetCity}, duration: ${days} days, language: ${lang}. Generate rich structured JSON with B-plan format (warm intro line + day-by-day itinerary).`;
 
   // ⚡ 3대 질문 200 OK 검증 완료된 gemini-3.1-flash-lite 단일 직결 및 안정화. v1
   const modelNames = [
@@ -222,25 +222,30 @@ Strictly return ONLY valid JSON matching this schema:
               const resolvedDays = parsed.days || days || 3;
               const searchKeyword = parsed.cleanKeyword || resolvedCity || rawPrompt;
 
-              // ⚡ 100% TourAPI PK (contentId) Synchronized Mapping
-              // Query TourAPI 4.0 for authentic spots with official contentId, GPS coords, and images
-              const [liveSpots, pinpointSpots] = await Promise.all([
+              // ⚡ 100% TourAPI PK (contentId) & GPS Coordinates (mapx/mapy) Synchronized Mapping
+              const rawLandmarkNames = (parsed.dailySchedules && Array.isArray(parsed.dailySchedules))
+                ? parsed.dailySchedules.flatMap(ds => ds.placeNames || []).map(p => String(p).replace(/[\[\]\(\)]/g, '').trim()).filter(Boolean)
+                : [];
+
+              const [liveSpots, pinpointSpots, cityFallbackSpots] = await Promise.all([
                 fetchDynamicRealtimeSpots(searchKeyword, lang).catch(() => []),
-                (parsed.dailySchedules && Array.isArray(parsed.dailySchedules))
-                  ? fetchPinpointLandmarkSpots(parsed.dailySchedules.flatMap(ds => ds.placeNames || []), lang).catch(() => [])
-                  : Promise.resolve([])
+                rawLandmarkNames.length > 0 ? fetchPinpointLandmarkSpots(rawLandmarkNames, lang).catch(() => []) : Promise.resolve([]),
+                fetchDynamicRealtimeSpots(resolvedCity, lang).catch(() => [])
               ]);
 
               // Merge authentic TourAPI spots while strictly preserving PK (contentId)
               const spotMap = new Map();
-              [...pinpointSpots, ...liveSpots].forEach(sp => {
+              [...pinpointSpots, ...liveSpots, ...cityFallbackSpots].forEach(sp => {
                 const pk = String(sp.contentId || sp.id || '');
                 if (pk && !spotMap.has(pk)) {
                   spotMap.set(pk, sp);
                 }
               });
 
-              const allAuthenticSpots = Array.from(spotMap.values());
+              let allAuthenticSpots = Array.from(spotMap.values());
+              if (allAuthenticSpots.length === 0) {
+                allAuthenticSpots = TRAVEL_SPOTS.filter(s => s.region === resolvedCity || s.title?.includes(resolvedCity));
+              }
 
               // Construct Rich Daily Schedules with Authentic TourAPI PK Spot Objects
               const finalizedSchedules = [];
@@ -282,13 +287,14 @@ Strictly return ONLY valid JSON matching this schema:
               }
 
               let finalSummary = parsed.summary || '';
-              if (finalizedSchedules && finalizedSchedules.length > 0 && !finalSummary.includes('1일차')) {
+              if (!finalSummary.includes('1일차') && finalizedSchedules && finalizedSchedules.length > 0) {
+                const intro = `${resolvedCity}의 매력과 특색을 온전히 만끽하는 ${resolvedDays}일 맞춤 코스입니다! ✨\n\n`;
                 const dailyLines = finalizedSchedules.map(ds => {
                   const spotNames = ds.spots.map(s => s.title).filter(Boolean);
                   const spotsText = spotNames.length >= 2 ? `${spotNames[0]} & ${spotNames[1]}` : (spotNames[0] || `${ds.city} 명소`);
-                  return `${ds.day}일차: ${spotsText}에서 ${ds.theme || '즐거운 여행'}을 만끽합니다.`;
+                  return `${ds.day}일차: ${spotsText} 둘러보기`;
                 });
-                finalSummary = dailyLines.join('\n');
+                finalSummary = intro + dailyLines.join('\n');
               }
 
               return {
