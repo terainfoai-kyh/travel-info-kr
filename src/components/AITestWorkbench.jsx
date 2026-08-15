@@ -8,6 +8,7 @@ import { getAgodaHotelSearchUrl, getKlookActivitySearchUrl } from '../services/a
 import { logAnalyticsEvent } from '../services/analyticsService';
 import { TRANSLATIONS, getSpotDetailButtonLabel, getSpotMapButtonLabel } from '../i18n/translations';
 import AdminAnalyticsDashboard from './AdminAnalyticsDashboard';
+import CourseMapViewModal from './CourseMapViewModal';
 
 export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks = [], onToggleBookmark }) {
   // 1. Quota & Dev Bypass Hook State
@@ -36,6 +37,9 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
   // 4. Mobile Accordion Toggle States & PC Selected Message State
   const [expandedMobileMsgs, setExpandedMobileMsgs] = useState({});
   const [selectedMsgId, setSelectedMsgId] = useState(null);
+  const [isCourseMapOpen, setIsCourseMapOpen] = useState(false);
+  const [selectedCourseSpots, setSelectedCourseSpots] = useState([]);
+  const [selectedCourseRegion, setSelectedCourseRegion] = useState('');
 
   const toggleMobileAccordion = (msgId) => {
     setExpandedMobileMsgs(prev => ({
@@ -651,6 +655,38 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
 
                       {expandedMobileMsgs[msg.id] && (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', marginTop: '0.3rem' }}>
+                          {/* 🗺️ MOBILE COURSE MAP ROUTE TRIGGER BUTTON */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedCourseSpots(msg.spots);
+                              setSelectedCourseRegion(msg.targetCity || '추천');
+                              setIsCourseMapOpen(true);
+                            }}
+                            style={{
+                              width: '100%',
+                              padding: '0.65rem 0.85rem',
+                              backgroundColor: '#9333ea',
+                              background: 'linear-gradient(135deg, #9333ea 0%, #2563eb 100%)',
+                              color: '#ffffff',
+                              border: 'none',
+                              borderRadius: '12px',
+                              fontSize: '0.78rem',
+                              fontWeight: 800,
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              boxShadow: '0 4px 12px rgba(147, 51, 234, 0.25)',
+                              marginBottom: '0.2rem'
+                            }}
+                          >
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                              <Compass size={15} /> 🗺️ 1·2·3일차 전체 지도 동선 보기
+                            </span>
+                            <span style={{ fontSize: '0.72rem', opacity: 0.9 }}>열기 ➔</span>
+                          </button>
+
                           {msg.spots.map((spot, idx) => {
                             const dayNum = spot.assignedDay || 1;
                             const badgeStyle = getDayBadgeStyle(dayNum);
@@ -915,6 +951,45 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
 
             {activeSpotMessage?.spots && activeSpotMessage.spots.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {/* 🗺️ DESKTOP COURSE MAP ROUTE TRIGGER BUTTON */}
+                <button
+                  onClick={() => {
+                    setSelectedCourseSpots(activeSpotMessage.spots);
+                    setSelectedCourseRegion(activeSpotMessage.regionName || '추천');
+                    setIsCourseMapOpen(true);
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '0.7rem 0.95rem',
+                    background: 'linear-gradient(135deg, #9333ea 0%, #2563eb 100%)',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '12px',
+                    fontSize: '0.82rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    boxShadow: '0 4px 14px rgba(147, 51, 234, 0.25)',
+                    transition: 'all 0.2s ease',
+                    marginBottom: '0.25rem'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                    e.currentTarget.style.boxShadow = '0 6px 18px rgba(147, 51, 234, 0.35)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 4px 14px rgba(147, 51, 234, 0.25)';
+                  }}
+                >
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                    <Compass size={16} /> 🗺️ 1·2·3일차 전체 지도 동선 보기
+                  </span>
+                  <span style={{ fontSize: '0.75rem', opacity: 0.95 }}>상세 지도 ➔</span>
+                </button>
+
                 {activeSpotMessage.spots.map((spot, idx) => {
                   const dayNum = spot.assignedDay || 1;
                   const badgeStyle = getDayBadgeStyle(dayNum);
@@ -1083,6 +1158,16 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
         )}
 
       </div>
+
+      {/* 🗺️ INTERACTIVE DAY-BY-DAY COURSE MAP VIEW MODAL */}
+      <CourseMapViewModal
+        isOpen={isCourseMapOpen}
+        onClose={() => setIsCourseMapOpen(false)}
+        spots={selectedCourseSpots}
+        regionName={selectedCourseRegion}
+        lang={lang}
+        onOpenDetail={onOpenDetail}
+      />
 
     </div>
   );
