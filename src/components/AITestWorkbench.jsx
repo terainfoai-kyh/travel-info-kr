@@ -544,7 +544,7 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
             style={{
               backgroundColor: '#f8fafc',
               borderRadius: '16px',
-              padding: '1rem 1rem 2.5rem 1rem',
+              padding: isDesktop ? '1rem 1rem 2.5rem 1rem' : '0.65rem 0.65rem 2.5rem 0.65rem',
               minHeight: '380px',
               maxHeight: '560px',
               overflowY: 'auto',
@@ -575,7 +575,8 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
 
                 {/* Message Bubble */}
                 <div style={{
-                  maxWidth: '92%',
+                  maxWidth: isDesktop ? '92%' : (msg.sender === 'user' ? '88%' : '100%'),
+                  width: (!isDesktop && msg.sender !== 'user') ? '100%' : 'auto',
                   padding: '0.65rem 0.95rem',
                   borderRadius: msg.sender === 'user' ? '16px 4px 16px 16px' : '4px 16px 16px 16px',
                   backgroundColor: msg.sender === 'user' ? '#2563eb' : '#ffffff',
@@ -695,7 +696,8 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
                                     onClick={() => onOpenDetail && onOpenDetail(spot)}
                                     style={{
                                       flex: 1,
-                                      padding: '0.45rem 0.65rem',
+                                      minWidth: 0,
+                                      padding: '0.45rem 0.35rem',
                                       backgroundColor: '#9333ea',
                                       color: '#ffffff',
                                       border: 'none',
@@ -721,7 +723,9 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     style={{
-                                      padding: '0.45rem 0.75rem',
+                                      flex: 1,
+                                      minWidth: 0,
+                                      padding: '0.45rem 0.35rem',
                                       backgroundColor: '#f0f9ff',
                                       color: '#0284c7',
                                       border: '1px solid #bae6fd',
