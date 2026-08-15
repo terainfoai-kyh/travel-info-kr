@@ -19,6 +19,10 @@ const WORKBENCH_I18N = {
     quotaTimes: '회',
     unlimitedTag: '[ ⚡ 무제한 ]',
     quotaChatTag: '[ 오늘 대화 {current}/{total}회 ]',
+    quotaExceededNotice: '안녕하세요! 여행 컨시어지 보라입니다. 😊\n\n⚠️ 오늘 제공된 무료 대화 ({limit}회)를 모두 소비하셨습니다.',
+    adRechargeBtn: '🎬 15초 짧은 광고 시청하고 오늘 +3회 즉시 충전하기',
+    googleExpandBtn: '🔴 Google 3초 로그인하고 매일 15회로 확장하기',
+    guardHint: '💡 대한민국 관공서/관광 명소 및 미식 질문을 입력해 주시면 감사하겠습니다!',
     welcomeText: '안녕하세요! 여행 컨시어지 보라입니다. 😊\n\n매일 무료 5회의 AI 대화로 당일치기부터 최대 5박 일정까지 나만의 맞춤 여행 코스를 받아보세요!\n\n떠나고 싶은 지역이나 여행 스타일(예: 거제도 2박3일 오션뷰 카페, 수원 화성행궁 야경)을 자유롭게 물어보세요!',
     chips: ['📍 거제도 2박3일 오션뷰 카페', '📍 수원 화성행궁 야경 힐링', '📍 제주도 3박4일 맛집 탐방', '📍 여기서 뭘 할 수 있지?'],
     placeholder: '어디로 떠나고 싶으신가요? (예: 수원 2박3일 맛집 코스, 거제도 4박5일 힐링)',
@@ -51,6 +55,10 @@ const WORKBENCH_I18N = {
     quotaTimes: '',
     unlimitedTag: '[ ⚡ Unlimited ]',
     quotaChatTag: '[ Today Chat {current}/{total} ]',
+    quotaExceededNotice: 'Hello! I am Vora, your Korea Travel AI Concierge. 😊\n\n⚠️ You have used all {limit} free chats provided for today.',
+    adRechargeBtn: '🎬 Watch a short 15s ad & instantly get +3 chats',
+    googleExpandBtn: '🔴 3-sec Google Login for 15 chats daily',
+    guardHint: '💡 Please feel free to ask about Korea travel destinations, sights, food, and transport!',
     welcomeText: 'Hello! I am Vora, your Korea Travel AI Concierge. 😊\n\nEnjoy personalized 1 to 5-day travel itineraries tailored to your style with official Korea Tourism Organization data!\n\nFeel free to ask for any city or preference (e.g. 3-day Busan ocean view cafes, 2-day Seoul K-culture tour)!',
     chips: ['📍 3-Day Busan Ocean View Cafes', '📍 2-Day Seoul K-Culture Tour', '📍 4-Day Jeju Gourmet Exploration', '📍 What can I do here?'],
     placeholder: 'Where would you like to travel? (e.g. 3-day Busan trip, 2-day Seoul tour)',
@@ -83,6 +91,10 @@ const WORKBENCH_I18N = {
     quotaTimes: '回',
     unlimitedTag: '[ ⚡ 無制限 ]',
     quotaChatTag: '[ 本日の対話 {current}/{total}回 ]',
+    quotaExceededNotice: 'こんにちは！旅行コンシェルジュのボラです。😊\n\n⚠️ 本日提供された無料対話（{limit}回）をすべてご利用いただきました。',
+    adRechargeBtn: '🎬 15秒のショート広告を見て本日+3回即時チャージ',
+    googleExpandBtn: '🔴 Google 3秒ログインで毎日15回に拡張',
+    guardHint: '💡 韓国の観光名所やグルメ、旅行日程についてご自由にご質問ください！',
     welcomeText: 'こんにちは！韓国旅行コンシェルジュのボラです。😊\n\n日帰りから最大5泊まで、韓国観光公社公式データに基づいたあなただけの旅行コースをご案内します！\n\n行きたい都市や旅行スタイル（例：釜山2泊3日オーシャンビューカフェ、ソウル2泊3日K-Culture）をお気軽にご質問ください！',
     chips: ['📍 釜山 2泊3日 オーシャンビューカフェ', '📍 ソウル 2泊3日 K-Cultureツアー', '📍 済州島 3泊4日 グルメ旅', '📍 ここで何ができますか？'],
     placeholder: 'どこへ旅行したいですか？（例：釜山2泊3日グルメ、済州島3泊4日）',
@@ -115,6 +127,10 @@ const WORKBENCH_I18N = {
     quotaTimes: '次',
     unlimitedTag: '[ ⚡ 无限使用 ]',
     quotaChatTag: '[ 今日对话 {current}/{total}次 ]',
+    quotaExceededNotice: '您好！我是您的专属旅行顾问 Vora。😊\n\n⚠️ 今日提供的免费对话次数（{limit}次）已全部用完。',
+    adRechargeBtn: '🎬 观看15秒短视频广告立即获得+3次对话',
+    googleExpandBtn: '🔴 3秒快捷登录 Google 每天享15次对话',
+    guardHint: '💡 欢迎输入关于韩国旅游景点、特色美食及交通行程的问题！',
     welcomeText: '您好！我是您的专属韩国旅游 AI 顾问 Vora。😊\n\n基于韩国旅游发展局官方正品数据，为您量身定制 1 至 5 天的韩国个性化行程！\n\n请随时输入您想去的城市或旅行风格（例如：釜山海云台 3 天 2 晚海景咖啡馆、首尔 2 天 1 晚经典游）！',
     chips: ['📍 釜山 3天2晚 海景咖啡馆之旅', '📍 首尔 2天1晚 K-Culture 精华游', '📍 济州岛 4天3晚 美食探店', '📍 在这里可以体验什么？'],
     placeholder: '您想去哪里旅行？（例如：釜山3天2晚海景游、首尔2天1晚经典游）',
@@ -147,6 +163,10 @@ const WORKBENCH_I18N = {
     quotaTimes: '次',
     unlimitedTag: '[ ⚡ 無限使用 ]',
     quotaChatTag: '[ 今日對話 {current}/{total}次 ]',
+    quotaExceededNotice: '您好！我是您的專屬旅行顧問 Vora。😊\n\n⚠️ 今日提供的免費對話次數（{limit}次）已全部用完。',
+    adRechargeBtn: '🎬 觀看15秒短影片廣告立即獲得+3次對話',
+    googleExpandBtn: '🔴 3秒快捷登入 Google 每天享15次對話',
+    guardHint: '💡 歡迎輸入關於韓國旅遊景點、特色美食及交通行程的問題！',
     welcomeText: '您好！我是您的專屬韓國旅遊 AI 顧問 Vora。😊\n\n基於韓國旅遊發展局官方正品數據，為您量身定制 1 至 5 天的韓國個性化行程！\n\n請隨時輸入您想去的城市或旅行偏好（例如：釜山海雲台 3 天 2 晚海景咖啡館、首爾 2 天 1 晚經典遊）！',
     chips: ['📍 釜山 3天2晚 海景咖啡館之旅', '📍 首爾 2天1晚 K-Culture 精華遊', '📍 濟州島 4天3晚 美食探店', '📍 在這裡可以體驗什麼？'],
     placeholder: '您想去哪裡旅行？（例如：釜山3天2晚海景遊、首爾2天1晚經典遊）',
@@ -179,6 +199,10 @@ const WORKBENCH_I18N = {
     quotaTimes: '',
     unlimitedTag: '[ ⚡ Unbegrenzt ]',
     quotaChatTag: '[ Heutiger Chat {current}/{total} ]',
+    quotaExceededNotice: 'Hallo! Ich bin Vora, Ihr Reise-Concierge für Korea. 😊\n\n⚠️ Sie haben alle heutigen kostenlosen Chats ({limit}) aufgebraucht.',
+    adRechargeBtn: '🎬 15-Sekunden-Clip ansehen & sofort +3 Chats erhalten',
+    googleExpandBtn: '🔴 3-Sek. Google-Login für 15 Chats täglich',
+    guardHint: '💡 Fragen Sie gerne nach Reisezielen, Sehenswürdigkeiten und Kulinarik in Korea!',
     welcomeText: 'Hallo! Ich bin Vora, Ihr KI-Reise-Concierge für Korea. 😊\n\nErhalten Sie maßgeschneiderte Reiserouten von 1 bis 5 Tagen basierend auf offiziellen Korea-Tourismusdaten!\n\nFragen Sie nach einer Region oder Vorliebe (z.B. 3 Tage Busan Café-Tour, 2 Tage Seoul Kulturreise)!',
     chips: ['📍 3 Tage Busan Meerblick-Cafés', '📍 2 Tage Seoul K-Kultur-Tour', '📍 4 Tage Jeju Kulinarik', '📍 Was kann ich hier tun?'],
     placeholder: 'Wohin möchten Sie reisen? (z.B. 3 Tage Busan, 2 Tage Seoul)',
@@ -211,6 +235,10 @@ const WORKBENCH_I18N = {
     quotaTimes: '',
     unlimitedTag: '[ ⚡ Illimité ]',
     quotaChatTag: '[ Chat du jour {current}/{total} ]',
+    quotaExceededNotice: 'Bonjour ! Je suis Vora, votre concierge IA pour la Corée. 😊\n\n⚠️ Vous avez utilisé toutes les conversations gratuites du jour ({limit}).',
+    adRechargeBtn: '🎬 Regarder une courte pub de 15s pour +3 chats immédiats',
+    googleExpandBtn: '🔴 Connexion Google en 3s pour 15 chats/jour',
+    guardHint: '💡 N\'hésitez pas à poser vos questions sur les attractions, la cuisine et les transports en Corée !',
     welcomeText: 'Bonjour ! Je suis Vora, votre concierge IA pour votre voyage en Corée. 😊\n\nProfitez d\'itinéraires personnalisés de 1 à 5 jours avec les données officielles de l\'Organisation du Tourisme de Corée !\n\nN\'hésitez pas à préciser vos envies (ex. 3 jours à Busan cafés vue mer, 2 jours à Séoul immersion culturelle) !',
     chips: ['📍 3 jours à Busan Cafés Vue Mer', '📍 2 jours à Séoul K-Culture', '📍 4 jours à Jeju Gastronomie', '📍 Que faire ici ?'],
     placeholder: 'Où souhaitez-vous voyager ? (ex. 3 jours à Busan, 2 jours à Séoul)',
@@ -243,6 +271,10 @@ const WORKBENCH_I18N = {
     quotaTimes: '',
     unlimitedTag: '[ ⚡ Ilimitado ]',
     quotaChatTag: '[ Chat de hoy {current}/{total} ]',
+    quotaExceededNotice: '¡Hola! Soy Vora, tu asistente de viajes IA para Corea. 😊\n\n⚠️ Has utilizado todos los chats gratuitos de hoy ({limit}).',
+    adRechargeBtn: '🎬 Ver anuncio de 15s y obtener +3 chats al instante',
+    googleExpandBtn: '🔴 Iniciar sesión con Google en 3s para 15 chats al día',
+    guardHint: '💡 ¡Pregunta sobre destinos turísticos, gastronomía y transporte en Corea!',
     welcomeText: '¡Hola! Soy Vora, tu asistente de viajes IA para Corea. 😊\n\n¡Disfruta de itinerarios personalizados de 1 a 5 días con datos oficiales de la Organización de Turismo de Corea!\n\nPregúntame sobre cualquier destino o estilo (ej. 3 días en Busan cafés con vista al mar, 2 días en Seúl tour K-Culture).',
     chips: ['📍 3 días en Busan Cafés con Vista al Mar', '📍 2 días en Seúl Tour K-Culture', '📍 4 días en Jeju Tour Gastronómico', '📍 ¿Qué puedo hacer aquí?'],
     placeholder: '¿A dónde te gustaría viajar? (ej. 3 días en Busan, 2 días en Seúl)',
@@ -275,7 +307,11 @@ const WORKBENCH_I18N = {
     quotaTimes: '',
     unlimitedTag: '[ ⚡ Безлимит ]',
     quotaChatTag: '[ Чат сегодня {current}/{total} ]',
-    welcomeText: 'Здравствуйте! Я Vora, ваш ИИ-консьерж по путешествиям в Корею. 😊\n\nПолучайте персональные маршруты от 1 до 5 дней на основе официальных данных Национальной организации туризма Кореи!\n\nЗадайте любой вопрос по городам и стилям поездки (например: 3 дня в Пусане с кафе с видом на море, 2 дня в Сеуле по местам K-Culture)!',
+    quotaExceededNotice: 'Здравствуйте! Я Vora, ваш персональный ИИ-консьерж по Корее. 😊\n\n⚠️ Вы использовали все бесплатные диалоги на сегодня ({limit}).',
+    adRechargeBtn: '🎬 Посмотреть короткое видео (15 сек) и получить +3 чата',
+    googleExpandBtn: '🔴 Вход через Google за 3 сек для 15 чатов в день',
+    guardHint: '💡 Задавайте вопросы о достопримечательностях, кухне и транспорте Кореи!',
+    welcomeText: 'Здравствуйте! Я Vora, ваш ИИ-консьерж по путешествиям в Корею. 😊\n\nПолучайте персональные маршруты от 1 до 5 дней на основе официальных данных Национальной организации туризма Кореи!\n\nЗадайте любой вопрос по городам и стилям поездки (например: 3 дня в Пусане с кафе с видом на море, 2 дня в Се우ле по местам K-Culture)!',
     chips: ['📍 3 дня в Пусане с видовыми кафе', '📍 2 дня в Сеуле по местам K-Culture', '📍 4 дня на Чеджу гастротур', '📍 Что здесь можно посмотреть?'],
     placeholder: 'Куда вы хотите поехать? (например: 3 дня в Пусане, 2 дня в Сеуле)',
     sendBtn: 'Отправить',
@@ -599,7 +635,7 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
           {
             id: `vora-${Date.now()}`,
             sender: 'vora',
-            text: `안녕하세요! 여행 컨시어지 보라입니다.\n\n⚠️ 오늘 제공된 무료 대화 (${totalLimit}회)를 모두 소비하셨습니다.`,
+            text: (wt.quotaExceededNotice || '안녕하세요! 여행 컨시어지 보라입니다. 😊\n\n⚠️ 오늘 제공된 무료 대화 ({limit}회)를 모두 소비하셨습니다.').replace('{limit}', totalLimit),
             timestamp: new Date().toLocaleTimeString(),
             isQuotaExceededNotice: true
           }
@@ -915,7 +951,7 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
 
                   {msg.isGuardWarning && (
                     <div style={{ marginTop: '0.4rem', paddingTop: '0.4rem', borderTop: '1px solid #f1f5f9', color: '#dc2626', fontSize: '0.75rem' }}>
-                      💡 대한민국 관공서/관광 명소 및 미식 질문을 입력해 주시면 감사하겠습니다!
+                      {wt.guardHint}
                     </div>
                   )}
 
@@ -925,13 +961,13 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
                         onClick={handleRechargeExtra}
                         style={{ padding: '0.45rem 0.75rem', backgroundColor: '#10b981', color: '#ffffff', fontWeight: 700, borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '0.75rem', textAlign: 'center' }}
                       >
-                        🎬 15초 짧은 광고 시청하고 오늘 +3회 즉시 충전하기
+                        {wt.adRechargeBtn}
                       </button>
                       <button
                         onClick={handleToggleVirtualGoogleLogin}
                         style={{ padding: '0.45rem 0.75rem', backgroundColor: '#ea580c', color: '#ffffff', fontWeight: 700, borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '0.75rem', textAlign: 'center' }}
                       >
-                        🔴 Google 3초 로그인하고 매일 15회로 확장하기
+                        {wt.googleExpandBtn}
                       </button>
                     </div>
                   )}
