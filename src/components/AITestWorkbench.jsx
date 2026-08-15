@@ -6,7 +6,7 @@ import { extractLocationKeyword, isGreetingQuery, isMetaHelpQuery, geminiGenerat
 import { fetchTourSpots, fetchPinpointLandmarkSpots } from '../services/tourApi';
 import { getAgodaHotelSearchUrl, getKlookActivitySearchUrl } from '../services/affiliateService';
 import { logAnalyticsEvent } from '../services/analyticsService';
-import { TRANSLATIONS, getSpotDetailButtonLabel, getSpotMapButtonLabel } from '../i18n/translations';
+import { TRANSLATIONS, getSpotDetailButtonLabel, getSpotMapButtonLabel, getTranslatedTitle, getTranslatedAddress } from '../i18n/translations';
 import AdminAnalyticsDashboard from './AdminAnalyticsDashboard';
 import CourseMapViewModal from './CourseMapViewModal';
 
@@ -1039,7 +1039,9 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
                           {msg.spots.map((spot, idx) => {
                             const dayNum = spot.assignedDay || 1;
                             const badgeStyle = getDayBadgeStyle(dayNum);
-                            const mapSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.title + ' ' + (spot.location || spot.addr1 || ''))}`;
+                            const displayTitle = getTranslatedTitle(spot.title, lang);
+                            const displayLocation = getTranslatedAddress(spot.location || spot.addr1, lang);
+                            const mapSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((displayTitle || spot.title) + ' ' + (displayLocation || spot.location || spot.addr1 || ''))}`;
 
                             return (
                               <div 
@@ -1060,17 +1062,17 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
                               >
                                 {/* Row 1: Day Badge, Full Spot Title & Full Location */}
                                 <div style={{ width: '100%' }}>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.25rem', flexWrap: 'wrap' }}>
-                                    <span style={{ padding: '0.15rem 0.45rem', borderRadius: '6px', fontSize: '0.68rem', fontWeight: 800, backgroundColor: badgeStyle.bg, color: badgeStyle.text, border: `1px solid ${badgeStyle.border}`, whiteSpace: 'nowrap' }}>
+                                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.4rem', marginBottom: '0.25rem' }}>
+                                    <span style={{ padding: '0.15rem 0.45rem', borderRadius: '6px', fontSize: '0.68rem', fontWeight: 800, backgroundColor: badgeStyle.bg, color: badgeStyle.text, border: `1px solid ${badgeStyle.border}`, whiteSpace: 'nowrap', flexShrink: 0, marginTop: '2px' }}>
                                       {spot.assignedDay ? wt.dayBadge.replace('{day}', spot.assignedDay) : wt.recommendSpot}
                                     </span>
-                                    <strong style={{ color: '#0f172a', fontSize: '0.86rem', fontWeight: 800, wordBreak: 'keep-all' }}>
-                                      {idx + 1}. {spot.title}
+                                    <strong style={{ color: '#0f172a', fontSize: '0.86rem', fontWeight: 800, wordBreak: 'break-word', lineHeight: 1.4 }}>
+                                      {idx + 1}. {displayTitle}
                                     </strong>
                                   </div>
-                                  <div style={{ color: '#64748b', fontSize: '0.72rem', display: 'flex', alignItems: 'center', gap: '0.25rem', wordBreak: 'keep-all' }}>
+                                  <div style={{ color: '#64748b', fontSize: '0.72rem', display: 'flex', alignItems: 'center', gap: '0.25rem', wordBreak: 'break-word' }}>
                                     <MapPin size={12} color="#ef4444" style={{ flexShrink: 0 }} />
-                                    <span>{spot.location || spot.addr1 || (lang === 'en' ? 'Location Provided' : '상세 위치 제공')}</span>
+                                    <span>{displayLocation || (lang === 'en' ? 'Location Provided' : '상세 위치 제공')}</span>
                                   </div>
                                 </div>
 
@@ -1387,7 +1389,9 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
                 {activeSpotMessage.spots.map((spot, idx) => {
                   const dayNum = spot.assignedDay || 1;
                   const badgeStyle = getDayBadgeStyle(dayNum);
-                  const mapSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.title + ' ' + (spot.location || spot.addr1 || ''))}`;
+                  const displayTitle = getTranslatedTitle(spot.title, lang);
+                  const displayLocation = getTranslatedAddress(spot.location || spot.addr1, lang);
+                  const mapSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((displayTitle || spot.title) + ' ' + (displayLocation || spot.location || spot.addr1 || ''))}`;
 
                   return (
                     <div 
@@ -1395,16 +1399,15 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
                       onClick={() => onOpenDetail && onOpenDetail(spot)}
                       style={{
                         display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
+                        flexDirection: 'column',
+                        gap: '0.55rem',
                         backgroundColor: '#ffffff',
                         padding: '0.85rem 1rem',
                         borderRadius: '14px',
                         border: '1.5px solid #e2e8f0',
                         boxShadow: '0 2px 6px rgba(0,0,0,0.02)',
                         cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                        gap: '0.75rem'
+                        transition: 'all 0.2s ease'
                       }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.borderColor = '#9333ea';
@@ -1417,30 +1420,34 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
                         e.currentTarget.style.transform = 'translateY(0)';
                       }}
                     >
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', marginBottom: '0.25rem' }}>
-                          <span style={{ fontSize: '0.7rem', fontWeight: 700, backgroundColor: badgeStyle.bg, color: badgeStyle.text, border: `1px solid ${badgeStyle.border}`, padding: '0.15rem 0.45rem', borderRadius: '6px', whiteSpace: 'nowrap' }}>
+                      {/* Row 1: Day Badge, Spot Title & Location */}
+                      <div style={{ width: '100%' }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem', marginBottom: '0.25rem' }}>
+                          <span style={{ fontSize: '0.7rem', fontWeight: 700, backgroundColor: badgeStyle.bg, color: badgeStyle.text, border: `1px solid ${badgeStyle.border}`, padding: '0.15rem 0.45rem', borderRadius: '6px', whiteSpace: 'nowrap', flexShrink: 0, marginTop: '2px' }}>
                             {spot.assignedDay ? wt.dayBadge.replace('{day}', spot.assignedDay) : wt.recommendSpot}
                           </span>
-                          <span style={{ fontSize: '0.9rem', fontWeight: 800, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            {idx + 1}. {spot.title}
+                          <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0f172a', wordBreak: 'break-word', lineHeight: 1.4 }}>
+                            {idx + 1}. {displayTitle}
                           </span>
                         </div>
-                        <div style={{ fontSize: '0.76rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.25rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <div style={{ fontSize: '0.76rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.25rem', wordBreak: 'break-word' }}>
                           <MapPin size={12} color="#ef4444" style={{ flexShrink: 0 }} />
-                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{spot.location || spot.addr1 || (lang === 'en' ? 'Location Provided' : '상세 위치 제공')}</span>
+                          <span>{displayLocation || (lang === 'en' ? 'Location Provided' : '상세 위치 제공')}</span>
                         </div>
                       </div>
 
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0 }} onClick={(e) => e.stopPropagation()}>
-                        {/* 🔍 Primary Action: Photos & Detail View */}
+                      {/* Row 2: Action Buttons */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', width: '100%', paddingTop: '0.15rem' }} onClick={(e) => e.stopPropagation()}>
                         <button
                           onClick={() => onOpenDetail && onOpenDetail(spot)}
                           style={{
+                            flex: 1,
+                            minWidth: 0,
                             display: 'flex',
                             alignItems: 'center',
+                            justifyContent: 'center',
                             gap: '0.3rem',
-                            padding: '0.45rem 0.75rem',
+                            padding: '0.45rem 0.6rem',
                             fontSize: '0.76rem',
                             color: '#ffffff',
                             backgroundColor: '#9333ea',
@@ -1454,7 +1461,7 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
                           }}
                           onMouseEnter={(e) => {
                             e.currentTarget.style.backgroundColor = '#7e22ce';
-                            e.currentTarget.style.transform = 'scale(1.03)';
+                            e.currentTarget.style.transform = 'scale(1.02)';
                           }}
                           onMouseLeave={(e) => {
                             e.currentTarget.style.backgroundColor = '#9333ea';
@@ -1465,32 +1472,35 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
                           <span>{getSpotDetailButtonLabel(lang, false)}</span>
                         </button>
 
-                        {/* 📍 Secondary Action: Google Maps Navigation */}
                         <a 
                           href={mapSearchUrl}
                           target="_blank"
                           rel="noopener noreferrer"
                           style={{
+                            flex: 1,
+                            minWidth: 0,
                             display: 'flex',
                             alignItems: 'center',
+                            justifyContent: 'center',
                             gap: '0.25rem',
-                            padding: '0.45rem 0.65rem',
+                            padding: '0.45rem 0.6rem',
                             fontSize: '0.74rem',
                             color: '#0284c7',
                             backgroundColor: '#f0f9ff',
                             border: '1px solid #bae6fd',
                             borderRadius: '10px',
-                            cursor: 'pointer',
+                            textDecoration: 'none',
                             fontWeight: 600,
                             whiteSpace: 'nowrap',
-                            textDecoration: 'none',
                             transition: 'all 0.15s ease'
                           }}
                           onMouseEnter={(e) => {
                             e.currentTarget.style.backgroundColor = '#e0f2fe';
+                            e.currentTarget.style.transform = 'scale(1.02)';
                           }}
                           onMouseLeave={(e) => {
                             e.currentTarget.style.backgroundColor = '#f0f9ff';
+                            e.currentTarget.style.transform = 'scale(1)';
                           }}
                         >
                           <MapPin size={12} color="#0284c7" />

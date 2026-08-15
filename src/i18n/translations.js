@@ -3123,9 +3123,9 @@ export function getTranslatedTitle(title, lang = 'ko') {
   }
 
   let res = title;
-  const foreignMatch = res.match(/^([A-Za-z0-9\s,\.\-&'/]+)\s*\([\uAC00-\uD7A30-9\s]+\)$/);
-  if (foreignMatch && foreignMatch[1] && foreignMatch[1].trim().length > 2) {
-    res = foreignMatch[1].trim();
+  if (lang !== 'ko') {
+    // Strip trailing Korean parenthetical or bracket annotations (e.g. "Haeundae Beach (해운대해수욕장)" -> "Haeundae Beach")
+    res = res.replace(/\s*[\(\[][\uAC00-\uD7A30-9\s,\.\-&/]+[\)\]]/g, '').trim();
   }
 
   const COMPOUND_REPLACEMENTS = {
