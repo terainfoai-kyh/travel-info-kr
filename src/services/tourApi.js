@@ -652,7 +652,7 @@ export async function fetchTourSpots({
 }
 
 // Pinpoint TourAPI Keyword Search for User Mentioned Landmarks (Ultra-Fast Parallel Execution)
-export async function fetchPinpointLandmarkSpots(landmarks = [], lang = 'ko') {
+export async function fetchPinpointLandmarkSpots(landmarks = [], lang = 'ko', targetCity = '') {
   if (!Array.isArray(landmarks) || landmarks.length === 0) return [];
   
   let apiBase = PUBLIC_API_CONFIG.TOUR_API_BASE || 'https://apis.data.go.kr/B551011/KorService2';
@@ -673,12 +673,12 @@ export async function fetchPinpointLandmarkSpots(landmarks = [], lang = 'ko') {
 
   if (validLandmarks.length === 0) return [];
 
-  // Parallel Execution with 2.5s AbortController Timeout Per Request
+  // Parallel Execution with 3.5s AbortController Timeout Per Request
   const fetchPromises = validLandmarks.map(async (lm) => {
     try {
-      const url = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=3&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=B&keyword=${encodeURIComponent(lm)}`;
+      const url = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=10&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=B&keyword=${encodeURIComponent(lm)}`;
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2500); // 2.5s Timeout Guard!
+      const timeoutId = setTimeout(() => controller.abort(), 3500);
 
       const res = await fetch(url, { signal: controller.signal });
       clearTimeout(timeoutId);
@@ -687,8 +687,17 @@ export async function fetchPinpointLandmarkSpots(landmarks = [], lang = 'ko') {
         const rawText = await res.text();
         if (!rawText || !rawText.trim().startsWith('{')) return null;
         const data = JSON.parse(rawText);
-        const items = data.response?.body?.items?.item || [];
-        const rawItem = Array.isArray(items) ? items[0] : items;
+        const rawItems = data.response?.body?.items?.item || [];
+        const items = Array.isArray(rawItems) ? rawItems : (rawItems ? [rawItems] : []);
+
+        // 🎯 Priority 1: Match item whose address contains targetCity (e.g. 거제, 수원, 제주)
+        let rawItem = null;
+        if (targetCity && items.length > 0) {
+          rawItem = items.find(i => i.addr1 && i.addr1.includes(targetCity));
+        }
+        if (!rawItem && items.length > 0) {
+          rawItem = items[0];
+        }
 
         if (rawItem && rawItem.title) {
           let rawImg = rawItem.firstimage || rawItem.firstimage2 || '';

@@ -223,15 +223,15 @@ Strictly return ONLY valid JSON matching this schema:
               const searchKeyword = parsed.cleanKeyword || resolvedCity || rawPrompt;
 
               // =========================================================================
-              // ⚡ [제미나이 6대 명소 1:1 정품 PK 직결 모드 v2]
+              // ⚡ [제미나이 6대 명소 1:1 정품 PK 직결 모드 v3]
               // =========================================================================
               const rawLandmarkNames = (parsed.dailySchedules && Array.isArray(parsed.dailySchedules))
                 ? parsed.dailySchedules.flatMap(ds => ds.placeNames || []).map(p => String(p).replace(/[\[\]\(\)]/g, '').trim()).filter(Boolean)
                 : [];
 
-              // 오직 제미나이가 추천한 실제 명소명들만 TourAPI 정밀 조회
+              // 오직 제미나이가 추천한 실제 명소명들만 TourAPI 정밀 조회 (targetCity 주소 일치 우선)
               const pinpointSpots = rawLandmarkNames.length > 0 
-                ? await fetchPinpointLandmarkSpots(rawLandmarkNames, lang).catch(() => [])
+                ? await fetchPinpointLandmarkSpots(rawLandmarkNames, lang, resolvedCity).catch(() => [])
                 : [];
 
               const finalizedSchedules = [];
@@ -243,29 +243,23 @@ Strictly return ONLY valid JSON matching this schema:
                 const dayTheme = dayPlan.theme || `${d + 1}일차 - ${resolvedCity} 추천 코스`;
                 const dayPlaceNames = (dayPlan.placeNames || []).map(p => String(p).replace(/[\[\]\(\)]/g, '').trim()).filter(Boolean);
 
-                // 1일차~3일차 첫 번째 명소 1:1 매칭
+                const daySpots = [];
+
+                // 1일차~3일차 첫 번째 명소 매칭
                 const nameA = dayPlaceNames[0];
                 let spotA = pinpointSpots.find(sp => !usedContentIds.has(sp.contentId) && nameA && (sp.title?.includes(nameA) || nameA.includes(sp.title)));
-                if (!spotA && pinpointSpots.length > 0) {
-                  spotA = pinpointSpots.find(sp => !usedContentIds.has(sp.contentId));
-                }
-                if (spotA) usedContentIds.add(spotA.contentId);
-
-                // 1일차~3일차 두 번째 명소 1:1 매칭
-                const nameB = dayPlaceNames[1];
-                let spotB = pinpointSpots.find(sp => !usedContentIds.has(sp.contentId) && nameB && (sp.title?.includes(nameB) || nameB.includes(sp.title)));
-                if (!spotB && pinpointSpots.length > 0) {
-                  spotB = pinpointSpots.find(sp => !usedContentIds.has(sp.contentId));
-                }
-                if (spotB) usedContentIds.add(spotB.contentId);
-
-                const daySpots = [];
                 if (spotA) {
+                  usedContentIds.add(spotA.contentId);
                   const spWithDay = { ...spotA, assignedDay: d + 1 };
                   daySpots.push(spWithDay);
                   flatSpotsToRender.push(spWithDay);
                 }
+
+                // 1일차~3일차 두 번째 명소 매칭
+                const nameB = dayPlaceNames[1];
+                let spotB = pinpointSpots.find(sp => !usedContentIds.has(sp.contentId) && nameB && (sp.title?.includes(nameB) || nameB.includes(sp.title)));
                 if (spotB) {
+                  usedContentIds.add(spotB.contentId);
                   const spWithDay = { ...spotB, assignedDay: d + 1 };
                   daySpots.push(spWithDay);
                   flatSpotsToRender.push(spWithDay);
