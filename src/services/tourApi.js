@@ -655,7 +655,7 @@ export async function fetchTourSpots({
 export async function fetchPinpointLandmarkSpots(landmarks = [], lang = 'ko') {
   if (!Array.isArray(landmarks) || landmarks.length === 0) return [];
   
-  let apiBase = PUBLIC_API_CONFIG.BASE_URL;
+  let apiBase = PUBLIC_API_CONFIG.TOUR_API_BASE || 'https://apis.data.go.kr/B551011/KorService2';
   if (lang === 'en') apiBase = PUBLIC_API_CONFIG.ENG_BASE;
   else if (lang === 'ja') apiBase = PUBLIC_API_CONFIG.JPN_BASE;
   else if (lang === 'zh') apiBase = PUBLIC_API_CONFIG.CHS_BASE;

@@ -254,10 +254,15 @@ Strictly return ONLY valid JSON matching this schema:
               for (let d = 0; d < resolvedDays; d++) {
                 const dayPlan = (parsed.dailySchedules && parsed.dailySchedules[d]) || {};
                 const dayTheme = dayPlan.theme || `${d + 1}일차 - ${resolvedCity} 추천 코스`;
+                const dayPlaceNames = (dayPlan.placeNames || []).map(p => String(p).replace(/[\[\]\(\)]/g, '').trim()).filter(Boolean);
                 
-                // Match 2 spots for this day from TourAPI authenticated pool
-                const spotA = allAuthenticSpots[d * 2] || allAuthenticSpots[0];
-                const spotB = allAuthenticSpots[d * 2 + 1];
+                // Match exact TourAPI pinpoint spots for this day's recommendations
+                let spotA = pinpointSpots.find(sp => dayPlaceNames[0] && (sp.title?.includes(dayPlaceNames[0]) || dayPlaceNames[0].includes(sp.title)))
+                  || allAuthenticSpots[d * 2] 
+                  || allAuthenticSpots[0];
+
+                let spotB = pinpointSpots.find(sp => dayPlaceNames[1] && (sp.title?.includes(dayPlaceNames[1]) || dayPlaceNames[1].includes(sp.title)))
+                  || allAuthenticSpots[d * 2 + 1];
 
                 const daySpots = [];
                 if (spotA) {
@@ -265,7 +270,7 @@ Strictly return ONLY valid JSON matching this schema:
                   daySpots.push(spWithDay);
                   flatSpotsToRender.push(spWithDay);
                 }
-                if (spotB) {
+                if (spotB && spotB.contentId !== spotA?.contentId) {
                   const spWithDay = { ...spotB, assignedDay: d + 1 };
                   daySpots.push(spWithDay);
                   flatSpotsToRender.push(spWithDay);
