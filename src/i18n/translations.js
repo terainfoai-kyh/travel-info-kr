@@ -3626,15 +3626,24 @@ export function getTranslatedOverview(overview, title = '', lang = 'ko') {
   if (list && list[overview]) return list[overview];
 
   if (lang !== 'ko' && /[\uAC00-\uD7A3]/.test(overview)) {
+    const rawClean = (getTranslatedTitle ? getTranslatedTitle(title, lang) : title) || '';
+    const sanitizedTitle = rawClean
+      .replace(/\s*[\(\[][\uAC00-\uD7A30-9\s,\.\-&/]+[\)\]]/g, '')
+      .replace(/[\(\)]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim() || ({
+        en: 'Korea Landmark', ja: '韓国名所', zh: '韩国名胜', zht: '韓國名勝', de: 'Korea-Spot', fr: 'Site de Corée', es: 'Sitio de Corea', ru: 'Место в Корее'
+      }[lang] || 'Korea Landmark');
+
     const defaultTextMap = {
-      en: `Officially registered tourism spot of the Korea Tourism Organization (${title || 'Korea Spot'}). Offers rich cultural heritage, picturesque scenery, and vibrant local experiences.`,
-      zh: `韩国旅游发展局 (KTO TourAPI 4.0) 官方认证代表景点 (${title || '韩国名所'})。拥有丰富的历史文化遗产与绝美风光。`,
-      zht: `韓國旅遊發展局 (KTO TourAPI 4.0) 官方認證代表景點 (${title || '韓國名所'})。擁有豐富的歷史文化遺產與絕美風光。`,
-      ja: `韓国観光公社 (KTO TourAPI 4.0) 公式認定の代表的観光スポット (${title || '韓国名所'})。豊かな歴史文化遺産と美しい景観を楽しめます。`,
-      de: `Offiziell registrierte Attraktion der Korea Tourism Organization (${title || 'Korea Spot'}). Bietet reiches Kulturerbe und malerische Landschaft.`,
-      fr: `Attraction officielle enregistrée par l’Office du Tourisme de Corée (${title || 'Site Corée'}). Offre un riche patrimoine culturel et des paysages magnifiques.`,
-      es: `Atracción registrada oficialmente por la Organización de Turismo de Corea (${title || 'Sitio de Corea'}). Ofrece un rico patrimonio cultural y hermosos paisajes.`,
-      ru: `Официально зарегистрированная достопримечательность Национальной организации туризма Кореи (${title || 'Место в Корее'}). Предлагает богатое культурное наследие.`
+      en: `Officially registered tourism spot of the Korea Tourism Organization (${sanitizedTitle}). Offers rich cultural heritage, picturesque scenery, and vibrant local experiences.`,
+      zh: `韩国旅游发展局 (KTO TourAPI 4.0) 官方认证代表景点 (${sanitizedTitle})。拥有丰富的历史文化遗产与绝美风光。`,
+      zht: `韓國旅遊發展局 (KTO TourAPI 4.0) 官方認證代表景點 (${sanitizedTitle})。擁有豐富的歷史文化遺產與絕美風光。`,
+      ja: `韓国観光公社 (KTO TourAPI 4.0) 公式認定の代表的観光スポット (${sanitizedTitle})。豊かな歴史文化遺産と美しい景観を楽しめます。`,
+      de: `Offiziell registrierte Attraktion der Korea Tourism Organization (${sanitizedTitle}). Bietet reiches Kulturerbe und malerische Landschaft.`,
+      fr: `Attraction officielle enregistrée par l’Office du Tourisme de Corée (${sanitizedTitle}). Offre un riche patrimoine culturel et des paysages magnifiques.`,
+      es: `Atracción registrada oficialmente por la Organización de Turismo de Corea (${sanitizedTitle}). Ofrece un rico patrimonio cultural y hermosos paisajes.`,
+      ru: `Официально зарегистрированная достопримечательность Национальной организации туризма Кореи (${sanitizedTitle}). Предлагает богатое культурное наследие.`
     };
     return defaultTextMap[lang] || defaultTextMap.en;
   }

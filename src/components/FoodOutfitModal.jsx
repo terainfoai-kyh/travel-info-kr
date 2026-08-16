@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import { Utensils, Shirt, Sparkles, X, MapPin } from 'lucide-react';
-import { TRANSLATIONS } from '../i18n/translations';
+import { TRANSLATIONS, getTranslatedAddress, getTranslatedTitle } from '../i18n/translations';
 
 const POPULAR_CITIES = [
   '서울', '거제', '부산', '제주', '경주', '강릉', '전주', '여수', '속초', '수원'
@@ -914,7 +914,7 @@ export default function FoodOutfitModal({ isOpen, onClose, lang = 'ko', initialC
                   </span>
                   <span style={{ fontSize: '0.75rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
                     <MapPin size={12} color="#ea580c" />
-                    {lang !== 'ko' ? (item.place ? item.place.split(' ').map(p => getCityName(p, lang) || p).join(' ') : item.place) : item.place}
+                    {lang !== 'ko' ? (getTranslatedAddress(item.place, lang) || getTranslatedTitle(item.place, lang) || item.place) : item.place}
                   </span>
                 </div>
 

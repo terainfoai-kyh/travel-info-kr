@@ -870,19 +870,23 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                     es: `Día ${spot.assignedDay} Lugar`,
                     ru: `День ${spot.assignedDay} Место`
                   }[lang] || `Day ${spot.assignedDay}`
-                ) : displayRegion}
+                ) : (displayRegion || ({
+                  ko: '추천 명소',
+                  en: 'Recommended Spot',
+                  ja: 'おすすめスポット',
+                  zh: '推荐景点',
+                  zht: '推薦景點',
+                  de: 'Empfohlener Ort',
+                  fr: 'Lieu recommandé',
+                  es: 'Lugar recomendado',
+                  ru: 'Рекомендованное место'
+                }[lang] || 'Recommended Spot'))}
               </span>
 
               {spot.tags && spot.tags.slice(0, 3).map((tagItem, i) => {
-                const cleanTag = tagItem.replace(/^#/, '');
-                const translatedTag = {
-                  '관광명소': { en: 'Attraction', ja: '観光スポット', zh: '观光名胜', zht: '觀光名勝', de: 'Attraktion', fr: 'Attraction', es: 'Atracción', ru: 'Достопримечательность' },
-                  '핫플레이스': { en: 'Hotspot', ja: '人気スポット', zh: '热门打卡点', zht: '熱門打卡點', de: 'Hotspot', fr: 'Tendance', es: 'Popular', ru: 'Хит' },
-                  'AI추천': { en: 'AI Pick', ja: 'AIおすすめ', zh: 'AI精选', zht: 'AI精選', de: 'AI-Tipp', fr: 'Choix IA', es: 'Selección IA', ru: 'Выбор ИИ' },
-                  '감성핫플': { en: 'Trendy', ja: '感性スポット', zh: '网红氛围', zht: '網紅氛圍', de: 'Trendig', fr: 'Tendance', es: 'Trendy', ru: 'Трендовое' },
-                  '자연명소': { en: 'Nature', ja: '自然名所', zh: '自然美景', zht: '自然美景', de: 'Natur', fr: 'Nature', es: 'Naturaleza', ru: 'Природа' },
-                  '힐링여행': { en: 'Healing', ja: 'ヒーリング', zh: '疗愈之旅', zht: '療癒之旅', de: 'Erholung', fr: 'Relaxation', es: 'Relax', ru: 'Релакс' }
-                }[cleanTag]?.[lang] || (lang !== 'ko' ? getTranslatedTitle(cleanTag, lang) : cleanTag);
+                const cleanTag = String(tagItem || '').replace(/^#/, '').trim();
+                if (!cleanTag) return null;
+                const translatedTag = (lang !== 'ko' ? getTranslatedTitle(cleanTag, lang) : cleanTag).replace(/^#/, '');
 
                 return (
                   <span key={i} style={{
