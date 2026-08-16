@@ -19,8 +19,22 @@ import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
 import { generateLocalFallbackItinerary } from './services/geminiNlpService';
 
 export default function App() {
-  // Auto-detect browser locale
-  const [lang, setLang] = useState(detectBrowserLanguage());
+  // Persistent language preference with browser locale detection fallback
+  const [lang, setLang] = useState(() => {
+    try {
+      const saved = localStorage.getItem('ktravel_lang');
+      if (saved) return saved;
+    } catch (e) {}
+    return detectBrowserLanguage();
+  });
+
+  const handleLanguageChange = (newLang) => {
+    setLang(newLang);
+    try {
+      localStorage.setItem('ktravel_lang', newLang);
+    } catch (e) {}
+  };
+
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
 
   const [filters, setFilters] = useState({
@@ -125,7 +139,8 @@ export default function App() {
       {/* Top Header & Multilingual Selector */}
       <Header
         lang={lang}
-        onLanguageChange={setLang}
+        onLanguageChange={handleLanguageChange}
+        setLang={handleLanguageChange}
         themeMode={themeMode}
         onToggleTheme={() => setThemeMode(prev => prev === 'dark' ? 'light' : 'dark')}
         wishlistCount={bookmarks.length}
