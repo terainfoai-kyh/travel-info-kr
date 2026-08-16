@@ -3651,6 +3651,17 @@ export function getTranslatedOverview(overview, title = '', lang = 'ko') {
   return overview;
 }
 
+export function getTranslatedTheme(theme, lang = 'ko') {
+  if (!theme || lang === 'ko') return theme || '';
+  const tObj = TRANSLATIONS[lang] || TRANSLATIONS.en;
+  return tObj.themes?.[theme] || theme;
+}
+
+export function getTranslatedReview(review, lang = 'ko') {
+  if (!review || lang === 'ko') return review || '';
+  return review;
+}
+
 export function getTranslatedDetailText(text, lang = 'ko') {
   if (!text) return '';
   if (lang === 'ko') return text;

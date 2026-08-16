@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { fetchSpotDetailCommon, fetchSpotDetailImages, fetchSpotDetailIntro } from '../services/tourApi';
 import { PUBLIC_API_CONFIG, buildAgodaDeepLink, buildKlookDeepLink, buildKKdayDeepLink } from '../services/apiConfig';
-import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress, getTranslatedReview, getTranslatedOverview, getTranslatedDetailText, getCloseButtonLabel } from '../i18n/translations';
+import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress, getTranslatedOverview, getTranslatedDetailText, getCloseButtonLabel } from '../i18n/translations';
 import TravelImageWithFallback from './TravelImageWithFallback';
 import { useModalHistory } from '../hooks/useModalHistory';
 
