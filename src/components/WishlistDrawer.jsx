@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, Heart, Trash2, Share2, Copy, Check, ExternalLink, MapPin, Sparkles, Compass } from 'lucide-react';
-import { TRANSLATIONS } from '../i18n/translations';
+import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress } from '../i18n/translations';
 import TravelImageWithFallback from './TravelImageWithFallback';
 import { useModalHistory } from '../hooks/useModalHistory';
 
@@ -339,7 +339,7 @@ export default function WishlistDrawer({ isOpen, onClose, wishlistSpots = [], on
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.2rem' }}>
                     <span style={{ fontSize: '0.7rem', color: '#7c3aed', backgroundColor: '#f3e8ff', padding: '0.1rem 0.45rem', borderRadius: '4px', fontWeight: 800 }}>
-                      {getRegionName(spot.region)}
+                      {t.regions?.[spot.region] || getRegionName(spot.region)}
                     </span>
                     <span style={{ fontSize: '0.72rem', color: '#b45309', fontWeight: 700 }}>
                       ★ {spot.rating || 4.9}
@@ -355,13 +355,13 @@ export default function WishlistDrawer({ isOpen, onClose, wishlistSpots = [], on
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap'
                   }}>
-                    {spot.title}
+                    {getTranslatedTitle(spot.title, lang)}
                   </h4>
 
                   <div style={{ fontSize: '0.75rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                     <MapPin size={12} color="#ef4444" style={{ flexShrink: 0 }} />
                     <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {spot.location || spot.addr1 || (lang === 'en' ? 'Korea Travel Attraction' : '대한민국 관광 명소')}
+                      {getTranslatedAddress(spot.location || spot.addr1, lang) || (lang === 'en' ? 'Korea Travel Attraction' : '대한민국 관광 명소')}
                     </span>
                   </div>
                 </div>

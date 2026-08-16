@@ -256,6 +256,9 @@ export default function CourseMapViewModal({
 
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
   const cmi = COURSE_MAP_I18N[lang] || COURSE_MAP_I18N.en;
+  const displayRegion = (regionName && regionName !== '추천' && regionName !== '한국')
+    ? (t.regions?.[regionName] || getTranslatedAddress(regionName, lang))
+    : (lang === 'en' ? 'Korea' : (lang === 'ko' ? '추천' : ''));
   const [activeDay, setActiveDay] = useState(1);
   const [isMapUnlocked, setIsMapUnlocked] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -425,14 +428,14 @@ export default function CourseMapViewModal({
         <div style="font-family: inherit; padding: 4px 2px; min-width: 170px;">
           <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
             <span style="background: #9333ea; color: #fff; font-size: 10px; font-weight: 800; padding: 1px 6px; border-radius: 99px;">
-              ${currentDay}일차 #${idx + 1}
+              ${lang === 'en' ? `Day ${currentDay} #${idx + 1}` : (lang === 'ja' ? `${currentDay}日目 #${idx + 1}` : (lang === 'zh' || lang === 'zht' ? `第${currentDay}天 #${idx + 1}` : (lang === 'de' ? `Tag ${currentDay} #${idx + 1}` : lang === 'fr' ? `Jour ${currentDay} #${idx + 1}` : lang === 'es' ? `Día ${currentDay} #${idx + 1}` : lang === 'ru' ? `День ${currentDay} #${idx + 1}` : `${currentDay}일차 #${idx + 1}`))))}
             </span>
             <strong style="font-size: 13px; color: #0f172a; word-break: break-all;">${title}</strong>
           </div>
-          <p style="font-size: 11px; color: #64748b; margin: 0 0 8px 0; line-height: 1.3;">${addr || '대한민국 관광 명소'}</p>
+          <p style="font-size: 11px; color: #64748b; margin: 0 0 8px 0; line-height: 1.3;">${addr || (lang === 'en' ? 'Korea Travel Landmark' : (lang === 'ko' ? '대한민국 관광 명소' : 'Korea Travel Landmark'))}</p>
           <div style="display: flex; gap: 6px;">
             <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(title + ' ' + addr)}" target="_blank" style="flex: 1; text-align: center; background: #2563eb; color: #fff; font-size: 11px; font-weight: 700; padding: 4px 6px; border-radius: 6px; text-decoration: none;">
-              구글 길찾기 ↗
+              ${lang === 'en' || lang === 'de' || lang === 'fr' || lang === 'es' ? 'Google Maps ↗' : (lang === 'ja' ? 'Googleマップ ↗' : (lang === 'zh' || lang === 'zht' ? '谷歌地图 ↗' : (lang === 'ru' ? 'Google Карты ↗' : '구글 길찾기 ↗')))}
             </a>
           </div>
         </div>
@@ -602,14 +605,22 @@ export default function CourseMapViewModal({
                 overflow: 'hidden',
                 textOverflow: 'ellipsis'
               }}>
-                🗺️ {regionName} {availableDays.length > 1 ?
+                🗺️ {displayRegion ? `${displayRegion} ` : ''}{availableDays.length > 1 ?
                   (lang === 'en' ? `${availableDays.length}-Day Smart Route` :
                    lang === 'ja' ? `${availableDays.length}日間スマートコース` :
                    lang === 'zh' || lang === 'zht' ? `${availableDays.length}日游智慧路线` :
+                   lang === 'de' ? `${availableDays.length}-Tage Smart Route` :
+                   lang === 'fr' ? `Itinéraire Intelligent ${availableDays.length} Jours` :
+                   lang === 'es' ? `Ruta Inteligente de ${availableDays.length} Días` :
+                   lang === 'ru' ? `${availableDays.length}-дневный маршрут` :
                    `${availableDays.length}일 코스 스마트 동선`) :
                   (lang === 'en' ? '1-Day Smart Route' :
                    lang === 'ja' ? '日帰りスマートコース' :
                    lang === 'zh' || lang === 'zht' ? '一日游智慧路线' :
+                   lang === 'de' ? '1-Tag Smart Route' :
+                   lang === 'fr' ? 'Itinéraire 1 Jour' :
+                   lang === 'es' ? 'Ruta de 1 Día' :
+                   lang === 'ru' ? '1-дневный маршрут' :
                    '당일 코스 스마트 동선')}
               </h3>
               <p style={{
@@ -821,7 +832,7 @@ export default function CourseMapViewModal({
 
                     <div style={{ fontSize: '0.74rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                       <MapPin size={12} color="#ef4444" style={{ flexShrink: 0 }} />
-                      <span>{spot.location || spot.addr1 || cmi.locationProvided}</span>
+                      <span>{getTranslatedAddress(spot.location || spot.addr1, lang) || cmi.locationProvided}</span>
                     </div>
 
                     {/* CARD BUTTONS */}

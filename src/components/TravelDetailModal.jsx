@@ -772,23 +772,47 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                 borderRadius: '8px',
                 boxShadow: '0 2px 6px rgba(124, 58, 237, 0.4)'
               }}>
-                {spot.assignedDay ? `${spot.assignedDay}일차 명소` : displayRegion}
+                {spot.assignedDay ? (
+                  {
+                    ko: `${spot.assignedDay}일차 명소`,
+                    en: `Day ${spot.assignedDay} Spot`,
+                    ja: `${spot.assignedDay}日目 スポット`,
+                    zh: `第${spot.assignedDay}天 景点`,
+                    zht: `第${spot.assignedDay}天 景點`,
+                    de: `Tag ${spot.assignedDay} Spot`,
+                    fr: `Jour ${spot.assignedDay} Spot`,
+                    es: `Día ${spot.assignedDay} Lugar`,
+                    ru: `День ${spot.assignedDay} Место`
+                  }[lang] || `Day ${spot.assignedDay}`
+                ) : displayRegion}
               </span>
 
-              {spot.tags && spot.tags.slice(0, 3).map((tagItem, i) => (
-                <span key={i} style={{
-                  backgroundColor: 'rgba(15, 23, 42, 0.65)',
-                  color: '#f8fafc',
-                  border: '1px solid rgba(255, 255, 255, 0.3)',
-                  fontSize: '0.75rem',
-                  fontWeight: 600,
-                  padding: '0.2rem 0.55rem',
-                  borderRadius: '8px',
-                  backdropFilter: 'blur(6px)'
-                }}>
-                  #{tagItem.replace(/^#/, '')}
-                </span>
-              ))}
+              {spot.tags && spot.tags.slice(0, 3).map((tagItem, i) => {
+                const cleanTag = tagItem.replace(/^#/, '');
+                const translatedTag = {
+                  '관광명소': { en: 'Attraction', ja: '観光スポット', zh: '观光名胜', zht: '觀光名勝', de: 'Attraktion', fr: 'Attraction', es: 'Atracción', ru: 'Достопримечательность' },
+                  '핫플레이스': { en: 'Hotspot', ja: '人気スポット', zh: '热门打卡点', zht: '熱門打卡點', de: 'Hotspot', fr: 'Tendance', es: 'Popular', ru: 'Хит' },
+                  'AI추천': { en: 'AI Pick', ja: 'AIおすすめ', zh: 'AI精选', zht: 'AI精選', de: 'AI-Tipp', fr: 'Choix IA', es: 'Selección IA', ru: 'Выбор ИИ' },
+                  '감성핫플': { en: 'Trendy', ja: '感性スポット', zh: '网红氛围', zht: '網紅氛圍', de: 'Trendig', fr: 'Tendance', es: 'Trendy', ru: 'Трендовое' },
+                  '자연명소': { en: 'Nature', ja: '自然名所', zh: '自然美景', zht: '自然美景', de: 'Natur', fr: 'Nature', es: 'Naturaleza', ru: 'Природа' },
+                  '힐링여행': { en: 'Healing', ja: 'ヒーリング', zh: '疗愈之旅', zht: '療癒之旅', de: 'Erholung', fr: 'Relaxation', es: 'Relax', ru: 'Релакс' }
+                }[cleanTag]?.[lang] || (lang !== 'ko' ? getTranslatedTitle(cleanTag, lang) : cleanTag);
+
+                return (
+                  <span key={i} style={{
+                    backgroundColor: 'rgba(15, 23, 42, 0.65)',
+                    color: '#f8fafc',
+                    border: '1px solid rgba(255, 255, 255, 0.3)',
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    padding: '0.2rem 0.55rem',
+                    borderRadius: '8px',
+                    backdropFilter: 'blur(6px)'
+                  }}>
+                    #{translatedTag}
+                  </span>
+                );
+              })}
             </div>
 
             <h2 style={{
