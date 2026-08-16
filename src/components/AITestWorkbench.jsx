@@ -1037,7 +1037,7 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
                           </button>
 
                           {msg.spots.map((spot, idx) => {
-                            const dayNum = spot.assignedDay || 1;
+                            const dayNum = spot.assignedDay ? (parseInt(String(spot.assignedDay).replace(/[^0-9]/g, ''), 10) || 1) : 1;
                             const badgeStyle = getDayBadgeStyle(dayNum);
                             const displayTitle = getTranslatedTitle(spot.title, lang);
                             const displayLocation = getTranslatedAddress(spot.location || spot.addr1, lang);
@@ -1046,7 +1046,7 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
                             return (
                               <div 
                                 key={spot.id || idx} 
-                                onClick={() => onOpenDetail && onOpenDetail(spot)}
+                                onClick={() => onOpenDetail && onOpenDetail({ ...spot, assignedDay: dayNum })}
                                 style={{ 
                                   padding: '0.75rem 0.85rem', 
                                   backgroundColor: '#ffffff', 
@@ -1064,7 +1064,7 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
                                 <div style={{ width: '100%' }}>
                                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.4rem', marginBottom: '0.25rem' }}>
                                     <span style={{ padding: '0.15rem 0.45rem', borderRadius: '6px', fontSize: '0.68rem', fontWeight: 800, backgroundColor: badgeStyle.bg, color: badgeStyle.text, border: `1px solid ${badgeStyle.border}`, whiteSpace: 'nowrap', flexShrink: 0, marginTop: '2px' }}>
-                                      {spot.assignedDay ? wt.dayBadge.replace('{day}', spot.assignedDay) : wt.recommendSpot}
+                                      {spot.assignedDay ? wt.dayBadge.replace('{day}', dayNum) : wt.recommendSpot}
                                     </span>
                                     <strong style={{ color: '#0f172a', fontSize: '0.86rem', fontWeight: 800, wordBreak: 'break-word', lineHeight: 1.4 }}>
                                       {idx + 1}. {displayTitle}
@@ -1080,7 +1080,7 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', width: '100%', paddingTop: '0.15rem' }} onClick={(e) => e.stopPropagation()}>
                                   {/* 🔍 Primary Action: Photos & Detail */}
                                   <button
-                                    onClick={() => onOpenDetail && onOpenDetail(spot)}
+                                    onClick={() => onOpenDetail && onOpenDetail({ ...spot, assignedDay: dayNum })}
                                     style={{
                                       flex: 1,
                                       minWidth: 0,
@@ -1387,7 +1387,7 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
                 </button>
 
                 {activeSpotMessage.spots.map((spot, idx) => {
-                  const dayNum = spot.assignedDay || 1;
+                  const dayNum = spot.assignedDay ? (parseInt(String(spot.assignedDay).replace(/[^0-9]/g, ''), 10) || 1) : 1;
                   const badgeStyle = getDayBadgeStyle(dayNum);
                   const displayTitle = getTranslatedTitle(spot.title, lang);
                   const displayLocation = getTranslatedAddress(spot.location || spot.addr1, lang);
@@ -1396,7 +1396,7 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
                   return (
                     <div 
                       key={spot.id || idx} 
-                      onClick={() => onOpenDetail && onOpenDetail(spot)}
+                      onClick={() => onOpenDetail && onOpenDetail({ ...spot, assignedDay: dayNum })}
                       style={{
                         display: 'flex',
                         flexDirection: 'column',
@@ -1424,7 +1424,7 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
                       <div style={{ width: '100%' }}>
                         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem', marginBottom: '0.25rem' }}>
                           <span style={{ fontSize: '0.7rem', fontWeight: 700, backgroundColor: badgeStyle.bg, color: badgeStyle.text, border: `1px solid ${badgeStyle.border}`, padding: '0.15rem 0.45rem', borderRadius: '6px', whiteSpace: 'nowrap', flexShrink: 0, marginTop: '2px' }}>
-                            {spot.assignedDay ? wt.dayBadge.replace('{day}', spot.assignedDay) : wt.recommendSpot}
+                            {spot.assignedDay ? wt.dayBadge.replace('{day}', dayNum) : wt.recommendSpot}
                           </span>
                           <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0f172a', wordBreak: 'break-word', lineHeight: 1.4 }}>
                             {idx + 1}. {displayTitle}
@@ -1439,7 +1439,7 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
                       {/* Row 2: Action Buttons */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', width: '100%', paddingTop: '0.15rem' }} onClick={(e) => e.stopPropagation()}>
                         <button
-                          onClick={() => onOpenDetail && onOpenDetail(spot)}
+                          onClick={() => onOpenDetail && onOpenDetail({ ...spot, assignedDay: dayNum })}
                           style={{
                             flex: 1,
                             minWidth: 0,

@@ -858,35 +858,39 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
                 borderRadius: '8px',
                 boxShadow: '0 2px 6px rgba(124, 58, 237, 0.4)'
               }}>
-                {spot.assignedDay ? (
-                  {
-                    ko: `${spot.assignedDay}일차 명소`,
-                    en: `Day ${spot.assignedDay} Spot`,
-                    ja: `${spot.assignedDay}日目 スポット`,
-                    zh: `第${spot.assignedDay}天 景点`,
-                    zht: `第${spot.assignedDay}天 景點`,
-                    de: `Tag ${spot.assignedDay} Spot`,
-                    fr: `Jour ${spot.assignedDay} Spot`,
-                    es: `Día ${spot.assignedDay} Lugar`,
-                    ru: `День ${spot.assignedDay} Место`
-                  }[lang] || `Day ${spot.assignedDay}`
-                ) : (displayRegion || ({
-                  ko: '추천 명소',
-                  en: 'Recommended Spot',
-                  ja: 'おすすめスポット',
-                  zh: '推荐景点',
-                  zht: '推薦景點',
-                  de: 'Empfohlener Ort',
-                  fr: 'Lieu recommandé',
-                  es: 'Lugar recomendado',
-                  ru: 'Рекомендованное место'
-                }[lang] || 'Recommended Spot'))}
+                {(() => {
+                  const rawDay = spot.assignedDay ? parseInt(String(spot.assignedDay).replace(/[^0-9]/g, ''), 10) : null;
+                  if (rawDay) {
+                    return {
+                      ko: `${rawDay}일차 명소`,
+                      en: `Day ${rawDay} Spot`,
+                      ja: `${rawDay}日目 スポット`,
+                      zh: `第${rawDay}天 景点`,
+                      zht: `第${rawDay}天 景點`,
+                      de: `Tag ${rawDay} Spot`,
+                      fr: `Jour ${rawDay} Spot`,
+                      es: `Día ${rawDay} Lugar`,
+                      ru: `День ${rawDay} Место`
+                    }[lang] || `Day ${rawDay} Spot`;
+                  }
+                  return displayRegion || ({
+                    ko: '추천 명소',
+                    en: 'Recommended Spot',
+                    ja: 'おすすめスポット',
+                    zh: '推荐景点',
+                    zht: '推薦景點',
+                    de: 'Empfohlener Ort',
+                    fr: 'Lieu recommandé',
+                    es: 'Lugar recomendado',
+                    ru: 'Рекомендованное место'
+                  }[lang] || 'Recommended Spot');
+                })()}
               </span>
 
               {spot.tags && spot.tags.slice(0, 3).map((tagItem, i) => {
                 const cleanTag = String(tagItem || '').replace(/^#/, '').trim();
                 if (!cleanTag) return null;
-                const translatedTag = (lang !== 'ko' ? getTranslatedTitle(cleanTag, lang) : cleanTag).replace(/^#/, '');
+                const translatedTag = getTranslatedTitle(cleanTag, lang).replace(/^#/, '');
 
                 return (
                   <span key={i} style={{

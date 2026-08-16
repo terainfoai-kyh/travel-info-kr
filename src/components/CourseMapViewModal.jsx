@@ -293,11 +293,11 @@ export default function CourseMapViewModal({
   // Group spots by assigned day (1~5)
   const daysGroup = {};
   spots.forEach((spot, index) => {
-    const day = spot.assignedDay || 1;
+    const day = spot.assignedDay ? (parseInt(String(spot.assignedDay).replace(/[^0-9]/g, ''), 10) || 1) : 1;
     if (!daysGroup[day]) {
       daysGroup[day] = [];
     }
-    daysGroup[day].push({ ...spot, _originalIndex: index });
+    daysGroup[day].push({ ...spot, assignedDay: day, _originalIndex: index });
   });
 
   const availableDays = Object.keys(daysGroup).map(Number).sort((a, b) => a - b);
@@ -795,7 +795,7 @@ export default function CourseMapViewModal({
                 <div key={spot.id || idx} style={{ position: 'relative' }}>
                   {/* SPOT CARD */}
                   <div
-                    onClick={() => onOpenDetail && onOpenDetail(spot)}
+                    onClick={() => onOpenDetail && onOpenDetail({ ...spot, assignedDay: spot.assignedDay || activeDay })}
                     style={{
                       display: 'flex',
                       flexDirection: 'column',
@@ -854,7 +854,7 @@ export default function CourseMapViewModal({
                     {/* CARD BUTTONS */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.2rem' }} onClick={(e) => e.stopPropagation()}>
                       <button
-                        onClick={() => onOpenDetail && onOpenDetail(spot)}
+                        onClick={() => onOpenDetail && onOpenDetail({ ...spot, assignedDay: spot.assignedDay || activeDay })}
                         style={{
                           flex: 1,
                           minWidth: 0,

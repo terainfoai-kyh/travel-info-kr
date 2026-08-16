@@ -3108,26 +3108,68 @@ export function romanizeHangul(text) {
 
 export function getTranslatedTitle(title, lang = 'ko') {
   if (!title) return '';
-  if (lang === 'ko') return title;
 
-  const cleanTag = title.replace(/^#/, '').trim();
+  const cleanTag = String(title).replace(/^#/, '').trim();
   const TAG_MAP = {
-    '관광명소': { en: 'Attraction', ja: '観光名所', zh: '观光名胜', zht: '觀光名勝', de: 'Attraktion', fr: 'Attraction', es: 'Atracción', ru: 'Достопримечательность' },
-    '핫플레이스': { en: 'Hotspot', ja: '人気スポット', zh: '热门打卡点', zht: '熱門打卡點', de: 'Hotspot', fr: 'Tendance', es: 'Popular', ru: 'Хит' },
-    'AI추천': { en: 'AI Pick', ja: 'AIおすすめ', zh: 'AI精选', zht: 'AI精選', de: 'AI-Tipp', fr: 'Choix IA', es: 'Selección IA', ru: 'Выбор ИИ' },
-    '감성핫플': { en: 'Trendy Hotspot', ja: '感性スポット', zh: '网红氛围', zht: '網紅氛圍', de: 'Trendig', fr: 'Tendance', es: 'Trendy', ru: 'Трендовое' },
-    '자연명소': { en: 'Nature', ja: '自然名所', zh: '自然美景', zht: '自然美景', de: 'Natur', fr: 'Nature', es: 'Naturaleza', ru: 'Природа' },
-    '힐링여행': { en: 'Healing Trip', ja: 'ヒーリング旅', zh: '疗愈之旅', zht: '療癒之旅', de: 'Erholung', fr: 'Relaxation', es: 'Relax', ru: 'Релакс' },
-    '역사명소': { en: 'Historic Site', ja: '歴史名所', zh: '历史古迹', zht: '歷史古蹟', de: 'Historische Stätte', fr: 'Site Historique', es: 'Sitio Histórico', ru: 'Историческое место' },
-    '포토존': { en: 'Photo Spot', ja: 'フォトゾーン', zh: '拍照打卡地', zht: '拍照打卡地', de: 'Fotospot', fr: 'Spot Photo', es: 'Zona de Fotos', ru: 'Фотозона' },
-    '바다여행': { en: 'Ocean Scenic', ja: '海・オーシャン', zh: '海景之旅', zht: '海景之旅', de: 'Meerblick', fr: 'Vue Mer', es: 'Vista al Mar', ru: 'Морской тур' },
-    '체험여행': { en: 'Experience', ja: '体験ツアー', zh: '体验游', zht: '體驗遊', de: 'Erlebnistour', fr: 'Expérience', es: 'Experiencia', ru: 'Впечатления' },
-    '추천': { en: 'Recommended', ja: 'おすすめ', zh: '推荐', zht: '推薦', de: 'Empfohlen', fr: 'Recommandé', es: 'Recomendado', ru: 'Рекомендовано' }
+    '관광명소': { ko: '관광명소', en: 'Attraction', ja: '観光名所', zh: '观光名胜', zht: '觀光名勝', de: 'Attraktion', fr: 'Attraction', es: 'Atracción', ru: 'Достопримечательность' },
+    '핫플레이스': { ko: '핫플레이스', en: 'Hotspot', ja: '人気スポット', zh: '热门打卡点', zht: '熱門打卡點', de: 'Hotspot', fr: 'Tendance', es: 'Popular', ru: 'Хит' },
+    'AI추천': { ko: 'AI추천', en: 'AI Pick', ja: 'AIおすすめ', zh: 'AI精选', zht: 'AI精選', de: 'AI-Tipp', fr: 'Choix IA', es: 'Selección IA', ru: 'Выбор ИИ' },
+    '감성핫플': { ko: '감성핫플', en: 'Trendy Hotspot', ja: '感性スポット', zh: '网红氛围', zht: '網紅氛圍', de: 'Trendig', fr: 'Tendance', es: 'Trendy', ru: 'Трендовое' },
+    '자연명소': { ko: '자연명소', en: 'Nature', ja: '自然名所', zh: '自然美景', zht: '自然美景', de: 'Natur', fr: 'Nature', es: 'Naturaleza', ru: 'Природа' },
+    '힐링여행': { ko: '힐링여행', en: 'Healing Trip', ja: 'ヒーリング旅', zh: '疗愈之旅', zht: '療癒之旅', de: 'Erholung', fr: 'Relaxation', es: 'Relax', ru: 'Релакс' },
+    '역사명소': { ko: '역사명소', en: 'Historic Site', ja: '歴史名所', zh: '历史古迹', zht: '歷史古蹟', de: 'Historische Stätte', fr: 'Site Historique', es: 'Sitio Histórico', ru: 'Историческое место' },
+    '포토존': { ko: '포토존', en: 'Photo Spot', ja: 'フォトゾーン', zh: '拍照打卡地', zht: '拍照打卡地', de: 'Fotospot', fr: 'Spot Photo', es: 'Zona de Fotos', ru: 'Фотозона' },
+    '바다여행': { ko: '바다여행', en: 'Ocean Scenic', ja: '海・オーシャン', zh: '海景之旅', zht: '海景之旅', de: 'Meerblick', fr: 'Vue Mer', es: 'Vista al Mar', ru: 'Морской тур' },
+    '체험여행': { ko: '체험여행', en: 'Experience', ja: '体験ツアー', zh: '体验游', zht: '體驗遊', de: 'Erlebnistour', fr: 'Expérience', es: 'Experiencia', ru: 'Впечатления' },
+    '추천': { ko: '추천', en: 'Recommended', ja: 'おすすめ', zh: '推荐', zht: '推薦', de: 'Empfohlen', fr: 'Recommandé', es: 'Recomendado', ru: 'Рекомендовано' },
+    '맛집': { ko: '맛집', en: 'Gourmet Food', ja: 'グルメ', zh: '美食精选', zht: '美食精選', de: 'Gourmet', fr: 'Gastronomie', es: 'Gastronomía', ru: 'Гурме' },
+    '카페': { ko: '카페', en: 'Café & Dessert', ja: 'カフェ', zh: '咖啡甜品', zht: '咖啡甜品', de: 'Café', fr: 'Café', es: 'Cafetería', ru: 'Кафе' },
+    '야경': { ko: '야경', en: 'Night View', ja: '夜景', zh: '绝美夜景', zht: '絕美夜景', de: 'Nachtansicht', fr: 'Vue Nocturne', es: 'Vista Nocturna', ru: 'Ночной вид' },
+    '쇼핑': { ko: '쇼핑', en: 'Shopping', ja: 'ショッピング', zh: '购物天堂', zht: '購物天堂', de: 'Shopping', fr: 'Shopping', es: 'Compras', ru: 'Шопинг' }
   };
 
-  if (TAG_MAP[cleanTag] && TAG_MAP[cleanTag][lang]) {
-    return title.startsWith('#') ? `#${TAG_MAP[cleanTag][lang]}` : TAG_MAP[cleanTag][lang];
+  // 1. Check Bidirectional Tag Translations
+  for (const tagKey of Object.keys(TAG_MAP)) {
+    const entry = TAG_MAP[tagKey];
+    const isTagMatch = tagKey.toLowerCase() === cleanTag.toLowerCase() || 
+      Object.values(entry).some(v => String(v).toLowerCase() === cleanTag.toLowerCase());
+    if (isTagMatch) {
+      const translated = entry[lang] || entry.ko || entry.en;
+      return title.startsWith('#') ? `#${translated}` : translated;
+    }
   }
+
+  // 2. Core Landmark Bidirectional Mapping
+  const LANDMARK_MAP = {
+    '해운대해수욕장': { ko: '해운대해수욕장', en: 'Haeundae Beach', ja: '海雲台海水浴場', zh: '海云台海水浴场', zht: '海雲台海水浴場', de: 'Haeundae Beach', fr: 'Plage de Haeundae', es: 'Playa de Haeundae', ru: 'Пляж Хэундэ' },
+    '해운대': { ko: '해운대', en: 'Haeundae', ja: '海雲台', zh: '海云台', zht: '海雲台', de: 'Haeundae', fr: 'Haeundae', es: 'Haeundae', ru: 'Хэундэ' },
+    '광안리해수욕장': { ko: '광안리해수욕장', en: 'Gwangalli Beach', ja: '広安里海水浴場', zh: '广安里海水浴场', zht: '廣安里海水浴場', de: 'Gwangalli Beach', fr: 'Plage de Gwangalli', es: 'Playa de Gwangalli', ru: 'Пляж Кваналли' },
+    '광안리': { ko: '광안리', en: 'Gwangalli', ja: '広安里', zh: '广安里', zht: '廣安里', de: 'Gwangalli', fr: 'Gwangalli', es: 'Gwangalli', ru: 'Кваналли' },
+    '경복궁': { ko: '경복궁', en: 'Gyeongbokgung Palace', ja: '景福宮', zh: '景福宫', zht: '景福宮', de: 'Gyeongbokgung-Palast', fr: 'Palais Gyeongbokgung', es: 'Palacio Gyeongbokgung', ru: 'Дворец Кёнбоккун' },
+    'N서울타워': { ko: 'N서울타워', en: 'N Seoul Tower', ja: 'Nソウルタワー', zh: 'N首尔塔', zht: 'N首爾塔', de: 'N Seoul Tower', fr: 'Tour N Seoul', es: 'Torre N Seoul', ru: 'Башня N Seoul' },
+    '남산서울타워': { ko: '남산서울타워', en: 'N Seoul Tower', ja: 'Nソウルタワー', zh: 'N首尔塔', zht: 'N首爾塔', de: 'N Seoul Tower', fr: 'Tour N Seoul', es: 'Torre N Seoul', ru: 'Башня N Seoul' },
+    '수원화성': { ko: '수원화성', en: 'Suwon Hwaseong Fortress', ja: '水原華城', zh: '水原华城', zht: '水原華城', de: 'Festung Hwaseong', fr: 'Forteresse de Hwaseong', es: 'Fortaleza Hwaseong', ru: 'Крепость Хвасон' },
+    '성산일출봉': { ko: '성산일출봉', en: 'Seongsan Ilchulbong Peak', ja: '城山日出峰', zh: '城山日出峰', zht: '城山日出峰', de: 'Seongsan Ilchulbong', fr: 'Pic Seongsan Ilchulbong', es: 'Pico Seongsan Ilchulbong', ru: 'Пик Сонсан Ильчхульбон' },
+    '감천문화마을': { ko: '감천문화마을', en: 'Gamcheon Culture Village', ja: '甘川文化村', zh: '甘川文化村', zht: '甘川文化村', de: 'Kulturdorf Gamcheon', fr: 'Village culturel de Gamcheon', es: 'Aldea Cultural Gamcheon', ru: 'Деревня Камчхон' },
+    '자갈치시장': { ko: '자갈치시장', en: 'Jagalchi Market', ja: 'チャガルチ市場', zh: '札嘎其市场', zht: '札嘎其市場', de: 'Jagalchi-Fischmarkt', fr: 'Marché Jagalchi', es: 'Mercado Jagalchi', ru: 'Рынок Чагальчхи' },
+    '동대문디자인플라자': { ko: '동대문디자인플라자', en: 'Dongdaemun Design Plaza (DDP)', ja: '東大門デザインプラザ (DDP)', zh: '东大门设计广场 (DDP)', zht: '東大門設計廣場 (DDP)', de: 'Dongdaemun Design Plaza (DDP)', fr: 'Dongdaemun Design Plaza (DDP)', es: 'Dongdaemun Design Plaza (DDP)', ru: 'Тондэмун Дизайн Плаза (DDP)' },
+    '명동거리': { ko: '명동거리', en: 'Myeongdong Shopping Street', ja: '明洞通り', zh: '明洞购物街', zht: '明洞購物街', de: 'Myeongdong Einkaufsstraße', fr: 'Rue commerçante de Myeongdong', es: 'Calle Myeongdong', ru: 'Улица Мёндон' },
+    '남이섬': { ko: '남이섬', en: 'Nami Island', ja: '南怡島', zh: '南怡岛', zht: '南怡島', de: 'Insel Nami', fr: 'Île de Nami', es: 'Isla Nami', ru: 'Остров Нами' },
+    '불국사': { ko: '불국사', en: 'Bulguksa Temple', ja: '仏国寺', zh: '佛国寺', zht: '佛國寺', de: 'Bulguksa-Tempel', fr: 'Temple Bulguksa', es: 'Templo Bulguksa', ru: 'Храм Пульгукса' },
+    '첨성대': { ko: '첨성대', en: 'Cheomseongdae Observatory', ja: '瞻星台', zh: '瞻星台', zht: '瞻星台', de: 'Cheomseongdae-Observatorium', fr: 'Observatoire Cheomseongdae', es: 'Observatorio Cheomseongdae', ru: 'Обсерватория Чхомсондэ' }
+  };
+
+  const strippedTarget = String(title).replace(/\s*[\(\[][\uAC00-\uD7A30-9\s,\.\-&/]+[\)\]]/g, '').trim();
+  for (const lmKey of Object.keys(LANDMARK_MAP)) {
+    const entry = LANDMARK_MAP[lmKey];
+    const isLmMatch = lmKey === title || lmKey === strippedTarget || 
+      Object.values(entry).some(v => String(v).toLowerCase() === String(title).toLowerCase() || String(v).toLowerCase() === strippedTarget.toLowerCase());
+    if (isLmMatch) {
+      return entry[lang] || entry.ko || entry.en;
+    }
+  }
+
+  if (lang === 'ko') return title;
 
   const tObj = TRANSLATIONS[lang] || TRANSLATIONS.en;
   if (tObj.spotTitles && tObj.spotTitles[title]) {
