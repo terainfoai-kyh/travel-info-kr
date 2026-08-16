@@ -3110,6 +3110,25 @@ export function getTranslatedTitle(title, lang = 'ko') {
   if (!title) return '';
   if (lang === 'ko') return title;
 
+  const cleanTag = title.replace(/^#/, '').trim();
+  const TAG_MAP = {
+    '관광명소': { en: 'Attraction', ja: '観光名所', zh: '观光名胜', zht: '觀光名勝', de: 'Attraktion', fr: 'Attraction', es: 'Atracción', ru: 'Достопримечательность' },
+    '핫플레이스': { en: 'Hotspot', ja: '人気スポット', zh: '热门打卡点', zht: '熱門打卡點', de: 'Hotspot', fr: 'Tendance', es: 'Popular', ru: 'Хит' },
+    'AI추천': { en: 'AI Pick', ja: 'AIおすすめ', zh: 'AI精选', zht: 'AI精選', de: 'AI-Tipp', fr: 'Choix IA', es: 'Selección IA', ru: 'Выбор ИИ' },
+    '감성핫플': { en: 'Trendy Hotspot', ja: '感性スポット', zh: '网红氛围', zht: '網紅氛圍', de: 'Trendig', fr: 'Tendance', es: 'Trendy', ru: 'Трендовое' },
+    '자연명소': { en: 'Nature', ja: '自然名所', zh: '自然美景', zht: '自然美景', de: 'Natur', fr: 'Nature', es: 'Naturaleza', ru: 'Природа' },
+    '힐링여행': { en: 'Healing Trip', ja: 'ヒーリング旅', zh: '疗愈之旅', zht: '療癒之旅', de: 'Erholung', fr: 'Relaxation', es: 'Relax', ru: 'Релакс' },
+    '역사명소': { en: 'Historic Site', ja: '歴史名所', zh: '历史古迹', zht: '歷史古蹟', de: 'Historische Stätte', fr: 'Site Historique', es: 'Sitio Histórico', ru: 'Историческое место' },
+    '포토존': { en: 'Photo Spot', ja: 'フォトゾーン', zh: '拍照打卡地', zht: '拍照打卡地', de: 'Fotospot', fr: 'Spot Photo', es: 'Zona de Fotos', ru: 'Фотозона' },
+    '바다여행': { en: 'Ocean Scenic', ja: '海・オーシャン', zh: '海景之旅', zht: '海景之旅', de: 'Meerblick', fr: 'Vue Mer', es: 'Vista al Mar', ru: 'Морской тур' },
+    '체험여행': { en: 'Experience', ja: '体験ツアー', zh: '体验游', zht: '體驗遊', de: 'Erlebnistour', fr: 'Expérience', es: 'Experiencia', ru: 'Впечатления' },
+    '추천': { en: 'Recommended', ja: 'おすすめ', zh: '推荐', zht: '推薦', de: 'Empfohlen', fr: 'Recommandé', es: 'Recomendado', ru: 'Рекомендовано' }
+  };
+
+  if (TAG_MAP[cleanTag] && TAG_MAP[cleanTag][lang]) {
+    return title.startsWith('#') ? `#${TAG_MAP[cleanTag][lang]}` : TAG_MAP[cleanTag][lang];
+  }
+
   const tObj = TRANSLATIONS[lang] || TRANSLATIONS.en;
   if (tObj.spotTitles && tObj.spotTitles[title]) {
     return tObj.spotTitles[title];
@@ -3234,7 +3253,29 @@ export function getTranslatedAddress(address, lang = 'ko') {
   if (!address) return '';
   if (lang === 'ko') return address;
 
-  let res = address;
+  let res = String(address);
+
+  // Strip Korean annotations in parentheses like (지도 길찾기 연동)
+  res = res.replace(/\s*\([^)]*[\uAC00-\uD7A3]+[^)]*\)/g, '').trim();
+
+  const REGION_AREA_MAP = {
+    '대한민국 부산 일대': { en: 'Busan Area, Korea', ja: '韓国 釜山エリア', zh: '韩国 釜山地区', zht: '韓國 釜山地區', de: 'Region Busan, Korea', fr: 'Région de Busan, Corée', es: 'Área de Busan, Corea', ru: 'Район Пусан, Корея' },
+    '대한민국 서울 일대': { en: 'Seoul Area, Korea', ja: '韓国 ソウルエリア', zh: '韩国 首尔地区', zht: '韓國 首爾地區', de: 'Region Seoul, Korea', fr: 'Région de Séoul, Corée', es: 'Área de Seúl, Corea', ru: 'Район Сеул, Корея' },
+    '대한민국 제주 일대': { en: 'Jeju Island, Korea', ja: '韓国 済州島エリア', zh: '韩国 济州岛地区', zht: '韓國 濟州島地區', de: 'Insel Jeju, Korea', fr: 'Île de Jeju, Corée', es: 'Isla de Jeju, Corea', ru: 'Остров Чеджу, Корея' },
+    '대한민국 경주 일대': { en: 'Gyeongju Area, Korea', ja: '韓国 慶州エリア', zh: '韩国 庆州地区', zht: '韓國 慶州地區', de: 'Region Gyeongju, Korea', fr: 'Région de Gyeongju, Corée', es: 'Área de Gyeongju, Corea', ru: 'Район Кёнджу, Корея' },
+    '대한민국 강릉 일대': { en: 'Gangneung Area, Korea', ja: '韓国 江陵エリア', zh: '韩国 江陵地区', zht: '韓國 江陵地區', de: 'Region Gangneung, Korea', fr: 'Région de Gangneung, Corée', es: 'Área de Gangneung, Corea', ru: 'Район Каннын, Корея' },
+    '대한민국 전주 일대': { en: 'Jeonju Area, Korea', ja: '韓国 全州エリア', zh: '韩国 全州地区', zht: '韓國 全州地區', de: 'Region Jeonju, Korea', fr: 'Région de Jeonju, Corée', es: 'Área de Jeonju, Corea', ru: 'Район Чонджу, Корея' },
+    '대한민국 여수 일대': { en: 'Yeosu Area, Korea', ja: '韓国 麗水エリア', zh: '韩国 丽水地区', zht: '韓國 麗水地區', de: 'Region Yeosu, Korea', fr: 'Région de Yeosu, Corée', es: 'Área de Yeosu, Corea', ru: 'Район Ёсу, Корея' },
+    '대한민국 거제 일대': { en: 'Geoje Area, Korea', ja: '韓国 巨済エリア', zh: '韩国 巨济地区', zht: '韓國 巨濟地區', de: 'Region Geoje, Korea', fr: 'Région de Geoje, Corée', es: 'Área de Geoje, Corea', ru: 'Район Кодже, Корея' },
+    '대한민국 속초 일대': { en: 'Sokcho Area, Korea', ja: '韓国 束草エリア', zh: '韩国 束草地区', zht: '韓國 束草地區', de: 'Region Sokcho, Korea', fr: 'Région de Sokcho, Corée', es: 'Área de Sokcho, Corea', ru: 'Район Сокчхо, Корея' },
+    '대한민국 수원 일대': { en: 'Suwon Area, Korea', ja: '韓国 水原エリア', zh: '韩国 水原地区', zht: '韓國 水原地區', de: 'Region Suwon, Korea', fr: 'Région de Suwon, Corée', es: 'Área de Suwon, Corea', ru: 'Район Сувон, Корея' },
+    '대한민국 인천 일대': { en: 'Incheon Area, Korea', ja: '韓国 仁川エリア', zh: '韩国 仁川地区', zht: '韓國 仁川地區', de: 'Region Incheon, Korea', fr: 'Région d\'Incheon, Corée', es: 'Área de Incheon, Corea', ru: 'Район Инчхон, Корея' }
+  };
+
+  if (REGION_AREA_MAP[res] && REGION_AREA_MAP[res][lang]) {
+    return REGION_AREA_MAP[res][lang];
+  }
+
   const ADDR_MAP = {
     en: [
       ['서울특별시', 'Seoul, '], ['서울시', 'Seoul, '], ['서울', 'Seoul, '],
@@ -3756,13 +3797,27 @@ export function getTranslatedDetailText(text, lang = 'ko') {
       }[lang] || 'Royal Guard Changing Ceremony')
       .replace(/향원정\s*연못\s*정자/g, {
         en: 'Hyangwonjeong Pond Pavilion', zh: '香远亭池塘凉亭', zht: '香遠亭池塘涼亭', ja: '香遠亭の池と東屋', de: 'Hyangwonjeong-Teichpavillon', fr: 'Pavillon du étang Hyangwonjeong', es: 'Pabellón del estanque Hyangwonjeong', ru: 'Павильон у пруда Хянвонджон'
-      }[lang] || 'Hyangwonjeong Pond Pavilion')
-      .replace(/근정전\s*밤\s*야경\s*투어/g, {
-        en: 'Geunjeongjeon Night Tour', zh: '勤政殿夜景之旅', zht: '勤政殿夜景之旅', ja: '勤政殿の夜景ツアー', de: 'Geunjeongjeon Nacht-Tour', fr: 'Visite nocturne du Geunjeongjeon', es: 'Tour nocturno de Geunjeongjeon', ru: 'Ночной тур в Гынчжонджон'
       }[lang] || 'Geunjeongjeon Night Tour');
   }
 
-  return str;
+  if (lang !== 'ko' && /[\uAC00-\uD7A3]/.test(str)) {
+    str = str
+      .replace(/\(공휴일\s*정상\s*운영\)/g, {
+        en: '(Open on Public Holidays)',
+        ja: '(祝日も通常営業)',
+        zh: '(公休日正常开放)',
+        zht: '(公休日正常開放)',
+        de: '(Auch an Feiertagen)',
+        fr: '(Jours fériés inclus)',
+        es: '(Abierto en festivos)',
+        ru: '(Включая праздники)'
+      }[lang] || '(Open on Public Holidays)')
+      .replace(/\(연중무휴\s*권장\)/g, '')
+      .replace(/\(지도\s*길찾기\s*연동\)/g, '')
+      .replace(/\s*\([^)]*[\uAC00-\uD7A3]+[^)]*\)/g, '');
+  }
+
+  return str.trim();
 }
 
 export function getTranslatedFood(food, lang = 'ko') {

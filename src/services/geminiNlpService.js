@@ -5,6 +5,7 @@
  */
 
 import { fetchDynamicRealtimeSpots, fetchPinpointLandmarkSpots } from './tourApi';
+import { getTranslatedTitle, getTranslatedAddress } from '../i18n/translations';
 
 /**
  * ⚡ GEMINI STRICT KEY ROTATION POOL
@@ -37,22 +38,57 @@ export function sanitizeGeminiOutput(text) {
 
 export function extractLocationKeyword(text) {
   if (!text || typeof text !== 'string') return '';
-  return text.trim().replace(/(주변|근처|인근|여행|추천|코스|맛집|가볼만한곳|여행지|\d+일|\d+박)/gi, '').trim();
+  const clean = text.trim();
+
+  // Multilingual city identification
+  const CITY_MAP = [
+    { keys: ['서울', 'seoul', 'ソウル', '首尔', '首爾', 'séoul', 'сеул', '명동', '강남', '홍대', '이태원', '종로'], city: '서울' },
+    { keys: ['부산', 'busan', '釜山', 'pusan', 'пусан', '해운대', '광안리', '자갈치', '남포동'], city: '부산' },
+    { keys: ['제주', 'jeju', '済州', '济州', '濟州', 'чеджу', '서귀포', '성산', '애월', '중문'], city: '제주' },
+    { keys: ['경주', 'gyeongju', '慶州', '庆州', '慶州', 'кёнджу', '황리단길', '불국사', '보문'], city: '경주' },
+    { keys: ['강릉', 'gangneung', '江陵', 'каннын', '초당', '안목', '경포대', '주문진'], city: '강릉' },
+    { keys: ['전주', 'jeonju', '全州', 'чонджу', '한옥마을'], city: '전주' },
+    { keys: ['여수', 'yeosu', '麗水', '丽水', '麗水', 'ёсу', '돌산', '오동도', '낭만포차'], city: '여수' },
+    { keys: ['거제', 'geoje', '巨済', '巨济', '巨濟', 'кодже', '바람의언덕', '외도', '해금강'], city: '거제' },
+    { keys: ['속초', 'sokcho', '束草', 'сокчхо', '설악산', '아바이마을', '동명항', '대포항'], city: '속초' },
+    { keys: ['수원', 'suwon', '水原', 'сувон', '화성행궁', '행궁동', '영통', '광교'], city: '수원' },
+    { keys: ['인천', 'incheon', '仁川', 'инчхон', '송도', '차이나타운', '월미도'], city: '인천' },
+    { keys: ['대구', 'daegu', '大邱', 'тэгу', '동성로', '서문시장'], city: '대구' },
+    { keys: ['대전', 'daejeon', '大田', 'тэджон', '성심당', '유성'], city: '대전' },
+    { keys: ['광주', 'gwangju', '光州', 'кванджу'], city: '광주' },
+    { keys: ['울산', 'ulsan', '蔚山', 'ульсан', '태화강', '간절곶'], city: '울산' },
+    { keys: ['가평', 'gapyeong', '加平', '남이섬', '자라섬'], city: '가평' },
+    { keys: ['춘천', 'chuncheon', '春川', '소양강'], city: '춘천' },
+    { keys: ['안동', 'andong', '安東', '하회마을'], city: '안동' },
+    { keys: ['포항', 'pohang', '浦項', '호미곶'], city: '포항' },
+    { keys: ['통영', 'tongyeong', '統營', '동피랑'], city: '통영' }
+  ];
+
+  const lower = clean.toLowerCase();
+  for (const item of CITY_MAP) {
+    for (const k of item.keys) {
+      if (lower.includes(k.toLowerCase())) {
+        return item.city;
+      }
+    }
+  }
+
+  return clean.replace(/(주변|근처|인근|여행|추천|코스|맛집|가볼만한곳|여행지|\d+박\d+일|\d+일|\d+박)/gi, '').trim() || '추천';
 }
 
 export function isGreetingQuery(text) {
   if (!text || typeof text !== 'string') return false;
-  return /^(안녕|반가워|하이|hello|hi|good\s*morning|보라야|보라|Vora|안녕하세요)/i.test(text.trim());
+  return /^(안녕|반가워|하이|hello|hi|good\s*morning|보라야|보라|Vora|안녕하세요|こんにちは|你好|hallo|bonjour|hola|здравствуйте|привет)/i.test(text.trim());
 }
 
 export function isCasualChatQuery(text) {
   if (!text || typeof text !== 'string') return false;
-  return /(날씨|기분|심심|뭐해|고마워|감사|수고|잘자|바보|사랑해)/i.test(text.trim());
+  return /(날씨|기분|심심|뭐해|고마워|감사|수고|잘자|바보|사랑해|thank|merci|danke|gracias|спасибо|ありがとう|谢谢)/i.test(text.trim());
 }
 
 export function isMetaHelpQuery(text) {
   if (!text || typeof text !== 'string') return false;
-  return /(여기서\s*뭘|뭐할\s*수|무슨\s*기능|어떻게\s*사용|사용법|도움말|help|what\s*can\s*i|how\s*to\s*use)/i.test(text.trim());
+  return /(여기서\s*뭐|뭐할\s*수|무슨\s*기능|어떻게\s*사용|사용법|도움말|help|what\s*can\s*i|how\s*to\s*use|ここで何|在这里可以|was\s*kann\s*ich|que\s*faire|qué\s*puedo|что\s*здесь)/i.test(text.trim());
 }
 
 export function checkAmbiguousRegionQuery(text) {
@@ -418,25 +454,8 @@ Strictly return ONLY valid JSON matching this schema:
     }
   }
 
-  // ⚡ [순수 Gemini AI 직결 검증 모드] 로컬 폴백 호출부 주석 처리. v1
-  // return generateLocalFallbackItinerary(rawPrompt, lang);
-
-  return {
-    targetCity: targetCity || '대한민국',
-    days,
-    theme,
-    isHelpQuery: false,
-    isUnknownPlace: false,
-    isFallbackMode: false,
-    engineMode: 'GEMINI_DIRECT_DEBUG',
-    tripTitle: 'Vora AI (Gemini 직결 모드)',
-    aiRecommendationSummary: `[⚠️ Gemini API 통신 점검] 현재 등록된 키 풀로 구글 제미나이 API 응답을 수신하지 못했습니다. 개발자 도구(F12) 콘솔의 에러 로그를 확인해 주세요.`,
-    dailySchedules: [],
-    dailyPlaces: [],
-    spots: [],
-    agodaUrl: getAgodaHotelSearchUrl(targetCity),
-    klookUrl: getKlookActivitySearchUrl(targetCity)
-  };
+  // ⚡ Public DB Realtime Fallback Mode
+  return generateLocalFallbackItinerary(rawPrompt, lang);
 }
 
 /**
@@ -457,19 +476,57 @@ export async function generateLocalFallbackItinerary(rawPrompt, lang = 'ko') {
     targetSpots = await fetchDynamicRealtimeSpots(targetCity, lang).catch(() => []);
   }
 
+  const formatDayHeading = (d) => {
+    if (lang === 'ko') return `${d}일차`;
+    if (lang === 'ja') return `${d}日目`;
+    if (lang === 'zh' || lang === 'zht') return `第${d}天`;
+    if (lang === 'de') return `Tag ${d}`;
+    if (lang === 'fr') return `Jour ${d}`;
+    if (lang === 'es') return `Día ${d}`;
+    if (lang === 'ru') return `День ${d}`;
+    return `Day ${d}`;
+  };
+
   const dailyStories = [];
   for (let d = 0; d < days; d++) {
     const spotA = targetSpots[d * 2] || targetSpots[0];
     const spotB = targetSpots[d * 2 + 1];
+    const dayLabel = formatDayHeading(d + 1);
+    const titleA = spotA ? getTranslatedTitle(spotA.title, lang) : '';
+    const titleB = spotB ? getTranslatedTitle(spotB.title, lang) : '';
+
     if (spotA && spotB) {
-      dailyStories.push(`${d + 1}일차: ${spotA.title}에서 시원한 정경을 즐기고 ${spotB.title}을 둘러봅니다.`);
+      if (lang === 'en') dailyStories.push(`${dayLabel}: Explore scenic ${titleA} and visit iconic ${titleB}.`);
+      else if (lang === 'ja') dailyStories.push(`${dayLabel}: ${titleA}で美しい風景を楽しみ、${titleB}を巡ります。`);
+      else if (lang === 'zh' || lang === 'zht') dailyStories.push(`${dayLabel}: 游览风景名胜 ${titleA}，随后前往特色景点 ${titleB}。`);
+      else if (lang === 'de') dailyStories.push(`${dayLabel}: Erkunden Sie ${titleA} und besuchen Sie ${titleB}.`);
+      else if (lang === 'fr') dailyStories.push(`${dayLabel}: Découvrez ${titleA} et visitez ${titleB}.`);
+      else if (lang === 'es') dailyStories.push(`${dayLabel}: Explora ${titleA} y visita ${titleB}.`);
+      else if (lang === 'ru') dailyStories.push(`${dayLabel}: Посетите ${titleA} и прогуляйтесь по ${titleB}.`);
+      else dailyStories.push(`${dayLabel}: ${spotA.title}에서 시원한 풍경을 즐기고 ${spotB.title}을 둘러봅니다.`);
     } else if (spotA) {
-      dailyStories.push(`${d + 1}일차: ${spotA.title}에서 여유로운 힐링 산책과 여행을 즐깁니다.`);
+      if (lang === 'en') dailyStories.push(`${dayLabel}: Enjoy a relaxing journey and scenic views at ${titleA}.`);
+      else if (lang === 'ja') dailyStories.push(`${dayLabel}: ${titleA}でゆったりとした観光を満喫します。`);
+      else if (lang === 'zh' || lang === 'zht') dailyStories.push(`${dayLabel}: 在 ${titleA} 享受惬意舒适的观光时光。`);
+      else dailyStories.push(`${dayLabel}: ${spotA.title}에서 여유로운 힐링 산책과 여행을 즐깁니다.`);
     }
   }
 
-  const baseStory = dailyStories.length > 0 ? dailyStories.join('\n') : `'${targetCity}'에서 가깝게 둘러볼 수 있는 추천 코스입니다.`;
-  const summaryText = `[📢 AI 네트워크 보완 모드 (공공 DB 라이브 탐색 엔진)]\n'${targetCity}' 맞춤 추천 코스를 안내해 드립니다!\n\n${baseStory}`;
+  const localizedCity = getTranslatedAddress(targetCity, lang) || targetCity;
+  const baseStory = dailyStories.length > 0 ? dailyStories.join('\n') : (lang === 'en' ? `Recommended custom route in ${localizedCity}.` : `'${targetCity}'에서 가깝게 둘러볼 수 있는 추천 코스입니다.`);
+  const summaryPrefix = {
+    ko: `[⚡ AI 네트워크 보완 모드 (공공 DB 라이브 탐색 엔진)]\n'${targetCity}' 맞춤 추천 코스를 안내해 드립니다!\n\n`,
+    en: `[⚡ Vora AI Smart Route Engine]\nHere is your tailored ${days}-day travel itinerary for ${localizedCity}!\n\n`,
+    ja: `[⚡ Vora AI スマートコース案内]\n${localizedCity}のおすすめ旅行コースをご案内します！\n\n`,
+    zh: `[⚡ Vora AI 智能行程引擎]\n为您精心定制的 ${localizedCity} ${days}日游推荐路线！\n\n`,
+    zht: `[⚡ Vora AI 智能行程引擎]\n為您精心定制的 ${localizedCity} ${days}日遊推薦路線！\n\n`,
+    de: `[⚡ Vora AI Smart-Route]\nHier ist Ihre empfohlene Reiseroute für ${localizedCity}!\n\n`,
+    fr: `[⚡ Vora AI Itinéraire Intelligent]\nVoici votre itinéraire recommandé pour ${localizedCity} !\n\n`,
+    es: `[⚡ Vora AI Ruta Inteligente]\n¡Aquí tienes tu itinerario recomendado para ${localizedCity}!\n\n`,
+    ru: `[⚡ Vora AI Смарт-маршрут]\nВот ваш индивидуальный маршрут по ${localizedCity}!\n\n`
+  }[lang] || `[⚡ Vora AI Smart Route]\nHere is your custom itinerary for ${localizedCity}!\n\n`;
+
+  const summaryText = `${summaryPrefix}${baseStory}`;
 
   const dailyPlaces = [];
   const dailySchedules = [];

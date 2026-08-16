@@ -566,14 +566,100 @@ export default function TravelDetailModal({ spot, onClose, isBookmarked, onToggl
   };
   const cleanHomepageUrl = extractCleanUrl(detailData?.homepage || spot.homepage);
 
+  const INFO_FALLBACK_I18N = {
+    ko: {
+      hours: '상세 이용시간 정보 제공 (연중무휴 권장)',
+      restDate: '연중무휴 (공휴일 정상 운영)',
+      parking: '주차 가능 (인근 공영/전용 주차장 구비)',
+      fee: '무료 관람 (일부 유료 시설 제외)',
+      pet: '동반 가능 (목줄 및 케이지 착용 권장)',
+      baby: '유모차 및 휠체어 이동 가능',
+      contact: '1330 (관광안내)'
+    },
+    en: {
+      hours: 'Open Year-Round (Standard Operating Hours)',
+      restDate: 'Open Year-Round (Open on Public Holidays)',
+      parking: 'Parking Available (Nearby Public/Private Parking)',
+      fee: 'Free Admission (Excluding some paid facilities)',
+      pet: 'Pets Allowed (Leash and carrier required)',
+      baby: 'Stroller & Wheelchair Accessible',
+      contact: '1330 (Korea Travel Hotline)'
+    },
+    ja: {
+      hours: '年中無休 (標準利用時間案内)',
+      restDate: '年中無休 (祝日も通常営業)',
+      parking: '駐車場あり (近隣の公営・専用駐車場完備)',
+      fee: '無料観覧 (一部有料施設を除く)',
+      pet: 'ペット同伴可 (リード・ケージ着用推奨)',
+      baby: 'ベビーカー・車椅子での入場可能',
+      contact: '1330 (観光案内ホットライン)'
+    },
+    zh: {
+      hours: '全年无休 (标准开放时间)',
+      restDate: '全年无休 (公休日正常开放)',
+      parking: '提供停车 (附近公营/专用停车场)',
+      fee: '免费参观 (部分自费设施除外)',
+      pet: '允许携带宠物 (需系牵引绳或宠物箱)',
+      baby: '婴儿车及轮椅可顺畅通行',
+      contact: '1330 (韩国旅游咨询热线)'
+    },
+    zht: {
+      hours: '全年無休 (標準開放時間)',
+      restDate: '全年無休 (公休日正常開放)',
+      parking: '提供停車 (附近公營/專用停車場)',
+      fee: '免費參觀 (部分自費設施除外)',
+      pet: '允許攜帶寵物 (需繫牽引繩或寵物箱)',
+      baby: '嬰兒車及輪椅可順暢通行',
+      contact: '1330 (韓國旅遊諮詢熱線)'
+    },
+    de: {
+      hours: 'Ganzjährig geöffnet (Reguläre Öffnungszeiten)',
+      restDate: 'Ganzjährig geöffnet (auch an Feiertagen)',
+      parking: 'Parkplätze vorhanden (Öffentlich/Privat)',
+      fee: 'Kostenloser Eintritt (teilweise gebührenpflichtig)',
+      pet: 'Haustiere erlaubt (an der Leine)',
+      baby: 'Kinderwagen- und rollstuhlgerecht',
+      contact: '1330 (Korea Tourismus-Hotline)'
+    },
+    fr: {
+      hours: 'Ouvert toute l\'année (Horaires habituels)',
+      restDate: 'Ouvert toute l\'année (jours fériés inclus)',
+      parking: 'Stationnement disponible (public/privé)',
+      fee: 'Entrée gratuite (hors installations payantes)',
+      pet: 'Animaux acceptés (en laisse ou cage)',
+      baby: 'Accessible en poussette et fauteuil roulant',
+      contact: '1330 (Hotline Tourisme Corée)'
+    },
+    es: {
+      hours: 'Abierto todo el año (Horario habitual)',
+      restDate: 'Abierto todo el año (incluye días festivos)',
+      parking: 'Estacionamiento disponible (público/privado)',
+      fee: 'Entrada gratuita (salvo áreas de pago)',
+      pet: 'Mascotas permitidas (con correa o transportín)',
+      baby: 'Accesible para cochecitos y sillas de ruedas',
+      contact: '1330 (Línea de Asistencia Turística)'
+    },
+    ru: {
+      hours: 'Круглый год (Стандартные часы работы)',
+      restDate: 'Круглый год (включая праздничные дни)',
+      parking: 'Есть парковка (общественная или частная)',
+      fee: 'Бесплатный вход (кроме платных зон)',
+      pet: 'Можно с питомцами (на поводке или в переноске)',
+      baby: 'Доступно для колясок и инвалидных кресел',
+      contact: '1330 (Горячая линия туризма Кореи)'
+    }
+  };
+
+  const ifb = INFO_FALLBACK_I18N[lang] || INFO_FALLBACK_I18N.en;
+
   // Fallback info helpers
-  const hoursText = introData?.usetime || introData?.usetimeculture || introData?.usetimeleports || introData?.opentime || spot.details?.hours || '상세 이용시간 정보 제공 (연중무휴 권장)';
-  const restDateText = introData?.restdate || introData?.restdateculture || introData?.restdateleports || '연중무휴 (공휴일 정상 운영)';
-  const parkingText = introData?.parking || introData?.parkingculture || introData?.parkingfee || '주차 가능 (인근 공영/전용 주차장 구비)';
-  const feeText = introData?.usefee || introData?.usefeeleports || introData?.ticket || '무료 관람 (일부 유료 시설 제외)';
-  const petText = introData?.chkpet || introData?.chkpetculture || '동반 가능 (목줄 및 케이지 착용 권장)';
-  const babyText = introData?.chkbabycarriage || introData?.chkbabycarriageculture || '유모차 및 휠체어 이동 가능';
-  const contactText = introData?.infocenter || detailData?.tel || spot.tel || spot.details?.contact || '1330 (관광안내)';
+  const hoursText = introData?.usetime || introData?.usetimeculture || introData?.usetimeleports || introData?.opentime || spot.details?.hours || ifb.hours;
+  const restDateText = introData?.restdate || introData?.restdateculture || introData?.restdateleports || ifb.restDate;
+  const parkingText = introData?.parking || introData?.parkingculture || introData?.parkingfee || ifb.parking;
+  const feeText = introData?.usefee || introData?.usefeeleports || introData?.ticket || ifb.fee;
+  const petText = introData?.chkpet || introData?.chkpetculture || ifb.pet;
+  const babyText = introData?.chkbabycarriage || introData?.chkbabycarriageculture || ifb.baby;
+  const contactText = introData?.infocenter || detailData?.tel || spot.tel || spot.details?.contact || ifb.contact;
 
   const modalNode = (
     <div 

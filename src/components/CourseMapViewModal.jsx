@@ -258,7 +258,17 @@ export default function CourseMapViewModal({
   const cmi = COURSE_MAP_I18N[lang] || COURSE_MAP_I18N.en;
   const displayRegion = (regionName && regionName !== '추천' && regionName !== '한국')
     ? (t.regions?.[regionName] || getTranslatedAddress(regionName, lang))
-    : (lang === 'en' ? 'Korea' : (lang === 'ko' ? '추천' : ''));
+    : ({
+        ko: '추천',
+        en: 'Recommended',
+        ja: 'おすすめ',
+        zh: '推荐',
+        zht: '推薦',
+        de: 'Empfohlen',
+        fr: 'Recommandé',
+        es: 'Recomendado',
+        ru: 'Рекомендованный'
+      }[lang] || 'Recommended');
   const [activeDay, setActiveDay] = useState(1);
   const [isMapUnlocked, setIsMapUnlocked] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -605,23 +615,29 @@ export default function CourseMapViewModal({
                 overflow: 'hidden',
                 textOverflow: 'ellipsis'
               }}>
-                🗺️ {displayRegion ? `${displayRegion} ` : ''}{availableDays.length > 1 ?
-                  (lang === 'en' ? `${availableDays.length}-Day Smart Route` :
-                   lang === 'ja' ? `${availableDays.length}日間スマートコース` :
-                   lang === 'zh' || lang === 'zht' ? `${availableDays.length}日游智慧路线` :
-                   lang === 'de' ? `${availableDays.length}-Tage Smart Route` :
-                   lang === 'fr' ? `Itinéraire Intelligent ${availableDays.length} Jours` :
-                   lang === 'es' ? `Ruta Inteligente de ${availableDays.length} Días` :
-                   lang === 'ru' ? `${availableDays.length}-дневный маршрут` :
-                   `${availableDays.length}일 코스 스마트 동선`) :
-                  (lang === 'en' ? '1-Day Smart Route' :
-                   lang === 'ja' ? '日帰りスマートコース' :
-                   lang === 'zh' || lang === 'zht' ? '一日游智慧路线' :
-                   lang === 'de' ? '1-Tag Smart Route' :
-                   lang === 'fr' ? 'Itinéraire 1 Jour' :
-                   lang === 'es' ? 'Ruta de 1 Día' :
-                   lang === 'ru' ? '1-дневный маршрут' :
-                   '당일 코스 스마트 동선')}
+                🗺️ {displayRegion} {availableDays.length > 1 ?
+                  ({
+                    ko: `${availableDays.length}일 코스 스마트 동선`,
+                    en: `${availableDays.length}-Day Smart Route`,
+                    ja: `${availableDays.length}日間スマートコース`,
+                    zh: `${availableDays.length}日游智慧路线`,
+                    zht: `${availableDays.length}日遊智慧路線`,
+                    de: `${availableDays.length}-Tage Smart-Route`,
+                    fr: `Itinéraire Intelligent ${availableDays.length} Jours`,
+                    es: `Ruta Inteligente de ${availableDays.length} Días`,
+                    ru: `${availableDays.length}-дневный смарт-маршрут`
+                  }[lang] || `${availableDays.length}-Day Smart Route`) :
+                  ({
+                    ko: '당일 코스 스마트 동선',
+                    en: '1-Day Smart Route',
+                    ja: '日帰りスマートコース',
+                    zh: '一日游智慧路线',
+                    zht: '一日遊智慧路線',
+                    de: '1-Tag Smart-Route',
+                    fr: 'Itinéraire 1 Jour',
+                    es: 'Ruta de 1 Día',
+                    ru: 'Однодневный смарт-маршрут'
+                  }[lang] || '1-Day Smart Route')}
               </h3>
               <p style={{
                 fontSize: isDesktop ? '0.72rem' : '0.66rem',

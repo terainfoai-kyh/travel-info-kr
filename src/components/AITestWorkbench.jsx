@@ -1170,7 +1170,7 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
                           boxShadow: '0 1px 3px rgba(0, 0, 0, 0.02)'
                         }}
                       >
-                        📍 {chipText}
+                        📍 {chipText.replace(/^📍\s*/, '')}
                       </button>
                     ))}
                   </div>
