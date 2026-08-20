@@ -207,7 +207,7 @@ Trigger if the user query is a simple greeting, ambiguous input, typo, single co
 Return ONLY this JSON schema:
 {
   "responseType": "chat",
-  "message": "Polite, helpful, warm clarifying message in ${lang}. (e.g. '선배님, 혹시 서울이나 수원 여행을 생각하셨나요? 원하시는 지역이나 여행 테마(맛집 투어, 감성 카페, 힐링 등)를 편하게 말씀해 주시면 완벽한 코스를 바로 짜드릴게요! 😊')",
+  "message": "Polite, helpful, warm clarifying message in ${lang}. (e.g. '안녕하세요! 혹시 서울이나 수원 여행을 생각하셨나요? 원하시는 여행 지역이나 테마(맛집 투어, 감성 카페, 힐링 등)를 편하게 말씀해 주시면 완벽한 맞춤 코스를 바로 준비해 드릴게요! 😊')",
   "quickSuggestions": [
     "서울 성수·한남 감성 코스",
     "수원 행궁동 1박2일 투어",
@@ -303,7 +303,7 @@ Return ONLY this JSON schema:
               if (parsed.responseType === 'chat' || (!parsed.dailySchedules && parsed.message)) {
                 return {
                   responseType: 'chat',
-                  message: parsed.message || '선배님, 어떤 여행지나 코스를 찾고 계신가요? 원하시는 지역(서울, 수원, 부산, 제주 등)이나 여행 스타일을 말씀해 주시면 완벽한 코스를 준비해 드릴게요! ✨',
+                  message: parsed.message || '안녕하세요! 어떤 여행지나 코스를 찾고 계신가요? 원하시는 지역(서울, 수원, 부산, 제주 등)이나 여행 스타일을 말씀해 주시면 완벽한 코스를 준비해 드릴게요! ✨',
                   quickSuggestions: parsed.quickSuggestions || [
                     '서울 성수·한남 감성 코스',
                     '수원 행궁동 1박2일 투어',
@@ -434,7 +434,7 @@ Return ONLY this JSON schema:
     return {
       responseType: 'chat',
       message: cleanPrompt.includes('안녕')
-        ? '안녕하세요 선배님! VORA AI 여행 컨시어지입니다. 오늘 어떤 특별한 여행을 떠나고 싶으신가요? 지역이나 가고 싶은 곳을 편하게 말씀해 주세요! ✨'
+        ? '안녕하세요! VORA AI 여행 컨시어지입니다. 오늘 어떤 특별한 여행을 떠나고 싶으신가요? 가고 싶은 지역이나 테마를 편하게 말씀해 주세요! ✨'
         : `'${cleanPrompt}'에 대해 어떤 여행지를 찾고 계신가요? 서울, 수원, 부산, 제주 등 원하시는 지역이나 여행 테마를 편하게 말씀해 주시면 멋진 맞춤 코스를 바로 준비해 드릴게요! 😊`,
       quickSuggestions: [
         '서울 성수·한남 감성 코스',
