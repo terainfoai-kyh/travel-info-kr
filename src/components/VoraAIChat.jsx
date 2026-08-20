@@ -13,12 +13,13 @@ export default function VoraAIChat({
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
   const [inputText, setInputText] = useState('');
   const [copiedId, setCopiedId] = useState(null);
+  const chatContainerRef = useRef(null);
   const chatEndRef = useRef(null);
 
-  // Auto-scroll to latest message
+  // Auto-scroll ONLY inside inner chat container without moving the outer page window!
   useEffect(() => {
-    if (chatEndRef.current) {
-      chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [chatMessages, isLoading]);
 
@@ -114,14 +115,17 @@ export default function VoraAIChat({
       </div>
 
       {/* Chat Message Stream */}
-      <div style={{
-        flex: 1,
-        padding: '0.85rem',
-        overflowY: 'auto',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '0.75rem'
-      }}>
+      <div
+        ref={chatContainerRef}
+        style={{
+          flex: 1,
+          padding: '0.85rem',
+          overflowY: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.75rem'
+        }}
+      >
         {chatMessages.map((msg) => {
           const isUser = msg.role === 'user';
 

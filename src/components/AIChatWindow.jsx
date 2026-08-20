@@ -10,6 +10,7 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
   const [inputText, setInputText] = useState(initialPrompt);
   const [isListening, setIsListening] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const chatContainerRef = useRef(null);
   const chatEndRef = useRef(null);
 
   // Sync inputText when initialPrompt changes
@@ -41,7 +42,9 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
   }, [isOpen, lang]);
 
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
   }, [messages, isGenerating]);
 
   function getWelcomeMessage(l) {
@@ -243,15 +246,18 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
         </div>
 
         {/* Chat Bubbles Container */}
-        <div style={{
-          flex: 1,
-          overflowY: 'auto',
-          padding: '1.25rem',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1rem',
-          background: '#f8fafc'
-        }}>
+        <div 
+          ref={chatContainerRef}
+          style={{
+            flex: 1,
+            overflowY: 'auto',
+            padding: '1.25rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1rem',
+            background: '#f8fafc'
+          }}
+        >
           {messages.map((msg) => (
             <div 
               key={msg.id}

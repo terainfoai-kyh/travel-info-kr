@@ -421,26 +421,10 @@ export default function AITestWorkbench({ lang = 'ko', onOpenDetail, bookmarks =
     ? latestVoraMessage
     : null;
 
-  // Auto-scroll to bottom of chat container & Smart Auto-focus input box (Desktop PC Only)
+  // Auto-scroll to bottom of chat container ONLY (Never scroll window)
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-    }
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    if (!isLoading) {
-      setTimeout(() => {
-        // Smart device check: Only auto-focus on PC desktop (non-touch) devices to prevent virtual keyboard from popping up on mobile
-        const isTouchOrMobile = typeof window !== 'undefined' && (
-          window.innerWidth < 768 ||
-          'ontouchstart' in window ||
-          (navigator.maxTouchPoints && navigator.maxTouchPoints > 0) ||
-          (window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches)
-        );
-        if (!isTouchOrMobile) {
-          inputRef.current?.focus();
-        }
-        inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }, 50);
     }
   }, [chatHistory, isLoading, loadingDots]);
 
