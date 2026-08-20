@@ -54,6 +54,22 @@ export const PREWARMED_PLACES_CATALOG = {
       `https://places.googleapis.com/v1/places/ChIJZ3YTCjRDezUROWCZyAEmL2k/photos/AWCwydhdKioZedKVaaL0qsFdFTa_uV62iKYw5ecnnFzK5zPk_JHUxTKpKOPWfpr7RU6X9HWgc6rqapor3J2gKKlghOuUGWQ2ZejR0KzJDmwFcWdqVBcJtpY6vJZ5Hq_HOEL0_4Sm8lrt19mxCe3q23yAruVFvN6rRrUQuwnUumrht60xUQm3DZrvEPdhP585wmPemV0W_zmLiH4ixbn5Qdf3GRV92EWuzgSAdHzC1h7C7sWnIWLJy1SZCH0xVm9MIMDWeGC1jKfZXHEEXxJBrSO7OEz94XPCPdP9pIkqJIbVl5IdWMZ3CmsP04zf44lW1hQt9fUXL89brklKrg5uu7x8LBtZr8jEfAY5bpCX1G5-uHUgOVnCGYAmJvJsffR3QwQmOOk45Zm29u7atGwmcz4xQLLHzm2Wzm6Vw6MD0ztD0Hld2Y4E/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`
     ]
   },
+  '플라잉수원': {
+    name: '플라잉수원',
+    rating: 4.4,
+    primary: `https://places.googleapis.com/v1/places/ChIJkYB-HLFcezURDkzbbeQkc-U/photos/AWCwydi_NeFm630F5MQorAgmMMv4xLTALfo9YK73SYBki_rApww9YqMQvo1YTqerGPELtolrzS3MyYFtru4WmQaNWuCzxT1z9LfdZ5NS5w86zAe6QHmk6o0VKm8RMhBUTFXP35igVjKuW9ckQ1J7mJRa4EOL_EV988D4_l15A6DyuAyquBCTH4yp69yPa-NdwJkG3W5WGj583n6b6oBm-nne2q5JOLOBscIBnepw8nOFemP3c5oBinfCeelX2LOBOeWizU6oqNh6KwVSa1Z31Fw6YqIfGuMGo-_jt30Nc5_CzUGMgcILp83s7HpOoNip63yBIvLefWmx1kezQCxSDZL-xBi025eEfIeTExIcDCy38-gJ0gQAXRf6EEVd50NpAT4j6pBxCFCVZXISwIGd0NwAqS_tOjtEuxk18qJc6Q6OyfM3FA/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`,
+    images: [
+      `https://places.googleapis.com/v1/places/ChIJkYB-HLFcezURDkzbbeQkc-U/photos/AWCwydi_NeFm630F5MQorAgmMMv4xLTALfo9YK73SYBki_rApww9YqMQvo1YTqerGPELtolrzS3MyYFtru4WmQaNWuCzxT1z9LfdZ5NS5w86zAe6QHmk6o0VKm8RMhBUTFXP35igVjKuW9ckQ1J7mJRa4EOL_EV988D4_l15A6DyuAyquBCTH4yp69yPa-NdwJkG3W5WGj583n6b6oBm-nne2q5JOLOBscIBnepw8nOFemP3c5oBinfCeelX2LOBOeWizU6oqNh6KwVSa1Z31Fw6YqIfGuMGo-_jt30Nc5_CzUGMgcILp83s7HpOoNip63yBIvLefWmx1kezQCxSDZL-xBi025eEfIeTExIcDCy38-gJ0gQAXRf6EEVd50NpAT4j6pBxCFCVZXISwIGd0NwAqS_tOjtEuxk18qJc6Q6OyfM3FA/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`
+    ]
+  },
+  '광교호수공원': {
+    name: '광교호수공원',
+    rating: 4.7,
+    primary: `https://places.googleapis.com/v1/places/ChIJAZZYbz5bezURpK5_V17-nRU/photos/AWCwydgYmBCTCeAcVm1Tj-RCIkL4vS1PKxnqr4RX0_iCoDguJBcJ8JfbXcmtG2zxYOXT74FmBuz5XmaHeKykBMbbf5R98WmLN56bKWNSJNcvdKBKiZY9CJJDTZwetwNSPqYir4NgqoA4UtD1m_uHFyu2gXPmYJCuaX4Yxw8EvByUuJeREL7RP1lOhcQiBbFwTBu0wM9Xb7qsj6zGna5FojGFxXtPfP4HJ-XWyIOfT41jLiNHlrg9HV9VN7mGrXTeJdsrmaLY5g5mu2XG8lmm-qCC84Psk4ga5BiPQy-EIbyPykcmzl_qCXPJZ2EFZfS0w0sDaXqli1SSctZRFm6ZaIYPVKeSdiWqoGJIIZlYJK3fcz_Vj9578vRGBoBeyYimSvGsH6L-oWVx93wS8aMfdIyirQBg33WlrTRIEuq4OjyxMjPngdHR/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`,
+    images: [
+      `https://places.googleapis.com/v1/places/ChIJAZZYbz5bezURpK5_V17-nRU/photos/AWCwydgYmBCTCeAcVm1Tj-RCIkL4vS1PKxnqr4RX0_iCoDguJBcJ8JfbXcmtG2zxYOXT74FmBuz5XmaHeKykBMbbf5R98WmLN56bKWNSJNcvdKBKiZY9CJJDTZwetwNSPqYir4NgqoA4UtD1m_uHFyu2gXPmYJCuaX4Yxw8EvByUuJeREL7RP1lOhcQiBbFwTBu0wM9Xb7qsj6zGna5FojGFxXtPfP4HJ-XWyIOfT41jLiNHlrg9HV9VN7mGrXTeJdsrmaLY5g5mu2XG8lmm-qCC84Psk4ga5BiPQy-EIbyPykcmzl_qCXPJZ2EFZfS0w0sDaXqli1SSctZRFm6ZaIYPVKeSdiWqoGJIIZlYJK3fcz_Vj9578vRGBoBeyYimSvGsH6L-oWVx93wS8aMfdIyirQBg33WlrTRIEuq4OjyxMjPngdHR/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`
+    ]
+  },
 
   // === 부산 명소 ===
   '해운대': {

@@ -173,10 +173,12 @@ export default function App() {
     setChatMessages(prev => [...prev, userMsg]);
     setIsLoading(true);
 
-    // If query mentions a specific day (e.g. "2일차", "3일차"), auto focus on that day
+    // If query mentions a specific day (e.g. "2일차", "3일차"), auto focus on that day. Otherwise always reset to Day 1!
     const dayMatch = promptQuery.match(/([1-5])일차/);
     if (dayMatch && dayMatch[1]) {
       setActiveDay(Number(dayMatch[1]));
+    } else {
+      setActiveDay(1);
     }
 
     try {
