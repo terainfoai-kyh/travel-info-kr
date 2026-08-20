@@ -1,80 +1,155 @@
 import React from 'react';
-import { Map, MapPin } from 'lucide-react';
-import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress } from '../i18n/translations';
+import { MapPin, Navigation, ExternalLink } from 'lucide-react';
+import { generateGoogleMapsRouteUrl, getGooglePlaceSearchUrl } from '../services/geminiNlpService';
 
-export default function GoogleMapView({ selectedSpot, allSpots, lang, themeMode = 'dark' }) {
-  const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
-  const isLight = themeMode === 'light';
+export default function GoogleMapView({
+  spots = [],
+  activeDay = 1,
+  targetCity = '서울'
+}) {
+  const daySpots = (spots || []).filter(s => Number(s.assignedDay) === Number(activeDay));
+  const spotsToDisplay = daySpots.length > 0 ? daySpots : (spots || []);
 
-  const activeSpot = selectedSpot || (allSpots && allSpots[0]);
-  const lat = activeSpot ? activeSpot.lat : 37.5665;
-  const lng = activeSpot ? activeSpot.lng : 126.9780;
-  const title = activeSpot ? activeSpot.title : '대한민국';
+  const fullRouteUrl = generateGoogleMapsRouteUrl(spotsToDisplay);
+
+  // Center point calculation for smooth, non-bouncing view
+  const firstSpot = spotsToDisplay[0];
+  const centerLat = Number(firstSpot?.lat) || 37.5665;
+  const centerLng = Number(firstSpot?.lng) || 126.9780;
+
+  // Google Maps Embed Static or Interactive Search URL
+  const embedMapUrl = spotsToDisplay.length > 0 
+    ? `https://maps.google.com/maps?q=${centerLat},${centerLng}&z=14&output=embed`
+    : `https://maps.google.com/maps?q=${encodeURIComponent(targetCity + ' South Korea')}&z=12&output=embed`;
 
   return (
-    <div style={{ marginBottom: '0.75rem' }}>
-      <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-main)' }}>
-        <Map size={20} color="var(--accent-primary)" />
-        <span>{t.mapTitle}</span>
-      </h3>
-
+    <div style={{
+      borderRadius: '16px',
+      overflow: 'hidden',
+      border: '1px solid var(--border-color)',
+      backgroundColor: 'var(--bg-primary)',
+      boxShadow: 'var(--shadow-sm)',
+      position: 'relative'
+    }}>
+      {/* Top Map Action Banner */}
       <div style={{
-        borderRadius: 'var(--radius-lg)',
-        overflow: 'hidden',
-        border: '1px solid var(--border-color)',
-        boxShadow: 'var(--shadow-md)',
-        background: 'var(--bg-secondary)',
-        position: 'relative'
+        padding: '0.75rem 1rem',
+        backgroundColor: 'var(--bg-card)',
+        borderBottom: '1px solid var(--border-color)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '0.5rem'
       }}>
-        {/* Interactive Google Map Embed */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+          <MapPin size={16} style={{ color: 'var(--accent-primary)' }} />
+          <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)' }}>
+            {activeDay}일차 Google 지도 코스
+          </span>
+          <span style={{
+            fontSize: '0.7rem',
+            fontWeight: 700,
+            backgroundColor: 'rgba(37, 99, 235, 0.1)',
+            color: 'var(--accent-primary)',
+            padding: '0.15rem 0.45rem',
+            borderRadius: '6px'
+          }}>
+            {spotsToDisplay.length}개 스팟 연동
+          </span>
+        </div>
+
+        {/* 🗺️ Open Full Route in Google Maps Button */}
+        <a
+          href={fullRouteUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            backgroundColor: 'var(--accent-primary)',
+            color: '#ffffff',
+            textDecoration: 'none',
+            padding: '0.4rem 0.85rem',
+            borderRadius: 'var(--radius-full)',
+            fontSize: '0.78rem',
+            fontWeight: 800,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+            boxShadow: 'var(--shadow-glow)',
+            transition: 'all var(--transition-fast)'
+          }}
+        >
+          <span>구글맵 전체 길찾기 열기</span>
+          <ExternalLink size={13} />
+        </a>
+      </div>
+
+      {/* Embedded Map Frame (Smooth and stable pan/zoom) */}
+      <div style={{ position: 'relative', width: '100%', height: '220px' }}>
         <iframe
-          title="Google Map View"
+          title="Google Map Route View"
           width="100%"
-          height="380"
+          height="100%"
           style={{ border: 0 }}
           loading="lazy"
           allowFullScreen
-          src={`https://maps.google.com/maps?q=${lat},${lng}&hl=${lang}&z=14&output=embed`}
+          referrerPolicy="no-referrer-when-downgrade"
+          src={embedMapUrl}
         />
 
-        {activeSpot && (
-          <div style={{
-            position: 'absolute',
-            bottom: '1rem',
-            left: '1rem',
-            right: '1rem',
-            background: isLight ? 'rgba(255, 255, 255, 0.95)' : 'rgba(15, 23, 42, 0.92)',
-            backdropFilter: 'blur(12px)',
-            padding: '0.75rem 1.25rem',
-            borderRadius: 'var(--radius-md)',
-            border: isLight ? '1px solid rgba(0, 0, 0, 0.12)' : '1px solid var(--border-color)',
-            boxShadow: isLight ? '0 6px 20px rgba(0, 0, 0, 0.08)' : '0 6px 20px rgba(0, 0, 0, 0.4)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <MapPin size={18} color="var(--accent-primary)" />
-              <div>
-                <div style={{ fontSize: '0.95rem', fontWeight: 800, color: isLight ? '#0f172a' : '#ffffff' }}>
-                  {getTranslatedTitle(title, lang)}
-                </div>
-                <div style={{ fontSize: '0.8rem', color: isLight ? '#334155' : 'var(--text-muted)', fontWeight: isLight ? 600 : 400 }}>
-                  {getTranslatedAddress(activeSpot.location, lang)}
-                </div>
-              </div>
-            </div>
+        {/* Floating Numbered Waypoint Badges Overlay */}
+        <div style={{
+          position: 'absolute',
+          bottom: '10px',
+          left: '10px',
+          right: '10px',
+          display: 'flex',
+          gap: '0.4rem',
+          overflowX: 'auto',
+          padding: '0.35rem',
+          borderRadius: '12px',
+          backgroundColor: 'rgba(15, 23, 42, 0.75)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          zIndex: 10
+        }}>
+          {spotsToDisplay.map((s, idx) => (
             <a
-              href={`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`}
+              key={s.id || idx}
+              href={getGooglePlaceSearchUrl(s.title, s.region || targetCity)}
               target="_blank"
-              rel="noreferrer"
-              className="btn-primary"
-              style={{ padding: '0.45rem 0.9rem', fontSize: '0.78rem', fontWeight: 800 }}
+              rel="noopener noreferrer"
+              style={{
+                textDecoration: 'none',
+                color: '#ffffff',
+                backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                borderRadius: '8px',
+                padding: '0.25rem 0.55rem',
+                fontSize: '0.72rem',
+                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.3rem',
+                whiteSpace: 'nowrap'
+              }}
             >
-              {t.viewOnGoogleMaps || 'Google 지도에서 크게 보기'}
+              <span style={{
+                width: '16px',
+                height: '16px',
+                borderRadius: '50%',
+                backgroundColor: 'var(--accent-primary)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '0.65rem',
+                fontWeight: 900
+              }}>
+                {idx + 1}
+              </span>
+              <span>{s.title}</span>
             </a>
-          </div>
-        )}
+          ))}
+        </div>
       </div>
     </div>
   );

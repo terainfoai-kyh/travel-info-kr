@@ -767,6 +767,33 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
   }
 
   footer {
-    padding-bottom: 6.5rem !important;
+    padding-bottom: 2.5rem !important;
+  }
+}
+
+/* VORA 3.0 Essential Animations & Utilities */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spin-animation {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .hide-mobile {
+    display: none !important;
   }
 }

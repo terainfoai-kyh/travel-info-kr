@@ -1,190 +1,147 @@
 import React from 'react';
-import { Wifi, CreditCard, Hotel, DollarSign, ExternalLink, Sparkles, ShieldCheck } from 'lucide-react';
+import { Train, CreditCard, Wifi, PhoneCall, ShieldCheck, ExternalLink, Hotel } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
-import { buildAgodaDeepLink, buildKlookDeepLink, buildKKdayDeepLink } from '../services/apiConfig';
 
-export default function TravelEssentialsSection({ lang = 'ko', filters }) {
+export default function TravelEssentialsSection({ lang = 'ko' }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
 
-  const checkIn = filters?.startDate;
-  const checkOut = filters?.endDate;
-  const targetRegion = filters?.region && filters?.region !== '전국' ? filters?.region : '서울';
-
-  const ESSENTIALS = [
+  const ESSENTIAL_CARDS = [
     {
-      id: 'esim',
-      icon: <Wifi size={24} color="#38bdf8" />,
-      title: t.esimTitle || '무제한 데이터 eSIM / SIM',
-      tag: t.esimTag || 'Klook 15% 할인',
-      desc: t.esimDesc || '한국 도착 즉시 개통되는 무제한 4G/5G 고속 데이터 SIM/eSIM',
-      badgeBg: 'rgba(56, 189, 248, 0.15)',
-      badgeColor: '#38bdf8',
-      link: buildKlookDeepLink('한국 eSIM', checkIn, checkOut)
+      icon: <Train size={24} style={{ color: '#2563eb' }} />,
+      title: t.subwayMapTitle || '지하철 노선도 & 길찾기',
+      desc: t.subwayMapDesc || '서울, 부산 등 전국 지하철 실시간 노선도 및 환승 가이드',
+      badge: '교통 필수',
+      linkText: '지하철 노선도 보기 ↗',
+      linkUrl: 'http://www.seoulmetro.co.kr/kr/cyberStation.do'
     },
     {
-      id: 'transit',
-      icon: <CreditCard size={24} color="#818cf8" />,
-      title: t.transitTitle || 'K-PASS & 공항철도 AREX',
-      tag: t.transitTag || '교통 필수 패스',
-      desc: t.transitDesc || '인천공항 직통열차 & 대한민국 전역 지하철/버스 통합 교통권',
-      badgeBg: 'rgba(129, 140, 248, 0.15)',
-      badgeColor: '#818cf8',
-      link: buildKKdayDeepLink('한국 교통카드')
+      icon: <CreditCard size={24} style={{ color: '#10b981' }} />,
+      title: t.climateCardTitle || '기후동행카드 & T-Money',
+      desc: t.climateCardDesc || '외국인 단기권 구매처 및 대중교통 무제한 이용 팁',
+      badge: '비용 절약',
+      linkText: '기후동행카드 안내 ↗',
+      linkUrl: 'https://news.seoul.go.kr/traffic/archives/510740'
     },
     {
-      id: 'hotel',
-      icon: <Hotel size={24} color="#f59e0b" />,
-      title: t.hotelTitle || '인기 지역 최고급 호텔 & 숙소',
-      tag: t.hotelTag || 'Agoda 최저가 보장',
-      desc: t.hotelDesc || '서울, 제주, 부산, 경주 한옥 등 인근 숙소 최대 75% 특별 할인가',
-      badgeBg: 'rgba(245, 158, 11, 0.15)',
-      badgeColor: '#f59e0b',
-      link: buildAgodaDeepLink(targetRegion, checkIn, checkOut)
+      icon: <Wifi size={24} style={{ color: '#8b5cf6' }} />,
+      title: t.esimTitle || 'eSIM & 포켓 와이파이',
+      desc: t.esimDesc || '인천공항 수령 및 즉시 사용 가능한 데이터 플랜',
+      badge: '데이터 무제한',
+      linkText: 'Klook eSIM 예약 ↗',
+      linkUrl: 'https://www.klook.com/ko/search?query=%ED%95%9C%EA%B5%AD%20eSIM'
     },
     {
-      id: 'taxfree',
-      icon: <DollarSign size={24} color="#10b981" />,
-      title: t.taxfreeTitle || '택스 리펀 & 면세 쇼핑 팁',
-      tag: t.taxfreeTag || '환급 혜택 가이드',
-      desc: t.taxfreeDesc || '주요 백화점, 마트, 올리브영 즉시 면세(Tax Refund) 환급 방법',
-      badgeBg: 'rgba(16, 185, 129, 0.15)',
-      badgeColor: '#10b981',
-      link: buildKlookDeepLink('한국 쇼핑 면세', checkIn, checkOut)
+      icon: <PhoneCall size={24} style={{ color: '#ef4444' }} />,
+      title: t.helplineTitle || '1330 관광 안내 & 통역',
+      desc: t.helplineDesc || '24시간 연중무휴 무료 4개 국어 긴급 통역 및 여행 지원',
+      badge: '24시간 지원',
+      linkText: '1330 공식 안내 ↗',
+      linkUrl: 'https://korean.visitkorea.or.kr/main/1330.do'
     }
   ];
 
   return (
     <section style={{
-      background: 'var(--bg-glass)',
-      backdropFilter: 'blur(16px)',
-      border: '1px solid var(--border-highlight)',
-      borderRadius: 'var(--radius-lg)',
-      padding: '1.75rem',
-      margin: '2rem 0',
-      boxShadow: 'var(--shadow-glow)'
+      padding: '3rem 1.5rem',
+      maxWidth: '1280px',
+      margin: '0 auto'
     }}>
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '1rem',
-        marginBottom: '1.25rem'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-          <div style={{
-            background: 'var(--accent-gradient)',
-            padding: '0.45rem',
-            borderRadius: 'var(--radius-md)',
-            color: '#ffffff'
-          }}>
-            <Sparkles size={22} />
-          </div>
-          <div>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, color: 'var(--text-main)' }}>
-              {t.essentialsTitle || '✈️ 한국 여행 필수 가이드 & 제휴 혜택'}
-            </h3>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>
-              {t.essentialsSub || 'eSIM, 교통패스, 최저가 호텔 예약까지 원스톱으로 준비하세요'}
-            </p>
-          </div>
-        </div>
-
+      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
         <div style={{
           display: 'inline-flex',
           alignItems: 'center',
-          gap: '0.35rem',
+          gap: '0.4rem',
           fontSize: '0.78rem',
-          color: '#10b981',
-          background: 'rgba(16, 185, 129, 0.12)',
-          border: '1px solid rgba(16, 185, 129, 0.3)',
-          padding: '0.3rem 0.65rem',
+          fontWeight: 800,
+          color: 'var(--accent-primary)',
+          backgroundColor: 'rgba(37, 99, 235, 0.08)',
+          padding: '0.3rem 0.8rem',
           borderRadius: 'var(--radius-full)',
-          fontWeight: 700
+          marginBottom: '0.5rem'
         }}>
-          <ShieldCheck size={14} />
-          <span>{t.essentialsBadge || '공식 제휴 할인가 적용'}</span>
+          <ShieldCheck size={15} />
+          <span>Travel Essentials</span>
         </div>
+        <h2 style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--text-main)', margin: '0 0 0.5rem 0' }}>
+          {t.essentialsTitle || '외국인 관광객 필수 툴킷'}
+        </h2>
+        <p style={{ fontSize: '0.92rem', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>
+          {t.essentialsSubtitle || '안전하고 편리한 한국 여행을 위한 핵심 서비스'}
+        </p>
       </div>
 
-      {/* Grid of 4 Cards */}
+      {/* 4-Grid Cards */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-        gap: '1.1rem'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+        gap: '1.25rem'
       }}>
-        {ESSENTIALS.map(item => (
-          <a
-            key={item.id}
-            href={item.link}
-            target="_blank"
-            rel="noopener noreferrer"
+        {ESSENTIAL_CARDS.map((card, idx) => (
+          <div
+            key={idx}
             style={{
-              background: 'var(--bg-secondary)',
+              backgroundColor: 'var(--bg-card)',
               border: '1px solid var(--border-color)',
-              borderRadius: 'var(--radius-md)',
-              padding: '1.1rem',
+              borderRadius: '20px',
+              padding: '1.5rem',
+              boxShadow: 'var(--shadow-sm)',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
-              textDecoration: 'none',
-              color: 'var(--text-main)',
-              transition: 'all 0.25s ease',
-              boxShadow: 'var(--shadow-sm)'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = 'var(--accent-primary)';
-              e.currentTarget.style.transform = 'translateY(-3px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = 'var(--border-color)';
-              e.currentTarget.style.transform = 'translateY(0)';
+              transition: 'transform var(--transition-fast), border-color var(--transition-fast)'
             }}
           >
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
                 <div style={{
-                  padding: '0.5rem',
-                  borderRadius: 'var(--radius-sm)',
-                  background: 'var(--bg-primary)'
+                  width: '46px',
+                  height: '46px',
+                  borderRadius: '14px',
+                  backgroundColor: 'var(--bg-primary)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
                 }}>
-                  {item.icon}
+                  {card.icon}
                 </div>
-
                 <span style={{
                   fontSize: '0.72rem',
                   fontWeight: 800,
+                  backgroundColor: 'rgba(37, 99, 235, 0.08)',
+                  color: 'var(--accent-primary)',
                   padding: '0.2rem 0.55rem',
-                  borderRadius: 'var(--radius-sm)',
-                  background: item.badgeBg,
-                  color: item.badgeColor
+                  borderRadius: '6px'
                 }}>
-                  {item.tag}
+                  {card.badge}
                 </span>
               </div>
 
-              <h4 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '0.3rem', color: 'var(--text-main)' }}>
-                {item.title}
-              </h4>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: 1.45, marginBottom: '1rem' }}>
-                {item.desc}
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-main)', margin: '0 0 0.4rem 0' }}>
+                {card.title}
+              </h3>
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: 1.5, margin: '0 0 1.25rem 0' }}>
+                {card.desc}
               </p>
             </div>
 
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              paddingTop: '0.6rem',
-              borderTop: '1px solid var(--border-color)',
-              fontSize: '0.78rem',
-              fontWeight: 700,
-              color: 'var(--accent-primary)'
-            }}>
-              <span>{t.essentialsDetails || '혜택 상세 & 예약하기'}</span>
-              <ExternalLink size={14} />
-            </div>
-          </a>
+            <a
+              href={card.linkUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                fontSize: '0.82rem',
+                fontWeight: 700,
+                color: 'var(--accent-primary)',
+                textDecoration: 'none'
+              }}
+            >
+              <span>{card.linkText}</span>
+              <ExternalLink size={13} />
+            </a>
+          </div>
         ))}
       </div>
     </section>

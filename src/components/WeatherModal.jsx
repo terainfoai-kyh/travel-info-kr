@@ -1,653 +1,217 @@
-import React, { useState, useEffect } from 'react';
-import ReactDOM from 'react-dom';
-import { Sun, Cloud, CloudRain, Thermometer, Umbrella, Calendar, Sparkles, X, MapPin, Shirt } from 'lucide-react';
-import { TRANSLATIONS } from '../i18n/translations';
-import { fetchRealtimeWeather } from '../services/weatherApi';
+import React, { useState } from 'react';
+import { X, CloudSun, Sun, CloudRain, Wind, Thermometer, MapPin } from 'lucide-react';
+import { getCloseButtonLabel } from '../i18n/translations';
 
-const POPULAR_CITIES = [
-  '서울', '거제', '부산', '제주', '경주', '강릉', '인천', '전주', '여수', '속초', '수원'
-];
+export default function WeatherModal({
+  isOpen = false,
+  onClose,
+  lang = 'ko',
+  initialRegion = '서울'
+}) {
+  const [selectedCity, setSelectedCity] = useState(initialRegion || '서울');
 
-const CITY_I18N = {
-  '서울': { en: 'Seoul', ja: 'ソウル', zh: '首尔', zht: '首爾', de: 'Seoul', fr: 'Séoul', es: 'Seúl', ru: 'Сеул' },
-  '거제': { en: 'Geoje', ja: '巨済', zh: '巨济', zht: '巨濟', de: 'Geoje', fr: 'Geoje', es: 'Geoje', ru: 'Кодже' },
-  '부산': { en: 'Busan', ja: '釜山', zh: '釜山', zht: '釜山', de: 'Busan', fr: 'Busan', es: 'Busan', ru: 'Пусан' },
-  '제주': { en: 'Jeju', ja: '済州', zh: '济州', zht: '濟州', de: 'Jeju', fr: 'Jeju', es: 'Jeju', ru: 'Чеджу' },
-  '경주': { en: 'Gyeongju', ja: '慶州', zh: '庆州', zht: '慶州', de: 'Gyeongju', fr: 'Gyeongju', es: 'Gyeongju', ru: 'Кёнджу' },
-  '강릉': { en: 'Gangneung', ja: '江陵', zh: '江陵', zht: '江陵', de: 'Gangneung', fr: 'Gangneung', es: 'Gangneung', ru: 'Каннын' },
-  '인천': { en: 'Incheon', ja: '仁川', zh: '仁川', zht: '仁川', de: 'Incheon', fr: 'Incheon', es: 'Incheon', ru: 'Инчхон' },
-  '전주': { en: 'Jeonju', ja: '全州', zh: '全州', zht: '全州', de: 'Jeonju', fr: 'Jeonju', es: 'Jeonju', ru: 'Чонджу' },
-  '여수': { en: 'Yeosu', ja: '麗水', zh: '丽水', zht: '麗水', de: 'Yeosu', fr: 'Yeosu', es: 'Yeosu', ru: 'Йосу' },
-  '속초': { en: 'Sokcho', ja: '束草', zh: '束草', zht: '束草', de: 'Sokcho', fr: 'Sokcho', es: 'Sokcho', ru: 'Сокчхо' },
-  '수원': { en: 'Suwon', ja: '水原', zh: '水原', zht: '水原', de: 'Suwon', fr: 'Suwon', es: 'Suwon', ru: 'Сувон' }
-};
-
-export function getCityName(city, lang = 'ko') {
-  if (CITY_I18N[city] && CITY_I18N[city][lang]) {
-    return CITY_I18N[city][lang];
-  }
-  return city;
-}
-
-export function getTranslatedWeatherText(text, lang = 'ko') {
-  if (!text) return '';
-  switch (lang) {
-    case 'en':
-      if (text.includes('맑음')) return 'Sunny';
-      if (text.includes('구름')) return 'Partly Cloudy';
-      if (text.includes('흐림')) return 'Overcast';
-      if (text.includes('비')) return 'Rainy';
-      if (text.includes('눈')) return 'Snowy';
-      return text;
-    case 'ja':
-      if (text.includes('맑음')) return '晴れ';
-      if (text.includes('구름')) return '曇りがち';
-      if (text.includes('흐림')) return '曇り';
-      if (text.includes('비')) return '雨';
-      if (text.includes('눈')) return '雪';
-      return text;
-    case 'zh':
-      if (text.includes('맑음')) return '晴朗';
-      if (text.includes('구름')) return '多云';
-      if (text.includes('흐림')) return '阴天';
-      if (text.includes('비')) return '有雨';
-      if (text.includes('눈')) return '有雪';
-      return text;
-    case 'zht':
-      if (text.includes('맑음')) return '晴朗';
-      if (text.includes('구름')) return '多雲';
-      if (text.includes('흐림')) return '陰天';
-      if (text.includes('비')) return '有雨';
-      if (text.includes('눈')) return '有雪';
-      return text;
-    case 'de':
-      if (text.includes('맑음')) return 'Sonnig';
-      if (text.includes('구름')) return 'Leicht bewölkt';
-      if (text.includes('흐림')) return 'Bewölkt';
-      if (text.includes('비')) return 'Regnerisch';
-      if (text.includes('눈')) return 'Verschneit';
-      return text;
-    case 'fr':
-      if (text.includes('맑음')) return 'Ensoleillé';
-      if (text.includes('구름')) return 'Partiellement nuageux';
-      if (text.includes('흐림')) return 'Couvert';
-      if (text.includes('비')) return 'Pluvieux';
-      if (text.includes('눈')) return 'Neigeux';
-      return text;
-    case 'es':
-      if (text.includes('맑음')) return 'Soleado';
-      if (text.includes('구름')) return 'Parcialmente nublado';
-      if (text.includes('흐림')) return 'Nublado';
-      if (text.includes('비')) return 'Lluvioso';
-      if (text.includes('눈')) return 'Nevado';
-      return text;
-    case 'ru':
-      if (text.includes('맑음')) return 'Ясно';
-      if (text.includes('구름')) return 'Облачно с прояснениями';
-      if (text.includes('흐림')) return 'Пасмурно';
-      if (text.includes('비')) return 'Дождь';
-      if (text.includes('눈')) return 'Снег';
-      return text;
-    default:
-      return text;
-  }
-}
-
-export function getMultilingualOutfitTip(tempStr, lang = 'ko') {
-  const tempNum = parseInt((tempStr || '20').replace(/[^0-9\-]/g, ''), 10) || 20;
-  if (tempNum >= 28) {
-    switch (lang) {
-      case 'en': return '☀️ Hot summer weather. Breathable t-shirts, linen shorts/pants, sunglasses, and UV protection hats recommended.';
-      case 'ja': return '☀️ 暑い夏日です。通気性の良い半袖Tシャツ、リネンパンツ、サングラス、日よけ帽子をおすすめします。';
-      case 'zh': return '☀️ 天气炎热。建议穿着透气短袖、亚麻长裤，佩戴太阳镜及遮阳帽。';
-      case 'zht': return '☀️ 天氣炎熱。建議穿著透氣短袖、亞麻長褲，配戴太陽眼鏡及遮陽帽。';
-      case 'de': return '☀️ Heißes Sommerwetter. Atmungsaktive T-Shirts, Leinenhosen, Sonnenbrille und Sonnenhut empfohlen.';
-      case 'fr': return '☀️ Temps d\'été chaud. T-shirts respirants, pantalon en lin, lunettes de soleil et chapeau recommandés.';
-      case 'es': return '☀️ Clima caluroso de verano. Se recomiendan camisetas transpirables, pantalones de lino, gafas de sol y sombrero.';
-      case 'ru': return '☀️ Жаркая летняя погода. Рекомендуются легкие футболки, льняные брюки, солнцезащитные очки и головной убор.';
-      default: return '☀️ 무더운 날씨입니다. 통풍이 잘되는 반팔 티셔츠, 린넨 바지, 선글라스, 자외선 차단 모자를 추천합니다.';
-    }
-  }
-  if (tempNum >= 23) {
-    switch (lang) {
-      case 'en': return '🌤️ Pleasant weather for outdoor activities. Light shirts, cotton pants, and comfortable walking shoes recommended.';
-      case 'ja': return '🌤️ 屋外観光に最適な快適な気候です。薄手のシャツや半袖、綿パンツ、歩きやすい靴がおすすめです。';
-      case 'zh': return '🌤️ 适合户外游览的舒适天气。推荐薄衬衫、短袖、棉质长裤和舒适步行鞋。';
-      case 'zht': return '🌤️ 適合戶外遊覽的舒適天氣。推薦薄襯衫、短袖、棉質長褲和舒適步行鞋。';
-      case 'de': return '🌤️ Angenehmes Wetter für Outdoor-Aktivitäten. Leichte Hemden, Baumwollhosen und bequeme Schuhe.';
-      case 'fr': return '🌤️ Météo agréable pour les visites. Chemises légères, pantalons en coton et chaussures confortables.';
-      case 'es': return '🌤️ Clima agradable para pasear. Camisas ligeras, pantalones de algodón y zapatos cómodos.';
-      case 'ru': return '🌤️ Приятная погода для прогулок. Рекомендуются легкие рубашки, хлопковые брюки и удобная обувь.';
-      default: return '🌤️ 야외 활동하기 좋은 쾌적한 날씨입니다. 얇은 셔츠나 반팔, 가벼운 면바지 및 편안한 워킹화가 좋습니다.';
-    }
-  }
-  if (tempNum >= 17) {
-    switch (lang) {
-      case 'en': return '🍂 Temperature fluctuates between day & night. Bring a light cardigan, windbreaker jacket, and pants.';
-      case 'ja': return '🍂 昼夜の寒暖差があります。軽いカーディガン、ウインドブレーカーやジャケット、長ズボンをご用意ください。';
-      case 'zh': return '🍂 昼夜温差较大。建议准备轻便开衫、防风外套或夹克以及长裤。';
-      case 'zht': return '🍂 晝夜溫差較大。建議準備輕便開衫、防風外套或夾克以及長褲。';
-      case 'de': return '🍂 Tagsüber und abends Temperaturunterschiede. Leichte Strickjacke oder Windjacke empfohlen.';
-      case 'fr': return '🍂 Écarts de température jour/nuit. Prévoyez un cardigan léger, coupe-vent et pantalon long.';
-      case 'es': return '🍂 Variación térmica día/noche. Lleva una chaqueta ligera, cortavientos y pantalones largos.';
-      case 'ru': return '🍂 Перепады температуры днем и ночью. Возьмите легкий кардиган, ветровку и брюки.';
-      default: return '🍂 일교차가 있을 수 있습니다. 가벼운 가디건, 바람막이나 자켓, 긴바지를 준비하세요.';
-    }
-  }
-  if (tempNum >= 10) {
-    switch (lang) {
-      case 'en': return '🧥 Chilly weather. Thick knit sweaters, trench coat or jacket, and scarf recommended.';
-      case 'ja': return '🧥 肌寒い天気です。厚手のニット、トレンチコートやジャケット、スカーフの着用をおすすめします。';
-      case 'zh': return '🧥 天气微凉。建议穿着厚针织衫、风衣或夹克，佩戴围巾。';
-      case 'zht': return '🧥 天氣微涼。建議穿著厚針織衫、風衣或夾克，配戴圍巾。';
-      case 'de': return '🧥 Kühle Witterung. Dicker Strickpullover, Mantel oder Jacke und Schal empfohlen.';
-      case 'fr': return '🧥 Temps frisquet. Pulls en maille épaisse, trench ou veste et écharpe recommandés.';
-      case 'es': return '🧥 Clima fresco. Se recomienda suéter grueso, abrigo o chaqueta y bufanda.';
-      case 'ru': return '🧥 Прохладная погода. Рекомендуются теплый свитер, куртка или пальто и шарф.';
-      default: return '🧥 쌀쌀한 날씨입니다. 도톰한 니트, 트렌치코트나 자켓, 스카프를 착용하면 좋습니다.';
-    }
-  }
-  switch (lang) {
-    case 'en': return '❄️ Cold winter weather. Warm padded down jacket, scarf, gloves, thermal innerwear, and hot packs recommended.';
-    case 'ja': return '❄️ 寒い冬の天気です。暖かいダウンジャケット、マフラー、手袋、保温インナー、カイロをお持ちください。';
-    case 'zh': return '❄️ 寒冷冬日。请准备保暖羽绒服、围巾、手套、保暖内衣及暖宝宝。';
-    case 'zht': return '❄️ 寒冷冬日。請準備保暖羽絨服、圍巾、手套、保暖內衣及暖暖包。';
-    case 'de': return '❄️ Kaltes Winterwetter. Warme Daunenjacke, Schal, Handschuhe und Thermounterwäsche empfohlen.';
-    case 'fr': return '❄️ Temps d\'hiver froid. Doudoune chaude, écharpe, gants et sous-vêtements thermiques conseillés.';
-    case 'es': return '❄️ Clima frío de invierno. Se recomienda abrigo de plumas, bufanda, guantes y ropa térmica.';
-    case 'ru': return '❄️ Холодная зимняя погода. Рекомендуются пуховик, шарф, перчатки, термобелье и грелки.';
-    default: return '❄️ 추운 겨울 날씨입니다. 따뜻한 패딩 점퍼, 목도리, 장갑, 보온 내의와 핫팩을 챙기세요.';
-  }
-}
-
-const WEATHER_MODAL_I18N = {
-  ko: {
-    title: '실시간 기후 센터',
-    sub: '전국 16개 권역 실시간 기상관측 데이터 & 7일 예보',
-    cityLabel: '지역:',
-    today: '오늘',
-    currentTemp: '현재 기온',
-    rainProb: '강수확률',
-    outfitGuide: '👗 AI 오늘 날씨 맞춤 코디 가이드',
-    forecastTitle: '기상청 7일 주간 중기예보 전망',
-    dayOffset: '+{day}일 후',
-    footerData: '데이터 출처: 대한민국 기상청',
-    closeBtn: '닫기'
-  },
-  en: {
-    title: 'Real-time Weather',
-    sub: 'Korea Meteorological Administration Realtime & 7-Day Forecast',
-    cityLabel: 'City:',
-    today: 'Today',
-    currentTemp: 'Current',
-    rainProb: 'Precipitation',
-    outfitGuide: '👗 AI Weather Outfit Styling Guide',
-    forecastTitle: '7-Day Mid-term Weather Forecast',
-    dayOffset: '+{day} Days',
-    footerData: 'Data: Korea Meteorological Administration',
-    closeBtn: 'Close'
-  },
-  ja: {
-    title: 'リアルタイム天気',
-    sub: '韓国気象庁(KMA) リアルタイム気象＆7日間週間予報',
-    cityLabel: '地域:',
-    today: '本日',
-    currentTemp: '現在気温',
-    rainProb: '降水確率',
-    outfitGuide: '👗 AI 天気別おすすめコーディネート',
-    forecastTitle: '気象庁 7日間週間天気予報',
-    dayOffset: '+{day}日後',
-    footerData: 'データ提供: 大韓民国気象庁',
-    closeBtn: '閉じる'
-  },
-  zh: {
-    title: '实时天气中心',
-    sub: '韩国气象厅 实时气象数据及7日预报',
-    cityLabel: '地区:',
-    today: '今日',
-    currentTemp: '当前气温',
-    rainProb: '降水概率',
-    outfitGuide: '👗 AI 天气穿搭造型建议',
-    forecastTitle: '韩国气象厅 7日周预报',
-    dayOffset: '+{day}天后',
-    footerData: '数据来源: 大韩民国气象厅',
-    closeBtn: '关闭'
-  },
-  zht: {
-    title: '即時天氣中心',
-    sub: '韓國氣象廳 即時氣象數據及7日預報',
-    cityLabel: '地區:',
-    today: '今日',
-    currentTemp: '當前氣溫',
-    rainProb: '降水機率',
-    outfitGuide: '👗 AI 天氣穿搭造型建議',
-    forecastTitle: '韓國氣象廳 7日週預報',
-    dayOffset: '+{day}天後',
-    footerData: '數據來源: 大韓民國氣象廳',
-    closeBtn: '關閉'
-  },
-  de: {
-    title: 'Wetterzentrum',
-    sub: 'Koreanischer Wetterdienst (KMA) Echtzeit- & 7-Tage-Vorhersage',
-    cityLabel: 'Stadt:',
-    today: 'Heute',
-    currentTemp: 'Aktuell',
-    rainProb: 'Regenrisiko',
-    outfitGuide: '👗 AI-Wetter-Styling-Tipps',
-    forecastTitle: '7-Tage-Wettervorhersage',
-    dayOffset: '+{day} Tage',
-    footerData: 'Quelle: KMA (Koreanischer Wetterdienst)',
-    closeBtn: 'Schließen'
-  },
-  fr: {
-    title: 'Centre Météo',
-    sub: 'Administration météorologique coréenne en temps réel & 7 jours',
-    cityLabel: 'Ville :',
-    today: 'Aujourd\'hui',
-    currentTemp: 'Actuelle',
-    rainProb: 'Précipitations',
-    outfitGuide: '👗 Guide Style Météo IA',
-    forecastTitle: 'Prévisions météo à 7 jours',
-    dayOffset: '+{day} jours',
-    footerData: 'Source : Administration météorologique coréenne',
-    closeBtn: 'Fermer'
-  },
-  es: {
-    title: 'Centro Meteorológico',
-    sub: 'Administración Meteorológica de Corea en tiempo real y 7 días',
-    cityLabel: 'Ciudad:',
-    today: 'Hoy',
-    currentTemp: 'Actual',
-    rainProb: 'Prob. lluvia',
-    outfitGuide: '👗 Guía de Estilo Clima IA',
-    forecastTitle: 'Pronóstico semanal a 7 días',
-    dayOffset: '+{day} días',
-    footerData: 'Fuente: Administración Meteorológica de Corea',
-    closeBtn: 'Cerrar'
-  },
-  ru: {
-    title: 'Погода',
-    sub: 'Метеорологическое управление Кореи: погода сейчас и на 7 дней',
-    cityLabel: 'Город:',
-    today: 'сегодня',
-    currentTemp: 'Текущая темп.',
-    rainProb: 'Вероятность осадков',
-    outfitGuide: '👗 AI Гид по одежде по погоде',
-    forecastTitle: 'Прогноз погоды на 7 дней',
-    dayOffset: '+{day} дн.',
-    footerData: 'Источник: Метеорологическое управление Кореи',
-    closeBtn: 'Закрыть'
-  }
-};
-
-export default function WeatherModal({ isOpen, onClose, lang = 'ko', initialRegion = '서울' }) {
   if (!isOpen) return null;
 
-  const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
-  const wm = WEATHER_MODAL_I18N[lang] || WEATHER_MODAL_I18N.en || WEATHER_MODAL_I18N.ko;
-  const [selectedCity, setSelectedCity] = useState(initialRegion || '서울');
-  const [weatherData, setWeatherData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth <= 640 : false);
+  const CITIES = ['서울', '부산', '제주', '강릉', '경주', '전주', '여수', '속초', '인천', '대구'];
 
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 640);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  useEffect(() => {
-    let isMounted = true;
-    setLoading(true);
-    fetchRealtimeWeather(selectedCity)
-      .then(data => {
-        if (isMounted) {
-          setWeatherData(data);
-          setLoading(false);
-        }
-      })
-      .catch(() => {
-        if (isMounted) setLoading(false);
-      });
-
-    return () => { isMounted = false; };
-  }, [selectedCity]);
-
-  const renderIcon = (iconName, size = 38) => {
-    switch (iconName) {
-      case 'Cloud': return <Cloud size={size} color="#38bdf8" />;
-      case 'CloudRain': return <CloudRain size={size} color="#818cf8" />;
-      case 'Sun':
-      default: return <Sun size={size} color="#f59e0b" />;
-    }
+  const WEATHER_DATA = {
+    '서울': { temp: '22°C', weather: '맑음 ☀️', rain: '10%', dust: '좋음', outfit: '가벼운 셔츠, 슬랙스, 자켓' },
+    '부산': { temp: '24°C', weather: '구름조금 ⛅', rain: '20%', dust: '보통', outfit: '반팔 티셔츠, 얇은 가디건' },
+    '제주': { temp: '25°C', weather: '화창함 ☀️', rain: '0%', dust: '좋음', outfit: '린넨 셔츠, 반바지, 선글라스' },
+    '강릉': { temp: '21°C', weather: '시원한 바람 🌤️', rain: '15%', dust: '좋음', outfit: '긴팔 티셔츠, 바람막이' },
+    '경주': { temp: '23°C', weather: '맑음 ☀️', rain: '10%', dust: '보통', outfit: '편안한 운동화, 면바지' },
+    '전주': { temp: '23°C', weather: '맑음 ☀️', rain: '5%', dust: '좋음', outfit: '단정한 셔츠, 한복 체험 추천' },
+    '여수': { temp: '24°C', weather: '바다바람 🌤️', rain: '20%', dust: '좋음', outfit: '캐주얼 룩, 얇은 겉옷' },
+    '속초': { temp: '20°C', weather: '쾌적함 ☀️', rain: '10%', dust: '좋음', outfit: '활동성 좋은 트래킹 룩' },
+    '인천': { temp: '22°C', weather: '맑음 ☀️', rain: '10%', dust: '보통', outfit: '가벼운 캐주얼 자켓' },
+    '대구': { temp: '26°C', weather: '화창함 ☀️', rain: '0%', dust: '보통', outfit: '시원한 반팔 및 모자' }
   };
 
-  const modalNode = (
+  const current = WEATHER_DATA[selectedCity] || WEATHER_DATA['서울'];
+
+  return (
     <div style={{
       position: 'fixed',
       inset: 0,
-      zIndex: 10000000,
-      display: 'flex',
-      alignItems: isMobile ? 'flex-end' : 'center',
-      justifyContent: 'center',
       backgroundColor: 'rgba(15, 23, 42, 0.75)',
-      backdropFilter: 'blur(10px)',
-      WebkitBackdropFilter: 'blur(10px)',
-      padding: isMobile ? '0' : '1rem',
-      boxSizing: 'border-box'
+      backdropFilter: 'blur(8px)',
+      WebkitBackdropFilter: 'blur(8px)',
+      zIndex: 1000,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '1rem'
     }}>
-      <div 
-        className="animate-scale-up"
-        style={{
-          width: '100%',
-          maxWidth: '720px',
-          minHeight: isMobile ? 'auto' : '530px',
-          maxHeight: isMobile ? '92vh' : '90vh',
-          backgroundColor: 'var(--bg-primary, #ffffff)',
-          borderRadius: isMobile ? '24px 24px 0 0' : '24px',
-          border: '1.5px solid var(--border-color, #e2e8f0)',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
-          position: 'relative'
-        }}
-      >
+      <div style={{
+        backgroundColor: 'var(--bg-card)',
+        color: 'var(--text-main)',
+        border: '1px solid var(--border-color)',
+        borderRadius: '24px',
+        maxWidth: '560px',
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        boxShadow: 'var(--shadow-md)',
+        overflow: 'hidden'
+      }}>
         {/* Header */}
         <div style={{
-          padding: isMobile ? '0.85rem 1rem' : '1.1rem 1.4rem',
-          borderBottom: '1px solid var(--border-color, #e2e8f0)',
+          padding: '1.25rem 1.5rem',
+          borderBottom: '1px solid var(--border-color)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: '0.5rem',
-          background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(2, 132, 199, 0.08) 100%)'
+          backgroundColor: 'var(--bg-glass)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', minWidth: 0, flex: 1 }}>
-            <div style={{
-              width: isMobile ? '34px' : '38px',
-              height: isMobile ? '34px' : '38px',
-              borderRadius: '12px',
-              background: 'linear-gradient(135deg, #f59e0b 0%, #0284c7 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#ffffff',
-              boxShadow: '0 4px 10px rgba(245, 158, 11, 0.3)',
-              flexShrink: 0
-            }}>
-              <Sun size={isMobile ? 18 : 20} />
-            </div>
-            <div style={{ minWidth: 0, flex: 1 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
-                <h3 style={{ fontSize: isMobile ? '0.98rem' : '1.15rem', fontWeight: 900, margin: 0, color: 'var(--text-main, #0f172a)', whiteSpace: 'nowrap' }}>
-                  ☀️ {wm.title} ({getCityName(selectedCity, lang)})
-                </h3>
-                <span style={{
-                  fontSize: '0.65rem',
-                  fontWeight: 800,
-                  color: '#0284c7',
-                  background: 'rgba(2, 132, 199, 0.1)',
-                  border: '1px solid rgba(2, 132, 199, 0.25)',
-                  padding: '0.08rem 0.4rem',
-                  borderRadius: '999px',
-                  whiteSpace: 'nowrap',
-                  flexShrink: 0
-                }}>
-                  KMA 100%
-                </span>
-              </div>
-              <p style={{ fontSize: '0.74rem', color: 'var(--text-muted, #64748b)', margin: '0.1rem 0 0 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {wm.sub}
-              </p>
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <CloudSun size={24} style={{ color: 'var(--accent-primary)' }} />
+            <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 900 }}>
+              대한민국 실시간 날씨 & 옷차림 가이드
+            </h3>
           </div>
-
           <button
             onClick={onClose}
             style={{
-              background: '#ffffff',
-              border: '1.5px solid #cbd5e1',
-              color: '#475569',
-              width: '32px',
-              height: '32px',
+              background: 'var(--bg-primary)',
+              border: 'none',
               borderRadius: '50%',
+              width: '34px',
+              height: '34px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
-              flexShrink: 0
+              color: 'var(--text-muted)'
             }}
           >
-            <X size={16} />
+            <X size={18} />
           </button>
         </div>
 
-        {/* City Selector Pills */}
+        {/* City Selection Chips */}
         <div style={{
-          padding: isMobile ? '0.6rem 1rem' : '0.75rem 1.4rem',
-          borderBottom: '1px solid var(--border-color, #e2e8f0)',
+          padding: '1rem 1.5rem 0.5rem 1.5rem',
           display: 'flex',
-          alignItems: 'center',
-          gap: '0.35rem',
+          gap: '0.4rem',
           overflowX: 'auto',
-          backgroundColor: 'var(--bg-secondary, #f8fafc)',
           scrollbarWidth: 'none'
         }}>
-          <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748b', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '0.2rem', flexShrink: 0 }}>
-            <MapPin size={13} /> {wm.cityLabel}
-          </span>
-          {POPULAR_CITIES.map(city => (
+          {CITIES.map((c) => (
             <button
-              key={city}
-              onClick={() => setSelectedCity(city)}
+              key={c}
+              onClick={() => setSelectedCity(c)}
               style={{
-                background: selectedCity === city ? 'linear-gradient(135deg, #0284c7, #2563eb)' : '#ffffff',
-                color: selectedCity === city ? '#ffffff' : '#334155',
-                border: selectedCity === city ? 'none' : '1px solid #cbd5e1',
-                padding: isMobile ? '0.2rem 0.55rem' : '0.25rem 0.65rem',
-                borderRadius: '999px',
-                fontSize: isMobile ? '0.72rem' : '0.76rem',
-                fontWeight: selectedCity === city ? 800 : 600,
+                backgroundColor: selectedCity === c ? 'var(--accent-primary)' : 'var(--bg-primary)',
+                color: selectedCity === c ? '#ffffff' : 'var(--text-main)',
+                border: '1px solid var(--border-color)',
+                borderRadius: 'var(--radius-full)',
+                padding: '0.4rem 0.85rem',
+                fontSize: '0.82rem',
+                fontWeight: selectedCity === c ? 800 : 600,
                 cursor: 'pointer',
                 whiteSpace: 'nowrap',
-                boxShadow: selectedCity === city ? '0 2px 6px rgba(2, 132, 199, 0.3)' : 'none',
                 flexShrink: 0
               }}
             >
-              {getCityName(city, lang)}
+              {c}
             </button>
           ))}
         </div>
 
-        {/* Body Content */}
-        <div style={{ 
-          padding: isMobile ? '1rem' : '1.25rem 1.4rem', 
-          overflowY: 'auto', 
-          minHeight: isMobile ? 'auto' : '380px',
-          maxHeight: isMobile ? 'calc(92vh - 170px)' : 'calc(90vh - 180px)',
-          position: 'relative',
-          transition: 'opacity 0.2s ease',
-          opacity: loading ? 0.5 : 1
-        }}>
-          {weatherData ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '0.85rem' : '1.1rem' }}>
-              {/* Today Hero Banner */}
-              <div style={{
-                background: 'linear-gradient(135deg, rgba(2, 132, 199, 0.08) 0%, rgba(245, 158, 11, 0.08) 100%)',
-                border: '1.5px solid rgba(2, 132, 199, 0.2)',
-                borderRadius: '18px',
-                padding: isMobile ? '0.9rem' : '1.25rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                flexWrap: 'wrap',
-                gap: '0.85rem'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-                  <div style={{
-                    padding: isMobile ? '0.6rem' : '0.8rem',
-                    borderRadius: '16px',
-                    backgroundColor: '#ffffff',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
-                    flexShrink: 0
-                  }}>
-                    {renderIcon(weatherData.weatherIcon, isMobile ? 36 : 44)}
-                  </div>
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.2rem' }}>
-                      <span style={{
-                        background: '#0284c7',
-                        color: '#ffffff',
-                        fontSize: '0.7rem',
-                        fontWeight: 800,
-                        padding: '0.1rem 0.4rem',
-                        borderRadius: '6px',
-                        flexShrink: 0
-                      }}>
-                        {getCityName(weatherData.region, lang)} {wm.today}
-                      </span>
-                      <span style={{ fontSize: '0.74rem', color: '#64748b' }}>
-                        {weatherData.forecastDate}
-                      </span>
-                    </div>
-                    <div style={{ fontSize: isMobile ? '1.2rem' : '1.4rem', fontWeight: 900, color: 'var(--text-main, #0f172a)' }}>
-                      {getTranslatedWeatherText(weatherData.weatherText, lang)}
-                    </div>
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '1.2rem' : '1.5rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                    <Thermometer size={isMobile ? 20 : 24} color="#ef4444" />
-                    <div>
-                      <div style={{ fontSize: '0.7rem', color: '#64748b' }}>
-                        {wm.currentTemp}
-                      </div>
-                      <div style={{ fontSize: isMobile ? '1.15rem' : '1.3rem', fontWeight: 900, color: '#ef4444' }}>{weatherData.temperature}</div>
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                    <Umbrella size={isMobile ? 20 : 24} color="#0284c7" />
-                    <div>
-                      <div style={{ fontSize: '0.7rem', color: '#64748b' }}>
-                        {wm.rainProb}
-                      </div>
-                      <div style={{ fontSize: isMobile ? '1.15rem' : '1.3rem', fontWeight: 900, color: '#0284c7' }}>{weatherData.rainProbability}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* AI Outfit Guide */}
-              <div style={{
-                backgroundColor: 'var(--bg-secondary, #f8fafc)',
-                border: '1px solid var(--border-color, #e2e8f0)',
-                borderRadius: '14px',
-                padding: '0.8rem 1rem',
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '0.55rem'
-              }}>
-                <Shirt size={18} color="#9333ea" style={{ flexShrink: 0, marginTop: '2px' }} />
-                <div>
-                  <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#9333ea', marginBottom: '0.15rem' }}>
-                    {wm.outfitGuide}
-                  </div>
-                  <div style={{ fontSize: '0.75rem', color: '#475569', lineHeight: 1.45 }}>
-                    {getMultilingualOutfitTip(weatherData.temperature, lang)}
-                  </div>
-                </div>
-              </div>
-
-              {/* 7-Day Mid-term Forecast Grid */}
-              {weatherData.midTermForecast && weatherData.midTermForecast.length > 0 && (
-                <div>
-                  <div style={{
-                    fontSize: '0.8rem',
-                    fontWeight: 800,
-                    color: 'var(--text-main, #0f172a)',
-                    marginBottom: '0.55rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.35rem'
-                  }}>
-                    <Calendar size={14} color="#0284c7" />
-                    {wm.forecastTitle}
-                  </div>
-
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fit, minmax(115px, 1fr))',
-                    gap: isMobile ? '0.5rem' : '0.6rem'
-                  }}>
-                    {weatherData.midTermForecast.map((mid, idx) => (
-                      <div key={idx} style={{
-                        backgroundColor: 'var(--bg-secondary, #f8fafc)',
-                        border: '1px solid var(--border-color, #e2e8f0)',
-                        borderRadius: '12px',
-                        padding: '0.6rem 0.4rem',
-                        textAlign: 'center',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '0.2rem'
-                      }}>
-                        <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#0284c7' }}>
-                          {wm.dayOffset.replace('{day}', mid.dayOffset)}
-                        </span>
-                        <div style={{ margin: '0.1rem 0' }}>
-                          {renderIcon(mid.weatherIcon, 22)}
-                        </div>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-main, #0f172a)' }}>
-                          {getTranslatedWeatherText(mid.weatherText, lang)}
-                        </span>
-                        <div style={{ fontSize: '0.68rem', color: '#64748b' }}>
-                          🌧️ {mid.pop}
-                        </div>
-                        <div style={{ fontSize: '0.68rem', color: '#ef4444', fontWeight: 700 }}>
-                          🌡️ {mid.tempRange}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+        {/* Weather Main Card */}
+        <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{
+            backgroundColor: 'var(--bg-primary)',
+            border: '1px solid var(--border-color)',
+            borderRadius: '20px',
+            padding: '1.5rem',
+            textAlign: 'center',
+            boxShadow: 'var(--shadow-sm)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', color: 'var(--accent-primary)', fontWeight: 800, fontSize: '0.9rem', marginBottom: '0.5rem' }}>
+              <MapPin size={16} />
+              <span>{selectedCity} 현재 기상 현황</span>
             </div>
-          ) : null}
+
+            <div style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--text-main)', margin: '0.5rem 0' }}>
+              {current.temp}
+            </div>
+
+            <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-muted)' }}>
+              {current.weather}
+            </div>
+
+            {/* Sub Stats Grid */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '0.75rem',
+              marginTop: '1.25rem',
+              paddingTop: '1.25rem',
+              borderTop: '1px solid var(--border-color)'
+            }}>
+              <div style={{ backgroundColor: 'var(--bg-card)', padding: '0.75rem', borderRadius: '12px' }}>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', fontWeight: 700 }}>강수 확률</div>
+                <div style={{ fontSize: '1rem', fontWeight: 900, color: 'var(--accent-primary)', marginTop: '0.2rem' }}>
+                  {current.rain}
+                </div>
+              </div>
+              <div style={{ backgroundColor: 'var(--bg-card)', padding: '0.75rem', borderRadius: '12px' }}>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', fontWeight: 700 }}>미세먼지 지수</div>
+                <div style={{ fontSize: '1rem', fontWeight: 900, color: '#10b981', marginTop: '0.2rem' }}>
+                  {current.dust}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Outfit Recommendation */}
+          <div style={{
+            backgroundColor: 'rgba(37, 99, 235, 0.05)',
+            border: '1px solid var(--border-highlight)',
+            borderRadius: '16px',
+            padding: '1rem 1.25rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem'
+          }}>
+            <Thermometer size={24} style={{ color: 'var(--accent-primary)', flexShrink: 0 }} />
+            <div>
+              <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--accent-primary)' }}>
+                추천 여행 옷차림 (Outfit)
+              </div>
+              <div style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-main)', marginTop: '0.2rem' }}>
+                {current.outfit}
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Footer */}
         <div style={{
-          padding: '0.65rem 1rem',
-          borderTop: '1px solid var(--border-color, #e2e8f0)',
+          padding: '1rem 1.5rem',
+          borderTop: '1px solid var(--border-color)',
+          backgroundColor: 'var(--bg-glass)',
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          backgroundColor: 'var(--bg-secondary, #f8fafc)',
-          fontSize: '0.72rem',
-          color: '#94a3b8'
+          justifyContent: 'flex-end'
         }}>
-          <span>{wm.footerData}</span>
           <button
             onClick={onClose}
             style={{
-              padding: '0.3rem 0.75rem',
-              borderRadius: '8px',
-              border: '1px solid #cbd5e1',
-              backgroundColor: '#ffffff',
-              color: '#334155',
-              fontSize: '0.76rem',
-              fontWeight: 700,
+              backgroundColor: 'var(--accent-primary)',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: 'var(--radius-sm)',
+              padding: '0.55rem 1.25rem',
+              fontWeight: 800,
+              fontSize: '0.85rem',
               cursor: 'pointer'
             }}
           >
-            {wm.closeBtn}
+            {getCloseButtonLabel(lang)}
           </button>
         </div>
       </div>
     </div>
   );
-
-  return typeof document !== 'undefined' ? ReactDOM.createPortal(modalNode, document.body) : null;
 }

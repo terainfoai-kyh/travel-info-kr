@@ -1,93 +1,190 @@
-import React from 'react';
-import { MapPin, Sparkles, Navigation } from 'lucide-react';
+import React, { useState } from 'react';
+import { Sparkles, ArrowRight, Compass, Flame } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
 
-export default function HeroSection({ onSelectRegion, lang = 'ko' }) {
+export default function HeroSection({
+  lang = 'ko',
+  onSearch,
+  isLoading = false
+}) {
+  const [query, setQuery] = useState('');
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
-  const popularKeywords = ['제주 성산일출봉', '서울 야경', '부산 해운대', '강원도 단풍', '전주 맛집'];
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!query.trim() || isLoading) return;
+    onSearch(query.trim());
+  };
+
+  const handleChipClick = (promptText) => {
+    setQuery(promptText);
+    onSearch(promptText);
+  };
 
   return (
     <section style={{
+      padding: '2.5rem 1rem 2rem 1rem',
+      textAlign: 'center',
       position: 'relative',
-      borderRadius: 'var(--radius-lg)',
-      overflow: 'hidden',
-      margin: '1.5rem 0',
-      background: 'linear-gradient(130deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 41, 59, 0.85) 100%), url("/default-spot.png")',
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      padding: '4rem 2rem',
-      border: '1px solid var(--border-color)',
-      boxShadow: 'var(--shadow-md)',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      textAlign: 'center'
+      maxWidth: '920px',
+      margin: '0 auto'
     }}>
+      {/* Top Value Badge */}
       <div style={{
         display: 'inline-flex',
         alignItems: 'center',
-        gap: '0.5rem',
-        padding: '0.4rem 1rem',
+        gap: '0.4rem',
+        padding: '0.35rem 0.9rem',
         borderRadius: 'var(--radius-full)',
-        background: 'rgba(56, 189, 248, 0.15)',
-        border: '1px solid rgba(56, 189, 248, 0.3)',
+        backgroundColor: 'rgba(37, 99, 235, 0.08)',
+        border: '1px solid var(--border-highlight)',
         color: 'var(--accent-primary)',
-        fontSize: '0.85rem',
-        fontWeight: 600,
-        marginBottom: '1rem'
+        fontSize: '0.82rem',
+        fontWeight: 800,
+        marginBottom: '1.25rem'
       }}>
         <Sparkles size={16} />
-        <span>{t.heroTag || '2026 대한민국 핫플레이스 추천'}</span>
+        <span>{t.heroBadge || '✨ 2026 AI-Powered Korea Travel Concierge'}</span>
       </div>
 
-      <h2 style={{
-        fontSize: 'clamp(1.8rem, 4vw, 3rem)',
-        fontWeight: 800,
+      {/* Main Hero Heading */}
+      <h1 style={{
+        fontSize: 'clamp(1.9rem, 4vw, 2.75rem)',
+        fontWeight: 900,
         lineHeight: 1.25,
-        marginBottom: '1rem',
-        maxWidth: '800px'
+        letterSpacing: '-0.03em',
+        margin: '0 0 0.85rem 0',
+        color: 'var(--text-main)'
       }}>
-        {t.heroTitlePrefix || '떠나보세요, '}<span className="gradient-text">{t.heroTitleHighlight || '당신만의 특별한 한국 여행'}</span>{t.heroTitleSuffix || '으로'}
-      </h2>
+        {t.heroTitle || '질문 하나로 완성되는 나만의 한국 여행'}
+      </h1>
 
+      {/* Subtitle */}
       <p style={{
+        fontSize: 'clamp(0.95rem, 2vw, 1.1rem)',
         color: 'var(--text-muted)',
-        fontSize: '1.05rem',
-        maxWidth: '600px',
-        marginBottom: '2rem'
+        lineHeight: 1.6,
+        margin: '0 auto 2rem auto',
+        maxWidth: '700px',
+        fontWeight: 500
       }}>
-        {t.heroSubtitle || '전국 각지의 숨은 명소부터 최신 핫플레이스, 오션뷰 산책로와 전통 미식까지 모든 정보를 한곳에서 만나보세요.'}
+        {t.heroSubtitle || '한국관광공사 Official DB와 Gemini AI가 설계하는 초개인화 맞춤 코스 & 실시간 구글맵 연동'}
       </p>
 
-      {/* Recommended Keywords */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-        <span style={{ fontSize: '0.85rem', color: 'var(--text-dim)', fontWeight: 600 }}>{t.heroPopularSearch || '인기 검색:'}</span>
-        {popularKeywords.map((kw, i) => (
-          <button
-            key={i}
-            onClick={() => onSelectRegion(kw)}
+      {/* Smart Prompt Input Box */}
+      <form onSubmit={handleSubmit} style={{
+        position: 'relative',
+        maxWidth: '740px',
+        margin: '0 auto 1.5rem auto'
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          backgroundColor: 'var(--bg-card)',
+          border: '1.5px solid var(--border-highlight)',
+          borderRadius: 'var(--radius-full)',
+          padding: '0.45rem 0.6rem 0.45rem 1.4rem',
+          boxShadow: 'var(--shadow-md)',
+          transition: 'border-color var(--transition-fast)'
+        }}>
+          <Compass size={22} style={{ color: 'var(--accent-primary)', marginRight: '0.75rem', flexShrink: 0 }} />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t.searchPlaceholder || '어떤 여행을 꿈꾸시나요? (예: 성수동 핫플 카페 2박3일, 제주도 바다뷰 힐링)'}
+            disabled={isLoading}
             style={{
-              background: 'rgba(255, 255, 255, 0.08)',
-              border: '1px solid var(--border-color)',
+              width: '100%',
+              border: 'none',
+              outline: 'none',
+              backgroundColor: 'transparent',
+              fontSize: '0.98rem',
+              fontWeight: 600,
+              color: 'var(--text-main)'
+            }}
+          />
+          <button
+            type="submit"
+            disabled={isLoading || !query.trim()}
+            style={{
+              backgroundColor: 'var(--accent-primary)',
+              color: '#ffffff',
+              border: 'none',
               borderRadius: 'var(--radius-full)',
-              padding: '0.35rem 0.85rem',
-              color: 'var(--text-main)',
-              fontSize: '0.8rem',
-              cursor: 'pointer',
-              transition: 'all var(--transition-fast)'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = 'var(--accent-primary)';
-              e.currentTarget.style.color = 'var(--accent-primary)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = 'var(--border-color)';
-              e.currentTarget.style.color = 'var(--text-main)';
+              padding: '0.7rem 1.4rem',
+              fontSize: '0.9rem',
+              fontWeight: 800,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              cursor: isLoading || !query.trim() ? 'not-allowed' : 'pointer',
+              opacity: isLoading || !query.trim() ? 0.6 : 1,
+              transition: 'all var(--transition-fast)',
+              flexShrink: 0
             }}
           >
-            #{kw}
+            <span>{isLoading ? '...' : (t.searchBtn || 'AI 코스 생성')}</span>
+            <ArrowRight size={17} />
           </button>
-        ))}
+        </div>
+      </form>
+
+      {/* Popular Quick Prompt Chips */}
+      <div style={{ maxWidth: '820px', margin: '0 auto' }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '0.4rem',
+          fontSize: '0.8rem',
+          fontWeight: 800,
+          color: 'var(--text-dim)',
+          marginBottom: '0.6rem'
+        }}>
+          <Flame size={15} style={{ color: '#f59e0b' }} />
+          <span>{t.promptChipsTitle || '🔥 인기 추천 프롬프트'}</span>
+        </div>
+
+        <div style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          justifyContent: 'center',
+          gap: '0.5rem'
+        }}>
+          {(t.promptChips || []).map((chip, idx) => (
+            <button
+              key={idx}
+              onClick={() => handleChipClick(chip.prompt)}
+              disabled={isLoading}
+              style={{
+                backgroundColor: 'var(--bg-card)',
+                border: '1px solid var(--border-color)',
+                borderRadius: 'var(--radius-full)',
+                padding: '0.45rem 0.95rem',
+                fontSize: '0.82rem',
+                fontWeight: 700,
+                color: 'var(--text-main)',
+                cursor: isLoading ? 'not-allowed' : 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                boxShadow: 'var(--shadow-sm)',
+                transition: 'all var(--transition-fast)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'var(--accent-primary)';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'var(--border-color)';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              <span>{chip.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
     </section>
   );
