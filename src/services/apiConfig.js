@@ -25,6 +25,9 @@ export const PUBLIC_API_CONFIG = {
   // 한국관광공사 두드림 (두루누비) 다국어 관광정보 API
   DURUNUBI_BASE: 'https://apis.data.go.kr/B551011/Durunubi',
 
+  // Google Maps Platform API Key
+  GOOGLE_MAPS_KEY: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyCZCfdgYBXPMDbB7N2EhiEY-7DmaCrPh0k',
+
   // 기상청 단기 & 중기 예보 Endpoints
   WEATHER_SHORT_BASE: 'https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0',
   WEATHER_MID_BASE: 'https://apis.data.go.kr/1360000/MidFcstInfoService'
