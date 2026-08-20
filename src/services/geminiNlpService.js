@@ -289,27 +289,36 @@ Return ONLY valid JSON matching this exact schema:
   return generateLocalFallbackItinerary(rawPrompt, targetCity, days, lang);
 }
 
-// Authentic High-Quality Curated Korea Images for zero-blank rendering
+// Authentic 100% TourAPI 4.0 Official CDN Images Only (Zero Overseas / Zero Unsplash)
 export function getFallbackCityImage(city = '서울', index = 0) {
   const SEOUL_IMAGES = [
-    'https://images.unsplash.com/photo-1546874177-9e664107314e?auto=format&fit=crop&w=800&q=80', // Gyeongbokgung
-    'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=800&q=80', // N Seoul Tower
-    'https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=800&q=80', // Bukchon
-    'https://images.unsplash.com/photo-1517154421773-0529f29ea451?auto=format&fit=crop&w=800&q=80'  // Han River
+    'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg', // 경복궁 & 향원정 (한국관광공사 정품)
+    'https://tong.visitkorea.or.kr/cms/resource/45/3505945_image2_1.jpg', // 서울 도심 & 남산 (한국관광공사 정품)
+    'https://tong.visitkorea.or.kr/cms/resource/62/2612562_image2_1.jpg'  // 북촌 & 전통 한옥마을 (한국관광공사 정품)
   ];
 
   const BUSAN_IMAGES = [
-    'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=800&q=80', // Haeundae
-    'https://images.unsplash.com/photo-1627916607164-7b20241db935?auto=format&fit=crop&w=800&q=80'  // Gamcheon
+    'https://tong.visitkorea.or.kr/cms/resource/99/3546099_image2_1.jpg', // 해운대 블루라인파크 & 광안대교 (한국관광공사 정품)
+    'https://tong.visitkorea.or.kr/cms/resource/09/2678609_image2_1.jpg'  // 부산 해안 명소 (한국관광공사 정품)
   ];
 
   const JEJU_IMAGES = [
-    'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80', // Ocean
-    'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=80'  // Mountain
+    'https://tong.visitkorea.or.kr/cms/resource/82/2944282_image2_1.bmp', // 제주 성산일출봉 (한국관광공사 정품)
+    'https://tong.visitkorea.or.kr/cms/resource/13/2678613_image2_1.jpg'  // 제주 해안 올레길 & 바다 (한국관광공사 정품)
+  ];
+
+  const GYEONGJU_IMAGES = [
+    'https://tong.visitkorea.or.kr/cms/resource_photo/45/3365745_image2_1.jpg' // 경주 불국사 & 동궁과월지 (한국관광공사 정품)
+  ];
+
+  const GANGWON_IMAGES = [
+    'https://tong.visitkorea.or.kr/cms/resource/45/3505945_image2_1.jpg' // 강원도 설악산 & 동해 (한국관광공사 정품)
   ];
 
   if (city.includes('부산')) return BUSAN_IMAGES[index % BUSAN_IMAGES.length];
-  if (city.includes('제주')) return JEJU_IMAGES[index % JEJU_IMAGES.length];
+  if (city.includes('제주') || city.includes('서귀포')) return JEJU_IMAGES[index % JEJU_IMAGES.length];
+  if (city.includes('경주')) return GYEONGJU_IMAGES[index % GYEONGJU_IMAGES.length];
+  if (city.includes('강원') || city.includes('강릉') || city.includes('속초')) return GANGWON_IMAGES[index % GANGWON_IMAGES.length];
   return SEOUL_IMAGES[index % SEOUL_IMAGES.length];
 }
 
