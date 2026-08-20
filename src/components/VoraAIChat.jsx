@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Sparkles, Copy, Check, Share2, CornerDownRight, Utensils, Navigation } from 'lucide-react';
+import { Send, Sparkles, Copy, Check, Share2, CornerDownRight, Utensils, Navigation, User, Bot } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
 
 export default function VoraAIChat({
   lang = 'ko',
-  itineraryData = null,
+  chatMessages = [],
   isLoading = false,
   onSendMessage,
   activeDay = 1,
@@ -12,8 +12,15 @@ export default function VoraAIChat({
 }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
   const [inputText, setInputText] = useState('');
-  const [copied, setCopied] = useState(false);
+  const [copiedId, setCopiedId] = useState(null);
   const chatEndRef = useRef(null);
+
+  // Auto-scroll to latest message
+  useEffect(() => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [chatMessages, isLoading]);
 
   const handleSend = (e) => {
     e.preventDefault();
@@ -22,7 +29,7 @@ export default function VoraAIChat({
     setInputText('');
   };
 
-  const handleCopyItinerary = () => {
+  const handleCopyItinerary = (itineraryData, msgId) => {
     if (!itineraryData) return;
     let textToCopy = `✨ [VORA AI 3.0] ${itineraryData.tripTitle || '맞춤 한국 여행 일정'}\n\n`;
     textToCopy += `${itineraryData.summary}\n\n`;
@@ -42,8 +49,8 @@ export default function VoraAIChat({
     });
 
     navigator.clipboard.writeText(textToCopy);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setCopiedId(msgId);
+    setTimeout(() => setCopiedId(null), 2000);
   };
 
   const handleQuickChip = (chipText) => {
@@ -64,7 +71,7 @@ export default function VoraAIChat({
     }}>
       {/* Chat Header */}
       <div style={{
-        padding: '0.75rem 1.1rem',
+        padding: '0.65rem 1rem',
         borderBottom: '1px solid var(--border-color)',
         display: 'flex',
         alignItems: 'center',
@@ -72,238 +79,259 @@ export default function VoraAIChat({
         backgroundColor: 'var(--bg-glass)',
         backdropFilter: 'blur(12px)'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <img
             src="/logo.png"
             alt="VORA"
             style={{
-              width: '28px',
-              height: '28px',
-              borderRadius: '8px',
+              width: '26px',
+              height: '26px',
+              borderRadius: '7px',
               objectFit: 'cover'
             }}
           />
           <div>
-            <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-main)' }}>
+            <h3 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-main)' }}>
               {t.chatTitle || 'Vora AI 컨시어지 대화'}
             </h3>
           </div>
         </div>
 
-        {/* Action Buttons */}
-        {itineraryData && (
-          <button
-            onClick={handleCopyItinerary}
-            style={{
-              backgroundColor: 'var(--bg-primary)',
-              border: '1px solid var(--border-color)',
-              color: 'var(--text-main)',
-              padding: '0.35rem 0.75rem',
-              borderRadius: 'var(--radius-full)',
-              fontSize: '0.75rem',
-              fontWeight: 700,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.35rem',
-              cursor: 'pointer',
-              transition: 'all var(--transition-fast)'
-            }}
-          >
-            {copied ? <Check size={13} style={{ color: '#10b981' }} /> : <Copy size={13} />}
-            <span>{copied ? (t.chatCopied || '복사됨') : (t.chatCopyItinerary || '전체 일정 복사')}</span>
-          </button>
-        )}
+        <span style={{
+          fontSize: '0.68rem',
+          fontWeight: 700,
+          color: '#10b981',
+          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+          padding: '0.15rem 0.45rem',
+          borderRadius: 'var(--radius-full)',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '0.3rem'
+        }}>
+          <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10b981' }} />
+          <span>실시간 1:1 대화중</span>
+        </span>
       </div>
 
       {/* Chat Message Stream */}
       <div style={{
         flex: 1,
-        padding: '1rem',
+        padding: '0.85rem',
         overflowY: 'auto',
         display: 'flex',
         flexDirection: 'column',
-        gap: '0.85rem'
+        gap: '0.75rem'
       }}>
-        {/* Welcome Intro Message */}
-        <div style={{
-          backgroundColor: 'var(--bg-primary)',
-          border: '1px solid var(--border-color)',
-          borderRadius: '16px',
-          padding: '0.9rem 1.1rem',
-          display: 'flex',
-          gap: '0.75rem',
-          alignItems: 'flex-start'
-        }}>
-          <div style={{
-            width: '32px',
-            height: '32px',
-            borderRadius: '50%',
-            backgroundColor: 'rgba(37, 99, 235, 0.1)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'var(--accent-primary)',
-            flexShrink: 0
-          }}>
-            <Sparkles size={16} />
-          </div>
-          <div>
-            <p style={{ margin: 0, fontSize: '0.86rem', lineHeight: 1.55, color: 'var(--text-main)', whiteSpace: 'pre-line' }}>
-              {t.chatWelcome || '안녕하세요! 당신의 전담 한국 여행 AI 컨시어지 VORA입니다.'}
-            </p>
-          </div>
-        </div>
+        {chatMessages.map((msg) => {
+          const isUser = msg.role === 'user';
 
-        {/* Live Loading Skeleton while AI generates */}
-        {isLoading && (
-          <div style={{
-            backgroundColor: 'var(--bg-primary)',
-            border: '1px solid var(--border-highlight)',
-            borderRadius: '16px',
-            padding: '1.25rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.85rem',
-            animation: 'pulse 1.8s infinite'
-          }}>
-            <div className="spin-animation" style={{
-              width: '28px',
-              height: '28px',
-              borderRadius: '50%',
-              border: '3px solid var(--accent-primary)',
-              borderTopColor: 'transparent'
-            }} />
-            <div>
-              <div style={{ fontSize: '0.88rem', fontWeight: 800, color: 'var(--accent-primary)' }}>
-                {t.chatThinking || 'AI가 동선과 핫플레이스를 분석하여 최적의 일정을 설계 중입니다...'}
+          if (isUser) {
+            return (
+              <div
+                key={msg.id}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  marginBottom: '0.2rem'
+                }}
+              >
+                <div style={{
+                  maxWidth: '82%',
+                  backgroundColor: 'var(--accent-primary)',
+                  color: '#ffffff',
+                  padding: '0.65rem 0.95rem',
+                  borderRadius: '16px 16px 4px 16px',
+                  fontSize: '0.85rem',
+                  lineHeight: 1.45,
+                  fontWeight: 600,
+                  boxShadow: 'var(--shadow-sm)',
+                  wordBreak: 'break-word'
+                }}>
+                  {msg.text}
+                </div>
               </div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                한국관광공사 Official API & Google Maps 좌표 실시간 동기화 중
-              </div>
-            </div>
-          </div>
-        )}
+            );
+          }
 
-        {/* Master AI Generated Itinerary Response */}
-        {itineraryData && !isLoading && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {/* Overview Summary Box */}
-            <div style={{
-              backgroundColor: 'rgba(37, 99, 235, 0.05)',
-              border: '1px solid var(--border-highlight)',
-              borderRadius: '16px',
-              padding: '0.9rem 1.1rem'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.4rem' }}>
-                <span style={{ fontSize: '1rem' }}>✨</span>
-                <h4 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 900, color: 'var(--accent-primary)' }}>
-                  {itineraryData.tripTitle}
-                </h4>
-              </div>
-              <p style={{ margin: 0, fontSize: '0.83rem', lineHeight: 1.55, color: 'var(--text-main)' }}>
-                {itineraryData.summary}
-              </p>
-            </div>
+          // Assistant Message Bubble
+          return (
+            <div
+              key={msg.id}
+              style={{
+                display: 'flex',
+                gap: '0.5rem',
+                alignItems: 'flex-start',
+                marginBottom: '0.3rem'
+              }}
+            >
+              {/* Bot Avatar */}
+              <img
+                src="/logo.png"
+                alt="VORA AI"
+                style={{
+                  width: '26px',
+                  height: '26px',
+                  borderRadius: '7px',
+                  objectFit: 'cover',
+                  flexShrink: 0,
+                  marginTop: '2px'
+                }}
+              />
 
-            {/* Daily Schedule Highlight Cards (Click to sync right-hand map & timeline) */}
-            {(itineraryData.dailySchedules || []).map((ds) => {
-              const isCurrentActive = Number(activeDay) === Number(ds.day);
-              return (
-                <div
-                  key={ds.day}
-                  onClick={() => onSelectDay && onSelectDay(ds.day)}
-                  style={{
-                    backgroundColor: isCurrentActive ? 'rgba(37, 99, 235, 0.04)' : 'var(--bg-primary)',
-                    border: isCurrentActive ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)',
-                    borderRadius: '16px',
-                    padding: '0.85rem 1rem',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.5rem',
-                    cursor: 'pointer',
-                    transition: 'all var(--transition-fast)',
-                    boxShadow: isCurrentActive ? '0 4px 12px rgba(37,99,235,0.1)' : 'none'
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span style={{
-                      fontSize: '0.74rem',
-                      fontWeight: 900,
-                      backgroundColor: isCurrentActive ? 'var(--accent-primary)' : 'var(--text-muted)',
-                      color: '#ffffff',
-                      padding: '0.2rem 0.55rem',
-                      borderRadius: 'var(--radius-full)'
-                    }}>
-                      {t.dayBadge ? t.dayBadge(ds.day) : `${ds.day}일차`}
-                    </span>
-                    <span style={{ fontSize: '0.84rem', fontWeight: 800, color: 'var(--text-main)' }}>
-                      {ds.theme}
-                    </span>
-                  </div>
+              <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {/* Assistant Text Bubble */}
+                <div style={{
+                  backgroundColor: 'var(--bg-primary)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '4px 16px 16px 16px',
+                  padding: '0.75rem 0.95rem',
+                  fontSize: '0.83rem',
+                  lineHeight: 1.55,
+                  color: 'var(--text-main)',
+                  boxShadow: 'var(--shadow-sm)'
+                }}>
+                  {msg.text}
 
-                  {/* Spot Flow Badges */}
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    flexWrap: 'wrap',
-                    gap: '0.35rem',
-                    fontSize: '0.78rem',
-                    fontWeight: 700,
-                    color: 'var(--text-main)'
-                  }}>
-                    {(ds.spots || []).map((s, idx) => (
-                      <React.Fragment key={s.id || idx}>
-                        <span style={{
+                  {/* Copy Button if message has itinerary data */}
+                  {msg.itinerary && (
+                    <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'flex-end' }}>
+                      <button
+                        onClick={() => handleCopyItinerary(msg.itinerary, msg.id)}
+                        style={{
                           backgroundColor: 'var(--bg-card)',
                           border: '1px solid var(--border-color)',
-                          padding: '0.2rem 0.5rem',
-                          borderRadius: '6px'
-                        }}>
-                          {idx + 1}. {s.title}
-                        </span>
-                        {idx < (ds.spots || []).length - 1 && (
-                          <span style={{ color: 'var(--text-dim)', fontSize: '0.7rem' }}>➔</span>
-                        )}
-                      </React.Fragment>
-                    ))}
-                  </div>
-
-                  {/* Daily Food Recommendation Badge */}
-                  {ds.foodRecommendation && (
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.4rem',
-                      backgroundColor: 'rgba(245, 158, 11, 0.08)',
-                      border: '1px solid rgba(245, 158, 11, 0.2)',
-                      padding: '0.35rem 0.65rem',
-                      borderRadius: '8px',
-                      fontSize: '0.76rem',
-                      color: '#b45309',
-                      fontWeight: 700
-                    }}>
-                      <Utensils size={13} style={{ color: '#d97706', flexShrink: 0 }} />
-                      <span><strong>{ds.foodRecommendation.dishName}</strong>: {ds.foodRecommendation.description}</span>
-                    </div>
-                  )}
-
-                  {/* Transit Tip */}
-                  {ds.transitTip && (
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.4rem',
-                      fontSize: '0.74rem',
-                      color: 'var(--text-muted)',
-                      fontWeight: 600
-                    }}>
-                      <Navigation size={12} style={{ color: 'var(--accent-primary)', flexShrink: 0 }} />
-                      <span>{ds.transitTip}</span>
+                          color: 'var(--text-main)',
+                          padding: '0.2rem 0.55rem',
+                          borderRadius: 'var(--radius-full)',
+                          fontSize: '0.7rem',
+                          fontWeight: 700,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.25rem',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        {copiedId === msg.id ? <Check size={11} style={{ color: '#10b981' }} /> : <Copy size={11} />}
+                        <span>{copiedId === msg.id ? '복사됨' : '일정 복사'}</span>
+                      </button>
                     </div>
                   )}
                 </div>
-              );
-            })}
+
+                {/* Daily Schedule Interactive Cards inside Chat */}
+                {msg.itinerary && msg.itinerary.dailySchedules && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+                    {msg.itinerary.dailySchedules.map((ds) => {
+                      const isCurrentActive = Number(activeDay) === Number(ds.day);
+                      return (
+                        <div
+                          key={ds.day}
+                          onClick={() => onSelectDay && onSelectDay(ds.day)}
+                          style={{
+                            backgroundColor: isCurrentActive ? 'rgba(37, 99, 235, 0.06)' : 'var(--bg-card)',
+                            border: isCurrentActive ? '1.5px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                            borderRadius: '12px',
+                            padding: '0.65rem 0.85rem',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '0.35rem',
+                            cursor: 'pointer',
+                            transition: 'all var(--transition-fast)'
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <span style={{
+                              fontSize: '0.7rem',
+                              fontWeight: 900,
+                              backgroundColor: isCurrentActive ? 'var(--accent-primary)' : 'var(--text-muted)',
+                              color: '#ffffff',
+                              padding: '0.15rem 0.45rem',
+                              borderRadius: 'var(--radius-full)'
+                            }}>
+                              {t.dayBadge ? t.dayBadge(ds.day) : `${ds.day}일차`}
+                            </span>
+                            <span style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                              {ds.theme}
+                            </span>
+                          </div>
+
+                          {/* Spot Flow Badges */}
+                          <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            flexWrap: 'wrap',
+                            gap: '0.25rem',
+                            fontSize: '0.72rem',
+                            fontWeight: 700,
+                            color: 'var(--text-main)'
+                          }}>
+                            {(ds.spots || []).map((s, idx) => (
+                              <React.Fragment key={s.id || idx}>
+                                <span style={{
+                                  backgroundColor: 'var(--bg-primary)',
+                                  border: '1px solid var(--border-color)',
+                                  padding: '0.15rem 0.4rem',
+                                  borderRadius: '5px'
+                                }}>
+                                  {idx + 1}. {s.title}
+                                </span>
+                                {idx < (ds.spots || []).length - 1 && (
+                                  <span style={{ color: 'var(--text-dim)', fontSize: '0.65rem' }}>➔</span>
+                                )}
+                              </React.Fragment>
+                            ))}
+                          </div>
+
+                          {/* Daily Food Recommendation Badge */}
+                          {ds.foodRecommendation && (
+                            <div style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.35rem',
+                              backgroundColor: 'rgba(245, 158, 11, 0.07)',
+                              border: '1px solid rgba(245, 158, 11, 0.15)',
+                              padding: '0.25rem 0.5rem',
+                              borderRadius: '6px',
+                              fontSize: '0.72rem',
+                              color: '#b45309',
+                              fontWeight: 700
+                            }}>
+                              <Utensils size={11} style={{ color: '#d97706', flexShrink: 0 }} />
+                              <span><strong>{ds.foodRecommendation.dishName}</strong>: {ds.foodRecommendation.description}</span>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+
+        {/* Live Typing / Thinking Indicator */}
+        {isLoading && (
+          <div style={{
+            display: 'flex',
+            gap: '0.5rem',
+            alignItems: 'center',
+            backgroundColor: 'var(--bg-primary)',
+            border: '1px solid var(--border-highlight)',
+            borderRadius: '4px 16px 16px 16px',
+            padding: '0.65rem 0.95rem',
+            width: 'fit-content'
+          }}>
+            <div className="spin-animation" style={{
+              width: '16px',
+              height: '16px',
+              borderRadius: '50%',
+              border: '2px solid var(--accent-primary)',
+              borderTopColor: 'transparent'
+            }} />
+            <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--accent-primary)' }}>
+              VORA AI가 맞춤 동선을 설계하고 있습니다...
+            </span>
           </div>
         )}
 
@@ -311,13 +339,13 @@ export default function VoraAIChat({
       </div>
 
       {/* Follow-up Quick Modification Chips */}
-      {itineraryData && !isLoading && (
+      {!isLoading && (
         <div style={{
-          padding: '0.45rem 0.9rem',
+          padding: '0.35rem 0.75rem',
           backgroundColor: 'var(--bg-primary)',
           borderTop: '1px solid var(--border-color)',
           display: 'flex',
-          gap: '0.35rem',
+          gap: '0.3rem',
           overflowX: 'auto',
           whiteSpace: 'nowrap'
         }}>
@@ -329,8 +357,8 @@ export default function VoraAIChat({
                 backgroundColor: 'var(--bg-card)',
                 border: '1px solid var(--border-color)',
                 borderRadius: 'var(--radius-full)',
-                padding: '0.25rem 0.6rem',
-                fontSize: '0.72rem',
+                padding: '0.2rem 0.55rem',
+                fontSize: '0.7rem',
                 fontWeight: 600,
                 color: 'var(--text-main)',
                 cursor: 'pointer',
@@ -348,11 +376,11 @@ export default function VoraAIChat({
       <form
         onSubmit={handleSend}
         style={{
-          padding: '0.75rem 0.9rem',
+          padding: '0.55rem 0.75rem',
           borderTop: '1px solid var(--border-color)',
           display: 'flex',
           alignItems: 'center',
-          gap: '0.5rem',
+          gap: '0.4rem',
           backgroundColor: 'var(--bg-glass)'
         }}
       >
@@ -360,15 +388,15 @@ export default function VoraAIChat({
           type="text"
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
-          placeholder={lang === 'ko' ? "추가 질문이나 일정 수정 요청을 적어주세요..." : "Type adjustments or follow-up questions..."}
+          placeholder={lang === 'ko' ? "추가 질문이나 일정 수정을 적어주세요 (예: 2일차 카페 변경)..." : "Ask adjustments or questions..."}
           disabled={isLoading}
           style={{
             flex: 1,
             backgroundColor: 'var(--bg-primary)',
             border: '1px solid var(--border-color)',
             borderRadius: 'var(--radius-full)',
-            padding: '0.55rem 1rem',
-            fontSize: '0.84rem',
+            padding: '0.45rem 0.85rem',
+            fontSize: '0.82rem',
             color: 'var(--text-main)',
             outline: 'none',
             transition: 'border-color var(--transition-fast)'
@@ -381,8 +409,8 @@ export default function VoraAIChat({
             backgroundColor: inputText.trim() && !isLoading ? 'var(--accent-primary)' : 'var(--border-color)',
             color: '#ffffff',
             border: 'none',
-            width: '36px',
-            height: '36px',
+            width: '32px',
+            height: '32px',
             borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
@@ -393,7 +421,7 @@ export default function VoraAIChat({
             transition: 'all var(--transition-fast)'
           }}
         >
-          <Send size={15} />
+          <Send size={14} />
         </button>
       </form>
     </div>

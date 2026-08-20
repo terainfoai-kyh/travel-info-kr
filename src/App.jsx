@@ -63,13 +63,28 @@ export default function App() {
   }, [lang]);
 
   // Itinerary & Chat State - Pre-populated with rich 3-day Seoul tour on initial load
-  const [itineraryData, setItineraryData] = useState(() => {
+  const initialItinerary = React.useMemo(() => {
     try {
       return generateLocalFallbackItinerary('서울 3일 핫플 감성 투어', '서울', 3, lang);
     } catch (e) {
       return null;
     }
-  });
+  }, [lang]);
+
+  const [itineraryData, setItineraryData] = useState(initialItinerary);
+  const [chatMessages, setChatMessages] = useState(() => [
+    {
+      id: 'welcome-1',
+      role: 'assistant',
+      text: '안녕하세요! 당신의 전담 한국 여행 AI 컨시어지 VORA(보라)입니다. 😊\n어떤 여행을 꿈꾸시나요? 가고 싶은 도시나 스타일을 편하게 말씀해 주세요!'
+    },
+    {
+      id: 'featured-1',
+      role: 'assistant',
+      text: '✨ [서울 3일 핫플 감성 투어]를 추천 코스로 준비해 두었습니다.\n수정을 원하시거나 새로운 지역을 가고 싶으시면 언제든 질문해 주세요!',
+      itinerary: initialItinerary
+    }
+  ]);
   const [activeDay, setActiveDay] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedSpot, setSelectedSpot] = useState(null);
@@ -131,28 +146,42 @@ export default function App() {
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [isContactOpen, setIsContactOpen] = useState(false);
 
-  // Trigger Master Itinerary Planning
+  // Trigger Master Itinerary Planning with Conversational Memory
   const handleGenerateItinerary = async (promptQuery) => {
     if (!promptQuery || isLoading) return;
+
+    const userMsg = {
+      id: `user-${Date.now()}`,
+      role: 'user',
+      text: promptQuery
+    };
+    setChatMessages(prev => [...prev, userMsg]);
     setIsLoading(true);
     setActiveDay(1);
 
-    // Smooth scroll to itinerary hub
-    const hubElement = document.getElementById('itinerary-hub');
-    if (hubElement) {
-      hubElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-
     try {
       const result = await geminiGenerateFullItinerary(promptQuery, lang);
-      if (result) {
-        setItineraryData(result);
-      }
+      const finalResult = result || generateLocalFallbackItinerary(promptQuery, '서울', 3, lang);
+      
+      setItineraryData(finalResult);
+      const botMsg = {
+        id: `bot-${Date.now()}`,
+        role: 'assistant',
+        text: `✨ **${finalResult.tripTitle}**\n${finalResult.summary}`,
+        itinerary: finalResult
+      };
+      setChatMessages(prev => [...prev, botMsg]);
     } catch (err) {
       console.warn('[VORA AI Error]', err);
-      // Fallback
       const fallback = generateLocalFallbackItinerary(promptQuery, '서울', 3, lang);
       setItineraryData(fallback);
+      const botMsg = {
+        id: `bot-${Date.now()}`,
+        role: 'assistant',
+        text: `✨ **${fallback.tripTitle}**\n${fallback.summary}`,
+        itinerary: fallback
+      };
+      setChatMessages(prev => [...prev, botMsg]);
     } finally {
       setIsLoading(false);
     }
@@ -184,36 +213,33 @@ export default function App() {
 
       {/* Main Container */}
       <main style={{
-        maxWidth: '1280px',
+        maxWidth: '1320px',
         width: '100%',
         margin: '0 auto',
-        padding: '0 1rem 2rem 1rem',
+        padding: '0 0.85rem 1.5rem 0.85rem',
         boxSizing: 'border-box',
         flex: 1
       }}>
-        {/* 1. Hero Section with Smart Prompt Input */}
+        {/* 1. Ultra-Compact Modern Hero Section with Smart Prompt Bar */}
         <HeroSection
           lang={lang}
           onSearch={handleGenerateItinerary}
           isLoading={isLoading}
         />
 
-        {/* 2. Top Google AdSense Unit */}
-        <AdSenseBanner slot="7890123456" />
-
-        {/* 3. PC 2-Column Split Hub (Left: AI Chat / Right: Course Timeline & Map) */}
+        {/* 2. PC 2-Column Split Hub (Dashboard view: Chat on Left / Timeline & Map on Right) */}
         <section id="itinerary-hub" style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
-          gap: '1.5rem',
-          margin: '1rem 0 2.5rem 0',
+          gap: '1rem',
+          margin: '0.5rem 0 1.5rem 0',
           alignItems: 'stretch'
         }}>
           {/* Left Column: Vora AI Conversational Chat Stream */}
-          <div style={{ height: '680px' }}>
+          <div style={{ height: '620px' }}>
             <VoraAIChat
               lang={lang}
-              itineraryData={itineraryData}
+              chatMessages={chatMessages}
               isLoading={isLoading}
               onSendMessage={handleGenerateItinerary}
               activeDay={activeDay}
@@ -222,7 +248,7 @@ export default function App() {
           </div>
 
           {/* Right Column: Course Magazine View & Google Map */}
-          <div style={{ height: '680px' }}>
+          <div style={{ height: '620px' }}>
             <CourseMagazineView
               lang={lang}
               itineraryData={itineraryData}
@@ -234,6 +260,9 @@ export default function App() {
             />
           </div>
         </section>
+
+        {/* 3. Mid-page Google AdSense Unit */}
+        <AdSenseBanner slot="7890123456" />
 
         {/* 4. Travel Essentials Section (Subway, Climate card, eSIM, 1330) */}
         <TravelEssentialsSection lang={lang} />

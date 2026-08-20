@@ -14,58 +14,39 @@ export default function HeroSection({
     e.preventDefault();
     if (!query.trim() || isLoading) return;
     onSearch(query.trim());
+    setQuery('');
   };
 
   const handleChipClick = (promptText) => {
-    setQuery(promptText);
     onSearch(promptText);
   };
 
   return (
     <section style={{
-      padding: '1.5rem 1rem 1.1rem 1rem',
+      padding: '1rem 0.5rem 0.6rem 0.5rem',
       textAlign: 'center',
       position: 'relative',
-      maxWidth: '920px',
+      maxWidth: '880px',
       margin: '0 auto'
     }}>
-      {/* Top Value Badge */}
-      <div style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '0.4rem',
-        padding: '0.3rem 0.85rem',
-        borderRadius: 'var(--radius-full)',
-        backgroundColor: 'rgba(37, 99, 235, 0.08)',
-        border: '1px solid var(--border-highlight)',
-        color: 'var(--accent-primary)',
-        fontSize: '0.8rem',
-        fontWeight: 800,
-        marginBottom: '0.85rem'
-      }}>
-        <Sparkles size={15} />
-        <span>{t.heroBadge || '✨ 2026 AI-Powered Korea Travel Concierge'}</span>
+      {/* Sleek Compact Heading */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
+        <Sparkles size={18} style={{ color: 'var(--accent-primary)' }} />
+        <h1 style={{
+          fontSize: 'clamp(1.25rem, 2.8vw, 1.75rem)',
+          fontWeight: 900,
+          margin: 0,
+          color: 'var(--text-main)',
+          letterSpacing: '-0.02em'
+        }}>
+          {t.heroTitle || '질문 하나로 완성되는 나만의 한국 여행'}
+        </h1>
       </div>
 
-      {/* Main Hero Heading */}
-      <h1 style={{
-        fontSize: 'clamp(1.75rem, 3.5vw, 2.4rem)',
-        fontWeight: 900,
-        lineHeight: 1.25,
-        letterSpacing: '-0.03em',
-        margin: '0 0 0.6rem 0',
-        color: 'var(--text-main)'
-      }}>
-        {t.heroTitle || '질문 하나로 완성되는 나만의 한국 여행'}
-      </h1>
-
-      {/* Subtitle */}
       <p style={{
-        fontSize: 'clamp(0.88rem, 1.8vw, 1rem)',
+        fontSize: '0.82rem',
         color: 'var(--text-muted)',
-        lineHeight: 1.5,
-        margin: '0 auto 1.25rem auto',
-        maxWidth: '680px',
+        margin: '0 0 0.75rem 0',
         fontWeight: 500
       }}>
         {t.heroSubtitle || '한국관광공사 Official DB와 Gemini AI가 설계하는 초개인화 맞춤 코스 & 실시간 구글맵 연동'}
@@ -74,8 +55,8 @@ export default function HeroSection({
       {/* Smart Prompt Input Box */}
       <form onSubmit={handleSubmit} style={{
         position: 'relative',
-        maxWidth: '740px',
-        margin: '0 auto 1.5rem auto'
+        maxWidth: '720px',
+        margin: '0 auto 0.6rem auto'
       }}>
         <div style={{
           display: 'flex',
@@ -83,11 +64,11 @@ export default function HeroSection({
           backgroundColor: 'var(--bg-card)',
           border: '1.5px solid var(--border-highlight)',
           borderRadius: 'var(--radius-full)',
-          padding: '0.45rem 0.6rem 0.45rem 1.4rem',
-          boxShadow: 'var(--shadow-md)',
+          padding: '0.35rem 0.5rem 0.35rem 1.1rem',
+          boxShadow: 'var(--shadow-sm)',
           transition: 'border-color var(--transition-fast)'
         }}>
-          <Compass size={22} style={{ color: 'var(--accent-primary)', marginRight: '0.75rem', flexShrink: 0 }} />
+          <Compass size={18} style={{ color: 'var(--accent-primary)', marginRight: '0.5rem', flexShrink: 0 }} />
           <input
             type="text"
             value={query}
@@ -99,7 +80,7 @@ export default function HeroSection({
               border: 'none',
               outline: 'none',
               backgroundColor: 'transparent',
-              fontSize: '0.98rem',
+              fontSize: '0.88rem',
               fontWeight: 600,
               color: 'var(--text-main)'
             }}
@@ -112,79 +93,56 @@ export default function HeroSection({
               color: '#ffffff',
               border: 'none',
               borderRadius: 'var(--radius-full)',
-              padding: '0.7rem 1.4rem',
-              fontSize: '0.9rem',
+              padding: '0.5rem 1.1rem',
+              fontSize: '0.82rem',
               fontWeight: 800,
               display: 'flex',
               alignItems: 'center',
-              gap: '0.4rem',
-              cursor: isLoading || !query.trim() ? 'not-allowed' : 'pointer',
-              opacity: isLoading || !query.trim() ? 0.6 : 1,
+              gap: '0.35rem',
+              cursor: isLoading || !query.trim() ? 'default' : 'pointer',
+              opacity: isLoading || !query.trim() ? 0.65 : 1,
+              boxShadow: 'var(--shadow-glow)',
               transition: 'all var(--transition-fast)',
               flexShrink: 0
             }}
           >
-            <span>{isLoading ? '...' : (t.searchBtn || 'AI 코스 생성')}</span>
-            <ArrowRight size={17} />
+            <span>{isLoading ? '설계중...' : (t.searchBtn || 'AI 코스 생성')}</span>
+            <ArrowRight size={14} />
           </button>
         </div>
       </form>
 
-      {/* Popular Quick Prompt Chips */}
-      <div style={{ maxWidth: '820px', margin: '0 auto' }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '0.4rem',
-          fontSize: '0.8rem',
-          fontWeight: 800,
-          color: 'var(--text-dim)',
-          marginBottom: '0.6rem'
-        }}>
-          <Flame size={15} style={{ color: '#f59e0b' }} />
-          <span>{t.promptChipsTitle || '🔥 인기 추천 프롬프트'}</span>
-        </div>
-
-        <div style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          justifyContent: 'center',
-          gap: '0.5rem'
-        }}>
-          {(t.promptChips || []).map((chip, idx) => (
-            <button
-              key={idx}
-              onClick={() => handleChipClick(chip.prompt)}
-              disabled={isLoading}
-              style={{
-                backgroundColor: 'var(--bg-card)',
-                border: '1px solid var(--border-color)',
-                borderRadius: 'var(--radius-full)',
-                padding: '0.45rem 0.95rem',
-                fontSize: '0.82rem',
-                fontWeight: 700,
-                color: 'var(--text-main)',
-                cursor: isLoading ? 'not-allowed' : 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.35rem',
-                boxShadow: 'var(--shadow-sm)',
-                transition: 'all var(--transition-fast)'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = 'var(--accent-primary)';
-                e.currentTarget.style.transform = 'translateY(-1px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'var(--border-color)';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
-            >
-              <span>{chip.label}</span>
-            </button>
-          ))}
-        </div>
+      {/* Quick Prompt Recommendation Chips */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexWrap: 'wrap',
+        gap: '0.35rem'
+      }}>
+        {(t.promptChips || []).map((chip, idx) => (
+          <button
+            key={idx}
+            onClick={() => handleChipClick(chip.prompt)}
+            disabled={isLoading}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              backgroundColor: 'var(--bg-card)',
+              border: '1px solid var(--border-color)',
+              color: 'var(--text-main)',
+              borderRadius: 'var(--radius-full)',
+              padding: '0.25rem 0.65rem',
+              fontSize: '0.74rem',
+              fontWeight: 600,
+              cursor: isLoading ? 'default' : 'pointer',
+              transition: 'all var(--transition-fast)',
+              userSelect: 'none'
+            }}
+          >
+            {chip.label}
+          </button>
+        ))}
       </div>
     </section>
   );
