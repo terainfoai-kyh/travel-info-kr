@@ -275,8 +275,10 @@ Return ONLY valid JSON matching this exact schema:
                   const latOffset = (spotIdx * 0.008) * (spotIdx % 2 === 0 ? 1 : -1);
                   const lngOffset = (spotIdx * 0.009) * (spotIdx % 2 === 0 ? -1 : 1);
 
-                  // 🎯 100% Real-Time TourAPI / Dynamic Image Lookup!
-                  const realPhoto = await resolveSpotPhotoDynamic(spotTitle, targetCity, spotCategory);
+                  // 🎯 100% Real-Time TourAPI / Dynamic Multi-Image Lookup!
+                  const photoData = await resolveSpotPhotoDynamic(spotTitle, targetCity, spotCategory);
+                  const realPhoto = photoData?.primaryImage || photoData;
+                  const realPhotos = photoData?.images || [realPhoto];
                   const affiliateDeal = getSpotAffiliateDeal(spotTitle, targetCity);
 
                   const defaultTransit = isJeju 
@@ -295,6 +297,7 @@ Return ONLY valid JSON matching this exact schema:
                     bestTime: s.bestTime || '오후 시간대 추천',
                     rating: 4.9,
                     image: realPhoto,
+                    images: realPhotos,
                     affiliateDeal,
                     location: s.address || `대한민국 ${targetCity}`,
                     lat: Number(s.lat) || (cityMeta.lat + latOffset),
@@ -422,7 +425,9 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
     const dayThemeMeta = themeList[d % themeList.length];
 
     spotsForDay.forEach((s, idx) => {
-      const spotPhoto = resolveSpotPhotoSync(s.name, city, s.cat);
+      const photoData = resolveSpotPhotoSync(s.name, city, s.cat);
+      const spotPhoto = photoData?.primaryImage || photoData;
+      const spotPhotos = photoData?.images || [spotPhoto];
       const affiliateDeal = getSpotAffiliateDeal(s.name, city);
 
       const defaultTransit = isJeju 
@@ -441,6 +446,7 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
         bestTime: s.time,
         rating: 4.9,
         image: spotPhoto,
+        images: spotPhotos,
         affiliateDeal,
         location: `대한민국 ${city} 일대`,
         lat: s.lat,
@@ -486,8 +492,10 @@ export async function enrichItineraryPhotosAsync(itinerary) {
   for (const ds of itinerary.dailySchedules) {
     const updatedDaySpots = [];
     for (const s of (ds.spots || [])) {
-      const realPhoto = await resolveSpotPhotoDynamic(s.title, s.region || itinerary.targetCity, s.category);
-      const updatedSpot = { ...s, image: realPhoto };
+      const photoData = await resolveSpotPhotoDynamic(s.title, s.region || itinerary.targetCity, s.category);
+      const realPhoto = photoData?.primaryImage || photoData;
+      const realPhotos = photoData?.images || [realPhoto];
+      const updatedSpot = { ...s, image: realPhoto, images: realPhotos };
       updatedDaySpots.push(updatedSpot);
       updatedSpots.push(updatedSpot);
     }
