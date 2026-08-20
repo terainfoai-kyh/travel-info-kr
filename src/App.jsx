@@ -70,6 +70,7 @@ export default function App() {
       return null;
     }
   });
+  const [activeDay, setActiveDay] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedSpot, setSelectedSpot] = useState(null);
 
@@ -134,6 +135,7 @@ export default function App() {
   const handleGenerateItinerary = async (promptQuery) => {
     if (!promptQuery || isLoading) return;
     setIsLoading(true);
+    setActiveDay(1);
 
     // Smooth scroll to itinerary hub
     const hubElement = document.getElementById('itinerary-hub');
@@ -214,6 +216,8 @@ export default function App() {
               itineraryData={itineraryData}
               isLoading={isLoading}
               onSendMessage={handleGenerateItinerary}
+              activeDay={activeDay}
+              onSelectDay={(day) => setActiveDay(day)}
             />
           </div>
 
@@ -222,6 +226,8 @@ export default function App() {
             <CourseMagazineView
               lang={lang}
               itineraryData={itineraryData}
+              activeDay={activeDay}
+              onSelectDay={(day) => setActiveDay(day)}
               onOpenDetail={(spot) => setSelectedSpot(spot)}
               bookmarks={bookmarks}
               onToggleBookmark={handleToggleBookmark}

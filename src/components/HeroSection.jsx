@@ -23,7 +23,7 @@ export default function HeroSection({
 
   return (
     <section style={{
-      padding: '2.5rem 1rem 2rem 1rem',
+      padding: '1.5rem 1rem 1.1rem 1rem',
       textAlign: 'center',
       position: 'relative',
       maxWidth: '920px',
@@ -34,26 +34,26 @@ export default function HeroSection({
         display: 'inline-flex',
         alignItems: 'center',
         gap: '0.4rem',
-        padding: '0.35rem 0.9rem',
+        padding: '0.3rem 0.85rem',
         borderRadius: 'var(--radius-full)',
         backgroundColor: 'rgba(37, 99, 235, 0.08)',
         border: '1px solid var(--border-highlight)',
         color: 'var(--accent-primary)',
-        fontSize: '0.82rem',
+        fontSize: '0.8rem',
         fontWeight: 800,
-        marginBottom: '1.25rem'
+        marginBottom: '0.85rem'
       }}>
-        <Sparkles size={16} />
+        <Sparkles size={15} />
         <span>{t.heroBadge || '✨ 2026 AI-Powered Korea Travel Concierge'}</span>
       </div>
 
       {/* Main Hero Heading */}
       <h1 style={{
-        fontSize: 'clamp(1.9rem, 4vw, 2.75rem)',
+        fontSize: 'clamp(1.75rem, 3.5vw, 2.4rem)',
         fontWeight: 900,
         lineHeight: 1.25,
         letterSpacing: '-0.03em',
-        margin: '0 0 0.85rem 0',
+        margin: '0 0 0.6rem 0',
         color: 'var(--text-main)'
       }}>
         {t.heroTitle || '질문 하나로 완성되는 나만의 한국 여행'}
@@ -61,11 +61,11 @@ export default function HeroSection({
 
       {/* Subtitle */}
       <p style={{
-        fontSize: 'clamp(0.95rem, 2vw, 1.1rem)',
+        fontSize: 'clamp(0.88rem, 1.8vw, 1rem)',
         color: 'var(--text-muted)',
-        lineHeight: 1.6,
-        margin: '0 auto 2rem auto',
-        maxWidth: '700px',
+        lineHeight: 1.5,
+        margin: '0 auto 1.25rem auto',
+        maxWidth: '680px',
         fontWeight: 500
       }}>
         {t.heroSubtitle || '한국관광공사 Official DB와 Gemini AI가 설계하는 초개인화 맞춤 코스 & 실시간 구글맵 연동'}

@@ -1,14 +1,16 @@
 import React from 'react';
 import { MapPin, Navigation, ExternalLink } from 'lucide-react';
 import { generateGoogleMapsRouteUrl, getGooglePlaceSearchUrl } from '../services/geminiNlpService';
+import { TRANSLATIONS } from '../i18n/translations';
 
 export default function GoogleMapView({
   spots = [],
   activeDay = 1,
-  targetCity = '서울'
+  targetCity = '서울',
+  lang = 'ko'
 }) {
-  const daySpots = (spots || []).filter(s => Number(s.assignedDay) === Number(activeDay));
-  const spotsToDisplay = daySpots.length > 0 ? daySpots : (spots || []);
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
+  const spotsToDisplay = Array.isArray(spots) ? spots : [];
 
   const fullRouteUrl = generateGoogleMapsRouteUrl(spotsToDisplay);
 
@@ -17,7 +19,7 @@ export default function GoogleMapView({
   const centerLat = Number(firstSpot?.lat) || 37.5665;
   const centerLng = Number(firstSpot?.lng) || 126.9780;
 
-  // Google Maps Embed Static or Interactive Search URL
+  // Google Maps Embed URL
   const embedMapUrl = spotsToDisplay.length > 0 
     ? `https://maps.google.com/maps?q=${centerLat},${centerLng}&z=14&output=embed`
     : `https://maps.google.com/maps?q=${encodeURIComponent(targetCity + ' South Korea')}&z=12&output=embed`;
@@ -29,12 +31,14 @@ export default function GoogleMapView({
       border: '1px solid var(--border-color)',
       backgroundColor: 'var(--bg-primary)',
       boxShadow: 'var(--shadow-sm)',
-      position: 'relative'
+      position: 'relative',
+      marginBottom: '0.75rem'
     }}>
       {/* Top Map Action Banner */}
       <div style={{
-        padding: '0.75rem 1rem',
-        backgroundColor: 'var(--bg-card)',
+        padding: '0.65rem 0.9rem',
+        backgroundColor: 'var(--bg-glass)',
+        backdropFilter: 'blur(8px)',
         borderBottom: '1px solid var(--border-color)',
         display: 'flex',
         alignItems: 'center',
@@ -44,18 +48,18 @@ export default function GoogleMapView({
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
           <MapPin size={16} style={{ color: 'var(--accent-primary)' }} />
-          <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)' }}>
-            {activeDay}일차 Google 지도 코스
+          <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-main)' }}>
+            {activeDay}일차 실시간 Google 동선
           </span>
           <span style={{
             fontSize: '0.7rem',
             fontWeight: 700,
             backgroundColor: 'rgba(37, 99, 235, 0.1)',
             color: 'var(--accent-primary)',
-            padding: '0.15rem 0.45rem',
+            padding: '0.1rem 0.45rem',
             borderRadius: '6px'
           }}>
-            {spotsToDisplay.length}개 스팟 연동
+            {spotsToDisplay.length}개 스팟
           </span>
         </div>
 
@@ -68,24 +72,24 @@ export default function GoogleMapView({
             backgroundColor: 'var(--accent-primary)',
             color: '#ffffff',
             textDecoration: 'none',
-            padding: '0.4rem 0.85rem',
+            padding: '0.35rem 0.75rem',
             borderRadius: 'var(--radius-full)',
-            fontSize: '0.78rem',
+            fontSize: '0.74rem',
             fontWeight: 800,
-            display: 'flex',
+            display: 'inline-flex',
             alignItems: 'center',
-            gap: '0.35rem',
+            gap: '0.3rem',
             boxShadow: 'var(--shadow-glow)',
             transition: 'all var(--transition-fast)'
           }}
         >
-          <span>구글맵 전체 길찾기 열기</span>
-          <ExternalLink size={13} />
+          <span>구글맵 전체 길찾기 ↗</span>
+          <ExternalLink size={12} />
         </a>
       </div>
 
-      {/* Embedded Map Frame (Smooth and stable pan/zoom) */}
-      <div style={{ position: 'relative', width: '100%', height: '220px' }}>
+      {/* Embedded Map Frame */}
+      <div style={{ position: 'relative', width: '100%', height: '170px' }}>
         <iframe
           title="Google Map Route View"
           width="100%"
@@ -96,61 +100,66 @@ export default function GoogleMapView({
           referrerPolicy="no-referrer-when-downgrade"
           src={embedMapUrl}
         />
+      </div>
 
-        {/* Floating Numbered Waypoint Badges Overlay */}
+      {/* Bottom Sequential Route Chips */}
+      {spotsToDisplay.length > 0 && (
         <div style={{
-          position: 'absolute',
-          bottom: '10px',
-          left: '10px',
-          right: '10px',
+          padding: '0.45rem 0.75rem',
+          backgroundColor: 'var(--bg-card)',
+          borderTop: '1px solid var(--border-color)',
           display: 'flex',
+          alignItems: 'center',
           gap: '0.4rem',
           overflowX: 'auto',
-          padding: '0.35rem',
-          borderRadius: '12px',
-          backgroundColor: 'rgba(15, 23, 42, 0.75)',
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
-          zIndex: 10
+          whiteSpace: 'nowrap'
         }}>
-          {spotsToDisplay.map((s, idx) => (
-            <a
-              key={s.id || idx}
-              href={getGooglePlaceSearchUrl(s.title, s.region || targetCity)}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                textDecoration: 'none',
-                color: '#ffffff',
-                backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                borderRadius: '8px',
-                padding: '0.25rem 0.55rem',
-                fontSize: '0.72rem',
-                fontWeight: 700,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.3rem',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              <span style={{
-                width: '16px',
-                height: '16px',
-                borderRadius: '50%',
-                backgroundColor: 'var(--accent-primary)',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '0.65rem',
-                fontWeight: 900
-              }}>
-                {idx + 1}
-              </span>
-              <span>{s.title}</span>
-            </a>
+          {spotsToDisplay.map((spot, idx) => (
+            <React.Fragment key={spot.id || idx}>
+              <a
+                href={getGooglePlaceSearchUrl(spot.title, spot.region || targetCity)}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.3rem',
+                  fontSize: '0.72rem',
+                  fontWeight: 700,
+                  color: 'var(--text-main)',
+                  textDecoration: 'none',
+                  backgroundColor: 'var(--bg-primary)',
+                  border: '1px solid var(--border-color)',
+                  padding: '0.2rem 0.55rem',
+                  borderRadius: 'var(--radius-full)',
+                  flexShrink: 0
+                }}
+              >
+                <span style={{
+                  width: '15px',
+                  height: '15px',
+                  borderRadius: '50%',
+                  backgroundColor: 'var(--accent-primary)',
+                  color: '#ffffff',
+                  fontSize: '0.62rem',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 800
+                }}>
+                  {idx + 1}
+                </span>
+                <span style={{ maxWidth: '110px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {spot.title}
+                </span>
+              </a>
+              {idx < spotsToDisplay.length - 1 && (
+                <span style={{ color: 'var(--accent-primary)', fontSize: '0.75rem', fontWeight: 800 }}>➔</span>
+              )}
+            </React.Fragment>
           ))}
         </div>
-      </div>
+      )}
     </div>
   );
 }
