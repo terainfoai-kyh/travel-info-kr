@@ -266,7 +266,7 @@ Return ONLY this JSON schema:
       try {
         const endpointUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3500);
+        const timeoutId = setTimeout(() => controller.abort(), 9500);
 
         const res = await fetch(endpointUrl, {
           method: 'POST',
@@ -276,7 +276,11 @@ Return ONLY this JSON schema:
           },
           signal: controller.signal,
           body: JSON.stringify({
-            contents: [{ parts: [{ text: `${systemInstruction}\n\n${promptText}` }] }]
+            contents: [{ parts: [{ text: `${systemInstruction}\n\n${promptText}` }] }],
+            generationConfig: {
+              maxOutputTokens: 2500,
+              temperature: 0.6
+            }
           })
         });
         clearTimeout(timeoutId);
@@ -510,6 +514,25 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
       // Day 2
       { name: '감천문화마을', theme: '한국의 산토리니, 알록달록 계단식 마을', desc: '산자락을 따라 계단식으로 늘어선 파스텔톤 집들과 아기자기한 골목 벽화, 조형물이 동화 같은 풍경을 만듭니다.', cat: '핫플레이스', photo: '📸 어린왕자와 사막여우 포토존 난간 샷', sig: '☕ 전망대 루프탑 카페 커피 & 씨앗호떡', time: '오전 11:00', lat: 35.0975, lng: 129.0106 },
       { name: '자갈치시장 & 남포동 비프광장', theme: '살아 숨 쉬는 부산의 바다와 길거리 미식', desc: '팔딱거리는 신선한 해산물이 가득한 한국 최대 수산시장과 영화와 길거리 음식이 어우러진 비프광장입니다.', cat: '로컬미식', photo: '📸 활기찬 자갈치 항구 바다 전경', sig: '🐟 생선구이 백반 & 씨앗호떡', time: '오후 2:00', lat: 35.0968, lng: 129.0306 }
+    ],
+    '장수': [
+      // Day 1
+      { name: '방화동자연휴양림 & 계곡', theme: '청정 숲속에서 즐기는 피톤치드 힐링 숲캉스', desc: '전국 최초의 가족휴양촌으로 울창한 원시림과 맑은 계곡물이 어우러져 사계절 내내 온전한 쉼을 선사합니다.', cat: '자연명소', photo: '📸 방화동 계곡 데크로드 산책 샷', sig: '🌲 솔바람 피톤치드 삼림욕 & 캠핑', time: '오전 11:00', lat: 35.6183, lng: 127.5312 },
+      { name: '논개사당 & 의암공원', theme: '의로운 역사와 푸른 호수가 어우러진 산책길', desc: '주논개의 충절을 기리는 고즈넉한 사당과 의암호 수변을 따라 걷는 평화로운 힐링 명소입니다.', cat: '역사문화', photo: '📸 의암루에서 내려다보는 의암호 호수 뷰', sig: '🍎 장수 특산 사과 디저트 & 찻집', time: '오후 3:00', lat: 35.6475, lng: 127.5218 },
+      // Day 2
+      { name: '장수 누리파크 & 사과 테마파크', theme: '감성 가득한 잔디광장과 사과 힐링 파크', desc: '장수 사과를 테마로 조성된 대규모 힐링 테마파크로 이국적인 조형물과 넓은 산책로가 매력적입니다.', cat: '핫플레이스', photo: '📸 대형 사과 조형물 & 잔디광장 피크닉 샷', sig: '🍏 장수 사과 생착즙 주스 & 사과파이', time: '오전 10:30', lat: 35.6542, lng: 127.5140 },
+      { name: '와룡자연휴양림', theme: '오감만족 숲속 힐링과 맑은 오연폭포', desc: '금강 발원지의 맑은 물과 울창한 천연림, 시원한 폭포수가 장관을 이루는 웰니스 힐링의 성지입니다.', cat: '자연명소', photo: '📸 오연폭포 청량한 물줄기 배경 샷', sig: '🥩 장수 명품 한우 구이 & 버섯전골', time: '오후 2:30', lat: 35.6791, lng: 127.5684 },
+      // Day 3
+      { name: '장수 승마체험장 & 승마레저파크', theme: '푸른 초원을 달리는 이색 힐링 액티비티', desc: '탁 트인 자연 속에서 안전하게 승마를 체험하고 동물들과 교감하는 특별한 레저 공간입니다.', cat: '액티비티', photo: '📸 말과 함께하는 초원 감성 스냅샷', sig: '🐎 초원 승마 트레킹 체험', time: '오전 11:00', lat: 35.6310, lng: 127.5020 },
+      { name: '장수 봉화산 & 철쭉 군락지', theme: '파노라마 산마루와 계절 꽃이 빚어내는 절경', desc: '백두대간의 웅장한 능선과 시원한 바람을 맞으며 힐링할 수 있는 장수의 대표 조망 명소입니다.', cat: '자연명소', photo: '📸 산 정상 능선 파노라마 샷', sig: '☕ 장수 로컬 로스터리 카페 힐링', time: '오후 4:00 (선셋)', lat: 35.5890, lng: 127.5920 }
+    ],
+    '경주': [
+      { name: '황리단길 & 대릉원', theme: '천년고도의 고즈넉한 고분과 트렌디 핫플', desc: '웅장한 신라 고분을 배경으로 한옥 감성 카페와 맛집들이 줄지어 선 경주의 대표 힙플레이스입니다.', cat: '핫플레이스', photo: '📸 대릉원 목련 포토존 & 황리단길 한옥 골목', sig: '☕ 십원빵 & 황남옥수수', time: '오후 2:00', lat: 35.8385, lng: 129.2130 },
+      { name: '동궁과 월지 & 첨성대', theme: '황홀한 달빛 아래 펼쳐지는 신라의 야경', desc: '어둠이 내리면 연못에 비치는 전각의 은은한 조명과 첨성대의 신비로운 야경이 감동을 선사합니다.', cat: '야경명소', photo: '📸 동궁과 월지 호수 반영 야경 샷', sig: '🍲 경주 떡갈비 & 쌈밥 정식', time: '오후 7:30', lat: 35.8341, lng: 129.2266 }
+    ],
+    '강릉': [
+      { name: '안목해변 커피거리', theme: '푸른 동해를 바라보며 즐기는 향긋한 커피', desc: '바다를 마주보고 개성 넘치는 오션뷰 카페들이 늘어선 대한민국 최고의 커피 명소입니다.', cat: '감성카페', photo: '📸 통유리 너머 푸른 바다와 커피 샷', sig: '☕ 강릉 초당옥수수 라떼 & 순두부 젤라또', time: '오후 1:00', lat: 37.7718, lng: 128.9486 },
+      { name: '경포호 & 경포대', theme: '솔향 가득한 호수 자전거 라이딩과 오션 선셋', desc: '잔잔한 호숫가를 따라 자전거를 타며 동해 바다의 시원한 파도와 노을을 만끽하는 코스입니다.', cat: '자연명소', photo: '📸 경포호수 벚나무길 & 경포대 정자 샷', sig: '🍜 초당 순두부 짬뽕 & 장칼국수', time: '오후 4:30', lat: 37.7954, lng: 128.8965 }
     ]
   };
 
@@ -531,11 +554,35 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
     '부산': [
       { theme: '1일차: 해안선 스카이캡슐과 광안대교 야경', transit: '지하철 2호선 해운대역 및 광안역 이동', food: { dishName: '민락회타운 활어회 & 수제맥주', description: '광안대교 불빛을 눈앞에 두고 즐기는 싱싱한 제철 활어회' } },
       { theme: '2일차: 파스텔톤 감천마을과 활기찬 자갈치시장', transit: '지하철 1호선 남포역 및 자갈치역 이동', food: { dishName: '부산 돼지국밥 & 씨앗호떡', description: '진한 사골 국물의 돼지국밥과 고소한 남포동 명물 디저트' } }
+    ],
+    '장수': [
+      { theme: '1일차: 맑은 계곡과 피톤치드 가득한 방화동 숲캉스', transit: '장수 버스터미널에서 렌터카 또는 택시 15분 이동', food: { dishName: '장수 한우 버섯불고기 & 산채비빔밥', description: '청정 고원 지대에서 자란 대한민국 최고급 장수 한우의 깊은 풍미' } },
+      { theme: '2일차: 사과 테마파크와 와룡 휴양림 힐링 투어', transit: '장수 읍내 및 와룡산 일대 차량 10분 이동', food: { dishName: '장수 사과 떡갈비 & 묵은지 한상', description: '달콤한 장수 사과 양념이 어우러진 촉촉한 수제 떡갈비' } },
+      { theme: '3일차: 푸른 초원 승마 레저와 봉화산 선셋 조망', transit: '승마체험장 및 봉화산 능선 드라이브', food: { dishName: '장수 오미자 주스 & 도토리묵 무침', description: '새콤달콤한 오미자와 고소한 로컬 웰빙 미식' } }
+    ],
+    '경주': [
+      { theme: '1일차: 천년 신라의 유적과 힙한 황리단길 감성', transit: '신경주역 KTX에서 시내버스 15분 이동', food: { dishName: '경주 한우 물회 & 떡갈비 쌈밥', description: '시원하고 매콤한 한우 육회와 정갈한 신라 한정식' } },
+      { theme: '2일차: 불국사 고찰의 웅장함과 동궁월지 달빛 야경', transit: '보문관광단지 순환버스 이용', food: { dishName: '경주 순두부 찌개 & 교리김밥', description: '고소한 맷돌 순두부와 계란 지단 가득한 명물 김밥' } }
+    ],
+    '강릉': [
+      { theme: '1일차: 푸른 안목해변 커피거리와 오션 선셋', transit: '강릉역 KTX에서 시내버스 15분 이동', food: { dishName: '초당 순두부 짬뽕 & 순두부 젤라또', description: '동해 바닷물로 빚어낸 부드럽고 얼큰한 강릉 대표 미식' } },
+      { theme: '2일차: 경포호수 자전거 힐링과 중앙시장 먹거리', transit: '경포 해변 드라이브 및 중앙시장 도보', food: { dishName: '강릉 장칼국수 & 닭강정', description: '얼큰하고 구수한 고추장 국물과 바삭한 시장 명물' } }
     ]
   };
 
-  const spotPool = SAMPLE_SPOTS_MAP[city] || SAMPLE_SPOTS_MAP['수원'] || SAMPLE_SPOTS_MAP['서울'];
-  const themeList = DAILY_THEMES[city] || DAILY_THEMES['수원'] || DAILY_THEMES['서울'];
+  // Dynamic fallback pool if city is not predefined
+  const spotPool = SAMPLE_SPOTS_MAP[city] || [
+    { name: `${city} 대표 힐링 명소`, theme: `${city}의 자연과 감성을 느끼는 쉼터`, desc: `${city}에서 가장 사랑받는 대표적인 명소로, 아름다운 풍경과 힐링을 선사합니다.`, cat: '자연명소', photo: `📸 ${city} 포토존 인생샷`, sig: `✨ ${city} 특산 시그니처 미식`, time: '오전 11:00', lat: cityMeta.lat + 0.005, lng: cityMeta.lng - 0.005 },
+    { name: `${city} 감성 카페거리 & 핫플레이스`, theme: `트렌디한 감성과 여유로운 디저트`, desc: `${city}의 젊은 여행자들이 즐겨 찾는 감각적인 공간과 로컬 카페들이 모여 있습니다.`, cat: '감성카페', photo: `📸 감성 테라스 & 인테리어 샷`, sig: `☕ 시그니처 로컬 라떼`, time: '오후 2:30', lat: cityMeta.lat - 0.005, lng: cityMeta.lng + 0.005 },
+    { name: `${city} 역사 문화 공원`, theme: `지역의 역사와 전통을 간직한 공간`, desc: `${city}의 유서 깊은 문화유산과 잘 가꾸어진 공원을 거닐며 여유를 즐깁니다.`, cat: '역사문화', photo: `📸 고즈넉한 풍경 스냅`, sig: `🍵 전통차 & 지역 간식`, time: '오후 4:00', lat: cityMeta.lat + 0.008, lng: cityMeta.lng + 0.002 },
+    { name: `${city} 로컬 미식 야경 명소`, theme: `오감을 만족시키는 맛과 황홀한 밤 풍경`, desc: `${city}의 대표적인 야경 포인트와 현지인 추천 맛집이 어우러진 저녁 코스입니다.`, cat: '야경명소', photo: `📸 반짝이는 야경 파노라마`, sig: `🍴 ${city} 로컬 대표 미식`, time: '오후 7:30', lat: cityMeta.lat - 0.008, lng: cityMeta.lng - 0.002 }
+  ];
+
+  const themeList = DAILY_THEMES[city] || [
+    { theme: `1일차: ${city}의 청정 자연과 감성 핫플레이스`, transit: `${city} 중심가 및 대중교통 이용 편리`, food: { dishName: `${city} 로컬 대표 미식`, description: `현지인들이 추천하는 신선한 제철 재료로 만든 ${city}의 별미` } },
+    { theme: `2일차: ${city} 역사 문화 산책과 낭만 야경`, transit: `${city} 주요 명소 간 차량/버스 15분`, food: { dishName: `${city} 특산 요리 한상`, description: `${city}만의 고유한 풍미를 담은 든든하고 정갈한 한 끼 식사` } },
+    { theme: `3일차: ${city} 힐링 트레킹과 파노라마 뷰`, transit: `순환 도로 및 시내 연결 버스`, food: { dishName: `${city} 로컬 디저트 & 브런치`, description: `여행의 마지막 여운을 달콤하게 마무리하는 감성 카페 미식` } }
+  ];
 
   for (let d = 0; d < days; d++) {
     const dayNum = d + 1;
