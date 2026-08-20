@@ -150,9 +150,13 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko', previo
     /^(안녕|하이|반가워|뭐해|누구|고마워|감사|ㅋㅋ|ㅎㅎ|ㅇㅇ|ㄴㄴ|ㄷㄷ|ㅠㅠ|test|테스트|\?+|\!+)$/i.test(cleanPrompt)
   );
 
-  const isModificationRequest = previousItinerary && !mentionsExplicitCity && (
-    /(추가|변경|바꿔|수정|빼줘|대신|넣어|바꿔줘|일정 수정|2일차|1일차|3일차|4일차|5일차|식당으로|맛집으로|카페로|실내로|예산|가성비|5만원|10만원|코스로)/i.test(cleanPrompt) &&
-    !/(새로운\s*여행|다른\s*도시)/i.test(cleanPrompt)
+  const isModificationRequest = Boolean(
+    previousItinerary &&
+    previousItinerary.dailySchedules &&
+    previousItinerary.dailySchedules.length > 0 &&
+    !mentionsExplicitCity &&
+    !isShortOrGreeting &&
+    !/(새로운\s*여행|다른\s*도시|처음으로|초기화|리셋)/i.test(cleanPrompt)
   );
 
   let targetCity = '서울';
@@ -191,23 +195,29 @@ ${JSON.stringify(previousItinerary.dailySchedules.map(ds => ({
 USER MODIFICATION REQUEST: "${cleanPrompt}"
 INSTRUCTION FOR MODIFICATION:
 1. Retain the existing ${days}-day structure and all unchanged days/spots in "${targetCity}".
-2. Apply the requested changes (e.g. budget, cost-effective adjustments, adding a spot or changing spot category) precisely for "${targetCity}".
+2. Apply the requested changes (e.g. transit optimization like '대중교통 동선', indoor spots for rain, budget, cost-effective adjustments, adding/swapping spots) precisely for "${targetCity}".
 3. Maintain total days as exactly ${days} and city as "${targetCity}".
 4. In summary, warmly confirm the exact modification made in language "${lang}".
 `;
   }
 
   const systemInstruction = `You are VORA, an elite South Korean AI Travel Concierge & Magazine Editor.
-Analyze the user request carefully: "${cleanPrompt}".
+Analyze the user request: "${cleanPrompt}".
+${isModificationRequest ? `
+[ACTIVE TRIP CONTEXT TO MODIFY]
+The user is currently modifying an existing ${days}-day itinerary for "${targetCity}".
+Apply the user's instruction ("${cleanPrompt}") directly as a modification/adjustment to this "${targetCity}" itinerary (e.g. adjust transit, timing, food, budget, spots, pace, companions).
+Do NOT ask what city they want to visit because they are already editing "${targetCity}".
+` : ''}
 
 [DUAL RESPONSE SPECIFICATION]
 
 CASE 1: CONVERSATIONAL & CLARIFYING MODE
-Trigger if the user query is a simple greeting, ambiguous input, typo, single consonants (like "ㅅ ㅇ", "ㅇㅇ", "안녕", "ㅋㅋ", "뭐해", "추천", "???"), or lacks sufficient details for a trip.
+Trigger ONLY IF there is NO active trip context AND the query is a simple greeting, ambiguous input, typo, single consonants (like "ㅅ ㅇ", "ㅇㅇ", "안녕", "ㅋㅋ", "뭐해", "추천", "???"), or lacks sufficient destination details.
 Return ONLY this JSON schema:
 {
   "responseType": "chat",
-  "message": "Polite, helpful, warm clarifying message in ${lang}. (e.g. '안녕하세요! 혹시 서울이나 수원 여행을 생각하셨나요? 원하시는 여행 지역이나 테마(맛집 투어, 감성 카페, 힐링 등)를 편하게 말씀해 주시면 완벽한 맞춤 코스를 바로 준비해 드릴게요! 😊')",
+  "message": "Polite, helpful clarifying message in ${lang}. (e.g. '안녕하세요! 혹시 서울이나 수원 여행을 생각하셨나요? 원하시는 여행 지역이나 테마(맛집 투어, 감성 카페, 힐링 등)를 편하게 말씀해 주시면 완벽한 맞춤 코스를 바로 준비해 드릴게요! 😊')",
   "quickSuggestions": [
     "서울 성수·한남 감성 코스",
     "수원 행궁동 1박2일 투어",
@@ -217,15 +227,15 @@ Return ONLY this JSON schema:
 }
 
 CASE 2: FULL ITINERARY MAGAZINE MODE
-Trigger if the user explicitly asks for a destination, itinerary, travel plan, course modification, budget adjustment, or specific travel theme.
-${explicitCity ? `Target destination: "${explicitCity}".` : 'If the user specifies a specific region in Korea, plan for that place. If the query is a general travel topic (e.g. 힐링 여행, 가을 드라이브), select the most exciting destination in Korea and set "targetCity".'}
+Trigger whenever the user asks for a destination, itinerary, travel plan, OR when there is an active trip context being modified/refined (e.g. '대중교통 이동 동선으로 맞춰줘', '실내 코스로 변경', '비용 줄여줘', '2일차 카페 변경', '맛집 위주로 해줘' etc.).
+${explicitCity ? `Target destination: "${explicitCity}".` : `Target destination: "${targetCity}".`}
 Return ONLY this JSON schema:
 {
   "responseType": "itinerary",
   "tripTitle": "Catchy Magazine Title in ${lang}",
-  "targetCity": "Target City Name in Korean",
+  "targetCity": "${targetCity}",
   "days": ${days},
-  "summary": "Warm editorial overview in ${lang}",
+  "summary": "Warm editorial overview confirming the modification in ${lang}",
   "dailySchedules": [
     {
       "day": 1,
