@@ -204,6 +204,58 @@ export default function TravelDetailModal({
             </p>
           </div>
 
+          {/* Smart Affiliate Deal Card */}
+          {spot.affiliateDeal && (
+            <div style={{
+              backgroundColor: 'rgba(255, 91, 0, 0.08)',
+              border: '1px solid rgba(255, 91, 0, 0.3)',
+              borderRadius: '16px',
+              padding: '0.9rem 1.1rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '0.8rem',
+              flexWrap: 'wrap'
+            }}>
+              <div>
+                <span style={{
+                  backgroundColor: '#ff5b00',
+                  color: '#ffffff',
+                  fontSize: '0.68rem',
+                  fontWeight: 800,
+                  padding: '0.15rem 0.45rem',
+                  borderRadius: '4px'
+                }}>
+                  {spot.affiliateDeal.dealBadge}
+                </span>
+                <div style={{ fontSize: '0.86rem', fontWeight: 800, color: 'var(--text-main)', marginTop: '0.25rem' }}>
+                  {spot.affiliateDeal.dealTitle}
+                </div>
+              </div>
+
+              <a
+                href={spot.affiliateDeal.dealUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  backgroundColor: '#ff5b00',
+                  color: '#ffffff',
+                  textDecoration: 'none',
+                  borderRadius: '8px',
+                  padding: '0.5rem 0.9rem',
+                  fontSize: '0.8rem',
+                  fontWeight: 800,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.3rem',
+                  boxShadow: '0 2px 6px rgba(255, 91, 0, 0.3)'
+                }}
+              >
+                <span>최저가 예약 ↗</span>
+              </a>
+            </div>
+          )}
+
           {/* Navigation & Map Direct Buttons */}
           <div>
             <h4 style={{ margin: '0 0 0.6rem 0', fontSize: '0.88rem', fontWeight: 800, color: 'var(--text-main)' }}>

@@ -394,9 +394,32 @@ export default function CourseMagazineView({
                             transition: 'all var(--transition-fast)'
                           }}
                         >
+                          <MapPin size={11} />
                           <span>Google 지도</span>
-                          <ExternalLink size={10} />
                         </a>
+
+                        {spot.affiliateDeal && (
+                          <a
+                            href={spot.affiliateDeal.dealUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              backgroundColor: '#ff5b00',
+                              color: '#ffffff',
+                              padding: '0.25rem 0.55rem',
+                              borderRadius: '8px',
+                              fontSize: '0.7rem',
+                              fontWeight: 800,
+                              textDecoration: 'none',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '0.2rem',
+                              boxShadow: '0 2px 4px rgba(255, 91, 0, 0.25)'
+                            }}
+                          >
+                            <span>{spot.affiliateDeal.dealBadge} ↗</span>
+                          </a>
+                        )}
                       </div>
                     </div>
                   </div>
