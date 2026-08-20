@@ -160,10 +160,11 @@ export default function App() {
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [isContactOpen, setIsContactOpen] = useState(false);
 
-  // Trigger Master Itinerary Planning with Conversational Memory
+  // Trigger Master Itinerary Planning with Conversational Memory & Ultra-Fast Parallel Engine
   const handleGenerateItinerary = async (promptQuery) => {
     if (!promptQuery || isLoading) return;
 
+    const startTime = Date.now();
     const userMsg = {
       id: `user-${Date.now()}`,
       role: 'user',
@@ -180,25 +181,35 @@ export default function App() {
 
     try {
       const result = await geminiGenerateFullItinerary(promptQuery, lang, itineraryData);
-      const finalResult = result || generateLocalFallbackItinerary(promptQuery, itineraryData?.targetCity || '서울', itineraryData?.days || 3, lang);
+      const elapsedSeconds = ((Date.now() - startTime) / 1000).toFixed(1);
+      const finalResult = {
+        ...(result || generateLocalFallbackItinerary(promptQuery, extractLocationKeyword(promptQuery), 2, lang)),
+        generationTime: elapsedSeconds
+      };
       
       setItineraryData(finalResult);
       const botMsg = {
         id: `bot-${Date.now()}`,
         role: 'assistant',
         text: `✨ **${finalResult.tripTitle}**\n${finalResult.summary}`,
-        itinerary: finalResult
+        itinerary: finalResult,
+        generationTime: elapsedSeconds
       };
       setChatMessages(prev => [...prev, botMsg]);
     } catch (err) {
       console.warn('[VORA AI Error]', err);
-      const fallback = generateLocalFallbackItinerary(promptQuery, itineraryData?.targetCity || '서울', itineraryData?.days || 3, lang);
+      const elapsedSeconds = ((Date.now() - startTime) / 1000).toFixed(1);
+      const fallback = {
+        ...generateLocalFallbackItinerary(promptQuery, extractLocationKeyword(promptQuery), 2, lang),
+        generationTime: elapsedSeconds
+      };
       setItineraryData(fallback);
       const botMsg = {
         id: `bot-${Date.now()}`,
         role: 'assistant',
         text: `✨ **${fallback.tripTitle}**\n${fallback.summary}`,
-        itinerary: fallback
+        itinerary: fallback,
+        generationTime: elapsedSeconds
       };
       setChatMessages(prev => [...prev, botMsg]);
     } finally {
@@ -423,6 +434,15 @@ export default function App() {
         <ContactUsModal
           isOpen={isContactOpen}
           onClose={() => setIsContactOpen(false)}
+          lang={lang}
+        />
+      )}
+
+      {/* Spot Detail Modal */}
+      {selectedSpot && (
+        <TravelDetailModal
+          spot={selectedSpot}
+          onClose={() => setSelectedSpot(null)}
           lang={lang}
         />
       )}

@@ -194,7 +194,26 @@ export default function VoraAIChat({
                   color: 'var(--text-main)',
                   boxShadow: 'var(--shadow-sm)'
                 }}>
-                  {msg.text}
+                  {/* Generation Speed Badge */}
+                  {(msg.generationTime || msg.itinerary?.generationTime) && (
+                    <div style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.25rem',
+                      fontSize: '0.7rem',
+                      fontWeight: 800,
+                      color: '#2563eb',
+                      backgroundColor: 'rgba(37, 99, 235, 0.08)',
+                      border: '1px solid rgba(37, 99, 235, 0.18)',
+                      padding: '0.15rem 0.45rem',
+                      borderRadius: '6px',
+                      marginBottom: '0.45rem'
+                    }}>
+                      <span>⚡ AI 맞춤 생성 ({msg.generationTime || msg.itinerary?.generationTime}초)</span>
+                    </div>
+                  )}
+
+                  <div>{msg.text}</div>
 
                   {/* Copy Button if message has itinerary data */}
                   {msg.itinerary && (

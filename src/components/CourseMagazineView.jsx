@@ -58,6 +58,22 @@ export default function CourseMagazineView({
           <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-main)' }}>
             {t.courseTimelineTitle || '스마트 여행 코스 타임라인'}
           </h3>
+          {itineraryData?.generationTime && (
+            <span style={{
+              fontSize: '0.68rem',
+              fontWeight: 800,
+              color: '#2563eb',
+              backgroundColor: 'rgba(37, 99, 235, 0.08)',
+              border: '1px solid rgba(37, 99, 235, 0.2)',
+              padding: '0.15rem 0.5rem',
+              borderRadius: 'var(--radius-full)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.25rem'
+            }}>
+              ⚡ {itineraryData.generationTime}초 생성
+            </span>
+          )}
         </div>
 
         {/* Day Selector Tabs (Syncs bidirectionally with Chat) */}
@@ -209,16 +225,21 @@ export default function CourseMagazineView({
                       transition: 'all var(--transition-fast)'
                     }}
                   >
-                    {/* Left: Thumbnail with Numbered Pin */}
-                    <div style={{
-                      position: 'relative',
-                      width: '100px',
-                      minWidth: '100px',
-                      height: '95px',
-                      borderRadius: '10px',
-                      overflow: 'hidden',
-                      flexShrink: 0
-                    }}>
+                    {/* Left: Thumbnail with Numbered Pin (Click opens detail modal) */}
+                    <div
+                      onClick={() => onOpenDetail && onOpenDetail(spot)}
+                      title="클릭하여 상세 정보 및 고화질 실사진 보기"
+                      style={{
+                        position: 'relative',
+                        width: '100px',
+                        minWidth: '100px',
+                        height: '95px',
+                        borderRadius: '10px',
+                        overflow: 'hidden',
+                        flexShrink: 0,
+                        cursor: 'pointer'
+                      }}
+                    >
                       <img
                         src={spot.image || '/default-spot.png'}
                         alt={spot.title}
@@ -226,7 +247,8 @@ export default function CourseMagazineView({
                         style={{
                           width: '100%',
                           height: '100%',
-                          objectFit: 'cover'
+                          objectFit: 'cover',
+                          transition: 'transform 0.3s ease'
                         }}
                       />
                       {/* Numbered Pin Badge */}
@@ -276,7 +298,11 @@ export default function CourseMagazineView({
                     }}>
                       {/* Title & Bookmark */}
                       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.4rem' }}>
-                        <div style={{ minWidth: 0 }}>
+                        <div 
+                          onClick={() => onOpenDetail && onOpenDetail(spot)}
+                          style={{ minWidth: 0, cursor: 'pointer' }}
+                          title="클릭하여 상세 정보 보기"
+                        >
                           <h4 style={{
                             margin: 0,
                             fontSize: '0.88rem',
