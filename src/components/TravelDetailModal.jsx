@@ -150,6 +150,30 @@ export default function TravelDetailModal({
             )}
           </div>
 
+          {/* Photo Tip & Signature Item Box */}
+          {(spot.photoTip || spot.signatureItem) && (
+            <div style={{
+              backgroundColor: 'rgba(37, 99, 235, 0.06)',
+              border: '1px solid var(--border-highlight)',
+              borderRadius: '16px',
+              padding: '0.85rem 1rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.4rem'
+            }}>
+              {spot.photoTip && (
+                <div style={{ fontSize: '0.84rem', fontWeight: 800, color: 'var(--accent-primary)' }}>
+                  {spot.photoTip}
+                </div>
+              )}
+              {spot.signatureItem && (
+                <div style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-main)' }}>
+                  {spot.signatureItem}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Overview */}
           <div>
             <h4 style={{ margin: '0 0 0.4rem 0', fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-main)' }}>

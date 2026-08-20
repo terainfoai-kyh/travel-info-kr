@@ -1,10 +1,13 @@
 /**
- * VORA AI 3.0 - Gemini-First Intelligent Multi-Day Itinerary Engine
- * Generates rich, realistic travel itineraries with accurate GPS coordinates,
- * geographic clustering (no bouncing map starting points), transit tips, and local food guides.
+ * VORA AI 3.0 - Gemini-First Intelligent Multi-Day Travel Magazine Engine
+ * Features:
+ * 1. Plan B High-Resolution Curated K-Travel Photo Library (zero dull/missing images)
+ * 2. Magazine Editorial Intelligence: Photo tips (📸), Signature menus/items (☕/🍴), and transit guidance
+ * 3. Precision City Coordinates & Route Directions (Google Maps Platform)
+ * 4. Multi-Turn Conversational Memory (preserves multi-day plan when refining)
  */
 
-import { fetchPinpointLandmarkSpots } from './tourApi';
+import { getCuratedSpotImage } from '../data/curatedImages';
 
 // Precision Korean City Center Coordinates (Prevents 0,0 or Suwon coordinate bouncing)
 export const CITY_COORDINATES = {
@@ -40,10 +43,6 @@ export const GEMINI_KEY_POOL = [
   'AQ.Ab8RN6KwKIdJmZ8x8OgJtXcdCFJnvw6lusi3ZiuWAwFLdqsexg',
   'AQ.Ab8RN6LhKxJi5EUjbuDedS3vLY8v5UFd6QnV4dCzQy2anZ9-QQ'
 ].filter(k => k && typeof k === 'string' && k.trim().length > 5);
-
-export function getActiveGeminiKey() {
-  return GEMINI_KEY_POOL[0] || 'AQ.Ab8RN6KwKIdJmZ8x8OgJtXcdCFJnvw6lusi3ZiuWAwFLdqsexg';
-}
 
 export function sanitizeGeminiOutput(text) {
   if (!text || typeof text !== 'string') return '';
@@ -113,7 +112,7 @@ export function getKakaoMapSearchUrl(spotTitle, city = '') {
 }
 
 /**
- * ⚡ Master Gemini Multi-Day Itinerary Planner with Conversational Context Memory
+ * ⚡ Master Gemini Multi-Day Itinerary Planner with Plan B Magazine Editorial Engine
  */
 export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko', previousItinerary = null) {
   // Check if this is an incremental modification request
@@ -155,34 +154,34 @@ ${JSON.stringify(previousItinerary.dailySchedules.map(ds => ({
 USER MODIFICATION REQUEST: "${rawPrompt}"
 CRITICAL INSTRUCTION FOR MODIFICATION:
 1. Retain the existing ${days}-day structure and all unchanged days/spots.
-2. Apply the requested changes (e.g. adding a spot or changing spot category on Day 2) precisely.
+2. Apply the requested changes (e.g. adding a food/cafe stop or changing spot category on Day 2) precisely.
 3. Maintain total days as exactly ${days} and city as "${targetCity}".
 4. In summary, warmly confirm the exact modification made in language "${lang}".
 `;
   }
 
-  const systemInstruction = `You are VORA, an elite South Korean AI Travel Concierge.
-Plan or modify an engaging, authentic ${days}-day itinerary in South Korea based on the user's prompt.
+  const systemInstruction = `You are VORA, an elite South Korean AI Travel Magazine Editor & Concierge.
+Create a trendy, stylish, highly practical ${days}-day travel magazine itinerary in South Korea based on the user's request.
 Target main city: "${targetCity}" (${cityMeta.nameEn}).
 Language of output: "${lang}".
 
-CRITICAL ROUTE & GEOGRAPHIC PROXIMITY RULES:
-1. Cluster spots geographically for each day so travelers can walk or take a quick subway/bus between spots.
-2. Recommend 2 to 3 authentic, iconic, or trendy spots per day.
-3. Provide realistic latitude and longitude around ${targetCity} (Base: lat ${cityMeta.lat}, lng ${cityMeta.lng}).
-4. Include transit tips and local food recommendations.
-5. In summary, write a warm concierge narrative in language "${lang}".
+EDITORIAL MAGAZINE RULES:
+1. Recommend 2 to 3 genuinely trendy, authentic, and famous spots per day (popular cafes, scenic photo zones, local delicacies, night views).
+2. For each spot, write an aesthetic highlight "theme", an essential photo tip "photoTip" (e.g. "📸 Sunset terrace view"), and a signature recommendation "signatureItem" (e.g. "☕ Cream Croffle & Einspanner").
+3. Provide realistic GPS coordinates around ${targetCity} (Base: lat ${cityMeta.lat}, lng ${cityMeta.lng}).
+4. Include transit guidance (e.g. "🚇 Subway Line 2, 7 mins walk") and iconic local dishes.
+5. In summary, write an inspiring, warm concierge narrative in language "${lang}".
 
 Return ONLY valid JSON matching this exact schema:
 {
-  "tripTitle": "Engaging title in ${lang}",
+  "tripTitle": "Catchy Magazine Title in ${lang}",
   "targetCity": "${targetCity}",
   "days": ${days},
-  "summary": "Warm concierge overview in ${lang} confirming the itinerary or changes",
+  "summary": "Warm editorial overview in ${lang}",
   "dailySchedules": [
     {
       "day": 1,
-      "theme": "Theme of Day 1 in ${lang}",
+      "theme": "Day 1 Theme in ${lang}",
       "transitTip": "Public transit or walking guidance in ${lang}",
       "foodRecommendation": {
         "dishName": "Iconic local dish name in ${lang}",
@@ -191,12 +190,14 @@ Return ONLY valid JSON matching this exact schema:
       "spots": [
         {
           "name": "Spot Name (Korean & English)",
-          "category": "Cafe / Landmark / Shopping / Nature / Culture",
-          "theme": "Brief attraction highlight in ${lang}",
+          "category": "감성카페 / 오션뷰 / 야경명소 / 로컬맛집 / 핫플레이스 / 역사문화",
+          "theme": "Aesthetic highlight in ${lang}",
+          "photoTip": "Photo spot tip in ${lang}",
+          "signatureItem": "Signature dish/drink/activity in ${lang}",
           "lat": ${cityMeta.lat},
           "lng": ${cityMeta.lng},
-          "address": "Approximate address in ${targetCity}",
-          "transitTime": "e.g. 5 min walk / 10 min subway"
+          "address": "Address in ${targetCity}",
+          "transitTime": "e.g. 도보 5분 / 지하철 10분"
         }
       ]
     }
@@ -205,7 +206,7 @@ Return ONLY valid JSON matching this exact schema:
 
   const promptText = contextPrompt 
     ? `${contextPrompt}\n\nLanguage: ${lang}. Return updated JSON.` 
-    : `User Request: "${rawPrompt}". Target city: ${targetCity}, duration: ${days} days, language: ${lang}. Create a smooth, realistic, trendy itinerary.`;
+    : `User Request: "${rawPrompt}". Target city: ${targetCity}, duration: ${days} days, language: ${lang}. Create a vibrant, trendy itinerary.`;
 
   const candidateKeys = GEMINI_KEY_POOL;
   const modelCandidates = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.5-flash', 'gemini-2.0-flash-lite', 'gemini-3.1-flash-lite'];
@@ -246,12 +247,6 @@ Return ONLY valid JSON matching this exact schema:
             }
 
             if (parsed && parsed.dailySchedules && Array.isArray(parsed.dailySchedules)) {
-              // Collect spot names for TourAPI high-res photo enrichment
-              const allSpotNames = parsed.dailySchedules.flatMap(ds => (ds.spots || []).map(s => s.name || s.title)).filter(Boolean);
-              const tourApiSpots = allSpotNames.length > 0
-                ? await fetchPinpointLandmarkSpots(allSpotNames, lang, targetCity).catch(() => [])
-                : [];
-
               const flatSpots = [];
               const finalizedSchedules = [];
 
@@ -261,27 +256,29 @@ Return ONLY valid JSON matching this exact schema:
                 const daySpots = [];
 
                 rawSpots.forEach((s, spotIdx) => {
-                  const spotTitle = s.name || s.title || `${targetCity} 명소 ${spotIdx + 1}`;
-                  const matchedTourSpot = tourApiSpots.find(ts => 
-                    ts.title && (ts.title.includes(spotTitle) || spotTitle.includes(ts.title))
-                  );
+                  const spotTitle = s.name || s.title || `${targetCity} 핫플 ${spotIdx + 1}`;
+                  const spotCategory = s.category || '핫플레이스';
 
-                  // Small geographic jitter if coordinates are identical to prevent marker stacking
+                  // Small geographic jitter if coordinates are identical
                   const latOffset = (spotIdx * 0.008) * (spotIdx % 2 === 0 ? 1 : -1);
                   const lngOffset = (spotIdx * 0.009) * (spotIdx % 2 === 0 ? -1 : 1);
 
+                  // 🎨 Plan B: Curated High-Res Vibrant Photo Mapping (Zero blank/dull images)
+                  const curatedImage = getCuratedSpotImage(spotTitle, targetCity, spotCategory, spotIdx);
+
                   const finalSpot = {
-                    id: matchedTourSpot?.id || `vora-spot-${dayNum}-${spotIdx + 1}`,
-                    contentId: matchedTourSpot?.contentId || null,
-                    title: matchedTourSpot?.title || spotTitle,
+                    id: `vora-spot-${dayNum}-${spotIdx + 1}`,
+                    title: spotTitle,
                     region: targetCity,
-                    theme: s.theme || s.category || '추천 명소',
-                    category: s.category || '관광지',
+                    theme: s.theme || '인기 감성 핫플레이스',
+                    category: spotCategory,
+                    photoTip: s.photoTip || '📸 자연광이 잘 드는 포토존에서 인생샷 촬영 추천',
+                    signatureItem: s.signatureItem || '✨ 시그니처 대표 메뉴 & 추천 포인트',
                     rating: 4.9,
-                    image: matchedTourSpot?.image || getFallbackCityImage(targetCity, spotIdx),
-                    location: matchedTourSpot?.location || s.address || `대한민국 ${targetCity}`,
-                    lat: Number(matchedTourSpot?.lat) || Number(s.lat) || (cityMeta.lat + latOffset),
-                    lng: Number(matchedTourSpot?.lng) || Number(s.lng) || (cityMeta.lng + lngOffset),
+                    image: curatedImage,
+                    location: s.address || `대한민국 ${targetCity}`,
+                    lat: Number(s.lat) || (cityMeta.lat + latOffset),
+                    lng: Number(s.lng) || (cityMeta.lng + lngOffset),
                     transitTime: s.transitTime || '도보 또는 지하철 이동',
                     assignedDay: dayNum,
                     dayOrder: spotIdx + 1
@@ -293,11 +290,11 @@ Return ONLY valid JSON matching this exact schema:
 
                 finalizedSchedules.push({
                   day: dayNum,
-                  theme: ds.theme || `${dayNum}일차 ${targetCity} 추천 코스`,
-                  transitTip: ds.transitTip || '지하철 및 버스 환승이 매우 편리한 구간입니다.',
+                  theme: ds.theme || `${dayNum}일차 ${targetCity} 감성 코스`,
+                  transitTip: ds.transitTip || '지하철 및 대중교통 환승이 매우 편리한 구간입니다.',
                   foodRecommendation: ds.foodRecommendation || {
                     dishName: `${targetCity} 로컬 대표 미식`,
-                    description: '현지인들이 즐겨 찾는 대표 맛집 거리에서 식사 추천'
+                    description: '현지인들이 즐겨 찾는 대표 맛집에서 식사 추천'
                   },
                   spots: daySpots
                 });
@@ -306,7 +303,7 @@ Return ONLY valid JSON matching this exact schema:
               return {
                 targetCity,
                 days: parsed.days || days,
-                tripTitle: parsed.tripTitle || `${targetCity} ${days}일 맞춤 여행 코스`,
+                tripTitle: parsed.tripTitle || `${targetCity} ${days}일 감성 매거진 코스`,
                 summary: parsed.summary || `${targetCity}의 대표적인 핫플레이스와 감성 명소를 엄선한 맞춤 일정입니다. ✨`,
                 dailySchedules: finalizedSchedules,
                 spots: flatSpots,
@@ -326,40 +323,7 @@ Return ONLY valid JSON matching this exact schema:
   return generateLocalFallbackItinerary(rawPrompt, targetCity, days, lang);
 }
 
-// Authentic 100% TourAPI 4.0 Official CDN Images Only (Zero Overseas / Zero Unsplash)
-export function getFallbackCityImage(city = '서울', index = 0) {
-  const SEOUL_IMAGES = [
-    'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg', // 경복궁 & 향원정 (한국관광공사 정품)
-    'https://tong.visitkorea.or.kr/cms/resource/45/3505945_image2_1.jpg', // 서울 도심 & 남산 (한국관광공사 정품)
-    'https://tong.visitkorea.or.kr/cms/resource/62/2612562_image2_1.jpg'  // 북촌 & 전통 한옥마을 (한국관광공사 정품)
-  ];
-
-  const BUSAN_IMAGES = [
-    'https://tong.visitkorea.or.kr/cms/resource/99/3546099_image2_1.jpg', // 해운대 블루라인파크 & 광안대교 (한국관광공사 정품)
-    'https://tong.visitkorea.or.kr/cms/resource/09/2678609_image2_1.jpg'  // 부산 해안 명소 (한국관광공사 정품)
-  ];
-
-  const JEJU_IMAGES = [
-    'https://tong.visitkorea.or.kr/cms/resource/82/2944282_image2_1.bmp', // 제주 성산일출봉 (한국관광공사 정품)
-    'https://tong.visitkorea.or.kr/cms/resource/13/2678613_image2_1.jpg'  // 제주 해안 올레길 & 바다 (한국관광공사 정품)
-  ];
-
-  const GYEONGJU_IMAGES = [
-    'https://tong.visitkorea.or.kr/cms/resource_photo/45/3365745_image2_1.jpg' // 경주 불국사 & 동궁과월지 (한국관광공사 정품)
-  ];
-
-  const GANGWON_IMAGES = [
-    'https://tong.visitkorea.or.kr/cms/resource/45/3505945_image2_1.jpg' // 강원도 설악산 & 동해 (한국관광공사 정품)
-  ];
-
-  if (city.includes('부산')) return BUSAN_IMAGES[index % BUSAN_IMAGES.length];
-  if (city.includes('제주') || city.includes('서귀포')) return JEJU_IMAGES[index % JEJU_IMAGES.length];
-  if (city.includes('경주')) return GYEONGJU_IMAGES[index % GYEONGJU_IMAGES.length];
-  if (city.includes('강원') || city.includes('강릉') || city.includes('속초')) return GANGWON_IMAGES[index % GANGWON_IMAGES.length];
-  return SEOUL_IMAGES[index % SEOUL_IMAGES.length];
-}
-
-// Local Fallback Itinerary Generator (Guarantees 100% 200 OK Uptime)
+// Local Fallback Itinerary Generator (Guarantees 100% 200 OK Uptime with Plan B Curated Visuals)
 export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서울', days = 3, lang = 'ko') {
   const city = targetCity || extractLocationKeyword(rawPrompt) || '서울';
   const cityMeta = CITY_COORDINATES[city] || CITY_COORDINATES['서울'];
@@ -368,24 +332,22 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
 
   const SAMPLE_SPOTS_MAP = {
     '서울': [
-      { name: '경복궁 & 국립민속박물관', theme: '조선 왕실의 역사와 전통미', cat: '역사문화', lat: 37.5796, lng: 126.9770 },
-      { name: '성수동 카페거리 & 디올 성수', theme: '가장 트렌디한 서울의 핫플레이스', cat: '감성카페', lat: 37.5446, lng: 127.0560 },
-      { name: 'N서울타워 & 남산 야경', theme: '서울 도심을 360도 파노라마로 감상', cat: '야경명소', lat: 37.5512, lng: 126.9882 },
-      { name: '북촌한옥마을 & 삼청동길', theme: '고즈넉한 한옥 골목길 산책', cat: '힐링골목', lat: 37.5826, lng: 126.9836 },
-      { name: '더현대 서울 & 여의도 한강공원', theme: '쇼핑과 피크닉을 동시에 즐기는 코스', cat: '쇼핑/힐링', lat: 37.5259, lng: 126.9284 },
-      { name: '홍대 걷고싶은거리 & 연남동', theme: 'K-컬처와 버스킹, 젊음의 거리', cat: '젊음/문화', lat: 37.5575, lng: 126.9245 }
+      { name: '경복궁 & 향원정', theme: '조선 왕실의 역사와 고풍스러운 정원', cat: '역사문화', photo: '📸 경회루 연못 반영 샷 추천', sig: '👑 한복 대여 & 왕실 정원 산책', lat: 37.5796, lng: 126.9770 },
+      { name: '성수동 카페거리 & 디올 성수', theme: '가장 트렌디한 서울의 핫플레이스', cat: '감성카페', photo: '📸 디올 성수 외관 인생샷', sig: '☕ 시그니처 소금빵 & 아인슈페너', lat: 37.5446, lng: 127.0560 },
+      { name: 'N서울타워 & 남산 야경', theme: '서울 도심을 360도 파노라마로 감상', cat: '야경명소', photo: '📸 전망대 야경 파노라마', sig: '🗼 사랑의 자물쇠 & 선셋 뷰', lat: 37.5512, lng: 126.9882 },
+      { name: '북촌한옥마을 & 삼청동길', theme: '고즈넉한 한옥 골목길 산책', cat: '감성골목', photo: '📸 북촌 6경 골목길 전경', sig: '🍵 전통 찻집 오미자차 & 약과', lat: 37.5826, lng: 126.9836 },
+      { name: '더현대 서울 & 여의도 한강공원', theme: '트렌디 쇼핑과 한강 피크닉', cat: '쇼핑/힐링', photo: '📸 사운즈 포레스트 실내 정원', sig: '🧺 한강 라면 & 텐트 피크닉', lat: 37.5259, lng: 126.9284 }
     ],
     '제주': [
-      { name: '애월 한담해변 산책로', theme: '에메랄드빛 바다와 카페 투어', cat: '바다뷰', lat: 33.4623, lng: 126.3110 },
-      { name: '협재해수욕장 & 금능해변', theme: '비양도가 보이는 은빛 백사장', cat: '자연힐링', lat: 33.3941, lng: 126.2397 },
-      { name: '성산일출봉', theme: '유네스코 세계자연유산의 웅장한 분화구', cat: '세계유산', lat: 33.4581, lng: 126.9426 },
-      { name: '서귀포 매일올레시장', theme: '제주 로컬 먹거리와 감귤 디저트', cat: '전통시장', lat: 33.2494, lng: 126.5638 }
+      { name: '랜디스도넛 제주애월점 & 한담해변', theme: '에메랄드빛 바다와 달콤한 도넛 투어', cat: '감성카페', photo: '📸 주황색 도넛 조형물 & 바다 배경', sig: '🍩 버터크림 도넛 & 바닐라 라떼', lat: 33.4623, lng: 126.3110 },
+      { name: '협재해수욕장 & 금능해변', theme: '비양도가 보이는 은빛 백사장', cat: '오션뷰', photo: '📸 에메랄드 물빛 백사장 샷', sig: '🌊 해녀 해산물 모둠 & 보말칼국수', lat: 33.3941, lng: 126.2397 },
+      { name: '성산일출봉', theme: '유네스코 세계자연유산의 웅장한 분화구', cat: '자연명소', photo: '📸 정상 분화구 파노라마', sig: '🍊 제주 천혜향 주스 & 갈치조림', lat: 33.4581, lng: 126.9426 },
+      { name: '서귀포 매일올레시장', theme: '제주 로컬 먹거리와 감귤 디저트', cat: '로컬미식', photo: '📸 올레시장 야시장 활기', sig: '🍢 마농치킨 & 흑돼지 김치말이', lat: 33.2494, lng: 126.5638 }
     ],
     '부산': [
-      { name: '해운대 블루라인파크 (해변열차)', theme: '동해남부선 해안 절경을 달리는 낭만 열차', cat: '해안관광', lat: 35.1631, lng: 129.1786 },
-      { name: '광안리 해수욕장 & 드론쇼', theme: '광안대교 야경과 화려한 드론 라이트쇼', cat: '야경명소', lat: 35.1532, lng: 129.1186 },
-      { name: '감천문화마을', theme: '알록달록 파스텔톤 계단식 마을', cat: '문화체험', lat: 35.0975, lng: 129.0106 },
-      { name: '자갈치시장 & 남포동 BIFF거리', theme: '부산의 활기를 만끽하는 해산물 미식', cat: '미식투어', lat: 35.0968, lng: 129.0306 }
+      { name: '해운대 블루라인파크 (스카이캡슐)', theme: '동해남부선 해안 절경을 달리는 낭만 열차', cat: '오션뷰', photo: '📸 알록달록 스카이캡슐 창가 샷', sig: '🚊 미포-청사포 해안 레일 투어', lat: 35.1631, lng: 129.1786 },
+      { name: '광안리 해수욕장 & 드론 라이트쇼', theme: '광안대교 야경과 화려한 드론 쇼', cat: '야경명소', photo: '📸 광안대교 점등 오션뷰 샷', sig: '🦀 민락수변공원 활어회 & 생맥주', lat: 35.1532, lng: 129.1186 },
+      { name: '감천문화마을', theme: '알록달록 파스텔톤 계단식 마을', cat: '핫플레이스', photo: '📸 어린왕자와 사막여우 포토존', sig: '☕ 계단식 루프탑 카페 뷰', lat: 35.0975, lng: 129.0106 }
     ]
   };
 
@@ -403,9 +365,11 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
         region: city,
         theme: s.theme,
         category: s.cat,
+        photoTip: s.photo || '📸 자연광이 예쁜 포토존 촬영 추천',
+        signatureItem: s.sig || '☕ 대표 시그니처 메뉴 추천',
         rating: 4.9,
-        image: getFallbackCityImage(city, idx),
-        location: `대한민국 ${city} 일대 (지도 길찾기 연동)`,
+        image: getCuratedSpotImage(s.name, city, s.cat, idx),
+        location: `대한민국 ${city} 일대`,
         lat: s.lat,
         lng: s.lng,
         transitTime: '지하철 또는 도보로 편리하게 이동',
@@ -418,7 +382,7 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
 
     finalizedSchedules.push({
       day: dayNum,
-      theme: `${dayNum}일차 ${city} 핵심 힐링 투어`,
+      theme: `${dayNum}일차 ${city} 감성 매거진 코스`,
       transitTip: '지하철 및 대중교통으로 환승 없이 10분 내 이동 가능합니다.',
       foodRecommendation: {
         dishName: `${city} 대표 미식`,
@@ -431,8 +395,8 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
   return {
     targetCity: city,
     days,
-    tripTitle: `${city} ${days}일 맞춤 추천 코스`,
-    summary: `VORA AI가 제안하는 ${city} ${days}일 여행 코스입니다. 가장 인기 있는 명소와 이동이 편리한 최적의 동선으로 구성되었습니다. ✨`,
+    tripTitle: `${city} ${days}일 감성 매거진 코스`,
+    summary: `VORA AI 매거진이 제안하는 ${city} ${days}일 트렌디 여행 코스입니다. 가장 인기 있는 핫플레이스와 인생샷 명소로 구성되었습니다. ✨`,
     dailySchedules: finalizedSchedules,
     spots: flatSpots,
     agodaUrl: `https://www.agoda.com/search?text=${encodeURIComponent(city + ' 호텔')}`,

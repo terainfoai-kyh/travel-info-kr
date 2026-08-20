@@ -320,21 +320,39 @@ export default function CourseMagazineView({
                         </button>
                       </div>
 
-                      {/* Transit Tip / Time */}
-                      <div style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '0.3rem',
-                        fontSize: '0.7rem',
-                        fontWeight: 700,
-                        color: 'var(--accent-primary)',
-                        backgroundColor: 'rgba(37, 99, 235, 0.07)',
-                        padding: '0.15rem 0.45rem',
-                        borderRadius: '6px',
-                        width: 'fit-content'
-                      }}>
-                        <Navigation size={11} />
-                        <span>{spot.transitTime || '도보/지하철 10분'}</span>
+                      {/* Photo Tip & Transit Time */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                        <div style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.3rem',
+                          fontSize: '0.68rem',
+                          fontWeight: 700,
+                          color: 'var(--accent-primary)',
+                          backgroundColor: 'rgba(37, 99, 235, 0.07)',
+                          padding: '0.12rem 0.4rem',
+                          borderRadius: '5px'
+                        }}>
+                          <Navigation size={10} />
+                          <span>{spot.transitTime || '도보/지하철 10분'}</span>
+                        </div>
+
+                        {spot.photoTip && (
+                          <div style={{
+                            fontSize: '0.68rem',
+                            fontWeight: 700,
+                            color: '#b45309',
+                            backgroundColor: 'rgba(245, 158, 11, 0.08)',
+                            padding: '0.12rem 0.4rem',
+                            borderRadius: '5px',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            maxWidth: '180px'
+                          }}>
+                            {spot.photoTip}
+                          </div>
+                        )}
                       </div>
 
                       {/* Action Links (Detail Modal & Google Map Search) */}
