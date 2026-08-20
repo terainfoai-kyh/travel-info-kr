@@ -226,7 +226,37 @@ export default function VoraAIChat({
                     </div>
                   )}
 
-                  <div>{msg.text}</div>
+                  <div style={{ whiteSpace: 'pre-line' }}>{msg.text}</div>
+
+                  {/* Quick Suggestions Chips for Conversational Mode */}
+                  {msg.quickSuggestions && msg.quickSuggestions.length > 0 && (
+                    <div style={{
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      gap: '0.4rem',
+                      marginTop: '0.65rem'
+                    }}>
+                      {msg.quickSuggestions.map((suggestion, sIdx) => (
+                        <button
+                          key={sIdx}
+                          onClick={() => onSendMessage && onSendMessage(suggestion)}
+                          style={{
+                            backgroundColor: 'rgba(37, 99, 235, 0.08)',
+                            color: 'var(--accent-primary)',
+                            border: '1px solid var(--border-highlight)',
+                            borderRadius: 'var(--radius-full)',
+                            padding: '0.3rem 0.65rem',
+                            fontSize: '0.74rem',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            transition: 'all var(--transition-fast)'
+                          }}
+                        >
+                          ✨ {suggestion}
+                        </button>
+                      ))}
+                    </div>
+                  )}
 
                   {/* Copy Button if message has itinerary data */}
                   {msg.itinerary && (

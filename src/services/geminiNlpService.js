@@ -134,16 +134,25 @@ export function getKakaoMapSearchUrl(spotTitle, city = '') {
 }
 
 /**
- * ⚡ Master Gemini Multi-Day Itinerary Planner with Parallelized Photo Resolution
+ * ⚡ Master Gemini Multi-Day Itinerary Planner with Dual-Mode (Conversational Clarification & Itinerary Generation)
  */
 export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko', previousItinerary = null) {
   const startTime = Date.now();
-  const explicitCity = extractLocationKeyword(rawPrompt, false);
+  const cleanPrompt = (rawPrompt || '').trim();
+  const explicitCity = extractLocationKeyword(cleanPrompt, false);
   const mentionsExplicitCity = !!explicitCity;
 
+  // Fast check: Is it purely ambiguous/typo/greetings/short syllables?
+  const isHangulJamoOnly = /^[ㄱ-ㅎㅏ-ㅣ\s]+$/.test(cleanPrompt);
+  const isShortOrGreeting = !explicitCity && (
+    cleanPrompt.length <= 2 ||
+    isHangulJamoOnly ||
+    /^(안녕|하이|반가워|뭐해|누구|고마워|감사|ㅋㅋ|ㅎㅎ|ㅇㅇ|ㄴㄴ|ㄷㄷ|ㅠㅠ|test|테스트|\?+|\!+)$/i.test(cleanPrompt)
+  );
+
   const isModificationRequest = previousItinerary && !mentionsExplicitCity && (
-    /(추가|변경|바꿔|수정|빼줘|대신|넣어|바꿔줘|일정 수정|2일차|1일차|3일차|4일차|5일차|식당으로|맛집으로|카페로|실내로|예산|가성비|5만원|10만원|코스로)/i.test(rawPrompt) &&
-    !/(새로운\s*여행|다른\s*도시)/i.test(rawPrompt)
+    /(추가|변경|바꿔|수정|빼줘|대신|넣어|바꿔줘|일정 수정|2일차|1일차|3일차|4일차|5일차|식당으로|맛집으로|카페로|실내로|예산|가성비|5만원|10만원|코스로)/i.test(cleanPrompt) &&
+    !/(새로운\s*여행|다른\s*도시)/i.test(cleanPrompt)
   );
 
   let targetCity = '서울';
@@ -154,11 +163,11 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko', previo
     days = previousItinerary.days || (previousItinerary.dailySchedules ? previousItinerary.dailySchedules.length : 2);
   } else {
     targetCity = explicitCity || '서울';
-    if (/(5일|4박\s*5일|5박|5d|5\s*days)/i.test(rawPrompt)) days = 5;
-    else if (/(4일|3박\s*4일|4박|4d|4\s*days)/i.test(rawPrompt)) days = 4;
-    else if (/(3일|2박\s*3일|3박|3d|3\s*days)/i.test(rawPrompt)) days = 3;
-    else if (/(2일|1박\s*2일|2박|2d|2\s*days)/i.test(rawPrompt)) days = 2;
-    else if (/(1일|당일|1박|1d|1\s*day)/i.test(rawPrompt)) days = 1;
+    if (/(5일|4박\s*5일|5박|5d|5\s*days)/i.test(cleanPrompt)) days = 5;
+    else if (/(4일|3박\s*4일|4박|4d|4\s*days)/i.test(cleanPrompt)) days = 4;
+    else if (/(3일|2박\s*3일|3박|3d|3\s*days)/i.test(cleanPrompt)) days = 3;
+    else if (/(2일|1박\s*2일|2박|2d|2\s*days)/i.test(cleanPrompt)) days = 2;
+    else if (/(1일|당일|1박|1d|1\s*day)/i.test(cleanPrompt)) days = 1;
     else if (previousItinerary && previousItinerary.days && isModificationRequest) days = previousItinerary.days;
   }
 
@@ -179,7 +188,7 @@ ${JSON.stringify(previousItinerary.dailySchedules.map(ds => ({
   spots: (ds.spots || []).map(s => s.title)
 })), null, 2)}
 
-USER MODIFICATION REQUEST: "${rawPrompt}"
+USER MODIFICATION REQUEST: "${cleanPrompt}"
 INSTRUCTION FOR MODIFICATION:
 1. Retain the existing ${days}-day structure and all unchanged days/spots in "${targetCity}".
 2. Apply the requested changes (e.g. budget, cost-effective adjustments, adding a spot or changing spot category) precisely for "${targetCity}".
@@ -188,26 +197,31 @@ INSTRUCTION FOR MODIFICATION:
 `;
   }
 
-  const systemInstruction = `You are VORA, an elite South Korean AI Travel Magazine Editor & Concierge.
-Create a trendy, stylish, highly immersive ${days}-day travel magazine itinerary in South Korea based on the user's request.
-${explicitCity ? `Target main destination: "${explicitCity}".` : 'If the user specifies a specific region/city in Korea, plan for that place. If the query is general, ambiguous, or a typo (e.g. 힐링 여행, 드라이브, 징수 추천), intelligently select the best Korean destination fitting the request and output its name in "targetCity".'}
-Language of output: "${lang}".
+  const systemInstruction = `You are VORA, an elite South Korean AI Travel Concierge & Magazine Editor.
+Analyze the user request carefully: "${cleanPrompt}".
 
-CRITICAL LOCALIZATION RULES:
-1. If city is "제주" or "서귀포", NEVER mention "지하철" (Subway). Use "제주 급행/간선 버스 및 해안도로 순환 버스 또는 렌터카" for transit.
-2. Recommend 2 genuinely trendy, authentic, non-repeating spots per day in the target city (popular cafes, scenic photo zones, local delicacies, night views).
-3. For each spot, provide rich, engaging storytelling:
-   - "theme": One-line aesthetic catchphrase in ${lang}
-   - "description": 2-3 sentences of rich narrative in ${lang} explaining why this spot is famous, its vibe, and why visitors love it.
-   - "photoTip": 📸 Specific photo spot angle/tip in ${lang}
-   - "signatureItem": ☕/🍴 Signature menu or experience in ${lang}
-   - "bestTime": ⏰ Recommended visiting time
-   - "category": K-POP성지 / 감성카페 / 한옥골목 / 오션뷰 / 로컬미식 / 야경명소 / 자연명소
-4. Provide realistic GPS coordinates around the target city.
-5. In summary, write an inspiring, warm concierge narrative in language "${lang}".
+[DUAL RESPONSE SPECIFICATION]
 
-Return ONLY valid JSON matching this exact schema:
+CASE 1: CONVERSATIONAL & CLARIFYING MODE
+Trigger if the user query is a simple greeting, ambiguous input, typo, single consonants (like "ㅅ ㅇ", "ㅇㅇ", "안녕", "ㅋㅋ", "뭐해", "추천", "???"), or lacks sufficient details for a trip.
+Return ONLY this JSON schema:
 {
+  "responseType": "chat",
+  "message": "Polite, helpful, warm clarifying message in ${lang}. (e.g. '선배님, 혹시 서울이나 수원 여행을 생각하셨나요? 원하시는 지역이나 여행 테마(맛집 투어, 감성 카페, 힐링 등)를 편하게 말씀해 주시면 완벽한 코스를 바로 짜드릴게요! 😊')",
+  "quickSuggestions": [
+    "서울 성수·한남 감성 코스",
+    "수원 행궁동 1박2일 투어",
+    "부산 광안리 오션뷰 힐링",
+    "제주도 애월 해안 드라이브"
+  ]
+}
+
+CASE 2: FULL ITINERARY MAGAZINE MODE
+Trigger if the user explicitly asks for a destination, itinerary, travel plan, course modification, budget adjustment, or specific travel theme.
+${explicitCity ? `Target destination: "${explicitCity}".` : 'If the user specifies a specific region in Korea, plan for that place. If the query is a general travel topic (e.g. 힐링 여행, 가을 드라이브), select the most exciting destination in Korea and set "targetCity".'}
+Return ONLY this JSON schema:
+{
+  "responseType": "itinerary",
   "tripTitle": "Catchy Magazine Title in ${lang}",
   "targetCity": "Target City Name in Korean",
   "days": ${days},
@@ -242,7 +256,7 @@ Return ONLY valid JSON matching this exact schema:
 
   const promptText = contextPrompt 
     ? `${contextPrompt}\n\nLanguage: ${lang}. Return updated JSON.` 
-    : `User Request: "${rawPrompt}". Duration: ${days} days, language: ${lang}. Create a vibrant, trendy itinerary.`;
+    : `User Request: "${cleanPrompt}". Duration: ${days} days, language: ${lang}. Process appropriately as chat clarification or full itinerary.`;
 
   const candidateKeys = GEMINI_KEY_POOL;
   const modelCandidates = ['gemini-3.5-flash-lite', 'gemini-3.5-flash'];
@@ -282,110 +296,129 @@ Return ONLY valid JSON matching this exact schema:
               }
             }
 
-            if (parsed && parsed.dailySchedules && Array.isArray(parsed.dailySchedules)) {
-              const finalCity = parsed.targetCity || targetCity || '서울';
-              const finalCityMeta = CITY_COORDINATES[finalCity] || CITY_COORDINATES['서울'];
-              const isFinalJeju = finalCity.includes('제주') || finalCity.includes('서귀포');
-
-              // ⚡ Parallel Photo Resolution across ALL spots simultaneously!
-              const spotLookupPromises = [];
-
-              for (let dayIdx = 0; dayIdx < parsed.dailySchedules.length; dayIdx++) {
-                const ds = parsed.dailySchedules[dayIdx];
-                const rawSpots = ds.spots || [];
-
-                for (let spotIdx = 0; spotIdx < rawSpots.length; spotIdx++) {
-                  const s = rawSpots[spotIdx];
-                  const spotTitle = s.name || s.title || `${finalCity} 핫플 ${spotIdx + 1}`;
-                  const spotCategory = s.category || '핫플레이스';
-
-                  spotLookupPromises.push(
-                    resolveSpotPhotoDynamic(spotTitle, finalCity, spotCategory).then(photoData => ({
-                      dayIdx,
-                      spotIdx,
-                      s,
-                      spotTitle,
-                      spotCategory,
-                      photoData
-                    }))
-                  );
-                }
-              }
-
-              const resolvedSpotsResults = await Promise.all(spotLookupPromises);
-              const flatSpots = [];
-              const finalizedSchedules = [];
-
-              for (let dayIdx = 0; dayIdx < parsed.dailySchedules.length; dayIdx++) {
-                const ds = parsed.dailySchedules[dayIdx];
-                const dayNum = dayIdx + 1;
-                const daySpotResults = resolvedSpotsResults.filter(r => r.dayIdx === dayIdx);
-                const daySpots = [];
-
-                for (const r of daySpotResults) {
-                  const { spotIdx, s, spotTitle, spotCategory, photoData } = r;
-                  const latOffset = (spotIdx * 0.008) * (spotIdx % 2 === 0 ? 1 : -1);
-                  const lngOffset = (spotIdx * 0.009) * (spotIdx % 2 === 0 ? -1 : 1);
-
-                  const realPhoto = photoData?.primaryImage || photoData;
-                  const realPhotos = photoData?.images || [realPhoto];
-                  const affiliateDeal = getSpotAffiliateDeal(spotTitle, finalCity);
-
-                  const defaultTransit = isFinalJeju 
-                    ? '제주 급행 버스 또는 해안도로 이동 15분' 
-                    : (s.transitTime || '지하철 또는 도보로 편리하게 이동');
-
-                  const finalSpot = {
-                    id: `vora-spot-${dayNum}-${spotIdx + 1}`,
-                    title: spotTitle,
-                    region: finalCity,
-                    theme: s.theme || '인기 감성 핫플레이스',
-                    description: s.description || `${spotTitle}은 ${finalCity}에서 가장 트렌디하고 매력적인 감성을 느낄 수 있는 대표 명소입니다. 아름다운 공간과 특별한 분위기를 경험해 보세요.`,
-                    category: spotCategory,
-                    photoTip: s.photoTip || '📸 자연광이 잘 드는 포토존에서 인생샷 촬영 추천',
-                    signatureItem: s.signatureItem || '✨ 시그니처 대표 메뉴 & 추천 포인트',
-                    bestTime: s.bestTime || '오후 시간대 추천',
-                    rating: photoData?.rating || 4.9,
-                    image: realPhoto,
-                    images: realPhotos,
-                    affiliateDeal,
-                    location: s.address || `대한민국 ${finalCity}`,
-                    lat: Number(s.lat) || (finalCityMeta.lat + latOffset),
-                    lng: Number(s.lng) || (finalCityMeta.lng + lngOffset),
-                    transitTime: defaultTransit,
-                    assignedDay: dayNum,
-                    dayOrder: spotIdx + 1
-                  };
-
-                  daySpots.push(finalSpot);
-                  flatSpots.push(finalSpot);
-                }
-
-                finalizedSchedules.push({
-                  day: dayNum,
-                  theme: ds.theme || `${dayNum}일차 ${finalCity} 감성 코스`,
-                  transitTip: ds.transitTip || (isFinalJeju ? '제주 해안도로 및 급행 버스를 이용해 편리하게 이동합니다.' : '지하철 및 대중교통 환승이 매우 편리한 구간입니다.'),
-                  foodRecommendation: ds.foodRecommendation || {
-                    dishName: `${finalCity} 로컬 대표 미식`,
-                    description: '현지인들이 즐겨 찾는 대표 맛집에서 식사 추천'
-                  },
-                  spots: daySpots
-                });
-              }
-
+            if (parsed) {
               const elapsedSeconds = ((Date.now() - startTime) / 1000).toFixed(1);
 
-              return {
-                targetCity: finalCity,
-                days: parsed.days || days,
-                tripTitle: parsed.tripTitle || `${finalCity} ${days}일 감성 매거진 코스`,
-                summary: parsed.summary || `${finalCity}의 대표적인 핫플레이스와 감성 명소를 엄선한 맞춤 일정입니다. ✨`,
-                dailySchedules: finalizedSchedules,
-                spots: flatSpots,
-                generationTime: elapsedSeconds,
-                agodaUrl: `https://www.agoda.com/search?text=${encodeURIComponent(finalCity + ' 호텔')}`,
-                klookUrl: `https://www.klook.com/ko/search?query=${encodeURIComponent(finalCity + ' 액티비티')}`
-              };
+              // 1. Conversational & Clarifying Mode
+              if (parsed.responseType === 'chat' || (!parsed.dailySchedules && parsed.message)) {
+                return {
+                  responseType: 'chat',
+                  message: parsed.message || '선배님, 어떤 여행지나 코스를 찾고 계신가요? 원하시는 지역(서울, 수원, 부산, 제주 등)이나 여행 스타일을 말씀해 주시면 완벽한 코스를 준비해 드릴게요! ✨',
+                  quickSuggestions: parsed.quickSuggestions || [
+                    '서울 성수·한남 감성 코스',
+                    '수원 행궁동 1박2일 투어',
+                    '부산 광안리 오션뷰 힐링',
+                    '제주도 애월 해안 드라이브'
+                  ],
+                  generationTime: elapsedSeconds
+                };
+              }
+
+              // 2. Full Itinerary Mode
+              if (parsed.dailySchedules && Array.isArray(parsed.dailySchedules)) {
+                const finalCity = parsed.targetCity || targetCity || '서울';
+                const finalCityMeta = CITY_COORDINATES[finalCity] || CITY_COORDINATES['서울'];
+                const isFinalJeju = finalCity.includes('제주') || finalCity.includes('서귀포');
+
+                // ⚡ Parallel Photo Resolution across ALL spots simultaneously!
+                const spotLookupPromises = [];
+
+                for (let dayIdx = 0; dayIdx < parsed.dailySchedules.length; dayIdx++) {
+                  const ds = parsed.dailySchedules[dayIdx];
+                  const rawSpots = ds.spots || [];
+
+                  for (let spotIdx = 0; spotIdx < rawSpots.length; spotIdx++) {
+                    const s = rawSpots[spotIdx];
+                    const spotTitle = s.name || s.title || `${finalCity} 핫플 ${spotIdx + 1}`;
+                    const spotCategory = s.category || '핫플레이스';
+
+                    spotLookupPromises.push(
+                      resolveSpotPhotoDynamic(spotTitle, finalCity, spotCategory).then(photoData => ({
+                        dayIdx,
+                        spotIdx,
+                        s,
+                        spotTitle,
+                        spotCategory,
+                        photoData
+                      }))
+                    );
+                  }
+                }
+
+                const resolvedSpotsResults = await Promise.all(spotLookupPromises);
+                const flatSpots = [];
+                const finalizedSchedules = [];
+
+                for (let dayIdx = 0; dayIdx < parsed.dailySchedules.length; dayIdx++) {
+                  const ds = parsed.dailySchedules[dayIdx];
+                  const dayNum = dayIdx + 1;
+                  const daySpotResults = resolvedSpotsResults.filter(r => r.dayIdx === dayIdx);
+                  const daySpots = [];
+
+                  for (const r of daySpotResults) {
+                    const { spotIdx, s, spotTitle, spotCategory, photoData } = r;
+                    const latOffset = (spotIdx * 0.008) * (spotIdx % 2 === 0 ? 1 : -1);
+                    const lngOffset = (spotIdx * 0.009) * (spotIdx % 2 === 0 ? -1 : 1);
+
+                    const realPhoto = photoData?.primaryImage || photoData;
+                    const realPhotos = photoData?.images || [realPhoto];
+                    const affiliateDeal = getSpotAffiliateDeal(spotTitle, finalCity);
+
+                    const defaultTransit = isFinalJeju 
+                      ? '제주 급행 버스 또는 해안도로 이동 15분' 
+                      : (s.transitTime || '지하철 또는 도보로 편리하게 이동');
+
+                    const finalSpot = {
+                      id: `vora-spot-${dayNum}-${spotIdx + 1}`,
+                      title: spotTitle,
+                      region: finalCity,
+                      theme: s.theme || '인기 감성 핫플레이스',
+                      description: s.description || `${spotTitle}은 ${finalCity}에서 가장 트렌디하고 매력적인 감성을 느낄 수 있는 대표 명소입니다. 아름다운 공간과 특별한 분위기를 경험해 보세요.`,
+                      category: spotCategory,
+                      photoTip: s.photoTip || '📸 자연광이 잘 드는 포토존에서 인생샷 촬영 추천',
+                      signatureItem: s.signatureItem || '✨ 시그니처 대표 메뉴 & 추천 포인트',
+                      bestTime: s.bestTime || '오후 시간대 추천',
+                      rating: photoData?.rating || 4.9,
+                      image: realPhoto,
+                      images: realPhotos,
+                      affiliateDeal,
+                      location: s.address || `대한민국 ${finalCity}`,
+                      lat: Number(s.lat) || (finalCityMeta.lat + latOffset),
+                      lng: Number(s.lng) || (finalCityMeta.lng + lngOffset),
+                      transitTime: defaultTransit,
+                      assignedDay: dayNum,
+                      dayOrder: spotIdx + 1
+                    };
+
+                    daySpots.push(finalSpot);
+                    flatSpots.push(finalSpot);
+                  }
+
+                  finalizedSchedules.push({
+                    day: dayNum,
+                    theme: ds.theme || `${dayNum}일차 ${finalCity} 감성 코스`,
+                    transitTip: ds.transitTip || (isFinalJeju ? '제주 해안도로 및 급행 버스를 이용해 편리하게 이동합니다.' : '지하철 및 대중교통 환승이 매우 편리한 구간입니다.'),
+                    foodRecommendation: ds.foodRecommendation || {
+                      dishName: `${finalCity} 로컬 대표 미식`,
+                      description: '현지인들이 즐겨 찾는 대표 맛집에서 식사 추천'
+                    },
+                    spots: daySpots
+                  });
+                }
+
+                return {
+                  responseType: 'itinerary',
+                  targetCity: finalCity,
+                  days: parsed.days || days,
+                  tripTitle: parsed.tripTitle || `${finalCity} ${days}일 감성 매거진 코스`,
+                  summary: parsed.summary || `${finalCity}의 대표적인 핫플레이스와 감성 명소를 엄선한 맞춤 일정입니다. ✨`,
+                  dailySchedules: finalizedSchedules,
+                  spots: flatSpots,
+                  generationTime: elapsedSeconds,
+                  agodaUrl: `https://www.agoda.com/search?text=${encodeURIComponent(finalCity + ' 호텔')}`,
+                  klookUrl: `https://www.klook.com/ko/search?query=${encodeURIComponent(finalCity + ' 액티비티')}`
+                };
+              }
             }
           }
         }
@@ -395,7 +428,25 @@ Return ONLY valid JSON matching this exact schema:
     }
   }
 
-  return generateLocalFallbackItinerary(rawPrompt, targetCity, days, lang, previousItinerary, isModificationRequest);
+  // Fast Fallback if API fails or query is short/ambiguous
+  if (isShortOrGreeting) {
+    const elapsedSeconds = ((Date.now() - startTime) / 1000).toFixed(1);
+    return {
+      responseType: 'chat',
+      message: cleanPrompt.includes('안녕')
+        ? '안녕하세요 선배님! VORA AI 여행 컨시어지입니다. 오늘 어떤 특별한 여행을 떠나고 싶으신가요? 지역이나 가고 싶은 곳을 편하게 말씀해 주세요! ✨'
+        : `'${cleanPrompt}'에 대해 어떤 여행지를 찾고 계신가요? 서울, 수원, 부산, 제주 등 원하시는 지역이나 여행 테마를 편하게 말씀해 주시면 멋진 맞춤 코스를 바로 준비해 드릴게요! 😊`,
+      quickSuggestions: [
+        '서울 성수·한남 감성 코스',
+        '수원 행궁동 1박2일 투어',
+        '부산 광안리 오션뷰 힐링',
+        '제주도 애월 해안 드라이브'
+      ],
+      generationTime: elapsedSeconds
+    };
+  }
+
+  return generateLocalFallbackItinerary(cleanPrompt, targetCity, days, lang, previousItinerary, isModificationRequest);
 }
 
 // Local Fallback Itinerary Generator with 100% Verified Real Korean Landmark Photos

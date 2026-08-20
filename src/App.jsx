@@ -187,23 +187,40 @@ export default function App() {
       const result = await geminiGenerateFullItinerary(promptQuery, lang, itineraryData);
       const elapsedSeconds = ((Date.now() - startTime) / 1000).toFixed(1);
       const replyTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-      const finalResult = {
-        ...(result || generateLocalFallbackItinerary(promptQuery, extractLocationKeyword(promptQuery), 2, lang)),
-        generationTime: elapsedSeconds
-      };
-      
-      setItineraryData(finalResult);
-      const botMsg = {
-        id: `bot-${Date.now()}`,
-        role: 'assistant',
-        text: `✨ **${finalResult.tripTitle}**\n${finalResult.summary}`,
-        itinerary: finalResult,
-        generationTime: elapsedSeconds,
-        queryTime,
-        replyTime,
-        timestamp: replyTime
-      };
-      setChatMessages(prev => [...prev, botMsg]);
+
+      if (result && result.responseType === 'chat') {
+        // 💬 Conversational & Clarifying Mode: Keep existing itinerary screen intact!
+        const botMsg = {
+          id: `bot-${Date.now()}`,
+          role: 'assistant',
+          text: result.message,
+          quickSuggestions: result.quickSuggestions || [],
+          generationTime: result.generationTime || elapsedSeconds,
+          queryTime,
+          replyTime,
+          timestamp: replyTime
+        };
+        setChatMessages(prev => [...prev, botMsg]);
+      } else {
+        // 📍 Full Itinerary Mode: Render full course and sync map
+        const finalResult = {
+          ...(result || generateLocalFallbackItinerary(promptQuery, extractLocationKeyword(promptQuery), 2, lang)),
+          generationTime: elapsedSeconds
+        };
+        
+        setItineraryData(finalResult);
+        const botMsg = {
+          id: `bot-${Date.now()}`,
+          role: 'assistant',
+          text: `✨ **${finalResult.tripTitle}**\n${finalResult.summary}`,
+          itinerary: finalResult,
+          generationTime: elapsedSeconds,
+          queryTime,
+          replyTime,
+          timestamp: replyTime
+        };
+        setChatMessages(prev => [...prev, botMsg]);
+      }
     } catch (err) {
       console.warn('[VORA AI Error]', err);
       const elapsedSeconds = ((Date.now() - startTime) / 1000).toFixed(1);
