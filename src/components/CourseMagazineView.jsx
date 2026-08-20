@@ -348,7 +348,7 @@ export default function CourseMagazineView({
                             whiteSpace: 'nowrap',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
-                            maxWidth: '180px'
+                            maxWidth: '240px'
                           }}>
                             {spot.photoTip}
                           </div>

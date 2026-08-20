@@ -150,7 +150,7 @@ export const TRANSLATIONS = {
     aboutUs: '서비스 소개',
     contactUs: '제휴 및 문의',
     footerCopyright: '© 2026 VORA AI — Korea Smart Travel Concierge. All Rights Reserved.',
-    footerTourApiNotice: '한국관광공사 TourAPI 4.0 공공데이터 및 Google Maps Platform 연동'
+    footerTourApiNotice: 'Google Gemini 3.0 AI & Google Maps Platform 연동'
   },
 
   en: {
