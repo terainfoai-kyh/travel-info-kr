@@ -237,18 +237,35 @@ export default function TravelDetailModal({ spot, onClose }) {
           gap: '1rem'
         }}>
           {/* Multi-Photo Thumbnails Row */}
+          {/* Multi-Photo Thumbnails Row with Smooth Wheel & Touch Scroll */}
           {photoList.length > 1 && (
-            <div>
-              <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                <Camera size={13} style={{ color: 'var(--accent-primary)' }} />
-                <span>한국관광공사 공식 갤러리 ({photoList.length}장의 사진)</span>
+            <div style={{ position: 'relative' }}>
+              <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.45rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <Camera size={13} style={{ color: 'var(--accent-primary)' }} />
+                  <span>한국관광공사 공식 갤러리 ({photoList.length}장의 사진)</span>
+                </div>
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', opacity: 0.8 }}>
+                  휠을 굴리거나 드래그하여 탐색 ↔
+                </span>
               </div>
-              <div style={{
-                display: 'flex',
-                gap: '0.5rem',
-                overflowX: 'auto',
-                paddingBottom: '0.3rem'
-              }}>
+
+              <div 
+                onWheel={(e) => {
+                  if (e.deltaY !== 0) {
+                    e.currentTarget.scrollLeft += e.deltaY;
+                  }
+                }}
+                style={{
+                  display: 'flex',
+                  gap: '0.55rem',
+                  overflowX: 'auto',
+                  paddingBottom: '0.4rem',
+                  scrollBehavior: 'smooth',
+                  WebkitOverflowScrolling: 'touch',
+                  scrollbarWidth: 'thin'
+                }}
+              >
                 {photoList.map((p, idx) => (
                   <button
                     key={idx}
@@ -258,11 +275,12 @@ export default function TravelDetailModal({ spot, onClose }) {
                       padding: 0,
                       borderRadius: '10px',
                       overflow: 'hidden',
-                      width: '64px',
-                      height: '48px',
+                      width: '68px',
+                      height: '50px',
                       flexShrink: 0,
                       cursor: 'pointer',
                       opacity: idx === activePhotoIdx ? 1 : 0.65,
+                      boxShadow: idx === activePhotoIdx ? '0 0 8px rgba(37, 99, 235, 0.4)' : 'none',
                       transition: 'all var(--transition-fast)'
                     }}
                   >

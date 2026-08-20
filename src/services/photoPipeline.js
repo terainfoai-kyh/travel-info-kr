@@ -1,21 +1,60 @@
 /**
- * VORA AI 7.0 - 100% Pure Real-Time Multi-Photo Dynamic Engine
+ * VORA AI 8.0 - 100% Pure Real-Time Geographically-Pinpointed Multi-Photo Engine
  * 
  * Features:
- * 1. 100% Authentic Korean Tourism Organization (TourAPI 4.0 searchKeyword2 + detailImage2) Live Search
- * 2. Multi-Photo Gallery: Fetches 3~8 real high-res photos per spot for the modal gallery!
- * 3. Smart Filtering: Filters out posters/illustrations and prioritizes bright daylight landscape photos (.jpg/.jpeg).
- * 4. Zero Hardcoded Spot URLs.
+ * 1. AreaCode & Address 2-Tier Geolocation Filter:
+ *    - Pinpoints exact local spot photos (e.g. Jeju Jungmun Daepo Jusangjeolli vs Gwangju Mudeungsan Jusangjeolli).
+ * 2. Full Multi-Token Chained Fallback Search (Zero photo overlap).
+ * 3. Official TourAPI 4.0 (searchKeyword2 + detailImage2) Multi-Photo Gallery (3~19 photos per spot).
+ * 4. Poster & Graphic Illustration Filter (Prioritizes bright daylight landscape photos).
+ * 5. Zero Hardcoded Spot URLs.
  */
 
 import { PUBLIC_API_CONFIG } from './apiConfig.js';
+
+// KTO Official Area Codes
+export const CITY_AREA_CODES = {
+  '서울': '1',
+  '인천': '2',
+  '대전': '3',
+  '대구': '4',
+  '광주': '5',
+  '부산': '6',
+  '울산': '7',
+  '세종': '8',
+  '경기': '31',
+  '강원': '32',
+  '강릉': '32',
+  '속초': '32',
+  '충북': '33',
+  '충남': '34',
+  '경북': '35',
+  '경주': '35',
+  '포항': '35',
+  '경남': '36',
+  '전북': '37',
+  '전주': '37',
+  '전남': '38',
+  '여수': '38',
+  '순천': '38',
+  '제주': '39',
+  '서귀포': '39'
+};
+
+export function getAreaCode(city = '') {
+  if (!city) return '';
+  for (const [k, v] of Object.entries(CITY_AREA_CODES)) {
+    if (city.includes(k) || k.includes(city)) return v;
+  }
+  return '';
+}
 
 // In-Memory & LocalStorage Cache
 const PHOTO_CACHE = new Map();
 const MULTI_PHOTO_CACHE = new Map();
 
 try {
-  const saved = localStorage.getItem('vora_live_photo_cache_v7');
+  const saved = localStorage.getItem('vora_live_photo_cache_v8');
   if (saved) {
     const parsed = JSON.parse(saved);
     Object.entries(parsed).forEach(([k, v]) => PHOTO_CACHE.set(k, v));
@@ -31,7 +70,7 @@ export function saveToCache(key, url, multiPhotos = []) {
   try {
     const obj = {};
     PHOTO_CACHE.forEach((v, k) => { obj[k] = v; });
-    localStorage.setItem('vora_live_photo_cache_v7', JSON.stringify(obj));
+    localStorage.setItem('vora_live_photo_cache_v8', JSON.stringify(obj));
   } catch (e) {}
 }
 
@@ -41,24 +80,40 @@ export function saveToCache(key, url, multiPhotos = []) {
 export function extractSearchKeywords(rawTitle = '') {
   if (!rawTitle || typeof rawTitle !== 'string') return [];
   
-  return rawTitle
+  const tokens = rawTitle
     .replace(/\(.*?\)/g, ' ')
     .replace(/\[.*?\]/g, ' ')
     .split(/[\s,&+~/·와과및\->➔]+/g)
-    .map(w => w.replace(/(카페거리|핫플|인사이트|골목길|일대|거리|명소|특구|해변|산책로|해수욕장)/g, '').trim())
+    .map(w => w.replace(/(카페거리|핫플|인사이트|골목길|일대|거리|명소|특구|해변|산책로|해수욕장|디저트|투어|코스)/g, '').trim())
     .filter(w => w.length >= 2);
+
+  // Add individual words as fallback tokens
+  const extraTokens = [];
+  tokens.forEach(t => {
+    if (t.includes('타워')) extraTokens.push('타워', '남산');
+    if (t.includes('주상절리')) extraTokens.push('주상절리');
+    if (t.includes('해수욕장') || t.includes('해변')) extraTokens.push('해수욕장');
+    if (t.includes('한옥')) extraTokens.push('한옥마을');
+  });
+
+  return Array.from(new Set([...tokens, ...extraTokens]));
 }
 
 /**
- * 🏛️ TourAPI 4.0 Live Multi-Photo Fetcher (searchKeyword2 + detailImage2)
+ * 🏛️ TourAPI 4.0 Live Multi-Photo Fetcher with AreaCode & City Filtering
  */
-export async function fetchTourApiMultiPhotos(keyword) {
+export async function fetchTourApiMultiPhotos(keyword, city = '') {
   if (!keyword || keyword.length < 2) return [];
   const serviceKey = PUBLIC_API_CONFIG.SERVICE_KEY;
+  const areaCode = getAreaCode(city);
   const baseUrl = `${PUBLIC_API_CONFIG.TOUR_API_BASE}/searchKeyword2`;
 
   try {
-    const url = `${baseUrl}?serviceKey=${serviceKey}&numOfRows=5&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=B&keyword=${encodeURIComponent(keyword)}`;
+    let url = `${baseUrl}?serviceKey=${serviceKey}&numOfRows=8&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=B&keyword=${encodeURIComponent(keyword)}`;
+    if (areaCode) {
+      url += `&areaCode=${areaCode}`;
+    }
+
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 4500);
 
@@ -73,8 +128,30 @@ export async function fetchTourApiMultiPhotos(keyword) {
     const photos = [];
     const contentIds = [];
 
-    itemList.forEach(item => {
-      if (item && item.title && !item.title.includes('포스터') && !item.title.includes('나이트워크') && !item.title.includes('축제')) {
+    // Filter by city address if applicable
+    const validItems = itemList.filter(item => {
+      if (!item || !item.title) return false;
+      const isPoster = item.title.includes('포스터') || item.title.includes('나이트워크') || item.title.includes('축제');
+      if (isPoster) return false;
+
+      // Address verification
+      if (city) {
+        const addr = (item.addr1 || '') + ' ' + (item.title || '');
+        if (city.includes('제주') || city.includes('서귀포')) {
+          if (!addr.includes('제주') && !addr.includes('서귀포')) return false;
+        } else if (city.includes('서울')) {
+          if (!addr.includes('서울')) return false;
+        } else if (city.includes('부산')) {
+          if (!addr.includes('부산')) return false;
+        }
+      }
+      return true;
+    });
+
+    const targetList = validItems.length > 0 ? validItems : itemList;
+
+    targetList.forEach(item => {
+      if (item && item.title && !item.title.includes('포스터') && !item.title.includes('나이트워크')) {
         const img = item.firstimage || item.firstimage2;
         if (img) {
           const cleanImg = img.replace(/^http:\/\//i, 'https://');
@@ -87,10 +164,10 @@ export async function fetchTourApiMultiPhotos(keyword) {
     });
 
     // If we have contentId, fetch official gallery from detailImage2
-    if (contentIds.length > 0 && photos.length < 6) {
-      for (const cid of contentIds.slice(0, 2)) {
+    if (contentIds.length > 0 && photos.length < 8) {
+      for (const cid of contentIds.slice(0, 3)) {
         try {
-          const detailUrl = `${PUBLIC_API_CONFIG.TOUR_API_BASE}/detailImage2?serviceKey=${serviceKey}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&contentId=${cid}&imageYN=Y&numOfRows=8`;
+          const detailUrl = `${PUBLIC_API_CONFIG.TOUR_API_BASE}/detailImage2?serviceKey=${serviceKey}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&contentId=${cid}&imageYN=Y&numOfRows=12`;
           const dController = new AbortController();
           const dTimeoutId = setTimeout(() => dController.abort(), 3000);
           const dRes = await fetch(detailUrl, { signal: dController.signal });
@@ -112,7 +189,7 @@ export async function fetchTourApiMultiPhotos(keyword) {
       }
     }
 
-    // Sort: prioritize .jpg/.jpeg real photos over .png posters/illustrations
+    // Prioritize .jpg/.jpeg landscape photos over .png posters
     const sorted = photos.sort((a, b) => {
       const aIsJpg = /\.(jpg|jpeg)$/i.test(a);
       const bIsJpg = /\.(jpg|jpeg)$/i.test(b);
@@ -156,7 +233,7 @@ export async function fetchWikimediaRealtimeImage(keyword) {
   return [];
 }
 
-// 4. Safe Korean Category Fallback (Pure K-Tourism CDN images)
+// 4. Safe Korean Category Fallbacks (Unique photos per category)
 const KTO_SAFE_FALLBACKS = {
   palace: [
     'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg',
@@ -209,38 +286,39 @@ export function getSafeCategoryFallbacks(category = '', title = '') {
 }
 
 /**
- * ⚡ Master Dynamic Photo Resolver - Returns { primaryImage, images: [] }
+ * ⚡ Master Dynamic Photo Resolver with Full Chained Search & City Filtering
  */
 export async function resolveSpotPhotoDynamic(spotTitle = '', city = '서울', category = '') {
   const cleanTitle = (spotTitle || '').trim();
+  const cacheKey = `${city}_${cleanTitle}`;
   if (!cleanTitle) {
     const fb = getSafeCategoryFallbacks(category, cleanTitle);
     return { primaryImage: fb[0], images: fb };
   }
 
   // 1. Check Local Semantic Cache
-  if (PHOTO_CACHE.has(cleanTitle) && MULTI_PHOTO_CACHE.has(cleanTitle)) {
+  if (PHOTO_CACHE.has(cacheKey) && MULTI_PHOTO_CACHE.has(cacheKey)) {
     return {
-      primaryImage: PHOTO_CACHE.get(cleanTitle),
-      images: MULTI_PHOTO_CACHE.get(cleanTitle)
+      primaryImage: PHOTO_CACHE.get(cacheKey),
+      images: MULTI_PHOTO_CACHE.get(cacheKey)
     };
   }
 
-  // 2. Extract Clean Keywords via 3-Line Regex Normalizer
+  // 2. Extract Clean Keywords via Universal Normalizer
   const keywords = extractSearchKeywords(cleanTitle);
   if (!keywords.includes(cleanTitle)) {
     keywords.unshift(cleanTitle.replace(/\(.*?\)/g, '').trim());
   }
 
-  // 3. Query TourAPI 4.0 for multi-photos
+  // 3. Full Chained Search across all keywords with AreaCode/City filter
   const gatheredPhotos = [];
   for (const kw of keywords) {
     if (kw.length >= 2) {
-      const ktoPhotos = await fetchTourApiMultiPhotos(kw);
+      const ktoPhotos = await fetchTourApiMultiPhotos(kw, city);
       ktoPhotos.forEach(p => {
         if (!gatheredPhotos.includes(p)) gatheredPhotos.push(p);
       });
-      if (gatheredPhotos.length >= 4) break;
+      if (gatheredPhotos.length >= 3) break;
     }
   }
 
@@ -264,7 +342,7 @@ export async function resolveSpotPhotoDynamic(spotTitle = '', city = '서울', c
   }
 
   const primaryImage = gatheredPhotos[0];
-  saveToCache(cleanTitle, primaryImage, gatheredPhotos);
+  saveToCache(cacheKey, primaryImage, gatheredPhotos);
 
   return {
     primaryImage,
@@ -277,9 +355,10 @@ export async function resolveSpotPhotoDynamic(spotTitle = '', city = '서울', c
  */
 export function resolveSpotPhotoSync(spotTitle = '', city = '서울', category = '') {
   const cleanTitle = (spotTitle || '').trim();
-  if (PHOTO_CACHE.has(cleanTitle)) {
-    const primary = PHOTO_CACHE.get(cleanTitle);
-    const images = MULTI_PHOTO_CACHE.get(cleanTitle) || [primary];
+  const cacheKey = `${city}_${cleanTitle}`;
+  if (PHOTO_CACHE.has(cacheKey)) {
+    const primary = PHOTO_CACHE.get(cacheKey);
+    const images = MULTI_PHOTO_CACHE.get(cacheKey) || [primary];
     return { primaryImage: primary, images };
   }
   const fb = getSafeCategoryFallbacks(category, cleanTitle);
