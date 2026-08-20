@@ -17,7 +17,7 @@ import ContactUsModal from './components/ContactUsModal';
 import PWAInstallBanner from './components/PWAInstallBanner';
 
 import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
-import { geminiGenerateFullItinerary, generateLocalFallbackItinerary } from './services/geminiNlpService';
+import { geminiGenerateFullItinerary, generateLocalFallbackItinerary, enrichItineraryPhotosAsync } from './services/geminiNlpService';
 
 export default function App() {
   // 4-Language State (ko, en, ja, zh)
@@ -72,6 +72,20 @@ export default function App() {
   }, [lang]);
 
   const [itineraryData, setItineraryData] = useState(initialItinerary);
+
+  // Background live photo enrichment via TourAPI 4.0 & Wikimedia (Zero hardcoding)
+  useEffect(() => {
+    let isMounted = true;
+    if (initialItinerary) {
+      enrichItineraryPhotosAsync(initialItinerary).then(enriched => {
+        if (isMounted && enriched) {
+          setItineraryData(prev => (prev?.tripTitle === initialItinerary.tripTitle ? enriched : prev));
+        }
+      });
+    }
+    return () => { isMounted = false; };
+  }, [initialItinerary]);
+
   const [chatMessages, setChatMessages] = useState(() => [
     {
       id: 'welcome-1',

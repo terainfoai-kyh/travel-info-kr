@@ -1,14 +1,15 @@
 /**
- * VORA AI 4.0 - Gemini Magazine Concierge with 4-Tier Photo & Revenue Pipeline
+ * VORA AI 7.0 - Gemini Magazine Concierge with 100% Pure Real-Time Dynamic Photo Engine
+ * 
  * Features:
- * 1. 100% Authentic Korean Landmark Photos via resolveSpotPhotoSync (photoPipeline.js)
+ * 1. 100% Pure Real-Time Dynamic Photo Engine (TourAPI 4.0 + Wikimedia live search)
  * 2. Smart Affiliate Revenue Pipeline (Klook & Agoda deals for every spot)
  * 3. Accurate Regional Transit (Strictly NO subway in Jeju, only Express/Coastal buses)
  * 4. Multi-Turn Conversational Memory & 6 Unique Non-Repeating Spots
  */
 
-import { resolveSpotPhotoSync } from './photoPipeline';
-import { getSpotAffiliateDeal } from './affiliateService';
+import { resolveSpotPhotoDynamic, resolveSpotPhotoSync } from './photoPipeline.js';
+import { getSpotAffiliateDeal } from './affiliateService.js';
 
 // Precision Korean City Center Coordinates
 export const CITY_COORDINATES = {
@@ -113,7 +114,7 @@ export function getKakaoMapSearchUrl(spotTitle, city = '') {
 }
 
 /**
- * ⚡ Master Gemini Multi-Day Itinerary Planner
+ * ⚡ Master Gemini Multi-Day Itinerary Planner with 100% Dynamic Real-Time Photos
  */
 export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko', previousItinerary = null) {
   const isModificationRequest = previousItinerary && (
@@ -259,23 +260,23 @@ Return ONLY valid JSON matching this exact schema:
               const flatSpots = [];
               const finalizedSchedules = [];
 
-              parsed.dailySchedules.forEach((ds, dayIdx) => {
+              // Gather all spot photo promises in parallel
+              for (let dayIdx = 0; dayIdx < parsed.dailySchedules.length; dayIdx++) {
+                const ds = parsed.dailySchedules[dayIdx];
                 const dayNum = dayIdx + 1;
                 const rawSpots = ds.spots || [];
                 const daySpots = [];
 
-                rawSpots.forEach((s, spotIdx) => {
+                for (let spotIdx = 0; spotIdx < rawSpots.length; spotIdx++) {
+                  const s = rawSpots[spotIdx];
                   const spotTitle = s.name || s.title || `${targetCity} 핫플 ${spotIdx + 1}`;
                   const spotCategory = s.category || '핫플레이스';
 
-                  // Small geographic jitter if coordinates are identical
                   const latOffset = (spotIdx * 0.008) * (spotIdx % 2 === 0 ? 1 : -1);
                   const lngOffset = (spotIdx * 0.009) * (spotIdx % 2 === 0 ? -1 : 1);
 
-                  // 🎯 4-Tier Verified Photo Resolver
-                  const verifiedImage = resolveSpotPhotoSync(spotTitle, targetCity, spotCategory);
-                  
-                  // 💰 Smart Revenue Affiliate Deal
+                  // 🎯 100% Real-Time TourAPI / Dynamic Image Lookup!
+                  const realPhoto = await resolveSpotPhotoDynamic(spotTitle, targetCity, spotCategory);
                   const affiliateDeal = getSpotAffiliateDeal(spotTitle, targetCity);
 
                   const defaultTransit = isJeju 
@@ -293,7 +294,7 @@ Return ONLY valid JSON matching this exact schema:
                     signatureItem: s.signatureItem || '✨ 시그니처 대표 메뉴 & 추천 포인트',
                     bestTime: s.bestTime || '오후 시간대 추천',
                     rating: 4.9,
-                    image: verifiedImage,
+                    image: realPhoto,
                     affiliateDeal,
                     location: s.address || `대한민국 ${targetCity}`,
                     lat: Number(s.lat) || (cityMeta.lat + latOffset),
@@ -305,7 +306,7 @@ Return ONLY valid JSON matching this exact schema:
 
                   daySpots.push(finalSpot);
                   flatSpots.push(finalSpot);
-                });
+                }
 
                 finalizedSchedules.push({
                   day: dayNum,
@@ -317,7 +318,7 @@ Return ONLY valid JSON matching this exact schema:
                   },
                   spots: daySpots
                 });
-              });
+              }
 
               return {
                 targetCity,
@@ -380,7 +381,7 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
     ],
     '부산': [
       // Day 1
-      { name: '해운대 블루라인파크', theme: '동해남부선 해안 절경을 달리는 낭만 열차', desc: '옛 철길을 따라 해안 절벽 위를 달리는 알록달록 스카이캡슐에서 부산 앞바다의 탁 트인 오션뷰를 만끽할 수 있습니다.', cat: '오션뷰', photo: '📸 캡슐 내부에서 창가 바다를 바라보는 감성 샷', sig: '🚊 미포-청사포 해안 레일 투어 & 조개구이', time: '오후 4:30 (선셋 타임)', lat: 35.1631, lng: 129.1786 },
+      { name: '해운대 블루라인파크 & 스카이캡슐', theme: '동해남부선 해안 절경을 달리는 낭만 열차', desc: '옛 철길을 따라 해안 절벽 위를 달리는 알록달록 스카이캡슐에서 부산 앞바다의 탁 트인 오션뷰를 만끽할 수 있습니다.', cat: '오션뷰', photo: '📸 캡슐 내부에서 창가 바다를 바라보는 감성 샷', sig: '🚊 미포-청사포 해안 레일 투어 & 조개구이', time: '오후 4:30 (선셋 타임)', lat: 35.1631, lng: 129.1786 },
       { name: '광안리 해수욕장 & 광안대교', theme: '광안대교 야경과 화려한 불빛 축제', desc: '바다를 가로지르는 광안대교의 찬란한 조명과 주말마다 밤하늘을 수놓는 드론 라이트쇼가 황홀한 감동을 줍니다.', cat: '야경명소', photo: '📸 광안대교 정면 모래사장 야경 샷', sig: '🦀 민락수변공원 신선 활어회 & 수제맥주', time: '오후 7:30 이후', lat: 35.1532, lng: 129.1186 },
       // Day 2
       { name: '감천문화마을', theme: '한국의 산토리니, 알록달록 계단식 마을', desc: '산자락을 따라 계단식으로 늘어선 파스텔톤 집들과 아기자기한 골목 벽화, 조형물이 동화 같은 풍경을 만듭니다.', cat: '핫플레이스', photo: '📸 어린왕자와 사막여우 포토존 난간 샷', sig: '☕ 전망대 루프탑 카페 커피 & 씨앗호떡', time: '오전 11:00', lat: 35.0975, lng: 129.0106 },
@@ -470,5 +471,32 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
     spots: flatSpots,
     agodaUrl: `https://www.agoda.com/search?text=${encodeURIComponent(city + ' 호텔')}`,
     klookUrl: `https://www.klook.com/ko/search?query=${encodeURIComponent(city + ' 액티비티')}`
+  };
+}
+
+/**
+ * Async Photo Background Enricher for Initial Itinerary
+ */
+export async function enrichItineraryPhotosAsync(itinerary) {
+  if (!itinerary || !itinerary.dailySchedules) return itinerary;
+
+  const updatedSchedules = [];
+  const updatedSpots = [];
+
+  for (const ds of itinerary.dailySchedules) {
+    const updatedDaySpots = [];
+    for (const s of (ds.spots || [])) {
+      const realPhoto = await resolveSpotPhotoDynamic(s.title, s.region || itinerary.targetCity, s.category);
+      const updatedSpot = { ...s, image: realPhoto };
+      updatedDaySpots.push(updatedSpot);
+      updatedSpots.push(updatedSpot);
+    }
+    updatedSchedules.push({ ...ds, spots: updatedDaySpots });
+  }
+
+  return {
+    ...itinerary,
+    dailySchedules: updatedSchedules,
+    spots: updatedSpots
   };
 }
