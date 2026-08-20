@@ -58,18 +58,16 @@ export default function VoraAIChat({
         backgroundColor: 'var(--bg-glass)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-          <div style={{
-            width: '28px',
-            height: '28px',
-            borderRadius: '50%',
-            background: 'var(--accent-gradient)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#ffffff'
-          }}>
-            <Sparkles size={16} />
-          </div>
+          <img
+            src="/logo.png"
+            alt="VORA"
+            style={{
+              width: '28px',
+              height: '28px',
+              borderRadius: '8px',
+              objectFit: 'cover'
+            }}
+          />
           <div>
             <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-main)' }}>
               {t.chatTitle || 'Vora AI 컨시어지 대화'}
