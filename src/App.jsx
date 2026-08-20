@@ -62,8 +62,14 @@ export default function App() {
     document.documentElement.lang = langMap[lang] || 'ko-KR';
   }, [lang]);
 
-  // Itinerary & Chat State
-  const [itineraryData, setItineraryData] = useState(null);
+  // Itinerary & Chat State - Pre-populated with rich 3-day Seoul tour on initial load
+  const [itineraryData, setItineraryData] = useState(() => {
+    try {
+      return generateLocalFallbackItinerary('서울 3일 핫플 감성 투어', '서울', 3, lang);
+    } catch (e) {
+      return null;
+    }
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [selectedSpot, setSelectedSpot] = useState(null);
 
@@ -128,6 +134,13 @@ export default function App() {
   const handleGenerateItinerary = async (promptQuery) => {
     if (!promptQuery || isLoading) return;
     setIsLoading(true);
+
+    // Smooth scroll to itinerary hub
+    const hubElement = document.getElementById('itinerary-hub');
+    if (hubElement) {
+      hubElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
     try {
       const result = await geminiGenerateFullItinerary(promptQuery, lang);
       if (result) {
@@ -187,7 +200,7 @@ export default function App() {
         <AdSenseBanner slot="7890123456" />
 
         {/* 3. PC 2-Column Split Hub (Left: AI Chat / Right: Course Timeline & Map) */}
-        <section style={{
+        <section id="itinerary-hub" style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
           gap: '1.5rem',

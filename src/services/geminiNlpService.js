@@ -47,6 +47,8 @@ export function getActiveGeminiKey() {
 
 export function sanitizeGeminiOutput(text) {
   if (!text || typeof text !== 'string') return '';
+  const match = text.match(/\{[\s\S]*\}/);
+  if (match) return match[0];
   return text.replace(/```json/gi, '').replace(/```/g, '').trim();
 }
 
@@ -169,116 +171,126 @@ Return ONLY valid JSON matching this exact schema:
   const promptText = `User Request: "${rawPrompt}". Target city: ${targetCity}, duration: ${days} days, language: ${lang}. Create a smooth, realistic, trendy itinerary.`;
 
   const candidateKeys = GEMINI_KEY_POOL;
-  const modelName = 'gemini-3.1-flash-lite';
+  const modelCandidates = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.5-flash', 'gemini-2.0-flash-lite', 'gemini-3.1-flash-lite'];
 
   for (const apiKey of candidateKeys) {
-    try {
-      const endpointUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 12000);
+    for (const model of modelCandidates) {
+      try {
+        const endpointUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
 
-      const res = await fetch(endpointUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-goog-api-key': apiKey
-        },
-        signal: controller.signal,
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: `${systemInstruction}\n\n${promptText}` }] }]
-        })
-      });
-      clearTimeout(timeoutId);
+        const res = await fetch(endpointUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': apiKey
+          },
+          signal: controller.signal,
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: `${systemInstruction}\n\n${promptText}` }] }]
+          })
+        });
+        clearTimeout(timeoutId);
 
-      if (res.ok) {
-        const data = await res.json();
-        const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (rawText) {
-          const cleanText = sanitizeGeminiOutput(rawText);
-          const parsed = JSON.parse(cleanText);
+        if (res.ok) {
+          const data = await res.json();
+          const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (rawText) {
+            const cleanText = sanitizeGeminiOutput(rawText);
+            let parsed = null;
+            try {
+              parsed = JSON.parse(cleanText);
+            } catch (jsonErr) {
+              const match = rawText.match(/\{[\s\S]*\}/);
+              if (match) {
+                try { parsed = JSON.parse(match[0]); } catch (e) {}
+              }
+            }
 
-          if (parsed && parsed.dailySchedules && Array.isArray(parsed.dailySchedules)) {
-            // Collect spot names for TourAPI high-res photo enrichment
-            const allSpotNames = parsed.dailySchedules.flatMap(ds => (ds.spots || []).map(s => s.name || s.title)).filter(Boolean);
-            const tourApiSpots = allSpotNames.length > 0
-              ? await fetchPinpointLandmarkSpots(allSpotNames, lang, targetCity).catch(() => [])
-              : [];
+            if (parsed && parsed.dailySchedules && Array.isArray(parsed.dailySchedules)) {
+              // Collect spot names for TourAPI high-res photo enrichment
+              const allSpotNames = parsed.dailySchedules.flatMap(ds => (ds.spots || []).map(s => s.name || s.title)).filter(Boolean);
+              const tourApiSpots = allSpotNames.length > 0
+                ? await fetchPinpointLandmarkSpots(allSpotNames, lang, targetCity).catch(() => [])
+                : [];
 
-            const flatSpots = [];
-            const finalizedSchedules = [];
+              const flatSpots = [];
+              const finalizedSchedules = [];
 
-            parsed.dailySchedules.forEach((ds, dayIdx) => {
-              const dayNum = dayIdx + 1;
-              const rawSpots = ds.spots || [];
-              const daySpots = [];
+              parsed.dailySchedules.forEach((ds, dayIdx) => {
+                const dayNum = dayIdx + 1;
+                const rawSpots = ds.spots || [];
+                const daySpots = [];
 
-              rawSpots.forEach((s, spotIdx) => {
-                const spotTitle = s.name || s.title || `${targetCity} 명소 ${spotIdx + 1}`;
-                const matchedTourSpot = tourApiSpots.find(ts => 
-                  ts.title && (ts.title.includes(spotTitle) || spotTitle.includes(ts.title))
-                );
+                rawSpots.forEach((s, spotIdx) => {
+                  const spotTitle = s.name || s.title || `${targetCity} 명소 ${spotIdx + 1}`;
+                  const matchedTourSpot = tourApiSpots.find(ts => 
+                    ts.title && (ts.title.includes(spotTitle) || spotTitle.includes(ts.title))
+                  );
 
-                // Small geographic jitter if coordinates are identical to prevent marker stacking
-                const latOffset = (spotIdx * 0.008) * (spotIdx % 2 === 0 ? 1 : -1);
-                const lngOffset = (spotIdx * 0.009) * (spotIdx % 2 === 0 ? -1 : 1);
+                  // Small geographic jitter if coordinates are identical to prevent marker stacking
+                  const latOffset = (spotIdx * 0.008) * (spotIdx % 2 === 0 ? 1 : -1);
+                  const lngOffset = (spotIdx * 0.009) * (spotIdx % 2 === 0 ? -1 : 1);
 
-                const finalSpot = {
-                  id: matchedTourSpot?.id || `vora-spot-${dayNum}-${spotIdx + 1}`,
-                  contentId: matchedTourSpot?.contentId || null,
-                  title: matchedTourSpot?.title || spotTitle,
-                  region: targetCity,
-                  theme: s.theme || s.category || '추천 명소',
-                  category: s.category || '관광지',
-                  rating: 4.9,
-                  image: matchedTourSpot?.image || getFallbackCityImage(targetCity, spotIdx),
-                  location: matchedTourSpot?.location || s.address || `대한민국 ${targetCity}`,
-                  lat: Number(matchedTourSpot?.lat) || Number(s.lat) || (cityMeta.lat + latOffset),
-                  lng: Number(matchedTourSpot?.lng) || Number(s.lng) || (cityMeta.lng + lngOffset),
-                  transitTime: s.transitTime || '도보 또는 지하철 이동',
-                  assignedDay: dayNum,
-                  dayOrder: spotIdx + 1
-                };
+                  const finalSpot = {
+                    id: matchedTourSpot?.id || `vora-spot-${dayNum}-${spotIdx + 1}`,
+                    contentId: matchedTourSpot?.contentId || null,
+                    title: matchedTourSpot?.title || spotTitle,
+                    region: targetCity,
+                    theme: s.theme || s.category || '추천 명소',
+                    category: s.category || '관광지',
+                    rating: 4.9,
+                    image: matchedTourSpot?.image || getFallbackCityImage(targetCity, spotIdx),
+                    location: matchedTourSpot?.location || s.address || `대한민국 ${targetCity}`,
+                    lat: Number(matchedTourSpot?.lat) || Number(s.lat) || (cityMeta.lat + latOffset),
+                    lng: Number(matchedTourSpot?.lng) || Number(s.lng) || (cityMeta.lng + lngOffset),
+                    transitTime: s.transitTime || '도보 또는 지하철 이동',
+                    assignedDay: dayNum,
+                    dayOrder: spotIdx + 1
+                  };
 
-                daySpots.push(finalSpot);
-                flatSpots.push(finalSpot);
+                  daySpots.push(finalSpot);
+                  flatSpots.push(finalSpot);
+                });
+
+                finalizedSchedules.push({
+                  day: dayNum,
+                  theme: ds.theme || `${dayNum}일차 ${targetCity} 추천 코스`,
+                  transitTip: ds.transitTip || '지하철 및 버스 환승이 매우 편리한 구간입니다.',
+                  foodRecommendation: ds.foodRecommendation || {
+                    dishName: `${targetCity} 로컬 대표 미식`,
+                    description: '현지인들이 즐겨 찾는 대표 맛집 거리에서 식사 추천'
+                  },
+                  spots: daySpots
+                });
               });
 
-              finalizedSchedules.push({
-                day: dayNum,
-                theme: ds.theme || `${dayNum}일차 ${targetCity} 추천 코스`,
-                transitTip: ds.transitTip || '지하철 및 버스 환승이 매우 편리한 구간입니다.',
-                foodRecommendation: ds.foodRecommendation || {
-                  dishName: `${targetCity} 로컬 대표 미식`,
-                  description: '현지인들이 즐겨 찾는 대표 맛집 거리에서 식사 추천'
-                },
-                spots: daySpots
-              });
-            });
-
-            return {
-              targetCity,
-              days: parsed.days || days,
-              tripTitle: parsed.tripTitle || `${targetCity} ${days}일 맞춤 여행 코스`,
-              summary: parsed.summary || `${targetCity}의 대표적인 핫플레이스와 감성 명소를 엄선한 맞춤 일정입니다. ✨`,
-              dailySchedules: finalizedSchedules,
-              spots: flatSpots,
-              agodaUrl: `https://www.agoda.com/search?text=${encodeURIComponent(targetCity + ' 호텔')}`,
-              klookUrl: `https://www.klook.com/ko/search?query=${encodeURIComponent(targetCity + ' 액티비티')}`
-            };
+              return {
+                targetCity,
+                days: parsed.days || days,
+                tripTitle: parsed.tripTitle || `${targetCity} ${days}일 맞춤 여행 코스`,
+                summary: parsed.summary || `${targetCity}의 대표적인 핫플레이스와 감성 명소를 엄선한 맞춤 일정입니다. ✨`,
+                dailySchedules: finalizedSchedules,
+                spots: flatSpots,
+                agodaUrl: `https://www.agoda.com/search?text=${encodeURIComponent(targetCity + ' 호텔')}`,
+                klookUrl: `https://www.klook.com/ko/search?query=${encodeURIComponent(targetCity + ' 액티비티')}`
+              };
+            }
           }
         }
+      } catch (e) {
+        // Try next model or key
       }
-    } catch (e) {
-      console.warn('[Gemini API Attempt]', e);
     }
   }
 
-  // Fallback Local Generator in case of offline/network failure
+  // Guaranteed instant 0-second local fallback itinerary
   return generateLocalFallbackItinerary(rawPrompt, targetCity, days, lang);
 }
 
 // Authentic High-Quality Curated Korea Images for zero-blank rendering
-export function getFallbackCityImage(city, index = 0) {
+export function getFallbackCityImage(city = '서울', index = 0) {
   const SEOUL_IMAGES = [
     'https://images.unsplash.com/photo-1546874177-9e664107314e?auto=format&fit=crop&w=800&q=80', // Gyeongbokgung
     'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=800&q=80', // N Seoul Tower
@@ -302,8 +314,9 @@ export function getFallbackCityImage(city, index = 0) {
 }
 
 // Local Fallback Itinerary Generator (Guarantees 100% 200 OK Uptime)
-export function generateLocalFallbackItinerary(rawPrompt, targetCity = '서울', days = 3, lang = 'ko') {
-  const cityMeta = CITY_COORDINATES[targetCity] || CITY_COORDINATES['서울'];
+export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서울', days = 3, lang = 'ko') {
+  const city = targetCity || extractLocationKeyword(rawPrompt) || '서울';
+  const cityMeta = CITY_COORDINATES[city] || CITY_COORDINATES['서울'];
   const finalizedSchedules = [];
   const flatSpots = [];
 
@@ -330,7 +343,7 @@ export function generateLocalFallbackItinerary(rawPrompt, targetCity = '서울',
     ]
   };
 
-  const spotPool = SAMPLE_SPOTS_MAP[targetCity] || SAMPLE_SPOTS_MAP['서울'];
+  const spotPool = SAMPLE_SPOTS_MAP[city] || SAMPLE_SPOTS_MAP['서울'];
 
   for (let d = 0; d < days; d++) {
     const dayNum = d + 1;
@@ -341,12 +354,12 @@ export function generateLocalFallbackItinerary(rawPrompt, targetCity = '서울',
       const sp = {
         id: `local-spot-${dayNum}-${idx + 1}`,
         title: s.name,
-        region: targetCity,
+        region: city,
         theme: s.theme,
         category: s.cat,
         rating: 4.9,
-        image: getFallbackCityImage(targetCity, idx),
-        location: `대한민국 ${targetCity} 일대`,
+        image: getFallbackCityImage(city, idx),
+        location: `대한민국 ${city} 일대 (지도 길찾기 연동)`,
         lat: s.lat,
         lng: s.lng,
         transitTime: '지하철 또는 도보로 편리하게 이동',
@@ -359,10 +372,10 @@ export function generateLocalFallbackItinerary(rawPrompt, targetCity = '서울',
 
     finalizedSchedules.push({
       day: dayNum,
-      theme: `${dayNum}일차 ${targetCity} 핵심 힐링 투어`,
-      transitTip: '지하철 2호선 및 대중교통으로 환승 없이 10분 내 이동 가능합니다.',
+      theme: `${dayNum}일차 ${city} 핵심 힐링 투어`,
+      transitTip: '지하철 및 대중교통으로 환승 없이 10분 내 이동 가능합니다.',
       foodRecommendation: {
-        dishName: `${targetCity} 대표 미식`,
+        dishName: `${city} 대표 미식`,
         description: '현지 로컬 감성을 그대로 느낄 수 있는 추천 요리'
       },
       spots: daySpots
@@ -370,13 +383,13 @@ export function generateLocalFallbackItinerary(rawPrompt, targetCity = '서울',
   }
 
   return {
-    targetCity,
+    targetCity: city,
     days,
-    tripTitle: `${targetCity} ${days}일 맞춤 여행 코스`,
-    summary: `VORA AI가 제안하는 ${targetCity} ${days}일 여행 코스입니다. 가장 인기 있는 명소와 이동이 편리한 최적의 동선으로 구성되었습니다. ✨`,
+    tripTitle: `${city} ${days}일 맞춤 추천 코스`,
+    summary: `VORA AI가 제안하는 ${city} ${days}일 여행 코스입니다. 가장 인기 있는 명소와 이동이 편리한 최적의 동선으로 구성되었습니다. ✨`,
     dailySchedules: finalizedSchedules,
     spots: flatSpots,
-    agodaUrl: `https://www.agoda.com/search?text=${encodeURIComponent(targetCity + ' 호텔')}`,
-    klookUrl: `https://www.klook.com/ko/search?query=${encodeURIComponent(targetCity + ' 액티비티')}`
+    agodaUrl: `https://www.agoda.com/search?text=${encodeURIComponent(city + ' 호텔')}`,
+    klookUrl: `https://www.klook.com/ko/search?query=${encodeURIComponent(city + ' 액티비티')}`
   };
 }

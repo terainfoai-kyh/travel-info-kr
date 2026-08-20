@@ -1,7 +1,7 @@
 {
-  "name": "Travel Korea - 대한민국 AI 여행 가이드",
-  "short_name": "Travel Korea",
-  "description": "한국관광공사 Official API 기반 AI 맞춤 여행 코스 추천 및 9개국 다국어 여행 플랫폼",
+  "name": "VORA - 대한민국 AI 여행 컨시어지",
+  "short_name": "VORA AI",
+  "description": "질문 하나로 완성되는 1:1 맞춤 한국 여행 코스 & 실시간 구글맵 연동 (Korea AI Travel Concierge)",
   "start_url": "/",
   "id": "/",
   "display": "standalone",
