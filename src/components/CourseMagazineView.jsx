@@ -343,12 +343,9 @@ export default function CourseMagazineView({
                             fontWeight: 700,
                             color: '#b45309',
                             backgroundColor: 'rgba(245, 158, 11, 0.08)',
-                            padding: '0.12rem 0.4rem',
+                            padding: '0.12rem 0.45rem',
                             borderRadius: '5px',
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            maxWidth: '240px'
+                            lineHeight: 1.3
                           }}>
                             {spot.photoTip}
                           </div>
