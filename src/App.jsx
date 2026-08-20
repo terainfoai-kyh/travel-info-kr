@@ -157,11 +157,16 @@ export default function App() {
     };
     setChatMessages(prev => [...prev, userMsg]);
     setIsLoading(true);
-    setActiveDay(1);
+
+    // If query mentions a specific day (e.g. "2일차", "3일차"), auto focus on that day
+    const dayMatch = promptQuery.match(/([1-5])일차/);
+    if (dayMatch && dayMatch[1]) {
+      setActiveDay(Number(dayMatch[1]));
+    }
 
     try {
-      const result = await geminiGenerateFullItinerary(promptQuery, lang);
-      const finalResult = result || generateLocalFallbackItinerary(promptQuery, '서울', 3, lang);
+      const result = await geminiGenerateFullItinerary(promptQuery, lang, itineraryData);
+      const finalResult = result || generateLocalFallbackItinerary(promptQuery, itineraryData?.targetCity || '서울', itineraryData?.days || 3, lang);
       
       setItineraryData(finalResult);
       const botMsg = {
@@ -173,7 +178,7 @@ export default function App() {
       setChatMessages(prev => [...prev, botMsg]);
     } catch (err) {
       console.warn('[VORA AI Error]', err);
-      const fallback = generateLocalFallbackItinerary(promptQuery, '서울', 3, lang);
+      const fallback = generateLocalFallbackItinerary(promptQuery, itineraryData?.targetCity || '서울', itineraryData?.days || 3, lang);
       setItineraryData(fallback);
       const botMsg = {
         id: `bot-${Date.now()}`,

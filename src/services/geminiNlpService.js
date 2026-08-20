@@ -113,37 +113,72 @@ export function getKakaoMapSearchUrl(spotTitle, city = '') {
 }
 
 /**
- * ⚡ Master Gemini Multi-Day Itinerary Planner
+ * ⚡ Master Gemini Multi-Day Itinerary Planner with Conversational Context Memory
  */
-export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko', daysCount = 3) {
-  const targetCity = extractLocationKeyword(rawPrompt);
+export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko', previousItinerary = null) {
+  // Check if this is an incremental modification request
+  const isModificationRequest = previousItinerary && (
+    /(추가|변경|바꿔|수정|빼줘|대신|넣어|바꿔줘|일정 수정|2일차|1일차|3일차|4일차|5일차|식당으로|맛집으로|카페로|실내로)/i.test(rawPrompt) &&
+    !/(1박\s*2일|2박\s*3일|3박\s*4일|4박\s*5일|새로운\s*여행|다른\s*도시)/i.test(rawPrompt)
+  );
+
+  let targetCity = '서울';
+  let days = 3;
+
+  if (isModificationRequest && previousItinerary) {
+    targetCity = previousItinerary.targetCity || extractLocationKeyword(rawPrompt);
+    days = previousItinerary.days || (previousItinerary.dailySchedules ? previousItinerary.dailySchedules.length : 3);
+  } else {
+    targetCity = extractLocationKeyword(rawPrompt);
+    if (/(5일|4박\s*5일|5박|5d|5\s*days)/i.test(rawPrompt)) days = 5;
+    else if (/(4일|3박\s*4일|4박|4d|4\s*days)/i.test(rawPrompt)) days = 4;
+    else if (/(3일|2박\s*3일|3박|3d|3\s*days)/i.test(rawPrompt)) days = 3;
+    else if (/(2일|1박\s*2일|2박|2d|2\s*days)/i.test(rawPrompt)) days = 2;
+    else if (/(1일|당일|1박|1d|1\s*day)/i.test(rawPrompt)) days = 1;
+    else if (previousItinerary && previousItinerary.days) days = previousItinerary.days;
+  }
+
   const cityMeta = CITY_COORDINATES[targetCity] || CITY_COORDINATES['서울'];
 
-  let days = daysCount || 3;
-  if (/(5일|4박\s*5일|5박|5d|5\s*days)/i.test(rawPrompt)) days = 5;
-  else if (/(4일|3박\s*4일|4박|4d|4\s*days)/i.test(rawPrompt)) days = 4;
-  else if (/(3일|2박\s*3일|3박|3d|3\s*days)/i.test(rawPrompt)) days = 3;
-  else if (/(2일|1박\s*2일|2박|2d|2\s*days)/i.test(rawPrompt)) days = 2;
-  else if (/(1일|당일|1박|1d|1\s*day)/i.test(rawPrompt)) days = 1;
+  let contextPrompt = '';
+  if (isModificationRequest && previousItinerary && previousItinerary.dailySchedules) {
+    contextPrompt = `
+PREVIOUS ITINERARY CONTEXT (User already has this ${days}-day plan):
+Target City: ${targetCity} (${days} Days)
+Daily Schedules:
+${JSON.stringify(previousItinerary.dailySchedules.map(ds => ({
+  day: ds.day,
+  theme: ds.theme,
+  spots: (ds.spots || []).map(s => s.title || s.name)
+})), null, 2)}
+
+USER MODIFICATION REQUEST: "${rawPrompt}"
+CRITICAL INSTRUCTION FOR MODIFICATION:
+1. Retain the existing ${days}-day structure and all unchanged days/spots.
+2. Apply the requested changes (e.g. adding a spot or changing spot category on Day 2) precisely.
+3. Maintain total days as exactly ${days} and city as "${targetCity}".
+4. In summary, warmly confirm the exact modification made in language "${lang}".
+`;
+  }
 
   const systemInstruction = `You are VORA, an elite South Korean AI Travel Concierge.
-Plan an engaging, authentic ${days}-day itinerary in South Korea based on the user's prompt.
+Plan or modify an engaging, authentic ${days}-day itinerary in South Korea based on the user's prompt.
 Target main city: "${targetCity}" (${cityMeta.nameEn}).
 Language of output: "${lang}".
 
 CRITICAL ROUTE & GEOGRAPHIC PROXIMITY RULES:
-1. Cluster spots geographically for each day so travelers can walk or take a quick subway/bus between spots (no zigzag cross-town traveling).
-2. Recommend 2 to 3 authentic, iconic, or trendy spots per day (e.g. popular cafes, cultural landmarks, night views, local markets).
-3. Provide realistic latitude and longitude around ${targetCity} (Base coordinates: lat ${cityMeta.lat}, lng ${cityMeta.lng}).
-4. Include transit tips (e.g. "Subway Line 2, 8 mins", "5 min walk") and local food recommendations.
-5. In summary, write a warm, friendly concierge narrative in language "${lang}" with clear day breakdowns.
+1. Cluster spots geographically for each day so travelers can walk or take a quick subway/bus between spots.
+2. Recommend 2 to 3 authentic, iconic, or trendy spots per day.
+3. Provide realistic latitude and longitude around ${targetCity} (Base: lat ${cityMeta.lat}, lng ${cityMeta.lng}).
+4. Include transit tips and local food recommendations.
+5. In summary, write a warm concierge narrative in language "${lang}".
 
 Return ONLY valid JSON matching this exact schema:
 {
   "tripTitle": "Engaging title in ${lang}",
   "targetCity": "${targetCity}",
   "days": ${days},
-  "summary": "Warm concierge overview in ${lang} followed by day-by-day highlights",
+  "summary": "Warm concierge overview in ${lang} confirming the itinerary or changes",
   "dailySchedules": [
     {
       "day": 1,
@@ -168,7 +203,9 @@ Return ONLY valid JSON matching this exact schema:
   ]
 }`;
 
-  const promptText = `User Request: "${rawPrompt}". Target city: ${targetCity}, duration: ${days} days, language: ${lang}. Create a smooth, realistic, trendy itinerary.`;
+  const promptText = contextPrompt 
+    ? `${contextPrompt}\n\nLanguage: ${lang}. Return updated JSON.` 
+    : `User Request: "${rawPrompt}". Target city: ${targetCity}, duration: ${days} days, language: ${lang}. Create a smooth, realistic, trendy itinerary.`;
 
   const candidateKeys = GEMINI_KEY_POOL;
   const modelCandidates = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.5-flash', 'gemini-2.0-flash-lite', 'gemini-3.1-flash-lite'];
