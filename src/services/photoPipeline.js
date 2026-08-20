@@ -1,10 +1,10 @@
 /**
- * VORA AI 15.0 - Official Google Places API Real-Time Photo Pipeline & Pre-Warmed Master (Seoul, Jeju, Busan)
+ * VORA AI 16.0 - Official Google Places API Real-Time Photo Pipeline & Pre-Warmed Master
  * 
  * Features:
  * 1. 100% Official Google Places API (New) Real-Time Integration.
- * 2. 100% Verified Full-Length High-Resolution Google Places Photos for all spots in Seoul, Jeju, Busan, and K-Culture hubs.
- * 3. Zero 404 Broken Images, Zero Gyeongbokgung Mismatches in Busan/Jeju, Zero Placeholder Fallbacks.
+ * 2. Pre-warmed full-resolution Google photos for Seoul, Jeju, Busan, Suwon, and K-Culture hubs.
+ * 3. Zero Cross-City Contamination (Suwon stays in Suwon, Busan in Busan, Jeju in Jeju, Seoul in Seoul).
  */
 
 import { PUBLIC_API_CONFIG } from './apiConfig.js';
@@ -13,14 +13,55 @@ const GOOGLE_KEY = PUBLIC_API_CONFIG.GOOGLE_MAPS_KEY || 'AIzaSyCZCfdgYBXPMDbB7N2
 
 // 🏛️ Verified Pre-Warmed Spot Photo Registry (Full Working Google Places Photos)
 export const PREWARMED_PLACES_CATALOG = {
+  // === 수원 명소 ===
+  '화성행궁': {
+    name: '화성행궁',
+    rating: 4.6,
+    primary: `https://places.googleapis.com/v1/places/ChIJZ3YTCjRDezUROWCZyAEmL2k/photos/AWCwydhdKioZedKVaaL0qsFdFTa_uV62iKYw5ecnnFzK5zPk_JHUxTKpKOPWfpr7RU6X9HWgc6rqapor3J2gKKlghOuUGWQ2ZejR0KzJDmwFcWdqVBcJtpY6vJZ5Hq_HOEL0_4Sm8lrt19mxCe3q23yAruVFvN6rRrUQuwnUumrht60xUQm3DZrvEPdhP585wmPemV0W_zmLiH4ixbn5Qdf3GRV92EWuzgSAdHzC1h7C7sWnIWLJy1SZCH0xVm9MIMDWeGC1jKfZXHEEXxJBrSO7OEz94XPCPdP9pIkqJIbVl5IdWMZ3CmsP04zf44lW1hQt9fUXL89brklKrg5uu7x8LBtZr8jEfAY5bpCX1G5-uHUgOVnCGYAmJvJsffR3QwQmOOk45Zm29u7atGwmcz4xQLLHzm2Wzm6Vw6MD0ztD0Hld2Y4E/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`,
+    images: [
+      `https://places.googleapis.com/v1/places/ChIJZ3YTCjRDezUROWCZyAEmL2k/photos/AWCwydhdKioZedKVaaL0qsFdFTa_uV62iKYw5ecnnFzK5zPk_JHUxTKpKOPWfpr7RU6X9HWgc6rqapor3J2gKKlghOuUGWQ2ZejR0KzJDmwFcWdqVBcJtpY6vJZ5Hq_HOEL0_4Sm8lrt19mxCe3q23yAruVFvN6rRrUQuwnUumrht60xUQm3DZrvEPdhP585wmPemV0W_zmLiH4ixbn5Qdf3GRV92EWuzgSAdHzC1h7C7sWnIWLJy1SZCH0xVm9MIMDWeGC1jKfZXHEEXxJBrSO7OEz94XPCPdP9pIkqJIbVl5IdWMZ3CmsP04zf44lW1hQt9fUXL89brklKrg5uu7x8LBtZr8jEfAY5bpCX1G5-uHUgOVnCGYAmJvJsffR3QwQmOOk45Zm29u7atGwmcz4xQLLHzm2Wzm6Vw6MD0ztD0Hld2Y4E/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`
+    ]
+  },
+  '방화수류정': {
+    name: '방화수류정',
+    rating: 4.7,
+    primary: `https://places.googleapis.com/v1/places/ChIJgcIxDMpcezURPiQ5d54tMT4/photos/AWCwydiZJKE1dHZvV2HPlzAdCNnlhKJxValTlJPyXnm6zVZiydCsKCq74nlsGzcfYkAlf0P3dW3UAOCktZn-bE6aWbwdvdGZwJD04xCigcXEX85wlQ43Ky6IhahFMreTH74f-CQjJQhzH0eGz21HoaflvgnjE4B-wkEiiKF2zHUooFFaeJqWG3GjMDZg_FqcrcbKRy3QlH5-ZY2dkrC0pHio2W4516JAVkHuLDSrwdyJqwNvZ47zMxSkWG50d2z1iH5MPXac-M44w7RuHLmqkbXLDeWyFmnK683yOZm0NWa4rtg0raEqEbaYR_BRsPHmcQUmW9yILZLfQsTBDVGwoSAQ0JA0j8hy1QO_tGHnPEBELoXWHe686EDdS7I8pV3tDh_Uzadpm_by5mDO9vDuzLQ5NoMrE5kHWB0Hji0eHgbtS7AWb_0K/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`,
+    images: [
+      `https://places.googleapis.com/v1/places/ChIJgcIxDMpcezURPiQ5d54tMT4/photos/AWCwydiZJKE1dHZvV2HPlzAdCNnlhKJxValTlJPyXnm6zVZiydCsKCq74nlsGzcfYkAlf0P3dW3UAOCktZn-bE6aWbwdvdGZwJD04xCigcXEX85wlQ43Ky6IhahFMreTH74f-CQjJQhzH0eGz21HoaflvgnjE4B-wkEiiKF2zHUooFFaeJqWG3GjMDZg_FqcrcbKRy3QlH5-ZY2dkrC0pHio2W4516JAVkHuLDSrwdyJqwNvZ47zMxSkWG50d2z1iH5MPXac-M44w7RuHLmqkbXLDeWyFmnK683yOZm0NWa4rtg0raEqEbaYR_BRsPHmcQUmW9yILZLfQsTBDVGwoSAQ0JA0j8hy1QO_tGHnPEBELoXWHe686EDdS7I8pV3tDh_Uzadpm_by5mDO9vDuzLQ5NoMrE5kHWB0Hji0eHgbtS7AWb_0K/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`
+    ]
+  },
+  '수원통닭거리': {
+    name: '수원 통닭거리',
+    rating: 4.3,
+    primary: `https://places.googleapis.com/v1/places/ChIJ5YUoO19DezURc2kIfrscUzA/photos/AWCwydgKQRobuCW2DUVRLC-EGMlv5KHLFGDK4rAm8egBYKJKpAipQbtcBF2vMo25hY62g2LQvd9ODaxcF3fYJ6kvUXgEgNKF9_D9lH1vS8Df6BlKctsz-CD-wexXn8pqwSTZY6H3gkT5Rkr-JBQLem0muTTyUO_W5rlBYA9hQ7jRtH-46CYedYXfjzmVt_tMh94AhdPeDVbmFjqX9VUajkZPepApZUZLORXthS98fqJTQobzwLr6XajyIITFGu1Co9mdelctT0BZvFWwwR61DdUYJwQgSlJSwAr26JF-f8MNEdShD6umawlJ_3m8oiyq2MCQ_ccftKuC4kFB7dD6HArtRwS8lHd1pEnoWzd4lidE_8tFrxfRF0_tBKV2D4U0wKqXq-kQ3TIwl-IEFayspby0Objuhssm48usd1lg0VZZnttlAzWY/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`,
+    images: [
+      `https://places.googleapis.com/v1/places/ChIJ5YUoO19DezURc2kIfrscUzA/photos/AWCwydgKQRobuCW2DUVRLC-EGMlv5KHLFGDK4rAm8egBYKJKpAipQbtcBF2vMo25hY62g2LQvd9ODaxcF3fYJ6kvUXgEgNKF9_D9lH1vS8Df6BlKctsz-CD-wexXn8pqwSTZY6H3gkT5Rkr-JBQLem0muTTyUO_W5rlBYA9hQ7jRtH-46CYedYXfjzmVt_tMh94AhdPeDVbmFjqX9VUajkZPepApZUZLORXthS98fqJTQobzwLr6XajyIITFGu1Co9mdelctT0BZvFWwwR61DdUYJwQgSlJSwAr26JF-f8MNEdShD6umawlJ_3m8oiyq2MCQ_ccftKuC4kFB7dD6HArtRwS8lHd1pEnoWzd4lidE_8tFrxfRF0_tBKV2D4U0wKqXq-kQ3TIwl-IEFayspby0Objuhssm48usd1lg0VZZnttlAzWY/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`
+    ]
+  },
+  '수원시립미술관': {
+    name: '수원시립미술관',
+    rating: 4.4,
+    primary: `https://places.googleapis.com/v1/places/ChIJw-bQZjRDezURk2IV8Xlmi40/photos/AWCwydjo5tYT2mhUj-LnfBmX9ay_B2ad9pUDepEfSqyqsuPnwK36i9broFmsFkGLba85BYgZv_Z8QpuPRn-6oPgZRyMlLZjacN8JYwwHy38ckCvOPmFaBHIGDkGZDq2t7zLBdZFdbfEUiUklM8J6X-hN6iZOrmSWqlX0qSMIMqeQWBs2sU0_KXOklf0PjZA8IPg2lxZojtrULgPOFkBHJ4QW7B5guwF1PThQSeT-ssSTNg7eRkZAuo5l5p8jJEB6LG1Y2Kjch4HMPYUyY_IgrAValGk4U9uZUcvjjXqJNTV3ydBnABYddVMHXUM2RUCQRs_323lrxzyp-cIki0cQR7iEsvsnG-Ac2G0NhzssSPCTSc4FxJp10gaxvs8-BN2K-sn7BotGOpoLO1Um8vFp77bN10Fi-RWzdCwjhnROSw-J4Qc8qg/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`,
+    images: [
+      `https://places.googleapis.com/v1/places/ChIJw-bQZjRDezURk2IV8Xlmi40/photos/AWCwydjo5tYT2mhUj-LnfBmX9ay_B2ad9pUDepEfSqyqsuPnwK36i9broFmsFkGLba85BYgZv_Z8QpuPRn-6oPgZRyMlLZjacN8JYwwHy38ckCvOPmFaBHIGDkGZDq2t7zLBdZFdbfEUiUklM8J6X-hN6iZOrmSWqlX0qSMIMqeQWBs2sU0_KXOklf0PjZA8IPg2lxZojtrULgPOFkBHJ4QW7B5guwF1PThQSeT-ssSTNg7eRkZAuo5l5p8jJEB6LG1Y2Kjch4HMPYUyY_IgrAValGk4U9uZUcvjjXqJNTV3ydBnABYddVMHXUM2RUCQRs_323lrxzyp-cIki0cQR7iEsvsnG-Ac2G0NhzssSPCTSc4FxJp10gaxvs8-BN2K-sn7BotGOpoLO1Um8vFp77bN10Fi-RWzdCwjhnROSw-J4Qc8qg/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`
+    ]
+  },
+  '행궁동': {
+    name: '화성행궁',
+    rating: 4.6,
+    primary: `https://places.googleapis.com/v1/places/ChIJZ3YTCjRDezUROWCZyAEmL2k/photos/AWCwydhdKioZedKVaaL0qsFdFTa_uV62iKYw5ecnnFzK5zPk_JHUxTKpKOPWfpr7RU6X9HWgc6rqapor3J2gKKlghOuUGWQ2ZejR0KzJDmwFcWdqVBcJtpY6vJZ5Hq_HOEL0_4Sm8lrt19mxCe3q23yAruVFvN6rRrUQuwnUumrht60xUQm3DZrvEPdhP585wmPemV0W_zmLiH4ixbn5Qdf3GRV92EWuzgSAdHzC1h7C7sWnIWLJy1SZCH0xVm9MIMDWeGC1jKfZXHEEXxJBrSO7OEz94XPCPdP9pIkqJIbVl5IdWMZ3CmsP04zf44lW1hQt9fUXL89brklKrg5uu7x8LBtZr8jEfAY5bpCX1G5-uHUgOVnCGYAmJvJsffR3QwQmOOk45Zm29u7atGwmcz4xQLLHzm2Wzm6Vw6MD0ztD0Hld2Y4E/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`,
+    images: [
+      `https://places.googleapis.com/v1/places/ChIJZ3YTCjRDezUROWCZyAEmL2k/photos/AWCwydhdKioZedKVaaL0qsFdFTa_uV62iKYw5ecnnFzK5zPk_JHUxTKpKOPWfpr7RU6X9HWgc6rqapor3J2gKKlghOuUGWQ2ZejR0KzJDmwFcWdqVBcJtpY6vJZ5Hq_HOEL0_4Sm8lrt19mxCe3q23yAruVFvN6rRrUQuwnUumrht60xUQm3DZrvEPdhP585wmPemV0W_zmLiH4ixbn5Qdf3GRV92EWuzgSAdHzC1h7C7sWnIWLJy1SZCH0xVm9MIMDWeGC1jKfZXHEEXxJBrSO7OEz94XPCPdP9pIkqJIbVl5IdWMZ3CmsP04zf44lW1hQt9fUXL89brklKrg5uu7x8LBtZr8jEfAY5bpCX1G5-uHUgOVnCGYAmJvJsffR3QwQmOOk45Zm29u7atGwmcz4xQLLHzm2Wzm6Vw6MD0ztD0Hld2Y4E/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`
+    ]
+  },
+
   // === 부산 명소 ===
   '해운대': {
     name: '해운대블루라인파크 미포정거장',
     rating: 4.5,
     primary: `https://places.googleapis.com/v1/places/ChIJfdIYWwuNaDURDx-eqtUjCkg/photos/AWCwydiiTSZdJ0bQWdVE3JYnBkBD79j8SkyWAyiyffNbtD2hRfheAuiI231W6CZx0qp_4uJLZNhga7p9hUGQ3XojBjb2ebjpj8hdoWsRHdK6l7poEYVzOEPLovBUaB4w-tgWlV5y1c6O3jeHhv3mEf1BBouIbnmYGdpyUe0efulDH5kmAQghvYNh0E33EQDnSG52s_r4pn_TBZjJoKT-LszDZLbTRcQUJzU1vcB5l7DhvQEYLo7IVemQYxmSvd2cQhnykbU80-CBKxOuBx7ENltKAMlt5oe3ON77MSbWRIpOC56-_oyQBP1s10BHjwF0GmQciM3KYMTsh66hI4sFgnZWclicxgtBB6Y5y4O0M92kchZMms4OfWHKIwVRHgHdre3A-vKwKLddGfizyzi8sTbWR2rLJ10-8OMDo1yHDPZrWgmyPQ/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`,
     images: [
-      `https://places.googleapis.com/v1/places/ChIJfdIYWwuNaDURDx-eqtUjCkg/photos/AWCwydiiTSZdJ0bQWdVE3JYnBkBD79j8SkyWAyiyffNbtD2hRfheAuiI231W6CZx0qp_4uJLZNhga7p9hUGQ3XojBjb2ebjpj8hdoWsRHdK6l7poEYVzOEPLovBUaB4w-tgWlV5y1c6O3jeHhv3mEf1BBouIbnmYGdpyUe0efulDH5kmAQghvYNh0E33EQDnSG52s_r4pn_TBZjJoKT-LszDZLbTRcQUJzU1vcB5l7DhvQEYLo7IVemQYxmSvd2cQhnykbU80-CBKxOuBx7ENltKAMlt5oe3ON77MSbWRIpOC56-_oyQBP1s10BHjwF0GmQciM3KYMTsh66hI4sFgnZWclicxgtBB6Y5y4O0M92kchZMms4OfWHKIwVRHgHdre3A-vKwKLddGfizyzi8sTbWR2rLJ10-8OMDo1yHDPZrWgmyPQ/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`,
-      `https://places.googleapis.com/v1/places/ChIJfdIYWwuNaDURDx-eqtUjCkg/photos/AWCwydjGe8sOLGRq-Zq-Q03YfnpbGF2Y4Ebvoad8YGtayCKqiPrAwu6whsTsiIuTQBEn_Z7r3G6R0Nw9Wteu8J463eLC4cuQzir0nKtQLbzGdIBgz8zWgnPPCTsuDg9KRKo-x0kEH32_B9vOs4eKkbnmI8uX0Y8slrnaq9QQpiA49DuHAocfAtILseMDgWQ0Nlk5KEgDWZmAvnioko9WMWgVvpCDzLjYdEuoOpjVDuNF698cZPaxO2cznHcVOt3Tfb8iSk_q6igTq_SLKDFwMavzLxuQWPr13BWeT46LjggRu5vgOjuNzKpa7dSWTkCcfN3mhkgt87iLfogVVOPkCNwXvs0mRPVOlw3hQ-Nu6RA_pK0u3LEaVtOLL8SFHdDml_UL4qq66fZaTLhRhKQfk2bQqYDXNcH4wOCMJXE-5pndbqXpR365/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`
+      `https://places.googleapis.com/v1/places/ChIJfdIYWwuNaDURDx-eqtUjCkg/photos/AWCwydiiTSZdJ0bQWdVE3JYnBkBD79j8SkyWAyiyffNbtD2hRfheAuiI231W6CZx0qp_4uJLZNhga7p9hUGQ3XojBjb2ebjpj8hdoWsRHdK6l7poEYVzOEPLovBUaB4w-tgWlV5y1c6O3jeHhv3mEf1BBouIbnmYGdpyUe0efulDH5kmAQghvYNh0E33EQDnSG52s_r4pn_TBZjJoKT-LszDZLbTRcQUJzU1vcB5l7DhvQEYLo7IVemQYxmSvd2cQhnykbU80-CBKxOuBx7ENltKAMlt5oe3ON77MSbWRIpOC56-_oyQBP1s10BHjwF0GmQciM3KYMTsh66hI4sFgnZWclicxgtBB6Y5y4O0M92kchZMms4OfWHKIwVRHgHdre3A-vKwKLddGfizyzi8sTbWR2rLJ10-8OMDo1yHDPZrWgmyPQ/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`
     ]
   },
   '블루라인파크': {
@@ -36,8 +77,7 @@ export const PREWARMED_PLACES_CATALOG = {
     rating: 4.7,
     primary: `https://places.googleapis.com/v1/places/ChIJxw7HJy_taDUR-xaSTeHwbf8/photos/AWCwydiOQKMgQNEFeoWpDB8V8_dLjdaDQOqCRi8LCTWOGFlqn9pSYTbNfYilZTxBv9_ZIdFfvA_q_xlpR8HGh-UhX84IyPIPFOCarCvFm8kX8iER2f1glEjYyDV6vKaldraX0IUY3MFX4rkRfa1grPSeZsvR9QBC5fQDVfDa7LBz7io4fL4AbybM240O-DrkMWdH3AsKbmmK4ot0TBps4Y7GiWX96OOdmZ_z80aKgIG9NCK_jDW9ZW6_5UxS_UaLSh3uWsITwkLEkFQIezZYc6Sm6Vg4OYFQjA364E0hLjLrmxxxMHdHBojkf9BKhNA5FvfFlm8d2ZNyVIvHsJLa3GE67-V-BV_30uwnXT_sRBJdZ7foc2Vhh2RYIaO-xzSwhA2p982Wi8ptmH7NbQjBEci1IP_aSnjo3CbIYgpvHd1Mf_Xn8UPW/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`,
     images: [
-      `https://places.googleapis.com/v1/places/ChIJxw7HJy_taDUR-xaSTeHwbf8/photos/AWCwydiOQKMgQNEFeoWpDB8V8_dLjdaDQOqCRi8LCTWOGFlqn9pSYTbNfYilZTxBv9_ZIdFfvA_q_xlpR8HGh-UhX84IyPIPFOCarCvFm8kX8iER2f1glEjYyDV6vKaldraX0IUY3MFX4rkRfa1grPSeZsvR9QBC5fQDVfDa7LBz7io4fL4AbybM240O-DrkMWdH3AsKbmmK4ot0TBps4Y7GiWX96OOdmZ_z80aKgIG9NCK_jDW9ZW6_5UxS_UaLSh3uWsITwkLEkFQIezZYc6Sm6Vg4OYFQjA364E0hLjLrmxxxMHdHBojkf9BKhNA5FvfFlm8d2ZNyVIvHsJLa3GE67-V-BV_30uwnXT_sRBJdZ7foc2Vhh2RYIaO-xzSwhA2p982Wi8ptmH7NbQjBEci1IP_aSnjo3CbIYgpvHd1Mf_Xn8UPW/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`,
-      `https://places.googleapis.com/v1/places/ChIJxw7HJy_taDUR-xaSTeHwbf8/photos/AWCwydieo8AT_k3oRrWvAD0_lTdmPfuLVvScOZxM7btPuFlBQEiKEFJV_ktKlKkuyz5NUURGYbmHoLifocj-hvlWgg15uOPZnEGWIVKcHq8BX-C0FUyt4lrvkHaGib6aj5YdpA8U2eud3wWermTKPCQ8fzlx8H6BOLuWaEJvgAyS7UtbPMj_sh1mUiNlhL--O03iGbF-u19BA9nfsNB-pTaYSQMTik9nEvsMnp0DsQl0N4PbUCWLTtdyhrkrJOAre8p_ZpQrTCmFK2DSsnHk3cMuuHh0B93x-1SEgabMZt2AsLR40mQ2v66PrlA4UMZeUIPE1adFB_oarElrebB92xk6nJvYgaXqHpHi3vdqB-siqDtYJEGTn0xksi28Y6XxDF_0qlc7cNMjA8xVukxO-yKy2vtKkyZeVKolpo1pIkWPKFkd5IE/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`
+      `https://places.googleapis.com/v1/places/ChIJxw7HJy_taDUR-xaSTeHwbf8/photos/AWCwydiOQKMgQNEFeoWpDB8V8_dLjdaDQOqCRi8LCTWOGFlqn9pSYTbNfYilZTxBv9_ZIdFfvA_q_xlpR8HGh-UhX84IyPIPFOCarCvFm8kX8iER2f1glEjYyDV6vKaldraX0IUY3MFX4rkRfa1grPSeZsvR9QBC5fQDVfDa7LBz7io4fL4AbybM240O-DrkMWdH3AsKbmmK4ot0TBps4Y7GiWX96OOdmZ_z80aKgIG9NCK_jDW9ZW6_5UxS_UaLSh3uWsITwkLEkFQIezZYc6Sm6Vg4OYFQjA364E0hLjLrmxxxMHdHBojkf9BKhNA5FvfFlm8d2ZNyVIvHsJLa3GE67-V-BV_30uwnXT_sRBJdZ7foc2Vhh2RYIaO-xzSwhA2p982Wi8ptmH7NbQjBEci1IP_aSnjo3CbIYgpvHd1Mf_Xn8UPW/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`
     ]
   },
   '감천문화마을': {
@@ -95,15 +135,6 @@ export const PREWARMED_PLACES_CATALOG = {
     rating: 4.6,
     primary: `https://places.googleapis.com/v1/places/ChIJ8bBzwwBhDDURAISiRyzO4mw/photos/AWCwydhfrNvNQz0Fb8Nv9sjyZ6kbX3-7Fv39XmQ82i3sXOvbDaxk0Q2GsIUMuGcUPfWxRzMFbVAJ5e7LLDvjsoGHGiQYu8GbKhJF4hiWYfUgWkyegonk4ICMUs-XgI9x94KFZuvm-u32GCHr-2fgJRKRelGFjRb2ehm8rEo0Vqvw7neu47ttTFOKLltUNd2h802ijleRctX9TWpDP29d-nZsK1Bpx8R1RlUhr-Gjgpg4MK11jAt__mZG5MMJBfko9gX2PQD9RVYVOuweYxU83KQBFbBmjr_xBb9wezURpJrZ8UrPAuagdyo8dKjQ_eD5DLVrO-ydabGs0GUDDpEweW595A7m7zvYlacvQC6Be4GxzImqRhKYPIu-9_nleFUU25d08GMXlWVt8tNcPBwzj8U8xVbv3BsY9FEfK38bbJP6YR_GGyg/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`,
     images: [
-      `https://places.googleapis.com/v1/places/ChIJ8bBzwwBhDDURAISiRyzO4mw/photos/AWCwydhfrNvNQz0Fb8Nv9sjyZ6kbX3-7Fv39XmQ82i3sXOvbDaxk0Q2GsIUMuGcUPfWxRzMFbVAJ5e7LLDvjsoGHGiQYu8GbKhJF4hiWYfUgWkyegonk4ICMUs-XgI9x94KFZuvm-u32GCHr-2fgJRKRelGFjRb2ehm8rEo0Vqvw7neu47ttTFOKLltUNd2h802ijleRctX9TWpDP29d-nZsK1Bpx8R1RlUhr-Gjgpg4MK11jAt__mZG5MMJBfko9gX2PQD9RVYVOuweYxU83KQBFbBmjr_xBb9wezURpJrZ8UrPAuagdyo8dKjQ_eD5DLVrO-ydabGs0GUDDpEweW595A7m7zvYlacvQC6Be4GxzImqRhKYPIu-9_nleFUU25d08GMXlWVt8tNcPBwzj8U8xVbv3BsY9FEfK38bbJP6YR_GGyg/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`,
-      `https://places.googleapis.com/v1/places/ChIJ8bBzwwBhDDURAISiRyzO4mw/photos/AWCwydgeMQHUATzpU7wlGpZKDIH-HGdyViUxXEFE5KjVqmH_xFyOKYQKUkRHudL99OSeNMSlDXha6t4fODP1kwb2WPL4jWTB72lr_iMd34B07GaHkiQ69k2P5HJ6fHKjbqjy6qh7XKuzQNBGB3aKofdW3kHfVGW92zjKD5dczA2zFMCyaNvyXPOnRldfPoH8MlZ0L5pzCZKvcFf9GkqGeec8FWdLpWS08BjnqZH6OuCS8Ie3K4JUSApqyB7Qby5HfkY8LWFTuX9-NzyD4QOn-ZEJiYAWHiQncxo5uMOkim3AEkHXUtj1kQnTFS5izF8604IVAUO4Y1L6-lGCYk8eRlvznm3A3fwqB7OxBQ0Ab-s5s5_VnKjDTRZzDqqYBpURT5V8oIQkFENYSK-oiHmDV-Pyp69Y7FqPAzMOYt2iz8rLH54vs6-y2NKzhTgOBx1xmpx6/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`
-    ]
-  },
-  '금능': {
-    name: '협재해수욕장',
-    rating: 4.6,
-    primary: `https://places.googleapis.com/v1/places/ChIJ8bBzwwBhDDURAISiRyzO4mw/photos/AWCwydhfrNvNQz0Fb8Nv9sjyZ6kbX3-7Fv39XmQ82i3sXOvbDaxk0Q2GsIUMuGcUPfWxRzMFbVAJ5e7LLDvjsoGHGiQYu8GbKhJF4hiWYfUgWkyegonk4ICMUs-XgI9x94KFZuvm-u32GCHr-2fgJRKRelGFjRb2ehm8rEo0Vqvw7neu47ttTFOKLltUNd2h802ijleRctX9TWpDP29d-nZsK1Bpx8R1RlUhr-Gjgpg4MK11jAt__mZG5MMJBfko9gX2PQD9RVYVOuweYxU83KQBFbBmjr_xBb9wezURpJrZ8UrPAuagdyo8dKjQ_eD5DLVrO-ydabGs0GUDDpEweW595A7m7zvYlacvQC6Be4GxzImqRhKYPIu-9_nleFUU25d08GMXlWVt8tNcPBwzj8U8xVbv3BsY9FEfK38bbJP6YR_GGyg/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`,
-    images: [
       `https://places.googleapis.com/v1/places/ChIJ8bBzwwBhDDURAISiRyzO4mw/photos/AWCwydhfrNvNQz0Fb8Nv9sjyZ6kbX3-7Fv39XmQ82i3sXOvbDaxk0Q2GsIUMuGcUPfWxRzMFbVAJ5e7LLDvjsoGHGiQYu8GbKhJF4hiWYfUgWkyegonk4ICMUs-XgI9x94KFZuvm-u32GCHr-2fgJRKRelGFjRb2ehm8rEo0Vqvw7neu47ttTFOKLltUNd2h802ijleRctX9TWpDP29d-nZsK1Bpx8R1RlUhr-Gjgpg4MK11jAt__mZG5MMJBfko9gX2PQD9RVYVOuweYxU83KQBFbBmjr_xBb9wezURpJrZ8UrPAuagdyo8dKjQ_eD5DLVrO-ydabGs0GUDDpEweW595A7m7zvYlacvQC6Be4GxzImqRhKYPIu-9_nleFUU25d08GMXlWVt8tNcPBwzj8U8xVbv3BsY9FEfK38bbJP6YR_GGyg/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`
     ]
   },
@@ -116,15 +147,6 @@ export const PREWARMED_PLACES_CATALOG = {
     ]
   },
   '서귀포매일올레시장': {
-    name: '서귀포 매일올레시장',
-    rating: 4.3,
-    primary: `https://places.googleapis.com/v1/places/ChIJQTsLr51TDDURbGXJg1JM0Sk/photos/AWCwydistSrTa7Tfm3hImiYe_kWhUk3V9Ojfe1ubBjVEC--_hLStKkTxHDnnp2JB6Egyjtp4ZkctflxxZZn2qz2FSxU5SZBvM6ThBACt1gYPeqKXaYGZHV-ik0D_CPZpBpgw0VXDITpzY3PTr3tU_BBQdhvD7HUdvfdByisMMHC2AzlB9kQMDPpLHOcMoSUJTNM2QN3bnGLzuykbX5zSKSSeeiPVnuBgUEfucQMMNFAQ6wEpfM4p1fQxMNGReUcbk3Q8s6DMXakv34KdiYgeGp6HzHRVpZb0itMd9yIQL4fjd3fEdy04IHWZ3Zxzjq7LzhmucDSDWOMbKbmkfqzK1mhcWioT1lUSpI_zx1-L4KbxEl3gU7pUaxly6KeP-k-RmF7xA1_oFCTj-xbw9QnCqreP1SXm8q2ZG2F8Kj1f6tof8YqfgsF_-CsCk2JkPKaxhsoc/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`,
-    images: [
-      `https://places.googleapis.com/v1/places/ChIJQTsLr51TDDURbGXJg1JM0Sk/photos/AWCwydistSrTa7Tfm3hImiYe_kWhUk3V9Ojfe1ubBjVEC--_hLStKkTxHDnnp2JB6Egyjtp4ZkctflxxZZn2qz2FSxU5SZBvM6ThBACt1gYPeqKXaYGZHV-ik0D_CPZpBpgw0VXDITpzY3PTr3tU_BBQdhvD7HUdvfdByisMMHC2AzlB9kQMDPpLHOcMoSUJTNM2QN3bnGLzuykbX5zSKSSeeiPVnuBgUEfucQMMNFAQ6wEpfM4p1fQxMNGReUcbk3Q8s6DMXakv34KdiYgeGp6HzHRVpZb0itMd9yIQL4fjd3fEdy04IHWZ3Zxzjq7LzhmucDSDWOMbKbmkfqzK1mhcWioT1lUSpI_zx1-L4KbxEl3gU7pUaxly6KeP-k-RmF7xA1_oFCTj-xbw9QnCqreP1SXm8q2ZG2F8Kj1f6tof8YqfgsF_-CsCk2JkPKaxhsoc/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`,
-      `https://places.googleapis.com/v1/places/ChIJQTsLr51TDDURbGXJg1JM0Sk/photos/AWCwydgVnyOb0vHuQnRU7TV7INLs5C1H43uMxjLHrRKPIPK5Kubz_FzjD48aagLj4NsSXhKjHFlFaF_mtxRKRuZA3oJV-hikgp4M-_OqOjKgu_0Il2pD_uOzAz0uzhRaWdCeZS8r7mtUnIFB-1Rc_3A9r8UnLqqiYZnuiR3q2ruApFYCsnTl6xKxc9GYDQHU7biCs9ffzNcEWqABCvblPCQcMjXeoPtYFjV61Hz7njAmZSglR5go3BMX34_pifJRd-EKpswN0J78k3A0K9-0pIdGRy9v0pRueUojrkMdBzpOEkqQ4qPgXhDptC0NKg8kFNOU0no07s3CPG_P4Aq1ZCUJn0UMgzB9aJaPfhMTIDSSlG-fZrrl-7D3UmdR6ibayoL7ipZ-r2P-JNZqj3zoGpbjYsnZPDYYwsG2aOcRlY74dMCpeXw/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`
-    ]
-  },
-  '올레시장': {
     name: '서귀포 매일올레시장',
     rating: 4.3,
     primary: `https://places.googleapis.com/v1/places/ChIJQTsLr51TDDURbGXJg1JM0Sk/photos/AWCwydistSrTa7Tfm3hImiYe_kWhUk3V9Ojfe1ubBjVEC--_hLStKkTxHDnnp2JB6Egyjtp4ZkctflxxZZn2qz2FSxU5SZBvM6ThBACt1gYPeqKXaYGZHV-ik0D_CPZpBpgw0VXDITpzY3PTr3tU_BBQdhvD7HUdvfdByisMMHC2AzlB9kQMDPpLHOcMoSUJTNM2QN3bnGLzuykbX5zSKSSeeiPVnuBgUEfucQMMNFAQ6wEpfM4p1fQxMNGReUcbk3Q8s6DMXakv34KdiYgeGp6HzHRVpZb0itMd9yIQL4fjd3fEdy04IHWZ3Zxzjq7LzhmucDSDWOMbKbmkfqzK1mhcWioT1lUSpI_zx1-L4KbxEl3gU7pUaxly6KeP-k-RmF7xA1_oFCTj-xbw9QnCqreP1SXm8q2ZG2F8Kj1f6tof8YqfgsF_-CsCk2JkPKaxhsoc/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`,
@@ -148,30 +170,6 @@ export const PREWARMED_PLACES_CATALOG = {
       `https://places.googleapis.com/v1/places/ChIJc9enKK5aDDURxqGjfTFYCVA/photos/AWCwydg6NXz31mBECSakw0Z3g-LzzsvPwCjAQCSe1phXGOrpw3k-LLJoe1l9kmmzEQntaKiPlxNMPtKanbGZvygCk-Z7lLR2kmoxJlSPk5TyrvKSMKtKa0eWtVC0GzJ9ZCWpYMpTwzNkJo5JnY6P2tPmDPX-FAtwY2Cp1ZXYt20KsnFob0Gsjdapl7mOH_Y4MyOjy55_sfNVr8_52azNtWbUYMIZuhZhhePNL2iIt5HrsorCK7-y69Qp36gCRlMCalI5_jZWzk7-5nbpMomQGFYxEAO7hq0Nkq7Rfh1yHnUDUj8qPKAz3UZ-pBXXJLZc_ZTZY-ZTzD4MXZwWb6PgAIlW8k06GKCFX0dvDEVNFLWWaSbTNOEhHinXUefV_2PueOka0s7gyoVamASXAsxwOiB11gXkMIkpEO4vO9uGR9c3fwjB5ijDaH7-YeWG-1xM6B5T/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`
     ]
   },
-  '카멜리아힐': {
-    name: '카멜리아 힐',
-    rating: 4.4,
-    primary: `https://places.googleapis.com/v1/places/ChIJAdqBXXVbDDURL7m9RxFObeo/photos/AWCwydh0Q1nmC1yYfALpOY8wnYYDGeRYppYYgtXTKXSneU21DrZEuXAYSq9DnRAbFLvjfggL4HdcLMCQmZPDKA19ob8NUXeS1sdp-WVnqzgsbafcwNFX3Bw7xLOFMCafi9ty3KPUncFkPo53XfHGcyjkH1crPq7OxHWrNfH4cn_vaUbge-dbVkDGlBck01ZIDjVQ-75-N9KwUZEtKS9QLXdrSoRFGIb_5gSTqiPIiCI5uU0urMSIEkzJxUwSHGMAcGqbD8sk5oZH6SuItBQe0fgicVarYDsI6qRqSyVDnxqPhUSVaEhtAbS3FcP4XZlG9ddO9fvDr7HOYNuQb_LWq2ftFLvTVpjuOOC4F9xdmkZAWdjyaXofJkBBIqn5xA1GWbVf8v3OMdXj9fodqIDgIpnWAAwFrH7wLPEJM6BEQ2rcxoRf0A/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`,
-    images: [
-      `https://places.googleapis.com/v1/places/ChIJAdqBXXVbDDURL7m9RxFObeo/photos/AWCwydh0Q1nmC1yYfALpOY8wnYYDGeRYppYYgtXTKXSneU21DrZEuXAYSq9DnRAbFLvjfggL4HdcLMCQmZPDKA19ob8NUXeS1sdp-WVnqzgsbafcwNFX3Bw7xLOFMCafi9ty3KPUncFkPo53XfHGcyjkH1crPq7OxHWrNfH4cn_vaUbge-dbVkDGlBck01ZIDjVQ-75-N9KwUZEtKS9QLXdrSoRFGIb_5gSTqiPIiCI5uU0urMSIEkzJxUwSHGMAcGqbD8sk5oZH6SuItBQe0fgicVarYDsI6qRqSyVDnxqPhUSVaEhtAbS3FcP4XZlG9ddO9fvDr7HOYNuQb_LWq2ftFLvTVpjuOOC4F9xdmkZAWdjyaXofJkBBIqn5xA1GWbVf8v3OMdXj9fodqIDgIpnWAAwFrH7wLPEJM6BEQ2rcxoRf0A/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`
-    ]
-  },
-  '오설록': {
-    name: '오설록 티 뮤지엄',
-    rating: 4.3,
-    primary: `https://places.googleapis.com/v1/places/ChIJEczrGRJdDDUR0cpD2okSp7g/photos/AWCwydiiTUT2oXj87aSTBTGLskOlBk2047KncURVO84LNfgBI7aU6XO0rzdrSAWoqjf54f48Q1sgwCO4zvltgXZL_aNqlNy8qDQ8SH71gpgz8IIvt6K3Q9dUZJWFD1dB10nZ6lfGzt_UGpm22NUWwxcPb2mNuznHmTI3n_lzxIGFzU80cBx9GkJoukCi9NTuyiVTQidCFzQHXMu66_t4UUctoP57ZNGTnRlRc214ivVH1KNJ2uopR4czOkVo3hfxdb6VczuA__bMgRGOkdl65OYoDIxfjmEJvpbO4SB8jTIq-Gfj8p7ZiXfkSm9Pr7ztt0WQOBvqDRiPey8eyYq3axn8T6jYoL9KqiVqvWhowgingbKE4bsOAVcVtFn0czQVylmsyjcxcPqN7JX-_hP_EVDlG3GZBMMhji1AndLyDxuZ6So/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`,
-    images: [
-      `https://places.googleapis.com/v1/places/ChIJEczrGRJdDDUR0cpD2okSp7g/photos/AWCwydiiTUT2oXj87aSTBTGLskOlBk2047KncURVO84LNfgBI7aU6XO0rzdrSAWoqjf54f48Q1sgwCO4zvltgXZL_aNqlNy8qDQ8SH71gpgz8IIvt6K3Q9dUZJWFD1dB10nZ6lfGzt_UGpm22NUWwxcPb2mNuznHmTI3n_lzxIGFzU80cBx9GkJoukCi9NTuyiVTQidCFzQHXMu66_t4UUctoP57ZNGTnRlRc214ivVH1KNJ2uopR4czOkVo3hfxdb6VczuA__bMgRGOkdl65OYoDIxfjmEJvpbO4SB8jTIq-Gfj8p7ZiXfkSm9Pr7ztt0WQOBvqDRiPey8eyYq3axn8T6jYoL9KqiVqvWhowgingbKE4bsOAVcVtFn0czQVylmsyjcxcPqN7JX-_hP_EVDlG3GZBMMhji1AndLyDxuZ6So/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`
-    ]
-  },
-  '함덕': {
-    name: '함덕해수욕장',
-    rating: 4.6,
-    primary: `https://places.googleapis.com/v1/places/ChIJVSv3qq_8DDURcLh4pWxZ0vA/photos/AWCwydh6-KjX12leES7qMKN6rIJdSx_U3Pxq3K8ztC3ddy99IJOJnHDX2uPj0dLsaI8bv8rlvtr5QZsvSwlEmp9S-r3pAwS1bzJvQGKaAo-q5TVlLPojmqQT3Fxez-mdiFspM-xpYOBqipWcxDkEz-rUD7I6cMXpB6iqBXDMOytMbpiBEm73mesFfTCBYswlCBeiMC6fIS0UnMHwy8L3wVVajfQBGLmbWqNdSHB8gWN68WqLviBUDm-cZTv6Lxmm2Vky9ZwuvpfTM6nJt7jrh4VEvPP-VIfxpyXSDVV_K-ujSQHXJpR-P5fyTZmnVbVoB94CVRRMbiYj1FtSCMqWBsepkkJU0QOfzNHQ3x3OG4yaataWtlcBJuiPeYz1lSx-rkLbSlOmO6LSxLlzoOO-9KxQTKLtREUF20QOH8NrEiIPpXcaJoqg/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`,
-    images: [
-      `https://places.googleapis.com/v1/places/ChIJVSv3qq_8DDURcLh4pWxZ0vA/photos/AWCwydh6-KjX12leES7qMKN6rIJdSx_U3Pxq3K8ztC3ddy99IJOJnHDX2uPj0dLsaI8bv8rlvtr5QZsvSwlEmp9S-r3pAwS1bzJvQGKaAo-q5TVlLPojmqQT3Fxez-mdiFspM-xpYOBqipWcxDkEz-rUD7I6cMXpB6iqBXDMOytMbpiBEm73mesFfTCBYswlCBeiMC6fIS0UnMHwy8L3wVVajfQBGLmbWqNdSHB8gWN68WqLviBUDm-cZTv6Lxmm2Vky9ZwuvpfTM6nJt7jrh4VEvPP-VIfxpyXSDVV_K-ujSQHXJpR-P5fyTZmnVbVoB94CVRRMbiYj1FtSCMqWBsepkkJU0QOfzNHQ3x3OG4yaataWtlcBJuiPeYz1lSx-rkLbSlOmO6LSxLlzoOO-9KxQTKLtREUF20QOH8NrEiIPpXcaJoqg/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`
-    ]
-  },
 
   // === 서울 명소 ===
   'N서울타워': {
@@ -182,23 +180,7 @@ export const PREWARMED_PLACES_CATALOG = {
       `https://places.googleapis.com/v1/places/ChIJqWqOqFeifDURpYJ5LnxX-Fw/photos/AWCwydiIsJJ3a-U-cUtrjdsYgJd-ykcDOwij5g986cmms54kBUTJWlZFENoX0dZQKLelykD_GKjTpIR8soUYjAtdbvDzBouH6GMf9uyTDVXVobMNOWC1IwhfSgFPtub_p945cjRK6s5A1ggu_Nx3VrErb4HFjshLAuhjJusIXrxYfc5JHF3oAGmO9SLCvMWK5V6arUNWdw6CSfparU3hk4aMtfYx4aeHw_teg9Wd1CLW8poZomkOgIxSu8Qib0vVBUzg0LcMIezRw4HiZ4iUpjAYoBDgVhSPeoS21U23_TsTbNmKmAjj_TUjjFiU4MWTl7-fuMQEVfUDkZBJHIiN90XPB1RTLV5D-MeRg14CBvEBo1CcS1yDleX4Rz7Bx--bDVWJsVU004-NnAzepgwqbXcwveVIn4w_ndbnT6Rv_T_uyKm_Ag/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`
     ]
   },
-  '남산': {
-    name: 'N서울타워',
-    rating: 4.5,
-    primary: `https://places.googleapis.com/v1/places/ChIJqWqOqFeifDURpYJ5LnxX-Fw/photos/AWCwydiIsJJ3a-U-cUtrjdsYgJd-ykcDOwij5g986cmms54kBUTJWlZFENoX0dZQKLelykD_GKjTpIR8soUYjAtdbvDzBouH6GMf9uyTDVXVobMNOWC1IwhfSgFPtub_p945cjRK6s5A1ggu_Nx3VrErb4HFjshLAuhjJusIXrxYfc5JHF3oAGmO9SLCvMWK5V6arUNWdw6CSfparU3hk4aMtfYx4aeHw_teg9Wd1CLW8poZomkOgIxSu8Qib0vVBUzg0LcMIezRw4HiZ4iUpjAYoBDgVhSPeoS21U23_TsTbNmKmAjj_TUjjFiU4MWTl7-fuMQEVfUDkZBJHIiN90XPB1RTLV5D-MeRg14CBvEBo1CcS1yDleX4Rz7Bx--bDVWJsVU004-NnAzepgwqbXcwveVIn4w_ndbnT6Rv_T_uyKm_Ag/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`,
-    images: [
-      `https://places.googleapis.com/v1/places/ChIJqWqOqFeifDURpYJ5LnxX-Fw/photos/AWCwydiIsJJ3a-U-cUtrjdsYgJd-ykcDOwij5g986cmms54kBUTJWlZFENoX0dZQKLelykD_GKjTpIR8soUYjAtdbvDzBouH6GMf9uyTDVXVobMNOWC1IwhfSgFPtub_p945cjRK6s5A1ggu_Nx3VrErb4HFjshLAuhjJusIXrxYfc5JHF3oAGmO9SLCvMWK5V6arUNWdw6CSfparU3hk4aMtfYx4aeHw_teg9Wd1CLW8poZomkOgIxSu8Qib0vVBUzg0LcMIezRw4HiZ4iUpjAYoBDgVhSPeoS21U23_TsTbNmKmAjj_TUjjFiU4MWTl7-fuMQEVfUDkZBJHIiN90XPB1RTLV5D-MeRg14CBvEBo1CcS1yDleX4Rz7Bx--bDVWJsVU004-NnAzepgwqbXcwveVIn4w_ndbnT6Rv_T_uyKm_Ag/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`
-    ]
-  },
   '경복궁': {
-    name: '경복궁',
-    rating: 4.6,
-    primary: `https://places.googleapis.com/v1/places/ChIJod7tSseifDUR9hXHLFNGMIs/photos/AWCwydi2lNUyxhVr-vsnx7WUyKaSdAD8SP4mUqLNga3-0BiwCvFboS8F_Q0PhFcgqbwtcPsGkV7W_ayZ8APrQh5ZFPvgghglDvlEjpFa2P24Ft6DnPbHnfwTkvvqyr9TZdaGnRosofljEfJFCOeQ0WAsAIqaXu7gv7wmp6ukAeZvgix1a11PUBlsQSeH3qW_6riwx0qaV6dEJHHuGqYbbYWhU0A57M8DtC3QPjGFBg0FgR2VhmiM6mhkWwBUEkAh9hsqLpa5OyMNBc1_Uv24hcc65lpaS3K0bBc4sv7joPlB7U9gYHf4BKECI7tMUlxQM8jZgzPwXCnFsT3G8OSHDpOnBeChKVfRK6_-ejQzbJwFA7uju8O9q8oI1EYQfSOklqZgaB4NBJ7ajwxlys_-ElqdFSJnsWcK5Mmtxr9drXPehAbwY8GW/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`,
-    images: [
-      `https://places.googleapis.com/v1/places/ChIJod7tSseifDUR9hXHLFNGMIs/photos/AWCwydi2lNUyxhVr-vsnx7WUyKaSdAD8SP4mUqLNga3-0BiwCvFboS8F_Q0PhFcgqbwtcPsGkV7W_ayZ8APrQh5ZFPvgghglDvlEjpFa2P24Ft6DnPbHnfwTkvvqyr9TZdaGnRosofljEfJFCOeQ0WAsAIqaXu7gv7wmp6ukAeZvgix1a11PUBlsQSeH3qW_6riwx0qaV6dEJHHuGqYbbYWhU0A57M8DtC3QPjGFBg0FgR2VhmiM6mhkWwBUEkAh9hsqLpa5OyMNBc1_Uv24hcc65lpaS3K0bBc4sv7joPlB7U9gYHf4BKECI7tMUlxQM8jZgzPwXCnFsT3G8OSHDpOnBeChKVfRK6_-ejQzbJwFA7uju8O9q8oI1EYQfSOklqZgaB4NBJ7ajwxlys_-ElqdFSJnsWcK5Mmtxr9drXPehAbwY8GW/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`
-    ]
-  },
-  '향원정': {
     name: '경복궁',
     rating: 4.6,
     primary: `https://places.googleapis.com/v1/places/ChIJod7tSseifDUR9hXHLFNGMIs/photos/AWCwydi2lNUyxhVr-vsnx7WUyKaSdAD8SP4mUqLNga3-0BiwCvFboS8F_Q0PhFcgqbwtcPsGkV7W_ayZ8APrQh5ZFPvgghglDvlEjpFa2P24Ft6DnPbHnfwTkvvqyr9TZdaGnRosofljEfJFCOeQ0WAsAIqaXu7gv7wmp6ukAeZvgix1a11PUBlsQSeH3qW_6riwx0qaV6dEJHHuGqYbbYWhU0A57M8DtC3QPjGFBg0FgR2VhmiM6mhkWwBUEkAh9hsqLpa5OyMNBc1_Uv24hcc65lpaS3K0bBc4sv7joPlB7U9gYHf4BKECI7tMUlxQM8jZgzPwXCnFsT3G8OSHDpOnBeChKVfRK6_-ejQzbJwFA7uju8O9q8oI1EYQfSOklqZgaB4NBJ7ajwxlys_-ElqdFSJnsWcK5Mmtxr9drXPehAbwY8GW/media?maxHeightPx=800&maxWidthPx=1200&key=${GOOGLE_KEY}`,
@@ -340,6 +322,13 @@ export function resolveSpotPhotoSync(spotTitle = '', city = '서울', category =
   }
 
   // City-specific verified Google baseline
+  if (city.includes('수원')) {
+    return {
+      primaryImage: PREWARMED_PLACES_CATALOG['화성행궁'].primary,
+      images: PREWARMED_PLACES_CATALOG['화성행궁'].images,
+      rating: 4.8
+    };
+  }
   if (city.includes('부산')) {
     return {
       primaryImage: PREWARMED_PLACES_CATALOG['해운대'].primary,

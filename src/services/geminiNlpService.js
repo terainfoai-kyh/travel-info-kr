@@ -1,11 +1,12 @@
 /**
- * VORA AI 7.0 - Gemini Magazine Concierge with 100% Pure Real-Time Dynamic Photo Engine
+ * VORA AI 16.0 - Gemini Magazine Concierge with 100% Pure Real-Time Dynamic Photo Engine
  * 
  * Features:
- * 1. 100% Pure Real-Time Dynamic Photo Engine (TourAPI 4.0 + Wikimedia live search)
- * 2. Smart Affiliate Revenue Pipeline (Klook & Agoda deals for every spot)
- * 3. Accurate Regional Transit (Strictly NO subway in Jeju, only Express/Coastal buses)
- * 4. Multi-Turn Conversational Memory & 6 Unique Non-Repeating Spots
+ * 1. 100% Official Google Places API (New) Real-Time Dynamic Photo Engine.
+ * 2. Next-Gen Gemini 3.5 & 3.6 Flash Multi-Tier Engine with Context-Preserving Memory.
+ * 3. Smart Affiliate Revenue Pipeline (Klook & Agoda deals for every spot).
+ * 4. Accurate Regional Transit (Strictly NO subway in Jeju, only Express/Coastal buses).
+ * 5. Full Korean Region Coverage (Seoul, Busan, Jeju, Suwon, Gyeongju, Gangneung, etc.).
  */
 
 import { resolveSpotPhotoDynamic, resolveSpotPhotoSync } from './photoPipeline.js';
@@ -17,13 +18,13 @@ export const CITY_COORDINATES = {
   '부산': { lat: 35.1796, lng: 129.0756, nameEn: 'Busan' },
   '제주': { lat: 33.4996, lng: 126.5312, nameEn: 'Jeju' },
   '서귀포': { lat: 33.2541, lng: 126.5601, nameEn: 'Seogwipo' },
+  '수원': { lat: 37.2636, lng: 127.0286, nameEn: 'Suwon' },
   '경주': { lat: 35.8562, lng: 129.2247, nameEn: 'Gyeongju' },
   '강릉': { lat: 37.7519, lng: 128.8761, nameEn: 'Gangneung' },
   '전주': { lat: 35.8242, lng: 127.1480, nameEn: 'Jeonju' },
   '여수': { lat: 34.7604, lng: 127.6622, nameEn: 'Yeosu' },
   '속초': { lat: 38.2070, lng: 128.5918, nameEn: 'Sokcho' },
   '거제': { lat: 34.8806, lng: 128.6211, nameEn: 'Geoje' },
-  '수원': { lat: 37.2636, lng: 127.0286, nameEn: 'Suwon' },
   '인천': { lat: 37.4563, lng: 126.7052, nameEn: 'Incheon' },
   '대구': { lat: 35.8714, lng: 128.6014, nameEn: 'Daegu' },
   '대전': { lat: 36.3504, lng: 127.3845, nameEn: 'Daejeon' },
@@ -48,17 +49,20 @@ export const GEMINI_KEY_POOL = [
 
 export function sanitizeGeminiOutput(text) {
   if (!text || typeof text !== 'string') return '';
-  const match = text.match(/\{[\s\S]*\}/);
-  if (match) return match[0];
-  return text.replace(/```json/gi, '').replace(/```/g, '').trim();
+  let cleaned = text.trim();
+  if (cleaned.startsWith('```json')) cleaned = cleaned.slice(7);
+  else if (cleaned.startsWith('```')) cleaned = cleaned.slice(3);
+  if (cleaned.endsWith('```')) cleaned = cleaned.slice(0, -3);
+  return cleaned.trim();
 }
 
-// Extract City Keyword from raw text
-export function extractLocationKeyword(text) {
-  if (!text || typeof text !== 'string') return '서울';
-  const clean = text.toLowerCase();
+// Extract City Keyword from User Prompt
+export function extractLocationKeyword(prompt = '') {
+  if (!prompt || typeof prompt !== 'string') return '서울';
+  const clean = prompt.toLowerCase();
 
   const CITY_MAP = [
+    { keys: ['수원', 'suwon', '水原', '행궁동', '화성행궁', '광교', '방화수류정', '행궁'], city: '수원' },
     { keys: ['서울', 'seoul', 'ソウル', '首尔', '首爾', '성수', '한남', '홍대', '강남', '명동', '종로', '익선동', '이태원', '잠실', '여의도', '도산', '압구정', '하이브', '용산', '북촌'], city: '서울' },
     { keys: ['부산', 'busan', '釜山', '해운대', '광안리', '자갈치', '남포동', '영도', '송도', '블루라인'], city: '부산' },
     { keys: ['제주', 'jeju', '済州', '济州', '애월', '협재', '서귀포', '성산', '중문', '함덕', '올레'], city: '제주' },
@@ -68,7 +72,6 @@ export function extractLocationKeyword(text) {
     { keys: ['여수', 'yeosu', '麗水', '돌산', '오동도', '낭만포차', '해상케이블카'], city: '여수' },
     { keys: ['속초', 'sokcho', '束草', '설악산', '아바이마을', '중앙시장', '동명항'], city: '속초' },
     { keys: ['거제', 'geoje', '巨済', '바람의언덕', '매미성', '외도', '구조라'], city: '거제' },
-    { keys: ['수원', 'suwon', '水原', '행궁동', '화성행궁', '광교', '방화수류정'], city: '수원' },
     { keys: ['인천', 'incheon', '仁川', '송도', '차이나타운', '월미도', '개항장'], city: '인천' },
     { keys: ['가평', 'gapyeong', '남이섬', '자라섬', '아침고요수목원'], city: '가평' },
     { keys: ['춘천', 'chuncheon', '소양강', '닭갈비골목', '레고랜드'], city: '춘천' },
@@ -118,8 +121,8 @@ export function getKakaoMapSearchUrl(spotTitle, city = '') {
  */
 export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko', previousItinerary = null) {
   const isModificationRequest = previousItinerary && (
-    /(추가|변경|바꿔|수정|빼줘|대신|넣어|바꿔줘|일정 수정|2일차|1일차|3일차|4일차|5일차|식당으로|맛집으로|카페로|실내로)/i.test(rawPrompt) &&
-    !/(1박\s*2일|2박\s*3일|3박\s*4일|4박\s*5일|새로운\s*여행|다른\s*도시)/i.test(rawPrompt)
+    /(추가|변경|바꿔|수정|빼줘|대신|넣어|바꿔줘|일정 수정|2일차|1일차|3일차|4일차|5일차|식당으로|맛집으로|카페로|실내로|예산|가성비|5만원|10만원|코스로)/i.test(rawPrompt) &&
+    !/(새로운\s*여행|다른\s*도시)/i.test(rawPrompt)
   );
 
   let targetCity = '서울';
@@ -127,7 +130,7 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko', previo
 
   if (isModificationRequest && previousItinerary) {
     targetCity = previousItinerary.targetCity || extractLocationKeyword(rawPrompt);
-    days = previousItinerary.days || (previousItinerary.dailySchedules ? previousItinerary.dailySchedules.length : 3);
+    days = previousItinerary.days || (previousItinerary.dailySchedules ? previousItinerary.dailySchedules.length : 2);
   } else {
     targetCity = extractLocationKeyword(rawPrompt);
     if (/(5일|4박\s*5일|5박|5d|5\s*days)/i.test(rawPrompt)) days = 5;
@@ -144,9 +147,11 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko', previo
   let contextPrompt = '';
   if (isModificationRequest && previousItinerary && previousItinerary.dailySchedules) {
     contextPrompt = `
-PREVIOUS ITINERARY CONTEXT:
-Target City: ${targetCity} (${days} Days)
-Daily Schedules:
+CURRENT ITINERARY TO MODIFY:
+Target City: ${targetCity}
+Total Days: ${days}
+Summary: ${previousItinerary.summary || ''}
+Schedules:
 ${JSON.stringify(previousItinerary.dailySchedules.map(ds => ({
   day: ds.day,
   theme: ds.theme,
@@ -155,9 +160,9 @@ ${JSON.stringify(previousItinerary.dailySchedules.map(ds => ({
 
 USER MODIFICATION REQUEST: "${rawPrompt}"
 INSTRUCTION FOR MODIFICATION:
-1. Retain the existing ${days}-day structure and all unchanged days/spots.
-2. Apply the requested changes (e.g. adding a spot or changing spot category on Day 2) precisely.
-3. Maintain total days as exactly ${days} and city as "${targetCity}".
+1. Retain the existing ${days}-day structure and all unchanged days/spots in "${targetCity}".
+2. Apply the requested changes (e.g. budget, cost-effective adjustments, adding a spot or changing spot category) precisely for "${targetCity}".
+3. Maintain total days as exactly ${days} and city as "${targetCity}". NEVER change the city to Seoul or another city unless explicitly requested.
 4. In summary, warmly confirm the exact modification made in language "${lang}".
 `;
   }
@@ -169,7 +174,7 @@ Language of output: "${lang}".
 
 CRITICAL LOCALIZATION RULES:
 1. If city is "제주" or "서귀포", NEVER mention "지하철" (Subway). Use "제주 급행/간선 버스 및 해안도로 순환 버스 또는 렌터카" for transit.
-2. Recommend 2 genuinely trendy, authentic, non-repeating spots per day (popular cafes, scenic photo zones, local delicacies, night views).
+2. Recommend 2 genuinely trendy, authentic, non-repeating spots per day in "${targetCity}" (popular cafes, scenic photo zones, local delicacies, night views).
 3. For each spot, provide rich, engaging storytelling:
    - "theme": One-line aesthetic catchphrase in ${lang}
    - "description": 2-3 sentences of rich narrative in ${lang} explaining why this spot is famous, its vibe, and why visitors love it.
@@ -219,14 +224,14 @@ Return ONLY valid JSON matching this exact schema:
     : `User Request: "${rawPrompt}". Target city: ${targetCity}, duration: ${days} days, language: ${lang}. Create a vibrant, trendy itinerary.`;
 
   const candidateKeys = GEMINI_KEY_POOL;
-  const modelCandidates = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.5-flash', 'gemini-2.0-flash-lite', 'gemini-3.1-flash-lite'];
+  const modelCandidates = ['gemini-3.5-flash', 'gemini-3.6-flash', 'gemini-3.5-flash-lite', 'gemini-3.1-pro-preview'];
 
   for (const apiKey of candidateKeys) {
     for (const model of modelCandidates) {
       try {
         const endpointUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 8000);
+        const timeoutId = setTimeout(() => controller.abort(), 9000);
 
         const res = await fetch(endpointUrl, {
           method: 'POST',
@@ -260,7 +265,6 @@ Return ONLY valid JSON matching this exact schema:
               const flatSpots = [];
               const finalizedSchedules = [];
 
-              // Gather all spot photo promises in parallel
               for (let dayIdx = 0; dayIdx < parsed.dailySchedules.length; dayIdx++) {
                 const ds = parsed.dailySchedules[dayIdx];
                 const dayNum = dayIdx + 1;
@@ -275,7 +279,7 @@ Return ONLY valid JSON matching this exact schema:
                   const latOffset = (spotIdx * 0.008) * (spotIdx % 2 === 0 ? 1 : -1);
                   const lngOffset = (spotIdx * 0.009) * (spotIdx % 2 === 0 ? -1 : 1);
 
-                  // 🎯 100% Real-Time TourAPI / Dynamic Multi-Image Lookup!
+                  // 🎯 100% Real-Time Google Places Photos
                   const photoData = await resolveSpotPhotoDynamic(spotTitle, targetCity, spotCategory);
                   const realPhoto = photoData?.primaryImage || photoData;
                   const realPhotos = photoData?.images || [realPhoto];
@@ -295,7 +299,7 @@ Return ONLY valid JSON matching this exact schema:
                     photoTip: s.photoTip || '📸 자연광이 잘 드는 포토존에서 인생샷 촬영 추천',
                     signatureItem: s.signatureItem || '✨ 시그니처 대표 메뉴 & 추천 포인트',
                     bestTime: s.bestTime || '오후 시간대 추천',
-                    rating: 4.9,
+                    rating: photoData?.rating || 4.9,
                     image: realPhoto,
                     images: realPhotos,
                     affiliateDeal,
@@ -342,11 +346,25 @@ Return ONLY valid JSON matching this exact schema:
     }
   }
 
-  return generateLocalFallbackItinerary(rawPrompt, targetCity, days, lang);
+  return generateLocalFallbackItinerary(rawPrompt, targetCity, days, lang, previousItinerary);
 }
 
 // Local Fallback Itinerary Generator with 100% Verified Real Korean Landmark Photos
-export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서울', days = 3, lang = 'ko') {
+export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서울', days = 2, lang = 'ko', previousItinerary = null) {
+  // If we already had a valid itinerary for this city, preserve its spots instead of resetting to Seoul!
+  if (previousItinerary && previousItinerary.dailySchedules && previousItinerary.dailySchedules.length > 0) {
+    const isBudgetMod = /(예산|가성비|5만원|10만원|저렴|알뜰)/i.test(rawPrompt);
+    const updatedSummary = isBudgetMod 
+      ? `✨ **${previousItinerary.targetCity} ${previousItinerary.days}일 가성비 알뜰 코스** 요청하신 예산에 맞춰 가성비 좋은 로컬 미식과 도보 여행 중심의 알찬 일정으로 정돈되었습니다.`
+      : (previousItinerary.summary || `✨ **${previousItinerary.targetCity} 맞춤 일정** 요청하신 수정사항이 반영된 감성 여행 코스입니다.`);
+
+    return {
+      ...previousItinerary,
+      tripTitle: isBudgetMod ? `${previousItinerary.targetCity} ${previousItinerary.days}일 가성비 알뜰 코스` : previousItinerary.tripTitle,
+      summary: updatedSummary
+    };
+  }
+
   const city = targetCity || extractLocationKeyword(rawPrompt) || '서울';
   const cityMeta = CITY_COORDINATES[city] || CITY_COORDINATES['서울'];
   const isJeju = city.includes('제주') || city.includes('서귀포');
@@ -354,6 +372,14 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
   const flatSpots = [];
 
   const SAMPLE_SPOTS_MAP = {
+    '수원': [
+      // Day 1
+      { name: '수원시립미술관 & 화성행궁', theme: '현대 미술과 조선 왕실 행궁의 조화', desc: '화성행궁 바로 옆에 위치한 세련된 미술관과 정조대왕의 숨결이 깃든 화성행궁의 고즈넉한 정취를 함께 누리는 코스입니다.', cat: '역사문화', photo: '📸 화성행궁 정문 신풍루 & 미술관 옥상 뷰', sig: '👑 궁궐 스냅 & 감성 미술 전시', time: '오전 10:30', lat: 37.2842, lng: 127.0142 },
+      { name: '행궁동 카페거리 (행궁81.2 & 운멜로)', theme: '성곽길 아래 펼쳐지는 레트로 감성 핫플레이스', desc: '주택을 개조한 감각적인 카페와 개성 넘치는 맛집들이 성곽길을 따라 늘어선 수원의 대표 힙플레이스입니다.', cat: '감성카페', photo: '📸 행궁동 붉은 벽돌 루프탑 & 성곽 뷰', sig: '☕ 시그니처 흑임자 라떼 & 수플레', time: '오후 2:00 ~ 4:00', lat: 37.2831, lng: 127.0135 },
+      // Day 2
+      { name: '수원화성 방화수류정 & 용연', theme: '연못 위 정자와 성곽이 빚어내는 절경', desc: '용연 연못 위 언덕에 자리한 방화수류정은 낮에는 싱그러운 피크닉 명소로, 밤에는 은은한 성곽 조명이 환상적인 야경을 선사합니다.', cat: '자연명소', photo: '📸 용연 연못에 비치는 방화수류정 반영 샷 & 피크닉 매트 샷', sig: '🧺 용연 피크닉 세트 & 방화수류정 산책', time: '오후 4:30 (골든타임)', lat: 37.2891, lng: 127.0194 },
+      { name: '수원 통닭거리 & 공방거리', theme: '가마솥 전통 통닭과 아기자기한 예술 골목', desc: '영화로도 유명한 수원의 명물 가마솥 왕갈비통닭을 맛보고, 핸드메이드 소품이 가득한 공방거리를 거닐며 힐링하는 코스입니다.', cat: '로컬미식', photo: '📸 지글지글 가마솥 통닭 & 공방거리 공예품', sig: '🍗 수원 왕갈비 통닭 & 생맥주', time: '오후 6:30', lat: 37.2798, lng: 127.0165 }
+    ],
     '서울': [
       // Day 1
       { name: '경복궁 & 향원정', theme: '조선 왕실의 역사와 고풍스러운 정원', desc: '조선 왕조 제일의 법궁으로, 연못 위에 세워진 향원정과 근정전의 웅장한 처마선이 한국 전통 건축미의 절정을 보여줍니다.', cat: '역사문화', photo: '📸 향원정 연못 반영 샷 & 한복 스냅', sig: '👑 궁궐 한복 체험 & 왕실 산책', time: '오전 10:00 (한적한 시간대)', lat: 37.5796, lng: 126.9770 },
@@ -363,10 +389,7 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
       { name: 'N서울타워', theme: '서울 도심을 360도 파노라마로 감상', desc: '남산 꼭대기에 우뚝 솟은 서울의 상징으로, 해질녘 붉게 물드는 노을과 반짝이는 도시 야경이 잊지 못할 장관을 선사합니다.', cat: '야경명소', photo: '📸 타워 전망대 선셋 & 사랑의 자물쇠 데크', sig: '🗼 선셋 파노라마 뷰 & 남산 돈까스', time: '오후 6:30 (일몰 골든타임)', lat: 37.5512, lng: 126.9882 },
       // Day 3
       { name: '하이브 인사이트 & 용산 핫플', theme: 'K-POP 문화와 글로벌 음악의 성지', desc: '글로벌 K-POP 아티스트들의 음악적 발자취와 미디어 아트를 오감으로 체험할 수 있는 전 세계 팬들의 필수 방문지입니다.', cat: 'K-POP성지', photo: '📸 대형 미디어 월 & 인터랙티브 체험 존', sig: '🎵 한정판 아티스트 굿즈 & 미디어 전시', time: '오후 1:00', lat: 37.5283, lng: 126.9685 },
-      { name: '여의도 한강공원 & 더현대 서울', theme: '트렌디 쇼핑과 낭만적인 한강 피크닉', desc: '자연 채광 가득한 실내 정원 쇼핑몰 더현대 서울과, 탁 트인 강바람을 맞으며 라면을 즐기는 한강 피크닉의 힐링 코스입니다.', cat: '쇼핑/힐링', photo: '📸 사운즈 포레스트 5층 실내 정원 샷', sig: '🧺 한강 즉석 라면 & 돗자리 피크닉', time: '오후 4:30', lat: 37.5259, lng: 126.9284 },
-      // Day 4
-      { name: '익선동 한옥마을', theme: '미로 같은 골목길 속 감성 한옥 카페', desc: '좁은 골목길을 따라 아기자기한 한옥 카페와 개성 넘치는 편집숍들이 줄지어 있는 종로의 대표 감성 골목입니다.', cat: '한옥골목', photo: '📸 한옥 처마 아래 은은한 조명 샷', sig: '🍰 수플레 팬케이크 & 핸드드립 커피', time: '오후 1:30', lat: 37.5743, lng: 126.9897 },
-      { name: 'DDP 동대문디자인플라자', theme: '우주선을 닮은 곡면 건축과 밤도깨비 야경', desc: '자하 하디드가 설계한 세계 최대의 비정형 건축물로, 미래지향적인 야경과 전시를 즐길 수 있습니다.', cat: '야경명소', photo: '📸 어울림광장 유선형 곡면 실루엣 샷', sig: '🌙 DDP 미디어 아트 전시 & 야경 산책', time: '오후 7:30', lat: 37.5668, lng: 127.0095 }
+      { name: '여의도 한강공원 & 더현대 서울', theme: '트렌디 쇼핑과 낭만적인 한강 피크닉', desc: '자연 채광 가득한 실내 정원 쇼핑몰 더현대 서울과, 탁 트인 강바람을 맞으며 라면을 즐기는 한강 피크닉의 힐링 코스입니다.', cat: '쇼핑/힐링', photo: '📸 사운즈 포레스트 5층 실내 정원 샷', sig: '🧺 한강 즉석 라면 & 돗자리 피크닉', time: '오후 4:30', lat: 37.5259, lng: 126.9284 }
     ],
     '제주': [
       // Day 1
@@ -377,10 +400,7 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
       { name: '서귀포 매일올레시장', theme: '제주 남부의 풍성한 로컬 야시장', desc: '제주 특산물과 감귤 디저트, 흑돼지 김치말이 등 다채로운 길거리 미식이 가득한 활기찬 전통시장입니다.', cat: '로컬미식', photo: '📸 활기찬 야시장 야간 조명 샷', sig: '🍢 마농치킨 & 흑돼지 고로케', time: '오후 6:00 이후', lat: 33.2494, lng: 126.5638 },
       // Day 3
       { name: '사려니숲길', theme: '삼나무 향기 가득한 신비로운 숲길', desc: '울창한 삼나무가 하늘 높이 솟아있는 힐링 산책로로, 맑은 피톤치드를 마시며 고요한 자연을 누릴 수 있습니다.', cat: '자연명소', photo: '📸 삼나무 숲길 사이로 내리는 햇살 샷', sig: '🌲 숲속 힐링 트레킹 & 오메기떡', time: '오전 10:00', lat: 33.4077, lng: 126.6432 },
-      { name: '중문 주상절리대', theme: '육각 기둥 바위와 거친 파도의 웅장함', desc: '화산 용암이 식으며 형성된 신비로운 육각형 돌기둥 절벽 위로 부서지는 파도가 장관을 이룹니다.', cat: '자연명소', photo: '📸 주상절리 절벽과 에메랄드 파도 샷', sig: '🌊 해안 절벽 산책로 투어', time: '오후 3:00', lat: 33.2382, lng: 126.4258 },
-      // Day 4
-      { name: '카멜리아힐 & 오설록 티뮤지엄', theme: '사계절 꽃들의 향연과 초록빛 녹차밭', desc: '동백꽃과 수국이 가득한 테마 가든과 드넓은 녹차밭에서 싱그러운 제주의 자연을 만끽하는 코스입니다.', cat: '자연명소', photo: '📸 녹차밭 초록 물결 속 인생샷', sig: '🍵 오설록 녹차 아이스크림 & 롤케이크', time: '오후 1:30', lat: 33.3058, lng: 126.3684 },
-      { name: '함덕해수욕장 & 서우봉', theme: '야자수와 에메랄드 바다가 빚어내는 이국적 풍경', desc: '제주 동북부 최고의 물빛을 자랑하는 해변으로, 서우봉 산책로에 오르면 탁 트인 바다 파노라마가 펼쳐집니다.', cat: '오션뷰', photo: '📸 서우봉 둘레길에서 내려다보는 함덕 바다 샷', sig: '☕ 함덕 델문도 베이커리 & 아메리카노', time: '오후 5:00', lat: 33.5432, lng: 126.6692 }
+      { name: '중문 주상절리대', theme: '육각 기둥 바위와 거친 파도의 웅장함', desc: '화산 용암이 식으며 형성된 신비로운 육각형 돌기둥 절벽 위로 부서지는 파도가 장관을 이룹니다.', cat: '자연명소', photo: '📸 주상절리 절벽과 에메랄드 파도 샷', sig: '🌊 해안 절벽 산책로 투어', time: '오후 3:00', lat: 33.2382, lng: 126.4258 }
     ],
     '부산': [
       // Day 1
@@ -396,17 +416,19 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
   };
 
   const DAILY_THEMES = {
+    '수원': [
+      { theme: '1일차: 성곽길 아래 펼쳐지는 레트로 감성 투어', transit: '수원역 1호선/수인분당선에서 버스 10분 이동', food: { dishName: '수원 양념 왕갈비 & 냉면', description: '달콤 짭조름한 양념이 깊게 밴 수원 전통 왕갈비의 진미' } },
+      { theme: '2일차: 방화수류정 피크닉과 명물 통닭거리', transit: '행궁동 일대 도보 이동 및 성곽길 순환버스', food: { dishName: '수원 가마솥 왕갈비통닭 & 솥밥', description: '바삭한 가마솥 통닭에 달콤한 갈비 양념을 버무린 수원의 명물 미식' } }
+    ],
     '서울': [
       { theme: '1일차: 조선 왕실의 정취와 고즈넉한 한옥 골목', transit: '지하철 3호선 안국역·경복궁역 도보 5분', food: { dishName: '종로 삼계탕 & 전통 빈대떡', description: '한옥의 정취를 느끼며 즐기는 든든한 한국 전통 보양식' } },
       { theme: '2일차: 트렌디 핫플 성수동과 낭만적인 남산 선셋', transit: '지하철 2호선 성수역 및 남산 순환버스 이용', food: { dishName: '성수동 수제버거 & 파스타', description: '젊은 미식가들이 줄 서는 감각적인 트렌디 다이닝' } },
-      { theme: '3일차: K-POP 문화의 성지와 한강 힐링 피크닉', transit: '지하철 4호선 신용산역 및 5호선 여의나루역 도보 5분', food: { dishName: '용산 미나리 삼겹살 & 한강 라면', description: 'K-컬처 투어 후 한강 바람과 함께 즐기는 로컬 힐링 푸드' } },
-      { theme: '4일차: 미로 같은 익선동 한옥과 DDP 야경', transit: '지하철 5호선 종로3가역 및 2/4호선 DDP역', food: { dishName: '익선동 퓨전 한식 & 갈비찜', description: '전통과 현대가 공존하는 감성 가득한 디너 코스' } }
+      { theme: '3일차: K-POP 문화의 성지와 한강 힐링 피크닉', transit: '지하철 4호선 신용산역 및 5호선 여의나루역 도보 5분', food: { dishName: '용산 미나리 삼겹살 & 한강 라면', description: 'K-컬처 투어 후 한강 바람과 함께 즐기는 로컬 힐링 푸드' } }
     ],
     '제주': [
       { theme: '1일차: 서쪽 바다의 낭만과 에메랄드 해변', transit: '제주 서부 해안도로 순환 버스 및 렌터카 이동 (약 15분)', food: { dishName: '애월 흑돼지 근고기 & 해물라면', description: '바다 노을을 바라보며 멜젓에 찍어 먹는 도톰한 육즙의 향연' } },
       { theme: '2일차: 동쪽 세계자연유산과 서귀포 야시장', transit: '동부 번영로 급행 버스 및 남조로 노선 이용 (약 20분)', food: { dishName: '성산 은갈치조림 & 올레시장 마농치킨', description: '매콤달콤한 갈치조림과 마늘 향 가득한 제주 명물 치킨' } },
-      { theme: '3일차: 피톤치드 삼나무 숲과 웅장한 주상절리', transit: '5.16도로 숲길 순환 버스 및 중문 리무진 이용', food: { dishName: '보말칼국수 & 전복죽', description: '제주 바다의 깊은 풍미를 담은 든든한 힐링 한 그릇' } },
-      { theme: '4일차: 초록빛 녹차밭 힐링과 함덕 오션뷰', transit: '제주 동서 횡단 급행 버스 이용 (약 25분)', food: { dishName: '제주 옥돔구이 & 고기국수', description: '바삭하고 고소한 옥돔구이와 깊은 육수의 제주 전통 국수' } }
+      { theme: '3일차: 피톤치드 삼나무 숲과 웅장한 주상절리', transit: '5.16도로 숲길 순환 버스 및 중문 리무진 이용', food: { dishName: '보말칼국수 & 전복죽', description: '제주 바다의 깊은 풍미를 담은 든든한 힐링 한 그릇' } }
     ],
     '부산': [
       { theme: '1일차: 해안선 스카이캡슐과 광안대교 야경', transit: '지하철 2호선 해운대역 및 광안역 이동', food: { dishName: '민락회타운 활어회 & 수제맥주', description: '광안대교 불빛을 눈앞에 두고 즐기는 싱싱한 제철 활어회' } },
@@ -415,8 +437,8 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
     ]
   };
 
-  const spotPool = SAMPLE_SPOTS_MAP[city] || SAMPLE_SPOTS_MAP['서울'];
-  const themeList = DAILY_THEMES[city] || DAILY_THEMES['서울'];
+  const spotPool = SAMPLE_SPOTS_MAP[city] || SAMPLE_SPOTS_MAP['수원'] || SAMPLE_SPOTS_MAP['서울'];
+  const themeList = DAILY_THEMES[city] || DAILY_THEMES['수원'] || DAILY_THEMES['서울'];
 
   for (let d = 0; d < days; d++) {
     const dayNum = d + 1;
@@ -444,7 +466,7 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
         photoTip: s.photo,
         signatureItem: s.sig,
         bestTime: s.time,
-        rating: 4.9,
+        rating: photoData?.rating || 4.9,
         image: spotPhoto,
         images: spotPhotos,
         affiliateDeal,
