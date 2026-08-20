@@ -135,8 +135,10 @@ export default function VoraAIChat({
                 key={msg.id}
                 style={{
                   display: 'flex',
-                  justifyContent: 'flex-end',
-                  marginBottom: '0.2rem'
+                  flexDirection: 'column',
+                  alignItems: 'flex-end',
+                  marginBottom: '0.3rem',
+                  gap: '0.15rem'
                 }}
               >
                 <div style={{
@@ -153,6 +155,11 @@ export default function VoraAIChat({
                 }}>
                   {msg.text}
                 </div>
+                {msg.timestamp && (
+                  <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', paddingRight: '0.3rem' }}>
+                    문의 시간 {msg.timestamp}
+                  </span>
+                )}
               </div>
             );
           }
@@ -194,22 +201,28 @@ export default function VoraAIChat({
                   color: 'var(--text-main)',
                   boxShadow: 'var(--shadow-sm)'
                 }}>
-                  {/* Generation Speed Badge */}
-                  {(msg.generationTime || msg.itinerary?.generationTime) && (
+                  {/* Generation Speed & Timestamp Badge */}
+                  {(msg.generationTime || msg.itinerary?.generationTime || msg.timestamp) && (
                     <div style={{
                       display: 'inline-flex',
                       alignItems: 'center',
-                      gap: '0.25rem',
-                      fontSize: '0.7rem',
-                      fontWeight: 800,
+                      flexWrap: 'wrap',
+                      gap: '0.35rem',
+                      fontSize: '0.68rem',
+                      fontWeight: 700,
                       color: '#2563eb',
                       backgroundColor: 'rgba(37, 99, 235, 0.08)',
                       border: '1px solid rgba(37, 99, 235, 0.18)',
-                      padding: '0.15rem 0.45rem',
+                      padding: '0.2rem 0.5rem',
                       borderRadius: '6px',
                       marginBottom: '0.45rem'
                     }}>
-                      <span>⚡ AI 맞춤 생성 ({msg.generationTime || msg.itinerary?.generationTime}초)</span>
+                      <span style={{ fontWeight: 800 }}>⚡ AI 응답 ({msg.generationTime || msg.itinerary?.generationTime}초)</span>
+                      {msg.queryTime && msg.replyTime && (
+                        <span style={{ color: 'var(--text-muted)' }}>
+                          | 문의 {msg.queryTime} ➔ 답변 {msg.replyTime}
+                        </span>
+                      )}
                     </div>
                   )}
 

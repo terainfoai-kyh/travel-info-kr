@@ -165,10 +165,12 @@ export default function App() {
     if (!promptQuery || isLoading) return;
 
     const startTime = Date.now();
+    const queryTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
     const userMsg = {
       id: `user-${Date.now()}`,
       role: 'user',
-      text: promptQuery
+      text: promptQuery,
+      timestamp: queryTime
     };
     setChatMessages(prev => [...prev, userMsg]);
     setIsLoading(true);
@@ -184,6 +186,7 @@ export default function App() {
     try {
       const result = await geminiGenerateFullItinerary(promptQuery, lang, itineraryData);
       const elapsedSeconds = ((Date.now() - startTime) / 1000).toFixed(1);
+      const replyTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
       const finalResult = {
         ...(result || generateLocalFallbackItinerary(promptQuery, extractLocationKeyword(promptQuery), 2, lang)),
         generationTime: elapsedSeconds
@@ -195,12 +198,16 @@ export default function App() {
         role: 'assistant',
         text: `✨ **${finalResult.tripTitle}**\n${finalResult.summary}`,
         itinerary: finalResult,
-        generationTime: elapsedSeconds
+        generationTime: elapsedSeconds,
+        queryTime,
+        replyTime,
+        timestamp: replyTime
       };
       setChatMessages(prev => [...prev, botMsg]);
     } catch (err) {
       console.warn('[VORA AI Error]', err);
       const elapsedSeconds = ((Date.now() - startTime) / 1000).toFixed(1);
+      const replyTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
       const fallback = {
         ...generateLocalFallbackItinerary(promptQuery, extractLocationKeyword(promptQuery), 2, lang),
         generationTime: elapsedSeconds
@@ -211,7 +218,10 @@ export default function App() {
         role: 'assistant',
         text: `✨ **${fallback.tripTitle}**\n${fallback.summary}`,
         itinerary: fallback,
-        generationTime: elapsedSeconds
+        generationTime: elapsedSeconds,
+        queryTime,
+        replyTime,
+        timestamp: replyTime
       };
       setChatMessages(prev => [...prev, botMsg]);
     } finally {

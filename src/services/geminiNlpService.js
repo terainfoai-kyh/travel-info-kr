@@ -37,14 +37,13 @@ export const CITY_COORDINATES = {
   '통영': { lat: 34.8544, lng: 128.4332, nameEn: 'Tongyeong' }
 };
 
-// Verified Gemini API Key Pool
+// Verified Gemini API Key Pool (Active 3.5 Flash-Lite Key First)
 export const GEMINI_KEY_POOL = [
+  'AQ.Ab8RN6KwKIdJmZ8x8OgJtXcdCFJnvw6lusi3ZiuWAwFLdqsexg',
   import.meta.env.VITE_GEMINI_API_KEY,
   import.meta.env.VITE_GEMINI_FREE_KEY,
   import.meta.env.VITE_GEMINI_PAID_KEY,
-  import.meta.env.VITE_GEMINI_KEY,
-  'AQ.Ab8RN6KwKIdJmZ8x8OgJtXcdCFJnvw6lusi3ZiuWAwFLdqsexg',
-  'AQ.Ab8RN6LhKxJi5EUjbuDedS3vLY8v5UFd6QnV4dCzQy2anZ9-QQ'
+  import.meta.env.VITE_GEMINI_KEY
 ].filter(k => k && typeof k === 'string' && k.trim().length > 5);
 
 export function sanitizeGeminiOutput(text) {
@@ -56,9 +55,9 @@ export function sanitizeGeminiOutput(text) {
   return cleaned.trim();
 }
 
-// Extract City Keyword from User Prompt
-export function extractLocationKeyword(prompt = '') {
-  if (!prompt || typeof prompt !== 'string') return '서울';
+// Extract City Keyword from User Prompt (Comprehensive Korean Cities & Districts)
+export function extractLocationKeyword(prompt = '', fallbackToDefault = true) {
+  if (!prompt || typeof prompt !== 'string') return fallbackToDefault ? '서울' : null;
   const clean = prompt.toLowerCase();
 
   const CITY_MAP = [
@@ -69,15 +68,33 @@ export function extractLocationKeyword(prompt = '') {
     { keys: ['강릉', 'gangneung', '江陵', '안목', '경포대', '초당', '주문진', '정동진'], city: '강릉' },
     { keys: ['전주', 'jeonju', '全州', '한옥마을', '객리단길'], city: '전주' },
     { keys: ['여수', 'yeosu', '麗水', '돌산', '오동도', '낭만포차', '해상케이블카'], city: '여수' },
-    { keys: ['속초', 'sokcho', '束草', '설악산', '아바이마을', '중앙시장', '동명항'], city: '속초' },
-    { keys: ['거제', 'geoje', '巨済', '바람의언덕', '매미성', '외도', '구조라'], city: '거제' },
-    { keys: ['인천', 'incheon', '仁川', '송도', '차이나타운', '월미도', '개항장'], city: '인천' },
-    { keys: ['가평', 'gapyeong', '남이섬', '자라섬', '아침고요수목원'], city: '가평' },
+    { keys: ['속초', 'sokcho', '束草', '설악산', '아바이마을', '중앙시장', '동명항', '양양'], city: '속초' },
+    { keys: ['거제', 'geoje', '巨済', '바람의언덕', '매미성', '외도', '구조라', '통영', '동피랑'], city: '거제' },
+    { keys: ['인천', 'incheon', '仁川', '송도', '차이나타운', '월미도', '개항장', '영종도', '강화도'], city: '인천' },
+    { keys: ['가평', 'gapyeong', '남이섬', '자라섬', '아침고요수목원', '청평'], city: '가평' },
     { keys: ['춘천', 'chuncheon', '소양강', '닭갈비골목', '레고랜드'], city: '춘천' },
+    { keys: ['담양', 'damyang', '죽녹원', '메타세콰이어', '관방제림'], city: '담양' },
+    { keys: ['순천', 'suncheon', '순천만', '국가정원', '낙안읍성'], city: '순천' },
+    { keys: ['남해', 'namhae', '독일마을', '다랭이마을', '보리암'], city: '남해' },
+    { keys: ['포항', 'pohang', '호미곶', '스페이스워크', '영일대', '구룡포'], city: '포항' },
     { keys: ['안동', 'andong', '하회마을', '월영교', '도산서원'], city: '안동' },
-    { keys: ['포항', 'pohang', '호미곶', '스페이스워크', '영일대'], city: '포항' },
-    { keys: ['통영', 'tongyeong', '동피랑', '이순신공원', '디피랑'], city: '통영' },
-    { keys: ['서울', 'seoul', 'ソウル', '首尔', '首爾', '성수', '한남', '홍대', '강남', '명동', '종로', '익선동', '이태원', '잠실', '여의도', '도산', '압구정', '하이브', '용산', '북촌'], city: '서울' }
+    { keys: ['단양', 'danyang', '도담삼봉', '만천하'], city: '단양' },
+    { keys: ['공주', 'gongju', '무령왕릉', '공산성', '부여', '궁남지'], city: '공주' },
+    { keys: ['군산', 'gunsan', '선유도', '철길마을', '이성당'], city: '군산' },
+    { keys: ['양평', 'yangpyeong', '두물머리', '세미원', '용문산'], city: '양평' },
+    { keys: ['파주', 'paju', '헤이리', '출판도시', '임진각'], city: '파주' },
+    { keys: ['포천', 'pocheon', '아트밸리', '산정호수', '허브아일랜드'], city: '포천' },
+    { keys: ['평창', 'pyeongchang', '대관령', '양떼목장', '월정사'], city: '평창' },
+    { keys: ['대구', 'daegu', '동성로', '서문시장', '앞산'], city: '대구' },
+    { keys: ['대전', 'daejeon', '성심당', '유성온천', '엑스포'], city: '대전' },
+    { keys: ['광주', 'gwangju', '충장로', '무등산', '양림동'], city: '광주' },
+    { keys: ['울산', 'ulsan', '태화강', '대왕암', '간절곶'], city: '울산' },
+    { keys: ['청주', 'cheongju', '수암골', '상당산성', '청남대'], city: '청주' },
+    { keys: ['목포', 'mokpo', '유달산', '해상케이블카', '평화광장'], city: '목포' },
+    { keys: ['보성', 'boseong', '녹차밭', '율포해변'], city: '보성' },
+    { keys: ['태안', 'taean', '안면도', '꽃지해수욕장'], city: '태안' },
+    { keys: ['장수', 'jangsu', '논개사당', '장수사과'], city: '장수' },
+    { keys: ['서울', 'seoul', 'ソウル', '首尔', '首爾', '성수', '한남', '홍대', '강남', '명동', '종로', '익선동', '이태원', '잠실', '여의도', '도산', '압구정', '하이브', '용산', '북촌', '인사동', '청와대', '남산'], city: '서울' }
   ];
 
   for (const item of CITY_MAP) {
@@ -85,7 +102,7 @@ export function extractLocationKeyword(prompt = '') {
       return item.city;
     }
   }
-  return '서울';
+  return fallbackToDefault ? '서울' : null;
 }
 
 // Generate Google Maps Directions Full Day Route URL
@@ -121,10 +138,8 @@ export function getKakaoMapSearchUrl(spotTitle, city = '') {
  */
 export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko', previousItinerary = null) {
   const startTime = Date.now();
-  const newCityDetected = extractLocationKeyword(rawPrompt);
-  const mentionsExplicitCity = rawPrompt.includes('수원') || rawPrompt.includes('부산') || rawPrompt.includes('제주') || 
-                               rawPrompt.includes('서울') || rawPrompt.includes('경주') || rawPrompt.includes('강릉') || 
-                               rawPrompt.includes('전주') || rawPrompt.includes('화성') || rawPrompt.includes('행궁');
+  const explicitCity = extractLocationKeyword(rawPrompt, false);
+  const mentionsExplicitCity = !!explicitCity;
 
   const isModificationRequest = previousItinerary && !mentionsExplicitCity && (
     /(추가|변경|바꿔|수정|빼줘|대신|넣어|바꿔줘|일정 수정|2일차|1일차|3일차|4일차|5일차|식당으로|맛집으로|카페로|실내로|예산|가성비|5만원|10만원|코스로)/i.test(rawPrompt) &&
@@ -135,10 +150,10 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko', previo
   let days = 3;
 
   if (isModificationRequest && previousItinerary) {
-    targetCity = previousItinerary.targetCity || newCityDetected;
+    targetCity = previousItinerary.targetCity || explicitCity || '서울';
     days = previousItinerary.days || (previousItinerary.dailySchedules ? previousItinerary.dailySchedules.length : 2);
   } else {
-    targetCity = newCityDetected;
+    targetCity = explicitCity || '서울';
     if (/(5일|4박\s*5일|5박|5d|5\s*days)/i.test(rawPrompt)) days = 5;
     else if (/(4일|3박\s*4일|4박|4d|4\s*days)/i.test(rawPrompt)) days = 4;
     else if (/(3일|2박\s*3일|3박|3d|3\s*days)/i.test(rawPrompt)) days = 3;
@@ -175,12 +190,12 @@ INSTRUCTION FOR MODIFICATION:
 
   const systemInstruction = `You are VORA, an elite South Korean AI Travel Magazine Editor & Concierge.
 Create a trendy, stylish, highly immersive ${days}-day travel magazine itinerary in South Korea based on the user's request.
-Target main city: "${targetCity}" (${cityMeta.nameEn}).
+${explicitCity ? `Target main destination: "${explicitCity}".` : 'If the user specifies a specific region/city in Korea, plan for that place. If the query is general, ambiguous, or a typo (e.g. 힐링 여행, 드라이브, 징수 추천), intelligently select the best Korean destination fitting the request and output its name in "targetCity".'}
 Language of output: "${lang}".
 
 CRITICAL LOCALIZATION RULES:
 1. If city is "제주" or "서귀포", NEVER mention "지하철" (Subway). Use "제주 급행/간선 버스 및 해안도로 순환 버스 또는 렌터카" for transit.
-2. Recommend 2 genuinely trendy, authentic, non-repeating spots per day in "${targetCity}" (popular cafes, scenic photo zones, local delicacies, night views).
+2. Recommend 2 genuinely trendy, authentic, non-repeating spots per day in the target city (popular cafes, scenic photo zones, local delicacies, night views).
 3. For each spot, provide rich, engaging storytelling:
    - "theme": One-line aesthetic catchphrase in ${lang}
    - "description": 2-3 sentences of rich narrative in ${lang} explaining why this spot is famous, its vibe, and why visitors love it.
@@ -188,13 +203,13 @@ CRITICAL LOCALIZATION RULES:
    - "signatureItem": ☕/🍴 Signature menu or experience in ${lang}
    - "bestTime": ⏰ Recommended visiting time
    - "category": K-POP성지 / 감성카페 / 한옥골목 / 오션뷰 / 로컬미식 / 야경명소 / 자연명소
-4. Provide realistic GPS coordinates around ${targetCity} (Base: lat ${cityMeta.lat}, lng ${cityMeta.lng}).
+4. Provide realistic GPS coordinates around the target city.
 5. In summary, write an inspiring, warm concierge narrative in language "${lang}".
 
 Return ONLY valid JSON matching this exact schema:
 {
   "tripTitle": "Catchy Magazine Title in ${lang}",
-  "targetCity": "${targetCity}",
+  "targetCity": "Target City Name in Korean",
   "days": ${days},
   "summary": "Warm editorial overview in ${lang}",
   "dailySchedules": [
@@ -217,8 +232,8 @@ Return ONLY valid JSON matching this exact schema:
           "bestTime": "Recommended time in ${lang}",
           "lat": ${cityMeta.lat},
           "lng": ${cityMeta.lng},
-          "address": "Address in ${targetCity}",
-          "transitTime": "${isJeju ? '급행 버스 또는 해안도로 이동 15분' : '지하철 또는 도보로 편리하게 이동'}"
+          "address": "Address in target city",
+          "transitTime": "대중교통 또는 도보로 편리하게 이동"
         }
       ]
     }
@@ -227,17 +242,17 @@ Return ONLY valid JSON matching this exact schema:
 
   const promptText = contextPrompt 
     ? `${contextPrompt}\n\nLanguage: ${lang}. Return updated JSON.` 
-    : `User Request: "${rawPrompt}". Target city: ${targetCity}, duration: ${days} days, language: ${lang}. Create a vibrant, trendy itinerary.`;
+    : `User Request: "${rawPrompt}". Duration: ${days} days, language: ${lang}. Create a vibrant, trendy itinerary.`;
 
   const candidateKeys = GEMINI_KEY_POOL;
-  const modelCandidates = ['gemini-3.5-flash-lite', 'gemini-3.6-flash', 'gemini-3.5-flash'];
+  const modelCandidates = ['gemini-3.5-flash-lite', 'gemini-3.5-flash'];
 
   for (const apiKey of candidateKeys) {
     for (const model of modelCandidates) {
       try {
         const endpointUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 4500);
+        const timeoutId = setTimeout(() => controller.abort(), 3500);
 
         const res = await fetch(endpointUrl, {
           method: 'POST',
@@ -268,6 +283,10 @@ Return ONLY valid JSON matching this exact schema:
             }
 
             if (parsed && parsed.dailySchedules && Array.isArray(parsed.dailySchedules)) {
+              const finalCity = parsed.targetCity || targetCity || '서울';
+              const finalCityMeta = CITY_COORDINATES[finalCity] || CITY_COORDINATES['서울'];
+              const isFinalJeju = finalCity.includes('제주') || finalCity.includes('서귀포');
+
               // ⚡ Parallel Photo Resolution across ALL spots simultaneously!
               const spotLookupPromises = [];
 
@@ -277,11 +296,11 @@ Return ONLY valid JSON matching this exact schema:
 
                 for (let spotIdx = 0; spotIdx < rawSpots.length; spotIdx++) {
                   const s = rawSpots[spotIdx];
-                  const spotTitle = s.name || s.title || `${targetCity} 핫플 ${spotIdx + 1}`;
+                  const spotTitle = s.name || s.title || `${finalCity} 핫플 ${spotIdx + 1}`;
                   const spotCategory = s.category || '핫플레이스';
 
                   spotLookupPromises.push(
-                    resolveSpotPhotoDynamic(spotTitle, targetCity, spotCategory).then(photoData => ({
+                    resolveSpotPhotoDynamic(spotTitle, finalCity, spotCategory).then(photoData => ({
                       dayIdx,
                       spotIdx,
                       s,
@@ -310,18 +329,18 @@ Return ONLY valid JSON matching this exact schema:
 
                   const realPhoto = photoData?.primaryImage || photoData;
                   const realPhotos = photoData?.images || [realPhoto];
-                  const affiliateDeal = getSpotAffiliateDeal(spotTitle, targetCity);
+                  const affiliateDeal = getSpotAffiliateDeal(spotTitle, finalCity);
 
-                  const defaultTransit = isJeju 
+                  const defaultTransit = isFinalJeju 
                     ? '제주 급행 버스 또는 해안도로 이동 15분' 
                     : (s.transitTime || '지하철 또는 도보로 편리하게 이동');
 
                   const finalSpot = {
                     id: `vora-spot-${dayNum}-${spotIdx + 1}`,
                     title: spotTitle,
-                    region: targetCity,
+                    region: finalCity,
                     theme: s.theme || '인기 감성 핫플레이스',
-                    description: s.description || `${spotTitle}은 ${targetCity}에서 가장 트렌디하고 매력적인 감성을 느낄 수 있는 대표 명소입니다. 아름다운 공간과 특별한 분위기를 경험해 보세요.`,
+                    description: s.description || `${spotTitle}은 ${finalCity}에서 가장 트렌디하고 매력적인 감성을 느낄 수 있는 대표 명소입니다. 아름다운 공간과 특별한 분위기를 경험해 보세요.`,
                     category: spotCategory,
                     photoTip: s.photoTip || '📸 자연광이 잘 드는 포토존에서 인생샷 촬영 추천',
                     signatureItem: s.signatureItem || '✨ 시그니처 대표 메뉴 & 추천 포인트',
@@ -330,9 +349,9 @@ Return ONLY valid JSON matching this exact schema:
                     image: realPhoto,
                     images: realPhotos,
                     affiliateDeal,
-                    location: s.address || `대한민국 ${targetCity}`,
-                    lat: Number(s.lat) || (cityMeta.lat + latOffset),
-                    lng: Number(s.lng) || (cityMeta.lng + lngOffset),
+                    location: s.address || `대한민국 ${finalCity}`,
+                    lat: Number(s.lat) || (finalCityMeta.lat + latOffset),
+                    lng: Number(s.lng) || (finalCityMeta.lng + lngOffset),
                     transitTime: defaultTransit,
                     assignedDay: dayNum,
                     dayOrder: spotIdx + 1
@@ -344,10 +363,10 @@ Return ONLY valid JSON matching this exact schema:
 
                 finalizedSchedules.push({
                   day: dayNum,
-                  theme: ds.theme || `${dayNum}일차 ${targetCity} 감성 코스`,
-                  transitTip: ds.transitTip || (isJeju ? '제주 해안도로 및 급행 버스를 이용해 편리하게 이동합니다.' : '지하철 및 대중교통 환승이 매우 편리한 구간입니다.'),
+                  theme: ds.theme || `${dayNum}일차 ${finalCity} 감성 코스`,
+                  transitTip: ds.transitTip || (isFinalJeju ? '제주 해안도로 및 급행 버스를 이용해 편리하게 이동합니다.' : '지하철 및 대중교통 환승이 매우 편리한 구간입니다.'),
                   foodRecommendation: ds.foodRecommendation || {
-                    dishName: `${targetCity} 로컬 대표 미식`,
+                    dishName: `${finalCity} 로컬 대표 미식`,
                     description: '현지인들이 즐겨 찾는 대표 맛집에서 식사 추천'
                   },
                   spots: daySpots
@@ -357,15 +376,15 @@ Return ONLY valid JSON matching this exact schema:
               const elapsedSeconds = ((Date.now() - startTime) / 1000).toFixed(1);
 
               return {
-                targetCity,
+                targetCity: finalCity,
                 days: parsed.days || days,
-                tripTitle: parsed.tripTitle || `${targetCity} ${days}일 감성 매거진 코스`,
-                summary: parsed.summary || `${targetCity}의 대표적인 핫플레이스와 감성 명소를 엄선한 맞춤 일정입니다. ✨`,
+                tripTitle: parsed.tripTitle || `${finalCity} ${days}일 감성 매거진 코스`,
+                summary: parsed.summary || `${finalCity}의 대표적인 핫플레이스와 감성 명소를 엄선한 맞춤 일정입니다. ✨`,
                 dailySchedules: finalizedSchedules,
                 spots: flatSpots,
                 generationTime: elapsedSeconds,
-                agodaUrl: `https://www.agoda.com/search?text=${encodeURIComponent(targetCity + ' 호텔')}`,
-                klookUrl: `https://www.klook.com/ko/search?query=${encodeURIComponent(targetCity + ' 액티비티')}`
+                agodaUrl: `https://www.agoda.com/search?text=${encodeURIComponent(finalCity + ' 호텔')}`,
+                klookUrl: `https://www.klook.com/ko/search?query=${encodeURIComponent(finalCity + ' 액티비티')}`
               };
             }
           }
