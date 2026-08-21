@@ -36,6 +36,37 @@ export default function App() {
     try {
       localStorage.setItem('vora_lang', newLang);
     } catch (e) {}
+
+    // Automatically reset and re-query the itinerary and chat messages in the newly selected language
+    const newItinerary = generateLocalFallbackItinerary('서울 3일 핫플 감성 투어', '서울', 3, newLang);
+    setItineraryData(newItinerary);
+
+    const welcomeMsgs = newLang === 'en' ? [
+      {
+        id: 'welcome-1',
+        role: 'assistant',
+        text: 'Hello! I am VORA, your dedicated AI travel concierge for South Korea. 😊\nTell me where you want to visit or your desired travel style!'
+      },
+      {
+        id: 'featured-1',
+        role: 'assistant',
+        text: '✨ We have prepared [Seoul 3-Day Hotspot Trend Magazine Tour] as your recommended itinerary.\nFeel free to ask anytime if you want adjustments or want to explore other cities!',
+        itinerary: newItinerary
+      }
+    ] : [
+      {
+        id: 'welcome-1',
+        role: 'assistant',
+        text: '안녕하세요! 당신의 전담 한국 여행 AI 컨시어지 VORA(보라)입니다. 😊\n어떤 여행을 꿈꾸시나요? 가고 싶은 도시나 스타일을 편하게 말씀해 주세요!'
+      },
+      {
+        id: 'featured-1',
+        role: 'assistant',
+        text: '✨ [서울 3일 핫플 감성 투어]를 추천 코스로 준비해 두었습니다.\n수정을 원하시거나 새로운 지역을 가고 싶으시면 언제든 질문해 주세요!',
+        itinerary: newItinerary
+      }
+    ];
+    setChatMessages(welcomeMsgs);
   };
 
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
@@ -88,7 +119,19 @@ export default function App() {
     return () => { isMounted = false; };
   }, [initialItinerary]);
 
-  const [chatMessages, setChatMessages] = useState(() => [
+  const [chatMessages, setChatMessages] = useState(() => (lang === 'en' ? [
+    {
+      id: 'welcome-1',
+      role: 'assistant',
+      text: 'Hello! I am VORA, your dedicated AI travel concierge for South Korea. 😊\nTell me where you want to visit or your desired travel style!'
+    },
+    {
+      id: 'featured-1',
+      role: 'assistant',
+      text: '✨ We have prepared [Seoul 3-Day Hotspot Trend Magazine Tour] as your recommended itinerary.\nFeel free to ask anytime if you want adjustments or want to explore other cities!',
+      itinerary: initialItinerary
+    }
+  ] : [
     {
       id: 'welcome-1',
       role: 'assistant',
@@ -100,7 +143,7 @@ export default function App() {
       text: '✨ [서울 3일 핫플 감성 투어]를 추천 코스로 준비해 두었습니다.\n수정을 원하시거나 새로운 지역을 가고 싶으시면 언제든 질문해 주세요!',
       itinerary: initialItinerary
     }
-  ]);
+  ]));
   const [activeDay, setActiveDay] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedSpot, setSelectedSpot] = useState(null);

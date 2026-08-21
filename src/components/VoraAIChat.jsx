@@ -154,7 +154,7 @@ export default function VoraAIChat({
           gap: '0.3rem'
         }}>
           <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10b981' }} />
-          <span>실시간 1:1 대화중</span>
+          <span>{t.chatStatusLive || (lang === 'en' ? 'Live 1:1 Chat' : '실시간 1:1 대화중')}</span>
         </span>
       </div>
 
@@ -182,27 +182,26 @@ export default function VoraAIChat({
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'flex-end',
-                  marginBottom: '0.3rem',
-                  gap: '0.15rem'
+                  gap: '0.25rem',
+                  marginBottom: '0.3rem'
                 }}
               >
                 <div style={{
-                  maxWidth: '82%',
                   backgroundColor: 'var(--accent-primary)',
                   color: '#ffffff',
-                  padding: '0.65rem 0.95rem',
-                  borderRadius: '16px 16px 4px 16px',
-                  fontSize: '0.85rem',
-                  lineHeight: 1.45,
-                  fontWeight: 600,
-                  boxShadow: 'var(--shadow-sm)',
-                  wordBreak: 'break-word'
+                  borderRadius: '16px 4px 16px 16px',
+                  padding: '0.7rem 0.95rem',
+                  fontSize: '0.84rem',
+                  lineHeight: 1.5,
+                  maxWidth: '85%',
+                  wordBreak: 'break-word',
+                  boxShadow: 'var(--shadow-sm)'
                 }}>
                   {msg.text}
                 </div>
                 {msg.timestamp && (
                   <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', paddingRight: '0.3rem' }}>
-                    문의 시간 {msg.timestamp}
+                    {lang === 'en' ? `Inquiry ${msg.timestamp}` : `문의 시간 ${msg.timestamp}`}
                   </span>
                 )}
               </div>
@@ -263,10 +262,16 @@ export default function VoraAIChat({
                       borderRadius: '6px',
                       marginBottom: '0.45rem'
                     }}>
-                      <span style={{ fontWeight: 800 }}>⚡ AI 응답 ({msg.generationTime || msg.itinerary?.generationTime}초)</span>
+                      <span style={{ fontWeight: 800 }}>
+                        {lang === 'en' 
+                          ? `⚡ AI Response (${msg.generationTime || msg.itinerary?.generationTime || '0.9'}s)` 
+                          : `⚡ AI 응답 (${msg.generationTime || msg.itinerary?.generationTime}초)`}
+                      </span>
                       {msg.queryTime && msg.replyTime && (
                         <span style={{ color: 'var(--text-muted)' }}>
-                          | 문의 {msg.queryTime} ➔ 답변 {msg.replyTime}
+                          {lang === 'en' 
+                            ? `| Asked ${msg.queryTime} ➔ Replied ${msg.replyTime}` 
+                            : `| 문의 ${msg.queryTime} ➔ 답변 ${msg.replyTime}`}
                         </span>
                       )}
                     </div>
@@ -287,7 +292,7 @@ export default function VoraAIChat({
                       gap: '0.55rem'
                     }}>
                       <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#f59e0b', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                        <span>🎁 질문 즉시 충전 & 확장 혜택</span>
+                        <span>{lang === 'en' ? '🎁 Instant Recharge & Extra Benefits' : '🎁 질문 즉시 충전 & 확장 혜택'}</span>
                       </div>
 
                       {/* Action 1: 15s Rewarded Ad */}
@@ -310,7 +315,7 @@ export default function VoraAIChat({
                           boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)'
                         }}
                       >
-                        <span>🎬 15초 스폰서 광고 보고 +3회 즉시 충전</span>
+                        <span>{lang === 'en' ? '🎬 Watch 15s Ad for +3 Instant Prompts' : '🎬 15초 스폰서 광고 보고 +3회 즉시 충전'}</span>
                       </button>
 
                       {/* Action 2: 3-sec Google Login (if guest) */}
@@ -340,7 +345,7 @@ export default function VoraAIChat({
                             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
                             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
                           </svg>
-                          <span>3초 구글 로그인하고 매일 15회 + 일정 저장</span>
+                          <span>{lang === 'en' ? 'Sign in with Google for 15 Daily Prompts + Save Trips' : '3초 구글 로그인하고 매일 15회 + 일정 저장'}</span>
                         </button>
                       )}
                     </div>
@@ -396,7 +401,7 @@ export default function VoraAIChat({
                         }}
                       >
                         {copiedId === msg.id ? <Check size={11} style={{ color: '#10b981' }} /> : <Copy size={11} />}
-                        <span>{copiedId === msg.id ? '복사됨' : '일정 복사'}</span>
+                        <span>{copiedId === msg.id ? (lang === 'en' ? 'Copied' : '복사됨') : (lang === 'en' ? 'Copy Itinerary' : '일정 복사')}</span>
                       </button>
                     </div>
                   )}
@@ -594,13 +599,15 @@ export default function VoraAIChat({
       }}>
         <div 
           onClick={onResetQuotaForDev}
-          title="클릭하여 질문 횟수 전체 충전 (테스트/개발 모드)"
+          title={lang === 'en' ? 'Click to reset quota (Dev/Test Mode)' : '클릭하여 질문 횟수 전체 충전 (테스트/개발 모드)'}
           style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', cursor: 'pointer', userSelect: 'none' }}
         >
           <span>{currentUser?.isGoogleLoggedIn ? '👑' : '⚡'}</span>
           <span>
-            {currentUser?.isGoogleLoggedIn ? 'Google VIP: ' : '오늘 무료 질문: '}
-            <strong style={{ fontWeight: 900 }}>{questionQuota?.remaining ?? 5}</strong> / {questionQuota?.total ?? 5}회
+            {currentUser?.isGoogleLoggedIn 
+              ? 'Google VIP: ' 
+              : (lang === 'en' ? "Today's Free Prompts: " : '오늘 무료 질문: ')}
+            <strong style={{ fontWeight: 900 }}>{questionQuota?.remaining ?? 5}</strong> / {questionQuota?.total ?? 5}{lang === 'en' ? '' : '회'}
           </span>
         </div>
 
@@ -609,7 +616,7 @@ export default function VoraAIChat({
           <button
             type="button"
             onClick={onOpenRewardedAd}
-            title="15초 광고 보고 +3회 충전"
+            title={lang === 'en' ? 'Watch 15s ad for +3 prompts' : '15초 광고 보고 +3회 충전'}
             style={{
               background: 'rgba(16, 185, 129, 0.15)',
               color: '#059669',
@@ -621,14 +628,14 @@ export default function VoraAIChat({
               cursor: 'pointer'
             }}
           >
-            🎬 +3회 충전
+            {lang === 'en' ? '🎬 +3 Prompts' : '🎬 +3회 충전'}
           </button>
 
           {!currentUser?.isGoogleLoggedIn && (
             <button
               type="button"
               onClick={onOpenGoogleAuth}
-              title="구글 로그인하고 매일 15회 받기"
+              title={lang === 'en' ? 'Sign in with Google for 15 daily prompts' : '구글 로그인하고 매일 15회 받기'}
               style={{
                 background: 'rgba(37, 99, 235, 0.12)',
                 color: 'var(--accent-primary)',
@@ -640,12 +647,12 @@ export default function VoraAIChat({
                 cursor: 'pointer'
               }}
             >
-              🔑 15회 확장
+              {lang === 'en' ? '🔑 15 Pro' : '🔑 15회 확장'}
             </button>
           )}
 
           <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 500, marginLeft: '0.2rem' }}>
-            자정(00:00) 리셋
+            {lang === 'en' ? 'Resets at 00:00' : '자정(00:00) 리셋'}
           </span>
         </div>
       </div>

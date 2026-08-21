@@ -346,33 +346,37 @@ Return ONLY this JSON schema:
     {
       "day": 1,
       "theme": "Day 1 Theme in ${lang}",
-      "transitTip": "Regional transit corridor guidance in ${lang} (e.g. '지하철 3호선 안국역·경복궁역 도보 10분 이내 집중 동선')",
+      "transitTip": "Regional transit corridor guidance in ${lang} (e.g. 'Within 10 mins walk around Anguk Station on Line 3')",
       "foodRecommendation": {
         "dishName": "Iconic local dish name in ${lang}",
         "description": "Why it is famous & best local area in ${lang}"
       },
       "spots": [
         {
-          "name": "Spot Name (Korean & English)",
-          "category": "감성카페 / 오션뷰 / 로컬미식 / 야경명소 / 자연명소 / 역사문화 / 쇼핑핫플",
+          "name": "Spot Name in ${lang}",
+          "category": "Trendy Cafe / Ocean View / Local Gourmet / Night View / Scenic Nature / History & Culture / Shopping Hotspot",
           "theme": "Aesthetic highlight in ${lang}",
           "description": "2-3 sentences of rich storytelling in ${lang}",
           "photoTip": "Photo spot tip in ${lang}",
           "signatureItem": "Signature dish/drink/activity in ${lang}",
-          "bestTime": "Recommended golden hour in ${lang} (e.g. '오전 10:30', '오후 2:30', '일몰 18:30')",
+          "bestTime": "Recommended golden hour in ${lang} (e.g. '10:30 AM', '2:30 PM', '6:30 PM (Sunset)')",
           "lat": ${cityMeta.lat},
           "lng": ${cityMeta.lng},
           "address": "Address in target city",
-          "transitTime": "도보 5~10분 또는 대중교통 15분 이내"
+          "transitTime": "Within 5-10 min walk or 15 min transit"
         }
       ]
     }
   ]
-}`;
+}
+
+CRITICAL LANGUAGE RULE:
+The user selected language is "${lang}".
+ALL output text (tripTitle, summary, theme, transitTip, dishName, description, name, category, photoTip, signatureItem, bestTime, transitTime) MUST be 100% in ${lang === 'en' ? 'natural, fluent English for international foreign tourists' : lang}.`;
 
   const promptText = contextPrompt 
-    ? `${contextPrompt}\n\nLanguage: ${lang}. Return updated JSON.` 
-    : `User Request: "${cleanPrompt}". Duration: ${days} days, language: ${lang}. Process appropriately as chat clarification or full itinerary.`;
+    ? `${contextPrompt}\n\nLanguage: ${lang}. Return updated JSON strictly in language ${lang}.` 
+    : `User Request: "${cleanPrompt}". Duration: ${days} days, language: ${lang}. Process appropriately as chat clarification or full itinerary strictly in ${lang}.`;
 
   const candidateKeys = GEMINI_KEY_POOL;
   const modelCandidates = ['gemini-3.5-flash-lite', 'gemini-3.5-flash'];
@@ -592,6 +596,31 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
   const finalizedSchedules = [];
   const flatSpots = [];
 
+  const SAMPLE_SPOTS_MAP_EN = {
+    '서울': [
+      // Day 1
+      { name: 'Gyeongbokgung Palace & Hyangwonjeong', theme: 'Royal Joseon Heritage & Scenic Garden', desc: 'The primary royal palace of the Joseon Dynasty, showcasing grand traditional Korean architecture and the tranquil Hyangwonjeong pavilion over a lotus pond.', cat: 'History & Culture', photo: '📸 Hyangwonjeong pond reflection & Hanbok snap', sig: '👑 Royal Hanbok rental & palace walk', time: '10:00 AM', lat: 37.5796, lng: 126.9770 },
+      { name: 'Insadong Ssamziegil & Tea House', theme: 'Artisanal Craft Alleys & Cultural Tea Time', desc: 'Seoul’s iconic traditional culture street featuring a unique spiral craft walkway and soothing traditional Korean tea houses.', cat: 'Trendy Cafe', photo: '📸 Ssamziegil spiral courtyard & Gaeseong Juak dessert', sig: '🍵 Traditional Omija tea & Gaeseong Juak sweet', time: '1:30 PM', lat: 37.5743, lng: 126.9848 },
+      { name: 'Bukchon Hanok Village', theme: 'Timeless Charm of Traditional Hanok Alleys', desc: 'A historic village with preserved Korean traditional houses, offering scenic views of tile-roofed alleys framed by modern city skylines.', cat: 'Hanok Heritage', photo: '📸 Bukchon 6th View looking down tile-roofed alley', sig: '📸 Scenic stone-wall walk & Hanok golden hour', time: '4:30 PM (Golden Hour)', lat: 37.5826, lng: 126.9836 },
+      // Day 2
+      { name: 'Seongsu-dong Cafe Street & Dior Seongsu', theme: 'Seoul’s Trendiest Fashion & Cafe Enclave', desc: 'Transformed from industrial red-brick warehouses into Seoul’s coolest lifestyle district, packed with luxury pop-ups and artisan bakeries.', cat: 'Trendy Cafe', photo: '📸 Dior Seongsu glowing architectural photo-op', sig: '☕ Signature salt bread & Einspänner coffee', time: '11:30 AM', lat: 37.5446, lng: 127.0560 },
+      { name: 'Seoul Forest & Under Stand Avenue', theme: 'Urban Eco Forest & Container Art Street', desc: 'A sprawling nature park featuring ginkgo paths and creative container boutiques, perfect for relaxing picnics and trendy shopping.', cat: 'Scenic Nature', photo: '📸 Seoul Forest mirror pond reflection', sig: '🧺 Grass lawn picnic & pastry cafe tour', time: '2:30 PM', lat: 37.5443, lng: 127.0374 },
+      { name: 'N Seoul Tower & Namsan Sunset', theme: '360-Degree Panoramic Sunset & Night Views', desc: 'Perched atop Namsan Mountain, this iconic landmark offers breathtaking panoramic sunset and sparkling night skyline views of Seoul.', cat: 'Night View', photo: '📸 Tower observatory sunset & Love Locks deck', sig: '🗼 Sunset skyline view & Namsan Tonkatsu', time: '6:30 PM (Golden Hour)', lat: 37.5512, lng: 126.9882 },
+      // Day 3
+      { name: 'HYBE Insight & Yongsan Hotspots', theme: 'Global K-POP Culture & Music Art Experience', desc: 'A must-visit cultural landmark for global music fans, celebrating K-POP artistic heritage with interactive multimedia exhibitions.', cat: 'K-POP Landmark', photo: '📸 Large media art wall & interactive music zone', sig: '🎵 Exclusive artist merchandise & sound gallery', time: '11:00 AM', lat: 37.5283, lng: 126.9685 },
+      { name: 'The Hyundai Seoul & Sounds Forest', theme: 'Indoor Nature Oasis & Futuristic Shopping', desc: 'Seoul’s architectural landmark featuring a stunning sunlit 5th-floor indoor garden and the latest global lifestyle and K-fashion brands.', cat: 'Shopping & Leisure', photo: '📸 Sounds Forest 5th-floor lush indoor garden', sig: '🛍️ B2 K-fashion pop-up & B1 Gourmet Food Hall', time: '2:00 PM', lat: 37.5259, lng: 126.9284 },
+      { name: 'Yeouido Hangang Park & Moonlight Picnic', theme: 'Riverside Breeze & Authentic Hangang Ramen', desc: 'Relax on a picnic mat overlooking the Hangang River while savoring freshly cooked instant ramen and Korean fried chicken under the sunset breeze.', cat: 'Night View', photo: '📸 Hangang sunset & Mapo Bridge city lights', sig: '🧺 Instant Hangang ramen & sunset picnic mat', time: '5:30 PM (Sunset)', lat: 37.5270, lng: 126.9325 }
+    ]
+  };
+
+  const DAILY_THEMES_EN = {
+    '서울': [
+      { theme: 'Day 1: Royal Joseon Heritage & Historic Hanok Alleys', transit: 'Within 10 mins walk around Anguk & Gyeongbokgung Station (Subway Line 3)', food: { dishName: 'Jongno Samgyetang & Traditional Bindaetteok', description: 'Hearty ginseng chicken soup & savory mung bean pancakes in historic alleys.' } },
+      { theme: 'Day 2: Trendy Seongsu Hotspots & Romantic Namsan Sunset', transit: 'Seongsu Station (Line 2) and Namsan cable car / bus', food: { dishName: 'Seongsu Gourmet Burgers & Artisan Pasta', description: 'Trendy dining spot favored by local foodies and creators.' } },
+      { theme: 'Day 3: K-POP Cultural Hub & Hangang Riverside Picnic', transit: 'Yongsan Station (Line 1/Gyeongui) & Yeouinaru Station (Line 5)', food: { dishName: 'Yongsan Water-Parsley Pork Belly & Hangang Ramen', description: 'Authentic K-BBQ followed by sunset ramen by the Hangang River.' } }
+    ]
+  };
+
   const SAMPLE_SPOTS_MAP = {
     '수원': [
       // Day 1 (화성-행궁동 코스)
@@ -616,6 +645,28 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
       { name: '팔달산 서장대 & 수원 야경 파노라마', theme: '화성 성곽의 가장 높은 곳에서 내려다보는 야경', desc: '수원 도심 전체가 한눈에 360도로 펼쳐지는 성곽 최고의 뷰포인트로 반짝이는 도심 야경이 장관입니다.', cat: '야경명소', photo: '📸 서장대 조명과 수원 도심 불빛 파노라마 샷', sig: '🌙 팔달산 야간 산책 & 성곽 드라이브', time: '오후 7:30 (야경)', lat: 37.2818, lng: 127.0118 }
     ],
     '서울': [
+      // Day 1 (종로-안국 황금 코스)
+      { name: '경복궁 & 향원정', theme: '조선 왕실의 역사와 고풍스러운 정원', desc: '조선 왕조 제일의 법궁으로, 연못 위에 세워진 향원정과 근정전의 웅장한 처마선이 한국 전통 건축미의 절정을 보여줍니다.', cat: '역사문화', photo: '📸 향원정 연못 반영 샷 & 한복 스냅', sig: '👑 궁궐 한복 체험 & 왕실 산책', time: '오전 10:00', lat: 37.5796, lng: 126.9770 },
+      { name: '인사동 쌈지길 & 전통찻집', theme: '한국 전통 공예와 감성 골목 투어', desc: '나선형 계단을 따라 아기자기한 공예품점과 전통 찻집이 늘어선 서울의 대표적인 전통 문화 예술 거리입니다.', cat: '감성카페', photo: '📸 쌈지길 나선형 계단 & 개성주악 샷', sig: '🍵 전통 오미자차 & 개성주악 디저트', time: '오후 1:30', lat: 37.5743, lng: 126.9848 },
+      { name: '북촌 한옥마을', theme: '전통 한옥의 고즈넉한 아름다움', desc: '실제 한옥들이 고스란히 보존된 역사적인 마을로, 기와지붕 너머로 펼쳐지는 도심 빌딩 숲의 조화가 이색적입니다.', cat: '한옥골목', photo: '📸 북촌 6경 언덕길에서 내려다보는 기와 샷', sig: '📸 고즈넉한 돌담길 & 한옥 선셋 뷰', time: '오후 4:30 (골든타임)', lat: 37.5826, lng: 126.9836 },
+      // Day 2 (성수-남산 핫플 코스)
+      { name: '성수동 카페거리 & 디올 성수', theme: '가장 트렌디한 서울의 핫플레이스', desc: '과거 붉은 벽돌 공장 지대에서 서울에서 가장 힙한 문화예술 지구로 변모한 곳으로, 독창적인 플래그십 스토어와 베이커리가 가득합니다.', cat: '감성카페', photo: '📸 디올 성수 화사한 외관 인생샷', sig: '☕ 시그니처 소금빵 & 아인슈페너', time: '오전 11:30', lat: 37.5446, lng: 127.0560 },
+      { name: '서울숲 & 언더스탠드에비뉴', theme: '도심 속 거대한 숲과 컨테이너 문화 스트리트', desc: '은행나무 숲길과 감각적인 팝업 스토어가 어우러져 여유로운 피크닉과 쇼핑을 동시에 즐기는 힐링 명소입니다.', cat: '자연명소', photo: '📸 서울숲 거울연못 반영 샷', sig: '🧺 잔디광장 피크닉 & 디저트 투어', time: '오후 2:30', lat: 37.5443, lng: 127.0374 },
+      { name: 'N서울타워 & 남산 야경', theme: '서울 도심을 360도 파노라마로 감상', desc: '남산 꼭대기에 우뚝 솟은 서울의 상징으로, 해질녘 붉게 물드는 노을과 반짝이는 도시 야경이 잊지 못할 장관을 선사합니다.', cat: '야경명소', photo: '📸 타워 전망대 선셋 & 사랑의 자물쇠 데크', sig: '🗼 선셋 파노라마 뷰 & 남산 돈까스', time: '오후 6:30 (일몰 골든타임)', lat: 37.5512, lng: 126.9882 },
+      // Day 3 (용산-여의도 K-컬처 코스)
+      { name: '하이브 인사이트 & 용산 핫플', theme: 'K-POP 문화와 글로벌 음악의 성지', desc: '글로벌 K-POP 아티스트들의 음악적 발자취와 미디어 아트를 오감으로 체험할 수 있는 전 세계 팬들의 필수 방문지입니다.', cat: 'K-POP성지', photo: '📸 대형 미디어 월 & 인터랙티브 체험 존', sig: '🎵 한정판 아티스트 굿즈 & 미디어 전시', time: '오전 11:00', lat: 37.5283, lng: 126.9685 },
+      { name: '더현대 서울 & 사운즈 포레스트', theme: '초대형 실내 정원과 글로벌 플래그십 쇼핑', desc: '자연 채광 가득한 5층 실내 숲과 트렌디한 글로벌 브랜드 팝업이 가득한 서울 최고의 라이프스타일 랜드마크입니다.', cat: '쇼핑/힐링', photo: '📸 사운즈 포레스트 5층 실내 정원 샷', sig: '🛍️ 지하 2층 K-패션 팝업 & 지하 1층 고메 델리', time: '오후 2:00', lat: 37.5259, lng: 126.9284 },
+      { name: '여의도 한강공원 & 달빛 피크닉', theme: '탁 트인 강바람과 로컬 한강 라면', desc: '반짝이는 한강 뷰를 바라보며 돗자리를 펴고 즐기는 라면과 치맥, 서울 야경의 낭만이 가득한 대표 힐링 명소입니다.', cat: '야경명소', photo: '📸 한강 일몰 & 마포대교 방면 야경 샷', sig: '🧺 즉석 한강 라면 & 피크닉 돗자리', time: '오후 5:30 (선셋)', lat: 37.5270, lng: 126.9325 },
+      // Day 4 (익선-동대문 헤리티지 코스)
+      { name: '익선동 한옥마을 & 핫플 골목', theme: '100년 한옥 골목의 트렌디한 감성 변신', desc: '미로 같은 좁은 한옥 골목 사이사이에 감각적인 디저트 카페와 퓨전 레스토랑이 보석처럼 숨어있는 감성 핫플입니다.', cat: '감성카페', photo: '📸 익선동 기와지붕 골목길 감성 스냅', sig: '☕ 가마솥 수플레 & 크림치즈 타르트', time: '오전 11:30', lat: 37.5742, lng: 126.9893 },
+      { name: '동대문디자인플라자 (DDP)', theme: '자하 하디드의 미래지향적 곡선 건축미', desc: '우주선을 연상시키는 환상적인 비정형 곡선 건축물로, 다채로운 디자인 전시와 패션의 메카입니다.', cat: '역사문화', photo: '📸 DDP 미래지향적 곡선 외관 & 어울림광장', sig: '🎨 디자인 전시 투어 & 카카오프렌즈 숍', time: '오후 2:30', lat: 37.5665, lng: 127.0090 },
+      { name: '낙산공원 & 한양도성 성곽 야경', theme: '달빛 아래 걷는 조선의 성곽 파노라마', desc: '성곽 돌담을 따라 켜진 은은한 조명을 따라 걸으며 서울 도심 전체가 한눈에 내려다보이는 최고의 로맨틱 야경 명소입니다.', cat: '야경명소', photo: '📸 성곽길 실루엣 & 도심 불빛 파노라마 샷', sig: '🌙 낙산공원 전망대 야경 산책 & 대학로 심야 식당', time: '오후 7:00 (야경)', lat: 37.5804, lng: 127.0076 },
+      // Day 5 (용산-한남-반포 아트 힐링 코스)
+      { name: '국립중앙박물관 & 거울못 정원', theme: '대한민국 반만년 역사와 고요한 수변 산책', desc: '국보급 유물들이 가득한 세계적 규모의 박물관으로, 거울못 정원과 청자정의 수려한 풍경이 힐링을 선사합니다.', cat: '역사문화', photo: '📸 거울못 청자정 반영 샷 & 남산타워 프레임 샷', sig: '🏺 반가사유상 사유의 방 관람 & 박물관 굿즈', time: '오전 10:30', lat: 37.5240, lng: 126.9803 },
+      { name: '한남동 카페거리 & 리움미술관', theme: '하이엔드 감성과 세계적 현대 미술', desc: '이태원과 한남동의 감각적인 디자이너 편집숍과 삼성 리움미술관의 품격 있는 예술을 만나는 코스입니다.', cat: '감성카페', photo: '📸 리움미술관 로툰다 원형 계단 샷', sig: '☕ 한남동 스페셜티 드립커피 & 브런치', time: '오후 2:00', lat: 37.5385, lng: 127.0003 },
+      { name: '반포 한강공원 & 달빛무지개분수', theme: '세계 최장 교량분수와 낭만적인 밤바람', desc: '달빛무지개분수에서 뿜어져 나오는 화려한 물줄기와 음악, 밤도깨비 야시장의 활기가 어우러진 서울 최고의 야경 포인트입니다.', cat: '야경명소', photo: '📸 무지개분수 야간 조명쇼 & 세빛섬 야경 샷', sig: '🌊 세빛섬 테라스 카페 & 한강 야간 유람선', time: '오후 6:30 (분수쇼 타임)', lat: 37.5103, lng: 126.9960 }
+    ],
+    '제주': [
       // Day 1 (종로-안국 황금 코스)
       { name: '경복궁 & 향원정', theme: '조선 왕실의 역사와 고풍스러운 정원', desc: '조선 왕조 제일의 법궁으로, 연못 위에 세워진 향원정과 근정전의 웅장한 처마선이 한국 전통 건축미의 절정을 보여줍니다.', cat: '역사문화', photo: '📸 향원정 연못 반영 샷 & 한복 스냅', sig: '👑 궁궐 한복 체험 & 왕실 산책', time: '오전 10:00', lat: 37.5796, lng: 126.9770 },
       { name: '인사동 쌈지길 & 전통찻집', theme: '한국 전통 공예와 감성 골목 투어', desc: '나선형 계단을 따라 아기자기한 공예품점과 전통 찻집이 늘어선 서울의 대표적인 전통 문화 예술 거리입니다.', cat: '감성카페', photo: '📸 쌈지길 나선형 계단 & 개성주악 샷', sig: '🍵 전통 오미자차 & 개성주악 디저트', time: '오후 1:30', lat: 37.5743, lng: 126.9848 },
@@ -715,17 +766,21 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
   };
 
   // Dynamic fallback pool if city is not predefined
-  const spotPool = SAMPLE_SPOTS_MAP[city] || [
-    { name: `${city} 대표 힐링 명소`, theme: `${city}의 자연과 감성을 느끼는 쉼터`, desc: `${city}에서 가장 사랑받는 대표적인 명소로, 아름다운 풍경과 힐링을 선사합니다.`, cat: '자연명소', photo: `📸 ${city} 포토존 인생샷`, sig: `✨ ${city} 특산 시그니처 미식`, time: '오전 10:30', lat: cityMeta.lat + 0.005, lng: cityMeta.lng - 0.005 },
-    { name: `${city} 감성 카페거리 & 핫플레이스`, theme: `트렌디한 감성과 여유로운 디저트`, desc: `${city}의 젊은 여행자들이 즐겨 찾는 감각적인 공간과 로컬 카페들이 모여 있습니다.`, cat: '감성카페', photo: `📸 감성 테라스 & 인테리어 샷`, sig: `☕ 시그니처 로컬 라떼`, time: '오후 2:30', lat: cityMeta.lat - 0.005, lng: cityMeta.lng + 0.005 },
-    { name: `${city} 로컬 미식 야경 명소`, theme: `오감을 만족시키는 맛과 황홀한 밤 풍경`, desc: `${city}의 대표적인 야경 포인트와 현지인 추천 맛집이 어우러진 저녁 코스입니다.`, cat: '야경명소', photo: `📸 반짝이는 야경 파노라마`, sig: `🍴 ${city} 로컬 대표 미식`, time: '오후 6:30', lat: cityMeta.lat - 0.008, lng: cityMeta.lng - 0.002 }
-  ];
+  const spotPool = (lang === 'en' && SAMPLE_SPOTS_MAP_EN[city])
+    ? SAMPLE_SPOTS_MAP_EN[city]
+    : (SAMPLE_SPOTS_MAP[city] || [
+        { name: `${city} 대표 힐링 명소`, theme: `${city}의 자연과 감성을 느끼는 쉼터`, desc: `${city}에서 가장 사랑받는 대표적인 명소로, 아름다운 풍경과 힐링을 선사합니다.`, cat: '자연명소', photo: `📸 ${city} 포토존 인생샷`, sig: `✨ ${city} 특산 시그니처 미식`, time: '오전 10:30', lat: cityMeta.lat + 0.005, lng: cityMeta.lng - 0.005 },
+        { name: `${city} 감성 카페거리 & 핫플레이스`, theme: `트렌디한 감성과 여유로운 디저트`, desc: `${city}의 젊은 여행자들이 즐겨 찾는 감각적인 공간과 로컬 카페들이 모여 있습니다.`, cat: '감성카페', photo: `📸 감성 테라스 & 인테리어 샷`, sig: `☕ 시그니처 로컬 라떼`, time: '오후 2:30', lat: cityMeta.lat - 0.005, lng: cityMeta.lng + 0.005 },
+        { name: `${city} 로컬 미식 야경 명소`, theme: `오감을 만족시키는 맛과 황홀한 밤 풍경`, desc: `${city}의 대표적인 야경 포인트와 현지인 추천 맛집이 어우러진 저녁 코스입니다.`, cat: '야경명소', photo: `📸 반짝이는 야경 파노라마`, sig: `🍴 ${city} 로컬 대표 미식`, time: '오후 6:30', lat: cityMeta.lat - 0.008, lng: cityMeta.lng - 0.002 }
+      ]);
 
-  const themeList = DAILY_THEMES[city] || [
-    { theme: `1일차: ${city}의 청정 자연과 감성 핫플레이스`, transit: `${city} 중심가 및 대중교통 이용 편리`, food: { dishName: `${city} 로컬 대표 미식`, description: `현지인들이 추천하는 신선한 제철 재료로 만든 ${city}의 별미` } },
-    { theme: `2일차: ${city} 역사 문화 산책과 낭만 야경`, transit: `${city} 주요 명소 간 차량/버스 15분`, food: { dishName: `${city} 특산 요리 한상`, description: `${city}만의 고유한 풍미를 담은 든든하고 정갈한 한 끼 식사` } },
-    { theme: `3일차: ${city} 힐링 트레킹과 파노라마 뷰`, transit: `순환 도로 및 시내 연결 버스`, food: { dishName: `${city} 로컬 디저트 & 브런치`, description: `여행의 마지막 여운을 달콤하게 마무리하는 감성 카페 미식` } }
-  ];
+  const themeList = (lang === 'en' && DAILY_THEMES_EN[city])
+    ? DAILY_THEMES_EN[city]
+    : (DAILY_THEMES[city] || [
+        { theme: `1일차: ${city}의 청정 자연과 감성 핫플레이스`, transit: `${city} 중심가 및 대중교통 이용 편리`, food: { dishName: `${city} 로컬 대표 미식`, description: `현지인들이 추천하는 신선한 제철 재료로 만든 ${city}의 별미` } },
+        { theme: `2일차: ${city} 역사 문화 산책과 낭만 야경`, transit: `${city} 주요 명소 간 차량/버스 15분`, food: { dishName: `${city} 특산 요리 한상`, description: `${city}만의 고유한 풍미를 담은 든든하고 정갈한 한 끼 식사` } },
+        { theme: `3일차: ${city} 힐링 트레킹과 파노라마 뷰`, transit: `순환 도로 및 시내 연결 버스`, food: { dishName: `${city} 로컬 디저트 & 브런치`, description: `여행의 마지막 여운을 달콤하게 마무리하는 감성 카페 미식` } }
+      ]);
 
   for (let d = 0; d < days; d++) {
     const dayNum = d + 1;
@@ -743,9 +798,13 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
       const spotPhotos = photoData?.images || [spotPhoto];
       const affiliateDeal = getSpotAffiliateDeal(s.name, city);
 
-      const defaultTransit = isJeju 
-        ? '제주 급행 버스 또는 해안도로 이동 15분' 
-        : '지하철 또는 도보로 편리하게 이동';
+      const defaultTransit = lang === 'en'
+        ? 'Conveniently accessible by Subway or Walk'
+        : (isJeju ? '제주 급행 버스 또는 해안도로 이동 15분' : '지하철 또는 도보로 편리하게 이동');
+
+      const localizedLocation = lang === 'en'
+        ? `${cityMeta.nameEn || 'Seoul'}, Republic of Korea`
+        : `대한민국 ${city} 일대`;
 
       const sp = {
         id: `local-spot-${dayNum}-${idx + 1}`,
@@ -761,7 +820,7 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
         image: spotPhoto,
         images: spotPhotos,
         affiliateDeal,
-        location: `대한민국 ${city} 일대`,
+        location: localizedLocation,
         lat: s.lat,
         lng: s.lng,
         transitTime: defaultTransit,
@@ -781,11 +840,19 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
     });
   }
 
+  const tripTitle = lang === 'en'
+    ? `${cityMeta.nameEn || 'Seoul'} ${days}-Day Hotspot Magazine Tour`
+    : `${city} ${days}일 감성 매거진 코스`;
+
+  const summary = lang === 'en'
+    ? `Curated by VORA AI, featuring the ultimate photo spots and authentic local gourmet recommendations for ${cityMeta.nameEn || 'Seoul'}. ✨`
+    : `VORA AI 매거진이 제안하는 ${city} ${days}일 트렌디 여행 코스입니다. 최고의 인생샷 명소와 로컬 미식으로 알차게 구성되었습니다. ✨`;
+
   return {
     targetCity: city,
     days,
-    tripTitle: `${city} ${days}일 감성 매거진 코스`,
-    summary: `VORA AI 매거진이 제안하는 ${city} ${days}일 트렌디 여행 코스입니다. 최고의 인생샷 명소와 로컬 미식으로 알차게 구성되었습니다. ✨`,
+    tripTitle,
+    summary,
     dailySchedules: finalizedSchedules,
     spots: flatSpots,
     generationTime: '0.9',

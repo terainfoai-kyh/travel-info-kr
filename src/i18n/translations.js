@@ -77,6 +77,13 @@ export function getTranslatedAddress(addr, lang = 'ko') {
   return addr.trim();
 }
 
+export const CITY_TRANSLATIONS = {
+  ko: { '서울': '서울', '부산': '부산', '제주': '제주', '수원': '수원', '경주': '경주', '강릉': '강릉', '전주': '전주', '여수': '여수', '속초': '속초', '인천': '인천', '대구': '대구', '대전': '대전' },
+  en: { '서울': 'Seoul', '부산': 'Busan', '제주': 'Jeju', '수원': 'Suwon', '경주': 'Gyeongju', '강릉': 'Gangneung', '전주': 'Jeonju', '여수': 'Yeosu', '속초': 'Sokcho', '인천': 'Incheon', '대구': 'Daegu', '대전': 'Daejeon' },
+  ja: { '서울': 'ソウル', '부산': '釜山', '제주': '済州', '수원': '水原', '경주': '慶州', '강릉': '江陵', '전주': '全州', '여수': '麗水', '속초': '束草', '인천': '仁川', '대구': '大邱', '대전': '大田' },
+  zh: { '서울': '首尔', '부산': '釜山', '제주': '济州', '수원': '水原', '경주': '庆州', '강릉': '江陵', '전주': '全州', '여수': '丽水', '속초': '束草', '인천': '仁川', '대구': '大邱', '대전': '大田' }
+};
+
 export const TRANSLATIONS = {
   ko: {
     // Brand & Header
@@ -87,6 +94,11 @@ export const TRANSLATIONS = {
     navWishlist: '위시리스트',
     navLanguage: '언어',
     themeToggle: '테마 전환',
+    loginCapsule: (count) => `G 로그인 ${count}회`,
+    chatStatusLive: '실시간 1:1 대화중',
+    dayRouteHeader: (day) => `${day}일차 실시간 Google 동선`,
+    spotCountBadge: (count) => `${count}개 스팟`,
+    faqTitle: '자주 묻는 질문 (FAQ)',
 
     // Hero Section
     heroBadge: '✨ 2026 AI-Powered Korea Travel Concierge',
@@ -183,6 +195,11 @@ export const TRANSLATIONS = {
     themeToggle: 'Toggle Theme',
     shareToastSuccess: 'Share link copied to clipboard! 📋',
     drawerWeatherGuide: '👗 Live Weather & Travel Outfit Guide',
+    loginCapsule: (count) => `G Sign in (${count} Free)`,
+    chatStatusLive: 'Live 1:1 Chat',
+    dayRouteHeader: (day) => `Day ${day} Live Google Route`,
+    spotCountBadge: (count) => `${count} Spots`,
+    faqTitle: 'Frequently Asked Questions (FAQ)',
 
     // Hero Section
     heroBadge: '✨ 2026 AI-Powered Korea Travel Concierge',

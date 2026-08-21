@@ -346,7 +346,7 @@ export default function GoogleMapView({
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
           <MapPin size={15} style={{ color: 'var(--accent-primary)' }} />
           <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-main)' }}>
-            {activeDay}일차 실시간 Google 동선
+            {lang === 'en' ? `Day ${activeDay} Live Google Route` : `${activeDay}일차 실시간 Google 동선`}
           </span>
           <span style={{
             fontSize: '0.68rem',
@@ -356,7 +356,7 @@ export default function GoogleMapView({
             padding: '0.08rem 0.4rem',
             borderRadius: '6px'
           }}>
-            {spotsToDisplay.length}개 스팟
+            {lang === 'en' ? `${spotsToDisplay.length} Spots` : `${spotsToDisplay.length}개 스팟`}
           </span>
         </div>
 
@@ -380,7 +380,7 @@ export default function GoogleMapView({
                 transition: 'all var(--transition-fast)'
               }}
             >
-              <span>🔍 전체 코스</span>
+              <span>{lang === 'en' ? '🔍 View Full Course' : '🔍 전체 코스'}</span>
             </button>
           )}
 
@@ -404,7 +404,7 @@ export default function GoogleMapView({
               transition: 'all var(--transition-fast)'
             }}
           >
-            <span>구글맵 전체 길찾기 ↗</span>
+            <span>{lang === 'en' ? 'Google Maps Full Route ↗' : '구글맵 전체 길찾기 ↗'}</span>
             <ExternalLink size={11} />
           </a>
         </div>

@@ -76,42 +76,85 @@ export default function TermsModal({ isOpen, onClose, lang = 'ko' }) {
           flexDirection: 'column',
           gap: '1.25rem'
         }}>
-          <div>
-            <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text-main)', fontWeight: 800 }}>
-              제1조 (목적)
-            </h4>
-            <p style={{ margin: 0 }}>
-              본 약관은 VORA AI(koreatravel.cc)가 제공하는 대한민국 여행 코스 추천 및 관광 정보 안내 서비스(이하 '서비스')의 이용 조건 및 절차에 관한 기본적인 사항을 규정함을 목적으로 합니다.
-            </p>
-          </div>
+          {lang === 'en' ? (
+            <>
+              <div>
+                <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text-main)', fontWeight: 800 }}>
+                  Article 1 (Purpose)
+                </h4>
+                <p style={{ margin: 0 }}>
+                  These Terms of Service govern the basic conditions and procedures for using the Korea travel course recommendation and tourism guide services provided by VORA AI (koreatravel.cc).
+                </p>
+              </div>
 
-          <div>
-            <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text-main)', fontWeight: 800 }}>
-              제2조 (서비스의 내용 및 데이터 출처)
-            </h4>
-            <p style={{ margin: 0 }}>
-              1. 본 서비스는 Google Places Platform 공식 위치 데이터와 Google Gemini AI 기술을 활용하여 맞춤형 여행 일정 및 대중교통 경로 안내를 제공합니다.<br />
-              2. 추천된 장소의 운영 시간, 휴무일, 입장료 등은 현장 사정에 따라 변동될 수 있으므로 방문 전 공식 연락처를 통해 확인하시기 바랍니다.
-            </p>
-          </div>
+              <div>
+                <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text-main)', fontWeight: 800 }}>
+                  Article 2 (Service Description & Data Sources)
+                </h4>
+                <p style={{ margin: 0 }}>
+                  1. VORA AI provides personalized travel itineraries and public transit guidance utilizing official Google Places Platform data and Google Gemini AI technology.<br />
+                  2. Spot operating hours, closing days, and admission fees may vary depending on on-site conditions. Please verify with official venue channels before visiting.
+                </p>
+              </div>
 
-          <div>
-            <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text-main)', fontWeight: 800 }}>
-              제3조 (지식재산권 및 이용자의 의무)
-            </h4>
-            <p style={{ margin: 0 }}>
-              본 서비스의 디자인, UI/UX 구조, AI 프롬프트 아키텍처 및 원본 콘텐츠에 대한 저작권은 VORA AI에 귀속되며, 무단 복제, 크롤링, 상업적 재배포를 엄격히 금지합니다.
-            </p>
-          </div>
+              <div>
+                <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text-main)', fontWeight: 800 }}>
+                  Article 3 (Intellectual Property & User Responsibilities)
+                </h4>
+                <p style={{ margin: 0 }}>
+                  All designs, UI/UX structures, AI prompt architectures, and original editorial content on this platform are the intellectual property of VORA AI. Unauthorized duplication, automated crawling, or commercial redistribution is strictly prohibited.
+                </p>
+              </div>
 
-          <div>
-            <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text-main)', fontWeight: 800 }}>
-              제4조 (면책조항)
-            </h4>
-            <p style={{ margin: 0 }}>
-              본 서비스는 무료로 제공되는 여행 가이드로서, AI 추천 경로 이용 중 발생하는 현지 교통 지연, 기상 악화, 시설 휴무 등으로 인한 직간접적 손해에 대해 법적 책임을 지지 않습니다.
-            </p>
-          </div>
+              <div>
+                <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text-main)', fontWeight: 800 }}>
+                  Article 4 (Disclaimer of Warranties)
+                </h4>
+                <p style={{ margin: 0 }}>
+                  This service is provided free of charge as a travel guidance assistant. We assume no legal liability for any direct or indirect damages arising from unforeseen transit delays, adverse weather conditions, or unexpected venue closures.
+                </p>
+              </div>
+            </>
+          ) : (
+            <>
+              <div>
+                <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text-main)', fontWeight: 800 }}>
+                  제1조 (목적)
+                </h4>
+                <p style={{ margin: 0 }}>
+                  본 약관은 VORA AI(koreatravel.cc)가 제공하는 대한민국 여행 코스 추천 및 관광 정보 안내 서비스(이하 '서비스')의 이용 조건 및 절차에 관한 기본적인 사항을 규정함을 목적으로 합니다.
+                </p>
+              </div>
+
+              <div>
+                <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text-main)', fontWeight: 800 }}>
+                  제2조 (서비스의 내용 및 데이터 출처)
+                </h4>
+                <p style={{ margin: 0 }}>
+                  1. 본 서비스는 Google Places Platform 공식 위치 데이터와 Google Gemini AI 기술을 활용하여 맞춤형 여행 일정 및 대중교통 경로 안내를 제공합니다.<br />
+                  2. 추천된 장소의 운영 시간, 휴무일, 입장료 등은 현장 사정에 따라 변동될 수 있으므로 방문 전 공식 연락처를 통해 확인하시기 바랍니다.
+                </p>
+              </div>
+
+              <div>
+                <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text-main)', fontWeight: 800 }}>
+                  제3조 (지식재산권 및 이용자의 의무)
+                </h4>
+                <p style={{ margin: 0 }}>
+                  본 서비스의 디자인, UI/UX 구조, AI 프롬프트 아키텍처 및 원본 콘텐츠에 대한 저작권은 VORA AI에 귀속되며, 무단 복제, 크롤링, 상업적 재배포를 엄격히 금지합니다.
+                </p>
+              </div>
+
+              <div>
+                <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text-main)', fontWeight: 800 }}>
+                  제4조 (면책조항)
+                </h4>
+                <p style={{ margin: 0 }}>
+                  본 서비스는 무료로 제공되는 여행 가이드로서, AI 추천 경로 이용 중 발생하는 현지 교통 지연, 기상 악화, 시설 휴무 등으로 인한 직간접적 손해에 대해 법적 책임을 지지 않습니다.
+                </p>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Footer Close */}

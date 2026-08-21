@@ -18,7 +18,7 @@ import {
   LogOut,
   ChevronDown
 } from 'lucide-react';
-import { TRANSLATIONS } from '../i18n/translations';
+import { TRANSLATIONS, CITY_TRANSLATIONS } from '../i18n/translations';
 
 // City Temperature Mapping for Dynamic Weather Capsule
 const CITY_TEMPS = {
@@ -194,7 +194,7 @@ export default function Header({
             }}
           >
             <CloudSun size={15} style={{ color: 'var(--accent-primary)' }} />
-            <span>{targetCity} {currentTemp} · {lang === 'en' ? 'Style 👗' : '코디 👗'}</span>
+            <span>{(CITY_TRANSLATIONS[lang]?.[targetCity] || targetCity)} {currentTemp} · {lang === 'en' ? 'Style 👗' : '코디 👗'}</span>
           </button>
 
           {/* 🧭 Travel Essentials Header Shortcut */}
@@ -380,7 +380,7 @@ export default function Header({
                     👑
                   </span>
                 )}
-                <span className="hide-mobile">{currentUser.name || 'VIP 회원'}</span>
+                <span className="hide-mobile">{currentUser.name || (lang === 'en' ? 'VIP Member' : 'VIP 회원')}</span>
                 <span style={{
                   fontSize: '0.65rem',
                   backgroundColor: 'var(--accent-primary)',
@@ -388,7 +388,7 @@ export default function Header({
                   padding: '0.08rem 0.35rem',
                   borderRadius: '4px'
                 }}>
-                  15회
+                  {lang === 'en' ? '15 Pro' : '15회'}
                 </span>
               </button>
 
@@ -425,7 +425,7 @@ export default function Header({
                       fontWeight: 800
                     }}>
                       <Sparkles size={11} />
-                      <span>Google VIP 회원 (매일 15회)</span>
+                      <span>{lang === 'en' ? 'Google VIP Member (15 Daily)' : 'Google VIP 회원 (매일 15회)'}</span>
                     </div>
                   </div>
 
@@ -450,7 +450,7 @@ export default function Header({
                     }}
                   >
                     <LogOut size={13} />
-                    <span>로그아웃</span>
+                    <span>{lang === 'en' ? 'Log out' : '로그아웃'}</span>
                   </button>
                 </div>
               )}
@@ -458,7 +458,7 @@ export default function Header({
           ) : (
             <button
               onClick={onOpenGoogleAuth}
-              title="Google 로그인하고 매일 15회 받기"
+              title={lang === 'en' ? 'Sign in with Google & get 15 free daily prompts' : 'Google 로그인하고 매일 15회 받기'}
               style={{
                 background: 'var(--bg-card)',
                 border: '1px solid var(--border-color)',
@@ -480,7 +480,7 @@ export default function Header({
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
               </svg>
-              <span className="hide-mobile">로그인</span>
+              <span className="hide-mobile">{lang === 'en' ? 'Sign in' : '로그인'}</span>
               <span style={{
                 fontSize: '0.65rem',
                 backgroundColor: 'rgba(37, 99, 235, 0.1)',
@@ -488,7 +488,7 @@ export default function Header({
                 padding: '0.08rem 0.35rem',
                 borderRadius: '4px'
               }}>
-                15회
+                {lang === 'en' ? '15 Free' : '15회'}
               </span>
             </button>
           )}
@@ -688,7 +688,7 @@ export default function Header({
                   }}
                 >
                   <Info size={14} />
-                  <span>회사 및 서비스 소개</span>
+                  <span>{t.aboutUs || '회사 및 서비스 소개'}</span>
                 </button>
 
                 {/* 7. Terms & Privacy Policy */}
@@ -708,7 +708,7 @@ export default function Header({
                       padding: 0
                     }}
                   >
-                    개인정보처리방침
+                    {t.privacyPolicy || '개인정보처리방침'}
                   </button>
                   <span style={{ color: 'var(--border-color)', fontSize: '0.72rem' }}>|</span>
                   <button
@@ -726,7 +726,7 @@ export default function Header({
                       padding: 0
                     }}
                   >
-                    이용약관
+                    {t.termsOfService || '이용약관'}
                   </button>
                 </div>
               </div>

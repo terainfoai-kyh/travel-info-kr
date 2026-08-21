@@ -211,7 +211,7 @@ export default function AdSenseArticlesSection({ lang = 'ko' }) {
         <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
           <h3 style={{ fontSize: '1.35rem', fontWeight: 900, color: 'var(--text-main)', margin: '0 0 0.4rem 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
             <HelpCircle size={22} style={{ color: 'var(--accent-primary)' }} />
-            <span>자주 묻는 질문 (FAQ)</span>
+            <span>{lang === 'en' ? 'Frequently Asked Questions (FAQ)' : '자주 묻는 질문 (FAQ)'}</span>
           </h3>
         </div>
 

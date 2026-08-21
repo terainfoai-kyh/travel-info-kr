@@ -79,7 +79,7 @@ export default function CourseMagazineView({
               alignItems: 'center',
               gap: '0.25rem'
             }}>
-              ⚡ {itineraryData.generationTime}초 생성
+              ⚡ {itineraryData.generationTime}{lang === 'en' ? 's generated' : '초 생성'}
             </span>
           )}
         </div>
@@ -397,7 +397,7 @@ export default function CourseMagazineView({
                           }}
                         >
                           <Navigation size={9} />
-                          <span>지도 위치</span>
+                          <span>{lang === 'en' ? 'Map Pin' : '지도 위치'}</span>
                         </button>
 
                         <button
@@ -422,7 +422,7 @@ export default function CourseMagazineView({
                           }}
                         >
                           <Info size={10} style={{ color: 'var(--accent-primary)' }} />
-                          <span>사진·상세</span>
+                          <span>{lang === 'en' ? 'Photos & Details' : '사진·상세'}</span>
                         </button>
 
                         <a
@@ -446,7 +446,7 @@ export default function CourseMagazineView({
                           }}
                         >
                           <MapPin size={10} />
-                          <span>Google맵</span>
+                          <span>{lang === 'en' ? 'Google Maps' : 'Google맵'}</span>
                         </a>
 
                         {spot.affiliateDeal && (
@@ -468,7 +468,11 @@ export default function CourseMagazineView({
                               boxShadow: '0 2px 4px rgba(255, 91, 0, 0.25)'
                             }}
                           >
-                            <span>{spot.affiliateDeal.dealBadge} ↗</span>
+                            <span>
+                              {lang === 'en' 
+                                ? (spot.affiliateDeal.dealBadge?.includes('한복') ? '👘 Book Hanbok Deal ↗' : '🏨 Best Rate Deal ↗')
+                                : `${spot.affiliateDeal.dealBadge} ↗`}
+                            </span>
                           </a>
                         )}
                       </div>
