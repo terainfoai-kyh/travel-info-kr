@@ -90,10 +90,12 @@ export default function GoogleMapView({
     const bounds = L.latLngBounds(latLngs);
     const center = bounds.getCenter();
 
-    // Enable smooth user interaction (Drag pan, touch pinch zoom, double click zoom, +/- controls)
+    // Enable smooth user interaction with fractional zoom precision
     const map = L.map(mapContainerRef.current, {
       center: center,
       zoom: 13,
+      zoomSnap: 0.25,
+      zoomDelta: 0.5,
       zoomControl: false,
       attributionControl: false,
       dragging: true,
@@ -103,6 +105,16 @@ export default function GoogleMapView({
     });
 
     leafletMapRef.current = map;
+
+    // Safe fit function ensuring optimal margin and zero cutoff on marker 1 or marker 2
+    const applySafeFit = (pts) => {
+      if (!leafletMapRef.current || !pts || pts.length === 0) return;
+      const m = leafletMapRef.current;
+      const b = L.latLngBounds(pts);
+      const c = b.getCenter();
+      const z = Math.min(13.75, Math.max(10, m.getBoundsZoom(b, false, [55, 45])));
+      m.setView(c, z, { animate: false });
+    };
 
     // High quality Voyager / OSM tile layer
     const tileUrl = (lang === 'ko')
@@ -158,11 +170,9 @@ export default function GoogleMapView({
       `);
     });
 
-    // Zero-Bounce instant fit to spots bounds with safe generous 30% geographic margin & maxZoom: 14
+    // Zero-Bounce instant fit to spots bounds with safe generous margin
     if (latLngs.length > 1) {
-      const initialPadded = bounds.pad(0.3);
-      activeBoundsRef.current = initialPadded;
-      map.fitBounds(initialPadded, { padding: [40, 40], maxZoom: 14, animate: false });
+      applySafeFit(latLngs);
 
       // 1) Render immediate lightweight fallback route line first (so it's instant)
       const fallbackLine = L.polyline(latLngs, {
@@ -202,10 +212,10 @@ export default function GoogleMapView({
               }).addTo(map);
               routeLayerRef.current = L.featureGroup([outerGlow, realPolyline]);
 
-              // 🎯 Auto-fit map to FULL road coordinates with 30% generous padding and maxZoom: 14 so start marker (1), end marker (2), and all road curves are 100% visible inside!
-              const fullBounds = L.latLngBounds([...latLngs, ...roadPoints]).pad(0.3);
-              activeBoundsRef.current = fullBounds;
-              map.fitBounds(fullBounds, { padding: [40, 40], maxZoom: 14, animate: false });
+              // 🎯 Precision Auto-fit to full road coordinates with 65px safe margin
+              const allPoints = [...latLngs, ...roadPoints];
+              activeBoundsRef.current = allPoints;
+              applySafeFit(allPoints);
             }
           }
         })
@@ -217,7 +227,7 @@ export default function GoogleMapView({
         isCurrent = false;
       };
     } else if (latLngs.length === 1) {
-      map.setView(latLngs[0], 14, { animate: false });
+      map.setView(latLngs[0], 13.5, { animate: false });
     }
 
     // Force map invalidateSize after initial container render and re-fit bounds accurately
@@ -225,7 +235,7 @@ export default function GoogleMapView({
       if (leafletMapRef.current) {
         leafletMapRef.current.invalidateSize();
         if (activeBoundsRef.current) {
-          leafletMapRef.current.fitBounds(activeBoundsRef.current, { padding: [40, 40], maxZoom: 14, animate: false });
+          applySafeFit(activeBoundsRef.current);
         }
       }
     }, 150);
