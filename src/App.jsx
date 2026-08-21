@@ -494,9 +494,16 @@ export default function App() {
         {/* 3. Mid-page Google AdSense Unit */}
         <AdSenseBanner slot="7890123456" />
 
-        {/* 4. Travel Essentials Section (Subway, Climate card, eSIM, 1330) */}
+        {/* 4. Travel Essentials Section (Weather & Styling, Subway, Climate card, eSIM, 1330) */}
         <div id="travel-essentials-section">
-          <TravelEssentialsSection lang={lang} />
+          <TravelEssentialsSection
+            lang={lang}
+            targetCity={itineraryData?.targetCity || '서울'}
+            onOpenWeather={(city) => {
+              setWeatherCity(city || itineraryData?.targetCity || '서울');
+              setIsWeatherOpen(true);
+            }}
+          />
         </div>
 
         {/* 5. Mid-page Google AdSense Unit */}

@@ -174,10 +174,10 @@ export default function Header({
 
         {/* Center / Navigation Links: Dynamic Weather Capsule & Essentials Link */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          {/* ☀️ Smart Live Weather Capsule (Dynamic City & Temp Sync) */}
+          {/* ☀️ Smart Live Weather & Outfit Guide Capsule */}
           <button
             onClick={() => onOpenWeather && onOpenWeather(targetCity)}
-            title="실시간 날씨 & 옷차림 가이드"
+            title="실시간 날씨 & 맞춤 여행 코디 가이드"
             style={{
               background: 'rgba(37, 99, 235, 0.08)',
               border: '1px solid var(--border-highlight)',
@@ -194,7 +194,7 @@ export default function Header({
             }}
           >
             <CloudSun size={15} style={{ color: 'var(--accent-primary)' }} />
-            <span>{targetCity} {currentTemp}</span>
+            <span>{targetCity} {currentTemp} · 코디 👗</span>
           </button>
 
           {/* 🧭 Travel Essentials Header Shortcut */}
@@ -532,7 +532,7 @@ export default function Header({
                 flexDirection: 'column',
                 gap: '0.3rem'
               }}>
-                {/* 1. Live Weather Modal */}
+                {/* 1. Live Weather & Styling Modal */}
                 <button
                   onClick={() => {
                     setIsMainMenuOpen(false);
@@ -555,7 +555,7 @@ export default function Header({
                   }}
                 >
                   <CloudSun size={16} style={{ color: 'var(--accent-primary)' }} />
-                  <span>전국 실시간 날씨 가이드</span>
+                  <span>👗 실시간 날씨 & 여행 코디 가이드</span>
                 </button>
 
                 {/* 2. Travel Essentials Modal */}

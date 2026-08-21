@@ -1,12 +1,25 @@
 import React from 'react';
-import { Train, CreditCard, Wifi, PhoneCall, ShieldCheck, ExternalLink, Hotel } from 'lucide-react';
+import { Train, CreditCard, Wifi, PhoneCall, ShieldCheck, ExternalLink, Shirt, CloudSun } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
 import { buildKlookDeepLink } from '../services/apiConfig';
 
-export default function TravelEssentialsSection({ lang = 'ko' }) {
+export default function TravelEssentialsSection({
+  lang = 'ko',
+  onOpenWeather = null,
+  targetCity = '서울'
+}) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
 
   const ESSENTIAL_CARDS = [
+    {
+      icon: <Shirt size={24} style={{ color: '#ec4899' }} />,
+      title: '실시간 날씨 & 여행 코디 가이드',
+      desc: `${targetCity} 및 전국 실시간 기상과 기온별 맞춤 여행 옷차림 & 필수 패킹 팁`,
+      badge: '스타일 가이드',
+      linkText: '기온별 코디 & 패킹 보기 👗',
+      isModalAction: true,
+      onClick: () => onOpenWeather && onOpenWeather(targetCity)
+    },
     {
       icon: <Train size={24} style={{ color: '#2563eb' }} />,
       title: t.subwayMapTitle || '지하철 노선도 & 길찾기',
@@ -71,20 +84,20 @@ export default function TravelEssentialsSection({ lang = 'ko' }) {
         </p>
       </div>
 
-      {/* 4-Grid Cards */}
+      {/* Responsive Grid Cards */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-        gap: '1.25rem'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))',
+        gap: '1.15rem'
       }}>
         {ESSENTIAL_CARDS.map((card, idx) => (
           <div
             key={idx}
             style={{
               backgroundColor: 'var(--bg-card)',
-              border: '1px solid var(--border-color)',
+              border: card.isModalAction ? '1.5px solid var(--border-highlight)' : '1px solid var(--border-color)',
               borderRadius: '20px',
-              padding: '1.5rem',
+              padding: '1.35rem',
               boxShadow: 'var(--shadow-sm)',
               display: 'flex',
               flexDirection: 'column',
@@ -93,10 +106,10 @@ export default function TravelEssentialsSection({ lang = 'ko' }) {
             }}
           >
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
                 <div style={{
-                  width: '46px',
-                  height: '46px',
+                  width: '44px',
+                  height: '44px',
                   borderRadius: '14px',
                   backgroundColor: 'var(--bg-primary)',
                   display: 'flex',
@@ -108,8 +121,8 @@ export default function TravelEssentialsSection({ lang = 'ko' }) {
                 <span style={{
                   fontSize: '0.72rem',
                   fontWeight: 800,
-                  backgroundColor: 'rgba(37, 99, 235, 0.08)',
-                  color: 'var(--accent-primary)',
+                  backgroundColor: card.isModalAction ? 'rgba(236, 72, 153, 0.1)' : 'rgba(37, 99, 235, 0.08)',
+                  color: card.isModalAction ? '#ec4899' : 'var(--accent-primary)',
                   padding: '0.2rem 0.55rem',
                   borderRadius: '6px'
                 }}>
@@ -117,31 +130,53 @@ export default function TravelEssentialsSection({ lang = 'ko' }) {
                 </span>
               </div>
 
-              <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-main)', margin: '0 0 0.4rem 0' }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-main)', margin: '0 0 0.35rem 0' }}>
                 {card.title}
               </h3>
-              <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: 1.5, margin: '0 0 1.25rem 0' }}>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: 1.45, margin: '0 0 1.1rem 0' }}>
                 {card.desc}
               </p>
             </div>
 
-            <a
-              href={card.linkUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.35rem',
-                fontSize: '0.82rem',
-                fontWeight: 700,
-                color: 'var(--accent-primary)',
-                textDecoration: 'none'
-              }}
-            >
-              <span>{card.linkText}</span>
-              <ExternalLink size={13} />
-            </a>
+            {card.isModalAction ? (
+              <button
+                type="button"
+                onClick={card.onClick}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.35rem',
+                  fontSize: '0.82rem',
+                  fontWeight: 800,
+                  color: 'var(--accent-primary)',
+                  background: 'none',
+                  border: 'none',
+                  padding: 0,
+                  cursor: 'pointer',
+                  textAlign: 'left'
+                }}
+              >
+                <span>{card.linkText}</span>
+              </button>
+            ) : (
+              <a
+                href={card.linkUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.35rem',
+                  fontSize: '0.82rem',
+                  fontWeight: 700,
+                  color: 'var(--accent-primary)',
+                  textDecoration: 'none'
+                }}
+              >
+                <span>{card.linkText}</span>
+                <ExternalLink size={13} />
+              </a>
+            )}
           </div>
         ))}
       </div>
