@@ -107,6 +107,8 @@ export default function App() {
     const newItinerary = generateLocalFallbackItinerary('서울 3일 핫플 감성 투어', '서울', 3, newLang);
     setItineraryData(newItinerary);
     setChatMessages(getInitialWelcomeMessages(newLang, newItinerary));
+    setActiveDay(1);
+    setSelectedSpot(null);
   };
 
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;

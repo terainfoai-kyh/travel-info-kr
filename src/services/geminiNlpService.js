@@ -12,6 +12,7 @@
 import { resolveSpotPhotoDynamic, resolveSpotPhotoSync } from './photoPipeline.js';
 import { getSpotAffiliateDeal } from './affiliateService.js';
 import { buildAgodaDeepLink, buildKlookDeepLink } from './apiConfig.js';
+import { CITY_TRANSLATIONS } from '../i18n/translations.js';
 
 // Precision Korean City Center Coordinates
 export const CITY_COORDINATES = {
