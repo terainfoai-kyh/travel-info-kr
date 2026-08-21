@@ -112,7 +112,8 @@ export default function GoogleMapView({
       const m = leafletMapRef.current;
       const b = L.latLngBounds(pts);
       if (b && b.isValid()) {
-        m.fitBounds(b, { padding: [35, 30], animate: false });
+        const padded = b.pad(0.55);
+        m.fitBounds(padded, { animate: false });
       }
     };
 
@@ -312,7 +313,7 @@ export default function GoogleMapView({
       </div>
 
       {/* Embedded Leaflet Real-Road Route Map Container */}
-      <div style={{ position: 'relative', width: '100%', height: '240px', backgroundColor: 'var(--bg-primary)' }}>
+      <div style={{ position: 'relative', width: '100%', height: '260px', backgroundColor: 'var(--bg-primary)' }}>
         <div
           ref={mapContainerRef}
           style={{ width: '100%', height: '100%', zIndex: 1 }}
