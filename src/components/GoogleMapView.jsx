@@ -158,10 +158,11 @@ export default function GoogleMapView({
       `);
     });
 
-    // Zero-Bounce instant fit to spots bounds with safe generous 25% geographic margin
+    // Zero-Bounce instant fit to spots bounds with safe generous 30% geographic margin & maxZoom: 14
     if (latLngs.length > 1) {
-      const initialPadded = bounds.pad(0.25);
-      map.fitBounds(initialPadded, { animate: false });
+      const initialPadded = bounds.pad(0.3);
+      activeBoundsRef.current = initialPadded;
+      map.fitBounds(initialPadded, { padding: [40, 40], maxZoom: 14, animate: false });
 
       // 1) Render immediate lightweight fallback route line first (so it's instant)
       const fallbackLine = L.polyline(latLngs, {
@@ -201,10 +202,10 @@ export default function GoogleMapView({
               }).addTo(map);
               routeLayerRef.current = L.featureGroup([outerGlow, realPolyline]);
 
-              // 🎯 Auto-fit map to FULL road coordinates with 25% generous padding so start marker (1), end marker (2), and all road curves are 100% visible inside!
-              const fullBounds = L.latLngBounds([...latLngs, ...roadPoints]).pad(0.25);
+              // 🎯 Auto-fit map to FULL road coordinates with 30% generous padding and maxZoom: 14 so start marker (1), end marker (2), and all road curves are 100% visible inside!
+              const fullBounds = L.latLngBounds([...latLngs, ...roadPoints]).pad(0.3);
               activeBoundsRef.current = fullBounds;
-              map.fitBounds(fullBounds, { padding: [25, 25], animate: false });
+              map.fitBounds(fullBounds, { padding: [40, 40], maxZoom: 14, animate: false });
             }
           }
         })
@@ -224,7 +225,7 @@ export default function GoogleMapView({
       if (leafletMapRef.current) {
         leafletMapRef.current.invalidateSize();
         if (activeBoundsRef.current) {
-          leafletMapRef.current.fitBounds(activeBoundsRef.current, { padding: [25, 25], animate: false });
+          leafletMapRef.current.fitBounds(activeBoundsRef.current, { padding: [40, 40], maxZoom: 14, animate: false });
         }
       }
     }, 150);
