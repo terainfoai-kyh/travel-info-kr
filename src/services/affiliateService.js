@@ -1,18 +1,20 @@
 /**
  * VORA AI 4.0 - Smart Affiliate Revenue Pipeline
- * Generates high-converting Klook Activities, Hanbok rentals, Sky Capsule tickets & Agoda Hotel deals.
+ * Generates high-converting Klook Activities (aid=130249&af_wid=31000), Hanbok rentals, Sky Capsule tickets & Agoda Hotel deals (cid=1972217).
  */
+
+import { buildAgodaDeepLink, buildKlookDeepLink } from './apiConfig.js';
 
 export function getSpotAffiliateDeal(spotTitle = '', city = '서울') {
   const t = (spotTitle || '').toLowerCase();
   const c = (city || '').toLowerCase();
 
-  // 1. Gyeongbokgung / Hanok Hanbok Rental
-  if (t.includes('경복궁') || t.includes('한옥') || t.includes('창덕궁') || t.includes('궁궐')) {
+  // 1. Gyeongbokgung / Bukchon Hanok Hanbok Rental
+  if (t.includes('경복궁') || t.includes('한옥') || t.includes('북촌') || t.includes('창덕궁') || t.includes('궁궐')) {
     return {
       dealTitle: '한복 대여 & 궁궐 스냅 10% 특가 예약',
       dealBadge: '👑 한복 대여 특가',
-      dealUrl: 'https://www.klook.com/ko/search?query=%EC%84%9C%EC%9A%B8%20%ED%95%9C%EB%B3%B5%20%EB%8C%80%EC%97%AC'
+      dealUrl: buildKlookDeepLink('서울 한복 대여')
     };
   }
 
@@ -21,7 +23,7 @@ export function getSpotAffiliateDeal(spotTitle = '', city = '서울') {
     return {
       dealTitle: 'N서울타워 전망대 패스트트랙 티켓 바로예약',
       dealBadge: '🗼 전망대 패스트트랙',
-      dealUrl: 'https://www.klook.com/ko/search?query=N%EC%84%9C%EC%9A%B8%ED%83%80%EC%9B%8C'
+      dealUrl: buildKlookDeepLink('N서울타워 전망대')
     };
   }
 
@@ -30,7 +32,7 @@ export function getSpotAffiliateDeal(spotTitle = '', city = '서울') {
     return {
       dealTitle: '해운대 블루라인파크 스카이캡슐 티켓 바로예약',
       dealBadge: '🚊 스카이캡슐 바로예약',
-      dealUrl: 'https://www.klook.com/ko/search?query=%EB%B8%94%EB%A3%A8%EB%9D%BC%EC%9D%B8%ED%8C%8C%ED%81%AC'
+      dealUrl: buildKlookDeepLink('해운대 블루라인파크 스카이캡슐')
     };
   }
 
@@ -39,14 +41,15 @@ export function getSpotAffiliateDeal(spotTitle = '', city = '서울') {
     return {
       dealTitle: '제주도 렌터카 & 인기 액티비티 즉시 할인',
       dealBadge: '🏝️ 제주 렌터카/체험 특가',
-      dealUrl: 'https://www.klook.com/ko/search?query=%EC%A0%9C%EC%A3%BC%EB%8F%84%20%EC%95%A1%ED%8B%B0%EB%B9%84%ED%8B%B0'
+      dealUrl: buildKlookDeepLink('제주도 렌터카 액티비티')
     };
   }
 
-  // 5. Default Smart Deal (Agoda Hotel & Ticket Link)
+  // 5. Default Smart Deal (Agoda Hotel & Ticket Link with partner cid=1972217)
+  const cleanSpot = (spotTitle || '').split('&')[0].trim() || city;
   return {
-    dealTitle: `${spotTitle || city} 주변 평점 9.0+ 호텔 & 액티비티 특가`,
+    dealTitle: `${cleanSpot} 주변 평점 9.0+ 호텔 & 액티비티 특가`,
     dealBadge: '🏨 주변 호텔/티켓 특가',
-    dealUrl: `https://www.agoda.com/search?text=${encodeURIComponent(spotTitle || city)}`
+    dealUrl: buildAgodaDeepLink(cleanSpot, null, null, city)
   };
 }

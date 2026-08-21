@@ -134,13 +134,35 @@ export function generateGoogleMapsRouteUrl(spots = []) {
   return `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}${waypointsParam}&travelmode=transit`;
 }
 
+// 🗺️ Clean spot title & location query helper (Strips administrative dummy text for 100% Kakao/Naver POI match)
+export function cleanSearchQueryForMap(spotTitle = '', city = '') {
+  const primaryTitle = (spotTitle || '').split('&')[0].trim();
+  const cleanCity = (city || '')
+    .replace(/대한민국/g, '')
+    .replace(/일대/g, '')
+    .replace(/주변/g, '')
+    .trim();
+
+  if (primaryTitle.length >= 2) {
+    return primaryTitle;
+  }
+  return `${cleanCity} ${primaryTitle}`.trim() || '한국 명소';
+}
+
 // Generate Individual Place Map Links
 export function getGooglePlaceSearchUrl(spotTitle, city = '') {
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spotTitle + ' ' + city)}`;
+  const query = cleanSearchQueryForMap(spotTitle, city);
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
 }
 
 export function getKakaoMapSearchUrl(spotTitle, city = '') {
-  return `https://map.kakao.com/link/search/${encodeURIComponent(spotTitle + ' ' + city)}`;
+  const query = cleanSearchQueryForMap(spotTitle, city);
+  return `https://map.kakao.com/link/search/${encodeURIComponent(query)}`;
+}
+
+export function getNaverMapSearchUrl(spotTitle, city = '') {
+  const query = cleanSearchQueryForMap(spotTitle, city);
+  return `https://map.naver.com/v5/search/${encodeURIComponent(query)}`;
 }
 
 // 🎯 지능형 여행 일수 정밀 파서 (1~14일 완벽 인식)

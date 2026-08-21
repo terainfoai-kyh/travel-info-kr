@@ -12,7 +12,7 @@ import {
   ChevronRight,
   Image as ImageIcon
 } from 'lucide-react';
-import { getGooglePlaceSearchUrl, getKakaoMapSearchUrl } from '../services/geminiNlpService';
+import { getGooglePlaceSearchUrl, getKakaoMapSearchUrl, getNaverMapSearchUrl } from '../services/geminiNlpService';
 
 export default function TravelDetailModal({ spot, onClose }) {
   if (!spot) return null;
@@ -41,7 +41,7 @@ export default function TravelDetailModal({ spot, onClose }) {
 
   const googleMapUrl = getGooglePlaceSearchUrl(title, location);
   const kakaoMapUrl = getKakaoMapSearchUrl(title, location);
-  const naverMapUrl = `https://map.naver.com/v5/search/${encodeURIComponent(title + ' ' + location)}`;
+  const naverMapUrl = getNaverMapSearchUrl(title, location);
 
   return (
     <div 

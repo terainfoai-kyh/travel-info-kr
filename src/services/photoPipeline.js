@@ -31,18 +31,18 @@ export const PREWARMED_PLACES_CATALOG = {
   '인사동': {
     name: '인사동 쌈지길 & 전통찻집',
     rating: 4.5,
-    primary: 'https://tong.visitkorea.or.kr/cms/resource/04/3304404_image2_1.jpg',
+    primary: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Ssamziegil%2C_Insadong%2C_Seoul.jpg/1280px-Ssamziegil%2C_Insadong%2C_Seoul.jpg',
     images: [
-      'https://tong.visitkorea.or.kr/cms/resource/04/3304404_image2_1.jpg',
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Ssamziegil%2C_Insadong%2C_Seoul.jpg/1280px-Ssamziegil%2C_Insadong%2C_Seoul.jpg',
       'https://tong.visitkorea.or.kr/cms/resource/88/4095788_image2_1.jpg'
     ]
   },
   '쌈지길': {
     name: '인사동 쌈지길',
     rating: 4.5,
-    primary: 'https://tong.visitkorea.or.kr/cms/resource/04/3304404_image2_1.jpg',
+    primary: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Ssamziegil%2C_Insadong%2C_Seoul.jpg/1280px-Ssamziegil%2C_Insadong%2C_Seoul.jpg',
     images: [
-      'https://tong.visitkorea.or.kr/cms/resource/04/3304404_image2_1.jpg',
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Ssamziegil%2C_Insadong%2C_Seoul.jpg/1280px-Ssamziegil%2C_Insadong%2C_Seoul.jpg',
       'https://tong.visitkorea.or.kr/cms/resource/88/4095788_image2_1.jpg'
     ]
   },
