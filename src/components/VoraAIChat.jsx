@@ -9,7 +9,11 @@ export default function VoraAIChat({
   onSendMessage,
   activeDay = 1,
   onSelectDay,
-  questionQuota = { remaining: 5, total: 5 }
+  questionQuota = { remaining: 5, total: 5 },
+  onOpenRewardedAd,
+  onOpenGoogleAuth,
+  onResetQuotaForDev,
+  currentUser = null
 }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
   const [inputText, setInputText] = useState('');
@@ -270,6 +274,78 @@ export default function VoraAIChat({
 
                   <div style={{ whiteSpace: 'pre-line' }}>{msg.text}</div>
 
+                  {/* Quota Exhausted Call to Action Cards (Rewarded Ad & Google Login) */}
+                  {(msg.isQuotaExhausted || (msg.text && (msg.text.includes('무료 AI 질문') || msg.text.includes('free AI questions')))) && (
+                    <div style={{
+                      marginTop: '0.85rem',
+                      padding: '0.85rem',
+                      borderRadius: '14px',
+                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                      border: '1px solid rgba(245, 158, 11, 0.3)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '0.55rem'
+                    }}>
+                      <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#f59e0b', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                        <span>🎁 질문 즉시 충전 & 확장 혜택</span>
+                      </div>
+
+                      {/* Action 1: 15s Rewarded Ad */}
+                      <button
+                        onClick={onOpenRewardedAd}
+                        style={{
+                          width: '100%',
+                          padding: '0.65rem 0.85rem',
+                          borderRadius: '10px',
+                          border: 'none',
+                          background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                          color: '#ffffff',
+                          fontSize: '0.82rem',
+                          fontWeight: 800,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.4rem',
+                          cursor: 'pointer',
+                          boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)'
+                        }}
+                      >
+                        <span>🎬 15초 스폰서 광고 보고 +3회 즉시 충전</span>
+                      </button>
+
+                      {/* Action 2: 3-sec Google Login (if guest) */}
+                      {!currentUser?.isGoogleLoggedIn && (
+                        <button
+                          onClick={onOpenGoogleAuth}
+                          style={{
+                            width: '100%',
+                            padding: '0.65rem 0.85rem',
+                            borderRadius: '10px',
+                            border: '1px solid #dadce0',
+                            backgroundColor: '#ffffff',
+                            color: '#3c4043',
+                            fontSize: '0.82rem',
+                            fontWeight: 800,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '0.5rem',
+                            cursor: 'pointer',
+                            boxShadow: '0 2px 6px rgba(0,0,0,0.08)'
+                          }}
+                        >
+                          <svg width="15" height="15" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+                          </svg>
+                          <span>3초 구글 로그인하고 매일 15회 + 일정 저장</span>
+                        </button>
+                      )}
+                    </div>
+                  )}
+
                   {/* Quick Suggestions Chips for Conversational Mode */}
                   {msg.quickSuggestions && msg.quickSuggestions.length > 0 && (
                     <div style={{
@@ -494,37 +570,84 @@ export default function VoraAIChat({
         </div>
       )}
 
-      {/* Daily Free Question Quota Badge */}
+      {/* Daily Free Question Quota Badge with Quick Actions */}
       <div style={{
-        padding: '0.35rem 0.85rem',
+        padding: '0.4rem 0.85rem',
         borderTop: '1px solid var(--border-color)',
-        backgroundColor: questionQuota?.remaining > 1
+        backgroundColor: questionQuota?.remaining > 2
           ? 'rgba(16, 185, 129, 0.05)'
-          : questionQuota?.remaining === 1
+          : questionQuota?.remaining > 0
             ? 'rgba(245, 158, 11, 0.08)'
             : 'rgba(239, 68, 68, 0.08)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '0.4rem',
         fontSize: '0.73rem',
         fontWeight: 700,
-        color: questionQuota?.remaining > 1
+        color: questionQuota?.remaining > 2
           ? '#059669'
-          : questionQuota?.remaining === 1
+          : questionQuota?.remaining > 0
             ? '#d97706'
             : '#dc2626'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-          <span>⚡</span>
+        <div 
+          onClick={onResetQuotaForDev}
+          title="클릭하여 질문 횟수 전체 충전 (테스트/개발 모드)"
+          style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', cursor: 'pointer', userSelect: 'none' }}
+        >
+          <span>{currentUser?.isGoogleLoggedIn ? '👑' : '⚡'}</span>
           <span>
-            {t.freeQuestionsRemaining
-              ? t.freeQuestionsRemaining(questionQuota?.remaining ?? 5, questionQuota?.total ?? 5)
-              : `오늘 무료 AI 질문: ${questionQuota?.remaining ?? 5} / ${questionQuota?.total ?? 5}회`}
+            {currentUser?.isGoogleLoggedIn ? 'Google VIP: ' : '오늘 무료 질문: '}
+            <strong style={{ fontWeight: 900 }}>{questionQuota?.remaining ?? 5}</strong> / {questionQuota?.total ?? 5}회
           </span>
         </div>
-        <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 500 }}>
-          {questionQuota?.remaining === 0 ? '자정(00:00) 자동 충전' : '매일 5회 무료'}
-        </span>
+
+        {/* Quick Mini Recharge Actions */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+          <button
+            type="button"
+            onClick={onOpenRewardedAd}
+            title="15초 광고 보고 +3회 충전"
+            style={{
+              background: 'rgba(16, 185, 129, 0.15)',
+              color: '#059669',
+              border: '1px solid rgba(16, 185, 129, 0.3)',
+              borderRadius: '6px',
+              padding: '0.15rem 0.45rem',
+              fontSize: '0.68rem',
+              fontWeight: 800,
+              cursor: 'pointer'
+            }}
+          >
+            🎬 +3회 충전
+          </button>
+
+          {!currentUser?.isGoogleLoggedIn && (
+            <button
+              type="button"
+              onClick={onOpenGoogleAuth}
+              title="구글 로그인하고 매일 15회 받기"
+              style={{
+                background: 'rgba(37, 99, 235, 0.12)',
+                color: 'var(--accent-primary)',
+                border: '1px solid var(--border-highlight)',
+                borderRadius: '6px',
+                padding: '0.15rem 0.45rem',
+                fontSize: '0.68rem',
+                fontWeight: 800,
+                cursor: 'pointer'
+              }}
+            >
+              🔑 15회 확장
+            </button>
+          )}
+
+          <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 500, marginLeft: '0.2rem' }}>
+            자정(00:00) 리셋
+          </span>
+        </div>
       </div>
 
       {/* Chat Input Bar */}

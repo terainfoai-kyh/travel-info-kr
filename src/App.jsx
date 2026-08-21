@@ -15,6 +15,8 @@ import TermsModal from './components/TermsModal';
 import AboutUsModal from './components/AboutUsModal';
 import ContactUsModal from './components/ContactUsModal';
 import PWAInstallBanner from './components/PWAInstallBanner';
+import RewardedAdModal from './components/RewardedAdModal';
+import GoogleAuthModal from './components/GoogleAuthModal';
 
 import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
 import { geminiGenerateFullItinerary, generateLocalFallbackItinerary, enrichItineraryPhotosAsync } from './services/geminiNlpService';
@@ -159,25 +161,122 @@ export default function App() {
   const [isTermsOpen, setIsTermsOpen] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [isContactOpen, setIsContactOpen] = useState(false);
+  const [isRewardedAdOpen, setIsRewardedAdOpen] = useState(false);
+  const [isGoogleAuthOpen, setIsGoogleAuthOpen] = useState(false);
 
-  // Daily Question Quota Management (5 free AI questions per day)
+  // User Profile State (Google Logged In vs Guest)
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('vora_user_profile');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return null;
+  });
+
+  // Daily Question Quota Management (Guest: 5 chats, Google User: 15 chats)
   const [questionQuota, setQuestionQuota] = useState(() => {
     const todayStr = new Date().toISOString().slice(0, 10);
+    const isGoogle = !!localStorage.getItem('vora_user_profile');
+    const totalLimit = isGoogle ? 15 : 5;
+
     try {
       const saved = localStorage.getItem('vora_daily_quota');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed.date === todayStr) {
-          return parsed;
+          return { ...parsed, total: totalLimit };
         }
       }
     } catch (e) {}
-    const defaultQuota = { date: todayStr, remaining: 5, total: 5 };
+    const defaultQuota = { date: todayStr, remaining: totalLimit, total: totalLimit };
     try {
       localStorage.setItem('vora_daily_quota', JSON.stringify(defaultQuota));
     } catch (e) {}
     return defaultQuota;
   });
+
+  // Grant Reward (+3 chats on watching 15s ad)
+  const handleRewardGranted = () => {
+    const todayStr = new Date().toISOString().slice(0, 10);
+    setQuestionQuota(prev => {
+      const newRemaining = (prev?.remaining || 0) + 3;
+      const updated = { date: todayStr, remaining: newRemaining, total: prev?.total || 5 };
+      try {
+        localStorage.setItem('vora_daily_quota', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+
+    const queryTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+    setChatMessages(prev => [
+      ...prev,
+      {
+        id: `reward-${Date.now()}`,
+        role: 'assistant',
+        text: (lang === 'ko')
+          ? '🎉 **스폰서 광고 시청 완료! 무료 AI 질문 +3회가 즉시 충전되었습니다.** ✨\n원하시는 여행 코스나 수정 사항을 자유롭게 물어보세요!'
+          : '🎉 **Sponsor ad completed! +3 free AI questions have been granted.** ✨\nFeel free to ask more travel itineraries!',
+        queryTime,
+        replyTime: queryTime,
+        timestamp: queryTime
+      }
+    ]);
+  };
+
+  // Google Login Success Handler
+  const handleLoginSuccess = (profile) => {
+    setCurrentUser(profile);
+    const todayStr = new Date().toISOString().slice(0, 10);
+    setQuestionQuota(prev => {
+      const updated = { date: todayStr, remaining: Math.max(prev?.remaining || 0, 15), total: 15 };
+      try {
+        localStorage.setItem('vora_daily_quota', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+
+    const queryTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+    setChatMessages(prev => [
+      ...prev,
+      {
+        id: `login-success-${Date.now()}`,
+        role: 'assistant',
+        text: (lang === 'ko')
+          ? `👑 **환영합니다, ${profile.name}님!**\nGoogle VIP 회원 혜택이 적용되어 **매일 15회 무료 질문**과 여행 일정 자동 보관이 활성화되었습니다! ✨`
+          : `👑 **Welcome, ${profile.name}!**\nGoogle VIP tier activated with **15 free daily chats** and automatic itinerary cloud backup! ✨`,
+        queryTime,
+        replyTime: queryTime,
+        timestamp: queryTime
+      }
+    ]);
+  };
+
+  // Logout Handler
+  const handleLogout = () => {
+    try {
+      localStorage.removeItem('vora_user_profile');
+    } catch (e) {}
+    setCurrentUser(null);
+    const todayStr = new Date().toISOString().slice(0, 10);
+    setQuestionQuota(prev => {
+      const updated = { date: todayStr, remaining: Math.min(prev?.remaining || 5, 5), total: 5 };
+      try {
+        localStorage.setItem('vora_daily_quota', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+  };
+
+  // Reset Quota for Testing / Dev
+  const handleResetQuotaForDev = () => {
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const totalLimit = currentUser?.isGoogleLoggedIn ? 15 : 5;
+    const reset = { date: todayStr, remaining: totalLimit, total: totalLimit };
+    setQuestionQuota(reset);
+    try {
+      localStorage.setItem('vora_daily_quota', JSON.stringify(reset));
+    } catch (e) {}
+  };
 
   // Trigger Master Itinerary Planning with Conversational Memory & Ultra-Fast Parallel Engine
   const handleGenerateItinerary = async (promptQuery) => {
@@ -193,9 +292,10 @@ export default function App() {
 
     // Check Daily Question Quota
     const todayStr = new Date().toISOString().slice(0, 10);
+    const maxQuota = currentUser?.isGoogleLoggedIn ? 15 : 5;
     let currentRemaining = questionQuota.remaining;
     if (questionQuota.date !== todayStr) {
-      currentRemaining = 5;
+      currentRemaining = maxQuota;
     }
 
     if (currentRemaining <= 0) {
@@ -205,9 +305,11 @@ export default function App() {
         {
           id: `bot-exhausted-${Date.now()}`,
           role: 'assistant',
+          isQuotaExhausted: true,
           text: (lang === 'ko')
-            ? '⚠️ **오늘 제공된 무료 AI 질문(5/5회)을 모두 사용하셨습니다.**\n매일 자정(00:00)에 5회가 자동으로 충전됩니다! ✨\n현재 화면의 일정을 복사하거나 장소들을 북마크에 저장하여 편리하게 활용하실 수 있습니다.'
-            : '⚠️ **You have used all 5 free AI questions for today.**\nYour 5 free quota will automatically recharge at midnight (00:00)! ✨',
+            ? `⚠️ **오늘 제공된 무료 AI 질문(${maxQuota}/${maxQuota}회)을 모두 사용하셨습니다.**\n\n매일 자정(00:00)에 ${maxQuota}회가 자동으로 충전됩니다! ✨\n아래 버튼을 눌러 **15초 광고 시청(+3회 즉시 충전)** 또는 **Google 로그인(매일 15회 확장)**을 이용하실 수 있습니다.`
+            : `⚠️ **You have used all ${maxQuota} free AI questions for today.**\n\nYour ${maxQuota} free quota will automatically recharge at midnight (00:00)! ✨\nWatch a 15s ad for +3 chats or sign in with Google for 15 chats daily!`,
+          generationTime: '0.0',
           queryTime,
           replyTime: queryTime,
           timestamp: queryTime
@@ -217,7 +319,7 @@ export default function App() {
     }
 
     // Decrement quota
-    const updatedQuota = { date: todayStr, remaining: currentRemaining - 1, total: 5 };
+    const updatedQuota = { date: todayStr, remaining: currentRemaining - 1, total: maxQuota };
     setQuestionQuota(updatedQuota);
     try {
       localStorage.setItem('vora_daily_quota', JSON.stringify(updatedQuota));
@@ -320,6 +422,9 @@ export default function App() {
         onOpenWishlist={() => setIsWishlistOpen(true)}
         onOpenWeather={() => setIsWeatherOpen(true)}
         onOpenEssentials={() => setIsEssentialsOpen(true)}
+        currentUser={currentUser}
+        onOpenGoogleAuth={() => setIsGoogleAuthOpen(true)}
+        onLogout={handleLogout}
       />
 
       {/* Main Container */}
@@ -357,6 +462,10 @@ export default function App() {
               activeDay={activeDay}
               onSelectDay={(day) => setActiveDay(day)}
               questionQuota={questionQuota}
+              onOpenRewardedAd={() => setIsRewardedAdOpen(true)}
+              onOpenGoogleAuth={() => setIsGoogleAuthOpen(true)}
+              onResetQuotaForDev={handleResetQuotaForDev}
+              currentUser={currentUser}
             />
           </div>
 
@@ -520,6 +629,23 @@ export default function App() {
           lang={lang}
         />
       )}
+
+      {/* Rewarded Ad Modal (15-second sponsor ad for +3 questions) */}
+      <RewardedAdModal
+        isOpen={isRewardedAdOpen}
+        onClose={() => setIsRewardedAdOpen(false)}
+        onRewardGranted={handleRewardGranted}
+        lang={lang}
+      />
+
+      {/* Google Sign-in Auth Modal (15 questions per day + cloud storage) */}
+      <GoogleAuthModal
+        isOpen={isGoogleAuthOpen}
+        onClose={() => setIsGoogleAuthOpen(false)}
+        onLoginSuccess={handleLoginSuccess}
+        currentUser={currentUser}
+        lang={lang}
+      />
 
       {/* Spot Detail Modal */}
       {selectedSpot && (
