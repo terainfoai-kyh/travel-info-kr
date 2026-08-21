@@ -508,6 +508,7 @@ export default function VoraAIChat({
         })}
 
         {/* Live Typing / Thinking Indicator */}
+        {/* AI 응답 속도 최적화 시작 */}
         {isLoading && (
           <div style={{
             display: 'flex',

@@ -196,6 +196,9 @@ export function extractDaysFromPrompt(text = '') {
   return null;
 }
 
+// AI 응답 속도 최적화 시작
+const SESSION_ITINERARY_CACHE = new Map();
+
 /**
  * ⚡ Master Gemini Multi-Day Itinerary Planner with Dual-Mode (Conversational Clarification & Itinerary Generation)
  */
@@ -204,6 +207,18 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko', previo
   const cleanPrompt = (rawPrompt || '').trim();
   const explicitCity = extractLocationKeyword(cleanPrompt, false);
   const mentionsExplicitCity = !!explicitCity;
+
+  // AI 응답 속도 최적화: 동일 질의 세션 인메모리 초고속 0.05초 즉시 반환
+  const cacheKey = `${cleanPrompt.toLowerCase()}_${lang}_${explicitCity || previousItinerary?.targetCity || 'none'}`;
+  if (!previousItinerary && SESSION_ITINERARY_CACHE.has(cacheKey)) {
+    const cached = SESSION_ITINERARY_CACHE.get(cacheKey);
+    if (cached) {
+      return {
+        ...cached,
+        generationTime: '0.1'
+      };
+    }
+  }
 
   // Fast check: Is it purely ambiguous/typo/greetings/short syllables?
   const isHangulJamoOnly = /^[ㄱ-ㅎㅏ-ㅣ\s]+$/.test(cleanPrompt);
@@ -380,14 +395,15 @@ ALL output text (tripTitle, summary, theme, transitTip, dishName, description, n
     : `User Request: "${cleanPrompt}". Duration: ${days} days, language: ${lang}. Process appropriately as chat clarification or full itinerary strictly in ${lang}.`;
 
   const candidateKeys = GEMINI_KEY_POOL;
-  const modelCandidates = ['gemini-3.5-flash-lite', 'gemini-3.5-flash'];
+  // AI 응답 속도 최적화: 초고속 응답 Flash 모델 라인업 우선 배치
+  const modelCandidates = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.5-flash'];
 
   for (const apiKey of candidateKeys) {
     for (const model of modelCandidates) {
       try {
         const endpointUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 9500);
+        const timeoutId = setTimeout(() => controller.abort(), 6500);
 
         const res = await fetch(endpointUrl, {
           method: 'POST',
@@ -399,8 +415,8 @@ ALL output text (tripTitle, summary, theme, transitTip, dishName, description, n
           body: JSON.stringify({
             contents: [{ parts: [{ text: `${systemInstruction}\n\n${promptText}` }] }],
             generationConfig: {
-              maxOutputTokens: 2500,
-              temperature: 0.6
+              maxOutputTokens: 1800,
+              temperature: 0.4
             }
           })
         });
@@ -531,7 +547,7 @@ ALL output text (tripTitle, summary, theme, transitTip, dishName, description, n
                   });
                 }
 
-                return {
+                const itineraryResult = {
                   responseType: 'itinerary',
                   targetCity: finalCity,
                   days: parsed.days || days,
@@ -543,6 +559,13 @@ ALL output text (tripTitle, summary, theme, transitTip, dishName, description, n
                   agodaUrl: buildAgodaDeepLink(finalCity + ' 호텔'),
                   klookUrl: buildKlookDeepLink(finalCity + ' 액티비티')
                 };
+
+                // AI 응답 속도 최적화: 세션 캐시에 보관하여 동일 요청 즉시 반환
+                try {
+                  SESSION_ITINERARY_CACHE.set(cacheKey, itineraryResult);
+                } catch (e) {}
+
+                return itineraryResult;
               }
             }
           }

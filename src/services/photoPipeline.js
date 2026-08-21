@@ -55,6 +55,7 @@ export function setCachedPlace(cleanKey, data) {
   } catch (e) {}
 }
 
+// AI 응답 속도 최적화 시작
 /**
  * 🌐 Official Google Places API (New) Real-Time Landmark Fetcher
  * Queries Google Maps database directly for genuine photos and ratings.
@@ -79,7 +80,7 @@ export async function fetchGooglePlacesPhotos(spotTitle, city = '서울') {
     try {
       const endpoint = 'https://places.googleapis.com/v1/places:searchText';
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 4000);
+      const timeoutId = setTimeout(() => controller.abort(), 2500);
 
       const res = await fetch(endpoint, {
         method: 'POST',
