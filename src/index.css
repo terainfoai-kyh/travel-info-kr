@@ -264,6 +264,15 @@ html {
   border: 1px solid var(--border-color);
 }
 
+/* Leaflet Container Strict Height & Zero-Shift Layout Guarantee */
+.leaflet-container {
+  width: 100% !important;
+  height: 260px !important;
+  min-height: 260px !important;
+  background-color: var(--bg-primary) !important;
+  font-family: inherit !important;
+}
+
 .gradient-text {
   background: var(--accent-gradient);
   -webkit-background-clip: text;
