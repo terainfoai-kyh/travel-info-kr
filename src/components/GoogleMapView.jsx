@@ -84,7 +84,7 @@ export default function GoogleMapView({
         const b = L.latLngBounds(coords);
         if (b && b.isValid()) {
           try {
-            m.invalidateSize({ pan: false });
+            m.invalidateSize({ pan: true });
             m.fitBounds(b.pad(0.35), { padding: [40, 40], maxZoom: 14, animate: false });
           } catch (e) {}
         }
@@ -238,21 +238,34 @@ export default function GoogleMapView({
         ro.observe(mapContainerRef.current);
       }
 
-      setTimeout(() => {
+      const forceResize = () => {
         if (leafletMapRef.current && isMounted) {
           applySpotFit(activeBoundsRef.current);
         }
-      }, 50);
+      };
+
+      setTimeout(forceResize, 50);
+      setTimeout(forceResize, 150);
+      setTimeout(forceResize, 400);
     };
 
-    // Frame-aligned initialization
-    const animId = requestAnimationFrame(() => {
+    // Frame-aligned initialization with height guard
+    let animId = null;
+    const checkAndInit = () => {
+      if (!isMounted || !mapContainerRef.current) return;
+      const rect = mapContainerRef.current.getBoundingClientRect();
+      if (rect.height < 150) {
+        animId = requestAnimationFrame(checkAndInit);
+        return;
+      }
       initMap();
-    });
+    };
+
+    animId = requestAnimationFrame(checkAndInit);
 
     return () => {
       isMounted = false;
-      cancelAnimationFrame(animId);
+      if (animId) cancelAnimationFrame(animId);
       if (leafletMapRef.current) {
         try {
           leafletMapRef.current.remove();
