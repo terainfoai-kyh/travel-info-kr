@@ -195,22 +195,58 @@ export const PREWARMED_PLACES_CATALOG = {
   // 4. 제주 (Jeju)
   // ==========================================
   '성산일출봉': {
-    name: '성산일출봉 & 유네스코 세계자연유산',
-    rating: 4.9,
-    primary: 'https://tong.visitkorea.or.kr/cms/resource/88/2367488_image2_1.jpg',
-    images: ['https://tong.visitkorea.or.kr/cms/resource/88/2367488_image2_1.jpg']
+    name: '성산일출봉 & 광치기해변',
+    rating: 4.7,
+    primary: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1200&q=85',
+    images: ['https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1200&q=85']
+  },
+  '비자림': {
+    name: '비자림 & 천년 비자나무 숲길',
+    rating: 4.6,
+    primary: 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1200&q=85',
+    images: ['https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1200&q=85']
+  },
+  '한담해변': {
+    name: '한담해안산책로 & 애월 카페거리',
+    rating: 4.6,
+    primary: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=85',
+    images: ['https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=85']
   },
   '협재해변': {
     name: '협재 해수욕장 & 비양도 뷰',
     rating: 4.8,
-    primary: 'https://tong.visitkorea.or.kr/cms/resource/66/3096066_image2_1.jpg',
-    images: ['https://tong.visitkorea.or.kr/cms/resource/66/3096066_image2_1.jpg']
+    primary: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=85',
+    images: ['https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=85']
+  },
+  '신창풍차해안도로': {
+    name: '신창 풍차해안도로 & 선셋',
+    rating: 4.5,
+    primary: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1200&q=85',
+    images: ['https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1200&q=85']
+  },
+  '오설록': {
+    name: '오설록 티뮤지엄 & 녹차밭',
+    rating: 4.5,
+    primary: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1200&q=85',
+    images: ['https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1200&q=85']
+  },
+  '천지연폭포': {
+    name: '천지연폭포 & 새연교 야경',
+    rating: 4.6,
+    primary: 'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?auto=format&fit=crop&w=1200&q=85',
+    images: ['https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?auto=format&fit=crop&w=1200&q=85']
   },
   '카멜리아힐': {
     name: '카멜리아힐 & 동백꽃 수목원',
     rating: 4.7,
     primary: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1200&q=85',
     images: ['https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1200&q=85']
+  },
+  '섭지코지': {
+    name: '섭지코지 & 붉은오름 등대',
+    rating: 4.6,
+    primary: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=85',
+    images: ['https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=85']
   },
 
   // ==========================================
@@ -219,14 +255,14 @@ export const PREWARMED_PLACES_CATALOG = {
   '수원화성': {
     name: '수원화성 & 방화수류정',
     rating: 4.8,
-    primary: 'https://tong.visitkorea.or.kr/cms/resource/19/3313019_image2_1.jpg',
-    images: ['https://tong.visitkorea.or.kr/cms/resource/19/3313019_image2_1.jpg']
+    primary: 'https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=1200&q=85',
+    images: ['https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=1200&q=85']
   },
   '화성행궁': {
     name: '수원 화성행궁',
     rating: 4.7,
-    primary: 'https://tong.visitkorea.or.kr/cms/resource/19/3313019_image2_1.jpg',
-    images: ['https://tong.visitkorea.or.kr/cms/resource/19/3313019_image2_1.jpg']
+    primary: 'https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=1200&q=85',
+    images: ['https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=1200&q=85']
   },
   '행궁동': {
     name: '행궁동 카페거리 (행리단길)',
@@ -237,8 +273,8 @@ export const PREWARMED_PLACES_CATALOG = {
   '방화수류정': {
     name: '방화수류정 & 용연',
     rating: 4.8,
-    primary: 'https://tong.visitkorea.or.kr/cms/resource/19/3313019_image2_1.jpg',
-    images: ['https://tong.visitkorea.or.kr/cms/resource/19/3313019_image2_1.jpg']
+    primary: 'https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=1200&q=85',
+    images: ['https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=1200&q=85']
   },
 
   // ==========================================
@@ -247,20 +283,20 @@ export const PREWARMED_PLACES_CATALOG = {
   '불국사': {
     name: '불국사 & 다보탑',
     rating: 4.9,
-    primary: 'https://tong.visitkorea.or.kr/cms/resource/04/3304404_image2_1.jpg',
-    images: ['https://tong.visitkorea.or.kr/cms/resource/04/3304404_image2_1.jpg']
+    primary: 'https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=1200&q=85',
+    images: ['https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=1200&q=85']
   },
   '동궁과월지': {
     name: '동궁과 월지 (안압지) 야경',
     rating: 4.8,
-    primary: 'https://tong.visitkorea.or.kr/cms/resource/45/3311245_image2_1.jpg',
-    images: ['https://tong.visitkorea.or.kr/cms/resource/45/3311245_image2_1.jpg']
+    primary: 'https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=1200&q=85',
+    images: ['https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=1200&q=85']
   },
   '첨성대': {
     name: '첨성대 & 핑크뮬리',
     rating: 4.7,
-    primary: 'https://tong.visitkorea.or.kr/cms/resource/04/3304404_image2_1.jpg',
-    images: ['https://tong.visitkorea.or.kr/cms/resource/04/3304404_image2_1.jpg']
+    primary: 'https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=1200&q=85',
+    images: ['https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=1200&q=85']
   },
   '황리단길': {
     name: '황리단길 한옥 카페거리',
