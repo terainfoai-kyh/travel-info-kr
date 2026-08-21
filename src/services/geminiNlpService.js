@@ -394,12 +394,13 @@ ALL output text (tripTitle, summary, theme, transitTip, dishName, description, n
     ? `${contextPrompt}\n\nLanguage: ${lang}. Return updated JSON strictly in language ${lang}.` 
     : `User Request: "${cleanPrompt}". Duration: ${days} days, language: ${lang}. Process appropriately as chat clarification or full itinerary strictly in ${lang}.`;
 
-  // AI 응답 속도 최적화: 유효한 Google AI Studio 공식 키(AIzaSy...)만 필터링하여 불필요한 404/429 재시도 지연(18초) 완전 차단
-  const candidateKeys = GEMINI_KEY_POOL.filter(k => k && typeof k === 'string' && k.startsWith('AIzaSy'));
-  const modelCandidates = ['gemini-2.0-flash', 'gemini-1.5-flash'];
+  // AI 응답 속도 최적화: 최신 AQ. 및 AIzaSy. 공식 Gemini 키 모두 지원 & 스마트 Fail-Fast
+  const candidateKeys = GEMINI_KEY_POOL.filter(k => k && typeof k === 'string' && (k.startsWith('AQ.') || k.startsWith('AIzaSy') || k.length > 15));
+  const modelCandidates = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
 
   if (candidateKeys.length > 0) {
     for (const apiKey of candidateKeys) {
+      let failedAttempts = 0;
       for (const model of modelCandidates) {
         try {
           const endpointUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
@@ -424,8 +425,12 @@ ALL output text (tripTitle, summary, theme, transitTip, dishName, description, n
           clearTimeout(timeoutId);
 
           if (!res.ok) {
-            // 404/429/403 발생 시 더 이상 시간 낭비 없이 즉시 루프 탈출
-            break;
+            failedAttempts++;
+            // 404/429 발생 시 최대 2회 시도 후 즉시 탈출하여 18초 지연 원천 차단
+            if (failedAttempts >= 2 || res.status === 429) {
+              break;
+            }
+            continue;
           }
 
           const data = await res.json();
