@@ -52,7 +52,7 @@ export default function GoogleMapView({
     return () => { isMounted = false; };
   }, []);
 
-  // Initialize and update Leaflet Map with Method C (Real Road Route via OSRM) + Zero Bounce
+  // Initialize and update Leaflet Map with Method C (Real Road Route via OSRM) + Full Road Auto-Zoom & User Interactive Controls
   useEffect(() => {
     if (!isLeafletReady || !window.L || !mapContainerRef.current) return;
     if (spotsToDisplay.length === 0) return;
@@ -89,11 +89,15 @@ export default function GoogleMapView({
     const bounds = L.latLngBounds(latLngs);
     const center = bounds.getCenter();
 
+    // Enable smooth user interaction (Drag pan, touch pinch zoom, double click zoom, +/- controls)
     const map = L.map(mapContainerRef.current, {
       center: center,
       zoom: 13,
       zoomControl: false,
       attributionControl: false,
+      dragging: true,
+      touchZoom: true,
+      doubleClickZoom: true,
       scrollWheelZoom: false
     });
 
@@ -109,7 +113,7 @@ export default function GoogleMapView({
       subdomains: (lang === 'ko') ? 'abc' : 'abcd'
     }).addTo(map);
 
-    // Zoom control at top-right
+    // Zoom control at top-right for easy user zoom adjustment
     L.control.zoom({ position: 'topright' }).addTo(map);
 
     // Render Numbered Markers (1, 2, 3...)
@@ -153,9 +157,9 @@ export default function GoogleMapView({
       `);
     });
 
-    // Zero-Bounce instant fit to spots bounds
+    // Zero-Bounce instant fit to spots bounds with safe generous margins
     if (latLngs.length > 1) {
-      map.fitBounds(bounds, { padding: [35, 35], maxZoom: 15, animate: false });
+      map.fitBounds(bounds, { padding: [50, 45], maxZoom: 15, animate: false });
 
       // 1) Render immediate lightweight fallback route line first (so it's instant)
       const fallbackLine = L.polyline(latLngs, {
@@ -194,6 +198,10 @@ export default function GoogleMapView({
                 opacity: 0.95
               }).addTo(map);
               routeLayerRef.current = L.featureGroup([outerGlow, realPolyline]);
+
+              // 🎯 Auto-fit map to FULL road coordinates so start marker, end marker, and all road curves are 100% visible!
+              const fullBounds = L.latLngBounds([...latLngs, ...roadPoints]);
+              map.fitBounds(fullBounds, { padding: [50, 45], maxZoom: 15, animate: false });
             }
           }
         })
@@ -286,7 +294,7 @@ export default function GoogleMapView({
       </div>
 
       {/* Embedded Leaflet Real-Road Route Map Container */}
-      <div style={{ position: 'relative', width: '100%', height: '210px', backgroundColor: 'var(--bg-primary)' }}>
+      <div style={{ position: 'relative', width: '100%', height: '230px', backgroundColor: 'var(--bg-primary)' }}>
         <div
           ref={mapContainerRef}
           style={{ width: '100%', height: '100%', zIndex: 1 }}
