@@ -276,10 +276,10 @@ export default function WeatherModal({
     ]
   };
 
-  // Affiliate & Reference Links (100% Free + Revenue Opportunity)
+  // Affiliate & Service Reference Links (High-Value Curation)
   const sunscreenLink = buildKlookDeepLink('한국 여행 필수품 선크림');
   const hanbokLink = buildKlookDeepLink(`${matchedCityKey} 한복 체험 대여`);
-  const kfashionLink = 'https://www.musinsa.com/app/styles/lists';
+  const kfashionLink = 'https://www.pinterest.com/search/pins/?q=korean%20travel%20outfit%20fashion';
 
   if (!isOpen) return null;
 
@@ -624,7 +624,7 @@ export default function WeatherModal({
                   fontWeight: 800
                 }}
               >
-                <span>👗 실시간 K-패션 트렌드 스타일 룩북</span>
+                <span>📌 K-패션 여행 감성 룩북 (Pinterest)</span>
                 <ExternalLink size={12} style={{ color: 'var(--text-dim)' }} />
               </a>
             </div>
