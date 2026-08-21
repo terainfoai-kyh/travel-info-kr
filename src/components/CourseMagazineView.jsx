@@ -121,71 +121,71 @@ export default function CourseMagazineView({
       </div>
 
       {/* Main Body */}
-      <div style={{
-        flex: 1,
-        padding: '0.9rem 1.1rem',
-        overflowY: 'auto',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '0.75rem'
-      }}>
-        {/* If no itinerary data yet */}
-        {!itineraryData && (
+      {!itineraryData ? (
+        <div style={{
+          flex: 1,
+          padding: '3rem 1.5rem',
+          overflowY: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
+          color: 'var(--text-muted)'
+        }}>
           <div style={{
-            height: '100%',
+            width: '56px',
+            height: '56px',
+            borderRadius: '50%',
+            backgroundColor: 'rgba(37, 99, 235, 0.08)',
             display: 'flex',
-            flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '3rem 1.5rem',
-            textAlign: 'center',
-            color: 'var(--text-muted)'
+            color: 'var(--accent-primary)',
+            marginBottom: '0.85rem'
           }}>
-            <div style={{
-              width: '56px',
-              height: '56px',
-              borderRadius: '50%',
-              backgroundColor: 'rgba(37, 99, 235, 0.08)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'var(--accent-primary)',
-              marginBottom: '0.85rem'
-            }}>
-              <MapPin size={28} />
-            </div>
-            <h4 style={{ margin: '0 0 0.4rem 0', fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-main)' }}>
-              맞춤 여행 코스가 여기에 표시됩니다
-            </h4>
-            <p style={{ margin: 0, fontSize: '0.82rem', maxWidth: '360px', lineHeight: 1.5 }}>
-              {t.noSpotsYet || 'AI에게 여행 계획을 물어보시면 맞춤형 코스 타임라인과 구글 지도가 이곳에 펼쳐집니다.'}
-            </p>
+            <MapPin size={28} />
           </div>
-        )}
+          <h4 style={{ margin: '0 0 0.4rem 0', fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-main)' }}>
+            맞춤 여행 코스가 여기에 표시됩니다
+          </h4>
+          <p style={{ margin: 0, fontSize: '0.82rem', maxWidth: '360px', lineHeight: 1.5 }}>
+            {t.noSpotsYet || 'AI에게 여행 계획을 물어보시면 맞춤형 코스 타임라인과 구글 지도가 이곳에 펼쳐집니다.'}
+          </p>
+        </div>
+      ) : (
+        <div style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: 0,
+          overflow: 'hidden'
+        }}>
+          {/* 1. Permanent Fixed Top Map (NEVER scrolls, NEVER cuts off, 100% visible always!) */}
+          <div style={{ padding: '0.75rem 1.1rem 0.25rem 1.1rem', flexShrink: 0 }}>
+            <GoogleMapView
+              spots={activeSpots}
+              activeDay={activeDay}
+              targetCity={targetCity}
+              lang={lang}
+              focusedSpotIndex={focusedSpotIndex}
+              onSelectSpotIndex={setFocusedSpotIndex}
+            />
+          </div>
 
-        {/* Itinerary Active Day Content */}
-        {itineraryData && (
-          <>
-            {/* 1. Integrated Interactive Google Map on Top (Sticky Header to guarantee 100% button visibility) */}
-            <div style={{
-              position: 'sticky',
-              top: '-0.9rem',
-              zIndex: 30,
-              backgroundColor: 'var(--bg-card)',
-              paddingTop: '0.2rem',
-              paddingBottom: '0.25rem'
-            }}>
-              <GoogleMapView
-                spots={activeSpots}
-                activeDay={activeDay}
-                targetCity={targetCity}
-                lang={lang}
-                focusedSpotIndex={focusedSpotIndex}
-                onSelectSpotIndex={setFocusedSpotIndex}
-              />
-            </div>
-
-            {/* 2. Timeline Day Theme Banner */}
+          {/* 2. Independent Scrollable Spot List Container Below the Map */}
+          <div
+            className="no-scrollbar"
+            style={{
+              flex: 1,
+              overflowY: 'auto',
+              padding: '0.4rem 1.1rem 1rem 1.1rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.65rem'
+            }}
+          >
+            {/* Timeline Day Theme Banner */}
             <div style={{
               backgroundColor: 'rgba(37, 99, 235, 0.06)',
               border: '1px solid var(--border-highlight)',
@@ -224,7 +224,7 @@ export default function CourseMagazineView({
               </span>
             </div>
 
-            {/* 3. Spot Timeline Cards (Compact Horizontal List) */}
+            {/* Spot Timeline Cards */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
               {activeSpots.map((spot, idx) => {
                 const bookmarked = isSpotBookmarked(spot);
@@ -510,9 +510,9 @@ export default function CourseMagazineView({
                 );
               })}
             </div>
-          </>
-        )}
-      </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
