@@ -194,7 +194,7 @@ export default function Header({
             }}
           >
             <CloudSun size={15} style={{ color: 'var(--accent-primary)' }} />
-            <span>{(CITY_TRANSLATIONS[lang]?.[targetCity] || targetCity)} {currentTemp} · {lang === 'en' ? 'Style 👗' : '코디 👗'}</span>
+            <span>{(CITY_TRANSLATIONS[lang]?.[targetCity] || targetCity)} {currentTemp} · {lang === 'en' ? 'Style 👗' : lang === 'ja' ? 'コーデ 👗' : (lang === 'zh' || lang === 'zht') ? '穿搭 👗' : '코디 👗'}</span>
           </button>
 
           {/* 🧭 Travel Essentials Header Shortcut */}
@@ -311,9 +311,10 @@ export default function Header({
                 {LANGUAGES.map((l) => (
                   <button
                     key={l.code}
-                    onClick={() => {
-                      onLanguageChange(l.code);
+                    onClick={(e) => {
+                      e.stopPropagation();
                       setIsLangOpen(false);
+                      onLanguageChange(l.code);
                     }}
                     style={{
                       display: 'flex',
@@ -380,7 +381,7 @@ export default function Header({
                     👑
                   </span>
                 )}
-                <span className="hide-mobile">{currentUser.name || (lang === 'en' ? 'VIP Member' : 'VIP 회원')}</span>
+                <span className="hide-mobile">{currentUser.name || (lang === 'en' ? 'VIP Member' : lang === 'ja' ? 'VIP会員' : (lang === 'zh' || lang === 'zht') ? 'VIP会员' : 'VIP 회원')}</span>
                 <span style={{
                   fontSize: '0.65rem',
                   backgroundColor: 'var(--accent-primary)',
@@ -388,7 +389,7 @@ export default function Header({
                   padding: '0.08rem 0.35rem',
                   borderRadius: '4px'
                 }}>
-                  {lang === 'en' ? '15 Pro' : '15회'}
+                  {lang === 'en' ? '15 Pro' : lang === 'ja' ? '15回' : (lang === 'zh' || lang === 'zht') ? '15次' : '15회'}
                 </span>
               </button>
 
@@ -425,7 +426,7 @@ export default function Header({
                       fontWeight: 800
                     }}>
                       <Sparkles size={11} />
-                      <span>{lang === 'en' ? 'Google VIP Member (15 Daily)' : 'Google VIP 회원 (매일 15회)'}</span>
+                      <span>{lang === 'en' ? 'Google VIP Member (15 Daily)' : lang === 'ja' ? 'Google VIP会員 (毎日15回)' : (lang === 'zh' || lang === 'zht') ? 'Google VIP会员 (每日15次)' : 'Google VIP 회원 (매일 15회)'}</span>
                     </div>
                   </div>
 
@@ -450,7 +451,7 @@ export default function Header({
                     }}
                   >
                     <LogOut size={13} />
-                    <span>{lang === 'en' ? 'Log out' : '로그아웃'}</span>
+                    <span>{lang === 'en' ? 'Log out' : lang === 'ja' ? 'ログアウト' : (lang === 'zh' || lang === 'zht') ? '退出登录' : '로그아웃'}</span>
                   </button>
                 </div>
               )}
@@ -458,7 +459,7 @@ export default function Header({
           ) : (
             <button
               onClick={onOpenGoogleAuth}
-              title={lang === 'en' ? 'Sign in with Google & get 15 free daily prompts' : 'Google 로그인하고 매일 15회 받기'}
+              title={lang === 'en' ? 'Sign in with Google & get 15 free daily prompts' : lang === 'ja' ? 'Googleでログインして毎日15回無料' : (lang === 'zh' || lang === 'zht') ? '使用Google登录每天获取15次' : 'Google 로그인하고 매일 15회 받기'}
               style={{
                 background: 'var(--bg-card)',
                 border: '1px solid var(--border-color)',
@@ -480,7 +481,7 @@ export default function Header({
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
               </svg>
-              <span className="hide-mobile">{lang === 'en' ? 'Sign in' : '로그인'}</span>
+              <span className="hide-mobile">{lang === 'en' ? 'Sign in' : lang === 'ja' ? 'ログイン' : (lang === 'zh' || lang === 'zht') ? '登录' : '로그인'}</span>
               <span style={{
                 fontSize: '0.65rem',
                 backgroundColor: 'rgba(37, 99, 235, 0.1)',
@@ -488,7 +489,7 @@ export default function Header({
                 padding: '0.08rem 0.35rem',
                 borderRadius: '4px'
               }}>
-                {lang === 'en' ? '15 Free' : '15회'}
+                {lang === 'en' ? '15 Free' : lang === 'ja' ? '15回無料' : (lang === 'zh' || lang === 'zht') ? '15次免费' : '15회'}
               </span>
             </button>
           )}
@@ -604,7 +605,7 @@ export default function Header({
                   }}
                 >
                   <Download size={16} style={{ color: 'var(--accent-primary)' }} />
-                  <span>{lang === 'en' ? 'Install Mobile App' : '모바일 홈화면 앱 설치'}</span>
+                  <span>{lang === 'en' ? 'Install Mobile App' : lang === 'ja' ? 'モバイルアプリアイコン追加' : (lang === 'zh' || lang === 'zht') ? '添加至手机主屏幕' : '모바일 홈화면 앱 설치'}</span>
                 </button>
 
                 {/* 4. Share Trip URL */}
@@ -627,7 +628,7 @@ export default function Header({
                   }}
                 >
                   <Share2 size={16} style={{ color: '#8b5cf6' }} />
-                  <span>{lang === 'en' ? 'Share Travel Itinerary' : '내 여행 일정 공유하기'}</span>
+                  <span>{lang === 'en' ? 'Share Travel Itinerary' : lang === 'ja' ? '旅行プランを共有' : (lang === 'zh' || lang === 'zht') ? '分享旅行行程' : '내 여행 일정 공유하기'}</span>
                 </button>
 
                 {/* 5. Theme Toggle */}
@@ -656,7 +657,11 @@ export default function Header({
                     ) : (
                       <Sun size={16} style={{ color: '#f59e0b' }} />
                     )}
-                    <span>{lang === 'en' ? (themeMode === 'light' ? 'Dark Mode' : 'Light Mode') : (themeMode === 'light' ? '다크 모드' : '라이트 모드')}</span>
+                    <span>
+                      {themeMode === 'light' 
+                        ? (lang === 'en' ? 'Dark Mode' : lang === 'ja' ? 'ダークモード' : (lang === 'zh' || lang === 'zht') ? '深色模式' : '다크 모드')
+                        : (lang === 'en' ? 'Light Mode' : lang === 'ja' ? 'ライトモード' : (lang === 'zh' || lang === 'zht') ? '浅色模式' : '라이트 모드')}
+                    </span>
                   </div>
                   <span style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 800 }}>
                     {themeMode === 'light' ? 'OFF' : 'ON'}
@@ -688,7 +693,7 @@ export default function Header({
                   }}
                 >
                   <Info size={14} />
-                  <span>{t.aboutUs || '회사 및 서비스 소개'}</span>
+                  <span>{t.aboutUs || (lang === 'en' ? 'About VORA AI' : lang === 'ja' ? 'VORA AIについて' : (lang === 'zh' || lang === 'zht') ? '关于 VORA AI' : '회사 및 서비스 소개')}</span>
                 </button>
 
                 {/* 7. Terms & Privacy Policy */}
@@ -708,7 +713,7 @@ export default function Header({
                       padding: 0
                     }}
                   >
-                    {t.privacyPolicy || '개인정보처리방침'}
+                    {t.privacyPolicy || (lang === 'en' ? 'Privacy Policy' : lang === 'ja' ? 'プライバシーポリシー' : (lang === 'zh' || lang === 'zht') ? '隐私政策' : '개인정보처리방침')}
                   </button>
                   <span style={{ color: 'var(--border-color)', fontSize: '0.72rem' }}>|</span>
                   <button
@@ -726,7 +731,7 @@ export default function Header({
                       padding: 0
                     }}
                   >
-                    {t.termsOfService || '이용약관'}
+                    {t.termsOfService || (lang === 'en' ? 'Terms of Service' : lang === 'ja' ? '利用規約' : (lang === 'zh' || lang === 'zht') ? '服务条款' : '이용약관')}
                   </button>
                 </div>
               </div>
@@ -756,7 +761,7 @@ export default function Header({
           gap: '0.45rem'
         }}>
           <Check size={16} style={{ color: '#10b981' }} />
-          <span>{lang === 'en' ? 'Travel share link copied to clipboard! ✨' : '여행 공유 링크가 클립보드에 복사되었습니다! ✨'}</span>
+          <span>{lang === 'en' ? 'Travel share link copied to clipboard! ✨' : lang === 'ja' ? '旅行の共有リンクがコピーされました！✨' : (lang === 'zh' || lang === 'zht') ? '行程分享链接已复制到剪贴板！✨' : '여행 공유 링크가 클립보드에 복사되었습니다! ✨'}</span>
         </div>
       )}
     </header>

@@ -137,7 +137,7 @@ export default function HeroSection({
               flexShrink: 0
             }}
           >
-            <span>{isLoading ? '설계중...' : (t.searchBtn || 'AI 코스 생성')}</span>
+            <span>{isLoading ? (lang === 'en' ? 'Designing...' : lang === 'ja' ? 'プラン作成中...' : (lang === 'zh' || lang === 'zht') ? '规划中...' : '설계중...') : (t.searchBtn || 'AI 코스 생성')}</span>
             <ArrowRight size={14} />
           </button>
         </div>

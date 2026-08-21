@@ -201,7 +201,7 @@ export default function VoraAIChat({
                 </div>
                 {msg.timestamp && (
                   <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', paddingRight: '0.3rem' }}>
-                    {lang === 'en' ? `Inquiry ${msg.timestamp}` : `문의 시간 ${msg.timestamp}`}
+                    {lang === 'en' ? `Inquiry ${msg.timestamp}` : lang === 'ja' ? `送信時刻 ${msg.timestamp}` : (lang === 'zh' || lang === 'zht') ? `提问时间 ${msg.timestamp}` : `문의 시간 ${msg.timestamp}`}
                   </span>
                 )}
               </div>
@@ -265,12 +265,20 @@ export default function VoraAIChat({
                       <span style={{ fontWeight: 800 }}>
                         {lang === 'en' 
                           ? `⚡ AI Response (${msg.generationTime || msg.itinerary?.generationTime || '0.9'}s)` 
-                          : `⚡ AI 응답 (${msg.generationTime || msg.itinerary?.generationTime}초)`}
+                          : lang === 'ja'
+                          ? `⚡ AI 応答 (${msg.generationTime || msg.itinerary?.generationTime || '0.9'}秒)`
+                          : (lang === 'zh' || lang === 'zht')
+                          ? `⚡ AI 响应 (${msg.generationTime || msg.itinerary?.generationTime || '0.9'}秒)`
+                          : `⚡ AI 응답 (${msg.generationTime || msg.itinerary?.generationTime || '0.9'}초)`}
                       </span>
                       {msg.queryTime && msg.replyTime && (
                         <span style={{ color: 'var(--text-muted)' }}>
                           {lang === 'en' 
                             ? `| Asked ${msg.queryTime} ➔ Replied ${msg.replyTime}` 
+                            : lang === 'ja'
+                            ? `| 質問 ${msg.queryTime} ➔ 応答 ${msg.replyTime}`
+                            : (lang === 'zh' || lang === 'zht')
+                            ? `| 提问 ${msg.queryTime} ➔ 回复 ${msg.replyTime}`
                             : `| 문의 ${msg.queryTime} ➔ 답변 ${msg.replyTime}`}
                         </span>
                       )}
@@ -292,7 +300,7 @@ export default function VoraAIChat({
                       gap: '0.55rem'
                     }}>
                       <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#f59e0b', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                        <span>{lang === 'en' ? '🎁 Instant Recharge & Extra Benefits' : '🎁 질문 즉시 충전 & 확장 혜택'}</span>
+                        <span>{lang === 'en' ? '🎁 Instant Recharge & Extra Benefits' : lang === 'ja' ? '🎁 質問回数即時チャージ＆特典' : (lang === 'zh' || lang === 'zht') ? '🎁 立即充能与专享权益' : '🎁 질문 즉시 충전 & 확장 혜택'}</span>
                       </div>
 
                       {/* Action 1: 15s Rewarded Ad */}
@@ -315,7 +323,7 @@ export default function VoraAIChat({
                           boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)'
                         }}
                       >
-                        <span>{lang === 'en' ? '🎬 Watch 15s Ad for +3 Instant Prompts' : '🎬 15초 스폰서 광고 보고 +3회 즉시 충전'}</span>
+                        <span>{lang === 'en' ? '🎬 Watch 15s Ad for +3 Instant Prompts' : lang === 'ja' ? '🎬 15秒広告を視聴して+3回即時チャージ' : (lang === 'zh' || lang === 'zht') ? '🎬 观看15秒广告立得+3次提问' : '🎬 15초 스폰서 광고 보고 +3회 즉시 충전'}</span>
                       </button>
 
                       {/* Action 2: 3-sec Google Login (if guest) */}
@@ -345,7 +353,7 @@ export default function VoraAIChat({
                             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
                             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
                           </svg>
-                          <span>{lang === 'en' ? 'Sign in with Google for 15 Daily Prompts + Save Trips' : '3초 구글 로그인하고 매일 15회 + 일정 저장'}</span>
+                          <span>{lang === 'en' ? 'Sign in with Google for 15 Daily Prompts + Save Trips' : lang === 'ja' ? 'Googleでログインして毎日15回＋日程保存' : (lang === 'zh' || lang === 'zht') ? '使用Google登录尊享每日15次＋行程保存' : '3초 구글 로그인하고 매일 15회 + 일정 저장'}</span>
                         </button>
                       )}
                     </div>
@@ -401,7 +409,7 @@ export default function VoraAIChat({
                         }}
                       >
                         {copiedId === msg.id ? <Check size={11} style={{ color: '#10b981' }} /> : <Copy size={11} />}
-                        <span>{copiedId === msg.id ? (lang === 'en' ? 'Copied' : '복사됨') : (lang === 'en' ? 'Copy Itinerary' : '일정 복사')}</span>
+                        <span>{copiedId === msg.id ? (lang === 'en' ? 'Copied' : lang === 'ja' ? 'コピー完了' : (lang === 'zh' || lang === 'zht') ? '已复制' : '복사됨') : (lang === 'en' ? 'Copy Itinerary' : lang === 'ja' ? '日程をコピー' : (lang === 'zh' || lang === 'zht') ? '复制行程' : '일정 복사')}</span>
                       </button>
                     </div>
                   )}
@@ -519,7 +527,13 @@ export default function VoraAIChat({
               borderTopColor: 'transparent'
             }} />
             <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--accent-primary)' }}>
-              VORA AI가 맞춤 동선을 설계하고 있습니다...
+              {lang === 'en' 
+                ? 'VORA AI is crafting your tailored itinerary...' 
+                : lang === 'ja'
+                ? 'VORA AIが最適な旅行ルートを作成しています...'
+                : (lang === 'zh' || lang === 'zht')
+                ? 'VORA AI 正在为您定制专属旅行路线...'
+                : 'VORA AI가 맞춤 동선을 설계하고 있습니다...'}
             </span>
           </div>
         )}
@@ -599,15 +613,15 @@ export default function VoraAIChat({
       }}>
         <div 
           onClick={onResetQuotaForDev}
-          title={lang === 'en' ? 'Click to reset quota (Dev/Test Mode)' : '클릭하여 질문 횟수 전체 충전 (테스트/개발 모드)'}
+          title={lang === 'en' ? 'Click to reset quota (Dev/Test Mode)' : lang === 'ja' ? 'クリックして質問回数を全回復 (テストモード)' : (lang === 'zh' || lang === 'zht') ? '点击一键重置提问次数 (测试模式)' : '클릭하여 질문 횟수 전체 충전 (테스트/개발 모드)'}
           style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', cursor: 'pointer', userSelect: 'none' }}
         >
           <span>{currentUser?.isGoogleLoggedIn ? '👑' : '⚡'}</span>
           <span>
             {currentUser?.isGoogleLoggedIn 
               ? 'Google VIP: ' 
-              : (lang === 'en' ? "Today's Free Prompts: " : '오늘 무료 질문: ')}
-            <strong style={{ fontWeight: 900 }}>{questionQuota?.remaining ?? 5}</strong> / {questionQuota?.total ?? 5}{lang === 'en' ? '' : '회'}
+              : (lang === 'en' ? "Today's Free Prompts: " : lang === 'ja' ? '本日の無料質問: ' : (lang === 'zh' || lang === 'zht') ? '今日免费提问: ' : '오늘 무료 질문: ')}
+            <strong style={{ fontWeight: 900 }}>{questionQuota?.remaining ?? 5}</strong> / {questionQuota?.total ?? 5}{lang === 'en' ? '' : lang === 'ja' ? '回' : (lang === 'zh' || lang === 'zht') ? '次' : '회'}
           </span>
         </div>
 
@@ -616,7 +630,7 @@ export default function VoraAIChat({
           <button
             type="button"
             onClick={onOpenRewardedAd}
-            title={lang === 'en' ? 'Watch 15s ad for +3 prompts' : '15초 광고 보고 +3회 충전'}
+            title={lang === 'en' ? 'Watch 15s ad for +3 prompts' : lang === 'ja' ? '15秒広告を見て+3回チャージ' : (lang === 'zh' || lang === 'zht') ? '观看15秒广告+3次充能' : '15초 광고 보고 +3회 충전'}
             style={{
               background: 'rgba(16, 185, 129, 0.15)',
               color: '#059669',
@@ -628,14 +642,14 @@ export default function VoraAIChat({
               cursor: 'pointer'
             }}
           >
-            {lang === 'en' ? '🎬 +3 Prompts' : '🎬 +3회 충전'}
+            {lang === 'en' ? '🎬 +3 Prompts' : lang === 'ja' ? '🎬 +3回チャージ' : (lang === 'zh' || lang === 'zht') ? '🎬 +3次充能' : '🎬 +3회 충전'}
           </button>
 
           {!currentUser?.isGoogleLoggedIn && (
             <button
               type="button"
               onClick={onOpenGoogleAuth}
-              title={lang === 'en' ? 'Sign in with Google for 15 daily prompts' : '구글 로그인하고 매일 15회 받기'}
+              title={lang === 'en' ? 'Sign in with Google for 15 daily prompts' : lang === 'ja' ? 'Googleログインで毎日15回' : (lang === 'zh' || lang === 'zht') ? 'Google登录尊享每日15次' : '구글 로그인하고 매일 15회 받기'}
               style={{
                 background: 'rgba(37, 99, 235, 0.12)',
                 color: 'var(--accent-primary)',
@@ -647,12 +661,12 @@ export default function VoraAIChat({
                 cursor: 'pointer'
               }}
             >
-              {lang === 'en' ? '🔑 15 Pro' : '🔑 15회 확장'}
+              {lang === 'en' ? '🔑 15 Pro' : lang === 'ja' ? '🔑 15回拡張' : (lang === 'zh' || lang === 'zht') ? '🔑 15次扩展' : '🔑 15회 확장'}
             </button>
           )}
 
           <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 500, marginLeft: '0.2rem' }}>
-            {lang === 'en' ? 'Resets at 00:00' : '자정(00:00) 리셋'}
+            {lang === 'en' ? 'Resets at 00:00' : lang === 'ja' ? '00:00 リセット' : (lang === 'zh' || lang === 'zht') ? '00:00 重置' : '자정(00:00) 리셋'}
           </span>
         </div>
       </div>
@@ -679,7 +693,13 @@ export default function VoraAIChat({
             className="vora-chat-input"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
-            placeholder={lang === 'ko' ? "추가 질문이나 일정 수정을 적어주세요 (예: 2일차 카페 변경)..." : "Ask adjustments or questions..."}
+            placeholder={lang === 'ko' 
+              ? "추가 질문이나 일정 수정을 적어주세요 (예: 2일차 카페 변경)..." 
+              : lang === 'ja'
+              ? "ご質問やプランの変更を入力してください (例: 2日目のカフェ変更)..."
+              : (lang === 'zh' || lang === 'zht')
+              ? "请输入补充提问或行程调整 (例如: 修改第2天咖啡厅)..."
+              : "Ask adjustments or questions..."}
             disabled={isLoading}
             style={{
               width: '100%',
@@ -723,7 +743,7 @@ export default function VoraAIChat({
             opacity: inputText.trim() && !isLoading ? 1 : 0.65,
             transition: 'all var(--transition-fast)'
           }}
-          title={lang === 'ko' ? '메시지 전송' : 'Send message'}
+          title={lang === 'ko' ? '메시지 전송' : lang === 'ja' ? '送信' : (lang === 'zh' || lang === 'zht') ? '发送' : 'Send message'}
         >
           <Send size={15} />
         </button>
