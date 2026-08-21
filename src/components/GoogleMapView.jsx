@@ -19,41 +19,22 @@ export default function GoogleMapView({
   const routeLayerRef = useRef(null);
   const activeBoundsRef = useRef(null);
 
-  // Dynamically ensure Leaflet CSS and JS are loaded
+  // Ensure Leaflet readiness from index.html preload
   useEffect(() => {
-    let isMounted = true;
     if (typeof window !== 'undefined' && window.L) {
       setIsLeafletReady(true);
       return;
     }
-
-    if (!document.getElementById('leaflet-css')) {
-      const link = document.createElement('link');
-      link.id = 'leaflet-css';
-      link.rel = 'stylesheet';
-      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-      document.head.appendChild(link);
-    }
-
-    if (!document.getElementById('leaflet-js')) {
-      const script = document.createElement('script');
-      script.id = 'leaflet-js';
-      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-      script.onload = () => {
-        if (isMounted) setIsLeafletReady(true);
-      };
-      document.body.appendChild(script);
-    } else {
-      const existingScript = document.getElementById('leaflet-js');
-      existingScript.addEventListener('load', () => {
-        if (isMounted) setIsLeafletReady(true);
-      });
-    }
-
-    return () => { isMounted = false; };
+    const checkInterval = setInterval(() => {
+      if (typeof window !== 'undefined' && window.L) {
+        setIsLeafletReady(true);
+        clearInterval(checkInterval);
+      }
+    }, 50);
+    return () => clearInterval(checkInterval);
   }, []);
 
-  // Initialize and update Leaflet Map with Method C (Real Road Route via OSRM) + Full Road Auto-Zoom & User Interactive Controls
+  // Initialize and update Leaflet Map with Synchronous Preloaded CSS & JS + Spot Focused Routing
   useEffect(() => {
     if (!isLeafletReady || !window.L || !mapContainerRef.current) return;
     if (spotsToDisplay.length === 0) return;
@@ -122,6 +103,14 @@ export default function GoogleMapView({
         } catch (e) {}
       }
     };
+
+    // Synchronous whenReady hook
+    map.whenReady(() => {
+      map.invalidateSize({ pan: false });
+      if (activeBoundsRef.current) {
+        applySpotFit(activeBoundsRef.current);
+      }
+    });
 
     // High quality Voyager / OSM tile layer
     const tileUrl = (lang === 'ko')
