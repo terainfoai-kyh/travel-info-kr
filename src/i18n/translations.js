@@ -78,10 +78,11 @@ export function getTranslatedAddress(addr, lang = 'ko') {
 }
 
 export const CITY_TRANSLATIONS = {
-  ko: { '서울': '서울', '부산': '부산', '제주': '제주', '수원': '수원', '경주': '경주', '강릉': '강릉', '전주': '전주', '여수': '여수', '속초': '속초', '인천': '인천', '대구': '대구', '대전': '대전' },
-  en: { '서울': 'Seoul', '부산': 'Busan', '제주': 'Jeju', '수원': 'Suwon', '경주': 'Gyeongju', '강릉': 'Gangneung', '전주': 'Jeonju', '여수': 'Yeosu', '속초': 'Sokcho', '인천': 'Incheon', '대구': 'Daegu', '대전': 'Daejeon' },
-  ja: { '서울': 'ソウル', '부산': '釜山', '제주': '済州', '수원': '水原', '경주': '慶州', '강릉': '江陵', '전주': '全州', '여수': '麗水', '속초': '束草', '인천': '仁川', '대구': '大邱', '대전': '大田' },
-  zh: { '서울': '首尔', '부산': '釜山', '제주': '济州', '수원': '水原', '경주': '庆州', '강릉': '江陵', '전주': '全州', '여수': '丽水', '속초': '束草', '인천': '仁川', '대구': '大邱', '대전': '大田' }
+  ko: { '서울': '서울', '부산': '부산', '제주': '제주', '수원': '수원', '경주': '경주', '강릉': '강릉', '전주': '전주', '여수': '여수', '속초': '속초', '인천': '인천', '대구': '대구', '대전': '대전', '평택': '평택', '서귀포': '서귀포', '거제': '거제' },
+  en: { '서울': 'Seoul', '부산': 'Busan', '제주': 'Jeju', '수원': 'Suwon', '경주': 'Gyeongju', '강릉': 'Gangneung', '전주': 'Jeonju', '여수': 'Yeosu', '속초': 'Sokcho', '인천': 'Incheon', '대구': 'Daegu', '대전': 'Daejeon', '평택': 'Pyeongtaek', '서귀포': 'Seogwipo', '거제': 'Geoje' },
+  ja: { '서울': 'ソウル', '부산': '釜山', '제주': '済州', '수원': '水原', '경주': '慶州', '강릉': '江陵', '전주': '全州', '여수': '麗水', '속초': '束草', '인천': '仁川', '대구': '大邱', '대전': '大田', '평택': '平沢', '서귀포': '西帰浦', '거제': '巨済' },
+  zh: { '서울': '首尔', '부산': '釜山', '제주': '济州', '수원': '水原', '경주': '庆州', '강릉': '江陵', '전주': '全州', '여수': '丽水', '속초': '束草', '인천': '仁川', '대구': '大邱', '대전': '大田', '평택': '平泽', '서귀포': '西归浦', '거제': '巨济' },
+  zht: { '서울': '首爾', '부산': '釜山', '제주': '濟州', '수원': '水原', '경주': '慶州', '강릉': '江陵', '전주': '全州', '여수': '麗水', '속초': '束草', '인천': '仁川', '대구': '大邱', '대전': '大田', '평택': '平澤', '서귀포': '西歸浦', '거제': '巨濟' }
 };
 
 export const TRANSLATIONS = {
@@ -170,6 +171,25 @@ export const TRANSLATIONS = {
     // AdSense Editorial Section
     editorialTitle: '대한민국 여행 완벽 가이드 & FAQ',
     editorialSubtitle: '한국을 처음 방문하는 여행자를 위한 검증된 로컬 꿀팁',
+
+    // Weather & Styling Modal
+    weatherModalTitle: '대한민국 실시간 날씨 & 여행 스타일링 가이드',
+    weatherSearchPlaceholder: '도시나 여행지를 입력하세요 (예: 서울, 제주, 수원, 부산...)',
+    weatherClearBtn: '✕ 지우기',
+    weatherFeelsLike: '체감 ',
+    weatherRainLabel: '💧 강수',
+    weatherDustLabel: '🍃 미세먼지',
+    weatherUvLabel: '☀️ 자외선',
+    weatherHumidityLabel: '💨 습도',
+    weatherForecastTitle: '3일 예보:',
+    weatherOutfitSectionTitle: (city) => `오늘 ${city} 맞춤 여행 코디 & 필수 준비물`,
+    weatherTopBottom: '👕 상의 / 하의:',
+    weatherOuter: '🧥 아우터 레이어드:',
+    weatherEssentials: '🎒 필수 여행 소품:',
+    weatherStylistTip: '현지 스타일리스트 꿀팁: ',
+    weatherSunscreenLink: '🧴 여행용 선크림 & 쿨링패치',
+    weatherHanbokLink: '👘 전통 한복/의상 대여',
+    weatherLookbookLink: '📌 K-패션 여행 감성 룩북 (Pinterest)',
 
     // Modals
     modalClose: '닫기',

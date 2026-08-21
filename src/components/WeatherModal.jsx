@@ -24,7 +24,9 @@ export default function WeatherModal({
   // Synchronize with active itinerary destination whenever opened
   React.useEffect(() => {
     if (initialRegion) {
-      const displayCity = lang === 'en' ? (CITY_TRANSLATIONS.en?.[initialRegion] || initialRegion) : initialRegion;
+      const displayCity = CITY_TRANSLATIONS[lang]?.[initialRegion] 
+        || CITY_TRANSLATIONS.en?.[initialRegion] 
+        || initialRegion;
       setSearchQuery(displayCity);
     }
   }, [initialRegion, isOpen, lang]);
@@ -256,7 +258,7 @@ export default function WeatherModal({
     const cleanLower = raw.toLowerCase();
 
     // 1. Check English, Japanese, and Chinese City Name mappings
-    for (const l of ['en', 'ja', 'zh']) {
+    for (const l of ['en', 'ja', 'zh', 'zht', 'ko']) {
       for (const [koCity, transCity] of Object.entries(CITY_TRANSLATIONS[l] || {})) {
         if (cleanLower === transCity.toLowerCase() || cleanLower.includes(transCity.toLowerCase()) || transCity.toLowerCase().includes(cleanLower)) {
           return koCity;

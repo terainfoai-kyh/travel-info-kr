@@ -1,6 +1,6 @@
 import React from 'react';
 import { Train, CreditCard, Wifi, PhoneCall, ShieldCheck, ExternalLink, Shirt, CloudSun } from 'lucide-react';
-import { TRANSLATIONS } from '../i18n/translations';
+import { TRANSLATIONS, CITY_TRANSLATIONS } from '../i18n/translations';
 import { buildKlookDeepLink } from '../services/apiConfig';
 
 export default function TravelEssentialsSection({
@@ -9,12 +9,13 @@ export default function TravelEssentialsSection({
   targetCity = '서울'
 }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
+  const localizedCity = CITY_TRANSLATIONS[lang]?.[targetCity] || targetCity;
 
   const ESSENTIAL_CARDS = [
     {
       icon: <Shirt size={24} style={{ color: '#ec4899' }} />,
       title: t.weatherOutfitTitle || '실시간 날씨 & 여행 코디 가이드',
-      desc: t.weatherOutfitDesc ? t.weatherOutfitDesc(targetCity) : `${targetCity} 및 전국 실시간 기상과 기온별 맞춤 여행 옷차림 & 필수 패킹 팁`,
+      desc: t.weatherOutfitDesc ? t.weatherOutfitDesc(localizedCity) : `${localizedCity} 및 전국 실시간 기상과 기온별 맞춤 여행 옷차림 & 필수 패킹 팁`,
       badge: t.weatherOutfitBadge || '스타일 가이드',
       linkText: t.weatherOutfitLink || '기온별 코디 & 패킹 보기 👗',
       isModalAction: true,
