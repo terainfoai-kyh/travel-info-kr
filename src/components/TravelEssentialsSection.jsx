@@ -1,6 +1,7 @@
 import React from 'react';
 import { Train, CreditCard, Wifi, PhoneCall, ShieldCheck, ExternalLink, Hotel } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
+import { buildKlookDeepLink } from '../services/apiConfig';
 
 export default function TravelEssentialsSection({ lang = 'ko' }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
@@ -28,7 +29,7 @@ export default function TravelEssentialsSection({ lang = 'ko' }) {
       desc: t.esimDesc || '인천공항 수령 및 즉시 사용 가능한 데이터 플랜',
       badge: '데이터 무제한',
       linkText: 'Klook eSIM 예약 ↗',
-      linkUrl: 'https://www.klook.com/ko/search?query=%ED%95%9C%EA%B5%AD%20eSIM'
+      linkUrl: buildKlookDeepLink('한국 eSIM')
     },
     {
       icon: <PhoneCall size={24} style={{ color: '#ef4444' }} />,

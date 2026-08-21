@@ -11,6 +11,7 @@
 
 import { resolveSpotPhotoDynamic, resolveSpotPhotoSync } from './photoPipeline.js';
 import { getSpotAffiliateDeal } from './affiliateService.js';
+import { buildAgodaDeepLink, buildKlookDeepLink } from './apiConfig.js';
 
 // Precision Korean City Center Coordinates
 export const CITY_COORDINATES = {
@@ -534,8 +535,8 @@ Return ONLY this JSON schema:
                   dailySchedules: finalizedSchedules,
                   spots: flatSpots,
                   generationTime: elapsedSeconds,
-                  agodaUrl: `https://www.agoda.com/search?text=${encodeURIComponent(finalCity + ' 호텔')}`,
-                  klookUrl: `https://www.klook.com/ko/search?query=${encodeURIComponent(finalCity + ' 액티비티')}`
+                  agodaUrl: buildAgodaDeepLink(finalCity + ' 호텔'),
+                  klookUrl: buildKlookDeepLink(finalCity + ' 액티비티')
                 };
               }
             }
@@ -788,8 +789,8 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
     dailySchedules: finalizedSchedules,
     spots: flatSpots,
     generationTime: '0.9',
-    agodaUrl: `https://www.agoda.com/search?text=${encodeURIComponent(city + ' 호텔')}`,
-    klookUrl: `https://www.klook.com/ko/search?query=${encodeURIComponent(city + ' 액티비티')}`
+    agodaUrl: buildAgodaDeepLink(city + ' 호텔'),
+    klookUrl: buildKlookDeepLink(city + ' 액티비티')
   };
 }
 
