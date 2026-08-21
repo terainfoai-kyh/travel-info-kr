@@ -309,6 +309,9 @@ RULE 3: GOLDEN-HOUR CHRONOLOGICAL MATCHING
 - Afternoon (13:30~16:30): Aesthetic cafes, shopping alleys, design museums, lifestyle popups.
 - Sunset & Night (17:30~20:30): High observatory towers, romantic riverside sunsets, night markets, rooftop lounges.
 
+RULE 4: COMPOSITE SPOT NAME STANDARDIZATION (Use '&' Connector)
+- When recommending a composite spot or adjacent hotspot pairing, ALWAYS connect them with ' & ' (e.g. '국립중앙박물관 & 거울못 정원', '더현대 서울 & 사운즈 포레스트', '인사동 쌈지길 & 전통찻집', '하이브 인사이트 & 용산 핫플', 'DDP & 동대문', '성수동 & 디올 성수').
+
 Return ONLY this JSON schema:
 {
   "responseType": "itinerary",
