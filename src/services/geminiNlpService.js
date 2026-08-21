@@ -284,13 +284,20 @@ Trigger whenever the user asks for a destination, itinerary, travel plan, OR whe
 ${explicitCity ? `Target destination: "${explicitCity}".` : `Target destination: "${targetCity}".`}
 Requested Duration: EXACTLY ${days} days.
 
-[REALISTIC DAILY TIME & PROXIMITY ROUTE SPECIFICATION]
-For EACH day in dailySchedules (from Day 1 to Day ${days}):
-1. Generate EXACTLY 3 sequential, geographically clustered spots located within 10~20 minutes transit of each other:
-   - Spot 1 (Morning 10:00~12:30): Top Landmark / Palace / Nature Walk / Cultural Heritage
-   - Spot 2 (Afternoon 13:30~16:30): Trendy Cafe Street / Aesthetic Alley / Museum / Shopping Hotspot
-   - Spot 3 (Sunset/Night 17:30~20:30): Sunset Observatory / Night View / Romantic Skyline / Night Market
-2. Set accurate lat/lng coordinates in "${targetCity}" with authentic Korean names.
+[3 GOLDEN RULES FOR REALISTIC DAILY TIMELINES & ZERO TRANSIT WASTE]
+
+RULE 1: ZERO TRANSIT WASTE (Proximity Clustering)
+- Same-day spots MUST be geographically clustered along the same corridor within 10~20 minutes transit (e.g. Jongno-Anguk-Bukchon line, Seongsu-Seoul Forest line, Yongsan-Hannam line, Yeouido-Hangang line, Haeundae-Gwangalli line).
+- NEVER mix distant north/south districts on the same day (e.g. NEVER put Gangnam and Jongno together on the same afternoon).
+
+RULE 2: DYNAMIC SPOT ALLOCATION (2 to 4 Spots per Day)
+- For relaxed/healing/family trips: 2~3 spacious spots per day.
+- For active/trendy/friends/gourmet trips (e.g. "여자 세명 우정 여행", "핫플 투어"): 3~4 spots per day with realistic pacing (Morning ➔ Lunch/Gourmet ➔ Afternoon Cafe/Culture ➔ Sunset/Nightview).
+
+RULE 3: GOLDEN-HOUR CHRONOLOGICAL MATCHING
+- Morning (10:00~12:00): Palaces, shrines, heritage walking, uncrowded nature parks.
+- Afternoon (13:30~16:30): Aesthetic cafes, shopping alleys, design museums, lifestyle popups.
+- Sunset & Night (17:30~20:30): High observatory towers, romantic riverside sunsets, night markets, rooftop lounges.
 
 Return ONLY this JSON schema:
 {
@@ -303,7 +310,7 @@ Return ONLY this JSON schema:
     {
       "day": 1,
       "theme": "Day 1 Theme in ${lang}",
-      "transitTip": "Regional transit guidance in ${lang}",
+      "transitTip": "Regional transit corridor guidance in ${lang} (e.g. '지하철 3호선 안국역·경복궁역 도보 10분 이내 집중 동선')",
       "foodRecommendation": {
         "dishName": "Iconic local dish name in ${lang}",
         "description": "Why it is famous & best local area in ${lang}"
@@ -311,16 +318,16 @@ Return ONLY this JSON schema:
       "spots": [
         {
           "name": "Spot Name (Korean & English)",
-          "category": "감성카페 / 오션뷰 / 로컬미식 / 야경명소 / 자연명소",
+          "category": "감성카페 / 오션뷰 / 로컬미식 / 야경명소 / 자연명소 / 역사문화 / 쇼핑핫플",
           "theme": "Aesthetic highlight in ${lang}",
           "description": "2-3 sentences of rich storytelling in ${lang}",
           "photoTip": "Photo spot tip in ${lang}",
           "signatureItem": "Signature dish/drink/activity in ${lang}",
-          "bestTime": "Recommended time in ${lang}",
+          "bestTime": "Recommended golden hour in ${lang} (e.g. '오전 10:30', '오후 2:30', '일몰 18:30')",
           "lat": ${cityMeta.lat},
           "lng": ${cityMeta.lng},
           "address": "Address in target city",
-          "transitTime": "대중교통 또는 도보 10~15분"
+          "transitTime": "도보 5~10분 또는 대중교통 15분 이내"
         }
       ]
     }
