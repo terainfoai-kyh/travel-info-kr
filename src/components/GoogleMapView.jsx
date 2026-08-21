@@ -236,18 +236,42 @@ export default function GoogleMapView({
       map.setView(latLngs[0], 14, { animate: false });
     }
 
-    // Force map invalidateSize after initial container render and re-fit bounds accurately
-    const timer = setTimeout(() => {
+    // Force map invalidateSize and auto-fit on layout settling so 2번 picture is shown immediately without user click
+    const timer1 = setTimeout(() => {
       if (leafletMapRef.current) {
-        leafletMapRef.current.invalidateSize();
+        leafletMapRef.current.invalidateSize({ pan: false });
         if (activeBoundsRef.current) {
           applySpotFit(activeBoundsRef.current);
         }
       }
-    }, 150);
+    }, 50);
+
+    const timer2 = setTimeout(() => {
+      if (leafletMapRef.current) {
+        leafletMapRef.current.invalidateSize({ pan: false });
+        if (activeBoundsRef.current) {
+          applySpotFit(activeBoundsRef.current);
+        }
+      }
+    }, 200);
+
+    let ro;
+    if (mapContainerRef.current && typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(() => {
+        if (leafletMapRef.current) {
+          leafletMapRef.current.invalidateSize({ pan: false });
+          if (activeBoundsRef.current) {
+            applySpotFit(activeBoundsRef.current);
+          }
+        }
+      });
+      ro.observe(mapContainerRef.current);
+    }
 
     return () => {
-      clearTimeout(timer);
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      if (ro) ro.disconnect();
     };
 
   }, [isLeafletReady, spotsToDisplay, activeDay, lang]);
