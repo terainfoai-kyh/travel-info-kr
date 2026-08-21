@@ -1,16 +1,8 @@
-import { resolveSpotPhotoSync, CATEGORY_FALLBACK_PHOTOS } from '../services/photoPipeline.js';
+import { resolveSpotPhotoSync } from '../services/photoPipeline.js';
 
 export const PINPOINT_PHOTOS = {
-  palace: [CATEGORY_FALLBACK_PHOTOS.culture.primary],
-  hanok: [CATEGORY_FALLBACK_PHOTOS.culture.primary],
-  tower: [CATEGORY_FALLBACK_PHOTOS.night.primary],
-  ocean: CATEGORY_FALLBACK_PHOTOS.ocean.images,
-  blueline: [CATEGORY_FALLBACK_PHOTOS.activity.primary],
-  gamcheon: [CATEGORY_FALLBACK_PHOTOS.culture.primary],
-  cafe: [CATEGORY_FALLBACK_PHOTOS.cafe.primary],
-  food: [CATEGORY_FALLBACK_PHOTOS.food.primary],
-  nature: [CATEGORY_FALLBACK_PHOTOS.nature.primary],
-  night: [CATEGORY_FALLBACK_PHOTOS.night.primary]
+  palace: ['https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1200&q=85'],
+  ocean: ['https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=85']
 };
 
 export function getPinpointSpotImage(spotTitle = '', city = '서울') {
