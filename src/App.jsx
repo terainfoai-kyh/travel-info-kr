@@ -514,15 +514,9 @@ export default function App() {
         />
 
         {/* 2. PC 2-Column Split Hub (Dashboard view: Chat on Left / Timeline & Map on Right) */}
-        <section id="itinerary-hub" style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
-          gap: '1rem',
-          margin: '0.5rem 0 1.5rem 0',
-          alignItems: 'stretch'
-        }}>
+        <section id="itinerary-hub" className="itinerary-hub-container">
           {/* Left Column: Vora AI Conversational Chat Stream */}
-          <div style={{ height: '685px' }}>
+          <div className="itinerary-hub-column">
             <VoraAIChat
               lang={lang}
               chatMessages={chatMessages}
@@ -539,7 +533,7 @@ export default function App() {
           </div>
 
           {/* Right Column: Course Magazine View & Google Map */}
-          <div style={{ height: '685px' }}>
+          <div className="itinerary-hub-column">
             <CourseMagazineView
               lang={lang}
               itineraryData={itineraryData}

@@ -116,7 +116,11 @@ export default function CourseMagazineView({
             padding: '0.2rem',
             borderRadius: 'var(--radius-full)',
             border: '1px solid var(--border-color)',
-            gap: '0.2rem'
+            gap: '0.2rem',
+            overflowX: 'auto',
+            scrollbarWidth: 'none',
+            WebkitOverflowScrolling: 'touch',
+            maxWidth: '100%'
           }}>
             {schedules.map((ds) => {
               const isSelected = Number(activeDay) === Number(ds.day);
@@ -133,7 +137,8 @@ export default function CourseMagazineView({
                     fontSize: '0.76rem',
                     fontWeight: isSelected ? 800 : 600,
                     cursor: 'pointer',
-                    transition: 'all var(--transition-fast)'
+                    transition: 'all var(--transition-fast)',
+                    whiteSpace: 'nowrap'
                   }}
                 >
                   {t.dayBadge ? t.dayBadge(ds.day) : `${ds.day}일차`}

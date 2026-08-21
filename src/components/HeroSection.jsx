@@ -144,13 +144,18 @@ export default function HeroSection({
       </form>
 
       {/* Quick Prompt Recommendation Chips */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexWrap: 'wrap',
-        gap: '0.35rem'
-      }}>
+      <div
+        className="thin-scrollbar"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexWrap: 'wrap',
+          gap: '0.4rem',
+          padding: '0.2rem 0.25rem',
+          maxWidth: '100%'
+        }}
+      >
         {(t.promptChips || []).map((chip, idx) => (
           <button
             key={idx}
@@ -163,12 +168,14 @@ export default function HeroSection({
               border: '1px solid var(--border-color)',
               color: 'var(--text-main)',
               borderRadius: 'var(--radius-full)',
-              padding: '0.25rem 0.65rem',
-              fontSize: '0.74rem',
+              padding: '0.3rem 0.75rem',
+              fontSize: '0.75rem',
               fontWeight: 600,
               cursor: isLoading ? 'default' : 'pointer',
               transition: 'all var(--transition-fast)',
-              userSelect: 'none'
+              userSelect: 'none',
+              whiteSpace: 'nowrap',
+              boxShadow: 'var(--shadow-sm)'
             }}
           >
             {chip.label}

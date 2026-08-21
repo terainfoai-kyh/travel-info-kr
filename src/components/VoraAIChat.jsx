@@ -676,7 +676,7 @@ export default function VoraAIChat({
       <form
         onSubmit={handleSend}
         style={{
-          padding: '0.65rem 0.85rem',
+          padding: '0.65rem 0.85rem calc(0.65rem + env(safe-area-inset-bottom, 0px)) 0.85rem',
           display: 'flex',
           alignItems: 'center',
           gap: '0.5rem',

@@ -859,3 +859,65 @@ ins.adsbygoogle:empty {
   margin: 0 !important;
 }
 
+/* ==========================================================================
+   📱 2026 Mobile UI/UX Fine-Tuning System (Touch Optimization & Responsive Hub)
+   ========================================================================== */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button, a, input, select, textarea {
+  touch-action: manipulation;
+}
+
+.itinerary-hub-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1rem;
+  margin: 0.5rem 0 1.5rem 0;
+  align-items: stretch;
+}
+
+.itinerary-hub-column {
+  height: 685px;
+  min-height: 520px;
+}
+
+/* Mobile Screens (< 768px) */
+@media (max-width: 768px) {
+  .itinerary-hub-container {
+    grid-template-columns: 1fr !important;
+    gap: 0.85rem !important;
+    margin: 0.25rem 0 1.25rem 0 !important;
+  }
+
+  .itinerary-hub-column {
+    height: 580px !important;
+    min-height: 500px !important;
+  }
+
+  /* Prevent abrupt zoom on iOS Safari */
+  input[type="text"],
+  input[type="search"],
+  textarea {
+    font-size: 16px !important;
+  }
+
+  /* Mobile Button active micro-touch feedback */
+  button:active {
+    transform: scale(0.975);
+  }
+}
+
+/* Small Smartphone Viewports (< 480px) */
+@media (max-width: 480px) {
+  .itinerary-hub-column {
+    height: 540px !important;
+  }
+
+  .leaflet-container {
+    height: 185px !important;
+    min-height: 185px !important;
+  }
+}
+
