@@ -178,7 +178,7 @@ export default function GoogleMapView({
         const marker = L.marker([spotLat, spotLng], { icon: customIcon }).addTo(map);
         marker.bindPopup(`
           <div style="font-family: sans-serif; font-size: 12px; font-weight: 700; color: #0f172a; padding: 2px;">
-            <div style="color: #2563eb; font-size: 10px; margin-bottom: 2px;">${lang === 'en' ? `Stop ${idx + 1}` : `${idx + 1}번째 코스`}</div>
+            <div style="color: #2563eb; font-size: 10px; margin-bottom: 2px;">${lang === 'en' ? `Stop ${idx + 1}` : lang === 'ja' ? `第${idx + 1}スポット` : (lang === 'zh' || lang === 'zht') ? `第${idx + 1}站` : `${idx + 1}번째 코스`}</div>
             <div>${spot.title}</div>
             ${spot.location ? `<div style="font-size: 10px; color: #64748b; margin-top: 2px;">${spot.location}</div>` : ''}
           </div>
@@ -346,7 +346,13 @@ export default function GoogleMapView({
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
           <MapPin size={15} style={{ color: 'var(--accent-primary)' }} />
           <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-main)' }}>
-            {lang === 'en' ? `Day ${activeDay} Live Google Route` : `${activeDay}일차 실시간 Google 동선`}
+            {lang === 'en' 
+              ? `Day ${activeDay} Live Google Route` 
+              : lang === 'ja' 
+              ? `${activeDay}日目 リアルタイムGoogleルート` 
+              : (lang === 'zh' || lang === 'zht') 
+              ? (lang === 'zht' ? `第${activeDay}天 即時Google路線` : `第${activeDay}天 实时Google路线`) 
+              : `${activeDay}일차 실시간 Google 동선`}
           </span>
           <span style={{
             fontSize: '0.68rem',
@@ -356,7 +362,13 @@ export default function GoogleMapView({
             padding: '0.08rem 0.4rem',
             borderRadius: '6px'
           }}>
-            {lang === 'en' ? `${spotsToDisplay.length} Spots` : `${spotsToDisplay.length}개 스팟`}
+            {lang === 'en' 
+              ? `${spotsToDisplay.length} Spots` 
+              : lang === 'ja' 
+              ? `${spotsToDisplay.length}箇所` 
+              : (lang === 'zh' || lang === 'zht') 
+              ? `${spotsToDisplay.length}个景点` 
+              : `${spotsToDisplay.length}개 스팟`}
           </span>
         </div>
 
@@ -380,7 +392,15 @@ export default function GoogleMapView({
                 transition: 'all var(--transition-fast)'
               }}
             >
-              <span>{lang === 'en' ? '🔍 View Full Course' : '🔍 전체 코스'}</span>
+              <span>
+                {lang === 'en' 
+                  ? '🔍 View Full Course' 
+                  : lang === 'ja' 
+                  ? '🔍 全体コース' 
+                  : (lang === 'zh' || lang === 'zht') 
+                  ? (lang === 'zht' ? '🔍 完整路線' : '🔍 完整路线') 
+                  : '🔍 전체 코스'}
+              </span>
             </button>
           )}
 
@@ -404,7 +424,15 @@ export default function GoogleMapView({
               transition: 'all var(--transition-fast)'
             }}
           >
-            <span>{lang === 'en' ? 'Google Maps Full Route ↗' : '구글맵 전체 길찾기 ↗'}</span>
+            <span>
+              {lang === 'en' 
+                ? 'Google Maps Full Route ↗' 
+                : lang === 'ja' 
+                ? 'Googleマップ全ルート ↗' 
+                : (lang === 'zh' || lang === 'zht') 
+                ? (lang === 'zht' ? 'Google地圖完整路線 ↗' : 'Google地图完整路线 ↗') 
+                : '구글맵 전체 길찾기 ↗'}
+            </span>
             <ExternalLink size={11} />
           </a>
         </div>
@@ -429,7 +457,7 @@ export default function GoogleMapView({
               }
             }
           }}
-          title={lang === 'en' ? 'Click to view full course' : '클릭하여 전체 코스 한눈에 보기'}
+          title={lang === 'en' ? 'Click to view full course' : lang === 'ja' ? 'クリックしてコース全体を表示' : (lang === 'zh' || lang === 'zht') ? '点击查看完整路线' : '클릭하여 전체 코스 한눈에 보기'}
           style={{
             position: 'absolute',
             top: '8px',
@@ -451,7 +479,15 @@ export default function GoogleMapView({
             transition: 'all 0.2s ease'
           }}
         >
-          <span>{lang === 'en' ? '🔍 View Full Course' : '🔍 전체 코스 보기'}</span>
+          <span>
+            {lang === 'en' 
+              ? '🔍 View Full Course' 
+              : lang === 'ja' 
+              ? '🔍 全体コース' 
+              : (lang === 'zh' || lang === 'zht') 
+              ? (lang === 'zht' ? '🔍 完整路線' : '🔍 完整路线') 
+              : '🔍 전체 코스 보기'}
+          </span>
         </button>
 
         {!isLeafletReady && (
@@ -474,7 +510,15 @@ export default function GoogleMapView({
               border: '2px solid var(--accent-primary)',
               borderTopColor: 'transparent'
             }} />
-            <span>{lang === 'en' ? 'Loading map...' : '지도를 불러오는 중...'}</span>
+            <span>
+              {lang === 'en' 
+                ? 'Loading map...' 
+                : lang === 'ja' 
+                ? '地図を読み込み中...' 
+                : (lang === 'zh' || lang === 'zht') 
+                ? '正在加载地图...' 
+                : '지도를 불러오는 중...'}
+            </span>
           </div>
         )}
       </div>
@@ -503,7 +547,7 @@ export default function GoogleMapView({
                 <button
                   type="button"
                   onClick={() => onSelectSpotIndex && onSelectSpotIndex(idx)}
-                  title={`${spot.title} 지도 위치로 이동`}
+                  title={lang === 'en' ? `Pan to ${spot.title}` : lang === 'ja' ? `${spot.title}の位置へ移動` : (lang === 'zh' || lang === 'zht') ? `移动至 ${spot.title}` : `${spot.title} 지도 위치로 이동`}
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',

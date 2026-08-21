@@ -43,7 +43,7 @@ export default function AboutUsModal({ isOpen, onClose, lang = 'ko' }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <Sparkles size={22} style={{ color: 'var(--accent-primary)' }} />
             <h2 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 900 }}>
-              {lang === 'en' ? 'About VORA AI' : 'VORA AI 서비스 소개 (About VORA)'}
+              {lang === 'en' ? 'About VORA AI' : lang === 'ja' ? 'VORA AI サービス紹介' : (lang === 'zh' || lang === 'zht') ? 'VORA AI 服务介绍' : 'VORA AI 서비스 소개 (About VORA)'}
             </h2>
           </div>
           <button
@@ -112,6 +112,84 @@ export default function AboutUsModal({ isOpen, onClose, lang = 'ko' }) {
                   • <strong>Google Places Platform</strong>: Official global places, verified ratings & HD photos<br />
                   • <strong>Google Maps Platform</strong>: Seamless global navigation and deep-linked routes<br />
                   • Complete 4-language support: Korean, English, Japanese, and Chinese
+                </p>
+              </div>
+            </>
+          ) : lang === 'ja' ? (
+            <>
+              <div style={{
+                backgroundColor: 'rgba(37, 99, 235, 0.06)',
+                border: '1px solid var(--border-highlight)',
+                borderRadius: '16px',
+                padding: '1.25rem'
+              }}>
+                <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', fontWeight: 900, color: 'var(--accent-primary)' }}>
+                  「韓国旅行のすべてを、AIとともに最もスマートに」
+                </h3>
+                <p style={{ margin: 0, color: 'var(--text-main)', fontWeight: 600 }}>
+                  VORA AI (koreatravel.cc) は、韓国を訪れる世界中の旅行者のために開発された次世代対話型スマート旅行コンシェルジュです。
+                </p>
+              </div>
+
+              <div>
+                <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text-main)', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <Target size={18} style={{ color: '#2563eb' }} />
+                  <span>私たちのミッション (Our Mission)</span>
+                </h4>
+                <p style={{ margin: 0 }}>
+                  型通りのツアーから脱却し、<strong>「聖水洞（ソンスドン）のポップアップストア、路地裏の隠れ家カフェ、K-Drama聖地巡礼、ロマンチックな夜景スポット」</strong>など、韓国のリアルなトレンドを自然な対話一つで完璧にプランニングします。
+                </p>
+              </div>
+
+              <div>
+                <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text-main)', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <Award size={18} style={{ color: '#10b981' }} />
+                  <span>コア技術と提携</span>
+                </h4>
+                <p style={{ margin: 0 }}>
+                  • <strong>Google Gemini 3.0 AI</strong>: 高度な自然言語旅行設計インテリジェンス<br />
+                  • <strong>Google Places Platform</strong>: 公式スポットデータ、口コミ評価、高画質写真<br />
+                  • <strong>Google Maps Platform</strong>: グローバル標準ルート案内とディープリンク<br />
+                  • 韓国語・英語・日本語・中国語の4言語完全対応
+                </p>
+              </div>
+            </>
+          ) : (lang === 'zh' || lang === 'zht') ? (
+            <>
+              <div style={{
+                backgroundColor: 'rgba(37, 99, 235, 0.06)',
+                border: '1px solid var(--border-highlight)',
+                borderRadius: '16px',
+                padding: '1.25rem'
+              }}>
+                <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem', fontWeight: 900, color: 'var(--accent-primary)' }}>
+                  “探索韩国万千魅力，与AI一起开启潮流旅程”
+                </h3>
+                <p style={{ margin: 0, color: 'var(--text-main)', fontWeight: 600 }}>
+                  VORA AI (koreatravel.cc) 是专为全球赴韩游客打造的次时代对话式智能旅行私人助理。
+                </p>
+              </div>
+
+              <div>
+                <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text-main)', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <Target size={18} style={{ color: '#2563eb' }} />
+                  <span>我们的使命 (Our Mission)</span>
+                </h4>
+                <p style={{ margin: 0 }}>
+                  告别枯燥千篇一律的传统跟团游，深度探索<strong>“圣水洞潮流快闪店、隐秘胡同特色咖啡馆、韩剧取景地圣地巡礼、唯美浪漫夜景”</strong>等韩国地道文化，仅需一句话对话即可轻松定制专属旅行路线。
+                </p>
+              </div>
+
+              <div>
+                <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text-main)', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <Award size={18} style={{ color: '#10b981' }} />
+                  <span>核心技术与生态合作伙伴</span>
+                </h4>
+                <p style={{ margin: 0 }}>
+                  • <strong>Google Gemini 3.0 AI</strong>：前沿自然语言旅行规划智能引擎<br />
+                  • <strong>Google Places Platform</strong>：官方权威认证地点、高清实景与真实评分<br />
+                  • <strong>Google Maps Platform</strong>：全球标准地图导航与无缝路线直达<br />
+                  • 完美支持中、英、日、韩四国语言
                 </p>
               </div>
             </>

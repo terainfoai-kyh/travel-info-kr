@@ -49,7 +49,13 @@ export default function WishlistDrawer({
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Heart size={20} style={{ color: '#ef4444', fill: '#ef4444' }} />
             <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 900 }}>
-              {lang === 'en' ? `Saved Spots (${wishlistSpots.length})` : `저장한 여행지 (${wishlistSpots.length})`}
+              {lang === 'en' 
+                ? `Saved Spots (${wishlistSpots.length})` 
+                : lang === 'ja' 
+                ? `お気に入りスポット (${wishlistSpots.length})` 
+                : (lang === 'zh' || lang === 'zht') 
+                ? (lang === 'zht' ? `已儲存景點 (${wishlistSpots.length})` : `已收藏景点 (${wishlistSpots.length})`) 
+                : `저장한 여행지 (${wishlistSpots.length})`}
             </h3>
           </div>
           <button
@@ -93,11 +99,21 @@ export default function WishlistDrawer({
             }}>
               <Heart size={48} style={{ color: 'var(--text-dim)', marginBottom: '1rem' }} />
               <p style={{ margin: 0, fontSize: '0.92rem', fontWeight: 700 }}>
-                {lang === 'en' ? 'No saved spots yet.' : '아직 저장된 여행지가 없습니다.'}
+                {lang === 'en' 
+                  ? 'No saved spots yet.' 
+                  : lang === 'ja' 
+                  ? '保存されたスポットはまだありません。' 
+                  : (lang === 'zh' || lang === 'zht') 
+                  ? (lang === 'zht' ? '尚無收藏的景點。' : '暂无收藏的景点。') 
+                  : '아직 저장된 여행지가 없습니다.'}
               </p>
               <p style={{ margin: '0.4rem 0 0 0', fontSize: '0.8rem', color: 'var(--text-dim)' }}>
                 {lang === 'en' 
                   ? 'Click the heart (❤️) button on any spot card to save your favorite wishlist spots!' 
+                  : lang === 'ja' 
+                  ? 'スポットカードのハート（❤️）ボタンを押して、お気に入りを保存しましょう！' 
+                  : (lang === 'zh' || lang === 'zht') 
+                  ? (lang === 'zht' ? '點擊景點卡片上的愛心（❤️）按鈕，即可收藏專屬心願單！' : '点击景点卡片上的爱心（❤️）按钮，即可收藏专属心愿单！') 
                   : '관광지 카드의 하트(❤️) 버튼을 눌러 나만의 위시리스트를 모아보세요!'}
               </p>
             </div>
@@ -150,14 +166,14 @@ export default function WishlistDrawer({
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                     <MapPin size={12} style={{ color: 'var(--accent-primary)', flexShrink: 0 }} />
                     <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {spot.location || spot.region || (lang === 'en' ? 'Korea' : '한국')}
+                      {spot.location || spot.region || (lang === 'en' ? 'Korea' : lang === 'ja' ? '韓国' : '韩国')}
                     </span>
                   </div>
                 </div>
 
                 <button
                   onClick={() => onRemoveWishlist(spot.id || spot.contentId || spot.title)}
-                  title={lang === 'en' ? 'Remove' : '삭제'}
+                  title={lang === 'en' ? 'Remove' : lang === 'ja' ? '削除' : (lang === 'zh' || lang === 'zht') ? (lang === 'zht' ? '移除' : '删除') : '삭제'}
                   style={{
                     background: 'transparent',
                     border: 'none',
@@ -203,7 +219,15 @@ export default function WishlistDrawer({
               }}
             >
               <Navigation size={16} />
-              <span>{lang === 'en' ? 'Get Google Maps Route for All Saved Spots' : '구글맵에서 위시리스트 전체 코스 길찾기'}</span>
+              <span>
+                {lang === 'en' 
+                  ? 'Get Google Maps Route for All Saved Spots' 
+                  : lang === 'ja' 
+                  ? 'Googleマップでお気に入り全ルートを検索' 
+                  : (lang === 'zh' || lang === 'zht') 
+                  ? (lang === 'zht' ? '在Google地圖中規劃所有心願單景點路線' : '在Google地图中规划所有收藏景点路线') 
+                  : '구글맵에서 위시리스트 전체 코스 길찾기'}
+              </span>
             </a>
           </div>
         )}

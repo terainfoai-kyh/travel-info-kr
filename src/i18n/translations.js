@@ -311,6 +311,9 @@ export const TRANSLATIONS = {
     footerTourApiNotice: 'Powered by Google Gemini 3.0 AI & Google Maps Platform'
   },
 
+  // =========================================================================
+  // 多言語 日本語 (Multilingual Localization: Japanese Phase)
+  // =========================================================================
   ja: {
     // Brand & Header
     brandName: 'VORA',
@@ -320,11 +323,18 @@ export const TRANSLATIONS = {
     navWishlist: 'ウィッシュリスト',
     navLanguage: '言語',
     themeToggle: 'テーマ切替',
+    shareToastSuccess: '共有リンクをクリップボードにコピーしました！ 📋',
+    drawerWeatherGuide: '👗 リアルタイム天気＆コーデガイド',
+    loginCapsule: (count) => `G ログイン (${count}回無料)`,
+    chatStatusLive: 'リアルタイム1:1対話中',
+    dayRouteHeader: (day) => `${day}日目 リアルタイムGoogleルート`,
+    spotCountBadge: (count) => `${count}箇所`,
+    faqTitle: 'よくある質問 (FAQ)',
 
     // Hero Section
     heroBadge: '✨ 2026 AI搭載 韓国旅行コンシェルジュ',
     heroTitle: '一言で完成する、あなただけの韓国旅行',
-    heroSubtitle: 'Google Gemini AIとGoogle Placesが3秒で設計するオーダーメイドコース＆Googleマップ連携',
+    heroSubtitle: 'Google Gemini 3.0 AIとGoogle Placesが3秒で設計するオーダーメイドコース＆Googleマップ連携',
     searchPlaceholder: 'どんな旅をご希望ですか？（例：聖水洞カフェ巡り2泊3日、済州島ヒーリング、雨の日のソウル）',
     searchBtn: 'AIコース作成',
     promptChipsTitle: '🔥 人気のおすすめプロンプト',
@@ -359,6 +369,8 @@ export const TRANSLATIONS = {
     saveToWishlist: 'ウィッシュリストに保存',
     savedToWishlist: '保存済み ❤️',
     noSpotsYet: 'AIに旅行の相談をすると、ここに専用タイムラインとGoogleマップが表示されます。',
+    aiTrustBadgeDesc: 'Google Places＆Gemini AI公式連携コース',
+    aiItineraryMainTitle: 'AIおすすめ旅程',
 
     // Question Quota
     freeQuestionsRemaining: (remain, total) => `⚡ 本日の無料質問: ${remain} / ${total}回`,
@@ -367,43 +379,92 @@ export const TRANSLATIONS = {
     // Travel Essentials
     essentialsTitle: '外国人旅行者 必須ツールキット',
     essentialsSubtitle: '快適で安全な韓国旅行のための必須サービス',
+    weatherOutfitTitle: 'リアルタイム天気＆旅行コーデガイド',
+    weatherOutfitDesc: (city) => `${city}および韓国全土のリアルタイム気象と気温別パッキング＆スタイリングのコツ`,
+    weatherOutfitBadge: 'スタイルガイド',
+    weatherOutfitLink: '気温別コーデ＆パッキングを見る 👗',
+    badgeTransport: '交通必須',
+    badgeCostSaving: '費用節約',
+    badgeData: '無制限データ',
+    badgeSupport24h: '24時間対応',
     subwayMapTitle: '地下鉄路線図＆ルート案内',
     subwayMapDesc: 'ソウル・釜山など全国の地下鉄路線図と乗換ガイド',
+    subwayMapLink: '地下鉄路線図を見る ↗',
     climateCardTitle: '気候同行カード＆T-Money',
     climateCardDesc: '外国人向け短期券の購入方法と乗り放題ガイド',
+    climateCardLink: '気候同行カード案内 ↗',
     esimTitle: 'eSIM＆ポケットWi-Fi',
     esimDesc: '空港受取または即時利用可能な高速データプラン',
+    esimBookingLink: 'Klook eSIM予約 ↗',
     helplineTitle: '1330 観光案内＆通訳ダイヤル',
     helplineDesc: '24時間年中無休・日本語対応の緊急通訳＆旅行サポート',
+    helplineInfoLink: '1330 公式案内 ↗',
 
     // AdSense Editorial Section
     editorialTitle: '韓国旅行 完全ガイド＆よくある質問 (FAQ)',
     editorialSubtitle: '初めての韓国旅行でも安心のローカル情報',
 
+    // Weather & Styling Modal
+    weatherModalTitle: '韓国 リアルタイム天気＆旅行コーデガイド',
+    weatherSearchPlaceholder: '都市または旅行先を入力（例：ソウル、済州、釜山、束草...）',
+    weatherClearBtn: '✕ クリア',
+    weatherFeelsLike: '体感温度 ',
+    weatherRainLabel: '💧 降水確率',
+    weatherDustLabel: '🍃 微小粒子状物質',
+    weatherUvLabel: '☀️ 紫外線指数',
+    weatherHumidityLabel: '💨 湿度',
+    weatherForecastTitle: '3日間の週間天気予報:',
+    weatherOutfitSectionTitle: (city) => `本日の ${city} おすすめコーデ＆パッキング`,
+    weatherTopBottom: '👕 トップス / ボトムス:',
+    weatherOuter: '🧥 アウター:',
+    weatherEssentials: '🎒 必需品:',
+    weatherStylistTip: 'スタイリストのアドバイス:',
+    weatherSunscreenLink: '🧴 日焼け止め＆クーリング用品',
+    weatherHanbokLink: '👘 伝統韓服レンタル',
+    weatherLookbookLink: '📌 K-Fashion 旅行ルックブック (Pinterest)',
+
+    // Detail Modal
+    detailGalleryTitle: (count) => `Google Places 公式高画質ギャラリー (${count}枚)`,
+    detailDragHint: 'スワイプまたはスクロールで写真を閲覧 ↔',
+    detailBestTime: 'おすすめ時間: ',
+    detailEditorGuide: '✨ エディター詳細ガイド',
+    detailDirectionsTitle: '🗺️ アクセス＆リアルタイムマップ',
+    detailLowestPriceBtn: '最安値予約 ↗',
+
     // Modals
     modalClose: '閉じる',
     privacyPolicy: 'プライバシーポリシー',
     termsOfService: '利用規約',
-    aboutUs: 'サービス紹介',
+    aboutUs: 'VORA AIについて',
     contactUs: '提携・お問い合わせ',
     footerCopyright: '© 2026 VORA AI — Korea Smart Travel Concierge. All Rights Reserved.',
     footerTourApiNotice: 'Google Gemini 3.0 AI＆Google Maps Platform 連携'
   },
 
+  // =========================================================================
+  // 多语言 中文简体 (Multilingual Localization: Simplified Chinese Phase)
+  // =========================================================================
   zh: {
     // Brand & Header
     brandName: 'VORA',
     brandTagline: '韩国旅游AI智能管家',
-    navWeather: '天气',
+    navWeather: '实时天气',
     navEssentials: '旅行必备',
     navWishlist: '心愿单',
     navLanguage: '语言',
     themeToggle: '切换主题',
+    shareToastSuccess: '分享链接已复制到剪贴板！ 📋',
+    drawerWeatherGuide: '👗 实时天气与穿搭指南',
+    loginCapsule: (count) => `G 登录 (${count}次免费)`,
+    chatStatusLive: '实时1:1对话中',
+    dayRouteHeader: (day) => `第${day}天 实时Google导航`,
+    spotCountBadge: (count) => `${count}处景点`,
+    faqTitle: '常见问题解答 (FAQ)',
 
     // Hero Section
     heroBadge: '✨ 2026 AI驱动 韩国专属旅行管家',
     heroTitle: '一句话定制 专属韩国梦幻之旅',
-    heroSubtitle: '结合Google Gemini AI与Google Places权威数据，3秒生成专属路线与实时谷歌地图导航',
+    heroSubtitle: '结合Google Gemini 3.0 AI与Google Places权威数据，3秒生成专属路线与实时谷歌地图导航',
     searchPlaceholder: '您想去哪里旅行？（例如：首尔圣水洞咖啡厅3天2晚、济州岛海景疗愈游、雨天首尔室内约会）',
     searchBtn: 'AI生成路线',
     promptChipsTitle: '🔥 热门推荐灵感',
@@ -438,6 +499,8 @@ export const TRANSLATIONS = {
     saveToWishlist: '加入心愿单',
     savedToWishlist: '已保存 ❤️',
     noSpotsYet: '在左侧向AI咨询旅行计划后，定制的行程时间线与Google交互地图将在此展示。',
+    aiTrustBadgeDesc: '基于 Google Places 与 Gemini AI 官方合作推荐',
+    aiItineraryMainTitle: 'AI精选推荐行程',
 
     // Question Quota
     freeQuestionsRemaining: (remain, total) => `⚡ 今日免费提问额度: ${remain} / ${total}次`,
@@ -446,32 +509,200 @@ export const TRANSLATIONS = {
     // Travel Essentials
     essentialsTitle: '国际游客必备旅行工具包',
     essentialsSubtitle: '助您畅游韩国的实用指南与官方服务',
+    weatherOutfitTitle: '实时天气与旅行穿搭指南',
+    weatherOutfitDesc: (city) => `${city}及韩国各地的实时天气状况、气温穿搭与行前打包建议`,
+    weatherOutfitBadge: '穿搭指南',
+    weatherOutfitLink: '查看气温穿搭与打包清单 👗',
+    badgeTransport: '交通必备',
+    badgeCostSaving: '省钱攻略',
+    badgeData: '无限流量',
+    badgeSupport24h: '24小时支持',
     subwayMapTitle: '地铁线路图与换乘指南',
     subwayMapDesc: '首尔、釜山等全国实时地铁线路图与中文换乘指引',
+    subwayMapLink: '查看地铁路线图 ↗',
     climateCardTitle: '气候同行卡与T-Money交通卡',
     climateCardDesc: '短期游客无限次乘车卡购买地点与充值攻略',
+    climateCardLink: '气候同行卡指南 ↗',
     esimTitle: '韩国eSIM与随身WiFi',
     esimDesc: '仁川机场快速领取或即时激活的高速流量套餐',
+    esimBookingLink: '预订 Klook eSIM ↗',
     helplineTitle: '1330 韩国旅游咨询与免费翻译',
     helplineDesc: '24小时全年无休多语言紧急翻译与官方求助热线',
+    helplineInfoLink: '1330 官方指引 ↗',
 
     // AdSense Editorial Section
     editorialTitle: '韩国旅行全景指南与常见问题 (FAQ)',
     editorialSubtitle: '为初次到访韩国的游客量身打造的地道旅行攻略',
 
+    // Weather & Styling Modal
+    weatherModalTitle: '韩国实时天气与旅行穿搭指南',
+    weatherSearchPlaceholder: '输入城市或目的地（例如：首尔、济州、釜山、束草...）',
+    weatherClearBtn: '✕ 清除',
+    weatherFeelsLike: '体感温度 ',
+    weatherRainLabel: '💧 降水概率',
+    weatherDustLabel: '🍃 空气质量',
+    weatherUvLabel: '☀️ 紫外线指数',
+    weatherHumidityLabel: '💨 湿度',
+    weatherForecastTitle: '未来3天天气预报:',
+    weatherOutfitSectionTitle: (city) => `今日 ${city} 穿搭与行前打包指南`,
+    weatherTopBottom: '👕 上衣 / 裤装:',
+    weatherOuter: '🧥 外套推荐:',
+    weatherEssentials: '🎒 随身必备:',
+    weatherStylistTip: '造型师贴心建议:',
+    weatherSunscreenLink: '🧴 旅行防晒与清凉好物',
+    weatherHanbokLink: '👘 传统韩服体验预订',
+    weatherLookbookLink: '📌 K-Fashion 穿搭灵感 (Pinterest)',
+
+    // Detail Modal
+    detailGalleryTitle: (count) => `Google Places 官方高清图库 (${count}张)`,
+    detailDragHint: '左右滑动或滚动浏览照片 ↔',
+    detailBestTime: '推荐游览时间: ',
+    detailEditorGuide: '✨ 旅游编辑深度指引',
+    detailDirectionsTitle: '🗺️ 交通路线与实时地图',
+    detailLowestPriceBtn: '低价预订 ↗',
+
     // Modals
     modalClose: '关闭',
     privacyPolicy: '隐私政策',
     termsOfService: '服务条款',
-    aboutUs: '关于我们',
+    aboutUs: '关于 VORA',
     contactUs: '商务合作与咨询',
     footerCopyright: '© 2026 VORA AI — Korea Smart Travel Concierge. All Rights Reserved.',
     footerTourApiNotice: '基于 Google Gemini 3.0 AI 与 Google Maps Platform 构建'
+  },
+
+  // =========================================================================
+  // 多語言 中文繁體 (Multilingual Localization: Traditional Chinese Phase)
+  // =========================================================================
+  zht: {
+    // Brand & Header
+    brandName: 'VORA',
+    brandTagline: '韓國旅遊AI智能管家',
+    navWeather: '即時天氣',
+    navEssentials: '旅行必備',
+    navWishlist: '願望清單',
+    navLanguage: '語言',
+    themeToggle: '切換主題',
+    shareToastSuccess: '分享連結已複製到剪貼簿！ 📋',
+    drawerWeatherGuide: '👗 即時天氣與穿搭指南',
+    loginCapsule: (count) => `G 登入 (${count}次免費)`,
+    chatStatusLive: '即時1:1對話中',
+    dayRouteHeader: (day) => `第${day}天 即時Google導航`,
+    spotCountBadge: (count) => `${count}處景點`,
+    faqTitle: '常見問題解答 (FAQ)',
+
+    // Hero Section
+    heroBadge: '✨ 2026 AI驅動 韓國專屬旅行管家',
+    heroTitle: '一句話定制 專屬韓國夢幻之旅',
+    heroSubtitle: '結合Google Gemini 3.0 AI與Google Places權威數據，3秒生成專屬路線與即時Google地圖導航',
+    searchPlaceholder: '您想去哪裡旅行？（例如：首爾聖水洞咖啡廳3天2夜、濟州島海景療癒遊、雨天首爾室內約會）',
+    searchBtn: 'AI生成路線',
+    promptChipsTitle: '🔥 熱門推薦靈感',
+    promptChips: [
+      { label: '🗼 首爾 3天2夜 潮流聖水洞之旅', prompt: '請設計一份首爾3天2夜行程，包含聖水洞咖啡街、漢南洞購物和景福宮。' },
+      { label: '🏝️ 濟州島 絕美海景療癒之旅', prompt: '推薦一份濟州島4天3夜行程，包含涯月邑海景咖啡廳和西歸浦偶來小路。' },
+      { label: '🎬 K-POP與韓劇熱門拍攝地巡禮', prompt: '請推薦一份首爾2天1夜K-POP偶像打卡地與韓劇經典取景地路線。' },
+      { label: '🌙 釜山 海雲台與廣安里夜景之旅', prompt: '規劃一份釜山3天2夜行程，體驗海雲台膠囊列車、廣安里無人機秀和海鮮市場。' },
+      { label: '🍁 慶州 韓屋村與皇理團路風情', prompt: '推薦慶州2天1夜行程，漫步皇理團路特色咖啡廳，欣賞東宮與月池夜景。' }
+    ],
+
+    // Chat Interface
+    chatTitle: 'Vora AI智能管家對話',
+    chatWelcome: '您好！我是您的韓國專屬旅行AI管家VORA（寶拉）。😊\n請告訴我您想去的城市或旅行偏好！',
+    chatThinking: '正在為您分析最佳路線與韓國道地熱門景點...',
+    chatCopyItinerary: '複製行程內容',
+    chatCopied: '已複製到剪貼簿！',
+    chatShare: '分享行程',
+    chatQuickModifications: [
+      '把第2天的咖啡廳換成特色烘焙店',
+      '修改為適合下雨天的室內路線',
+      '調整為全程搭乘地鐵公車的便捷路線',
+      '按每天5萬韓元預算調整'
+    ],
+
+    // Course Timeline & Map
+    courseTimelineTitle: '智慧行程時間線',
+    dayBadge: (d) => `第${d}天`,
+    openGoogleMapsRoute: '🗺️ 在Google地圖中開啟今日完整導航路線',
+    spotTransitTime: (time) => `🚇 ${time || '搭乘地鐵或步行便捷直達'}`,
+    photosAndDetails: '🔍 照片與詳細資訊',
+    saveToWishlist: '加入願望清單',
+    savedToWishlist: '已儲存 ❤️',
+    noSpotsYet: '在左側向AI諮詢旅行計劃後，定制的行程時間線與Google互動地圖將在此展示。',
+    aiTrustBadgeDesc: '基於 Google Places 與 Gemini AI 官方合作推薦',
+    aiItineraryMainTitle: 'AI精選推薦行程',
+
+    // Question Quota
+    freeQuestionsRemaining: (remain, total) => `⚡ 今日免費提問額度: ${remain} / ${total}次`,
+    questionsExhausted: '今日5次免費提问額度已用完，將於次日0點自動刷新 ✨',
+
+    // Travel Essentials
+    essentialsTitle: '國際旅客必備旅行工具包',
+    essentialsSubtitle: '助您暢遊韓國的實用指南與官方服務',
+    weatherOutfitTitle: '即時天氣與旅行穿搭指南',
+    weatherOutfitDesc: (city) => `${city}及韓國各地的即時天氣狀況、氣溫穿搭與行前打包建議`,
+    weatherOutfitBadge: '穿搭指南',
+    weatherOutfitLink: '查看氣溫穿搭與打包清單 👗',
+    badgeTransport: '交通必備',
+    badgeCostSaving: '省錢攻略',
+    badgeData: '無限流量',
+    badgeSupport24h: '24小時支援',
+    subwayMapTitle: '地鐵路線圖與轉乘指南',
+    subwayMapDesc: '首爾、釜山等全國即時地鐵路線圖與中文轉乘指引',
+    subwayMapLink: '查看地鐵路線圖 ↗',
+    climateCardTitle: '氣候同行卡與T-Money交通卡',
+    climateCardDesc: '短期遊客無限次乘車卡購買地點與儲值攻略',
+    climateCardLink: '氣候同行卡指南 ↗',
+    esimTitle: '韓國eSIM與隨身WiFi',
+    esimDesc: '仁川機場快速領取或即時啟用的高速流量方案',
+    esimBookingLink: '預訂 Klook eSIM ↗',
+    helplineTitle: '1330 韓國旅遊諮詢與免費翻譯',
+    helplineDesc: '24小時全年無休多語言緊急翻譯與官方求助專線',
+    helplineInfoLink: '1330 官方指引 ↗',
+
+    // AdSense Editorial Section
+    editorialTitle: '韓國旅行全景指南與常見問題 (FAQ)',
+    editorialSubtitle: '為初次到訪韓國的遊客量身打造的道地旅行攻略',
+
+    // Weather & Styling Modal
+    weatherModalTitle: '韓國即時天氣與旅行穿搭指南',
+    weatherSearchPlaceholder: '輸入城市或目的地（例如：首爾、濟州、釜山、束草...）',
+    weatherClearBtn: '✕ 清除',
+    weatherFeelsLike: '體感溫度 ',
+    weatherRainLabel: '💧 降雨機率',
+    weatherDustLabel: '🍃 空氣品質',
+    weatherUvLabel: '☀️ 紫外線指數',
+    weatherHumidityLabel: '💨 濕度',
+    weatherForecastTitle: '未來3天天氣預報:',
+    weatherOutfitSectionTitle: (city) => `今日 ${city} 穿搭與行前打包指南`,
+    weatherTopBottom: '👕 上衣 / 褲裝:',
+    weatherOuter: '🧥 外套推薦:',
+    weatherEssentials: '🎒 隨身必備:',
+    weatherStylistTip: '造型師貼心建議:',
+    weatherSunscreenLink: '🧴 旅行防曬與清涼好物',
+    weatherHanbokLink: '👘 傳統韓服體驗預訂',
+    weatherLookbookLink: '📌 K-Fashion 穿搭靈感 (Pinterest)',
+
+    // Detail Modal
+    detailGalleryTitle: (count) => `Google Places 官方高畫質圖庫 (${count}張)`,
+    detailDragHint: '左右滑動或捲動瀏覽照片 ↔',
+    detailBestTime: '推薦遊覽時間: ',
+    detailEditorGuide: '✨ 旅遊編輯深度指引',
+    detailDirectionsTitle: '🗺️ 交通路線與即時地圖',
+    detailLowestPriceBtn: '低價預訂 ↗',
+
+    // Modals
+    modalClose: '關閉',
+    privacyPolicy: '隱私權政策',
+    termsOfService: '服務條款',
+    aboutUs: '關於 VORA',
+    contactUs: '商務合作與諮詢',
+    footerCopyright: '© 2026 VORA AI — Korea Smart Travel Concierge. All Rights Reserved.',
+    footerTourApiNotice: '基於 Google Gemini 3.0 AI 與 Google Maps Platform 構建'
   }
 };
 
-// Aliases for zh-Hant and others to ensure zero errors
-TRANSLATIONS.zht = TRANSLATIONS.zh;
+// Aliases for other languages to fallback to en
 TRANSLATIONS.de = TRANSLATIONS.en;
 TRANSLATIONS.fr = TRANSLATIONS.en;
 TRANSLATIONS.es = TRANSLATIONS.en;

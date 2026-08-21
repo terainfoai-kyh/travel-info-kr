@@ -36,7 +36,37 @@ export default function RewardedAdModal({
     }
   ];
 
-  const currentAd = lang === 'en' ? SPONSOR_ADS_EN[0] : SPONSOR_ADS_KO[0];
+  const SPONSOR_ADS_JA = [
+    {
+      brand: 'Klook 公式パートナー',
+      title: 'ディスカバーソウルパス 24h/48h 特別割引',
+      desc: 'ソウル主要50箇所の人気スポット無料入場＋交通T-Money機能付き！',
+      discount: '最大 25% OFF',
+      tag: 'K-Travel スポンサー',
+      link: 'https://www.klook.com',
+      image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1200&q=85'
+    }
+  ];
+
+  const SPONSOR_ADS_ZH = [
+    {
+      brand: 'Klook 官方合作伙伴',
+      title: '首尔探索卡 (Discover Seoul Pass) 限时特惠',
+      desc: '免费进入首尔50+热门景点，内置T-Money交通卡功能！',
+      discount: '最高 75折特惠',
+      tag: 'K-Travel 赞助商',
+      link: 'https://www.klook.com',
+      image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1200&q=85'
+    }
+  ];
+
+  const currentAd = lang === 'en' 
+    ? SPONSOR_ADS_EN[0] 
+    : lang === 'ja' 
+    ? SPONSOR_ADS_JA[0] 
+    : (lang === 'zh' || lang === 'zht') 
+    ? SPONSOR_ADS_ZH[0] 
+    : SPONSOR_ADS_KO[0];
 
   useEffect(() => {
     if (!isOpen) {
@@ -116,12 +146,12 @@ export default function RewardedAdModal({
               padding: '0.2rem 0.5rem',
               borderRadius: '6px'
             }}>
-              {lang === 'en' ? 'Sponsored Ad' : '스폰서 보상 광고'}
+              {lang === 'en' ? 'Sponsored Ad' : lang === 'ja' ? 'スポンサー広告' : (lang === 'zh' || lang === 'zht') ? (lang === 'zht' ? '贊助商廣告' : '赞助商广告') : '스폰서 보상 광고'}
             </span>
             <span style={{ fontSize: '0.8rem', color: '#9ca3af', fontWeight: 600 }}>
               {isCompleted 
-                ? (lang === 'en' ? '🎉 Completed!' : '🎉 시청 완료!') 
-                : (lang === 'en' ? `⏳ Reward in ${timeLeft}s` : `⏳ ${timeLeft}초 후 보상 지급`)}
+                ? (lang === 'en' ? '🎉 Completed!' : lang === 'ja' ? '🎉 視聴完了！' : (lang === 'zh' || lang === 'zht') ? '🎉 观看完成！' : '🎉 시청 완료!') 
+                : (lang === 'en' ? `⏳ Reward in ${timeLeft}s` : lang === 'ja' ? `⏳ ${timeLeft}秒後にリワード付与` : (lang === 'zh' || lang === 'zht') ? `⏳ ${timeLeft}秒后领取奖励` : `⏳ ${timeLeft}초 후 보상 지급`)}
             </span>
           </div>
 
@@ -266,7 +296,15 @@ export default function RewardedAdModal({
               }}
             >
               <Sparkles size={20} />
-              <span>{lang === 'en' ? '🎁 Claim +3 Free Prompts Now' : '🎁 질문 +3회 즉시 충전받기'}</span>
+              <span>
+                {lang === 'en' 
+                  ? '🎁 Claim +3 Free Prompts Now' 
+                  : lang === 'ja' 
+                  ? '🎁 質問＋3回を今すぐ獲得' 
+                  : (lang === 'zh' || lang === 'zht') 
+                  ? (lang === 'zht' ? '🎁 立即領取 +3次免費提問' : '🎁 立即领取 +3次免费提问') 
+                  : '🎁 질문 +3회 즉시 충전받기'}
+              </span>
             </button>
           ) : (
             <div style={{
@@ -284,19 +322,43 @@ export default function RewardedAdModal({
               border: '1px solid rgba(255, 255, 255, 0.08)'
             }}>
               <Award size={18} style={{ color: '#f59e0b' }} />
-              <span>{lang === 'en' ? `+3 Free Prompts will be added in ${timeLeft}s` : `${timeLeft}초 후 +3회 무료 질문이 충전됩니다`}</span>
+              <span>
+                {lang === 'en' 
+                  ? `+3 Free Prompts will be added in ${timeLeft}s` 
+                  : lang === 'ja' 
+                  ? `${timeLeft}秒後に＋3回の無料質問が付与されます` 
+                  : (lang === 'zh' || lang === 'zht') 
+                  ? `${timeLeft}秒后将自动充值+3次提问额度` 
+                  : `${timeLeft}초 후 +3회 무료 질문이 충전됩니다`}
+              </span>
             </div>
           )}
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.72rem', color: '#6b7280' }}>
-            <span>{lang === 'en' ? 'VORA AI & Official Partner Sponsorship' : 'VORA AI & 공식 제휴 파트너 스폰서십'}</span>
+            <span>
+              {lang === 'en' 
+                ? 'VORA AI & Official Partner Sponsorship' 
+                : lang === 'ja' 
+                ? 'VORA AI ＆ 公式提携パートナー スポンサーシップ' 
+                : (lang === 'zh' || lang === 'zht') 
+                ? 'VORA AI 与官方合作伙伴赞助' 
+                : 'VORA AI & 공식 제휴 파트너 스폰서십'}
+            </span>
             <a
               href={currentAd.link}
               target="_blank"
               rel="noopener noreferrer"
               style={{ color: '#93c5fd', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.2rem' }}
             >
-              <span>{lang === 'en' ? 'View Sponsor Deal' : '스폰서 혜택 보기'}</span>
+              <span>
+                {lang === 'en' 
+                  ? 'View Sponsor Deal' 
+                  : lang === 'ja' 
+                  ? 'スポンサー特典を見る' 
+                  : (lang === 'zh' || lang === 'zht') 
+                  ? '查看赞助商优惠' 
+                  : '스폰서 혜택 보기'}
+              </span>
               <ExternalLink size={11} />
             </a>
           </div>

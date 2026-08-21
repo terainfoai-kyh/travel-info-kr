@@ -43,7 +43,7 @@ export default function TermsModal({ isOpen, onClose, lang = 'ko' }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <FileText size={22} style={{ color: 'var(--accent-primary)' }} />
             <h2 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 900 }}>
-              {lang === 'en' ? 'Terms of Service' : '이용약관 (Terms of Service)'}
+              {lang === 'en' ? 'Terms of Service' : lang === 'ja' ? '利用規約' : (lang === 'zh' || lang === 'zht') ? '服务条款' : '이용약관 (Terms of Service)'}
             </h2>
           </div>
           <button
@@ -112,6 +112,84 @@ export default function TermsModal({ isOpen, onClose, lang = 'ko' }) {
                 </h4>
                 <p style={{ margin: 0 }}>
                   This service is provided free of charge as a travel guidance assistant. We assume no legal liability for any direct or indirect damages arising from unforeseen transit delays, adverse weather conditions, or unexpected venue closures.
+                </p>
+              </div>
+            </>
+          ) : lang === 'ja' ? (
+            <>
+              <div>
+                <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text-main)', fontWeight: 800 }}>
+                  第1条（目的）
+                </h4>
+                <p style={{ margin: 0 }}>
+                  本規約は、VORA AI (koreatravel.cc) が提供する韓国旅行プラン提案および観光ガイドサービス（以下「本サービス」）の利用条件を定めるものです。
+                </p>
+              </div>
+
+              <div>
+                <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text-main)', fontWeight: 800 }}>
+                  第2条（サービス内容およびデータソース）
+                </h4>
+                <p style={{ margin: 0 }}>
+                  1. 本サービスは、Google Places Platform の公式位置データと Google Gemini AI 技術を活用して、個々のユーザーに最適化された旅行ルートと交通案内を提供します。<br />
+                  2. スポットの営業時間、休業日、入場料などは現地の状況により変更される場合がありますので、訪問前に公式サイト等でご確認ください。
+                </p>
+              </div>
+
+              <div>
+                <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text-main)', fontWeight: 800 }}>
+                  第3条（知的財産権および著作権保護）
+                </h4>
+                <p style={{ margin: 0 }}>
+                  本サービスのUI/UXデザイン、AIプロンプト設計、オリジナルコンテンツの著作権は VORA AI に帰属します。無断複製、自動スクレイピング、商用再配布を固く禁じます。
+                </p>
+              </div>
+
+              <div>
+                <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text-main)', fontWeight: 800 }}>
+                  第4条（免責事項）
+                </h4>
+                <p style={{ margin: 0 }}>
+                  本サービスは無料の旅行アシスタントとして提供されており、現地の交通遅延、悪天候、施設の臨時休業等に起因する直接的・間接的な損害について、一切の法的責任を負いません。
+                </p>
+              </div>
+            </>
+          ) : (lang === 'zh' || lang === 'zht') ? (
+            <>
+              <div>
+                <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text-main)', fontWeight: 800 }}>
+                  第1条（目的）
+                </h4>
+                <p style={{ margin: 0 }}>
+                  本条款旨在规范使用由 VORA AI (koreatravel.cc) 提供的韩国旅游行程规划与向导服务（以下简称“服务”）的相关条件与准则。
+                </p>
+              </div>
+
+              <div>
+                <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text-main)', fontWeight: 800 }}>
+                  第2条（服务内容与数据来源）
+                </h4>
+                <p style={{ margin: 0 }}>
+                  1. 本服务依托 Google Places Platform 官方认证位置数据与 Google Gemini AI 技术，为游客提供定制化旅行日程及公共交通指引。<br />
+                  2. 推荐景点的营业时间、公休日及门票价格可能因现场实际情况变动，行前请务必通过官方渠道确认。
+                </p>
+              </div>
+
+              <div>
+                <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text-main)', fontWeight: 800 }}>
+                  第3条（知识产权与用户规范）
+                </h4>
+                <p style={{ margin: 0 }}>
+                  本平台的所有界面设计、UI/UX架构、AI提示词系统及原创内容版权均归 VORA AI 所有。严禁未经授权的复制、自动化爬取或商业转售行为。
+                </p>
+              </div>
+
+              <div>
+                <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text-main)', fontWeight: 800 }}>
+                  第4条（免责声明）
+                </h4>
+                <p style={{ margin: 0 }}>
+                  本服务为免费智能旅行向导，对于因当地交通延误、极端天气或景点临时关闭等不可抗力因素造成的任何直接或间接损失，本平台不承担法律责任。
                 </p>
               </div>
             </>

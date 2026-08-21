@@ -658,6 +658,82 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
     ]
   };
 
+  const SAMPLE_SPOTS_MAP_JA = {
+    '서울': [
+      { name: '景福宮＆香遠亭', theme: '朝鮮王朝の歴史と優美な蓮池の宮廷美', desc: '朝鮮王朝第一の法宮で、池に浮かぶ香遠亭と壮麗な勤政殿が韓国伝統建築の至高の美を伝えます。', cat: '歴史・文化', photo: '📸 香遠亭蓮池の映り込み＆韓服スナップ', sig: '👑 宮殿韓服レンタル＆宮中散策', time: '午前 10:00', lat: 37.5796, lng: 126.9770 },
+      { name: '仁寺洞サムジギル＆伝統茶房', theme: '伝統工芸と路地裏レトロカルチャー', desc: 'らせん状の回廊にクラフトショップと伝統茶屋が並ぶソウル屈指の文化芸術ストリートです。', cat: 'カフェ巡り', photo: '📸 サムジギルらせん広場＆開城ジュアク', sig: '🍵 伝統五味子茶＆開城ジュアク', time: '午後 1:30', lat: 37.5743, lng: 126.9848 },
+      { name: '北村韓屋村', theme: '瓦屋根が連なる風情ある伝統路地', desc: '伝統韓屋がそのまま保存された歴史地区で、瓦屋根の向こうに広がる高層ビルのスカイラインが魅力です。', cat: '韓屋路地', photo: '📸 北村6景の石畳坂道ショット', sig: '📸 風情ある石垣道＆韓屋サンセット', time: '午後 4:30', lat: 37.5826, lng: 126.9836 },
+      { name: '聖水洞カフェ通り＆ディオール聖水', theme: 'ソウル最先端のトレンド＆ファッション発信地', desc: '赤レンガの工場街からホットスポットへ変貌したエリアで、個性的なポップアップとベーカリーが並びます。', cat: 'カフェ巡り', photo: '📸 ディオール聖水の幻想的な外観', sig: '☕ 塩パン＆アインシュペナー', time: '午前 11:30', lat: 37.5446, lng: 127.0560 },
+      { name: 'ソウルの森＆アンダースタンドアベニュー', theme: '都心の緑豊かなエコフォレスト＆コンテナモール', desc: 'イチョウ並木とコンテナショップが融合し、ピクニックとショッピングが同時に楽しめます。', cat: '自然名所', photo: '📸 ソウルの森ミラー池リフレクション', sig: '🧺 芝生ピクニック＆スイーツ巡り', time: '午後 2:30', lat: 37.5443, lng: 127.0374 },
+      { name: 'Nソウルタワー＆南山サンセット', theme: 'ソウル市内を一望する360度パノラマ夜景', desc: '南山の頂上にそびえるソウルのランドマークで、夕暮れの茜空と輝く都会の夜景がロマンチックです。', cat: '夜景名所', photo: '📸 展望台夕景＆愛の南京錠デッキ', sig: '🗼 サンセットパノラマ＆南山トンカツ', time: '午後 6:30', lat: 37.5512, lng: 126.9882 },
+      { name: 'HYBE INSIGHT＆龍山ホットプレイス', theme: 'K-POPカルチャー＆世界を魅了する音楽体験', desc: '世界的人気K-POPアーティストの軌跡とメディアアートを体感できる音楽ファン必見のスポットです。', cat: 'K-POP名所', photo: '📸 大型メディアウォール＆体験ゾーン', sig: '🎵 限定アーティストグッズ＆展示', time: '午前 11:00', lat: 37.5283, lng: 126.9685 },
+      { name: 'ザ・現代ソウル＆サウンズフォレスト', theme: '自然光あふれる屋内庭園＆フューチャーショッピング', desc: '5階の広大な屋内緑地庭園と最先端のK-Fashionブランドが集結するソウルの人気ランドマークです。', cat: 'ショッピング', photo: '📸 サウンズフォレスト5階屋内庭園', sig: '🛍️ B2F K-Fashion＆B1F グルメ街', time: '午後 2:00', lat: 37.5259, lng: 126.9284 },
+      { name: '汝矣島漢江公園＆ムーンライトピクニック', theme: '心地よい川風と本場の漢江ラーメン', desc: '広大な漢江を眺めながらピクニックマットで楽しむ即席ラーメンとチメク（チキン＆ビール）の癒し体験。', cat: '夜景名所', photo: '📸 漢江サンセット＆麻浦大橋夜景', sig: '🧺 即席漢江ラーメン＆ピクニック', time: '午後 5:30', lat: 37.5270, lng: 126.9325 }
+    ],
+    '제주': [
+      { name: '涯月カフェ通り＆漢潭海岸散策路', theme: 'エメラルドグリーンの海と絶景オーシャンビューカフェ', desc: '透明度の高い西部の海沿いにトレンドのベーカリーカフェが立ち並ぶ大人気スポットです。', cat: 'カフェ巡り', photo: '📸 オーシャンビュンテラス＆夕日', sig: '🍩 ハルラボンペストリー＆ラテ', time: '午前 11:30', lat: 33.4623, lng: 126.3110 },
+      { name: '挟才海水浴場＆金陵海岸', theme: '飛揚島を望む白砂ビーチと透明な遠浅の海', desc: 'エメラルド色の海と貝殻の白い砂浜が広がり、飛揚島の美しい景観が目の前に広がります。', cat: '海洋自然', photo: '📸 飛揚島バックの遠浅ビーチショット', sig: '🌊 新鮮な海鮮盛り合わせ＆ボマルカルグクス', time: '午後 2:30', lat: 33.3941, lng: 126.2397 },
+      { name: '新昌風車海岸道路＆夕日', theme: '白い巨大風車と黄金色に輝くサンセット', desc: '海上に並ぶ巨大な風力発電の風車と、夕暮れ時に空と海がオレンジ色に染まる絶景ドライブコースです。', cat: '夕景・夜景', photo: '📸 夕空に浮かぶ風車のシルエット', sig: '🌅 海上木道散策＆済州黒豚サムギョプサル', time: '午後 6:30', lat: 33.3421, lng: 126.1742 }
+    ],
+    '부산': [
+      { name: '海雲台ブルーラインパーク＆スカイカプセル', theme: '海岸絶壁を走るレトロ可愛いスカイカプセル', desc: '海雲台から青沙浦まで、青い海を見下ろしながら走るカラフルな人気アトラクションです。', cat: '体験・眺望', photo: '📸 青い海とカラフルなスカイカプセル', sig: '🚊 スカイカプセル乗車＆青沙浦の貝焼き', time: '午前 11:00', lat: 35.1587, lng: 129.1604 },
+      { name: '青沙浦タリットル展望台＆双子灯台', theme: '透明ガラススカイウォークと情緒ある漁港', desc: '海上に突き出たスリリングなガラスの展望台と、赤と白の可愛い双子灯台が迎えてくれます。', cat: '海洋自然', photo: '📸 ガラス床から見下ろす波しぶき', sig: '☕ タリットル展望台＆ルーフトップカフェ', time: '午後 2:30', lat: 35.1610, lng: 129.1915 },
+      { name: '広安里海水浴場＆広安大橋ライトアップ', theme: '海を彩るダイヤモンドブリッジの輝く夜景', desc: '広安大橋の美しいイルミネーションと砂浜沿いのテラスパブ、週末のドローンショーが魅力です。', cat: '夜景名所', photo: '📸 広安大橋の夜景＆ビーチリフレクション', sig: '🍺 オーシャンビュークラフトビール＆刺身', time: '午後 6:30', lat: 35.1532, lng: 129.1186 }
+    ]
+  };
+
+  const DAILY_THEMES_JA = {
+    '서울': [
+      { theme: '1日目: 朝鮮王室の歴史と風情ある北村韓屋路地', transit: '地下鉄3号線 安国駅・景福宮駅周辺 徒歩10分以内', food: { dishName: '鍾路サムゲタン＆伝統緑豆チヂミ', description: '伝統韓屋の趣を感じながら楽しむ滋養豊かな韓国伝統宮廷料理' } },
+      { theme: '2日目: 聖水洞トレンド巡りとロマンチック南山サンセット', transit: '聖水駅（2号線）および南山ケーブルカー・循環バス', food: { dishName: '聖水洞グルメバーガー＆自家製パスタ', description: '現地の若手クリエイターに愛される人気ダイニング' } },
+      { theme: '3日目: K-POPカルチャー体験と漢江サンセットピクニック', transit: '龍山駅（1号線/京義線）＆汝矣ナル駅（5号線）', food: { dishName: '龍山セリサムギョプサル＆漢江即席ラーメン', description: '香ばしい本場サムギョプサルと漢江沿いの名物ラーメン' } }
+    ],
+    '제주': [
+      { theme: '1日目: 済州西海岸の絶景エメラルド海と夕暮れカフェ', transit: '済州西海岸観光バスまたはレンタカー（約15分）', food: { dishName: '済州黒豚炭火焼き＆海鮮ラーメン', description: '夕日を眺めながら味わう肉厚でジューシーな黒豚サムギョプサル' } }
+    ],
+    '부산': [
+      { theme: '1日目: 海岸スカイカプセルと広安大橋の煌めく夜景', transit: '地下鉄2号線 海雲台駅＆海岸列車', food: { dishName: '青沙浦 炭火焼き貝盛り合わせ＆海鮮鍋', description: '海風を感じながら楽しむ新鮮な海の幸' } }
+    ]
+  };
+
+  const SAMPLE_SPOTS_MAP_ZH = {
+    '서울': [
+      { name: '景福宫与香远亭', theme: '朝鲜王朝气韵与典雅水上园林', desc: '朝鲜王朝正宫，建于荷塘之上的香远亭与勤政殿的飞檐斗拱展现出韩国传统建筑的至美意境。', cat: '历史文化', photo: '📸 香远亭水面倒影与韩服写真', sig: '👑 宫殿韩服体验与漫步', time: '上午 10:00', lat: 37.5796, lng: 126.9770 },
+      { name: '仁寺洞森吉街与传统茶馆', theme: '传统工艺胡同与文化品茗时光', desc: '沿螺旋形步道遍布精致手工艺品店与地道韩式茶馆，是体验首尔传统文化艺术的首选街区。', cat: '特色探店', photo: '📸 森吉街螺旋庭院与开城主乐点心', sig: '🍵 传统五味子茶与开城主乐甜点', time: '下午 1:30', lat: 37.5743, lng: 126.9848 },
+      { name: '北村韩屋村', theme: '传统韩屋错落有致的静谧之美', desc: '保存完好的传统韩屋居住区，青瓦屋顶与远处首尔现代都市天际线交相辉映，极具视觉冲击。', cat: '韩屋街巷', photo: '📸 北村六景俯瞰青瓦胡同绝景', sig: '📸 漫步古朴石墙路与韩屋日落', time: '下午 4:30', lat: 37.5826, lng: 126.9836 },
+      { name: '圣水洞咖啡街与Dior圣水', theme: '首尔最潮时尚聚集地与特色咖啡厅', desc: '由昔日红砖工业厂房蜕变而成的首尔潮流圣地，汇聚全球高端快闪店与手工烘焙面包坊。', cat: '特色探店', photo: '📸 Dior圣水梦幻建筑外观打卡', sig: '☕ 招牌海盐面包与维也纳咖啡', time: '上午 11:30', lat: 37.5446, lng: 127.0560 },
+      { name: '首尔林与Under Stand Avenue', theme: '都市生态绿洲与集装箱创意街区', desc: '银杏树林步道与特色集装箱设计小店相融合，可同时享受悠闲野餐与潮流购物乐趣。', cat: '自然风光', photo: '📸 首尔林镜面湖面倒影大片', sig: '🧺 草坪野餐与甜品店打卡', time: '下午 2:30', lat: 37.5443, lng: 127.0374 },
+      { name: 'N首尔塔与南山日落', theme: '360度俯瞰首尔全景日落与璀璨夜景', desc: '耸立于南山之巅的首尔地标，黄昏晚霞与夜幕降临后的万家灯火交织成令人难忘的浪漫盛宴。', cat: '夜景名胜', photo: '📸 首尔塔观景台日落与同心锁露台', sig: '🗼 晚霞全景与南山手工炸猪排', time: '下午 6:30', lat: 37.5512, lng: 126.9882 },
+      { name: 'HYBE INSIGHT与龙山潮流地标', theme: 'K-POP流行文化与沉浸式音乐艺术', desc: '全球K-POP乐迷的必访圣地，通过沉浸式互动多媒体展览感受韩国音乐偶像的艺术魅力。', cat: 'K-POP圣地', photo: '📸 巨幅媒体艺术墙与互动展区', sig: '🎵 限量艺术家周边与媒体展', time: '上午 11:00', lat: 37.5283, lng: 126.9685 },
+      { name: '现代百货首尔与Sounds Forest', theme: '巨型室内花园与未来感潮流购物', desc: '自然采光充足的5层室内巨型森林公园，汇聚最新K-Fashion时尚潮牌与全球风味美食。', cat: '购物休闲', photo: '📸 5层Sounds Forest室内绿洲打卡', sig: '🛍️ B2层K-Fashion快闪与B1层美食街', time: '下午 2:00', lat: 37.5259, lng: 126.9284 },
+      { name: '汝矣岛汉江公园与月光野餐', theme: '江风拂面与地道汉江泡面野餐体验', desc: '坐在草坪野餐垫上远眺波光粼粼的汉江，品尝现煮即食泡面与炸鸡啤酒，感受首尔惬意浪漫夜生活。', cat: '夜景名胜', photo: '📸 汉江日落与麻浦大桥夜景', sig: '🧺 汉江现煮泡面与草坪野餐垫', time: '下午 5:30', lat: 37.5270, lng: 126.9325 }
+    ],
+    '제주': [
+      { name: '涯月邑咖啡街与汉潭海岸步道', theme: '绝美果冻海与海景咖啡厅漫游', desc: '沿着济州西部碧绿如宝石的海岸线分布着众多网红海景咖啡馆与烘焙坊，风景如画。', cat: '特色探店', photo: '📸 露天海景露台与日落天际线', sig: '🍩 汉拿峰特色面包与奶油拿铁', time: '上午 11:30', lat: 33.4623, lng: 126.3110 },
+      { name: '挟才海水浴场与金陵海岸', theme: '眺望飞扬岛的白沙滩与清澈果冻海', desc: '晶莹剔透的绿松石色海水与细腻贝壳沙滩，正前方即是宛如画卷的飞扬岛美景。', cat: '海洋风光', photo: '📸 飞扬岛背景与浅滩礁石倒影', sig: '🌊 新鲜海鲜拼盘与海螺刀削面', time: '下午 2:30', lat: 33.3941, lng: 126.2397 },
+      { name: '新昌风车海岸公路与落日', theme: '巨型白色风车与金黄晚霞壮景', desc: '耸立在海面上的巨型风力发电机与西海燃烧般的落日晚霞交相辉映，是绝佳的环岛自驾路线。', cat: '落日夜景', photo: '📸 夕阳映衬下的风车剪影大片', sig: '🌅 海上木栈道漫步与济州黑猪肉烧烤', time: '下午 6:30', lat: 33.3421, lng: 126.1742 }
+    ],
+    '부산': [
+      { name: '海云台蓝线公园与天空胶囊', theme: '沿海悬崖复古彩色天空胶囊小火车', desc: '从海云台到青沙浦，俯瞰蔚蓝大海与海岸峭壁的超人气浪漫体验。', cat: '体验·观景', photo: '📸 蔚蓝大海与复古彩色天空胶囊', sig: '🚊 天空胶囊乘坐体验与青沙浦烤贝', time: '上午 11:00', lat: 35.1587, lng: 129.1604 },
+      { name: '青沙浦踏石展望台与双子灯塔', theme: '全透明玻璃栈道与悠闲海港风情', desc: '延伸至海面之上的惊险透明玻璃观景台，红白双子灯塔遥相呼应。', cat: '海洋风光', photo: '📸 玻璃栈道俯瞰碧波浪花', sig: '☕ 踏石观景台漫步与海景天台咖啡', time: '下午 2:30', lat: 35.1610, lng: 129.1915 },
+      { name: '广安里海水浴场与广安大桥晚霞', theme: '璀璨广安大桥灯光秀与海滨夜生活', desc: '广安大桥标志性夜景照明与沙滩露天酒吧，周末还可欣赏震撼的无人机光影秀。', cat: '夜景名胜', photo: '📸 广安大桥夜景与沙滩倒影大片', sig: '🍺 海景精酿啤酒与地道新鲜刺身', time: '下午 6:30', lat: 35.1532, lng: 129.1186 }
+    ]
+  };
+
+  const DAILY_THEMES_ZH = {
+    '서울': [
+      { theme: '第1天: 朝鲜王室底蕴与古朴北村韩屋街巷', transit: '地铁3号线 安国站·景福宫站周边 步行10分钟以内', food: { dishName: '钟路参鸡汤与传统绿豆煎饼', description: '在传统韩屋风情中品尝滋补暖胃的地道韩国传统名菜' } },
+      { theme: '第2天: 圣水洞潮流探店与浪漫南山晚霞', transit: '地铁2号线 圣水站及南山缆车/循环公车', food: { dishName: '圣水洞手工汉堡与特色意面', description: '深受本地年轻潮人与美食家喜爱的网红餐厅' } },
+      { theme: '第3天: K-POP文化体验与汉江日落野餐', transit: '地铁1号线/京义线 龙山站及5号线 汝矣渡口站', food: { dishName: '龙山水芹菜烤五花肉与汉江泡面', description: '地道韩式烤肉与汉江岸边的落日野餐泡面体验' } }
+    ],
+    '제주': [
+      { theme: '第1天: 济州西海岸碧海风光与绝美日落咖啡厅', transit: '济州西海岸旅游公交或租车自驾（约15分钟）', food: { dishName: '济州黑猪肉炭火烤肉与海鲜泡面', description: '伴着日落晚霞品尝厚切多汁的济州黑猪肉' } }
+    ],
+    '부산': [
+      { theme: '第1天: 海岸天空胶囊与广安大桥璀璨夜景', transit: '地铁2号线 海云台站与海岸列车', food: { dishName: '青沙浦炭火烤海贝拼盘与海鲜汤', description: '面朝大海享受最新鲜的地道海味烧烤' } }
+    ]
+  };
+
   const SAMPLE_SPOTS_MAP = {
     '수원': [
       // Day 1 (화성-행궁동 코스)
@@ -805,6 +881,10 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
   // Dynamic fallback pool if city is not predefined
   const spotPool = (lang === 'en' && SAMPLE_SPOTS_MAP_EN[city])
     ? SAMPLE_SPOTS_MAP_EN[city]
+    : (lang === 'ja' && SAMPLE_SPOTS_MAP_JA[city])
+    ? SAMPLE_SPOTS_MAP_JA[city]
+    : ((lang === 'zh' || lang === 'zht') && SAMPLE_SPOTS_MAP_ZH[city])
+    ? SAMPLE_SPOTS_MAP_ZH[city]
     : (SAMPLE_SPOTS_MAP[city] || [
         { name: `${city} 대표 힐링 명소`, theme: `${city}의 자연과 감성을 느끼는 쉼터`, desc: `${city}에서 가장 사랑받는 대표적인 명소로, 아름다운 풍경과 힐링을 선사합니다.`, cat: '자연명소', photo: `📸 ${city} 포토존 인생샷`, sig: `✨ ${city} 특산 시그니처 미식`, time: '오전 10:30', lat: cityMeta.lat + 0.005, lng: cityMeta.lng - 0.005 },
         { name: `${city} 감성 카페거리 & 핫플레이스`, theme: `트렌디한 감성과 여유로운 디저트`, desc: `${city}의 젊은 여행자들이 즐겨 찾는 감각적인 공간과 로컬 카페들이 모여 있습니다.`, cat: '감성카페', photo: `📸 감성 테라스 & 인테리어 샷`, sig: `☕ 시그니처 로컬 라떼`, time: '오후 2:30', lat: cityMeta.lat - 0.005, lng: cityMeta.lng + 0.005 },
@@ -813,6 +893,10 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
 
   const themeList = (lang === 'en' && DAILY_THEMES_EN[city])
     ? DAILY_THEMES_EN[city]
+    : (lang === 'ja' && DAILY_THEMES_JA[city])
+    ? DAILY_THEMES_JA[city]
+    : ((lang === 'zh' || lang === 'zht') && DAILY_THEMES_ZH[city])
+    ? DAILY_THEMES_ZH[city]
     : (DAILY_THEMES[city] || [
         { theme: `1일차: ${city}의 청정 자연과 감성 핫플레이스`, transit: `${city} 중심가 및 대중교통 이용 편리`, food: { dishName: `${city} 로컬 대표 미식`, description: `현지인들이 추천하는 신선한 제철 재료로 만든 ${city}의 별미` } },
         { theme: `2일차: ${city} 역사 문화 산책과 낭만 야경`, transit: `${city} 주요 명소 간 차량/버스 15분`, food: { dishName: `${city} 특산 요리 한상`, description: `${city}만의 고유한 풍미를 담은 든든하고 정갈한 한 끼 식사` } },
@@ -839,10 +923,22 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
         ? (isJeju 
             ? 'Jeju Express Bus or Coastal Drive (approx. 15 mins)' 
             : (city.includes('부산') ? 'Busan Metro Line 2 or Coastal Walk' : 'Conveniently accessible by Subway or Walk (10 mins)'))
+        : lang === 'ja'
+        ? (isJeju
+            ? '済州急行バスまたは海岸道路で約15分'
+            : (city.includes('부산') ? '釜山地下鉄2号線または海岸散策路' : '地下鉄または徒歩で約10分'))
+        : (lang === 'zh' || lang === 'zht')
+        ? (isJeju
+            ? '搭乘济州快速公交或沿海公路约15分钟'
+            : (city.includes('부산') ? '釜山地铁2号线或沿海步道' : '搭乘地铁或步行约10分钟'))
         : (isJeju ? '제주 급행 버스 또는 해안도로 이동 15분' : '지하철 또는 도보로 편리하게 이동');
 
       const localizedLocation = lang === 'en'
         ? `${cityMeta.nameEn || 'Seoul'}, Republic of Korea`
+        : lang === 'ja'
+        ? `大韓民国 ${CITY_TRANSLATIONS.ja[city] || 'ソウル'}`
+        : (lang === 'zh' || lang === 'zht')
+        ? `大韩民国 ${CITY_TRANSLATIONS.zh[city] || '首尔'}`
         : `대한민국 ${city} 일대`;
 
       const sp = {
@@ -881,10 +977,18 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
 
   const tripTitle = lang === 'en'
     ? `${cityMeta.nameEn || 'Seoul'} ${days}-Day Hotspot Magazine Tour`
+    : lang === 'ja'
+    ? `${CITY_TRANSLATIONS.ja[city] || 'ソウル'} ${days}日間 おすすめトレンド旅程`
+    : (lang === 'zh' || lang === 'zht')
+    ? `${CITY_TRANSLATIONS.zh[city] || '首尔'} ${days}天2晚 精选潮流打卡路线`
     : `${city} ${days}일 감성 매거진 코스`;
 
   const summary = lang === 'en'
     ? `Curated by VORA AI, featuring the ultimate photo spots and authentic local gourmet recommendations for ${cityMeta.nameEn || 'Seoul'}. ✨`
+    : lang === 'ja'
+    ? `VORA AIが提案する${CITY_TRANSLATIONS.ja[city] || 'ソウル'}${days}日間のトレンド旅行コースです。最高のフォトスポットと本場のグルメを網羅しています。✨`
+    : (lang === 'zh' || lang === 'zht')
+    ? `VORA AI为您精心定制的${CITY_TRANSLATIONS.zh[city] || '首尔'}${days}天旅行路线，涵盖绝美打卡机位与地道特色美食。✨`
     : `VORA AI 매거진이 제안하는 ${city} ${days}일 트렌디 여행 코스입니다. 최고의 인생샷 명소와 로컬 미식으로 알차게 구성되었습니다. ✨`;
 
   return {

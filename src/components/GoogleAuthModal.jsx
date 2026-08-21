@@ -90,7 +90,7 @@ export default function GoogleAuthModal({
               </svg>
             </div>
             <span style={{ fontSize: '1.05rem', fontWeight: 800 }}>
-              {lang === 'en' ? 'Google Quick Sign-in' : 'Google 간편 로그인'}
+              {lang === 'en' ? 'Google Quick Sign-in' : lang === 'ja' ? 'Google 簡単ログイン' : (lang === 'zh' || lang === 'zht') ? (lang === 'zht' ? 'Google 快速登入' : 'Google 快捷登录') : 'Google 간편 로그인'}
             </span>
           </div>
 
@@ -131,14 +131,20 @@ export default function GoogleAuthModal({
               marginBottom: '0.8rem'
             }}>
               <Sparkles size={14} />
-              <span>{lang === 'en' ? 'Member VIP Benefits Automatically Applied' : '회원 전용 VIP 혜택 자동 적용'}</span>
+              <span>
+                {lang === 'en' ? 'Member VIP Benefits Automatically Applied' : lang === 'ja' ? '会員専用VIP特典を自動適用' : (lang === 'zh' || lang === 'zht') ? (lang === 'zht' ? '會員專享VIP權益自動生效' : '会员专属VIP权益自动生效') : '회원 전용 VIP 혜택 자동 적용'}
+              </span>
             </div>
             <h2 style={{ fontSize: '1.35rem', fontWeight: 900, margin: '0 0 0.4rem', color: 'var(--text-main)' }}>
-              {lang === 'en' ? 'Sign In & Get 15 Daily Prompts' : '로그인하고 매일 15회 질문 받기'}
+              {lang === 'en' ? 'Sign In & Get 15 Daily Prompts' : lang === 'ja' ? 'ログインで毎日15回の質問が可能' : (lang === 'zh' || lang === 'zht') ? (lang === 'zht' ? '登入即享每日15次AI提問額度' : '登录即享每日15次AI提问额度') : '로그인하고 매일 15회 질문 받기'}
             </h2>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>
               {lang === 'en'
                 ? 'Enjoy 3x more AI prompts than guest mode (5 prompts) and securely cloud-save your custom trips.'
+                : lang === 'ja'
+                ? 'ゲスト（5回）の3倍質問でき、お気に入りの旅程をクラウドに安全に保存できます。'
+                : (lang === 'zh' || lang === 'zht')
+                ? (lang === 'zht' ? '享有遊客模式（5次）3倍的提問額度，並永久雲端同步專屬旅行路線。' : '享有游客模式（5次）3倍的提问额度，并永久云端同步专属旅行路线。')
                 : '비회원(5회) 대비 3배 많은 질문과 나만의 일정이 안전하게 보관됩니다.'}
             </p>
           </div>
@@ -164,11 +170,15 @@ export default function GoogleAuthModal({
               </div>
               <div>
                 <h4 style={{ margin: '0 0 0.2rem', fontSize: '0.9rem', fontWeight: 800 }}>
-                  {lang === 'en' ? '15 Free AI Prompts Daily' : '매일 15회 AI 질문 무료 제공'}
+                  {lang === 'en' ? '15 Free AI Prompts Daily' : lang === 'ja' ? '毎日15回のAI質問が無料' : (lang === 'zh' || lang === 'zht') ? (lang === 'zht' ? '每日免費提供15次AI諮詢' : '每日免费提供15次AI咨询') : '매일 15회 AI 질문 무료 제공'}
                 </h4>
                 <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-muted)' }}>
                   {lang === 'en'
                     ? 'Automatically recharges to 15 prompts every midnight for effortless multi-day planning.'
+                    : lang === 'ja'
+                    ? '毎晩深夜0時に15回へ自動リセットされ、ゆったりと旅行プランを作成できます。'
+                    : (lang === 'zh' || lang === 'zht')
+                    ? (lang === 'zht' ? '每日午夜0點自動重置為15次，輕鬆定制多日完整行程。' : '每日午夜0点自动重置为15次，轻松定制多日完整行程。')
                     : '매일 자정마다 15회가 자동 충전되어 여유롭게 5일 코스를 설계합니다.'}
                 </p>
               </div>
@@ -193,11 +203,15 @@ export default function GoogleAuthModal({
               </div>
               <div>
                 <h4 style={{ margin: '0 0 0.2rem', fontSize: '0.9rem', fontWeight: 800 }}>
-                  {lang === 'en' ? 'Cloud Save for Custom Itineraries' : '내 맞춤 여행 일정 클라우드 영구 저장'}
+                  {lang === 'en' ? 'Cloud Save for Custom Itineraries' : lang === 'ja' ? 'カスタム旅程のクラウド永久保存' : (lang === 'zh' || lang === 'zht') ? (lang === 'zht' ? '定制行程雲端永久儲存' : '定制行程云端永久保存') : '내 맞춤 여행 일정 클라우드 영구 저장'}
                 </h4>
                 <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-muted)' }}>
                   {lang === 'en'
                     ? 'Your generated courses and wishlist spots are safely synchronized with your account.'
+                    : lang === 'ja'
+                    ? '作成したおすすめルートやウィッシュリストがアカウントに自動同期されます。'
+                    : (lang === 'zh' || lang === 'zht')
+                    ? (lang === 'zht' ? '生成的推薦路線與心願單景點將自動同步至您的帳號。' : '生成的推荐路线与心愿单景点将自动同步至您的账号。')
                     : '생성한 추천 코스와 위시리스트가 계정에 자동 동기화됩니다.'}
                 </p>
               </div>
@@ -208,7 +222,7 @@ export default function GoogleAuthModal({
           <div style={{ marginBottom: '1.25rem' }}>
             <input
               type="text"
-              placeholder={lang === 'en' ? 'Traveler Nickname (Optional, e.g. Alex)' : '여행자 닉네임 (선택사항, 예: 민지)'}
+              placeholder={lang === 'en' ? 'Traveler Nickname (Optional, e.g. Alex)' : lang === 'ja' ? 'ニックネーム（任意、例：Yuki）' : (lang === 'zh' || lang === 'zht') ? (lang === 'zht' ? '旅客暱稱（選填，例：小明）' : '旅客昵称（选填，例：小明）') : '여행자 닉네임 (선택사항, 예: 민지)'}
               value={customName}
               onChange={(e) => setCustomName(e.target.value)}
               style={{
@@ -226,7 +240,7 @@ export default function GoogleAuthModal({
 
           {/* Google Sign-in Action Button */}
           <button
-            onClick={() => handleSimulatedGoogleLogin('traveler@gmail.com', lang === 'en' ? 'Global Traveler' : '한국여행자')}
+            onClick={() => handleSimulatedGoogleLogin('traveler@gmail.com', lang === 'en' ? 'Global Traveler' : lang === 'ja' ? '日本旅行者' : '旅行者')}
             disabled={isLoading}
             style={{
               width: '100%',
@@ -254,8 +268,8 @@ export default function GoogleAuthModal({
             </svg>
             <span>
               {isLoading 
-                ? (lang === 'en' ? 'Connecting Google Account...' : '구글 계정 연동 중...') 
-                : (lang === 'en' ? 'Start in 3s with Google' : 'Google 계정으로 3초 만에 시작')}
+                ? (lang === 'en' ? 'Connecting Google Account...' : lang === 'ja' ? 'Googleアカウント連携中...' : (lang === 'zh' || lang === 'zht') ? '正在连接Google账号...' : '구글 계정 연동 중...') 
+                : (lang === 'en' ? 'Start in 3s with Google' : lang === 'ja' ? 'Googleアカウントで3秒スタート' : (lang === 'zh' || lang === 'zht') ? (lang === 'zht' ? '使用Google帳號3秒開啟' : '使用Google账号3秒开启') : 'Google 계정으로 3초 만에 시작')}
             </span>
           </button>
 
@@ -266,7 +280,7 @@ export default function GoogleAuthModal({
             marginTop: '1rem',
             marginBottom: 0
           }}>
-            🔒 {lang === 'en' ? 'Securely connected via your Google account without passwords.' : '별도의 비밀번호 없이 안전하게 구글 계정으로 연동됩니다.'}
+            🔒 {lang === 'en' ? 'Securely connected via your Google account without passwords.' : lang === 'ja' ? 'パスワード不要で安全にGoogleアカウントと連携されます。' : (lang === 'zh' || lang === 'zht') ? '无需单独密码，通过Google账号安全便捷连接。' : '별도의 비밀번호 없이 안전하게 구글 계정으로 연동됩니다.'}
           </p>
         </div>
       </div>

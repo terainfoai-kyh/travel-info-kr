@@ -31,29 +31,58 @@ export default function App() {
     return detectBrowserLanguage();
   });
 
-  const handleLanguageChange = (newLang) => {
-    setLang(newLang);
-    try {
-      localStorage.setItem('vora_lang', newLang);
-    } catch (e) {}
-
-    // Automatically reset and re-query the itinerary and chat messages in the newly selected language
-    const newItinerary = generateLocalFallbackItinerary('서울 3일 핫플 감성 투어', '서울', 3, newLang);
-    setItineraryData(newItinerary);
-
-    const welcomeMsgs = newLang === 'en' ? [
-      {
-        id: 'welcome-1',
-        role: 'assistant',
-        text: 'Hello! I am VORA, your dedicated AI travel concierge for South Korea. 😊\nTell me where you want to visit or your desired travel style!'
-      },
-      {
-        id: 'featured-1',
-        role: 'assistant',
-        text: '✨ We have prepared [Seoul 3-Day Hotspot Trend Magazine Tour] as your recommended itinerary.\nFeel free to ask anytime if you want adjustments or want to explore other cities!',
-        itinerary: newItinerary
-      }
-    ] : [
+  const getInitialWelcomeMessages = (currentLang, currentItinerary) => {
+    if (currentLang === 'en') {
+      return [
+        {
+          id: 'welcome-1',
+          role: 'assistant',
+          text: 'Hello! I am VORA, your dedicated AI travel concierge for South Korea. 😊\nTell me where you want to visit or your desired travel style!'
+        },
+        {
+          id: 'featured-1',
+          role: 'assistant',
+          text: '✨ We have prepared [Seoul 3-Day Hotspot Trend Magazine Tour] as your recommended itinerary.\nFeel free to ask anytime if you want adjustments or want to explore other cities!',
+          itinerary: currentItinerary
+        }
+      ];
+    }
+    if (currentLang === 'ja') {
+      return [
+        {
+          id: 'welcome-1',
+          role: 'assistant',
+          text: 'こんにちは！専属の韓国旅行AIコンシェルジュ、VORA（ボラ）です。😊\n訪れてみたい都市や旅のスタイルを気軽にお知らせください！'
+        },
+        {
+          id: 'featured-1',
+          role: 'assistant',
+          text: '✨ おすすめプランとして「ソウル3日間 トレンド満喫ツアー」をご用意しました。\nプランの変更や他都市の追加など、いつでもご質問ください！',
+          itinerary: currentItinerary
+        }
+      ];
+    }
+    if (currentLang === 'zh' || currentLang === 'zht') {
+      const isZht = currentLang === 'zht';
+      return [
+        {
+          id: 'welcome-1',
+          role: 'assistant',
+          text: isZht 
+            ? '您好！我是您的專屬韓國旅遊AI智能向導 VORA。😊\n請告訴我您想去的城市或旅行風格，我將為您客製專屬行程！'
+            : '您好！我是您的专属韩国旅游AI智能向导 VORA。😊\n请告诉我您想去的城市或旅行风格，我将为您定制专属行程！'
+        },
+        {
+          id: 'featured-1',
+          role: 'assistant',
+          text: isZht
+            ? '✨ 已為您準備精選推薦路線【首爾3天2晚 潮流打卡之旅】。\n如需調整行程或探索其他城市，請隨時向我提問！'
+            : '✨ 已为您准备精选推荐路线【首尔3天2晚 潮流打卡之旅】。\n如需调整行程或探索其他城市，请随时向我提问！',
+          itinerary: currentItinerary
+        }
+      ];
+    }
+    return [
       {
         id: 'welcome-1',
         role: 'assistant',
@@ -63,10 +92,21 @@ export default function App() {
         id: 'featured-1',
         role: 'assistant',
         text: '✨ [서울 3일 핫플 감성 투어]를 추천 코스로 준비해 두었습니다.\n수정을 원하시거나 새로운 지역을 가고 싶으시면 언제든 질문해 주세요!',
-        itinerary: newItinerary
+        itinerary: currentItinerary
       }
     ];
-    setChatMessages(welcomeMsgs);
+  };
+
+  const handleLanguageChange = (newLang) => {
+    setLang(newLang);
+    try {
+      localStorage.setItem('vora_lang', newLang);
+    } catch (e) {}
+
+    // Automatically reset and re-query the itinerary and chat messages in the newly selected language
+    const newItinerary = generateLocalFallbackItinerary('서울 3일 핫플 감성 투어', '서울', 3, newLang);
+    setItineraryData(newItinerary);
+    setChatMessages(getInitialWelcomeMessages(newLang, newItinerary));
   };
 
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
@@ -91,7 +131,7 @@ export default function App() {
   }, [themeMode]);
 
   useEffect(() => {
-    const langMap = { ko: 'ko-KR', en: 'en-US', ja: 'ja-JP', zh: 'zh-CN' };
+    const langMap = { ko: 'ko-KR', en: 'en-US', ja: 'ja-JP', zh: 'zh-CN', zht: 'zh-TW' };
     document.documentElement.lang = langMap[lang] || 'ko-KR';
   }, [lang]);
 
@@ -119,31 +159,7 @@ export default function App() {
     return () => { isMounted = false; };
   }, [initialItinerary]);
 
-  const [chatMessages, setChatMessages] = useState(() => (lang === 'en' ? [
-    {
-      id: 'welcome-1',
-      role: 'assistant',
-      text: 'Hello! I am VORA, your dedicated AI travel concierge for South Korea. 😊\nTell me where you want to visit or your desired travel style!'
-    },
-    {
-      id: 'featured-1',
-      role: 'assistant',
-      text: '✨ We have prepared [Seoul 3-Day Hotspot Trend Magazine Tour] as your recommended itinerary.\nFeel free to ask anytime if you want adjustments or want to explore other cities!',
-      itinerary: initialItinerary
-    }
-  ] : [
-    {
-      id: 'welcome-1',
-      role: 'assistant',
-      text: '안녕하세요! 당신의 전담 한국 여행 AI 컨시어지 VORA(보라)입니다. 😊\n어떤 여행을 꿈꾸시나요? 가고 싶은 도시나 스타일을 편하게 말씀해 주세요!'
-    },
-    {
-      id: 'featured-1',
-      role: 'assistant',
-      text: '✨ [서울 3일 핫플 감성 투어]를 추천 코스로 준비해 두었습니다.\n수정을 원하시거나 새로운 지역을 가고 싶으시면 언제든 질문해 주세요!',
-      itinerary: initialItinerary
-    }
-  ]));
+  const [chatMessages, setChatMessages] = useState(() => getInitialWelcomeMessages(lang, initialItinerary));
   const [activeDay, setActiveDay] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedSpot, setSelectedSpot] = useState(null);

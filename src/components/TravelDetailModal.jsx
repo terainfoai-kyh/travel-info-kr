@@ -22,8 +22,8 @@ export default function TravelDetailModal({ spot, onClose, lang = 'ko' }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
 
   const title = spot.title || spot.name || '추천 여행 명소';
-  const location = spot.location || spot.address || spot.addr1 || (lang === 'en' ? 'Republic of Korea' : '대한민국 서울 일대');
-  const description = spot.description || spot.overview || spot.theme || (lang === 'en' ? 'Carefully curated popular Korean hotspot by VORA AI.' : 'VORA AI가 엄선한 한국의 대표적인 핫플레이스입니다.');
+  const location = spot.location || spot.address || spot.addr1 || (lang === 'en' ? 'Republic of Korea' : lang === 'ja' ? '大韓民国' : (lang === 'zh' || lang === 'zht') ? (lang === 'zht' ? '大韓民國' : '大韩民国') : '대한민국 서울 일대');
+  const description = spot.description || spot.overview || spot.theme || (lang === 'en' ? 'Carefully curated popular Korean hotspot by VORA AI.' : lang === 'ja' ? 'VORA AIが厳選した韓国の人気スポットです。' : (lang === 'zh' || lang === 'zht') ? 'VORA AI为您精心推荐的韩国精选热门打卡地。' : 'VORA AI가 엄선한 한국의 대표적인 핫플레이스입니다.');
   const rating = spot.rating || 4.9;
 
   const affiliateDeal = spot.affiliateDeal
@@ -32,16 +32,22 @@ export default function TravelDetailModal({ spot, onClose, lang = 'ko' }) {
 
   const localizedTransit = React.useMemo(() => {
     if (!spot.transitTime) return null;
-    if (lang !== 'en') return spot.transitTime;
+    if (lang === 'ko') return spot.transitTime;
     const tt = spot.transitTime;
     if (tt.includes('제주') || tt.includes('급행') || tt.includes('해안도로')) {
-      return 'Jeju Express Bus or Coastal Drive (approx. 15 mins)';
+      if (lang === 'en') return 'Jeju Express Bus or Coastal Drive (approx. 15 mins)';
+      if (lang === 'ja') return '済州急行バスまたは海岸道路（約15分）';
+      return '搭乘济州快速公交或沿海公路（约15分钟）';
     }
     if (tt.includes('지하철') || tt.includes('도보')) {
-      return 'Accessible by Subway or Walk (approx. 10 mins)';
+      if (lang === 'en') return 'Accessible by Subway or Walk (approx. 10 mins)';
+      if (lang === 'ja') return '地下鉄または徒歩（約10分）';
+      return '搭乘地铁或步行（约10分钟）';
     }
     if (tt.includes('버스') || tt.includes('택시')) {
-      return 'Accessible by City Bus or Taxi (approx. 15 mins)';
+      if (lang === 'en') return 'Accessible by City Bus or Taxi (approx. 15 mins)';
+      if (lang === 'ja') return '市内バスまたはタクシー（約15分）';
+      return '搭乘市内公交或出租车（约15分钟）';
     }
     return tt;
   }, [spot.transitTime, lang]);
@@ -233,7 +239,7 @@ export default function TravelDetailModal({ spot, onClose, lang = 'ko' }) {
                 fontSize: '0.72rem',
                 fontWeight: 800
               }}>
-                {spot.category || spot.theme || '추천 명소'}
+                {spot.category || spot.theme || (lang === 'en' ? 'Top Attraction' : lang === 'ja' ? 'おすすめスポット' : '精选景点')}
               </span>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: '#f59e0b', fontSize: '0.8rem', fontWeight: 800 }}>
                 <Star size={13} fill="#f59e0b" />
@@ -471,7 +477,7 @@ export default function TravelDetailModal({ spot, onClose, lang = 'ko' }) {
                   boxShadow: 'var(--shadow-glow)'
                 }}
               >
-                <span>{lang === 'en' ? 'Google Maps' : 'Google 지도'}</span>
+                <span>{lang === 'en' ? 'Google Maps' : lang === 'ja' ? 'Googleマップ' : (lang === 'zh' || lang === 'zht') ? 'Google地图' : 'Google 지도'}</span>
                 <ExternalLink size={12} />
               </a>
 
@@ -493,7 +499,7 @@ export default function TravelDetailModal({ spot, onClose, lang = 'ko' }) {
                   gap: '0.35rem'
                 }}
               >
-                <span>{lang === 'en' ? 'KakaoMap' : '카카오맵'}</span>
+                <span>{lang === 'en' ? 'KakaoMap' : lang === 'ja' ? 'カカオマップ' : (lang === 'zh' || lang === 'zht') ? 'Kakao地图' : '카카오맵'}</span>
                 <ExternalLink size={12} />
               </a>
 
@@ -515,7 +521,7 @@ export default function TravelDetailModal({ spot, onClose, lang = 'ko' }) {
                   gap: '0.35rem'
                 }}
               >
-                <span>{lang === 'en' ? 'Naver Map' : '네이버지도'}</span>
+                <span>{lang === 'en' ? 'Naver Map' : lang === 'ja' ? 'ネイバーマップ' : (lang === 'zh' || lang === 'zht') ? 'Naver地图' : '네이버지도'}</span>
                 <ExternalLink size={12} />
               </a>
             </div>

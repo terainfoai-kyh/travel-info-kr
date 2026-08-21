@@ -24,17 +24,23 @@ export default function CourseMagazineView({
 
   // Transit localization helper
   const getLocalizedTransit = (transitStr) => {
-    if (!transitStr) return lang === 'en' ? '10 mins walk' : '도보 10분';
-    if (lang !== 'en') return transitStr;
+    if (!transitStr) return lang === 'en' ? '10 mins walk' : lang === 'ja' ? '徒歩10分' : (lang === 'zh' || lang === 'zht') ? '步行10分钟' : '도보 10분';
+    if (lang === 'ko') return transitStr;
     const tt = transitStr;
     if (tt.includes('제주') || tt.includes('급행') || tt.includes('해안도로')) {
-      return 'Jeju Express Bus or Coastal Drive (approx. 15 mins)';
+      if (lang === 'en') return 'Jeju Express Bus or Coastal Drive (approx. 15 mins)';
+      if (lang === 'ja') return '済州急行バスまたは海岸道路（約15分）';
+      return '搭乘济州快速公交或沿海公路（约15分钟）';
     }
     if (tt.includes('지하철') || tt.includes('도보')) {
-      return 'Accessible by Subway or Walk (approx. 10 mins)';
+      if (lang === 'en') return 'Accessible by Subway or Walk (approx. 10 mins)';
+      if (lang === 'ja') return '地下鉄または徒歩（約10分）';
+      return '搭乘地铁或步行（约10分钟）';
     }
     if (tt.includes('버스') || tt.includes('택시')) {
-      return 'Accessible by City Bus or Taxi (approx. 15 mins)';
+      if (lang === 'en') return 'Accessible by City Bus or Taxi (approx. 15 mins)';
+      if (lang === 'ja') return '市内バスまたはタクシー（約15分）';
+      return '搭乘市内公交或出租车（约15分钟）';
     }
     return tt;
   };
@@ -97,7 +103,7 @@ export default function CourseMagazineView({
               alignItems: 'center',
               gap: '0.25rem'
             }}>
-              ⚡ {itineraryData.generationTime}{lang === 'en' ? 's generated' : '초 생성'}
+              ⚡ {itineraryData.generationTime}{lang === 'en' ? 's generated' : lang === 'ja' ? '秒で生成' : (lang === 'zh' || lang === 'zht') ? '秒生成' : '초 생성'}
             </span>
           )}
         </div>
@@ -165,7 +171,13 @@ export default function CourseMagazineView({
             <MapPin size={28} />
           </div>
           <h4 style={{ margin: '0 0 0.4rem 0', fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-main)' }}>
-            맞춤 여행 코스가 여기에 표시됩니다
+            {lang === 'en' 
+              ? 'Your customized travel itinerary will appear here' 
+              : lang === 'ja' 
+              ? 'カスタム旅程がここに表示されます' 
+              : (lang === 'zh' || lang === 'zht') 
+              ? (lang === 'zht' ? '您的專屬客製化旅遊行程將在此顯示' : '您的专属定制旅游路线将在此显示') 
+              : '맞춤 여행 코스가 여기에 표시됩니다'}
           </h4>
           <p style={{ margin: 0, fontSize: '0.82rem', maxWidth: '360px', lineHeight: 1.5 }}>
             {t.noSpotsYet || 'AI에게 여행 계획을 물어보시면 맞춤형 코스 타임라인과 구글 지도가 이곳에 펼쳐집니다.'}
@@ -220,7 +232,7 @@ export default function CourseMagazineView({
                   <div
                     key={spot.id || idx}
                     onClick={() => setFocusedSpotIndex(idx)}
-                    title={`${spot.title} 지도 위치로 이동 (클릭)`}
+                    title={lang === 'en' ? `Pan to ${spot.title} on map (Click)` : lang === 'ja' ? `${spot.title}の位置へ移動（クリック）` : (lang === 'zh' || lang === 'zht') ? `在地图上查看 ${spot.title}（点击）` : `${spot.title} 지도 위치로 이동 (클릭)`}
                     style={{
                       backgroundColor: isFocused ? 'rgba(37, 99, 235, 0.05)' : 'var(--bg-primary)',
                       border: isFocused ? '1.5px solid var(--accent-primary)' : '1px solid var(--border-color)',
@@ -241,7 +253,7 @@ export default function CourseMagazineView({
                         e.stopPropagation();
                         if (onOpenDetail) onOpenDetail(spot);
                       }}
-                      title="클릭하여 상세 정보 및 고화질 실사진 보기"
+                      title={lang === 'en' ? 'Click to view HD photos & details' : lang === 'ja' ? 'クリックして詳細情報と高画質写真を見る' : (lang === 'zh' || lang === 'zht') ? '点击查看高清实景图与详情' : '클릭하여 상세 정보 및 고화질 실사진 보기'}
                       style={{
                         position: 'relative',
                         width: '84px',
@@ -296,7 +308,7 @@ export default function CourseMagazineView({
                         borderRadius: '4px',
                         backdropFilter: 'blur(4px)'
                       }}>
-                        {spot.category || '명소'}
+                        {spot.category || (lang === 'en' ? 'Attraction' : lang === 'ja' ? '名所' : '景点')}
                       </span>
                     </div>
 
@@ -332,7 +344,7 @@ export default function CourseMagazineView({
                             overflow: 'hidden',
                             textOverflow: 'ellipsis'
                           }}>
-                            {spot.location || `대한민국 ${targetCity}`}
+                            {spot.location || (lang === 'en' ? `${targetCity}, Korea` : lang === 'ja' ? `韓国 ${targetCity}` : `韩国 ${targetCity}`)}
                           </p>
                         </div>
 
@@ -415,7 +427,7 @@ export default function CourseMagazineView({
                           }}
                         >
                           <Navigation size={9} />
-                          <span>{lang === 'en' ? 'Map Pin' : '지도 위치'}</span>
+                          <span>{lang === 'en' ? 'Map Pin' : lang === 'ja' ? '地図' : (lang === 'zh' || lang === 'zht') ? '地图' : '지도 위치'}</span>
                         </button>
 
                         <button
@@ -440,7 +452,7 @@ export default function CourseMagazineView({
                           }}
                         >
                           <Info size={10} style={{ color: 'var(--accent-primary)' }} />
-                          <span>{lang === 'en' ? 'Photos & Details' : '사진·상세'}</span>
+                          <span>{lang === 'en' ? 'Photos & Details' : lang === 'ja' ? '写真・詳細' : (lang === 'zh' || lang === 'zht') ? (lang === 'zht' ? '照片·詳情' : '照片·详情') : '사진·상세'}</span>
                         </button>
 
                         <a
@@ -464,7 +476,7 @@ export default function CourseMagazineView({
                           }}
                         >
                           <MapPin size={10} />
-                          <span>{lang === 'en' ? 'Google Maps' : 'Google맵'}</span>
+                          <span>{lang === 'en' ? 'Google Maps' : lang === 'ja' ? 'Googleマップ' : (lang === 'zh' || lang === 'zht') ? 'Google地图' : 'Google맵'}</span>
                         </a>
 
                         {(() => {

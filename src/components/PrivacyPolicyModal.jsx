@@ -43,7 +43,7 @@ export default function PrivacyPolicyModal({ isOpen, onClose, lang = 'ko' }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <ShieldCheck size={22} style={{ color: 'var(--accent-primary)' }} />
             <h2 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 900 }}>
-              {lang === 'en' ? 'Privacy Policy' : '개인정보처리방침 (Privacy Policy)'}
+              {lang === 'en' ? 'Privacy Policy' : lang === 'ja' ? 'プライバシーポリシー' : (lang === 'zh' || lang === 'zht') ? '隐私政策' : '개인정보처리방침 (Privacy Policy)'}
             </h2>
           </div>
           <button
@@ -115,6 +115,90 @@ export default function PrivacyPolicyModal({ isOpen, onClose, lang = 'ko' }) {
                 <p style={{ margin: 0 }}>
                   For inquiries or suggestions regarding our privacy practices, please contact us at:<br />
                   • Email: <strong>terainfoai@gmail.com</strong>
+                </p>
+              </div>
+            </>
+          ) : lang === 'ja' ? (
+            <>
+              <div>
+                <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text-main)', fontWeight: 800 }}>
+                  1. 総則および収集する情報
+                </h4>
+                <p style={{ margin: 0 }}>
+                  VORA AI (koreatravel.cc) は、ユーザーのプライバシーを尊重し、関連する国際的な保護基準を遵守します。本サービスは会員登録なしで利用できる無料の旅行情報プラットフォームであり、機密性の高い個人情報を収集・保存・販売することはありません。
+                </p>
+              </div>
+
+              <div>
+                <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text-main)', fontWeight: 800 }}>
+                  2. クッキー（Cookie）および Google AdSense 広告ポリシー
+                </h4>
+                <p style={{ margin: '0 0 0.5rem 0' }}>
+                  本ウェブサイトは、ユーザーの利便性（言語設定、お気に入りリスト、ダークモード設定など）のためにローカルストレージ（localStorage）およびCookieを使用します。
+                </p>
+                <p style={{ margin: 0, padding: '0.75rem', backgroundColor: 'var(--bg-primary)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+                  <strong>Google AdSense ポリシー:</strong> Google を含む第三者配信事業者は、Cookie を使用して、ユーザーがウェブサイトにアクセスした際の情報に基づいて広告を配信します。パーソナライズ広告は Google 広告設定（https://www.google.com/settings/ads）で無効にできます。
+                </p>
+              </div>
+
+              <div>
+                <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text-main)', fontWeight: 800 }}>
+                  3. Google アナリティクス
+                </h4>
+                <p style={{ margin: 0 }}>
+                  サービス品質向上のため、Google アナリティクスを使用してトラフィックを分析しています。収集されるデータは完全に匿名化されており、個人を特定することはありません。
+                </p>
+              </div>
+
+              <div>
+                <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text-main)', fontWeight: 800 }}>
+                  4. 個人情報保護管理者およびお問い合わせ
+                </h4>
+                <p style={{ margin: 0 }}>
+                  プライバシーポリシーに関するご質問は、下記までお問い合わせください。<br />
+                  • メール: <strong>terainfoai@gmail.com</strong>
+                </p>
+              </div>
+            </>
+          ) : (lang === 'zh' || lang === 'zht') ? (
+            <>
+              <div>
+                <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text-main)', fontWeight: 800 }}>
+                  1. 总则及收集的信息
+                </h4>
+                <p style={{ margin: 0 }}>
+                  VORA AI (koreatravel.cc) 高度重视用户隐私，并遵守相关国际隐私保护规范。本服务为无需注册即可使用的免费智能旅行平台，绝不收集、储存或出售任何敏感个人身份信息。
+                </p>
+              </div>
+
+              <div>
+                <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text-main)', fontWeight: 800 }}>
+                  2. Cookie 与 Google AdSense 广告政策
+                </h4>
+                <p style={{ margin: '0 0 0.5rem 0' }}>
+                  本网站使用浏览器本地存储 (localStorage) 及 Cookie 来记录用户的偏好设置（如选择的语言、心愿单收藏、深色模式等）。
+                </p>
+                <p style={{ margin: 0, padding: '0.75rem', backgroundColor: 'var(--bg-primary)', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+                  <strong>Google AdSense 广告政策：</strong> 包括 Google 在内的第三方广告服务商使用 Cookie 根据用户此前访问本网站或其他网站的记录来投放广告。用户可访问 Google 广告设置 (https://www.google.com/settings/ads) 停用个性化广告。
+                </p>
+              </div>
+
+              <div>
+                <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text-main)', fontWeight: 800 }}>
+                  3. Google Analytics（网站数据分析）
+                </h4>
+                <p style={{ margin: 0 }}>
+                  为了持续优化用户体验，我们使用 Google Analytics 分析流量与使用情况。所有收集的数据均为匿名化处理，无法识别具体个人。
+                </p>
+              </div>
+
+              <div>
+                <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text-main)', fontWeight: 800 }}>
+                  4. 隐私保护责任人与联系方式
+                </h4>
+                <p style={{ margin: 0 }}>
+                  如有任何关于隐私政策的疑问或建议，请随时通过以下邮箱联系我们：<br />
+                  • 邮箱：<strong>terainfoai@gmail.com</strong>
                 </p>
               </div>
             </>

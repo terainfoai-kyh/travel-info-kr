@@ -255,10 +255,12 @@ export default function WeatherModal({
     if (!raw) return '서울';
     const cleanLower = raw.toLowerCase();
 
-    // 1. Check English City Name mapping (e.g. 'jeju' -> '제주', 'seoul' -> '서울')
-    for (const [koCity, enCity] of Object.entries(CITY_TRANSLATIONS.en || {})) {
-      if (cleanLower === enCity.toLowerCase() || cleanLower.includes(enCity.toLowerCase()) || enCity.toLowerCase().includes(cleanLower)) {
-        return koCity;
+    // 1. Check English, Japanese, and Chinese City Name mappings
+    for (const l of ['en', 'ja', 'zh']) {
+      for (const [koCity, transCity] of Object.entries(CITY_TRANSLATIONS[l] || {})) {
+        if (cleanLower === transCity.toLowerCase() || cleanLower.includes(transCity.toLowerCase()) || transCity.toLowerCase().includes(cleanLower)) {
+          return koCity;
+        }
       }
     }
 
@@ -269,50 +271,133 @@ export default function WeatherModal({
     return found || raw;
   }, [searchQuery, initialRegion]);
 
-  // English Localization Helper for Weather conditions, dust, and styling recommendations
+  // Multilingual Localization Helper for Weather conditions, dust, and styling recommendations
   const getLocalizedWeather = (data, language, targetCityName) => {
-    if (language !== 'en') return data;
-    const translateDust = (d) => d === '최고 좋음' ? 'Excellent' : d === '좋음' ? 'Good' : d === '보통' ? 'Moderate' : 'Unhealthy';
-    const translateUv = (u) => u === '매우 높음' ? 'Very High' : u === '높음' ? 'High' : u === '보통' ? 'Moderate' : 'Low';
-    const translateWeather = (w) => {
-      if (w.includes('화창') || w.includes('맑음') || w.includes('화창함')) return 'Sunny & Clear ☀️';
-      if (w.includes('구름') || w.includes('흐림')) return 'Partly Cloudy ⛅';
-      if (w.includes('비')) return 'Rainy 🌧️';
-      return 'Mild & Pleasant 🌤️';
+    if (language === 'ko') return data;
+
+    const translateDust = (d) => {
+      if (language === 'en') return d === '최고 좋음' ? 'Excellent' : d === '좋음' ? 'Good' : d === '보통' ? 'Moderate' : 'Unhealthy';
+      if (language === 'ja') return d === '최고 좋음' ? '最高' : d === '좋음' ? '良い' : d === '보통' ? '普通' : '悪い';
+      if (language === 'zht') return d === '최고 좋음' ? '極佳' : d === '좋음' ? '良好' : d === '보통' ? '普通' : '輕度污染';
+      return d === '최고 좋음' ? '极佳' : d === '좋음' ? '良好' : d === '보통' ? '普通' : '轻度污染';
     };
 
-    const localizedCity = CITY_TRANSLATIONS.en?.[targetCityName] || targetCityName;
+    const translateUv = (u) => {
+      if (language === 'en') return u === '매우 높음' ? 'Very High' : u === '높음' ? 'High' : u === '보통' ? 'Moderate' : 'Low';
+      if (language === 'ja') return u === '매우 높음' ? '非常に高い' : u === '높음' ? '高い' : u === '보통' ? '普通' : '低い';
+      if (language === 'zht') return u === '매우 높음' ? '極高' : u === '높음' ? '高' : u === '보통' ? '中等' : '弱';
+      return u === '매우 높음' ? '极高' : u === '높음' ? '高' : u === '보통' ? '中等' : '弱';
+    };
+
+    const translateWeather = (w) => {
+      if (language === 'en') {
+        if (w.includes('화창') || w.includes('맑음') || w.includes('화창함')) return 'Sunny & Clear ☀️';
+        if (w.includes('구름') || w.includes('흐림')) return 'Partly Cloudy ⛅';
+        if (w.includes('비')) return 'Rainy 🌧️';
+        return 'Mild & Pleasant 🌤️';
+      }
+      if (language === 'ja') {
+        if (w.includes('화창') || w.includes('맑음') || w.includes('화창함')) return '快晴 ☀️';
+        if (w.includes('구름') || w.includes('흐림')) return '晴れ時々曇り ⛅';
+        if (w.includes('비')) return '雨 🌧️';
+        return '快適な気候 🌤️';
+      }
+      if (language === 'zht') {
+        if (w.includes('화창') || w.includes('맑음') || w.includes('화창함')) return '晴空萬里 ☀️';
+        if (w.includes('구름') || w.includes('흐림')) return '多雲轉晴 ⛅';
+        if (w.includes('비')) return '有雨 🌧️';
+        return '氣候宜人 🌤️';
+      }
+      if (w.includes('화창') || w.includes('맑음') || w.includes('화창함')) return '晴空万里 ☀️';
+      if (w.includes('구름') || w.includes('흐림')) return '多云转晴 ⛅';
+      if (w.includes('비')) return '有雨 🌧️';
+      return '气候宜人 🌤️';
+    };
+
+    const localizedCity = CITY_TRANSLATIONS[language]?.[targetCityName] || targetCityName;
     const tempNum = parseInt(data.temp) || 22;
-    let topBottomEn = 'Comfortable cotton T-shirt, breathable slacks or denim jeans';
-    let outerEn = 'Light cardigan or windbreaker for evening breeze & indoor AC';
-    let essentialsEn = 'Power bank, comfortable walking shoes, sunglasses';
-    let tipEn = `Ideal pleasant weather for walking and cafe hopping in ${localizedCity}.`;
+
+    let topBottom = 'Comfortable cotton T-shirt, breathable slacks or denim jeans';
+    let outer = 'Light cardigan or windbreaker for evening breeze & indoor AC';
+    let essentials = 'Power bank, comfortable walking shoes, sunglasses';
+    let tip = `Ideal pleasant weather for walking and cafe hopping in ${localizedCity}.`;
+
+    if (language === 'ja') {
+      topBottom = '快適なコットンTシャツ、通気性の良いスラックスまたはデニム';
+      outer = '夕方の涼しい風やエアコン対策用の薄手カーディガン';
+      essentials = 'モバイルバッテリー、歩きやすいスニーカー、サングラス';
+      tip = `${localizedCity}の散策やカフェ巡りにぴったりの心地よい気候です。`;
+    } else if (language === 'zh' || language === 'zht') {
+      const isZht = language === 'zht';
+      topBottom = isZht ? '舒適純棉T恤、透氣長褲或休閒牛仔褲' : '舒适纯棉T恤、透气长裤或休闲牛仔裤';
+      outer = isZht ? '應對早晚溫差與室內冷氣的輕薄開衫' : '应对早晚温差与室内冷气的轻薄开衫';
+      essentials = isZht ? '行動電源、舒適健走鞋、太陽眼鏡' : '充电宝、舒适健走鞋、太阳镜';
+      tip = isZht ? `今日非常適合在${localizedCity}漫步與打卡特色咖啡廳。` : `今日非常适合在${localizedCity}漫步与打卡特色咖啡厅。`;
+    }
 
     if (tempNum >= 25) {
-      topBottomEn = 'Linen shirts, cooling cotton shorts, or breezy summer dresses';
-      outerEn = 'Light linen shirt or UV protection sun-layer for coastlines';
-      essentialsEn = 'UV sunglasses, waterproof sunscreen, mini umbrella, sandals';
-      tipEn = `High UV index today. Apply sunscreen regularly and wear a hat during outdoor strolls in ${localizedCity}.`;
+      if (language === 'en') {
+        topBottom = 'Linen shirts, cooling cotton shorts, or breezy summer dresses';
+        outer = 'Light linen shirt or UV protection sun-layer for coastlines';
+        essentials = 'UV sunglasses, waterproof sunscreen, mini umbrella, sandals';
+        tip = `High UV index today. Apply sunscreen regularly and wear a hat during outdoor strolls in ${localizedCity}.`;
+      } else if (language === 'ja') {
+        topBottom = '涼しいリネンシャツ、ショートパンツ、またはサマードレス';
+        outer = 'UVカットの薄手サマー羽織りや日傘';
+        essentials = 'サングラス、ウォータープルーフ日焼け止め、ミニ傘';
+        tip = `日差しが強い予報です。こまめに日焼け止めを塗り、水分補給を心がけてください。`;
+      } else if (language === 'zh' || language === 'zht') {
+        const isZht = language === 'zht';
+        topBottom = isZht ? '亞麻襯衫、清涼短褲或飄逸連身裙' : '亚麻衬衫、清凉短裤或飘逸连衣裙';
+        outer = isZht ? '防曬防紫外線薄外套或遮陽傘' : '防晒防紫外线薄外套或遮阳伞';
+        essentials = isZht ? '抗UV太陽眼鏡、防水防曬乳、便攜雨傘' : '抗UV太阳镜、防水防晒乳、便携雨伞';
+        tip = isZht ? `紫外線偏強，戶外遊覽時請注意防曬並多補充水分。` : `紫外线偏强，户外游览时请注意防晒并多补充水分。`;
+      }
     } else if (tempNum < 20) {
-      topBottomEn = 'Long-sleeve sweatshirt, warm knit, or casual chinos';
-      outerEn = 'Trench coat, denim jacket, or light padded outerwear';
-      essentialsEn = 'Lip balm, thermal bottle, warm socks, comfortable sneakers';
-      tipEn = `Chilly morning and evening breeze. Layering a light jacket is highly recommended in ${localizedCity}.`;
+      if (language === 'en') {
+        topBottom = 'Long-sleeve sweatshirt, warm knit, or casual chinos';
+        outer = 'Trench coat, denim jacket, or light padded outerwear';
+        essentials = 'Lip balm, thermal bottle, warm socks, comfortable sneakers';
+        tip = `Chilly morning and evening breeze. Layering a light jacket is highly recommended in ${localizedCity}.`;
+      } else if (language === 'ja') {
+        topBottom = '長袖スウェット、薄手ニット、またはチノパン';
+        outer = 'トレンチコート、デニムジャケット、または軽めの上着';
+        essentials = 'リップクリーム、保温ボトル、歩きやすい靴';
+        tip = `朝晩は冷え込みます。調節しやすいジャケットの着用をおすすめします。`;
+      } else if (language === 'zh' || language === 'zht') {
+        const isZht = language === 'zht';
+        topBottom = isZht ? '長袖衛衣、溫暖針織衫或休閒休閒褲' : '长袖卫衣、温暖针织衫或休闲长裤';
+        outer = isZht ? '風衣外套、牛仔夾克或輕便夾克' : '风衣外套、牛仔夹克或轻便夹克';
+        essentials = isZht ? '潤唇膏、保溫杯、保暖襪、舒適運動鞋' : '润唇膏、保温杯、保暖袜、舒适运动鞋';
+        tip = isZht ? `早晚溫差較大，建議攜帶防風外套以便適時增減衣物。` : `早晚温差较大，建议携带防风外套以便适时增减衣物。`;
+      }
     }
+
+    const forecastDays = language === 'en' 
+      ? ['Today', 'Tmrw', 'Day+2']
+      : language === 'ja'
+      ? ['今日', '明日', '明後日']
+      : (language === 'zh' || language === 'zht')
+      ? ['今天', '明天', '后天']
+      : ['오늘', '내일', '모레'];
 
     return {
       ...data,
       dust: translateDust(data.dust),
       uv: translateUv(data.uv),
       weather: translateWeather(data.weather),
-      topBottom: topBottomEn,
-      outer: outerEn,
-      essentials: essentialsEn,
-      tip: tipEn,
+      topBottom,
+      outer,
+      essentials,
+      tip,
       forecast: data.forecast.map((f, idx) => ({
         ...f,
-        day: idx === 0 ? 'Today' : idx === 1 ? 'Tmrw' : 'Day+2',
-        weather: f.weather.includes('맑') || f.weather.includes('화창') ? '☀️ Clear' : f.weather.includes('구름') ? '⛅ Cloudy' : '🌧️ Rain'
+        day: forecastDays[idx] || forecastDays[0],
+        weather: f.weather.includes('맑') || f.weather.includes('화창') 
+          ? (language === 'ja' ? '☀️ 快晴' : (language === 'zh' || language === 'zht') ? '☀️ 晴天' : '☀️ Clear') 
+          : f.weather.includes('구름') 
+          ? (language === 'ja' ? '⛅ 曇り' : (language === 'zh' || language === 'zht') ? '⛅ 多云' : '⛅ Cloudy') 
+          : (language === 'ja' ? '🌧️ 雨' : (language === 'zh' || language === 'zht') ? '🌧️ 有雨' : '🌧️ Rain')
       }))
     };
   };
