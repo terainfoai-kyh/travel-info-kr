@@ -157,9 +157,10 @@ export default function GoogleMapView({
       `);
     });
 
-    // Zero-Bounce instant fit to spots bounds with safe generous margins
+    // Zero-Bounce instant fit to spots bounds with safe generous 25% geographic margin
     if (latLngs.length > 1) {
-      map.fitBounds(bounds, { padding: [50, 45], maxZoom: 15, animate: false });
+      const initialPadded = bounds.pad(0.25);
+      map.fitBounds(initialPadded, { animate: false });
 
       // 1) Render immediate lightweight fallback route line first (so it's instant)
       const fallbackLine = L.polyline(latLngs, {
@@ -199,9 +200,9 @@ export default function GoogleMapView({
               }).addTo(map);
               routeLayerRef.current = L.featureGroup([outerGlow, realPolyline]);
 
-              // 🎯 Auto-fit map to FULL road coordinates so start marker, end marker, and all road curves are 100% visible!
-              const fullBounds = L.latLngBounds([...latLngs, ...roadPoints]);
-              map.fitBounds(fullBounds, { padding: [50, 45], maxZoom: 15, animate: false });
+              // 🎯 Auto-fit map to FULL road coordinates with 25% generous padding so start marker (1), end marker (2), and all road curves are 100% visible inside!
+              const fullBounds = L.latLngBounds([...latLngs, ...roadPoints]).pad(0.25);
+              map.fitBounds(fullBounds, { animate: false });
             }
           }
         })
@@ -294,7 +295,7 @@ export default function GoogleMapView({
       </div>
 
       {/* Embedded Leaflet Real-Road Route Map Container */}
-      <div style={{ position: 'relative', width: '100%', height: '230px', backgroundColor: 'var(--bg-primary)' }}>
+      <div style={{ position: 'relative', width: '100%', height: '240px', backgroundColor: 'var(--bg-primary)' }}>
         <div
           ref={mapContainerRef}
           style={{ width: '100%', height: '100%', zIndex: 1 }}
