@@ -72,30 +72,28 @@ export default function GoogleMapView({
         return [lat, lng];
       });
 
-      // 🎯 Recommendation A: Lock map center strictly to Spot 1 (시작점)
-      const spot1Center = latLngs[0] || [baseLat, baseLng];
+      // 🎯 Perfect Course Balance View (2번 사진 황금 비율 뷰)
+      const initialBounds = L.latLngBounds(latLngs);
+      const initialCenter = initialBounds.getCenter();
+      activeBoundsRef.current = latLngs;
 
-      // Calculate appropriate zoom level anchored to Spot 1
-      let calculatedZoom = 14;
-      if (latLngs.length > 1) {
-        let maxDist = 0;
-        latLngs.forEach(([lat, lng]) => {
-          const dLat = Math.abs(lat - spot1Center[0]);
-          const dLng = Math.abs(lng - spot1Center[1]);
-          const dist = Math.sqrt(dLat * dLat + dLng * dLng);
-          if (dist > maxDist) maxDist = dist;
-        });
-
-        if (maxDist > 0.12) calculatedZoom = 11;
-        else if (maxDist > 0.06) calculatedZoom = 12;
-        else if (maxDist > 0.025) calculatedZoom = 13;
-        else calculatedZoom = 14;
-      }
+      // Safe fit function ensuring 1번 and 2번 spot markers are ALWAYS 100% inside with 40px padding at maxZoom: 14
+      const applySpotFit = (coords) => {
+        if (!leafletMapRef.current || !coords || coords.length === 0) return;
+        const m = leafletMapRef.current;
+        const b = L.latLngBounds(coords);
+        if (b && b.isValid()) {
+          try {
+            m.invalidateSize({ pan: false });
+            m.fitBounds(b.pad(0.35), { padding: [40, 40], maxZoom: 14, animate: false });
+          } catch (e) {}
+        }
+      };
 
       // Enable smooth user interaction with fractional zoom precision
       const map = L.map(mapContainerRef.current, {
-        center: spot1Center,
-        zoom: calculatedZoom,
+        center: initialCenter,
+        zoom: 14,
         zoomSnap: 0.25,
         zoomDelta: 0.5,
         zoomControl: false,
@@ -183,7 +181,9 @@ export default function GoogleMapView({
         routeGroup.addLayer(glowLine);
         routeGroup.addLayer(solidLine);
 
-        // Fetch real road curve if available, keeping center strictly on Spot 1
+        applySpotFit(latLngs);
+
+        // Fetch real road curve if available, keeping camera strictly locked on tourist spots
         const coordsString = latLngs.map(([lat, lng]) => `${lng},${lat}`).join(';');
         const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${coordsString}?overview=full&geometries=geojson`;
 
@@ -207,28 +207,31 @@ export default function GoogleMapView({
                 });
                 routeGroup.addLayer(roadGlow);
                 routeGroup.addLayer(roadSolid);
+
+                // 🎯 Retain the perfect 2nd photo balanced view
+                applySpotFit(latLngs);
               }
             }
           })
           .catch(() => {
             // Keep the initial clean line
           });
+      } else if (latLngs.length === 1) {
+        map.setView(latLngs[0], 14, { animate: false });
       }
 
-      // Ensure map dimensions & Spot 1 centering are applied cleanly
+      // Ensure map dimensions & Spot fit are applied cleanly on ready
       map.whenReady(() => {
-        map.invalidateSize({ pan: false });
-        map.setView(spot1Center, calculatedZoom, { animate: false });
+        applySpotFit(activeBoundsRef.current);
       });
 
-      // 🎯 Native ResizeObserver: The exact millisecond browser paints 260px, auto-center on Spot 1 without user click
+      // 🎯 Native ResizeObserver: The exact millisecond browser paints 260px, auto-apply the perfect balanced view
       let ro = null;
       if (typeof ResizeObserver !== 'undefined' && mapContainerRef.current) {
         ro = new ResizeObserver((entries) => {
           for (let entry of entries) {
             if (entry.contentRect.height >= 200 && leafletMapRef.current) {
-              leafletMapRef.current.invalidateSize({ pan: false });
-              leafletMapRef.current.setView(spot1Center, calculatedZoom, { animate: false });
+              applySpotFit(activeBoundsRef.current);
             }
           }
         });
@@ -237,8 +240,7 @@ export default function GoogleMapView({
 
       setTimeout(() => {
         if (leafletMapRef.current && isMounted) {
-          leafletMapRef.current.invalidateSize({ pan: false });
-          leafletMapRef.current.setView(spot1Center, calculatedZoom, { animate: false });
+          applySpotFit(activeBoundsRef.current);
         }
       }, 50);
     };
