@@ -96,7 +96,7 @@ export default function GoogleMapView({
       const routeGroup = L.featureGroup().addTo(map);
       routeLayerRef.current = routeGroup;
 
-      // Safe fit function ensuring 1번 and 2번 spot markers are ALWAYS 100% inside with 45px padding
+      // Safe fit function ensuring 1번 and 2번 spot markers are ALWAYS 100% inside with 45px padding at maxZoom: 14
       const applySpotFit = (coords) => {
         if (!leafletMapRef.current || !coords || coords.length === 0) return;
         const m = leafletMapRef.current;
@@ -104,7 +104,7 @@ export default function GoogleMapView({
         if (b && b.isValid()) {
           try {
             m.invalidateSize({ pan: false });
-            m.fitBounds(b.pad(0.35), { padding: [45, 45], maxZoom: 15, animate: false });
+            m.fitBounds(b.pad(0.35), { padding: [45, 45], maxZoom: 14, animate: false });
           } catch (e) {}
         }
       };
