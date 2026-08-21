@@ -166,15 +166,24 @@ export default function CourseMagazineView({
         {/* Itinerary Active Day Content */}
         {itineraryData && (
           <>
-            {/* 1. Integrated Interactive Google Map on Top */}
-            <GoogleMapView
-              spots={activeSpots}
-              activeDay={activeDay}
-              targetCity={targetCity}
-              lang={lang}
-              focusedSpotIndex={focusedSpotIndex}
-              onSelectSpotIndex={setFocusedSpotIndex}
-            />
+            {/* 1. Integrated Interactive Google Map on Top (Sticky Header to guarantee 100% button visibility) */}
+            <div style={{
+              position: 'sticky',
+              top: '-0.9rem',
+              zIndex: 30,
+              backgroundColor: 'var(--bg-card)',
+              paddingTop: '0.2rem',
+              paddingBottom: '0.25rem'
+            }}>
+              <GoogleMapView
+                spots={activeSpots}
+                activeDay={activeDay}
+                targetCity={targetCity}
+                lang={lang}
+                focusedSpotIndex={focusedSpotIndex}
+                onSelectSpotIndex={setFocusedSpotIndex}
+              />
+            </div>
 
             {/* 2. Timeline Day Theme Banner */}
             <div style={{

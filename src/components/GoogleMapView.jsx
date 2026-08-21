@@ -181,7 +181,7 @@ export default function GoogleMapView({
             <div>${spot.title}</div>
             ${spot.location ? `<div style="font-size: 10px; color: #64748b; margin-top: 2px;">${spot.location}</div>` : ''}
           </div>
-        `);
+        `, { autoPan: false });
 
         // Click marker on map also syncs focused spot
         marker.on('click', () => {
