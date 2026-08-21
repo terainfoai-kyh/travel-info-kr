@@ -394,35 +394,40 @@ ALL output text (tripTitle, summary, theme, transitTip, dishName, description, n
     ? `${contextPrompt}\n\nLanguage: ${lang}. Return updated JSON strictly in language ${lang}.` 
     : `User Request: "${cleanPrompt}". Duration: ${days} days, language: ${lang}. Process appropriately as chat clarification or full itinerary strictly in ${lang}.`;
 
-  const candidateKeys = GEMINI_KEY_POOL;
-  // AI 응답 속도 최적화: 초고속 응답 Flash 모델 라인업 우선 배치
-  const modelCandidates = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.5-flash'];
+  // AI 응답 속도 최적화: 유효한 Google AI Studio 공식 키(AIzaSy...)만 필터링하여 불필요한 404/429 재시도 지연(18초) 완전 차단
+  const candidateKeys = GEMINI_KEY_POOL.filter(k => k && typeof k === 'string' && k.startsWith('AIzaSy'));
+  const modelCandidates = ['gemini-2.0-flash', 'gemini-1.5-flash'];
 
-  for (const apiKey of candidateKeys) {
-    for (const model of modelCandidates) {
-      try {
-        const endpointUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 6500);
+  if (candidateKeys.length > 0) {
+    for (const apiKey of candidateKeys) {
+      for (const model of modelCandidates) {
+        try {
+          const endpointUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 2500);
 
-        const res = await fetch(endpointUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-goog-api-key': apiKey
-          },
-          signal: controller.signal,
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: `${systemInstruction}\n\n${promptText}` }] }],
-            generationConfig: {
-              maxOutputTokens: 1800,
-              temperature: 0.4
-            }
-          })
-        });
-        clearTimeout(timeoutId);
+          const res = await fetch(endpointUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-goog-api-key': apiKey
+            },
+            signal: controller.signal,
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: `${systemInstruction}\n\n${promptText}` }] }],
+              generationConfig: {
+                maxOutputTokens: 1800,
+                temperature: 0.4
+              }
+            })
+          });
+          clearTimeout(timeoutId);
 
-        if (res.ok) {
+          if (!res.ok) {
+            // 404/429/403 발생 시 더 이상 시간 낭비 없이 즉시 루프 탈출
+            break;
+          }
+
           const data = await res.json();
           const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
           if (rawText) {
@@ -569,9 +574,9 @@ ALL output text (tripTitle, summary, theme, transitTip, dishName, description, n
               }
             }
           }
+        } catch (e) {
+          // Try next model
         }
-      } catch (e) {
-        // Try next model
       }
     }
   }
