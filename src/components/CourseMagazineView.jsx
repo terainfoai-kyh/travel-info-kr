@@ -79,40 +79,41 @@ export default function CourseMagazineView({
     }}>
       {/* Magazine Header & Day Tabs */}
       <div style={{
-        padding: '0.65rem 0.9rem',
+        padding: '0.6rem 0.85rem',
         borderBottom: '1px solid var(--border-color)',
         backgroundColor: 'var(--bg-glass)',
         backdropFilter: 'blur(12px)',
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '0.5rem'
+        flexDirection: 'column',
+        gap: '0.45rem'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-          <Calendar size={17} style={{ color: 'var(--accent-primary)' }} />
-          <h3 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-main)' }}>
-            {t.courseTimelineTitle || '스마트 여행 코스 타임라인'}
-          </h3>
+        {/* Row 1: Title & Speed Badge */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', minWidth: 0 }}>
+            <Calendar size={16} style={{ color: 'var(--accent-primary)', flexShrink: 0 }} />
+            <h3 style={{ margin: 0, fontSize: '0.86rem', fontWeight: 800, color: 'var(--text-main)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {t.courseTimelineTitle || '스마트 여행 코스 타임라인'}
+            </h3>
+          </div>
           {itineraryData?.generationTime && (
             <span style={{
-              fontSize: '0.66rem',
+              fontSize: '0.65rem',
               fontWeight: 800,
               color: '#2563eb',
               backgroundColor: 'rgba(37, 99, 235, 0.08)',
               border: '1px solid rgba(37, 99, 235, 0.2)',
-              padding: '0.12rem 0.45rem',
+              padding: '0.1rem 0.4rem',
               borderRadius: 'var(--radius-full)',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.25rem'
+              flexShrink: 0
             }}>
-              ⚡ {itineraryData.generationTime}{lang === 'en' ? 's generated' : lang === 'ja' ? '秒で生成' : (lang === 'zh' || lang === 'zht') ? '秒生成' : '초 생성'}
+              ⚡ {itineraryData.generationTime}{lang === 'en' ? 's' : lang === 'ja' ? '秒' : (lang === 'zh' || lang === 'zht') ? '秒' : '초'}
             </span>
           )}
         </div>
 
-        {/* Day Selector Tabs (Always Permanent & Syncs bidirectionally with Chat) */}
+        {/* Row 2: Full-Width Day Selector Tabs (Guaranteed 100% visible on all mobile screens) */}
         {displaySchedules.length > 1 && (
           <div style={{
             display: 'flex',
@@ -120,11 +121,10 @@ export default function CourseMagazineView({
             padding: '0.2rem',
             borderRadius: 'var(--radius-full)',
             border: '1px solid var(--border-color)',
-            gap: '0.2rem',
-            overflowX: 'auto',
-            scrollbarWidth: 'none',
-            WebkitOverflowScrolling: 'touch',
-            maxWidth: '100%'
+            gap: '0.25rem',
+            width: '100%',
+            boxSizing: 'border-box',
+            justifyContent: 'space-between'
           }}>
             {displaySchedules.map((ds) => {
               const isSelected = Number(activeDay) === Number(ds.day);
@@ -133,15 +133,17 @@ export default function CourseMagazineView({
                   key={ds.day}
                   onClick={() => onSelectDay && onSelectDay(ds.day)}
                   style={{
+                    flex: 1,
                     backgroundColor: isSelected ? 'var(--accent-primary)' : 'transparent',
                     color: isSelected ? '#ffffff' : 'var(--text-muted)',
                     border: 'none',
                     borderRadius: 'var(--radius-full)',
-                    padding: '0.25rem 0.65rem',
-                    fontSize: '0.74rem',
+                    padding: '0.3rem 0.4rem',
+                    fontSize: '0.76rem',
                     fontWeight: isSelected ? 800 : 600,
                     cursor: 'pointer',
                     transition: 'all var(--transition-fast)',
+                    textAlign: 'center',
                     whiteSpace: 'nowrap'
                   }}
                 >

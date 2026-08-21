@@ -196,7 +196,8 @@ export default function Header({
             }}
           >
             <CloudSun size={14} style={{ color: 'var(--accent-primary)', flexShrink: 0 }} />
-            <span style={{ whiteSpace: 'nowrap' }}>{getLocalizedCityName(targetCity, lang)} {currentTemp} · {lang === 'en' ? 'Style 👗' : lang === 'ja' ? 'コーデ 👗' : (lang === 'zh' || lang === 'zht') ? '穿搭 👗' : '코디 👗'}</span>
+            <span className="hide-mobile" style={{ whiteSpace: 'nowrap' }}>{getLocalizedCityName(targetCity, lang)} {currentTemp} · {lang === 'en' ? 'Style 👗' : lang === 'ja' ? 'コーデ 👗' : (lang === 'zh' || lang === 'zht') ? '穿搭 👗' : '코디 👗'}</span>
+            <span className="show-mobile-only" style={{ whiteSpace: 'nowrap', fontWeight: 800 }}>{currentTemp} 👗</span>
           </button>
 
           {/* 🧭 Travel Essentials Header Shortcut */}

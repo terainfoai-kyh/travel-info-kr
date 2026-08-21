@@ -108,6 +108,9 @@ export default function VoraAIChat({
       display: 'flex',
       flexDirection: 'column',
       height: '100%',
+      width: '100%',
+      maxWidth: '100%',
+      boxSizing: 'border-box',
       backgroundColor: 'var(--bg-card)',
       borderRadius: 'var(--radius-lg)',
       border: '1px solid var(--border-color)',
@@ -116,7 +119,7 @@ export default function VoraAIChat({
     }}>
       {/* Chat Header */}
       <div style={{
-        padding: '0.65rem 1rem',
+        padding: '0.65rem 0.85rem',
         borderBottom: '1px solid var(--border-color)',
         display: 'flex',
         alignItems: 'center',
@@ -124,37 +127,37 @@ export default function VoraAIChat({
         backgroundColor: 'var(--bg-glass)',
         backdropFilter: 'blur(12px)'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
           <img
             src="/logo.png"
             alt="VORA"
             style={{
-              width: '26px',
-              height: '26px',
-              borderRadius: '7px',
+              width: '24px',
+              height: '24px',
+              borderRadius: '6px',
               objectFit: 'cover'
             }}
           />
           <div>
-            <h3 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-main)' }}>
+            <h3 style={{ margin: 0, fontSize: '0.86rem', fontWeight: 800, color: 'var(--text-main)' }}>
               {t.chatTitle || 'Vora AI 컨시어지 대화'}
             </h3>
           </div>
         </div>
 
         <span style={{
-          fontSize: '0.68rem',
+          fontSize: '0.66rem',
           fontWeight: 700,
           color: '#10b981',
           backgroundColor: 'rgba(16, 185, 129, 0.1)',
-          padding: '0.15rem 0.45rem',
+          padding: '0.12rem 0.4rem',
           borderRadius: 'var(--radius-full)',
           display: 'inline-flex',
           alignItems: 'center',
-          gap: '0.3rem'
+          gap: '0.25rem'
         }}>
           <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10b981' }} />
-          <span>{t.chatStatusLive || (lang === 'en' ? 'Live 1:1 Chat' : '실시간 1:1 대화중')}</span>
+          <span>{t.chatStatusLive || (lang === 'en' ? 'Live Chat' : '실시간 1:1 대화중')}</span>
         </span>
       </div>
 
@@ -163,11 +166,14 @@ export default function VoraAIChat({
         ref={chatContainerRef}
         style={{
           flex: 1,
-          padding: '0.85rem',
+          padding: '0.75rem 0.65rem',
           overflowY: 'auto',
+          overflowX: 'hidden',
           display: 'flex',
           flexDirection: 'column',
-          gap: '0.75rem'
+          gap: '0.7rem',
+          width: '100%',
+          boxSizing: 'border-box'
         }}
       >
         {chatMessages.map((msg) => {
@@ -183,24 +189,27 @@ export default function VoraAIChat({
                   flexDirection: 'column',
                   alignItems: 'flex-end',
                   gap: '0.25rem',
-                  marginBottom: '0.3rem'
+                  marginBottom: '0.3rem',
+                  width: '100%',
+                  boxSizing: 'border-box'
                 }}
               >
                 <div style={{
                   backgroundColor: 'var(--accent-primary)',
                   color: '#ffffff',
                   borderRadius: '16px 4px 16px 16px',
-                  padding: '0.7rem 0.95rem',
-                  fontSize: '0.84rem',
+                  padding: '0.65rem 0.85rem',
+                  fontSize: '0.82rem',
                   lineHeight: 1.5,
-                  maxWidth: '85%',
+                  maxWidth: '88%',
                   wordBreak: 'break-word',
+                  overflowWrap: 'anywhere',
                   boxShadow: 'var(--shadow-sm)'
                 }}>
                   {msg.text}
                 </div>
                 {msg.timestamp && (
-                  <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', paddingRight: '0.3rem' }}>
+                  <span style={{ fontSize: '0.66rem', color: 'var(--text-muted)', paddingRight: '0.3rem' }}>
                     {lang === 'en' ? `Inquiry ${msg.timestamp}` : lang === 'ja' ? `送信時刻 ${msg.timestamp}` : (lang === 'zh' || lang === 'zht') ? `提问时间 ${msg.timestamp}` : `문의 시간 ${msg.timestamp}`}
                   </span>
                 )}
@@ -215,9 +224,11 @@ export default function VoraAIChat({
               ref={el => { if (el) messageRefs.current[msg.id] = el; }}
               style={{
                 display: 'flex',
-                gap: '0.5rem',
+                gap: '0.45rem',
                 alignItems: 'flex-start',
-                marginBottom: '0.3rem'
+                marginBottom: '0.3rem',
+                width: '100%',
+                boxSizing: 'border-box'
               }}
             >
               {/* Bot Avatar */}
@@ -225,26 +236,31 @@ export default function VoraAIChat({
                 src="/logo.png"
                 alt="VORA AI"
                 style={{
-                  width: '26px',
-                  height: '26px',
-                  borderRadius: '7px',
+                  width: '24px',
+                  height: '24px',
+                  borderRadius: '6px',
                   objectFit: 'cover',
                   flexShrink: 0,
                   marginTop: '2px'
                 }}
               />
 
-              <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <div style={{ flex: 1, minWidth: 0, width: '100%', display: 'flex', flexDirection: 'column', gap: '0.45rem', overflow: 'hidden' }}>
                 {/* Assistant Text Bubble */}
                 <div style={{
                   backgroundColor: 'var(--bg-primary)',
                   border: '1px solid var(--border-color)',
                   borderRadius: '4px 16px 16px 16px',
-                  padding: '0.75rem 0.95rem',
-                  fontSize: '0.83rem',
+                  padding: '0.65rem 0.8rem',
+                  fontSize: '0.82rem',
                   lineHeight: 1.55,
                   color: 'var(--text-main)',
-                  boxShadow: 'var(--shadow-sm)'
+                  boxShadow: 'var(--shadow-sm)',
+                  wordBreak: 'break-word',
+                  overflowWrap: 'anywhere',
+                  boxSizing: 'border-box',
+                  width: '100%',
+                  maxWidth: '100%'
                 }}>
                   {/* Generation Speed & Timestamp Badge */}
                   {(msg.generationTime || msg.itinerary?.generationTime || msg.timestamp) && (

@@ -413,27 +413,37 @@ export default function GoogleMapView({
               backgroundColor: 'var(--accent-primary)',
               color: '#ffffff',
               textDecoration: 'none',
-              padding: '0.28rem 0.65rem',
+              padding: '0.24rem 0.55rem',
               borderRadius: 'var(--radius-full)',
-              fontSize: '0.72rem',
+              fontSize: '0.7rem',
               fontWeight: 800,
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.25rem',
+              gap: '0.2rem',
               boxShadow: 'var(--shadow-glow)',
-              transition: 'all var(--transition-fast)'
+              transition: 'all var(--transition-fast)',
+              flexShrink: 0
             }}
           >
-            <span>
+            <span className="hide-mobile">
               {lang === 'en' 
-                ? 'Google Maps Full Route ↗' 
+                ? 'Google Maps Route' 
                 : lang === 'ja' 
-                ? 'Googleマップ全ルート ↗' 
+                ? 'Googleマップ' 
                 : (lang === 'zh' || lang === 'zht') 
-                ? (lang === 'zht' ? 'Google地圖完整路線 ↗' : 'Google地图完整路线 ↗') 
-                : '구글맵 전체 길찾기 ↗'}
+                ? (lang === 'zht' ? 'Google地圖路線' : 'Google地图路线') 
+                : '구글맵 길찾기'}
             </span>
-            <ExternalLink size={11} />
+            <span className="show-mobile-only">
+              {lang === 'en' 
+                ? 'Google' 
+                : lang === 'ja' 
+                ? 'マップ' 
+                : (lang === 'zh' || lang === 'zht') 
+                ? '地图' 
+                : '길찾기'}
+            </span>
+            <ExternalLink size={10} />
           </a>
         </div>
       </div>
