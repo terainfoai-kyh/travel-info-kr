@@ -18,6 +18,7 @@ import PWAInstallBanner from './components/PWAInstallBanner';
 import RewardedAdModal from './components/RewardedAdModal';
 import GoogleAuthModal from './components/GoogleAuthModal';
 
+import { MapPin, MessageSquare } from 'lucide-react';
 import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
 import { geminiGenerateFullItinerary, generateLocalFallbackItinerary, enrichItineraryPhotosAsync } from './services/geminiNlpService';
 
@@ -165,6 +166,7 @@ export default function App() {
   const [activeDay, setActiveDay] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedSpot, setSelectedSpot] = useState(null);
+  const [mobileHubTab, setMobileHubTab] = useState('magazine'); // 'magazine' | 'chat'
 
   // Persistent Bookmarks / Wishlist
   const [bookmarks, setBookmarks] = useState(() => {
@@ -513,10 +515,30 @@ export default function App() {
           questionQuota={questionQuota}
         />
 
+        {/* 📱 Mobile Segmented Tab Switcher (Visible on Mobile only: 1-Tap Toggle between Map & Chat) */}
+        <div className="mobile-hub-tabs-wrapper">
+          <button
+            type="button"
+            className={`mobile-hub-tab-btn ${mobileHubTab === 'magazine' ? 'active' : 'inactive'}`}
+            onClick={() => setMobileHubTab('magazine')}
+          >
+            <MapPin size={15} />
+            <span>{lang === 'en' ? 'Course & Map' : lang === 'ja' ? 'コース＆地図' : (lang === 'zh' || lang === 'zht') ? '路线与地图' : '코스 & 지도'}</span>
+          </button>
+          <button
+            type="button"
+            className={`mobile-hub-tab-btn ${mobileHubTab === 'chat' ? 'active' : 'inactive'}`}
+            onClick={() => setMobileHubTab('chat')}
+          >
+            <MessageSquare size={15} />
+            <span>{lang === 'en' ? 'AI Chat' : lang === 'ja' ? 'AI チャット' : (lang === 'zh' || lang === 'zht') ? 'AI 对话' : 'AI 대화'}</span>
+          </button>
+        </div>
+
         {/* 2. PC 2-Column Split Hub (Dashboard view: Chat on Left / Timeline & Map on Right) */}
         <section id="itinerary-hub" className="itinerary-hub-container">
           {/* Left Column: Vora AI Conversational Chat Stream */}
-          <div className="itinerary-hub-column">
+          <div className={`itinerary-hub-column ${mobileHubTab !== 'chat' ? 'mobile-hidden' : ''}`}>
             <VoraAIChat
               lang={lang}
               chatMessages={chatMessages}
@@ -533,7 +555,7 @@ export default function App() {
           </div>
 
           {/* Right Column: Course Magazine View & Google Map */}
-          <div className="itinerary-hub-column">
+          <div className={`itinerary-hub-column ${mobileHubTab !== 'magazine' ? 'mobile-hidden' : ''}`}>
             <CourseMagazineView
               lang={lang}
               itineraryData={itineraryData}

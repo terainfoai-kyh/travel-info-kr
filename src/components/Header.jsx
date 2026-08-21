@@ -183,18 +183,20 @@ export default function Header({
               border: '1px solid var(--border-highlight)',
               color: 'var(--accent-primary)',
               borderRadius: 'var(--radius-full)',
-              padding: '0.42rem 0.75rem',
+              padding: '0.32rem 0.65rem',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.35rem',
-              fontSize: '0.78rem',
+              gap: '0.3rem',
+              fontSize: '0.74rem',
               fontWeight: 800,
               cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
               transition: 'all var(--transition-fast)'
             }}
           >
-            <CloudSun size={15} style={{ color: 'var(--accent-primary)' }} />
-            <span>{getLocalizedCityName(targetCity, lang)} {currentTemp} · {lang === 'en' ? 'Style 👗' : lang === 'ja' ? 'コーデ 👗' : (lang === 'zh' || lang === 'zht') ? '穿搭 👗' : '코디 👗'}</span>
+            <CloudSun size={14} style={{ color: 'var(--accent-primary)', flexShrink: 0 }} />
+            <span style={{ whiteSpace: 'nowrap' }}>{getLocalizedCityName(targetCity, lang)} {currentTemp} · {lang === 'en' ? 'Style 👗' : lang === 'ja' ? 'コーデ 👗' : (lang === 'zh' || lang === 'zht') ? '穿搭 👗' : '코디 👗'}</span>
           </button>
 
           {/* 🧭 Travel Essentials Header Shortcut */}

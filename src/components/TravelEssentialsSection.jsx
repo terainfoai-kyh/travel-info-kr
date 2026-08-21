@@ -77,10 +77,24 @@ export default function TravelEssentialsSection({
           <ShieldCheck size={15} />
           <span>Travel Essentials</span>
         </div>
-        <h2 style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--text-main)', margin: '0 0 0.5rem 0' }}>
+        <h2 style={{
+          fontSize: 'clamp(1.2rem, 3vw, 1.65rem)',
+          fontWeight: 900,
+          color: 'var(--text-main)',
+          margin: '0 0 0.4rem 0',
+          wordBreak: 'keep-all',
+          overflowWrap: 'break-word'
+        }}>
           {t.essentialsTitle || '외국인 관광객 필수 툴킷'}
         </h2>
-        <p style={{ fontSize: '0.92rem', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>
+        <p style={{
+          fontSize: '0.84rem',
+          color: 'var(--text-muted)',
+          margin: 0,
+          fontWeight: 500,
+          wordBreak: 'keep-all',
+          overflowWrap: 'break-word'
+        }}>
           {t.essentialsSubtitle || '안전하고 편리한 한국 여행을 위한 핵심 서비스'}
         </p>
       </div>
@@ -88,8 +102,8 @@ export default function TravelEssentialsSection({
       {/* Responsive Grid Cards */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))',
-        gap: '1.15rem'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+        gap: '0.85rem'
       }}>
         {ESSENTIAL_CARDS.map((card, idx) => (
           <div
@@ -97,8 +111,8 @@ export default function TravelEssentialsSection({
             style={{
               backgroundColor: 'var(--bg-card)',
               border: card.isModalAction ? '1.5px solid var(--border-highlight)' : '1px solid var(--border-color)',
-              borderRadius: '20px',
-              padding: '1.35rem',
+              borderRadius: '16px',
+              padding: '1.1rem',
               boxShadow: 'var(--shadow-sm)',
               display: 'flex',
               flexDirection: 'column',
