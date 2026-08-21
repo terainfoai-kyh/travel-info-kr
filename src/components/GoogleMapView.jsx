@@ -239,14 +239,31 @@ export default function GoogleMapView({
       }
 
       const forceResize = () => {
-        if (leafletMapRef.current && isMounted) {
-          applySpotFit(activeBoundsRef.current);
+        if (!isMounted) return;
+        if (leafletMapRef.current) {
+          try {
+            leafletMapRef.current.invalidateSize({ pan: true, debounceMoveend: false });
+            applySpotFit(activeBoundsRef.current);
+          } catch (e) {}
         }
+        if (mapContainerRef.current) {
+          try {
+            const rect = mapContainerRef.current.getBoundingClientRect();
+            const clickEvt = new MouseEvent('click', {
+              bubbles: true,
+              cancelable: true,
+              clientX: rect.left + rect.width / 2,
+              clientY: rect.top + rect.height / 2
+            });
+            mapContainerRef.current.dispatchEvent(clickEvt);
+          } catch (e) {}
+        }
+        window.dispatchEvent(new Event('resize'));
       };
 
-      setTimeout(forceResize, 50);
-      setTimeout(forceResize, 150);
-      setTimeout(forceResize, 400);
+      setTimeout(forceResize, 80);
+      setTimeout(forceResize, 250);
+      setTimeout(forceResize, 600);
     };
 
     // Frame-aligned initialization with height guard
