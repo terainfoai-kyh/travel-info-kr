@@ -18,11 +18,11 @@ export default function AdSenseBanner({
 
   return (
     <div style={{
-      margin: '1.5rem auto',
+      margin: '0.5rem auto',
       textAlign: 'center',
       overflow: 'hidden',
       maxWidth: '100%',
-      minHeight: '90px',
+      minHeight: '0px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',

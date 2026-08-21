@@ -160,11 +160,29 @@ export default function App() {
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [isContactOpen, setIsContactOpen] = useState(false);
 
+  // Daily Question Quota Management (5 free AI questions per day)
+  const [questionQuota, setQuestionQuota] = useState(() => {
+    const todayStr = new Date().toISOString().slice(0, 10);
+    try {
+      const saved = localStorage.getItem('vora_daily_quota');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.date === todayStr) {
+          return parsed;
+        }
+      }
+    } catch (e) {}
+    const defaultQuota = { date: todayStr, remaining: 5, total: 5 };
+    try {
+      localStorage.setItem('vora_daily_quota', JSON.stringify(defaultQuota));
+    } catch (e) {}
+    return defaultQuota;
+  });
+
   // Trigger Master Itinerary Planning with Conversational Memory & Ultra-Fast Parallel Engine
   const handleGenerateItinerary = async (promptQuery) => {
     if (!promptQuery || isLoading) return;
 
-    const startTime = Date.now();
     const queryTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
     const userMsg = {
       id: `user-${Date.now()}`,
@@ -172,6 +190,40 @@ export default function App() {
       text: promptQuery,
       timestamp: queryTime
     };
+
+    // Check Daily Question Quota
+    const todayStr = new Date().toISOString().slice(0, 10);
+    let currentRemaining = questionQuota.remaining;
+    if (questionQuota.date !== todayStr) {
+      currentRemaining = 5;
+    }
+
+    if (currentRemaining <= 0) {
+      setChatMessages(prev => [
+        ...prev,
+        userMsg,
+        {
+          id: `bot-exhausted-${Date.now()}`,
+          role: 'assistant',
+          text: (lang === 'ko')
+            ? '⚠️ **오늘 제공된 무료 AI 질문(5/5회)을 모두 사용하셨습니다.**\n매일 자정(00:00)에 5회가 자동으로 충전됩니다! ✨\n현재 화면의 일정을 복사하거나 장소들을 북마크에 저장하여 편리하게 활용하실 수 있습니다.'
+            : '⚠️ **You have used all 5 free AI questions for today.**\nYour 5 free quota will automatically recharge at midnight (00:00)! ✨',
+          queryTime,
+          replyTime: queryTime,
+          timestamp: queryTime
+        }
+      ]);
+      return;
+    }
+
+    // Decrement quota
+    const updatedQuota = { date: todayStr, remaining: currentRemaining - 1, total: 5 };
+    setQuestionQuota(updatedQuota);
+    try {
+      localStorage.setItem('vora_daily_quota', JSON.stringify(updatedQuota));
+    } catch (e) {}
+
+    const startTime = Date.now();
     setChatMessages(prev => [...prev, userMsg]);
     setIsLoading(true);
 
@@ -284,6 +336,7 @@ export default function App() {
           lang={lang}
           onSearch={handleGenerateItinerary}
           isLoading={isLoading}
+          questionQuota={questionQuota}
         />
 
         {/* 2. PC 2-Column Split Hub (Dashboard view: Chat on Left / Timeline & Map on Right) */}
@@ -303,6 +356,7 @@ export default function App() {
               onSendMessage={handleGenerateItinerary}
               activeDay={activeDay}
               onSelectDay={(day) => setActiveDay(day)}
+              questionQuota={questionQuota}
             />
           </div>
 

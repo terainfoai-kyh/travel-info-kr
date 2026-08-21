@@ -54,13 +54,13 @@ export default function AdSenseArticlesSection({ lang = 'ko' }) {
 
   return (
     <section style={{
-      padding: '3rem 1.5rem',
+      padding: '1.5rem 1.5rem',
       maxWidth: '1280px',
       margin: '0 auto',
       borderTop: '1px solid var(--border-color)'
     }}>
       {/* Editorial Title */}
-      <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+      <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
         <div style={{
           display: 'inline-flex',
           alignItems: 'center',

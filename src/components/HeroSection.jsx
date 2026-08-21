@@ -5,7 +5,8 @@ import { TRANSLATIONS } from '../i18n/translations';
 export default function HeroSection({
   lang = 'ko',
   onSearch,
-  isLoading = false
+  isLoading = false,
+  questionQuota = { remaining: 5, total: 5 }
 }) {
   const [query, setQuery] = useState('');
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
@@ -43,14 +44,44 @@ export default function HeroSection({
         </h1>
       </div>
 
-      <p style={{
-        fontSize: '0.82rem',
-        color: 'var(--text-muted)',
-        margin: '0 0 0.75rem 0',
-        fontWeight: 500
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '0.5rem',
+        marginBottom: '0.75rem',
+        flexWrap: 'wrap'
       }}>
-        {t.heroSubtitle || '한국관광공사 Official DB와 Gemini AI가 설계하는 초개인화 맞춤 코스 & 실시간 구글맵 연동'}
-      </p>
+        <p style={{
+          fontSize: '0.82rem',
+          color: 'var(--text-muted)',
+          margin: 0,
+          fontWeight: 500
+        }}>
+          {t.heroSubtitle || '한국관광공사 Official DB와 Gemini AI가 설계하는 초개인화 맞춤 코스 & 실시간 구글맵 연동'}
+        </p>
+        <span style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '0.25rem',
+          fontSize: '0.72rem',
+          fontWeight: 700,
+          padding: '0.15rem 0.55rem',
+          borderRadius: 'var(--radius-full)',
+          backgroundColor: questionQuota?.remaining > 1
+            ? 'rgba(16, 185, 129, 0.1)'
+            : questionQuota?.remaining === 1
+              ? 'rgba(245, 158, 11, 0.12)'
+              : 'rgba(239, 68, 68, 0.12)',
+          color: questionQuota?.remaining > 1
+            ? '#059669'
+            : questionQuota?.remaining === 1
+              ? '#d97706'
+              : '#dc2626'
+        }}>
+          ⚡ {questionQuota?.remaining ?? 5}/{questionQuota?.total ?? 5}
+        </span>
+      </div>
 
       {/* Smart Prompt Input Box */}
       <form onSubmit={handleSubmit} style={{

@@ -8,7 +8,8 @@ export default function VoraAIChat({
   isLoading = false,
   onSendMessage,
   activeDay = 1,
-  onSelectDay
+  onSelectDay,
+  questionQuota = { remaining: 5, total: 5 }
 }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
   const [inputText, setInputText] = useState('');
@@ -493,12 +494,44 @@ export default function VoraAIChat({
         </div>
       )}
 
+      {/* Daily Free Question Quota Badge */}
+      <div style={{
+        padding: '0.35rem 0.85rem',
+        borderTop: '1px solid var(--border-color)',
+        backgroundColor: questionQuota?.remaining > 1
+          ? 'rgba(16, 185, 129, 0.05)'
+          : questionQuota?.remaining === 1
+            ? 'rgba(245, 158, 11, 0.08)'
+            : 'rgba(239, 68, 68, 0.08)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        fontSize: '0.73rem',
+        fontWeight: 700,
+        color: questionQuota?.remaining > 1
+          ? '#059669'
+          : questionQuota?.remaining === 1
+            ? '#d97706'
+            : '#dc2626'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+          <span>⚡</span>
+          <span>
+            {t.freeQuestionsRemaining
+              ? t.freeQuestionsRemaining(questionQuota?.remaining ?? 5, questionQuota?.total ?? 5)
+              : `오늘 무료 AI 질문: ${questionQuota?.remaining ?? 5} / ${questionQuota?.total ?? 5}회`}
+          </span>
+        </div>
+        <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 500 }}>
+          {questionQuota?.remaining === 0 ? '자정(00:00) 자동 충전' : '매일 5회 무료'}
+        </span>
+      </div>
+
       {/* Chat Input Bar */}
       <form
         onSubmit={handleSend}
         style={{
           padding: '0.65rem 0.85rem',
-          borderTop: '1px solid var(--border-color)',
           display: 'flex',
           alignItems: 'center',
           gap: '0.5rem',

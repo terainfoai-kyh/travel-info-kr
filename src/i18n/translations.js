@@ -127,6 +127,10 @@ export const TRANSLATIONS = {
     savedToWishlist: '저장됨 ❤️',
     noSpotsYet: 'AI에게 여행 계획을 물어보시면 맞춤형 코스 타임라인과 구글 지도가 이곳에 펼쳐집니다.',
 
+    // Question Quota
+    freeQuestionsRemaining: (remain, total) => `⚡ 오늘 무료 질문: ${remain} / ${total}회`,
+    questionsExhausted: '오늘의 무료 질문(5회)을 모두 사용하셨습니다. 내일 00시에 자동 충전됩니다 ✨',
+
     // Travel Essentials
     essentialsTitle: '외국인 관광객 필수 툴킷',
     essentialsSubtitle: '안전하고 편리한 한국 여행을 위한 핵심 서비스',
@@ -201,6 +205,10 @@ export const TRANSLATIONS = {
     saveToWishlist: 'Save to Wishlist',
     savedToWishlist: 'Saved ❤️',
     noSpotsYet: 'Ask VORA AI to plan your trip, and your custom timeline & interactive Google Map will appear here.',
+
+    // Question Quota
+    freeQuestionsRemaining: (remain, total) => `⚡ Free AI Queries Today: ${remain} / ${total}`,
+    questionsExhausted: 'You have used all 5 free daily queries. Resets at midnight ✨',
 
     // Travel Essentials
     essentialsTitle: 'Foreign Traveler Essentials',
@@ -277,6 +285,10 @@ export const TRANSLATIONS = {
     savedToWishlist: '保存済み ❤️',
     noSpotsYet: 'AIに旅行の相談をすると、ここに専用タイムラインとGoogleマップが表示されます。',
 
+    // Question Quota
+    freeQuestionsRemaining: (remain, total) => `⚡ 本日の無料質問: ${remain} / ${total}回`,
+    questionsExhausted: '本日の無料質問枠(5回)をすべて利用しました。深夜0時に自動リセットされます ✨',
+
     // Travel Essentials
     essentialsTitle: '外国人旅行者 必須ツールキット',
     essentialsSubtitle: '快適で安全な韓国旅行のための必須サービス',
@@ -351,6 +363,10 @@ export const TRANSLATIONS = {
     saveToWishlist: '加入心愿单',
     savedToWishlist: '已保存 ❤️',
     noSpotsYet: '在左侧向AI咨询旅行计划后，定制的行程时间线与Google交互地图将在此展示。',
+
+    // Question Quota
+    freeQuestionsRemaining: (remain, total) => `⚡ 今日免费提问额度: ${remain} / ${total}次`,
+    questionsExhausted: '今日5次免费提问额度已用完，将于次日0点自动刷新 ✨',
 
     // Travel Essentials
     essentialsTitle: '国际游客必备旅行工具包',
