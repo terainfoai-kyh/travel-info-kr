@@ -221,12 +221,26 @@ export default function GoogleMapView({
         map.setView(spot1Center, calculatedZoom, { animate: false });
       });
 
+      // 🎯 Native ResizeObserver: The exact millisecond browser paints 260px, auto-center on Spot 1 without user click
+      let ro = null;
+      if (typeof ResizeObserver !== 'undefined' && mapContainerRef.current) {
+        ro = new ResizeObserver((entries) => {
+          for (let entry of entries) {
+            if (entry.contentRect.height >= 200 && leafletMapRef.current) {
+              leafletMapRef.current.invalidateSize({ pan: false });
+              leafletMapRef.current.setView(spot1Center, calculatedZoom, { animate: false });
+            }
+          }
+        });
+        ro.observe(mapContainerRef.current);
+      }
+
       setTimeout(() => {
         if (leafletMapRef.current && isMounted) {
           leafletMapRef.current.invalidateSize({ pan: false });
           leafletMapRef.current.setView(spot1Center, calculatedZoom, { animate: false });
         }
-      }, 80);
+      }, 50);
     };
 
     // Frame-aligned initialization
