@@ -106,14 +106,17 @@ export default function GoogleMapView({
 
     leafletMapRef.current = map;
 
-    // Safe fit function ensuring all spot markers and road curves fit with comfortable padding
-    const applySafeFit = (pts) => {
-      if (!leafletMapRef.current || !pts || pts.length === 0) return;
+    // Initialize single dedicated route layer group to prevent ghost or overlapping lines
+    const routeGroup = L.featureGroup().addTo(map);
+    routeLayerRef.current = routeGroup;
+
+    // Safe fit function ensuring 1번 and 2번 spot markers are ALWAYS 100% inside with 45px padding
+    const applySpotFit = (coords) => {
+      if (!leafletMapRef.current || !coords || coords.length === 0) return;
       const m = leafletMapRef.current;
-      const b = L.latLngBounds(pts);
+      const b = L.latLngBounds(coords);
       if (b && b.isValid()) {
-        const padded = b.pad(0.55);
-        m.fitBounds(padded, { animate: false });
+        m.fitBounds(b.pad(0.35), { padding: [45, 45], maxZoom: 15, animate: false });
       }
     };
 
@@ -174,28 +177,24 @@ export default function GoogleMapView({
     // Zero-Bounce instant fit strictly anchored to tourist spots (latLngs) so 1번 and 2번 are always in the center
     if (latLngs.length > 1) {
       activeBoundsRef.current = latLngs;
-      applySafeFit(latLngs);
+      applySpotFit(latLngs);
 
-      // Outer glow line for high visibility
-      const outerGlow = L.polyline(latLngs, {
+      // Render initial clean crisp connecting line
+      routeGroup.clearLayers();
+      const glowLine = L.polyline(latLngs, {
         color: '#93c5fd',
-        weight: 8,
-        opacity: 0.5
-      }).addTo(map);
-
-      // Main vibrant route line with elegant dashed pattern
-      const mainRoute = L.polyline(latLngs, {
+        weight: 7,
+        opacity: 0.45
+      });
+      const solidLine = L.polyline(latLngs, {
         color: '#2563eb',
         weight: 4.5,
-        opacity: 0.95,
-        dashArray: '8, 8',
-        lineCap: 'round',
-        lineJoin: 'round'
-      }).addTo(map);
+        opacity: 0.95
+      });
+      routeGroup.addLayer(glowLine);
+      routeGroup.addLayer(solidLine);
 
-      routeLayerRef.current = L.featureGroup([outerGlow, mainRoute]);
-
-      // Optional: Fetch real road curve if available, but ALWAYS keep bounds anchored to latLngs
+      // Fetch real road curve if available, but ALWAYS keep camera focused strictly on tourist spots
       const coordsString = latLngs.map(([lat, lng]) => `${lng},${lat}`).join(';');
       const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${coordsString}?overview=full&geometries=geojson`;
 
@@ -207,28 +206,27 @@ export default function GoogleMapView({
           if (data && data.code === 'Ok' && data.routes && data.routes[0]?.geometry?.coordinates) {
             const roadPoints = data.routes[0].geometry.coordinates.map(([lng, lat]) => [lat, lng]);
             if (roadPoints.length > 1) {
-              if (routeLayerRef.current) {
-                map.removeLayer(routeLayerRef.current);
-              }
+              routeGroup.clearLayers();
               const roadGlow = L.polyline(roadPoints, {
                 color: '#93c5fd',
-                weight: 8,
+                weight: 7,
                 opacity: 0.45
-              }).addTo(map);
+              });
               const roadPolyline = L.polyline(roadPoints, {
                 color: '#2563eb',
                 weight: 4.5,
                 opacity: 0.95
-              }).addTo(map);
-              routeLayerRef.current = L.featureGroup([roadGlow, roadPolyline]);
+              });
+              routeGroup.addLayer(roadGlow);
+              routeGroup.addLayer(roadPolyline);
 
-              // 🎯 Keep bounds STRICTLY anchored to tourist spots (latLngs) so 1번 and 2번 markers NEVER shift out of view!
-              applySafeFit(latLngs);
+              // 🎯 Keep camera STRICTLY locked on tourist spots (latLngs) with 45px margin
+              applySpotFit(latLngs);
             }
           }
         })
         .catch(() => {
-          // Keep the stylish dashed route line
+          // Keep the initial clean line
         });
 
       return () => {
@@ -243,7 +241,7 @@ export default function GoogleMapView({
       if (leafletMapRef.current) {
         leafletMapRef.current.invalidateSize();
         if (activeBoundsRef.current) {
-          applySafeFit(activeBoundsRef.current);
+          applySpotFit(activeBoundsRef.current);
         }
       }
     }, 150);
