@@ -116,7 +116,10 @@ export default function GoogleMapView({
       const m = leafletMapRef.current;
       const b = L.latLngBounds(coords);
       if (b && b.isValid()) {
-        m.fitBounds(b.pad(0.35), { padding: [45, 45], maxZoom: 15, animate: false });
+        try {
+          m.invalidateSize({ pan: false });
+          m.fitBounds(b.pad(0.35), { padding: [45, 45], maxZoom: 15, animate: false });
+        } catch (e) {}
       }
     };
 
@@ -212,13 +215,13 @@ export default function GoogleMapView({
                 weight: 7,
                 opacity: 0.45
               });
-              const roadPolyline = L.polyline(roadPoints, {
+              const roadSolid = L.polyline(roadPoints, {
                 color: '#2563eb',
                 weight: 4.5,
                 opacity: 0.95
               });
               routeGroup.addLayer(roadGlow);
-              routeGroup.addLayer(roadPolyline);
+              routeGroup.addLayer(roadSolid);
 
               // 🎯 Keep camera STRICTLY locked on tourist spots (latLngs) with 45px margin
               applySpotFit(latLngs);
@@ -236,42 +239,23 @@ export default function GoogleMapView({
       map.setView(latLngs[0], 14, { animate: false });
     }
 
-    // Force map invalidateSize and auto-fit on layout settling so 2번 picture is shown immediately without user click
-    const timer1 = setTimeout(() => {
-      if (leafletMapRef.current) {
-        leafletMapRef.current.invalidateSize({ pan: false });
-        if (activeBoundsRef.current) {
-          applySpotFit(activeBoundsRef.current);
-        }
+    // Multi-tick auto layout triggers to guarantee 2번 view without user click
+    const runAutoFit = () => {
+      if (leafletMapRef.current && activeBoundsRef.current) {
+        applySpotFit(activeBoundsRef.current);
       }
-    }, 50);
+    };
 
-    const timer2 = setTimeout(() => {
-      if (leafletMapRef.current) {
-        leafletMapRef.current.invalidateSize({ pan: false });
-        if (activeBoundsRef.current) {
-          applySpotFit(activeBoundsRef.current);
-        }
-      }
-    }, 200);
-
-    let ro;
-    if (mapContainerRef.current && typeof ResizeObserver !== 'undefined') {
-      ro = new ResizeObserver(() => {
-        if (leafletMapRef.current) {
-          leafletMapRef.current.invalidateSize({ pan: false });
-          if (activeBoundsRef.current) {
-            applySpotFit(activeBoundsRef.current);
-          }
-        }
-      });
-      ro.observe(mapContainerRef.current);
-    }
+    const rAf = requestAnimationFrame(runAutoFit);
+    const t1 = setTimeout(runAutoFit, 60);
+    const t2 = setTimeout(runAutoFit, 200);
+    const t3 = setTimeout(runAutoFit, 500);
 
     return () => {
-      clearTimeout(timer1);
-      clearTimeout(timer2);
-      if (ro) ro.disconnect();
+      cancelAnimationFrame(rAf);
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
     };
 
   }, [isLeafletReady, spotsToDisplay, activeDay, lang]);
@@ -341,10 +325,10 @@ export default function GoogleMapView({
       </div>
 
       {/* Embedded Leaflet Real-Road Route Map Container */}
-      <div style={{ position: 'relative', width: '100%', height: '260px', backgroundColor: 'var(--bg-primary)' }}>
+      <div style={{ position: 'relative', width: '100%', height: '260px', minHeight: '260px', backgroundColor: 'var(--bg-primary)' }}>
         <div
           ref={mapContainerRef}
-          style={{ width: '100%', height: '100%', zIndex: 1 }}
+          style={{ width: '100%', height: '260px', minHeight: '260px', zIndex: 1 }}
         />
         {!isLeafletReady && (
           <div style={{
