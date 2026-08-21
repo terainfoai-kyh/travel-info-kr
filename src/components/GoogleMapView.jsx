@@ -72,14 +72,30 @@ export default function GoogleMapView({
         return [lat, lng];
       });
 
-      // Compute center and initial bounds
-      const bounds = L.latLngBounds(latLngs);
-      const center = bounds.getCenter();
+      // 🎯 Recommendation A: Lock map center strictly to Spot 1 (시작점)
+      const spot1Center = latLngs[0] || [baseLat, baseLng];
+
+      // Calculate appropriate zoom level anchored to Spot 1
+      let calculatedZoom = 14;
+      if (latLngs.length > 1) {
+        let maxDist = 0;
+        latLngs.forEach(([lat, lng]) => {
+          const dLat = Math.abs(lat - spot1Center[0]);
+          const dLng = Math.abs(lng - spot1Center[1]);
+          const dist = Math.sqrt(dLat * dLat + dLng * dLng);
+          if (dist > maxDist) maxDist = dist;
+        });
+
+        if (maxDist > 0.12) calculatedZoom = 11;
+        else if (maxDist > 0.06) calculatedZoom = 12;
+        else if (maxDist > 0.025) calculatedZoom = 13;
+        else calculatedZoom = 14;
+      }
 
       // Enable smooth user interaction with fractional zoom precision
       const map = L.map(mapContainerRef.current, {
-        center: center,
-        zoom: 13,
+        center: spot1Center,
+        zoom: calculatedZoom,
         zoomSnap: 0.25,
         zoomDelta: 0.5,
         zoomControl: false,
@@ -95,19 +111,6 @@ export default function GoogleMapView({
       // Initialize single dedicated route layer group to prevent ghost or overlapping lines
       const routeGroup = L.featureGroup().addTo(map);
       routeLayerRef.current = routeGroup;
-
-      // Safe fit function ensuring 1번 and 2번 spot markers are ALWAYS 100% inside with 45px padding at maxZoom: 14
-      const applySpotFit = (coords) => {
-        if (!leafletMapRef.current || !coords || coords.length === 0) return;
-        const m = leafletMapRef.current;
-        const b = L.latLngBounds(coords);
-        if (b && b.isValid()) {
-          try {
-            m.invalidateSize({ pan: false });
-            m.fitBounds(b.pad(0.35), { padding: [45, 45], maxZoom: 14, animate: false });
-          } catch (e) {}
-        }
-      };
 
       // High quality Voyager / OSM tile layer
       const tileUrl = (lang === 'ko')
@@ -163,12 +166,9 @@ export default function GoogleMapView({
         `);
       });
 
-      // Zero-Bounce instant fit strictly anchored to tourist spots (latLngs) so 1번 and 2번 are always in the center
+      // Render connecting lines & fetch real road curves
       if (latLngs.length > 1) {
-        activeBoundsRef.current = latLngs;
-        applySpotFit(latLngs);
-
-        // Render initial clean crisp connecting line
+        // Initial clean direct line
         routeGroup.clearLayers();
         const glowLine = L.polyline(latLngs, {
           color: '#93c5fd',
@@ -183,7 +183,7 @@ export default function GoogleMapView({
         routeGroup.addLayer(glowLine);
         routeGroup.addLayer(solidLine);
 
-        // Fetch real road curve if available, but ALWAYS keep camera focused strictly on tourist spots
+        // Fetch real road curve if available, keeping center strictly on Spot 1
         const coordsString = latLngs.map(([lat, lng]) => `${lng},${lat}`).join(';');
         const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${coordsString}?overview=full&geometries=geojson`;
 
@@ -207,28 +207,26 @@ export default function GoogleMapView({
                 });
                 routeGroup.addLayer(roadGlow);
                 routeGroup.addLayer(roadSolid);
-
-                // 🎯 Keep camera STRICTLY locked on tourist spots (latLngs) with 45px margin
-                applySpotFit(latLngs);
               }
             }
           })
           .catch(() => {
             // Keep the initial clean line
           });
-      } else if (latLngs.length === 1) {
-        map.setView(latLngs[0], 14, { animate: false });
       }
 
-      // Automatic post-mount size correction at 100ms
+      // Ensure map dimensions & Spot 1 centering are applied cleanly
+      map.whenReady(() => {
+        map.invalidateSize({ pan: false });
+        map.setView(spot1Center, calculatedZoom, { animate: false });
+      });
+
       setTimeout(() => {
         if (leafletMapRef.current && isMounted) {
           leafletMapRef.current.invalidateSize({ pan: false });
-          if (activeBoundsRef.current) {
-            applySpotFit(activeBoundsRef.current);
-          }
+          leafletMapRef.current.setView(spot1Center, calculatedZoom, { animate: false });
         }
-      }, 100);
+      }, 80);
     };
 
     // Frame-aligned initialization
