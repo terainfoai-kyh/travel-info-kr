@@ -17,6 +17,7 @@ export default function GoogleMapView({
   const mapContainerRef = useRef(null);
   const leafletMapRef = useRef(null);
   const routeLayerRef = useRef(null);
+  const activeBoundsRef = useRef(null);
 
   // Dynamically ensure Leaflet CSS and JS are loaded
   useEffect(() => {
@@ -202,7 +203,8 @@ export default function GoogleMapView({
 
               // 🎯 Auto-fit map to FULL road coordinates with 25% generous padding so start marker (1), end marker (2), and all road curves are 100% visible inside!
               const fullBounds = L.latLngBounds([...latLngs, ...roadPoints]).pad(0.25);
-              map.fitBounds(fullBounds, { animate: false });
+              activeBoundsRef.current = fullBounds;
+              map.fitBounds(fullBounds, { padding: [25, 25], animate: false });
             }
           }
         })
@@ -217,12 +219,15 @@ export default function GoogleMapView({
       map.setView(latLngs[0], 14, { animate: false });
     }
 
-    // Force map invalidateSize after initial container render
+    // Force map invalidateSize after initial container render and re-fit bounds accurately
     const timer = setTimeout(() => {
       if (leafletMapRef.current) {
         leafletMapRef.current.invalidateSize();
+        if (activeBoundsRef.current) {
+          leafletMapRef.current.fitBounds(activeBoundsRef.current, { padding: [25, 25], animate: false });
+        }
       }
-    }, 120);
+    }, 150);
 
     return () => {
       clearTimeout(timer);
