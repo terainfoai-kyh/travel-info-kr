@@ -49,7 +49,7 @@ export default function WishlistDrawer({
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Heart size={20} style={{ color: '#ef4444', fill: '#ef4444' }} />
             <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 900 }}>
-              저장한 여행지 ({wishlistSpots.length})
+              {lang === 'en' ? `Saved Spots (${wishlistSpots.length})` : `저장한 여행지 (${wishlistSpots.length})`}
             </h3>
           </div>
           <button
@@ -93,10 +93,12 @@ export default function WishlistDrawer({
             }}>
               <Heart size={48} style={{ color: 'var(--text-dim)', marginBottom: '1rem' }} />
               <p style={{ margin: 0, fontSize: '0.92rem', fontWeight: 700 }}>
-                아직 저장된 여행지가 없습니다.
+                {lang === 'en' ? 'No saved spots yet.' : '아직 저장된 여행지가 없습니다.'}
               </p>
               <p style={{ margin: '0.4rem 0 0 0', fontSize: '0.8rem', color: 'var(--text-dim)' }}>
-                관광지 카드의 하트(❤️) 버튼을 눌러 나만의 위시리스트를 모아보세요!
+                {lang === 'en' 
+                  ? 'Click the heart (❤️) button on any spot card to save your favorite wishlist spots!' 
+                  : '관광지 카드의 하트(❤️) 버튼을 눌러 나만의 위시리스트를 모아보세요!'}
               </p>
             </div>
           ) : (
@@ -148,14 +150,14 @@ export default function WishlistDrawer({
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                     <MapPin size={12} style={{ color: 'var(--accent-primary)', flexShrink: 0 }} />
                     <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {spot.location || spot.region || '한국'}
+                      {spot.location || spot.region || (lang === 'en' ? 'Korea' : '한국')}
                     </span>
                   </div>
                 </div>
 
                 <button
                   onClick={() => onRemoveWishlist(spot.id || spot.contentId || spot.title)}
-                  title="삭제"
+                  title={lang === 'en' ? 'Remove' : '삭제'}
                   style={{
                     background: 'transparent',
                     border: 'none',
@@ -201,7 +203,7 @@ export default function WishlistDrawer({
               }}
             >
               <Navigation size={16} />
-              <span>구글맵에서 위시리스트 전체 코스 길찾기</span>
+              <span>{lang === 'en' ? 'Get Google Maps Route for All Saved Spots' : '구글맵에서 위시리스트 전체 코스 길찾기'}</span>
             </a>
           </div>
         )}
