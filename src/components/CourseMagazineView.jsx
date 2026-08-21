@@ -179,60 +179,21 @@ export default function CourseMagazineView({
 
           {/* ==========================================================================
              📋 2. 하단 독립 스크롤 타임라인 목록 (Scrollable Spot List)
-             - thin-scrollbar 적용으로 아래로 스크롤 가능함을 직관적으로 표시
-             - 컴팩트 카드 설계로 1번, 2번 스팟 카드가 잘림 없이 한눈에 들어옴
+             - 불필요한 중복 테마 배너를 제거하여 하단 공간 +45px 추가 확보!
+             - 1번, 2번 스팟 카드가 100% 온전하게 시원한 크기로 표시됨
              ========================================================================== */}
           <div
             className="thin-scrollbar"
             style={{
               flex: 1,
               overflowY: 'auto',
-              padding: '0.35rem 0.9rem 1rem 0.9rem',
+              padding: '0.25rem 0.9rem 1rem 0.9rem',
               display: 'flex',
               flexDirection: 'column',
               gap: '0.55rem'
             }}
           >
-            {/* 💡 1일차/2일차 테마 슬림 배너 */}
-            <div style={{
-              backgroundColor: 'rgba(37, 99, 235, 0.06)',
-              border: '1px solid var(--border-highlight)',
-              borderRadius: '10px',
-              padding: '0.4rem 0.75rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: '0.4rem'
-            }}>
-              <div style={{ minWidth: 0 }}>
-                <span style={{ fontSize: '0.68rem', fontWeight: 800, color: 'var(--accent-primary)' }}>
-                  {activeDay}일차 테마
-                </span>
-                <div style={{
-                  fontSize: '0.8rem',
-                  fontWeight: 800,
-                  color: 'var(--text-main)',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis'
-                }}>
-                  {currentSchedule?.theme || `${targetCity} 인기 코스`}
-                </div>
-              </div>
-              <span style={{
-                fontSize: '0.68rem',
-                fontWeight: 700,
-                color: 'var(--accent-primary)',
-                backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                padding: '0.15rem 0.45rem',
-                borderRadius: '6px',
-                flexShrink: 0
-              }}>
-                총 {activeSpots.length}개 장소
-              </span>
-            </div>
-
-            {/* 🎯 컴팩트 스팟 타임라인 카드 목록 */}
+            {/* 🎯 스팟 타임라인 카드 목록 */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.55rem' }}>
               {activeSpots.map((spot, idx) => {
                 const bookmarked = isSpotBookmarked(spot);
