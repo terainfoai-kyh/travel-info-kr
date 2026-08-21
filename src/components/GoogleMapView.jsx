@@ -415,6 +415,44 @@ export default function GoogleMapView({
           ref={mapContainerRef}
           style={{ width: '100%', height: '260px', minHeight: '260px', zIndex: 1 }}
         />
+
+        {/* 🔍 Always Visible Floating "전체 코스 보기" Button Inside Map */}
+        <button
+          type="button"
+          onClick={() => {
+            if (onSelectSpotIndex) onSelectSpotIndex(null);
+            if (leafletMapRef.current && activeBoundsRef.current) {
+              const b = window.L?.latLngBounds(activeBoundsRef.current);
+              if (b && b.isValid()) {
+                leafletMapRef.current.fitBounds(b.pad(0.35), { padding: [40, 40], maxZoom: 14, animate: true });
+              }
+            }
+          }}
+          title="클릭하여 전체 코스 한눈에 보기"
+          style={{
+            position: 'absolute',
+            top: '10px',
+            left: '10px',
+            zIndex: 400,
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(8px)',
+            border: '1.5px solid var(--accent-primary)',
+            color: 'var(--accent-primary)',
+            padding: '0.35rem 0.75rem',
+            borderRadius: 'var(--radius-full)',
+            fontSize: '0.74rem',
+            fontWeight: 800,
+            boxShadow: '0 3px 10px rgba(0,0,0,0.18)',
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.3rem',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          <span>🔍 전체 코스 보기</span>
+        </button>
+
         {!isLeafletReady && (
           <div style={{
             position: 'absolute',
