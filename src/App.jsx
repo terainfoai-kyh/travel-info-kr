@@ -346,6 +346,9 @@ export default function App() {
   const handleGenerateItinerary = async (promptQuery) => {
     if (!promptQuery || isLoading) return;
 
+    // 📱 Mobile UX: Immediately switch to 'chat' tab so user sees query sending and quota status
+    setMobileHubTab('chat');
+
     const queryTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
     const userMsg = {
       id: `user-${Date.now()}`,
@@ -419,6 +422,7 @@ export default function App() {
           timestamp: replyTime
         };
         setChatMessages(prev => [...prev, botMsg]);
+        setMobileHubTab('chat');
       } else {
         // 📍 Full Itinerary Mode: Render full course and sync map
         const finalResult = {
@@ -438,6 +442,7 @@ export default function App() {
           timestamp: replyTime
         };
         setChatMessages(prev => [...prev, botMsg]);
+        setMobileHubTab('magazine');
       }
     } catch (err) {
       console.warn('[VORA AI Error]', err);
@@ -459,6 +464,7 @@ export default function App() {
         timestamp: replyTime
       };
       setChatMessages(prev => [...prev, botMsg]);
+      setMobileHubTab('magazine');
     } finally {
       setIsLoading(false);
     }

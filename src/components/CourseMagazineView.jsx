@@ -62,6 +62,10 @@ export default function CourseMagazineView({
     );
   };
 
+  const displaySchedules = (schedules && schedules.length > 0)
+    ? schedules
+    : Array.from({ length: Number(itineraryData?.days) || 3 }, (_, i) => ({ day: i + 1 }));
+
   return (
     <div style={{
       display: 'flex',
@@ -75,7 +79,7 @@ export default function CourseMagazineView({
     }}>
       {/* Magazine Header & Day Tabs */}
       <div style={{
-        padding: '0.75rem 1.1rem',
+        padding: '0.65rem 0.9rem',
         borderBottom: '1px solid var(--border-color)',
         backgroundColor: 'var(--bg-glass)',
         backdropFilter: 'blur(12px)',
@@ -83,21 +87,21 @@ export default function CourseMagazineView({
         alignItems: 'center',
         justifyContent: 'space-between',
         flexWrap: 'wrap',
-        gap: '0.6rem'
+        gap: '0.5rem'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Calendar size={18} style={{ color: 'var(--accent-primary)' }} />
-          <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-main)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+          <Calendar size={17} style={{ color: 'var(--accent-primary)' }} />
+          <h3 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-main)' }}>
             {t.courseTimelineTitle || '스마트 여행 코스 타임라인'}
           </h3>
           {itineraryData?.generationTime && (
             <span style={{
-              fontSize: '0.68rem',
+              fontSize: '0.66rem',
               fontWeight: 800,
               color: '#2563eb',
               backgroundColor: 'rgba(37, 99, 235, 0.08)',
               border: '1px solid rgba(37, 99, 235, 0.2)',
-              padding: '0.15rem 0.5rem',
+              padding: '0.12rem 0.45rem',
               borderRadius: 'var(--radius-full)',
               display: 'inline-flex',
               alignItems: 'center',
@@ -108,8 +112,8 @@ export default function CourseMagazineView({
           )}
         </div>
 
-        {/* Day Selector Tabs (Syncs bidirectionally with Chat) */}
-        {itineraryData && schedules.length > 1 && (
+        {/* Day Selector Tabs (Always Permanent & Syncs bidirectionally with Chat) */}
+        {displaySchedules.length > 1 && (
           <div style={{
             display: 'flex',
             backgroundColor: 'var(--bg-primary)',
@@ -122,7 +126,7 @@ export default function CourseMagazineView({
             WebkitOverflowScrolling: 'touch',
             maxWidth: '100%'
           }}>
-            {schedules.map((ds) => {
+            {displaySchedules.map((ds) => {
               const isSelected = Number(activeDay) === Number(ds.day);
               return (
                 <button
@@ -133,8 +137,8 @@ export default function CourseMagazineView({
                     color: isSelected ? '#ffffff' : 'var(--text-muted)',
                     border: 'none',
                     borderRadius: 'var(--radius-full)',
-                    padding: '0.3rem 0.75rem',
-                    fontSize: '0.76rem',
+                    padding: '0.25rem 0.65rem',
+                    fontSize: '0.74rem',
                     fontWeight: isSelected ? 800 : 600,
                     cursor: 'pointer',
                     transition: 'all var(--transition-fast)',
@@ -246,8 +250,8 @@ export default function CourseMagazineView({
                       boxShadow: isFocused ? '0 0 0 2px rgba(37, 99, 235, 0.18)' : 'var(--shadow-sm)',
                       display: 'flex',
                       alignItems: 'stretch',
-                      gap: '0.65rem',
-                      padding: '0.45rem 0.55rem',
+                      gap: '0.5rem',
+                      padding: '0.35rem 0.45rem',
                       cursor: 'pointer',
                       transition: 'all var(--transition-fast)'
                     }}
@@ -261,10 +265,10 @@ export default function CourseMagazineView({
                       title={lang === 'en' ? 'Click to view HD photos & details' : lang === 'ja' ? 'クリックして詳細情報と高画質写真を見る' : (lang === 'zh' || lang === 'zht') ? '点击查看高清实景图与详情' : '클릭하여 상세 정보 및 고화질 실사진 보기'}
                       style={{
                         position: 'relative',
-                        width: '84px',
-                        minWidth: '84px',
-                        height: '78px',
-                        borderRadius: '9px',
+                        width: '72px',
+                        minWidth: '72px',
+                        height: '66px',
+                        borderRadius: '8px',
                         overflow: 'hidden',
                         flexShrink: 0,
                         cursor: 'pointer'

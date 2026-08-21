@@ -79,14 +79,15 @@
   --shadow-glow: 0 0 20px rgba(56, 189, 248, 0.25);
 }
 
-/* Ensure Headings & Text Always Inherit Theme Variable and Wrap Beautifully */
-h1, h2, h3, h4, h5, h6, p, span, button, a, div {
+/* Ensure Headings Always Wrap Beautifully */
+h1, h2, h3, h4, h5, h6 {
   word-break: keep-all;
   overflow-wrap: break-word;
+  color: var(--text-main);
 }
 
-h1, h2, h3, h4, h5, h6 {
-  color: var(--text-main);
+p, span, button, a {
+  overflow-wrap: break-word;
 }
 
 /* Apple-Style Ambient Minimalist Slate Background System */
@@ -962,8 +963,13 @@ button, a, input, select, textarea {
   }
 
   .itinerary-hub-column {
-    height: 580px !important;
-    min-height: 500px !important;
+    height: 610px !important;
+    min-height: 520px !important;
+  }
+
+  .leaflet-container {
+    height: 160px !important;
+    min-height: 160px !important;
   }
 
   /* Prevent abrupt zoom on iOS Safari */
@@ -982,12 +988,12 @@ button, a, input, select, textarea {
 /* Small Smartphone Viewports (< 480px) */
 @media (max-width: 480px) {
   .itinerary-hub-column {
-    height: 540px !important;
+    height: 600px !important;
   }
 
   .leaflet-container {
-    height: 185px !important;
-    min-height: 185px !important;
+    height: 155px !important;
+    min-height: 155px !important;
   }
 }
 

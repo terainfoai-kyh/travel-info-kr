@@ -285,7 +285,7 @@ export default function VoraAIChat({
                     </div>
                   )}
 
-                  <div style={{ whiteSpace: 'pre-line' }}>{msg.text}</div>
+                  <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'break-word' }}>{msg.text}</div>
 
                   {/* Quota Exhausted Call to Action Cards (Rewarded Ad & Google Login) */}
                   {(msg.isQuotaExhausted || (msg.text && (msg.text.includes('무료 AI 질문') || msg.text.includes('free AI questions')))) && (

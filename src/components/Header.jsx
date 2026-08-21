@@ -270,8 +270,8 @@ export default function Header({
             )}
           </button>
 
-          {/* 4-Language Universal Switcher Dropdown */}
-          <div ref={langMenuRef} style={{ position: 'relative' }}>
+          {/* 4-Language Universal Switcher Dropdown (Desktop) */}
+          <div ref={langMenuRef} className="hide-mobile" style={{ position: 'relative' }}>
             <button
               onClick={() => setIsLangOpen(!isLangOpen)}
               style={{
@@ -528,13 +528,54 @@ export default function Header({
                 border: '1px solid var(--border-color)',
                 borderRadius: '20px',
                 boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)',
-                padding: '0.6rem',
-                minWidth: '220px',
+                padding: '0.65rem',
+                minWidth: '240px',
                 zIndex: 250,
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '0.3rem'
+                gap: '0.35rem'
               }}>
+                {/* 🌐 0. Mobile Language Switcher */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  backgroundColor: 'var(--bg-primary)',
+                  padding: '0.3rem',
+                  borderRadius: '12px',
+                  border: '1px solid var(--border-color)',
+                  marginBottom: '0.3rem'
+                }}>
+                  {LANGUAGES.map((l) => (
+                    <button
+                      key={l.code}
+                      onClick={() => {
+                        setIsMainMenuOpen(false);
+                        if (onLanguageChange) onLanguageChange(l.code);
+                      }}
+                      style={{
+                        flex: 1,
+                        padding: '0.35rem 0.2rem',
+                        fontSize: '0.74rem',
+                        fontWeight: lang === l.code ? 800 : 600,
+                        backgroundColor: lang === l.code ? 'var(--accent-primary)' : 'transparent',
+                        color: lang === l.code ? '#ffffff' : 'var(--text-muted)',
+                        border: 'none',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.2rem',
+                        transition: 'all var(--transition-fast)'
+                      }}
+                    >
+                      <span>{l.flag}</span>
+                      <span>{l.label.slice(0, 3)}</span>
+                    </button>
+                  ))}
+                </div>
+
                 {/* 1. Live Weather & Styling Modal */}
                 <button
                   onClick={() => {
