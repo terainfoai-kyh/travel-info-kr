@@ -9,7 +9,7 @@ import {
   ExternalLink,
   CalendarDays
 } from 'lucide-react';
-import { getCloseButtonLabel } from '../i18n/translations';
+import { getCloseButtonLabel, TRANSLATIONS } from '../i18n/translations';
 import { buildKlookDeepLink } from '../services/apiConfig';
 
 export default function WeatherModal({
@@ -19,6 +19,7 @@ export default function WeatherModal({
   initialRegion = '서울'
 }) {
   const [searchQuery, setSearchQuery] = useState('');
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
 
   // Synchronize with active itinerary destination whenever opened
   React.useEffect(() => {
@@ -257,7 +258,54 @@ export default function WeatherModal({
     return found || raw;
   }, [searchQuery, initialRegion]);
 
-  const current = REGION_DATABASE[matchedCityKey] || {
+  // English Localization Helper for Weather conditions, dust, and styling recommendations
+  const getLocalizedWeather = (data, language, targetCityName) => {
+    if (language !== 'en') return data;
+    const translateDust = (d) => d === '최고 좋음' ? 'Excellent' : d === '좋음' ? 'Good' : d === '보통' ? 'Moderate' : 'Unhealthy';
+    const translateUv = (u) => u === '매우 높음' ? 'Very High' : u === '높음' ? 'High' : u === '보통' ? 'Moderate' : 'Low';
+    const translateWeather = (w) => {
+      if (w.includes('화창') || w.includes('맑음')) return 'Sunny & Clear ☀️';
+      if (w.includes('구름') || w.includes('흐림')) return 'Partly Cloudy ⛅';
+      if (w.includes('비')) return 'Rainy 🌧️';
+      return 'Mild & Pleasant 🌤️';
+    };
+
+    const tempNum = parseInt(data.temp) || 22;
+    let topBottomEn = 'Comfortable cotton T-shirt, breathable slacks or denim jeans';
+    let outerEn = 'Light cardigan or windbreaker for evening breeze & indoor AC';
+    let essentialsEn = 'Power bank, comfortable walking shoes, sunglasses';
+    let tipEn = `Ideal pleasant weather for walking and cafe hopping in ${targetCityName}.`;
+
+    if (tempNum >= 25) {
+      topBottomEn = 'Linen shirts, cooling cotton shorts, or breezy summer dresses';
+      outerEn = 'Light linen shirt or UV protection sun-layer for coastlines';
+      essentialsEn = 'UV sunglasses, waterproof sunscreen, mini umbrella, sandals';
+      tipEn = `High UV index today. Apply sunscreen regularly and wear a hat during outdoor strolls in ${targetCityName}.`;
+    } else if (tempNum < 20) {
+      topBottomEn = 'Long-sleeve sweatshirt, warm knit, or casual chinos';
+      outerEn = 'Trench coat, denim jacket, or light padded outerwear';
+      essentialsEn = 'Lip balm, thermal bottle, warm socks, comfortable sneakers';
+      tipEn = `Chilly morning and evening breeze. Layering a light jacket is highly recommended in ${targetCityName}.`;
+    }
+
+    return {
+      ...data,
+      dust: translateDust(data.dust),
+      uv: translateUv(data.uv),
+      weather: translateWeather(data.weather),
+      topBottom: topBottomEn,
+      outer: outerEn,
+      essentials: essentialsEn,
+      tip: tipEn,
+      forecast: data.forecast.map((f, idx) => ({
+        ...f,
+        day: idx === 0 ? 'Today' : idx === 1 ? 'Tmrw' : 'Day+2',
+        weather: f.weather.includes('맑') ? '☀️ Clear' : f.weather.includes('구름') ? '⛅ Cloudy' : '🌧️ Rain'
+      }))
+    };
+  };
+
+  const rawCurrent = REGION_DATABASE[matchedCityKey] || {
     temp: '22°C',
     feelsLike: '23°C',
     weather: '맑고 쾌적 ☀️',
@@ -275,6 +323,8 @@ export default function WeatherModal({
       { day: '모레', weather: '☀️ 화창함', temp: '25° / 16°', rain: '10%' }
     ]
   };
+
+  const current = getLocalizedWeather(rawCurrent, lang, matchedCityKey);
 
   // Affiliate & Service Reference Links (High-Value Curation)
   const sunscreenLink = buildKlookDeepLink('한국 여행 필수품 선크림');
@@ -321,7 +371,7 @@ export default function WeatherModal({
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <CloudSun size={22} style={{ color: 'var(--accent-primary)' }} />
             <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 900 }}>
-              대한민국 실시간 날씨 & 여행 스타일링 가이드
+              {t.weatherModalTitle || '대한민국 실시간 날씨 & 여행 스타일링 가이드'}
             </h3>
           </div>
           <button
@@ -367,7 +417,7 @@ export default function WeatherModal({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="도시나 여행지를 입력하세요 (예: 평택, 제주, 순천, 속초...)"
+              placeholder={t.weatherSearchPlaceholder || '도시나 여행지를 입력하세요 (예: 평택, 제주, 순천, 속초...)'}
               style={{
                 flex: 1,
                 minWidth: 0,
@@ -383,7 +433,7 @@ export default function WeatherModal({
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                title="입력 내용 지우기"
+                title="Clear input"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -401,7 +451,7 @@ export default function WeatherModal({
                   transition: 'all 0.2s ease'
                 }}
               >
-                <span>✕ 지우기</span>
+                <span>{t.weatherClearBtn || '✕ 지우기'}</span>
               </button>
             )}
           </div>
@@ -445,7 +495,7 @@ export default function WeatherModal({
                 padding: '0.2rem 0.55rem',
                 borderRadius: '6px'
               }}>
-                체감 {current.feelsLike}
+                {t.weatherFeelsLike || '체감 '}{current.feelsLike}
               </span>
             </div>
 
@@ -456,19 +506,19 @@ export default function WeatherModal({
               gap: '0.4rem'
             }}>
               <div style={{ backgroundColor: 'var(--bg-card)', padding: '0.45rem 0.3rem', borderRadius: '10px', textAlign: 'center' }}>
-                <div style={{ fontSize: '0.68rem', color: 'var(--text-dim)', fontWeight: 700 }}>💧 강수</div>
+                <div style={{ fontSize: '0.68rem', color: 'var(--text-dim)', fontWeight: 700 }}>{t.weatherRainLabel || '💧 강수'}</div>
                 <div style={{ fontSize: '0.82rem', fontWeight: 900, color: 'var(--accent-primary)', marginTop: '0.1rem' }}>{current.rain}</div>
               </div>
               <div style={{ backgroundColor: 'var(--bg-card)', padding: '0.45rem 0.3rem', borderRadius: '10px', textAlign: 'center' }}>
-                <div style={{ fontSize: '0.68rem', color: 'var(--text-dim)', fontWeight: 700 }}>🍃 미세먼지</div>
+                <div style={{ fontSize: '0.68rem', color: 'var(--text-dim)', fontWeight: 700 }}>{t.weatherDustLabel || '🍃 미세먼지'}</div>
                 <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#10b981', marginTop: '0.1rem' }}>{current.dust}</div>
               </div>
               <div style={{ backgroundColor: 'var(--bg-card)', padding: '0.45rem 0.3rem', borderRadius: '10px', textAlign: 'center' }}>
-                <div style={{ fontSize: '0.68rem', color: 'var(--text-dim)', fontWeight: 700 }}>☀️ 자외선</div>
+                <div style={{ fontSize: '0.68rem', color: 'var(--text-dim)', fontWeight: 700 }}>{t.weatherUvLabel || '☀️ 자외선'}</div>
                 <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#f59e0b', marginTop: '0.1rem' }}>{current.uv}</div>
               </div>
               <div style={{ backgroundColor: 'var(--bg-card)', padding: '0.45rem 0.3rem', borderRadius: '10px', textAlign: 'center' }}>
-                <div style={{ fontSize: '0.68rem', color: 'var(--text-dim)', fontWeight: 700 }}>💨 습도</div>
+                <div style={{ fontSize: '0.68rem', color: 'var(--text-dim)', fontWeight: 700 }}>{t.weatherHumidityLabel || '💨 습도'}</div>
                 <div style={{ fontSize: '0.82rem', fontWeight: 900, color: 'var(--text-main)', marginTop: '0.1rem' }}>{current.humidity}</div>
               </div>
             </div>
@@ -486,7 +536,7 @@ export default function WeatherModal({
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 800, color: 'var(--accent-primary)', flexShrink: 0 }}>
                 <CalendarDays size={14} />
-                <span>3일 예보:</span>
+                <span>{t.weatherForecastTitle || '3일 예보:'}</span>
               </div>
               <div style={{ display: 'flex', gap: '0.75rem', overflowX: 'auto', scrollbarWidth: 'none' }}>
                 {current.forecast.map((f, i) => (
@@ -511,7 +561,7 @@ export default function WeatherModal({
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
               <Shirt size={18} style={{ color: 'var(--accent-primary)' }} />
               <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 900, color: 'var(--text-main)' }}>
-                오늘 {matchedCityKey} 맞춤 여행 코디 & 필수 준비물
+                {t.weatherOutfitSectionTitle ? t.weatherOutfitSectionTitle(matchedCityKey) : `오늘 ${matchedCityKey} 맞춤 여행 코디 & 필수 준비물`}
               </h4>
             </div>
 
@@ -522,15 +572,15 @@ export default function WeatherModal({
               fontSize: '0.83rem'
             }}>
               <div style={{ backgroundColor: 'var(--bg-card)', padding: '0.65rem 0.85rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                <span style={{ fontWeight: 800, color: 'var(--accent-primary)', marginRight: '0.4rem' }}>👕 상의 / 하의:</span>
+                <span style={{ fontWeight: 800, color: 'var(--accent-primary)', marginRight: '0.4rem' }}>{t.weatherTopBottom || '👕 상의 / 하의:'}</span>
                 <span style={{ fontWeight: 700, color: 'var(--text-main)' }}>{current.topBottom}</span>
               </div>
               <div style={{ backgroundColor: 'var(--bg-card)', padding: '0.65rem 0.85rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                <span style={{ fontWeight: 800, color: 'var(--accent-primary)', marginRight: '0.4rem' }}>🧥 아우터 레이어드:</span>
+                <span style={{ fontWeight: 800, color: 'var(--accent-primary)', marginRight: '0.4rem' }}>{t.weatherOuter || '🧥 아우터 레이어드:'}</span>
                 <span style={{ fontWeight: 700, color: 'var(--text-main)' }}>{current.outer}</span>
               </div>
               <div style={{ backgroundColor: 'var(--bg-card)', padding: '0.65rem 0.85rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                <span style={{ fontWeight: 800, color: 'var(--accent-primary)', marginRight: '0.4rem' }}>🎒 필수 여행 소품:</span>
+                <span style={{ fontWeight: 800, color: 'var(--accent-primary)', marginRight: '0.4rem' }}>{t.weatherEssentials || '🎒 필수 여행 소품:'}</span>
                 <span style={{ fontWeight: 700, color: 'var(--text-main)' }}>{current.essentials}</span>
               </div>
             </div>
@@ -547,7 +597,7 @@ export default function WeatherModal({
             }}>
               <Sparkles size={16} style={{ color: 'var(--accent-primary)', flexShrink: 0, marginTop: '2px' }} />
               <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)', lineHeight: 1.45 }}>
-                <strong style={{ color: 'var(--accent-primary)' }}>현지 스타일리스트 꿀팁: </strong>
+                <strong style={{ color: 'var(--accent-primary)' }}>{t.weatherStylistTip || '현지 스타일리스트 꿀팁: '}</strong>
                 {current.tip}
               </div>
             </div>
@@ -578,7 +628,7 @@ export default function WeatherModal({
                   fontWeight: 800
                 }}
               >
-                <span>🧴 여행용 선크림 & 쿨링패치</span>
+                <span>{t.weatherSunscreenLink || '🧴 여행용 선크림 & 쿨링패치'}</span>
                 <ExternalLink size={12} style={{ color: 'var(--text-dim)' }} />
               </a>
 
@@ -601,7 +651,7 @@ export default function WeatherModal({
                   fontWeight: 800
                 }}
               >
-                <span>👘 전통 한복/의상 대여</span>
+                <span>{t.weatherHanbokLink || '👘 전통 한복/의상 대여'}</span>
                 <ExternalLink size={12} style={{ color: 'var(--text-dim)' }} />
               </a>
 
@@ -624,7 +674,7 @@ export default function WeatherModal({
                   fontWeight: 800
                 }}
               >
-                <span>📌 K-패션 여행 감성 룩북 (Pinterest)</span>
+                <span>{t.weatherLookbookLink || '📌 K-패션 여행 감성 룩북 (Pinterest)'}</span>
                 <ExternalLink size={12} style={{ color: 'var(--text-dim)' }} />
               </a>
             </div>

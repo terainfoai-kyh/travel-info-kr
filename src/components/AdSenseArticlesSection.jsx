@@ -6,7 +6,7 @@ export default function AdSenseArticlesSection({ lang = 'ko' }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
   const [openFaq, setOpenFaq] = useState(null);
 
-  const ARTICLES = [
+  const ARTICLES_KO = [
     {
       icon: <Sparkles size={20} style={{ color: '#2563eb' }} />,
       tag: '핫플 가이드',
@@ -41,7 +41,42 @@ export default function AdSenseArticlesSection({ lang = 'ko' }) {
     }
   ];
 
-  const FAQS = [
+  const ARTICLES_EN = [
+    {
+      icon: <Sparkles size={20} style={{ color: '#2563eb' }} />,
+      tag: 'Hotspot Trend',
+      title: '2026 Seoul Travel Trends: From Seongsu-dong to Hannam-dong',
+      summary: 'Explore Seongsu-dong, Seoul’s Brooklyn of pop-up stores and independent fashion boutiques, and the charming aesthetic cafes of Hannam-dong.',
+      readTime: '3 min read',
+      content: 'Seongsu-dong is Seoul’s premier cultural hub featuring Dior Seongsu, Ader Error flagship store, and artisanal coffee roasteries. Walk comfortably from Ttukseom to Seongsu station and enjoy a picnic at Seoul Forest.'
+    },
+    {
+      icon: <Train size={20} style={{ color: '#10b981' }} />,
+      tag: 'Transit Tips',
+      title: 'Foreign Traveler Transit Masterclass: Climate Card vs T-Money',
+      summary: 'Complete guide on purchasing short-term Climate Cards for unlimited subway & bus rides, plus airport express (AREX) and intercity bus tips.',
+      readTime: '4 min read',
+      content: 'The Climate Card offers unlimited subway and public bus rides for 1, 2, 3, or 5 days. Purchase physical cards at Seoul Station or subway customer centers and top up instantly at automated kiosks.'
+    },
+    {
+      icon: <Coffee size={20} style={{ color: '#f59e0b' }} />,
+      tag: 'K-Food Culture',
+      title: 'Korean Food & Dining Etiquette: No-Tip Gourmet Paradise',
+      summary: 'Korea has zero tipping culture, with call buttons at tables and free side dish (Banchan) refills. From Gwangjang market street food to Korean BBQ.',
+      readTime: '3 min read',
+      content: 'Water and side dishes are complimentary in Korean restaurants, and payment is settled at the front counter after dining. Popular gourmet spots allow remote queueing via CatchTable.'
+    },
+    {
+      icon: <MapPin size={20} style={{ color: '#ec4899' }} />,
+      tag: 'Four-Season Styling',
+      title: '2026 Korea Four-Season Travel & Weather Outfit Guide',
+      summary: 'From spring cherry blossom palaces to summer East Coast surfing, autumn foliage in Gyeongju, and winter ski resorts with temperature-matched outfits.',
+      readTime: '4 min read',
+      content: 'Korea has four distinct seasons. Spring (Mar-May) and autumn (Sep-Nov) require light cardigan layering for day/night temperature drops. Summer (Jun-Aug) calls for breathable linen and UV sunglasses, while winter (Dec-Feb) requires warm padding and heat packs.'
+    }
+  ];
+
+  const FAQS_KO = [
     {
       q: 'VORA AI 여행 일정은 어떻게 생성되나요?',
       a: 'VORA AI는 최신 Google Gemini 3.0 자연어 AI와 Google Places Platform 공식 위치 데이터베이스를 결합하여, 사용자가 입력한 여행 지역과 취향에 맞는 최적의 동선, 실제 위경도 좌표 기반 구글맵 길찾기, 로컬 미식을 실시간으로 자동 생성합니다.'
@@ -59,6 +94,28 @@ export default function AdSenseArticlesSection({ lang = 'ko' }) {
       a: '대한민국 관광통역안내 1330 헬프라인(국번 없이 1330)으로 전화하시면 연중무휴 24시간 한국어, 영어, 일본어, 중국어 무료 통역 및 여행 안내, 긴급 구호 연계 서비스를 받으실 수 있습니다.'
     }
   ];
+
+  const FAQS_EN = [
+    {
+      q: 'How does VORA AI create my travel itinerary?',
+      a: 'VORA AI combines Google Gemini 3.0 natural language AI with the Google Places Platform database to automatically generate optimal daily routes, real-time Google Maps coordinates, transit times, and authentic local gourmet recommendations tailored to your style.'
+    },
+    {
+      q: 'Is cash exchange necessary for traveling in South Korea?',
+      a: 'Most shops, cafes, taxis, and public transit widely accept international credit cards (Visa, Mastercard) and Apple Pay. However, carrying a small amount of cash (~30,000 to 50,000 KRW) is recommended for street food markets and transit card reloads.'
+    },
+    {
+      q: 'What courses do you recommend for rainy days?',
+      a: 'On rainy days, we recommend large indoor cultural hubs like the National Museum of Korea, The Hyundai Seoul, Starfield Library in COEX, Lotte World Tower Seoul Sky, and DDP. You can simply ask VORA chat: "Change to an indoor rainy day course".'
+    },
+    {
+      q: 'Can I get foreign language interpretation during an emergency?',
+      a: 'Yes! Call the 1330 Korea Travel Helpline (dial 1330 without area code) for 24/7 free multilingual interpretation in English, Japanese, and Chinese, general travel assistance, and emergency relief services.'
+    }
+  ];
+
+  const ARTICLES = lang === 'en' ? ARTICLES_EN : ARTICLES_KO;
+  const FAQS = lang === 'en' ? FAQS_EN : FAQS_KO;
 
   return (
     <section style={{

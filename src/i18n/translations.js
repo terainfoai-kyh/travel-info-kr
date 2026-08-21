@@ -134,14 +134,26 @@ export const TRANSLATIONS = {
     // Travel Essentials
     essentialsTitle: '외국인 관광객 필수 툴킷',
     essentialsSubtitle: '안전하고 편리한 한국 여행을 위한 핵심 서비스',
+    weatherOutfitTitle: '실시간 날씨 & 여행 코디 가이드',
+    weatherOutfitDesc: (city) => `${city} 및 전국 실시간 기상과 기온별 맞춤 여행 옷차림 & 필수 패킹 팁`,
+    weatherOutfitBadge: '스타일 가이드',
+    weatherOutfitLink: '기온별 코디 & 패킹 보기 👗',
+    badgeTransport: '교통 필수',
+    badgeCostSaving: '비용 절약',
+    badgeData: '데이터 무제한',
+    badgeSupport24h: '24시간 지원',
     subwayMapTitle: '지하철 노선도 & 길찾기',
     subwayMapDesc: '서울, 부산 등 전국 지하철 실시간 노선도 및 환승 가이드',
+    subwayMapLink: '지하철 노선도 보기 ↗',
     climateCardTitle: '기후동행카드 & T-Money',
     climateCardDesc: '외국인 단기권 구매처 및 대중교통 무제한 이용 팁',
+    climateCardLink: '기후동행카드 안내 ↗',
     esimTitle: 'eSIM & 포켓 와이파이',
     esimDesc: '인천공항 수령 및 즉시 사용 가능한 데이터 플랜',
+    esimBookingLink: 'Klook eSIM 예약 ↗',
     helplineTitle: '1330 관광 안내 & 통역',
     helplineDesc: '24시간 연중무휴 무료 4개 국어 긴급 통역 및 여행 지원',
+    helplineInfoLink: '1330 공식 안내 ↗',
 
     // AdSense Editorial Section
     editorialTitle: '대한민국 여행 완벽 가이드 & FAQ',
@@ -157,6 +169,9 @@ export const TRANSLATIONS = {
     footerTourApiNotice: 'Google Gemini 3.0 AI & Google Maps Platform 연동'
   },
 
+  // =========================================================================
+  // 다국어 영어 시작 (Multilingual Localization: English Phase)
+  // =========================================================================
   en: {
     // Brand & Header
     brandName: 'VORA',
@@ -166,11 +181,13 @@ export const TRANSLATIONS = {
     navWishlist: 'Wishlist',
     navLanguage: 'Language',
     themeToggle: 'Toggle Theme',
+    shareToastSuccess: 'Share link copied to clipboard! 📋',
+    drawerWeatherGuide: '👗 Live Weather & Travel Outfit Guide',
 
     // Hero Section
     heroBadge: '✨ 2026 AI-Powered Korea Travel Concierge',
     heroTitle: 'Discover Korea Like a Local, Powered by AI',
-    heroSubtitle: 'Tailor-made itineraries, hidden gems, and seamless Google Maps transit designed in 3 seconds.',
+    heroSubtitle: 'Google Gemini 3.0 AI and Google Places design your custom itinerary with live Google Maps routes.',
     searchPlaceholder: 'What kind of trip do you dream of? (e.g. 3-day Seongsu cafe hopping in Seoul, Jeju nature healing, rainy day date)',
     searchBtn: 'Generate Itinerary',
     promptChipsTitle: '🔥 Popular Prompt Ideas',
@@ -205,6 +222,8 @@ export const TRANSLATIONS = {
     saveToWishlist: 'Save to Wishlist',
     savedToWishlist: 'Saved ❤️',
     noSpotsYet: 'Ask VORA AI to plan your trip, and your custom timeline & interactive Google Map will appear here.',
+    aiTrustBadgeDesc: 'Official Course Powered by Google Places & Gemini AI',
+    aiItineraryMainTitle: 'AI Itinerary Recommendation',
 
     // Question Quota
     freeQuestionsRemaining: (remain, total) => `⚡ Free AI Queries Today: ${remain} / ${total}`,
@@ -213,18 +232,57 @@ export const TRANSLATIONS = {
     // Travel Essentials
     essentialsTitle: 'Foreign Traveler Essentials',
     essentialsSubtitle: 'Must-have tools and tips for a smooth trip to Korea',
+    weatherOutfitTitle: 'Live Weather & Travel Outfit Guide',
+    weatherOutfitDesc: (city) => `Real-time weather, temperature-matched packing & K-fashion styling tips for ${city} and all of Korea`,
+    weatherOutfitBadge: 'Styling Guide',
+    weatherOutfitLink: 'View Outfits & Packing Guide 👗',
+    badgeTransport: 'Transit',
+    badgeCostSaving: 'Cost Saving',
+    badgeData: 'Unlimited Data',
+    badgeSupport24h: '24/7 Support',
     subwayMapTitle: 'Subway Map & Transit Guide',
     subwayMapDesc: 'Interactive subway routes & transfer guides for Seoul, Busan and beyond',
+    subwayMapLink: 'Subway Map ↗',
     climateCardTitle: 'Climate Card & T-Money',
     climateCardDesc: 'Tourist pass options & unlimited public transit guide',
+    climateCardLink: 'Climate Card Info ↗',
     esimTitle: 'eSIM & Pocket WiFi',
     esimDesc: 'Instant high-speed mobile data for seamless navigation',
+    esimBookingLink: 'Book Klook eSIM ↗',
     helplineTitle: '1330 Korea Travel Helpline',
     helplineDesc: '24/7 free multilingual interpretation & emergency travel support',
+    helplineInfoLink: '1330 Helpline Info ↗',
 
     // AdSense Editorial Section
     editorialTitle: 'Complete South Korea Travel Guide & FAQ',
     editorialSubtitle: 'Curated local wisdom for international visitors',
+
+    // Weather & Styling Modal
+    weatherModalTitle: 'Korea Live Weather & Travel Outfit Guide',
+    weatherSearchPlaceholder: 'Enter city or destination (e.g. Seoul, Jeju, Busan, Sokcho...)',
+    weatherClearBtn: '✕ Clear',
+    weatherFeelsLike: 'Feels like ',
+    weatherRainLabel: '💧 Rain',
+    weatherDustLabel: '🍃 Air Quality',
+    weatherUvLabel: '☀️ UV Index',
+    weatherHumidityLabel: '💨 Humidity',
+    weatherForecastTitle: '3-Day Forecast:',
+    weatherOutfitSectionTitle: (city) => `Today's Outfit & Travel Packing Guide for ${city}`,
+    weatherTopBottom: '👕 Top / Bottom:',
+    weatherOuter: '🧥 Outer Layer:',
+    weatherEssentials: '🎒 Travel Essentials:',
+    weatherStylistTip: 'Local Stylist Tip:',
+    weatherSunscreenLink: '🧴 Travel Sunscreen & Cooling',
+    weatherHanbokLink: '👘 Traditional Hanbok Rental',
+    weatherLookbookLink: '📌 K-Fashion Travel Lookbook (Pinterest)',
+
+    // Detail Modal
+    detailGalleryTitle: (count) => `Google Places Official HD Gallery (${count} Photos)`,
+    detailDragHint: 'Scroll or swipe to explore ↔',
+    detailBestTime: 'Best Time: ',
+    detailEditorGuide: '✨ Travel Editor Guide',
+    detailDirectionsTitle: '🗺️ Directions & Live Maps',
+    detailLowestPriceBtn: 'Book Lowest Price ↗',
 
     // Modals
     modalClose: 'Close',

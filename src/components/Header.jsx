@@ -194,7 +194,7 @@ export default function Header({
             }}
           >
             <CloudSun size={15} style={{ color: 'var(--accent-primary)' }} />
-            <span>{targetCity} {currentTemp} · 코디 👗</span>
+            <span>{targetCity} {currentTemp} · {lang === 'en' ? 'Style 👗' : '코디 👗'}</span>
           </button>
 
           {/* 🧭 Travel Essentials Header Shortcut */}
@@ -555,7 +555,7 @@ export default function Header({
                   }}
                 >
                   <CloudSun size={16} style={{ color: 'var(--accent-primary)' }} />
-                  <span>👗 실시간 날씨 & 여행 코디 가이드</span>
+                  <span>{t.drawerWeatherGuide || '👗 실시간 날씨 & 여행 코디 가이드'}</span>
                 </button>
 
                 {/* 2. Travel Essentials Modal */}
@@ -581,7 +581,7 @@ export default function Header({
                   }}
                 >
                   <Compass size={16} style={{ color: '#10b981' }} />
-                  <span>외국인 여행 필수 툴킷</span>
+                  <span>{t.essentialsTitle || '외국인 여행 필수 툴킷'}</span>
                 </button>
 
                 {/* 3. Install PWA App */}
@@ -604,7 +604,7 @@ export default function Header({
                   }}
                 >
                   <Download size={16} style={{ color: 'var(--accent-primary)' }} />
-                  <span>모바일 홈화면 앱 설치</span>
+                  <span>{lang === 'en' ? 'Install Mobile App' : '모바일 홈화면 앱 설치'}</span>
                 </button>
 
                 {/* 4. Share Trip URL */}
@@ -627,7 +627,7 @@ export default function Header({
                   }}
                 >
                   <Share2 size={16} style={{ color: '#8b5cf6' }} />
-                  <span>내 여행 일정 공유하기</span>
+                  <span>{lang === 'en' ? 'Share Travel Itinerary' : '내 여행 일정 공유하기'}</span>
                 </button>
 
                 {/* 5. Theme Toggle */}
@@ -656,7 +656,7 @@ export default function Header({
                     ) : (
                       <Sun size={16} style={{ color: '#f59e0b' }} />
                     )}
-                    <span>{themeMode === 'light' ? '다크 모드' : '라이트 모드'}</span>
+                    <span>{lang === 'en' ? (themeMode === 'light' ? 'Dark Mode' : 'Light Mode') : (themeMode === 'light' ? '다크 모드' : '라이트 모드')}</span>
                   </div>
                   <span style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 800 }}>
                     {themeMode === 'light' ? 'OFF' : 'ON'}

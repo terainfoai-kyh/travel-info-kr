@@ -13,9 +13,12 @@ import {
   Image as ImageIcon
 } from 'lucide-react';
 import { getGooglePlaceSearchUrl, getKakaoMapSearchUrl, getNaverMapSearchUrl } from '../services/geminiNlpService';
+import { TRANSLATIONS } from '../i18n/translations';
 
-export default function TravelDetailModal({ spot, onClose }) {
+export default function TravelDetailModal({ spot, onClose, lang = 'ko' }) {
   if (!spot) return null;
+
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
 
   const title = spot.title || spot.name || '추천 여행 명소';
   const location = spot.location || spot.address || spot.addr1 || '대한민국 서울 일대';
@@ -243,10 +246,10 @@ export default function TravelDetailModal({ spot, onClose }) {
               <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.45rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                   <Camera size={13} style={{ color: 'var(--accent-primary)' }} />
-                  <span>Google Places 공식 고화질 갤러리 ({photoList.length}장의 사진)</span>
+                  <span>{t.detailGalleryTitle ? t.detailGalleryTitle(photoList.length) : `Google Places 공식 고화질 갤러리 (${photoList.length}장의 사진)`}</span>
                 </div>
                 <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', opacity: 0.8 }}>
-                  휠을 굴리거나 드래그하여 탐색 ↔
+                  {t.detailDragHint || '휠을 굴리거나 드래그하여 탐색 ↔'}
                 </span>
               </div>
 
@@ -286,7 +289,7 @@ export default function TravelDetailModal({ spot, onClose }) {
                   >
                     <img
                       src={p}
-                      alt={`${title} 썸네일 ${idx + 1}`}
+                      alt={`${title} thumbnail ${idx + 1}`}
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                       onError={(e) => { e.currentTarget.src = 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg'; }}
                     />
@@ -319,7 +322,7 @@ export default function TravelDetailModal({ spot, onClose }) {
             {spot.bestTime && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: '#b45309', fontWeight: 700 }}>
                 <Clock size={14} style={{ flexShrink: 0 }} />
-                <span>추천 방문: {spot.bestTime}</span>
+                <span>{t.detailBestTime || '추천 방문: '}{spot.bestTime}</span>
               </div>
             )}
           </div>
@@ -357,7 +360,7 @@ export default function TravelDetailModal({ spot, onClose }) {
           {/* Magazine Editor Overview */}
           <div>
             <h4 style={{ margin: '0 0 0.35rem 0', fontSize: '0.92rem', fontWeight: 800, color: 'var(--text-main)' }}>
-              ✨ 에디터 상세 가이드
+              {t.detailEditorGuide || '✨ 에디터 상세 가이드'}
             </h4>
             <p style={{
               margin: 0,
@@ -417,7 +420,7 @@ export default function TravelDetailModal({ spot, onClose }) {
                   boxShadow: '0 2px 6px rgba(255, 91, 0, 0.3)'
                 }}
               >
-                <span>최저가 예약 ↗</span>
+                <span>{t.detailLowestPriceBtn || '최저가 예약 ↗'}</span>
               </a>
             </div>
           )}
@@ -425,7 +428,7 @@ export default function TravelDetailModal({ spot, onClose }) {
           {/* Navigation & Map Direct Buttons */}
           <div>
             <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.86rem', fontWeight: 800, color: 'var(--text-main)' }}>
-              🗺️ 길찾기 & 실시간 지도 연동
+              {t.detailDirectionsTitle || '🗺️ 길찾기 & 실시간 지도 연동'}
             </h4>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '0.5rem' }}>
               <a
@@ -447,7 +450,7 @@ export default function TravelDetailModal({ spot, onClose }) {
                   boxShadow: 'var(--shadow-glow)'
                 }}
               >
-                <span>Google 지도</span>
+                <span>{lang === 'en' ? 'Google Maps' : 'Google 지도'}</span>
                 <ExternalLink size={12} />
               </a>
 
@@ -469,7 +472,7 @@ export default function TravelDetailModal({ spot, onClose }) {
                   gap: '0.35rem'
                 }}
               >
-                <span>카카오맵</span>
+                <span>{lang === 'en' ? 'KakaoMap' : '카카오맵'}</span>
                 <ExternalLink size={12} />
               </a>
 
@@ -491,7 +494,7 @@ export default function TravelDetailModal({ spot, onClose }) {
                   gap: '0.35rem'
                 }}
               >
-                <span>네이버지도</span>
+                <span>{lang === 'en' ? 'Naver Map' : '네이버지도'}</span>
                 <ExternalLink size={12} />
               </a>
             </div>
