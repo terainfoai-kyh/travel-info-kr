@@ -171,21 +171,31 @@ export default function GoogleMapView({
       `);
     });
 
-    // Zero-Bounce instant fit to spots bounds with safe generous margin
+    // Zero-Bounce instant fit strictly anchored to tourist spots (latLngs) so 1번 and 2번 are always in the center
     if (latLngs.length > 1) {
       activeBoundsRef.current = latLngs;
       applySafeFit(latLngs);
 
-      // 1) Render immediate lightweight fallback route line first (so it's instant)
-      const fallbackLine = L.polyline(latLngs, {
-        color: '#2563eb',
-        weight: 4,
-        opacity: 0.7,
-        dashArray: '6, 8'
+      // Outer glow line for high visibility
+      const outerGlow = L.polyline(latLngs, {
+        color: '#93c5fd',
+        weight: 8,
+        opacity: 0.5
       }).addTo(map);
-      routeLayerRef.current = fallbackLine;
 
-      // 2) Method C: Fetch Real Road Geometry via OSRM Public Routing API
+      // Main vibrant route line with elegant dashed pattern
+      const mainRoute = L.polyline(latLngs, {
+        color: '#2563eb',
+        weight: 4.5,
+        opacity: 0.95,
+        dashArray: '8, 8',
+        lineCap: 'round',
+        lineJoin: 'round'
+      }).addTo(map);
+
+      routeLayerRef.current = L.featureGroup([outerGlow, mainRoute]);
+
+      // Optional: Fetch real road curve if available, but ALWAYS keep bounds anchored to latLngs
       const coordsString = latLngs.map(([lat, lng]) => `${lng},${lat}`).join(';');
       const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${coordsString}?overview=full&geometries=geojson`;
 
@@ -197,39 +207,35 @@ export default function GoogleMapView({
           if (data && data.code === 'Ok' && data.routes && data.routes[0]?.geometry?.coordinates) {
             const roadPoints = data.routes[0].geometry.coordinates.map(([lng, lat]) => [lat, lng]);
             if (roadPoints.length > 1) {
-              // Remove fallback line and render smooth real-road polyline
               if (routeLayerRef.current) {
                 map.removeLayer(routeLayerRef.current);
               }
-              // Outer casing for premium road look
-              const outerGlow = L.polyline(roadPoints, {
-                color: '#3b82f6',
-                weight: 7,
-                opacity: 0.35
+              const roadGlow = L.polyline(roadPoints, {
+                color: '#93c5fd',
+                weight: 8,
+                opacity: 0.45
               }).addTo(map);
-              const realPolyline = L.polyline(roadPoints, {
+              const roadPolyline = L.polyline(roadPoints, {
                 color: '#2563eb',
                 weight: 4.5,
                 opacity: 0.95
               }).addTo(map);
-              routeLayerRef.current = L.featureGroup([outerGlow, realPolyline]);
+              routeLayerRef.current = L.featureGroup([roadGlow, roadPolyline]);
 
-              // 🎯 Precision Auto-fit to full road coordinates with 65px safe margin
-              const allPoints = [...latLngs, ...roadPoints];
-              activeBoundsRef.current = allPoints;
-              applySafeFit(allPoints);
+              // 🎯 Keep bounds STRICTLY anchored to tourist spots (latLngs) so 1번 and 2번 markers NEVER shift out of view!
+              applySafeFit(latLngs);
             }
           }
         })
         .catch(() => {
-          // Keep the fallback dotted line on any network error
+          // Keep the stylish dashed route line
         });
 
       return () => {
         isCurrent = false;
       };
     } else if (latLngs.length === 1) {
-      map.setView(latLngs[0], 13.5, { animate: false });
+      map.setView(latLngs[0], 14, { animate: false });
     }
 
     // Force map invalidateSize after initial container render and re-fit bounds accurately
