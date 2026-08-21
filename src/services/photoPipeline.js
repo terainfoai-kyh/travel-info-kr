@@ -123,17 +123,17 @@ export const PREWARMED_PLACES_CATALOG = {
   '순천만국가정원': {
     name: '순천만국가정원 & 호수정원',
     rating: 4.9,
-    primary: 'https://tong.visitkorea.or.kr/cms/resource/57/2612057_image2_1.jpg',
+    primary: 'https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=1200&q=85',
     images: [
-      'https://tong.visitkorea.or.kr/cms/resource/57/2612057_image2_1.jpg',
+      'https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=1200&q=85',
       'https://tong.visitkorea.or.kr/cms/resource/64/2367464_image2_1.jpg'
     ]
   },
   '국가정원': {
     name: '순천만국가정원',
     rating: 4.9,
-    primary: 'https://tong.visitkorea.or.kr/cms/resource/57/2612057_image2_1.jpg',
-    images: ['https://tong.visitkorea.or.kr/cms/resource/57/2612057_image2_1.jpg']
+    primary: 'https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=1200&q=85',
+    images: ['https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=1200&q=85']
   },
   '순천만습지': {
     name: '순천만습지 & 갈대밭',
@@ -156,8 +156,8 @@ export const PREWARMED_PLACES_CATALOG = {
   '낙안읍성': {
     name: '순천 낙안읍성 민속마을',
     rating: 4.7,
-    primary: 'https://tong.visitkorea.or.kr/cms/resource/90/2650090_image2_1.jpg',
-    images: ['https://tong.visitkorea.or.kr/cms/resource/90/2650090_image2_1.jpg']
+    primary: 'https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=1200&q=85',
+    images: ['https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=1200&q=85']
   },
 
   // ==========================================

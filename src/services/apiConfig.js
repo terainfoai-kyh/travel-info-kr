@@ -26,7 +26,7 @@ export const PUBLIC_API_CONFIG = {
   DURUNUBI_BASE: 'https://apis.data.go.kr/B551011/Durunubi',
 
   // Google Maps Platform API Key
-  GOOGLE_MAPS_KEY: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyCZCfdgYBXPMDbB7N2EhiEY-7DmaCrPh0k',
+  GOOGLE_MAPS_KEY: (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_GOOGLE_MAPS_API_KEY) || 'AIzaSyCZCfdgYBXPMDbB7N2EhiEY-7DmaCrPh0k',
 
   // 기상청 단기 & 중기 예보 Endpoints
   WEATHER_SHORT_BASE: 'https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0',
