@@ -244,6 +244,19 @@ html {
 }
 
 /* Utility Classes */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.vora-chat-input::placeholder {
+  color: var(--text-muted);
+  opacity: 0.88;
+}
+
 .glass-panel {
   background: var(--bg-glass);
   backdrop-filter: blur(16px);

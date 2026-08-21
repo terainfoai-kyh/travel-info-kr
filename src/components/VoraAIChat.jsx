@@ -15,12 +15,51 @@ export default function VoraAIChat({
   const [copiedId, setCopiedId] = useState(null);
   const chatContainerRef = useRef(null);
   const chatEndRef = useRef(null);
+  const messageRefs = useRef({});
+  const prevMessagesLengthRef = useRef(chatMessages.length);
+  const prevLoadingRef = useRef(isLoading);
 
-  // Auto-scroll ONLY inside inner chat container without moving the outer page window!
+  // Smoothly scroll and focus on the latest conversation turn (User Question & AI Response top)
   useEffect(() => {
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    if (!chatContainerRef.current) return;
+
+    const isNewMessageAdded = chatMessages.length > prevMessagesLengthRef.current;
+    const wasLoading = prevLoadingRef.current && !isLoading;
+
+    if (isNewMessageAdded || wasLoading) {
+      const timer = setTimeout(() => {
+        const container = chatContainerRef.current;
+        if (!container) return;
+
+        const lastMsg = chatMessages[chatMessages.length - 1];
+        const lastUserMsg = [...chatMessages].reverse().find(m => m.role === 'user');
+
+        // Focus on the User query of this turn if available, else the message itself
+        const targetMsgId = (lastMsg?.role === 'assistant' && lastUserMsg) ? lastUserMsg.id : lastMsg?.id;
+        const targetElement = targetMsgId ? messageRefs.current[targetMsgId] : null;
+
+        if (targetElement) {
+          const containerRect = container.getBoundingClientRect();
+          const elementRect = targetElement.getBoundingClientRect();
+          const relativeTop = elementRect.top - containerRect.top + container.scrollTop;
+
+          container.scrollTo({
+            top: Math.max(0, relativeTop - 12),
+            behavior: 'smooth'
+          });
+        } else if (isLoading) {
+          container.scrollTo({
+            top: container.scrollHeight,
+            behavior: 'smooth'
+          });
+        }
+      }, 60);
+
+      return () => clearTimeout(timer);
     }
+
+    prevMessagesLengthRef.current = chatMessages.length;
+    prevLoadingRef.current = isLoading;
   }, [chatMessages, isLoading]);
 
   const handleSend = (e) => {
@@ -133,6 +172,7 @@ export default function VoraAIChat({
             return (
               <div
                 key={msg.id}
+                ref={el => { if (el) messageRefs.current[msg.id] = el; }}
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
@@ -168,6 +208,7 @@ export default function VoraAIChat({
           return (
             <div
               key={msg.id}
+              ref={el => { if (el) messageRefs.current[msg.id] = el; }}
               style={{
                 display: 'flex',
                 gap: '0.5rem',
@@ -406,15 +447,20 @@ export default function VoraAIChat({
 
       {/* Follow-up Quick Modification Chips */}
       {!isLoading && (
-        <div style={{
-          padding: '0.35rem 0.75rem',
-          backgroundColor: 'var(--bg-primary)',
-          borderTop: '1px solid var(--border-color)',
-          display: 'flex',
-          gap: '0.3rem',
-          overflowX: 'auto',
-          whiteSpace: 'nowrap'
-        }}>
+        <div
+          className="no-scrollbar"
+          style={{
+            padding: '0.45rem 0.85rem',
+            backgroundColor: 'var(--bg-primary)',
+            borderTop: '1px solid var(--border-color)',
+            display: 'flex',
+            gap: '0.35rem',
+            overflowX: 'auto',
+            whiteSpace: 'nowrap',
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none'
+          }}
+        >
           {(t.chatQuickModifications || []).map((chip, idx) => (
             <button
               key={idx}
@@ -423,13 +469,22 @@ export default function VoraAIChat({
                 backgroundColor: 'var(--bg-card)',
                 border: '1px solid var(--border-color)',
                 borderRadius: 'var(--radius-full)',
-                padding: '0.2rem 0.55rem',
-                fontSize: '0.7rem',
+                padding: '0.25rem 0.65rem',
+                fontSize: '0.72rem',
                 fontWeight: 600,
                 color: 'var(--text-main)',
                 cursor: 'pointer',
                 flexShrink: 0,
+                boxShadow: 'var(--shadow-sm)',
                 transition: 'all var(--transition-fast)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'var(--accent-primary)';
+                e.currentTarget.style.color = 'var(--accent-primary)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'var(--border-color)';
+                e.currentTarget.style.color = 'var(--text-main)';
               }}
             >
               + {chip}
@@ -442,41 +497,59 @@ export default function VoraAIChat({
       <form
         onSubmit={handleSend}
         style={{
-          padding: '0.55rem 0.75rem',
+          padding: '0.65rem 0.85rem',
           borderTop: '1px solid var(--border-color)',
           display: 'flex',
           alignItems: 'center',
-          gap: '0.4rem',
-          backgroundColor: 'var(--bg-glass)'
+          gap: '0.5rem',
+          backgroundColor: 'var(--bg-card)'
         }}
       >
-        <input
-          type="text"
-          value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
-          placeholder={lang === 'ko' ? "추가 질문이나 일정 수정을 적어주세요 (예: 2일차 카페 변경)..." : "Ask adjustments or questions..."}
-          disabled={isLoading}
-          style={{
-            flex: 1,
-            backgroundColor: 'var(--bg-primary)',
-            border: '1px solid var(--border-color)',
-            borderRadius: 'var(--radius-full)',
-            padding: '0.45rem 0.85rem',
-            fontSize: '0.82rem',
-            color: 'var(--text-main)',
-            outline: 'none',
-            transition: 'border-color var(--transition-fast)'
-          }}
-        />
+        <div style={{
+          flex: 1,
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center'
+        }}>
+          <input
+            type="text"
+            className="vora-chat-input"
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            placeholder={lang === 'ko' ? "추가 질문이나 일정 수정을 적어주세요 (예: 2일차 카페 변경)..." : "Ask adjustments or questions..."}
+            disabled={isLoading}
+            style={{
+              width: '100%',
+              backgroundColor: 'var(--bg-primary)',
+              border: '1.5px solid var(--border-color)',
+              borderRadius: 'var(--radius-full)',
+              padding: '0.55rem 1rem',
+              fontSize: '0.84rem',
+              fontWeight: 500,
+              color: 'var(--text-main)',
+              outline: 'none',
+              boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.03)',
+              transition: 'border-color var(--transition-fast), box-shadow var(--transition-fast)'
+            }}
+            onFocus={(e) => {
+              e.target.style.borderColor = 'var(--accent-primary)';
+              e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.12)';
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = 'var(--border-color)';
+              e.target.style.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.03)';
+            }}
+          />
+        </div>
         <button
           type="submit"
           disabled={!inputText.trim() || isLoading}
           style={{
-            backgroundColor: inputText.trim() && !isLoading ? 'var(--accent-primary)' : 'var(--border-color)',
-            color: '#ffffff',
-            border: 'none',
-            width: '32px',
-            height: '32px',
+            backgroundColor: inputText.trim() && !isLoading ? 'var(--accent-primary)' : 'rgba(37, 99, 235, 0.1)',
+            color: inputText.trim() && !isLoading ? '#ffffff' : 'var(--accent-primary)',
+            border: inputText.trim() && !isLoading ? 'none' : '1px solid rgba(37, 99, 235, 0.2)',
+            width: '36px',
+            height: '36px',
             borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
@@ -484,10 +557,12 @@ export default function VoraAIChat({
             cursor: inputText.trim() && !isLoading ? 'pointer' : 'default',
             boxShadow: inputText.trim() && !isLoading ? 'var(--shadow-glow)' : 'none',
             flexShrink: 0,
+            opacity: inputText.trim() && !isLoading ? 1 : 0.65,
             transition: 'all var(--transition-fast)'
           }}
+          title={lang === 'ko' ? '메시지 전송' : 'Send message'}
         >
-          <Send size={14} />
+          <Send size={15} />
         </button>
       </form>
     </div>
