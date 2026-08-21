@@ -565,7 +565,7 @@ export default function App() {
             {t.footerCopyright || '© 2026 VORA AI — Korea Smart Travel Concierge. All Rights Reserved.'}
           </p>
           <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-dim)' }}>
-            {t.footerTourApiNotice || '한국관광공사 TourAPI 4.0 공공데이터 및 Google Maps Platform 연동'} | Official Contact: terainfoai@gmail.com
+            {t.footerTourApiNotice || 'Google Gemini 3.0 AI & Google Maps Platform 연동'} | Official Contact: terainfoai@gmail.com
           </p>
         </div>
       </footer>

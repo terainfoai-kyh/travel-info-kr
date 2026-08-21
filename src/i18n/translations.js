@@ -91,7 +91,7 @@ export const TRANSLATIONS = {
     // Hero Section
     heroBadge: '✨ 2026 AI-Powered Korea Travel Concierge',
     heroTitle: '질문 하나로 완성되는 나만의 한국 여행',
-    heroSubtitle: '한국관광공사 Official DB와 Gemini AI가 설계하는 초개인화 맞춤 코스 & 실시간 구글맵 연동',
+    heroSubtitle: 'Google Gemini 3.0 AI와 Google Places가 설계하는 초개인화 맞춤 코스 & 실시간 구글맵 연동',
     searchPlaceholder: '어떤 여행을 꿈꾸시나요? (예: 성수동 핫플 카페 2박3일, 제주도 바다뷰 힐링, 비 오는 날 서울 데이트)',
     searchBtn: 'AI 코스 생성',
     promptChipsTitle: '🔥 인기 추천 프롬프트',
@@ -233,7 +233,7 @@ export const TRANSLATIONS = {
     aboutUs: 'About VORA',
     contactUs: 'Contact & Partnership',
     footerCopyright: '© 2026 VORA AI — Korea Smart Travel Concierge. All Rights Reserved.',
-    footerTourApiNotice: 'Powered by Korea Tourism Organization TourAPI 4.0 & Google Maps Platform'
+    footerTourApiNotice: 'Powered by Google Gemini 3.0 AI & Google Maps Platform'
   },
 
   ja: {
@@ -249,7 +249,7 @@ export const TRANSLATIONS = {
     // Hero Section
     heroBadge: '✨ 2026 AI搭載 韓国旅行コンシェルジュ',
     heroTitle: '一言で完成する、あなただけの韓国旅行',
-    heroSubtitle: '韓国観光公社公式データとGemini AIが3秒で設計するオーダーメイドコース＆Googleマップ連携',
+    heroSubtitle: 'Google Gemini AIとGoogle Placesが3秒で設計するオーダーメイドコース＆Googleマップ連携',
     searchPlaceholder: 'どんな旅をご希望ですか？（例：聖水洞カフェ巡り2泊3日、済州島ヒーリング、雨の日のソウル）',
     searchBtn: 'AIコース作成',
     promptChipsTitle: '🔥 人気のおすすめプロンプト',
@@ -312,7 +312,7 @@ export const TRANSLATIONS = {
     aboutUs: 'サービス紹介',
     contactUs: '提携・お問い合わせ',
     footerCopyright: '© 2026 VORA AI — Korea Smart Travel Concierge. All Rights Reserved.',
-    footerTourApiNotice: '韓国観光公社 TourAPI 4.0 公共データ＆Google Maps Platform 連携'
+    footerTourApiNotice: 'Google Gemini 3.0 AI＆Google Maps Platform 連携'
   },
 
   zh: {
@@ -328,7 +328,7 @@ export const TRANSLATIONS = {
     // Hero Section
     heroBadge: '✨ 2026 AI驱动 韩国专属旅行管家',
     heroTitle: '一句话定制 专属韩国梦幻之旅',
-    heroSubtitle: '结合韩国观光公社官方权威数据与Gemini AI，3秒生成专属路线与实时谷歌地图导航',
+    heroSubtitle: '结合Google Gemini AI与Google Places权威数据，3秒生成专属路线与实时谷歌地图导航',
     searchPlaceholder: '您想去哪里旅行？（例如：首尔圣水洞咖啡厅3天2晚、济州岛海景疗愈游、雨天首尔室内约会）',
     searchBtn: 'AI生成路线',
     promptChipsTitle: '🔥 热门推荐灵感',
@@ -391,7 +391,7 @@ export const TRANSLATIONS = {
     aboutUs: '关于我们',
     contactUs: '商务合作与咨询',
     footerCopyright: '© 2026 VORA AI — Korea Smart Travel Concierge. All Rights Reserved.',
-    footerTourApiNotice: '基于韩国观光公社 TourAPI 4.0 官方公共数据与 Google Maps Platform 构建'
+    footerTourApiNotice: '基于 Google Gemini 3.0 AI 与 Google Maps Platform 构建'
   }
 };
 

@@ -655,7 +655,7 @@ export async function fetchTourSpots({
   return resultSpots.map(spot => {
     let img = spot.image;
     if (spot.title.includes('수원화성박물관') || img.includes('photo-1549693578') || img.includes('794101_image2_1.jpg')) {
-      img = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='500' viewBox='0 0 800 500'%3E%3Crect width='800' height='500' fill='%231e293b'/%3E%3Ctext x='50%25' y='45%25' dominant-baseline='middle' text-anchor='middle' fill='%2338bdf8' font-size='32' font-weight='bold' font-family='sans-serif'%3E🏛️ 대한민국 대표 관광지%3C/text%3E%3Ctext x='50%25' y='60%25' dominant-baseline='middle' text-anchor='middle' fill='%2394a3b8' font-size='20' font-family='sans-serif'%3E(한국관광공사 정품 이미지 동기화 중)%3C/text%3E%3C/svg%3E";
+      img = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='500' viewBox='0 0 800 500'%3E%3Crect width='800' height='500' fill='%231e293b'/%3E%3Ctext x='50%25' y='45%25' dominant-baseline='middle' text-anchor='middle' fill='%2338bdf8' font-size='32' font-weight='bold' font-family='sans-serif'%3E🏛️ 대한민국 대표 관광지%3C/text%3E%3Ctext x='50%25' y='60%25' dominant-baseline='middle' text-anchor='middle' fill='%2394a3b8' font-size='20' font-family='sans-serif'%3E(Google Places 고화질 이미지 동기화 중)%3C/text%3E%3C/svg%3E";
     }
     return { ...spot, image: img };
   });

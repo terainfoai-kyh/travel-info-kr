@@ -389,7 +389,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
               </h2>
 
               <span 
-                title={t.aiTrustBadgeDesc || '한국관광공사 Official DB 100% 연동 인증 코스'}
+                title={t.aiTrustBadgeDesc || 'Google Places & Gemini AI 공식 연동 코스'}
                 style={{
                   fontSize: '0.72rem',
                   fontWeight: 700,

@@ -106,8 +106,8 @@ export default function AboutUsModal({ isOpen, onClose, lang = 'ko' }) {
               <span>핵심 기술 및 파트너십</span>
             </h4>
             <p style={{ margin: 0 }}>
-              • <strong>한국관광공사 TourAPI 4.0</strong> 공식 공공데이터베이스 연동<br />
-              • <strong>Google Gemini AI</strong> 최신 자연어 여행 설계 지능 탑재<br />
+              • <strong>Google Gemini 3.0 AI</strong> 최신 자연어 여행 설계 지능 탑재<br />
+              • <strong>Google Places Platform</strong> 글로벌 공식 위치 및 고화질 사진 연동<br />
               • <strong>Google Maps Platform</strong> 글로벌 표준 지도 및 길찾기 딥링크 연동<br />
               • 한국어, 영어, 일본어, 중국어 4대 언어 완벽 지원
             </p>

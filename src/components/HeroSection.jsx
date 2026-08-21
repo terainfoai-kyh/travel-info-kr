@@ -58,7 +58,7 @@ export default function HeroSection({
           margin: 0,
           fontWeight: 500
         }}>
-          {t.heroSubtitle || '한국관광공사 Official DB와 Gemini AI가 설계하는 초개인화 맞춤 코스 & 실시간 구글맵 연동'}
+          {t.heroSubtitle || 'Google Gemini 3.0 AI와 Google Places가 설계하는 초개인화 맞춤 코스 & 실시간 구글맵 연동'}
         </p>
         <span style={{
           display: 'inline-flex',

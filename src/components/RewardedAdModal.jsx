@@ -14,7 +14,7 @@ export default function RewardedAdModal({
 
   const SPONSOR_ADS = [
     {
-      brand: 'Klook × 한국관광공사',
+      brand: 'Klook Official Partner',
       title: '디스커버 서울패스 24h & 48h 특별할인',
       desc: '서울 주요 50개 명소 무료 입장 + 대중교통 티머니 기능 탑재!',
       discount: '최대 25% OFF',
@@ -284,7 +284,7 @@ export default function RewardedAdModal({
           )}
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.72rem', color: '#6b7280' }}>
-            <span>한국관광공사 & 공식 제휴 파트너 스폰서십</span>
+            <span>VORA AI & 공식 제휴 파트너 스폰서십</span>
             <a
               href={currentAd.link}
               target="_blank"

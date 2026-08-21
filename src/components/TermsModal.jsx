@@ -90,7 +90,7 @@ export default function TermsModal({ isOpen, onClose, lang = 'ko' }) {
               제2조 (서비스의 내용 및 데이터 출처)
             </h4>
             <p style={{ margin: 0 }}>
-              1. 본 서비스는 한국관광공사 TourAPI 4.0 공공데이터와 Google Gemini AI 기술을 활용하여 맞춤형 여행 일정 및 대중교통 경로 안내를 제공합니다.<br />
+              1. 본 서비스는 Google Places Platform 공식 위치 데이터와 Google Gemini AI 기술을 활용하여 맞춤형 여행 일정 및 대중교통 경로 안내를 제공합니다.<br />
               2. 추천된 장소의 운영 시간, 휴무일, 입장료 등은 현장 사정에 따라 변동될 수 있으므로 방문 전 공식 연락처를 통해 확인하시기 바랍니다.
             </p>
           </div>

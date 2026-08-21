@@ -243,7 +243,7 @@ export default function TravelDetailModal({ spot, onClose }) {
               <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.45rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                   <Camera size={13} style={{ color: 'var(--accent-primary)' }} />
-                  <span>한국관광공사 공식 갤러리 ({photoList.length}장의 사진)</span>
+                  <span>Google Places 공식 고화질 갤러리 ({photoList.length}장의 사진)</span>
                 </div>
                 <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', opacity: 0.8 }}>
                   휠을 굴리거나 드래그하여 탐색 ↔
