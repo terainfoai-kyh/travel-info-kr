@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { MapPin, Navigation, ExternalLink } from 'lucide-react';
 import { generateGoogleMapsRouteUrl, getGooglePlaceSearchUrl } from '../services/geminiNlpService';
 import { TRANSLATIONS } from '../i18n/translations';
@@ -11,18 +11,215 @@ export default function GoogleMapView({
 }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
   const spotsToDisplay = Array.isArray(spots) ? spots : [];
-
   const fullRouteUrl = generateGoogleMapsRouteUrl(spotsToDisplay);
 
-  // Center point calculation for smooth, non-bouncing view
-  const firstSpot = spotsToDisplay[0];
-  const centerLat = Number(firstSpot?.lat) || 37.5665;
-  const centerLng = Number(firstSpot?.lng) || 126.9780;
+  const [isLeafletReady, setIsLeafletReady] = useState(Boolean(typeof window !== 'undefined' && window.L));
+  const mapContainerRef = useRef(null);
+  const leafletMapRef = useRef(null);
+  const routeLayerRef = useRef(null);
 
-  // Google Maps Embed URL
-  const embedMapUrl = spotsToDisplay.length > 0 
-    ? `https://maps.google.com/maps?q=${centerLat},${centerLng}&z=14&output=embed`
-    : `https://maps.google.com/maps?q=${encodeURIComponent(targetCity + ' South Korea')}&z=12&output=embed`;
+  // Dynamically ensure Leaflet CSS and JS are loaded
+  useEffect(() => {
+    let isMounted = true;
+    if (typeof window !== 'undefined' && window.L) {
+      setIsLeafletReady(true);
+      return;
+    }
+
+    if (!document.getElementById('leaflet-css')) {
+      const link = document.createElement('link');
+      link.id = 'leaflet-css';
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(link);
+    }
+
+    if (!document.getElementById('leaflet-js')) {
+      const script = document.createElement('script');
+      script.id = 'leaflet-js';
+      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      script.onload = () => {
+        if (isMounted) setIsLeafletReady(true);
+      };
+      document.body.appendChild(script);
+    } else {
+      const existingScript = document.getElementById('leaflet-js');
+      existingScript.addEventListener('load', () => {
+        if (isMounted) setIsLeafletReady(true);
+      });
+    }
+
+    return () => { isMounted = false; };
+  }, []);
+
+  // Initialize and update Leaflet Map with Method C (Real Road Route via OSRM) + Zero Bounce
+  useEffect(() => {
+    if (!isLeafletReady || !window.L || !mapContainerRef.current) return;
+    if (spotsToDisplay.length === 0) return;
+
+    const L = window.L;
+
+    // Clean up previous map instance
+    if (leafletMapRef.current) {
+      try {
+        leafletMapRef.current.remove();
+      } catch (e) {}
+      leafletMapRef.current = null;
+    }
+    if (mapContainerRef.current) {
+      mapContainerRef.current._leaflet_id = null;
+    }
+
+    // Extract spot coordinates
+    const baseLat = parseFloat(spotsToDisplay[0]?.lat) || 37.5665;
+    const baseLng = parseFloat(spotsToDisplay[0]?.lng) || 126.9780;
+
+    const latLngs = spotsToDisplay.map((s, idx) => {
+      let lat = parseFloat(s.lat) || baseLat;
+      let lng = parseFloat(s.lng) || baseLng;
+      // Micro offset if exact same coordinates to prevent total overlap
+      if (idx > 0 && Math.abs(lat - baseLat) < 0.0001 && Math.abs(lng - baseLng) < 0.0001) {
+        lat += idx * 0.003;
+        lng += idx * 0.004;
+      }
+      return [lat, lng];
+    });
+
+    // Compute center and initial bounds to avoid default Seoul bounce
+    const bounds = L.latLngBounds(latLngs);
+    const center = bounds.getCenter();
+
+    const map = L.map(mapContainerRef.current, {
+      center: center,
+      zoom: 13,
+      zoomControl: false,
+      attributionControl: false,
+      scrollWheelZoom: false
+    });
+
+    leafletMapRef.current = map;
+
+    // High quality Voyager / OSM tile layer
+    const tileUrl = (lang === 'ko')
+      ? 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+
+    L.tileLayer(tileUrl, {
+      maxZoom: 19,
+      subdomains: (lang === 'ko') ? 'abc' : 'abcd'
+    }).addTo(map);
+
+    // Zoom control at top-right
+    L.control.zoom({ position: 'topright' }).addTo(map);
+
+    // Render Numbered Markers (1, 2, 3...)
+    spotsToDisplay.forEach((spot, idx) => {
+      const spotLat = latLngs[idx][0];
+      const spotLng = latLngs[idx][1];
+      const num = idx + 1;
+
+      const customIcon = L.divIcon({
+        className: 'vora-map-marker',
+        html: `
+          <div style="
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: #ffffff;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 13px;
+            border: 2px solid #ffffff;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.35);
+            cursor: pointer;
+          ">
+            ${num}
+          </div>
+        `,
+        iconSize: [28, 28],
+        iconAnchor: [14, 14]
+      });
+
+      const marker = L.marker([spotLat, spotLng], { icon: customIcon }).addTo(map);
+      marker.bindPopup(`
+        <div style="font-family: sans-serif; font-size: 12px; font-weight: 700; color: #0f172a; padding: 2px;">
+          <div style="color: #2563eb; font-size: 10px; margin-bottom: 2px;">${idx + 1}번째 코스</div>
+          <div>${spot.title}</div>
+          ${spot.location ? `<div style="font-size: 10px; color: #64748b; margin-top: 2px;">${spot.location}</div>` : ''}
+        </div>
+      `);
+    });
+
+    // Zero-Bounce instant fit to spots bounds
+    if (latLngs.length > 1) {
+      map.fitBounds(bounds, { padding: [35, 35], maxZoom: 15, animate: false });
+
+      // 1) Render immediate lightweight fallback route line first (so it's instant)
+      const fallbackLine = L.polyline(latLngs, {
+        color: '#2563eb',
+        weight: 4,
+        opacity: 0.7,
+        dashArray: '6, 8'
+      }).addTo(map);
+      routeLayerRef.current = fallbackLine;
+
+      // 2) Method C: Fetch Real Road Geometry via OSRM Public Routing API
+      const coordsString = latLngs.map(([lat, lng]) => `${lng},${lat}`).join(';');
+      const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${coordsString}?overview=full&geometries=geojson`;
+
+      let isCurrent = true;
+      fetch(osrmUrl)
+        .then(res => res.json())
+        .then(data => {
+          if (!isCurrent || !leafletMapRef.current) return;
+          if (data && data.code === 'Ok' && data.routes && data.routes[0]?.geometry?.coordinates) {
+            const roadPoints = data.routes[0].geometry.coordinates.map(([lng, lat]) => [lat, lng]);
+            if (roadPoints.length > 1) {
+              // Remove fallback line and render smooth real-road polyline
+              if (routeLayerRef.current) {
+                map.removeLayer(routeLayerRef.current);
+              }
+              // Outer casing for premium road look
+              const outerGlow = L.polyline(roadPoints, {
+                color: '#3b82f6',
+                weight: 7,
+                opacity: 0.35
+              }).addTo(map);
+              const realPolyline = L.polyline(roadPoints, {
+                color: '#2563eb',
+                weight: 4.5,
+                opacity: 0.95
+              }).addTo(map);
+              routeLayerRef.current = L.featureGroup([outerGlow, realPolyline]);
+            }
+          }
+        })
+        .catch(() => {
+          // Keep the fallback dotted line on any network error
+        });
+
+      return () => {
+        isCurrent = false;
+      };
+    } else if (latLngs.length === 1) {
+      map.setView(latLngs[0], 14, { animate: false });
+    }
+
+    // Force map invalidateSize after initial container render
+    const timer = setTimeout(() => {
+      if (leafletMapRef.current) {
+        leafletMapRef.current.invalidateSize();
+      }
+    }, 120);
+
+    return () => {
+      clearTimeout(timer);
+    };
+
+  }, [isLeafletReady, spotsToDisplay, activeDay, lang]);
 
   return (
     <div style={{
@@ -88,32 +285,54 @@ export default function GoogleMapView({
         </a>
       </div>
 
-      {/* Embedded Map Frame */}
-      <div style={{ position: 'relative', width: '100%', height: '170px' }}>
-        <iframe
-          title="Google Map Route View"
-          width="100%"
-          height="100%"
-          style={{ border: 0 }}
-          loading="lazy"
-          allowFullScreen
-          referrerPolicy="no-referrer-when-downgrade"
-          src={embedMapUrl}
+      {/* Embedded Leaflet Real-Road Route Map Container */}
+      <div style={{ position: 'relative', width: '100%', height: '210px', backgroundColor: 'var(--bg-primary)' }}>
+        <div
+          ref={mapContainerRef}
+          style={{ width: '100%', height: '100%', zIndex: 1 }}
         />
+        {!isLeafletReady && (
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: 'var(--bg-primary)',
+            color: 'var(--text-muted)',
+            fontSize: '0.8rem',
+            gap: '0.5rem',
+            zIndex: 2
+          }}>
+            <div className="spin-animation" style={{
+              width: '16px',
+              height: '16px',
+              borderRadius: '50%',
+              border: '2px solid var(--accent-primary)',
+              borderTopColor: 'transparent'
+            }} />
+            <span>지도를 불러오는 중...</span>
+          </div>
+        )}
       </div>
 
       {/* Bottom Sequential Route Chips */}
       {spotsToDisplay.length > 0 && (
-        <div style={{
-          padding: '0.45rem 0.75rem',
-          backgroundColor: 'var(--bg-card)',
-          borderTop: '1px solid var(--border-color)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.4rem',
-          overflowX: 'auto',
-          whiteSpace: 'nowrap'
-        }}>
+        <div
+          className="no-scrollbar"
+          style={{
+            padding: '0.45rem 0.75rem',
+            backgroundColor: 'var(--bg-card)',
+            borderTop: '1px solid var(--border-color)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.4rem',
+            overflowX: 'auto',
+            whiteSpace: 'nowrap',
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none'
+          }}
+        >
           {spotsToDisplay.map((spot, idx) => (
             <React.Fragment key={spot.id || idx}>
               <a
@@ -132,16 +351,17 @@ export default function GoogleMapView({
                   border: '1px solid var(--border-color)',
                   padding: '0.2rem 0.55rem',
                   borderRadius: 'var(--radius-full)',
-                  flexShrink: 0
+                  flexShrink: 0,
+                  transition: 'all var(--transition-fast)'
                 }}
               >
                 <span style={{
-                  width: '15px',
-                  height: '15px',
+                  width: '16px',
+                  height: '16px',
                   borderRadius: '50%',
                   backgroundColor: 'var(--accent-primary)',
                   color: '#ffffff',
-                  fontSize: '0.62rem',
+                  fontSize: '0.65rem',
                   display: 'inline-flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -149,7 +369,7 @@ export default function GoogleMapView({
                 }}>
                   {idx + 1}
                 </span>
-                <span style={{ maxWidth: '110px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <span style={{ maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {spot.title}
                 </span>
               </a>
