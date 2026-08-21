@@ -39,212 +39,212 @@ export default function GoogleMapView({
     if (!isLeafletReady || !window.L || !mapContainerRef.current) return;
     if (spotsToDisplay.length === 0) return;
 
-    const L = window.L;
+    let isMounted = true;
 
-    // Clean up previous map instance
-    if (leafletMapRef.current) {
-      try {
-        leafletMapRef.current.remove();
-      } catch (e) {}
-      leafletMapRef.current = null;
-    }
-    if (mapContainerRef.current) {
-      mapContainerRef.current._leaflet_id = null;
-    }
+    const initMap = () => {
+      if (!isMounted || !mapContainerRef.current) return;
 
-    // Extract spot coordinates
-    const baseLat = parseFloat(spotsToDisplay[0]?.lat) || 37.5665;
-    const baseLng = parseFloat(spotsToDisplay[0]?.lng) || 126.9780;
+      const L = window.L;
 
-    const latLngs = spotsToDisplay.map((s, idx) => {
-      let lat = parseFloat(s.lat) || baseLat;
-      let lng = parseFloat(s.lng) || baseLng;
-      // Micro offset if exact same coordinates to prevent total overlap
-      if (idx > 0 && Math.abs(lat - baseLat) < 0.0001 && Math.abs(lng - baseLng) < 0.0001) {
-        lat += idx * 0.003;
-        lng += idx * 0.004;
-      }
-      return [lat, lng];
-    });
-
-    // Compute center and initial bounds to avoid default Seoul bounce
-    const bounds = L.latLngBounds(latLngs);
-    const center = bounds.getCenter();
-
-    // Enable smooth user interaction with fractional zoom precision
-    const map = L.map(mapContainerRef.current, {
-      center: center,
-      zoom: 13,
-      zoomSnap: 0.25,
-      zoomDelta: 0.5,
-      zoomControl: false,
-      attributionControl: false,
-      dragging: true,
-      touchZoom: true,
-      doubleClickZoom: true,
-      scrollWheelZoom: false
-    });
-
-    leafletMapRef.current = map;
-
-    // Initialize single dedicated route layer group to prevent ghost or overlapping lines
-    const routeGroup = L.featureGroup().addTo(map);
-    routeLayerRef.current = routeGroup;
-
-    // Safe fit function ensuring 1번 and 2번 spot markers are ALWAYS 100% inside with 45px padding
-    const applySpotFit = (coords) => {
-      if (!leafletMapRef.current || !coords || coords.length === 0) return;
-      const m = leafletMapRef.current;
-      const b = L.latLngBounds(coords);
-      if (b && b.isValid()) {
+      // Clean up previous map instance
+      if (leafletMapRef.current) {
         try {
-          m.invalidateSize({ pan: false });
-          m.fitBounds(b.pad(0.35), { padding: [45, 45], maxZoom: 15, animate: false });
+          leafletMapRef.current.remove();
         } catch (e) {}
+        leafletMapRef.current = null;
       }
-    };
-
-    // Synchronous whenReady hook
-    map.whenReady(() => {
-      map.invalidateSize({ pan: false });
-      if (activeBoundsRef.current) {
-        applySpotFit(activeBoundsRef.current);
+      if (mapContainerRef.current) {
+        mapContainerRef.current._leaflet_id = null;
       }
-    });
 
-    // High quality Voyager / OSM tile layer
-    const tileUrl = (lang === 'ko')
-      ? 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+      // Extract spot coordinates
+      const baseLat = parseFloat(spotsToDisplay[0]?.lat) || 37.5665;
+      const baseLng = parseFloat(spotsToDisplay[0]?.lng) || 126.9780;
 
-    L.tileLayer(tileUrl, {
-      maxZoom: 19,
-      subdomains: (lang === 'ko') ? 'abc' : 'abcd'
-    }).addTo(map);
-
-    // Zoom control at top-right for easy user zoom adjustment
-    L.control.zoom({ position: 'topright' }).addTo(map);
-
-    // Render Numbered Markers (1, 2, 3...)
-    spotsToDisplay.forEach((spot, idx) => {
-      const spotLat = latLngs[idx][0];
-      const spotLng = latLngs[idx][1];
-      const num = idx + 1;
-
-      const customIcon = L.divIcon({
-        className: 'vora-map-marker',
-        html: `
-          <div style="
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            color: #ffffff;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 900;
-            font-size: 13px;
-            border: 2px solid #ffffff;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.35);
-            cursor: pointer;
-          ">
-            ${num}
-          </div>
-        `,
-        iconSize: [28, 28],
-        iconAnchor: [14, 14]
+      const latLngs = spotsToDisplay.map((s, idx) => {
+        let lat = parseFloat(s.lat) || baseLat;
+        let lng = parseFloat(s.lng) || baseLng;
+        // Micro offset if exact same coordinates to prevent total overlap
+        if (idx > 0 && Math.abs(lat - baseLat) < 0.0001 && Math.abs(lng - baseLng) < 0.0001) {
+          lat += idx * 0.003;
+          lng += idx * 0.004;
+        }
+        return [lat, lng];
       });
 
-      const marker = L.marker([spotLat, spotLng], { icon: customIcon }).addTo(map);
-      marker.bindPopup(`
-        <div style="font-family: sans-serif; font-size: 12px; font-weight: 700; color: #0f172a; padding: 2px;">
-          <div style="color: #2563eb; font-size: 10px; margin-bottom: 2px;">${idx + 1}번째 코스</div>
-          <div>${spot.title}</div>
-          ${spot.location ? `<div style="font-size: 10px; color: #64748b; margin-top: 2px;">${spot.location}</div>` : ''}
-        </div>
-      `);
-    });
+      // Compute center and initial bounds
+      const bounds = L.latLngBounds(latLngs);
+      const center = bounds.getCenter();
 
-    // Zero-Bounce instant fit strictly anchored to tourist spots (latLngs) so 1번 and 2번 are always in the center
-    if (latLngs.length > 1) {
-      activeBoundsRef.current = latLngs;
-      applySpotFit(latLngs);
-
-      // Render initial clean crisp connecting line
-      routeGroup.clearLayers();
-      const glowLine = L.polyline(latLngs, {
-        color: '#93c5fd',
-        weight: 7,
-        opacity: 0.45
+      // Enable smooth user interaction with fractional zoom precision
+      const map = L.map(mapContainerRef.current, {
+        center: center,
+        zoom: 13,
+        zoomSnap: 0.25,
+        zoomDelta: 0.5,
+        zoomControl: false,
+        attributionControl: false,
+        dragging: true,
+        touchZoom: true,
+        doubleClickZoom: true,
+        scrollWheelZoom: false
       });
-      const solidLine = L.polyline(latLngs, {
-        color: '#2563eb',
-        weight: 4.5,
-        opacity: 0.95
-      });
-      routeGroup.addLayer(glowLine);
-      routeGroup.addLayer(solidLine);
 
-      // Fetch real road curve if available, but ALWAYS keep camera focused strictly on tourist spots
-      const coordsString = latLngs.map(([lat, lng]) => `${lng},${lat}`).join(';');
-      const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${coordsString}?overview=full&geometries=geojson`;
+      leafletMapRef.current = map;
 
-      let isCurrent = true;
-      fetch(osrmUrl)
-        .then(res => res.json())
-        .then(data => {
-          if (!isCurrent || !leafletMapRef.current) return;
-          if (data && data.code === 'Ok' && data.routes && data.routes[0]?.geometry?.coordinates) {
-            const roadPoints = data.routes[0].geometry.coordinates.map(([lng, lat]) => [lat, lng]);
-            if (roadPoints.length > 1) {
-              routeGroup.clearLayers();
-              const roadGlow = L.polyline(roadPoints, {
-                color: '#93c5fd',
-                weight: 7,
-                opacity: 0.45
-              });
-              const roadSolid = L.polyline(roadPoints, {
-                color: '#2563eb',
-                weight: 4.5,
-                opacity: 0.95
-              });
-              routeGroup.addLayer(roadGlow);
-              routeGroup.addLayer(roadSolid);
+      // Initialize single dedicated route layer group to prevent ghost or overlapping lines
+      const routeGroup = L.featureGroup().addTo(map);
+      routeLayerRef.current = routeGroup;
 
-              // 🎯 Keep camera STRICTLY locked on tourist spots (latLngs) with 45px margin
-              applySpotFit(latLngs);
-            }
-          }
-        })
-        .catch(() => {
-          // Keep the initial clean line
+      // Safe fit function ensuring 1번 and 2번 spot markers are ALWAYS 100% inside with 45px padding
+      const applySpotFit = (coords) => {
+        if (!leafletMapRef.current || !coords || coords.length === 0) return;
+        const m = leafletMapRef.current;
+        const b = L.latLngBounds(coords);
+        if (b && b.isValid()) {
+          try {
+            m.invalidateSize({ pan: false });
+            m.fitBounds(b.pad(0.35), { padding: [45, 45], maxZoom: 15, animate: false });
+          } catch (e) {}
+        }
+      };
+
+      // High quality Voyager / OSM tile layer
+      const tileUrl = (lang === 'ko')
+        ? 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+        : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+
+      L.tileLayer(tileUrl, {
+        maxZoom: 19,
+        subdomains: (lang === 'ko') ? 'abc' : 'abcd'
+      }).addTo(map);
+
+      // Zoom control at top-right for easy user zoom adjustment
+      L.control.zoom({ position: 'topright' }).addTo(map);
+
+      // Render Numbered Markers (1, 2, 3...)
+      spotsToDisplay.forEach((spot, idx) => {
+        const spotLat = latLngs[idx][0];
+        const spotLng = latLngs[idx][1];
+        const num = idx + 1;
+
+        const customIcon = L.divIcon({
+          className: 'vora-map-marker',
+          html: `
+            <div style="
+              background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+              color: #ffffff;
+              width: 28px;
+              height: 28px;
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-weight: 900;
+              font-size: 13px;
+              border: 2px solid #ffffff;
+              box-shadow: 0 3px 10px rgba(0,0,0,0.35);
+              cursor: pointer;
+            ">
+              ${num}
+            </div>
+          `,
+          iconSize: [28, 28],
+          iconAnchor: [14, 14]
         });
 
-      return () => {
-        isCurrent = false;
-      };
-    } else if (latLngs.length === 1) {
-      map.setView(latLngs[0], 14, { animate: false });
-    }
+        const marker = L.marker([spotLat, spotLng], { icon: customIcon }).addTo(map);
+        marker.bindPopup(`
+          <div style="font-family: sans-serif; font-size: 12px; font-weight: 700; color: #0f172a; padding: 2px;">
+            <div style="color: #2563eb; font-size: 10px; margin-bottom: 2px;">${idx + 1}번째 코스</div>
+            <div>${spot.title}</div>
+            ${spot.location ? `<div style="font-size: 10px; color: #64748b; margin-top: 2px;">${spot.location}</div>` : ''}
+          </div>
+        `);
+      });
 
-    // Multi-tick auto layout triggers to guarantee 2번 view without user click
-    const runAutoFit = () => {
-      if (leafletMapRef.current && activeBoundsRef.current) {
-        applySpotFit(activeBoundsRef.current);
+      // Zero-Bounce instant fit strictly anchored to tourist spots (latLngs) so 1번 and 2번 are always in the center
+      if (latLngs.length > 1) {
+        activeBoundsRef.current = latLngs;
+        applySpotFit(latLngs);
+
+        // Render initial clean crisp connecting line
+        routeGroup.clearLayers();
+        const glowLine = L.polyline(latLngs, {
+          color: '#93c5fd',
+          weight: 7,
+          opacity: 0.45
+        });
+        const solidLine = L.polyline(latLngs, {
+          color: '#2563eb',
+          weight: 4.5,
+          opacity: 0.95
+        });
+        routeGroup.addLayer(glowLine);
+        routeGroup.addLayer(solidLine);
+
+        // Fetch real road curve if available, but ALWAYS keep camera focused strictly on tourist spots
+        const coordsString = latLngs.map(([lat, lng]) => `${lng},${lat}`).join(';');
+        const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${coordsString}?overview=full&geometries=geojson`;
+
+        fetch(osrmUrl)
+          .then(res => res.json())
+          .then(data => {
+            if (!isMounted || !leafletMapRef.current) return;
+            if (data && data.code === 'Ok' && data.routes && data.routes[0]?.geometry?.coordinates) {
+              const roadPoints = data.routes[0].geometry.coordinates.map(([lng, lat]) => [lat, lng]);
+              if (roadPoints.length > 1) {
+                routeGroup.clearLayers();
+                const roadGlow = L.polyline(roadPoints, {
+                  color: '#93c5fd',
+                  weight: 7,
+                  opacity: 0.45
+                });
+                const roadSolid = L.polyline(roadPoints, {
+                  color: '#2563eb',
+                  weight: 4.5,
+                  opacity: 0.95
+                });
+                routeGroup.addLayer(roadGlow);
+                routeGroup.addLayer(roadSolid);
+
+                // 🎯 Keep camera STRICTLY locked on tourist spots (latLngs) with 45px margin
+                applySpotFit(latLngs);
+              }
+            }
+          })
+          .catch(() => {
+            // Keep the initial clean line
+          });
+      } else if (latLngs.length === 1) {
+        map.setView(latLngs[0], 14, { animate: false });
       }
+
+      // Automatic post-mount size correction at 100ms
+      setTimeout(() => {
+        if (leafletMapRef.current && isMounted) {
+          leafletMapRef.current.invalidateSize({ pan: false });
+          if (activeBoundsRef.current) {
+            applySpotFit(activeBoundsRef.current);
+          }
+        }
+      }, 100);
     };
 
-    const rAf = requestAnimationFrame(runAutoFit);
-    const t1 = setTimeout(runAutoFit, 60);
-    const t2 = setTimeout(runAutoFit, 200);
-    const t3 = setTimeout(runAutoFit, 500);
+    // Frame-aligned initialization
+    const animId = requestAnimationFrame(() => {
+      initMap();
+    });
 
     return () => {
-      cancelAnimationFrame(rAf);
-      clearTimeout(t1);
-      clearTimeout(t2);
-      clearTimeout(t3);
+      isMounted = false;
+      cancelAnimationFrame(animId);
+      if (leafletMapRef.current) {
+        try {
+          leafletMapRef.current.remove();
+        } catch (e) {}
+        leafletMapRef.current = null;
+      }
     };
 
   }, [isLeafletReady, spotsToDisplay, activeDay, lang]);
