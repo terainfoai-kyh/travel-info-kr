@@ -433,7 +433,7 @@ export default function VoraAIChat({
 
                 {/* Daily Schedule Interactive Cards inside Chat */}
                 {msg.itinerary && msg.itinerary.dailySchedules && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
                     {msg.itinerary.dailySchedules.map((ds) => {
                       const isCurrentActive = Number(activeDay) === Number(ds.day);
                       return (
@@ -444,26 +444,30 @@ export default function VoraAIChat({
                             backgroundColor: isCurrentActive ? 'rgba(37, 99, 235, 0.06)' : 'var(--bg-card)',
                             border: isCurrentActive ? '1.5px solid var(--accent-primary)' : '1px solid var(--border-color)',
                             borderRadius: '12px',
-                            padding: '0.65rem 0.85rem',
+                            padding: '0.55rem 0.7rem',
                             display: 'flex',
                             flexDirection: 'column',
                             gap: '0.35rem',
                             cursor: 'pointer',
+                            width: '100%',
+                            maxWidth: '100%',
+                            boxSizing: 'border-box',
                             transition: 'all var(--transition-fast)'
                           }}
                         >
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', boxSizing: 'border-box' }}>
                             <span style={{
                               fontSize: '0.7rem',
                               fontWeight: 900,
                               backgroundColor: isCurrentActive ? 'var(--accent-primary)' : 'var(--text-muted)',
                               color: '#ffffff',
-                              padding: '0.15rem 0.45rem',
-                              borderRadius: 'var(--radius-full)'
+                              padding: '0.12rem 0.45rem',
+                              borderRadius: 'var(--radius-full)',
+                              flexShrink: 0
                             }}>
                               {t.dayBadge ? t.dayBadge(ds.day) : `${ds.day}일차`}
                             </span>
-                            <span style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                            <span style={{ fontSize: '0.76rem', fontWeight: 800, color: 'var(--text-main)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginLeft: '0.35rem' }}>
                               {ds.theme}
                             </span>
                           </div>
@@ -474,22 +478,26 @@ export default function VoraAIChat({
                             alignItems: 'center',
                             flexWrap: 'wrap',
                             gap: '0.25rem',
-                            fontSize: '0.72rem',
+                            fontSize: '0.7rem',
                             fontWeight: 700,
-                            color: 'var(--text-main)'
+                            color: 'var(--text-main)',
+                            width: '100%',
+                            boxSizing: 'border-box'
                           }}>
                             {(ds.spots || []).map((s, idx) => (
                               <React.Fragment key={s.id || idx}>
                                 <span style={{
                                   backgroundColor: 'var(--bg-primary)',
                                   border: '1px solid var(--border-color)',
-                                  padding: '0.15rem 0.4rem',
-                                  borderRadius: '5px'
+                                  padding: '0.12rem 0.35rem',
+                                  borderRadius: '5px',
+                                  maxWidth: '100%',
+                                  wordBreak: 'break-all'
                                 }}>
                                   {idx + 1}. {s.title}
                                 </span>
                                 {idx < (ds.spots || []).length - 1 && (
-                                  <span style={{ color: 'var(--text-dim)', fontSize: '0.65rem' }}>➔</span>
+                                  <span style={{ color: 'var(--text-dim)', fontSize: '0.62rem' }}>➔</span>
                                 )}
                               </React.Fragment>
                             ))}
@@ -503,14 +511,20 @@ export default function VoraAIChat({
                               gap: '0.35rem',
                               backgroundColor: 'rgba(245, 158, 11, 0.07)',
                               border: '1px solid rgba(245, 158, 11, 0.15)',
-                              padding: '0.25rem 0.5rem',
+                              padding: '0.22rem 0.45rem',
                               borderRadius: '6px',
-                              fontSize: '0.72rem',
+                              fontSize: '0.7rem',
                               color: '#b45309',
-                              fontWeight: 700
+                              fontWeight: 700,
+                              width: '100%',
+                              maxWidth: '100%',
+                              boxSizing: 'border-box',
+                              overflow: 'hidden'
                             }}>
                               <Utensils size={11} style={{ color: '#d97706', flexShrink: 0 }} />
-                              <span><strong>{ds.foodRecommendation.dishName}</strong>: {ds.foodRecommendation.description}</span>
+                              <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                <strong>{ds.foodRecommendation.dishName}</strong>: {ds.foodRecommendation.description}
+                              </span>
                             </div>
                           )}
                         </div>
@@ -563,15 +577,18 @@ export default function VoraAIChat({
         <div
           className="no-scrollbar"
           style={{
-            padding: '0.45rem 0.85rem',
+            padding: '0.4rem 0.65rem',
             backgroundColor: 'var(--bg-primary)',
             borderTop: '1px solid var(--border-color)',
             display: 'flex',
             gap: '0.35rem',
             overflowX: 'auto',
             whiteSpace: 'nowrap',
+            width: '100%',
+            maxWidth: '100%',
+            boxSizing: 'border-box',
             scrollbarWidth: 'none',
-            msOverflowStyle: 'none'
+            WebkitOverflowScrolling: 'touch'
           }}
         >
           {(t.chatQuickModifications || []).map((chip, idx) => (
@@ -608,7 +625,7 @@ export default function VoraAIChat({
 
       {/* Daily Free Question Quota Badge with Quick Actions */}
       <div style={{
-        padding: '0.4rem 0.85rem',
+        padding: '0.35rem 0.65rem',
         borderTop: '1px solid var(--border-color)',
         backgroundColor: questionQuota?.remaining > 2
           ? 'rgba(16, 185, 129, 0.05)'
@@ -619,9 +636,12 @@ export default function VoraAIChat({
         alignItems: 'center',
         justifyContent: 'space-between',
         flexWrap: 'wrap',
-        gap: '0.4rem',
-        fontSize: '0.73rem',
+        gap: '0.35rem',
+        fontSize: '0.72rem',
         fontWeight: 700,
+        width: '100%',
+        maxWidth: '100%',
+        boxSizing: 'border-box',
         color: questionQuota?.remaining > 2
           ? '#059669'
           : questionQuota?.remaining > 0
@@ -692,11 +712,14 @@ export default function VoraAIChat({
       <form
         onSubmit={handleSend}
         style={{
-          padding: '0.65rem 0.85rem calc(0.65rem + env(safe-area-inset-bottom, 0px)) 0.85rem',
+          padding: '0.55rem 0.65rem calc(0.55rem + env(safe-area-inset-bottom, 0px)) 0.65rem',
           display: 'flex',
           alignItems: 'center',
-          gap: '0.5rem',
-          backgroundColor: 'var(--bg-card)'
+          gap: '0.4rem',
+          backgroundColor: 'var(--bg-card)',
+          width: '100%',
+          maxWidth: '100%',
+          boxSizing: 'border-box'
         }}
       >
         <div style={{

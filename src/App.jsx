@@ -20,7 +20,7 @@ import GoogleAuthModal from './components/GoogleAuthModal';
 
 import { MapPin, MessageSquare } from 'lucide-react';
 import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
-import { geminiGenerateFullItinerary, generateLocalFallbackItinerary, enrichItineraryPhotosAsync } from './services/geminiNlpService';
+import { geminiGenerateFullItinerary, generateLocalFallbackItinerary, enrichItineraryPhotosAsync, extractLocationKeyword, extractDaysFromPrompt } from './services/geminiNlpService';
 
 export default function App() {
   // 4-Language State (ko, en, ja, zh)
@@ -425,8 +425,9 @@ export default function App() {
         setMobileHubTab('chat');
       } else {
         // 📍 Full Itinerary Mode: Render full course and sync map
+        const requestedDays = extractDaysFromPrompt(promptQuery) || 3;
         const finalResult = {
-          ...(result || generateLocalFallbackItinerary(promptQuery, extractLocationKeyword(promptQuery), 2, lang)),
+          ...(result || generateLocalFallbackItinerary(promptQuery, extractLocationKeyword(promptQuery), requestedDays, lang)),
           generationTime: elapsedSeconds
         };
         
@@ -448,8 +449,9 @@ export default function App() {
       console.warn('[VORA AI Error]', err);
       const elapsedSeconds = ((Date.now() - startTime) / 1000).toFixed(1);
       const replyTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+      const requestedDays = extractDaysFromPrompt(promptQuery) || 3;
       const fallback = {
-        ...generateLocalFallbackItinerary(promptQuery, extractLocationKeyword(promptQuery), 2, lang),
+        ...generateLocalFallbackItinerary(promptQuery, extractLocationKeyword(promptQuery), requestedDays, lang),
         generationTime: elapsedSeconds
       };
       setItineraryData(fallback);
