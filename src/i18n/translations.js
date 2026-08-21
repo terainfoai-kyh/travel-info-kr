@@ -85,6 +85,36 @@ export const CITY_TRANSLATIONS = {
   zht: { '서울': '首爾', '부산': '釜山', '제주': '濟州', '수원': '水原', '경주': '慶州', '강릉': '江陵', '전주': '全州', '여수': '麗水', '속초': '束草', '인천': '仁川', '대구': '大邱', '대전': '大田', '평택': '平澤', '서귀포': '西歸浦', '거제': '巨濟' }
 };
 
+export function getLocalizedCityName(city, lang = 'ko') {
+  if (!city || typeof city !== 'string') {
+    return lang === 'ja' ? 'ソウル' : (lang === 'zh' || lang === 'zht') ? '首尔' : lang === 'en' ? 'Seoul' : '서울';
+  }
+  const clean = city.trim();
+
+  // 1. Direct exact match
+  if (CITY_TRANSLATIONS[lang]?.[clean]) {
+    return CITY_TRANSLATIONS[lang][clean];
+  }
+
+  // 2. Base Korean keyword match (e.g. '제주도' -> '제주', '서울특별시' -> '서울')
+  for (const koKey of Object.keys(CITY_TRANSLATIONS.ko || {})) {
+    if (clean.includes(koKey)) {
+      return CITY_TRANSLATIONS[lang]?.[koKey] || CITY_TRANSLATIONS.en?.[koKey] || koKey;
+    }
+  }
+
+  // 3. Search across all languages to find the matching Korean key, then return target lang
+  for (const l of ['en', 'ja', 'zh', 'zht', 'ko']) {
+    for (const [koKey, trans] of Object.entries(CITY_TRANSLATIONS[l] || {})) {
+      if (clean.toLowerCase() === trans.toLowerCase() || clean.toLowerCase().includes(trans.toLowerCase()) || trans.toLowerCase().includes(clean.toLowerCase())) {
+        return CITY_TRANSLATIONS[lang]?.[koKey] || trans;
+      }
+    }
+  }
+
+  return clean;
+}
+
 export const TRANSLATIONS = {
   ko: {
     // Brand & Header

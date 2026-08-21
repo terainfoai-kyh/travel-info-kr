@@ -1,15 +1,15 @@
 import React, { useState, useMemo } from 'react';
-import { 
-  X, 
-  CloudSun, 
-  MapPin, 
-  Search, 
-  Sparkles, 
-  Shirt, 
+import {
+  X,
+  CloudSun,
+  MapPin,
+  Search,
+  Sparkles,
+  Shirt,
   ExternalLink,
   CalendarDays
 } from 'lucide-react';
-import { getCloseButtonLabel, TRANSLATIONS, CITY_TRANSLATIONS } from '../i18n/translations';
+import { getCloseButtonLabel, TRANSLATIONS, CITY_TRANSLATIONS, getLocalizedCityName } from '../i18n/translations';
 import { buildKlookDeepLink } from '../services/apiConfig';
 
 export default function WeatherModal({
@@ -18,16 +18,13 @@ export default function WeatherModal({
   lang = 'ko',
   initialRegion = '서울'
 }) {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(() => getLocalizedCityName(initialRegion, lang));
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
 
   // Synchronize with active itinerary destination whenever opened
   React.useEffect(() => {
     if (initialRegion) {
-      const displayCity = CITY_TRANSLATIONS[lang]?.[initialRegion] 
-        || CITY_TRANSLATIONS.en?.[initialRegion] 
-        || initialRegion;
-      setSearchQuery(displayCity);
+      setSearchQuery(getLocalizedCityName(initialRegion, lang));
     }
   }, [initialRegion, isOpen, lang]);
 
@@ -267,7 +264,7 @@ export default function WeatherModal({
     }
 
     // 2. Check Korean database keys
-    const found = Object.keys(REGION_DATABASE).find(k => 
+    const found = Object.keys(REGION_DATABASE).find(k =>
       cleanLower.includes(k.toLowerCase()) || k.toLowerCase().includes(cleanLower)
     );
     return found || raw;
@@ -316,7 +313,7 @@ export default function WeatherModal({
       return '气候宜人 🌤️';
     };
 
-    const localizedCity = CITY_TRANSLATIONS[language]?.[targetCityName] || targetCityName;
+    const localizedCity = getLocalizedCityName(targetCityName, language);
     const tempNum = parseInt(data.temp) || 22;
 
     let topBottom = 'Comfortable cotton T-shirt, breathable slacks or denim jeans';
@@ -375,13 +372,13 @@ export default function WeatherModal({
       }
     }
 
-    const forecastDays = language === 'en' 
+    const forecastDays = language === 'en'
       ? ['Today', 'Tmrw', 'Day+2']
       : language === 'ja'
-      ? ['今日', '明日', '明後日']
-      : (language === 'zh' || language === 'zht')
-      ? ['今天', '明天', '后天']
-      : ['오늘', '내일', '모레'];
+        ? ['今日', '明日', '明後日']
+        : (language === 'zh' || language === 'zht')
+          ? ['今天', '明天', '后天']
+          : ['오늘', '내일', '모레'];
 
     return {
       ...data,
@@ -395,11 +392,11 @@ export default function WeatherModal({
       forecast: data.forecast.map((f, idx) => ({
         ...f,
         day: forecastDays[idx] || forecastDays[0],
-        weather: f.weather.includes('맑') || f.weather.includes('화창') 
-          ? (language === 'ja' ? '☀️ 快晴' : (language === 'zh' || language === 'zht') ? '☀️ 晴天' : '☀️ Clear') 
-          : f.weather.includes('구름') 
-          ? (language === 'ja' ? '⛅ 曇り' : (language === 'zh' || language === 'zht') ? '⛅ 多云' : '⛅ Cloudy') 
-          : (language === 'ja' ? '🌧️ 雨' : (language === 'zh' || language === 'zht') ? '🌧️ 有雨' : '🌧️ Rain')
+        weather: f.weather.includes('맑') || f.weather.includes('화창')
+          ? (language === 'ja' ? '☀️ 快晴' : (language === 'zh' || language === 'zht') ? '☀️ 晴天' : '☀️ Clear')
+          : f.weather.includes('구름')
+            ? (language === 'ja' ? '⛅ 曇り' : (language === 'zh' || language === 'zht') ? '⛅ 多云' : '⛅ Cloudy')
+            : (language === 'ja' ? '🌧️ 雨' : (language === 'zh' || language === 'zht') ? '🌧️ 有雨' : '🌧️ Rain')
       }))
     };
   };
@@ -576,7 +573,7 @@ export default function WeatherModal({
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <MapPin size={17} style={{ color: 'var(--accent-primary)' }} />
                 <span style={{ fontSize: '1rem', fontWeight: 900, color: 'var(--text-main)' }}>
-                  {CITY_TRANSLATIONS[lang]?.[matchedCityKey] || matchedCityKey}
+                  {getLocalizedCityName(matchedCityKey, lang)}
                 </span>
                 <span style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--accent-primary)', marginLeft: '0.2rem' }}>
                   {current.temp}
@@ -660,7 +657,7 @@ export default function WeatherModal({
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
               <Shirt size={18} style={{ color: 'var(--accent-primary)' }} />
               <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 900, color: 'var(--text-main)' }}>
-                {t.weatherOutfitSectionTitle ? t.weatherOutfitSectionTitle(CITY_TRANSLATIONS[lang]?.[matchedCityKey] || matchedCityKey) : `오늘 ${matchedCityKey} 맞춤 여행 코디 & 필수 준비물`}
+                {t.weatherOutfitSectionTitle ? t.weatherOutfitSectionTitle(getLocalizedCityName(matchedCityKey, lang)) : `오늘 ${getLocalizedCityName(matchedCityKey, lang)} 맞춤 여행 코디 & 필수 준비물`}
               </h4>
             </div>
 

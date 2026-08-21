@@ -18,7 +18,7 @@ import {
   LogOut,
   ChevronDown
 } from 'lucide-react';
-import { TRANSLATIONS, CITY_TRANSLATIONS } from '../i18n/translations';
+import { TRANSLATIONS, CITY_TRANSLATIONS, getLocalizedCityName } from '../i18n/translations';
 
 // City Temperature Mapping for Dynamic Weather Capsule
 const CITY_TEMPS = {
@@ -194,7 +194,7 @@ export default function Header({
             }}
           >
             <CloudSun size={15} style={{ color: 'var(--accent-primary)' }} />
-            <span>{(CITY_TRANSLATIONS[lang]?.[targetCity] || targetCity)} {currentTemp} · {lang === 'en' ? 'Style 👗' : lang === 'ja' ? 'コーデ 👗' : (lang === 'zh' || lang === 'zht') ? '穿搭 👗' : '코디 👗'}</span>
+            <span>{getLocalizedCityName(targetCity, lang)} {currentTemp} · {lang === 'en' ? 'Style 👗' : lang === 'ja' ? 'コーデ 👗' : (lang === 'zh' || lang === 'zht') ? '穿搭 👗' : '코디 👗'}</span>
           </button>
 
           {/* 🧭 Travel Essentials Header Shortcut */}
