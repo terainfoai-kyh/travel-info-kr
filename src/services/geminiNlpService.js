@@ -133,6 +133,35 @@ export function getKakaoMapSearchUrl(spotTitle, city = '') {
   return `https://map.kakao.com/link/search/${encodeURIComponent(spotTitle + ' ' + city)}`;
 }
 
+// 🎯 지능형 여행 일수 정밀 파서 (1~14일 완벽 인식)
+export function extractDaysFromPrompt(text = '') {
+  if (!text) return null;
+  const t = text.toLowerCase();
+
+  // 1. "4박 5일", "2박 3일" 형태
+  const m1 = t.match(/(\d+)\s*박\s*(\d+)\s*일/i);
+  if (m1 && m1[2]) return parseInt(m1[2], 10);
+
+  // 2. "10일", "5일", "7d", "10days", "5박" 형태
+  const m2 = t.match(/(\d+)\s*(?:일|박|d|days?)/i);
+  if (m2 && m2[1]) return parseInt(m2[1], 10);
+
+  // 3. 한국어 고유어 일수 표현
+  if (/(당일|하루|1일)/.test(t)) return 1;
+  if (/(이틀|2일)/.test(t)) return 2;
+  if (/(사흘|3일)/.test(t)) return 3;
+  if (/(나흘|4일)/.test(t)) return 4;
+  if (/(닷새|5일)/.test(t)) return 5;
+  if (/(엿새|6일)/.test(t)) return 6;
+  if (/(이레|일주일|7일)/.test(t)) return 7;
+  if (/(여드레|8일)/.test(t)) return 8;
+  if (/(아흐레|9일)/.test(t)) return 9;
+  if (/(열흘|10일)/.test(t)) return 10;
+  if (/(보름|15일)/.test(t)) return 15;
+
+  return null;
+}
+
 /**
  * ⚡ Master Gemini Multi-Day Itinerary Planner with Dual-Mode (Conversational Clarification & Itinerary Generation)
  */
@@ -150,6 +179,8 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko', previo
     /^(안녕|하이|반가워|뭐해|누구|고마워|감사|ㅋㅋ|ㅎㅎ|ㅇㅇ|ㄴㄴ|ㄷㄷ|ㅠㅠ|test|테스트|\?+|\!+)$/i.test(cleanPrompt)
   );
 
+  const parsedDays = extractDaysFromPrompt(cleanPrompt);
+
   const isModificationRequest = Boolean(
     previousItinerary &&
     previousItinerary.dailySchedules &&
@@ -159,20 +190,42 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko', previo
     !/(새로운\s*여행|다른\s*도시|처음으로|초기화|리셋)/i.test(cleanPrompt)
   );
 
-  let targetCity = '서울';
+  let targetCity = explicitCity || previousItinerary?.targetCity || '서울';
   let days = 3;
 
-  if (isModificationRequest && previousItinerary) {
-    targetCity = previousItinerary.targetCity || explicitCity || '서울';
-    days = previousItinerary.days || (previousItinerary.dailySchedules ? previousItinerary.dailySchedules.length : 2);
-  } else {
-    targetCity = explicitCity || '서울';
-    if (/(5일|4박\s*5일|5박|5d|5\s*days)/i.test(cleanPrompt)) days = 5;
-    else if (/(4일|3박\s*4일|4박|4d|4\s*days)/i.test(cleanPrompt)) days = 4;
-    else if (/(3일|2박\s*3일|3박|3d|3\s*days)/i.test(cleanPrompt)) days = 3;
-    else if (/(2일|1박\s*2일|2박|2d|2\s*days)/i.test(cleanPrompt)) days = 2;
-    else if (/(1일|당일|1박|1d|1\s*day)/i.test(cleanPrompt)) days = 1;
-    else if (previousItinerary && previousItinerary.days && isModificationRequest) days = previousItinerary.days;
+  // 💡 스마트 일수 할당 (새로운 일수 요청이 있으면 이전 일수를 덮어쓰고 최우선 반영)
+  if (parsedDays) {
+    days = parsedDays;
+  } else if (isModificationRequest && previousItinerary?.days) {
+    days = previousItinerary.days;
+  } else if (previousItinerary?.dailySchedules) {
+    days = previousItinerary.dailySchedules.length;
+  }
+
+  // 💡 [비즈니스 & 토큰 최적화] 5일 초과(예: 10일, 7일) 요청 시 친절한 5일 분할 안내 컨시어지 모드 발동
+  const isConfirmingFiveDays = /(5일\s*(코스|로|먼저|추천)|네|응|좋아|진행)/i.test(cleanPrompt) && !/(10일|7일|8일|9일|14일)/.test(cleanPrompt);
+
+  if (days > 5 && !isConfirmingFiveDays) {
+    const cityName = targetCity || '한국';
+    const splitMessage = (lang === 'ko')
+      ? `${days}일 동안의 여유로운 ${cityName} 여행을 계획 중이시군요! ✈️\n긴 일정일수록 이동 피로 없이 완벽한 여행이 되도록 **[전반부 5일 핵심 핫플 코스]**와 **[후반부 5일 힐링/근교 투어]**로 나누어 설계하시는 것이 가장 만족도가 높습니다.\n\n먼저 가장 알차고 인기 있는 **[전반부 5일 황금 코스]**부터 바로 준비해 드릴까요? 😊`
+      : `Planning a wonderful ${days}-day trip to ${cityName}! ✈️\nFor longer stays, we recommend splitting your journey into a **[Part 1: 5-Day Core Highlights]** and **[Part 2: Extended Relaxation Tour]** to minimize travel fatigue.\n\nShall we prepare the **[Part 1: 5-Day Golden Itinerary]** first? 😊`;
+
+    return {
+      responseType: 'chat',
+      message: splitMessage,
+      quickSuggestions: [
+        `✨ 네, 5일 코스 먼저 추천해주세요!`,
+        `🌊 ${targetCity} 5일 + 제주 5일로 나눠주세요`,
+        `🚄 3박 4일 핵심 코스로 추천해줘`
+      ],
+      generationTime: ((Date.now() - startTime) / 1000).toFixed(1)
+    };
+  }
+
+  // 1회 최대 생성 일수는 5일로 캡핑하여 토큰 비용 및 3초 초고속 응답 보장
+  if (days > 5) {
+    days = 5;
   }
 
   const cityMeta = CITY_COORDINATES[targetCity] || CITY_COORDINATES['서울'];
@@ -194,8 +247,8 @@ ${JSON.stringify(previousItinerary.dailySchedules.map(ds => ({
 
 USER MODIFICATION REQUEST: "${cleanPrompt}"
 INSTRUCTION FOR MODIFICATION:
-1. Retain the existing ${days}-day structure and all unchanged days/spots in "${targetCity}".
-2. Apply the requested changes (e.g. transit optimization like '대중교통 동선', indoor spots for rain, budget, cost-effective adjustments, adding/swapping spots) precisely for "${targetCity}".
+1. Adjust the itinerary to precisely ${days} days in "${targetCity}". If days changed (e.g. expanded to 5 days), create realistic cohesive days up to Day ${days}.
+2. Apply the requested changes (e.g. transit optimization, companion type like '여자 세명 우정 여행', budget, indoor spots) precisely for "${targetCity}".
 3. Maintain total days as exactly ${days} and city as "${targetCity}".
 4. In summary, warmly confirm the exact modification made in language "${lang}".
 `;
@@ -205,8 +258,8 @@ INSTRUCTION FOR MODIFICATION:
 Analyze the user request: "${cleanPrompt}".
 ${isModificationRequest ? `
 [ACTIVE TRIP CONTEXT TO MODIFY]
-The user is currently modifying an existing ${days}-day itinerary for "${targetCity}".
-Apply the user's instruction ("${cleanPrompt}") directly as a modification/adjustment to this "${targetCity}" itinerary (e.g. adjust transit, timing, food, budget, spots, pace, companions).
+The user is currently modifying an existing itinerary for "${targetCity}". Total requested days: ${days} days.
+Apply the user's instruction ("${cleanPrompt}") directly as a modification/adjustment to this "${targetCity}" itinerary (e.g. adjust companion vibe like 3 female friends, transit, timing, food, spots, pace).
 Do NOT ask what city they want to visit because they are already editing "${targetCity}".
 ` : ''}
 
@@ -227,8 +280,18 @@ Return ONLY this JSON schema:
 }
 
 CASE 2: FULL ITINERARY MAGAZINE MODE
-Trigger whenever the user asks for a destination, itinerary, travel plan, OR when there is an active trip context being modified/refined (e.g. '대중교통 이동 동선으로 맞춰줘', '실내 코스로 변경', '비용 줄여줘', '2일차 카페 변경', '맛집 위주로 해줘' etc.).
+Trigger whenever the user asks for a destination, itinerary, travel plan, OR when there is an active trip context being modified/refined.
 ${explicitCity ? `Target destination: "${explicitCity}".` : `Target destination: "${targetCity}".`}
+Requested Duration: EXACTLY ${days} days.
+
+[REALISTIC DAILY TIME & PROXIMITY ROUTE SPECIFICATION]
+For EACH day in dailySchedules (from Day 1 to Day ${days}):
+1. Generate EXACTLY 3 sequential, geographically clustered spots located within 10~20 minutes transit of each other:
+   - Spot 1 (Morning 10:00~12:30): Top Landmark / Palace / Nature Walk / Cultural Heritage
+   - Spot 2 (Afternoon 13:30~16:30): Trendy Cafe Street / Aesthetic Alley / Museum / Shopping Hotspot
+   - Spot 3 (Sunset/Night 17:30~20:30): Sunset Observatory / Night View / Romantic Skyline / Night Market
+2. Set accurate lat/lng coordinates in "${targetCity}" with authentic Korean names.
+
 Return ONLY this JSON schema:
 {
   "responseType": "itinerary",
@@ -257,7 +320,7 @@ Return ONLY this JSON schema:
           "lat": ${cityMeta.lat},
           "lng": ${cityMeta.lng},
           "address": "Address in target city",
-          "transitTime": "대중교통 또는 도보로 편리하게 이동"
+          "transitTime": "대중교통 또는 도보 10~15분"
         }
       ]
     }
@@ -489,60 +552,47 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
   const SAMPLE_SPOTS_MAP = {
     '수원': [
       // Day 1
-      { name: '수원화성 방화수류정', theme: '연못 위 정자와 성곽이 빚어내는 절경', desc: '용연 연못 위 언덕에 자리한 방화수류정은 낮에는 싱그러운 피크닉 명소로, 밤에는 은은한 성곽 조명이 환상적인 야경을 선사합니다.', cat: '자연명소', photo: '📸 용연 연못에 비치는 방화수류정 반영 샷 & 피크닉 매트 샷', sig: '🧺 용연 피크닉 세트 & 방화수류정 산책', time: '오후 4:30 (골든타임)', lat: 37.2891, lng: 127.0194 },
+      { name: '수원화성 방화수류정', theme: '연못 위 정자와 성곽이 빚어내는 절경', desc: '용연 연못 위 언덕에 자리한 방화수류정은 낮에는 싱그러운 피크닉 명소로, 밤에는 은은한 성곽 조명이 환상적인 야경을 선사합니다.', cat: '자연명소', photo: '📸 용연 연못에 비치는 방화수류정 반영 샷 & 피크닉 매트 샷', sig: '🧺 용연 피크닉 세트 & 방화수류정 산책', time: '오전 10:30', lat: 37.2891, lng: 127.0194 },
       { name: '화성행궁 & 행궁동 카페거리', theme: '조선 왕실 행궁과 레트로 감성 핫플레이스', desc: '정조대왕의 숨결이 깃든 화성행궁과 주택을 개조한 감각적인 카페들이 성곽길을 따라 늘어선 수원의 대표 힙플레이스입니다.', cat: '감성카페', photo: '📸 화성행궁 신풍루 & 행궁동 루프탑 뷰', sig: '☕ 시그니처 흑임자 라떼 & 수플레', time: '오후 2:00 ~ 4:00', lat: 37.2842, lng: 127.0142 },
+      { name: '수원 통닭거리', theme: '가마솥 전통 통닭과 활기찬 로컬 미식', desc: '영화로도 유명한 수원의 명물 가마솥 왕갈비통닭을 맛보고, 핸드메이드 소품이 가득한 공방거리를 거닐며 힐링하는 코스입니다.', cat: '로컬미식', photo: '📸 지글지글 가마솥 통닭 & 공방거리 공예품', sig: '🍗 수원 왕갈비 통닭 & 생맥주', time: '오후 6:30', lat: 37.2798, lng: 127.0165 },
       // Day 2
       { name: '수원시립미술관', theme: '현대 미술과 성곽이 어우러진 문화 공간', desc: '화성행궁 바로 옆에 위치한 세련된 미술관으로, 다채로운 기획 전시와 옥상 정원에서 바라보는 성곽 뷰가 일품입니다.', cat: '역사문화', photo: '📸 미술관 옥상에서 바라보는 행궁 전경', sig: '🎨 감성 기획 전시 & 아트숍', time: '오전 10:30', lat: 37.2842, lng: 127.0142 },
-      { name: '수원 통닭거리', theme: '가마솥 전통 통닭과 활기찬 로컬 미식', desc: '영화로도 유명한 수원의 명물 가마솥 왕갈비통닭을 맛보고, 핸드메이드 소품이 가득한 공방거리를 거닐며 힐링하는 코스입니다.', cat: '로컬미식', photo: '📸 지글지글 가마솥 통닭 & 공방거리 공예품', sig: '🍗 수원 왕갈비 통닭 & 생맥주', time: '오후 6:30', lat: 37.2798, lng: 127.0165 },
-      // Day 3
       { name: '플라잉수원 & 연무대', theme: '150m 상공 열기구에서 내려다보는 성곽 파노라마', desc: '동화 같은 헬륨 열기구를 타고 수원화성 성곽 전체와 도심 전경을 한눈에 조망하는 이색 체험 명소입니다.', cat: '액티비티', photo: '📸 열기구 탑승 상공 파노라마 뷰 & 성곽 노을 샷', sig: '🎈 플라잉수원 열기구 비행 & 연무대 국궁 활쏘기', time: '오후 4:30 (선셋 골든타임)', lat: 37.2872, lng: 127.0225 },
       { name: '광교호수공원 & 프라이부르크 전망대', theme: '도심 속 푸른 호수와 환상적인 야경 산책', desc: '한국에서 가장 아름다운 호수공원으로 꼽히는 명소로, 어번레비 수변 산책로를 따라 펼쳐지는 야경 조명이 낭만을 더합니다.', cat: '야경명소', photo: '📸 프라이부르크 전망대 호수 전경 & 수변 조명 샷', sig: '☕ 호수 뷰 테라스 카페 & 수변 피크닉', time: '오후 7:30 이후', lat: 37.2844, lng: 127.0673 }
     ],
     '서울': [
-      // Day 1
-      { name: '경복궁 & 향원정', theme: '조선 왕실의 역사와 고풍스러운 정원', desc: '조선 왕조 제일의 법궁으로, 연못 위에 세워진 향원정과 근정전의 웅장한 처마선이 한국 전통 건축미의 절정을 보여줍니다.', cat: '역사문화', photo: '📸 향원정 연못 반영 샷 & 한복 스냅', sig: '👑 궁궐 한복 체험 & 왕실 산책', time: '오전 10:00 (한적한 시간대)', lat: 37.5796, lng: 126.9770 },
-      { name: '북촌 한옥마을', theme: '전통 한옥의 고즈넉한 아름다움', desc: '실제 한옥들이 고스란히 보존된 역사적인 마을로, 기와지붕 너머로 펼쳐지는 도심 빌딩 숲의 조화가 이색적입니다.', cat: '한옥골목', photo: '📸 북촌 6경 언덕길에서 내려다보는 기와 샷', sig: '🍵 전통 찻집 오미자차 & 개성주악', time: '오전 11:30', lat: 37.5826, lng: 126.9836 },
-      // Day 2
-      { name: '성수동 카페거리 & 디올 성수', theme: '가장 트렌디한 서울의 핫플레이스', desc: '과거 붉은 벽돌 공장 지대에서 서울에서 가장 힙한 문화예술 지구로 변모한 곳으로, 독창적인 플래그십 스토어와 베이커리가 가득합니다.', cat: '감성카페', photo: '📸 디올 성수 화사한 외관 인생샷', sig: '☕ 시그니처 소금빵 & 아인슈페너', time: '오후 2:00 ~ 4:00', lat: 37.5446, lng: 127.0560 },
-      { name: 'N서울타워', theme: '서울 도심을 360도 파노라마로 감상', desc: '남산 꼭대기에 우뚝 솟은 서울의 상징으로, 해질녘 붉게 물드는 노을과 반짝이는 도시 야경이 잊지 못할 장관을 선사합니다.', cat: '야경명소', photo: '📸 타워 전망대 선셋 & 사랑의 자물쇠 데크', sig: '🗼 선셋 파노라마 뷰 & 남산 돈까스', time: '오후 6:30 (일몰 골든타임)', lat: 37.5512, lng: 126.9882 },
-      // Day 3
-      { name: '하이브 인사이트 & 용산 핫플', theme: 'K-POP 문화와 글로벌 음악의 성지', desc: '글로벌 K-POP 아티스트들의 음악적 발자취와 미디어 아트를 오감으로 체험할 수 있는 전 세계 팬들의 필수 방문지입니다.', cat: 'K-POP성지', photo: '📸 대형 미디어 월 & 인터랙티브 체험 존', sig: '🎵 한정판 아티스트 굿즈 & 미디어 전시', time: '오후 1:00', lat: 37.5283, lng: 126.9685 },
-      { name: '여의도 한강공원 & 더현대 서울', theme: '트렌디 쇼핑과 낭만적인 한강 피크닉', desc: '자연 채광 가득한 실내 정원 쇼핑몰 더현대 서울과, 탁 트인 강바람을 맞으며 라면을 즐기는 한강 피크닉의 힐링 코스입니다.', cat: '쇼핑/힐링', photo: '📸 사운즈 포레스트 5층 실내 정원 샷', sig: '🧺 한강 즉석 라면 & 돗자리 피크닉', time: '오후 4:30', lat: 37.5259, lng: 126.9284 }
+      // Day 1 (종로-안국 황금 코스)
+      { name: '경복궁 & 향원정', theme: '조선 왕실의 역사와 고풍스러운 정원', desc: '조선 왕조 제일의 법궁으로, 연못 위에 세워진 향원정과 근정전의 웅장한 처마선이 한국 전통 건축미의 절정을 보여줍니다.', cat: '역사문화', photo: '📸 향원정 연못 반영 샷 & 한복 스냅', sig: '👑 궁궐 한복 체험 & 왕실 산책', time: '오전 10:00', lat: 37.5796, lng: 126.9770 },
+      { name: '인사동 쌈지길 & 전통찻집', theme: '한국 전통 공예와 감성 골목 투어', desc: '나선형 계단을 따라 아기자기한 공예품점과 전통 찻집이 늘어선 서울의 대표적인 전통 문화 예술 거리입니다.', cat: '감성카페', photo: '📸 쌈지길 나선형 계단 & 개성주악 샷', sig: '🍵 전통 오미자차 & 개성주악 디저트', time: '오후 1:30', lat: 37.5743, lng: 126.9848 },
+      { name: '북촌 한옥마을', theme: '전통 한옥의 고즈넉한 아름다움', desc: '실제 한옥들이 고스란히 보존된 역사적인 마을로, 기와지붕 너머로 펼쳐지는 도심 빌딩 숲의 조화가 이색적입니다.', cat: '한옥골목', photo: '📸 북촌 6경 언덕길에서 내려다보는 기와 샷', sig: '📸 고즈넉한 돌담길 & 한옥 선셋 뷰', time: '오후 4:30 (골든타임)', lat: 37.5826, lng: 126.9836 },
+      // Day 2 (성수-남산 핫플 코스)
+      { name: '성수동 카페거리 & 디올 성수', theme: '가장 트렌디한 서울의 핫플레이스', desc: '과거 붉은 벽돌 공장 지대에서 서울에서 가장 힙한 문화예술 지구로 변모한 곳으로, 독창적인 플래그십 스토어와 베이커리가 가득합니다.', cat: '감성카페', photo: '📸 디올 성수 화사한 외관 인생샷', sig: '☕ 시그니처 소금빵 & 아인슈페너', time: '오전 11:30', lat: 37.5446, lng: 127.0560 },
+      { name: '서울숲 & 언더스탠드에비뉴', theme: '도심 속 거대한 숲과 컨테이너 문화 스트리트', desc: '은행나무 숲길과 감각적인 팝업 스토어가 어우러져 여유로운 피크닉과 쇼핑을 동시에 즐기는 힐링 명소입니다.', cat: '자연명소', photo: '📸 서울숲 거울연못 반영 샷', sig: '🧺 잔디광장 피크닉 & 디저트 투어', time: '오후 2:30', lat: 37.5443, lng: 127.0374 },
+      { name: 'N서울타워 & 남산 야경', theme: '서울 도심을 360도 파노라마로 감상', desc: '남산 꼭대기에 우뚝 솟은 서울의 상징으로, 해질녘 붉게 물드는 노을과 반짝이는 도시 야경이 잊지 못할 장관을 선사합니다.', cat: '야경명소', photo: '📸 타워 전망대 선셋 & 사랑의 자물쇠 데크', sig: '🗼 선셋 파노라마 뷰 & 남산 돈까스', time: '오후 6:30 (일몰 골든타임)', lat: 37.5512, lng: 126.9882 },
+      // Day 3 (용산-여의도 K-컬처 코스)
+      { name: '하이브 인사이트 & 용산 핫플', theme: 'K-POP 문화와 글로벌 음악의 성지', desc: '글로벌 K-POP 아티스트들의 음악적 발자취와 미디어 아트를 오감으로 체험할 수 있는 전 세계 팬들의 필수 방문지입니다.', cat: 'K-POP성지', photo: '📸 대형 미디어 월 & 인터랙티브 체험 존', sig: '🎵 한정판 아티스트 굿즈 & 미디어 전시', time: '오전 11:00', lat: 37.5283, lng: 126.9685 },
+      { name: '더현대 서울 & 사운즈 포레스트', theme: '초대형 실내 정원과 글로벌 플래그십 쇼핑', desc: '자연 채광 가득한 5층 실내 숲과 트렌디한 글로벌 브랜드 팝업이 가득한 서울 최고의 라이프스타일 랜드마크입니다.', cat: '쇼핑/힐링', photo: '📸 사운즈 포레스트 5층 실내 정원 샷', sig: '🛍️ 지하 2층 K-패션 팝업 & 지하 1층 고메 델리', time: '오후 2:00', lat: 37.5259, lng: 126.9284 },
+      { name: '여의도 한강공원 & 달빛 피크닉', theme: '탁 트인 강바람과 로컬 한강 라면', desc: '반짝이는 한강 뷰를 바라보며 돗자리를 펴고 즐기는 라면과 치맥, 서울 야경의 낭만이 가득한 대표 힐링 명소입니다.', cat: '야경명소', photo: '📸 한강 일몰 & 마포대교 방면 야경 샷', sig: '🧺 즉석 한강 라면 & 피크닉 돗자리', time: '오후 5:30 (선셋)', lat: 37.5270, lng: 126.9325 },
+      // Day 4 (익선-동대문 헤리티지 코스)
+      { name: '익선동 한옥마을 & 핫플 골목', theme: '100년 한옥 골목의 트렌디한 감성 변신', desc: '미로 같은 좁은 한옥 골목 사이사이에 감각적인 디저트 카페와 퓨전 레스토랑이 보석처럼 숨어있는 감성 핫플입니다.', cat: '감성카페', photo: '📸 익선동 기와지붕 골목길 감성 스냅', sig: '☕ 가마솥 수플레 & 크림치즈 타르트', time: '오전 11:30', lat: 37.5742, lng: 126.9893 },
+      { name: '동대문디자인플라자 (DDP)', theme: '자하 하디드의 미래지향적 곡선 건축미', desc: '우주선을 연상시키는 환상적인 비정형 곡선 건축물로, 다채로운 디자인 전시와 패션의 메카입니다.', cat: '역사문화', photo: '📸 DDP 미래지향적 곡선 외관 & 어울림광장', sig: '🎨 디자인 전시 투어 & 카카오프렌즈 숍', time: '오후 2:30', lat: 37.5665, lng: 127.0090 },
+      { name: '낙산공원 & 한양도성 성곽 야경', theme: '달빛 아래 걷는 조선의 성곽 파노라마', desc: '성곽 돌담을 따라 켜진 은은한 조명을 따라 걸으며 서울 도심 전체가 한눈에 내려다보이는 최고의 로맨틱 야경 명소입니다.', cat: '야경명소', photo: '📸 성곽길 실루엣 & 도심 불빛 파노라마 샷', sig: '🌙 낙산공원 전망대 야경 산책 & 대학로 심야 식당', time: '오후 7:00 (야경)', lat: 37.5804, lng: 127.0076 },
+      // Day 5 (용산-한남-반포 아트 힐링 코스)
+      { name: '국립중앙박물관 & 거울못 정원', theme: '대한민국 반만년 역사와 고요한 수변 산책', desc: '국보급 유물들이 가득한 세계적 규모의 박물관으로, 거울못 정원과 청자정의 수려한 풍경이 힐링을 선사합니다.', cat: '역사문화', photo: '📸 거울못 청자정 반영 샷 & 남산타워 프레임 샷', sig: '🏺 반가사유상 사유의 방 관람 & 박물관 굿즈', time: '오전 10:30', lat: 37.5240, lng: 126.9803 },
+      { name: '한남동 카페거리 & 리움미술관', theme: '하이엔드 감성과 세계적 현대 미술', desc: '이태원과 한남동의 감각적인 디자이너 편집숍과 삼성 리움미술관의 품격 있는 예술을 만나는 코스입니다.', cat: '감성카페', photo: '📸 리움미술관 로툰다 원형 계단 샷', sig: '☕ 한남동 스페셜티 드립커피 & 브런치', time: '오후 2:00', lat: 37.5385, lng: 127.0003 },
+      { name: '반포 한강공원 & 달빛무지개분수', theme: '세계 최장 교량분수와 낭만적인 밤바람', desc: '달빛무지개분수에서 뿜어져 나오는 화려한 물줄기와 음악, 밤도깨비 야시장의 활기가 어우러진 서울 최고의 야경 포인트입니다.', cat: '야경명소', photo: '📸 무지개분수 야간 조명쇼 & 세빛섬 야경 샷', sig: '🌊 세빛섬 테라스 카페 & 한강 야간 유람선', time: '오후 6:30 (분수쇼 타임)', lat: 37.5103, lng: 126.9960 }
     ],
     '제주': [
       // Day 1
       { name: '랜디스도넛 제주애월점 & 한담해변', theme: '에메랄드빛 바다와 달콤한 도넛 투어', desc: '애월 한담해안산책로를 바로 마주하고 있는 오션뷰 도넛 명소로, 시원한 바다 바람과 달콤한 디저트를 동시에 즐길 수 있습니다.', cat: '감성카페', photo: '📸 옥상 주황색 대형 도넛 조형물 & 바다 배경', sig: '🍩 버터크림 도넛 & 바닐라 라떼', time: '오전 11:30', lat: 33.4623, lng: 126.3110 },
-      { name: '협재해수욕장 & 금능해변', theme: '비양도가 보이는 은빛 백사장', desc: '투명하고 맑은 에메랄드빛 바다와 부드러운 조개껍질 백사장이 끝없이 펼쳐진 제주의 대표 해변입니다.', cat: '오션뷰', photo: '📸 물빛이 가장 예쁜 썰물 때 비양도 배경 샷', sig: '🌊 해녀 해산물 모둠 & 보말칼국수', time: '오후 1:00 ~ 3:00', lat: 33.3941, lng: 126.2397 },
-      // Day 2
-      { name: '성산일출봉', theme: '유네스코 세계자연유산의 웅장한 분화구', desc: '바다 위로 솟아오른 웅장한 화산 분화구로, 정상에 서면 푸른 바다와 넓은 초원이 장엄하게 펼쳐집니다.', cat: '자연명소', photo: '📸 정상 분화구 능선 & 우도 조망 샷', sig: '🍊 제주 천혜향 착즙 주스 & 갈치조림', time: '오전 07:30 또는 일몰', lat: 33.4581, lng: 126.9426 },
-      { name: '서귀포 매일올레시장', theme: '제주 남부의 풍성한 로컬 야시장', desc: '제주 특산물과 감귤 디저트, 흑돼지 김치말이 등 다채로운 길거리 미식이 가득한 활기찬 전통시장입니다.', cat: '로컬미식', photo: '📸 활기찬 야시장 야간 조명 샷', sig: '🍢 마농치킨 & 흑돼지 고로케', time: '오후 6:00 이후', lat: 33.2494, lng: 126.5638 }
+      { name: '협재해수욕장 & 금능해변', theme: '비양도가 보이는 은빛 백사장', desc: '투명하고 맑은 에메랄드빛 바다와 부드러운 조개껍질 백사장이 끝없이 펼쳐진 제주의 대표 해변입니다.', cat: '오션뷰', photo: '📸 물빛이 가장 예쁜 썰물 때 비양도 배경 샷', sig: '🌊 해녀 해산물 모둠 & 보말칼국수', time: '오후 2:00 ~ 4:00', lat: 33.3941, lng: 126.2397 },
+      { name: '신창 풍차해안도로 & 선셋', theme: '하얀 풍력발전기와 붉은 노을의 하모니', desc: '에메랄드빛 바다 위에 줄지어 선 거대한 풍차를 따라 걸으며 환상적인 제주 서쪽 일몰을 감상하는 드라이브 명소입니다.', cat: '야경명소', photo: '📸 풍차 다리 위 붉은 노을 실루엣 샷', sig: '🌅 풍차 해안 데크 산책 & 흑돼지 구이', time: '오후 6:30 (선셋)', lat: 33.3421, lng: 126.1742 }
     ],
     '부산': [
       // Day 1
-      { name: '해운대 블루라인파크 & 스카이캡슐', theme: '동해남부선 해안 절경을 달리는 낭만 열차', desc: '옛 철길을 따라 해안 절벽 위를 달리는 알록달록 스카이캡슐에서 부산 앞바다의 탁 트인 오션뷰를 만끽할 수 있습니다.', cat: '오션뷰', photo: '📸 캡슐 내부에서 창가 바다를 바라보는 감성 샷', sig: '🚊 미포-청사포 해안 레일 투어 & 조개구이', time: '오후 4:30 (선셋 타임)', lat: 35.1631, lng: 129.1786 },
-      { name: '광안리 해수욕장 & 광안대교', theme: '광안대교 야경과 화려한 불빛 축제', desc: '바다를 가로지르는 광안대교의 찬란한 조명과 주말마다 밤하늘을 수놓는 드론 라이트쇼가 황홀한 감동을 줍니다.', cat: '야경명소', photo: '📸 광안대교 정면 모래사장 야경 샷', sig: '🦀 민락수변공원 신선 활어회 & 수제맥주', time: '오후 7:30 이후', lat: 35.1532, lng: 129.1186 },
-      // Day 2
-      { name: '감천문화마을', theme: '한국의 산토리니, 알록달록 계단식 마을', desc: '산자락을 따라 계단식으로 늘어선 파스텔톤 집들과 아기자기한 골목 벽화, 조형물이 동화 같은 풍경을 만듭니다.', cat: '핫플레이스', photo: '📸 어린왕자와 사막여우 포토존 난간 샷', sig: '☕ 전망대 루프탑 카페 커피 & 씨앗호떡', time: '오전 11:00', lat: 35.0975, lng: 129.0106 },
-      { name: '자갈치시장 & 남포동 비프광장', theme: '살아 숨 쉬는 부산의 바다와 길거리 미식', desc: '팔딱거리는 신선한 해산물이 가득한 한국 최대 수산시장과 영화와 길거리 음식이 어우러진 비프광장입니다.', cat: '로컬미식', photo: '📸 활기찬 자갈치 항구 바다 전경', sig: '🐟 생선구이 백반 & 씨앗호떡', time: '오후 2:00', lat: 35.0968, lng: 129.0306 }
-    ],
-    '장수': [
-      // Day 1
-      { name: '방화동자연휴양림 & 계곡', theme: '청정 숲속에서 즐기는 피톤치드 힐링 숲캉스', desc: '전국 최초의 가족휴양촌으로 울창한 원시림과 맑은 계곡물이 어우러져 사계절 내내 온전한 쉼을 선사합니다.', cat: '자연명소', photo: '📸 방화동 계곡 데크로드 산책 샷', sig: '🌲 솔바람 피톤치드 삼림욕 & 캠핑', time: '오전 11:00', lat: 35.6183, lng: 127.5312 },
-      { name: '논개사당 & 의암공원', theme: '의로운 역사와 푸른 호수가 어우러진 산책길', desc: '주논개의 충절을 기리는 고즈넉한 사당과 의암호 수변을 따라 걷는 평화로운 힐링 명소입니다.', cat: '역사문화', photo: '📸 의암루에서 내려다보는 의암호 호수 뷰', sig: '🍎 장수 특산 사과 디저트 & 찻집', time: '오후 3:00', lat: 35.6475, lng: 127.5218 },
-      // Day 2
-      { name: '장수 누리파크 & 사과 테마파크', theme: '감성 가득한 잔디광장과 사과 힐링 파크', desc: '장수 사과를 테마로 조성된 대규모 힐링 테마파크로 이국적인 조형물과 넓은 산책로가 매력적입니다.', cat: '핫플레이스', photo: '📸 대형 사과 조형물 & 잔디광장 피크닉 샷', sig: '🍏 장수 사과 생착즙 주스 & 사과파이', time: '오전 10:30', lat: 35.6542, lng: 127.5140 },
-      { name: '와룡자연휴양림', theme: '오감만족 숲속 힐링과 맑은 오연폭포', desc: '금강 발원지의 맑은 물과 울창한 천연림, 시원한 폭포수가 장관을 이루는 웰니스 힐링의 성지입니다.', cat: '자연명소', photo: '📸 오연폭포 청량한 물줄기 배경 샷', sig: '🥩 장수 명품 한우 구이 & 버섯전골', time: '오후 2:30', lat: 35.6791, lng: 127.5684 },
-      // Day 3
-      { name: '장수 승마체험장 & 승마레저파크', theme: '푸른 초원을 달리는 이색 힐링 액티비티', desc: '탁 트인 자연 속에서 안전하게 승마를 체험하고 동물들과 교감하는 특별한 레저 공간입니다.', cat: '액티비티', photo: '📸 말과 함께하는 초원 감성 스냅샷', sig: '🐎 초원 승마 트레킹 체험', time: '오전 11:00', lat: 35.6310, lng: 127.5020 },
-      { name: '장수 봉화산 & 철쭉 군락지', theme: '파노라마 산마루와 계절 꽃이 빚어내는 절경', desc: '백두대간의 웅장한 능선과 시원한 바람을 맞으며 힐링할 수 있는 장수의 대표 조망 명소입니다.', cat: '자연명소', photo: '📸 산 정상 능선 파노라마 샷', sig: '☕ 장수 로컬 로스터리 카페 힐링', time: '오후 4:00 (선셋)', lat: 35.5890, lng: 127.5920 }
-    ],
-    '경주': [
-      { name: '황리단길 & 대릉원', theme: '천년고도의 고즈넉한 고분과 트렌디 핫플', desc: '웅장한 신라 고분을 배경으로 한옥 감성 카페와 맛집들이 줄지어 선 경주의 대표 힙플레이스입니다.', cat: '핫플레이스', photo: '📸 대릉원 목련 포토존 & 황리단길 한옥 골목', sig: '☕ 십원빵 & 황남옥수수', time: '오후 2:00', lat: 35.8385, lng: 129.2130 },
-      { name: '동궁과 월지 & 첨성대', theme: '황홀한 달빛 아래 펼쳐지는 신라의 야경', desc: '어둠이 내리면 연못에 비치는 전각의 은은한 조명과 첨성대의 신비로운 야경이 감동을 선사합니다.', cat: '야경명소', photo: '📸 동궁과 월지 호수 반영 야경 샷', sig: '🍲 경주 떡갈비 & 쌈밥 정식', time: '오후 7:30', lat: 35.8341, lng: 129.2266 }
-    ],
-    '강릉': [
-      { name: '안목해변 커피거리', theme: '푸른 동해를 바라보며 즐기는 향긋한 커피', desc: '바다를 마주보고 개성 넘치는 오션뷰 카페들이 늘어선 대한민국 최고의 커피 명소입니다.', cat: '감성카페', photo: '📸 통유리 너머 푸른 바다와 커피 샷', sig: '☕ 강릉 초당옥수수 라떼 & 순두부 젤라또', time: '오후 1:00', lat: 37.7718, lng: 128.9486 },
-      { name: '경포호 & 경포대', theme: '솔향 가득한 호수 자전거 라이딩과 오션 선셋', desc: '잔잔한 호숫가를 따라 자전거를 타며 동해 바다의 시원한 파도와 노을을 만끽하는 코스입니다.', cat: '자연명소', photo: '📸 경포호수 벚나무길 & 경포대 정자 샷', sig: '🍜 초당 순두부 짬뽕 & 장칼국수', time: '오후 4:30', lat: 37.7954, lng: 128.8965 }
+      { name: '해운대 블루라인파크 & 스카이캡슐', theme: '동해남부선 해안 절경을 달리는 낭만 열차', desc: '옛 철길을 따라 해안 절벽 위를 달리는 알록달록 스카이캡슐에서 부산 앞바다의 탁 트인 오션뷰를 만끽할 수 있습니다.', cat: '오션뷰', photo: '📸 캡슐 내부에서 창가 바다를 바라보는 감성 샷', sig: '🚊 미포-청사포 해안 레일 투어 & 조개구이', time: '오후 2:30', lat: 35.1631, lng: 129.1786 },
+      { name: '동백섬 & 해운대 해수욕장', theme: '동백꽃 숲길과 은빛 백사장 산책', desc: '누리마루 APEC하우스와 등대전망대를 거닐며 해운대 마린시티의 마천루 뷰를 한눈에 담는 해안 산책로입니다.', cat: '자연명소', photo: '📸 동백섬 전망대 마린시티 배경 샷', sig: '☕ 해운대 달맞이길 감성 카페', time: '오후 4:30 (골든타임)', lat: 35.1534, lng: 129.1523 },
+      { name: '광안리 해수욕장 & 광안대교', theme: '광안대교 야경과 화려한 불빛 축제', desc: '바다를 가로지르는 광안대교의 찬란한 조명과 주말마다 밤하늘을 수놓는 드론 라이트쇼가 황홀한 감동을 줍니다.', cat: '야경명소', photo: '📸 광안대교 정면 모래사장 야경 샷', sig: '🦀 민락수변공원 신선 활어회 & 수제맥주', time: '오후 7:30 이후', lat: 35.1532, lng: 129.1186 }
     ]
   };
 
@@ -555,7 +605,9 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
     '서울': [
       { theme: '1일차: 조선 왕실의 정취와 고즈넉한 한옥 골목', transit: '지하철 3호선 안국역·경복궁역 도보 5분', food: { dishName: '종로 삼계탕 & 전통 빈대떡', description: '한옥의 정취를 느끼며 즐기는 든든한 한국 전통 보양식' } },
       { theme: '2일차: 트렌디 핫플 성수동과 낭만적인 남산 선셋', transit: '지하철 2호선 성수역 및 남산 순환버스 이용', food: { dishName: '성수동 수제버거 & 파스타', description: '젊은 미식가들이 줄 서는 감각적인 트렌디 다이닝' } },
-      { theme: '3일차: K-POP 문화의 성지와 한강 힐링 피크닉', transit: '지하철 4호선 신용산역 및 5호선 여의나루역 도보 5분', food: { dishName: '용산 미나리 삼겹살 & 한강 라면', description: 'K-컬처 투어 후 한강 바람과 함께 즐기는 로컬 힐링 푸드' } }
+      { theme: '3일차: K-POP 문화의 성지와 한강 힐링 피크닉', transit: '지하철 4호선 신용산역 및 5호선 여의나루역 도보 5분', food: { dishName: '용산 미나리 삼겹살 & 한강 라면', description: 'K-컬처 투어 후 한강 바람과 함께 즐기는 로컬 힐링 푸드' } },
+      { theme: '4일차: 익선동 한옥 핫플과 DDP·성곽 야경', transit: '지하철 1·3·5호선 종로3가역 및 4호선 혜화역', food: { dishName: '익선동 한옥 스테이크 & 대학로 칼국수', description: '개화기 감성 한옥 레스토랑과 성곽길 로컬 노포' } },
+      { theme: '5일차: 국립중앙박물관과 한남동·반포 무지개분수', transit: '지하철 4호선 이촌역 및 6호선 한강진역', food: { dishName: '이태원 글로벌 퓨전 타코 & 한강 치맥', description: '다국적 미식과 한강 분수쇼를 곁들인 낭만 디너' } }
     ],
     '제주': [
       { theme: '1일차: 서쪽 바다의 낭만과 에메랄드 해변', transit: '제주 서부 해안도로 순환 버스 및 렌터카 이동 (약 15분)', food: { dishName: '애월 흑돼지 근고기 & 해물라면', description: '바다 노을을 바라보며 멜젓에 찍어 먹는 도톰한 육즙의 향연' } },
@@ -564,28 +616,14 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
     '부산': [
       { theme: '1일차: 해안선 스카이캡슐과 광안대교 야경', transit: '지하철 2호선 해운대역 및 광안역 이동', food: { dishName: '민락회타운 활어회 & 수제맥주', description: '광안대교 불빛을 눈앞에 두고 즐기는 싱싱한 제철 활어회' } },
       { theme: '2일차: 파스텔톤 감천마을과 활기찬 자갈치시장', transit: '지하철 1호선 남포역 및 자갈치역 이동', food: { dishName: '부산 돼지국밥 & 씨앗호떡', description: '진한 사골 국물의 돼지국밥과 고소한 남포동 명물 디저트' } }
-    ],
-    '장수': [
-      { theme: '1일차: 맑은 계곡과 피톤치드 가득한 방화동 숲캉스', transit: '장수 버스터미널에서 렌터카 또는 택시 15분 이동', food: { dishName: '장수 한우 버섯불고기 & 산채비빔밥', description: '청정 고원 지대에서 자란 대한민국 최고급 장수 한우의 깊은 풍미' } },
-      { theme: '2일차: 사과 테마파크와 와룡 휴양림 힐링 투어', transit: '장수 읍내 및 와룡산 일대 차량 10분 이동', food: { dishName: '장수 사과 떡갈비 & 묵은지 한상', description: '달콤한 장수 사과 양념이 어우러진 촉촉한 수제 떡갈비' } },
-      { theme: '3일차: 푸른 초원 승마 레저와 봉화산 선셋 조망', transit: '승마체험장 및 봉화산 능선 드라이브', food: { dishName: '장수 오미자 주스 & 도토리묵 무침', description: '새콤달콤한 오미자와 고소한 로컬 웰빙 미식' } }
-    ],
-    '경주': [
-      { theme: '1일차: 천년 신라의 유적과 힙한 황리단길 감성', transit: '신경주역 KTX에서 시내버스 15분 이동', food: { dishName: '경주 한우 물회 & 떡갈비 쌈밥', description: '시원하고 매콤한 한우 육회와 정갈한 신라 한정식' } },
-      { theme: '2일차: 불국사 고찰의 웅장함과 동궁월지 달빛 야경', transit: '보문관광단지 순환버스 이용', food: { dishName: '경주 순두부 찌개 & 교리김밥', description: '고소한 맷돌 순두부와 계란 지단 가득한 명물 김밥' } }
-    ],
-    '강릉': [
-      { theme: '1일차: 푸른 안목해변 커피거리와 오션 선셋', transit: '강릉역 KTX에서 시내버스 15분 이동', food: { dishName: '초당 순두부 짬뽕 & 순두부 젤라또', description: '동해 바닷물로 빚어낸 부드럽고 얼큰한 강릉 대표 미식' } },
-      { theme: '2일차: 경포호수 자전거 힐링과 중앙시장 먹거리', transit: '경포 해변 드라이브 및 중앙시장 도보', food: { dishName: '강릉 장칼국수 & 닭강정', description: '얼큰하고 구수한 고추장 국물과 바삭한 시장 명물' } }
     ]
   };
 
   // Dynamic fallback pool if city is not predefined
   const spotPool = SAMPLE_SPOTS_MAP[city] || [
-    { name: `${city} 대표 힐링 명소`, theme: `${city}의 자연과 감성을 느끼는 쉼터`, desc: `${city}에서 가장 사랑받는 대표적인 명소로, 아름다운 풍경과 힐링을 선사합니다.`, cat: '자연명소', photo: `📸 ${city} 포토존 인생샷`, sig: `✨ ${city} 특산 시그니처 미식`, time: '오전 11:00', lat: cityMeta.lat + 0.005, lng: cityMeta.lng - 0.005 },
+    { name: `${city} 대표 힐링 명소`, theme: `${city}의 자연과 감성을 느끼는 쉼터`, desc: `${city}에서 가장 사랑받는 대표적인 명소로, 아름다운 풍경과 힐링을 선사합니다.`, cat: '자연명소', photo: `📸 ${city} 포토존 인생샷`, sig: `✨ ${city} 특산 시그니처 미식`, time: '오전 10:30', lat: cityMeta.lat + 0.005, lng: cityMeta.lng - 0.005 },
     { name: `${city} 감성 카페거리 & 핫플레이스`, theme: `트렌디한 감성과 여유로운 디저트`, desc: `${city}의 젊은 여행자들이 즐겨 찾는 감각적인 공간과 로컬 카페들이 모여 있습니다.`, cat: '감성카페', photo: `📸 감성 테라스 & 인테리어 샷`, sig: `☕ 시그니처 로컬 라떼`, time: '오후 2:30', lat: cityMeta.lat - 0.005, lng: cityMeta.lng + 0.005 },
-    { name: `${city} 역사 문화 공원`, theme: `지역의 역사와 전통을 간직한 공간`, desc: `${city}의 유서 깊은 문화유산과 잘 가꾸어진 공원을 거닐며 여유를 즐깁니다.`, cat: '역사문화', photo: `📸 고즈넉한 풍경 스냅`, sig: `🍵 전통차 & 지역 간식`, time: '오후 4:00', lat: cityMeta.lat + 0.008, lng: cityMeta.lng + 0.002 },
-    { name: `${city} 로컬 미식 야경 명소`, theme: `오감을 만족시키는 맛과 황홀한 밤 풍경`, desc: `${city}의 대표적인 야경 포인트와 현지인 추천 맛집이 어우러진 저녁 코스입니다.`, cat: '야경명소', photo: `📸 반짝이는 야경 파노라마`, sig: `🍴 ${city} 로컬 대표 미식`, time: '오후 7:30', lat: cityMeta.lat - 0.008, lng: cityMeta.lng - 0.002 }
+    { name: `${city} 로컬 미식 야경 명소`, theme: `오감을 만족시키는 맛과 황홀한 밤 풍경`, desc: `${city}의 대표적인 야경 포인트와 현지인 추천 맛집이 어우러진 저녁 코스입니다.`, cat: '야경명소', photo: `📸 반짝이는 야경 파노라마`, sig: `🍴 ${city} 로컬 대표 미식`, time: '오후 6:30', lat: cityMeta.lat - 0.008, lng: cityMeta.lng - 0.002 }
   ];
 
   const themeList = DAILY_THEMES[city] || [
@@ -597,7 +635,11 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
   for (let d = 0; d < days; d++) {
     const dayNum = d + 1;
     const daySpots = [];
-    const spotsForDay = [spotPool[(d * 2) % spotPool.length], spotPool[(d * 2 + 1) % spotPool.length]];
+    const spotsForDay = [
+      spotPool[(d * 3) % spotPool.length],
+      spotPool[(d * 3 + 1) % spotPool.length],
+      spotPool[(d * 3 + 2) % spotPool.length]
+    ];
     const dayThemeMeta = themeList[d % themeList.length];
 
     spotsForDay.forEach((s, idx) => {
