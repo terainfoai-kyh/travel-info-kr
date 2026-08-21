@@ -106,14 +106,14 @@ export default function GoogleMapView({
 
     leafletMapRef.current = map;
 
-    // Safe fit function ensuring optimal margin and zero cutoff on marker 1 or marker 2
+    // Safe fit function ensuring all spot markers and road curves fit with comfortable padding
     const applySafeFit = (pts) => {
       if (!leafletMapRef.current || !pts || pts.length === 0) return;
       const m = leafletMapRef.current;
       const b = L.latLngBounds(pts);
-      const c = b.getCenter();
-      const z = Math.min(13.75, Math.max(10, m.getBoundsZoom(b, false, [55, 45])));
-      m.setView(c, z, { animate: false });
+      if (b && b.isValid()) {
+        m.fitBounds(b, { padding: [35, 30], animate: false });
+      }
     };
 
     // High quality Voyager / OSM tile layer
@@ -172,6 +172,7 @@ export default function GoogleMapView({
 
     // Zero-Bounce instant fit to spots bounds with safe generous margin
     if (latLngs.length > 1) {
+      activeBoundsRef.current = latLngs;
       applySafeFit(latLngs);
 
       // 1) Render immediate lightweight fallback route line first (so it's instant)
