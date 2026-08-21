@@ -10,18 +10,26 @@ export default function WeatherModal({
 }) {
   const [selectedCity, setSelectedCity] = useState(initialRegion || '서울');
 
+  React.useEffect(() => {
+    if (initialRegion) {
+      setSelectedCity(initialRegion);
+    }
+  }, [initialRegion, isOpen]);
+
   if (!isOpen) return null;
 
-  const CITIES = ['서울', '부산', '제주', '강릉', '경주', '전주', '여수', '속초', '인천', '대구'];
+  const CITIES = ['서울', '수원', '부산', '제주', '강릉', '경주', '전주', '여수', '창원', '속초', '인천', '대구'];
 
   const WEATHER_DATA = {
     '서울': { temp: '22°C', weather: '맑음 ☀️', rain: '10%', dust: '좋음', outfit: '가벼운 셔츠, 슬랙스, 자켓' },
+    '수원': { temp: '21°C', weather: '맑고 쾌적 ☀️', rain: '5%', dust: '좋음', outfit: '가벼운 트래킹 룩, 화성 성곽 산책 추천' },
     '부산': { temp: '24°C', weather: '구름조금 ⛅', rain: '20%', dust: '보통', outfit: '반팔 티셔츠, 얇은 가디건' },
     '제주': { temp: '25°C', weather: '화창함 ☀️', rain: '0%', dust: '좋음', outfit: '린넨 셔츠, 반바지, 선글라스' },
     '강릉': { temp: '21°C', weather: '시원한 바람 🌤️', rain: '15%', dust: '좋음', outfit: '긴팔 티셔츠, 바람막이' },
     '경주': { temp: '23°C', weather: '맑음 ☀️', rain: '10%', dust: '보통', outfit: '편안한 운동화, 면바지' },
     '전주': { temp: '23°C', weather: '맑음 ☀️', rain: '5%', dust: '좋음', outfit: '단정한 셔츠, 한복 체험 추천' },
     '여수': { temp: '24°C', weather: '바다바람 🌤️', rain: '20%', dust: '좋음', outfit: '캐주얼 룩, 얇은 겉옷' },
+    '창원': { temp: '23°C', weather: '화창함 ☀️', rain: '10%', dust: '좋음', outfit: '가벼운 셔츠, 편안한 캐주얼 룩' },
     '속초': { temp: '20°C', weather: '쾌적함 ☀️', rain: '10%', dust: '좋음', outfit: '활동성 좋은 트래킹 룩' },
     '인천': { temp: '22°C', weather: '맑음 ☀️', rain: '10%', dust: '보통', outfit: '가벼운 캐주얼 자켓' },
     '대구': { temp: '26°C', weather: '화창함 ☀️', rain: '0%', dust: '보통', outfit: '시원한 반팔 및 모자' }

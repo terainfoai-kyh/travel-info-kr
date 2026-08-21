@@ -163,6 +163,7 @@ export default function App() {
   const [isContactOpen, setIsContactOpen] = useState(false);
   const [isRewardedAdOpen, setIsRewardedAdOpen] = useState(false);
   const [isGoogleAuthOpen, setIsGoogleAuthOpen] = useState(false);
+  const [weatherCity, setWeatherCity] = useState('서울');
 
   // User Profile State (Google Logged In vs Guest)
   const [currentUser, setCurrentUser] = useState(() => {
@@ -420,11 +421,18 @@ export default function App() {
         onToggleTheme={() => setThemeMode(prev => prev === 'dark' ? 'light' : 'dark')}
         wishlistCount={bookmarks.length}
         onOpenWishlist={() => setIsWishlistOpen(true)}
-        onOpenWeather={() => setIsWeatherOpen(true)}
+        onOpenWeather={(city) => {
+          setWeatherCity(city || itineraryData?.targetCity || '서울');
+          setIsWeatherOpen(true);
+        }}
         onOpenEssentials={() => setIsEssentialsOpen(true)}
         currentUser={currentUser}
         onOpenGoogleAuth={() => setIsGoogleAuthOpen(true)}
         onLogout={handleLogout}
+        targetCity={itineraryData?.targetCity || '서울'}
+        onOpenAbout={() => setIsAboutOpen(true)}
+        onOpenPrivacy={() => setIsPrivacyOpen(true)}
+        onOpenTerms={() => setIsTermsOpen(true)}
       />
 
       {/* Main Container */}
@@ -487,7 +495,9 @@ export default function App() {
         <AdSenseBanner slot="7890123456" />
 
         {/* 4. Travel Essentials Section (Subway, Climate card, eSIM, 1330) */}
-        <TravelEssentialsSection lang={lang} />
+        <div id="travel-essentials-section">
+          <TravelEssentialsSection lang={lang} />
+        </div>
 
         {/* 5. Mid-page Google AdSense Unit */}
         <AdSenseBanner slot="8901234567" />
@@ -586,7 +596,7 @@ export default function App() {
           isOpen={isWeatherOpen}
           onClose={() => setIsWeatherOpen(false)}
           lang={lang}
-          initialRegion={itineraryData?.targetCity || '서울'}
+          initialRegion={weatherCity || itineraryData?.targetCity || '서울'}
         />
       )}
 
