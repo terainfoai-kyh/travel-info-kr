@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, MapPin, Heart, ExternalLink, Info, Navigation, Star, Sparkles } from 'lucide-react';
 import GoogleMapView from './GoogleMapView';
 import { getGooglePlaceSearchUrl } from '../services/geminiNlpService';
@@ -20,6 +20,14 @@ export default function CourseMagazineView({
 
   const currentSchedule = schedules.find(s => Number(s.day) === Number(activeDay)) || schedules[0];
   const activeSpots = currentSchedule?.spots || (itineraryData?.spots || []).filter(s => Number(s.assignedDay) === Number(activeDay));
+
+  // 🎯 Interactive Spot Focus State across Map & Timeline List
+  const [focusedSpotIndex, setFocusedSpotIndex] = useState(null);
+
+  // Reset spot focus whenever the user switches active day
+  useEffect(() => {
+    setFocusedSpotIndex(null);
+  }, [activeDay]);
 
   const isSpotBookmarked = (spot) => {
     if (!spot) return false;
@@ -164,6 +172,8 @@ export default function CourseMagazineView({
               activeDay={activeDay}
               targetCity={targetCity}
               lang={lang}
+              focusedSpotIndex={focusedSpotIndex}
+              onSelectSpotIndex={setFocusedSpotIndex}
             />
 
             {/* 2. Timeline Day Theme Banner */}
@@ -209,25 +219,32 @@ export default function CourseMagazineView({
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
               {activeSpots.map((spot, idx) => {
                 const bookmarked = isSpotBookmarked(spot);
+                const isFocused = focusedSpotIndex === idx;
                 return (
                   <div
                     key={spot.id || idx}
+                    onClick={() => setFocusedSpotIndex(idx)}
+                    title={`${spot.title} 지도 위치로 이동 (클릭)`}
                     style={{
-                      backgroundColor: 'var(--bg-primary)',
-                      border: '1px solid var(--border-color)',
+                      backgroundColor: isFocused ? 'rgba(37, 99, 235, 0.05)' : 'var(--bg-primary)',
+                      border: isFocused ? '1.5px solid var(--accent-primary)' : '1px solid var(--border-color)',
                       borderRadius: '14px',
                       overflow: 'hidden',
-                      boxShadow: 'var(--shadow-sm)',
+                      boxShadow: isFocused ? '0 0 0 3px rgba(37, 99, 235, 0.15)' : 'var(--shadow-sm)',
                       display: 'flex',
                       alignItems: 'stretch',
                       gap: '0.75rem',
                       padding: '0.55rem',
+                      cursor: 'pointer',
                       transition: 'all var(--transition-fast)'
                     }}
                   >
                     {/* Left: Thumbnail with Numbered Pin (Click opens detail modal) */}
                     <div
-                      onClick={() => onOpenDetail && onOpenDetail(spot)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (onOpenDetail) onOpenDetail(spot);
+                      }}
                       title="클릭하여 상세 정보 및 고화질 실사진 보기"
                       style={{
                         position: 'relative',
@@ -259,7 +276,7 @@ export default function CourseMagazineView({
                         width: '22px',
                         height: '22px',
                         borderRadius: '50%',
-                        backgroundColor: 'var(--accent-primary)',
+                        backgroundColor: isFocused ? '#1d4ed8' : 'var(--accent-primary)',
                         color: '#ffffff',
                         display: 'flex',
                         alignItems: 'center',
@@ -299,15 +316,13 @@ export default function CourseMagazineView({
                       {/* Title & Bookmark */}
                       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.4rem' }}>
                         <div 
-                          onClick={() => onOpenDetail && onOpenDetail(spot)}
-                          style={{ minWidth: 0, cursor: 'pointer' }}
-                          title="클릭하여 상세 정보 보기"
+                          style={{ minWidth: 0 }}
                         >
                           <h4 style={{
                             margin: 0,
                             fontSize: '0.88rem',
                             fontWeight: 800,
-                            color: 'var(--text-main)',
+                            color: isFocused ? 'var(--accent-primary)' : 'var(--text-main)',
                             lineHeight: 1.3,
                             whiteSpace: 'nowrap',
                             overflow: 'hidden',
@@ -329,7 +344,10 @@ export default function CourseMagazineView({
 
                         {/* Bookmark Button */}
                         <button
-                          onClick={() => onToggleBookmark && onToggleBookmark(spot)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (onToggleBookmark) onToggleBookmark(spot);
+                          }}
                           aria-label={bookmarked ? t.savedToWishlist : t.saveToWishlist}
                           style={{
                             background: 'none',
@@ -378,17 +396,47 @@ export default function CourseMagazineView({
                         )}
                       </div>
 
-                      {/* Action Links (Detail Modal & Google Map Search) */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem' }}>
+                      {/* Action Links (Focus Map, Detail Modal & Google Map Search) */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem', flexWrap: 'wrap' }}>
+                        {/* 🗺️ Direct Map Focus Button */}
                         <button
-                          onClick={() => onOpenDetail && onOpenDetail(spot)}
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setFocusedSpotIndex(idx);
+                          }}
+                          style={{
+                            backgroundColor: isFocused ? 'var(--accent-primary)' : 'rgba(37, 99, 235, 0.08)',
+                            border: '1px solid var(--border-highlight)',
+                            color: isFocused ? '#ffffff' : 'var(--accent-primary)',
+                            padding: '0.22rem 0.55rem',
+                            borderRadius: '8px',
+                            fontSize: '0.7rem',
+                            fontWeight: 800,
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.25rem',
+                            transition: 'all var(--transition-fast)'
+                          }}
+                        >
+                          <Navigation size={10} />
+                          <span>지도 위치</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (onOpenDetail) onOpenDetail(spot);
+                          }}
                           style={{
                             backgroundColor: 'var(--bg-card)',
                             border: '1px solid var(--border-color)',
                             color: 'var(--text-main)',
-                            padding: '0.25rem 0.55rem',
+                            padding: '0.22rem 0.55rem',
                             borderRadius: '8px',
-                            fontSize: '0.72rem',
+                            fontSize: '0.7rem',
                             fontWeight: 700,
                             cursor: 'pointer',
                             display: 'inline-flex',
@@ -405,13 +453,14 @@ export default function CourseMagazineView({
                           href={getGooglePlaceSearchUrl(spot.title, targetCity)}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
                           style={{
-                            backgroundColor: 'rgba(37, 99, 235, 0.08)',
-                            border: '1px solid var(--border-highlight)',
-                            color: 'var(--accent-primary)',
-                            padding: '0.25rem 0.55rem',
+                            backgroundColor: 'var(--bg-card)',
+                            border: '1px solid var(--border-color)',
+                            color: 'var(--text-muted)',
+                            padding: '0.22rem 0.55rem',
                             borderRadius: '8px',
-                            fontSize: '0.72rem',
+                            fontSize: '0.7rem',
                             fontWeight: 700,
                             textDecoration: 'none',
                             display: 'inline-flex',
@@ -421,7 +470,7 @@ export default function CourseMagazineView({
                           }}
                         >
                           <MapPin size={11} />
-                          <span>Google 지도</span>
+                          <span>Google맵</span>
                         </a>
 
                         {spot.affiliateDeal && (

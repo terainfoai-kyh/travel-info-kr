@@ -7,7 +7,9 @@ export default function GoogleMapView({
   spots = [],
   activeDay = 1,
   targetCity = '서울',
-  lang = 'ko'
+  lang = 'ko',
+  focusedSpotIndex = null,
+  onSelectSpotIndex = null
 }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
   const spotsToDisplay = Array.isArray(spots) ? spots : [];
@@ -18,6 +20,7 @@ export default function GoogleMapView({
   const leafletMapRef = useRef(null);
   const routeLayerRef = useRef(null);
   const activeBoundsRef = useRef(null);
+  const markersRef = useRef([]);
 
   // Ensure Leaflet readiness from index.html preload
   useEffect(() => {
@@ -34,12 +37,29 @@ export default function GoogleMapView({
     return () => clearInterval(checkInterval);
   }, []);
 
+  // 🎯 Interactive Smooth FlyTo & Popup Trigger when user clicks spot in timeline list
+  useEffect(() => {
+    if (!leafletMapRef.current || spotsToDisplay.length === 0) return;
+    if (focusedSpotIndex !== null && typeof focusedSpotIndex === 'number' && markersRef.current[focusedSpotIndex]) {
+      const marker = markersRef.current[focusedSpotIndex];
+      const latLng = marker.getLatLng();
+      leafletMapRef.current.flyTo(latLng, 16, { duration: 0.8 });
+      marker.openPopup();
+    } else if (focusedSpotIndex === null && leafletMapRef.current && activeBoundsRef.current) {
+      const b = window.L?.latLngBounds(activeBoundsRef.current);
+      if (b && b.isValid()) {
+        leafletMapRef.current.fitBounds(b.pad(0.35), { padding: [40, 40], maxZoom: 14, animate: true });
+      }
+    }
+  }, [focusedSpotIndex, spotsToDisplay]);
+
   // Initialize and update Leaflet Map with Synchronous Preloaded CSS & JS + Spot Focused Routing
   useEffect(() => {
     if (!isLeafletReady || !window.L || !mapContainerRef.current) return;
     if (spotsToDisplay.length === 0) return;
 
     let isMounted = true;
+    markersRef.current = [];
 
     const initMap = () => {
       if (!isMounted || !mapContainerRef.current) return;
@@ -162,6 +182,13 @@ export default function GoogleMapView({
             ${spot.location ? `<div style="font-size: 10px; color: #64748b; margin-top: 2px;">${spot.location}</div>` : ''}
           </div>
         `);
+
+        // Click marker on map also syncs focused spot
+        marker.on('click', () => {
+          if (onSelectSpotIndex) onSelectSpotIndex(idx);
+        });
+
+        markersRef.current[idx] = marker;
       });
 
       // Render connecting lines & fetch real road curves
@@ -332,29 +359,54 @@ export default function GoogleMapView({
           </span>
         </div>
 
-        {/* 🗺️ Open Full Route in Google Maps Button */}
-        <a
-          href={fullRouteUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            backgroundColor: 'var(--accent-primary)',
-            color: '#ffffff',
-            textDecoration: 'none',
-            padding: '0.35rem 0.75rem',
-            borderRadius: 'var(--radius-full)',
-            fontSize: '0.74rem',
-            fontWeight: 800,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.3rem',
-            boxShadow: 'var(--shadow-glow)',
-            transition: 'all var(--transition-fast)'
-          }}
-        >
-          <span>구글맵 전체 길찾기 ↗</span>
-          <ExternalLink size={12} />
-        </a>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+          {/* 🔍 Reset to Full Course View Button */}
+          {focusedSpotIndex !== null && (
+            <button
+              onClick={() => onSelectSpotIndex && onSelectSpotIndex(null)}
+              style={{
+                backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                border: '1px solid var(--accent-primary)',
+                color: 'var(--accent-primary)',
+                padding: '0.28rem 0.65rem',
+                borderRadius: 'var(--radius-full)',
+                fontSize: '0.72rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.25rem',
+                transition: 'all var(--transition-fast)'
+              }}
+            >
+              <span>🔍 전체 코스</span>
+            </button>
+          )}
+
+          {/* 🗺️ Open Full Route in Google Maps Button */}
+          <a
+            href={fullRouteUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              backgroundColor: 'var(--accent-primary)',
+              color: '#ffffff',
+              textDecoration: 'none',
+              padding: '0.35rem 0.75rem',
+              borderRadius: 'var(--radius-full)',
+              fontSize: '0.74rem',
+              fontWeight: 800,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.3rem',
+              boxShadow: 'var(--shadow-glow)',
+              transition: 'all var(--transition-fast)'
+            }}
+          >
+            <span>구글맵 전체 길찾기 ↗</span>
+            <ExternalLink size={12} />
+          </a>
+        </div>
       </div>
 
       {/* Embedded Leaflet Real-Road Route Map Container */}
@@ -405,51 +457,54 @@ export default function GoogleMapView({
             msOverflowStyle: 'none'
           }}
         >
-          {spotsToDisplay.map((spot, idx) => (
-            <React.Fragment key={spot.id || idx}>
-              <a
-                href={getGooglePlaceSearchUrl(spot.title, spot.region || targetCity)}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.3rem',
-                  fontSize: '0.72rem',
-                  fontWeight: 700,
-                  color: 'var(--text-main)',
-                  textDecoration: 'none',
-                  backgroundColor: 'var(--bg-primary)',
-                  border: '1px solid var(--border-color)',
-                  padding: '0.2rem 0.55rem',
-                  borderRadius: 'var(--radius-full)',
-                  flexShrink: 0,
-                  transition: 'all var(--transition-fast)'
-                }}
-              >
-                <span style={{
-                  width: '16px',
-                  height: '16px',
-                  borderRadius: '50%',
-                  backgroundColor: 'var(--accent-primary)',
-                  color: '#ffffff',
-                  fontSize: '0.65rem',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontWeight: 800
-                }}>
-                  {idx + 1}
-                </span>
-                <span style={{ maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {spot.title}
-                </span>
-              </a>
-              {idx < spotsToDisplay.length - 1 && (
-                <span style={{ color: 'var(--accent-primary)', fontSize: '0.75rem', fontWeight: 800 }}>➔</span>
-              )}
-            </React.Fragment>
-          ))}
+          {spotsToDisplay.map((spot, idx) => {
+            const isFocused = focusedSpotIndex === idx;
+            return (
+              <React.Fragment key={spot.id || idx}>
+                <button
+                  type="button"
+                  onClick={() => onSelectSpotIndex && onSelectSpotIndex(idx)}
+                  title={`${spot.title} 지도 위치로 이동`}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.3rem',
+                    fontSize: '0.72rem',
+                    fontWeight: isFocused ? 900 : 700,
+                    color: isFocused ? 'var(--accent-primary)' : 'var(--text-main)',
+                    backgroundColor: isFocused ? 'rgba(37, 99, 235, 0.12)' : 'var(--bg-primary)',
+                    border: isFocused ? '1.5px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                    padding: '0.2rem 0.55rem',
+                    borderRadius: 'var(--radius-full)',
+                    flexShrink: 0,
+                    cursor: 'pointer',
+                    transition: 'all var(--transition-fast)'
+                  }}
+                >
+                  <span style={{
+                    width: '16px',
+                    height: '16px',
+                    borderRadius: '50%',
+                    backgroundColor: isFocused ? 'var(--accent-primary)' : 'rgba(37, 99, 235, 0.85)',
+                    color: '#ffffff',
+                    fontSize: '0.65rem',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 800
+                  }}>
+                    {idx + 1}
+                  </span>
+                  <span style={{ maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {spot.title}
+                  </span>
+                </button>
+                {idx < spotsToDisplay.length - 1 && (
+                  <span style={{ color: 'var(--accent-primary)', fontSize: '0.75rem', fontWeight: 800 }}>➔</span>
+                )}
+              </React.Fragment>
+            );
+          })}
         </div>
       )}
     </div>
