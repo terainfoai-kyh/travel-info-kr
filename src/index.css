@@ -803,15 +803,31 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
   animation: spin 1s linear infinite;
 }
 
-@keyframes slideInRight {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
+/* ==========================================================================
+   🗺️ Leaflet 지도 컨테이너 및 커스텀 스크롤바 표준 스타일 (VORA Map System)
+   - 지도 높이를 210px로 유지하여 상단 고정 및 하단 카드 목록의 시원한 가시성 확보
+   ========================================================================== */
+.leaflet-container {
+  width: 100% !important;
+  height: 210px !important;
+  min-height: 210px !important;
+  background-color: var(--bg-primary) !important;
+  font-family: inherit;
+}
+
+/* 세련된 슬림 스크롤바 (하단 목록 스크롤 안내용) */
+.thin-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+.thin-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 9999px;
+}
+.thin-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.7);
 }
 
 @media (max-width: 640px) {

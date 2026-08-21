@@ -93,11 +93,12 @@ export default function GoogleMapView({
       });
 
       // 🎯 Perfect Course Balance View (2번 사진 황금 비율 뷰)
+      // 경복궁(1번)과 북촌(2번) 사이의 동선 전체를 210px 뷰포트 정중앙에 대칭으로 배치
       const initialBounds = L.latLngBounds(latLngs);
       const initialCenter = initialBounds.getCenter();
       activeBoundsRef.current = latLngs;
 
-      // Safe fit function ensuring 1번 and 2번 spot markers are ALWAYS 100% inside with 40px padding at maxZoom: 14
+      // 💡 안전한 뷰포트 자동 피팅 함수: 210px 높이에 맞춰 패딩 30px, maxZoom 14로 고정하여 마커 잘림 100% 방지
       const applySpotFit = (coords) => {
         if (!leafletMapRef.current || !coords || coords.length === 0) return;
         const m = leafletMapRef.current;
@@ -105,7 +106,7 @@ export default function GoogleMapView({
         if (b && b.isValid()) {
           try {
             m.invalidateSize({ pan: true });
-            m.fitBounds(b.pad(0.35), { padding: [40, 40], maxZoom: 14, animate: false });
+            m.fitBounds(b.pad(0.35), { padding: [30, 30], maxZoom: 14, animate: false });
           } catch (e) {}
         }
       };
@@ -330,9 +331,9 @@ export default function GoogleMapView({
       position: 'relative',
       marginBottom: '0.75rem'
     }}>
-      {/* Top Map Action Banner */}
+      {/* Top Map Action Banner (슬림 패딩으로 상단 공간 최적화) */}
       <div style={{
-        padding: '0.65rem 0.9rem',
+        padding: '0.45rem 0.8rem',
         backgroundColor: 'var(--bg-glass)',
         backdropFilter: 'blur(8px)',
         borderBottom: '1px solid var(--border-color)',
@@ -340,26 +341,26 @@ export default function GoogleMapView({
         alignItems: 'center',
         justifyContent: 'space-between',
         flexWrap: 'wrap',
-        gap: '0.5rem'
+        gap: '0.4rem'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-          <MapPin size={16} style={{ color: 'var(--accent-primary)' }} />
-          <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-main)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+          <MapPin size={15} style={{ color: 'var(--accent-primary)' }} />
+          <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-main)' }}>
             {activeDay}일차 실시간 Google 동선
           </span>
           <span style={{
-            fontSize: '0.7rem',
+            fontSize: '0.68rem',
             fontWeight: 700,
             backgroundColor: 'rgba(37, 99, 235, 0.1)',
             color: 'var(--accent-primary)',
-            padding: '0.1rem 0.45rem',
+            padding: '0.08rem 0.4rem',
             borderRadius: '6px'
           }}>
             {spotsToDisplay.length}개 스팟
           </span>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
           {/* 🔍 Reset to Full Course View Button */}
           {focusedSpotIndex !== null && (
             <button
@@ -368,14 +369,14 @@ export default function GoogleMapView({
                 backgroundColor: 'rgba(37, 99, 235, 0.1)',
                 border: '1px solid var(--accent-primary)',
                 color: 'var(--accent-primary)',
-                padding: '0.28rem 0.65rem',
+                padding: '0.22rem 0.55rem',
                 borderRadius: 'var(--radius-full)',
-                fontSize: '0.72rem',
+                fontSize: '0.7rem',
                 fontWeight: 800,
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '0.25rem',
+                gap: '0.2rem',
                 transition: 'all var(--transition-fast)'
               }}
             >
@@ -392,28 +393,28 @@ export default function GoogleMapView({
               backgroundColor: 'var(--accent-primary)',
               color: '#ffffff',
               textDecoration: 'none',
-              padding: '0.35rem 0.75rem',
+              padding: '0.28rem 0.65rem',
               borderRadius: 'var(--radius-full)',
-              fontSize: '0.74rem',
+              fontSize: '0.72rem',
               fontWeight: 800,
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.3rem',
+              gap: '0.25rem',
               boxShadow: 'var(--shadow-glow)',
               transition: 'all var(--transition-fast)'
             }}
           >
             <span>구글맵 전체 길찾기 ↗</span>
-            <ExternalLink size={12} />
+            <ExternalLink size={11} />
           </a>
         </div>
       </div>
 
-      {/* Embedded Leaflet Real-Road Route Map Container */}
-      <div style={{ position: 'relative', width: '100%', height: '260px', minHeight: '260px', backgroundColor: 'var(--bg-primary)' }}>
+      {/* 🗺️ Embedded Leaflet Real-Road Route Map Container (황금 비율 210px 고정) */}
+      <div style={{ position: 'relative', width: '100%', height: '210px', minHeight: '210px', backgroundColor: 'var(--bg-primary)' }}>
         <div
           ref={mapContainerRef}
-          style={{ width: '100%', height: '260px', minHeight: '260px', zIndex: 1 }}
+          style={{ width: '100%', height: '210px', minHeight: '210px', zIndex: 1 }}
         />
 
         {/* 🔍 Always Visible Floating "전체 코스 보기" Button Inside Map */}
@@ -424,29 +425,29 @@ export default function GoogleMapView({
             if (leafletMapRef.current && activeBoundsRef.current) {
               const b = window.L?.latLngBounds(activeBoundsRef.current);
               if (b && b.isValid()) {
-                leafletMapRef.current.fitBounds(b.pad(0.35), { padding: [40, 40], maxZoom: 14, animate: true });
+                leafletMapRef.current.fitBounds(b.pad(0.35), { padding: [30, 30], maxZoom: 14, animate: true });
               }
             }
           }}
           title="클릭하여 전체 코스 한눈에 보기"
           style={{
             position: 'absolute',
-            top: '10px',
-            left: '10px',
+            top: '8px',
+            left: '8px',
             zIndex: 400,
             backgroundColor: 'rgba(255, 255, 255, 0.95)',
             backdropFilter: 'blur(8px)',
             border: '1.5px solid var(--accent-primary)',
             color: 'var(--accent-primary)',
-            padding: '0.35rem 0.75rem',
+            padding: '0.28rem 0.65rem',
             borderRadius: 'var(--radius-full)',
-            fontSize: '0.74rem',
+            fontSize: '0.7rem',
             fontWeight: 800,
-            boxShadow: '0 3px 10px rgba(0,0,0,0.18)',
+            boxShadow: '0 3px 8px rgba(0,0,0,0.15)',
             cursor: 'pointer',
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '0.3rem',
+            gap: '0.25rem',
             transition: 'all 0.2s ease'
           }}
         >
@@ -478,17 +479,17 @@ export default function GoogleMapView({
         )}
       </div>
 
-      {/* Bottom Sequential Route Chips */}
+      {/* Bottom Sequential Route Chips (슬림 패딩) */}
       {spotsToDisplay.length > 0 && (
         <div
           className="no-scrollbar"
           style={{
-            padding: '0.45rem 0.75rem',
+            padding: '0.35rem 0.65rem',
             backgroundColor: 'var(--bg-card)',
             borderTop: '1px solid var(--border-color)',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.4rem',
+            gap: '0.35rem',
             overflowX: 'auto',
             whiteSpace: 'nowrap',
             scrollbarWidth: 'none',
