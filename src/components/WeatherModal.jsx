@@ -351,46 +351,57 @@ export default function WeatherModal({
           flexDirection: 'column',
           gap: '1rem'
         }}>
-          {/* 🔍 Search Input Bar (No Clutter Chips) */}
+          {/* 🔍 Distinct Modern Search Input Field */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '0.6rem',
-            backgroundColor: 'var(--bg-primary)',
-            border: '1.5px solid var(--border-color)',
+            gap: '0.65rem',
+            backgroundColor: 'var(--bg-card)',
+            border: '2px solid var(--accent-primary)',
             borderRadius: '14px',
-            padding: '0.55rem 0.9rem'
+            padding: '0.6rem 0.95rem',
+            boxShadow: '0 3px 10px rgba(37, 99, 235, 0.12)'
           }}>
-            <Search size={17} style={{ color: 'var(--accent-primary)', flexShrink: 0 }} />
+            <Search size={18} style={{ color: 'var(--accent-primary)', flexShrink: 0 }} />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="도시 또는 여행지를 검색하세요 (예: 평택, 제주, 순천, 수원...)"
+              placeholder="도시나 여행지를 입력하세요 (예: 평택, 제주, 순천, 속초...)"
               style={{
-                width: '100%',
+                flex: 1,
+                minWidth: 0,
                 background: 'transparent',
                 border: 'none',
                 outline: 'none',
                 color: 'var(--text-main)',
-                fontSize: '0.88rem',
+                fontSize: '0.92rem',
                 fontWeight: 700
               }}
             />
             {searchQuery && (
               <button
+                type="button"
                 onClick={() => setSearchQuery('')}
+                title="입력 내용 지우기"
                 style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--text-dim)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.25rem',
+                  backgroundColor: 'rgba(239, 68, 68, 0.12)',
+                  color: '#ef4444',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  borderRadius: 'var(--radius-full)',
+                  padding: '0.28rem 0.65rem',
                   cursor: 'pointer',
                   fontSize: '0.78rem',
                   fontWeight: 800,
-                  padding: '0.2rem 0.4rem'
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                  transition: 'all 0.2s ease'
                 }}
               >
-                지우기
+                <span>✕ 지우기</span>
               </button>
             )}
           </div>

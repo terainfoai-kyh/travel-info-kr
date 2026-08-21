@@ -461,7 +461,7 @@ export default function App() {
           alignItems: 'stretch'
         }}>
           {/* Left Column: Vora AI Conversational Chat Stream */}
-          <div style={{ height: '620px' }}>
+          <div style={{ height: '685px' }}>
             <VoraAIChat
               lang={lang}
               chatMessages={chatMessages}
@@ -478,7 +478,7 @@ export default function App() {
           </div>
 
           {/* Right Column: Course Magazine View & Google Map */}
-          <div style={{ height: '620px' }}>
+          <div style={{ height: '685px' }}>
             <CourseMagazineView
               lang={lang}
               itineraryData={itineraryData}

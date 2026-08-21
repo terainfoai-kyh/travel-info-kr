@@ -410,11 +410,11 @@ export default function GoogleMapView({
         </div>
       </div>
 
-      {/* 🗺️ Embedded Leaflet Real-Road Route Map Container (황금 비율 210px 고정) */}
-      <div style={{ position: 'relative', width: '100%', height: '210px', minHeight: '210px', backgroundColor: 'var(--bg-primary)' }}>
+      {/* 🗺️ Embedded Leaflet Real-Road Route Map Container (황금 비율 185px 고정) */}
+      <div style={{ position: 'relative', width: '100%', height: '185px', minHeight: '185px', backgroundColor: 'var(--bg-primary)' }}>
         <div
           ref={mapContainerRef}
-          style={{ width: '100%', height: '210px', minHeight: '210px', zIndex: 1 }}
+          style={{ width: '100%', height: '185px', minHeight: '185px', zIndex: 1 }}
         />
 
         {/* 🔍 Always Visible Floating "전체 코스 보기" Button Inside Map */}
