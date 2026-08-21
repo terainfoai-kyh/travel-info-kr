@@ -178,7 +178,7 @@ export default function GoogleMapView({
         const marker = L.marker([spotLat, spotLng], { icon: customIcon }).addTo(map);
         marker.bindPopup(`
           <div style="font-family: sans-serif; font-size: 12px; font-weight: 700; color: #0f172a; padding: 2px;">
-            <div style="color: #2563eb; font-size: 10px; margin-bottom: 2px;">${idx + 1}번째 코스</div>
+            <div style="color: #2563eb; font-size: 10px; margin-bottom: 2px;">${lang === 'en' ? `Stop ${idx + 1}` : `${idx + 1}번째 코스`}</div>
             <div>${spot.title}</div>
             ${spot.location ? `<div style="font-size: 10px; color: #64748b; margin-top: 2px;">${spot.location}</div>` : ''}
           </div>
@@ -429,7 +429,7 @@ export default function GoogleMapView({
               }
             }
           }}
-          title="클릭하여 전체 코스 한눈에 보기"
+          title={lang === 'en' ? 'Click to view full course' : '클릭하여 전체 코스 한눈에 보기'}
           style={{
             position: 'absolute',
             top: '8px',
@@ -451,7 +451,7 @@ export default function GoogleMapView({
             transition: 'all 0.2s ease'
           }}
         >
-          <span>🔍 전체 코스 보기</span>
+          <span>{lang === 'en' ? '🔍 View Full Course' : '🔍 전체 코스 보기'}</span>
         </button>
 
         {!isLeafletReady && (
@@ -474,7 +474,7 @@ export default function GoogleMapView({
               border: '2px solid var(--accent-primary)',
               borderTopColor: 'transparent'
             }} />
-            <span>지도를 불러오는 중...</span>
+            <span>{lang === 'en' ? 'Loading map...' : '지도를 불러오는 중...'}</span>
           </div>
         )}
       </div>

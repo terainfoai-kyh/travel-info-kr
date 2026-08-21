@@ -60,7 +60,7 @@ export default function ContactUsModal({ isOpen, onClose, lang = 'ko' }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <Mail size={22} style={{ color: 'var(--accent-primary)' }} />
             <h2 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 900 }}>
-              제휴 및 문의 (Contact Us)
+              {lang === 'en' ? 'Contact Us & Partnership' : '제휴 및 문의 (Contact Us)'}
             </h2>
           </div>
           <button

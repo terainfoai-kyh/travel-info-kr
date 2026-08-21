@@ -43,7 +43,7 @@ export default function AboutUsModal({ isOpen, onClose, lang = 'ko' }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <Sparkles size={22} style={{ color: 'var(--accent-primary)' }} />
             <h2 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 900 }}>
-              VORA AI 서비스 소개 (About VORA)
+              {lang === 'en' ? 'About VORA AI' : 'VORA AI 서비스 소개 (About VORA)'}
             </h2>
           </div>
           <button

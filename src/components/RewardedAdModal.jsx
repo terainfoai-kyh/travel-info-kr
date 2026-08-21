@@ -12,7 +12,7 @@ export default function RewardedAdModal({
   const [isCompleted, setIsCompleted] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
 
-  const SPONSOR_ADS = [
+  const SPONSOR_ADS_KO = [
     {
       brand: 'Klook Official Partner',
       title: '디스커버 서울패스 24h & 48h 특별할인',
@@ -21,19 +21,22 @@ export default function RewardedAdModal({
       tag: 'K-Travel 스폰서',
       link: 'https://www.klook.com',
       image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1200&q=85'
-    },
-    {
-      brand: 'Agoda Korea',
-      title: '서울 & 부산 특급 호텔 & 감성 한옥 스테이',
-      desc: 'VORA AI 여행자 전용 특가 프로모션 코드 자동 적용!',
-      discount: '추가 12% 할인',
-      tag: '공식 호텔 제휴',
-      link: 'https://www.agoda.com',
-      image: 'https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?auto=format&fit=crop&w=1200&q=85'
     }
   ];
 
-  const currentAd = SPONSOR_ADS[0];
+  const SPONSOR_ADS_EN = [
+    {
+      brand: 'Klook Official Partner',
+      title: 'Discover Seoul Pass 24h & 48h Special Discount',
+      desc: 'Free admission to 50+ top Seoul spots + Built-in Transit T-Money card!',
+      discount: 'Up to 25% OFF',
+      tag: 'K-Travel Sponsor',
+      link: 'https://www.klook.com',
+      image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1200&q=85'
+    }
+  ];
+
+  const currentAd = lang === 'en' ? SPONSOR_ADS_EN[0] : SPONSOR_ADS_KO[0];
 
   useEffect(() => {
     if (!isOpen) {
@@ -113,10 +116,12 @@ export default function RewardedAdModal({
               padding: '0.2rem 0.5rem',
               borderRadius: '6px'
             }}>
-              스폰서 보상 광고
+              {lang === 'en' ? 'Sponsored Ad' : '스폰서 보상 광고'}
             </span>
             <span style={{ fontSize: '0.8rem', color: '#9ca3af', fontWeight: 600 }}>
-              {isCompleted ? '🎉 시청 완료!' : `⏳ ${timeLeft}초 후 보상 지급`}
+              {isCompleted 
+                ? (lang === 'en' ? '🎉 Completed!' : '🎉 시청 완료!') 
+                : (lang === 'en' ? `⏳ Reward in ${timeLeft}s` : `⏳ ${timeLeft}초 후 보상 지급`)}
             </span>
           </div>
 
@@ -261,7 +266,7 @@ export default function RewardedAdModal({
               }}
             >
               <Sparkles size={20} />
-              <span>🎁 질문 +3회 즉시 충전받기</span>
+              <span>{lang === 'en' ? '🎁 Claim +3 Free Prompts Now' : '🎁 질문 +3회 즉시 충전받기'}</span>
             </button>
           ) : (
             <div style={{
@@ -279,19 +284,19 @@ export default function RewardedAdModal({
               border: '1px solid rgba(255, 255, 255, 0.08)'
             }}>
               <Award size={18} style={{ color: '#f59e0b' }} />
-              <span>{timeLeft}초 후 +3회 무료 질문이 충전됩니다</span>
+              <span>{lang === 'en' ? `+3 Free Prompts will be added in ${timeLeft}s` : `${timeLeft}초 후 +3회 무료 질문이 충전됩니다`}</span>
             </div>
           )}
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.72rem', color: '#6b7280' }}>
-            <span>VORA AI & 공식 제휴 파트너 스폰서십</span>
+            <span>{lang === 'en' ? 'VORA AI & Official Partner Sponsorship' : 'VORA AI & 공식 제휴 파트너 스폰서십'}</span>
             <a
               href={currentAd.link}
               target="_blank"
               rel="noopener noreferrer"
               style={{ color: '#93c5fd', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.2rem' }}
             >
-              <span>스폰서 혜택 보기</span>
+              <span>{lang === 'en' ? 'View Sponsor Deal' : '스폰서 혜택 보기'}</span>
               <ExternalLink size={11} />
             </a>
           </div>

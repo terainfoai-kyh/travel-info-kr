@@ -610,6 +610,32 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
       { name: 'HYBE Insight & Yongsan Hotspots', theme: 'Global K-POP Culture & Music Art Experience', desc: 'A must-visit cultural landmark for global music fans, celebrating K-POP artistic heritage with interactive multimedia exhibitions.', cat: 'K-POP Landmark', photo: '📸 Large media art wall & interactive music zone', sig: '🎵 Exclusive artist merchandise & sound gallery', time: '11:00 AM', lat: 37.5283, lng: 126.9685 },
       { name: 'The Hyundai Seoul & Sounds Forest', theme: 'Indoor Nature Oasis & Futuristic Shopping', desc: 'Seoul’s architectural landmark featuring a stunning sunlit 5th-floor indoor garden and the latest global lifestyle and K-fashion brands.', cat: 'Shopping & Leisure', photo: '📸 Sounds Forest 5th-floor lush indoor garden', sig: '🛍️ B2 K-fashion pop-up & B1 Gourmet Food Hall', time: '2:00 PM', lat: 37.5259, lng: 126.9284 },
       { name: 'Yeouido Hangang Park & Moonlight Picnic', theme: 'Riverside Breeze & Authentic Hangang Ramen', desc: 'Relax on a picnic mat overlooking the Hangang River while savoring freshly cooked instant ramen and Korean fried chicken under the sunset breeze.', cat: 'Night View', photo: '📸 Hangang sunset & Mapo Bridge city lights', sig: '🧺 Instant Hangang ramen & sunset picnic mat', time: '5:30 PM (Sunset)', lat: 37.5270, lng: 126.9325 }
+    ],
+    '제주': [
+      // Day 1
+      { name: 'Aewol Cafe Street & Handam Coastal Walk', theme: 'Emerald Coast & Trendy Ocean-view Cafe Tour', desc: 'A beloved seaside promenade lined with trendy ocean-view bakeries and cafes facing the sparkling emerald waters of Western Jeju.', cat: 'Trendy Cafe', photo: '📸 Ocean-view cafe terrace & sunset horizon', sig: '🍩 Hallabong pastry & signature cream latte', time: '11:30 AM', lat: 33.4623, lng: 126.3110 },
+      { name: 'Hyeopjae Beach & Geumneung Shore', theme: 'Silver Sand Beach with Biyangdo Island Views', desc: 'Crystal-clear turquoise waters and powdery white seashell sands stretching out with breathtaking vistas of Biyangdo Island.', cat: 'Scenic Ocean', photo: '📸 Biyangdo Island backdrop & shallow tidal pools', sig: '🌊 Fresh seafood platter & Bomal seafood noodles', time: '2:30 PM', lat: 33.3941, lng: 126.2397 },
+      { name: 'Sinchang Windmill Coastal Road & Sunset', theme: 'Giant White Windmills & Fiery Sunset Glow', desc: 'A scenic coastal drive featuring towering offshore wind turbines standing in harmony with the glowing orange sunset over the western sea.', cat: 'Sunset & Night View', photo: '📸 Windmill silhouette against the golden sunset sky', sig: '🌅 Coastal wooden deck stroll & Jeju black pork BBQ', time: '6:30 PM (Sunset)', lat: 33.3421, lng: 126.1742 },
+      // Day 2
+      { name: 'Seongsan Ilchulbong & Gwangchigi Beach', theme: 'UNESCO World Heritage Volcanic Crater', desc: 'A majestic volcanic tuff cone rising directly from the sea, offering breathtaking panoramic vistas of green pastures and cobalt ocean.', cat: 'UNESCO Heritage', photo: '📸 Crater rim panorama & Gwangchigi moss rock reflections', sig: '🍊 Fresh Hallabong citrus juice & braised hairtail fish', time: '8:30 AM', lat: 33.4581, lng: 126.9426 },
+      { name: 'Bijarim Forest & Ancient Nutmeg Trees', theme: 'Pristine Forest Bathing & Thousand-Year Trees', desc: 'The world’s largest ancient forest of single-species nutmeg trees, providing a soothing phytoncide aroma and peaceful nature trails.', cat: 'Scenic Nature', photo: '📸 Red volcanic scoria path & dense tree canopy', sig: '🌲 Barefoot forest trail walk & healing meditation', time: '1:30 PM', lat: 33.4912, lng: 126.8115 },
+      { name: 'Woljeongri Beach & Cafe Street', theme: 'White Sands & Iconic Colorful Shore Chairs', desc: 'A lively eastern beach renowned for its vibrant color-painted chairs lined up on the sand and trendy dessert cafes.', cat: 'Trendy Cafe', photo: '📸 Colorful photo-op chairs against turquoise waters', sig: '☕ Jeju organic carrot cake & Matcha latte', time: '5:00 PM', lat: 33.5562, lng: 126.7958 },
+      // Day 3
+      { name: 'Daepo Jusangjeolli Cliff & Coastal Deck', theme: 'Volcanic Hexagonal Basalt Columns & Crashing Waves', desc: 'Spectacular hexagonal stone pillars sculpted by ancient volcanic lava cooling against the deep blue sea, creating towering natural ocean monuments.', cat: 'Scenic Nature', photo: '📸 Crashing waves against hexagonal volcanic pillars', sig: '🌊 Coastal observation deck walk & Hallabong ice cream', time: '10:30 AM', lat: 33.2380, lng: 126.4253 },
+      { name: 'Osulloc Tea Museum & Innisfree House', theme: 'Lush Organic Green Tea Fields & Natural Desserts', desc: 'Stroll through endless emerald green tea plantations and indulge in deep-flavored green tea soft serve and Hallasan mountain cakes.', cat: 'Trendy Cafe', photo: '📸 Endless green tea field backdrop photo-op', sig: '🍵 Green tea roll cake & Hallabong citrus spritzer', time: '2:00 PM', lat: 33.3060, lng: 126.2895 },
+      { name: 'Seogwipo Olle Market & Night Street Food', theme: 'Vibrant Southern Jeju Night Street Food Tour', desc: 'A lively traditional night market bustling with local specialties, grilled black pork skewers, citrus pastries, and sweet shrimp sashimi.', cat: 'Local Gourmet', photo: '📸 Vibrant night market stalls & sizzling gourmet skewers', sig: '🍢 Garlic fried chicken, black pork rolls & sweet shrimp', time: '6:30 PM', lat: 33.2494, lng: 126.5638 }
+    ],
+    '부산': [
+      // Day 1
+      { name: 'Haeundae Blueline Park & Sky Capsule', theme: 'Ocean Railway & Colorful Retro Sky Capsules', desc: 'Ride charming retro sky capsules gliding along the picturesque coastal cliffs overlooking the vast ocean from Haeundae to Cheongsapo.', cat: 'Activity & View', photo: '📸 Colorful sky capsule against the blue horizon', sig: '🚊 Coastal sky capsule ride & Cheongsapo grilled clams', time: '11:00 AM', lat: 35.1587, lng: 129.1604 },
+      { name: 'Cheongsapo Daritdol Observatory & Twin Lighthouses', theme: 'Glass Skywalk & Coastal Fishing Port Charm', desc: 'A thrilling transparent glass observatory extending out over the crashing sea, framed by iconic red and white twin lighthouses.', cat: 'Scenic Ocean', photo: '📸 Transparent glass skywalk & ocean waves', sig: '☕ Daritdol observatory walk & rooftop cafe', time: '2:30 PM', lat: 35.1610, lng: 129.1915 },
+      { name: 'Gwangalli Beach & Gwangan Diamond Bridge Sunset', theme: 'Iconic Bridge Illumination & Seaside Lounge', desc: 'A vibrant beach famous for the dazzling night illuminations of Gwangan Bridge, seaside pub terraces, and weekend drone light shows.', cat: 'Night View', photo: '📸 Gwangan Bridge night illumination & beach reflection', sig: '🍺 Craft beer with ocean view & fresh sashimi', time: '6:30 PM (Sunset)', lat: 35.1532, lng: 129.1186 }
+    ],
+    '수원': [
+      // Day 1
+      { name: 'Suwon Hwaseong Fortress & Banghwasuryujeong', theme: 'UNESCO Fortress Pavilion & Emerald Pond View', desc: 'A stunning royal pavilion perched gracefully above Yongyeon Pond, offering idyllic picnic lawns by day and romantic lantern illuminations by night.', cat: 'UNESCO Heritage', photo: '📸 Yongyeon pond reflection of Banghwasuryujeong', sig: '🧺 Fortress lawn picnic & historical pavilion walk', time: '10:30 AM', lat: 37.2891, lng: 127.0194 },
+      { name: 'Hwaseong Haenggung & Haengnidan-gil', theme: 'Joseon Temporary Palace & Retro Cafe Street', desc: 'King Jeongjo’s royal temporary palace alongside trendy renovated Hanok cafes and charming craft boutiques lining the fortress walls.', cat: 'Trendy Cafe', photo: '📸 Haenggung main gate & rooftop fortress view', sig: '☕ Signature black sesame latte & soufflé pancakes', time: '2:00 PM', lat: 37.2842, lng: 127.0142 },
+      { name: 'Flying Suwon & Night Fortress Stroll', theme: 'Helium Hot Air Balloon 150m Aerial Panorama', desc: 'Ascend into the sky aboard a storybook helium balloon to gaze down at the complete 360-degree lit fortress walls and sparkling city lights.', cat: 'Activity & Night View', photo: '📸 Aerial hot air balloon view & glowing fortress walls', sig: '🎈 Flying Suwon balloon flight & Suwon Galbi fried chicken', time: '6:30 PM (Sunset)', lat: 37.2872, lng: 127.0225 }
     ]
   };
 
@@ -618,6 +644,17 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
       { theme: 'Day 1: Royal Joseon Heritage & Historic Hanok Alleys', transit: 'Within 10 mins walk around Anguk & Gyeongbokgung Station (Subway Line 3)', food: { dishName: 'Jongno Samgyetang & Traditional Bindaetteok', description: 'Hearty ginseng chicken soup & savory mung bean pancakes in historic alleys.' } },
       { theme: 'Day 2: Trendy Seongsu Hotspots & Romantic Namsan Sunset', transit: 'Seongsu Station (Line 2) and Namsan cable car / bus', food: { dishName: 'Seongsu Gourmet Burgers & Artisan Pasta', description: 'Trendy dining spot favored by local foodies and creators.' } },
       { theme: 'Day 3: K-POP Cultural Hub & Hangang Riverside Picnic', transit: 'Yongsan Station (Line 1/Gyeongui) & Yeouinaru Station (Line 5)', food: { dishName: 'Yongsan Water-Parsley Pork Belly & Hangang Ramen', description: 'Authentic K-BBQ followed by sunset ramen by the Hangang River.' } }
+    ],
+    '제주': [
+      { theme: 'Day 1: Romantic Western Coast & Emerald Waters', transit: 'Jeju West Coast Tourist Bus or Rental Car (approx. 15 mins)', food: { dishName: 'Jeju Black Pork BBQ & Seafood Ramen', description: 'Juicy thick grilled black pork with salted anchovy dip facing the sunset sea.' } },
+      { theme: 'Day 2: UNESCO Eastern Heritage & Healing Forest Trail', transit: 'Eastern Expressway Bus or Scenic Coastal Drive', food: { dishName: 'Braised Hairtail Fish & Fresh Abalone Porridge', description: 'Rich spicy-sweet braised hairtail stew cooked with fresh Jeju sea ingredients.' } },
+      { theme: 'Day 3: Southern Cliffs, Green Tea Fields & Night Food Market', transit: 'Seogwipo City Route & Olle Highway (15-20 mins)', food: { dishName: 'Seogwipo Night Market Garlic Fried Chicken & Sweet Shrimp', description: 'Crispy aromatic garlic fried chicken and sweet fresh raw shrimp.' } }
+    ],
+    '부산': [
+      { theme: 'Day 1: Coastal Sky Capsule & Romantic Gwangan Night View', transit: 'Haeundae Metro Line 2 & Coastal Sky Capsule', food: { dishName: 'Cheongsapo Grilled Clams & Fresh Seafood Stew', description: 'Charcoal-grilled fresh ocean clams enjoyed by the seaside.' } }
+    ],
+    '수원': [
+      { theme: 'Day 1: UNESCO Fortress Heritage & Hot Air Balloon Experience', transit: 'Suwon Station (Subway Line 1/Suin-Bundang) & Fortress Walk', food: { dishName: 'Suwon Famous King-Galbi Fried Chicken', description: 'Deep-fried crispy whole chicken tossed in savory royal rib galbi sauce.' } }
     ]
   };
 
@@ -796,10 +833,12 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
       const photoData = resolveSpotPhotoSync(s.name, city, s.cat);
       const spotPhoto = photoData?.primaryImage || photoData;
       const spotPhotos = photoData?.images || [spotPhoto];
-      const affiliateDeal = getSpotAffiliateDeal(s.name, city);
+      const affiliateDeal = getSpotAffiliateDeal(s.name, city, lang);
 
       const defaultTransit = lang === 'en'
-        ? 'Conveniently accessible by Subway or Walk'
+        ? (isJeju 
+            ? 'Jeju Express Bus or Coastal Drive (approx. 15 mins)' 
+            : (city.includes('부산') ? 'Busan Metro Line 2 or Coastal Walk' : 'Conveniently accessible by Subway or Walk (10 mins)'))
         : (isJeju ? '제주 급행 버스 또는 해안도로 이동 15분' : '지하철 또는 도보로 편리하게 이동');
 
       const localizedLocation = lang === 'en'

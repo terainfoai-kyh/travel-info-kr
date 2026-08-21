@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { getGooglePlaceSearchUrl, getKakaoMapSearchUrl, getNaverMapSearchUrl } from '../services/geminiNlpService';
 import { TRANSLATIONS } from '../i18n/translations';
+import { getSpotAffiliateDeal } from '../services/affiliateService';
 
 export default function TravelDetailModal({ spot, onClose, lang = 'ko' }) {
   if (!spot) return null;
@@ -21,9 +22,29 @@ export default function TravelDetailModal({ spot, onClose, lang = 'ko' }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
 
   const title = spot.title || spot.name || '추천 여행 명소';
-  const location = spot.location || spot.address || spot.addr1 || '대한민국 서울 일대';
-  const description = spot.description || spot.overview || spot.theme || 'VORA AI가 엄선한 한국의 대표적인 핫플레이스입니다.';
+  const location = spot.location || spot.address || spot.addr1 || (lang === 'en' ? 'Republic of Korea' : '대한민국 서울 일대');
+  const description = spot.description || spot.overview || spot.theme || (lang === 'en' ? 'Carefully curated popular Korean hotspot by VORA AI.' : 'VORA AI가 엄선한 한국의 대표적인 핫플레이스입니다.');
   const rating = spot.rating || 4.9;
+
+  const affiliateDeal = spot.affiliateDeal
+    ? getSpotAffiliateDeal(title, spot.region || spot.city || '서울', lang)
+    : null;
+
+  const localizedTransit = React.useMemo(() => {
+    if (!spot.transitTime) return null;
+    if (lang !== 'en') return spot.transitTime;
+    const tt = spot.transitTime;
+    if (tt.includes('제주') || tt.includes('급행') || tt.includes('해안도로')) {
+      return 'Jeju Express Bus or Coastal Drive (approx. 15 mins)';
+    }
+    if (tt.includes('지하철') || tt.includes('도보')) {
+      return 'Accessible by Subway or Walk (approx. 10 mins)';
+    }
+    if (tt.includes('버스') || tt.includes('택시')) {
+      return 'Accessible by City Bus or Taxi (approx. 15 mins)';
+    }
+    return tt;
+  }, [spot.transitTime, lang]);
 
   const photoList = (spot.images && spot.images.length > 0) 
     ? spot.images 
@@ -313,10 +334,10 @@ export default function TravelDetailModal({ spot, onClose, lang = 'ko' }) {
               <MapPin size={15} style={{ color: 'var(--accent-primary)', flexShrink: 0 }} />
               <span style={{ fontWeight: 600, color: 'var(--text-main)' }}>{location}</span>
             </div>
-            {spot.transitTime && (
+            {localizedTransit && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: '#059669', fontWeight: 700 }}>
                 <Navigation size={14} style={{ flexShrink: 0 }} />
-                <span>{spot.transitTime}</span>
+                <span>{localizedTransit}</span>
               </div>
             )}
             {spot.bestTime && (
@@ -374,7 +395,7 @@ export default function TravelDetailModal({ spot, onClose, lang = 'ko' }) {
           </div>
 
           {/* Smart Affiliate Deal Card */}
-          {spot.affiliateDeal && (
+          {affiliateDeal && (
             <div style={{
               backgroundColor: 'rgba(255, 91, 0, 0.08)',
               border: '1px solid rgba(255, 91, 0, 0.3)',
@@ -395,15 +416,15 @@ export default function TravelDetailModal({ spot, onClose, lang = 'ko' }) {
                   padding: '0.15rem 0.45rem',
                   borderRadius: '4px'
                 }}>
-                  {spot.affiliateDeal.dealBadge}
+                  {affiliateDeal.dealBadge}
                 </span>
                 <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)', marginTop: '0.25rem' }}>
-                  {spot.affiliateDeal.dealTitle}
+                  {affiliateDeal.dealTitle}
                 </div>
               </div>
 
               <a
-                href={spot.affiliateDeal.dealUrl}
+                href={affiliateDeal.dealUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{

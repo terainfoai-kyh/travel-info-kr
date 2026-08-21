@@ -90,7 +90,7 @@ export default function GoogleAuthModal({
               </svg>
             </div>
             <span style={{ fontSize: '1.05rem', fontWeight: 800 }}>
-              Google 간편 로그인
+              {lang === 'en' ? 'Google Quick Sign-in' : 'Google 간편 로그인'}
             </span>
           </div>
 
@@ -131,13 +131,15 @@ export default function GoogleAuthModal({
               marginBottom: '0.8rem'
             }}>
               <Sparkles size={14} />
-              <span>회원 전용 VIP 혜택 자동 적용</span>
+              <span>{lang === 'en' ? 'Member VIP Benefits Automatically Applied' : '회원 전용 VIP 혜택 자동 적용'}</span>
             </div>
             <h2 style={{ fontSize: '1.35rem', fontWeight: 900, margin: '0 0 0.4rem', color: 'var(--text-main)' }}>
-              로그인하고 매일 15회 질문 받기
+              {lang === 'en' ? 'Sign In & Get 15 Daily Prompts' : '로그인하고 매일 15회 질문 받기'}
             </h2>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>
-              비회원(5회) 대비 3배 많은 질문과 나만의 일정이 안전하게 보관됩니다.
+              {lang === 'en'
+                ? 'Enjoy 3x more AI prompts than guest mode (5 prompts) and securely cloud-save your custom trips.'
+                : '비회원(5회) 대비 3배 많은 질문과 나만의 일정이 안전하게 보관됩니다.'}
             </p>
           </div>
 
@@ -162,10 +164,12 @@ export default function GoogleAuthModal({
               </div>
               <div>
                 <h4 style={{ margin: '0 0 0.2rem', fontSize: '0.9rem', fontWeight: 800 }}>
-                  매일 15회 AI 질문 무료 제공
+                  {lang === 'en' ? '15 Free AI Prompts Daily' : '매일 15회 AI 질문 무료 제공'}
                 </h4>
                 <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                  매일 자정마다 15회가 자동 충전되어 여유롭게 5일 코스를 설계합니다.
+                  {lang === 'en'
+                    ? 'Automatically recharges to 15 prompts every midnight for effortless multi-day planning.'
+                    : '매일 자정마다 15회가 자동 충전되어 여유롭게 5일 코스를 설계합니다.'}
                 </p>
               </div>
             </div>
@@ -189,10 +193,12 @@ export default function GoogleAuthModal({
               </div>
               <div>
                 <h4 style={{ margin: '0 0 0.2rem', fontSize: '0.9rem', fontWeight: 800 }}>
-                  내 맞춤 여행 일정 클라우드 영구 저장
+                  {lang === 'en' ? 'Cloud Save for Custom Itineraries' : '내 맞춤 여행 일정 클라우드 영구 저장'}
                 </h4>
                 <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                  생성한 추천 코스와 위시리스트가 계정에 자동 동기화됩니다.
+                  {lang === 'en'
+                    ? 'Your generated courses and wishlist spots are safely synchronized with your account.'
+                    : '생성한 추천 코스와 위시리스트가 계정에 자동 동기화됩니다.'}
                 </p>
               </div>
             </div>
@@ -202,7 +208,7 @@ export default function GoogleAuthModal({
           <div style={{ marginBottom: '1.25rem' }}>
             <input
               type="text"
-              placeholder="여행자 닉네임 (선택사항, 예: 민지)"
+              placeholder={lang === 'en' ? 'Traveler Nickname (Optional, e.g. Alex)' : '여행자 닉네임 (선택사항, 예: 민지)'}
               value={customName}
               onChange={(e) => setCustomName(e.target.value)}
               style={{
@@ -220,7 +226,7 @@ export default function GoogleAuthModal({
 
           {/* Google Sign-in Action Button */}
           <button
-            onClick={() => handleSimulatedGoogleLogin('traveler@gmail.com', '한국여행자')}
+            onClick={() => handleSimulatedGoogleLogin('traveler@gmail.com', lang === 'en' ? 'Global Traveler' : '한국여행자')}
             disabled={isLoading}
             style={{
               width: '100%',
@@ -246,7 +252,11 @@ export default function GoogleAuthModal({
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
             </svg>
-            <span>{isLoading ? '구글 계정 연동 중...' : 'Google 계정으로 3초 만에 시작'}</span>
+            <span>
+              {isLoading 
+                ? (lang === 'en' ? 'Connecting Google Account...' : '구글 계정 연동 중...') 
+                : (lang === 'en' ? 'Start in 3s with Google' : 'Google 계정으로 3초 만에 시작')}
+            </span>
           </button>
 
           <p style={{
@@ -256,7 +266,7 @@ export default function GoogleAuthModal({
             marginTop: '1rem',
             marginBottom: 0
           }}>
-            🔒 별도의 비밀번호 없이 안전하게 구글 계정으로 연동됩니다.
+            🔒 {lang === 'en' ? 'Securely connected via your Google account without passwords.' : '별도의 비밀번호 없이 안전하게 구글 계정으로 연동됩니다.'}
           </p>
         </div>
       </div>

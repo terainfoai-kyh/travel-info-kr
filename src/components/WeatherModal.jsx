@@ -9,7 +9,7 @@ import {
   ExternalLink,
   CalendarDays
 } from 'lucide-react';
-import { getCloseButtonLabel, TRANSLATIONS } from '../i18n/translations';
+import { getCloseButtonLabel, TRANSLATIONS, CITY_TRANSLATIONS } from '../i18n/translations';
 import { buildKlookDeepLink } from '../services/apiConfig';
 
 export default function WeatherModal({
@@ -24,9 +24,10 @@ export default function WeatherModal({
   // Synchronize with active itinerary destination whenever opened
   React.useEffect(() => {
     if (initialRegion) {
-      setSearchQuery(initialRegion);
+      const displayCity = lang === 'en' ? (CITY_TRANSLATIONS.en?.[initialRegion] || initialRegion) : initialRegion;
+      setSearchQuery(displayCity);
     }
-  }, [initialRegion, isOpen]);
+  }, [initialRegion, isOpen, lang]);
 
   // Comprehensive Korean Destinations Weather & Styling Matrix
   const REGION_DATABASE = {
@@ -252,8 +253,18 @@ export default function WeatherModal({
   const matchedCityKey = useMemo(() => {
     const raw = (searchQuery || initialRegion || '서울').trim();
     if (!raw) return '서울';
+    const cleanLower = raw.toLowerCase();
+
+    // 1. Check English City Name mapping (e.g. 'jeju' -> '제주', 'seoul' -> '서울')
+    for (const [koCity, enCity] of Object.entries(CITY_TRANSLATIONS.en || {})) {
+      if (cleanLower === enCity.toLowerCase() || cleanLower.includes(enCity.toLowerCase()) || enCity.toLowerCase().includes(cleanLower)) {
+        return koCity;
+      }
+    }
+
+    // 2. Check Korean database keys
     const found = Object.keys(REGION_DATABASE).find(k => 
-      raw.toLowerCase().includes(k.toLowerCase()) || k.toLowerCase().includes(raw.toLowerCase())
+      cleanLower.includes(k.toLowerCase()) || k.toLowerCase().includes(cleanLower)
     );
     return found || raw;
   }, [searchQuery, initialRegion]);
@@ -264,28 +275,29 @@ export default function WeatherModal({
     const translateDust = (d) => d === '최고 좋음' ? 'Excellent' : d === '좋음' ? 'Good' : d === '보통' ? 'Moderate' : 'Unhealthy';
     const translateUv = (u) => u === '매우 높음' ? 'Very High' : u === '높음' ? 'High' : u === '보통' ? 'Moderate' : 'Low';
     const translateWeather = (w) => {
-      if (w.includes('화창') || w.includes('맑음')) return 'Sunny & Clear ☀️';
+      if (w.includes('화창') || w.includes('맑음') || w.includes('화창함')) return 'Sunny & Clear ☀️';
       if (w.includes('구름') || w.includes('흐림')) return 'Partly Cloudy ⛅';
       if (w.includes('비')) return 'Rainy 🌧️';
       return 'Mild & Pleasant 🌤️';
     };
 
+    const localizedCity = CITY_TRANSLATIONS.en?.[targetCityName] || targetCityName;
     const tempNum = parseInt(data.temp) || 22;
     let topBottomEn = 'Comfortable cotton T-shirt, breathable slacks or denim jeans';
     let outerEn = 'Light cardigan or windbreaker for evening breeze & indoor AC';
     let essentialsEn = 'Power bank, comfortable walking shoes, sunglasses';
-    let tipEn = `Ideal pleasant weather for walking and cafe hopping in ${targetCityName}.`;
+    let tipEn = `Ideal pleasant weather for walking and cafe hopping in ${localizedCity}.`;
 
     if (tempNum >= 25) {
       topBottomEn = 'Linen shirts, cooling cotton shorts, or breezy summer dresses';
       outerEn = 'Light linen shirt or UV protection sun-layer for coastlines';
       essentialsEn = 'UV sunglasses, waterproof sunscreen, mini umbrella, sandals';
-      tipEn = `High UV index today. Apply sunscreen regularly and wear a hat during outdoor strolls in ${targetCityName}.`;
+      tipEn = `High UV index today. Apply sunscreen regularly and wear a hat during outdoor strolls in ${localizedCity}.`;
     } else if (tempNum < 20) {
       topBottomEn = 'Long-sleeve sweatshirt, warm knit, or casual chinos';
       outerEn = 'Trench coat, denim jacket, or light padded outerwear';
       essentialsEn = 'Lip balm, thermal bottle, warm socks, comfortable sneakers';
-      tipEn = `Chilly morning and evening breeze. Layering a light jacket is highly recommended in ${targetCityName}.`;
+      tipEn = `Chilly morning and evening breeze. Layering a light jacket is highly recommended in ${localizedCity}.`;
     }
 
     return {
@@ -300,7 +312,7 @@ export default function WeatherModal({
       forecast: data.forecast.map((f, idx) => ({
         ...f,
         day: idx === 0 ? 'Today' : idx === 1 ? 'Tmrw' : 'Day+2',
-        weather: f.weather.includes('맑') ? '☀️ Clear' : f.weather.includes('구름') ? '⛅ Cloudy' : '🌧️ Rain'
+        weather: f.weather.includes('맑') || f.weather.includes('화창') ? '☀️ Clear' : f.weather.includes('구름') ? '⛅ Cloudy' : '🌧️ Rain'
       }))
     };
   };
@@ -477,7 +489,7 @@ export default function WeatherModal({
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <MapPin size={17} style={{ color: 'var(--accent-primary)' }} />
                 <span style={{ fontSize: '1rem', fontWeight: 900, color: 'var(--text-main)' }}>
-                  {matchedCityKey}
+                  {CITY_TRANSLATIONS[lang]?.[matchedCityKey] || matchedCityKey}
                 </span>
                 <span style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--accent-primary)', marginLeft: '0.2rem' }}>
                   {current.temp}
@@ -541,7 +553,7 @@ export default function WeatherModal({
               <div style={{ display: 'flex', gap: '0.75rem', overflowX: 'auto', scrollbarWidth: 'none' }}>
                 {current.forecast.map((f, i) => (
                   <span key={i} style={{ whiteSpace: 'nowrap', color: 'var(--text-main)' }}>
-                    <strong style={{ color: 'var(--text-dim)' }}>{f.day}</strong> {f.weather.split(' ')[0]} <strong>{f.temp}</strong>
+                    <strong style={{ color: 'var(--text-muted)' }}>{f.day}</strong> {f.weather} <span style={{ color: 'var(--accent-primary)', fontWeight: 800 }}>{f.temp}</span>
                   </span>
                 ))}
               </div>
@@ -561,7 +573,7 @@ export default function WeatherModal({
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
               <Shirt size={18} style={{ color: 'var(--accent-primary)' }} />
               <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 900, color: 'var(--text-main)' }}>
-                {t.weatherOutfitSectionTitle ? t.weatherOutfitSectionTitle(matchedCityKey) : `오늘 ${matchedCityKey} 맞춤 여행 코디 & 필수 준비물`}
+                {t.weatherOutfitSectionTitle ? t.weatherOutfitSectionTitle(CITY_TRANSLATIONS[lang]?.[matchedCityKey] || matchedCityKey) : `오늘 ${matchedCityKey} 맞춤 여행 코디 & 필수 준비물`}
               </h4>
             </div>
 

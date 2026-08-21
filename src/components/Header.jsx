@@ -756,7 +756,7 @@ export default function Header({
           gap: '0.45rem'
         }}>
           <Check size={16} style={{ color: '#10b981' }} />
-          <span>여행 공유 링크가 클립보드에 복사되었습니다! ✨</span>
+          <span>{lang === 'en' ? 'Travel share link copied to clipboard! ✨' : '여행 공유 링크가 클립보드에 복사되었습니다! ✨'}</span>
         </div>
       )}
     </header>

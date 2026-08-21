@@ -43,7 +43,7 @@ export default function PrivacyPolicyModal({ isOpen, onClose, lang = 'ko' }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <ShieldCheck size={22} style={{ color: 'var(--accent-primary)' }} />
             <h2 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 900 }}>
-              개인정보처리방침 (Privacy Policy)
+              {lang === 'en' ? 'Privacy Policy' : '개인정보처리방침 (Privacy Policy)'}
             </h2>
           </div>
           <button

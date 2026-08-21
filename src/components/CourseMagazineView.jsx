@@ -3,6 +3,7 @@ import { Calendar, MapPin, Heart, ExternalLink, Info, Navigation, Star, Sparkles
 import GoogleMapView from './GoogleMapView';
 import { getGooglePlaceSearchUrl } from '../services/geminiNlpService';
 import { TRANSLATIONS } from '../i18n/translations';
+import { getSpotAffiliateDeal } from '../services/affiliateService';
 
 export default function CourseMagazineView({
   lang = 'ko',
@@ -20,6 +21,23 @@ export default function CourseMagazineView({
 
   const currentSchedule = schedules.find(s => Number(s.day) === Number(activeDay)) || schedules[0];
   const activeSpots = currentSchedule?.spots || (itineraryData?.spots || []).filter(s => Number(s.assignedDay) === Number(activeDay));
+
+  // Transit localization helper
+  const getLocalizedTransit = (transitStr) => {
+    if (!transitStr) return lang === 'en' ? '10 mins walk' : '도보 10분';
+    if (lang !== 'en') return transitStr;
+    const tt = transitStr;
+    if (tt.includes('제주') || tt.includes('급행') || tt.includes('해안도로')) {
+      return 'Jeju Express Bus or Coastal Drive (approx. 15 mins)';
+    }
+    if (tt.includes('지하철') || tt.includes('도보')) {
+      return 'Accessible by Subway or Walk (approx. 10 mins)';
+    }
+    if (tt.includes('버스') || tt.includes('택시')) {
+      return 'Accessible by City Bus or Taxi (approx. 15 mins)';
+    }
+    return tt;
+  };
 
   // 🎯 Interactive Spot Focus State across Map & Timeline List
   const [focusedSpotIndex, setFocusedSpotIndex] = useState(null);
@@ -354,7 +372,7 @@ export default function CourseMagazineView({
                           borderRadius: '5px'
                         }}>
                           <Navigation size={9} />
-                          <span>{spot.transitTime || '도보 10분'}</span>
+                          <span>{getLocalizedTransit(spot.transitTime)}</span>
                         </div>
 
                         {spot.photoTip && (
@@ -449,32 +467,34 @@ export default function CourseMagazineView({
                           <span>{lang === 'en' ? 'Google Maps' : 'Google맵'}</span>
                         </a>
 
-                        {spot.affiliateDeal && (
-                          <a
-                            href={spot.affiliateDeal.dealUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{
-                              backgroundColor: '#ff5b00',
-                              color: '#ffffff',
-                              padding: '0.25rem 0.55rem',
-                              borderRadius: '8px',
-                              fontSize: '0.7rem',
-                              fontWeight: 800,
-                              textDecoration: 'none',
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '0.2rem',
-                              boxShadow: '0 2px 4px rgba(255, 91, 0, 0.25)'
-                            }}
-                          >
-                            <span>
-                              {lang === 'en' 
-                                ? (spot.affiliateDeal.dealBadge?.includes('한복') ? '👘 Book Hanbok Deal ↗' : '🏨 Best Rate Deal ↗')
-                                : `${spot.affiliateDeal.dealBadge} ↗`}
-                            </span>
-                          </a>
-                        )}
+                        {(() => {
+                          const deal = spot.affiliateDeal 
+                            ? getSpotAffiliateDeal(spot.title || spot.name, spot.region || spot.city || targetCity, lang) 
+                            : null;
+                          if (!deal) return null;
+                          return (
+                            <a
+                              href={deal.dealUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                backgroundColor: '#ff5b00',
+                                color: '#ffffff',
+                                padding: '0.25rem 0.55rem',
+                                borderRadius: '8px',
+                                fontSize: '0.7rem',
+                                fontWeight: 800,
+                                textDecoration: 'none',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.2rem',
+                                boxShadow: '0 2px 4px rgba(255, 91, 0, 0.25)'
+                              }}
+                            >
+                              <span>{deal.dealBadge} ↗</span>
+                            </a>
+                          );
+                        })()}
                       </div>
                     </div>
                   </div>

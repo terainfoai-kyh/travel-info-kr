@@ -43,7 +43,7 @@ export default function TermsModal({ isOpen, onClose, lang = 'ko' }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <FileText size={22} style={{ color: 'var(--accent-primary)' }} />
             <h2 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 900 }}>
-              이용약관 (Terms of Service)
+              {lang === 'en' ? 'Terms of Service' : '이용약관 (Terms of Service)'}
             </h2>
           </div>
           <button
