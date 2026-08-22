@@ -585,8 +585,9 @@ export default function Header({
                   ))}
                 </div>
 
-                {/* ❤️ 1. Wishlist Modal Item */}
+                {/* ❤️ 1. Wishlist Modal Item (Mobile Only) */}
                 <button
+                  className="show-mobile-only"
                   onClick={() => {
                     setIsMainMenuOpen(false);
                     if (onOpenWishlist) onOpenWishlist();
@@ -625,9 +626,9 @@ export default function Header({
                   )}
                 </button>
 
-                {/* 🔑 2. Google Login or User Account Card */}
+                {/* 🔑 2. Google Login or User Account Card (Mobile Only) */}
                 {currentUser?.isGoogleLoggedIn ? (
-                  <div style={{
+                  <div className="show-mobile-only" style={{
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
@@ -656,6 +657,7 @@ export default function Header({
                   </div>
                 ) : (
                   <button
+                    className="show-mobile-only"
                     onClick={() => {
                       setIsMainMenuOpen(false);
                       if (onOpenGoogleAuth) onOpenGoogleAuth();
@@ -684,8 +686,8 @@ export default function Header({
                       </svg>
                       <span>{lang === 'en' ? 'Sign in with Google' : lang === 'ja' ? 'Googleでログイン' : (lang === 'zh' || lang === 'zht') ? 'Google登录' : 'Google 계정 로그인'}</span>
                     </div>
-                    <span style={{ fontSize: '0.65rem', backgroundColor: '#2563eb', color: '#ffffff', padding: '0.1rem 0.35rem', borderRadius: '4px', fontWeight: 800 }}>
-                      15회
+                    <span style={{ fontSize: '0.68rem', backgroundColor: '#2563eb', color: '#ffffff', padding: '0.15rem 0.45rem', borderRadius: '6px', fontWeight: 800, whiteSpace: 'nowrap', flexShrink: 0 }}>
+                      {lang === 'en' ? '15/day' : lang === 'ja' ? '15回' : (lang === 'zh' || lang === 'zht') ? '15次' : '15회'}
                     </span>
                   </button>
                 )}
