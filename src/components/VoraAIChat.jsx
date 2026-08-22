@@ -432,117 +432,42 @@ export default function VoraAIChat({
                   )}
                 </div>
 
-                {/* Daily Schedule Interactive Cards inside Chat */}
+                {/* Sleek One-Touch Day Chips inside Chat */}
                 {msg.itinerary && msg.itinerary.dailySchedules && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.55rem', width: '100%', maxWidth: '100%', boxSizing: 'border-box', marginTop: '0.2rem' }}>
+                  <div style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: '0.45rem',
+                    width: '100%',
+                    boxSizing: 'border-box',
+                    marginTop: '0.45rem'
+                  }}>
                     {msg.itinerary.dailySchedules.map((ds) => {
                       const isCurrentActive = Number(activeDay) === Number(ds.day);
                       return (
-                        <div
+                        <button
                           key={ds.day}
+                          type="button"
                           onClick={() => onSelectDay && onSelectDay(ds.day)}
                           style={{
-                            backgroundColor: isCurrentActive ? 'rgba(37, 99, 235, 0.05)' : 'var(--bg-card)',
-                            border: isCurrentActive ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)',
-                            borderRadius: '14px',
-                            padding: '0.65rem 0.85rem',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '0.45rem',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.4rem',
+                            backgroundColor: isCurrentActive ? '#2563eb' : 'var(--bg-primary)',
+                            color: isCurrentActive ? '#ffffff' : 'var(--text-main)',
+                            border: isCurrentActive ? '1.5px solid #2563eb' : '1px solid var(--border-color)',
+                            borderRadius: 'var(--radius-full)',
+                            padding: '0.35rem 0.75rem',
+                            fontSize: '0.76rem',
+                            fontWeight: isCurrentActive ? 800 : 600,
                             cursor: 'pointer',
-                            width: '100%',
-                            maxWidth: '100%',
-                            boxSizing: 'border-box',
-                            boxShadow: isCurrentActive ? '0 4px 14px rgba(37, 99, 235, 0.12)' : '0 2px 6px rgba(0, 0, 0, 0.03)',
+                            boxShadow: isCurrentActive ? '0 3px 10px rgba(37, 99, 235, 0.28)' : '0 1px 4px rgba(0,0,0,0.03)',
                             transition: 'all 0.2s ease'
                           }}
-                          onMouseEnter={(e) => {
-                            if (!isCurrentActive) {
-                              e.currentTarget.style.borderColor = 'var(--border-highlight)';
-                              e.currentTarget.style.transform = 'translateY(-1px)';
-                            }
-                          }}
-                          onMouseLeave={(e) => {
-                            if (!isCurrentActive) {
-                              e.currentTarget.style.borderColor = 'var(--border-color)';
-                              e.currentTarget.style.transform = 'translateY(0)';
-                            }
-                          }}
                         >
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', boxSizing: 'border-box' }}>
-                            <span style={{
-                              fontSize: '0.74rem',
-                              fontWeight: 900,
-                              backgroundColor: isCurrentActive ? '#2563eb' : '#64748b',
-                              color: '#ffffff',
-                              padding: '0.15rem 0.5rem',
-                              borderRadius: 'var(--radius-full)',
-                              flexShrink: 0,
-                              boxShadow: isCurrentActive ? '0 2px 6px rgba(37, 99, 235, 0.3)' : 'none'
-                            }}>
-                              {t.dayBadge ? t.dayBadge(ds.day) : `${ds.day}일차`}
-                            </span>
-                            <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-main)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginLeft: '0.4rem' }}>
-                              {ds.theme}
-                            </span>
-                          </div>
-
-                          {/* Spot Flow Badges */}
-                          <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            flexWrap: 'wrap',
-                            gap: '0.35rem',
-                            fontSize: '0.72rem',
-                            fontWeight: 700,
-                            color: 'var(--text-main)',
-                            width: '100%',
-                            boxSizing: 'border-box'
-                          }}>
-                            {(ds.spots || []).map((s, idx) => (
-                              <React.Fragment key={s.id || idx}>
-                                <span style={{
-                                  backgroundColor: 'var(--bg-primary)',
-                                  border: '1px solid var(--border-color)',
-                                  padding: '0.18rem 0.45rem',
-                                  borderRadius: '6px',
-                                  maxWidth: '100%',
-                                  wordBreak: 'break-all'
-                                }}>
-                                  {idx + 1}. {s.title}
-                                </span>
-                                {idx < (ds.spots || []).length - 1 && (
-                                  <span style={{ color: 'var(--text-dim)', fontSize: '0.62rem' }}>➔</span>
-                                )}
-                              </React.Fragment>
-                            ))}
-                          </div>
-
-                          {/* Daily Food Recommendation Badge */}
-                          {ds.foodRecommendation && (
-                            <div style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '0.35rem',
-                              backgroundColor: 'rgba(245, 158, 11, 0.08)',
-                              border: '1px solid rgba(245, 158, 11, 0.2)',
-                              padding: '0.25rem 0.55rem',
-                              borderRadius: '8px',
-                              fontSize: '0.72rem',
-                              color: '#b45309',
-                              fontWeight: 700,
-                              width: '100%',
-                              maxWidth: '100%',
-                              boxSizing: 'border-box',
-                              overflow: 'hidden'
-                            }}>
-                              <Utensils size={12} style={{ color: '#d97706', flexShrink: 0 }} />
-                              <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                <strong>{ds.foodRecommendation.dishName}</strong>: {ds.foodRecommendation.description}
-                              </span>
-                            </div>
-                          )}
-                        </div>
+                          <span style={{ fontWeight: 900 }}>{t.dayBadge ? t.dayBadge(ds.day) : `${ds.day}일차`}</span>
+                          <span style={{ opacity: isCurrentActive ? 0.95 : 0.7, fontSize: '0.72rem' }}>{ds.theme ? `• ${ds.theme}` : ''}</span>
+                        </button>
                       );
                     })}
                   </div>

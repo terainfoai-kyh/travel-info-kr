@@ -220,22 +220,60 @@ export default function CourseMagazineView({
 
           {/* ==========================================================================
              📋 2. 하단 독립 스크롤 타임라인 목록 (Scrollable Spot List)
-             - 불필요한 중복 테마 배너를 제거하여 하단 공간 +45px 추가 확보!
-             - 1번, 2번 스팟 카드가 100% 온전하게 시원한 크기로 표시됨
+             - 미식 배너 + 시원한 16:9 감성 매거진 카드 배치
              ========================================================================== */}
           <div
             className="thin-scrollbar"
             style={{
               flex: 1,
               overflowY: 'auto',
-              padding: '0.25rem 0.9rem 1rem 0.9rem',
+              padding: '0.35rem 0.9rem 1rem 0.9rem',
               display: 'flex',
               flexDirection: 'column',
-              gap: '0.55rem'
+              gap: '0.65rem'
             }}
           >
+            {/* 🍽️ Daily Food Recommendation Banner */}
+            {currentSchedule?.foodRecommendation && (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.65rem',
+                backgroundColor: 'rgba(245, 158, 11, 0.08)',
+                border: '1.5px solid rgba(245, 158, 11, 0.25)',
+                padding: '0.6rem 0.85rem',
+                borderRadius: '14px',
+                color: 'var(--text-main)',
+                boxShadow: '0 2px 8px rgba(245, 158, 11, 0.06)'
+              }}>
+                <div style={{
+                  width: '30px',
+                  height: '30px',
+                  borderRadius: '50%',
+                  backgroundColor: '#f59e0b',
+                  color: '#ffffff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  fontSize: '0.9rem',
+                  boxShadow: '0 2px 6px rgba(245, 158, 11, 0.3)'
+                }}>
+                  🍽️
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 800, color: '#b45309', fontSize: '0.8rem', marginBottom: '0.1rem' }}>
+                    {lang === 'en' ? 'Today\'s Gourmet Pick' : lang === 'ja' ? '本日のおすすめグルメ' : (lang === 'zh' || lang === 'zht') ? '今日推荐特色美食' : '오늘의 추천 로컬 미식'} : {currentSchedule.foodRecommendation.dishName}
+                  </div>
+                  <div style={{ fontSize: '0.73rem', color: 'var(--text-muted)', lineHeight: 1.35, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {currentSchedule.foodRecommendation.description}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* 🎯 스팟 타임라인 카드 목록 */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.55rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
               {activeSpots.map((spot, idx) => {
                 const bookmarked = isSpotBookmarked(spot);
                 const isFocused = focusedSpotIndex === idx;
