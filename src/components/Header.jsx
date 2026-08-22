@@ -65,10 +65,10 @@ export default function Header({
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
 
   const LANGUAGES = [
-    { code: 'ko', label: '한국어', flag: '🇰🇷' },
-    { code: 'en', label: 'English', flag: '🇺🇸' },
-    { code: 'ja', label: '日本語', flag: '🇯🇵' },
-    { code: 'zh', label: '中文', flag: '🇨🇳' }
+    { code: 'ko', label: '한국어', short: 'KO', flag: '🇰🇷' },
+    { code: 'en', label: 'English', short: 'EN', flag: '🇺🇸' },
+    { code: 'ja', label: '日本語', short: 'JA', flag: '🇯🇵' },
+    { code: 'zh', label: '中文', short: 'ZH', flag: '🇨🇳' }
   ];
 
   const currentLangObj = LANGUAGES.find(l => l.code === lang) || LANGUAGES[0];
@@ -543,16 +543,19 @@ export default function Header({
                 flexDirection: 'column',
                 gap: '0.35rem'
               }}>
-                {/* 🌐 0. Mobile Language Switcher */}
-                <div style={{
+                {/* 🌐 0. Mobile-Only ISO Language Switcher (KO, EN, JA, ZH) */}
+                <div className="show-mobile-only" style={{
+                  width: '100%',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   backgroundColor: 'var(--bg-primary)',
-                  padding: '0.3rem',
+                  padding: '0.25rem',
                   borderRadius: '12px',
                   border: '1px solid var(--border-color)',
-                  marginBottom: '0.2rem'
+                  marginBottom: '0.2rem',
+                  gap: '0.25rem',
+                  boxSizing: 'border-box'
                 }}>
                   {LANGUAGES.map((l) => (
                     <button
@@ -563,9 +566,9 @@ export default function Header({
                       }}
                       style={{
                         flex: 1,
-                        padding: '0.35rem 0.2rem',
-                        fontSize: '0.74rem',
-                        fontWeight: lang === l.code ? 800 : 600,
+                        padding: '0.4rem 0',
+                        fontSize: '0.76rem',
+                        fontWeight: lang === l.code ? 900 : 700,
                         backgroundColor: lang === l.code ? 'var(--accent-primary)' : 'transparent',
                         color: lang === l.code ? '#ffffff' : 'var(--text-muted)',
                         border: 'none',
@@ -574,12 +577,10 @@ export default function Header({
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        gap: '0.2rem',
                         transition: 'all var(--transition-fast)'
                       }}
                     >
-                      <span>{l.flag}</span>
-                      <span>{l.label.slice(0, 3)}</span>
+                      <span>{l.short}</span>
                     </button>
                   ))}
                 </div>
