@@ -47,7 +47,7 @@ const HERO_SLIDES = [
     subJa: '聖水洞のカフェから漢江ピクニックまで完璧な1日',
     subZh: '从圣水洞快闪店到汉江野餐的完美一日',
     spotQuery: '동대문디자인플라자 DDP',
-    image: '/images/themes/hero-ddp.jpg',
+    image: '/images/themes/hero-hangang.jpg',
     tagKo: '🏙️ 성수·한남 트렌드',
     city: '서울'
   },
