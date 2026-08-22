@@ -16,7 +16,8 @@ import {
   FileText, 
   Sparkles,
   LogOut,
-  ChevronDown
+  ChevronDown,
+  Thermometer
 } from 'lucide-react';
 import { TRANSLATIONS, CITY_TRANSLATIONS, getLocalizedCityName } from '../i18n/translations';
 import { fetchRealtimeWeather } from '../services/weatherApi';
@@ -59,6 +60,8 @@ export default function Header({
   const [isMainMenuOpen, setIsMainMenuOpen] = useState(false);
   const [showShareToast, setShowShareToast] = useState(false);
   const [liveTemp, setLiveTemp] = useState('');
+  const [liveFeelsLike, setLiveFeelsLike] = useState('');
+  const [tickerStep, setTickerStep] = useState(0); // 0 = actual temp, 1 = feels-like temp
 
   const langMenuRef = useRef(null);
   const userMenuRef = useRef(null);
@@ -75,14 +78,17 @@ export default function Header({
 
   const currentLangObj = LANGUAGES.find(l => l.code === lang) || LANGUAGES[0];
 
-  // Live temperature sync
+  // Live temperature & Feels-like sync
   useEffect(() => {
     let isMounted = true;
     if (targetCity) {
       fetchRealtimeWeather(targetCity)
         .then((data) => {
-          if (isMounted && data?.temperature) {
-            setLiveTemp(data.temperature);
+          if (isMounted) {
+            const tVal = data?.temp || data?.temperature;
+            const fVal = data?.feelsLike;
+            if (tVal) setLiveTemp(tVal);
+            if (fVal) setLiveFeelsLike(fVal);
           }
         })
         .catch(() => {});
@@ -90,7 +96,18 @@ export default function Header({
     return () => { isMounted = false; };
   }, [targetCity]);
 
-  const currentTemp = liveTemp || CITY_TEMPS[targetCity] || '22°C';
+  // Rolling 3.5s Ticker for Actual Temp <-> Feels-like Temp
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTickerStep(prev => (prev === 0 ? 1 : 0));
+    }, 3500);
+    return () => clearInterval(timer);
+  }, []);
+
+  const currentTemp = liveTemp || CITY_TEMPS[targetCity] || '25°C';
+  const currentFeelsLike = liveFeelsLike || `${(parseInt(currentTemp) || 25) + 3}°C`;
+  const feelsLabel = lang === 'en' ? 'Feels' : lang === 'ja' ? '体感' : (lang === 'zh' || lang === 'zht') ? '体感' : '체감';
+  const styleLabel = lang === 'en' ? 'Style 👗' : lang === 'ja' ? 'コーデ 👗' : (lang === 'zh' || lang === 'zht') ? '穿搭 👗' : '코디 👗';
 
   // Close menus on outside click
   useEffect(() => {
@@ -184,7 +201,7 @@ export default function Header({
 
         {/* Center / Navigation Links: Dynamic Weather Capsule & Essentials Link */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          {/* ☀️ Smart Live Weather & Outfit Guide Capsule */}
+          {/* ☀️ Smart Live Weather & Outfit Guide Capsule (3.5s Rolling Ticker) */}
           <button
             onClick={() => onOpenWeather && onOpenWeather(targetCity)}
             title="실시간 날씨 & 맞춤 여행 코디 가이드"
@@ -202,12 +219,25 @@ export default function Header({
               cursor: 'pointer',
               whiteSpace: 'nowrap',
               flexShrink: 0,
+              overflow: 'hidden',
               transition: 'all var(--transition-fast)'
             }}
           >
-            <CloudSun size={14} style={{ color: 'var(--accent-primary)', flexShrink: 0 }} />
-            <span className="hide-mobile" style={{ whiteSpace: 'nowrap' }}>{getLocalizedCityName(targetCity, lang)} {currentTemp} · {lang === 'en' ? 'Style 👗' : lang === 'ja' ? 'コーデ 👗' : (lang === 'zh' || lang === 'zht') ? '穿搭 👗' : '코디 👗'}</span>
-            <span className="show-mobile-only" style={{ whiteSpace: 'nowrap', fontWeight: 800 }}>{currentTemp} 👗</span>
+            <div key={tickerStep} className="header-weather-ticker-item" style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+              {tickerStep === 0 ? (
+                <>
+                  <CloudSun size={14} style={{ color: 'var(--accent-primary)', flexShrink: 0 }} />
+                  <span className="hide-mobile" style={{ whiteSpace: 'nowrap' }}>{getLocalizedCityName(targetCity, lang)} {currentTemp} · {styleLabel}</span>
+                  <span className="show-mobile-only" style={{ whiteSpace: 'nowrap', fontWeight: 800 }}>{currentTemp} 👗</span>
+                </>
+              ) : (
+                <>
+                  <Thermometer size={14} style={{ color: '#ef4444', flexShrink: 0 }} />
+                  <span className="hide-mobile" style={{ whiteSpace: 'nowrap' }}>{getLocalizedCityName(targetCity, lang)} {feelsLabel} {currentFeelsLike} · {styleLabel}</span>
+                  <span className="show-mobile-only" style={{ whiteSpace: 'nowrap', fontWeight: 800, color: 'var(--accent-primary)' }}>{feelsLabel} {currentFeelsLike} 👗</span>
+                </>
+              )}
+            </div>
           </button>
 
           {/* 🧭 Travel Essentials Header Shortcut */}

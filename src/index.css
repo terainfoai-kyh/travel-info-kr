@@ -1154,3 +1154,22 @@ button, a, input, select, textarea {
   }
 }
 
+/* ==========================================================================
+   Header Weather Capsule - Smooth 3.5s Rolling Ticker Animation
+   ========================================================================== */
+.header-weather-ticker-item {
+  animation: headerWeatherSlideFade 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes headerWeatherSlideFade {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
