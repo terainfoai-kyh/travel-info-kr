@@ -22,25 +22,25 @@ export default function CourseMagazineView({
   const currentSchedule = schedules.find(s => Number(s.day) === Number(activeDay)) || schedules[0];
   const activeSpots = currentSchedule?.spots || (itineraryData?.spots || []).filter(s => Number(s.assignedDay) === Number(activeDay));
 
-  // Transit localization helper
+  // Transit localization helper (Ultra-compact & high readability)
   const getLocalizedTransit = (transitStr) => {
-    if (!transitStr) return lang === 'en' ? '10 mins walk' : lang === 'ja' ? '徒歩10分' : (lang === 'zh' || lang === 'zht') ? '步行10分钟' : '도보 10분';
+    if (!transitStr) return lang === 'en' ? 'Walk 10m' : lang === 'ja' ? '徒歩10分' : (lang === 'zh' || lang === 'zht') ? '步行10分' : '도보 10분';
     if (lang === 'ko') return transitStr;
     const tt = transitStr;
     if (tt.includes('제주') || tt.includes('급행') || tt.includes('해안도로')) {
-      if (lang === 'en') return 'Jeju Express Bus or Coastal Drive (approx. 15 mins)';
-      if (lang === 'ja') return '済州急行バスまたは海岸道路（約15分）';
-      return '搭乘济州快速公交或沿海公路（约15分钟）';
+      if (lang === 'en') return 'Jeju Bus ~15m';
+      if (lang === 'ja') return '済州バス 約15分';
+      return '济州公交 约15分';
     }
     if (tt.includes('지하철') || tt.includes('도보')) {
-      if (lang === 'en') return 'Accessible by Subway or Walk (approx. 10 mins)';
-      if (lang === 'ja') return '地下鉄または徒歩（約10分）';
-      return '搭乘地铁或步行（约10分钟）';
+      if (lang === 'en') return 'Subway/Walk ~10m';
+      if (lang === 'ja') return '地下鉄·徒歩 約10分';
+      return '地铁·步行 约10分';
     }
     if (tt.includes('버스') || tt.includes('택시')) {
-      if (lang === 'en') return 'Accessible by City Bus or Taxi (approx. 15 mins)';
-      if (lang === 'ja') return '市内バスまたはタクシー（約15分）';
-      return '搭乘市内公交或出租车（约15分钟）';
+      if (lang === 'en') return 'Bus/Taxi ~15m';
+      if (lang === 'ja') return 'バス·タクシー 約15分';
+      return '公交·出租车 约15分';
     }
     return tt;
   };
@@ -381,40 +381,45 @@ export default function CourseMagazineView({
                         </button>
                       </div>
 
-                      {/* Photo Tip & Transit Time */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexWrap: 'wrap' }}>
+                      {/* Photo Tip & Transit Time (Compact 1-line) */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexWrap: 'nowrap', overflow: 'hidden' }}>
                         <div style={{
                           display: 'inline-flex',
                           alignItems: 'center',
-                          gap: '0.25rem',
-                          fontSize: '0.65rem',
+                          gap: '0.2rem',
+                          fontSize: '0.64rem',
                           fontWeight: 700,
                           color: 'var(--accent-primary)',
                           backgroundColor: 'rgba(37, 99, 235, 0.07)',
-                          padding: '0.1rem 0.35rem',
-                          borderRadius: '5px'
+                          padding: '0.08rem 0.3rem',
+                          borderRadius: '5px',
+                          whiteSpace: 'nowrap',
+                          flexShrink: 0
                         }}>
-                          <Navigation size={9} />
+                          <Navigation size={8} />
                           <span>{getLocalizedTransit(spot.transitTime)}</span>
                         </div>
 
                         {spot.photoTip && (
                           <div style={{
-                            fontSize: '0.65rem',
+                            fontSize: '0.63rem',
                             fontWeight: 700,
                             color: '#b45309',
                             backgroundColor: 'rgba(245, 158, 11, 0.08)',
-                            padding: '0.1rem 0.35rem',
+                            padding: '0.08rem 0.3rem',
                             borderRadius: '5px',
-                            lineHeight: 1.2
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            maxWidth: '180px'
                           }}>
                             {spot.photoTip}
                           </div>
                         )}
                       </div>
 
-                      {/* Action Links (Focus Map, Detail Modal & Google Map Search) */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.05rem', flexWrap: 'wrap' }}>
+                      {/* Action Links (Compact Single Line) */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.05rem', flexWrap: 'wrap' }}>
                         {/* 🗺️ Direct Map Focus Button */}
                         <button
                           type="button"
@@ -426,9 +431,9 @@ export default function CourseMagazineView({
                             backgroundColor: isFocused ? 'var(--accent-primary)' : 'rgba(37, 99, 235, 0.08)',
                             border: '1px solid var(--border-highlight)',
                             color: isFocused ? '#ffffff' : 'var(--accent-primary)',
-                            padding: '0.18rem 0.48rem',
-                            borderRadius: '7px',
-                            fontSize: '0.68rem',
+                            padding: '0.15rem 0.4rem',
+                            borderRadius: '6px',
+                            fontSize: '0.65rem',
                             fontWeight: 800,
                             cursor: 'pointer',
                             display: 'inline-flex',
@@ -437,8 +442,8 @@ export default function CourseMagazineView({
                             transition: 'all var(--transition-fast)'
                           }}
                         >
-                          <Navigation size={9} />
-                          <span>{lang === 'en' ? 'Map Pin' : lang === 'ja' ? '地図' : (lang === 'zh' || lang === 'zht') ? '地图' : '지도 위치'}</span>
+                          <Navigation size={8} />
+                          <span>{lang === 'en' ? 'Map' : lang === 'ja' ? '地図' : (lang === 'zh' || lang === 'zht') ? '地图' : '지도'}</span>
                         </button>
 
                         <button
@@ -451,9 +456,9 @@ export default function CourseMagazineView({
                             backgroundColor: 'var(--bg-card)',
                             border: '1px solid var(--border-color)',
                             color: 'var(--text-main)',
-                            padding: '0.18rem 0.48rem',
-                            borderRadius: '7px',
-                            fontSize: '0.68rem',
+                            padding: '0.15rem 0.4rem',
+                            borderRadius: '6px',
+                            fontSize: '0.65rem',
                             fontWeight: 700,
                             cursor: 'pointer',
                             display: 'inline-flex',
@@ -462,8 +467,8 @@ export default function CourseMagazineView({
                             transition: 'all var(--transition-fast)'
                           }}
                         >
-                          <Info size={10} style={{ color: 'var(--accent-primary)' }} />
-                          <span>{lang === 'en' ? 'Photos & Details' : lang === 'ja' ? '写真・詳細' : (lang === 'zh' || lang === 'zht') ? (lang === 'zht' ? '照片·詳情' : '照片·详情') : '사진·상세'}</span>
+                          <Info size={9} style={{ color: 'var(--accent-primary)' }} />
+                          <span>{lang === 'en' ? 'Details' : lang === 'ja' ? '詳細' : (lang === 'zh' || lang === 'zht') ? (lang === 'zht' ? '詳情' : '详情') : '상세'}</span>
                         </button>
 
                         <a
@@ -475,9 +480,9 @@ export default function CourseMagazineView({
                             backgroundColor: 'var(--bg-card)',
                             border: '1px solid var(--border-color)',
                             color: 'var(--text-muted)',
-                            padding: '0.18rem 0.48rem',
-                            borderRadius: '7px',
-                            fontSize: '0.68rem',
+                            padding: '0.15rem 0.4rem',
+                            borderRadius: '6px',
+                            fontSize: '0.65rem',
                             fontWeight: 700,
                             textDecoration: 'none',
                             display: 'inline-flex',
@@ -486,8 +491,8 @@ export default function CourseMagazineView({
                             transition: 'all var(--transition-fast)'
                           }}
                         >
-                          <MapPin size={10} />
-                          <span>{lang === 'en' ? 'Google Maps' : lang === 'ja' ? 'Googleマップ' : (lang === 'zh' || lang === 'zht') ? 'Google地图' : 'Google맵'}</span>
+                          <MapPin size={9} />
+                          <span>{lang === 'en' ? 'Google' : lang === 'ja' ? 'Google' : (lang === 'zh' || lang === 'zht') ? 'Google' : 'Google'}</span>
                         </a>
 
                         {(() => {
@@ -503,9 +508,9 @@ export default function CourseMagazineView({
                               style={{
                                 backgroundColor: '#ff5b00',
                                 color: '#ffffff',
-                                padding: '0.25rem 0.55rem',
-                                borderRadius: '8px',
-                                fontSize: '0.7rem',
+                                padding: '0.15rem 0.4rem',
+                                borderRadius: '6px',
+                                fontSize: '0.65rem',
                                 fontWeight: 800,
                                 textDecoration: 'none',
                                 display: 'inline-flex',
