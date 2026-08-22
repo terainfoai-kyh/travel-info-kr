@@ -1,11 +1,13 @@
 import { PUBLIC_API_CONFIG, REGION_META } from './apiConfig';
 
-// Major Korean tourist cities coordinates for ultra-fast Open-Meteo live backup
+// Comprehensive Korean tourist cities, districts & hot neighborhoods coordinate dictionary
 export const CITY_COORDINATES = {
+  // Cities
   '서울': { lat: 37.5665, lng: 126.9780 },
   '수원': { lat: 37.2636, lng: 127.0286 },
   '부산': { lat: 35.1796, lng: 129.0756 },
   '제주': { lat: 33.4996, lng: 126.5312 },
+  '서귀포': { lat: 33.2541, lng: 126.5601 },
   '평택': { lat: 36.9921, lng: 127.1129 },
   '강릉': { lat: 37.7519, lng: 128.8761 },
   '경주': { lat: 35.8562, lng: 129.2247 },
@@ -22,108 +24,137 @@ export const CITY_COORDINATES = {
   '포항': { lat: 36.0190, lng: 129.3435 },
   '가평': { lat: 37.8315, lng: 127.5097 },
   '춘천': { lat: 37.8813, lng: 127.7298 },
-  '울산': { lat: 35.5384, lng: 129.3114 }
+  '울산': { lat: 35.5384, lng: 129.3114 },
+  '성남': { lat: 37.4200, lng: 127.1265 },
+  '고양': { lat: 37.6584, lng: 126.8320 },
+  '용인': { lat: 37.2411, lng: 127.1776 },
+  '화성': { lat: 37.1995, lng: 126.8315 },
+  '부천': { lat: 37.5034, lng: 126.7660 },
+  '남양주': { lat: 37.6360, lng: 127.2165 },
+  '안산': { lat: 37.3219, lng: 126.8309 },
+  '안양': { lat: 37.3943, lng: 126.9568 },
+
+  // 수원 세부 동/구 (수원시 권선동, 영통동, 팔달구, 장안구, 행궁동, 인계동 등)
+  '권선동': { lat: 37.2570, lng: 127.0270 },
+  '권선구': { lat: 37.2570, lng: 127.0270 },
+  '영통동': { lat: 37.2512, lng: 127.0713 },
+  '영통구': { lat: 37.2512, lng: 127.0713 },
+  '팔달구': { lat: 37.2825, lng: 127.0175 },
+  '장안구': { lat: 37.3039, lng: 127.0096 },
+  '인계동': { lat: 37.2635, lng: 127.0325 },
+  '행궁동': { lat: 37.2855, lng: 127.0150 },
+  '매산동': { lat: 37.2660, lng: 127.0020 },
+  '곡반정동': { lat: 37.2430, lng: 127.0350 },
+  '세류동': { lat: 37.2550, lng: 127.0150 },
+  '금곡동': { lat: 37.2720, lng: 126.9620 },
+  '호매실동': { lat: 37.2650, lng: 126.9580 },
+
+  // 서울 세부 동/구/핫플
+  '성수동': { lat: 37.5445, lng: 127.0560 },
+  '한남동': { lat: 37.5340, lng: 127.0025 },
+  '명동': { lat: 37.5636, lng: 126.9827 },
+  '홍대': { lat: 37.5563, lng: 126.9226 },
+  '강남': { lat: 37.4979, lng: 127.0276 },
+  '이태원': { lat: 37.5345, lng: 126.9940 },
+  '종로': { lat: 37.5704, lng: 126.9922 },
+  '여의도': { lat: 37.5219, lng: 126.9242 },
+  '잠실': { lat: 37.5133, lng: 127.1001 },
+  '동대문': { lat: 37.5714, lng: 127.0097 },
+  '익선동': { lat: 37.5742, lng: 126.9890 },
+  '압구정': { lat: 37.5270, lng: 127.0284 },
+
+  // 부산 세부 동/핫플
+  '해운대': { lat: 35.1587, lng: 129.1604 },
+  '광안리': { lat: 35.1532, lng: 129.1186 },
+  '서면': { lat: 35.1578, lng: 129.0592 },
+  '남포동': { lat: 35.0979, lng: 129.0348 },
+  '송정': { lat: 35.1786, lng: 129.1997 },
+  '전포동': { lat: 35.1550, lng: 129.0665 },
+
+  // 제주 세부 동/읍/면
+  '애월': { lat: 33.4628, lng: 126.3298 },
+  '성산': { lat: 33.4583, lng: 126.9288 },
+  '중문': { lat: 33.2483, lng: 126.4124 },
+  '한림': { lat: 33.4150, lng: 126.2642 },
+  '구좌': { lat: 33.5234, lng: 126.8530 },
+  '조천': { lat: 33.5350, lng: 126.6340 }
 };
 
-// Base Time calculation for KMA Realtime Observation API (getUltraSrtNcst)
-function getUltraSrtNcstBaseDateTime() {
-  const now = new Date();
-  let year = now.getFullYear();
-  let month = now.getMonth() + 1;
-  let day = now.getDate();
-  let hours = now.getHours();
-  let minutes = now.getMinutes();
+// Realtime Geocoding Resolver for Any Dong/Gu/Gun/City in Korea
+export async function getLiveCoordinatesForLocation(query = '') {
+  if (!query || typeof query !== 'string') return CITY_COORDINATES['서울'];
+  const clean = query.trim().replace(/[\s\-\_\,\.]/g, '');
 
-  let baseHour = hours;
-  if (minutes < 15) {
-    baseHour = hours - 1;
-    if (baseHour < 0) {
-      baseHour = 23;
-      const yesterday = new Date(now);
-      yesterday.setDate(yesterday.getDate() - 1);
-      year = yesterday.getFullYear();
-      month = yesterday.getMonth() + 1;
-      day = yesterday.getDate();
+  // 1. Direct dictionary match
+  if (CITY_COORDINATES[clean]) return CITY_COORDINATES[clean];
+
+  // 2. Partial dictionary search
+  for (const [key, coords] of Object.entries(CITY_COORDINATES)) {
+    if (clean.includes(key) || key.includes(clean)) {
+      return coords;
     }
   }
 
-  const baseDate = `${year}${String(month).padStart(2, '0')}${String(day).padStart(2, '0')}`;
-  const baseTime = `${String(baseHour).padStart(2, '0')}00`;
-  return { baseDate, baseTime };
-}
-
-// Dynamic Base Time calculation for KMA Short-Term Forecast API (VilageFcstInfoService_2.0)
-function getShortTermBaseDateTime() {
-  const now = new Date();
-  let year = now.getFullYear();
-  let month = now.getMonth() + 1;
-  let day = now.getDate();
-  let hours = now.getHours();
-  let minutes = now.getMinutes();
-
-  if (hours < 2 || (hours === 2 && minutes < 15)) {
-    const yesterday = new Date(now);
-    yesterday.setDate(yesterday.getDate() - 1);
-    year = yesterday.getFullYear();
-    month = yesterday.getMonth() + 1;
-    day = yesterday.getDate();
-    return {
-      baseDate: `${year}${String(month).padStart(2, '0')}${String(day).padStart(2, '0')}`,
-      baseTime: '2300'
-    };
-  }
-
-  const baseTimes = [2, 5, 8, 11, 14, 17, 20, 23];
-  let selectedBase = 2;
-  for (const b of baseTimes) {
-    if (hours > b || (hours === b && minutes >= 15)) {
-      selectedBase = b;
+  // 3. Fallback to Open-Meteo Free Geocoding API for exact neighborhood lat/lng
+  try {
+    const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query.trim())}&count=1&language=ko&format=json`;
+    const res = await fetch(geoUrl, { signal: AbortSignal.timeout(1500) });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.results && data.results.length > 0) {
+        const topResult = data.results[0];
+        return {
+          lat: topResult.latitude,
+          lng: topResult.longitude,
+          name: topResult.name
+        };
+      }
     }
+  } catch (geoErr) {
+    console.info('Live geocoding fallback to parent region:', geoErr);
   }
 
-  const baseDate = `${year}${String(month).padStart(2, '0')}${String(day).padStart(2, '0')}`;
-  const baseTime = `${String(selectedBase).padStart(2, '0')}00`;
-  return { baseDate, baseTime };
+  // 4. Default to Suwon if query includes Suwon dong patterns, else Seoul
+  if (['권선', '영통', '팔달', '장안', '인계', '행궁', '매산', '세류', '호매실', '곡반정'].some(d => clean.includes(d))) {
+    return CITY_COORDINATES['수원'];
+  }
+
+  return CITY_COORDINATES['서울'];
 }
 
-// Dynamic tmFc calculation for KMA Mid-Term Forecast API (MidFcstInfoService)
-function getMidTermBaseTm() {
-  const now = new Date();
-  let year = now.getFullYear();
-  let month = now.getMonth() + 1;
-  let day = now.getDate();
-  let hours = now.getHours();
-
-  if (hours < 6) {
-    const yesterday = new Date(now);
-    yesterday.setDate(yesterday.getDate() - 1);
-    year = yesterday.getFullYear();
-    month = yesterday.getMonth() + 1;
-    day = yesterday.getDate();
-    return `${year}${String(month).padStart(2, '0')}${String(day).padStart(2, '0')}1800`;
-  } else if (hours < 18) {
-    return `${year}${String(month).padStart(2, '0')}${String(day).padStart(2, '0')}0600`;
-  } else {
-    return `${year}${String(month).padStart(2, '0')}${String(day).padStart(2, '0')}1800`;
+// Convert Open-Meteo weather code to Korean text and emoji
+function parseWmoWeather(code, isRainingNow = false) {
+  if (isRainingNow || (code >= 51 && code <= 67) || (code >= 80 && code <= 82)) {
+    return { text: '비 🌧️', icon: 'CloudRain' };
   }
+  if (code === 0) return { text: '맑음 ☀️', icon: 'Sun' };
+  if (code === 1 || code === 2) return { text: '구름조금 🌤️', icon: 'Sun' };
+  if (code === 3) return { text: '구름많음 ⛅', icon: 'Cloud' };
+  if (code === 45 || code === 48) return { text: '안개 🌫️', icon: 'Cloud' };
+  if (code >= 71 && code <= 77) return { text: '눈 ❄️', icon: 'Cloud' };
+  if (code >= 85 && code <= 86) return { text: '눈보라 🌨️', icon: 'Cloud' };
+  if (code >= 95) return { text: '뇌우 ⚡', icon: 'CloudRain' };
+  return { text: '맑고 쾌적 ☀️', icon: 'Sun' };
 }
 
 // Temperature-based Smart Outfit & Styling Recommendation Generator
 export function generateOutfitGuide(tempNum, weatherText = '맑음') {
   const t = Math.round(tempNum);
+  const isRain = weatherText.includes('비') || weatherText.includes('소나기');
+
   if (t >= 28) {
     return {
       topBottom: '시원한 린넨 셔츠, 쿨링 코튼 반팔, 린넨 반바지/원피스',
-      outer: '강한 실내 냉방 및 자외선 차단용 얇은 린넨 로브/셔츠',
-      essentials: '자외선 차단 선글라스, 방수 선크림, 휴대용 핸디팬, 양우산',
-      tip: '한낮 기온이 높으므로 수분 섭취를 충분히 하시고 야외 활동 시 모자를 착용하세요.'
+      outer: isRain ? '방수 방풍 윈드브레이커 또는 얇은 우비' : '강한 실내 냉방 및 자외선 차단용 얇은 린넨 로브',
+      essentials: isRain ? '튼튼한 3단 자동우산, 방수 신발/샌들, 방수팩' : '자외선 차단 선글라스, 방수 선크림, 휴대용 핸디팬, 양우산',
+      tip: isRain ? '비가 내리니 미끄러운 바닥에 주의하시고 방수 가방을 추천합니다.' : '한낮 기온이 높으므로 수분 섭취를 충분히 하시고 모자를 착용하세요.'
     };
   } else if (t >= 23) {
     return {
       topBottom: '쾌적한 반팔 티셔츠, 가벼운 셔츠, 얇은 슬랙스 또는 데님',
-      outer: '저녁 선선한 바람 및 실내 에어컨 대비 얇은 가디건/셔츠',
-      essentials: '편안한 도심 워킹화, 휴대용 보조배터리, 선글라스',
-      tip: '활동하기 아주 좋은 기온입니다. 행궁동 카페거리 및 도심 산책을 강력 추천합니다.'
+      outer: isRain ? '휴대용 경량 바람막이/우산' : '저녁 선선한 바람 및 실내 에어컨 대비 얇은 가디건',
+      essentials: isRain ? '휴대용 3단 우산, 방수 스프레이, 보조배터리' : '편안한 도심 워킹화, 휴대용 보조배터리, 선글라스',
+      tip: isRain ? '실내 복합몰(스타필드 등)이나 감성 카페 투어를 추천합니다.' : '활동하기 쾌적한 기온입니다. 도심 산책과 명소 탐방을 즐겨보세요.'
     };
   } else if (t >= 18) {
     return {
@@ -156,63 +187,55 @@ export function generateOutfitGuide(tempNum, weatherText = '맑음') {
   }
 }
 
-// Convert Open-Meteo weather code to Korean text and emoji
-function parseWmoWeather(code) {
-  if (code === 0) return { text: '맑음 ☀️', icon: 'Sun' };
-  if (code === 1 || code === 2) return { text: '구름조금 🌤️', icon: 'Sun' };
-  if (code === 3) return { text: '구름많음 ⛅', icon: 'Cloud' };
-  if (code === 45 || code === 48) return { text: '안개 🌫️', icon: 'Cloud' };
-  if (code >= 51 && code <= 67) return { text: '비 🌧️', icon: 'CloudRain' };
-  if (code >= 71 && code <= 77) return { text: '눈 ❄️', icon: 'Cloud' };
-  if (code >= 80 && code <= 82) return { text: '소나기 🌦️', icon: 'CloudRain' };
-  if (code >= 85 && code <= 86) return { text: '눈보라 🌨️', icon: 'Cloud' };
-  if (code >= 95) return { text: '뇌우 ⚡', icon: 'CloudRain' };
-  return { text: '맑고 쾌적 ☀️', icon: 'Sun' };
-}
-
-// Secondary Realtime Weather Fetcher via Open-Meteo Global Satellite API
-async function fetchOpenMeteoRealtime(regionName) {
-  const coords = CITY_COORDINATES[regionName] || CITY_COORDINATES['서울'];
+// Ultra-Accurate Realtime Weather Fetcher for Specific Coordinates
+async function fetchOpenMeteoWithCoords(coords, locationName = '수원') {
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lng}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,uv_index_max&timezone=Asia%2FSeoul`;
 
   const res = await fetch(url, { signal: AbortSignal.timeout(3000) });
   if (!res.ok) throw new Error(`Open-Meteo HTTP ${res.status}`);
   const data = await res.json();
 
-  const curTemp = Math.round(data.current?.temperature_2m ?? 24);
+  const curTemp = Math.round(data.current?.temperature_2m ?? 27);
   const feelsLike = Math.round(data.current?.apparent_temperature ?? curTemp);
-  const humidity = data.current?.relative_humidity_2m ? `${Math.round(data.current.relative_humidity_2m)}%` : '50%';
-  const wmo = parseWmoWeather(data.current?.weather_code ?? 0);
+  const humidity = data.current?.relative_humidity_2m ? `${Math.round(data.current.relative_humidity_2m)}%` : '75%';
+  const isRainingNow = (data.current?.precipitation ?? 0) > 0;
+  const wmo = parseWmoWeather(data.current?.weather_code ?? 0, isRainingNow);
   
   // Daily UV Index & Rain
   const uvVal = data.daily?.uv_index_max?.[0] ?? 5;
   const uvText = uvVal >= 8 ? '매우 높음' : uvVal >= 6 ? '높음' : uvVal >= 3 ? '보통' : '낮음';
-  const rainProb = data.daily?.precipitation_probability_max?.[0] ? `${data.daily.precipitation_probability_max[0]}%` : (data.current?.precipitation > 0 ? '60%' : '10%');
+  const rainProbVal = data.daily?.precipitation_probability_max?.[0] ?? (isRainingNow ? 60 : 10);
+  const rainProb = `${rainProbVal}%`;
 
-  // Daily Forecast: Today, Tomorrow, Day-after
+  // 3-Day Forecast: Today, Tomorrow, Day-after with high/low
   const forecast = [];
   const dayNames = ['오늘', '내일', '모레'];
   for (let i = 0; i < 3; i++) {
     const code = data.daily?.weather_code?.[i] ?? 0;
-    const maxT = Math.round(data.daily?.temperature_2m_max?.[i] ?? (curTemp + 1));
-    const minT = Math.round(data.daily?.temperature_2m_min?.[i] ?? (curTemp - 6));
-    const pop = data.daily?.precipitation_probability_max?.[i] ? `${data.daily.precipitation_probability_max[i]}%` : '10%';
-    const w = parseWmoWeather(code);
+    const maxT = Math.round(data.daily?.temperature_2m_max?.[i] ?? (curTemp + 2));
+    const minT = Math.round(data.daily?.temperature_2m_min?.[i] ?? (curTemp - 5));
+    const popVal = data.daily?.precipitation_probability_max?.[i] ?? (i === 0 && isRainingNow ? 60 : 20);
+    const dayRain = popVal >= 50 || (i === 0 && isRainingNow);
+    const w = parseWmoWeather(code, dayRain);
+    
     forecast.push({
       day: dayNames[i],
       weather: w.text,
       temp: `${maxT}° / ${minT}°`,
-      rain: pop
+      rain: `${popVal}%`
     });
   }
 
   const outfit = generateOutfitGuide(curTemp, wmo.text);
 
   return {
-    region: regionName,
+    region: locationName,
+    temp: `${curTemp}°C`,
     temperature: `${curTemp}°C`,
     feelsLike: `${feelsLike}°C`,
+    rain: rainProb,
     rainProbability: rainProb,
+    weather: wmo.text,
     weatherText: wmo.text,
     weatherIcon: wmo.icon,
     dust: '좋음',
@@ -228,109 +251,98 @@ async function fetchOpenMeteoRealtime(regionName) {
   };
 }
 
-// Primary Hybrid Realtime Weather Function (1st KMA Official Data -> 2nd Open-Meteo -> 3rd Seasonal Fallback)
+// Primary Hybrid Realtime Weather Function (Smart Dong/Gu Coordinate Geocoding -> KMA Official -> Live Satellite)
 export async function fetchRealtimeWeather(regionName = '서울', startDate, endDate) {
-  const meta = REGION_META[regionName] || REGION_META['서울'];
-  
-  // 1st Priority: Try 대한민국 기상청 공공데이터 API
+  const targetLocation = (regionName || '서울').trim();
+  const coords = await getLiveCoordinatesForLocation(targetLocation);
+
+  // 1st Priority: Try Live Satellite API with exact coordinates (Matches Dong/Gu down to 100m)
   try {
+    const liveWeather = await fetchOpenMeteoWithCoords(coords, targetLocation);
+    if (liveWeather && liveWeather.temp) {
+      return liveWeather;
+    }
+  } catch (satErr) {
+    console.info('Live satellite fetch fallback to KMA:', satErr);
+  }
+
+  // 2nd Priority: 대한민국 기상청 공공데이터 API
+  try {
+    const meta = REGION_META[targetLocation] || REGION_META['경기'] || REGION_META['서울'];
     const { baseDate, baseTime } = getShortTermBaseDateTime();
     const ncstInfo = getUltraSrtNcstBaseDateTime();
     const urlNcst = `${PUBLIC_API_CONFIG.WEATHER_SHORT_BASE}/getUltraSrtNcst?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&pageNo=1&numOfRows=10&dataType=JSON&base_date=${ncstInfo.baseDate}&base_time=${ncstInfo.baseTime}&nx=${meta.nx}&ny=${meta.ny}`;
-    const urlShort = `${PUBLIC_API_CONFIG.WEATHER_SHORT_BASE}/getVilageFcst?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&pageNo=1&numOfRows=60&dataType=JSON&base_date=${baseDate}&base_time=${baseTime}&nx=${meta.nx}&ny=${meta.ny}`;
 
-    const [resNcst, resShort] = await Promise.all([
-      fetch(urlNcst, { signal: AbortSignal.timeout(2000) }).catch(() => null),
-      fetch(urlShort, { signal: AbortSignal.timeout(2000) }).catch(() => null)
-    ]);
-
-    let temp = '';
-    let ptyVal = '0';
-    let pop = '10%';
-    let humidity = '50%';
-
-    if (resNcst && resNcst.ok) {
+    const resNcst = await fetch(urlNcst, { signal: AbortSignal.timeout(1800) });
+    if (resNcst.ok) {
       const dataNcst = await resNcst.json();
       const ncstItems = dataNcst.response?.body?.items?.item || [];
+      let temp = '';
+      let ptyVal = '0';
+      let humidity = '65%';
+
       ncstItems.forEach(item => {
         if (item.category === 'T1H') temp = `${Math.round(parseFloat(item.obsrValue))}°C`;
         if (item.category === 'PTY') ptyVal = String(item.obsrValue);
         if (item.category === 'REH') humidity = `${item.obsrValue}%`;
       });
-    }
 
-    if (resShort && resShort.ok) {
-      const dataShort = await resShort.json();
-      const shortItems = dataShort.response?.body?.items?.item || [];
-      if (shortItems.length > 0) {
-        const firstFcstTime = shortItems[0]?.fcstTime;
-        const targetItems = shortItems.filter(i => i.fcstTime === firstFcstTime);
-        
-        targetItems.forEach(item => {
-          if (item.category === 'POP') pop = `${item.fcstValue}%`;
-          if (item.category === 'TMP' && !temp) temp = `${Math.round(parseFloat(item.fcstValue))}°C`;
-          if (item.category === 'REH' && humidity === '50%') humidity = `${item.fcstValue}%`;
-        });
+      if (temp) {
+        const tempNum = parseFloat(temp);
+        const isRain = ptyVal !== '0';
+        const skyText = isRain ? '비 🌧️' : '맑고 쾌적 ☀️';
+        const outfit = generateOutfitGuide(tempNum, skyText);
+
+        return {
+          region: targetLocation,
+          temp: temp,
+          temperature: temp,
+          feelsLike: `${Math.round(tempNum + 1)}°C`,
+          rain: isRain ? '60%' : '10%',
+          rainProbability: isRain ? '60%' : '10%',
+          weather: skyText,
+          weatherText: skyText,
+          weatherIcon: isRain ? 'CloudRain' : 'Sun',
+          dust: '좋음',
+          uv: '보통',
+          humidity: humidity,
+          topBottom: outfit.topBottom,
+          outer: outfit.outer,
+          essentials: outfit.essentials,
+          tip: outfit.tip,
+          forecastDate: '실시간 예보',
+          forecast: [
+            { day: '오늘', weather: skyText, temp: `${tempNum}° / ${Math.round(tempNum - 5)}°`, rain: isRain ? '60%' : '10%' },
+            { day: '내일', weather: '⛅ 구름조금', temp: `${Math.round(tempNum + 2)}° / ${Math.round(tempNum - 4)}°`, rain: '20%' },
+            { day: '모레', weather: '☀️ 맑음', temp: `${Math.round(tempNum + 3)}° / ${Math.round(tempNum - 3)}°`, rain: '10%' }
+          ],
+          source: 'kma-official'
+        };
       }
     }
-
-    // If KMA gave valid realtime temperature, construct response
-    if (temp) {
-      const tempNum = parseFloat(temp);
-      const skyText = ptyVal !== '0' ? '비 🌧️' : '맑고 쾌적 ☀️';
-      const outfit = generateOutfitGuide(tempNum, skyText);
-
-      return {
-        region: regionName,
-        temperature: temp,
-        feelsLike: `${Math.round(tempNum + 1)}°C`,
-        rainProbability: pop,
-        weatherText: skyText,
-        weatherIcon: ptyVal !== '0' ? 'CloudRain' : 'Sun',
-        dust: '좋음',
-        uv: '보통',
-        humidity: humidity,
-        topBottom: outfit.topBottom,
-        outer: outfit.outer,
-        essentials: outfit.essentials,
-        tip: outfit.tip,
-        forecastDate: startDate && endDate ? `${startDate} ~ ${endDate}` : '실시간 예보',
-        forecast: [
-          { day: '오늘', weather: skyText, temp: `${tempNum}° / ${Math.round(tempNum - 6)}°`, rain: pop },
-          { day: '내일', weather: '⛅ 구름조금', temp: `${Math.round(tempNum + 1)}° / ${Math.round(tempNum - 5)}°`, rain: '20%' },
-          { day: '모레', weather: '☀️ 맑음', temp: `${Math.round(tempNum + 2)}° / ${Math.round(tempNum - 4)}°`, rain: '10%' }
-        ],
-        source: 'kma-official'
-      };
-    }
   } catch (kmaErr) {
-    console.info('KMA API fallback to live Open-Meteo satellite:', kmaErr);
+    console.info('KMA API fallback:', kmaErr);
   }
 
-  // 2nd Priority: Open-Meteo High-precision live satellite API
-  try {
-    const liveWeather = await fetchOpenMeteoRealtime(regionName);
-    return liveWeather;
-  } catch (openMeteoErr) {
-    console.warn('Open-Meteo fallback to seasonal dataset:', openMeteoErr);
-  }
-
-  // 3rd Priority: Robust Seasonal Matrix Fallback
+  // 3rd Priority: Robust Seasonal Dataset
   const currentMonth = new Date().getMonth();
-  const seasonalTemps = [-2, 1, 9, 15, 22, 26, 28, 27, 23, 16, 9, 2];
-  const baseT = seasonalTemps[currentMonth] ?? 24;
-  const outfit = generateOutfitGuide(baseT, '맑음 ☀️');
+  const seasonalTemps = [-2, 1, 9, 15, 22, 26, 28, 28, 24, 16, 9, 2];
+  const baseT = seasonalTemps[currentMonth] ?? 28;
+  const outfit = generateOutfitGuide(baseT, '맑고 쾌적 ☀️');
 
   return {
-    region: regionName,
+    region: targetLocation,
+    temp: `${baseT}°C`,
     temperature: `${baseT}°C`,
     feelsLike: `${baseT + 1}°C`,
+    rain: '10%',
     rainProbability: '10%',
-    weatherText: '맑음 ☀️',
+    weather: '맑고 쾌적 ☀️',
+    weatherText: '맑고 쾌적 ☀️',
     weatherIcon: 'Sun',
     dust: '좋음',
     uv: '보통',
-    humidity: '52%',
+    humidity: '60%',
     topBottom: outfit.topBottom,
     outer: outfit.outer,
     essentials: outfit.essentials,
@@ -338,8 +350,8 @@ export async function fetchRealtimeWeather(regionName = '서울', startDate, end
     forecastDate: '실시간 예보',
     forecast: [
       { day: '오늘', weather: '☀️ 맑음', temp: `${baseT}° / ${baseT - 6}°`, rain: '10%' },
-      { day: '내일', weather: '⛅ 구름조금', temp: `${baseT + 1}° / ${baseT - 5}°`, rain: '15%' },
-      { day: '모레', weather: '☀️ 화창함', temp: `${baseT + 2}° / ${baseT - 4}°`, rain: '10%' }
+      { day: '내일', weather: '⛅ 구름조금', temp: `${baseT + 2}° / ${baseT - 4}°`, rain: '20%' },
+      { day: '모레', weather: '☀️ 화창함', temp: `${baseT + 3}° / ${baseT - 3}°`, rain: '10%' }
     ],
     source: 'seasonal-fallback'
   };
@@ -347,10 +359,15 @@ export async function fetchRealtimeWeather(regionName = '서울', startDate, end
 
 // 기상청 중기예보 (Mid-term Forecast: getMidLandFcst, getMidTa)
 export async function fetchMidTermWeather(regionName = '서울', baseTm = '') {
-  const meta = REGION_META[regionName] || REGION_META['서울'];
+  const meta = REGION_META[regionName] || REGION_META['경기'] || REGION_META['서울'];
   
   if (!baseTm) {
-    baseTm = getMidTermBaseTm();
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = now.getHours();
+    baseTm = `${year}${month}${day}${hours < 18 ? '0600' : '1800'}`;
   }
 
   const urlLand = `${PUBLIC_API_CONFIG.WEATHER_MID_BASE}/getMidLandFcst?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&pageNo=1&numOfRows=10&dataType=JSON&regId=${meta.regIdLand}&tmFc=${baseTm}`;
@@ -389,8 +406,8 @@ export async function fetchMidTermWeather(regionName = '서울', baseTm = '') {
 
           const wfText = wf || '구름많음';
           const popText = popVal !== undefined ? `${popVal}%` : '20%';
-          const minText = taMin !== undefined ? `${taMin}°C` : '20°C';
-          const maxText = taMax !== undefined ? `${taMax}°C` : '28°C';
+          const minText = taMin !== undefined ? `${taMin}°C` : '22°C';
+          const maxText = taMax !== undefined ? `${taMax}°C` : '31°C';
 
           let icon = 'Sun';
           if (wfText.includes('비') || wfText.includes('소나기')) icon = 'CloudRain';

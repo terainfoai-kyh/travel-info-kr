@@ -56,12 +56,13 @@ export default function TravelEssentialsSection({
   ];
 
   return (
-    <section style={{
-      padding: '1.25rem 1.5rem',
+    <section className="essentials-section-container" style={{
+      padding: '1.1rem 0.5rem',
       maxWidth: '1280px',
-      margin: '0 auto'
+      margin: '0 auto',
+      boxSizing: 'border-box'
     }}>
-      <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
+      <div style={{ textAlign: 'center', marginBottom: '1.1rem' }}>
         <div style={{
           display: 'inline-flex',
           alignItems: 'center',
@@ -72,23 +73,23 @@ export default function TravelEssentialsSection({
           backgroundColor: 'rgba(37, 99, 235, 0.08)',
           padding: '0.3rem 0.8rem',
           borderRadius: 'var(--radius-full)',
-          marginBottom: '0.5rem'
+          marginBottom: '0.45rem'
         }}>
           <ShieldCheck size={15} />
           <span>Travel Essentials</span>
         </div>
         <h2 style={{
-          fontSize: 'clamp(1.2rem, 3vw, 1.65rem)',
+          fontSize: 'clamp(1.18rem, 3.5vw, 1.55rem)',
           fontWeight: 900,
           color: 'var(--text-main)',
-          margin: '0 0 0.4rem 0',
+          margin: '0 0 0.35rem 0',
           wordBreak: 'keep-all',
           overflowWrap: 'break-word'
         }}>
           {t.essentialsTitle || '외국인 관광객 필수 툴킷'}
         </h2>
         <p style={{
-          fontSize: '0.84rem',
+          fontSize: '0.82rem',
           color: 'var(--text-muted)',
           margin: 0,
           fontWeight: 500,
@@ -99,11 +100,12 @@ export default function TravelEssentialsSection({
         </p>
       </div>
 
-      {/* Responsive Grid Cards */}
+      {/* Responsive Grid Cards (Expanded Width, Compact Gutters) */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-        gap: '0.85rem'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+        gap: '0.75rem',
+        boxSizing: 'border-box'
       }}>
         {ESSENTIAL_CARDS.map((card, idx) => (
           <div

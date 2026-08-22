@@ -1135,3 +1135,22 @@ button, a, input, select, textarea {
   font-size: clamp(0.82rem, 2.5vw, 0.9rem) !important;
 }
 
+/* ==========================================================================
+   Travel Essentials & Editorial Sections - Wide Clean Responsive Padding
+   ========================================================================== */
+.essentials-section-container,
+.articles-section-container {
+  width: 100% !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 1.15rem 0.5rem !important;
+  box-sizing: border-box !important;
+}
+
+@media (min-width: 769px) {
+  .essentials-section-container,
+  .articles-section-container {
+    padding: 1.5rem 0.85rem !important;
+  }
+}
+

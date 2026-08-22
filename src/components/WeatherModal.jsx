@@ -276,7 +276,30 @@ export default function WeatherModal({
 
   // Multilingual Localization Helper for Weather conditions, dust, and styling recommendations
   const getLocalizedWeather = (data, language, targetCityName) => {
-    if (language === 'ko') return data;
+    const tempStr = data.temp || data.temperature || '27°C';
+    const rainStr = data.rain || data.rainProbability || '10%';
+    const weatherStr = data.weather || data.weatherText || '맑고 쾌적 ☀️';
+    const feelsLikeStr = data.feelsLike || tempStr;
+    const humidityStr = data.humidity || '50%';
+    const dustStr = data.dust || '좋음';
+    const uvStr = data.uv || '보통';
+
+    const normalizedData = {
+      ...data,
+      temp: tempStr,
+      temperature: tempStr,
+      rain: rainStr,
+      rainProbability: rainStr,
+      weather: weatherStr,
+      weatherText: weatherStr,
+      feelsLike: feelsLikeStr,
+      humidity: humidityStr,
+      dust: dustStr,
+      uv: uvStr,
+      forecast: data.forecast || []
+    };
+
+    if (language === 'ko') return normalizedData;
 
     const translateDust = (d) => {
       if (language === 'en') return d === '최고 좋음' ? 'Excellent' : d === '좋음' ? 'Good' : d === '보통' ? 'Moderate' : 'Unhealthy';
@@ -318,7 +341,7 @@ export default function WeatherModal({
     };
 
     const localizedCity = getLocalizedCityName(targetCityName, language);
-    const tempNum = parseInt(data.temp) || 22;
+    const tempNum = parseInt(normalizedData.temp) || 27;
 
     let topBottom = 'Comfortable cotton T-shirt, breathable slacks or denim jeans';
     let outer = 'Light cardigan or windbreaker for evening breeze & indoor AC';

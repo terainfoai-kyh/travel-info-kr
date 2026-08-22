@@ -226,11 +226,12 @@ export default function AdSenseArticlesSection({ lang = 'ko' }) {
   const FAQS = lang === 'en' ? FAQS_EN : lang === 'ja' ? FAQS_JA : (lang === 'zh' || lang === 'zht') ? FAQS_ZH : FAQS_KO;
 
   return (
-    <section style={{
-      padding: '1.5rem 1.5rem',
+    <section className="articles-section-container" style={{
+      padding: '1.25rem 0.5rem',
       maxWidth: '1280px',
       margin: '0 auto',
-      borderTop: '1px solid var(--border-color)'
+      borderTop: '1px solid var(--border-color)',
+      boxSizing: 'border-box'
     }}>
       {/* Editorial Title */}
       <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
