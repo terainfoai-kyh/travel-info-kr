@@ -217,9 +217,15 @@ export const TRANSLATIONS = {
     weatherOuter: '🧥 아우터 레이어드:',
     weatherEssentials: '🎒 필수 여행 소품:',
     weatherStylistTip: '현지 스타일리스트 꿀팁: ',
-    weatherSunscreenLink: '🧴 여행용 선크림 & 쿨링패치',
-    weatherHanbokLink: '👘 전통 한복/의상 대여',
-    weatherLookbookLink: '📌 K-패션 여행 감성 룩북 (Pinterest)',
+    // Portal Home & Timeline Highlights
+    portalHeroBadge: 'VORA AI 3.0 • 대한민국 대표 AI 여행 컨시어지',
+    portalSearchPlaceholder: '어디로 떠나고 싶으신가요? (예: 2박3일 제주 힐링, 성수동 카페 투어)',
+    portalGenerateBtn: 'AI 일정생성',
+    portalTrendingThemes: '외국인 인기 추천 테마 AI 여행 코스',
+    portalTrendingSubtitle: '전 세계 여행자들이 가장 사랑하는 대한민국 대표 여행 테마를 원클릭으로 만나보세요',
+    portalLivePlannerTitle: '실시간 맞춤 AI 여행 일정 & 스마트 동선 플래너',
+    todayGourmetPick: '오늘의 추천 로컬 미식',
+    openAiItinerary: 'AI 일정 열기',
 
     // Modals
     modalClose: '닫기',
@@ -351,6 +357,16 @@ export const TRANSLATIONS = {
     detailDirectionsTitle: '🗺️ Directions & Live Maps',
     detailLowestPriceBtn: 'Book Lowest Price ↗',
 
+    // Portal Home & Timeline Highlights
+    portalHeroBadge: 'VORA AI 3.0 • Official Korea Travel Concierge',
+    portalSearchPlaceholder: 'Where do you want to explore? (e.g. 3-day Jeju drive, Seongsu cafes)',
+    portalGenerateBtn: 'AI Generate',
+    portalTrendingThemes: 'Popular Curated AI Travel Itineraries',
+    portalTrendingSubtitle: "Discover Korea's most-loved travel themes chosen by global travelers in one click",
+    portalLivePlannerTitle: 'Live AI Travel Concierge & Route Planner',
+    todayGourmetPick: "Today's Gourmet Pick",
+    openAiItinerary: 'Open AI Course',
+
     // Modals
     modalClose: 'Close',
     privacyPolicy: 'Privacy Policy',
@@ -480,6 +496,16 @@ export const TRANSLATIONS = {
     detailEditorGuide: '✨ エディター詳細ガイド',
     detailDirectionsTitle: '🗺️ アクセス＆リアルタイムマップ',
     detailLowestPriceBtn: '最安値予約 ↗',
+
+    // Portal Home & Timeline Highlights
+    portalHeroBadge: 'VORA AI 3.0 • 韓国旅行公式AIコンシェルジュ',
+    portalSearchPlaceholder: 'どこへ行きたいですか？ (例: 済州ドライブ、聖水カフェ)',
+    portalGenerateBtn: 'AI作成',
+    portalTrendingThemes: '外国人旅行者に大人気の厳選AIコース',
+    portalTrendingSubtitle: '世界中の旅行者が絶賛する韓国を代表する人気テーマコースをワンクリックで',
+    portalLivePlannerTitle: 'リアルタイムAIコンシェルジュ＆動線プランナー',
+    todayGourmetPick: '本日のおすすめグルメ',
+    openAiItinerary: 'AIプランを開く',
 
     // Modals
     modalClose: '閉じる',
@@ -611,6 +637,16 @@ export const TRANSLATIONS = {
     detailDirectionsTitle: '🗺️ 交通路线与实时地图',
     detailLowestPriceBtn: '低价预订 ↗',
 
+    // Portal Home & Timeline Highlights
+    portalHeroBadge: 'VORA AI 3.0 • 韩国官方智能旅游管家',
+    portalSearchPlaceholder: '想去哪里旅行？ (例如: 济州3日自驾、首尔圣水洞咖啡)',
+    portalGenerateBtn: 'AI生成',
+    portalTrendingThemes: '海外游客精选高分推荐路线',
+    portalTrendingSubtitle: '一键探索全球游客最喜爱的韩国代表性主题旅行路线',
+    portalLivePlannerTitle: '实时AI旅游定制与智能路线规划',
+    todayGourmetPick: '今日推荐特色美食',
+    openAiItinerary: '查看AI行程',
+
     // Modals
     modalClose: '关闭',
     privacyPolicy: '隐私政策',
@@ -740,6 +776,16 @@ export const TRANSLATIONS = {
     detailEditorGuide: '✨ 旅遊編輯深度指引',
     detailDirectionsTitle: '🗺️ 交通路線與即時地圖',
     detailLowestPriceBtn: '低價預訂 ↗',
+
+    // Portal Home & Timeline Highlights
+    portalHeroBadge: 'VORA AI 3.0 • 韓國官方智能旅遊管家',
+    portalSearchPlaceholder: '想去哪裡旅行？ (例如: 濟州3日自駕、首爾聖水洞咖啡)',
+    portalGenerateBtn: 'AI生成',
+    portalTrendingThemes: '海外遊客精選高分推薦路線',
+    portalTrendingSubtitle: '一鍵探索全球遊客最喜愛的韓國代表性主題旅行路線',
+    portalLivePlannerTitle: '即時AI旅遊定制與智慧路線規劃',
+    todayGourmetPick: '今日推薦特色美食',
+    openAiItinerary: '查看AI行程',
 
     // Modals
     modalClose: '關閉',

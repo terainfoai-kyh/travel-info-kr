@@ -263,7 +263,7 @@ export default function CourseMagazineView({
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontWeight: 800, color: '#b45309', fontSize: '0.8rem', marginBottom: '0.1rem' }}>
-                    {lang === 'en' ? 'Today\'s Gourmet Pick' : lang === 'ja' ? '本日のおすすめグルメ' : (lang === 'zh' || lang === 'zht') ? '今日推荐特色美食' : '오늘의 추천 로컬 미식'} : {currentSchedule.foodRecommendation.dishName}
+                    {t.todayGourmetPick || '오늘의 추천 로컬 미식'} : {currentSchedule.foodRecommendation.dishName}
                   </div>
                   <div style={{ fontSize: '0.73rem', color: 'var(--text-muted)', lineHeight: 1.35, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {currentSchedule.foodRecommendation.description}

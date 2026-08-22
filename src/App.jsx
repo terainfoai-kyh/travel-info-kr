@@ -586,10 +586,7 @@ export default function App() {
             borderRadius: '4px'
           }} />
           <h2 style={{ fontSize: '1.25rem', fontWeight: 900, margin: 0, color: 'var(--text-main)' }}>
-            {lang === 'en' ? 'Live AI Travel Concierge & Route Planner' :
-             lang === 'ja' ? 'リアルタイムAIコンシェルジュ＆動線プランナー' :
-             (lang === 'zh' || lang === 'zht') ? '实时AI旅游定制与智能路线规划' :
-             '실시간 맞춤 AI 여행 일정 & 스마트 동선 플래너'}
+            {t.portalLivePlannerTitle || '실시간 맞춤 AI 여행 일정 & 스마트 동선 플래너'}
           </h2>
         </div>
 

@@ -7,17 +7,18 @@ import {
   Compass, 
   Train, 
   Wifi, 
-  PhoneCall,
-  Map,
+  PhoneCall, 
+  Map, 
   ArrowRight, 
   ChevronRight, 
   Star, 
   Clock, 
-  Flame,
-  CreditCard,
-  Shirt,
-  X
+  Flame, 
+  CreditCard, 
+  Shirt, 
+  X 
 } from 'lucide-react';
+import { getLocalizedCityName, TRANSLATIONS } from '../i18n/translations';
 
 const HERO_SLIDES = [
   {
@@ -241,6 +242,7 @@ export default function PortalHomePrototype({
 }) {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
   const [isHovered, setIsHovered] = useState(false);
   const [selectedCityTab, setSelectedCityTab] = useState('all');
 
@@ -271,11 +273,56 @@ export default function PortalHomePrototype({
   };
 
   const QUICK_CHIPS = [
-    { labelKo: '☕ 성수·한남 힙플', labelEn: '☕ Seongsu & Hannam', prompt: '서울 성수동과 한남동 감성 카페와 핫플 코스' },
-    { labelKo: '👑 경복궁 & 북촌', labelEn: '👑 Gyeongbokgung Palace', prompt: '경복궁과 북촌 한옥마을, 인사동 전통 문화 코스' },
-    { labelKo: '🌊 부산 광안리 오션뷰', labelEn: '🌊 Busan Gwangan Ocean', prompt: '부산 해운대와 광안리 오션뷰 미식 코스' },
-    { labelKo: '🍊 제주 서귀포 힐링', labelEn: '🍊 Jeju Healing Drive', prompt: '제주도 애월과 서귀포 해안 힐링 코스' },
-    { labelKo: '🏯 수원 행궁동 투어', labelEn: '🏯 Suwon Fortress Tour', prompt: '수원 화성행궁과 행리단길 1일 투어' }
+    { 
+      labelKo: '☕ 성수·한남 힙플', 
+      labelEn: '☕ Seongsu & Hannam', 
+      labelJa: '☕ 聖水＆漢南',
+      labelZh: '☕ 圣水·汉南',
+      promptKo: '서울 성수동과 한남동 감성 카페와 핫플 코스',
+      promptEn: '3-day trendy tour of Seongsu-dong cafe street and Hannam-dong in Seoul',
+      promptJa: 'ソウル聖水洞と漢南洞のカフェ通り＆最新ホットスポットコース',
+      promptZh: '首尔圣水洞与汉南洞氛围咖啡街与潮流探店路线'
+    },
+    { 
+      labelKo: '👑 경복궁 & 북촌', 
+      labelEn: '👑 Gyeongbokgung Palace', 
+      labelJa: '👑 景福宮＆北村',
+      labelZh: '👑 景福宫·北村',
+      promptKo: '경복궁과 북촌 한옥마을, 인사동 전통 문화 코스',
+      promptEn: '1-day traditional culture tour of Gyeongbokgung Palace, Bukchon Hanok Village, and Insadong',
+      promptJa: '景福宮と北村韓屋村、仁寺洞の伝統文化1日コース',
+      promptZh: '景福宫与北村韩屋村、仁寺洞传统文化一日游'
+    },
+    { 
+      labelKo: '🌊 부산 광안리 오션뷰', 
+      labelEn: '🌊 Busan Gwangan Ocean', 
+      labelJa: '🌊 釜山 広安里オーシャン',
+      labelZh: '🌊 釜山广安里海景',
+      promptKo: '부산 해운대와 광안리 오션뷰 미식 코스',
+      promptEn: '3-day ocean view and seafood tour of Haeundae and Gwangalli in Busan',
+      promptJa: '釜山海雲台と広安里オーシャンビュー＆グルメ3日間コース',
+      promptZh: '釜山海云台与广安里海景美食3天2晚路线'
+    },
+    { 
+      labelKo: '🍊 제주 서귀포 힐링', 
+      labelEn: '🍊 Jeju Healing Drive', 
+      labelJa: '🍊 済州 ヒーリングドライブ',
+      labelZh: '🍊 济州西归浦疗愈',
+      promptKo: '제주도 애월과 서귀포 해안 힐링 코스',
+      promptEn: '3-day coastal scenic drive and healing tour of Aewol and Seogwipo in Jeju',
+      promptJa: '済州島涯月海岸と西帰浦ヒーリングドライブ3日間コース',
+      promptZh: '济州岛涯月与西归浦海岸公路治愈自驾路线'
+    },
+    { 
+      labelKo: '🏯 수원 행궁동 투어', 
+      labelEn: '🏯 Suwon Fortress Tour', 
+      labelJa: '🏯 水原 行宮洞ツアー',
+      labelZh: '🏯 水原行宫洞一日游',
+      promptKo: '수원 화성행궁과 행리단길 1일 투어',
+      promptEn: '1-day UNESCO Suwon Hwaseong Fortress and Haengnidan-gil street tour',
+      promptJa: '水原華城と行理団通り1日ヘリテージツアー',
+      promptZh: '水原华城行宫与行理团路世界遗产一日游'
+    }
   ];
 
   const CITY_TABS = [
@@ -494,40 +541,44 @@ export default function PortalHomePrototype({
             gap: '0.45rem',
             marginTop: '0.1rem'
           }}>
-            {QUICK_CHIPS.map((chip, idx) => (
-              <button
-                key={idx}
-                onClick={() => handleChipClick(chip.prompt)}
-                style={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.94)',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255, 255, 255, 0.8)',
-                  color: '#0f172a',
-                  padding: '0.35rem 0.8rem',
-                  borderRadius: '9999px',
-                  fontSize: '0.78rem',
-                  fontWeight: 800,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.25rem',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#2563eb';
-                  e.currentTarget.style.color = '#ffffff';
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.94)';
-                  e.currentTarget.style.color = '#0f172a';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                }}
-              >
-                <span>{lang === 'en' ? chip.labelEn : chip.labelKo}</span>
-              </button>
-            ))}
+            {QUICK_CHIPS.map((chip, idx) => {
+              const chipLabel = lang === 'en' ? chip.labelEn : lang === 'ja' ? chip.labelJa : (lang === 'zh' || lang === 'zht') ? chip.labelZh : chip.labelKo;
+              const chipPrompt = lang === 'en' ? chip.promptEn : lang === 'ja' ? chip.promptJa : (lang === 'zh' || lang === 'zht') ? chip.promptZh : chip.promptKo;
+              return (
+                <button
+                  key={idx}
+                  onClick={() => handleChipClick(chipPrompt || chip.promptKo)}
+                  style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.94)',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(255, 255, 255, 0.8)',
+                    color: '#0f172a',
+                    padding: '0.35rem 0.8rem',
+                    borderRadius: '9999px',
+                    fontSize: '0.78rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.25rem',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#2563eb';
+                    e.currentTarget.style.color = '#ffffff';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.94)';
+                    e.currentTarget.style.color = '#0f172a';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                  }}
+                >
+                  <span>{chipLabel}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -839,7 +890,7 @@ export default function PortalHomePrototype({
                     gap: '0.25rem'
                   }}>
                     <MapPin size={11} style={{ color: '#60a5fa' }} />
-                    <span>{theme.city}</span>
+                    <span>{getLocalizedCityName(theme.city, lang)}</span>
                   </span>
                   <span style={{
                     backgroundColor: 'rgba(37, 99, 235, 0.85)',
@@ -958,7 +1009,7 @@ export default function PortalHomePrototype({
                   justifyContent: 'space-between'
                 }}>
                   <span style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--accent-primary)' }}>
-                    {lang === 'en' ? 'Open AI Itinerary' : lang === 'ja' ? 'AIコースを開く' : (lang === 'zh' || lang === 'zht') ? '开启AI行程' : 'AI 일정 열기'}
+                    {t.openAiItinerary || (lang === 'en' ? 'Open AI Itinerary' : 'AI 일정 열기')}
                   </span>
                   <div style={{
                     width: '28px',
