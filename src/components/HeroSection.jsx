@@ -24,7 +24,7 @@ export default function HeroSection({
 
   return (
     <section style={{
-      padding: '1rem 0.5rem 0.6rem 0.5rem',
+      padding: '0.85rem 0.25rem 0.5rem 0.25rem',
       textAlign: 'center',
       position: 'relative',
       width: '100%',
@@ -33,17 +33,22 @@ export default function HeroSection({
       overflow: 'hidden',
       margin: '0 auto'
     }}>
-      {/* Sleek Compact Heading */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
-        <Sparkles size={18} style={{ color: 'var(--accent-primary)' }} />
+      {/* Sleek Compact Heading with Perfect Symmetry */}
+      <div style={{ marginBottom: '0.4rem', textAlign: 'center' }}>
         <h1 style={{
           fontSize: 'clamp(1.25rem, 2.8vw, 1.75rem)',
           fontWeight: 900,
           margin: 0,
           color: 'var(--text-main)',
-          letterSpacing: '-0.02em'
+          letterSpacing: '-0.02em',
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexWrap: 'wrap',
+          gap: '0.35rem'
         }}>
-          {t.heroTitle || '질문 하나로 완성되는 나만의 한국 여행'}
+          <Sparkles size={18} style={{ color: 'var(--accent-primary)', display: 'inline-block', verticalAlign: 'middle', flexShrink: 0 }} />
+          <span>{t.heroTitle || '질문 하나로 완성되는 나만의 한국 여행'}</span>
         </h1>
       </div>
 

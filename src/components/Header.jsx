@@ -116,15 +116,7 @@ export default function Header({
       borderBottom: '1px solid var(--border-color)',
       transition: 'all var(--transition-normal)'
     }}>
-      <div style={{
-        maxWidth: '1280px',
-        margin: '0 auto',
-        padding: '0.75rem 1.25rem',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: '0.75rem'
-      }}>
+      <div className="header-inner-container">
         {/* Left: Brand Logo & Tagline */}
         <div 
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}

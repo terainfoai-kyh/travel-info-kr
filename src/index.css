@@ -922,6 +922,27 @@ button, a, input, select, textarea {
   max-width: 100%;
 }
 
+.header-inner-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0.75rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.app-main-container {
+  max-width: 1320px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 0.85rem 1.5rem 0.85rem;
+  box-sizing: border-box;
+  flex: 1;
+}
+
 /* Mobile Segmented Tab Switcher (Visible only on < 768px) */
 .mobile-hub-tabs-wrapper {
   display: none;
@@ -929,13 +950,20 @@ button, a, input, select, textarea {
 
 /* Mobile Screens (< 768px) */
 @media (max-width: 768px) {
+  .header-inner-container {
+    padding: 0.55rem 0.5rem !important;
+    gap: 0.4rem !important;
+  }
+  .app-main-container {
+    padding: 0 0.45rem 1.5rem 0.45rem !important;
+  }
   .hero-chips-container {
     flex-wrap: nowrap !important;
     overflow-x: auto !important;
     justify-content: flex-start !important;
     scrollbar-width: none !important;
     -webkit-overflow-scrolling: touch !important;
-    padding: 0.2rem 0.5rem 0.4rem 0.5rem !important;
+    padding: 0.2rem 0.25rem 0.4rem 0.25rem !important;
   }
   .mobile-hub-tabs-wrapper {
     display: flex;

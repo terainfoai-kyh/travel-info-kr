@@ -506,15 +506,8 @@ export default function App() {
         onOpenTerms={() => setIsTermsOpen(true)}
       />
 
-      {/* Main Container */}
-      <main style={{
-        maxWidth: '1320px',
-        width: '100%',
-        margin: '0 auto',
-        padding: '0 0.85rem 1.5rem 0.85rem',
-        boxSizing: 'border-box',
-        flex: 1
-      }}>
+      {/* Main Container (모바일 8px 좌우 여백 최적화) */}
+      <main className="app-main-container">
         {/* 1. Ultra-Compact Modern Hero Section with Smart Prompt Bar */}
         <HeroSection
           lang={lang}
