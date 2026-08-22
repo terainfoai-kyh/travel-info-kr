@@ -902,14 +902,14 @@ button, a, input, select, textarea {
 .itinerary-hub-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 1rem;
-  margin: 0.5rem 0 1.5rem 0;
+  gap: 1.25rem;
+  margin: 0.85rem 0 1.75rem 0;
   align-items: stretch;
 }
 
 .itinerary-hub-column {
-  height: 685px;
-  min-height: 520px;
+  height: 720px;
+  min-height: 540px;
 }
 
 .hero-chips-container {

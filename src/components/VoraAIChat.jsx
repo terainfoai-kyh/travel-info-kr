@@ -189,27 +189,28 @@ export default function VoraAIChat({
                   flexDirection: 'column',
                   alignItems: 'flex-end',
                   gap: '0.25rem',
-                  marginBottom: '0.3rem',
+                  marginBottom: '0.5rem',
                   width: '100%',
                   boxSizing: 'border-box'
                 }}
               >
                 <div style={{
-                  backgroundColor: 'var(--accent-primary)',
+                  background: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
                   color: '#ffffff',
-                  borderRadius: '16px 4px 16px 16px',
-                  padding: '0.65rem 0.85rem',
-                  fontSize: '0.82rem',
+                  borderRadius: '18px 18px 4px 18px',
+                  padding: '0.7rem 0.95rem',
+                  fontSize: '0.86rem',
+                  fontWeight: 600,
                   lineHeight: 1.5,
-                  maxWidth: '88%',
+                  maxWidth: '85%',
                   wordBreak: 'break-word',
                   overflowWrap: 'anywhere',
-                  boxShadow: 'var(--shadow-sm)'
+                  boxShadow: '0 4px 14px rgba(37, 99, 235, 0.25)'
                 }}>
                   {msg.text}
                 </div>
                 {msg.timestamp && (
-                  <span style={{ fontSize: '0.66rem', color: 'var(--text-muted)', paddingRight: '0.3rem' }}>
+                  <span style={{ fontSize: '0.66rem', color: 'var(--text-muted)', paddingRight: '0.4rem', fontWeight: 500 }}>
                     {lang === 'en' ? `Inquiry ${msg.timestamp}` : lang === 'ja' ? `送信時刻 ${msg.timestamp}` : (lang === 'zh' || lang === 'zht') ? `提问时间 ${msg.timestamp}` : `문의 시간 ${msg.timestamp}`}
                   </span>
                 )}
@@ -248,14 +249,14 @@ export default function VoraAIChat({
               <div style={{ flex: 1, minWidth: 0, width: '100%', display: 'flex', flexDirection: 'column', gap: '0.45rem', overflow: 'hidden' }}>
                 {/* Assistant Text Bubble */}
                 <div style={{
-                  backgroundColor: 'var(--bg-primary)',
+                  backgroundColor: 'var(--bg-card)',
                   border: '1px solid var(--border-color)',
-                  borderRadius: '4px 16px 16px 16px',
-                  padding: '0.65rem 0.8rem',
-                  fontSize: '0.82rem',
-                  lineHeight: 1.55,
+                  borderRadius: '4px 18px 18px 18px',
+                  padding: '0.85rem 1rem',
+                  fontSize: '0.86rem',
+                  lineHeight: 1.6,
                   color: 'var(--text-main)',
-                  boxShadow: 'var(--shadow-sm)',
+                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.04)',
                   wordBreak: 'break-word',
                   overflowWrap: 'anywhere',
                   boxSizing: 'border-box',
@@ -269,14 +270,14 @@ export default function VoraAIChat({
                       alignItems: 'center',
                       flexWrap: 'wrap',
                       gap: '0.35rem',
-                      fontSize: '0.68rem',
+                      fontSize: '0.7rem',
                       fontWeight: 700,
                       color: '#2563eb',
                       backgroundColor: 'rgba(37, 99, 235, 0.08)',
-                      border: '1px solid rgba(37, 99, 235, 0.18)',
-                      padding: '0.2rem 0.5rem',
-                      borderRadius: '6px',
-                      marginBottom: '0.45rem'
+                      border: '1px solid rgba(37, 99, 235, 0.2)',
+                      padding: '0.2rem 0.55rem',
+                      borderRadius: '8px',
+                      marginBottom: '0.55rem'
                     }}>
                       <span style={{ fontWeight: 800 }}>
                         {lang === 'en' 
@@ -301,7 +302,7 @@ export default function VoraAIChat({
                     </div>
                   )}
 
-                  <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'break-word' }}>{msg.text}</div>
+                  <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'break-word', fontSize: '0.86rem' }}>{msg.text}</div>
 
                   {/* Quota Exhausted Call to Action Cards (Rewarded Ad & Google Login) */}
                   {(msg.isQuotaExhausted || (msg.text && (msg.text.includes('무료 AI 질문') || msg.text.includes('free AI questions')))) && (
@@ -433,7 +434,7 @@ export default function VoraAIChat({
 
                 {/* Daily Schedule Interactive Cards inside Chat */}
                 {msg.itinerary && msg.itinerary.dailySchedules && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.55rem', width: '100%', maxWidth: '100%', boxSizing: 'border-box', marginTop: '0.2rem' }}>
                     {msg.itinerary.dailySchedules.map((ds) => {
                       const isCurrentActive = Number(activeDay) === Number(ds.day);
                       return (
@@ -441,33 +442,47 @@ export default function VoraAIChat({
                           key={ds.day}
                           onClick={() => onSelectDay && onSelectDay(ds.day)}
                           style={{
-                            backgroundColor: isCurrentActive ? 'rgba(37, 99, 235, 0.06)' : 'var(--bg-card)',
-                            border: isCurrentActive ? '1.5px solid var(--accent-primary)' : '1px solid var(--border-color)',
-                            borderRadius: '12px',
-                            padding: '0.55rem 0.7rem',
+                            backgroundColor: isCurrentActive ? 'rgba(37, 99, 235, 0.05)' : 'var(--bg-card)',
+                            border: isCurrentActive ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                            borderRadius: '14px',
+                            padding: '0.65rem 0.85rem',
                             display: 'flex',
                             flexDirection: 'column',
-                            gap: '0.35rem',
+                            gap: '0.45rem',
                             cursor: 'pointer',
                             width: '100%',
                             maxWidth: '100%',
                             boxSizing: 'border-box',
-                            transition: 'all var(--transition-fast)'
+                            boxShadow: isCurrentActive ? '0 4px 14px rgba(37, 99, 235, 0.12)' : '0 2px 6px rgba(0, 0, 0, 0.03)',
+                            transition: 'all 0.2s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            if (!isCurrentActive) {
+                              e.currentTarget.style.borderColor = 'var(--border-highlight)';
+                              e.currentTarget.style.transform = 'translateY(-1px)';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (!isCurrentActive) {
+                              e.currentTarget.style.borderColor = 'var(--border-color)';
+                              e.currentTarget.style.transform = 'translateY(0)';
+                            }
                           }}
                         >
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', boxSizing: 'border-box' }}>
                             <span style={{
-                              fontSize: '0.7rem',
+                              fontSize: '0.74rem',
                               fontWeight: 900,
-                              backgroundColor: isCurrentActive ? 'var(--accent-primary)' : 'var(--text-muted)',
+                              backgroundColor: isCurrentActive ? '#2563eb' : '#64748b',
                               color: '#ffffff',
-                              padding: '0.12rem 0.45rem',
+                              padding: '0.15rem 0.5rem',
                               borderRadius: 'var(--radius-full)',
-                              flexShrink: 0
+                              flexShrink: 0,
+                              boxShadow: isCurrentActive ? '0 2px 6px rgba(37, 99, 235, 0.3)' : 'none'
                             }}>
                               {t.dayBadge ? t.dayBadge(ds.day) : `${ds.day}일차`}
                             </span>
-                            <span style={{ fontSize: '0.76rem', fontWeight: 800, color: 'var(--text-main)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginLeft: '0.35rem' }}>
+                            <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-main)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginLeft: '0.4rem' }}>
                               {ds.theme}
                             </span>
                           </div>
@@ -477,8 +492,8 @@ export default function VoraAIChat({
                             display: 'flex',
                             alignItems: 'center',
                             flexWrap: 'wrap',
-                            gap: '0.25rem',
-                            fontSize: '0.7rem',
+                            gap: '0.35rem',
+                            fontSize: '0.72rem',
                             fontWeight: 700,
                             color: 'var(--text-main)',
                             width: '100%',
@@ -489,8 +504,8 @@ export default function VoraAIChat({
                                 <span style={{
                                   backgroundColor: 'var(--bg-primary)',
                                   border: '1px solid var(--border-color)',
-                                  padding: '0.12rem 0.35rem',
-                                  borderRadius: '5px',
+                                  padding: '0.18rem 0.45rem',
+                                  borderRadius: '6px',
                                   maxWidth: '100%',
                                   wordBreak: 'break-all'
                                 }}>
@@ -509,11 +524,11 @@ export default function VoraAIChat({
                               display: 'flex',
                               alignItems: 'center',
                               gap: '0.35rem',
-                              backgroundColor: 'rgba(245, 158, 11, 0.07)',
-                              border: '1px solid rgba(245, 158, 11, 0.15)',
-                              padding: '0.22rem 0.45rem',
-                              borderRadius: '6px',
-                              fontSize: '0.7rem',
+                              backgroundColor: 'rgba(245, 158, 11, 0.08)',
+                              border: '1px solid rgba(245, 158, 11, 0.2)',
+                              padding: '0.25rem 0.55rem',
+                              borderRadius: '8px',
+                              fontSize: '0.72rem',
                               color: '#b45309',
                               fontWeight: 700,
                               width: '100%',
@@ -521,7 +536,7 @@ export default function VoraAIChat({
                               boxSizing: 'border-box',
                               overflow: 'hidden'
                             }}>
-                              <Utensils size={11} style={{ color: '#d97706', flexShrink: 0 }} />
+                              <Utensils size={12} style={{ color: '#d97706', flexShrink: 0 }} />
                               <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                 <strong>{ds.foodRecommendation.dishName}</strong>: {ds.foodRecommendation.description}
                               </span>
