@@ -97,7 +97,7 @@ const CURATED_THEMES = [
     durationZh: '3天2晚',
     rating: 4.9,
     reviews: '2.4k',
-    image: 'https://tong.visitkorea.or.kr/cms/resource/50/2619450_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/66/2608466_image2_1.jpg',
     tagsKo: ['#성수동', '#K패션', '#감성카페', '#디뮤지엄'],
     tagsEn: ['#Seongsu', '#KFashion', '#TrendyCafe', '#DMuseum'],
     tagsJa: ['#聖水洞', '#Kファッション', '#人気カフェ', '#美術館'],
@@ -147,7 +147,7 @@ const CURATED_THEMES = [
     durationZh: '4天3晚',
     rating: 4.9,
     reviews: '3.1k',
-    image: 'https://tong.visitkorea.or.kr/cms/resource/71/2619471_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/13/2678613_image2_1.jpg',
     tagsKo: ['#광안대교', '#해운대요트', '#해리단길', '#더베이101'],
     tagsEn: ['#GwanganBridge', '#YachtTour', '#Haeridan', '#TheBay101'],
     tagsJa: ['#広安大橋', '#ヨットクルーズ', '#グルメ通り', '#ベイ101'],
@@ -222,7 +222,7 @@ const CURATED_THEMES = [
     durationZh: '2天1晚',
     rating: 4.8,
     reviews: '1.9k',
-    image: 'https://tong.visitkorea.or.kr/cms/resource/13/2678613_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/88/2608488_image2_1.jpg',
     tagsKo: ['#안목해변', '#커피거리', '#BTS정류장', '#주문진'],
     tagsEn: ['#AnmokBeach', '#CoffeeStreet', '#BTSStop', '#Jumunjin'],
     tagsJa: ['#安木ビーチ', '#カフェ通り', '#BTSスポット', '#注文津'],
@@ -560,307 +560,117 @@ export default function PortalHomePrototype({
         </div>
       </div>
 
-      {/* ⚡ 2. HanaTour / VisitKorea Style 6-Icon Circular Quick Hub */}
-      <div style={{ marginBottom: '2.5rem' }}>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
-          gap: '0.85rem'
-        }}>
+      {/* ⚡ 2. HanaTour / VisitKorea Style 6-Icon Circular Quick Hub (Responsive 6-in-row on PC / 3x2 on Mobile) */}
+      <div style={{ marginBottom: '2rem' }}>
+        <div className="portal-quick-hub-grid">
           
           {/* Icon 1: AI Course Planner */}
           <div 
+            className="portal-quick-hub-card"
             onClick={() => {
               const el = document.getElementById('search-filter-section');
               if (el) el.scrollIntoView({ behavior: 'smooth' });
             }}
-            style={{
-              backgroundColor: 'var(--bg-card)',
-              border: '1px solid var(--border-color)',
-              borderRadius: '20px',
-              padding: '1.1rem 0.6rem',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.6rem',
-              cursor: 'pointer',
-              transition: 'all 0.25s ease',
-              boxShadow: 'var(--shadow-sm)',
-              textAlign: 'center'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-4px)';
-              e.currentTarget.style.borderColor = 'var(--accent-primary)';
-              e.currentTarget.style.boxShadow = '0 10px 20px rgba(37, 99, 235, 0.12)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.borderColor = 'var(--border-color)';
-              e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
-            }}
           >
-            <div style={{
-              width: '52px',
-              height: '52px',
-              borderRadius: '50%',
+            <div className="portal-quick-hub-icon" style={{
               background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#ffffff',
               boxShadow: '0 8px 16px rgba(37, 99, 235, 0.25)'
             }}>
-              <Sparkles size={24} />
+              <Sparkles size={22} />
             </div>
-            <div style={{ fontSize: '0.84rem', fontWeight: 800, color: 'var(--text-main)' }}>
+            <div className="portal-quick-hub-label">
               {lang === 'en' ? 'AI Planner' : lang === 'ja' ? 'AIプラン作成' : (lang === 'zh' || lang === 'zht') ? 'AI行程规划' : 'AI 코스 플래너'}
             </div>
           </div>
 
           {/* Icon 2: Real-time Weather & Styling */}
           <div 
+            className="portal-quick-hub-card"
             onClick={() => {
               if (onOpenWeather) onOpenWeather(targetCity);
             }}
-            style={{
-              backgroundColor: 'var(--bg-card)',
-              border: '1px solid var(--border-color)',
-              borderRadius: '20px',
-              padding: '1.1rem 0.6rem',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.6rem',
-              cursor: 'pointer',
-              transition: 'all 0.25s ease',
-              boxShadow: 'var(--shadow-sm)',
-              textAlign: 'center'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-4px)';
-              e.currentTarget.style.borderColor = '#f59e0b';
-              e.currentTarget.style.boxShadow = '0 10px 20px rgba(245, 158, 11, 0.12)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.borderColor = 'var(--border-color)';
-              e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
-            }}
           >
-            <div style={{
-              width: '52px',
-              height: '52px',
-              borderRadius: '50%',
+            <div className="portal-quick-hub-icon" style={{
               background: 'linear-gradient(135deg, #f59e0b, #ef4444)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#ffffff',
               boxShadow: '0 8px 16px rgba(245, 158, 11, 0.25)'
             }}>
-              <CloudSun size={24} />
+              <CloudSun size={22} />
             </div>
-            <div style={{ fontSize: '0.84rem', fontWeight: 800, color: 'var(--text-main)' }}>
+            <div className="portal-quick-hub-label">
               {lang === 'en' ? 'Weather & Outfit' : lang === 'ja' ? '天気＆コーデ' : (lang === 'zh' || lang === 'zht') ? '实时天气穿搭' : '실시간 날씨 & 코디'}
             </div>
           </div>
 
           {/* Icon 3: Climate Card & Transit */}
           <div 
+            className="portal-quick-hub-card"
             onClick={() => {
               const el = document.getElementById('travel-essentials-section');
               if (el) el.scrollIntoView({ behavior: 'smooth' });
               else if (onOpenEssentials) onOpenEssentials();
             }}
-            style={{
-              backgroundColor: 'var(--bg-card)',
-              border: '1px solid var(--border-color)',
-              borderRadius: '20px',
-              padding: '1.1rem 0.6rem',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.6rem',
-              cursor: 'pointer',
-              transition: 'all 0.25s ease',
-              boxShadow: 'var(--shadow-sm)',
-              textAlign: 'center'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-4px)';
-              e.currentTarget.style.borderColor = '#10b981';
-              e.currentTarget.style.boxShadow = '0 10px 20px rgba(16, 185, 129, 0.12)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.borderColor = 'var(--border-color)';
-              e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
-            }}
           >
-            <div style={{
-              width: '52px',
-              height: '52px',
-              borderRadius: '50%',
+            <div className="portal-quick-hub-icon" style={{
               background: 'linear-gradient(135deg, #10b981, #06b6d4)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#ffffff',
               boxShadow: '0 8px 16px rgba(16, 185, 129, 0.25)'
             }}>
-              <Train size={24} />
+              <Train size={22} />
             </div>
-            <div style={{ fontSize: '0.84rem', fontWeight: 800, color: 'var(--text-main)' }}>
+            <div className="portal-quick-hub-label">
               {lang === 'en' ? 'Climate Card' : lang === 'ja' ? '気候同行カード' : (lang === 'zh' || lang === 'zht') ? '气候同行卡' : '기후동행카드'}
             </div>
           </div>
 
           {/* Icon 4: Seoul Metro Map */}
           <div 
+            className="portal-quick-hub-card"
             onClick={() => {
               window.open('http://www.seoulmetro.co.kr/kr/cyberStation.do', '_blank');
             }}
-            style={{
-              backgroundColor: 'var(--bg-card)',
-              border: '1px solid var(--border-color)',
-              borderRadius: '20px',
-              padding: '1.1rem 0.6rem',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.6rem',
-              cursor: 'pointer',
-              transition: 'all 0.25s ease',
-              boxShadow: 'var(--shadow-sm)',
-              textAlign: 'center'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-4px)';
-              e.currentTarget.style.borderColor = '#0284c7';
-              e.currentTarget.style.boxShadow = '0 10px 20px rgba(2, 132, 199, 0.12)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.borderColor = 'var(--border-color)';
-              e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
-            }}
           >
-            <div style={{
-              width: '52px',
-              height: '52px',
-              borderRadius: '50%',
+            <div className="portal-quick-hub-icon" style={{
               background: 'linear-gradient(135deg, #0284c7, #3b82f6)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#ffffff',
               boxShadow: '0 8px 16px rgba(2, 132, 199, 0.25)'
             }}>
-              <Map size={24} />
+              <Map size={22} />
             </div>
-            <div style={{ fontSize: '0.84rem', fontWeight: 800, color: 'var(--text-main)' }}>
+            <div className="portal-quick-hub-label">
               {lang === 'en' ? 'Metro Map' : lang === 'ja' ? '地下鉄路線図' : (lang === 'zh' || lang === 'zht') ? '地铁路线图' : '지하철 노선도'}
             </div>
           </div>
 
           {/* Icon 5: Unlimited eSIM */}
           <div 
+            className="portal-quick-hub-card"
             onClick={() => {
               window.open('https://affiliate.klook.com', '_blank');
             }}
-            style={{
-              backgroundColor: 'var(--bg-card)',
-              border: '1px solid var(--border-color)',
-              borderRadius: '20px',
-              padding: '1.1rem 0.6rem',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.6rem',
-              cursor: 'pointer',
-              transition: 'all 0.25s ease',
-              boxShadow: 'var(--shadow-sm)',
-              textAlign: 'center'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-4px)';
-              e.currentTarget.style.borderColor = '#8b5cf6';
-              e.currentTarget.style.boxShadow = '0 10px 20px rgba(139, 92, 246, 0.12)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.borderColor = 'var(--border-color)';
-              e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
-            }}
           >
-            <div style={{
-              width: '52px',
-              height: '52px',
-              borderRadius: '50%',
+            <div className="portal-quick-hub-icon" style={{
               background: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#ffffff',
               boxShadow: '0 8px 16px rgba(139, 92, 246, 0.25)'
             }}>
-              <Wifi size={24} />
+              <Wifi size={22} />
             </div>
-            <div style={{ fontSize: '0.84rem', fontWeight: 800, color: 'var(--text-main)' }}>
+            <div className="portal-quick-hub-label">
               {lang === 'en' ? 'Korea eSIM' : lang === 'ja' ? '韓国eSIM' : (lang === 'zh' || lang === 'zht') ? '韩国eSIM' : '무제한 eSIM'}
             </div>
           </div>
 
           {/* Icon 6: 1330 Emergency Helpline */}
           <div 
+            className="portal-quick-hub-card"
             onClick={() => {
               window.open(lang === 'en' ? 'https://english.visitkorea.or.kr' : lang === 'ja' ? 'https://japanese.visitkorea.or.kr' : (lang === 'zh' || lang === 'zht') ? 'https://chinese.visitkorea.or.kr' : 'https://korean.visitkorea.or.kr', '_blank');
             }}
-            style={{
-              backgroundColor: 'var(--bg-card)',
-              border: '1px solid var(--border-color)',
-              borderRadius: '20px',
-              padding: '1.1rem 0.6rem',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.6rem',
-              cursor: 'pointer',
-              transition: 'all 0.25s ease',
-              boxShadow: 'var(--shadow-sm)',
-              textAlign: 'center'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-4px)';
-              e.currentTarget.style.borderColor = '#ef4444';
-              e.currentTarget.style.boxShadow = '0 10px 20px rgba(239, 68, 68, 0.12)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.borderColor = 'var(--border-color)';
-              e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
-            }}
           >
-            <div style={{
-              width: '52px',
-              height: '52px',
-              borderRadius: '50%',
+            <div className="portal-quick-hub-icon" style={{
               background: 'linear-gradient(135deg, #ef4444, #f97316)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#ffffff',
               boxShadow: '0 8px 16px rgba(239, 68, 68, 0.25)'
             }}>
-              <PhoneCall size={24} />
+              <PhoneCall size={22} />
             </div>
-            <div style={{ fontSize: '0.84rem', fontWeight: 800, color: 'var(--text-main)' }}>
+            <div className="portal-quick-hub-label">
               {lang === 'en' ? '1330 Hotline' : lang === 'ja' ? '1330 通訳' : (lang === 'zh' || lang === 'zht') ? '1330 翻译热线' : '1330 긴급통역'}
             </div>
           </div>
@@ -941,12 +751,8 @@ export default function PortalHomePrototype({
           </div>
         </div>
 
-        {/* Themed Magazine Cards Grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: '1.25rem'
-        }}>
+        {/* Themed Magazine Cards Grid (Responsive 3x2 on PC / 2x3 on Tablet / 1-col on Mobile) */}
+        <div className="portal-theme-grid">
           {filteredThemes.map((theme) => (
             <div
               key={theme.id}
@@ -983,11 +789,15 @@ export default function PortalHomePrototype({
                 position: 'relative',
                 width: '100%',
                 height: '185px',
-                overflow: 'hidden'
+                overflow: 'hidden',
+                backgroundColor: '#1e293b'
               }}>
                 <img
                   src={theme.image}
                   alt={theme.titleKo}
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg';
+                  }}
                   style={{
                     width: '100%',
                     height: '100%',

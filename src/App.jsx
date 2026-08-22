@@ -570,6 +570,29 @@ export default function App() {
           </button>
         </div>
 
+        {/* Section Header: Vora AI Concierge & Route Planner */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          marginTop: '1.25rem',
+          marginBottom: '0.75rem',
+          padding: '0 0.25rem'
+        }}>
+          <span style={{
+            width: '6px',
+            height: '22px',
+            backgroundColor: 'var(--accent-primary)',
+            borderRadius: '4px'
+          }} />
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 900, margin: 0, color: 'var(--text-main)' }}>
+            {lang === 'en' ? 'Live AI Travel Concierge & Route Planner' :
+             lang === 'ja' ? 'リアルタイムAIコンシェルジュ＆動線プランナー' :
+             (lang === 'zh' || lang === 'zht') ? '实时AI旅游定制与智能路线规划' :
+             '실시간 맞춤 AI 여행 일정 & 스마트 동선 플래너'}
+          </h2>
+        </div>
+
         {/* 2. PC 2-Column Split Hub (Dashboard view: Chat on Left / Timeline & Map on Right) */}
         <section id="itinerary-hub" className="itinerary-hub-container" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
           {/* Left Column: Vora AI Conversational Chat Stream */}
