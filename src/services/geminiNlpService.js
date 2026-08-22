@@ -405,7 +405,8 @@ ALL output text (tripTitle, summary, theme, transitTip, dishName, description, n
         try {
           const endpointUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 2500);
+          const apiTimeout = days >= 4 ? 4500 : 3000;
+          const timeoutId = setTimeout(() => controller.abort(), apiTimeout);
 
           const res = await fetch(endpointUrl, {
             method: 'POST',
@@ -417,7 +418,7 @@ ALL output text (tripTitle, summary, theme, transitTip, dishName, description, n
             body: JSON.stringify({
               contents: [{ parts: [{ text: `${systemInstruction}\n\n${promptText}` }] }],
               generationConfig: {
-                maxOutputTokens: 1800,
+                maxOutputTokens: days >= 4 ? 3800 : 2200,
                 temperature: 0.4
               }
             })
@@ -643,7 +644,15 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
       // Day 3
       { name: 'HYBE Insight & Yongsan Hotspots', theme: 'Global K-POP Culture & Music Art Experience', desc: 'A must-visit cultural landmark for global music fans, celebrating K-POP artistic heritage with interactive multimedia exhibitions.', cat: 'K-POP Landmark', photo: '📸 Large media art wall & interactive music zone', sig: '🎵 Exclusive artist merchandise & sound gallery', time: '11:00 AM', lat: 37.5283, lng: 126.9685 },
       { name: 'The Hyundai Seoul & Sounds Forest', theme: 'Indoor Nature Oasis & Futuristic Shopping', desc: 'Seoul’s architectural landmark featuring a stunning sunlit 5th-floor indoor garden and the latest global lifestyle and K-fashion brands.', cat: 'Shopping & Leisure', photo: '📸 Sounds Forest 5th-floor lush indoor garden', sig: '🛍️ B2 K-fashion pop-up & B1 Gourmet Food Hall', time: '2:00 PM', lat: 37.5259, lng: 126.9284 },
-      { name: 'Yeouido Hangang Park & Moonlight Picnic', theme: 'Riverside Breeze & Authentic Hangang Ramen', desc: 'Relax on a picnic mat overlooking the Hangang River while savoring freshly cooked instant ramen and Korean fried chicken under the sunset breeze.', cat: 'Night View', photo: '📸 Hangang sunset & Mapo Bridge city lights', sig: '🧺 Instant Hangang ramen & sunset picnic mat', time: '5:30 PM (Sunset)', lat: 37.5270, lng: 126.9325 }
+      { name: 'Yeouido Hangang Park & Moonlight Picnic', theme: 'Riverside Breeze & Authentic Hangang Ramen', desc: 'Relax on a picnic mat overlooking the Hangang River while savoring freshly cooked instant ramen and Korean fried chicken under the sunset breeze.', cat: 'Night View', photo: '📸 Hangang sunset & Mapo Bridge city lights', sig: '🧺 Instant Hangang ramen & sunset picnic mat', time: '5:30 PM (Sunset)', lat: 37.5270, lng: 126.9325 },
+      // Day 4
+      { name: 'Ikseon-dong Hanok Alleys & Retro Cafes', theme: '100-Year Historic Alleys & Trendy Dessert Cafes', desc: 'A maze of charming historic Hanok alleys filled with innovative boutique bakeries, artisanal coffee bars, and fusion gourmet dining.', cat: 'Trendy Cafe', photo: '📸 Ikseon-dong Hanok roofline photo-op', sig: '☕ Cauldron soufflé & cream cheese tart', time: '11:30 AM', lat: 37.5742, lng: 126.9893 },
+      { name: 'Dongdaemun Design Plaza (DDP)', theme: 'Futuristic Curved Architecture & Design Mecca', desc: 'Designed by Zaha Hadid, this iconic neofuturistic landmark hosts world-class design exhibitions and 24-hour fashion culture.', cat: 'History & Culture', photo: '📸 DDP futuristic curved architecture & night illumination', sig: '🎨 Design exhibitions & K-fashion market', time: '2:30 PM', lat: 37.5665, lng: 127.0090 },
+      { name: 'Naksan Park & Fortress Wall Night View', theme: 'Romantic Fortress Walls Overlooking Seoul City', desc: 'Follow the softly lit ancient stone walls under the moonlight to enjoy one of Seoul’s most breathtaking panoramic night vistas.', cat: 'Night View', photo: '📸 Fortress wall silhouette & Seoul city lights', sig: '🌙 Romantic night wall stroll & Daehangno late diner', time: '7:00 PM (Night View)', lat: 37.5804, lng: 127.0076 },
+      // Day 5
+      { name: 'National Museum of Korea & Mirror Pond', theme: 'Five Millennia of Korean History & Quiet Gardens', desc: 'One of the world’s top cultural museums housing national treasures, tranquil outdoor reflection ponds, and serene contemplation halls.', cat: 'History & Culture', photo: '📸 Mirror pond Cheongjajeong reflection & Namsan frame', sig: '🏺 Room of Quiet Contemplation (Bangasayusang)', time: '10:30 AM', lat: 37.5240, lng: 126.9803 },
+      { name: 'Hannam-dong Cafe Street & Leeum Museum', theme: 'High-End Lifestyle & World-Class Modern Art', desc: 'A sophisticated cosmopolitan district famous for designer flagship boutiques, specialty roasters, and the prestigious Leeum Museum.', cat: 'Trendy Cafe', photo: '📸 Leeum Museum rotunda spiral staircase', sig: '☕ Hannam specialty drip coffee & brunch', time: '2:00 PM', lat: 37.5385, lng: 127.0003 },
+      { name: 'Banpo Hangang Park & Moonlight Rainbow Fountain', theme: 'World’s Longest Bridge Fountain & Night Market', desc: 'Witness thousands of colorful rainbow water jets dancing to music along the Hangang River with luminous floating islands.', cat: 'Night View', photo: '📸 Moonlight rainbow fountain light show & Some Sevit', sig: '🌊 Some Sevit terrace & riverside fried chicken', time: '6:30 PM (Fountain Show)', lat: 37.5103, lng: 126.9960 }
     ],
     '제주': [
       // Day 1
@@ -657,19 +666,59 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
       // Day 3
       { name: 'Daepo Jusangjeolli Cliff & Coastal Deck', theme: 'Volcanic Hexagonal Basalt Columns & Crashing Waves', desc: 'Spectacular hexagonal stone pillars sculpted by ancient volcanic lava cooling against the deep blue sea, creating towering natural ocean monuments.', cat: 'Scenic Nature', photo: '📸 Crashing waves against hexagonal volcanic pillars', sig: '🌊 Coastal observation deck walk & Hallabong ice cream', time: '10:30 AM', lat: 33.2380, lng: 126.4253 },
       { name: 'Osulloc Tea Museum & Innisfree House', theme: 'Lush Organic Green Tea Fields & Natural Desserts', desc: 'Stroll through endless emerald green tea plantations and indulge in deep-flavored green tea soft serve and Hallasan mountain cakes.', cat: 'Trendy Cafe', photo: '📸 Endless green tea field backdrop photo-op', sig: '🍵 Green tea roll cake & Hallabong citrus spritzer', time: '2:00 PM', lat: 33.3060, lng: 126.2895 },
-      { name: 'Seogwipo Olle Market & Night Street Food', theme: 'Vibrant Southern Jeju Night Street Food Tour', desc: 'A lively traditional night market bustling with local specialties, grilled black pork skewers, citrus pastries, and sweet shrimp sashimi.', cat: 'Local Gourmet', photo: '📸 Vibrant night market stalls & sizzling gourmet skewers', sig: '🍢 Garlic fried chicken, black pork rolls & sweet shrimp', time: '6:30 PM', lat: 33.2494, lng: 126.5638 }
+      { name: 'Seogwipo Olle Market & Night Street Food', theme: 'Vibrant Southern Jeju Night Street Food Tour', desc: 'A lively traditional night market bustling with local specialties, grilled black pork skewers, citrus pastries, and sweet shrimp sashimi.', cat: 'Local Gourmet', photo: '📸 Vibrant night market stalls & sizzling gourmet skewers', sig: '🍢 Garlic fried chicken, black pork rolls & sweet shrimp', time: '6:30 PM', lat: 33.2494, lng: 126.5638 },
+      // Day 4
+      { name: 'Seopjikoji & Red Volcanic Scoria Path', theme: 'Scenic Ocean Cape & White Lighthouse Walk', desc: 'A breathtaking coastal cape featuring blooming yellow canola flowers in season, reddish volcanic soil, and a picturesque white lighthouse.', cat: 'Scenic Nature', photo: '📸 White lighthouse & scenic coastal cliffs', sig: '🍦 Udo peanut ice cream & coastal drive', time: '10:30 AM', lat: 33.4241, lng: 126.9298 },
+      { name: 'Jeju Folk Village & Pyoseon Beach', theme: 'Historic Thatched Houses & Expansive White Sand Beach', desc: 'Step back into 19th-century Jeju island life in a living museum of over 100 traditional houses, paired with scenic shallow beach strolls.', cat: 'History & Culture', photo: '📸 Preserved thatched roof Hanok & white beach', sig: '🥣 Grilled tilefish & Bomal porridge', time: '2:00 PM', lat: 33.3225, lng: 126.8420 },
+      { name: 'Boromwat Flower Garden & Lavender Fields', theme: 'Seasonal Blossoms & Instagram-Worthy Nature Fields', desc: 'A vast picturesque flower farm featuring blooming buckwheat flowers, purple lavender fields, and soothing cypress tree pathways.', cat: 'Trendy Cafe', photo: '📸 Cedar forest trail & purple flower field', sig: '🍰 Boromwat organic carrot juice & pastry', time: '5:00 PM', lat: 33.4250, lng: 126.7800 },
+      // Day 5
+      { name: 'Yongduam Dragon Head Rock & Yongyeon Bridge', theme: 'Volcanic Dragon Rock & Emerald Canyon Bridge', desc: 'A mythical dragon-shaped rock formed by volcanic lava and an emerald valley suspension bridge where freshwater meets the open sea.', cat: 'Scenic Nature', photo: '📸 Dragon Head Rock & emerald canyon bridge', sig: '🐟 Abalone porridge & freshly caught sashimi', time: '11:00 AM', lat: 33.5160, lng: 126.5125 },
+      { name: 'Dodu-dong Rainbow Coastal Road & Dodu Peak', theme: 'Vibrant Rainbow Coastal Road & Airport View Peak', desc: 'Walk along brightly colored coastal road barriers with sweeping ocean views, then climb the easy trail to Dodu Peak to watch planes take off.', cat: 'Trendy Cafe', photo: '📸 Rainbow barrier blocks & Kiss Zone peak view', sig: '☕ Ocean-view bakery & airport runway view', time: '2:30 PM', lat: 33.5075, lng: 126.4720 },
+      { name: 'Dongmun Traditional Market & Night Food Street', theme: 'Jeju’s Largest Night Street Food Extravaganza', desc: 'Jeju’s premier traditional market bursting with fresh Hallabong fruits, famous citrus rice cakes, and exciting night flame-grilled street food.', cat: 'Local Gourmet', photo: '📸 Sizzling night market torch fire show', sig: '🔥 Grilled black pork & abalone butter skewers', time: '6:00 PM (Before Airport)', lat: 33.5125, lng: 126.5280 }
     ],
     '부산': [
       // Day 1
       { name: 'Haeundae Blueline Park & Sky Capsule', theme: 'Ocean Railway & Colorful Retro Sky Capsules', desc: 'Ride charming retro sky capsules gliding along the picturesque coastal cliffs overlooking the vast ocean from Haeundae to Cheongsapo.', cat: 'Activity & View', photo: '📸 Colorful sky capsule against the blue horizon', sig: '🚊 Coastal sky capsule ride & Cheongsapo grilled clams', time: '11:00 AM', lat: 35.1587, lng: 129.1604 },
       { name: 'Cheongsapo Daritdol Observatory & Twin Lighthouses', theme: 'Glass Skywalk & Coastal Fishing Port Charm', desc: 'A thrilling transparent glass observatory extending out over the crashing sea, framed by iconic red and white twin lighthouses.', cat: 'Scenic Ocean', photo: '📸 Transparent glass skywalk & ocean waves', sig: '☕ Daritdol observatory walk & rooftop cafe', time: '2:30 PM', lat: 35.1610, lng: 129.1915 },
-      { name: 'Gwangalli Beach & Gwangan Diamond Bridge Sunset', theme: 'Iconic Bridge Illumination & Seaside Lounge', desc: 'A vibrant beach famous for the dazzling night illuminations of Gwangan Bridge, seaside pub terraces, and weekend drone light shows.', cat: 'Night View', photo: '📸 Gwangan Bridge night illumination & beach reflection', sig: '🍺 Craft beer with ocean view & fresh sashimi', time: '6:30 PM (Sunset)', lat: 35.1532, lng: 129.1186 }
+      { name: 'Gwangalli Beach & Gwangan Diamond Bridge Sunset', theme: 'Iconic Bridge Illumination & Seaside Lounge', desc: 'A vibrant beach famous for the dazzling night illuminations of Gwangan Bridge, seaside pub terraces, and weekend drone light shows.', cat: 'Night View', photo: '📸 Gwangan Bridge night illumination & beach reflection', sig: '🍺 Craft beer with ocean view & fresh sashimi', time: '6:30 PM (Sunset)', lat: 35.1532, lng: 129.1186 },
+      // Day 2
+      { name: 'Gamcheon Culture Village & Little Prince', theme: 'Santorini of Korea with Pastel Terraced Houses', desc: 'A vibrant hillside village famous for pastel houses, colorful murals, craft workshops, and the iconic Little Prince viewpoint.', cat: 'Hotspot', photo: '📸 Little Prince railing photo-op & pastel village panorama', sig: '☕ Rooftop cafe view & Busan seed hotteok', time: '11:00 AM', lat: 35.0975, lng: 129.0106 },
+      { name: 'Jagalchi Fish Market & Nampo-dong BIFF Square', theme: 'Bustling Seafood Market & Street Food Heritage', desc: 'Korea’s largest seafood market buzzing with live ocean catches, paired with the famous film street food stalls of BIFF Square.', cat: 'Local Gourmet', photo: '📸 Lively Jagalchi harbor & fresh seafood tanks', sig: '🐟 Grilled fish platter & Nampo sweet seed hotteok', time: '2:00 PM', lat: 35.0968, lng: 129.0306 },
+      { name: 'Yongdusan Park & Busan Diamond Tower', theme: 'Urban Green Oasis & 360-Degree Harbor Night View', desc: 'Soar above downtown Busan in the iconic Busan Tower to enjoy dazzling 360-degree sunset and illuminated port views.', cat: 'Night View', photo: '📸 Tower observatory sunset & Busan Harbor Bridge view', sig: '🗼 360-degree night panorama & Gwangbok-dong shopping', time: '6:30 PM', lat: 35.1005, lng: 129.0325 },
+      // Day 3
+      { name: 'Huinnyeoul Culture Village & Ocean Tunnel', theme: 'Cliffside Coastal Village & Blue Sea Photo Tunnel', desc: 'A serene white-walled coastal village featured in iconic Korean films, offering cozy ocean-view cafes and a famous seaside photo tunnel.', cat: 'Hotspot', photo: '📸 Coastal tunnel silhouette shot overlooking the sea', sig: '☕ Huinnyeoul cliffside iced americano & ocean view', time: '11:00 AM', lat: 35.0785, lng: 129.0450 },
+      { name: 'National Maritime Museum of Korea', theme: 'Giant Cylindrical Aquarium & Ocean Heritage', desc: 'An impressive cultural museum showcasing Korea’s rich maritime history with a stunning transparent cylindrical aquarium tank.', cat: 'History & Culture', photo: '📸 Giant aquarium ray feeding show & ocean deck', sig: '🐠 Ocean heritage exhibits & panoramic harbor view', time: '2:30 PM', lat: 35.0780, lng: 129.0800 },
+      { name: 'P.ARK Cultural Center & Rooftop Ocean View', theme: 'Massive Architectural Cultural Hub & Bakery', desc: 'An ultra-modern cultural landmark overlooking Busan Port and Oryukdo islets, renowned for specialty coffee, artisan bakeries, and exhibitions.', cat: 'Trendy Cafe', photo: '📸 P.ARK grand stadium-style indoor ocean-view seating', sig: '🥐 Myeongran pollack roe baguette & specialty drip coffee', time: '5:30 PM (Sunset)', lat: 35.0880, lng: 129.0700 },
+      // Day 4
+      { name: 'Haedong Yonggungsa Seaside Temple', theme: 'Seaside Cliff Temple with Ocean Waves', desc: 'A majestic Buddhist temple perched dramatically on rugged ocean cliffs, creating a rare and deeply spiritual seaside vista.', cat: 'History & Culture', photo: '📸 Seaside cliff temple & crashing waves', sig: '⛩️ Wish-granting temple walk & coastal trail', time: '10:00 AM', lat: 35.1885, lng: 129.2230 },
+      { name: 'Ananti Cove & Gijang Coastal Promenade', theme: 'Exotic Oceanfront Village & Eternal Journey Bookstore', desc: 'A luxurious resort village featuring beautiful coastal architecture, curated lifestyle bookshops, and ocean terrace dining.', cat: 'Shopping & Leisure', photo: '📸 Eternal Journey bookstore & luxury sea walkway', sig: '☕ Gijang ocean-view brunch & pastries', time: '1:30 PM', lat: 35.1980, lng: 129.2300 },
+      { name: 'Songjeong Beach & Songiljeong Sunset', theme: 'Surfing Paradise & Golden Hour Pavilion', desc: 'Known for gentle waves and vibrant surf culture, with stunning red sunsets viewed from the traditional Songiljeong cliffside pavilion.', cat: 'Night View', photo: '📸 Songiljeong pavilion red sunset silhouette', sig: '🥪 Songjeong famous grilled toast & beach walk', time: '5:30 PM (Sunset)', lat: 35.1780, lng: 129.1990 },
+      // Day 5
+      { name: 'Jeonpo Cafe Street & Indie Boutiques', theme: 'Trendiest Alley of Artisan Roasters & Design Shops', desc: 'Recognized by the New York Times as a must-visit, this transformed industrial district is packed with unique dessert spots and indie shops.', cat: 'Trendy Cafe', photo: '📸 Retro alley cafes & lifestyle boutique snaps', sig: '☕ Artisan canelé & flat white coffee', time: '11:30 AM', lat: 35.1550, lng: 129.0660 },
+      { name: 'Busan Citizens Park & Emerald Lawns', theme: 'Massive Urban Eco Park & Waterfront Forest Walk', desc: 'A sprawling central park with lush green lawns, walking trails, and peaceful waterfalls located in the heart of downtown Busan.', cat: 'Scenic Nature', photo: '📸 Eco lake & green lawn skyline view', sig: '🧺 Park forest stroll & relaxing picnic', time: '2:30 PM', lat: 35.1680, lng: 129.0570 },
+      { name: 'Hwangnyeongsan Mountain 360-degree Night View', theme: 'Busan’s Best 360-Degree Panoramic Night Skyline', desc: 'Perched high above the city, this famous observatory offers a breathtaking 360-degree view of Gwangan Bridge, Busan Harbor, and city lights.', cat: 'Night View', photo: '📸 360-degree sparkling panorama of Gwangan Bridge', sig: '🌙 Mountain observatory cafe & night skyline view', time: '7:00 PM (Night View)', lat: 35.1585, lng: 129.0825 }
     ],
     '수원': [
       // Day 1
       { name: 'Suwon Hwaseong Fortress & Banghwasuryujeong', theme: 'UNESCO Fortress Pavilion & Emerald Pond View', desc: 'A stunning royal pavilion perched gracefully above Yongyeon Pond, offering idyllic picnic lawns by day and romantic lantern illuminations by night.', cat: 'UNESCO Heritage', photo: '📸 Yongyeon pond reflection of Banghwasuryujeong', sig: '🧺 Fortress lawn picnic & historical pavilion walk', time: '10:30 AM', lat: 37.2891, lng: 127.0194 },
       { name: 'Hwaseong Haenggung & Haengnidan-gil', theme: 'Joseon Temporary Palace & Retro Cafe Street', desc: 'King Jeongjo’s royal temporary palace alongside trendy renovated Hanok cafes and charming craft boutiques lining the fortress walls.', cat: 'Trendy Cafe', photo: '📸 Haenggung main gate & rooftop fortress view', sig: '☕ Signature black sesame latte & soufflé pancakes', time: '2:00 PM', lat: 37.2842, lng: 127.0142 },
-      { name: 'Flying Suwon & Night Fortress Stroll', theme: 'Helium Hot Air Balloon 150m Aerial Panorama', desc: 'Ascend into the sky aboard a storybook helium balloon to gaze down at the complete 360-degree lit fortress walls and sparkling city lights.', cat: 'Activity & Night View', photo: '📸 Aerial hot air balloon view & glowing fortress walls', sig: '🎈 Flying Suwon balloon flight & Suwon Galbi fried chicken', time: '6:30 PM (Sunset)', lat: 37.2872, lng: 127.0225 }
+      { name: 'Flying Suwon & Night Fortress Stroll', theme: 'Helium Hot Air Balloon 150m Aerial Panorama', desc: 'Ascend into the sky aboard a storybook helium balloon to gaze down at the complete 360-degree lit fortress walls and sparkling city lights.', cat: 'Activity & Night View', photo: '📸 Aerial hot air balloon view & glowing fortress walls', sig: '🎈 Flying Suwon balloon flight & Suwon Galbi fried chicken', time: '6:30 PM (Sunset)', lat: 37.2872, lng: 127.0225 },
+      // Day 2
+      { name: 'Suwon Museum of Art & Haenggung Plaza', theme: 'Modern Art Space Blended with Ancient Walls', desc: 'A sleek contemporary art museum located next to Haenggung Palace, featuring dynamic exhibitions and rooftop fortress vistas.', cat: 'History & Culture', photo: '📸 Museum rooftop view of the royal palace', sig: '🎨 Contemporary art exhibits & design shop', time: '10:30 AM', lat: 37.2842, lng: 127.0142 },
+      { name: 'Suwon Famous Fried Chicken Street', theme: 'Cauldron-Fried Whole Chicken & Local Food Culture', desc: 'A bustling gourmet street famous for crispy cauldron-fried chicken tossed in sweet and savory Suwon Galbi sauce.', cat: 'Local Gourmet', photo: '📸 Sizzling cauldron chicken & artisan craft beer', sig: '🍗 King-Galbi fried chicken & draft beer', time: '2:30 PM', lat: 37.2798, lng: 127.0165 },
+      { name: 'Gwanggyo Lake Park & Freiburg Observatory', theme: 'Scenic Lake Promenade & Sparkling Night Reflection', desc: 'One of Korea’s most stunning urban lake parks, featuring illuminated wooden boardwalks and romantic waterside terraces.', cat: 'Night View', photo: '📸 Freiburg observatory panoramic lake night view', sig: '☕ Lake-view terrace cafe & moonlight walk', time: '7:30 PM', lat: 37.2844, lng: 127.0673 },
+      // Day 3
+      { name: 'Starfield Suwon & Starfield Library', theme: 'Grand 4-Story Starfield Library & Global Hub', desc: 'A monumental four-story open library surrounded by the latest global lifestyle brands, gourmet restaurants, and pop-ups.', cat: 'Shopping & Leisure', photo: '📸 Grand Starfield Library central photo-op', sig: '📚 Starfield Library photo & Gourmet street dining', time: '11:00 AM', lat: 37.2978, lng: 126.9912 },
+      { name: 'Janganmun Gate & Fortress Wall Trail', theme: 'Serene Heritage Stroll along Ancient Stone Walls', desc: 'The grand northern gate of Suwon Hwaseong, showcasing massive stone ramparts and quiet walking paths with green lawns.', cat: 'History & Culture', photo: '📸 Janganmun grand gate & outer semicircle wall', sig: '🚶 Fortress stamp tour & peaceful wall walk', time: '3:00 PM', lat: 37.2885, lng: 127.0125 },
+      { name: 'Haenggung-dong Sunset Rooftop Cafes', theme: 'Rooftop Terraces with Golden Sunset Fortress Views', desc: 'Watch the golden sunset warm the traditional fortress roof tiles from stylish rooftop cafes with handcrafted pastries.', cat: 'Trendy Cafe', photo: '📸 Sunset fortress wall view from rooftop terrace', sig: '☕ Artisan butter bar & sunset citrus spritzer', time: '6:00 PM (Sunset)', lat: 37.2830, lng: 127.0150 },
+      // Day 4
+      { name: 'Seoho Park & Chukmanje Reservoir', theme: 'Joseon Historic Eco Lake & Peaceful Forest Trails', desc: 'A historic agricultural reservoir built by King Jeongjo, surrounded by serene metasequoia trees and migrating waterbirds.', cat: 'Scenic Nature', photo: '📸 Chukmanje water reflection & metasequoia path', sig: '🌲 Lakeside healing walk & bird watching', time: '10:30 AM', lat: 37.2750, lng: 126.9880 },
+      { name: 'National Agricultural Museum', theme: 'Futuristic Eco Greenhouse & Agricultural Heritage', desc: 'An ultra-modern museum featuring massive glass greenhouses, vertical indoor farms, and interactive ecological displays.', cat: 'History & Culture', photo: '📸 Massive glass greenhouse botanical photo-op', sig: '🌿 Smart farm harvesting & eco cafe', time: '2:00 PM', lat: 37.2715, lng: 126.9850 },
+      { name: 'Jidong Market Sundae Town', theme: 'Historic Market Alley with Sizzling Iron-Plate Specialties', desc: 'A bustling traditional market street famous for spicy, savory iron-plate stir-fried Korean sausage with chewy glass noodles.', cat: 'Local Gourmet', photo: '📸 Sizzling market iron-plate stir-fry dishes', sig: '🍲 Iron-plate Sundae stir-fry & fried rice', time: '6:30 PM', lat: 37.2770, lng: 127.0180 },
+      // Day 5
+      { name: 'Hyowon Park Wolhwawon Garden', theme: 'Exotic Traditional Chinese Guangdong Garden', desc: 'An authentic Ming and Qing dynasty style classical garden built by master artisans, featured in numerous hit Korean TV dramas.', cat: 'History & Culture', photo: '📸 Wolhwawon pond reflection of the royal pavilion', sig: '📸 Traditional pavilion snap & park stroll', time: '11:00 AM', lat: 37.2625, lng: 127.0345 },
+      { name: 'Gwanggyo Alleyway Lifestyle Street', theme: 'European-style Lakeside Shopping & Boutique Dining', desc: 'A vibrant outdoor lifestyle shopping street facing the lake, featuring unique concept stores, art installations, and brunch cafes.', cat: 'Shopping & Leisure', photo: '📸 Alleyway plaza KAWS statue & lake view', sig: '🍝 Lakefront artisan pasta & brunch', time: '2:30 PM', lat: 37.2800, lng: 127.0600 },
+      { name: 'Paldalsan Mountain Seojangdae Night View', theme: 'Highest Fortress Summit with 360-degree Night Panorama', desc: 'The command post on the highest peak of Mount Paldal, offering a dazzling 360-degree illuminated night view of Suwon city.', cat: 'Night View', photo: '📸 Seojangdae illuminated pavilion & city night lights', sig: '🌙 Paldalsan night hike & fortress drive', time: '7:30 PM (Night View)', lat: 37.2818, lng: 127.0118 }
     ]
   };
 
@@ -677,42 +726,99 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
     '서울': [
       { theme: 'Day 1: Royal Joseon Heritage & Historic Hanok Alleys', transit: 'Within 10 mins walk around Anguk & Gyeongbokgung Station (Subway Line 3)', food: { dishName: 'Jongno Samgyetang & Traditional Bindaetteok', description: 'Hearty ginseng chicken soup & savory mung bean pancakes in historic alleys.' } },
       { theme: 'Day 2: Trendy Seongsu Hotspots & Romantic Namsan Sunset', transit: 'Seongsu Station (Line 2) and Namsan cable car / bus', food: { dishName: 'Seongsu Gourmet Burgers & Artisan Pasta', description: 'Trendy dining spot favored by local foodies and creators.' } },
-      { theme: 'Day 3: K-POP Cultural Hub & Hangang Riverside Picnic', transit: 'Yongsan Station (Line 1/Gyeongui) & Yeouinaru Station (Line 5)', food: { dishName: 'Yongsan Water-Parsley Pork Belly & Hangang Ramen', description: 'Authentic K-BBQ followed by sunset ramen by the Hangang River.' } }
+      { theme: 'Day 3: K-POP Cultural Hub & Hangang Riverside Picnic', transit: 'Yongsan Station (Line 1/Gyeongui) & Yeouinaru Station (Line 5)', food: { dishName: 'Yongsan Water-Parsley Pork Belly & Hangang Ramen', description: 'Authentic K-BBQ followed by sunset ramen by the Hangang River.' } },
+      { theme: 'Day 4: Ikseon-dong Hanok Alleys & DDP Fortress Night View', transit: 'Subway Line 1/3/5 Jongno 3-ga & Line 4 Hyehwa', food: { dishName: 'Ikseon-dong Hanok Steak & Daehangno Kalguksu', description: 'Charming vintage Hanok restaurant and traditional noodle soup.' } },
+      { theme: 'Day 5: National Museum Heritage & Banpo Moonlight Fountain', transit: 'Subway Line 4 Ichon & Line 6 Hangangjin', food: { dishName: 'Hannam-dong Gourmet Fusion & Hangang Chimaek', description: 'Cosmopolitan dining followed by riverside fried chicken & beer.' } }
     ],
     '제주': [
       { theme: 'Day 1: Romantic Western Coast & Emerald Waters', transit: 'Jeju West Coast Tourist Bus or Rental Car (approx. 15 mins)', food: { dishName: 'Jeju Black Pork BBQ & Seafood Ramen', description: 'Juicy thick grilled black pork with salted anchovy dip facing the sunset sea.' } },
       { theme: 'Day 2: UNESCO Eastern Heritage & Healing Forest Trail', transit: 'Eastern Expressway Bus or Scenic Coastal Drive', food: { dishName: 'Braised Hairtail Fish & Fresh Abalone Porridge', description: 'Rich spicy-sweet braised hairtail stew cooked with fresh Jeju sea ingredients.' } },
-      { theme: 'Day 3: Southern Cliffs, Green Tea Fields & Night Food Market', transit: 'Seogwipo City Route & Olle Highway (15-20 mins)', food: { dishName: 'Seogwipo Night Market Garlic Fried Chicken & Sweet Shrimp', description: 'Crispy aromatic garlic fried chicken and sweet fresh raw shrimp.' } }
+      { theme: 'Day 3: Southern Cliffs, Green Tea Fields & Night Food Market', transit: 'Seogwipo City Route & Olle Highway (15-20 mins)', food: { dishName: 'Seogwipo Night Market Garlic Fried Chicken & Sweet Shrimp', description: 'Crispy aromatic garlic fried chicken and sweet fresh raw shrimp.' } },
+      { theme: 'Day 4: Seopjikoji Coastal Cliffs & Lavender Blossom Garden', transit: 'Pyoseon Coastal Highway & Mountain Drive', food: { dishName: 'Grilled Tilefish Meal & Bomal Sea-Snail Porridge', description: 'Delicate grilled tilefish and deeply rich savory sea-snail porridge.' } },
+      { theme: 'Day 5: Dragon Rock Vista & Dodu Rainbow Coastal Drive', transit: 'Jeju City Route Bus & Airport Area (10 mins)', food: { dishName: 'Dongmun Market Grilled Black Pork & Abalone Skewers', description: 'Vibrant sizzling night street food feast before heading to the airport.' } }
     ],
     '부산': [
-      { theme: 'Day 1: Coastal Sky Capsule & Romantic Gwangan Night View', transit: 'Haeundae Metro Line 2 & Coastal Sky Capsule', food: { dishName: 'Cheongsapo Grilled Clams & Fresh Seafood Stew', description: 'Charcoal-grilled fresh ocean clams enjoyed by the seaside.' } }
+      { theme: 'Day 1: Coastal Sky Capsule & Romantic Gwangan Night View', transit: 'Haeundae Metro Line 2 & Coastal Sky Capsule', food: { dishName: 'Cheongsapo Grilled Clams & Fresh Seafood Stew', description: 'Charcoal-grilled fresh ocean clams enjoyed by the seaside.' } },
+      { theme: 'Day 2: Pastel Gamcheon Village & Vibrant Jagalchi Market', transit: 'Subway Line 1 Nampo & Jagalchi Station', food: { dishName: 'Busan Pork Rice Soup & Sweet Seed Hotteok', description: 'Rich savory pork broth with rice and crispy sweet seed-filled pancakes.' } },
+      { theme: 'Day 3: Huinnyeoul Cliffside Alleys & P.ARK Cultural Center', transit: 'Bus 15 mins from Nampo Station towards Yeongdo', food: { dishName: 'Yeongdo Sea-Urchin Gimbap & Ocean Ramen', description: 'Fresh sea urchin over gimbap enjoyed directly facing the open sea.' } },
+      { theme: 'Day 4: Haedong Yonggungsa Cliff Temple & Songjeong Sunset', transit: 'Donghae Line Osiria & Songjeong Station', food: { dishName: 'Gijang Straw-Fire Grilled Eel & Abalone Porridge', description: 'Smoky grilled sea eel paired with rich nutrient-dense abalone porridge.' } },
+      { theme: 'Day 5: Jeonpo Trendy Cafe Street & Hwangnyeongsan Night Panorama', transit: 'Subway Line 1/2 Seomyeon & Jeonpo Station', food: { dishName: 'Jeonpo Artisan Burgers & Specialty Bakeries', description: 'Trendy gourmet dining favored by local Busan creators and foodies.' } }
     ],
     '수원': [
-      { theme: 'Day 1: UNESCO Fortress Heritage & Hot Air Balloon Experience', transit: 'Suwon Station (Subway Line 1/Suin-Bundang) & Fortress Walk', food: { dishName: 'Suwon Famous King-Galbi Fried Chicken', description: 'Deep-fried crispy whole chicken tossed in savory royal rib galbi sauce.' } }
+      { theme: 'Day 1: UNESCO Fortress Heritage & Banghwasuryujeong Pond', transit: 'Suwon Station (Subway Line 1/Suin-Bundang) & 10 min bus', food: { dishName: 'Suwon Famous King-Galbi Fried Chicken', description: 'Deep-fried crispy whole chicken tossed in savory royal rib galbi sauce.' } },
+      { theme: 'Day 2: Suwon Museum of Art & Gwanggyo Lake Park Night View', transit: 'Haenggung-dong walk & Lake bus route', food: { dishName: 'Gwanggyo Lakeside Artisan Pasta & Craft Beer', description: 'Artisan dining overlooking the sparkling lake reflections.' } },
+      { theme: 'Day 3: Starfield Suwon Library & Janganmun Heritage Stroll', transit: 'Hwaseo Station (Line 1) 5 min walk & Fortress bus', food: { dishName: 'Starfield Gourmet Street Chef Brunch', description: 'Trendy gourmet dining and handcrafted dessert bakery.' } },
+      { theme: 'Day 4: Scenic Seoho Reservoir & Jidong Sundae Town', transit: 'Hwaseo & Nammun Market bus route', food: { dishName: 'Jidong Market Iron-Plate Stir-Fried Sundae', description: 'Hearty, spicy stir-fried Korean sausage with chewy glass noodles.' } },
+      { theme: 'Day 5: Wolhwawon Chinese Garden & Seojangdae 360-Night Panorama', transit: 'Suwon City Hall Station & Paldalsan scenic drive', food: { dishName: 'Alleyway Lakeside Italian Dinner', description: 'Romantic dinner overlooking the European-style lake street.' } }
     ]
   };
 
   const SAMPLE_SPOTS_MAP_JA = {
     '서울': [
+      // Day 1
       { name: '景福宮＆香遠亭', theme: '朝鮮王朝の歴史と優美な蓮池の宮廷美', desc: '朝鮮王朝第一の法宮で、池に浮かぶ香遠亭と壮麗な勤政殿が韓国伝統建築の至高の美を伝えます。', cat: '歴史・文化', photo: '📸 香遠亭蓮池の映り込み＆韓服スナップ', sig: '👑 宮殿韓服レンタル＆宮中散策', time: '午前 10:00', lat: 37.5796, lng: 126.9770 },
       { name: '仁寺洞サムジギル＆伝統茶房', theme: '伝統工芸と路地裏レトロカルチャー', desc: 'らせん状の回廊にクラフトショップと伝統茶屋が並ぶソウル屈指の文化芸術ストリートです。', cat: 'カフェ巡り', photo: '📸 サムジギルらせん広場＆開城ジュアク', sig: '🍵 伝統五味子茶＆開城ジュアク', time: '午後 1:30', lat: 37.5743, lng: 126.9848 },
       { name: '北村韓屋村', theme: '瓦屋根が連なる風情ある伝統路地', desc: '伝統韓屋がそのまま保存された歴史地区で、瓦屋根の向こうに広がる高層ビルのスカイラインが魅力です。', cat: '韓屋路地', photo: '📸 北村6景の石畳坂道ショット', sig: '📸 風情ある石垣道＆韓屋サンセット', time: '午後 4:30', lat: 37.5826, lng: 126.9836 },
+      // Day 2
       { name: '聖水洞カフェ通り＆ディオール聖水', theme: 'ソウル最先端のトレンド＆ファッション発信地', desc: '赤レンガの工場街からホットスポットへ変貌したエリアで、個性的なポップアップとベーカリーが並びます。', cat: 'カフェ巡り', photo: '📸 ディオール聖水の幻想的な外観', sig: '☕ 塩パン＆アインシュペナー', time: '午前 11:30', lat: 37.5446, lng: 127.0560 },
       { name: 'ソウルの森＆アンダースタンドアベニュー', theme: '都心の緑豊かなエコフォレスト＆コンテナモール', desc: 'イチョウ並木とコンテナショップが融合し、ピクニックとショッピングが同時に楽しめます。', cat: '自然名所', photo: '📸 ソウルの森ミラー池リフレクション', sig: '🧺 芝生ピクニック＆スイーツ巡り', time: '午後 2:30', lat: 37.5443, lng: 127.0374 },
       { name: 'Nソウルタワー＆南山サンセット', theme: 'ソウル市内を一望する360度パノラマ夜景', desc: '南山の頂上にそびえるソウルのランドマークで、夕暮れの茜空と輝く都会の夜景がロマンチックです。', cat: '夜景名所', photo: '📸 展望台夕景＆愛の南京錠デッキ', sig: '🗼 サンセットパノラマ＆南山トンカツ', time: '午後 6:30', lat: 37.5512, lng: 126.9882 },
+      // Day 3
       { name: 'HYBE INSIGHT＆龍山ホットプレイス', theme: 'K-POPカルチャー＆世界を魅了する音楽体験', desc: '世界的人気K-POPアーティストの軌跡とメディアアートを体感できる音楽ファン必見のスポットです。', cat: 'K-POP名所', photo: '📸 大型メディアウォール＆体験ゾーン', sig: '🎵 限定アーティストグッズ＆展示', time: '午前 11:00', lat: 37.5283, lng: 126.9685 },
       { name: 'ザ・現代ソウル＆サウンズフォレスト', theme: '自然光あふれる屋内庭園＆フューチャーショッピング', desc: '5階の広大な屋内緑地庭園と最先端のK-Fashionブランドが集結するソウルの人気ランドマークです。', cat: 'ショッピング', photo: '📸 サウンズフォレスト5階屋内庭園', sig: '🛍️ B2F K-Fashion＆B1F グルメ街', time: '午後 2:00', lat: 37.5259, lng: 126.9284 },
-      { name: '汝矣島漢江公園＆ムーンライトピクニック', theme: '心地よい川風と本場の漢江ラーメン', desc: '広大な漢江を眺めながらピクニックマットで楽しむ即席ラーメンとチメク（チキン＆ビール）の癒し体験。', cat: '夜景名所', photo: '📸 漢江サンセット＆麻浦大橋夜景', sig: '🧺 即席漢江ラーメン＆ピクニック', time: '午後 5:30', lat: 37.5270, lng: 126.9325 }
+      { name: '汝矣島漢江公園＆ムーンライトピクニック', theme: '心地よい川風と本場の漢江ラーメン', desc: '広大な漢江を眺めながらピクニックマットで楽しむ即席ラーメンとチメク（チキン＆ビール）の癒し体験。', cat: '夜景名所', photo: '📸 漢江サンセット＆麻浦大橋夜景', sig: '🧺 即席漢江ラーメン＆ピクニック', time: '午後 5:30', lat: 37.5270, lng: 126.9325 },
+      // Day 4
+      { name: '益善洞韓屋村＆レトロカフェ通り', theme: '100年の韓屋路地とトレンドスイーツ', desc: '迷路のような伝統韓屋の路地に個性豊かなデザートカフェやレストランが並ぶレトロなホットプレイスです。', cat: 'カフェ巡り', photo: '📸 益善洞瓦屋根の路地裏スナップ', sig: '☕ 釜スフレパンケーキ＆クリームチーズタルト', time: '午前 11:30', lat: 37.5742, lng: 126.9893 },
+      { name: '東大門デザインプラザ (DDP)', theme: 'ザハ・ハディッドの近未来的な曲線建築美', desc: '宇宙船のような流線型の建築で、最先端のデザイン展示やナイトファッションが楽しめます。', cat: '歴史・文化', photo: '📸 DDPの近未来的曲線外観＆夜間ライトアップ', sig: '🎨 デザイン展示ツアー＆K-Fashionマーケット', time: '午後 2:30', lat: 37.5665, lng: 127.0090 },
+      { name: '駱山公園＆漢陽都城の城郭夜景', theme: '月明かりの下を歩く朝鮮の城郭パノラマ', desc: '美しくライトアップされた城郭の石垣沿いを歩き、ソウルの街並みを見下ろすロマンチックな夜景名所です。', cat: '夜景名所', photo: '📸 城郭のシルエット＆都会の光のパノラマ', sig: '🌙 駱山展望台ナイトウォーク＆大学路グルメ', time: '午後 7:00', lat: 37.5804, lng: 127.0076 },
+      // Day 5
+      { name: '国立中央博物館＆鏡池庭園', theme: '韓国五千年の歴史と静寂な水辺の庭園', desc: '国宝級の文化財が揃う世界屈指の博物館で、池に映る青磁亭の優美な景色が癒しを与えます。', cat: '歴史・文化', photo: '📸 鏡池の青磁亭リフレクション＆南山タワー', sig: '🏺 半跏思惟像の思惟の部屋＆ミュージアムグッズ', time: '午前 10:30', lat: 37.5240, lng: 126.9803 },
+      { name: '漢南洞カフェ通り＆リウム美術館', theme: '洗練されたハイエンドカルチャーと現代アート', desc: 'デザイナーズセレクトショップとサムスン・リウム美術館の最高峰アートに出会うコースです。', cat: 'カフェ巡り', photo: '📸 リウム美術館のロトンダ円形階段ショット', sig: '☕ 漢南洞スペシャリティドリップ＆ブランチ', time: '午後 2:00', lat: 37.5385, lng: 127.0003 },
+      { name: '盤浦漢江公園＆月光虹の噴水', theme: '世界最長の橋梁噴水とロマンチックな夜風', desc: '音楽に合わせて虹色にライトアップされた水流が吹き出す噴水ショーとセビッソムの夜景が魅力です。', cat: '夜景名所', photo: '📸 虹の噴水ライトアップ＆セビッソム夜景', sig: '🌊 セビッソムテラスカフェ＆漢江チメク', time: '午後 6:30', lat: 37.5103, lng: 126.9960 }
     ],
     '제주': [
+      // Day 1
       { name: '涯月カフェ通り＆漢潭海岸散策路', theme: 'エメラルドグリーンの海と絶景オーシャンビューカフェ', desc: '透明度の高い西部の海沿いにトレンドのベーカリーカフェが立ち並ぶ大人気スポットです。', cat: 'カフェ巡り', photo: '📸 オーシャンビュンテラス＆夕日', sig: '🍩 ハルラボンペストリー＆ラテ', time: '午前 11:30', lat: 33.4623, lng: 126.3110 },
       { name: '挟才海水浴場＆金陵海岸', theme: '飛揚島を望む白砂ビーチと透明な遠浅の海', desc: 'エメラルド色の海と貝殻の白い砂浜が広がり、飛揚島の美しい景観が目の前に広がります。', cat: '海洋自然', photo: '📸 飛揚島バックの遠浅ビーチショット', sig: '🌊 新鮮な海鮮盛り合わせ＆ボマルカルグクス', time: '午後 2:30', lat: 33.3941, lng: 126.2397 },
-      { name: '新昌風車海岸道路＆夕日', theme: '白い巨大風車と黄金色に輝くサンセット', desc: '海上に並ぶ巨大な風力発電の風車と、夕暮れ時に空と海がオレンジ色に染まる絶景ドライブコースです。', cat: '夕景・夜景', photo: '📸 夕空に浮かぶ風車のシルエット', sig: '🌅 海上木道散策＆済州黒豚サムギョプサル', time: '午後 6:30', lat: 33.3421, lng: 126.1742 }
+      { name: '新昌風車海岸道路＆夕日', theme: '白い巨大風車と黄金色に輝くサンセット', desc: '海上に並ぶ巨大な風力発電の風車と、夕暮れ時に空と海がオレンジ色に染まる絶景ドライブコースです。', cat: '夕景・夜景', photo: '📸 夕空に浮かぶ風車のシルエット', sig: '🌅 海上木道散策＆済州黒豚サムギョプサル', time: '午後 6:30', lat: 33.3421, lng: 126.1742 },
+      // Day 2
+      { name: '城山日出峰＆広峙其海岸', theme: 'ユネスコ世界自然遺産の雄大な火山噴火口', desc: '海上にそびえる巨大な凝灰角礫岩の噴火口で、山頂からはエメラルドグリーンの絶景が広がります。', cat: 'ユネスコ遺産', photo: '📸 噴火口パノラマ＆広峙其の苔岩リフレクション', sig: '🍊 搾りたてハルラボンジュース＆太刀魚の煮付け', time: '午前 8:30', lat: 33.4581, lng: 126.9426 },
+      { name: '榧子林＆千年の榧の木ロード', theme: 'フィトンチッドあふれる原始の森の癒し散策', desc: '樹齢数百年の榧の木が群生する世界最大級の単一樹種原生林で森林浴を満喫できます。', cat: '自然名所', photo: '📸 赤いスコリア道と鬱蒼とした榧のトンネル', sig: '🌲 榧子林の裸足散策＆森林セラピー', time: '午後 1:30', lat: 33.4912, lng: 126.8115 },
+      { name: '月汀里海水浴場＆カフェ通り', theme: '白い砂浜とカラフルな木製チェア', desc: 'エメラルドの海を背景に並ぶカラフルな椅子が写真映えする東部の人気ビーチです。', cat: 'カフェ巡り', photo: '📸 海辺のミニチェアフォトスポット', sig: '☕ 済州産有機にんじんケーキ＆抹茶ラテ', time: '午後 5:00', lat: 33.5562, lng: 126.7958 },
+      // Day 3
+      { name: '大浦柱状節理帯＆木製遊歩道', theme: '六角形の火山岩柱と打ち寄せる波の造形美', desc: '溶岩が海水で急冷されて生まれた壮大な六角形の石柱が青い海にそびえ立ちます。', cat: '自然名所', photo: '📸 柱状節理に打ち寄せる豪快な波しぶき', sig: '🌊 海岸展望台散策＆ハルラボンアイスクリーム', time: '午前 10:30', lat: 33.2380, lng: 126.4253 },
+      { name: 'オソルロック・ティーミュージアム＆イニスフリー', theme: '緑一面の有機緑茶畑と済州スイーツ', desc: '見渡す限りの広大な茶畑を散策し、濃厚な抹茶ソフトクリームやハルラサンケーキを堪能。', cat: 'カフェ巡り', photo: '📸 緑茶畑の真ん中で撮る爽やかな緑のスナップ', sig: '🍵 抹茶ロールケーキ＆ハルラボンエード', time: '午後 2:00', lat: 33.3060, lng: 126.2895 },
+      { name: '西帰浦毎日オルレ市場＆ナイトグルメ', theme: '済州南部の活気あふれるローカル夜市場', desc: '黒豚コロッケやガーリックチキン、新鮮なオマールエビの刺身など多彩な屋台グルメが集結。', cat: 'ローカルグルメ', photo: '📸 賑やかな夜市場の屋台と出来立てグルメ', sig: '🍢 マノンチキン＆黒豚キムチ巻き＆甘エビ刺身', time: '午後 6:30', lat: 33.2494, lng: 126.5638 },
+      // Day 4
+      { name: '渉地岬＆赤土の丘の白い灯台', theme: '奇岩怪石の海岸絶景と白い灯台の散策路', desc: '海に向かって突き出た岬に広がる菜の花と赤い火山スコリアの丘、白い灯台が絵画のような風景を作ります。', cat: '自然名所', photo: '📸 白い灯台とコバルトブルーの海岸線', sig: '🍦 牛島ピーナッツソフト＆海岸ドライブ', time: '午前 10:30', lat: 33.4241, lng: 126.9298 },
+      { name: '済州民俗村＆表善海水浴場', theme: '朝鮮時代後期の伝統家屋と広大な白砂', desc: '100棟余りの伝統家屋が保存された民俗村と、干潮時にどこまでも広がる遠浅の砂浜を体験。', cat: '歴史・文化', photo: '📸 藁ぶき石垣家屋＆広大な砂浜ショット', sig: '🥣 甘鯛焼き定食＆ボマル粥', time: '午後 2:00', lat: 33.3225, lng: 126.8420 },
+      { name: 'ボロムワッ蕎麦の花＆ラベンダー畑', theme: '風吹く野原、季節の花々が織りなすパノラマ', desc: '四季を通じて蕎麦の花やラベンダー、杉並木が広がる大人気のインスタ映えガーデンです。', cat: 'カフェ巡り', photo: '📸 杉並木の小道＆紫のラベンダー畑スナップ', sig: '🍰 ボロムワッ特製にんじんジュース＆クロワッサン', time: '午後 5:00', lat: 33.4250, lng: 126.7800 },
+      // Day 5
+      { name: '龍頭岩＆龍淵吊り橋', theme: '海に咆哮する龍の岩とエメラルドの渓谷', desc: '溶岩が固まってできた神秘的な龍の形の岩と、淡水と海水が合流するエメラルド色の渓谷散策路です。', cat: '自然名所', photo: '📸 龍頭岩の夕景＆龍淵吊り橋のライトアップ', sig: '🐟 アワビ粥＆海女さんの採れたて刺身', time: '午前 11:00', lat: 33.5160, lng: 126.5125 },
+      { name: '道頭洞虹色海岸道路＆道頭峰', theme: 'カラフルな防護壁とキスの丘の絶景', desc: '海沿いに虹色に塗られた防護壁で映える写真を撮り、道頭峰の山頂から飛行機の離着陸を眺めます。', cat: 'カフェ巡り', photo: '📸 虹色防護壁ジャンプショット＆キスの丘', sig: '☕ 道頭洞オーシャンビューベーカリー＆飛行機ビュー', time: '午後 2:30', lat: 33.5075, lng: 126.4720 },
+      { name: '東門市場夜市グルメツアー', theme: '済州最大の伝統市場とファイヤーショー夜市', desc: 'ハルラボンやオメギ餅、夜になると炎のパフォーマンスが繰り広げられる活気ある夜市です。', cat: 'ローカルグルメ', photo: '📸 夜市の炎のパフォーマンス＆お土産', sig: '🔥 黒豚アワビバター焼き＆オメギ餅', time: '午後 6:00', lat: 33.5125, lng: 126.5280 }
     ],
     '부산': [
+      // Day 1
       { name: '海雲台ブルーラインパーク＆スカイカプセル', theme: '海岸絶壁を走るレトロ可愛いスカイカプセル', desc: '海雲台から青沙浦まで、青い海を見下ろしながら走るカラフルな人気アトラクションです。', cat: '体験・眺望', photo: '📸 青い海とカラフルなスカイカプセル', sig: '🚊 スカイカプセル乗車＆青沙浦の貝焼き', time: '午前 11:00', lat: 35.1587, lng: 129.1604 },
       { name: '青沙浦タリットル展望台＆双子灯台', theme: '透明ガラススカイウォークと情緒ある漁港', desc: '海上に突き出たスリリングなガラスの展望台と、赤と白の可愛い双子灯台が迎えてくれます。', cat: '海洋自然', photo: '📸 ガラス床から見下ろす波しぶき', sig: '☕ タリットル展望台＆ルーフトップカフェ', time: '午後 2:30', lat: 35.1610, lng: 129.1915 },
-      { name: '広安里海水浴場＆広安大橋ライトアップ', theme: '海を彩るダイヤモンドブリッジの輝く夜景', desc: '広安大橋の美しいイルミネーションと砂浜沿いのテラスパブ、週末のドローンショーが魅力です。', cat: '夜景名所', photo: '📸 広安大橋の夜景＆ビーチリフレクション', sig: '🍺 オーシャンビュークラフトビール＆刺身', time: '午後 6:30', lat: 35.1532, lng: 129.1186 }
+      { name: '広安里海水浴場＆広安大橋ライトアップ', theme: '海を彩るダイヤモンドブリッジの輝く夜景', desc: '広安大橋の美しいイルミネーションと砂浜沿いのテラスパブ、週末のドローンショーが魅力です。', cat: '夜景名所', photo: '📸 広安大橋の夜景＆ビーチリフレクション', sig: '🍺 オーシャンビュークラフトビール＆刺身', time: '午後 6:30', lat: 35.1532, lng: 129.1186 },
+      // Day 2
+      { name: '甘川文化村＆星の王子さま', theme: '韓国のサントリーニ、パステル調の階段式集落', desc: '山肌に沿ってカラフルな家々と路地アートが並び、星の王子さまのフォトスポットが有名です。', cat: '名所', photo: '📸 星の王子さまと砂漠のキツネの手すりショット', sig: '☕ 展望台カフェコーヒー＆釜山シアホットク', time: '午前 11:00', lat: 35.0975, lng: 129.0106 },
+      { name: 'チャガルチ市場＆南浦洞BIFF広場', theme: '活気あふれる釜山の海とストリートグルメ', desc: '新鮮な魚介が並ぶ韓国最大の水産市場と、映画と屋台グルメが融合したBIFF広場です。', cat: 'ローカルグルメ', photo: '📸 活気あふれるチャガルチ港と生け簀', sig: '🐟 焼き魚定食＆南浦洞シアホットク', time: '午後 2:00', lat: 35.0968, lng: 129.0306 },
+      { name: '龍頭山公園＆釜山ダイヤモンドタワー', theme: '都心の緑と360度の港町夜景パノラマ', desc: '釜山タワーの展望台から釜山港大橋とライトアップされた原都心の輝く夜景を眺めます。', cat: '夜景名所', photo: '📸 タワー展望台からの釜山港大橋夜景', sig: '🗼 360度夜景パノラマ＆光復洞ショッピング', time: '午後 6:30', lat: 35.1005, lng: 129.0325 },
+      // Day 3
+      { name: '白瀬文化村＆海岸トンネル', theme: '海辺の絶壁路地と青い海のフォトトンネル', desc: '映画のロケ地としても名高い海辺の村で、絶壁のオーシャンビューカフェとトンネルが魅力。', cat: '名所', photo: '📸 海岸トンネルの中から海を望むシルエット写真', sig: '☕ 白瀬絶壁カフェのアイスアメリカーノ', time: '午前 11:00', lat: 35.0785, lng: 129.0450 },
+      { name: '国立海洋博物館', theme: '巨大円筒水槽と豊かな海洋文化', desc: '大型の海の生き物が泳ぐ円筒形アクアリウムと、海洋の歴史を学べる複合文化空間です。', cat: '歴史・文化', photo: '📸 円筒水槽のエイの餌やりショー', sig: '🐠 海洋展示観覧＆オーシャンデッキ', time: '午後 2:30', lat: 35.0780, lng: 129.0800 },
+      { name: '影島 P.ARK（ピアーク）複合文化空間', theme: '圧倒的スケールのオーシャンビューカフェ', desc: '釜山港と五六島を一望する巨大な文化空間で、こだわりのベーカリーと展示を楽しめます。', cat: 'カフェ巡り', photo: '📸 ピアークの大階段オーシャンビュー', sig: '🥐 明太子バゲット＆スペシャリティコーヒー', time: '午後 5:30', lat: 35.0880, lng: 129.0700 },
+      // Day 4
+      { name: '海東龍宮寺', theme: '波の音が響き渡る海辺の断崖寺院', desc: '海沿いの切り立った岩壁の上に建てられた韓国屈指の美しい海岸寺院です。', cat: '歴史・文化', photo: '📸 青い海と龍宮寺のパノラマ絶景', sig: '⛩️ 願いが叶うお寺参拝＆海岸散策', time: '午前 10:00', lat: 35.1885, lng: 129.2230 },
+      { name: 'アナンティ・コーブ＆機張海岸散策路', theme: '異国情緒漂うラグジュアリーヴィレッジ', desc: '美しい海岸線に沿って広がるリゾート空間と、感性豊かなエターナルジャーニー書店が魅力。', cat: 'ショッピング', photo: '📸 エターナルジャーニーの書架＆海辺の散策路', sig: '☕ 機張オーシャンビューブランチ＆スイーツ', time: '午後 1:30', lat: 35.1980, lng: 129.2300 },
+      { name: '松亭海水浴場＆松日亭サンセット', theme: 'サーファーの聖地と茜色の夕日', desc: '穏やかな波でサーフィンを楽しむ若者が集まり、松日亭の東屋から眺める夕日が絶景です。', cat: '夜景名所', photo: '📸 松日亭の夕日シルエットショット', sig: '🥪 松亭名物ムントースト＆ビーチ散歩', time: '午後 5:30', lat: 35.1780, lng: 129.1990 },
+      // Day 5
+      { name: '田浦カフェ通り＆雑貨店横丁', theme: '工具街から生まれ変わったトレンド発信地', desc: '個性あふれるデザートカフェと感性豊かなインディーズ雑貨店が立ち並ぶホットプレイス。', cat: 'カフェ巡り', photo: '📸 レトロな路地裏カフェ外観スナップ', sig: '☕ カヌレ＆シグネチャーフラットホワイト', time: '午前 11:30', lat: 35.1550, lng: 129.0660 },
+      { name: '釜山市民公園', theme: '広大な芝生広場と緑豊かな都会のオアシス', desc: '都心の真ん中に広がる緑の森と芝生広場、人工滝が調和した癒しのピクニックスポットです。', cat: '自然名所', photo: '📸 芝生広場と都会のスカイライン', sig: '🧺 森の散策＆リラックスピクニック', time: '午後 2:30', lat: 35.1680, lng: 129.0570 },
+      { name: '荒嶺山烽火台360度パノラマ夜景', theme: '釜山全域が輝く最高の夜景スポット', desc: '広安大橋、釜山港大橋、西面の街並みまで釜山の輝く夜景を360度見下ろす展望台です。', cat: '夜景名所', photo: '📸 荒嶺山山頂から見下ろす広安大橋の夜景', sig: '🌙 荒嶺山展望カフェでお茶＆夜景鑑賞', time: '午後 7:00', lat: 35.1585, lng: 129.0825 }
     ]
   };
 
@@ -720,37 +826,99 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
     '서울': [
       { theme: '1日目: 朝鮮王室の歴史と風情ある北村韓屋路地', transit: '地下鉄3号線 安国駅・景福宮駅周辺 徒歩10分以内', food: { dishName: '鍾路サムゲタン＆伝統緑豆チヂミ', description: '伝統韓屋の趣を感じながら楽しむ滋養豊かな韓国伝統宮廷料理' } },
       { theme: '2日目: 聖水洞トレンド巡りとロマンチック南山サンセット', transit: '聖水駅（2号線）および南山ケーブルカー・循環バス', food: { dishName: '聖水洞グルメバーガー＆自家製パスタ', description: '現地の若手クリエイターに愛される人気ダイニング' } },
-      { theme: '3日目: K-POPカルチャー体験と漢江サンセットピクニック', transit: '龍山駅（1号線/京義線）＆汝矣ナル駅（5号線）', food: { dishName: '龍山セリサムギョプサル＆漢江即席ラーメン', description: '香ばしい本場サムギョプサルと漢江沿いの名物ラーメン' } }
+      { theme: '3日目: K-POPカルチャー体験と漢江サンセットピクニック', transit: '龍山駅（1号線/京義線）＆汝矣ナル駅（5号線）', food: { dishName: '龍山セリサムギョプサル＆漢江即席ラーメン', description: '香ばしい本場サムギョプサルと漢江沿いの名物ラーメン' } },
+      { theme: '4日目: 益善洞韓屋カフェとDDP・城郭夜景', transit: '地下鉄1・3・5号線 鍾路3街駅＆4号線 恵化駅', food: { dishName: '益善洞韓屋ステーキ＆大学路カルグクス', description: 'レトロな韓屋レストランと歴史ある城郭グルメ' } },
+      { theme: '5日目: 国立中央博物館と漢南洞・盤浦噴水ショー', transit: '地下鉄4号線 二村駅＆6号線 漢江鎮駅', food: { dishName: '漢南洞フュージョンダイニング＆漢江チメク', description: '国際的なグルメと漢江の噴水ショーを楽しむディナー' } }
     ],
     '제주': [
-      { theme: '1日目: 済州西海岸の絶景エメラルド海と夕暮れカフェ', transit: '済州西海岸観光バスまたはレンタカー（約15分）', food: { dishName: '済州黒豚炭火焼き＆海鮮ラーメン', description: '夕日を眺めながら味わう肉厚でジューシーな黒豚サムギョプサル' } }
+      { theme: '1日目: 済州西海岸の絶景エメラルド海と夕暮れカフェ', transit: '済州西海岸観光バスまたはレンタカー（約15分）', food: { dishName: '済州黒豚炭火焼き＆海鮮ラーメン', description: '夕日を眺めながら味わう肉厚でジューシーな黒豚サムギョプサル' } },
+      { theme: '2日目: 東部世界自然遺産と月汀里カフェストリート', transit: '東部急行バス利用（約20分）', food: { dishName: '城山 太刀魚の甘辛煮＆海鮮鍋', description: '獲れたての新鮮な魚介と太刀魚の絶品煮付け' } },
+      { theme: '3日目: オソルロック緑茶畑と西帰浦夜市場グルメ', transit: '西帰浦市内バス＆中文観光団地ルート', food: { dishName: '西帰浦毎日オルレ市場 マノンチキン＆甘エビ刺身', description: '香ばしいガーリックチキンと新鮮な甘エビ' } },
+      { theme: '4日目: 渉地岬の絶壁とボロムワッ花畑ヒーリング', transit: '表善海岸道路＆中山間ドライブ', food: { dishName: '表善 甘鯛焼き定食＆ボマル粥', description: '上品な甘鯛と濃厚な磯の香りのボマル粥' } },
+      { theme: '5日目: 龍頭岩の海景と道頭洞虹色海岸ドライブ', transit: '済州市内循環バス＆空港近郊10分', food: { dishName: '東門市場 黒豚アワビバター焼き', description: '空港に向かう前に楽しむ活気ある夜市グルメ' } }
     ],
     '부산': [
-      { theme: '1日目: 海岸スカイカプセルと広安大橋の煌めく夜景', transit: '地下鉄2号線 海雲台駅＆海岸列車', food: { dishName: '青沙浦 炭火焼き貝盛り合わせ＆海鮮鍋', description: '海風を感じながら楽しむ新鮮な海の幸' } }
+      { theme: '1日目: 海岸スカイカプセルと広安大橋の煌めく夜景', transit: '地下鉄2号線 海雲台駅＆海岸列車', food: { dishName: '青沙浦 炭火焼き貝盛り合わせ＆海鮮鍋', description: '海風を感じながら楽しむ新鮮な海の幸' } },
+      { theme: '2日目: 甘川文化村とチャガルチ市場の活気', transit: '地下鉄1号線 南浦駅＆チャガルチ駅', food: { dishName: '釜山デジクッパ＆南浦洞シアホットク', description: '濃厚な豚骨スープのクッパと香ばしいナッツホットク' } },
+      { theme: '3日目: 白瀬文化村の絶壁と影島ピアーク文化空間', transit: '南浦駅から影島方面市内バス15分', food: { dishName: '影島ウニキンパ＆海辺のラーメン', description: '青い海を眺めながら味わう新鮮なウニキンパ' } },
+      { theme: '4日目: 海東龍宮寺の絶壁寺院と松亭の夕日', transit: '東海線オシリア駅＆松亭駅', food: { dishName: '機張わら焼きヌタウナギ＆アワビ粥', description: '香ばしいわら焼きウナギと栄養満点のアワビ粥' } },
+      { theme: '5日目: 田浦カフェ通りと荒嶺山360度パノラマ夜景', transit: '地下鉄1・2号線 西面駅＆田浦駅', food: { dishName: '田浦ハンドメイドバーガー＆ベーカリー', description: '若手クリエイターが集うトレンディダイニング' } }
+    ],
+    '수원': [
+      { theme: '1日目: ユネスコ水原華城と訪花随柳亭の優美', transit: '水原駅（1号線/水仁盆唐線）からバス10分', food: { dishName: '水原名物ヤンニョム王カルビ', description: '秘伝のタレが染み込んだ水原伝統の極上カルビ' } },
+      { theme: '2日目: 水原市立美術館と光教湖水公園の夜景', transit: '行宮洞徒歩＆湖水バスルート', food: { dishName: '光教レイクサイド手打ちパスタ＆クラフトビール', description: '湖畔の光を眺めながら楽しむディナー' } },
+      { theme: '3日目: スターフィールド別マダンと長安門城郭散策', transit: '華西駅（1号線）徒歩5分＆城郭バス', food: { dishName: 'スターフィールド ゴルメストリートブランチ', description: 'トレンドシェフのグルメと自家製スイーツ' } },
+      { theme: '4日目: 西湖公園の自然と池洞スンデタウン', transit: '華西＆南門市場バスルート', food: { dishName: '池洞市場 鉄板スンデホルモン炒め', description: 'ボリューム満点でピリ辛な水原のソウルフード' } },
+      { theme: '5日目: 粤華苑中国庭園と西将台360度夜景', transit: '水原市庁駅＆八達山ドライブ', food: { dishName: 'アレイウェイ 湖畔イタリアンディナー', description: 'ヨーロッパ風のストリートで味わうロマンチックディナー' } }
     ]
   };
 
   const SAMPLE_SPOTS_MAP_ZH = {
     '서울': [
+      // Day 1
       { name: '景福宫与香远亭', theme: '朝鲜王朝气韵与典雅水上园林', desc: '朝鲜王朝正宫，建于荷塘之上的香远亭与勤政殿的飞檐斗拱展现出韩国传统建筑的至美意境。', cat: '历史文化', photo: '📸 香远亭水面倒影与韩服写真', sig: '👑 宫殿韩服体验与漫步', time: '上午 10:00', lat: 37.5796, lng: 126.9770 },
       { name: '仁寺洞森吉街与传统茶馆', theme: '传统工艺胡同与文化品茗时光', desc: '沿螺旋形步道遍布精致手工艺品店与地道韩式茶馆，是体验首尔传统文化艺术的首选街区。', cat: '特色探店', photo: '📸 森吉街螺旋庭院与开城主乐点心', sig: '🍵 传统五味子茶与开城主乐甜点', time: '下午 1:30', lat: 37.5743, lng: 126.9848 },
       { name: '北村韩屋村', theme: '传统韩屋错落有致的静谧之美', desc: '保存完好的传统韩屋居住区，青瓦屋顶与远处首尔现代都市天际线交相辉映，极具视觉冲击。', cat: '韩屋街巷', photo: '📸 北村六景俯瞰青瓦胡同绝景', sig: '📸 漫步古朴石墙路与韩屋日落', time: '下午 4:30', lat: 37.5826, lng: 126.9836 },
+      // Day 2
       { name: '圣水洞咖啡街与Dior圣水', theme: '首尔最潮时尚聚集地与特色咖啡厅', desc: '由昔日红砖工业厂房蜕变而成的首尔潮流圣地，汇聚全球高端快闪店与手工烘焙面包坊。', cat: '特色探店', photo: '📸 Dior圣水梦幻建筑外观打卡', sig: '☕ 招牌海盐面包与维也纳咖啡', time: '上午 11:30', lat: 37.5446, lng: 127.0560 },
       { name: '首尔林与Under Stand Avenue', theme: '都市生态绿洲与集装箱创意街区', desc: '银杏树林步道与特色集装箱设计小店相融合，可同时享受悠闲野餐与潮流购物乐趣。', cat: '自然风光', photo: '📸 首尔林镜面湖面倒影大片', sig: '🧺 草坪野餐与甜品店打卡', time: '下午 2:30', lat: 37.5443, lng: 127.0374 },
       { name: 'N首尔塔与南山日落', theme: '360度俯瞰首尔全景日落与璀璨夜景', desc: '耸立于南山之巅的首尔地标，黄昏晚霞与夜幕降临后的万家灯火交织成令人难忘的浪漫盛宴。', cat: '夜景名胜', photo: '📸 首尔塔观景台日落与同心锁露台', sig: '🗼 晚霞全景与南山手工炸猪排', time: '下午 6:30', lat: 37.5512, lng: 126.9882 },
+      // Day 3
       { name: 'HYBE INSIGHT与龙山潮流地标', theme: 'K-POP流行文化与沉浸式音乐艺术', desc: '全球K-POP乐迷的必访圣地，通过沉浸式互动多媒体展览感受韩国音乐偶像的艺术魅力。', cat: 'K-POP圣地', photo: '📸 巨幅媒体艺术墙与互动展区', sig: '🎵 限量艺术家周边与媒体展', time: '上午 11:00', lat: 37.5283, lng: 126.9685 },
       { name: '现代百货首尔与Sounds Forest', theme: '巨型室内花园与未来感潮流购物', desc: '自然采光充足的5层室内巨型森林公园，汇聚最新K-Fashion时尚潮牌与全球风味美食。', cat: '购物休闲', photo: '📸 5层Sounds Forest室内绿洲打卡', sig: '🛍️ B2层K-Fashion快闪与B1层美食街', time: '下午 2:00', lat: 37.5259, lng: 126.9284 },
-      { name: '汝矣岛汉江公园与月光野餐', theme: '江风拂面与地道汉江泡面野餐体验', desc: '坐在草坪野餐垫上远眺波光粼粼的汉江，品尝现煮即食泡面与炸鸡啤酒，感受首尔惬意浪漫夜生活。', cat: '夜景名胜', photo: '📸 汉江日落与麻浦大桥夜景', sig: '🧺 汉江现煮泡面与草坪野餐垫', time: '下午 5:30', lat: 37.5270, lng: 126.9325 }
+      { name: '汝矣岛汉江公园与月光野餐', theme: '江风拂面与地道汉江泡面野餐体验', desc: '坐在草坪野餐垫上远眺波光粼粼的汉江，品尝现煮即食泡面与炸鸡啤酒，感受首尔惬意浪漫夜生活。', cat: '夜景名胜', photo: '📸 汉江日落与麻浦大桥夜景', sig: '🧺 汉江现煮泡面与草坪野餐垫', time: '下午 5:30', lat: 37.5270, lng: 126.9325 },
+      // Day 4
+      { name: '益善洞韩屋村与复古甜品街', theme: '百年韩屋胡同与潮流咖啡烘焙', desc: '错综复杂的韩屋小巷中隐藏着众多高颜值甜品店与创意料理餐厅，充满复古浪漫情调。', cat: '特色探店', photo: '📸 益善洞青瓦屋檐复古街拍', sig: '☕ 铁锅舒芙蕾与奶油芝士挞', time: '上午 11:30', lat: 37.5742, lng: 126.9893 },
+      { name: '东大门设计广场 (DDP)', theme: '扎哈·哈迪德未来感曲线建筑美学', desc: '宛如外星飞船般的流线型巨型建筑，汇聚顶尖设计艺术展与24小时不夜城时尚市集。', cat: '历史文化', photo: '📸 DDP流线型外观与夜间灯光秀', sig: '🎨 设计艺术展与K-Fashion市集', time: '下午 2:30', lat: 37.5665, lng: 127.0090 },
+      { name: '骆山公园与汉阳都城城郭夜景', theme: '月光下漫步古老城郭俯瞰首尔全景', desc: '沿着暖黄灯光点缀的古城墙拾级而上，俯瞰首尔整座都市夜景，是极具代表性的浪漫胜地。', cat: '夜景名胜', photo: '📸 城郭剪影与都市璀璨灯火大片', sig: '🌙 骆山展望台夜行漫步与大学路美食', time: '下午 7:00', lat: 37.5804, lng: 127.0076 },
+      // Day 5
+      { name: '国立中央博物馆与镜池庭园', theme: '韩国五千年历史底蕴与静谧水景', desc: '收藏国宝级文物的世界级国家博物馆，镜池青瓷亭的倒影与远处的首尔塔构成绝美画卷。', cat: '历史文化', photo: '📸 镜池青瓷亭倒影与首尔塔框景', sig: '🏺 半跏思惟像思惟之室与文创周边', time: '上午 10:30', lat: 37.5240, lng: 126.9803 },
+      { name: '汉南洞咖啡街与Leeum美术馆', theme: '高级感设计师买手店与顶级现代艺术', desc: '汇聚韩国年轻设计师先锋品牌与三星Leeum美术馆的世界级现代艺术藏品。', cat: '特色探店', photo: '📸 Leeum美术馆旋转楼梯经典机位', sig: '☕ 汉南洞精品手冲咖啡与早午餐', time: '下午 2:00', lat: 37.5385, lng: 127.0003 },
+      { name: '盘浦汉江公园与月光彩虹喷泉', theme: '世界最长桥梁喷水秀与汉江夜市', desc: '伴随音乐舞动的彩虹桥梁喷泉水柱与三岛漂浮建筑灯光秀，享受汉江晚风中的炸鸡啤酒。', cat: '夜景名胜', photo: '📸 彩虹喷泉灯光秀与三岛夜景', sig: '🌊 三岛水上露台与汉江炸鸡啤酒', time: '下午 6:30', lat: 37.5103, lng: 126.9960 }
     ],
     '제주': [
+      // Day 1
       { name: '涯月邑咖啡街与汉潭海岸步道', theme: '绝美果冻海与海景咖啡厅漫游', desc: '沿着济州西部碧绿如宝石的海岸线分布着众多网红海景咖啡馆与烘焙坊，风景如画。', cat: '特色探店', photo: '📸 露天海景露台与日落天际线', sig: '🍩 汉拿峰特色面包与奶油拿铁', time: '上午 11:30', lat: 33.4623, lng: 126.3110 },
       { name: '挟才海水浴场与金陵海岸', theme: '眺望飞扬岛的白沙滩与清澈果冻海', desc: '晶莹剔透的绿松石色海水与细腻贝壳沙滩，正前方即是宛如画卷的飞扬岛美景。', cat: '海洋风光', photo: '📸 飞扬岛背景与浅滩礁石倒影', sig: '🌊 新鲜海鲜拼盘与海螺刀削面', time: '下午 2:30', lat: 33.3941, lng: 126.2397 },
-      { name: '新昌风车海岸公路与落日', theme: '巨型白色风车与金黄晚霞壮景', desc: '耸立在海面上的巨型风力发电机与西海燃烧般的落日晚霞交相辉映，是绝佳的环岛自驾路线。', cat: '落日夜景', photo: '📸 夕阳映衬下的风车剪影大片', sig: '🌅 海上木栈道漫步与济州黑猪肉烧烤', time: '下午 6:30', lat: 33.3421, lng: 126.1742 }
+      { name: '新昌风车海岸公路与落日', theme: '巨型白色风车与金黄晚霞壮景', desc: '耸立在海面上的巨型风力发电机与西海燃烧般的落日晚霞交相辉映，是绝佳的环岛自驾路线。', cat: '落日夜景', photo: '📸 夕阳映衬下的风车剪影大片', sig: '🌅 海上木栈道漫步与济州黑猪肉烧烤', time: '下午 6:30', lat: 33.3421, lng: 126.1742 },
+      // Day 2
+      { name: '城山日出峰与广峙其海滩', theme: '联合国教科文组织世界自然遗产火山口', desc: '巍然屹立于大海之上的壮丽火山喷发锥，登上峰顶可俯瞰碧海与无垠草场的壮丽画卷。', cat: '自然遗产', photo: '📸 火山口边缘全景与广峙其绿苔岩石倒影', sig: '🍊 鲜榨汉拿峰柑橘汁与辣炖带鱼', time: '上午 8:30', lat: 33.4581, lng: 126.9426 },
+      { name: '榧子林与千年榧子树森林步道', theme: '高浓度负氧离子原始森林治愈徒步', desc: '数千棵数百年树龄的榧子树构成的世界最大单一树种原始林，散发着宜人的植物精油清香。', cat: '自然风光', photo: '📸 红褐色火山渣小路与浓密榧子树穹顶', sig: '🌲 榧子林赤足徒步与森林静心', time: '下午 1:30', lat: 33.4912, lng: 126.8115 },
+      { name: '月汀里海滩与海景咖啡街', theme: '细软白沙滩与标志性彩色木椅', desc: '以果冻色碧海为背景排列的彩色小木椅是东部最火爆的拍照打卡胜地，甜品咖啡馆林立。', cat: '特色探店', photo: '📸 彩色木椅面朝果冻海打卡机位', sig: '☕ 济州有机胡萝卜蛋糕与抹茶拿铁', time: '下午 5:00', lat: 33.5562, lng: 126.7958 },
+      // Day 3
+      { name: '大浦柱状节理带与海岸观景栈道', theme: '天然火山六角形玄武岩石柱与惊涛拍岸', desc: '火山熔岩遇冰冷海水淬炼而成的六角形天然石柱巍峨矗立于湛蓝大海之上，气势磅礴。', cat: '自然风光', photo: '📸 巨浪撞击六角形玄武岩石柱震撼瞬间', sig: '🌊 海岸栈道漫步与汉拿峰冰淇淋', time: '上午 10:30', lat: 33.2380, lng: 126.4253 },
+      { name: '雪绿茶博物馆与悦诗风吟济州之家', theme: '连绵起伏的有机绿茶园与天然甜品', desc: '漫步于一望无际的翠绿茶园之中，品尝醇厚浓郁的抹茶软冰淇淋与汉拿山熔岩蛋糕。', cat: '特色探店', photo: '📸 无垠绿茶园中央唯美大片', sig: '🍵 抹茶蛋糕卷与汉拿峰特饮', time: '下午 2:00', lat: 33.3060, lng: 126.2895 },
+      { name: '西归浦每日偶来市场与夜市小吃', theme: '济州南部烟火气十足的传统美食夜市', desc: '汇聚黑猪肉泡菜卷、香浓大蒜炸鸡、甜虾刺身等济州地道风味街头美食的热闹市集。', cat: '地方美食', photo: '📸 烟火升腾的夜市小吃摊位打卡', sig: '🍢 大蒜炸鸡、黑猪肉卷与甜虾刺身', time: '下午 6:30', lat: 33.2494, lng: 126.5638 },
+      // Day 4
+      { name: '涉地可支与红火山岩白色灯塔', theme: '海角奇岩绝景与白色灯塔浪漫漫步', desc: '向蔚蓝大海延伸的壮美海角，盛开的油菜花田与红色火山岩山丘上的白色灯塔相映成趣。', cat: '自然风光', photo: '📸 白色灯塔与深蓝海岸线大片', sig: '🍦 牛岛花生冰淇淋与海景自驾', time: '上午 10:30', lat: 33.4241, lng: 126.9298 },
+      { name: '济州民俗村与表善海水浴场', theme: '朝鲜后期传统茅草屋聚落与广阔白沙滩', desc: '原汁原味保存100余栋济州传统民居的活态博物馆，退潮时拥有无边无际的浅滩沙滩。', cat: '历史文化', photo: '📸 石墙茅草屋古朴村落与海滩打卡', sig: '🥣 烤甘鲷鱼定食与海螺粥', time: '下午 2:00', lat: 33.3225, lng: 126.8420 },
+      { name: 'Boromwat荞麦花田与薰衣草花园', theme: '微风拂过的田野与四季花海大片', desc: '四季盛开荞麦花、紫霞薰衣草与水杉林步道的大型自然庄园，是婚纱写真与大片打卡圣地。', cat: '特色探店', photo: '📸 水杉林小道与紫色薰衣草花海', sig: '🍰 Boromwat纯天然胡萝卜汁与羊角面包', time: '下午 5:00', lat: 33.4250, lng: 126.7800 },
+      // Day 5
+      { name: '龙头岩与龙渊云桥', theme: '面朝大海咆哮的巨龙熔岩与碧绿峡谷', desc: '火山熔岩凝固形成的龙首奇石，以及淡水与海水交汇的翡翠色龙渊峡谷吊桥步道。', cat: '自然风光', photo: '📸 龙头岩落日晚霞与龙渊吊桥夜景', sig: '🐟 鲜美鲍鱼粥与海女现捕刺身', time: '上午 11:00', lat: 33.5160, lng: 126.5125 },
+      { name: '道头洞彩虹海岸公路与道头峰', theme: '七彩防浪石砖与山顶接吻树飞机机位', desc: '沿海涂成彩虹色的防护栏是绝佳街拍点，登顶道头峰还可近距离俯瞰飞机起降与大海。', cat: '特色探店', photo: '📸 彩虹防浪石跳跃合影与道头峰接吻树', sig: '☕ 道头洞海景烘焙坊与飞机观景台', time: '下午 2:30', lat: 33.5075, lng: 126.4720 },
+      { name: '东门传统市场与喷火夜市巡礼', theme: '济州最大传统集市与火爆喷火夜市', desc: '新鲜汉拿峰柑橘、传统偶来米糕，以及每晚伴随音乐上演喷火秀的青年美食夜市。', cat: '地方美食', photo: '📸 夜市火枪喷射烤肉表演大片', sig: '🔥 黑猪肉鲍鱼黄油烧与偶来米糕', time: '下午 6:00', lat: 33.5125, lng: 126.5280 }
     ],
     '부산': [
+      // Day 1
       { name: '海云台蓝线公园与天空胶囊', theme: '沿海悬崖复古彩色天空胶囊小火车', desc: '从海云台到青沙浦，俯瞰蔚蓝大海与海岸峭壁的超人气浪漫体验。', cat: '体验·观景', photo: '📸 蔚蓝大海与复古彩色天空胶囊', sig: '🚊 天空胶囊乘坐体验与青沙浦烤贝', time: '上午 11:00', lat: 35.1587, lng: 129.1604 },
       { name: '青沙浦踏石展望台与双子灯塔', theme: '全透明玻璃栈道与悠闲海港风情', desc: '延伸至海面之上的惊险透明玻璃观景台，红白双子灯塔遥相呼应。', cat: '海洋风光', photo: '📸 玻璃栈道俯瞰碧波浪花', sig: '☕ 踏石观景台漫步与海景天台咖啡', time: '下午 2:30', lat: 35.1610, lng: 129.1915 },
-      { name: '广安里海水浴场与广安大桥晚霞', theme: '璀璨广安大桥灯光秀与海滨夜生活', desc: '广安大桥标志性夜景照明与沙滩露天酒吧，周末还可欣赏震撼的无人机光影秀。', cat: '夜景名胜', photo: '📸 广安大桥夜景与沙滩倒影大片', sig: '🍺 海景精酿啤酒与地道新鲜刺身', time: '下午 6:30', lat: 35.1532, lng: 129.1186 }
+      { name: '广安里海水浴场与广安大桥晚霞', theme: '璀璨广安大桥灯光秀与海滨夜生活', desc: '广安大桥标志性夜景照明与沙滩露天酒吧，周末还可欣赏震撼的无人机光影秀。', cat: '夜景名胜', photo: '📸 广安大桥夜景与沙滩倒影大片', sig: '🍺 海景精酿啤酒与地道新鲜刺身', time: '下午 6:30', lat: 35.1532, lng: 129.1186 },
+      // Day 2
+      { name: '甘川文化村与小王子', theme: '韩国圣托里尼，色彩斑斓的阶梯式壁画村', desc: '沿山势层叠错落的马卡龙色房屋与趣味艺术雕塑，小王子与沙漠狐狸机位闻名世界。', cat: '特色街区', photo: '📸 小王子护栏合影与马卡龙村落全景', sig: '☕ 观景天台咖啡与釜山糖饼', time: '上午 11:00', lat: 35.0975, lng: 129.0106 },
+      { name: '札嘎其水产市场与南浦洞BIFF广场', theme: '生猛鲜活的釜山海洋风味与街头小吃', desc: '韩国最大水产市场，搭配融合电影文化与地道小吃的南浦洞BIFF广场。', cat: '地方美食', photo: '📸 繁忙的札嘎其海港与活海鲜水箱', sig: '🐟 现烤鲜鱼定食与南浦洞坚果糖饼', time: '下午 2:00', lat: 35.0968, lng: 129.0306 },
+      { name: '龙头山公园与釜山钻石塔', theme: '闹市绿洲与360度釜山港璀璨夜景', desc: '登上釜山地标钻石塔，全景俯瞰釜山港大桥与繁华原都心的万家灯火。', cat: '夜景名胜', photo: '📸 钻石塔俯瞰釜山港大桥夜景', sig: '🗼 360度夜景漫步与光复洞购物', time: '下午 6:30', lat: 35.1005, lng: 129.0325 },
+      // Day 3
+      { name: '白浅滩文化村与海岸隧道', theme: '悬崖上的海景白色村落与出圈隧道机位', desc: '多部经典韩国电影取景地，面朝大海的悬崖咖啡馆与通往蔚蓝大海的天然画框隧道。', cat: '特色街区', photo: '📸 海岸隧道内向外拍摄海景剪影大片', sig: '☕ 白浅滩海景冰美式咖啡', time: '上午 11:00', lat: 35.0785, lng: 129.0450 },
+      { name: '国立海洋博物馆', theme: '巨型圆柱形水族馆与海洋文明探索', desc: '大型海洋生物畅游的巨型透明圆柱水族箱，沉浸式感受韩国海洋文明历史。', cat: '历史文化', photo: '📸 圆柱水族箱魔鬼鱼喂食秀', sig: '🐠 海洋文物展览与海景露台', time: '下午 2:30', lat: 35.0780, lng: 129.0800 },
+      { name: '影岛 P.ARK 复合文化艺术空间', theme: '超大体量阶梯式海景咖啡馆与烘焙坊', desc: '面朝釜山港与五六岛的未来感建筑地标，拥有巨幅阶梯式海景座席与特调咖啡。', cat: '特色探店', photo: '📸 P.ARK大阶梯剧场海景大片', sig: '🥐 明太子法棍与精品手冲咖啡', time: '下午 5:30', lat: 35.0880, lng: 129.0700 },
+      // Day 4
+      { name: '海东龙宫寺海边寺院', theme: '伴着惊涛海浪修行的绝壁海景古刹', desc: '巍峨坐落于东海悬崖峭壁之上的罕见海边佛寺，是许下虔诚心愿的著名灵验胜地。', cat: '历史文化', photo: '📸 碧海蓝天与龙宫寺全景明信片角度', sig: '⛩️ 虔诚许愿步道与海边悬崖步道', time: '上午 10:00', lat: 35.1885, lng: 129.2230 },
+      { name: 'Ananti Cove与机张海岸漫步道', theme: '异国风情奢华度假村与永恒之旅书店', desc: '沿着蔚蓝海岸线铺展的异国风情建筑群，拥有高格调的永恒之旅生活方式书店。', cat: '休闲购物', photo: '📸 永恒之旅设计感书架与海边长廊', sig: '☕ 机张海景早午餐与精致甜品', time: '下午 1:30', lat: 35.1980, lng: 129.2300 },
+      { name: '松亭海水浴场与松日亭晚霞', theme: '冲浪爱好者的天堂与红霞古亭', desc: '以平缓水深和清澈浪花吸引无数冲浪达人，松日亭古亭上的落日余晖堪称绝景。', cat: '夜景名胜', photo: '📸 松日亭红色夕阳剪影大片', sig: '🥪 松亭网红芝士吐司与海滩漫步', time: '下午 5:30', lat: 35.1780, lng: 129.1990 },
+      // Day 5
+      { name: '田浦咖啡街与设计买手店胡同', theme: '五金工具街变身《纽约时报》精选潮流圣地', desc: '充满个性的手工甜品店、独立设计师买手店与复古杂货铺鳞次栉比。', cat: '特色探店', photo: '📸 复古街角咖啡店门头街拍', sig: '☕ 招牌可丽露与特调小白咖啡', time: '上午 11:30', lat: 35.1550, lng: 129.0660 },
+      { name: '釜山市民公园', theme: '市中心大型生态绿洲与水幕瀑布', desc: '位于釜山市中心的广阔城市绿肺，大片平整草坪与人造瀑布是野餐放松的绝佳去处。', cat: '自然风光', photo: '📸 绿色草坪与城市天际线合影', sig: '🧺 森林步道漫步与草坪野餐', time: '下午 2:30', lat: 35.1680, lng: 129.0570 },
+      { name: '荒岭山烽火台360度全景夜景', theme: '360度俯瞰釜山全城万家灯火的夜景天花板', desc: '伫立于荒岭山巅，广安大桥、釜山港大桥到西面闹市区繁华灯火尽收眼底。', cat: '夜景名胜', photo: '📸 荒岭山俯瞰广安大桥璀璨灯火大片', sig: '🌙 观景平台热茶与全景星光夜色', time: '下午 7:00', lat: 35.1585, lng: 129.0825 }
     ]
   };
 
@@ -758,13 +926,30 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
     '서울': [
       { theme: '第1天: 朝鲜王室底蕴与古朴北村韩屋街巷', transit: '地铁3号线 安国站·景福宫站周边 步行10分钟以内', food: { dishName: '钟路参鸡汤与传统绿豆煎饼', description: '在传统韩屋风情中品尝滋补暖胃的地道韩国传统名菜' } },
       { theme: '第2天: 圣水洞潮流探店与浪漫南山晚霞', transit: '地铁2号线 圣水站及南山缆车/循环公车', food: { dishName: '圣水洞手工汉堡与特色意面', description: '深受本地年轻潮人与美食家喜爱的网红餐厅' } },
-      { theme: '第3天: K-POP文化体验与汉江日落野餐', transit: '地铁1号线/京义线 龙山站及5号线 汝矣渡口站', food: { dishName: '龙山水芹菜烤五花肉与汉江泡面', description: '地道韩式烤肉与汉江岸边的落日野餐泡面体验' } }
+      { theme: '第3天: K-POP文化体验与汉江日落野餐', transit: '地铁1号线/京义线 龙山站及5号线 汝矣渡口站', food: { dishName: '龙山水芹菜烤五花肉与汉江泡面', description: '地道韩式烤肉与汉江岸边的落日野餐泡面体验' } },
+      { theme: '第4天: 益善洞韩屋复古街与DDP城郭夜景', transit: '地铁1/3/5号线 钟路3街站及4号线 惠化站', food: { dishName: '益善洞韩屋牛排与大学路手工刀削面', description: '复古韩屋餐厅与传统城郭老字号美食' } },
+      { theme: '第5天: 国立中央博物馆与汉南洞·盘浦彩虹喷泉', transit: '地铁4号线 二村站及6号线 汉江镇站', food: { dishName: '汉南洞创意融合料理与汉江炸鸡啤酒', description: '国际化精致美食与汉江水上喷泉夜景盛宴' } }
     ],
     '제주': [
-      { theme: '第1天: 济州西海岸碧海风光与绝美日落咖啡厅', transit: '济州西海岸旅游公交或租车自驾（约15分钟）', food: { dishName: '济州黑猪肉炭火烤肉与海鲜泡面', description: '伴着日落晚霞品尝厚切多汁的济州黑猪肉' } }
+      { theme: '第1天: 济州西海岸碧海风光与绝美日落咖啡厅', transit: '济州西海岸旅游公交或租车自驾（约15分钟）', food: { dishName: '济州黑猪肉炭火烤肉与海鲜泡面', description: '伴着日落晚霞品尝厚切多汁的济州黑猪肉' } },
+      { theme: '第2天: 东部世界自然遗产与月汀里咖啡街', transit: '东部繁荣路快速公交（约20分钟）', food: { dishName: '城山 辣炖银带鱼与海鲜砂锅', description: '鲜甜微辣的厚切带鱼与济州丰盛海味' } },
+      { theme: '第3天: 雪绿茶园与西归浦夜市美食巡礼', transit: '西归浦市内公交与中文旅游区专线', food: { dishName: '西归浦偶来市场 大蒜炸鸡与甜虾刺身', description: '香脆大蒜炸鸡与入口即化的甜虾刺身' } },
+      { theme: '第4天: 涉地可支绝壁与Boromwat浪漫花海', transit: '表善海岸公路与中山间自驾', food: { dishName: '表善 烤甘鲷鱼定食与海螺粥', description: '外酥里嫩的烤甘鲷与鲜香浓郁的海螺粥' } },
+      { theme: '第5天: 龙头岩海景与道头洞彩虹海岸自驾', transit: '济州市内公交与机场临近区域（10分钟）', food: { dishName: '东门市场 铁板烤黑猪肉鲍鱼黄油烧', description: '前往机场前打卡济州最火爆的夜市街头美食' } }
     ],
     '부산': [
-      { theme: '第1天: 海岸天空胶囊与广安大桥璀璨夜景', transit: '地铁2号线 海云台站与海岸列车', food: { dishName: '青沙浦炭火烤海贝拼盘与海鲜汤', description: '面朝大海享受最新鲜的地道海味烧烤' } }
+      { theme: '第1天: 海岸天空胶囊与广安大桥璀璨夜景', transit: '地铁2号线 海云台站与海岸列车', food: { dishName: '青沙浦炭火烤海贝拼盘与海鲜汤', description: '面朝大海享受最新鲜的地道海味烧烤' } },
+      { theme: '第2天: 马卡龙色甘川文化村与札嘎其海鲜市场', transit: '地铁1号线 南浦站与札嘎其站', food: { dishName: '釜山猪肉汤饭与南浦洞坚果糖饼', description: '浓郁骨汤猪肉汤饭与香甜酥脆的坚果糖饼' } },
+      { theme: '第3天: 白浅滩悬崖小巷与影岛P.ARK艺术中心', transit: '南浦站乘市内公车15分钟至影岛', food: { dishName: '影岛海胆紫菜包饭与海景泡面', description: '面朝广阔大海品尝最新鲜的海胆与拉面' } },
+      { theme: '第4天: 海东龙宫寺绝壁古刹与松亭落日', transit: '东海线 奥西利亚站与松亭站', food: { dishName: '机张 柴火烤盲鳗与滋补鲍鱼粥', description: '烟熏香浓郁的炭烤盲鳗与醇厚鲍鱼粥' } },
+      { theme: '第5天: 田浦潮流咖啡街与荒岭山360度全景夜色', transit: '地铁1/2号线 西面站与田浦站', food: { dishName: '田浦 手工汉堡与精品烘焙甜点', description: '深受釜山年轻潮人喜爱的网红餐厅' } }
+    ],
+    '수원': [
+      { theme: '第1天: 联合国水原华城底蕴与访花随柳亭水景', transit: '水原站（1号线/水仁盆唐线）乘公交10分钟', food: { dishName: '水原特色调味排骨配冷面', description: '咸甜秘制酱汁深层浸润的传统水原大排骨' } },
+      { theme: '第2天: 水原市立美术馆与光教湖水公园夜景', transit: '行宫洞步行及湖水公交专线', food: { dishName: '光教湖畔意面与精酿啤酒', description: '面朝波光粼粼的湖水享受浪漫晚餐' } },
+      { theme: '第3天: 星空图书馆与长安门城郭漫步', transit: '华西站（1号线）步行5分钟及城郭公交', food: { dishName: 'Starfield美食街名厨早午餐', description: '汇聚前沿潮流餐厅与手工烘焙甜点' } },
+      { theme: '第4天: 西湖清幽生态与池洞米肠小吃街', transit: '华西及南门市场公交专线', food: { dishName: '池洞市场 铁板炒米肠配炒饭', description: '分量十足且香辣可口的水原灵魂美食' } },
+      { theme: '第5天: 粤华苑岭南园林与西将台360度夜色', transit: '水原市政厅站及八达山盘山公路', food: { dishName: 'Alleyway 湖畔意式浪漫晚餐', description: '欧洲风情湖畔商业街的烛光晚餐体验' } }
     ]
   };
 
