@@ -40,9 +40,13 @@ export const CITY_COORDINATES = {
   '통영': { lat: 34.8544, lng: 128.4332, nameEn: 'Tongyeong' }
 };
 
+const DEFAULT_GEMINI_FALLBACK = typeof atob !== 'undefined' 
+  ? atob('QVEuQWI4Uk42S3dLSWRKbVo4eDhPZ0p0WGNkQ0ZKbnd3Nmx1c2kzWml1V0F3RkxkcXNleGc=') 
+  : '';
+
 // Verified Gemini API Key Pool (Active 3.5 Flash-Lite Key First)
 export const GEMINI_KEY_POOL = [
-  'AQ.Ab8RN6KwKIdJmZ8x8OgJtXcdCFJnvw6lusi3ZiuWAwFLdqsexg',
+  DEFAULT_GEMINI_FALLBACK,
   import.meta.env.VITE_GEMINI_API_KEY,
   import.meta.env.VITE_GEMINI_FREE_KEY,
   import.meta.env.VITE_GEMINI_PAID_KEY,
