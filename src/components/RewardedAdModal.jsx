@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Play, Award, Sparkles, CheckCircle2, Volume2, VolumeX, ExternalLink } from 'lucide-react';
+import { X, Play, Award, Sparkles, CheckCircle2, Volume2, VolumeX, ExternalLink, ShieldCheck } from 'lucide-react';
 import { getCloseButtonLabel } from '../i18n/translations';
 
 export default function RewardedAdModal({
@@ -15,12 +15,12 @@ export default function RewardedAdModal({
   const SPONSOR_ADS_KO = [
     {
       brand: 'Klook Official Partner',
-      title: '디스커버 서울패스 24h & 48h 특별할인',
-      desc: '서울 주요 50개 명소 무료 입장 + 대중교통 티머니 기능 탑재!',
+      title: '디스커버 서울패스 (Discover Seoul Pass) 24h & 48h 특별할인',
+      desc: '서울 주요 50개 대표 명소 무료 입장 + 대중교통 티머니(T-Money) 기능 기본 탑재!',
       discount: '최대 25% OFF',
-      tag: 'K-Travel 스폰서',
+      tag: 'K-Travel 스폰서 파트너',
       link: 'https://www.klook.com',
-      image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1200&q=85'
+      image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1400&q=85'
     }
   ];
 
@@ -28,23 +28,23 @@ export default function RewardedAdModal({
     {
       brand: 'Klook Official Partner',
       title: 'Discover Seoul Pass 24h & 48h Special Discount',
-      desc: 'Free admission to 50+ top Seoul spots + Built-in Transit T-Money card!',
+      desc: 'Free admission to 50+ top Seoul attractions + Built-in Transit T-Money card included!',
       discount: 'Up to 25% OFF',
-      tag: 'K-Travel Sponsor',
+      tag: 'K-Travel Sponsor Partner',
       link: 'https://www.klook.com',
-      image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1200&q=85'
+      image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1400&q=85'
     }
   ];
 
   const SPONSOR_ADS_JA = [
     {
       brand: 'Klook 公式パートナー',
-      title: 'ディスカバーソウルパス 24h/48h 特別割引',
+      title: 'ディスカバーソウルパス 24h/48h 特別割引キャンペーン',
       desc: 'ソウル主要50箇所の人気スポット無料入場＋交通T-Money機能付き！',
       discount: '最大 25% OFF',
-      tag: 'K-Travel スポンサー',
+      tag: 'K-Travel スポンサーパートナー',
       link: 'https://www.klook.com',
-      image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1200&q=85'
+      image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1400&q=85'
     }
   ];
 
@@ -52,11 +52,11 @@ export default function RewardedAdModal({
     {
       brand: 'Klook 官方合作伙伴',
       title: '首尔探索卡 (Discover Seoul Pass) 限时特惠',
-      desc: '免费进入首尔50+热门景点，内置T-Money交通卡功能！',
+      desc: '免费畅游首尔50+热门景点，内置T-Money交通卡畅行无阻！',
       discount: '最高 75折特惠',
-      tag: 'K-Travel 赞助商',
+      tag: 'K-Travel 官方赞助商',
       link: 'https://www.klook.com',
-      image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1200&q=85'
+      image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1400&q=85'
     }
   ];
 
@@ -108,67 +108,82 @@ export default function RewardedAdModal({
       position: 'fixed',
       inset: 0,
       zIndex: 9999,
-      backgroundColor: 'rgba(0, 0, 0, 0.82)',
-      backdropFilter: 'blur(10px)',
-      WebkitBackdropFilter: 'blur(10px)',
+      backgroundColor: 'rgba(5, 8, 15, 0.85)',
+      backdropFilter: 'blur(14px)',
+      WebkitBackdropFilter: 'blur(14px)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '1rem',
-      animation: 'fadeIn 0.25s ease-out'
+      padding: '1.25rem',
+      animation: 'fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
     }}>
+      {/* Cinematic Modal Container (Responsive 760px Widescreen) */}
       <div style={{
-        backgroundColor: '#111827',
+        backgroundColor: '#0f172a',
         color: '#ffffff',
         borderRadius: '24px',
-        border: '1px solid rgba(255, 255, 255, 0.15)',
+        border: '1px solid rgba(255, 255, 255, 0.16)',
         width: '100%',
-        maxWidth: '520px',
+        maxWidth: '760px',
         overflow: 'hidden',
-        boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.7), 0 0 30px rgba(59, 130, 246, 0.2)',
-        position: 'relative'
+        boxShadow: '0 30px 70px -15px rgba(0, 0, 0, 0.85), 0 0 50px rgba(59, 130, 246, 0.15)',
+        position: 'relative',
+        display: 'flex',
+        flexDirection: 'column'
       }}>
         {/* Top Header Bar */}
         <div style={{
-          padding: '1rem 1.25rem',
+          padding: '1rem 1.5rem',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-          backgroundColor: 'rgba(255, 255, 255, 0.03)'
+          backgroundColor: 'rgba(15, 23, 42, 0.95)',
+          backdropFilter: 'blur(8px)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
             <span style={{
               backgroundColor: '#f59e0b',
               color: '#000000',
               fontWeight: 900,
-              fontSize: '0.7rem',
-              padding: '0.2rem 0.5rem',
-              borderRadius: '6px'
+              fontSize: '0.72rem',
+              letterSpacing: '0.04em',
+              padding: '0.22rem 0.55rem',
+              borderRadius: '6px',
+              textTransform: 'uppercase'
             }}>
-              {lang === 'en' ? 'Sponsored Ad' : lang === 'ja' ? 'スポンサー広告' : (lang === 'zh' || lang === 'zht') ? (lang === 'zht' ? '贊助商廣告' : '赞助商广告') : '스폰서 보상 광고'}
+              {lang === 'en' ? 'Sponsored Special' : lang === 'ja' ? 'スポンサー特別広告' : (lang === 'zh' || lang === 'zht') ? (lang === 'zht' ? '贊助商特惠' : '赞助商特惠') : '스폰서 특가 보상'}
             </span>
-            <span style={{ fontSize: '0.8rem', color: '#9ca3af', fontWeight: 600 }}>
-              {isCompleted 
-                ? (lang === 'en' ? '🎉 Completed!' : lang === 'ja' ? '🎉 視聴完了！' : (lang === 'zh' || lang === 'zht') ? '🎉 观看完成！' : '🎉 시청 완료!') 
-                : (lang === 'en' ? `⏳ Reward in ${timeLeft}s` : lang === 'ja' ? `⏳ ${timeLeft}秒後にリワード付与` : (lang === 'zh' || lang === 'zht') ? `⏳ ${timeLeft}秒后领取奖励` : `⏳ ${timeLeft}초 후 보상 지급`)}
+            <span style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              {isCompleted ? (
+                <span style={{ color: '#34d399', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                  <CheckCircle2 size={16} />
+                  {lang === 'en' ? 'Viewing Complete!' : lang === 'ja' ? '視聴完了！' : (lang === 'zh' || lang === 'zht') ? '观看完成！' : '시청 완료!'}
+                </span>
+              ) : (
+                <span>
+                  {lang === 'en' ? `⏳ Reward unlock in ${timeLeft}s` : lang === 'ja' ? `⏳ ${timeLeft}秒後にリワード付与` : (lang === 'zh' || lang === 'zht') ? `⏳ ${timeLeft}秒后解锁奖励` : `⏳ ${timeLeft}초 후 보상 지급`}
+                </span>
+              )}
             </span>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <button
               onClick={() => setIsMuted(!isMuted)}
+              title={isMuted ? 'Unmute' : 'Mute'}
               style={{
-                background: 'rgba(255, 255, 255, 0.1)',
-                border: 'none',
+                background: 'rgba(255, 255, 255, 0.08)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
                 color: '#ffffff',
                 borderRadius: '50%',
-                width: '32px',
-                height: '32px',
+                width: '34px',
+                height: '34px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                transition: 'all 0.2s'
               }}
             >
               {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
@@ -177,28 +192,32 @@ export default function RewardedAdModal({
             {isCompleted ? (
               <button
                 onClick={onClose}
+                aria-label={getCloseButtonLabel(lang)}
                 style={{
                   background: 'rgba(255, 255, 255, 0.15)',
-                  border: 'none',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
                   color: '#ffffff',
                   borderRadius: '50%',
-                  width: '32px',
-                  height: '32px',
+                  width: '34px',
+                  height: '34px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  transition: 'background 0.2s'
                 }}
               >
-                <X size={16} />
+                <X size={17} />
               </button>
             ) : (
               <span style={{
                 fontSize: '0.75rem',
-                color: '#6b7280',
-                padding: '0.2rem 0.5rem',
-                borderRadius: '6px',
-                background: 'rgba(255, 255, 255, 0.05)'
+                color: '#94a3b8',
+                fontWeight: 700,
+                padding: '0.25rem 0.6rem',
+                borderRadius: '8px',
+                background: 'rgba(255, 255, 255, 0.06)',
+                border: '1px solid rgba(255, 255, 255, 0.08)'
               }}>
                 {timeLeft}s
               </span>
@@ -207,17 +226,28 @@ export default function RewardedAdModal({
         </div>
 
         {/* Progress Bar */}
-        <div style={{ width: '100%', height: '4px', backgroundColor: 'rgba(255, 255, 255, 0.1)' }}>
+        <div style={{ width: '100%', height: '4px', backgroundColor: 'rgba(255, 255, 255, 0.08)' }}>
           <div style={{
             height: '100%',
             width: `${progressPercent}%`,
-            backgroundColor: isCompleted ? '#10b981' : '#3b82f6',
-            transition: 'width 1s linear'
+            background: isCompleted 
+              ? 'linear-gradient(90deg, #10b981 0%, #34d399 100%)' 
+              : 'linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%)',
+            transition: 'width 1s linear',
+            boxShadow: isCompleted ? '0 0 10px #10b981' : '0 0 10px #3b82f6'
           }} />
         </div>
 
-        {/* Ad Media Display */}
-        <div style={{ position: 'relative', width: '100%', height: '220px', overflow: 'hidden' }}>
+        {/* Cinematic 16:9 Widescreen Ad Media Area */}
+        <div style={{
+          position: 'relative',
+          width: '100%',
+          aspectRatio: '16 / 9',
+          minHeight: '240px',
+          maxHeight: '340px',
+          overflow: 'hidden',
+          backgroundColor: '#020617'
+        }}>
           <img
             src={currentAd.image}
             alt={currentAd.title}
@@ -225,80 +255,116 @@ export default function RewardedAdModal({
               width: '100%',
               height: '100%',
               objectFit: 'cover',
-              filter: 'brightness(0.85)'
+              filter: 'brightness(0.88)'
             }}
           />
+
+          {/* Top-left Brand Badge Overlay */}
+          <div style={{
+            position: 'absolute',
+            top: '1rem',
+            left: '1.25rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            zIndex: 2
+          }}>
+            <span style={{
+              background: 'rgba(15, 23, 42, 0.82)',
+              backdropFilter: 'blur(8px)',
+              color: '#38bdf8',
+              fontSize: '0.75rem',
+              fontWeight: 800,
+              padding: '0.3rem 0.65rem',
+              borderRadius: '8px',
+              border: '1px solid rgba(56, 189, 248, 0.3)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.35rem'
+            }}>
+              <ShieldCheck size={14} />
+              {currentAd.brand}
+            </span>
+            <span style={{
+              background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+              color: '#ffffff',
+              fontWeight: 900,
+              fontSize: '0.72rem',
+              padding: '0.3rem 0.6rem',
+              borderRadius: '8px',
+              boxShadow: '0 4px 12px rgba(239, 68, 68, 0.4)'
+            }}>
+              {currentAd.discount}
+            </span>
+          </div>
+
+          {/* Bottom Gradient and Ad Information Overlay */}
           <div style={{
             position: 'absolute',
             inset: 0,
-            background: 'linear-gradient(to top, rgba(17, 24, 39, 0.95) 0%, transparent 60%)',
+            background: 'linear-gradient(to top, rgba(15, 23, 42, 0.98) 0%, rgba(15, 23, 42, 0.6) 45%, transparent 100%)',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'flex-end',
-            padding: '1.25rem'
+            padding: '1.5rem',
+            zIndex: 2
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.3rem' }}>
-              <span style={{
-                fontSize: '0.75rem',
-                fontWeight: 800,
-                color: '#60a5fa',
-                letterSpacing: '0.02em'
-              }}>
-                {currentAd.brand}
-              </span>
-              <span style={{
-                fontSize: '0.65rem',
-                backgroundColor: '#ef4444',
-                color: '#ffffff',
-                fontWeight: 900,
-                padding: '0.1rem 0.4rem',
-                borderRadius: '4px'
-              }}>
-                {currentAd.discount}
-              </span>
-            </div>
-            <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: '#ffffff', lineHeight: 1.3 }}>
+            <h3 style={{
+              margin: '0 0 0.4rem 0',
+              fontSize: '1.25rem',
+              fontWeight: 800,
+              color: '#ffffff',
+              lineHeight: 1.35,
+              textShadow: '0 2px 4px rgba(0, 0, 0, 0.8)'
+            }}>
               {currentAd.title}
             </h3>
-            <p style={{ margin: '0.3rem 0 0', fontSize: '0.8rem', color: '#d1d5db', lineHeight: 1.4 }}>
+            <p style={{
+              margin: 0,
+              fontSize: '0.88rem',
+              color: '#cbd5e1',
+              lineHeight: 1.45,
+              maxWidth: '92%'
+            }}>
               {currentAd.desc}
             </p>
           </div>
         </div>
 
-        {/* Bottom Reward Call-to-Action */}
+        {/* Bottom Reward Call-to-Action Bar */}
         <div style={{
-          padding: '1.25rem',
-          backgroundColor: '#111827',
+          padding: '1.25rem 1.5rem',
+          backgroundColor: '#0b1120',
+          borderTop: '1px solid rgba(255, 255, 255, 0.06)',
           display: 'flex',
           flexDirection: 'column',
-          gap: '0.75rem'
+          gap: '0.85rem'
         }}>
           {isCompleted ? (
             <button
               onClick={handleClaimReward}
               style={{
                 width: '100%',
-                padding: '0.9rem',
+                padding: '1rem',
                 borderRadius: '14px',
                 border: 'none',
                 background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                 color: '#ffffff',
-                fontSize: '1rem',
+                fontSize: '1.05rem',
                 fontWeight: 800,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '0.5rem',
+                gap: '0.6rem',
                 cursor: 'pointer',
-                boxShadow: '0 10px 25px -5px rgba(16, 185, 129, 0.5)',
-                animation: 'pulse 1.5s infinite'
+                boxShadow: '0 10px 30px -5px rgba(16, 185, 129, 0.6)',
+                animation: 'pulse 1.6s infinite'
               }}
             >
-              <Sparkles size={20} />
+              <Sparkles size={22} />
               <span>
                 {lang === 'en' 
-                  ? '🎁 Claim +3 Free Prompts Now' 
+                  ? '🎁 Claim +3 Free Questions Now' 
                   : lang === 'ja' 
                   ? '🎁 質問＋3回を今すぐ獲得' 
                   : (lang === 'zh' || lang === 'zht') 
@@ -309,22 +375,22 @@ export default function RewardedAdModal({
           ) : (
             <div style={{
               width: '100%',
-              padding: '0.85rem',
+              padding: '0.95rem',
               borderRadius: '14px',
-              backgroundColor: 'rgba(255, 255, 255, 0.06)',
-              color: '#9ca3af',
-              fontSize: '0.85rem',
+              backgroundColor: 'rgba(255, 255, 255, 0.04)',
+              color: '#94a3b8',
+              fontSize: '0.9rem',
               fontWeight: 700,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '0.5rem',
+              gap: '0.6rem',
               border: '1px solid rgba(255, 255, 255, 0.08)'
             }}>
-              <Award size={18} style={{ color: '#f59e0b' }} />
+              <Award size={20} style={{ color: '#f59e0b' }} />
               <span>
                 {lang === 'en' 
-                  ? `+3 Free Prompts will be added in ${timeLeft}s` 
+                  ? `+3 Free Questions will be credited in ${timeLeft}s` 
                   : lang === 'ja' 
                   ? `${timeLeft}秒後に＋3回の無料質問が付与されます` 
                   : (lang === 'zh' || lang === 'zht') 
@@ -334,21 +400,34 @@ export default function RewardedAdModal({
             </div>
           )}
 
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.72rem', color: '#6b7280' }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            fontSize: '0.75rem',
+            color: '#64748b'
+          }}>
             <span>
               {lang === 'en' 
-                ? 'VORA AI & Official Partner Sponsorship' 
+                ? 'VORA AI & Official Global Partner Sponsorship' 
                 : lang === 'ja' 
-                ? 'VORA AI ＆ 公式提携パートナー スポンサーシップ' 
+                ? 'VORA AI ＆ 公式グローバル提携パートナー' 
                 : (lang === 'zh' || lang === 'zht') 
-                ? 'VORA AI 与官方合作伙伴赞助' 
-                : 'VORA AI & 공식 제휴 파트너 스폰서십'}
+                ? 'VORA AI 与官方全球合作伙伴' 
+                : 'VORA AI & 공식 글로벌 제휴 파트너'}
             </span>
             <a
               href={currentAd.link}
               target="_blank"
               rel="noopener noreferrer"
-              style={{ color: '#93c5fd', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.2rem' }}
+              style={{
+                color: '#60a5fa',
+                textDecoration: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.25rem',
+                fontWeight: 600
+              }}
             >
               <span>
                 {lang === 'en' 
@@ -357,9 +436,9 @@ export default function RewardedAdModal({
                   ? 'スポンサー特典を見る' 
                   : (lang === 'zh' || lang === 'zht') 
                   ? '查看赞助商优惠' 
-                  : '스폰서 혜택 보기'}
+                  : '스폰서 특가 보러가기'}
               </span>
-              <ExternalLink size={11} />
+              <ExternalLink size={12} />
             </a>
           </div>
         </div>
@@ -367,3 +446,4 @@ export default function RewardedAdModal({
     </div>
   );
 }
+
