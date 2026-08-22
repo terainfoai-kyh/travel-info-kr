@@ -23,9 +23,16 @@ import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
 import { geminiGenerateFullItinerary, generateLocalFallbackItinerary, enrichItineraryPhotosAsync, extractLocationKeyword, extractDaysFromPrompt } from './services/geminiNlpService';
 
 export default function App() {
-  // 4-Language State (ko, en, ja, zh)
+  // 4-Language State (ko, en, ja, zh) with 3-Tier Intelligent Auto-Detection
   const [lang, setLang] = useState(() => {
     try {
+      if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlLang = urlParams.get('lang');
+        if (urlLang && ['ko', 'en', 'ja', 'zh', 'zht'].includes(urlLang.toLowerCase())) {
+          return urlLang.toLowerCase() === 'zht' ? 'zh' : urlLang.toLowerCase();
+        }
+      }
       const saved = localStorage.getItem('vora_lang');
       if (saved) return saved;
     } catch (e) {}
