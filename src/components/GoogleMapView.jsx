@@ -323,6 +323,9 @@ export default function GoogleMapView({
 
   return (
     <div style={{
+      width: '100%',
+      maxWidth: '100%',
+      boxSizing: 'border-box',
       borderRadius: '16px',
       overflow: 'hidden',
       border: '1px solid var(--border-color)',
@@ -533,7 +536,7 @@ export default function GoogleMapView({
         )}
       </div>
 
-      {/* Bottom Sequential Route Chips (슬림 패딩) */}
+      {/* Bottom Sequential Route Chips (슬림 패딩 & 가로 넘침 완벽 격리) */}
       {spotsToDisplay.length > 0 && (
         <div
           className="no-scrollbar"
@@ -546,8 +549,12 @@ export default function GoogleMapView({
             gap: '0.35rem',
             overflowX: 'auto',
             whiteSpace: 'nowrap',
+            width: '100%',
+            maxWidth: '100%',
+            boxSizing: 'border-box',
             scrollbarWidth: 'none',
-            msOverflowStyle: 'none'
+            msOverflowStyle: 'none',
+            WebkitOverflowScrolling: 'touch'
           }}
         >
           {spotsToDisplay.map((spot, idx) => {

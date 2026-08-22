@@ -27,7 +27,10 @@ export default function HeroSection({
       padding: '1rem 0.5rem 0.6rem 0.5rem',
       textAlign: 'center',
       position: 'relative',
+      width: '100%',
       maxWidth: '880px',
+      boxSizing: 'border-box',
+      overflow: 'hidden',
       margin: '0 auto'
     }}>
       {/* Sleek Compact Heading */}
@@ -60,23 +63,33 @@ export default function HeroSection({
         }}>
           {t.heroSubtitle || 'Google Gemini 3.0 AI와 Google Places가 설계하는 초개인화 맞춤 코스 & 실시간 구글맵 연동'}
         </p>
+      </div>
+
+      {/* Free Question Quota Capsule Badge */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: '0.85rem'
+      }}>
         <span style={{
           display: 'inline-flex',
           alignItems: 'center',
-          gap: '0.25rem',
-          fontSize: '0.72rem',
-          fontWeight: 700,
-          padding: '0.15rem 0.55rem',
+          gap: '0.35rem',
+          fontSize: '0.75rem',
+          fontWeight: 800,
+          padding: '0.2rem 0.75rem',
           borderRadius: 'var(--radius-full)',
-          backgroundColor: questionQuota?.remaining > 1
-            ? 'rgba(16, 185, 129, 0.1)'
-            : questionQuota?.remaining === 1
-              ? 'rgba(245, 158, 11, 0.12)'
-              : 'rgba(239, 68, 68, 0.12)',
-          color: questionQuota?.remaining > 1
-            ? '#059669'
-            : questionQuota?.remaining === 1
-              ? '#d97706'
+          border: '1px solid var(--border-color)',
+          backgroundColor: questionQuota?.remaining > 2 
+            ? 'rgba(16, 185, 129, 0.1)' 
+            : questionQuota?.remaining > 0 
+              ? 'rgba(245, 158, 11, 0.1)' 
+              : 'rgba(239, 68, 68, 0.1)',
+          color: questionQuota?.remaining > 2 
+            ? '#059669' 
+            : questionQuota?.remaining > 0 
+              ? '#d97706' 
               : '#dc2626'
         }}>
           ⚡ {questionQuota?.remaining ?? 5}/{questionQuota?.total ?? 5}
@@ -86,7 +99,9 @@ export default function HeroSection({
       {/* Smart Prompt Input Box */}
       <form onSubmit={handleSubmit} style={{
         position: 'relative',
+        width: '100%',
         maxWidth: '720px',
+        boxSizing: 'border-box',
         margin: '0 auto 0.6rem auto'
       }}>
         <div style={{
@@ -107,6 +122,7 @@ export default function HeroSection({
             placeholder={t.searchPlaceholder || '어떤 여행을 꿈꾸시나요? (예: 성수동 핫플 카페 2박3일, 제주도 바다뷰 힐링)'}
             disabled={isLoading}
             style={{
+              minWidth: 0,
               width: '100%',
               border: 'none',
               outline: 'none',
@@ -144,7 +160,7 @@ export default function HeroSection({
       </form>
 
       {/* Quick Prompt Recommendation Chips */}
-      <div className="hero-chips-container">
+      <div className="hero-chips-container" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
         {(t.promptChips || []).map((chip, idx) => (
           <button
             key={idx}

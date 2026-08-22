@@ -544,9 +544,9 @@ export default function App() {
         </div>
 
         {/* 2. PC 2-Column Split Hub (Dashboard view: Chat on Left / Timeline & Map on Right) */}
-        <section id="itinerary-hub" className="itinerary-hub-container">
+        <section id="itinerary-hub" className="itinerary-hub-container" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
           {/* Left Column: Vora AI Conversational Chat Stream */}
-          <div className={`itinerary-hub-column ${mobileHubTab !== 'chat' ? 'mobile-hidden' : ''}`}>
+          <div className={`itinerary-hub-column ${mobileHubTab !== 'chat' ? 'mobile-hidden' : ''}`} style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
             <VoraAIChat
               lang={lang}
               chatMessages={chatMessages}
@@ -563,7 +563,7 @@ export default function App() {
           </div>
 
           {/* Right Column: Course Magazine View & Google Map */}
-          <div className={`itinerary-hub-column ${mobileHubTab !== 'magazine' ? 'mobile-hidden' : ''}`}>
+          <div className={`itinerary-hub-column ${mobileHubTab !== 'magazine' ? 'mobile-hidden' : ''}`} style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
             <CourseMagazineView
               lang={lang}
               itineraryData={itineraryData}
