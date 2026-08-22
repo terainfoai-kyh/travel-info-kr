@@ -278,14 +278,14 @@ export default function PortalHomePrototype({
           />
         ))}
 
-        {/* Ambient Dark Gradient & Vignette Overlay */}
+        {/* Ambient Subtle Light Scrim (Photos stay 100% bright and vivid) */}
         <div style={{
           position: 'absolute',
           top: 0,
           left: 0,
           width: '100%',
           height: '100%',
-          background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.42) 0%, rgba(15, 23, 42, 0.72) 55%, rgba(15, 23, 42, 0.94) 100%)',
+          background: 'linear-gradient(180deg, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.05) 45%, rgba(15, 23, 42, 0.6) 100%)',
           zIndex: 2
         }} />
 
@@ -310,14 +310,14 @@ export default function PortalHomePrototype({
             gap: '0.45rem',
             padding: '0.35rem 0.95rem',
             borderRadius: '9999px',
-            backgroundColor: 'rgba(255, 255, 255, 0.14)',
+            backgroundColor: 'rgba(15, 23, 42, 0.65)',
             backdropFilter: 'blur(16px)',
             WebkitBackdropFilter: 'blur(16px)',
-            border: '1px solid rgba(255, 255, 255, 0.3)',
+            border: '1px solid rgba(255, 255, 255, 0.35)',
             color: '#93c5fd',
             fontSize: '0.82rem',
             fontWeight: 800,
-            boxShadow: '0 4px 15px rgba(0, 0, 0, 0.25)'
+            boxShadow: '0 4px 15px rgba(0, 0, 0, 0.3)'
           }}>
             <Sparkles size={14} style={{ color: '#fbbf24' }} />
             <span>
@@ -330,12 +330,12 @@ export default function PortalHomePrototype({
 
           {/* Dynamic Headline */}
           <h1 style={{
-            fontSize: 'clamp(1.65rem, 4.2vw, 2.85rem)',
+            fontSize: 'clamp(1.75rem, 4.5vw, 2.95rem)',
             fontWeight: 900,
-            lineHeight: 1.25,
+            lineHeight: 1.22,
             color: '#ffffff',
             margin: 0,
-            textShadow: '0 4px 20px rgba(0, 0, 0, 0.65)',
+            textShadow: '0 4px 16px rgba(0, 0, 0, 0.8), 0 2px 4px rgba(0, 0, 0, 0.9)',
             letterSpacing: '-0.02em'
           }}>
             {lang === 'en' ? currentSlide.titleEn :
@@ -346,12 +346,13 @@ export default function PortalHomePrototype({
 
           {/* Subtitle */}
           <p style={{
-            fontSize: 'clamp(0.88rem, 1.8vw, 1.15rem)',
-            color: 'rgba(255, 255, 255, 0.9)',
+            fontSize: 'clamp(0.92rem, 1.9vw, 1.18rem)',
+            color: '#ffffff',
             margin: 0,
             maxWidth: '680px',
             lineHeight: 1.5,
-            textShadow: '0 2px 10px rgba(0, 0, 0, 0.55)'
+            fontWeight: 600,
+            textShadow: '0 2px 10px rgba(0, 0, 0, 0.85), 0 1px 3px rgba(0, 0, 0, 0.9)'
           }}>
             {lang === 'en' ? currentSlide.subEn :
              lang === 'ja' ? currentSlide.subJa :
@@ -359,7 +360,7 @@ export default function PortalHomePrototype({
              currentSlide.subKo}
           </p>
 
-          {/* 🔍 Glassmorphism Search & AI Generator Box */}
+          {/* 🔍 Gleaming Pure White High-Contrast Glass Search & AI Generator Box */}
           <form 
             onSubmit={handleSearch}
             style={{
@@ -372,16 +373,16 @@ export default function PortalHomePrototype({
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              backgroundColor: 'rgba(255, 255, 255, 0.16)',
+              backgroundColor: 'rgba(255, 255, 255, 0.96)',
               backdropFilter: 'blur(20px)',
               WebkitBackdropFilter: 'blur(20px)',
-              border: '1.5px solid rgba(255, 255, 255, 0.35)',
+              border: '1.5px solid rgba(255, 255, 255, 0.95)',
               borderRadius: '9999px',
               padding: '0.35rem 0.4rem 0.35rem 1.1rem',
-              boxShadow: '0 15px 35px rgba(0, 0, 0, 0.4)',
+              boxShadow: '0 20px 45px rgba(0, 0, 0, 0.35)',
               transition: 'all 0.3s ease'
             }}>
-              <Search size={20} style={{ color: 'rgba(255, 255, 255, 0.85)', flexShrink: 0 }} />
+              <Search size={20} style={{ color: '#2563eb', flexShrink: 0 }} />
               <input
                 type="text"
                 value={searchQuery}
@@ -397,9 +398,9 @@ export default function PortalHomePrototype({
                   background: 'transparent',
                   border: 'none',
                   outline: 'none',
-                  color: '#ffffff',
+                  color: '#0f172a',
                   fontSize: '0.95rem',
-                  fontWeight: 600,
+                  fontWeight: 700,
                   padding: '0.6rem 0.8rem',
                   minWidth: 0
                 }}
@@ -411,14 +412,14 @@ export default function PortalHomePrototype({
                   color: '#ffffff',
                   border: 'none',
                   borderRadius: '9999px',
-                  padding: '0.65rem 1.3rem',
+                  padding: '0.65rem 1.35rem',
                   fontSize: '0.88rem',
                   fontWeight: 800,
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.4rem',
-                  boxShadow: '0 4px 15px rgba(37, 99, 235, 0.5)',
+                  boxShadow: '0 4px 15px rgba(37, 99, 235, 0.4)',
                   transition: 'all 0.2s ease',
                   flexShrink: 0
                 }}
@@ -429,7 +430,7 @@ export default function PortalHomePrototype({
             </div>
           </form>
 
-          {/* Quick Suggestion Chips */}
+          {/* Quick Suggestion Chips (Pure High-Contrast Style) */}
           <div style={{
             display: 'flex',
             flexWrap: 'wrap',
@@ -442,27 +443,30 @@ export default function PortalHomePrototype({
                 key={idx}
                 onClick={() => handleChipClick(chip.prompt)}
                 style={{
-                  backgroundColor: 'rgba(0, 0, 0, 0.4)',
-                  backdropFilter: 'blur(8px)',
-                  border: '1px solid rgba(255, 255, 255, 0.22)',
-                  color: 'rgba(255, 255, 255, 0.95)',
-                  padding: '0.3rem 0.75rem',
+                  backgroundColor: 'rgba(255, 255, 255, 0.92)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.8)',
+                  color: '#0f172a',
+                  padding: '0.35rem 0.8rem',
                   borderRadius: '9999px',
-                  fontSize: '0.76rem',
-                  fontWeight: 700,
+                  fontSize: '0.78rem',
+                  fontWeight: 800,
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.25rem'
+                  gap: '0.25rem',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(37, 99, 235, 0.7)';
-                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.7)';
+                  e.currentTarget.style.backgroundColor = '#2563eb';
+                  e.currentTarget.style.color = '#ffffff';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.4)';
-                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.22)';
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.92)';
+                  e.currentTarget.style.color = '#0f172a';
+                  e.currentTarget.style.transform = 'translateY(0)';
                 }}
               >
                 <span>{lang === 'en' ? chip.labelEn : chip.labelKo}</span>
