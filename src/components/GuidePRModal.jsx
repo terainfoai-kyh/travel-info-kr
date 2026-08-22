@@ -4,7 +4,7 @@ import { useModalHistory } from '../hooks/useModalHistory';
 
 const GUIDE_PR_TRANSLATIONS = {
   ko: {
-    modalTitle: 'K-Travel 이용안내 매뉴얼 & 공식 홍보관',
+    modalTitle: 'Vora 이용안내 매뉴얼 & 공식 홍보관',
     modalSub: 'AI 맞춤 여행 플래너 활용법 및 한국관광공사 연동 서비스 소개',
     tabManual: '📖 이용 안내 매뉴얼',
     tabPR: '📢 플랫폼 홍보관 & 제휴',
@@ -19,7 +19,7 @@ const GUIDE_PR_TRANSLATIONS = {
     step5Title: '5. 글로벌 9개 국어 지원 (Foreigner-First UX)',
     step5Desc: '우측 상단 언어 선택기를 통해 한국어, 영어, 일본어, 중국어(간체/번체), 독일어, 프랑스어, 스페인어, 러시아어 등 9개 언어로 원스톱 전환할 수 있으며, 외국인 사용자에게는 한국관광공사 Official 다국어 API 데이터가 수신됩니다.',
     pr1Title: '🇰🇷 한국관광공사 TourAPI 4.0 정품 공공데이터 플랫폼',
-    pr1Desc: 'K-Travel Explorer (koreatravel.cc)는 대한민국 공공기관인 한국관광공사 Official DB 및 기상청 실시간 기후 데이터를 100% 공식 연동하여 운영되는 대한민국 스마트 여행 안내 서비스입니다.',
+    pr1Desc: 'Vora Explorer (koreatravel.cc)는 대한민국 공공기관인 한국관광공사 Official DB 및 기상청 실시간 기후 데이터를 100% 공식 연동하여 운영되는 대한민국 스마트 여행 안내 서비스입니다.',
     pr2Title: '✈️ 글로벌 제휴사 혜택 제공 (Agoda & Klook)',
     pr2ItemHotel: 'Agoda 최저가 숙소 연동: 추천 코스 지역 주변의 최저가 호텔/리조트를 1클릭으로 검색 및 할인 예약.',
     pr2ItemEsim: 'Klook eSIM & 패스 혜택: 대한민국 입국 외국인 관광객 전용 eSIM, K-PASS, 교통권 제휴 혜택 제공.',
@@ -30,7 +30,7 @@ const GUIDE_PR_TRANSLATIONS = {
     openInquiryFormBtn: '온라인 제휴 문의 폼 작성하기 ➔'
   },
   en: {
-    modalTitle: 'K-Travel User Manual & Official PR Hub',
+    modalTitle: 'Vora User Manual & Official PR Hub',
     modalSub: 'AI Travel Planner usage & Korea Tourism Organization Official DB intro',
     tabManual: '📖 User Manual',
     tabPR: '📢 Platform PR & Partnership',
@@ -45,7 +45,7 @@ const GUIDE_PR_TRANSLATIONS = {
     step5Title: '5. Global 9 Languages Support (Foreigner-First UX)',
     step5Desc: 'Switch seamlessly between Korean, English, Japanese, Chinese (Simp/Trad), German, French, Spanish, and Russian. Foreign users receive official Korea Tourism Organization multilingual API data.',
     pr1Title: '🇰🇷 Official Korea Tourism Organization TourAPI 4.0 Platform',
-    pr1Desc: 'K-Travel Explorer (koreatravel.cc) is an official smart Korea travel guide powered by 100% official Korea Tourism Organization DB and Meteorological Agency real-time climate data.',
+    pr1Desc: 'Vora Explorer (koreatravel.cc) is an official smart Korea travel guide powered by 100% official Korea Tourism Organization DB and Meteorological Agency real-time climate data.',
     pr2Title: '✈️ Global Partner Benefits (Agoda & Klook)',
     pr2ItemHotel: 'Agoda Lowest Hotel Guarantee: Search & book lowest price hotels near recommended routes in 1 click.',
     pr2ItemEsim: 'Klook eSIM & Pass Deals: Special discounts on eSIM, K-PASS, transit passes for inbound travelers.',
@@ -56,7 +56,7 @@ const GUIDE_PR_TRANSLATIONS = {
     openInquiryFormBtn: 'Fill Online Partnership Form ➔'
   },
   ja: {
-    modalTitle: 'K-Travel 利用案内マニュアル＆公式広報館',
+    modalTitle: 'Vora 利用案内マニュアル＆公式広報館',
     modalSub: 'AI旅行プランナーの活用法および韓国観光公社連動サービスの紹介',
     tabManual: '📖 利用案内マニュアル',
     tabPR: '📢 プラットフォーム広報館＆提携',
@@ -71,7 +71,7 @@ const GUIDE_PR_TRANSLATIONS = {
     step5Title: '5. グローバル9ヶ国語対応 (Foreigner-First UX)',
     step5Desc: '右上言語セレクターで日本語、英語、韓国語、中国語、ドイツ語、フランス語、スペイン語、ロシア語など9言語に切り替え可能。公式多言語APIデータをリアルタイム受信します。',
     pr1Title: '🇰🇷 韓国観光公社 TourAPI 4.0 正規品公共データプラットフォーム',
-    pr1Desc: 'K-Travel Explorer (koreatravel.cc)は、韓国観光公社Official DBおよび気象庁のリアルタイム気候データを100%公式連動して運営されるスマート韓国旅行ガイドです。',
+    pr1Desc: 'Vora Explorer (koreatravel.cc)は、韓国観光公社Official DBおよび気象庁のリアルタイム気候データを100%公式連動して運営されるスマート韓国旅行ガイドです。',
     pr2Title: '✈️ グローバル提携パートナー特典 (Agoda & Klook)',
     pr2ItemHotel: 'Agoda 最安値宿泊連動：推薦コース周辺の最安値ホテル・リゾートを1クリックで検索・割引予約。',
     pr2ItemEsim: 'Klook eSIM＆パス特典：訪韓外国人観光客専用eSIM、K-PASS、交通パスの提携割引を提供。',
@@ -82,7 +82,7 @@ const GUIDE_PR_TRANSLATIONS = {
     openInquiryFormBtn: 'オンライン提携お問い合わせフォーム作成 ➔'
   },
   zh: {
-    modalTitle: 'K-Travel 使用指南手册与官方宣传馆',
+    modalTitle: 'Vora 使用指南手册与官方宣传馆',
     modalSub: 'AI定制旅行规划器使用方法及韩国旅游发展局联动服务介绍',
     tabManual: '📖 使用指南手册',
     tabPR: '📢 平台宣传馆与合作',
@@ -97,7 +97,7 @@ const GUIDE_PR_TRANSLATIONS = {
     step5Title: '5. 全球9种语言支持 (外国游客优先UX)',
     step5Desc: '通过右上角语言选择器可随时切换韩语、英语、日语、中文（简体/繁体）、德语、法语、西班牙语、俄语等9种语言，为外国游客实时提供韩国旅游发展局多语言官方API数据。',
     pr1Title: '🇰🇷 韩国旅游发展局 TourAPI 4.0 正版公共数据平台',
-    pr1Desc: 'K-Travel Explorer (koreatravel.cc) 是100%官方接入韩国旅游发展局(KTO) Official DB及气象厅实时气候数据打造的智能韩国旅游指南服务。',
+    pr1Desc: 'Vora Explorer (koreatravel.cc) 是100%官方接入韩国旅游发展局(KTO) Official DB及气象厅实时气候数据打造的智能韩国旅游指南服务。',
     pr2Title: '✈️ 全球合作伙伴优惠 (Agoda & Klook)',
     pr2ItemHotel: 'Agoda 最低价酒店联动：一键搜索并折扣预订推荐路线周边最低价酒店/度假村。',
     pr2ItemEsim: 'Klook eSIM与交通卡优惠：为入境外国游客提供专属eSIM、K-PASS、交通卡合作折扣。',
@@ -108,7 +108,7 @@ const GUIDE_PR_TRANSLATIONS = {
     openInquiryFormBtn: '填写在线合作咨询表 ➔'
   },
   zht: {
-    modalTitle: 'K-Travel 使用指南手冊與官方宣傳館',
+    modalTitle: 'Vora 使用指南手冊與官方宣傳館',
     modalSub: 'AI定製旅行規劃器使用方法及韓國旅遊發展局聯動服務介紹',
     tabManual: '📖 使用指南手冊',
     tabPR: '📢 平台宣傳館與合作',
@@ -123,7 +123,7 @@ const GUIDE_PR_TRANSLATIONS = {
     step5Title: '5. 全球9種語言支持 (外國遊客優先UX)',
     step5Desc: '透過右上角語言選擇器可隨時切換韓語、英語、日語、中文（簡體/繁體）、德語、法語、西班牙語、俄語等9種語言，為外國遊客實時提供韓國旅遊發展局多語言官方API數據。',
     pr1Title: '🇰🇷 韓國旅遊發展局 TourAPI 4.0 正版公共數據平台',
-    pr1Desc: 'K-Travel Explorer (koreatravel.cc) 是100%官方接入韓國旅遊發展局(KTO) Official DB及氣象廳實時氣候數據打造的智能韓國旅遊指南服務。',
+    pr1Desc: 'Vora Explorer (koreatravel.cc) 是100%官方接入韓國旅遊發展局(KTO) Official DB及氣象廳實時氣候數據打造的智能韓國旅遊指南服務。',
     pr2Title: '✈️ 全球合作夥伴優惠 (Agoda & Klook)',
     pr2ItemHotel: 'Agoda 最低價酒店聯動：一鍵搜尋並折扣預訂推薦路線周邊最低價酒店/度假村。',
     pr2ItemEsim: 'Klook eSIM與交通卡優惠：為入境外國遊客提供專屬eSIM、K-PASS、交通卡合作折扣。',
@@ -134,7 +134,7 @@ const GUIDE_PR_TRANSLATIONS = {
     openInquiryFormBtn: '填寫線上合作諮詢表 ➔'
   },
   de: {
-    modalTitle: 'K-Travel Benutzerhandbuch & Offizielles PR-Zentrum',
+    modalTitle: 'Vora Benutzerhandbuch & Offizielles PR-Zentrum',
     modalSub: 'Nutzung des AI-Reiseplaners & Einführung in die offizielle Datenbank der KTO',
     tabManual: '📖 Benutzerhandbuch',
     tabPR: '📢 Plattform-PR & Partnerschaft',
@@ -149,7 +149,7 @@ const GUIDE_PR_TRANSLATIONS = {
     step5Title: '5. Unterstützung von 9 Sprachen (Foreigner-First UX)',
     step5Desc: 'Wechseln Sie nahtlos zwischen 9 Sprachen. Ausländische Nutzer erhalten offizielle KTO-Mehrsprachen-API-Daten.',
     pr1Title: '🇰🇷 Offizielle KTO TourAPI 4.0 Open Data-Plattform',
-    pr1Desc: 'K-Travel Explorer (koreatravel.cc) ist ein offizieller Reiseführer, der zu 100% mit der KTO-Datenbank und Wetterdaten verbunden ist.',
+    pr1Desc: 'Vora Explorer (koreatravel.cc) ist ein offizieller Reiseführer, der zu 100% mit der KTO-Datenbank und Wetterdaten verbunden ist.',
     pr2Title: '✈️ Globale Partner-Vorteile (Agoda & Klook)',
     pr2ItemHotel: 'Agoda Bestpreis-Garantie: Hotels in der Nähe der Routen mit 1 Klick suchen und buchen.',
     pr2ItemEsim: 'Klook eSIM & Pass Deals: Rabatte auf eSIM, K-PASS und Fahrkarten für Einreisende.',
@@ -160,7 +160,7 @@ const GUIDE_PR_TRANSLATIONS = {
     openInquiryFormBtn: 'Online-Partnerschaftsformular ausfüllen ➔'
   },
   fr: {
-    modalTitle: 'Guide d\'utilisation K-Travel & Centre PR Officiel',
+    modalTitle: 'Guide d\'utilisation Vora & Centre PR Officiel',
     modalSub: 'Utilisation du planificateur IA et présentation de la BDD officielle KTO',
     tabManual: '📖 Manuel d\'utilisation',
     tabPR: '📢 RP de la plateforme et partenariat',
@@ -175,7 +175,7 @@ const GUIDE_PR_TRANSLATIONS = {
     step5Title: '5. Prise en charge de 9 langues (Foreigner-First UX)',
     step5Desc: 'Passez facilement entre 9 langues. Les utilisateurs étrangers reçoivent les données API multilingues officielles de la KTO.',
     pr1Title: '🇰🇷 Plateforme de données publiques officielle TourAPI 4.0 KTO',
-    pr1Desc: 'K-Travel Explorer (koreatravel.cc) est un guide officiel basé à 100% sur la base de données KTO et la météo en temps réel.',
+    pr1Desc: 'Vora Explorer (koreatravel.cc) est un guide officiel basé à 100% sur la base de données KTO et la météo en temps réel.',
     pr2Title: '✈️ Avantages partenaires mondiaux (Agoda & Klook)',
     pr2ItemHotel: 'Hôtels Agoda prix minimum: Recherchez et réservez des hôtels près des itinéraires en 1 clic.',
     pr2ItemEsim: 'Klook eSIM & Pass: Réductions sur les eSIM, K-PASS et cartes de transport pour les voyageurs.',
@@ -186,7 +186,7 @@ const GUIDE_PR_TRANSLATIONS = {
     openInquiryFormBtn: 'Remplir le formulaire de partenariat ➔'
   },
   es: {
-    modalTitle: 'Manual de Usuario K-Travel y Centro Oficial de RP',
+    modalTitle: 'Manual de Usuario Vora y Centro Oficial de RP',
     modalSub: 'Uso del planificador IA e introducción a la BD oficial de la KTO',
     tabManual: '📖 Manual de Usuario',
     tabPR: '📢 RP de la plataforma y alianzas',
@@ -201,7 +201,7 @@ const GUIDE_PR_TRANSLATIONS = {
     step5Title: '5. Soporte para 9 idiomas (Foreigner-First UX)',
     step5Desc: 'Cambia entre 9 idiomas fácilmente. Los usuarios extranjeros reciben datos oficiales multilingües de la API de la KTO.',
     pr1Title: '🇰🇷 Plataforma de Datos Públicos Oficial TourAPI 4.0 de KTO',
-    pr1Desc: 'K-Travel Explorer (koreatravel.cc) es una guía oficial conectada al 100% con la BD de la KTO y datos climáticos en tiempo real.',
+    pr1Desc: 'Vora Explorer (koreatravel.cc) es una guía oficial conectada al 100% con la BD de la KTO y datos climáticos en tiempo real.',
     pr2Title: '✈️ Beneficios de socios globales (Agoda y Klook)',
     pr2ItemHotel: 'Hoteles Agoda precio mínimo: Busca y reserva hoteles cerca de tus rutas en 1 clic.',
     pr2ItemEsim: 'Ofertas Klook eSIM y Pases: Descuentos especiales en eSIM, K-PASS y pases de transporte.',
@@ -212,7 +212,7 @@ const GUIDE_PR_TRANSLATIONS = {
     openInquiryFormBtn: 'Rellenar formulario de alianza ➔'
   },
   ru: {
-    modalTitle: 'Руководство пользователя K-Travel и Официальный PR-центр',
+    modalTitle: 'Руководство пользователя Vora и Официальный PR-центр',
     modalSub: 'Использование ИИ-планировщика и презентация официальной БД KTO',
     tabManual: '📖 Руководство пользователя',
     tabPR: '📢 PR платформы и партнерство',
@@ -227,7 +227,7 @@ const GUIDE_PR_TRANSLATIONS = {
     step5Title: '5. Поддержка 9 языков (Foreigner-First UX)',
     step5Desc: 'Переключайтесь между 9 языками. Иностранные пользователи получают официальные данные мультиязычного API KTO.',
     pr1Title: '🇰🇷 Официальная платформа открытых данных KTO TourAPI 4.0',
-    pr1Desc: 'K-Travel Explorer (koreatravel.cc) — официальный гид, на 100% интегрированный с БД KTO и метеоданными в реальном времени.',
+    pr1Desc: 'Vora Explorer (koreatravel.cc) — официальный гид, на 100% интегрированный с БД KTO и метеоданными в реальном времени.',
     pr2Title: '✈️ Преимущества глобальных партнеров (Agoda и Klook)',
     pr2ItemHotel: 'Отели Agoda по минимальной цене: поиск и бронирование отелей рядом с маршрутом в 1 клик.',
     pr2ItemEsim: 'Скидки Klook на eSIM и пассы: выгодные eSIM, K-PASS и транспортные карты для туристов.',

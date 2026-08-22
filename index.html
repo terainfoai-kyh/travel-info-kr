@@ -2,7 +2,7 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/pwa-192x192.png" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="shortcut icon" href="/favicon.ico" />
     <link rel="manifest" href="/manifest.json" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -11,9 +11,32 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Travel Korea" />
+    <meta name="apple-mobile-web-app-title" content="VORA AI" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
     
+    <!-- Global Script Chunk Load Error Auto-Reload Handler (Fixes stale CDN cache 500/404 errors) -->
+    <script>
+      window.addEventListener('error', function(e) {
+        if (e && e.target && (e.target.tagName === 'SCRIPT' || e.target.tagName === 'LINK')) {
+          var src = e.target.src || e.target.href || '';
+          if (src.includes('/assets/')) {
+            var hasReloaded = sessionStorage.getItem('__chunk_reload_done');
+            if (!hasReloaded) {
+              sessionStorage.setItem('__chunk_reload_done', '1');
+              window.location.reload(true);
+            }
+          }
+        }
+      }, true);
+    </script>
+
+    <!-- Leaflet Maps CSS & JS Preload (Synchronous layout & instant zero-click rendering) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
     <!-- Early PWA Native Prompt Catcher -->
     <script>
       window.__ktravel_deferred_prompt = null;
@@ -36,13 +59,18 @@
     </script>
     
     <!-- Primary SEO & GEO Meta Tags -->
-    <title>대한민국 여행 정보 & AI 여행 코스 플래너 | K-Travel Explorer (koreatravel.cc)</title>
-    <meta name="description" content="AI가 3초 만에 설계하는 1:1 맞춤 한국 여행 코스 추천! 한국관광공사 Official DB 및 실시간 기후 기반 서울, 제주, 부산 등 전국 여행 일정, 이동시간, 주변 맛집 100% 자동 생성." />
-    <meta name="keywords" content="AI 여행 코스 추천, AI 한국 여행 플래너, AI 일정 생성기, 대한민국 여행 정보, 서울 여행 코스, 제주도 여행 코스, 부산 여행 코스, Korea AI Travel Planner, Korea Trip Itinerary Generator, K-Travel Explorer, Klook eSIM, Agoda Hotel" />
-    <meta name="author" content="K-Travel Explorer" />
-    <meta name="application-name" content="K-Travel Explorer (대한민국 여행 정보)" />
+    <title>VORA AI | 2026 대한민국 AI 여행 컨시어지 & 실시간 코디 (koreatravel.cc)</title>
+    <meta name="description" content="Google Gemini 3.0 AI와 Google Places Platform 기반 1:1 맞춤 한국 여행 코스 플래너! 실시간 날씨, 기온별 여행 코디 가이드, 구글맵 연동 대중교통 경로 100% 자동 생성." />
+    <meta name="keywords" content="VORA AI, AI 여행 코스 추천, AI 한국 여행 플래너, 실시간 날씨 여행 코디, 서울 여행 코스, 제주도 여행 코스, 부산 여행 코스, Korea AI Travel Concierge, Korea Trip Planner, Korea Outfit Guide, Klook eSIM, Agoda Hotel" />
+    <meta name="author" content="VORA AI" />
+    <meta name="application-name" content="VORA AI (대한민국 스마트 여행 컨시어지)" />
+    
+    <!-- Search Console Ownership Verification Tags (Google & Naver) -->
+    <meta name="google-site-verification" content="google-site-verification-token" />
+    <meta name="naver-site-verification" content="naver-site-verification-token" />
+
     <!-- Intellectual Property Protection & Anti-AI Scraping Meta Headers -->
-    <meta name="copyright" content="© 2026 K-Travel Explorer (koreatravel.cc). All Rights Reserved." />
+    <meta name="copyright" content="© 2026 VORA AI (koreatravel.cc). All Rights Reserved." />
     <meta name="rights" content="Unauthorized AI scraping, automated code replication, or data cloning is strictly prohibited under international copyright laws." />
     <meta name="ai-scraping-policy" content="Disallow: AI Training, Disallow: Code Replication, Disallow: Site Mirroring" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, noarchive" />
@@ -77,19 +105,19 @@
     <meta property="og:locale:alternate" content="en_US" />
     <meta property="og:locale:alternate" content="ja_JP" />
     <meta property="og:locale:alternate" content="zh_CN" />
-    <meta property="og:title" content="K-Travel AI | 대한민국 스마트 여행 가이드 (koreatravel.cc)" />
-    <meta property="og:description" content="✨ AI가 안내하는 실시간 날씨 · 맞춤 명소 · 맛집 & 코디 가이드! 한국관광공사 & 기상청 공공데이터 100% 연동." />
-    <meta property="og:site_name" content="K-Travel AI Explorer" />
+    <meta property="og:title" content="VORA AI | 대한민국 스마트 여행 컨시어지 & 실시간 코디 (koreatravel.cc)" />
+    <meta property="og:description" content="✨ Google Gemini AI가 3초 만에 설계하는 나만의 맞춤 한국 여행 코스, 실시간 날씨 및 기온별 여행 코디 가이드!" />
+    <meta property="og:site_name" content="VORA AI Concierge" />
     <meta property="og:url" content="https://koreatravel.cc" />
     <meta property="og:image" content="https://koreatravel.cc/logo.png" />
     <meta property="og:image:width" content="512" />
     <meta property="og:image:height" content="512" />
-    <meta property="og:image:alt" content="K-Travel AI Logo" />
+    <meta property="og:image:alt" content="VORA AI Logo" />
 
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="K-Travel AI | Korea Smart Travel Guide" />
-    <meta name="twitter:description" content="✨ Real-time Weather, AI Spots, Food & Outfit Guide for South Korea." />
+    <meta name="twitter:title" content="VORA AI | Korea Smart Travel Concierge" />
+    <meta name="twitter:description" content="✨ Personalized Korea travel itineraries, live weather, and outfit styling guide powered by Google Gemini AI." />
     <meta name="twitter:image" content="https://koreatravel.cc/logo.png" />
 
     <!-- Fonts -->
@@ -97,12 +125,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Structured Data (JSON-LD) for Search Engines & AI Search Robots (Perplexity, SearchGPT, Gemini, Google SGE) -->
+    <!-- Structured Data (JSON-LD) for Search Engines & AI Search Robots (Perplexity, ChatGPT, Gemini, Google SGE) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
-      "name": "K-Travel AI 코스 플래너 (Korea AI Travel Itinerary Generator)",
+      "name": "VORA AI Korea Travel Concierge",
       "applicationCategory": "TravelApplication",
       "operatingSystem": "All",
       "offers": {
@@ -110,7 +138,7 @@
         "price": "0",
         "priceCurrency": "KRW"
       },
-      "description": "한국관광공사 Official DB 및 실제 위치 이동 거리/시간 연동 AI 기반 1대1 맞춤 한국 여행 코스 및 일정 자동 생성 서비스.",
+      "description": "Google Gemini 3.0 AI와 Google Places Platform 기반 초개인화 맞춤 한국 여행 일정 및 실시간 날씨 코디 가이드.",
       "url": "https://koreatravel.cc"
     }
     </script>
@@ -119,8 +147,8 @@
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
-      "name": "Korea Travel Explorer AI",
-      "alternateName": "대한민국 AI 여행 정보",
+      "name": "VORA AI - Korea Smart Travel Concierge",
+      "alternateName": "대한민국 스마트 AI 여행 정보",
       "url": "https://koreatravel.cc",
       "potentialAction": {
         "@type": "SearchAction",
@@ -134,10 +162,10 @@
     {
       "@context": "https://schema.org",
       "@type": "TouristInformationCenter",
-      "name": "대한민국 여행 정보 AI 플래너 (K-Travel AI Guide)",
+      "name": "VORA AI 대한민국 스마트 여행 컨시어지",
       "url": "https://koreatravel.cc",
       "logo": "https://koreatravel.cc/logo.png",
-      "description": "실시간 대한민국 날씨, AI 맞춤 여행 코스 추천, 한국관광공사 공공데이터 100선 명소, Klook eSIM 및 제휴 예약",
+      "description": "실시간 대한민국 날씨, AI 맞춤 여행 코스 추천, 기온별 여행 코디 가이드, Google Places 공식 명소, Klook eSIM 및 제휴 혜택",
       "address": {
         "@type": "PostalAddress",
         "addressCountry": "KR",
@@ -151,7 +179,7 @@
     {
       "@context": "https://schema.org",
       "@type": "Organization",
-      "name": "K-Travel AI (Korea Travel Explorer)",
+      "name": "VORA AI (Korea Travel Concierge)",
       "url": "https://koreatravel.cc",
       "logo": "https://koreatravel.cc/logo.png",
       "email": "terainfoai@gmail.com",
@@ -164,7 +192,7 @@
     }
     </script>
 
-    <!-- FAQPage Schema for GEO (AI Search Engine Optimization) -->
+    <!-- FAQPage Schema for SERP Expandable Rich Snippets & GEO (AI Search Engine Optimization) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -172,18 +200,34 @@
       "mainEntity": [
         {
           "@type": "Question",
-          "name": "AI 여행 코스 추천 플래너는 어떻게 이용하나요?",
+          "name": "VORA AI 여행 일정은 어떻게 생성되나요?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "K-Travel Explorer 메인 페이지의 'AI 여행 코스 추천' 버튼을 클릭하면, 원하는 지역(서울, 제주, 부산 등), 출발/종료 시간대, 여행 일수(1~3일), 비 오는 날 옵션을 설정하여 1대1 맞춤 일정과 이동시간을 3초 만에 생성할 수 있습니다."
+            "text": "VORA AI는 최신 Google Gemini 3.0 자연어 AI와 Google Places Platform 공식 위치 데이터베이스를 결합하여, 사용자가 입력한 여행 지역과 취향에 맞는 최적의 동선, 실제 위경도 좌표 기반 구글맵 길찾기, 로컬 미식을 실시간으로 자동 생성합니다."
           }
         },
         {
           "@type": "Question",
-          "name": "대한민국 인기 여행지와 동선 추천이 가능한가요?",
+          "name": "실시간 날씨와 여행 코디 가이드는 어떻게 확인하나요?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "네, 한국관광공사 Official DB 기반으로 서울 경복궁, N서울타워, 제주 성산일출봉, 부산 해운대 등의 실제 위도/경도 기반 차량 및 대중교통 이동시간이 100% 연동된 코스를 제공합니다."
+            "text": "상단 날씨 캡슐이나 메뉴의 '실시간 날씨 & 여행 코디 가이드'를 클릭하면, 방문 지역의 실시간 기온, 미세먼지, 자외선 지수와 함께 기온별 맞춤 상하의, 아우터, 필수 여행 소품, Pinterest 감성 룩북을 한눈에 확인할 수 있습니다."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "한국 여행 중 현금 환전이 필수인가요?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "대부분의 상점, 카페, 택시, 대중교통에서 해외 신용카드(Visa, Mastercard 등) 및 애플페이가 널리 통용됩니다. 다만 전통시장 먹거리나 지하철 교통카드 충전을 위해 소액(약 3~5만 원)의 현금을 소지하시는 것을 추천합니다."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "응급 상황 시 외국어 통역 지원을 받을 수 있나요?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "대한민국 관광통역안내 1330 헬프라인(국번 없이 1330)으로 전화하시면 연중무휴 24시간 한국어, 영어, 일본어, 중국어 무료 통역 및 여행 안내, 긴급 구호 연계 서비스를 받으실 수 있습니다."
           }
         }
       ]

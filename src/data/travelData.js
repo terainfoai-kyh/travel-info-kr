@@ -38,6 +38,82 @@ export const TRAVEL_SPOTS = [
     }
   },
   {
+    id: 'spot-geoje-1',
+    title: '바람의 언덕 & 신선대',
+    category: 'nature',
+    region: '거제도',
+    location: '경상남도 거제시 남부면 갈곶리 산14-47',
+    rating: 4.9,
+    reviewsCount: 4820,
+    image: 'https://tong.visitkorea.or.kr/cms/resource/13/2678613_image2_1.jpg',
+    description: '탁 트인 바다 전망과 고풍스러운 풍차가 인상적인 거제도 대표 해안 힐링 명소입니다.',
+    tags: ['오션뷰', '바람의언덕', '풍차', '거제도'],
+    details: {
+      address: '경상남도 거제시 남부면 갈곶리 산14-47',
+      hours: '24시간 연중무휴',
+      contact: '055-639-4178',
+      highlights: ['풍차 언덕 시원한 오션뷰', '신선대 바위 절경', '해안 산책로'],
+      bestSeason: '사계절 내내'
+    }
+  },
+  {
+    id: 'spot-geoje-2',
+    title: '외도 보타니아 (해상식물공원)',
+    category: 'nature',
+    region: '거제도',
+    location: '경상남도 거제시 일운면 외도길 17',
+    rating: 4.8,
+    reviewsCount: 3910,
+    image: 'https://tong.visitkorea.or.kr/cms/resource/03/2678603_image2_1.jpg',
+    description: '지중해 휴양지를 연상시키는 이국적인 정원과 아열대 식물이 가득한 아름다운 해상 식물원입니다.',
+    tags: ['해상공원', '식물원', '이국적정원', '거제여행'],
+    details: {
+      address: '경상남도 거제시 일운면 외도길 17',
+      hours: '09:00 - 17:00 (유람선 운항시간 참조)',
+      contact: '055-681-4541',
+      highlights: ['비너스 조각정원', '천국계단 산책로', '한려해상 국립공원 전경'],
+      bestSeason: '봄 / 여름'
+    }
+  },
+  {
+    id: 'spot-geoje-3',
+    title: '매미성',
+    category: 'culture',
+    region: '거제도',
+    location: '경상남도 거제시 장목면 복항길 2-9',
+    rating: 4.8,
+    reviewsCount: 3240,
+    image: 'https://tong.visitkorea.or.kr/cms/resource/05/2678605_image2_1.jpg',
+    description: '태풍 매미 때 자연재해를 막기 위해 개인이 돌을 쌓아 만든 유럽풍 중세 성곽 포토존 명소입니다.',
+    tags: ['성곽', '인생샷포토존', '바다풍경', '매미성'],
+    details: {
+      address: '경상남도 거제시 장목면 복항길 2-9',
+      hours: '24시간 자유 관람',
+      contact: '055-639-4178',
+      highlights: ['중세 유럽풍 돌성 아치 포토존', '거가대교 바다 조망'],
+      bestSeason: '사계절 내내'
+    }
+  },
+  {
+    id: 'spot-geoje-4',
+    title: '학동 흑진주 몽돌해변',
+    category: 'nature',
+    region: '거제도',
+    location: '경상남도 거제시 동부면 학동리',
+    rating: 4.7,
+    reviewsCount: 2950,
+    image: 'https://tong.visitkorea.or.kr/cms/resource/09/2678609_image2_1.jpg',
+    description: '검은 몽돌이 펼쳐진 깨끗한 해변으로, 파도가 몽돌을 구르는 정겨운 소리가 일품인 힐링 해변입니다.',
+    tags: ['몽돌해변', '파도소리', '오션뷰', '해수욕장'],
+    details: {
+      address: '경상남도 거제시 동부면 학동리',
+      hours: '24시간 상시',
+      contact: '055-639-4178',
+      highlights: ['흑진주 몽돌 파도소리', '동백나무 숲길'],
+      bestSeason: '여름 / 가을'
+    }
+  },
+  {
     id: 'spot-3',
     title: '부산 해운대 블루라인파크',
     category: 'nature',
@@ -187,6 +263,63 @@ export const TRAVEL_SPOTS = [
       contact: '031-290-3600',
       highlights: ['화성 성곽 야경 투어', '행리단길 한옥 카페', '열기구 플라잉수원'],
       bestSeason: '봄 / 가을'
+    }
+  },
+  {
+    id: 'spot-11',
+    title: '인천 차이나타운 & 송도 센트럴파크',
+    category: 'culture',
+    region: '인천',
+    location: '인천광역시 중구 차이나타운로59번길 12',
+    rating: 4.81,
+    reviewsCount: 3200,
+    image: 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg',
+    description: '130년 역사의 이국적 문화와 미식, 첨단 도시 야경 산책이 매력적인 인천 대표 코스입니다.',
+    tags: ['인천', '차이나타운', '송도', '송도센트럴파크', '월미도'],
+    details: {
+      address: '인천광역시 중구 차이나타운로59번길 12',
+      hours: '24시간 운영',
+      contact: '032-777-1330',
+      highlights: ['원조 짜장면 미식', '송도 수상택시', '월미도 테마파크'],
+      bestSeason: '봄 / 가을'
+    }
+  },
+  {
+    id: 'spot-12',
+    title: '강원도 강릉 안목해변 커피거리',
+    category: 'nature',
+    region: '강원',
+    location: '강원특별자치도 강릉시 창해로 14',
+    rating: 4.89,
+    reviewsCount: 4100,
+    image: 'https://tong.visitkorea.or.kr/cms/resource/45/3505945_image2_1.jpg',
+    description: '푸른 동해 바다 뷰와 핸드드립 커피 향기가 어우러지는 대표적인 해변 커피 문화거리입니다.',
+    tags: ['강릉', '안목해변', '커피거리', '오션뷰', '경포대'],
+    details: {
+      address: '강원특별자치도 강릉시 창해로 14',
+      hours: '08:00 - 23:00 (카페별 다름)',
+      contact: '033-640-4414',
+      highlights: ['오션뷰 창가석', '수제 드립 커피', '경포호수 산책'],
+      bestSeason: '봄 / 여름 / 가을'
+    }
+  },
+  {
+    id: 'spot-13',
+    title: '강원도 속초 아바이마을 & 속초해수욕장',
+    category: 'food',
+    region: '강원',
+    location: '강원특별자치도 속초시 청호동 1076',
+    rating: 4.85,
+    reviewsCount: 3900,
+    image: 'https://tong.visitkorea.or.kr/cms/resource/45/3505945_image2_1.jpg',
+    description: '정겨운 갯배 체험과 오징어순대 미식, 속초아이 대관람차가 반겨주는 동해 감성 스팟입니다.',
+    tags: ['속초', '아바이마을', '속초해수욕장', '속초아이', '설악산'],
+    details: {
+      address: '강원특별자치도 속초시 청호동 1076',
+      hours: '08:00 - 22:00',
+      contact: '033-639-2690',
+      highlights: ['갯배 줄 끄기 체험', '아바이 오징어순대', '속초아이 대관람차'],
+      bestSeason: '사계절'
     }
   }
 ];

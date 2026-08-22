@@ -1,4 +1,4 @@
-import { PUBLIC_API_CONFIG, REGION_META, THEME_META } from './apiConfig';
+import { PUBLIC_API_CONFIG, REGION_META, THEME_META, getDynamicRegionMeta } from './apiConfig';
 import { TRAVEL_SPOTS } from '../data/travelData';
 
 // 한국관광공사 TourAPI 4.0 - 공통정보조회 (/detailCommon2)
@@ -43,26 +43,91 @@ export async function fetchSpotDetailCommon(contentId, lang = 'ko') {
         }
       }
 
-      let imgUrl = (item.firstimage || item.firstimage2 || '').replace(/^http:\/\//i, 'https://');
+      let imgUrl = item.firstimage || item.firstimage2 || '';
       const lowerImg = imgUrl.toLowerCase();
       if (!imgUrl || lowerImg.includes('japan') || lowerImg.includes('fuji') || lowerImg.includes('tokyo') || lowerImg.includes('kyoto') || lowerImg.includes('osaka') || lowerImg.includes('photo-1549693578') || lowerImg.includes('photo-1578637387939')) {
         imgUrl = '/default-spot.png';
       }
 
       return {
-        overview: item.overview ? item.overview.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ') : '',
-        homepage: hpUrl,
-        homepageRaw: rawHp,
-        tel: item.tel || '',
-        addr1: item.addr1 || '',
-        title: item.title || '',
-        firstimage: imgUrl
+        ...item,
+        firstimage: imgUrl,
+        homepageUrl: hpUrl
       };
     }
   } catch (err) {
-    console.warn('Detail common API fallback:', err);
+    return null;
   }
   return null;
+}
+
+// ⚡ Smart Caching Memory Store (Zero Hardcoding Pipeline)
+const DYNAMIC_SPOT_CACHE = new Map();
+
+export async function fetchDynamicRealtimeSpots(query, lang = 'ko') {
+  if (!query || typeof query !== 'string') return [];
+  const excludeFood = /(식당|음식점|맛집|빼고|제외|없이)/i.test(query);
+  const cleanQ = query.trim()
+    .replace(/(여기서|거기서|이중|그중|식당은|식당|음식점|맛집|빼고|제외|없이|주변|근처|인근|여행|추천|코스|가볼만한곳|여행지|\d+일|\d+박)/gi, ' ')
+    .trim();
+  if (!cleanQ) return [];
+
+  const cacheKey = `${cleanQ}_${excludeFood ? 'nofood' : 'all'}_${lang}`;
+  if (DYNAMIC_SPOT_CACHE.has(cacheKey)) {
+    return DYNAMIC_SPOT_CACHE.get(cacheKey);
+  }
+
+  let apiBase = PUBLIC_API_CONFIG.TOUR_API_BASE || 'https://apis.data.go.kr/B551011/KorService2';
+  if (lang === 'en') apiBase = PUBLIC_API_CONFIG.ENG_BASE;
+  else if (lang === 'ja') apiBase = PUBLIC_API_CONFIG.JPN_BASE;
+  else if (lang === 'zh') apiBase = PUBLIC_API_CONFIG.CHS_BASE;
+  else if (lang === 'zht') apiBase = PUBLIC_API_CONFIG.CHT_BASE;
+  else if (lang === 'de') apiBase = PUBLIC_API_CONFIG.GER_BASE;
+  else if (lang === 'fr') apiBase = PUBLIC_API_CONFIG.FRE_BASE;
+  else if (lang === 'es') apiBase = PUBLIC_API_CONFIG.SPN_BASE;
+  else if (lang === 'ru') apiBase = PUBLIC_API_CONFIG.RUS_BASE;
+
+  try {
+    const searchUrl = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&keyword=${encodeURIComponent(cleanQ)}&numOfRows=20&pageNo=1`;
+    const res = await fetch(searchUrl);
+    if (!res.ok) return [];
+    const data = await res.json();
+    const itemsRaw = data.response?.body?.items?.item || [];
+
+    const items = Array.isArray(itemsRaw) ? itemsRaw : (itemsRaw ? [itemsRaw] : []);
+    let spotList = [];
+    if (items.length > 0) {
+      let filteredItems = items;
+      if (excludeFood) {
+        filteredItems = items.filter(item => {
+          const isFoodType = String(item.contenttypeid) === '39';
+          const isFoodTitle = /(돼지갈비|식당|갈비|고깃집|음식점|푸드|맛집)/i.test(item.title);
+          return !isFoodType && !isFoodTitle;
+        });
+        if (filteredItems.length === 0) filteredItems = items;
+      }
+
+      spotList = filteredItems.map(item => ({
+        id: String(item.contentid || Math.random()),
+        contentId: String(item.contentid || ''),
+        title: item.title,
+        searchKeyword: item.title,
+        location: item.addr1 || item.addr2 || '대한민국 관광 명소',
+        lat: parseFloat(item.mapy) || 37.5665,
+        lng: parseFloat(item.mapx) || 126.9780,
+        rating: 4.8,
+        tags: [cleanQ, excludeFood ? '명소전용' : '공공정품관광지'],
+        image: item.firstimage || item.firstimage2 || 'http://tong.visitkorea.or.kr/cms/resource/08/126508_image2_1.jpg'
+      }));
+    }
+
+    if (spotList.length > 0) {
+      DYNAMIC_SPOT_CACHE.set(cacheKey, spotList);
+    }
+    return spotList;
+  } catch (err) {
+    return [];
+  }
 }
 
 // 한국관광공사 TourAPI 4.0 - 소개정보조회 (/detailIntro2) 다국어 전용 연동
@@ -123,7 +188,7 @@ export async function fetchSpotDetailImages(contentId, lang = 'ko') {
   else if (lang === 'es') baseUrl = `${PUBLIC_API_CONFIG.SPN_BASE}/detailImage2`;
   else if (lang === 'ru') baseUrl = `${PUBLIC_API_CONFIG.RUS_BASE}/detailImage2`;
 
-  const url = `${baseUrl}?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&contentId=${contentId}&imageYN=Y&subImageYN=Y`;
+  const url = `${baseUrl}?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&contentId=${contentId}&imageYN=Y&numOfRows=12`;
 
   try {
     const res = await fetch(url);
@@ -304,12 +369,12 @@ export async function fetchTourSpots({
   age = '전체', 
   gender = '무관', 
   keyword = '', 
-  arrange = 'O',
+  arrange = 'B',
   apiServiceType = 'area',
   startDate = '',
   lang = 'ko'
 }) {
-  const regionMeta = REGION_META[region] || REGION_META['서울'];
+  const regionMeta = getDynamicRegionMeta(region);
   const contentTypeId = THEME_META[theme];
   // Trim spaces and normalize spaces (e.g. '성산 일출봉' -> '성산일출봉')
   const cleanKw = keyword.trim();
@@ -326,13 +391,13 @@ export async function fetchTourSpots({
   else if (lang === 'es') apiBase = PUBLIC_API_CONFIG.SPN_BASE;
   else if (lang === 'ru') apiBase = PUBLIC_API_CONFIG.RUS_BASE;
 
-  // Convert app arrange filter to official TourAPI 4.0 arrange code
+  // Convert app arrange filter to official TourAPI 4.0 arrange code (Defaulting to B: Popularity/Views)
   let apiArrange = 'B';
   if (arrange === 'A') apiArrange = 'B';      // 추천순 -> TourAPI 'B' (조회수/인기순)
-  else if (arrange === 'O') apiArrange = 'A'; // 명칭순 -> TourAPI 'A' (제목순)
+  else if (arrange === 'O') apiArrange = 'B'; // 인기순 -> TourAPI 'B' (조회수/인기순)
   else if (arrange === 'Q') apiArrange = 'C'; // 수정일순 -> TourAPI 'C' (수정일순)
   else if (arrange === 'R') apiArrange = 'D'; // 등록일순 -> TourAPI 'D' (등록일순)
-  else apiArrange = arrange;
+  else apiArrange = 'B';
 
   // Map Korean contentTypeId (12, 14, 28, 39) to Foreign Multilingual TourAPI contentTypeId (75, 76, 77, 82)
   let effectiveContentTypeId = contentTypeId;
@@ -416,22 +481,16 @@ export async function fetchTourSpots({
           if (isAttractionB && !isAttractionA) return 1;
         }
 
-        if (arrange === 'O') {
-          const titleA = String(a.title || a.crsNm || a.themeNm || a.spotNm || '');
-          const titleB = String(b.title || b.crsNm || b.themeNm || b.spotNm || '');
-          return titleA.localeCompare(titleB, 'ko-KR');
-        }
+        // [Fix & Safety] Completely eliminated legacy localeCompare alphabetical sorting ('O')
+        // Always prioritize image quality and popularity (readcount)
+        const hasImgA = !!(a.firstimage || a.firstimage2);
+        const hasImgB = !!(b.firstimage || b.firstimage2);
+        if (hasImgA && !hasImgB) return -1;
+        if (!hasImgA && hasImgB) return 1;
 
-        if (arrange === 'A' || arrange === 'B') {
-          const hasImgA = !!(a.firstimage || a.firstimage2);
-          const hasImgB = !!(b.firstimage || b.firstimage2);
-          if (hasImgA && !hasImgB) return -1;
-          if (!hasImgA && hasImgB) return 1;
-
-          const countA = parseInt(a.readcount || 0, 10);
-          const countB = parseInt(b.readcount || 0, 10);
-          if (countA !== countB) return countB - countA;
-        }
+        const countA = parseInt(a.readcount || 0, 10);
+        const countB = parseInt(b.readcount || 0, 10);
+        if (countA !== countB) return countB - countA;
 
         return 0;
       });
@@ -474,18 +533,28 @@ export async function fetchTourSpots({
         }
 
         const preset = COORD_PRESETS[idx % COORD_PRESETS.length];
-        const rawLat = parseFloat(item.mapy);
-        const rawLng = parseFloat(item.mapx);
+        const rawLat = parseFloat(item.mapy || item.lat);
+        const rawLng = parseFloat(item.mapx || item.lng);
+
+        // Regional fallback coordinates to prevent all spots from defaulting to Seoul!
+        let itemRegionMeta = getDynamicRegionMeta(item.region || item.addr1 || region);
+        let fallbackLat = itemRegionMeta?.lat || preset.lat;
+        let fallbackLng = itemRegionMeta?.lng || preset.lng;
+
+        const cId = String(item.contentid || item.crsIdx || item.id || `api-${idx}`);
+        const cTypeId = String(item.contenttypeid || '12');
 
         return {
-          id: item.contentid || item.crsIdx || `api-${idx}`,
+          id: cId,
+          contentId: cId,
+          contentTypeId: cTypeId,
           title: titleClean,
-          region: region === '전국' ? '한국' : region,
+          region: region === '전국' ? (item.region || '한국') : region,
           theme: theme === '전체' ? '관광' : theme,
           image: validImage,
-          location: item.addr1 || item.sigun || item.createdtime || preset.loc,
-          lat: (!isNaN(rawLat) && rawLat > 0) ? rawLat : preset.lat,
-          lng: (!isNaN(rawLng) && rawLng > 0) ? rawLng : preset.lng,
+          location: item.location || item.addr1 || item.sigun || preset.loc,
+          lat: (!isNaN(rawLat) && rawLat > 0) ? rawLat : fallbackLat,
+          lng: (!isNaN(rawLng) && rawLng > 0) ? rawLng : fallbackLng,
           rating: (4.5 + (idx % 5) * 0.1).toFixed(1),
           tags: [theme, region, cleanKw, '관광공사추천'].filter(Boolean)
         };
@@ -516,8 +585,24 @@ export async function fetchTourSpots({
       }
 
       let mainList = filtered.length > 0 ? filtered : parsed;
+
+      // Strict City-Level Precision Filter: If region is a specific city (e.g. 거제도, 수원, 창원), prioritize exact city spots!
+      const isProvinceLevel = ['전국', '한국', '서울', '인천', '대전', '대구', '광주', '부산', '울산', '세종', '경기', '강원', '충북', '충남', '경북', '경남', '전북', '전남', '제주'].includes(region);
+      if (!isProvinceLevel && region) {
+        const cleanCity = region.replace(/(도|시|군|구)$/, '');
+        const cityMatches = mainList.filter(spot => {
+          const loc = (spot.location || '').toLowerCase();
+          const title = (spot.title || '').toLowerCase();
+          return loc.includes(cleanCity) || title.includes(cleanCity);
+        });
+        if (cityMatches.length > 0) {
+          mainList = cityMatches;
+        }
+      }
+
       if (mainList.length < 6 && region !== '전국' && region !== '한국') {
-        const regionalSupplements = TRAVEL_SPOTS.filter(spot => spot.region === region);
+        const cleanCity = region.replace(/(도|시|군|구)$/, '');
+        const regionalSupplements = TRAVEL_SPOTS.filter(spot => spot.region === region || spot.location.includes(cleanCity));
         const existingTitles = new Set(mainList.map(s => s.title.toLowerCase().replace(/\s+/g, '')));
         for (const sup of regionalSupplements) {
           const supTitle = sup.title.toLowerCase().replace(/\s+/g, '');
@@ -535,8 +620,9 @@ export async function fetchTourSpots({
   }
 
   // Fallback & Filter Mock Data with space-insensitive matching & image sanitization
+  const cleanCity = region.replace(/(도|시|군|구)$/, '');
   const resultSpots = TRAVEL_SPOTS.filter(spot => {
-    const matchRegion = region === '전국' || spot.region === region || spot.location.includes(region);
+    const matchRegion = region === '전국' || spot.region === region || spot.location.includes(cleanCity) || spot.title.includes(cleanCity);
     const matchTheme = theme === '전체' || spot.theme === theme;
     const matchAge = age === '전체' || 
       (!spot.targetAge || spot.targetAge.includes(age)) || 
@@ -569,8 +655,161 @@ export async function fetchTourSpots({
   return resultSpots.map(spot => {
     let img = spot.image;
     if (spot.title.includes('수원화성박물관') || img.includes('photo-1549693578') || img.includes('794101_image2_1.jpg')) {
-      img = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='500' viewBox='0 0 800 500'%3E%3Crect width='800' height='500' fill='%231e293b'/%3E%3Ctext x='50%25' y='45%25' dominant-baseline='middle' text-anchor='middle' fill='%2338bdf8' font-size='32' font-weight='bold' font-family='sans-serif'%3E🏛️ 대한민국 대표 관광지%3C/text%3E%3Ctext x='50%25' y='60%25' dominant-baseline='middle' text-anchor='middle' fill='%2394a3b8' font-size='20' font-family='sans-serif'%3E(한국관광공사 정품 이미지 동기화 중)%3C/text%3E%3C/svg%3E";
+      img = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='500' viewBox='0 0 800 500'%3E%3Crect width='800' height='500' fill='%231e293b'/%3E%3Ctext x='50%25' y='45%25' dominant-baseline='middle' text-anchor='middle' fill='%2338bdf8' font-size='32' font-weight='bold' font-family='sans-serif'%3E🏛️ 대한민국 대표 관광지%3C/text%3E%3Ctext x='50%25' y='60%25' dominant-baseline='middle' text-anchor='middle' fill='%2394a3b8' font-size='20' font-family='sans-serif'%3E(Google Places 고화질 이미지 동기화 중)%3C/text%3E%3C/svg%3E";
     }
     return { ...spot, image: img };
   });
 }
+
+// Pinpoint TourAPI Keyword Search for User Mentioned Landmarks (Ultra-Fast Parallel Execution)
+export async function fetchPinpointLandmarkSpots(landmarks = [], lang = 'ko', targetCity = '') {
+  if (!Array.isArray(landmarks) || landmarks.length === 0) return [];
+  
+  let apiBase = PUBLIC_API_CONFIG.TOUR_API_BASE || 'https://apis.data.go.kr/B551011/KorService2';
+  if (lang === 'en') apiBase = PUBLIC_API_CONFIG.ENG_BASE;
+  else if (lang === 'ja') apiBase = PUBLIC_API_CONFIG.JPN_BASE;
+  else if (lang === 'zh') apiBase = PUBLIC_API_CONFIG.CHS_BASE;
+  else if (lang === 'zht') apiBase = PUBLIC_API_CONFIG.CHT_BASE;
+  else if (lang === 'de') apiBase = PUBLIC_API_CONFIG.GER_BASE;
+  else if (lang === 'fr') apiBase = PUBLIC_API_CONFIG.FRE_BASE;
+  else if (lang === 'es') apiBase = PUBLIC_API_CONFIG.SPN_BASE;
+  else if (lang === 'ru') apiBase = PUBLIC_API_CONFIG.RUS_BASE;
+
+  // 🎯 [지명 정규화 v5] '거제도' -> '거제', '제주도' -> '제주', '수원시' -> '수원', '해운대구' -> '해운대'
+  const cleanTargetCity = targetCity ? targetCity.replace(/(도|시|군|구)$/, '').trim() : '';
+
+  // Filter out noise/generic region words and strip parentheses/brackets e.g. "거제식물원(정글돔)" -> "거제식물원"
+  const NOISE_WORDS = ['한국', '대한민국', '경상남도', '경상북도', '전라남도', '전라북도', '충청남도', '충청북도', '경기도', '강원도', '제주도', '창원시', '거제시', '수원시', 'KOREA', 'SOUTH KOREA'];
+  const validLandmarks = Array.from(new Set(landmarks.map(lm => String(lm).replace(/\(.*?\)/g, '').replace(/\[.*?\]/g, '').trim()).filter(Boolean)))
+    .filter(lm => lm && lm.length >= 2 && !NOISE_WORDS.includes(lm.toUpperCase()))
+    .slice(0, 12);
+
+  if (validLandmarks.length === 0) return [];
+
+  // Parallel Execution with 3.5s AbortController Timeout Per Request
+  const fetchPromises = validLandmarks.map(async (lm) => {
+    try {
+      // 🎯 1차 시도: 원본 정제 키워드로 검색 (예: "구조라 해수욕장", "Gyeongbokgung")
+      let url = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=10&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=B&keyword=${encodeURIComponent(lm)}`;
+      let controller = new AbortController();
+      let timeoutId = setTimeout(() => controller.abort(), 3500);
+
+      let res = await fetch(url, { signal: controller.signal }).catch(() => null);
+      clearTimeout(timeoutId);
+
+      let rawItems = [];
+      if (res && res.ok) {
+        const rawText = await res.text().catch(() => '');
+        if (rawText && rawText.trim().startsWith('{')) {
+          const data = JSON.parse(rawText);
+          rawItems = data.response?.body?.items?.item || [];
+        }
+      }
+
+      // 🎯 2차 시도 (규칙 13): 0건이면 공백 및 특수문자 제거 압축 검색 (예: "N-Seoul Tower" -> "NSEOULTOWER", "거제 파노라마 케이블카" -> "거제파노라마케이블카")
+      if (!rawItems || (Array.isArray(rawItems) && rawItems.length === 0)) {
+        const compressedKeyword = lm.replace(/[\s\-\_\.\,\(\)\[\]]/g, '');
+        if (compressedKeyword && compressedKeyword !== lm && compressedKeyword.length >= 2) {
+          const url2 = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=10&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=B&keyword=${encodeURIComponent(compressedKeyword)}`;
+          const c2 = new AbortController();
+          const t2 = setTimeout(() => c2.abort(), 3000);
+          const res2 = await fetch(url2, { signal: c2.signal }).catch(() => null);
+          clearTimeout(t2);
+          if (res2 && res2.ok) {
+            const rawText2 = await res2.text().catch(() => '');
+            if (rawText2 && rawText2.trim().startsWith('{')) {
+              const data2 = JSON.parse(rawText2);
+              rawItems = data2.response?.body?.items?.item || [];
+            }
+          }
+        }
+      }
+
+      // 🎯 3차 시도: 부가어/접미사 떼고 정밀 검색 (예: "거제식물원 정글돔" -> "거제식물원")
+      if (!rawItems || (Array.isArray(rawItems) && rawItems.length === 0)) {
+        const strippedKeyword = lm
+          .replace(/\s*(정글돔|스카이워크|케이블카|전망대|리조트|파크|거리|거리일대).*/gi, '')
+          .replace(/\s+(카페|식당|맛집|베이커리|호텔|펜션)$/gi, '')
+          .replace(/^카페\s+/i, '')
+          .trim();
+
+        if (strippedKeyword && strippedKeyword !== lm && strippedKeyword.length >= 2) {
+          const url3 = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&numOfRows=10&pageNo=1&MobileOS=ETC&MobileApp=KTravelApp&_type=json&arrange=B&keyword=${encodeURIComponent(strippedKeyword)}`;
+          const c3 = new AbortController();
+          const t3 = setTimeout(() => c3.abort(), 3000);
+          const res3 = await fetch(url3, { signal: c3.signal }).catch(() => null);
+          clearTimeout(t3);
+          if (res3 && res3.ok) {
+            const rawText3 = await res3.text().catch(() => '');
+            if (rawText3 && rawText3.trim().startsWith('{')) {
+              const data3 = JSON.parse(rawText3);
+              rawItems = data3.response?.body?.items?.item || [];
+            }
+          }
+        }
+      }
+
+      const items = Array.isArray(rawItems) ? rawItems : (rawItems ? [rawItems] : []);
+
+      // 🎯 Priority 1: Match item whose address contains cleanTargetCity with Case-Insensitive comparison (.toUpperCase())
+      let rawItem = null;
+      if (cleanTargetCity && items.length > 0) {
+        const upperCity = cleanTargetCity.toUpperCase();
+        rawItem = items.find(i => i.addr1 && i.addr1.toUpperCase().includes(upperCity));
+      }
+      if (!rawItem && items.length > 0) {
+        rawItem = items[0];
+      }
+
+      if (rawItem && rawItem.title) {
+        let rawImg = rawItem.firstimage || rawItem.firstimage2 || '';
+        if (rawImg) rawImg = rawImg.replace(/^http:\/\//i, 'https://');
+        const lowerImg = rawImg.toLowerCase();
+        if (!rawImg || lowerImg.includes('japan') || lowerImg.includes('fuji') || lowerImg.includes('tokyo') || lowerImg.includes('kyoto') || lowerImg.includes('osaka')) {
+          rawImg = '/default-spot.png';
+        }
+
+        return {
+          id: rawItem.contentid || `pin-${Date.now()}-${Math.random()}`,
+          contentId: rawItem.contentid,
+          title: rawItem.title,
+          region: rawItem.addr1 ? rawItem.addr1.split(' ')[0] : (cleanTargetCity || '한국'),
+          theme: '관광명소/핫플',
+          contentTypeId: rawItem.contenttypeid || '12',
+          rating: 4.9,
+          image: rawImg,
+          location: rawItem.addr1 || `${lm} 위치`,
+          lat: parseFloat(rawItem.mapy) || 37.2858,
+          lng: parseFloat(rawItem.mapx) || 127.0145,
+          tel: rawItem.tel || '',
+          tags: ['관광명소', '핫플레이스', lm]
+        };
+      } else {
+        // 🎯 3차: 공공 DB에 아직 미등록된 완전 신상 핫플을 위한 스마트 AI 지도 카드 (100% 매끄러운 연동)
+        return {
+          id: `ai-hotspot-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+          contentId: null,
+          title: lm,
+          region: cleanTargetCity || '한국',
+          theme: 'AI 추천 핫플레이스',
+          contentTypeId: '39',
+          rating: 4.9,
+          image: '/default-spot.png',
+          location: cleanTargetCity ? `대한민국 ${cleanTargetCity} 일대 (지도 길찾기 연동)` : `${lm} 위치`,
+          lat: 37.2858,
+          lng: 127.0145,
+          tel: '',
+          tags: ['AI추천', '감성핫플', lm],
+          isAiSmartPlace: true
+        };
+      }
+    } catch (err) {
+      console.warn(`Pinpoint query for ${lm} failed:`, err);
+    }
+    return null;
+  });
+
+  const results = await Promise.all(fetchPromises);
+  return results.filter(Boolean);
+}
+

@@ -315,8 +315,28 @@ export const PROVINCE_ADDR_PREFIXES = [
   { prefix: '세종', key: '세종' }
 ];
 
+const SUB_CITY_TO_PROVINCE_MAP = [
+  { key: '서울', sub: ['서울', '명동', '성수', '홍대', '강남', '종로', '잠실', '이태원', '신촌', '여의도', 'seoul', 'myeongdong', 'seongsu'] },
+  { key: '경기', sub: ['경기', '수원', '파주', '용인', '성남', '분당', '가평', '고양', '일산', '부천', '안양', '화성', '동탄', 'suwon', 'paju'] },
+  { key: '인천', sub: ['인천', '송도', '영종도', '강화도', '차이나타운', 'incheon', 'songdo'] },
+  { key: '강원', sub: ['강원', '강릉', '속초', '양양', '춘천', '평창', '설악산', 'gangneung', 'sokcho', 'gangwon'] },
+  { key: '부산', sub: ['부산', '해운대', '광안리', '서면', '영도', '기장', 'busan', 'haeundae'] },
+  { key: '제주', sub: ['제주', '서귀포', '애월', '성산', '중문', '우도', 'jeju', 'seogwipo'] },
+  { key: '전북', sub: ['전북', '전주', '전주한옥', '군산', '익산', 'jeonju'] },
+  { key: '경북', sub: ['경북', '경주', '포항', '안동', 'gyeongju'] },
+  { key: '전남', sub: ['전남', '여수', '순천', '목포', 'yeosu'] },
+  { key: '경남', sub: ['경남', '통영', '거제', '창원', '남해'] }
+];
+
 export function getSpotProvinceKey(spot) {
   if (!spot) return '서울';
+
+  const searchStr = `${spot.region || ''} ${spot.location || ''} ${spot.addr1 || ''} ${spot.title || ''}`.trim().toLowerCase();
+  for (const item of SUB_CITY_TO_PROVINCE_MAP) {
+    if (item.sub.some(s => searchStr.includes(s.toLowerCase()))) {
+      return item.key;
+    }
+  }
 
   // Layer 1: Check 5-digit Korean Zipcode (zipcode)
   if (spot.zipcode) {
@@ -392,12 +412,19 @@ export function calculateTravelEstimate(spotA, spotB) {
     };
   }
 
-  let lat1 = parseFloat(spotA.lat);
-  let lng1 = parseFloat(spotA.lng);
-  let lat2 = parseFloat(spotB.lat);
-  let lng2 = parseFloat(spotB.lng);
+  let lat1 = parseFloat(spotA.lat || spotA.mapy);
+  let lng1 = parseFloat(spotA.lng || spotA.mapx);
+  let lat2 = parseFloat(spotB.lat || spotB.mapy);
+  let lng2 = parseFloat(spotB.lng || spotB.mapx);
 
-  if (isNaN(lat1) || isNaN(lng1) || isNaN(lat2) || isNaN(lng2) || lat1 === 0 || lat2 === 0) {
+  // Geo-Coordinate Safety Guard: Fix known landmarks if coordinates are missing or out of bounds
+  const getSpotName = (s) => `${s?.title || ''} ${s?.location || ''}`.toLowerCase();
+  if (getSpotName(spotA).includes('명동') || getSpotName(spotA).includes('myeongdong')) { lat1 = 37.5610; lng1 = 126.9860; }
+  if (getSpotName(spotB).includes('명동') || getSpotName(spotB).includes('myeongdong')) { lat2 = 37.5610; lng2 = 126.9860; }
+  if (getSpotName(spotA).includes('화성행궁') || getSpotName(spotA).includes('방화수류정')) { lat1 = 37.2858; lng1 = 127.0145; }
+  if (getSpotName(spotB).includes('화성행궁') || getSpotName(spotB).includes('방화수류정')) { lat2 = 37.2858; lng2 = 127.0145; }
+
+  if (isNaN(lat1) || isNaN(lng1) || isNaN(lat2) || isNaN(lng2) || lat1 < 33 || lat1 > 39 || lat2 < 33 || lat2 > 39) {
     const titleA = spotA.title || 'A';
     const titleB = spotB.title || 'B';
     const pseudoDist = Math.max(1.8, Math.min(8.5, (titleA.length + titleB.length) * 0.4 + 1.2));
@@ -415,7 +442,8 @@ export function calculateTravelEstimate(spotA, spotB) {
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const dist = Math.max(0.8, R * c);
 
-  if (dist > 45) {
+  // Long-distance threshold raised to 75km (Metropolitan commute 30-75km uses express subway/bus 50-75 mins)
+  if (dist > 75) {
     const hours = (dist / 70 + 0.3).toFixed(1);
     const isJejuTrip = provA === '제주' || provB === '제주';
     const noteText = isJejuTrip 
@@ -430,8 +458,8 @@ export function calculateTravelEstimate(spotA, spotB) {
     };
   }
 
-  const carMin = Math.max(5, Math.round(dist * 2.0 + 4));
-  const transitMin = Math.max(8, Math.round(dist * 3.2 + 6));
+  const carMin = Math.max(5, Math.round(dist * 1.3 + 5));
+  const transitMin = Math.max(8, Math.round(dist * 1.5 + 10));
 
   let transitRouteNote = '';
   let transitType = 'transit';
@@ -468,6 +496,9 @@ export function generateSmartItinerary({
   daySeeds = {},
   rainyMode = false,
   refreshSeed = 0,
+  nightKeyword = '',
+  day2Keyword = '',
+  dailyRegions = [],
   spots = []
 }) {
   const GYEONGBOKGUNG_FALLBACK_IMG = '/default-spot.png';
@@ -514,7 +545,7 @@ export function generateSmartItinerary({
     ],
     '부산': [
       { id: 'p-9', title: '해운대해수욕장 & 엘시티 X더스카이', location: '부산광역시 해운대구 달맞이길 30', rating: 4.9, tags: ['해변', '오션뷰', '야경'], lat: 35.1587, lng: 129.1604, image: GYEONGBOKGUNG_FALLBACK_IMG },
-      { id: 'p-10', title: '감천문화마을', location: '부산광역시 사하구 감내2로 203', rating: 4.8, tags: ['어린왕자', '벽화마을', '포토존'], lat: 35.0975, lng: 129.0106, image: GYEONGBOKGUNG_FALLBACK_IMG },
+    { id: 'p-10', title: '감천문화마을', location: '부산광역시 사하구 감내2로 203', rating: 4.8, tags: ['어린왕자', '벽화마을', '포토존'], lat: 35.0975, lng: 129.0106, image: GYEONGBOKGUNG_FALLBACK_IMG },
       { id: 'p-11', title: '광안리해수욕장 & 광안대교', location: '부산광역시 수영구 광안해변로 219', rating: 4.9, tags: ['드론쇼', '카페거리', '야경명소'], lat: 35.1532, lng: 129.1189, image: GYEONGBOKGUNG_FALLBACK_IMG },
       { id: 'p-12', title: '태종대 유원지', location: '부산광역시 영도구 전망로 24', rating: 4.7, tags: ['기암괴석', '순환열차', '해안절경'], lat: 35.0531, lng: 129.0872, image: GYEONGBOKGUNG_FALLBACK_IMG }
     ],
@@ -533,8 +564,8 @@ export function generateSmartItinerary({
     '경기': [
       { id: 'p-21', title: '수원 화성 & 방화수류정', location: '경기도 수원시 팔달구 정조로 825', rating: 4.9, tags: ['유네스코', '세계문화유산', '야경명소', '수원'], lat: 37.2858, lng: 127.0145, image: GYEONGBOKGUNG_FALLBACK_IMG },
       { id: 'p-22', title: '수원 행궁동 카페거리 & 화성행궁', location: '경기도 수원시 팔달구 신풍로23번길 61', rating: 4.8, tags: ['카페거리', '데이트', 'K-드라마', '수원'], lat: 37.2825, lng: 127.0122, image: GYEONGBOKGUNG_FALLBACK_IMG },
-      { id: 'p-23', title: '광명동굴 & 미디어아트', location: '경기도 광명시 가학로85번길 142', rating: 4.7, tags: ['동굴탐험', '와인동굴', '실내코스'], lat: 37.4262, lng: 126.8661, image: GYEONGBOKGUNG_FALLBACK_IMG },
-      { id: 'p-24', title: '파주 헤이리 예술마을 & 프로방스', location: '경기도 파주시 탄현면 헤이리마을길 70-21', rating: 4.7, tags: ['예술', '박물관', '드라이브'], lat: 37.7891, lng: 126.6983, image: GYEONGBOKGUNG_FALLBACK_IMG }
+      { id: 'p-23', title: '수원화성박물관 & 연무대 활쏘기', location: '경기도 수원시 팔달구 창룡대로 21', rating: 4.8, tags: ['박물관', '활쏘기체험', '문화재', '수원'], lat: 37.2842, lng: 127.0201, image: GYEONGBOKGUNG_FALLBACK_IMG },
+      { id: 'p-24', title: '수원 광교호수공원 & 앨리웨이', location: '경기도 수원시 영통구 광교호수공원로 57', rating: 4.9, tags: ['호수공원', '야경명소', '산책로', '수원'], lat: 37.2831, lng: 127.0588, image: GYEONGBOKGUNG_FALLBACK_IMG }
     ]
   };
 
@@ -568,7 +599,7 @@ export function generateSmartItinerary({
       const fullTxt = `${s.title || ''} ${s.location || ''} ${s.tags?.join(' ') || ''}`.toLowerCase();
       return indoorKeywords.some(kw => fullTxt.includes(kw));
     });
-    if (indoorPool.length >= 3) {
+    if (indoorPool.length >= 1) {
       pool = indoorPool;
     }
   }
@@ -597,8 +628,24 @@ export function generateSmartItinerary({
 
     let targetProvince = region;
     let provincePool = pool;
+    // Multi-Day Per-Day Schedule (dailyRegions array from Gemini LLM)
+    const dayPlan = (Array.isArray(dailyRegions) && dailyRegions[d - 1]) ? dailyRegions[d - 1] : null;
+    const dayActiveCity = dayPlan?.daytime || (d === 2 ? (day2Keyword || nightKeyword) : (d > 2 ? (day2Keyword || region) : region));
+    const dayNightCity = dayPlan?.night || (d === 1 ? nightKeyword : dayActiveCity);
 
-    if (region === '전국' || region === '전체') {
+    if (dayActiveCity) {
+      const activeProvKey = getSpotProvinceKey({ region: dayActiveCity, location: dayActiveCity, title: dayActiveCity });
+      if (activeProvKey && activeProvKey !== '한국') {
+        targetProvince = activeProvKey;
+        const apiProvSpots = spots.filter(s => getSpotProvinceKey(s) === activeProvKey);
+        if (apiProvSpots.length >= 3) {
+          provincePool = apiProvSpots;
+        } else {
+          const fallbackProvSpots = TRAVEL_SPOTS.filter(s => getSpotProvinceKey(s) === activeProvKey);
+          provincePool = (fallbackProvSpots.length >= 1) ? fallbackProvSpots : TRAVEL_SPOTS;
+        }
+      }
+    } else if (region === '전국' || region === '전체') {
       const firstSpotRegion = spots[0] ? getSpotProvinceKey(spots[0]) : '';
       if (firstSpotRegion && firstSpotRegion !== '전국' && firstSpotRegion !== '한국') {
         targetProvince = firstSpotRegion;
@@ -624,28 +671,97 @@ export function generateSmartItinerary({
     const dStartH = parseHourMin(dStartTime, 9.5);
     const dEndH = parseHourMin(dEndTime, 20.0);
     const dDuration = Math.max(3, dEndH - dStartH);
-    const dStep = dDuration / 3;
 
-    const dayTimeSlots = [
-      { time: formatTimeSlot(dStartH), slotName: '오전 명소 & 상쾌한 출발', icon: 'Sun' },
-      { time: formatTimeSlot(dStartH + dStep), slotName: '낮 일정 & 핵심 랜드마크', icon: 'MapPin' },
-      { time: formatTimeSlot(dStartH + dStep * 2), slotName: '오후 관광 & K-컬처 체험', icon: 'Camera' },
-      { time: formatTimeSlot(dEndH), slotName: '야경 탐방 & 도심 산책', icon: 'Moon' }
-    ];
+    const targetFallbackSpots = (REGION_PRESETS[targetProvince] && REGION_PRESETS[targetProvince].length > 0)
+      ? REGION_PRESETS[targetProvince]
+      : TRAVEL_SPOTS.filter(s => getSpotProvinceKey(s) === targetProvince);
+    const fallbackPreset = targetFallbackSpots.length > 0 ? targetFallbackSpots : (REGION_PRESETS['서울'] || []);
+    let activeSearchSpots = (Array.isArray(spots) && spots.length > 0) ? spots : [];
+    if (rainyMode) {
+      const indoorKeywords = ['박물관', '미술관', '몰', '카페', '실내', '아쿠아리움', '전시관', '백화점', '쇼핑', '시장', '온천', '공연장', '체험관'];
+      const indoorActiveSearch = activeSearchSpots.filter(s => {
+        const fullTxt = `${s.title || ''} ${s.location || ''} ${s.tags?.join(' ') || ''}`.toLowerCase();
+        return indoorKeywords.some(kw => fullTxt.includes(kw));
+      });
+      if (indoorActiveSearch.length >= 1) {
+        activeSearchSpots = indoorActiveSearch;
+      }
+    }
+    
+    // Day-specific candidate filtering: ensure day candidates prioritize the day's active region
+    const dayProvSpots = activeSearchSpots.filter(s => getSpotProvinceKey(s) === targetProvince);
+    const combinedCandidates = dayProvSpots.length >= 3
+      ? [...dayProvSpots, ...provincePool, ...fallbackPreset]
+      : [...provincePool, ...fallbackPreset, ...(REGION_PRESETS['서울'] || [])];
+
+    // Determine dynamic target slots count based on departure start time (dStartH)
+    let targetSlotsCount = 4;
+    if (dStartH >= 15.5) {
+      targetSlotsCount = 2;
+    } else if (dStartH >= 11.5) {
+      targetSlotsCount = 3;
+    }
+
+    const dStep = targetSlotsCount > 1 ? dDuration / (targetSlotsCount - 1) : 0;
+    const dayTimeSlots = [];
+    for (let i = 0; i < targetSlotsCount; i++) {
+      const slotH = dStartH + (dStep * i);
+      let slotName = '명소 탐방';
+      let icon = 'MapPin';
+      if (i === 0) { slotName = '오전 명소 & 상쾌한 출발'; icon = 'Sun'; }
+      else if (i === targetSlotsCount - 1) { slotName = '야경 탐방 & 코스 마무리'; icon = 'Moon'; }
+      else if (i === 1) { slotName = '낮 일정 & 핵심 랜드마크'; icon = 'Camera'; }
+      else { slotName = '오후 관광 & K-컬처 체험'; icon = 'Camera'; }
+
+      dayTimeSlots.push({ time: formatTimeSlot(slotH), slotName, icon });
+    }
 
     const daySpots = [];
-    const fallbackPreset = REGION_PRESETS[targetProvince] || REGION_PRESETS['경기'] || REGION_PRESETS['서울'];
-    const activeSearchSpots = (Array.isArray(spots) && spots.length > 0) ? spots : [];
-    const combinedCandidates = [...activeSearchSpots, ...provincePool, ...fallbackPreset, ...(REGION_PRESETS['서울'] || [])];
 
-    for (let s = 0; s < 4; s++) {
+    for (let s = 0; s < targetSlotsCount; s++) {
       let targetSpot = null;
 
-      // On Day 1, strictly bind user's active search result spots to slots 1..N
-      if (d === 1 && activeSearchSpots[s] && activeSearchSpots[s].title) {
-        targetSpot = activeSearchSpots[s];
-        globalUsedTitles.add(targetSpot.title.toLowerCase().replace(/\s+/g, ''));
-      } else {
+      // Separate activeSearchSpots into daytime vs night/hotel spots
+      const isNightSlot = (s === targetSlotsCount - 1);
+      const isNightSpot = (spot) => {
+        if (!spot || !spot.title) return false;
+        if (!nightKeyword) return false;
+        const txt = `${spot.title} ${spot.location || ''} ${spot.addr1 || ''}`.toLowerCase();
+        return txt.includes(nightKeyword.toLowerCase());
+      };
+
+      if (d === 1) {
+        if (isNightSlot) {
+          // Night slot (slot 4): Pick nightSpot first
+          let nightSpot = activeSearchSpots.find(sp => isNightSpot(sp)) || combinedCandidates.find(c => isNightSpot(c));
+          if (!nightSpot && nightKeyword) {
+            // Cross-region fallback: If main region candidates have no match for nightKeyword (e.g. '명동' during a Gyeonggi trip), create a dedicated fallback spot
+            nightSpot = {
+              id: `pin-night-${Date.now()}`,
+              title: nightKeyword.includes('명동') ? 'N서울타워 & 명동거리' : `${nightKeyword} 야경 & 숙소 인근`,
+              location: nightKeyword.includes('명동') ? '서울특별시 중구 명동길 43' : `${nightKeyword} 중심가`,
+              lat: nightKeyword.includes('명동') ? 37.5610 : 37.5665,
+              lng: nightKeyword.includes('명동') ? 126.9860 : 126.9780,
+              rating: 4.9,
+              tags: ['야경명소', nightKeyword, '숙소근처'],
+              image: GYEONGBOKGUNG_FALLBACK_IMG
+            };
+          }
+          if (nightSpot && !globalUsedTitles.has(nightSpot.title.toLowerCase().replace(/\s+/g, ''))) {
+            targetSpot = nightSpot;
+            globalUsedTitles.add(targetSpot.title.toLowerCase().replace(/\s+/g, ''));
+          }
+        } else {
+          // Daytime slots (slots 1, 2, 3): Pick non-night daytime spots from main region first
+          const daytimeActiveSpots = activeSearchSpots.filter(sp => !isNightSpot(sp));
+          if (daytimeActiveSpots[s] && daytimeActiveSpots[s].title) {
+            targetSpot = daytimeActiveSpots[s];
+            globalUsedTitles.add(targetSpot.title.toLowerCase().replace(/\s+/g, ''));
+          }
+        }
+      }
+
+      if (!targetSpot) {
         // Find first candidate that hasn't been used yet across the entire itinerary
         for (let cIdx = 0; cIdx < combinedCandidates.length; cIdx++) {
           const candidateIdx = ((d - 1) * 4 + s + dSeed + cIdx) % combinedCandidates.length;
@@ -789,13 +905,6 @@ export function generateCustomPickedItinerary({
     const dayOfWeek = WEEKDAYS[curDate.getDay()];
     const formattedDate = `${year}.${month}.${dateNum} (${dayOfWeek})`;
 
-    const dayTimeSlots = [
-      { time: '09:30', slotName: '오전 명소 & 상쾌한 출발', icon: 'Sun' },
-      { time: '13:00', slotName: '낮 일정 & 핵심 랜드마크', icon: 'MapPin' },
-      { time: '16:30', slotName: '오후 관광 & K-컬처 체험', icon: 'Camera' },
-      { time: '20:00', slotName: '야경 탐방 & 도심 산책', icon: 'Moon' }
-    ];
-
     const dayGroup = daysByProvince[d - 1] || daysByProvince[0];
     const dayProv = dayGroup.province;
     const dayPicked = [...dayGroup.spots];
@@ -803,7 +912,16 @@ export function generateCustomPickedItinerary({
     // If dayPicked has fewer than 4 spots, auto-fill with nearby spots from allSpots in the SAME province!
     if (dayPicked.length > 0 && dayPicked.length < 4 && allSpots.length > 0) {
       const existingIds = new Set(dayPicked.map(s => s.id));
-      const nearbyExtra = allSpots.filter(s => getSpotProvinceKey(s) === dayProv && !existingIds.has(s.id));
+      let candidateSpots = allSpots;
+      if (rainyMode) {
+        const indoorKeywords = ['박물관', '미술관', '몰', '카페', '실내', '아쿠아리움', '전시관', '백화점', '쇼핑', '시장', '온천', '공연장', '체험관'];
+        const indoorCandidateSpots = allSpots.filter(s => {
+          const fullTxt = `${s.title || ''} ${s.location || ''} ${s.tags?.join(' ') || ''}`.toLowerCase();
+          return indoorKeywords.some(kw => fullTxt.includes(kw));
+        });
+        if (indoorCandidateSpots.length >= 1) candidateSpots = indoorCandidateSpots;
+      }
+      const nearbyExtra = candidateSpots.filter(s => getSpotProvinceKey(s) === dayProv && !existingIds.has(s.id));
 
       for (let extra of nearbyExtra) {
         if (dayPicked.length >= 4) break;
@@ -811,6 +929,22 @@ export function generateCustomPickedItinerary({
         existingIds.add(extra.id);
       }
     }
+
+    const startH = parseHourMin(startTime, 9.5);
+    const endH = parseHourMin(endTime, 20.0);
+    const duration = Math.max(3, endH - startH);
+    const step = dayPicked.length > 1 ? duration / (dayPicked.length - 1) : 0;
+
+    const dayTimeSlots = dayPicked.map((_, sIdx) => {
+      const slotH = startH + (step * sIdx);
+      let slotName = '추천 관광';
+      let icon = 'MapPin';
+      if (sIdx === 0) { slotName = '오전 명소 & 상쾌한 출발'; icon = 'Sun'; }
+      else if (sIdx === dayPicked.length - 1) { slotName = '야경 탐방 & 도심 산책'; icon = 'Moon'; }
+      else if (sIdx === 1) { slotName = '낮 일정 & 핵심 랜드마크'; icon = 'MapPin'; }
+      else { slotName = '오후 관광 & K-컬처 체험'; icon = 'Camera'; }
+      return { time: formatTimeSlot(slotH), slotName, icon };
+    });
 
     const daySpots = dayPicked.map((spot, sIdx) => ({
       time: dayTimeSlots[sIdx]?.time || '10:00',

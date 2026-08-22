@@ -18,6 +18,15 @@ export default function TourSpotGrid({
   onResetFilters
 }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
+  const [activeMood, setActiveMood] = React.useState('all');
+
+  const moodTabs = [
+    { id: 'all', label: '✨ AI 강추 전체' },
+    { id: 'hotspot', label: '🔥 인스타 핫플' },
+    { id: 'nature', label: '🌸 힐링 & 자연' },
+    { id: 'tradition', label: '🏯 전통 & 한옥' },
+    { id: 'night', label: '🌊 해변 & 야경' }
+  ];
 
   return (
     <div style={{ marginBottom: '2.5rem' }}>
@@ -35,6 +44,30 @@ export default function TourSpotGrid({
             {(t.totalSpots || '총 {count}개').replace('{count}', spots.length)}
           </span>
         </h3>
+
+        {/* Dynamic Mood Filter Tabs Bar */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+          {moodTabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveMood(tab.id)}
+              style={{
+                padding: '0.35rem 0.75rem',
+                borderRadius: '9999px',
+                border: activeMood === tab.id ? '1.5px solid #3b82f6' : '1px solid var(--border-color)',
+                background: activeMood === tab.id ? 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)' : 'var(--bg-secondary)',
+                color: activeMood === tab.id ? '#ffffff' : 'var(--text-main)',
+                fontSize: '0.78rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: activeMood === tab.id ? '0 4px 12px rgba(37, 99, 235, 0.3)' : 'none'
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Symmetrical Grid of 6 Cards (3 Columns x 2 Rows) */}
@@ -79,16 +112,36 @@ export default function TourSpotGrid({
                     position: 'absolute',
                     top: '0.75rem',
                     left: '0.75rem',
-                    background: 'rgba(15, 23, 42, 0.75)',
-                    backdropFilter: 'blur(8px)',
-                    color: '#38bdf8',
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
-                    padding: '0.25rem 0.6rem',
-                    borderRadius: 'var(--radius-full)',
-                    border: '1px solid rgba(56, 189, 248, 0.3)'
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.35rem'
                   }}>
-                    {getTranslatedTheme(spot.theme, lang)}
+                    <div style={{
+                      background: 'rgba(15, 23, 42, 0.75)',
+                      backdropFilter: 'blur(8px)',
+                      color: '#38bdf8',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      padding: '0.25rem 0.6rem',
+                      borderRadius: 'var(--radius-full)',
+                      border: '1px solid rgba(56, 189, 248, 0.3)'
+                    }}>
+                      {getTranslatedTheme(spot.theme, lang)}
+                    </div>
+                    <div style={{
+                      background: 'linear-gradient(135deg, #ec4899 0%, #833ab4 100%)',
+                      color: '#ffffff',
+                      fontSize: '0.7rem',
+                      fontWeight: 800,
+                      padding: '0.2rem 0.55rem',
+                      borderRadius: 'var(--radius-full)',
+                      boxShadow: '0 2px 8px rgba(236, 72, 153, 0.35)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.2rem'
+                    }}>
+                      <span>🔥 인스타 핫플</span>
+                    </div>
                   </div>
 
                   {/* Rating Tag */}

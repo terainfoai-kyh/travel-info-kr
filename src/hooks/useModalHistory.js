@@ -9,7 +9,6 @@ import { useEffect, useRef } from 'react';
  * @param {string} modalId - Unique identifier for the modal instance
  */
 export function useModalHistory(isOpen, onClose, modalId = 'modal') {
-  const pushedRef = useRef(false);
   const onCloseRef = useRef(onClose);
 
   useEffect(() => {
@@ -19,15 +18,17 @@ export function useModalHistory(isOpen, onClose, modalId = 'modal') {
   useEffect(() => {
     if (!isOpen) return;
 
+    let isPushed = false;
     const modalStateKey = `ktravel_modal_${modalId}_${Date.now()}`;
     
-    // Push virtual history state when modal opens
-    window.history.pushState({ isModalState: true, key: modalStateKey }, '');
-    pushedRef.current = true;
+    try {
+      window.history.pushState({ isModalState: true, key: modalStateKey }, '');
+      isPushed = true;
+    } catch (e) {}
 
     const handlePopState = () => {
-      if (pushedRef.current) {
-        pushedRef.current = false;
+      if (isPushed) {
+        isPushed = false;
         if (typeof onCloseRef.current === 'function') {
           onCloseRef.current();
         }
@@ -38,18 +39,8 @@ export function useModalHistory(isOpen, onClose, modalId = 'modal') {
 
     return () => {
       window.removeEventListener('popstate', handlePopState);
-      // If modal was closed by UI button (e.g., X button/backdrop click) rather than back button,
-      // revert the pushed history entry to keep history stack clean.
-      if (pushedRef.current) {
-        pushedRef.current = false;
-        try {
-          window.history.back();
-        } catch (e) {
-          console.warn('Modal history revert skipped:', e);
-        }
-      }
     };
-  }, [isOpen, modalId]);
+  }, [isOpen]);
 }
 
 export default useModalHistory;

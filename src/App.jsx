@@ -1,751 +1,775 @@
+/**
+ * ==============================================================================
+ * VORA AI 3.0 - 1차 공식 오픈 버전 (Phase 1 Official Launch Release)
+ * 대한민국 대표 AI 여행 컨시어지 & 실시간 날씨 코디 플래너 (koreatravel.cc)
+ * 
+ * 1. AI 여행 코스 엔진: Gemini 3.5 Flash-Lite Multi-Tier 초고속 생성 (< 1.2s)
+ * 2. 실시간 날씨 & 체감온도: 전국 동단위 지오코딩 + 기온/체감 듀얼 표기 + 3일 예보
+ * 3. 정품 포토 엔진: 한국관광공사 TourAPI 4.0 CDN + Google Places 실시간 병렬 매칭
+ * 4. 글로벌 대중교통: Google Maps 3D + 카카오/네이버 연동 + 무낭비 동선 클러스터링
+ * 5. 다국어 지원: 한국어, 영어, 일본어, 중국어 3중 스마트 자동 감지
+ * ==============================================================================
+ */
+
 import React, { useState, useEffect } from 'react';
-// Trigger Cloudflare Pages automated build with updated dist output
 import Header from './components/Header';
-import SearchFilterForm from './components/SearchFilterForm';
-import WeatherWidget from './components/WeatherWidget';
-import TourSpotGrid from './components/TourSpotGrid';
-import AILifestyleSection from './components/AILifestyleSection';
-import GoogleMapView from './components/GoogleMapView';
-import TravelDetailModal from './components/TravelDetailModal';
-import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
-import { fetchRealtimeWeather } from './services/weatherApi';
-import { fetchTourSpots } from './services/tourApi';
-import { getRecommendedFoodAndOutfit } from './services/recommendationEngine';
-import { Loader2, X } from 'lucide-react';
-import ItineraryModal from './components/ItineraryModal';
-import WishlistDrawer from './components/WishlistDrawer';
+import HeroSection from './components/HeroSection';
+import VoraAIChat from './components/VoraAIChat';
+import CourseMagazineView from './components/CourseMagazineView';
 import TravelEssentialsSection from './components/TravelEssentialsSection';
-import AIFloatingButton from './components/AIFloatingButton';
-import PartnerInquiryModal from './components/PartnerInquiryModal';
-import SplashScreen from './components/SplashScreen';
-import CustomCourseFloatingBar from './components/CustomCourseFloatingBar';
-import GuidePRModal from './components/GuidePRModal';
-import AIChatPromptHeader from './components/AIChatPromptHeader';
+import AdSenseArticlesSection from './components/AdSenseArticlesSection';
+import AdSenseBanner from './components/AdSenseBanner';
+import TravelDetailModal from './components/TravelDetailModal';
+import WishlistDrawer from './components/WishlistDrawer';
+import WeatherModal from './components/WeatherModal';
+import TravelEssentialsModal from './components/TravelEssentialsModal';
+import PrivacyPolicyModal from './components/PrivacyPolicyModal';
+import TermsModal from './components/TermsModal';
+import AboutUsModal from './components/AboutUsModal';
+import ContactUsModal from './components/ContactUsModal';
 import PWAInstallBanner from './components/PWAInstallBanner';
+import RewardedAdModal from './components/RewardedAdModal';
+import GoogleAuthModal from './components/GoogleAuthModal';
+
+import { MapPin, MessageSquare } from 'lucide-react';
+import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
+import { geminiGenerateFullItinerary, generateLocalFallbackItinerary, enrichItineraryPhotosAsync, extractLocationKeyword, extractDaysFromPrompt } from './services/geminiNlpService';
 
 export default function App() {
-  // Auto-detect browser locale
-  const [lang, setLang] = useState(detectBrowserLanguage());
-  const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
-  const [showSplash, setShowSplash] = useState(true);
-  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
-  const [isPartnerOpen, setIsPartnerOpen] = useState(false);
-  const [isGuidePROpen, setIsGuidePROpen] = useState(false);
-
-  // Modals & Drawers state
-  const [isItineraryOpen, setIsItineraryOpen] = useState(false);
-  const [isWishlistOpen, setIsWishlistOpen] = useState(false);
-  const [showOverseasModal, setShowOverseasModal] = useState(false);
-  const [overseasQuery, setOverseasQuery] = useState('');
-
-  // Selected Spots for Custom Picked Itinerary
-  const [selectedCourseSpotIds, setSelectedCourseSpotIds] = useState([]);
-
-  const handleToggleCourseSpot = (spotId) => {
-    setSelectedCourseSpotIds(prev => {
-      if (prev.includes(spotId)) {
-        return prev.filter(id => id !== spotId);
+  // 4-Language State (ko, en, ja, zh) with 3-Tier Intelligent Auto-Detection
+  const [lang, setLang] = useState(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlLang = urlParams.get('lang');
+        if (urlLang && ['ko', 'en', 'ja', 'zh', 'zht'].includes(urlLang.toLowerCase())) {
+          return urlLang.toLowerCase() === 'zht' ? 'zh' : urlLang.toLowerCase();
+        }
       }
-      return [...prev, spotId];
-    });
+      const saved = localStorage.getItem('vora_lang');
+      if (saved) return saved;
+    } catch (e) {}
+    return detectBrowserLanguage();
+  });
+
+  const getInitialWelcomeMessages = (currentLang, currentItinerary) => {
+    if (currentLang === 'en') {
+      return [
+        {
+          id: 'welcome-1',
+          role: 'assistant',
+          text: 'Hello! I am VORA, your dedicated AI travel concierge for South Korea. 😊\nTell me where you want to visit or your desired travel style!'
+        },
+        {
+          id: 'featured-1',
+          role: 'assistant',
+          text: '✨ We have prepared [Seoul 3-Day Hotspot Trend Magazine Tour] as your recommended itinerary.\nFeel free to ask anytime if you want adjustments or want to explore other cities!',
+          itinerary: currentItinerary
+        }
+      ];
+    }
+    if (currentLang === 'ja') {
+      return [
+        {
+          id: 'welcome-1',
+          role: 'assistant',
+          text: 'こんにちは！専属の韓国旅行AIコンシェルジュ、VORA（ボラ）です。😊\n訪れてみたい都市や旅のスタイルを気軽にお知らせください！'
+        },
+        {
+          id: 'featured-1',
+          role: 'assistant',
+          text: '✨ おすすめプランとして「ソウル3日間 トレンド満喫ツアー」をご用意しました。\nプランの変更や他都市の追加など、いつでもご質問ください！',
+          itinerary: currentItinerary
+        }
+      ];
+    }
+    if (currentLang === 'zh' || currentLang === 'zht') {
+      const isZht = currentLang === 'zht';
+      return [
+        {
+          id: 'welcome-1',
+          role: 'assistant',
+          text: isZht 
+            ? '您好！我是您的專屬韓國旅遊AI智能向導 VORA。😊\n請告訴我您想去的城市或旅行風格，我將為您客製專屬行程！'
+            : '您好！我是您的专属韩国旅游AI智能向导 VORA。😊\n请告诉我您想去的城市或旅行风格，我将为您定制专属行程！'
+        },
+        {
+          id: 'featured-1',
+          role: 'assistant',
+          text: isZht
+            ? '✨ 已為您準備精選推薦路線【首爾3天2晚 潮流打卡之旅】。\n如需調整行程或探索其他城市，請隨時向我提問！'
+            : '✨ 已为您准备精选推荐路线【首尔3天2晚 潮流打卡之旅】。\n如需调整行程或探索其他城市，请随时向我提问！',
+          itinerary: currentItinerary
+        }
+      ];
+    }
+    return [
+      {
+        id: 'welcome-1',
+        role: 'assistant',
+        text: '안녕하세요! 당신의 전담 한국 여행 AI 컨시어지 VORA(보라)입니다. 😊\n어떤 여행을 꿈꾸시나요? 가고 싶은 도시나 스타일을 편하게 말씀해 주세요!'
+      },
+      {
+        id: 'featured-1',
+        role: 'assistant',
+        text: '✨ [서울 3일 핫플 감성 투어]를 추천 코스로 준비해 두었습니다.\n수정을 원하시거나 새로운 지역을 가고 싶으시면 언제든 질문해 주세요!',
+        itinerary: currentItinerary
+      }
+    ];
   };
 
-  const handleClearCourseSelection = () => {
-    setSelectedCourseSpotIds([]);
+  const handleLanguageChange = (newLang) => {
+    setLang(newLang);
+    try {
+      localStorage.setItem('vora_lang', newLang);
+    } catch (e) {}
+
+    // Automatically reset and re-query the itinerary and chat messages in the newly selected language
+    const newItinerary = generateLocalFallbackItinerary('서울 3일 핫플 감성 투어', '서울', 3, newLang);
+    setItineraryData(newItinerary);
+    setChatMessages(getInitialWelcomeMessages(newLang, newItinerary));
+    setActiveDay(1);
+    setSelectedSpot(null);
   };
 
-  // Dark / Light Theme Mode (Auto-detect system preference, defaulting to light mode)
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
+
+  // Dark / Light Theme Mode
   const [themeMode, setThemeMode] = useState(() => {
     try {
-      const savedTheme = localStorage.getItem('ktravel_theme');
+      const savedTheme = localStorage.getItem('vora_theme');
       if (savedTheme) return savedTheme;
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         return 'dark';
       }
-    } catch (e) {
-      // Fallback
-    }
+    } catch (e) {}
     return 'light';
   });
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', themeMode);
-    localStorage.setItem('ktravel_theme', themeMode);
+    try {
+      localStorage.setItem('vora_theme', themeMode);
+    } catch (e) {}
   }, [themeMode]);
 
   useEffect(() => {
-    const langMap = { ko: 'ko-KR', en: 'en-US', ja: 'ja-JP', zh: 'zh-CN' };
+    const langMap = { ko: 'ko-KR', en: 'en-US', ja: 'ja-JP', zh: 'zh-CN', zht: 'zh-TW' };
     document.documentElement.lang = langMap[lang] || 'ko-KR';
   }, [lang]);
 
-  // Handle URL Shared Wishlist Parameters (?wishlist=id1,id2)
+  // Itinerary & Chat State - Pre-populated with rich 3-day Seoul tour on initial load
+  const initialItinerary = React.useMemo(() => {
+    try {
+      return generateLocalFallbackItinerary('서울 3일 핫플 감성 투어', '서울', 3, lang);
+    } catch (e) {
+      return null;
+    }
+  }, [lang]);
+
+  const [itineraryData, setItineraryData] = useState(initialItinerary);
+
+  // Background live photo enrichment via TourAPI 4.0 & Wikimedia (Zero hardcoding)
   useEffect(() => {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      const sharedWishlistStr = params.get('wishlist');
-      if (sharedWishlistStr) {
-        const ids = sharedWishlistStr.split(',').map(id => id.trim()).filter(Boolean);
-        if (ids.length > 0) {
-          setBookmarks(prev => {
-            const merged = Array.from(new Set([...prev, ...ids]));
-            localStorage.setItem('ktravel_bookmarks', JSON.stringify(merged));
-            return merged;
-          });
-          setIsWishlistOpen(true); // Auto-open wishlist drawer when visiting via shared link!
+    let isMounted = true;
+    if (initialItinerary) {
+      enrichItineraryPhotosAsync(initialItinerary).then(enriched => {
+        if (isMounted && enriched) {
+          setItineraryData(prev => (prev?.tripTitle === initialItinerary.tripTitle ? enriched : prev));
         }
-      }
-    } catch (e) {
-      console.error('Error parsing shared wishlist URL params:', e);
+      });
     }
-  }, []);
-  
-  // Search Filters
-  const today = new Date();
-  const nextWeek = new Date(today);
-  nextWeek.setDate(today.getDate() + 3);
+    return () => { isMounted = false; };
+  }, [initialItinerary]);
 
-  const todayStr = today.toISOString().split('T')[0];
-  const nextWeekStr = nextWeek.toISOString().split('T')[0];
-
-  const [filters, setFilters] = useState(() => {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      return {
-        startDate: todayStr,
-        endDate: nextWeekStr,
-        region: params.get('region') || '전국',
-        theme: params.get('theme') || '전체',
-        age: params.get('age') || '전체',
-        gender: params.get('gender') || '무관',
-        keyword: params.get('keyword') || '',
-        arrange: params.get('arrange') || 'A',
-        apiServiceType: params.get('apiServiceType') || 'all'
-      };
-    } catch (e) {
-      return {
-        startDate: todayStr,
-        endDate: nextWeekStr,
-        region: '전국',
-        theme: '전체',
-        age: '전체',
-        gender: '무관',
-        keyword: '',
-        arrange: 'A',
-        apiServiceType: 'all'
-      };
-    }
-  });
-
-  // State Data
+  const [chatMessages, setChatMessages] = useState(() => getInitialWelcomeMessages(lang, initialItinerary));
+  const [activeDay, setActiveDay] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [weatherData, setWeatherData] = useState(null);
-  const [allTourSpots, setAllTourSpots] = useState([]);
-  const [recommendations, setRecommendations] = useState({ foods: [], outfits: [] });
   const [selectedSpot, setSelectedSpot] = useState(null);
-  const [page, setPage] = useState(1);
+  const [mobileHubTab, setMobileHubTab] = useState('magazine'); // 'magazine' | 'chat'
+
+  // Persistent Bookmarks / Wishlist
   const [bookmarks, setBookmarks] = useState(() => {
     try {
-      const saved = localStorage.getItem('ktravel_bookmarks');
+      const saved = localStorage.getItem('vora_bookmarks');
       return saved ? JSON.parse(saved) : [];
-    } catch {
+    } catch (e) {
       return [];
     }
   });
 
-  const handleToggleBookmark = (spotId) => {
+  const handleToggleBookmark = (spotToToggle) => {
+    if (!spotToToggle) return;
     setBookmarks(prev => {
+      const spotId = spotToToggle.contentId || spotToToggle.id || spotToToggle.title;
+      const spotTitle = spotToToggle.title;
+      
+      const exists = prev.some(b => 
+        (typeof b === 'object' && ((b.contentId && b.contentId === spotId) || (b.id && b.id === spotId) || (b.title && b.title === spotTitle))) ||
+        (typeof b === 'string' && (b === spotId || b === spotTitle))
+      );
+      
       let updated;
-      if (prev.includes(spotId)) {
-        updated = prev.filter(id => id !== spotId);
+      if (exists) {
+        updated = prev.filter(b => 
+          typeof b === 'object' 
+            ? ((b.contentId && b.contentId !== spotId) && (b.id && b.id !== spotId) && (!spotTitle || b.title !== spotTitle))
+            : b !== spotId
+        );
       } else {
-        updated = [...prev, spotId];
+        const spotObj = typeof spotToToggle === 'object' ? {
+          id: spotToToggle.id || spotId,
+          contentId: spotToToggle.contentId || null,
+          title: spotToToggle.title || '추천 관광지',
+          location: spotToToggle.location || spotToToggle.addr1 || '상세 위치 제공',
+          image: spotToToggle.image || '/default-spot.png',
+          rating: spotToToggle.rating || 4.9,
+          region: spotToToggle.region || '한국',
+          category: spotToToggle.category || spotToToggle.theme || '명소'
+        } : { id: spotId, title: spotId, location: '상세 위치 제공', image: '/default-spot.png', rating: 4.9 };
+        updated = [spotObj, ...prev];
       }
       try {
-        localStorage.setItem('ktravel_bookmarks', JSON.stringify(updated));
-      } catch (e) {
-        console.error(e);
-      }
+        localStorage.setItem('vora_bookmarks', JSON.stringify(updated));
+      } catch (e) {}
       return updated;
     });
   };
-  const ITEMS_PER_PAGE = 6;
 
-  // Initial Fetch on load & search submit handler
-  const handleSearch = async (overrideLang) => {
-    const activeLang = overrideLang || lang;
-    setIsLoading(true);
+  // Modals & Drawers Open State
+  const [isWishlistOpen, setIsWishlistOpen] = useState(false);
+  const [isWeatherOpen, setIsWeatherOpen] = useState(false);
+  const [isEssentialsOpen, setIsEssentialsOpen] = useState(false);
+  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
+  const [isTermsOpen, setIsTermsOpen] = useState(false);
+  const [isAboutOpen, setIsAboutOpen] = useState(false);
+  const [isContactOpen, setIsContactOpen] = useState(false);
+  const [isRewardedAdOpen, setIsRewardedAdOpen] = useState(false);
+  const [isGoogleAuthOpen, setIsGoogleAuthOpen] = useState(false);
+  const [weatherCity, setWeatherCity] = useState('서울');
+
+  // User Profile State (Google Logged In vs Guest)
+  const [currentUser, setCurrentUser] = useState(() => {
     try {
-      // 1. Fetch Weather Data (Short-term & Mid-term API)
-      const wData = await fetchRealtimeWeather(filters.region, filters.startDate, filters.endDate);
-      setWeatherData(wData);
+      const saved = localStorage.getItem('vora_user_profile');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return null;
+  });
 
-      // 2. Fetch Tour Spots Data (TourAPI 4.0 - Multilingual Endpoint)
-      const spots = await fetchTourSpots({
-        region: filters.region,
-        theme: filters.theme,
-        age: filters.age,
-        gender: filters.gender,
-        keyword: filters.keyword,
-        arrange: filters.arrange,
-        apiServiceType: filters.apiServiceType,
-        startDate: filters.startDate,
-        lang: activeLang
-      });
-      setAllTourSpots(spots);
-      setPage(1); // Reset to page 1
+  // Daily Question Quota Management (Guest: 5 chats, Google User: 15 chats)
+  const [questionQuota, setQuestionQuota] = useState(() => {
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const isGoogle = !!localStorage.getItem('vora_user_profile');
+    const totalLimit = isGoogle ? 15 : 5;
 
-      // 3. Recommendation Engine (Food & Outfit)
-      const recs = getRecommendedFoodAndOutfit({
-        weather: wData,
-        region: filters.region,
-        theme: filters.theme,
-        age: filters.age,
-        gender: filters.gender,
-        keyword: filters.keyword
-      });
-      setRecommendations(recs);
+    try {
+      const saved = localStorage.getItem('vora_daily_quota');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.date === todayStr) {
+          return { ...parsed, total: totalLimit };
+        }
+      }
+    } catch (e) {}
+    const defaultQuota = { date: todayStr, remaining: totalLimit, total: totalLimit };
+    try {
+      localStorage.setItem('vora_daily_quota', JSON.stringify(defaultQuota));
+    } catch (e) {}
+    return defaultQuota;
+  });
+
+  // Grant Reward (+3 chats on watching 15s ad)
+  const handleRewardGranted = () => {
+    const todayStr = new Date().toISOString().slice(0, 10);
+    setQuestionQuota(prev => {
+      const newRemaining = (prev?.remaining || 0) + 3;
+      const updated = { date: todayStr, remaining: newRemaining, total: prev?.total || 5 };
+      try {
+        localStorage.setItem('vora_daily_quota', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+
+    const queryTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+    setChatMessages(prev => [
+      ...prev,
+      {
+        id: `reward-${Date.now()}`,
+        role: 'assistant',
+        text: (lang === 'ko')
+          ? '🎉 **스폰서 광고 시청 완료! 무료 AI 질문 +3회가 즉시 충전되었습니다.** ✨\n원하시는 여행 코스나 수정 사항을 자유롭게 물어보세요!'
+          : '🎉 **Sponsor ad completed! +3 free AI questions have been granted.** ✨\nFeel free to ask more travel itineraries!',
+        queryTime,
+        replyTime: queryTime,
+        timestamp: queryTime
+      }
+    ]);
+  };
+
+  // Google Login Success Handler
+  const handleLoginSuccess = (profile) => {
+    setCurrentUser(profile);
+    const todayStr = new Date().toISOString().slice(0, 10);
+    setQuestionQuota(prev => {
+      const updated = { date: todayStr, remaining: Math.max(prev?.remaining || 0, 15), total: 15 };
+      try {
+        localStorage.setItem('vora_daily_quota', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+
+    const queryTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+    setChatMessages(prev => [
+      ...prev,
+      {
+        id: `login-success-${Date.now()}`,
+        role: 'assistant',
+        text: (lang === 'ko')
+          ? `👑 **환영합니다, ${profile.name}님!**\nGoogle VIP 회원 혜택이 적용되어 **매일 15회 무료 질문**과 여행 일정 자동 보관이 활성화되었습니다! ✨`
+          : `👑 **Welcome, ${profile.name}!**\nGoogle VIP tier activated with **15 free daily chats** and automatic itinerary cloud backup! ✨`,
+        queryTime,
+        replyTime: queryTime,
+        timestamp: queryTime
+      }
+    ]);
+  };
+
+  // Logout Handler
+  const handleLogout = () => {
+    try {
+      localStorage.removeItem('vora_user_profile');
+    } catch (e) {}
+    setCurrentUser(null);
+    const todayStr = new Date().toISOString().slice(0, 10);
+    setQuestionQuota(prev => {
+      const updated = { date: todayStr, remaining: Math.min(prev?.remaining || 5, 5), total: 5 };
+      try {
+        localStorage.setItem('vora_daily_quota', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+  };
+
+  // Reset Quota for Testing / Dev
+  const handleResetQuotaForDev = () => {
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const totalLimit = currentUser?.isGoogleLoggedIn ? 15 : 5;
+    const reset = { date: todayStr, remaining: totalLimit, total: totalLimit };
+    setQuestionQuota(reset);
+    try {
+      localStorage.setItem('vora_daily_quota', JSON.stringify(reset));
+    } catch (e) {}
+  };
+
+  // Trigger Master Itinerary Planning with Conversational Memory & Ultra-Fast Parallel Engine
+  const handleGenerateItinerary = async (promptQuery) => {
+    if (!promptQuery || isLoading) return;
+
+    // 📱 Mobile UX: Immediately switch to 'chat' tab so user sees query sending and quota status
+    setMobileHubTab('chat');
+
+    const queryTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+    const userMsg = {
+      id: `user-${Date.now()}`,
+      role: 'user',
+      text: promptQuery,
+      timestamp: queryTime
+    };
+
+    // Check Daily Question Quota
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const maxQuota = currentUser?.isGoogleLoggedIn ? 15 : 5;
+    let currentRemaining = questionQuota.remaining;
+    if (questionQuota.date !== todayStr) {
+      currentRemaining = maxQuota;
+    }
+
+    if (currentRemaining <= 0) {
+      setChatMessages(prev => [
+        ...prev,
+        userMsg,
+        {
+          id: `bot-exhausted-${Date.now()}`,
+          role: 'assistant',
+          isQuotaExhausted: true,
+          text: (lang === 'ko')
+            ? `⚠️ **오늘 제공된 무료 AI 질문(${maxQuota}/${maxQuota}회)을 모두 사용하셨습니다.**\n\n매일 자정(00:00)에 ${maxQuota}회가 자동으로 충전됩니다! ✨\n아래 버튼을 눌러 **15초 광고 시청(+3회 즉시 충전)** 또는 **Google 로그인(매일 15회 확장)**을 이용하실 수 있습니다.`
+            : `⚠️ **You have used all ${maxQuota} free AI questions for today.**\n\nYour ${maxQuota} free quota will automatically recharge at midnight (00:00)! ✨\nWatch a 15s ad for +3 chats or sign in with Google for 15 chats daily!`,
+          generationTime: '0.0',
+          queryTime,
+          replyTime: queryTime,
+          timestamp: queryTime
+        }
+      ]);
+      return;
+    }
+
+    // Decrement quota
+    const updatedQuota = { date: todayStr, remaining: currentRemaining - 1, total: maxQuota };
+    setQuestionQuota(updatedQuota);
+    try {
+      localStorage.setItem('vora_daily_quota', JSON.stringify(updatedQuota));
+    } catch (e) {}
+
+    const startTime = Date.now();
+    setChatMessages(prev => [...prev, userMsg]);
+    setIsLoading(true);
+
+    // If query mentions a specific day (e.g. "2일차", "3일차"), auto focus on that day. Otherwise always reset to Day 1!
+    const dayMatch = promptQuery.match(/([1-5])일차/);
+    if (dayMatch && dayMatch[1]) {
+      setActiveDay(Number(dayMatch[1]));
+    } else {
+      setActiveDay(1);
+    }
+
+    try {
+      const result = await geminiGenerateFullItinerary(promptQuery, lang, itineraryData);
+      const elapsedSeconds = ((Date.now() - startTime) / 1000).toFixed(1);
+      const replyTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+
+      if (result && result.responseType === 'chat') {
+        // 💬 Conversational & Clarifying Mode: Keep existing itinerary screen intact!
+        const botMsg = {
+          id: `bot-${Date.now()}`,
+          role: 'assistant',
+          text: result.message,
+          quickSuggestions: result.quickSuggestions || [],
+          generationTime: result.generationTime || elapsedSeconds,
+          queryTime,
+          replyTime,
+          timestamp: replyTime
+        };
+        setChatMessages(prev => [...prev, botMsg]);
+        setMobileHubTab('chat');
+      } else {
+        // 📍 Full Itinerary Mode: Render full course and sync map
+        const requestedDays = extractDaysFromPrompt(promptQuery) || 3;
+        const finalResult = {
+          ...(result || generateLocalFallbackItinerary(promptQuery, extractLocationKeyword(promptQuery), requestedDays, lang)),
+          generationTime: elapsedSeconds
+        };
+        
+        setItineraryData(finalResult);
+        const botMsg = {
+          id: `bot-${Date.now()}`,
+          role: 'assistant',
+          text: `✨ **${finalResult.tripTitle}**\n${finalResult.summary}`,
+          itinerary: finalResult,
+          generationTime: elapsedSeconds,
+          queryTime,
+          replyTime,
+          timestamp: replyTime
+        };
+        setChatMessages(prev => [...prev, botMsg]);
+        setMobileHubTab('magazine');
+      }
     } catch (err) {
-      console.error('Error performing search:', err);
+      console.warn('[VORA AI Error]', err);
+      const elapsedSeconds = ((Date.now() - startTime) / 1000).toFixed(1);
+      const replyTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+      const requestedDays = extractDaysFromPrompt(promptQuery) || 3;
+      const fallback = {
+        ...generateLocalFallbackItinerary(promptQuery, extractLocationKeyword(promptQuery), requestedDays, lang),
+        generationTime: elapsedSeconds
+      };
+      setItineraryData(fallback);
+      const botMsg = {
+        id: `bot-${Date.now()}`,
+        role: 'assistant',
+        text: `✨ **${fallback.tripTitle}**\n${fallback.summary}`,
+        itinerary: fallback,
+        generationTime: elapsedSeconds,
+        queryTime,
+        replyTime,
+        timestamp: replyTime
+      };
+      setChatMessages(prev => [...prev, botMsg]);
+      setMobileHubTab('magazine');
     } finally {
       setIsLoading(false);
     }
   };
 
-  useEffect(() => {
-    handleSearch(lang);
-  }, [lang]);
-
-  // Compute Paginated Spots (6 per page)
-  const totalPages = Math.ceil(allTourSpots.length / ITEMS_PER_PAGE);
-  const paginatedSpots = allTourSpots.slice(
-    (page - 1) * ITEMS_PER_PAGE,
-    page * ITEMS_PER_PAGE
-  );
-
-  // Compute Wishlist Full Objects
-  const wishlistFullSpots = allTourSpots.filter(s => bookmarks.includes(s.id));
-
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', position: 'relative' }}>
-      {/* Dynamic K-Aurora Mesh Background System */}
-      <div className="k-aurora-bg">
-        <div className="k-aurora-glow-1" />
-        <div className="k-aurora-glow-2" />
-        <div className="k-aurora-glow-3" />
-        <div className="k-aurora-pattern" />
-      </div>
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      backgroundColor: 'var(--bg-primary)',
+      color: 'var(--text-main)',
+      position: 'relative'
+    }}>
+      {/* PWA Home Screen Installation Guide Banner */}
+      <PWAInstallBanner lang={lang} />
 
-      {/* 1.8s Cinematic Intro Splash Screen */}
-      {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} lang={lang} />}
-
-      {/* Header with active search filter badge and theme toggle */}
-      <Header 
-        currentLang={lang} 
-        setLang={setLang} 
-        filters={filters} 
+      {/* Top Header */}
+      <Header
+        lang={lang}
+        onLanguageChange={handleLanguageChange}
         themeMode={themeMode}
-        setThemeMode={setThemeMode}
+        onToggleTheme={() => setThemeMode(prev => prev === 'dark' ? 'light' : 'dark')}
         wishlistCount={bookmarks.length}
         onOpenWishlist={() => setIsWishlistOpen(true)}
-        onOpenItinerary={() => setIsItineraryOpen(true)}
-        onOpenGuidePR={() => setIsGuidePROpen(true)}
+        onOpenWeather={(city) => {
+          setWeatherCity(city || itineraryData?.targetCity || '서울');
+          setIsWeatherOpen(true);
+        }}
+        onOpenEssentials={() => setIsEssentialsOpen(true)}
+        currentUser={currentUser}
+        onOpenGoogleAuth={() => setIsGoogleAuthOpen(true)}
+        onLogout={handleLogout}
+        targetCity={itineraryData?.targetCity || '서울'}
+        onOpenAbout={() => setIsAboutOpen(true)}
+        onOpenPrivacy={() => setIsPrivacyOpen(true)}
+        onOpenTerms={() => setIsTermsOpen(true)}
       />
 
-      {/* Main Container */}
-      <main style={{ maxWidth: '1280px', width: '100%', margin: '0 auto', padding: '0 1.5rem 0.5rem 1.5rem', flex: 1, position: 'relative', zIndex: 1 }}>
-        {/* Conversational & Voice AI Prompt Header */}
-        <AIChatPromptHeader 
-          lang={lang} 
-          filters={filters}
-          onGenerateItinerary={async (parsed) => {
-            const targetRegion = parsed.region || '전국';
-            const targetKeyword = parsed.keyword || '';
-            const newFilters = {
-              ...filters,
-              region: targetRegion,
-              keyword: targetKeyword
-            };
-            setFilters(newFilters);
-            setIsLoading(true);
-            let fetchedSpots = [];
-            try {
-              fetchedSpots = await fetchTourSpots({
-                ...newFilters,
-                lang
-              });
-              setAllTourSpots(fetchedSpots);
-              const effectiveRegion = (targetRegion === '전국' && fetchedSpots[0] && fetchedSpots[0].regionName && fetchedSpots[0].regionName !== '전국')
-                ? fetchedSpots[0].regionName
-                : targetRegion;
-              const wData = await fetchRealtimeWeather(effectiveRegion, newFilters.startDate, newFilters.endDate);
-              setWeatherData(wData);
-              const recs = getRecommendedFoodAndOutfit({
-                weather: wData,
-                region: effectiveRegion,
-                keyword: targetKeyword,
-                theme: newFilters.theme,
-                age: newFilters.age,
-                gender: newFilters.gender
-              });
-              setRecommendations(recs);
-            } catch (err) {
-              console.error('Error fetching itinerary spots:', err);
-            } finally {
-              setIsLoading(false);
-              // CRITICAL: Only open itinerary modal if matching spots exist! If 0 items, remain on main screen with 0-item message!
-              if (fetchedSpots && fetchedSpots.length > 0) {
-                setIsItineraryOpen(true);
-              } else {
-                setIsItineraryOpen(false);
-              }
-            }
-          }} 
+      {/* Main Container (모바일 8px 좌우 여백 최적화) */}
+      <main className="app-main-container">
+        {/* 1. Ultra-Compact Modern Hero Section with Smart Prompt Bar */}
+        <HeroSection
+          lang={lang}
+          onSearch={handleGenerateItinerary}
+          isLoading={isLoading}
+          questionQuota={questionQuota}
         />
 
-        {/* Loading Indicator */}
-        {isLoading ? (
-          <div style={{ textAlign: 'center', padding: '4rem 0', color: 'var(--accent-primary)' }}>
-            <Loader2 size={40} className="animate-spin" style={{ margin: '0 auto 1rem auto' }} />
-            <p style={{ fontWeight: 600 }}>{t.loadingData || '실시간 기후 및 공공데이터를 조회 중입니다...'}</p>
+        {/* 📱 Mobile Segmented Tab Switcher (Visible on Mobile only: 1-Tap Toggle between Map & Chat) */}
+        <div className="mobile-hub-tabs-wrapper">
+          <button
+            type="button"
+            className={`mobile-hub-tab-btn ${mobileHubTab === 'magazine' ? 'active' : 'inactive'}`}
+            onClick={() => setMobileHubTab('magazine')}
+          >
+            <MapPin size={15} />
+            <span>{lang === 'en' ? 'Course & Map' : lang === 'ja' ? 'コース＆地図' : (lang === 'zh' || lang === 'zht') ? '路线与地图' : '코스 & 지도'}</span>
+          </button>
+          <button
+            type="button"
+            className={`mobile-hub-tab-btn ${mobileHubTab === 'chat' ? 'active' : 'inactive'}`}
+            onClick={() => setMobileHubTab('chat')}
+          >
+            <MessageSquare size={15} />
+            <span>{lang === 'en' ? 'AI Chat' : lang === 'ja' ? 'AI チャット' : (lang === 'zh' || lang === 'zht') ? 'AI 对话' : 'AI 대화'}</span>
+          </button>
+        </div>
+
+        {/* 2. PC 2-Column Split Hub (Dashboard view: Chat on Left / Timeline & Map on Right) */}
+        <section id="itinerary-hub" className="itinerary-hub-container" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
+          {/* Left Column: Vora AI Conversational Chat Stream */}
+          <div className={`itinerary-hub-column ${mobileHubTab !== 'chat' ? 'mobile-hidden' : ''}`} style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
+            <VoraAIChat
+              lang={lang}
+              chatMessages={chatMessages}
+              isLoading={isLoading}
+              onSendMessage={handleGenerateItinerary}
+              activeDay={activeDay}
+              onSelectDay={(day) => setActiveDay(day)}
+              questionQuota={questionQuota}
+              onOpenRewardedAd={() => setIsRewardedAdOpen(true)}
+              onOpenGoogleAuth={() => setIsGoogleAuthOpen(true)}
+              onResetQuotaForDev={handleResetQuotaForDev}
+              currentUser={currentUser}
+            />
           </div>
-        ) : (
-          <>
-            {/* 1. Tour Spots Grid */}
-            <div id="tour-spots">
-              <TourSpotGrid
-                spots={paginatedSpots}
-                page={page}
-                setPage={setPage}
-                totalPages={totalPages}
-                lang={lang}
-                themeMode={themeMode}
-                onSelectSpot={(spot) => setSelectedSpot(spot)}
-                onOpenItinerary={() => setIsItineraryOpen(true)}
-                filters={filters}
-                selectedCourseSpotIds={selectedCourseSpotIds}
-                onToggleCourseSpot={handleToggleCourseSpot}
-                onResetFilters={async (newF) => {
-                  const updated = { ...filters, ...newF };
-                  setFilters(updated);
-                  setIsLoading(true);
-                  try {
-                    const spots = await fetchTourSpots({ ...updated, lang });
-                    setAllTourSpots(spots);
-                  } catch (err) {
-                    console.error(err);
-                  } finally {
-                    setIsLoading(false);
-                  }
-                }}
-              />
-            </div>
 
-            {/* 2. Travel Essentials Hub Section */}
-            <div id="travel-essentials">
-              <TravelEssentialsSection lang={lang} filters={filters} />
-            </div>
+          {/* Right Column: Course Magazine View & Google Map */}
+          <div className={`itinerary-hub-column ${mobileHubTab !== 'magazine' ? 'mobile-hidden' : ''}`} style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
+            <CourseMagazineView
+              lang={lang}
+              itineraryData={itineraryData}
+              activeDay={activeDay}
+              onSelectDay={(day) => setActiveDay(day)}
+              onOpenDetail={(spot) => setSelectedSpot(spot)}
+              bookmarks={bookmarks}
+              onToggleBookmark={handleToggleBookmark}
+            />
+          </div>
+        </section>
 
-            {/* 3. Weather Info */}
-            <div id="weather-info">
-              <WeatherWidget weatherData={weatherData} lang={lang} />
-            </div>
+        {/* 3. Mid-page Google AdSense Unit */}
+        <AdSenseBanner slot="7890123456" />
 
-            {/* 4. AI Lifestyle Recommendations */}
-            <div id="ai-lifestyle">
-              <AILifestyleSection
-                foods={recommendations.foods}
-                outfits={recommendations.outfits}
-                filters={filters}
-                lang={lang}
-                themeMode={themeMode}
-              />
-            </div>
+        {/* 4. Travel Essentials Section (Weather & Styling, Subway, Climate card, eSIM, 1330) */}
+        <div id="travel-essentials-section">
+          <TravelEssentialsSection
+            lang={lang}
+            targetCity={itineraryData?.targetCity || '서울'}
+            onOpenWeather={(city) => {
+              setWeatherCity(city || itineraryData?.targetCity || '서울');
+              setIsWeatherOpen(true);
+            }}
+          />
+        </div>
 
-            {/* 5. Google Maps View */}
-            <div id="google-map">
-              <GoogleMapView
-                selectedSpot={selectedSpot}
-                allSpots={paginatedSpots}
-                lang={lang}
-                themeMode={themeMode}
-              />
-            </div>
-          </>
-        )}
+        {/* 5. Mid-page Google AdSense Unit */}
+        <AdSenseBanner slot="8901234567" />
+
+        {/* 6. AdSense Editorial Travel Articles & FAQ Section (High Content Authority) */}
+        <AdSenseArticlesSection lang={lang} />
       </main>
 
-      {/* Mobile & Desktop Custom Course Floating Action Bar */}
-      <CustomCourseFloatingBar
-        selectedCount={selectedCourseSpotIds.length}
-        onBuildRoute={() => setIsItineraryOpen(true)}
-        onClear={handleClearCourseSelection}
-        lang={lang}
-      />
-
-      {/* AI Itinerary Builder Modal */}
-      <ItineraryModal
-        isOpen={isItineraryOpen}
-        onClose={() => setIsItineraryOpen(false)}
-        filters={filters}
-        spots={allTourSpots}
-        lang={lang}
-        customPickedSpots={allTourSpots.filter(s => selectedCourseSpotIds.includes(s.id))}
-        onSelectSpot={(spot) => {
-          setIsItineraryOpen(false);
-          setSelectedSpot(spot);
-        }}
-      />
-
-      {/* Wishlist Side Drawer */}
-      <WishlistDrawer
-        isOpen={isWishlistOpen}
-        onClose={() => setIsWishlistOpen(false)}
-        wishlistSpots={wishlistFullSpots}
-        onRemoveWishlist={handleToggleBookmark}
-        onSelectSpot={(spot) => {
-          setIsWishlistOpen(false);
-          setSelectedSpot(spot);
-        }}
-        lang={lang}
-      />
-
-      {/* Detail Modal */}
-      <TravelDetailModal
-        spot={selectedSpot}
-        onClose={() => setSelectedSpot(null)}
-        isBookmarked={selectedSpot ? bookmarks.includes(selectedSpot.id) : false}
-        onToggleBookmark={handleToggleBookmark}
-        lang={lang}
-      />
-
-      {/* Privacy Policy Modal */}
-      {showPrivacyModal && (
-        <div className="modal-overlay-backdrop">
-          <div 
-            className="animate-fade-in glass-panel modal-responsive-card"
-            style={{
-              background: 'var(--bg-card)',
-              color: 'var(--text-primary)',
-              borderRadius: 'var(--radius-lg)',
-              padding: '1.25rem 1.25rem',
-              maxWidth: '650px',
-              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)',
-              border: '1px solid var(--border-color)'
-            }}
-          >
-            <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '1rem', color: 'var(--accent-primary)' }}>
-              {t.privacyPolicyTitle || '개인정보처리방침'}
-            </h3>
-            <div style={{ fontSize: '0.9rem', lineHeight: 1.7, color: 'var(--text-muted)' }}>
-              <p><strong>{t.privacySection1Title || '1. 수집하는 개인정보 항목 및 수집 방법'}</strong><br />{t.privacySection1Desc}</p>
-              <p style={{ marginTop: '0.75rem' }}><strong>{t.privacySection2Title || '2. 구글 애드센스 (Google AdSense) 광고 및 쿠키 안내'}</strong><br />{t.privacySection2Desc}</p>
-              <p style={{ marginTop: '0.75rem' }}><strong>{t.privacySection3Title || '3. 제휴 마케팅 (Affiliate Links) 안내'}</strong><br />{t.privacySection3Desc}</p>
-              <p style={{ marginTop: '0.75rem' }}><strong>{t.privacySection4Title || '4. 개인정보의 보유 및 이용 기간'}</strong><br />{t.privacySection4Desc}</p>
-            </div>
+      {/* Footer with Google AdSense Required Policy Links */}
+      <footer style={{
+        borderTop: '1px solid var(--border-color)',
+        backgroundColor: 'var(--bg-card)',
+        padding: '2.5rem 1.5rem',
+        textAlign: 'center',
+        fontSize: '0.82rem',
+        color: 'var(--text-muted)'
+      }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+          {/* AdSense Policy Links */}
+          <div style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            gap: '1.25rem',
+            marginBottom: '1.25rem',
+            fontWeight: 700
+          }}>
             <button
-              onClick={() => setShowPrivacyModal(false)}
-              style={{
-                marginTop: '1.5rem',
-                width: '100%',
-                padding: '0.75rem',
-                borderRadius: 'var(--radius-md)',
-                background: 'linear-gradient(135deg, #0284c7, #0369a1)',
-                color: '#ffffff',
-                fontWeight: 800,
-                border: 'none',
-                cursor: 'pointer'
-              }}
+              onClick={() => setIsPrivacyOpen(true)}
+              style={{ background: 'none', border: 'none', color: 'var(--text-main)', cursor: 'pointer', fontSize: '0.84rem' }}
             >
-              {t.privacyCloseBtn || '확인 및 닫기'}
+              {t.privacyPolicy || '개인정보처리방침'}
+            </button>
+            <span>•</span>
+            <button
+              onClick={() => setIsTermsOpen(true)}
+              style={{ background: 'none', border: 'none', color: 'var(--text-main)', cursor: 'pointer', fontSize: '0.84rem' }}
+            >
+              {t.termsOfService || '이용약관'}
+            </button>
+            <span>•</span>
+            <button
+              onClick={() => setIsAboutOpen(true)}
+              style={{ background: 'none', border: 'none', color: 'var(--text-main)', cursor: 'pointer', fontSize: '0.84rem' }}
+            >
+              {t.aboutUs || '서비스 소개'}
+            </button>
+            <span>•</span>
+            <button
+              onClick={() => setIsContactOpen(true)}
+              style={{ background: 'none', border: 'none', color: 'var(--text-main)', cursor: 'pointer', fontSize: '0.84rem' }}
+            >
+              {t.contactUs || '제휴 및 문의'}
             </button>
           </div>
-        </div>
-      )}
 
-      {/* Partner & Sponsorship Inquiry Modal */}
-      <PartnerInquiryModal
-        isOpen={isPartnerOpen}
-        onClose={() => setIsPartnerOpen(false)}
-        lang={lang}
-      />
-
-      {/* Floating Action AI Button (Bottom-Right Corner) */}
-      <AIFloatingButton
-        onOpenItinerary={() => setIsItineraryOpen(true)}
-        lang={lang}
-        themeMode={themeMode}
-        hasCustomBar={selectedCourseSpotIds.length > 0}
-      />
-
-      {/* Footer */}
-      <footer style={{
-        borderTop: '2px solid var(--accent-primary)',
-        padding: '1.75rem 1.25rem 6.5rem 1.25rem',
-        textAlign: 'center',
-        color: 'var(--text-dim)',
-        fontSize: '0.85rem',
-        background: 'var(--bg-secondary)',
-        position: 'relative',
-        zIndex: 2
-      }}>
-        <div style={{ marginBottom: '0.65rem', fontWeight: 600, color: 'var(--text-main)' }}>
-          © 2026 {t.travelKorea || '대한민국 여행 정보'} (K-Travel Explorer) ·{' '}
-          <a
-            href="https://koreatravel.cc"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: 'var(--accent-primary)', fontWeight: 800, textDecoration: 'none' }}
-          >
-            koreatravel.cc
-          </a>
-          {' & '}
-          <a
-            href="https://koreatravelsguide.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: 'var(--accent-primary)', fontWeight: 800, textDecoration: 'none' }}
-          >
-            koreatravelsguide.com
-          </a>
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', fontSize: '0.8rem', flexWrap: 'wrap', alignItems: 'center' }}>
-          <span>{t.footerAttribution || '한국관광공사 TourAPI 4.0 및 기상청 공공데이터 연동'}</span>
-          <span>•</span>
-          <button
-            onClick={() => setIsGuidePROpen(true)}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'var(--accent-primary)',
-              textDecoration: 'underline',
-              cursor: 'pointer',
-              fontSize: '0.8rem',
-              padding: 0
-            }}
-          >
-            📖 {t.userGuideBtn || '이용가이드 & 홍보관'}
-          </button>
-          <span>•</span>
-          <button
-            onClick={() => setShowPrivacyModal(true)}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'var(--accent-primary)',
-              textDecoration: 'underline',
-              cursor: 'pointer',
-              fontSize: '0.8rem',
-              padding: 0
-            }}
-          >
-            {t.privacyPolicyTitle || '개인정보처리방침'}
-          </button>
-          <span>•</span>
-          <button
-            onClick={() => setIsPartnerOpen(true)}
-            style={{
-              background: 'rgba(56, 189, 248, 0.12)',
-              border: '1px solid rgba(56, 189, 248, 0.3)',
-              color: 'var(--accent-primary)',
-              borderRadius: 'var(--radius-full)',
-              cursor: 'pointer',
-              fontSize: '0.78rem',
-              fontWeight: 800,
-              padding: '0.25rem 0.65rem'
-            }}
-          >
-            {t.partnerInquiryBtn || '📩 제휴 & 광고 문의'}
-          </button>
+          <p style={{ margin: '0 0 0.5rem 0', fontWeight: 600 }}>
+            {t.footerCopyright || '© 2026 VORA AI — Korea Smart Travel Concierge. All Rights Reserved.'}
+          </p>
+          <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+            {t.footerTourApiNotice || 'Google Gemini 3.0 AI & Google Maps Platform 연동'} | Official Contact: terainfoai@gmail.com
+          </p>
         </div>
       </footer>
 
-      {/* User Guide & PR Publicity Hub Modal */}
-      <GuidePRModal
-        isOpen={isGuidePROpen}
-        onClose={() => setIsGuidePROpen(false)}
-        lang={lang}
-        onOpenPartnerInquiry={() => setIsPartnerOpen(true)}
-      />
-
-      {/* Overseas Query Notice Modal */}
-      {showOverseasModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(15, 23, 42, 0.75)',
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
-          zIndex: 99999,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '1rem'
-        }}>
-          <div style={{
-            background: '#ffffff',
-            borderRadius: '24px',
-            maxWidth: '520px',
-            width: '100%',
-            padding: '1.75rem',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-            position: 'relative',
-            textAlign: 'center'
-          }}>
-            <button
-              onClick={() => setShowOverseasModal(false)}
-              style={{
-                position: 'absolute',
-                top: '1rem',
-                right: '1rem',
-                background: '#f1f5f9',
-                border: 'none',
-                borderRadius: '50%',
-                width: '36px',
-                height: '36px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                color: '#64748b'
-              }}
-            >
-              <X size={20} />
-            </button>
-
-            <div style={{
-              width: '60px',
-              height: '60px',
-              borderRadius: '50%',
-              background: '#eff6ff',
-              color: '#2563eb',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '2rem',
-              margin: '0 auto 1rem auto'
-            }}>
-              ✈️
-            </div>
-
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0f172a', margin: '0 0 0.5rem 0' }}>
-              대한민국(한국) 관광 전용 서비스 안내
-            </h2>
-
-            <p style={{ fontSize: '0.88rem', color: '#475569', lineHeight: 1.6, margin: '0 0 1.25rem 0' }}>
-              입력하신 <strong style={{ color: '#2563eb' }}>'{overseasQuery}'</strong>은(는) 해외 지역으로, 본 플랫폼은 <strong style={{ color: '#0f172a' }}>한국관광공사 TourAPI 4.0</strong> 기반의 <strong>대한민국 전용 관광 플랫폼</strong>입니다.
-            </p>
-
-            <div style={{ background: '#f8fafc', borderRadius: '16px', padding: '1rem', marginBottom: '1.25rem', border: '1px solid #e2e8f0' }}>
-              <p style={{ fontSize: '0.82rem', fontWeight: 800, color: '#1e293b', margin: '0 0 0.75rem 0' }}>
-                💡 대표적인 대한민국 인기도시 코스를 추천받으시겠어요?
-              </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <button
-                  onClick={() => {
-                    setShowOverseasModal(false);
-                    const newFilters = { ...filters, region: '서울', keyword: '성수동' };
-                    setFilters(newFilters);
-                    fetchTourSpots({ ...newFilters, lang }).then(spots => {
-                      setAllTourSpots(spots);
-                      setIsItineraryOpen(true);
-                    });
-                  }}
-                  style={{
-                    background: '#ffffff',
-                    border: '1.5px solid #cbd5e1',
-                    borderRadius: '12px',
-                    padding: '0.6rem 0.85rem',
-                    fontWeight: 700,
-                    fontSize: '0.82rem',
-                    color: '#0f172a',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between'
-                  }}
-                >
-                  <span>🗼 서울 핫플 코스 (성수동, 홍대, 경복궁)</span>
-                  <span style={{ color: '#2563eb' }}>선택 ➔</span>
-                </button>
-                <button
-                  onClick={() => {
-                    setShowOverseasModal(false);
-                    const newFilters = { ...filters, region: '제주', keyword: '서귀포' };
-                    setFilters(newFilters);
-                    fetchTourSpots({ ...newFilters, lang }).then(spots => {
-                      setAllTourSpots(spots);
-                      setIsItineraryOpen(true);
-                    });
-                  }}
-                  style={{
-                    background: '#ffffff',
-                    border: '1.5px solid #cbd5e1',
-                    borderRadius: '12px',
-                    padding: '0.6rem 0.85rem',
-                    fontWeight: 700,
-                    fontSize: '0.82rem',
-                    color: '#0f172a',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between'
-                  }}
-                >
-                  <span>🏝️ 제주 감성 힐링 코스 (애월, 서귀포, 성산)</span>
-                  <span style={{ color: '#2563eb' }}>선택 ➔</span>
-                </button>
-                <button
-                  onClick={() => {
-                    setShowOverseasModal(false);
-                    const newFilters = { ...filters, region: '부산', keyword: '해운대' };
-                    setFilters(newFilters);
-                    fetchTourSpots({ ...newFilters, lang }).then(spots => {
-                      setAllTourSpots(spots);
-                      setIsItineraryOpen(true);
-                    });
-                  }}
-                  style={{
-                    background: '#ffffff',
-                    border: '1.5px solid #cbd5e1',
-                    borderRadius: '12px',
-                    padding: '0.6rem 0.85rem',
-                    fontWeight: 700,
-                    fontSize: '0.82rem',
-                    color: '#0f172a',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between'
-                  }}
-                >
-                  <span>🌊 부산 해운대 바다뷰 코스 (블루라인파크, 광안리)</span>
-                  <span style={{ color: '#2563eb' }}>선택 ➔</span>
-                </button>
-              </div>
-            </div>
-
-            <button
-              onClick={() => setShowOverseasModal(false)}
-              style={{
-                width: '100%',
-                background: '#f1f5f9',
-                color: '#475569',
-                border: 'none',
-                borderRadius: '12px',
-                padding: '0.65rem',
-                fontWeight: 700,
-                fontSize: '0.85rem',
-                cursor: 'pointer'
-              }}
-            >
-              닫기 (국내 도시 검색하기)
-            </button>
-          </div>
-        </div>
+      {/* Modals & Drawers */}
+      {selectedSpot && (
+        <TravelDetailModal
+          spot={selectedSpot}
+          onClose={() => setSelectedSpot(null)}
+          lang={lang}
+          isBookmarked={bookmarks.some(b => 
+            (typeof b === 'object' && ((b.contentId && b.contentId === (selectedSpot.contentId || selectedSpot.id)) || (b.id && b.id === selectedSpot.id) || (b.title && b.title === selectedSpot.title))) ||
+            (typeof b === 'string' && (b === selectedSpot.id || b === selectedSpot.contentId || b === selectedSpot.title))
+          )}
+          onToggleBookmark={(spot) => handleToggleBookmark(spot || selectedSpot)}
+        />
       )}
 
-      {/* PWA Home Screen Shortcut Banner & Guide */}
-      <PWAInstallBanner lang={lang} />
+      {isWishlistOpen && (
+        <WishlistDrawer
+          isOpen={isWishlistOpen}
+          onClose={() => setIsWishlistOpen(false)}
+          wishlistSpots={bookmarks}
+          onRemoveWishlist={(id) => handleToggleBookmark({ id })}
+          onSelectSpot={(spot) => {
+            setIsWishlistOpen(false);
+            setSelectedSpot(spot);
+          }}
+          lang={lang}
+        />
+      )}
+
+      {isWeatherOpen && (
+        <WeatherModal
+          isOpen={isWeatherOpen}
+          onClose={() => setIsWeatherOpen(false)}
+          lang={lang}
+          initialRegion={weatherCity || itineraryData?.targetCity || '서울'}
+        />
+      )}
+
+      {isEssentialsOpen && (
+        <TravelEssentialsModal
+          isOpen={isEssentialsOpen}
+          onClose={() => setIsEssentialsOpen(false)}
+          lang={lang}
+        />
+      )}
+
+      {isPrivacyOpen && (
+        <PrivacyPolicyModal
+          isOpen={isPrivacyOpen}
+          onClose={() => setIsPrivacyOpen(false)}
+          lang={lang}
+        />
+      )}
+
+      {isTermsOpen && (
+        <TermsModal
+          isOpen={isTermsOpen}
+          onClose={() => setIsTermsOpen(false)}
+          lang={lang}
+        />
+      )}
+
+      {isAboutOpen && (
+        <AboutUsModal
+          isOpen={isAboutOpen}
+          onClose={() => setIsAboutOpen(false)}
+          lang={lang}
+        />
+      )}
+
+      {isContactOpen && (
+        <ContactUsModal
+          isOpen={isContactOpen}
+          onClose={() => setIsContactOpen(false)}
+          lang={lang}
+        />
+      )}
+
+      {/* Rewarded Ad Modal (15-second sponsor ad for +3 questions) */}
+      <RewardedAdModal
+        isOpen={isRewardedAdOpen}
+        onClose={() => setIsRewardedAdOpen(false)}
+        onRewardGranted={handleRewardGranted}
+        lang={lang}
+      />
+
+      {/* Google Sign-in Auth Modal (15 questions per day + cloud storage) */}
+      <GoogleAuthModal
+        isOpen={isGoogleAuthOpen}
+        onClose={() => setIsGoogleAuthOpen(false)}
+        onLoginSuccess={handleLoginSuccess}
+        currentUser={currentUser}
+        lang={lang}
+      />
+
+      {/* Spot Detail Modal */}
+      {selectedSpot && (
+        <TravelDetailModal
+          spot={selectedSpot}
+          onClose={() => setSelectedSpot(null)}
+          lang={lang}
+        />
+      )}
     </div>
   );
 }

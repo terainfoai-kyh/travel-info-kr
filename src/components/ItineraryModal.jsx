@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import DatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { X, Calendar, Clock, MapPin, Sparkles, Navigation, Copy, Check, Filter, ShieldCheck, CloudRain, RefreshCw, Car, Bus, Utensils, Compass } from 'lucide-react';
+import { X, Calendar, Clock, MapPin, Sparkles, Navigation, Copy, Check, Filter, ShieldCheck, CloudRain, RefreshCw, Car, Bus, Utensils, Compass, Trash2, Plus } from 'lucide-react';
 import { generateSmartItinerary, generateCustomPickedItinerary, calculateTravelEstimate } from '../services/recommendationEngine';
 import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress } from '../i18n/translations';
 import { getI18nTravelNote } from '../i18n/travelChipI18n';
@@ -55,10 +55,13 @@ function getI18nDayHeaderTitle(dayObj, region, lang = 'ko') {
   }
 }
 
-export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, onSelectSpot, customPickedSpots = [] }) {
+export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, onSelectSpot, customPickedSpots = [], fullAiItinerary = null }) {
   useModalHistory(isOpen, onClose, 'itinerary-modal');
 
   const getInitialDays = () => {
+    if (filters?.days && typeof filters.days === 'number') {
+      return Math.min(Math.max(filters.days, 1), 5);
+    }
     if (customPickedSpots && customPickedSpots.length > 0) {
       return Math.min(Math.max(Math.ceil(customPickedSpots.length / 4), 1), 5);
     }
@@ -75,32 +78,46 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
     }
   };
 
+  // All state declarations placed at top of component to prevent TDZ ReferenceError
   const [selectedDays, setSelectedDays] = useState(getInitialDays);
   const [customStartDate, setCustomStartDate] = useState(() => {
     return filters?.startDate || new Date().toISOString().split('T')[0];
   });
+  const [startTime, setStartTime] = useState('09:30');
+  const [endTime, setEndTime] = useState('20:00');
+  const [dayTimes, setDayTimes] = useState({});
+  const [daySeeds, setDaySeeds] = useState({});
+  const [rainyMode, setRainyMode] = useState(() => !!filters?.rainyMode);
+  const [refreshSeed, setRefreshSeed] = useState(0);
+  const [swappedSpots, setSwappedSpots] = useState({});
+  const [deletedSpotKeys, setDeletedSpotKeys] = useState({});
+  const [addedSpotsMap, setAddedSpotsMap] = useState({});
+  const [copied, setCopied] = useState(false);
+  const [viewMode, setViewMode] = useState('map'); // 'map' | 'list'
+  const [activeMapDay, setActiveMapDay] = useState(1);
+  const [isOptionsExpanded, setIsOptionsExpanded] = useState(false);
+  const datePickerRef = useRef(null);
 
+  // useEffect hooks placed after all state variables are fully initialized
   useEffect(() => {
     if (isOpen) {
       setSelectedDays(getInitialDays());
       if (filters?.startDate) {
         setCustomStartDate(filters.startDate);
       }
+      if (filters?.rainyMode !== undefined) {
+        setRainyMode(!!filters.rainyMode);
+      }
     }
-  }, [isOpen, filters?.startDate, filters?.endDate, customPickedSpots?.length]);
+  }, [isOpen, filters?.startDate, filters?.endDate, filters?.days, filters?.rainyMode, customPickedSpots?.length]);
 
-  const [startTime, setStartTime] = useState('09:30');
-  const [endTime, setEndTime] = useState('20:00');
-  const [dayTimes, setDayTimes] = useState({});
-  const [daySeeds, setDaySeeds] = useState({});
-  const [rainyMode, setRainyMode] = useState(false);
-  const [refreshSeed, setRefreshSeed] = useState(0);
-  const [swappedSpots, setSwappedSpots] = useState({});
-  const [copied, setCopied] = useState(false);
-  const [viewMode, setViewMode] = useState('map'); // 'map' | 'list'
-  const [activeMapDay, setActiveMapDay] = useState(1);
-  const [isOptionsExpanded, setIsOptionsExpanded] = useState(false);
-  const datePickerRef = useRef(null);
+  // Auto-reset activeMapDay to 1 and clear spot modifications whenever ANY condition filter changes
+  useEffect(() => {
+    setActiveMapDay(1);
+    setSwappedSpots({});
+    setDeletedSpotKeys({});
+    setAddedSpotsMap({});
+  }, [selectedDays, customStartDate, rainyMode, startTime, endTime, refreshSeed]);
 
   if (!isOpen) return null;
 
@@ -108,30 +125,54 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
   const region = filters?.region || '서울';
   const theme = filters?.theme || '전체';
 
-  const startDateObj = customStartDate ? new Date(customStartDate) : new Date();
-
-  const formatDateStr = (d) => {
-    if (!d) return '';
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`;
-  };
-
-  const getBadgeI18n = (type, value) => {
-    if (!value) return '';
-    const curLang = lang || 'ko';
-    if (type === 'region') return TRANSLATIONS[curLang]?.regions?.[value] || value;
-    if (type === 'theme') return TRANSLATIONS[curLang]?.themes?.[value] || value;
-    if (type === 'gender') return TRANSLATIONS[curLang]?.genders?.[value] || value;
-    if (type === 'age') return TRANSLATIONS[curLang]?.ages?.[value] || value;
-    if (type === 'apiService') return TRANSLATIONS[curLang]?.apiServices?.[value] || value;
-    return value;
-  };
-
   const isCustomMode = customPickedSpots && customPickedSpots.length > 0;
 
-  const baseItinerary = isCustomMode
+  // [Fix & Synchronization Guarantee]
+  // 제미나이가 생성한 AI 일정(fullAiItinerary)이 들어왔을 때, 왼쪽 하단 AI 카드와 오른쪽 모달/지도 간의 명소 순서(Array Index 0, 1, 2, 3...)를 100% 보존합니다.
+  // 로컬 추천 엔진의 시각/좌표 기반 재정렬(Sort)이 개입되어 순서가 뒤섞이는 현상을 방지하고, 제미나이 원본 ds.spots 배열 순서 그대로 1:1 매핑합니다.
+  const mapFullAiToItinerary = (fullAi, totalDays, startDate) => {
+    if (!fullAi || !Array.isArray(fullAi.dailySchedules)) return null;
+    const startDt = startDate ? new Date(startDate) : new Date();
+    return fullAi.dailySchedules.slice(0, totalDays).map((ds, idx) => {
+      const curDate = new Date(startDt);
+      curDate.setDate(startDt.getDate() + idx);
+      const y = curDate.getFullYear();
+      const m = String(curDate.getMonth() + 1).padStart(2, '0');
+      const dStr = String(curDate.getDate()).padStart(2, '0');
+      const dateStr = `${y}-${m}-${dStr}`;
+
+      // Preserve original Gemini spot order 100% without sorting or re-ordering
+      const rawSpots = Array.isArray(ds.spots) ? ds.spots : [];
+      const schedule = rawSpots.map((sp, sIdx) => ({
+        time: sIdx === 0 ? '09:30' : (sIdx === 1 ? '13:00' : (sIdx === 2 ? '16:30' : '20:00')),
+        slotName: sIdx === 0 ? '오전 명소 & 출발' : (sIdx === 1 ? '점심 & 랜드마크' : (sIdx === 2 ? '오후 관광 & 체험' : '야경 & 마감')),
+        spotId: sp.id || `fullai-${ds.day || (idx + 1)}-${sIdx}`,
+        title: sp.title,
+        location: sp.location || sp.addr1 || `${ds.city || '전국'} 중심가`,
+        lat: parseFloat(sp.lat) || 37.5665,
+        lng: parseFloat(sp.lng) || 126.9780,
+        rating: sp.rating || 4.8,
+        image: sp.image || '/default-spot.png',
+        tags: sp.tags || [],
+        isInstagramHotspot: sp.isInstagramHotspot
+      }));
+
+      return {
+        day: ds.day || (idx + 1),
+        dateStr,
+        region: ds.city || region,
+        weather: ds.weather,
+        foodRecommendation: ds.foodRecommendation,
+        outfitRecommendation: ds.outfitRecommendation,
+        accommodation: ds.accommodation,
+        schedule
+      };
+    });
+  };
+
+  const aiMappedItinerary = mapFullAiToItinerary(fullAiItinerary, selectedDays, customStartDate);
+
+  const baseItinerary = aiMappedItinerary || (isCustomMode
     ? generateCustomPickedItinerary({
         pickedSpots: customPickedSpots,
         days: selectedDays,
@@ -152,23 +193,32 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
         daySeeds,
         rainyMode,
         refreshSeed,
+        nightKeyword: filters?.nightKeyword || '',
+        day2Keyword: filters?.day2Keyword || '',
+        dailyRegions: filters?.dailyRegions || [],
         spots
-      });
+      }));
 
-  // Apply spot swaps AND dynamically recalculate nextTravel between consecutive items
+  // Apply spot swaps, deletions, additions AND dynamically recalculate nextTravel between consecutive items
   const itinerary = baseItinerary.map((day, dIdx) => {
-    const updatedSchedule = day.schedule.map((item, sIdx) => {
-      const swapKey = `${dIdx}-${sIdx}`;
-      if (swappedSpots[swapKey]) {
-        return {
-          ...item,
-          ...swappedSpots[swapKey]
-        };
-      }
-      return item;
-    });
+    let updatedSchedule = day.schedule
+      .map((item, sIdx) => {
+        const swapKey = `${dIdx}-${sIdx}`;
+        if (swappedSpots[swapKey]) {
+          return {
+            ...item,
+            ...swappedSpots[swapKey]
+          };
+        }
+        return item;
+      })
+      .filter((_, sIdx) => !deletedSpotKeys[`${day.day}-${sIdx}`]);
 
-    // Recalculate travel estimates dynamically after swap
+    if (addedSpotsMap[day.day] && addedSpotsMap[day.day].length > 0) {
+      updatedSchedule = [...updatedSchedule, ...addedSpotsMap[day.day]];
+    }
+
+    // Recalculate travel estimates dynamically after swap/delete/add
     for (let i = 0; i < updatedSchedule.length - 1; i++) {
       updatedSchedule[i].nextTravel = calculateTravelEstimate(updatedSchedule[i], updatedSchedule[i + 1]);
     }
@@ -200,8 +250,43 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
     }));
   };
 
+  const handleDeleteSpot = (dayNum, sIdx) => {
+    const key = `${dayNum}-${sIdx}`;
+    setDeletedSpotKeys(prev => ({
+      ...prev,
+      [key]: true
+    }));
+  };
+
+  const handleAddSpot = (dayNum, dayPool) => {
+    const currentAdded = addedSpotsMap[dayNum] || [];
+    const pool = (dayPool && dayPool.length > 0) ? dayPool : (spots || []);
+    if (pool.length === 0) return;
+
+    const nextIdx = (currentAdded.length * 3 + 2) % pool.length;
+    const newSpot = pool[nextIdx] || pool[0];
+    if (!newSpot) return;
+
+    const formattedItem = {
+      time: '18:00',
+      slotName: '추천 추가 명소',
+      spotId: newSpot.id || `added-${Date.now()}`,
+      title: newSpot.title,
+      image: newSpot.image || '/default-spot.png',
+      location: newSpot.location || newSpot.addr1 || `${region} 중심가`,
+      rating: newSpot.rating || 4.8,
+      lat: newSpot.lat,
+      lng: newSpot.lng
+    };
+
+    setAddedSpotsMap(prev => ({
+      ...prev,
+      [dayNum]: [...(prev[dayNum] || []), formattedItem]
+    }));
+  };
+
   const handleCopyItinerary = () => {
-    let summaryText = `[K-Travel Explorer] ${region} ${selectedDays}박 ${selectedDays + 1}일 추천 코스 (${customStartDate} 출발)\n`;
+    let summaryText = `[Vora Explorer] ${region} ${selectedDays}박 ${selectedDays + 1}일 추천 코스 (${customStartDate} 출발)\n`;
     if (rainyMode) summaryText += `🌧️ 비 오는 날 실내 전용 코스 적용\n`;
     summaryText += `📍 상세 조건: 지역(${region}) · 테마(${theme}) · 성별(${filters?.gender || '무관'}) · 연령대(${filters?.age || '전체'})\n\n`;
     
@@ -217,6 +302,25 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
     navigator.clipboard.writeText(summaryText);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
+  };
+
+  const getBadgeI18n = (type, value) => {
+    const curLang = lang || 'ko';
+    if (type === 'region') {
+      const map = {
+        '전국': { en: 'All Korea', ja: '全国', zh: '全国', zht: '全國', de: 'Ganz Korea', fr: 'Toute la Corée', es: 'Toda Corea', ru: 'Вся Корея' },
+        '서울': { en: 'Seoul', ja: 'ソウル', zh: '首尔', zht: '首爾', de: 'Seoul', fr: 'Séoul', es: 'Seúl', ru: 'Сеул' },
+        '제주': { en: 'Jeju', ja: '済州', zh: '济州', zht: '濟州', de: 'Jeju', fr: 'Jeju', es: 'Jeju', ru: 'Чеджу' },
+        '부산': { en: 'Busan', ja: '釜山', zh: '釜山', zht: '釜山', de: 'Busan', fr: 'Busan', es: 'Busan', ru: 'Пусан' },
+        '강원': { en: 'Gangwon', ja: '江原', zh: '江原', zht: '江原', de: 'Gangwon', fr: 'Gangwon', es: 'Gangwon', ru: 'Кангвон' },
+        '경주': { en: 'Gyeongju', ja: '慶州', zh: '庆州', zht: '慶州', de: 'Gyeongju', fr: 'Gyeongju', es: 'Gyeongju', ru: 'Кёнджу' },
+        '전주': { en: 'Jeonju', ja: '全州', zh: '全州', zht: '全州', de: 'Jeonju', fr: 'Jeonju', es: 'Jeonju', ru: 'Чонджу' },
+        '인천': { en: 'Incheon', ja: '仁川', zh: '仁川', zht: '仁川', de: 'Incheon', fr: 'Incheon', es: 'Incheon', ru: 'Инчхон' },
+        '경기': { en: 'Gyeonggi', ja: '京畿', zh: '京畿', zht: '京畿', de: 'Gyeonggi', fr: 'Gyeonggi', es: 'Gyeonggi', ru: 'Кёнги' }
+      };
+      return map[value]?.[curLang] || value;
+    }
+    return value;
   };
 
   const getMapLink = (spotTitle, location) => {
@@ -235,7 +339,6 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
         overscrollBehaviorX: 'none',
         touchAction: 'pan-x pan-y'
       }}
-      onClick={onClose}
     >
       <div 
         className="animate-fade-in glass-panel modal-responsive-card"
@@ -286,7 +389,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
               </h2>
 
               <span 
-                title={t.aiTrustBadgeDesc || '한국관광공사 Official DB 100% 연동 인증 코스'}
+                title={t.aiTrustBadgeDesc || 'Google Places & Gemini AI 공식 연동 코스'}
                 style={{
                   fontSize: '0.72rem',
                   fontWeight: 700,
@@ -851,10 +954,10 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
                 {day.schedule.map((item, sIdx) => {
                   let slotI18n = item.slotName;
-                  if (item.slotName.includes('오전')) slotI18n = t.slotMorning || item.slotName;
-                  else if (item.slotName.includes('낮')) slotI18n = t.slotAfternoon || item.slotName;
-                  else if (item.slotName.includes('오후')) slotI18n = t.slotEvening || item.slotName;
-                  else if (item.slotName.includes('밤')) slotI18n = t.slotNight || item.slotName;
+                  if (item.slotName.includes('오전') || item.slotName.toLowerCase().includes('morning')) slotI18n = t.slotMorning || item.slotName;
+                  else if (item.slotName.includes('낮') || item.slotName.toLowerCase().includes('iconic')) slotI18n = t.slotAfternoon || item.slotName;
+                  else if (item.slotName.includes('오후') || item.slotName.toLowerCase().includes('sightseeing')) slotI18n = t.slotEvening || item.slotName;
+                  else if (item.slotName.includes('밤') || item.slotName.includes('야경') || item.slotName.toLowerCase().includes('night')) slotI18n = t.slotNight || item.slotName;
 
                   const itemDisplayTitle = getTranslatedTitle(item.title, lang);
                   const itemDisplayAddr = getTranslatedAddress(item.location, lang);
@@ -922,11 +1025,11 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                         </div>
                       </div>
 
-                      {/* Action Buttons: Swap Spot, Route Map, Nearby Food */}
+                      {/* Action Buttons: Swap Spot, Delete Spot, Route Map, Nearby Food */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
                         <button
                           type="button"
-                          onClick={() => handleSwapSpot(day.day, sIdx)}
+                          onClick={() => handleSwapSpot(day.day, sIdx, day.pool)}
                           style={{
                             background: 'var(--bg-secondary)',
                             border: '1px solid var(--border-color)',
@@ -944,6 +1047,29 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                         >
                           <RefreshCw size={13} />
                           <span>{t.swapSpotBtn || '교체 🔄'}</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteSpot(day.day, sIdx)}
+                          style={{
+                            background: 'rgba(239, 68, 68, 0.1)',
+                            border: '1px solid rgba(239, 68, 68, 0.25)',
+                            color: '#ef4444',
+                            padding: '0.4rem 0.65rem',
+                            borderRadius: 'var(--radius-md)',
+                            fontSize: '0.75rem',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.25rem',
+                            transition: 'all 0.2s ease'
+                          }}
+                          title={t.deleteSpotBtn || '제외 🗑️'}
+                        >
+                          <Trash2 size={13} />
+                          <span>{t.deleteSpotBtn || '제외 🗑️'}</span>
                         </button>
 
                         <a
@@ -1026,9 +1152,31 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                             </span>
                             <span style={{ color: 'var(--text-muted)' }}>|</span>
                             {travelI18n.isLongDistance ? (
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', color: '#eab308', fontWeight: 800 }}>
-                                {travelI18n.longNote}
-                              </span>
+                              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                                <span style={{ color: '#eab308', fontWeight: 800 }}>
+                                  {travelI18n.longNote}
+                                </span>
+                                <a
+                                  href="https://www.letskorail.com/ebizbf/EbizbfForeign_pr16100.do?gubun=1"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  style={{
+                                    background: '#2563eb',
+                                    color: '#ffffff',
+                                    padding: '0.18rem 0.55rem',
+                                    borderRadius: '9999px',
+                                    fontSize: '0.7rem',
+                                    fontWeight: 800,
+                                    textDecoration: 'none',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.2rem'
+                                  }}
+                                  title={t.ktxBookingBtn || '🚄 KTX 예매 ↗'}
+                                >
+                                  {t.ktxBookingBtn || '🚄 KTX 예매 ↗'}
+                                </a>
+                              </div>
                             ) : (
                               <>
                                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', color: '#0284c7', fontWeight: 800 }}>
@@ -1047,6 +1195,32 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
                   </React.Fragment>
                   );
                 })}
+              </div>
+
+              {/* Add Spot Button at Bottom of Each Day Block */}
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0.75rem' }}>
+                <button
+                  type="button"
+                  onClick={() => handleAddSpot(day.day, day.pool)}
+                  style={{
+                    background: 'var(--bg-secondary)',
+                    border: '1.5px dashed var(--accent-primary)',
+                    color: 'var(--accent-primary)',
+                    padding: '0.45rem 1rem',
+                    borderRadius: 'var(--radius-full)',
+                    fontSize: '0.8rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 2px 6px rgba(37, 99, 235, 0.12)'
+                  }}
+                >
+                  <Plus size={14} />
+                  <span>{t.addSpotBtn || `${day.day}일차 코스에 명소 추가 ➕`}</span>
+                </button>
               </div>
             </div>
           );

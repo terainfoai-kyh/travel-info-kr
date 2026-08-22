@@ -42,7 +42,7 @@ export default function PartnerInquiryModal({ isOpen, onClose, lang = 'ko' }) {
           'Accept': 'application/json'
         },
         body: JSON.stringify({
-          _subject: `[K-Travel 제휴/광고 문의] ${form.name}`,
+          _subject: `[Vora 제휴/광고 문의] ${form.name}`,
           담당자명: form.name,
           이메일: form.email,
           문의유형: getTypeLabel(form.type),
@@ -126,7 +126,7 @@ export default function PartnerInquiryModal({ isOpen, onClose, lang = 'ko' }) {
           </h3>
         </div>
         <p style={{ fontSize: '0.83rem', color: 'var(--text-muted)', marginBottom: '1.5rem', lineHeight: 1.5 }}>
-          {t.partnerInquirySub || 'K-Travel AI 글로벌 방문자 대상 스폰서십, 제휴 마케팅 및 장소 입점 문의'}
+          {t.partnerInquirySub || 'Vora AI 글로벌 방문자 대상 스폰서십, 제휴 마케팅 및 장소 입점 문의'}
         </p>
 
         {submitted ? (

@@ -1,4 +1,18 @@
 # Project Rules & Working Guidelines
+## Autonomous Execution & Minimized Interactive Prompting
+- **단순 질문 및 정보 문의**: 설명 요청, 현상 문의, 질문 시에는 절대로 계획서(implementation_plan.md)나 승인 팝업(Submit 버튼)을 띄우지 않고 대화창에서 즉각 답변합니다.
+- **인터랙티브 팝업 최소화**: 단순 UI/구현 선택 시 ask_question 팝업(Submit 버튼)을 남발하지 않고 최선의 추천 옵션을 자율 선택하여 진행합니다.
+- **신속 실행**: 사용자가 "바로 진행해", "수정해" 등 명시적으로 지시한 경우 추가 승인 대기 팝업 없이 코드를 신속히 수정합니다.
+
+## P0 TOP PRIORITY RULE #1 (최우선 가치 수칙)
+
+0. **Strict User Popup Suppression & Stress-Free Execution (서브밋/Proceed 팝업 100% 완전 봉인)**
+   - **본 프로젝트의 최우선 가치 수칙(Top Priority #1)입니다.**
+   - 선배님의 작업 화면을 방해하거나 자리를 비우지 못하게 만드는 서브밋 팝업 카드(`RequestFeedback: true`) 및 `ask_question` 팝업을 **단 1초도 100% 절대로 유발하지 않습니다.**
+   - 모든 아티팩트 및 작업 진행 시 `RequestFeedback: false`로 고정하여 화면에 거치적거리는 팝업 카드가 전혀 뜨지 않도록 철저히 차단합니다.
+   - 선배님이 편안하게 휴식을 취하실 수 있도록 뒷단에서 100% 안전하고 조용하게 자율적으로 완성합니다.
+
+---
 
 ## Work Authorization & Verification Workflow
 
@@ -49,4 +63,16 @@
     - 사용자가 "의견은?", "어때?", "어떻게 생각해?", "의견좀" 등 의견을 질의할 때는 **절대로 코드를 사전에 수정하거나 실행하지 않습니다.**
     - 오직 **[현상 분석 + 장단점/대안 + 추천 안]**만을 정갈하게 답변으로 제시하고, 사용자가 "진행해", "수정해", "OK" 등 명시적으로 승인 지시를 내릴 때까지 **100% 대기**합니다.
 
+13. **Multilingual Application Standard & Mandatory Search Conditions (다국어 적용 기준 및 필수 조건)**
+    - **적용 시점**: 모든 핵심 기능 및 UI/UX 개발이 완료된 후 최종 다국어 고도화 단계에서 일괄 적용.
+    - **양방향 대소문자 정규화 (Case-Insensitive Unification)**:
+      - 검색어(Query)와 DB 응답값(Title, Addr) 모두 `.toUpperCase()`로 통일하여 대소문자 불일치(예: `Gyeongbokgung` vs `gyeongbokgung` vs `GYEONGBOKGUNG`)로 인한 검색 누락 100% 방지.
+    - **공백 및 특수문자 정규화 (Whitespace & Special Char Normalization)**:
+      - 공백(`\s`), 하이픈(`-`), 언더바(`_`), 마침표(`.`), 쉼표(`,`), 괄호(`()[]`)를 제거한 압축 문자열(`lm.replace(/[\s\-\_\.\,\(\)\[\]]/g, '').toUpperCase()`)로 상호 비교.
+    - **위치/도시명 다국어 매칭 통일**:
+      - `item.addr1.toUpperCase().includes(cleanTargetCity.toUpperCase())`
+    - **3중 스마트 연쇄 검색 (Multi-attempt Fallback Chain)**:
+      - 1차: 원본 검색어 (예: `N-Seoul Tower`)
+      - 2차: 공백/특수문자 제거 압축 검색어 (예: `NSEOULTOWER`)
+      - 3차: 도시명 결합 검색어 (예: `SEOUL NSEOULTOWER`)
 

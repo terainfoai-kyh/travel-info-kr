@@ -16,9 +16,9 @@ export default function TravelImageWithFallback({
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
 
   useEffect(() => {
-    const isDefault = !src || src === '/default-spot.png' || src.includes('default-spot');
-    setImgSrc(isDefault ? '/default-spot.png' : src);
-    setHasError(isDefault);
+    const isBad = !src || src === '/default-spot.png' || src.includes('default-spot') || src.toLowerCase().includes('toilet') || src.toLowerCase().includes('화장실');
+    setImgSrc(isBad ? '/default-spot.png' : src);
+    setHasError(isBad);
   }, [src]);
 
   const handleError = () => {
@@ -44,6 +44,7 @@ export default function TravelImageWithFallback({
       <img
         src={imgSrc}
         alt={alt || spotTitle}
+        referrerPolicy="no-referrer"
         style={{
           width: '100%',
           height: '100%',
@@ -59,7 +60,7 @@ export default function TravelImageWithFallback({
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.2) 0%, rgba(15, 23, 42, 0.55) 100%)',
+            background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.25) 0%, rgba(15, 23, 42, 0.6) 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -70,50 +71,51 @@ export default function TravelImageWithFallback({
           }}
         >
           <div style={{
-            background: 'rgba(15, 23, 42, 0.78)',
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)',
-            border: '1px solid rgba(255, 255, 255, 0.22)',
-            borderRadius: '16px',
-            padding: '0.65rem 1.25rem',
+            background: 'rgba(23, 31, 48, 0.88)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            border: '1.5px solid rgba(255, 255, 255, 0.18)',
+            borderRadius: '20px',
+            padding: '0.85rem 1.5rem',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: '0.3rem',
-            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.45)',
-            transform: 'translateY(-12px)'
+            gap: '0.45rem',
+            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.55)',
+            transform: 'translateY(-6px)'
           }}>
             {/* Brand Title */}
             <div style={{
-              fontSize: '0.85rem',
+              fontSize: '0.98rem',
               fontWeight: 800,
               color: '#38bdf8',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.35rem',
-              letterSpacing: '0.02em',
-              textShadow: '0 1px 3px rgba(0,0,0,0.6)'
+              gap: '0.4rem',
+              letterSpacing: '0.01em',
+              textShadow: '0 1px 4px rgba(0,0,0,0.7)'
             }}>
-              <Sparkles size={14} />
-              {t.travelKorea || '대한민국 여행 정보'}
+              <Sparkles size={16} color="#38bdf8" />
+              <span>{t.travelKorea || '대한민국 여행 정보'}</span>
             </div>
 
-            {/* Status Subtitle */}
-            <div style={{
-              fontSize: '0.72rem',
-              fontWeight: 600,
-              color: '#f8fafc',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.3rem',
-              background: 'rgba(255, 255, 255, 0.12)',
-              padding: '0.2rem 0.7rem',
-              borderRadius: '999px',
-              border: '1px solid rgba(255, 255, 255, 0.1)'
-            }}>
-              <ImageOff size={11} />
-              {t.imagePreparing || '이미지 준비 중'}
-            </div>
+            {/* Status Subtitle Badge - Clean & Premium */}
+            {spotTitle && (
+              <div style={{
+                fontSize: '0.78rem',
+                fontWeight: 600,
+                color: '#f8fafc',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                background: 'rgba(255, 255, 255, 0.12)',
+                padding: '0.3rem 0.85rem',
+                borderRadius: '999px',
+                border: '1px solid rgba(255, 255, 255, 0.15)'
+              }}>
+                <span>{spotTitle}</span>
+              </div>
+            )}
           </div>
         </div>
       )}

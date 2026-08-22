@@ -1,93 +1,199 @@
-import React from 'react';
-import { MapPin, Sparkles, Navigation } from 'lucide-react';
+import React, { useState } from 'react';
+import { Sparkles, ArrowRight, Compass, Flame } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
 
-export default function HeroSection({ onSelectRegion, lang = 'ko' }) {
+export default function HeroSection({
+  lang = 'ko',
+  onSearch,
+  isLoading = false,
+  questionQuota = { remaining: 5, total: 5 }
+}) {
+  const [query, setQuery] = useState('');
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
-  const popularKeywords = ['제주 성산일출봉', '서울 야경', '부산 해운대', '강원도 단풍', '전주 맛집'];
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!query.trim() || isLoading) return;
+    onSearch(query.trim());
+    setQuery('');
+  };
+
+  const handleChipClick = (promptText) => {
+    onSearch(promptText);
+  };
 
   return (
     <section style={{
+      padding: '0.85rem 0.25rem 0.5rem 0.25rem',
+      textAlign: 'center',
       position: 'relative',
-      borderRadius: 'var(--radius-lg)',
+      width: '100%',
+      maxWidth: '880px',
+      boxSizing: 'border-box',
       overflow: 'hidden',
-      margin: '1.5rem 0',
-      background: 'linear-gradient(130deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 41, 59, 0.85) 100%), url("/default-spot.png")',
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      padding: '4rem 2rem',
-      border: '1px solid var(--border-color)',
-      boxShadow: 'var(--shadow-md)',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      textAlign: 'center'
+      margin: '0 auto'
     }}>
-      <div style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '0.5rem',
-        padding: '0.4rem 1rem',
-        borderRadius: 'var(--radius-full)',
-        background: 'rgba(56, 189, 248, 0.15)',
-        border: '1px solid rgba(56, 189, 248, 0.3)',
-        color: 'var(--accent-primary)',
-        fontSize: '0.85rem',
-        fontWeight: 600,
-        marginBottom: '1rem'
-      }}>
-        <Sparkles size={16} />
-        <span>{t.heroTag || '2026 대한민국 핫플레이스 추천'}</span>
+      {/* Sleek Compact Heading with Perfect Symmetry */}
+      <div style={{ marginBottom: '0.4rem', textAlign: 'center' }}>
+        <h1 style={{
+          fontSize: 'clamp(1.25rem, 2.8vw, 1.75rem)',
+          fontWeight: 900,
+          margin: 0,
+          color: 'var(--text-main)',
+          letterSpacing: '-0.02em',
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexWrap: 'wrap',
+          gap: '0.35rem'
+        }}>
+          <Sparkles size={18} style={{ color: 'var(--accent-primary)', display: 'inline-block', verticalAlign: 'middle', flexShrink: 0 }} />
+          <span>{t.heroTitle || '질문 하나로 완성되는 나만의 한국 여행'}</span>
+        </h1>
       </div>
 
-      <h2 style={{
-        fontSize: 'clamp(1.8rem, 4vw, 3rem)',
-        fontWeight: 800,
-        lineHeight: 1.25,
-        marginBottom: '1rem',
-        maxWidth: '800px'
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '0.5rem',
+        marginBottom: '0.75rem',
+        flexWrap: 'wrap'
       }}>
-        {t.heroTitlePrefix || '떠나보세요, '}<span className="gradient-text">{t.heroTitleHighlight || '당신만의 특별한 한국 여행'}</span>{t.heroTitleSuffix || '으로'}
-      </h2>
+        <p style={{
+          fontSize: '0.82rem',
+          color: 'var(--text-muted)',
+          margin: 0,
+          fontWeight: 500
+        }}>
+          {t.heroSubtitle || 'Google Gemini 3.0 AI와 Google Places가 설계하는 초개인화 맞춤 코스 & 실시간 구글맵 연동'}
+        </p>
+      </div>
 
-      <p style={{
-        color: 'var(--text-muted)',
-        fontSize: '1.05rem',
-        maxWidth: '600px',
-        marginBottom: '2rem'
+      {/* Free Question Quota Capsule Badge */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: '0.85rem'
       }}>
-        {t.heroSubtitle || '전국 각지의 숨은 명소부터 최신 핫플레이스, 오션뷰 산책로와 전통 미식까지 모든 정보를 한곳에서 만나보세요.'}
-      </p>
+        <span style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '0.35rem',
+          fontSize: '0.75rem',
+          fontWeight: 800,
+          padding: '0.2rem 0.75rem',
+          borderRadius: 'var(--radius-full)',
+          border: '1px solid var(--border-color)',
+          backgroundColor: questionQuota?.remaining > 2 
+            ? 'rgba(16, 185, 129, 0.1)' 
+            : questionQuota?.remaining > 0 
+              ? 'rgba(245, 158, 11, 0.1)' 
+              : 'rgba(239, 68, 68, 0.1)',
+          color: questionQuota?.remaining > 2 
+            ? '#059669' 
+            : questionQuota?.remaining > 0 
+              ? '#d97706' 
+              : '#dc2626'
+        }}>
+          ⚡ {questionQuota?.remaining ?? 5}/{questionQuota?.total ?? 5}
+        </span>
+      </div>
 
-      {/* Recommended Keywords */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-        <span style={{ fontSize: '0.85rem', color: 'var(--text-dim)', fontWeight: 600 }}>{t.heroPopularSearch || '인기 검색:'}</span>
-        {popularKeywords.map((kw, i) => (
-          <button
-            key={i}
-            onClick={() => onSelectRegion(kw)}
+      {/* Smart Prompt Input Box */}
+      <form onSubmit={handleSubmit} style={{
+        position: 'relative',
+        width: '100%',
+        maxWidth: '720px',
+        boxSizing: 'border-box',
+        margin: '0 auto 0.6rem auto'
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          backgroundColor: 'var(--bg-card)',
+          border: '1.5px solid var(--border-highlight)',
+          borderRadius: 'var(--radius-full)',
+          padding: '0.35rem 0.5rem 0.35rem 1.1rem',
+          boxShadow: 'var(--shadow-sm)',
+          transition: 'border-color var(--transition-fast)'
+        }}>
+          <Compass size={18} style={{ color: 'var(--accent-primary)', marginRight: '0.5rem', flexShrink: 0 }} />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t.searchPlaceholder || '어떤 여행을 꿈꾸시나요? (예: 성수동 핫플 카페 2박3일, 제주도 바다뷰 힐링)'}
+            disabled={isLoading}
             style={{
-              background: 'rgba(255, 255, 255, 0.08)',
-              border: '1px solid var(--border-color)',
+              minWidth: 0,
+              width: '100%',
+              border: 'none',
+              outline: 'none',
+              backgroundColor: 'transparent',
+              fontSize: '0.88rem',
+              fontWeight: 600,
+              color: 'var(--text-main)'
+            }}
+          />
+          <button
+            type="submit"
+            disabled={isLoading || !query.trim()}
+            style={{
+              backgroundColor: 'var(--accent-primary)',
+              color: '#ffffff',
+              border: 'none',
               borderRadius: 'var(--radius-full)',
-              padding: '0.35rem 0.85rem',
-              color: 'var(--text-main)',
-              fontSize: '0.8rem',
-              cursor: 'pointer',
-              transition: 'all var(--transition-fast)'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = 'var(--accent-primary)';
-              e.currentTarget.style.color = 'var(--accent-primary)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = 'var(--border-color)';
-              e.currentTarget.style.color = 'var(--text-main)';
+              padding: '0.5rem 1.1rem',
+              fontSize: '0.82rem',
+              fontWeight: 800,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              cursor: isLoading || !query.trim() ? 'default' : 'pointer',
+              opacity: isLoading || !query.trim() ? 0.65 : 1,
+              boxShadow: 'var(--shadow-glow)',
+              transition: 'all var(--transition-fast)',
+              flexShrink: 0
             }}
           >
-            #{kw}
+            <span>{isLoading ? (lang === 'en' ? 'Designing...' : lang === 'ja' ? 'プラン作成中...' : (lang === 'zh' || lang === 'zht') ? '规划中...' : '설계중...') : (t.searchBtn || 'AI 코스 생성')}</span>
+            <ArrowRight size={14} />
           </button>
-        ))}
+        </div>
+      </form>
+
+      {/* Quick Prompt Recommendation Chips with Swipe Indication */}
+      <div className="hero-chips-wrapper">
+        <div className="hero-chips-container">
+          {(t.promptChips || []).map((chip, idx) => (
+            <button
+              key={idx}
+              onClick={() => handleChipClick(chip.prompt)}
+              disabled={isLoading}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                backgroundColor: 'var(--bg-card)',
+                border: '1px solid var(--border-color)',
+                color: 'var(--text-main)',
+                borderRadius: 'var(--radius-full)',
+                padding: '0.3rem 0.75rem',
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                cursor: isLoading ? 'default' : 'pointer',
+                transition: 'all var(--transition-fast)',
+                userSelect: 'none',
+                whiteSpace: 'nowrap',
+                boxShadow: 'var(--shadow-sm)',
+                flexShrink: 0
+              }}
+            >
+              {chip.label}
+            </button>
+          ))}
+        </div>
       </div>
     </section>
   );

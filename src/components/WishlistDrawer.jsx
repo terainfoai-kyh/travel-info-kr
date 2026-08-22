@@ -1,243 +1,236 @@
-import React, { useState } from 'react';
-import { X, Heart, Trash2, Share2, Copy, Check, ExternalLink, MapPin, Sparkles } from 'lucide-react';
-import { TRANSLATIONS } from '../i18n/translations';
-import TravelImageWithFallback from './TravelImageWithFallback';
-import { useModalHistory } from '../hooks/useModalHistory';
+import React from 'react';
+import { X, Heart, Trash2, MapPin, ExternalLink, Navigation } from 'lucide-react';
+import { generateGoogleMapsRouteUrl } from '../services/geminiNlpService';
 
-export default function WishlistDrawer({ isOpen, onClose, wishlistSpots, onRemoveWishlist, onSelectSpot, lang }) {
-  useModalHistory(isOpen, onClose, 'wishlist-drawer');
-
-  const [copied, setCopied] = useState(false);
-
+export default function WishlistDrawer({
+  isOpen = false,
+  onClose,
+  wishlistSpots = [],
+  onRemoveWishlist,
+  onSelectSpot,
+  lang = 'ko'
+}) {
   if (!isOpen) return null;
 
-  const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
-
-  const handleShareLink = () => {
-    const spotIds = wishlistSpots.map(s => s.id).join(',');
-    const shareUrl = `${window.location.origin}/?wishlist=${encodeURIComponent(spotIds)}`;
-
-    if (navigator.share) {
-      navigator.share({
-        title: 'K-Travel Explorer - 내 찜한 여행 코스',
-        text: `대한민국 추천 여행지 ${wishlistSpots.length}곳 코스를 공유합니다!`,
-        url: shareUrl
-      }).catch(() => {});
-    } else {
-      navigator.clipboard.writeText(shareUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
-    }
-  };
+  const fullRouteUrl = generateGoogleMapsRouteUrl(wishlistSpots);
 
   return (
-    <div 
-      style={{
-        position: 'fixed',
-        inset: 0,
-        width: '100vw',
-        height: '100dvh',
-        zIndex: 99999,
-        background: 'rgba(15, 23, 42, 0.75)',
-        backdropFilter: 'blur(6px)',
+    <div style={{
+      position: 'fixed',
+      inset: 0,
+      backgroundColor: 'rgba(15, 23, 42, 0.7)',
+      backdropFilter: 'blur(6px)',
+      WebkitBackdropFilter: 'blur(6px)',
+      zIndex: 1000,
+      display: 'flex',
+      justifyContent: 'flex-end'
+    }}>
+      <div style={{
+        backgroundColor: 'var(--bg-card)',
+        color: 'var(--text-main)',
+        width: '100%',
+        maxWidth: '440px',
+        height: '100%',
         display: 'flex',
-        justifyContent: 'flex-end',
-        overflow: 'hidden'
-      }}
-      onClick={onClose}
-    >
-      <div 
-        className="animate-fade-in glass-panel"
-        style={{
-          background: 'var(--bg-secondary)',
-          borderLeft: '1px solid var(--border-highlight)',
-          width: '100%',
-          maxWidth: 'min(460px, 100vw)',
-          height: '100dvh',
-          overflowY: 'auto',
-          boxShadow: 'var(--shadow-xl)',
-          padding: '1.25rem 1rem',
-          display: 'flex',
-          flexDirection: 'column'
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header Bar */}
+        flexDirection: 'column',
+        boxShadow: 'var(--shadow-md)',
+        borderLeft: '1px solid var(--border-color)',
+        animation: 'slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+      }}>
+        {/* Drawer Header */}
         <div style={{
+          padding: '1.25rem 1.5rem',
+          borderBottom: '1px solid var(--border-color)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          paddingBottom: '1rem',
-          borderBottom: '1px solid var(--border-color)',
-          marginBottom: '1.25rem'
+          backgroundColor: 'var(--bg-glass)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <div style={{
-              background: 'rgba(239, 68, 68, 0.15)',
-              padding: '0.45rem',
-              borderRadius: 'var(--radius-md)',
-              color: '#ef4444'
-            }}>
-              <Heart size={22} fill="#ef4444" />
-            </div>
-            <div>
-              <h2 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0 }}>
-                찜한 여행지 목록
-              </h2>
-              <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-                총 {wishlistSpots.length}개의 명소 담김
-              </span>
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Heart size={20} style={{ color: '#ef4444', fill: '#ef4444' }} />
+            <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 900 }}>
+              {lang === 'en' 
+                ? `Saved Spots (${wishlistSpots.length})` 
+                : lang === 'ja' 
+                ? `お気に入りスポット (${wishlistSpots.length})` 
+                : (lang === 'zh' || lang === 'zht') 
+                ? (lang === 'zht' ? `已儲存景點 (${wishlistSpots.length})` : `已收藏景点 (${wishlistSpots.length})`) 
+                : `저장한 여행지 (${wishlistSpots.length})`}
+            </h3>
           </div>
-
           <button
             onClick={onClose}
-            aria-label={t.closeBtn || '닫기'}
             style={{
               background: 'var(--bg-primary)',
-              border: '1px solid var(--border-color)',
-              color: 'var(--text-main)',
-              width: '36px',
-              height: '36px',
-              borderRadius: 'var(--radius-full)',
+              border: 'none',
+              borderRadius: '50%',
+              width: '34px',
+              height: '34px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              color: 'var(--text-muted)'
             }}
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
-        {/* Share Action Header */}
-        {wishlistSpots.length > 0 && (
-          <div style={{
-            background: 'var(--bg-primary)',
-            borderRadius: 'var(--radius-md)',
-            padding: '0.85rem 1rem',
-            border: '1px solid var(--border-color)',
-            marginBottom: '1.25rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between'
-          }}>
-            <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-              카톡/SNS로 코스 공유하기
-            </span>
-            <button
-              onClick={handleShareLink}
-              style={{
-                background: copied ? '#22c55e' : 'var(--accent-gradient)',
-                color: '#ffffff',
-                border: 'none',
-                padding: '0.4rem 0.85rem',
-                borderRadius: 'var(--radius-full)',
-                fontSize: '0.78rem',
-                fontWeight: 700,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.35rem'
-              }}
-            >
-              {copied ? <Check size={14} /> : <Share2 size={14} />}
-              <span>{copied ? '링크 복사완료!' : '코스 1클릭 공유'}</span>
-            </button>
-          </div>
-        )}
-
-        {/* Wishlist Items List */}
-        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-          {wishlistSpots.length > 0 ? (
-            wishlistSpots.map(spot => (
-              <div 
-                key={spot.id}
+        {/* Drawer List Body */}
+        <div style={{
+          flex: 1,
+          padding: '1.25rem',
+          overflowY: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.85rem'
+        }}>
+          {wishlistSpots.length === 0 ? (
+            <div style={{
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              textAlign: 'center',
+              color: 'var(--text-muted)',
+              padding: '2rem'
+            }}>
+              <Heart size={48} style={{ color: 'var(--text-dim)', marginBottom: '1rem' }} />
+              <p style={{ margin: 0, fontSize: '0.92rem', fontWeight: 700 }}>
+                {lang === 'en' 
+                  ? 'No saved spots yet.' 
+                  : lang === 'ja' 
+                  ? '保存されたスポットはまだありません。' 
+                  : (lang === 'zh' || lang === 'zht') 
+                  ? (lang === 'zht' ? '尚無收藏的景點。' : '暂无收藏的景点。') 
+                  : '아직 저장된 여행지가 없습니다.'}
+              </p>
+              <p style={{ margin: '0.4rem 0 0 0', fontSize: '0.8rem', color: 'var(--text-dim)' }}>
+                {lang === 'en' 
+                  ? 'Click the heart (❤️) button on any spot card to save your favorite wishlist spots!' 
+                  : lang === 'ja' 
+                  ? 'スポットカードのハート（❤️）ボタンを押して、お気に入りを保存しましょう！' 
+                  : (lang === 'zh' || lang === 'zht') 
+                  ? (lang === 'zht' ? '點擊景點卡片上的愛心（❤️）按鈕，即可收藏專屬心願單！' : '点击景点卡片上的爱心（❤️）按钮，即可收藏专属心愿单！') 
+                  : '관광지 카드의 하트(❤️) 버튼을 눌러 나만의 위시리스트를 모아보세요!'}
+              </p>
+            </div>
+          ) : (
+            wishlistSpots.map((spot, idx) => (
+              <div
+                key={spot.id || idx}
                 style={{
-                  background: 'var(--bg-card)',
-                  borderRadius: 'var(--radius-md)',
+                  backgroundColor: 'var(--bg-primary)',
                   border: '1px solid var(--border-color)',
-                  padding: '0.75rem',
+                  borderRadius: '16px',
+                  padding: '0.85rem',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.75rem',
-                  transition: 'all 0.2s ease',
-                  cursor: 'pointer'
+                  gap: '0.85rem',
+                  boxShadow: 'var(--shadow-sm)'
                 }}
-                onClick={() => onSelectSpot(spot)}
               >
-                <div style={{ width: '68px', height: '68px', borderRadius: 'var(--radius-sm)', overflow: 'hidden', flexShrink: 0 }}>
-                  <TravelImageWithFallback 
-                    src={spot.image} 
-                    spotTitle={spot.title}
-                    lang={lang}
-                  />
-                </div>
-
+                <img
+                  src={spot.image || '/default-spot.png'}
+                  alt={spot.title}
+                  style={{
+                    width: '64px',
+                    height: '64px',
+                    borderRadius: '10px',
+                    objectFit: 'cover',
+                    flexShrink: 0
+                  }}
+                  onError={(e) => { e.currentTarget.src = '/default-spot.png'; }}
+                />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <span style={{ fontSize: '0.7rem', color: 'var(--accent-primary)', fontWeight: 700 }}>
-                    {spot.region || '한국'}
-                  </span>
-                  <h4 style={{
-                    fontSize: '0.92rem',
-                    fontWeight: 800,
-                    margin: '0.1rem 0',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap'
-                  }}>
+                  <h4
+                    onClick={() => {
+                      onClose();
+                      onSelectSpot(spot);
+                    }}
+                    style={{
+                      margin: '0 0 0.25rem 0',
+                      fontSize: '0.92rem',
+                      fontWeight: 800,
+                      color: 'var(--text-main)',
+                      cursor: 'pointer',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
                     {spot.title}
                   </h4>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                    <MapPin size={12} color="var(--accent-primary)" />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                    <MapPin size={12} style={{ color: 'var(--accent-primary)', flexShrink: 0 }} />
                     <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {spot.location || spot.addr1 || '대한민국'}
+                      {spot.location || spot.region || (lang === 'en' ? 'Korea' : lang === 'ja' ? '韓国' : '韩国')}
                     </span>
                   </div>
                 </div>
 
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onRemoveWishlist(spot.id);
-                  }}
-                  title={t.deleteBtn || '삭제'}
+                  onClick={() => onRemoveWishlist(spot.id || spot.contentId || spot.title)}
+                  title={lang === 'en' ? 'Remove' : lang === 'ja' ? '削除' : (lang === 'zh' || lang === 'zht') ? (lang === 'zht' ? '移除' : '删除') : '삭제'}
                   style={{
                     background: 'transparent',
                     border: 'none',
-                    color: 'var(--text-muted)',
+                    color: 'var(--text-dim)',
                     cursor: 'pointer',
                     padding: '0.4rem',
-                    borderRadius: 'var(--radius-sm)',
-                    flexShrink: 0
+                    borderRadius: '6px'
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.color = '#ef4444'}
-                  onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
                 >
-                  <Trash2 size={18} />
+                  <Trash2 size={16} />
                 </button>
               </div>
             ))
-          ) : (
-            <div style={{
-              textAlign: 'center',
-              padding: '3rem 1rem',
-              color: 'var(--text-muted)',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '0.75rem'
-            }}>
-              <Heart size={48} color="var(--text-dim)" opacity={0.4} />
-              <p style={{ fontSize: '0.95rem', fontWeight: 600 }}>
-                아직 찜한 여행지가 없습니다.
-              </p>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-dim)', maxWidth: '280px' }}>
-                관광지 카드의 하트(❤️) 버튼을 눌러 나만의 특별한 한국 여행 코스를 완성해보세요!
-              </p>
-            </div>
           )}
         </div>
+
+        {/* Drawer Footer Actions */}
+        {wishlistSpots.length > 0 && (
+          <div style={{
+            padding: '1.25rem 1.5rem',
+            borderTop: '1px solid var(--border-color)',
+            backgroundColor: 'var(--bg-glass)'
+          }}>
+            <a
+              href={fullRouteUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                width: '100%',
+                boxSizing: 'border-box',
+                backgroundColor: 'var(--accent-primary)',
+                color: '#ffffff',
+                textDecoration: 'none',
+                borderRadius: '12px',
+                padding: '0.75rem',
+                fontWeight: 800,
+                fontSize: '0.9rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.4rem',
+                boxShadow: 'var(--shadow-glow)'
+              }}
+            >
+              <Navigation size={16} />
+              <span>
+                {lang === 'en' 
+                  ? 'Get Google Maps Route for All Saved Spots' 
+                  : lang === 'ja' 
+                  ? 'Googleマップでお気に入り全ルートを検索' 
+                  : (lang === 'zh' || lang === 'zht') 
+                  ? (lang === 'zht' ? '在Google地圖中規劃所有心願單景點路線' : '在Google地图中规划所有收藏景点路线') 
+                  : '구글맵에서 위시리스트 전체 코스 길찾기'}
+              </span>
+            </a>
+          </div>
+        )}
       </div>
     </div>
   );
