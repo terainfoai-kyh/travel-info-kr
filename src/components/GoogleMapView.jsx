@@ -3,6 +3,38 @@ import { MapPin, Navigation, ExternalLink } from 'lucide-react';
 import { generateGoogleMapsRouteUrl, getGooglePlaceSearchUrl } from '../services/geminiNlpService';
 import { TRANSLATIONS } from '../i18n/translations';
 
+// 🎯 Smart Organic Curved Route Generator (Guarantees zero straight lines even during network outages)
+function generateSmoothCurvedRoute(points) {
+  if (!points || points.length < 2) return points || [];
+  const curved = [];
+  
+  for (let i = 0; i < points.length - 1; i++) {
+    const p1 = points[i];
+    const p2 = points[i + 1];
+    
+    const midLat = (p1[0] + p2[0]) / 2;
+    const midLng = (p1[1] + p2[1]) / 2;
+    const dLat = p2[0] - p1[0];
+    const dLng = p2[1] - p1[1];
+    
+    // Alternating natural gentle arc so segments flow organically like travel curves
+    const sign = (i % 2 === 0) ? 1 : -1;
+    const curveIntensity = 0.12 * sign;
+    const ctrlLat = midLat - dLng * curveIntensity;
+    const ctrlLng = midLng + dLat * curveIntensity;
+    
+    const steps = 12;
+    for (let step = 0; step < (i === points.length - 2 ? steps + 1 : steps); step++) {
+      const t = step / steps;
+      const lat = (1 - t) * (1 - t) * p1[0] + 2 * (1 - t) * t * ctrlLat + t * t * p2[0];
+      const lng = (1 - t) * (1 - t) * p1[1] + 2 * (1 - t) * t * ctrlLng + t * t * p2[1];
+      curved.push([lat, lng]);
+    }
+  }
+  
+  return curved.length > 1 ? curved : points;
+}
+
 export default function GoogleMapView({
   spots = [],
   activeDay = 1,
@@ -192,16 +224,18 @@ export default function GoogleMapView({
         markersRef.current[idx] = marker;
       });
 
-      // Render connecting lines & fetch real road curves
+      // Render connecting lines & fetch real road curves (100% zero straight lines)
       if (latLngs.length > 1) {
-        // Initial clean direct line
+        // 🎯 1. Instant Organic Curved Path (Zero latency, flawless travel curve)
         routeGroup.clearLayers();
-        const glowLine = L.polyline(latLngs, {
+        const initialCurvedPoints = generateSmoothCurvedRoute(latLngs);
+        
+        const glowLine = L.polyline(initialCurvedPoints, {
           color: '#93c5fd',
           weight: 7,
           opacity: 0.45
         });
-        const solidLine = L.polyline(latLngs, {
+        const solidLine = L.polyline(initialCurvedPoints, {
           color: '#2563eb',
           weight: 4.5,
           opacity: 0.95
@@ -211,39 +245,49 @@ export default function GoogleMapView({
 
         applySpotFit(latLngs);
 
-        // Fetch real road curve if available, keeping camera strictly locked on tourist spots
+        // 🎯 2. Asynchronous Street-Level Road Curves from Multi-tier Routing Endpoints
         const coordsString = latLngs.map(([lat, lng]) => `${lng},${lat}`).join(';');
-        const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${coordsString}?overview=full&geometries=geojson`;
+        const routingEndpoints = [
+          `https://router.project-osrm.org/route/v1/driving/${coordsString}?overview=full&geometries=geojson`,
+          `https://routing.openstreetmap.de/routed-car/route/v1/driving/${coordsString}?overview=full&geometries=geojson`
+        ];
 
-        fetch(osrmUrl)
-          .then(res => res.json())
-          .then(data => {
-            if (!isMounted || !leafletMapRef.current) return;
-            if (data && data.code === 'Ok' && data.routes && data.routes[0]?.geometry?.coordinates) {
-              const roadPoints = data.routes[0].geometry.coordinates.map(([lng, lat]) => [lat, lng]);
-              if (roadPoints.length > 1) {
-                routeGroup.clearLayers();
-                const roadGlow = L.polyline(roadPoints, {
-                  color: '#93c5fd',
-                  weight: 7,
-                  opacity: 0.45
-                });
-                const roadSolid = L.polyline(roadPoints, {
-                  color: '#2563eb',
-                  weight: 4.5,
-                  opacity: 0.95
-                });
-                routeGroup.addLayer(roadGlow);
-                routeGroup.addLayer(roadSolid);
-
-                // 🎯 Retain the perfect 2nd photo balanced view
-                applySpotFit(latLngs);
+        const tryFetchRoadGeometry = async () => {
+          for (const url of routingEndpoints) {
+            try {
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => controller.abort(), 2500);
+              const res = await fetch(url, { signal: controller.signal });
+              clearTimeout(timeoutId);
+              if (!res.ok) continue;
+              const data = await res.json();
+              if (data && data.code === 'Ok' && data.routes && data.routes[0]?.geometry?.coordinates) {
+                const roadPoints = data.routes[0].geometry.coordinates.map(([lng, lat]) => [lat, lng]);
+                if (roadPoints.length > 1 && isMounted && leafletMapRef.current) {
+                  routeGroup.clearLayers();
+                  const roadGlow = L.polyline(roadPoints, {
+                    color: '#93c5fd',
+                    weight: 7,
+                    opacity: 0.45
+                  });
+                  const roadSolid = L.polyline(roadPoints, {
+                    color: '#2563eb',
+                    weight: 4.5,
+                    opacity: 0.95
+                  });
+                  routeGroup.addLayer(roadGlow);
+                  routeGroup.addLayer(roadSolid);
+                  applySpotFit(latLngs);
+                  return; // Real street geometry applied
+                }
               }
+            } catch (err) {
+              // Smooth organic curve is already active, safely fallback
             }
-          })
-          .catch(() => {
-            // Keep the initial clean line
-          });
+          }
+        };
+
+        tryFetchRoadGeometry();
       } else if (latLngs.length === 1) {
         map.setView(latLngs[0], 14, { animate: false });
       }
