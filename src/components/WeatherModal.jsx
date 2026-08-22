@@ -608,7 +608,7 @@ export default function WeatherModal({
             flexDirection: 'column',
             gap: '0.85rem'
           }}>
-            {/* Slim Header: Location + Current Temp + 4-Stats */}
+            {/* Slim Header: Location + Current Temp (Option A: Actual + Feels-like Combined) */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
@@ -621,25 +621,15 @@ export default function WeatherModal({
                 <span style={{ fontSize: '1rem', fontWeight: 900, color: 'var(--text-main)' }}>
                   {getLocalizedCityName(matchedCityKey, lang)}
                 </span>
-                <span style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--accent-primary)', marginLeft: '0.15rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
-                  {current.temp}
+                <span style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--accent-primary)', marginLeft: '0.15rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <span>{current.temp}</span>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)', backgroundColor: 'rgba(37, 99, 235, 0.08)', padding: '0.15rem 0.45rem', borderRadius: '6px' }}>
+                    {t.weatherFeelsLike || '체감'} {current.feelsLike}
+                  </span>
                   {isFetchingLive && <Loader2 size={13} style={{ animation: 'spin 1s linear infinite', color: 'var(--accent-primary)' }} />}
                 </span>
                 <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-muted)' }}>
                   {current.weather}
-                </span>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <span style={{
-                  fontSize: '0.74rem',
-                  fontWeight: 700,
-                  backgroundColor: 'rgba(37, 99, 235, 0.08)',
-                  color: 'var(--accent-primary)',
-                  padding: '0.2rem 0.55rem',
-                  borderRadius: '6px'
-                }}>
-                  {t.weatherFeelsLike || '체감 '}{current.feelsLike}
                 </span>
               </div>
             </div>

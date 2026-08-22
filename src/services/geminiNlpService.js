@@ -13,6 +13,7 @@ import { resolveSpotPhotoDynamic, resolveSpotPhotoSync } from './photoPipeline.j
 import { getSpotAffiliateDeal } from './affiliateService.js';
 import { buildAgodaDeepLink, buildKlookDeepLink } from './apiConfig.js';
 import { CITY_TRANSLATIONS } from '../i18n/translations.js';
+import { fetchRealtimeWeather } from './weatherApi.js';
 
 // Precision Korean City Center Coordinates
 export const CITY_COORDINATES = {
@@ -280,6 +281,29 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko', previo
   const cityMeta = CITY_COORDINATES[targetCity] || CITY_COORDINATES['서울'];
   const isJeju = targetCity.includes('제주') || targetCity.includes('서귀포');
 
+  // Realtime Weather & Feels-like climate context injection for hyper-personalized Gemini itinerary
+  let liveWeatherContext = '';
+  try {
+    const liveW = await fetchRealtimeWeather(targetCity);
+    if (liveW) {
+      const curT = liveW.temp || liveW.temperature || '26°C';
+      const feelT = liveW.feelsLike || curT;
+      const curRain = liveW.rain || liveW.rainProbability || '20%';
+      const curW = liveW.weather || liveW.weatherText || '맑음';
+      const curHum = liveW.humidity || '60%';
+      
+      liveWeatherContext = `
+[REAL-TIME WEATHER & CLIMATE CONTEXT]:
+Currently in "${targetCity}", the live temperature is ${curT} (Feels like ${feelT}, Condition: ${curW}, Humidity: ${curHum}, Rain Probability: ${curRain}).
+- Weather-Adaptive Recommendation Rule:
+  1. If currently rainy or high humidity/heat (feels-like >= 28°C), seamlessly incorporate air-conditioned indoor aesthetic hubs (e.g. iconic cultural complexes, shopping streets, aesthetic cafes, museums) during mid-day, and recommend outdoor walks or nightviews during cooler sunset/evening hours.
+  2. If pleasant/mild weather, balance outdoor scenic walking and open viewpoints.
+`;
+    }
+  } catch (wErr) {
+    console.info('Live weather prompt injection fallback:', wErr);
+  }
+
   let contextPrompt = '';
   if (isModificationRequest && previousItinerary && previousItinerary.dailySchedules) {
     contextPrompt = `
@@ -305,6 +329,7 @@ INSTRUCTION FOR MODIFICATION:
 
   const systemInstruction = `You are VORA, an elite South Korean AI Travel Concierge & Magazine Editor.
 Analyze the user request: "${cleanPrompt}".
+${liveWeatherContext}
 ${isModificationRequest ? `
 [ACTIVE TRIP CONTEXT TO MODIFY]
 The user is currently modifying an existing itinerary for "${targetCity}". Total requested days: ${days} days.
