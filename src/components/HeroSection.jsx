@@ -164,34 +164,36 @@ export default function HeroSection({
         </div>
       </form>
 
-      {/* Quick Prompt Recommendation Chips */}
-      <div className="hero-chips-container" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
-        {(t.promptChips || []).map((chip, idx) => (
-          <button
-            key={idx}
-            onClick={() => handleChipClick(chip.prompt)}
-            disabled={isLoading}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              backgroundColor: 'var(--bg-card)',
-              border: '1px solid var(--border-color)',
-              color: 'var(--text-main)',
-              borderRadius: 'var(--radius-full)',
-              padding: '0.3rem 0.75rem',
-              fontSize: '0.75rem',
-              fontWeight: 600,
-              cursor: isLoading ? 'default' : 'pointer',
-              transition: 'all var(--transition-fast)',
-              userSelect: 'none',
-              whiteSpace: 'nowrap',
-              boxShadow: 'var(--shadow-sm)',
-              flexShrink: 0
-            }}
-          >
-            {chip.label}
-          </button>
-        ))}
+      {/* Quick Prompt Recommendation Chips with Swipe Indication */}
+      <div className="hero-chips-wrapper">
+        <div className="hero-chips-container">
+          {(t.promptChips || []).map((chip, idx) => (
+            <button
+              key={idx}
+              onClick={() => handleChipClick(chip.prompt)}
+              disabled={isLoading}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                backgroundColor: 'var(--bg-card)',
+                border: '1px solid var(--border-color)',
+                color: 'var(--text-main)',
+                borderRadius: 'var(--radius-full)',
+                padding: '0.3rem 0.75rem',
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                cursor: isLoading ? 'default' : 'pointer',
+                transition: 'all var(--transition-fast)',
+                userSelect: 'none',
+                whiteSpace: 'nowrap',
+                boxShadow: 'var(--shadow-sm)',
+                flexShrink: 0
+              }}
+            >
+              {chip.label}
+            </button>
+          ))}
+        </div>
       </div>
     </section>
   );

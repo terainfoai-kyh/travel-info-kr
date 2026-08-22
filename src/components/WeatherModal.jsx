@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   X,
   CloudSun,
@@ -7,10 +7,12 @@ import {
   Sparkles,
   Shirt,
   ExternalLink,
-  CalendarDays
+  CalendarDays,
+  Loader2
 } from 'lucide-react';
 import { getCloseButtonLabel, TRANSLATIONS, CITY_TRANSLATIONS, getLocalizedCityName } from '../i18n/translations';
 import { buildKlookDeepLink } from '../services/apiConfig';
+import { fetchRealtimeWeather } from '../services/weatherApi';
 
 export default function WeatherModal({
   isOpen = false,
@@ -19,10 +21,12 @@ export default function WeatherModal({
   initialRegion = '서울'
 }) {
   const [searchQuery, setSearchQuery] = useState(() => getLocalizedCityName(initialRegion, lang));
+  const [liveWeatherData, setLiveWeatherData] = useState(null);
+  const [isFetchingLive, setIsFetchingLive] = useState(false);
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
 
   // Synchronize with active itinerary destination whenever opened
-  React.useEffect(() => {
+  useEffect(() => {
     if (initialRegion) {
       setSearchQuery(getLocalizedCityName(initialRegion, lang));
     }
@@ -401,7 +405,26 @@ export default function WeatherModal({
     };
   };
 
-  const rawCurrent = REGION_DATABASE[matchedCityKey] || {
+  // Fetch actual live weather data whenever destination city changes and modal is open
+  useEffect(() => {
+    let isMounted = true;
+    if (isOpen && matchedCityKey) {
+      setIsFetchingLive(true);
+      fetchRealtimeWeather(matchedCityKey)
+        .then((data) => {
+          if (isMounted && data) {
+            setLiveWeatherData(data);
+          }
+        })
+        .catch((err) => console.warn('Live weather error:', err))
+        .finally(() => {
+          if (isMounted) setIsFetchingLive(false);
+        });
+    }
+    return () => { isMounted = false; };
+  }, [isOpen, matchedCityKey]);
+
+  const baseCurrent = liveWeatherData || REGION_DATABASE[matchedCityKey] || {
     temp: '22°C',
     feelsLike: '23°C',
     weather: '맑고 쾌적 ☀️',
@@ -420,7 +443,7 @@ export default function WeatherModal({
     ]
   };
 
-  const current = getLocalizedWeather(rawCurrent, lang, matchedCityKey);
+  const current = getLocalizedWeather(baseCurrent, lang, matchedCityKey);
 
   // Affiliate & Service Reference Links (High-Value Curation)
   const sunscreenLink = buildKlookDeepLink('한국 여행 필수품 선크림');
@@ -570,29 +593,32 @@ export default function WeatherModal({
               flexWrap: 'wrap',
               gap: '0.5rem'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <MapPin size={17} style={{ color: 'var(--accent-primary)' }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
+                <MapPin size={17} style={{ color: 'var(--accent-primary)', flexShrink: 0 }} />
                 <span style={{ fontSize: '1rem', fontWeight: 900, color: 'var(--text-main)' }}>
                   {getLocalizedCityName(matchedCityKey, lang)}
                 </span>
-                <span style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--accent-primary)', marginLeft: '0.2rem' }}>
+                <span style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--accent-primary)', marginLeft: '0.15rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
                   {current.temp}
+                  {isFetchingLive && <Loader2 size={13} style={{ animation: 'spin 1s linear infinite', color: 'var(--accent-primary)' }} />}
                 </span>
                 <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-muted)' }}>
                   {current.weather}
                 </span>
               </div>
 
-              <span style={{
-                fontSize: '0.75rem',
-                fontWeight: 700,
-                backgroundColor: 'rgba(37, 99, 235, 0.08)',
-                color: 'var(--accent-primary)',
-                padding: '0.2rem 0.55rem',
-                borderRadius: '6px'
-              }}>
-                {t.weatherFeelsLike || '체감 '}{current.feelsLike}
-              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <span style={{
+                  fontSize: '0.74rem',
+                  fontWeight: 700,
+                  backgroundColor: 'rgba(37, 99, 235, 0.08)',
+                  color: 'var(--accent-primary)',
+                  padding: '0.2rem 0.55rem',
+                  borderRadius: '6px'
+                }}>
+                  {t.weatherFeelsLike || '체감 '}{current.feelsLike}
+                </span>
+              </div>
             </div>
 
             {/* 4-Stat Micro Grid */}
@@ -619,26 +645,51 @@ export default function WeatherModal({
               </div>
             </div>
 
-            {/* 📅 Compact 3-Day Forecast (Directly Below Weather Stats) */}
+            {/* 📅 3-Day Forecast Section (Clean 3-Column Card Layout) */}
             <div style={{
               backgroundColor: 'var(--bg-card)',
               border: '1px solid var(--border-color)',
-              borderRadius: '12px',
-              padding: '0.6rem 0.8rem',
+              borderRadius: '14px',
+              padding: '0.75rem 0.85rem',
               display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              fontSize: '0.78rem'
+              flexDirection: 'column',
+              gap: '0.55rem'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 800, color: 'var(--accent-primary)', flexShrink: 0 }}>
-                <CalendarDays size={14} />
-                <span>{t.weatherForecastTitle || '3일 예보:'}</span>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 800, fontSize: '0.8rem', color: 'var(--accent-primary)' }}>
+                  <CalendarDays size={15} />
+                  <span>{t.weatherForecastTitle || (lang === 'en' ? '3-Day Forecast' : lang === 'ja' ? '3日間週間天気予報' : (lang === 'zh' || lang === 'zht') ? '3天天气预报' : '3일 주간 예보')}</span>
+                </div>
+                <span style={{ fontSize: '0.68rem', color: 'var(--text-dim)', fontWeight: 600 }}>
+                  {liveWeatherData?.source === 'kma-official' ? '🇰🇷 기상청 공식 데이터' : '🛰️ 실시간 기상 관측'}
+                </span>
               </div>
-              <div style={{ display: 'flex', gap: '0.75rem', overflowX: 'auto', scrollbarWidth: 'none' }}>
+
+              {/* 3-Column Forecast Card Grid */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: '0.45rem'
+              }}>
                 {current.forecast.map((f, i) => (
-                  <span key={i} style={{ whiteSpace: 'nowrap', color: 'var(--text-main)' }}>
-                    <strong style={{ color: 'var(--text-muted)' }}>{f.day}</strong> {f.weather} <span style={{ color: 'var(--accent-primary)', fontWeight: 800 }}>{f.temp}</span>
-                  </span>
+                  <div key={i} style={{
+                    backgroundColor: 'var(--bg-primary)',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '10px',
+                    padding: '0.5rem 0.3rem',
+                    textAlign: 'center',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '0.15rem'
+                  }}>
+                    <span style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--text-main)' }}>{f.day}</span>
+                    <span style={{ fontSize: '0.78rem', fontWeight: 700 }}>{f.weather}</span>
+                    <span style={{ fontSize: '0.76rem', fontWeight: 900, color: 'var(--accent-primary)', marginTop: '0.1rem' }}>{f.temp}</span>
+                    {f.rain && (
+                      <span style={{ fontSize: '0.65rem', color: 'var(--text-dim)', fontWeight: 600 }}>💧 {f.rain}</span>
+                    )}
+                  </div>
                 ))}
               </div>
             </div>

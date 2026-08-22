@@ -19,6 +19,7 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { TRANSLATIONS, CITY_TRANSLATIONS, getLocalizedCityName } from '../i18n/translations';
+import { fetchRealtimeWeather } from '../services/weatherApi';
 
 // City Temperature Mapping for Dynamic Weather Capsule
 const CITY_TEMPS = {
@@ -57,6 +58,7 @@ export default function Header({
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isMainMenuOpen, setIsMainMenuOpen] = useState(false);
   const [showShareToast, setShowShareToast] = useState(false);
+  const [liveTemp, setLiveTemp] = useState('');
 
   const langMenuRef = useRef(null);
   const userMenuRef = useRef(null);
@@ -72,7 +74,23 @@ export default function Header({
   ];
 
   const currentLangObj = LANGUAGES.find(l => l.code === lang) || LANGUAGES[0];
-  const currentTemp = CITY_TEMPS[targetCity] || '22°C';
+
+  // Live temperature sync
+  useEffect(() => {
+    let isMounted = true;
+    if (targetCity) {
+      fetchRealtimeWeather(targetCity)
+        .then((data) => {
+          if (isMounted && data?.temperature) {
+            setLiveTemp(data.temperature);
+          }
+        })
+        .catch(() => {});
+    }
+    return () => { isMounted = false; };
+  }, [targetCity]);
+
+  const currentTemp = liveTemp || CITY_TEMPS[targetCity] || '22°C';
 
   // Close menus on outside click
   useEffect(() => {
@@ -109,7 +127,7 @@ export default function Header({
     <header style={{
       position: 'sticky',
       top: 0,
-      zIndex: 100,
+      zIndex: 1000,
       backgroundColor: 'var(--bg-glass)',
       backdropFilter: 'blur(16px)',
       WebkitBackdropFilter: 'blur(16px)',

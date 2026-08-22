@@ -249,10 +249,10 @@ export default function AdSenseArticlesSection({ lang = 'ko' }) {
           <BookOpen size={15} />
           <span>Travel Editorial & FAQ</span>
         </div>
-        <h2 style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--text-main)', margin: '0 0 0.5rem 0' }}>
+        <h2 className="editorial-hero-title">
           {t.editorialTitle || '대한민국 여행 완벽 가이드 & FAQ'}
         </h2>
-        <p style={{ fontSize: '0.92rem', color: 'var(--text-muted)', margin: 0, fontWeight: 500 }}>
+        <p className="editorial-hero-subtitle">
           {t.editorialSubtitle || '한국을 처음 방문하는 여행자를 위한 검증된 로컬 꿀팁'}
         </p>
       </div>
@@ -260,9 +260,9 @@ export default function AdSenseArticlesSection({ lang = 'ko' }) {
       {/* 3-Column Articles Grid */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-        gap: '1.5rem',
-        marginBottom: '3rem'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+        gap: '1.25rem',
+        marginBottom: '2.5rem'
       }}>
         {ARTICLES.map((art, idx) => (
           <article
@@ -270,8 +270,8 @@ export default function AdSenseArticlesSection({ lang = 'ko' }) {
             style={{
               backgroundColor: 'var(--bg-card)',
               border: '1px solid var(--border-color)',
-              borderRadius: '20px',
-              padding: '1.5rem',
+              borderRadius: '18px',
+              padding: '1.25rem',
               boxShadow: 'var(--shadow-sm)',
               display: 'flex',
               flexDirection: 'column',
@@ -279,33 +279,33 @@ export default function AdSenseArticlesSection({ lang = 'ko' }) {
             }}
           >
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                   {art.icon}
-                  <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--accent-primary)' }}>
+                  <span style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--accent-primary)' }}>
                     {art.tag}
                   </span>
                 </div>
-                <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)', fontWeight: 600 }}>
+                <span style={{ fontSize: '0.7rem', color: 'var(--text-dim)', fontWeight: 600 }}>
                   {art.readTime}
                 </span>
               </div>
 
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-main)', margin: '0 0 0.6rem 0', lineHeight: 1.4 }}>
+              <h3 style={{ fontSize: '0.98rem', fontWeight: 800, color: 'var(--text-main)', margin: '0 0 0.5rem 0', lineHeight: 1.4 }}>
                 {art.title}
               </h3>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: 1.6, margin: '0 0 1rem 0' }}>
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: 1.55, margin: '0 0 0.85rem 0' }}>
                 {art.summary}
               </p>
             </div>
 
             <div style={{
               backgroundColor: 'var(--bg-primary)',
-              borderRadius: '12px',
-              padding: '0.85rem',
-              fontSize: '0.8rem',
+              borderRadius: '10px',
+              padding: '0.75rem 0.85rem',
+              fontSize: '0.78rem',
               color: 'var(--text-main)',
-              lineHeight: 1.5,
+              lineHeight: 1.45,
               border: '1px solid var(--border-color)'
             }}>
               💡 {art.content}
@@ -316,21 +316,21 @@ export default function AdSenseArticlesSection({ lang = 'ko' }) {
 
       {/* Interactive FAQ Accordion */}
       <div style={{ maxWidth: '840px', margin: '0 auto' }}>
-        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-          <h3 style={{ fontSize: '1.35rem', fontWeight: 900, color: 'var(--text-main)', margin: '0 0 0.4rem 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-            <HelpCircle size={22} style={{ color: 'var(--accent-primary)' }} />
+        <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
+          <h3 className="editorial-faq-title" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.45rem', margin: '0 0 0.35rem 0' }}>
+            <HelpCircle size={20} style={{ color: 'var(--accent-primary)' }} />
             <span>{t.faqTitle || (lang === 'en' ? 'Frequently Asked Questions (FAQ)' : lang === 'ja' ? 'よくある質問 (FAQ)' : (lang === 'zh' || lang === 'zht') ? '常见问题解答 (FAQ)' : '자주 묻는 질문 (FAQ)')}</span>
           </h3>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
           {FAQS.map((faq, idx) => (
             <div
               key={idx}
               style={{
                 backgroundColor: 'var(--bg-card)',
                 border: '1px solid var(--border-color)',
-                borderRadius: '16px',
+                borderRadius: '14px',
                 overflow: 'hidden',
                 boxShadow: 'var(--shadow-sm)'
               }}
@@ -339,7 +339,7 @@ export default function AdSenseArticlesSection({ lang = 'ko' }) {
                 onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
                 style={{
                   width: '100%',
-                  padding: '1.1rem 1.25rem',
+                  padding: '0.85rem 1.1rem',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
@@ -347,23 +347,24 @@ export default function AdSenseArticlesSection({ lang = 'ko' }) {
                   border: 'none',
                   textAlign: 'left',
                   cursor: 'pointer',
-                  fontSize: '0.92rem',
+                  fontSize: '0.85rem',
                   fontWeight: 800,
-                  color: 'var(--text-main)'
+                  color: 'var(--text-main)',
+                  gap: '0.5rem'
                 }}
               >
                 <span>Q. {faq.q}</span>
-                {openFaq === idx ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                {openFaq === idx ? <ChevronUp size={16} style={{ flexShrink: 0 }} /> : <ChevronDown size={16} style={{ flexShrink: 0 }} />}
               </button>
 
               {openFaq === idx && (
                 <div style={{
-                  padding: '0 1.25rem 1.25rem 1.25rem',
-                  fontSize: '0.86rem',
-                  lineHeight: 1.65,
+                  padding: '0 1.1rem 1.1rem 1.1rem',
+                  fontSize: '0.82rem',
+                  lineHeight: 1.6,
                   color: 'var(--text-muted)',
                   borderTop: '1px solid var(--border-color)',
-                  paddingTop: '1rem',
+                  paddingTop: '0.85rem',
                   backgroundColor: 'var(--bg-primary)'
                 }}>
                   {faq.a}
