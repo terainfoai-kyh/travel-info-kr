@@ -7,32 +7,31 @@ import {
   Compass, 
   Train, 
   Wifi, 
+  PhoneCall,
+  Map,
   ArrowRight, 
   ChevronRight, 
   Star, 
   Clock, 
-  Calendar,
   Flame,
+  CreditCard,
   Shirt,
-  ShieldCheck
+  X
 } from 'lucide-react';
 
 const HERO_SLIDES = [
   {
     id: 1,
-    titleKo: '천년의 역사가 숨 쉬는 고궁의 밤',
-    titleEn: 'Timeless Royal Heritage by Moonlight',
-    titleJa: '千年の歴史が息づく古宮の夜',
-    titleZh: '流淌千年历史的古宫月夜',
+    titleKo: '천년의 역사가 숨 쉬는 아름다운 고궁',
+    titleEn: 'Timeless Royal Heritage in Seoul',
+    titleJa: '千年の歴史が息づく美しい古宮',
+    titleZh: '流淌千年历史的壮美首尔古宫',
     subKo: '경복궁 & 북촌 한옥마을의 고즈넉한 정취를 걸어보세요',
     subEn: 'Experience the serene beauty of Gyeongbokgung Palace & Bukchon',
     subJa: '景福宮と北村韓屋村の風情を感じる特別な散歩',
     subZh: '漫步景福宫与北村韩屋村的静谧风情',
     image: 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg',
     tagKo: '👑 서울 K-헤리티지',
-    tagEn: '👑 Seoul Heritage',
-    tagJa: '👑 ソウル文化遺産',
-    tagZh: '👑 首尔文化遗产',
     city: '서울'
   },
   {
@@ -47,14 +46,11 @@ const HERO_SLIDES = [
     subZh: '从圣水洞快闪店到汉江野餐的完美一日',
     image: 'https://tong.visitkorea.or.kr/cms/resource/50/2619450_image2_1.jpg',
     tagKo: '🏙️ 성수·한남 트렌드',
-    tagEn: '🏙️ Seongsu & Hannam',
-    tagJa: '🏙️ 聖水・漢南トレンド',
-    tagZh: '🏙️ 圣水与汉南潮流',
     city: '서울'
   },
   {
     id: 3,
-    titleKo: '푸른 파도와 화려한 광안대교 야경',
+    titleKo: '푸른 파도와 화려한 광안대교 오션뷰',
     titleEn: 'Azure Ocean Waves & Sparkling Diamond Bridge',
     titleJa: '青い海と輝く広安里のナイトビュー',
     titleZh: '蔚蓝海浪与璀璨广安大桥夜景',
@@ -64,9 +60,6 @@ const HERO_SLIDES = [
     subZh: '海云台游艇巡游与鲜美海鲜美食之旅',
     image: 'https://tong.visitkorea.or.kr/cms/resource/71/2619471_image2_1.jpg',
     tagKo: '🌊 부산 오션뷰 & 미식',
-    tagEn: '🌊 Busan Ocean & Food',
-    tagJa: '🌊 釜山オーシャン＆グルメ',
-    tagZh: '🌊 釜山海景与美食',
     city: '부산'
   },
   {
@@ -81,14 +74,11 @@ const HERO_SLIDES = [
     subZh: '城山日出峰与涯月海岸公路的济州治愈之旅',
     image: 'https://tong.visitkorea.or.kr/cms/resource/82/2944282_image2_1.bmp',
     tagKo: '🍊 제주 자연 & 힐링',
-    tagEn: '🍊 Jeju Nature & Healing',
-    tagJa: '🍊 済州自然＆癒やし',
-    tagZh: '🍊 济州自然治愈',
     city: '제주'
   }
 ];
 
-const TRENDING_THEMES = [
+const CURATED_THEMES = [
   {
     id: 'theme-1',
     titleKo: '서울 성수 & 한남 K-트렌드 핫플',
@@ -100,6 +90,7 @@ const TRENDING_THEMES = [
     descJa: '世界中の旅行者が訪れるポップアップ、デザイナーズブランド、隠れ家カフェ',
     descZh: '全球游客最爱的快闪店、设计师品牌与氛围感咖啡街区',
     city: '서울',
+    cityCode: 'seoul',
     durationKo: '2박 3일',
     durationEn: '3 Days',
     durationJa: '2泊3日',
@@ -115,27 +106,28 @@ const TRENDING_THEMES = [
   },
   {
     id: 'theme-2',
-    titleKo: '수원 행궁동 K-헤리티지 & 열기구 야경',
-    titleEn: 'Suwon Hwaseong Heritage & Night Balloon',
-    titleJa: '水原行宮洞 K-ヘリテージ＆気球夜景',
-    titleZh: '水原行宫洞文化遗产与热气球夜景',
-    descKo: '유네스코 세계문화유산 수원화성과 감성 행리단길, 하늘에서 보는 화려한 성곽 야경',
-    descEn: 'UNESCO World Heritage fortress, romantic Haengnidan-gil street, and hot air balloon night vista',
-    descJa: '世界遺産・水原華城とレトロな行理団通り、気球から見下ろす幻想的な夜景',
-    descZh: '联合国教科文组织世界遗产水原华城、文艺行理团路与俯瞰城郭的热气球夜景',
-    city: '수원',
+    titleKo: '서울 경복궁 & 북촌 한옥마을 K-헤리티지',
+    titleEn: 'Seoul Royal Palace & Hanok Village Tour',
+    titleJa: 'ソウル景福宮＆北村韓屋村 文化遺産ツアー',
+    titleZh: '首尔景福宫与北村韩屋村传统文化之旅',
+    descKo: '조선 왕실의 정취가 살아있는 고궁 한복 체험과 북촌 한옥마을, 인사동 전통 찻집',
+    descEn: 'Authentic Hanbok royal palace experience, historic Hanok alleys, and Insadong artisan teahouses',
+    descJa: '朝鮮王室の歴史を感じる韓服体験と北村韓屋村、仁寺洞の伝統茶屋めぐり',
+    descZh: '景福宫韩服古风体验、北村韩屋古巷与仁寺洞传统茶室文化漫步',
+    city: '서울',
+    cityCode: 'seoul',
     durationKo: '1일 당일치기',
     durationEn: '1 Day',
     durationJa: '日帰り',
     durationZh: '1日游',
-    rating: 4.8,
-    reviews: '1.8k',
-    image: 'https://tong.visitkorea.or.kr/cms/resource/21/2656921_image2_1.jpg',
-    tagsKo: ['#수원화성', '#행리단길', '#플라잉수원', '#야경명소'],
-    tagsEn: ['#SuwonFortress', '#Haengnidan', '#FlyingSuwon', '#NightView'],
-    tagsJa: ['#水原華城', '#カフェ通り', '#気球体験', '#夜景スポット'],
-    tagsZh: ['#水原华城', '#行理团路', '#热气球体验', '#夜景圣地'],
-    prompt: '수원 화성행궁과 행리단길 감성 카페, 플라잉수원 열기구 야경을 즐기는 1일 당일치기 코스'
+    rating: 4.9,
+    reviews: '5.1k',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg',
+    tagsKo: ['#경복궁', '#한복체험', '#북촌한옥', '#인사동'],
+    tagsEn: ['#Gyeongbokgung', '#Hanbok', '#Bukchon', '#Insadong'],
+    tagsJa: ['#景福宮', '#韓服体験', '#北村韓屋', '#仁寺洞'],
+    tagsZh: ['#景福宫', '#韩服体验', '#北村韩屋', '#仁寺洞'],
+    prompt: '경복궁과 북촌 한옥마을, 인사동 전통 문화와 수문장 교대의식 1일 코스'
   },
   {
     id: 'theme-3',
@@ -148,6 +140,7 @@ const TRENDING_THEMES = [
     descJa: '爽快な海原とプライベートヨットクルーズ、海理団通りブランチと新鮮シーフード',
     descZh: '开阔海景、夕阳游艇体验、海理团路早午餐与扎嘎其海鲜盛宴',
     city: '부산',
+    cityCode: 'busan',
     durationKo: '3박 4일',
     durationEn: '4 Days',
     durationJa: '3泊4日',
@@ -172,6 +165,7 @@ const TRENDING_THEMES = [
     descJa: 'エメラルドの海岸ドライブ、城山日出峰の絶景と静寂な緑茶畑でのリフレッシュ',
     descZh: '沿涯月海岸公路自驾、城山日出峰绝景与宁静茶园疗愈之旅',
     city: '제주',
+    cityCode: 'jeju',
     durationKo: '3박 4일',
     durationEn: '4 Days',
     durationJa: '3泊4日',
@@ -184,6 +178,56 @@ const TRENDING_THEMES = [
     tagsJa: ['#海岸道路', '#城山日出峰', '#オソルロク', '#絶景リゾート'],
     tagsZh: ['#涯月海岸', '#城山日出峰', '#雪绿茶园', '#海景度假'],
     prompt: '제주도 서귀포와 애월 해안 드라이브, 성산일출봉과 자연 힐링 명소 3박4일 코스'
+  },
+  {
+    id: 'theme-5',
+    titleKo: '수원 행궁동 K-헤리티지 & 열기구 야경',
+    titleEn: 'Suwon Hwaseong Heritage & Night Balloon',
+    titleJa: '水原行宮洞 K-ヘリテージ＆気球夜景',
+    titleZh: '水原行宫洞文化遗产与热气球夜景',
+    descKo: '유네스코 세계문화유산 수원화성과 감성 행리단길, 하늘에서 보는 화려한 성곽 야경',
+    descEn: 'UNESCO World Heritage fortress, romantic Haengnidan-gil street, and hot air balloon night vista',
+    descJa: '世界遺産・水原華城とレトロな行理団通り、気球から見下ろす幻想的な夜景',
+    descZh: '联合国教科文组织世界遗产水原华城、文艺行理团路与俯瞰城郭的热气球夜景',
+    city: '수원',
+    cityCode: 'suwon',
+    durationKo: '1일 당일치기',
+    durationEn: '1 Day',
+    durationJa: '日帰り',
+    durationZh: '1日游',
+    rating: 4.8,
+    reviews: '1.8k',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/21/2656921_image2_1.jpg',
+    tagsKo: ['#수원화성', '#행리단길', '#플라잉수원', '#야경명소'],
+    tagsEn: ['#SuwonFortress', '#Haengnidan', '#FlyingSuwon', '#NightView'],
+    tagsJa: ['#水原華城', '#カフェ通り', '#気球体験', '#夜景スポット'],
+    tagsZh: ['#水原华城', '#行理团路', '#热气球体验', '#夜景圣地'],
+    prompt: '수원 화성행궁과 행리단길 감성 카페, 플라잉수원 열기구 야경을 즐기는 1일 당일치기 코스'
+  },
+  {
+    id: 'theme-6',
+    titleKo: '강릉 안목해변 커피거리 & K-컬처 투어',
+    titleEn: 'Gangneung Coffee Beach & K-Culture Tour',
+    titleJa: '江陵 安木海岸コーヒー通り＆K-カルチャーツアー',
+    titleZh: '江陵安木海边咖啡街与K-Culture圣地巡礼',
+    descKo: '파도 소리와 함께 즐기는 안목해변 오션뷰 카페거리, BTS 버스정류장과 주문진 도깨비 촬영지',
+    descEn: 'Aromatic coastal coffee street along Anmok beach, BTS bus stop, and Jumunjin drama filming spots',
+    descJa: '安木海岸のオーシャンビューカフェ通り、BTSバス停と人気ドラマロケ地めぐり',
+    descZh: '安木海边海景咖啡街、BTS海边公交站与经典韩剧经典取景地',
+    city: '강릉',
+    cityCode: 'gangneung',
+    durationKo: '1박 2일',
+    durationEn: '2 Days',
+    durationJa: '1泊2日',
+    durationZh: '2天1晚',
+    rating: 4.8,
+    reviews: '1.9k',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/13/2678613_image2_1.jpg',
+    tagsKo: ['#안목해변', '#커피거리', '#BTS정류장', '#주문진'],
+    tagsEn: ['#AnmokBeach', '#CoffeeStreet', '#BTSStop', '#Jumunjin'],
+    tagsJa: ['#安木ビーチ', '#カフェ通り', '#BTSスポット', '#注文津'],
+    tagsZh: ['#安木海滩', '#咖啡街', '#BTS打卡点', '#订单津'],
+    prompt: '강릉 안목해변 커피거리와 BTS 버스정류장, 주문진 해변 1박2일 힐링 코스'
   }
 ];
 
@@ -198,6 +242,7 @@ export default function PortalHomePrototype({
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [isHovered, setIsHovered] = useState(false);
+  const [selectedCityTab, setSelectedCityTab] = useState('all');
 
   // Auto-advance cinematic hero slides every 5.5 seconds unless user hovers
   useEffect(() => {
@@ -227,34 +272,47 @@ export default function PortalHomePrototype({
 
   const QUICK_CHIPS = [
     { labelKo: '☕ 성수·한남 힙플', labelEn: '☕ Seongsu & Hannam', prompt: '서울 성수동과 한남동 감성 카페와 핫플 코스' },
-    { labelKo: '👑 경복궁 & 북촌', labelEn: '👑 Gyeongbokgung & Bukchon', prompt: '경복궁과 북촌 한옥마을, 인사동 전통 문화 코스' },
+    { labelKo: '👑 경복궁 & 북촌', labelEn: '👑 Gyeongbokgung Palace', prompt: '경복궁과 북촌 한옥마을, 인사동 전통 문화 코스' },
     { labelKo: '🌊 부산 광안리 오션뷰', labelEn: '🌊 Busan Gwangan Ocean', prompt: '부산 해운대와 광안리 오션뷰 미식 코스' },
     { labelKo: '🍊 제주 서귀포 힐링', labelEn: '🍊 Jeju Healing Drive', prompt: '제주도 애월과 서귀포 해안 힐링 코스' },
     { labelKo: '🏯 수원 행궁동 투어', labelEn: '🏯 Suwon Fortress Tour', prompt: '수원 화성행궁과 행리단길 1일 투어' }
   ];
 
+  const CITY_TABS = [
+    { code: 'all', labelKo: '전체', labelEn: 'All', labelJa: 'すべて', labelZh: '全部' },
+    { code: 'seoul', labelKo: '서울', labelEn: 'Seoul', labelJa: 'ソウル', labelZh: '首尔' },
+    { code: 'busan', labelKo: '부산', labelEn: 'Busan', labelJa: '釜山', labelZh: '釜山' },
+    { code: 'jeju', labelKo: '제주', labelEn: 'Jeju', labelJa: '済州', labelZh: '济州' },
+    { code: 'suwon', labelKo: '수원', labelEn: 'Suwon', labelJa: '水原', labelZh: '水原' },
+    { code: 'gangneung', labelKo: '강릉', labelEn: 'Gangneung', labelJa: '江陵', labelZh: '江陵' }
+  ];
+
+  const filteredThemes = selectedCityTab === 'all' 
+    ? CURATED_THEMES 
+    : CURATED_THEMES.filter(t => t.cityCode === selectedCityTab);
+
   return (
     <div style={{ width: '100%', color: 'var(--text-main)', paddingBottom: '2.5rem' }}>
       
-      {/* 🎬 1. Grand Cinematic Hero Carousel */}
+      {/* ☀️ 1. Grand Natural Bright & Scenic Hero */}
       <div 
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         style={{
           position: 'relative',
           width: '100%',
-          minHeight: '480px',
-          maxHeight: '620px',
-          height: '62vh',
+          minHeight: '440px',
+          maxHeight: '580px',
+          height: '56vh',
           borderRadius: '28px',
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4)',
-          marginBottom: '2.5rem',
-          border: '1px solid rgba(255, 255, 255, 0.12)'
+          boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.25)',
+          marginBottom: '2rem',
+          border: '1px solid rgba(255, 255, 255, 0.2)'
         }}
       >
         {/* Background Image Carousel with Smooth Crossfade & Zoom */}
@@ -271,21 +329,21 @@ export default function PortalHomePrototype({
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               opacity: idx === currentSlideIndex ? 1 : 0,
-              transform: idx === currentSlideIndex ? 'scale(1.04)' : 'scale(1.0)',
+              transform: idx === currentSlideIndex ? 'scale(1.03)' : 'scale(1.0)',
               transition: 'opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), transform 6s ease-out',
               zIndex: 1
             }}
           />
         ))}
 
-        {/* Ambient Subtle Light Scrim (Photos stay 100% bright and vivid) */}
+        {/* Ambient Subtle Light Scrim (Photos stay 100% bright, sunny and natural) */}
         <div style={{
           position: 'absolute',
           top: 0,
           left: 0,
           width: '100%',
           height: '100%',
-          background: 'linear-gradient(180deg, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.05) 45%, rgba(15, 23, 42, 0.6) 100%)',
+          background: 'linear-gradient(180deg, rgba(0, 0, 0, 0.12) 0%, rgba(0, 0, 0, 0.02) 40%, rgba(15, 23, 42, 0.58) 100%)',
           zIndex: 2
         }} />
 
@@ -295,12 +353,12 @@ export default function PortalHomePrototype({
           zIndex: 3,
           textAlign: 'center',
           maxWidth: '860px',
-          padding: '1.5rem',
+          padding: '1.25rem',
           width: '100%',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: '1rem'
+          gap: '0.85rem'
         }}>
           
           {/* Top Sparkling Badge */}
@@ -313,7 +371,7 @@ export default function PortalHomePrototype({
             backgroundColor: 'rgba(15, 23, 42, 0.65)',
             backdropFilter: 'blur(16px)',
             WebkitBackdropFilter: 'blur(16px)',
-            border: '1px solid rgba(255, 255, 255, 0.35)',
+            border: '1px solid rgba(255, 255, 255, 0.4)',
             color: '#93c5fd',
             fontSize: '0.82rem',
             fontWeight: 800,
@@ -330,7 +388,7 @@ export default function PortalHomePrototype({
 
           {/* Dynamic Headline */}
           <h1 style={{
-            fontSize: 'clamp(1.75rem, 4.5vw, 2.95rem)',
+            fontSize: 'clamp(1.75rem, 4.2vw, 2.85rem)',
             fontWeight: 900,
             lineHeight: 1.22,
             color: '#ffffff',
@@ -346,7 +404,7 @@ export default function PortalHomePrototype({
 
           {/* Subtitle */}
           <p style={{
-            fontSize: 'clamp(0.92rem, 1.9vw, 1.18rem)',
+            fontSize: 'clamp(0.92rem, 1.8vw, 1.15rem)',
             color: '#ffffff',
             margin: 0,
             maxWidth: '680px',
@@ -360,26 +418,24 @@ export default function PortalHomePrototype({
              currentSlide.subKo}
           </p>
 
-          {/* 🔍 Gleaming Pure White High-Contrast Glass Search & AI Generator Box */}
+          {/* 🔍 HanaTour / Airbnb Style Pure White Smart Search Box */}
           <form 
             onSubmit={handleSearch}
             style={{
               width: '100%',
               maxWidth: '640px',
-              marginTop: '0.6rem',
+              marginTop: '0.4rem',
               position: 'relative'
             }}
           >
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              backgroundColor: 'rgba(255, 255, 255, 0.96)',
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
-              border: '1.5px solid rgba(255, 255, 255, 0.95)',
+              backgroundColor: '#ffffff',
               borderRadius: '9999px',
               padding: '0.35rem 0.4rem 0.35rem 1.1rem',
               boxShadow: '0 20px 45px rgba(0, 0, 0, 0.35)',
+              border: '2px solid rgba(255, 255, 255, 0.95)',
               transition: 'all 0.3s ease'
             }}>
               <Search size={20} style={{ color: '#2563eb', flexShrink: 0 }} />
@@ -430,20 +486,20 @@ export default function PortalHomePrototype({
             </div>
           </form>
 
-          {/* Quick Suggestion Chips (Pure High-Contrast Style) */}
+          {/* Quick Suggestion Chips */}
           <div style={{
             display: 'flex',
             flexWrap: 'wrap',
             justifyContent: 'center',
             gap: '0.45rem',
-            marginTop: '0.2rem'
+            marginTop: '0.1rem'
           }}>
             {QUICK_CHIPS.map((chip, idx) => (
               <button
                 key={idx}
                 onClick={() => handleChipClick(chip.prompt)}
                 style={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.92)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.94)',
                   backdropFilter: 'blur(10px)',
                   border: '1px solid rgba(255, 255, 255, 0.8)',
                   color: '#0f172a',
@@ -464,7 +520,7 @@ export default function PortalHomePrototype({
                   e.currentTarget.style.transform = 'translateY(-2px)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.92)';
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.94)';
                   e.currentTarget.style.color = '#0f172a';
                   e.currentTarget.style.transform = 'translateY(0)';
                 }}
@@ -478,7 +534,7 @@ export default function PortalHomePrototype({
         {/* Slide Indicators / Navigation Dots */}
         <div style={{
           position: 'absolute',
-          bottom: '1rem',
+          bottom: '0.9rem',
           left: '50%',
           transform: 'translateX(-50%)',
           display: 'flex',
@@ -493,7 +549,7 @@ export default function PortalHomePrototype({
                 width: idx === currentSlideIndex ? '24px' : '8px',
                 height: '8px',
                 borderRadius: '4px',
-                backgroundColor: idx === currentSlideIndex ? '#ffffff' : 'rgba(255, 255, 255, 0.4)',
+                backgroundColor: idx === currentSlideIndex ? '#ffffff' : 'rgba(255, 255, 255, 0.5)',
                 border: 'none',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease'
@@ -504,44 +560,15 @@ export default function PortalHomePrototype({
         </div>
       </div>
 
-      {/* ⚡ 2. 4-Pillars Iconic Feature Hub */}
-      <div style={{ marginBottom: '3rem' }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '1rem'
-        }}>
-          <div>
-            <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.35rem',
-              color: 'var(--accent-primary)',
-              fontSize: '0.78rem',
-              fontWeight: 800,
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em'
-            }}>
-              <Flame size={14} style={{ color: '#f59e0b' }} />
-              <span>CORE FEATURES</span>
-            </div>
-            <h2 style={{ fontSize: '1.4rem', fontWeight: 900, margin: '0.2rem 0 0 0' }}>
-              {lang === 'en' ? 'Smart Travel Concierge at Your Fingertips' :
-               lang === 'ja' ? 'スマートな韓国旅行コンシェルジュ機能' :
-               (lang === 'zh' || lang === 'zht') ? '一站式智能韩国旅游礼宾功能' :
-               '스마트한 여행을 위한 4대 핵심 서비스'}
-            </h2>
-          </div>
-        </div>
-
-        {/* 4 Feature Cards Grid */}
+      {/* ⚡ 2. HanaTour / VisitKorea Style 6-Icon Circular Quick Hub */}
+      <div style={{ marginBottom: '2.5rem' }}>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-          gap: '1rem'
+          gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+          gap: '0.85rem'
         }}>
-          {/* Card 1: AI Custom Course */}
+          
+          {/* Icon 1: AI Course Planner */}
           <div 
             onClick={() => {
               const el = document.getElementById('search-filter-section');
@@ -551,20 +578,21 @@ export default function PortalHomePrototype({
               backgroundColor: 'var(--bg-card)',
               border: '1px solid var(--border-color)',
               borderRadius: '20px',
-              padding: '1.25rem',
-              cursor: 'pointer',
-              transition: 'all 0.25s ease',
+              padding: '1.1rem 0.6rem',
               display: 'flex',
               flexDirection: 'column',
-              justifyContent: 'space-between',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.6rem',
+              cursor: 'pointer',
+              transition: 'all 0.25s ease',
               boxShadow: 'var(--shadow-sm)',
-              position: 'relative',
-              overflow: 'hidden'
+              textAlign: 'center'
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-4px)';
               e.currentTarget.style.borderColor = 'var(--accent-primary)';
-              e.currentTarget.style.boxShadow = '0 12px 25px rgba(37, 99, 235, 0.15)';
+              e.currentTarget.style.boxShadow = '0 10px 20px rgba(37, 99, 235, 0.12)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'translateY(0)';
@@ -572,45 +600,25 @@ export default function PortalHomePrototype({
               e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
             }}
           >
-            <div>
-              <div style={{
-                width: '42px',
-                height: '42px',
-                borderRadius: '12px',
-                background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(124, 58, 237, 0.15))',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'var(--accent-primary)',
-                marginBottom: '0.85rem'
-              }}>
-                <Sparkles size={22} />
-              </div>
-              <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 0.35rem 0' }}>
-                {lang === 'en' ? 'AI Smart Course' : lang === 'ja' ? 'AIスマートコース' : (lang === 'zh' || lang === 'zht') ? 'AI智能路线定制' : 'AI 맞춤 코스 플래너'}
-              </h3>
-              <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: 1.4, margin: 0 }}>
-                {lang === 'en' ? 'Gemini AI crafts 1-to-5 day personalized routes with transit times and cluster optimization' :
-                 lang === 'ja' ? 'Gemini AIが移動時間・動線を完全最適化した1〜5日間の旅程を自動設計' :
-                 (lang === 'zh' || lang === 'zht') ? 'Gemini AI 智能规划1-5天行程，优化交通与游览动线' :
-                 '이동시간과 거리 낭비 없이 1~5일 완벽한 최적 동선 1초 생성'}
-              </p>
-            </div>
             <div style={{
-              marginTop: '1rem',
+              width: '52px',
+              height: '52px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.3rem',
-              color: 'var(--accent-primary)',
-              fontSize: '0.8rem',
-              fontWeight: 800
+              justifyContent: 'center',
+              color: '#ffffff',
+              boxShadow: '0 8px 16px rgba(37, 99, 235, 0.25)'
             }}>
-              <span>{lang === 'en' ? 'Start Planning' : lang === 'ja' ? 'プラン作成 →' : (lang === 'zh' || lang === 'zht') ? '开始规划 →' : '코스 만들기 →'}</span>
-              <ChevronRight size={14} />
+              <Sparkles size={24} />
+            </div>
+            <div style={{ fontSize: '0.84rem', fontWeight: 800, color: 'var(--text-main)' }}>
+              {lang === 'en' ? 'AI Planner' : lang === 'ja' ? 'AIプラン作成' : (lang === 'zh' || lang === 'zht') ? 'AI行程规划' : 'AI 코스 플래너'}
             </div>
           </div>
 
-          {/* Card 2: Real-time Weather & Styling */}
+          {/* Icon 2: Real-time Weather & Styling */}
           <div 
             onClick={() => {
               if (onOpenWeather) onOpenWeather(targetCity);
@@ -619,18 +627,21 @@ export default function PortalHomePrototype({
               backgroundColor: 'var(--bg-card)',
               border: '1px solid var(--border-color)',
               borderRadius: '20px',
-              padding: '1.25rem',
-              cursor: 'pointer',
-              transition: 'all 0.25s ease',
+              padding: '1.1rem 0.6rem',
               display: 'flex',
               flexDirection: 'column',
-              justifyContent: 'space-between',
-              boxShadow: 'var(--shadow-sm)'
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.6rem',
+              cursor: 'pointer',
+              transition: 'all 0.25s ease',
+              boxShadow: 'var(--shadow-sm)',
+              textAlign: 'center'
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-4px)';
               e.currentTarget.style.borderColor = '#f59e0b';
-              e.currentTarget.style.boxShadow = '0 12px 25px rgba(245, 158, 11, 0.15)';
+              e.currentTarget.style.boxShadow = '0 10px 20px rgba(245, 158, 11, 0.12)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'translateY(0)';
@@ -638,45 +649,25 @@ export default function PortalHomePrototype({
               e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
             }}
           >
-            <div>
-              <div style={{
-                width: '42px',
-                height: '42px',
-                borderRadius: '12px',
-                background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(239, 68, 68, 0.15))',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#f59e0b',
-                marginBottom: '0.85rem'
-              }}>
-                <CloudSun size={22} />
-              </div>
-              <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 0.35rem 0' }}>
-                {lang === 'en' ? 'Weather & Styling' : lang === 'ja' ? '天気＆コーデガイド' : (lang === 'zh' || lang === 'zht') ? '实时天气与穿搭' : '실시간 날씨 & 코디'}
-              </h3>
-              <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: 1.4, margin: 0 }}>
-                {lang === 'en' ? 'Nationwide Dong-level feels-like temperature and climate-tailored outfit recommendations' :
-                 lang === 'ja' ? '全国の体感温度と旅行時期に合わせた最適な服装・持ち物アドバイス' :
-                 (lang === 'zh' || lang === 'zht') ? '全国洞级实时体感温度与基于气候的穿搭建议' :
-                 '전국 동단위 기온·체감온도 듀얼 표시 및 여행 코디 추천'}
-              </p>
-            </div>
             <div style={{
-              marginTop: '1rem',
+              width: '52px',
+              height: '52px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #f59e0b, #ef4444)',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.3rem',
-              color: '#f59e0b',
-              fontSize: '0.8rem',
-              fontWeight: 800
+              justifyContent: 'center',
+              color: '#ffffff',
+              boxShadow: '0 8px 16px rgba(245, 158, 11, 0.25)'
             }}>
-              <span>{lang === 'en' ? 'Check Weather' : lang === 'ja' ? '天気確認 →' : (lang === 'zh' || lang === 'zht') ? '查看天气 →' : '날씨 확인하기 →'}</span>
-              <ChevronRight size={14} />
+              <CloudSun size={24} />
+            </div>
+            <div style={{ fontSize: '0.84rem', fontWeight: 800, color: 'var(--text-main)' }}>
+              {lang === 'en' ? 'Weather & Outfit' : lang === 'ja' ? '天気＆コーデ' : (lang === 'zh' || lang === 'zht') ? '实时天气穿搭' : '실시간 날씨 & 코디'}
             </div>
           </div>
 
-          {/* Card 3: Transit Pass & 1330 Helpline */}
+          {/* Icon 3: Climate Card & Transit */}
           <div 
             onClick={() => {
               const el = document.getElementById('travel-essentials-section');
@@ -687,18 +678,21 @@ export default function PortalHomePrototype({
               backgroundColor: 'var(--bg-card)',
               border: '1px solid var(--border-color)',
               borderRadius: '20px',
-              padding: '1.25rem',
-              cursor: 'pointer',
-              transition: 'all 0.25s ease',
+              padding: '1.1rem 0.6rem',
               display: 'flex',
               flexDirection: 'column',
-              justifyContent: 'space-between',
-              boxShadow: 'var(--shadow-sm)'
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.6rem',
+              cursor: 'pointer',
+              transition: 'all 0.25s ease',
+              boxShadow: 'var(--shadow-sm)',
+              textAlign: 'center'
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-4px)';
               e.currentTarget.style.borderColor = '#10b981';
-              e.currentTarget.style.boxShadow = '0 12px 25px rgba(16, 185, 129, 0.15)';
+              e.currentTarget.style.boxShadow = '0 10px 20px rgba(16, 185, 129, 0.12)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'translateY(0)';
@@ -706,45 +700,74 @@ export default function PortalHomePrototype({
               e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
             }}
           >
-            <div>
-              <div style={{
-                width: '42px',
-                height: '42px',
-                borderRadius: '12px',
-                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(6, 182, 212, 0.15))',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#10b981',
-                marginBottom: '0.85rem'
-              }}>
-                <Train size={22} />
-              </div>
-              <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 0.35rem 0' }}>
-                {lang === 'en' ? 'Transit & Passes' : lang === 'ja' ? '交通＆パスガイド' : (lang === 'zh' || lang === 'zht') ? '公共交通与通票' : '대중교통 & 필수 패스'}
-              </h3>
-              <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: 1.4, margin: 0 }}>
-                {lang === 'en' ? 'Climate Card, T-Money guide, Metro maps, and 24/7 VisitKorea 1330 emergency hotline' :
-                 lang === 'ja' ? '気候同行カード、T-money、地下鉄路線図＆24時間1330通訳ヘルプライン' :
-                 (lang === 'zh' || lang === 'zht') ? '气候同行卡、T-Money使用指南与24小时1330紧急多语热线' :
-                 '기후동행카드, T-Money, 지하철 노선도 & 1330 긴급 통역'}
-              </p>
-            </div>
             <div style={{
-              marginTop: '1rem',
+              width: '52px',
+              height: '52px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #10b981, #06b6d4)',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.3rem',
-              color: '#10b981',
-              fontSize: '0.8rem',
-              fontWeight: 800
+              justifyContent: 'center',
+              color: '#ffffff',
+              boxShadow: '0 8px 16px rgba(16, 185, 129, 0.25)'
             }}>
-              <span>{lang === 'en' ? 'Open Toolkit' : lang === 'ja' ? 'ツールキット →' : (lang === 'zh' || lang === 'zht') ? '查看工具箱 →' : '툴킷 보기 →'}</span>
-              <ChevronRight size={14} />
+              <Train size={24} />
+            </div>
+            <div style={{ fontSize: '0.84rem', fontWeight: 800, color: 'var(--text-main)' }}>
+              {lang === 'en' ? 'Climate Card' : lang === 'ja' ? '気候同行カード' : (lang === 'zh' || lang === 'zht') ? '气候同行卡' : '기후동행카드'}
             </div>
           </div>
 
-          {/* Card 4: eSIM & Booking Benefits */}
+          {/* Icon 4: Seoul Metro Map */}
+          <div 
+            onClick={() => {
+              window.open('http://www.seoulmetro.co.kr/kr/cyberStation.do', '_blank');
+            }}
+            style={{
+              backgroundColor: 'var(--bg-card)',
+              border: '1px solid var(--border-color)',
+              borderRadius: '20px',
+              padding: '1.1rem 0.6rem',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.6rem',
+              cursor: 'pointer',
+              transition: 'all 0.25s ease',
+              boxShadow: 'var(--shadow-sm)',
+              textAlign: 'center'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)';
+              e.currentTarget.style.borderColor = '#0284c7';
+              e.currentTarget.style.boxShadow = '0 10px 20px rgba(2, 132, 199, 0.12)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.borderColor = 'var(--border-color)';
+              e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+            }}
+          >
+            <div style={{
+              width: '52px',
+              height: '52px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #0284c7, #3b82f6)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#ffffff',
+              boxShadow: '0 8px 16px rgba(2, 132, 199, 0.25)'
+            }}>
+              <Map size={24} />
+            </div>
+            <div style={{ fontSize: '0.84rem', fontWeight: 800, color: 'var(--text-main)' }}>
+              {lang === 'en' ? 'Metro Map' : lang === 'ja' ? '地下鉄路線図' : (lang === 'zh' || lang === 'zht') ? '地铁路线图' : '지하철 노선도'}
+            </div>
+          </div>
+
+          {/* Icon 5: Unlimited eSIM */}
           <div 
             onClick={() => {
               window.open('https://affiliate.klook.com', '_blank');
@@ -753,18 +776,21 @@ export default function PortalHomePrototype({
               backgroundColor: 'var(--bg-card)',
               border: '1px solid var(--border-color)',
               borderRadius: '20px',
-              padding: '1.25rem',
-              cursor: 'pointer',
-              transition: 'all 0.25s ease',
+              padding: '1.1rem 0.6rem',
               display: 'flex',
               flexDirection: 'column',
-              justifyContent: 'space-between',
-              boxShadow: 'var(--shadow-sm)'
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.6rem',
+              cursor: 'pointer',
+              transition: 'all 0.25s ease',
+              boxShadow: 'var(--shadow-sm)',
+              textAlign: 'center'
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-4px)';
               e.currentTarget.style.borderColor = '#8b5cf6';
-              e.currentTarget.style.boxShadow = '0 12px 25px rgba(139, 92, 246, 0.15)';
+              e.currentTarget.style.boxShadow = '0 10px 20px rgba(139, 92, 246, 0.12)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'translateY(0)';
@@ -772,84 +798,156 @@ export default function PortalHomePrototype({
               e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
             }}
           >
-            <div>
-              <div style={{
-                width: '42px',
-                height: '42px',
-                borderRadius: '12px',
-                background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(236, 72, 153, 0.15))',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#8b5cf6',
-                marginBottom: '0.85rem'
-              }}>
-                <Wifi size={22} />
-              </div>
-              <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 0.35rem 0' }}>
-                {lang === 'en' ? 'eSIM & Travel Deals' : lang === 'ja' ? 'eSIM＆限定特典' : (lang === 'zh' || lang === 'zht') ? 'eSIM与专属优惠' : 'eSIM & 여행 혜택'}
-              </h3>
-              <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: 1.4, margin: 0 }}>
-                {lang === 'en' ? 'Instant unlimited 5G eSIM activation and verified exclusive discounts with Klook & Agoda' :
-                 lang === 'ja' ? '無制限5G eSIM即時開通＆Klook・Agoda厳選割引特典' :
-                 (lang === 'zh' || lang === 'zht') ? '无限5G eSIM即时激活与Klook/Agoda专属折扣优惠' :
-                 '무제한 데이터 eSIM 즉시 개통 및 Klook/Agoda 제휴 할인'}
-              </p>
-            </div>
             <div style={{
-              marginTop: '1rem',
+              width: '52px',
+              height: '52px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.3rem',
-              color: '#8b5cf6',
-              fontSize: '0.8rem',
-              fontWeight: 800
+              justifyContent: 'center',
+              color: '#ffffff',
+              boxShadow: '0 8px 16px rgba(139, 92, 246, 0.25)'
             }}>
-              <span>{lang === 'en' ? 'Claim Perks' : lang === 'ja' ? '特典を見る →' : (lang === 'zh' || lang === 'zht') ? '查看优惠 →' : '혜택 받기 →'}</span>
-              <ChevronRight size={14} />
+              <Wifi size={24} />
+            </div>
+            <div style={{ fontSize: '0.84rem', fontWeight: 800, color: 'var(--text-main)' }}>
+              {lang === 'en' ? 'Korea eSIM' : lang === 'ja' ? '韓国eSIM' : (lang === 'zh' || lang === 'zht') ? '韩国eSIM' : '무제한 eSIM'}
             </div>
           </div>
+
+          {/* Icon 6: 1330 Emergency Helpline */}
+          <div 
+            onClick={() => {
+              window.open(lang === 'en' ? 'https://english.visitkorea.or.kr' : lang === 'ja' ? 'https://japanese.visitkorea.or.kr' : (lang === 'zh' || lang === 'zht') ? 'https://chinese.visitkorea.or.kr' : 'https://korean.visitkorea.or.kr', '_blank');
+            }}
+            style={{
+              backgroundColor: 'var(--bg-card)',
+              border: '1px solid var(--border-color)',
+              borderRadius: '20px',
+              padding: '1.1rem 0.6rem',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.6rem',
+              cursor: 'pointer',
+              transition: 'all 0.25s ease',
+              boxShadow: 'var(--shadow-sm)',
+              textAlign: 'center'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)';
+              e.currentTarget.style.borderColor = '#ef4444';
+              e.currentTarget.style.boxShadow = '0 10px 20px rgba(239, 68, 68, 0.12)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.borderColor = 'var(--border-color)';
+              e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+            }}
+          >
+            <div style={{
+              width: '52px',
+              height: '52px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #ef4444, #f97316)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#ffffff',
+              boxShadow: '0 8px 16px rgba(239, 68, 68, 0.25)'
+            }}>
+              <PhoneCall size={24} />
+            </div>
+            <div style={{ fontSize: '0.84rem', fontWeight: 800, color: 'var(--text-main)' }}>
+              {lang === 'en' ? '1330 Hotline' : lang === 'ja' ? '1330 通訳' : (lang === 'zh' || lang === 'zht') ? '1330 翻译热线' : '1330 긴급통역'}
+            </div>
+          </div>
+
         </div>
       </div>
 
-      {/* 🌟 3. Trending Curated AI Magazine Cards (Foreigner Top 4 Picks) */}
+      {/* 🌟 3. Trending Curated AI Magazine Cards with City Filter Tabs */}
       <div>
         <div style={{
           display: 'flex',
-          alignItems: 'flex-end',
-          justifyContent: 'space-between',
+          flexDirection: 'column',
+          gap: '0.85rem',
           marginBottom: '1.25rem'
         }}>
-          <div>
-            <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.35rem',
-              color: '#ef4444',
-              fontSize: '0.78rem',
-              fontWeight: 800,
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em'
-            }}>
-              <Star size={14} style={{ color: '#ef4444', fill: '#ef4444' }} />
-              <span>TRENDING ITINERARIES</span>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '0.5rem'
+          }}>
+            <div>
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                color: '#ef4444',
+                fontSize: '0.78rem',
+                fontWeight: 800,
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em'
+              }}>
+                <Star size={14} style={{ color: '#ef4444', fill: '#ef4444' }} />
+                <span>TRENDING THEMES</span>
+              </div>
+              <h2 style={{ fontSize: '1.35rem', fontWeight: 900, margin: '0.15rem 0 0 0' }}>
+                {lang === 'en' ? 'Popular Curated AI Travel Itineraries' :
+                 lang === 'ja' ? '外国人旅行者に大人気の厳選AIコース' :
+                 (lang === 'zh' || lang === 'zht') ? '海外游客精选高分推荐路线' :
+                 '외국인 인기 추천 테마 AI 여행 코스'}
+              </h2>
             </div>
-            <h2 style={{ fontSize: '1.4rem', fontWeight: 900, margin: '0.2rem 0 0 0' }}>
-              {lang === 'en' ? 'Top-Rated Curated Travel Themes' :
-               lang === 'ja' ? '外国人旅行者に大人気の厳選AIコース' :
-               (lang === 'zh' || lang === 'zht') ? '海外游客精选高分路线' :
-               '외국인 인기 추천 테마 AI 여행 코스'}
-            </h2>
+
+            {/* City Segmented Filter Tabs */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              backgroundColor: 'var(--bg-card)',
+              border: '1px solid var(--border-color)',
+              borderRadius: '9999px',
+              padding: '0.25rem',
+              gap: '0.2rem',
+              overflowX: 'auto',
+              maxWidth: '100%'
+            }}>
+              {CITY_TABS.map((tab) => (
+                <button
+                  key={tab.code}
+                  onClick={() => setSelectedCityTab(tab.code)}
+                  style={{
+                    border: 'none',
+                    padding: '0.35rem 0.75rem',
+                    borderRadius: '9999px',
+                    fontSize: '0.78rem',
+                    fontWeight: selectedCityTab === tab.code ? 800 : 600,
+                    backgroundColor: selectedCityTab === tab.code ? 'var(--accent-primary)' : 'transparent',
+                    color: selectedCityTab === tab.code ? '#ffffff' : 'var(--text-muted)',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  <span>{lang === 'en' ? tab.labelEn : lang === 'ja' ? tab.labelJa : (lang === 'zh' || lang === 'zht') ? tab.labelZh : tab.labelKo}</span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* 4 Themed Magazine Cards Grid */}
+        {/* Themed Magazine Cards Grid */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(270px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
           gap: '1.25rem'
         }}>
-          {TRENDING_THEMES.map((theme) => (
+          {filteredThemes.map((theme) => (
             <div
               key={theme.id}
               onClick={() => {
@@ -884,7 +982,7 @@ export default function PortalHomePrototype({
               <div style={{
                 position: 'relative',
                 width: '100%',
-                height: '180px',
+                height: '185px',
                 overflow: 'hidden'
               }}>
                 <img
@@ -907,7 +1005,7 @@ export default function PortalHomePrototype({
                   left: 0,
                   width: '100%',
                   height: '100%',
-                  background: 'linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, transparent 60%)'
+                  background: 'linear-gradient(to top, rgba(0, 0, 0, 0.65) 0%, transparent 60%)'
                 }} />
 
                 {/* City & Duration Floating Badges */}
