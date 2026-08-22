@@ -547,6 +547,15 @@ export default function App() {
             setIsWeatherOpen(true);
           }}
           onOpenEssentials={() => setIsEssentialsOpen(true)}
+          onOpenPlanner={() => {
+            setMobileHubTab('chat');
+            const hub = document.getElementById('itinerary-hub');
+            if (hub) hub.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            setTimeout(() => {
+              const inputEl = document.querySelector('.vora-chat-input-field') || document.querySelector('input[type="text"]');
+              if (inputEl) inputEl.focus();
+            }, 350);
+          }}
           targetCity={itineraryData?.targetCity || '서울'}
         />
 

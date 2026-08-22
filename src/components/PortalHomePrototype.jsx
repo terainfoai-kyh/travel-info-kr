@@ -247,6 +247,7 @@ export default function PortalHomePrototype({
   onSearchSubmit,
   onOpenWeather,
   onOpenEssentials,
+  onOpenPlanner,
   onSelectTheme,
   targetCity = '서울'
 }) {
@@ -629,8 +630,12 @@ export default function PortalHomePrototype({
           <div 
             className="portal-quick-hub-card"
             onClick={() => {
-              const el = document.getElementById('search-filter-section');
-              if (el) el.scrollIntoView({ behavior: 'smooth' });
+              if (onOpenPlanner) {
+                onOpenPlanner();
+              } else {
+                const el = document.getElementById('itinerary-hub');
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
             }}
           >
             <div className="portal-quick-hub-icon" style={{
