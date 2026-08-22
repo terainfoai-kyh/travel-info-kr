@@ -399,32 +399,42 @@ export default function WeatherModal({
       }
     }
 
-    const forecastDays = language === 'en'
-      ? ['Today', 'Tmrw', 'Day+2']
-      : language === 'ja'
-        ? ['今日', '明日', '明後日']
-        : (language === 'zh' || language === 'zht')
-          ? ['今天', '明天', '后天']
-          : ['오늘', '내일', '모레'];
+    const localizedForecast = (normalizedData.forecast || []).map((f, idx) => {
+      const offset = f.dayOffset || (idx + 1);
+      const targetDate = new Date();
+      targetDate.setDate(targetDate.getDate() + offset);
+      const dayIdx = targetDate.getDay();
+      
+      let localizedDayLabel = f.day;
+      if (language === 'en') {
+        const weekEn = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dayIdx];
+        localizedDayLabel = offset === 1 ? `Tmrw (${weekEn})` : (offset === 2 ? `Day +2 (${weekEn})` : `${weekEn}`);
+      } else if (language === 'ja') {
+        const weekJa = ['日', '月', '火', '水', '木', '金', '土'][dayIdx];
+        localizedDayLabel = offset === 1 ? `明日 (${weekJa})` : (offset === 2 ? `明後日 (${weekJa})` : `${weekJa}曜日`);
+      } else if (language === 'zh' || language === 'zht') {
+        const weekZh = ['日', '一', '二', '三', '四', '五', '六'][dayIdx];
+        const isZht = language === 'zht';
+        localizedDayLabel = offset === 1 ? `明天 (${weekZh})` : (offset === 2 ? (isZht ? `後天 (${weekZh})` : `后天 (${weekZh})`) : `周${weekZh}`);
+      }
+
+      return {
+        ...f,
+        day: localizedDayLabel,
+        weather: translateWeather(f.weather || '')
+      };
+    });
 
     return {
-      ...data,
-      dust: translateDust(data.dust),
-      uv: translateUv(data.uv),
-      weather: translateWeather(data.weather),
+      ...normalizedData,
+      dust: translateDust(normalizedData.dust),
+      uv: translateUv(normalizedData.uv),
+      weather: translateWeather(normalizedData.weather),
       topBottom,
       outer,
       essentials,
       tip,
-      forecast: data.forecast.map((f, idx) => ({
-        ...f,
-        day: forecastDays[idx] || forecastDays[0],
-        weather: f.weather.includes('맑') || f.weather.includes('화창')
-          ? (language === 'ja' ? '☀️ 快晴' : (language === 'zh' || language === 'zht') ? '☀️ 晴天' : '☀️ Clear')
-          : f.weather.includes('구름')
-            ? (language === 'ja' ? '⛅ 曇り' : (language === 'zh' || language === 'zht') ? '⛅ 多云' : '⛅ Cloudy')
-            : (language === 'ja' ? '🌧️ 雨' : (language === 'zh' || language === 'zht') ? '🌧️ 有雨' : '🌧️ Rain')
-      }))
+      forecast: localizedForecast
     };
   };
 
@@ -678,7 +688,7 @@ export default function WeatherModal({
                 </span>
               </div>
 
-              {/* 3-Column Forecast Card Grid */}
+              {/* 3-Column Forecast Card Grid: Starting Tomorrow (Day+1, Day+2, Day+3) with Feels-Like Temp */}
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(3, 1fr)',
@@ -688,8 +698,8 @@ export default function WeatherModal({
                   <div key={i} style={{
                     backgroundColor: 'var(--bg-primary)',
                     border: '1px solid var(--border-color)',
-                    borderRadius: '10px',
-                    padding: '0.5rem 0.3rem',
+                    borderRadius: '12px',
+                    padding: '0.55rem 0.3rem',
                     textAlign: 'center',
                     display: 'flex',
                     flexDirection: 'column',
@@ -697,11 +707,22 @@ export default function WeatherModal({
                     gap: '0.15rem'
                   }}>
                     <span style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--text-main)' }}>{f.day}</span>
-                    <span style={{ fontSize: '0.78rem', fontWeight: 700 }}>{f.weather}</span>
-                    <span style={{ fontSize: '0.76rem', fontWeight: 900, color: 'var(--accent-primary)', marginTop: '0.1rem' }}>{f.temp}</span>
-                    {f.rain && (
-                      <span style={{ fontSize: '0.65rem', color: 'var(--text-dim)', fontWeight: 600 }}>💧 {f.rain}</span>
-                    )}
+                    <span style={{ fontSize: '0.78rem', fontWeight: 700, margin: '0.05rem 0' }}>{f.weather}</span>
+                    <span style={{ fontSize: '0.76rem', fontWeight: 900, color: 'var(--accent-primary)' }}>{f.temp}</span>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.2rem',
+                      fontSize: '0.66rem',
+                      fontWeight: 700,
+                      color: 'var(--text-muted)',
+                      marginTop: '0.05rem',
+                      flexWrap: 'wrap'
+                    }}>
+                      {f.feelsLike && <span>{t.weatherFeelsLike || '체감'} {f.feelsLike}</span>}
+                      {f.rain && <span>· 💧{f.rain}</span>}
+                    </div>
                   </div>
                 ))}
               </div>

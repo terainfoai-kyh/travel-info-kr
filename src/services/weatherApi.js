@@ -189,7 +189,7 @@ export function generateOutfitGuide(tempNum, weatherText = '맑음') {
 
 // Ultra-Accurate Realtime Weather Fetcher for Specific Coordinates
 async function fetchOpenMeteoWithCoords(coords, locationName = '수원') {
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lng}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,uv_index_max&timezone=Asia%2FSeoul`;
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lng}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,precipitation_probability_max,uv_index_max&timezone=Asia%2FSeoul`;
 
   const res = await fetch(url, { signal: AbortSignal.timeout(3000) });
   if (!res.ok) throw new Error(`Open-Meteo HTTP ${res.status}`);
@@ -207,26 +207,36 @@ async function fetchOpenMeteoWithCoords(coords, locationName = '수원') {
   const rainProbVal = data.daily?.precipitation_probability_max?.[0] ?? (isRainingNow ? 60 : 10);
   const rainProb = `${rainProbVal}%`;
 
-  // 3-Day Forecast: Today, Tomorrow, Day-after with high/low
+  // 3-Day Forecast: Starting from TOMORROW (Day+1, Day+2, Day+3) with exact weekdays & feels-like temps
   const forecast = [];
-  const dayNames = ['오늘', '내일', '모레'];
-  for (let i = 0; i < 3; i++) {
+  const weekDayMapKo = ['일', '월', '화', '수', '목', '금', '토'];
+  
+  for (let i = 1; i <= 3; i++) {
+    const targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() + i);
+    const dayOfWeek = weekDayMapKo[targetDate.getDay()];
+    const dayLabel = i === 1 ? `내일 (${dayOfWeek})` : (i === 2 ? `모레 (${dayOfWeek})` : `${dayOfWeek}요일`);
+
     const code = data.daily?.weather_code?.[i] ?? 0;
     const maxT = Math.round(data.daily?.temperature_2m_max?.[i] ?? (curTemp + 2));
     const minT = Math.round(data.daily?.temperature_2m_min?.[i] ?? (curTemp - 5));
-    const popVal = data.daily?.precipitation_probability_max?.[i] ?? (i === 0 && isRainingNow ? 60 : 20);
-    const dayRain = popVal >= 50 || (i === 0 && isRainingNow);
+    const feelMaxT = Math.round(data.daily?.apparent_temperature_max?.[i] ?? (maxT + 2));
+    const popVal = data.daily?.precipitation_probability_max?.[i] ?? 20;
+    const dayRain = popVal >= 50;
     const w = parseWmoWeather(code, dayRain);
     
     forecast.push({
-      day: dayNames[i],
+      day: dayLabel,
+      dayOffset: i,
+      weekday: dayOfWeek,
       weather: w.text,
       temp: `${maxT}° / ${minT}°`,
+      feelsLike: `${feelMaxT}°`,
       rain: `${popVal}%`
     });
   }
 
-  const outfit = generateOutfitGuide(curTemp, wmo.text);
+  const outfit = generateOutfitGuide(feelsLike, wmo.text);
 
   return {
     region: locationName,
@@ -291,13 +301,35 @@ export async function fetchRealtimeWeather(regionName = '서울', startDate, end
         const tempNum = parseFloat(temp);
         const isRain = ptyVal !== '0';
         const skyText = isRain ? '비 🌧️' : '맑고 쾌적 ☀️';
-        const outfit = generateOutfitGuide(tempNum, skyText);
+        const feelsLikeVal = `${Math.round(tempNum + 2)}°C`;
+        const outfit = generateOutfitGuide(tempNum + 2, skyText);
+
+        const weekDayMapKo = ['일', '월', '화', '수', '목', '금', '토'];
+        const fallbackForecast = [];
+        for (let i = 1; i <= 3; i++) {
+          const targetDate = new Date();
+          targetDate.setDate(targetDate.getDate() + i);
+          const dayOfWeek = weekDayMapKo[targetDate.getDay()];
+          const dayLabel = i === 1 ? `내일 (${dayOfWeek})` : (i === 2 ? `모레 (${dayOfWeek})` : `${dayOfWeek}요일`);
+          const maxT = Math.round(tempNum + (i === 1 ? 2 : (i === 2 ? 3 : 1)));
+          const minT = Math.round(tempNum - 5);
+          const feelT = Math.round(maxT + 2);
+          fallbackForecast.push({
+            day: dayLabel,
+            dayOffset: i,
+            weekday: dayOfWeek,
+            weather: i === 1 ? '⛅ 구름조금' : (i === 2 ? '☀️ 맑음' : '⛅ 구름많음'),
+            temp: `${maxT}° / ${minT}°`,
+            feelsLike: `${feelT}°`,
+            rain: i === 1 ? '20%' : (i === 2 ? '10%' : '30%')
+          });
+        }
 
         return {
           region: targetLocation,
           temp: temp,
           temperature: temp,
-          feelsLike: `${Math.round(tempNum + 1)}°C`,
+          feelsLike: feelsLikeVal,
           rain: isRain ? '60%' : '10%',
           rainProbability: isRain ? '60%' : '10%',
           weather: skyText,
@@ -311,11 +343,7 @@ export async function fetchRealtimeWeather(regionName = '서울', startDate, end
           essentials: outfit.essentials,
           tip: outfit.tip,
           forecastDate: '실시간 예보',
-          forecast: [
-            { day: '오늘', weather: skyText, temp: `${tempNum}° / ${Math.round(tempNum - 5)}°`, rain: isRain ? '60%' : '10%' },
-            { day: '내일', weather: '⛅ 구름조금', temp: `${Math.round(tempNum + 2)}° / ${Math.round(tempNum - 4)}°`, rain: '20%' },
-            { day: '모레', weather: '☀️ 맑음', temp: `${Math.round(tempNum + 3)}° / ${Math.round(tempNum - 3)}°`, rain: '10%' }
-          ],
+          forecast: fallbackForecast,
           source: 'kma-official'
         };
       }
@@ -328,13 +356,31 @@ export async function fetchRealtimeWeather(regionName = '서울', startDate, end
   const currentMonth = new Date().getMonth();
   const seasonalTemps = [-2, 1, 9, 15, 22, 26, 28, 28, 24, 16, 9, 2];
   const baseT = seasonalTemps[currentMonth] ?? 28;
-  const outfit = generateOutfitGuide(baseT, '맑고 쾌적 ☀️');
+  const outfit = generateOutfitGuide(baseT + 2, '맑고 쾌적 ☀️');
+
+  const weekDayMapKo = ['일', '월', '화', '수', '목', '금', '토'];
+  const seasonalForecast = [];
+  for (let i = 1; i <= 3; i++) {
+    const targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() + i);
+    const dayOfWeek = weekDayMapKo[targetDate.getDay()];
+    const dayLabel = i === 1 ? `내일 (${dayOfWeek})` : (i === 2 ? `모레 (${dayOfWeek})` : `${dayOfWeek}요일`);
+    seasonalForecast.push({
+      day: dayLabel,
+      dayOffset: i,
+      weekday: dayOfWeek,
+      weather: i === 1 ? '⛅ 구름조금' : (i === 2 ? '☀️ 화창함' : '⛅ 구름많음'),
+      temp: `${baseT + i}° / ${baseT - 5}°`,
+      feelsLike: `${baseT + i + 2}°`,
+      rain: `${15 + i * 5}%`
+    });
+  }
 
   return {
     region: targetLocation,
     temp: `${baseT}°C`,
     temperature: `${baseT}°C`,
-    feelsLike: `${baseT + 1}°C`,
+    feelsLike: `${baseT + 2}°C`,
     rain: '10%',
     rainProbability: '10%',
     weather: '맑고 쾌적 ☀️',
@@ -348,11 +394,7 @@ export async function fetchRealtimeWeather(regionName = '서울', startDate, end
     essentials: outfit.essentials,
     tip: outfit.tip,
     forecastDate: '실시간 예보',
-    forecast: [
-      { day: '오늘', weather: '☀️ 맑음', temp: `${baseT}° / ${baseT - 6}°`, rain: '10%' },
-      { day: '내일', weather: '⛅ 구름조금', temp: `${baseT + 2}° / ${baseT - 4}°`, rain: '20%' },
-      { day: '모레', weather: '☀️ 화창함', temp: `${baseT + 3}° / ${baseT - 3}°`, rain: '10%' }
-    ],
+    forecast: seasonalForecast,
     source: 'seasonal-fallback'
   };
 }
