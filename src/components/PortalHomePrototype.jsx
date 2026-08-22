@@ -32,7 +32,7 @@ const HERO_SLIDES = [
     subJa: '景福宮と北村韓屋村の風情を感じる特別な散歩',
     subZh: '漫步景福宫与北村韩屋村的静谧风情',
     spotQuery: '경복궁',
-    image: 'https://places.googleapis.com/v1/places/ChIJod7tSseifDUR9hXHLFNGMIs/photos/AVoNoXSb8LThO8o7RisC9dRwXjwYS9_0Av_mkzJ96jJ8S2LzNmzX8n4E0Y2I0rk9WOlffeljrPy6z-tUr51HEgup_yreuAbz8fdSfyHN03NVG7RoBGHoQXI2k57L9ZLl5j1FkN5J0O-8HxgPH3ZedhWhXdzCnFDfEJCYN3scyOk2soMUVsdmfihiXEBiMNy8dK7MoX1SyNr7BnlfyrpBuhBAviuPg8L73GN5rCBxhO0AYJvTjmv_j41sv1l-HnnZsSPfGSymXx1DX7tYfIf59VQLVLO1pcu34BxN2t2cOoWMg0Z-zg7_OVZfD9gISRknWzn1hcprUwOZJ2s-T1O9Hzex8c9z1PfSl9Wj5fKyyk4VqgNfU57vjgGxXEuVNr5y8H3N70l07qqq3-VHJrxnuCktOVTfMudvChvbWYcblKEbLWtE9osd/media?maxHeightPx=900&maxWidthPx=1400&key=AIzaSyCZCfdgYBXPMDbB7N2EhiEY-7DmaCrPh0k',
+    image: 'https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=1600&q=85',
     tagKo: '👑 서울 K-헤리티지',
     city: '서울'
   },
@@ -47,7 +47,7 @@ const HERO_SLIDES = [
     subJa: '聖水洞のカフェから漢江ピクニックまで完璧な1日',
     subZh: '从圣水洞快闪店到汉江野餐的完美一日',
     spotQuery: '동대문디자인플라자 DDP',
-    image: 'https://places.googleapis.com/v1/places/ChIJm2cQmJmlfDURejJHVB-Pn0U/photos/AVoNoXRtZVYv6Q0ud3oMgpOgS73kSOMNlKt97DXGZtw4icyhfJN_YJY4hgOwPECMH9vXua_zK3NKB8VTDXRgM8ujL99HfBtFKI3oNBW1_eESd4UjSOyp6ucfDo-AWARoBI4p5S-YTW3dlKLrUbNYwXl46n4P6s5an2weJNXHf4iCF_EYjp97D2KHQ9dehmZYfX_SBkr1DaFnr74gacDiWPaDGk1sV4Y8zGn7tGdPA-zpD6GP0OQrmT8AgA2dd8_6KLFMyYayVwxmXhqm-Xyy4_O6x4EMBUzb-cG4gQ7EHCMhbvdVE8wcco5pRwM3if06lJPy1L3wOXhkd1Pdi-FSTjkl9MIJ2PrASVvt8Xjd87pVMx0JgvBUvWNxbrzVYdIZiSWC965114pyZXZcTjnFSLRmAF3AXhIdAAozZHLulDL99a1J1fx_3BHj4BiJzkooWw/media?maxHeightPx=900&maxWidthPx=1400&key=AIzaSyCZCfdgYBXPMDbB7N2EhiEY-7DmaCrPh0k',
+    image: 'https://images.unsplash.com/photo-1546874177-9e664107314e?auto=format&fit=crop&w=1600&q=85',
     tagKo: '🏙️ 성수·한남 트렌드',
     city: '서울'
   },
@@ -62,7 +62,7 @@ const HERO_SLIDES = [
     subJa: '海雲台ヨットツアーと新鮮なシーフードのグルメ旅',
     subZh: '海云台游艇巡游与鲜美海鲜美食之旅',
     spotQuery: '광안리해수욕장',
-    image: 'https://places.googleapis.com/v1/places/ChIJxw7HJy_taDUR-xaSTeHwbf8/photos/AVoNoXQLUDa0tpT1-RSkcRrsUzc4mSRjy3R1akvBn2kFSTW_JBBWDhfIvKcBtZXQO-2qr3w9wKN1BjGYQHLdqSk33OmJPfC7aO6xt7bxWqCngeara3Kv8-__0fIojawMhDtbPvejTn_krWkEulhDz0IJJfJ7z0Dso9N-CN9UOECEbsxKUeYTemRH9pzbMJ_tUjM9wbc47RQInaEqZispyVEsPOm7WqVvTclSTLnKgXxJ91HR0WAsFEwTzBl0iOI192bGzqUP1ABXoyr544VZ-s5AeKdATnugkYCswhlFw-Ys0wV3m9J0uzrC-qeuiOT_Byh1_Am9Snn9bnx7vsnwjm-UsxqjzFNz5q4TWaiBlGEp4jIuN53vw6wzgyTtCJPHV7OgWcmx8TUjGb71WI02WWVjqO6ZLsUnmXosqSf8fq-clgdHDdBy/media?maxHeightPx=900&maxWidthPx=1400&key=AIzaSyCZCfdgYBXPMDbB7N2EhiEY-7DmaCrPh0k',
+    image: 'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=1600&q=85',
     tagKo: '🌊 부산 오션뷰 & 미식',
     city: '부산'
   },
@@ -77,7 +77,7 @@ const HERO_SLIDES = [
     subJa: '城山日出峰と涯月海岸道路で出会うヒーリング済州',
     subZh: '城山日出峰与涯月海岸公路的济州治愈之旅',
     spotQuery: '성산일출봉',
-    image: 'https://places.googleapis.com/v1/places/ChIJn3jj9rkUDTURS7YjOgUyUVU/photos/AVoNoXR4TbbyOKUaB5JdjkRKMthT9htNUnpfQu5hkdz2axv362D6DakSMpse-4aXwV_faIJHqnwiaYIAQBgyD5DvogYfdwnmQ8hLpgdkfLz0OcmTJjb1TbzynEOUVCtIzWgZTR2cOQJebkVeOTEd3bFOKKGWIAGsAiUdRIq7ujFAyvdklCiT3PM8VB84y4IFjIYaWrZUrA_LZN_6PzkO0yAK3SWq24-6qHBaabI9pmFm0nKWoK245VkuLHp3SibuCtq6rnI-tcNUb1Zdd34Sv1jroCdwmEJ4Kk7WeZmByE8UiWDchghXfSb4bplq-DW9ubA4bND8Cx9QcH1PdZWs1kJ_CsMbdkvIMYYP0cAijfCMX81wo5j6CvP2d7OjSnAMo3ow00-8yT-XoYaxALP3tKLshVZBcCxZ-MrRHRcSh1xmypR-IQ/media?maxHeightPx=900&maxWidthPx=1400&key=AIzaSyCZCfdgYBXPMDbB7N2EhiEY-7DmaCrPh0k',
+    image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1600&q=85',
     tagKo: '🍊 제주 자연 & 힐링',
     city: '제주'
   }
@@ -103,7 +103,7 @@ const CURATED_THEMES = [
     rating: 4.9,
     reviews: '2.4k',
     spotQuery: '성수동 카페거리',
-    image: 'https://places.googleapis.com/v1/places/ChIJm2cQmJmlfDURejJHVB-Pn0U/photos/AVoNoXRtZVYv6Q0ud3oMgpOgS73kSOMNlKt97DXGZtw4icyhfJN_YJY4hgOwPECMH9vXua_zK3NKB8VTDXRgM8ujL99HfBtFKI3oNBW1_eESd4UjSOyp6ucfDo-AWARoBI4p5S-YTW3dlKLrUbNYwXl46n4P6s5an2weJNXHf4iCF_EYjp97D2KHQ9dehmZYfX_SBkr1DaFnr74gacDiWPaDGk1sV4Y8zGn7tGdPA-zpD6GP0OQrmT8AgA2dd8_6KLFMyYayVwxmXhqm-Xyy4_O6x4EMBUzb-cG4gQ7EHCMhbvdVE8wcco5pRwM3if06lJPy1L3wOXhkd1Pdi-FSTjkl9MIJ2PrASVvt8Xjd87pVMx0JgvBUvWNxbrzVYdIZiSWC965114pyZXZcTjnFSLRmAF3AXhIdAAozZHLulDL99a1J1fx_3BHj4BiJzkooWw/media?maxHeightPx=800&maxWidthPx=1200&key=AIzaSyCZCfdgYBXPMDbB7N2EhiEY-7DmaCrPh0k',
+    image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=85',
     tagsKo: ['#성수동', '#K패션', '#감성카페', '#디뮤지엄'],
     tagsEn: ['#Seongsu', '#KFashion', '#TrendyCafe', '#DMuseum'],
     tagsJa: ['#聖水洞', '#Kファッション', '#人気カフェ', '#美術館'],
@@ -129,7 +129,7 @@ const CURATED_THEMES = [
     rating: 4.9,
     reviews: '5.1k',
     spotQuery: '경복궁',
-    image: 'https://places.googleapis.com/v1/places/ChIJod7tSseifDUR9hXHLFNGMIs/photos/AVoNoXSb8LThO8o7RisC9dRwXjwYS9_0Av_mkzJ96jJ8S2LzNmzX8n4E0Y2I0rk9WOlffeljrPy6z-tUr51HEgup_yreuAbz8fdSfyHN03NVG7RoBGHoQXI2k57L9ZLl5j1FkN5J0O-8HxgPH3ZedhWhXdzCnFDfEJCYN3scyOk2soMUVsdmfihiXEBiMNy8dK7MoX1SyNr7BnlfyrpBuhBAviuPg8L73GN5rCBxhO0AYJvTjmv_j41sv1l-HnnZsSPfGSymXx1DX7tYfIf59VQLVLO1pcu34BxN2t2cOoWMg0Z-zg7_OVZfD9gISRknWzn1hcprUwOZJ2s-T1O9Hzex8c9z1PfSl9Wj5fKyyk4VqgNfU57vjgGxXEuVNr5y8H3N70l07qqq3-VHJrxnuCktOVTfMudvChvbWYcblKEbLWtE9osd/media?maxHeightPx=800&maxWidthPx=1200&key=AIzaSyCZCfdgYBXPMDbB7N2EhiEY-7DmaCrPh0k',
+    image: 'https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=1200&q=85',
     tagsKo: ['#경복궁', '#한복체험', '#북촌한옥', '#인사동'],
     tagsEn: ['#Gyeongbokgung', '#Hanbok', '#Bukchon', '#Insadong'],
     tagsJa: ['#景福宮', '#韓服体験', '#北村韓屋', '#仁寺洞'],
@@ -155,7 +155,7 @@ const CURATED_THEMES = [
     rating: 4.9,
     reviews: '3.1k',
     spotQuery: '광안리해수욕장',
-    image: 'https://places.googleapis.com/v1/places/ChIJxw7HJy_taDUR-xaSTeHwbf8/photos/AVoNoXQLUDa0tpT1-RSkcRrsUzc4mSRjy3R1akvBn2kFSTW_JBBWDhfIvKcBtZXQO-2qr3w9wKN1BjGYQHLdqSk33OmJPfC7aO6xt7bxWqCngeara3Kv8-__0fIojawMhDtbPvejTn_krWkEulhDz0IJJfJ7z0Dso9N-CN9UOECEbsxKUeYTemRH9pzbMJ_tUjM9wbc47RQInaEqZispyVEsPOm7WqVvTclSTLnKgXxJ91HR0WAsFEwTzBl0iOI192bGzqUP1ABXoyr544VZ-s5AeKdATnugkYCswhlFw-Ys0wV3m9J0uzrC-qeuiOT_Byh1_Am9Snn9bnx7vsnwjm-UsxqjzFNz5q4TWaiBlGEp4jIuN53vw6wzgyTtCJPHV7OgWcmx8TUjGb71WI02WWVjqO6ZLsUnmXosqSf8fq-clgdHDdBy/media?maxHeightPx=800&maxWidthPx=1200&key=AIzaSyCZCfdgYBXPMDbB7N2EhiEY-7DmaCrPh0k',
+    image: 'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=1200&q=85',
     tagsKo: ['#광안대교', '#해운대요트', '#해리단길', '#더베이101'],
     tagsEn: ['#GwanganBridge', '#YachtTour', '#Haeridan', '#TheBay101'],
     tagsJa: ['#広安大橋', '#ヨットクルーズ', '#グルメ通り', '#ベイ101'],
@@ -181,7 +181,7 @@ const CURATED_THEMES = [
     rating: 4.9,
     reviews: '4.2k',
     spotQuery: '성산일출봉',
-    image: 'https://places.googleapis.com/v1/places/ChIJn3jj9rkUDTURS7YjOgUyUVU/photos/AVoNoXR4TbbyOKUaB5JdjkRKMthT9htNUnpfQu5hkdz2axv362D6DakSMpse-4aXwV_faIJHqnwiaYIAQBgyD5DvogYfdwnmQ8hLpgdkfLz0OcmTJjb1TbzynEOUVCtIzWgZTR2cOQJebkVeOTEd3bFOKKGWIAGsAiUdRIq7ujFAyvdklCiT3PM8VB84y4IFjIYaWrZUrA_LZN_6PzkO0yAK3SWq24-6qHBaabI9pmFm0nKWoK245VkuLHp3SibuCtq6rnI-tcNUb1Zdd34Sv1jroCdwmEJ4Kk7WeZmByE8UiWDchghXfSb4bplq-DW9ubA4bND8Cx9QcH1PdZWs1kJ_CsMbdkvIMYYP0cAijfCMX81wo5j6CvP2d7OjSnAMo3ow00-8yT-XoYaxALP3tKLshVZBcCxZ-MrRHRcSh1xmypR-IQ/media?maxHeightPx=800&maxWidthPx=1200&key=AIzaSyCZCfdgYBXPMDbB7N2EhiEY-7DmaCrPh0k',
+    image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1200&q=85',
     tagsKo: ['#애월해안', '#성산일출봉', '#오설록', '#서귀포오션뷰'],
     tagsEn: ['#AewolCoast', '#SeongsanPeak', '#Osulloc', '#OceanView'],
     tagsJa: ['#海岸道路', '#城山日出峰', '#オソルロク', '#絶景リゾート'],
@@ -207,7 +207,7 @@ const CURATED_THEMES = [
     rating: 4.8,
     reviews: '1.8k',
     spotQuery: '수원화성',
-    image: 'https://places.googleapis.com/v1/places/ChIJuy6oD8pcezURQRbto2vkJhM/photos/AVoNoXQxgy5oIse55A8UNi7VXyOe8PCPwuFmN_LGObdJ6CV7_cZzU7IMGEPzjoNAWBQcqFWaPE8vyIuknHLrKAnOkMnW8SYBMs_Trensxqx-1mukw8jvh0Os9n5CX3_M4GEpbHXfOVJBYNwymkhJLz4WmE3EFU0ZW2XwVYtNrZBHopxS3KUT5S5fqH12h0RkS_2FYj0GfjxoEVlZaFlA1CexRyGDnd6zBOsDOdHcrQzEuEGsmtkTp9GsYLhNXiv8w1bn3rlNssnPJxpRRRIGCENRti9Ks_0vPyE83VneSs4fy3YoUlNImPss_FC57kOfeyBi5dOGOvTyFztHB2q7f164EFpcgB9K_3w75swbuAeUKXmSCk9K_w97GY9r7Tt8DSk4dReTLdQflkZkmn0iR8hmd_wDtLL3mxrUAYg7D_1z1gpg1g/media?maxHeightPx=800&maxWidthPx=1200&key=AIzaSyCZCfdgYBXPMDbB7N2EhiEY-7DmaCrPh0k',
+    image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=85',
     tagsKo: ['#수원화성', '#행리단길', '#플라잉수원', '#야경명소'],
     tagsEn: ['#SuwonFortress', '#Haengnidan', '#FlyingSuwon', '#NightView'],
     tagsJa: ['#水原華城', '#カフェ通り', '#気球体験', '#夜景スポット'],
@@ -233,7 +233,7 @@ const CURATED_THEMES = [
     rating: 4.8,
     reviews: '1.9k',
     spotQuery: '강릉 안목해변',
-    image: 'https://places.googleapis.com/v1/places/ChIJU_DfYXXnYTURADRJO_8VmuU/photos/AVoNoXQKTYRmPhve1LdkhXPK6jti1Swtaprak-1PeSVF-xSY02a5nlfDxoPWSMYcEyQec7neBy-8V6BexWE9fwvAdVZy5MLpfb9weOl2nKP9Tjff6SeuQ3TjUL-MAik6h2XIC2pPQg0MCXMieaxtB6GTjo05ur_CfZpwtGuRb4U0GegpQ4CwB9MZu568k7AsjGhIA2dvAvCBhpqmxh2hWmeH86mBaMPnkCmv6GT9h0wRZW2EtIDcKH1IPl6IrQk5DuSbYoJJkiWdfZXOFDlpeN68XhuQYwB6405VPgrGeBgY1RqjEzqoI75XSTg_5Dos5rs3fYnJXAsVIk7GgtSIzlSuRGQ3XSIqmXD_lUxFAakc02kJp0mWqA4AVKbHV3bEOepjkvH6QhgCdPDx9_iMS3TKCxsGF8hZBnOkMUQj2wB6CoOh4g/media?maxHeightPx=800&maxWidthPx=1200&key=AIzaSyCZCfdgYBXPMDbB7N2EhiEY-7DmaCrPh0k',
+    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=85',
     tagsKo: ['#안목해변', '#커피거리', '#BTS정류장', '#주문진'],
     tagsEn: ['#AnmokBeach', '#CoffeeStreet', '#BTSStop', '#Jumunjin'],
     tagsJa: ['#安木ビーチ', '#カフェ通り', '#BTSスポット', '#注文津'],
@@ -862,7 +862,7 @@ export default function PortalHomePrototype({
                   src={theme.image}
                   alt={theme.titleKo}
                   onError={(e) => {
-                    e.currentTarget.src = 'https://places.googleapis.com/v1/places/ChIJod7tSseifDUR9hXHLFNGMIs/photos/AVoNoXSb8LThO8o7RisC9dRwXjwYS9_0Av_mkzJ96jJ8S2LzNmzX8n4E0Y2I0rk9WOlffeljrPy6z-tUr51HEgup_yreuAbz8fdSfyHN03NVG7RoBGHoQXI2k57L9ZLl5j1FkN5J0O-8HxgPH3ZedhWhXdzCnFDfEJCYN3scyOk2soMUVsdmfihiXEBiMNy8dK7MoX1SyNr7BnlfyrpBuhBAviuPg8L73GN5rCBxhO0AYJvTjmv_j41sv1l-HnnZsSPfGSymXx1DX7tYfIf59VQLVLO1pcu34BxN2t2cOoWMg0Z-zg7_OVZfD9gISRknWzn1hcprUwOZJ2s-T1O9Hzex8c9z1PfSl9Wj5fKyyk4VqgNfU57vjgGxXEuVNr5y8H3N70l07qqq3-VHJrxnuCktOVTfMudvChvbWYcblKEbLWtE9osd/media?maxHeightPx=800&maxWidthPx=1200&key=AIzaSyCZCfdgYBXPMDbB7N2EhiEY-7DmaCrPh0k';
+                    e.currentTarget.src = 'https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=1200&q=85';
                   }}
                   style={{
                     width: '100%',
