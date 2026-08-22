@@ -1,3 +1,16 @@
+/**
+ * ==============================================================================
+ * VORA AI 3.0 - 1차 공식 오픈 버전 (Phase 1 Official Launch Release)
+ * 대한민국 대표 AI 여행 컨시어지 & 실시간 날씨 코디 플래너 (koreatravel.cc)
+ * 
+ * 1. AI 여행 코스 엔진: Gemini 3.5 Flash-Lite Multi-Tier 초고속 생성 (< 1.2s)
+ * 2. 실시간 날씨 & 체감온도: 전국 동단위 지오코딩 + 기온/체감 듀얼 표기 + 3일 예보
+ * 3. 정품 포토 엔진: 한국관광공사 TourAPI 4.0 CDN + Google Places 실시간 병렬 매칭
+ * 4. 글로벌 대중교통: Google Maps 3D + 카카오/네이버 연동 + 무낭비 동선 클러스터링
+ * 5. 다국어 지원: 한국어, 영어, 일본어, 중국어 3중 스마트 자동 감지
+ * ==============================================================================
+ */
+
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import HeroSection from './components/HeroSection';
