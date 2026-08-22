@@ -27,15 +27,15 @@ export default function TravelEssentialsSection({
       desc: t.subwayMapDesc || '서울, 부산 등 전국 지하철 실시간 노선도 및 환승 가이드',
       badge: t.badgeTransport || '교통 필수',
       linkText: t.subwayMapLink || '지하철 노선도 보기 ↗',
-      linkUrl: 'http://www.seoulmetro.co.kr/kr/cyberStation.do'
+      linkUrl: lang === 'en' ? 'https://english.visitseoul.net/map-guide-book' : 'https://www.seoulmetro.co.kr'
     },
     {
       icon: <CreditCard size={24} style={{ color: '#10b981' }} />,
       title: t.climateCardTitle || '기후동행카드 & T-Money',
       desc: t.climateCardDesc || '외국인 단기권 구매처 및 대중교통 무제한 이용 팁',
       badge: t.badgeCostSaving || '비용 절약',
-      linkText: t.climateCardLink || '기후동행카드 안내 ↗',
-      linkUrl: 'https://news.seoul.go.kr/traffic/archives/510740'
+      linkText: t.climateCardLink || '기후동행카드 & T-Money 안내 ↗',
+      linkUrl: 'https://pay.tmoney.co.kr'
     },
     {
       icon: <Wifi size={24} style={{ color: '#8b5cf6' }} />,
@@ -51,7 +51,13 @@ export default function TravelEssentialsSection({
       desc: t.helplineDesc || '24시간 연중무휴 무료 4개 국어 긴급 통역 및 여행 지원',
       badge: t.badgeSupport24h || '24시간 지원',
       linkText: t.helplineInfoLink || '1330 공식 안내 ↗',
-      linkUrl: 'https://korean.visitkorea.or.kr/main/1330.do'
+      linkUrl: lang === 'en' 
+        ? 'https://english.visitkorea.or.kr' 
+        : lang === 'ja' 
+          ? 'https://japanese.visitkorea.or.kr' 
+          : (lang === 'zh' || lang === 'zht') 
+            ? 'https://chinese.visitkorea.or.kr' 
+            : 'https://korean.visitkorea.or.kr'
     }
   ];
 
