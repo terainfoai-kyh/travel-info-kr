@@ -270,6 +270,30 @@ export default function Header({
             <Compass size={15} style={{ color: '#10b981' }} />
             <span>{t.navEssentials || '여행 필수정보'}</span>
           </button>
+
+          {/* 📲 PWA App Install Header Shortcut (Desktop) */}
+          <button
+            onClick={handleOpenPWA}
+            title={lang === 'en' ? 'Install App (PC & Mobile)' : lang === 'ja' ? 'アプリをインストール' : (lang === 'zh' || lang === 'zht') ? '安装应用程序' : '앱 설치하기'}
+            style={{
+              background: 'rgba(37, 99, 235, 0.08)',
+              border: '1px solid var(--border-highlight)',
+              color: 'var(--accent-primary)',
+              borderRadius: 'var(--radius-full)',
+              padding: '0.42rem 0.75rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              fontSize: '0.78rem',
+              fontWeight: 800,
+              cursor: 'pointer',
+              transition: 'all var(--transition-fast)'
+            }}
+            className="hide-mobile"
+          >
+            <Download size={15} style={{ color: 'var(--accent-primary)' }} />
+            <span>{lang === 'en' ? 'Install App' : lang === 'ja' ? 'アプリインストール' : (lang === 'zh' || lang === 'zht') ? '安装应用' : '앱 설치'}</span>
+          </button>
         </div>
 
         {/* Right: Key Controls & Hamburger Menu */}
@@ -798,21 +822,34 @@ export default function Header({
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.6rem',
+                    justifyContent: 'space-between',
                     width: '100%',
                     padding: '0.55rem 0.75rem',
-                    border: 'none',
+                    border: '1px solid rgba(37, 99, 235, 0.25)',
                     borderRadius: '12px',
-                    backgroundColor: 'rgba(37, 99, 235, 0.06)',
+                    backgroundColor: 'rgba(37, 99, 235, 0.08)',
                     color: 'var(--accent-primary)',
                     fontWeight: 800,
                     fontSize: '0.82rem',
                     cursor: 'pointer',
-                    textAlign: 'left'
+                    textAlign: 'left',
+                    transition: 'all var(--transition-fast)'
                   }}
                 >
-                  <Download size={16} style={{ color: 'var(--accent-primary)' }} />
-                  <span>{lang === 'en' ? 'Install Mobile App' : lang === 'ja' ? 'モバイルアプリアイコン追加' : (lang === 'zh' || lang === 'zht') ? '添加至手机主屏幕' : '모바일 홈화면 앱 설치'}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                    <Download size={16} style={{ color: 'var(--accent-primary)' }} />
+                    <span>{lang === 'en' ? 'Install VORA App' : lang === 'ja' ? 'VORA アプリをインストール' : (lang === 'zh' || lang === 'zht') ? '安装 VORA 应用' : 'VORA 전용 앱 설치하기'}</span>
+                  </div>
+                  <span style={{
+                    fontSize: '0.65rem',
+                    backgroundColor: '#f59e0b',
+                    color: '#ffffff',
+                    padding: '0.1rem 0.4rem',
+                    borderRadius: '6px',
+                    fontWeight: 900
+                  }}>
+                    NEW
+                  </span>
                 </button>
 
                 {/* 4. Share Trip URL */}
