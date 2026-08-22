@@ -1,0 +1,31 @@
+{
+  "name": "VORA - 대한민국 AI 여행 컨시어지",
+  "short_name": "VORA AI",
+  "description": "질문 하나로 완성되는 1:1 맞춤 한국 여행 코스 & 실시간 구글맵 연동 (Korea AI Travel Concierge)",
+  "start_url": "/",
+  "id": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}
