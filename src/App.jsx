@@ -14,6 +14,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import HeroSection from './components/HeroSection';
+import PortalHomePrototype from './components/PortalHomePrototype';
 import VoraAIChat from './components/VoraAIChat';
 import CourseMagazineView from './components/CourseMagazineView';
 import TravelEssentialsSection from './components/TravelEssentialsSection';
@@ -528,12 +529,25 @@ export default function App() {
 
       {/* Main Container (모바일 8px 좌우 여백 최적화) */}
       <main className="app-main-container">
-        {/* 1. Ultra-Compact Modern Hero Section with Smart Prompt Bar */}
-        <HeroSection
+        {/* 🌟 1. Grand Cinematic Portal Hero & Discovery Hub */}
+        <PortalHomePrototype
           lang={lang}
-          onSearch={handleGenerateItinerary}
-          isLoading={isLoading}
-          questionQuota={questionQuota}
+          onSearchSubmit={(promptText) => {
+            handleGenerateItinerary(promptText);
+            const hub = document.getElementById('itinerary-hub');
+            if (hub) hub.scrollIntoView({ behavior: 'smooth' });
+          }}
+          onSelectTheme={(promptText, city) => {
+            handleGenerateItinerary(promptText);
+            const hub = document.getElementById('itinerary-hub');
+            if (hub) hub.scrollIntoView({ behavior: 'smooth' });
+          }}
+          onOpenWeather={(city) => {
+            setWeatherCity(city || itineraryData?.targetCity || '서울');
+            setIsWeatherOpen(true);
+          }}
+          onOpenEssentials={() => setIsEssentialsOpen(true)}
+          targetCity={itineraryData?.targetCity || '서울'}
         />
 
         {/* 📱 Mobile Segmented Tab Switcher (Visible on Mobile only: 1-Tap Toggle between Map & Chat) */}
