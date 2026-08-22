@@ -550,11 +550,17 @@ export default function App() {
           onOpenPlanner={() => {
             setMobileHubTab('chat');
             const hub = document.getElementById('itinerary-hub');
-            if (hub) hub.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            if (hub) {
+              hub.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
             setTimeout(() => {
-              const inputEl = document.querySelector('.vora-chat-input-field') || document.querySelector('input[type="text"]');
-              if (inputEl) inputEl.focus();
-            }, 350);
+              const chatInput = document.getElementById('ai-chat-input-field') || 
+                                document.getElementById('vora-chat-input-field') || 
+                                document.querySelector('#itinerary-hub input[type="text"]');
+              if (chatInput) {
+                chatInput.focus({ preventScroll: true });
+              }
+            }, 400);
           }}
           targetCity={itineraryData?.targetCity || '서울'}
         />

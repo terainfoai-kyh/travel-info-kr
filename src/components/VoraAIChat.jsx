@@ -669,6 +669,7 @@ export default function VoraAIChat({
           alignItems: 'center'
         }}>
           <input
+            id="vora-chat-input-field"
             type="text"
             className="vora-chat-input"
             value={inputText}
