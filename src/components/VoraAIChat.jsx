@@ -189,27 +189,28 @@ export default function VoraAIChat({
                   flexDirection: 'column',
                   alignItems: 'flex-end',
                   gap: '0.25rem',
-                  marginBottom: '0.3rem',
+                  marginBottom: '0.5rem',
                   width: '100%',
                   boxSizing: 'border-box'
                 }}
               >
                 <div style={{
-                  backgroundColor: 'var(--accent-primary)',
+                  background: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
                   color: '#ffffff',
-                  borderRadius: '16px 4px 16px 16px',
-                  padding: '0.65rem 0.85rem',
-                  fontSize: '0.82rem',
+                  borderRadius: '18px 18px 4px 18px',
+                  padding: '0.7rem 0.95rem',
+                  fontSize: '0.86rem',
+                  fontWeight: 600,
                   lineHeight: 1.5,
-                  maxWidth: '88%',
+                  maxWidth: '85%',
                   wordBreak: 'break-word',
                   overflowWrap: 'anywhere',
-                  boxShadow: 'var(--shadow-sm)'
+                  boxShadow: '0 4px 14px rgba(37, 99, 235, 0.25)'
                 }}>
                   {msg.text}
                 </div>
                 {msg.timestamp && (
-                  <span style={{ fontSize: '0.66rem', color: 'var(--text-muted)', paddingRight: '0.3rem' }}>
+                  <span style={{ fontSize: '0.66rem', color: 'var(--text-muted)', paddingRight: '0.4rem', fontWeight: 500 }}>
                     {lang === 'en' ? `Inquiry ${msg.timestamp}` : lang === 'ja' ? `送信時刻 ${msg.timestamp}` : (lang === 'zh' || lang === 'zht') ? `提问时间 ${msg.timestamp}` : `문의 시간 ${msg.timestamp}`}
                   </span>
                 )}
@@ -248,14 +249,14 @@ export default function VoraAIChat({
               <div style={{ flex: 1, minWidth: 0, width: '100%', display: 'flex', flexDirection: 'column', gap: '0.45rem', overflow: 'hidden' }}>
                 {/* Assistant Text Bubble */}
                 <div style={{
-                  backgroundColor: 'var(--bg-primary)',
+                  backgroundColor: 'var(--bg-card)',
                   border: '1px solid var(--border-color)',
-                  borderRadius: '4px 16px 16px 16px',
-                  padding: '0.65rem 0.8rem',
-                  fontSize: '0.82rem',
-                  lineHeight: 1.55,
+                  borderRadius: '4px 18px 18px 18px',
+                  padding: '0.85rem 1rem',
+                  fontSize: '0.86rem',
+                  lineHeight: 1.6,
                   color: 'var(--text-main)',
-                  boxShadow: 'var(--shadow-sm)',
+                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.04)',
                   wordBreak: 'break-word',
                   overflowWrap: 'anywhere',
                   boxSizing: 'border-box',
@@ -269,14 +270,14 @@ export default function VoraAIChat({
                       alignItems: 'center',
                       flexWrap: 'wrap',
                       gap: '0.35rem',
-                      fontSize: '0.68rem',
+                      fontSize: '0.7rem',
                       fontWeight: 700,
                       color: '#2563eb',
                       backgroundColor: 'rgba(37, 99, 235, 0.08)',
-                      border: '1px solid rgba(37, 99, 235, 0.18)',
-                      padding: '0.2rem 0.5rem',
-                      borderRadius: '6px',
-                      marginBottom: '0.45rem'
+                      border: '1px solid rgba(37, 99, 235, 0.2)',
+                      padding: '0.2rem 0.55rem',
+                      borderRadius: '8px',
+                      marginBottom: '0.55rem'
                     }}>
                       <span style={{ fontWeight: 800 }}>
                         {lang === 'en' 
@@ -301,7 +302,7 @@ export default function VoraAIChat({
                     </div>
                   )}
 
-                  <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'break-word' }}>{msg.text}</div>
+                  <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'break-word', fontSize: '0.86rem' }}>{msg.text}</div>
 
                   {/* Quota Exhausted Call to Action Cards (Rewarded Ad & Google Login) */}
                   {(msg.isQuotaExhausted || (msg.text && (msg.text.includes('무료 AI 질문') || msg.text.includes('free AI questions')))) && (
@@ -431,103 +432,42 @@ export default function VoraAIChat({
                   )}
                 </div>
 
-                {/* Daily Schedule Interactive Cards inside Chat */}
+                {/* Sleek One-Touch Day Chips inside Chat */}
                 {msg.itinerary && msg.itinerary.dailySchedules && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
+                  <div style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: '0.45rem',
+                    width: '100%',
+                    boxSizing: 'border-box',
+                    marginTop: '0.45rem'
+                  }}>
                     {msg.itinerary.dailySchedules.map((ds) => {
                       const isCurrentActive = Number(activeDay) === Number(ds.day);
                       return (
-                        <div
+                        <button
                           key={ds.day}
+                          type="button"
                           onClick={() => onSelectDay && onSelectDay(ds.day)}
                           style={{
-                            backgroundColor: isCurrentActive ? 'rgba(37, 99, 235, 0.06)' : 'var(--bg-card)',
-                            border: isCurrentActive ? '1.5px solid var(--accent-primary)' : '1px solid var(--border-color)',
-                            borderRadius: '12px',
-                            padding: '0.55rem 0.7rem',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '0.35rem',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.4rem',
+                            backgroundColor: isCurrentActive ? '#2563eb' : 'var(--bg-primary)',
+                            color: isCurrentActive ? '#ffffff' : 'var(--text-main)',
+                            border: isCurrentActive ? '1.5px solid #2563eb' : '1px solid var(--border-color)',
+                            borderRadius: 'var(--radius-full)',
+                            padding: '0.35rem 0.75rem',
+                            fontSize: '0.76rem',
+                            fontWeight: isCurrentActive ? 800 : 600,
                             cursor: 'pointer',
-                            width: '100%',
-                            maxWidth: '100%',
-                            boxSizing: 'border-box',
-                            transition: 'all var(--transition-fast)'
+                            boxShadow: isCurrentActive ? '0 3px 10px rgba(37, 99, 235, 0.28)' : '0 1px 4px rgba(0,0,0,0.03)',
+                            transition: 'all 0.2s ease'
                           }}
                         >
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', boxSizing: 'border-box' }}>
-                            <span style={{
-                              fontSize: '0.7rem',
-                              fontWeight: 900,
-                              backgroundColor: isCurrentActive ? 'var(--accent-primary)' : 'var(--text-muted)',
-                              color: '#ffffff',
-                              padding: '0.12rem 0.45rem',
-                              borderRadius: 'var(--radius-full)',
-                              flexShrink: 0
-                            }}>
-                              {t.dayBadge ? t.dayBadge(ds.day) : `${ds.day}일차`}
-                            </span>
-                            <span style={{ fontSize: '0.76rem', fontWeight: 800, color: 'var(--text-main)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginLeft: '0.35rem' }}>
-                              {ds.theme}
-                            </span>
-                          </div>
-
-                          {/* Spot Flow Badges */}
-                          <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            flexWrap: 'wrap',
-                            gap: '0.25rem',
-                            fontSize: '0.7rem',
-                            fontWeight: 700,
-                            color: 'var(--text-main)',
-                            width: '100%',
-                            boxSizing: 'border-box'
-                          }}>
-                            {(ds.spots || []).map((s, idx) => (
-                              <React.Fragment key={s.id || idx}>
-                                <span style={{
-                                  backgroundColor: 'var(--bg-primary)',
-                                  border: '1px solid var(--border-color)',
-                                  padding: '0.12rem 0.35rem',
-                                  borderRadius: '5px',
-                                  maxWidth: '100%',
-                                  wordBreak: 'break-all'
-                                }}>
-                                  {idx + 1}. {s.title}
-                                </span>
-                                {idx < (ds.spots || []).length - 1 && (
-                                  <span style={{ color: 'var(--text-dim)', fontSize: '0.62rem' }}>➔</span>
-                                )}
-                              </React.Fragment>
-                            ))}
-                          </div>
-
-                          {/* Daily Food Recommendation Badge */}
-                          {ds.foodRecommendation && (
-                            <div style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '0.35rem',
-                              backgroundColor: 'rgba(245, 158, 11, 0.07)',
-                              border: '1px solid rgba(245, 158, 11, 0.15)',
-                              padding: '0.22rem 0.45rem',
-                              borderRadius: '6px',
-                              fontSize: '0.7rem',
-                              color: '#b45309',
-                              fontWeight: 700,
-                              width: '100%',
-                              maxWidth: '100%',
-                              boxSizing: 'border-box',
-                              overflow: 'hidden'
-                            }}>
-                              <Utensils size={11} style={{ color: '#d97706', flexShrink: 0 }} />
-                              <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                <strong>{ds.foodRecommendation.dishName}</strong>: {ds.foodRecommendation.description}
-                              </span>
-                            </div>
-                          )}
-                        </div>
+                          <span style={{ fontWeight: 900 }}>{t.dayBadge ? t.dayBadge(ds.day) : `${ds.day}일차`}</span>
+                          <span style={{ opacity: isCurrentActive ? 0.95 : 0.7, fontSize: '0.72rem' }}>{ds.theme ? `• ${ds.theme}` : ''}</span>
+                        </button>
                       );
                     })}
                   </div>
@@ -729,6 +669,7 @@ export default function VoraAIChat({
           alignItems: 'center'
         }}>
           <input
+            id="vora-chat-input-field"
             type="text"
             className="vora-chat-input"
             value={inputText}

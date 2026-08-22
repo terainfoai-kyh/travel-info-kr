@@ -220,22 +220,60 @@ export default function CourseMagazineView({
 
           {/* ==========================================================================
              📋 2. 하단 독립 스크롤 타임라인 목록 (Scrollable Spot List)
-             - 불필요한 중복 테마 배너를 제거하여 하단 공간 +45px 추가 확보!
-             - 1번, 2번 스팟 카드가 100% 온전하게 시원한 크기로 표시됨
+             - 미식 배너 + 시원한 16:9 감성 매거진 카드 배치
              ========================================================================== */}
           <div
             className="thin-scrollbar"
             style={{
               flex: 1,
               overflowY: 'auto',
-              padding: '0.25rem 0.9rem 1rem 0.9rem',
+              padding: '0.35rem 0.9rem 1rem 0.9rem',
               display: 'flex',
               flexDirection: 'column',
-              gap: '0.55rem'
+              gap: '0.65rem'
             }}
           >
+            {/* 🍽️ Daily Food Recommendation Banner */}
+            {currentSchedule?.foodRecommendation && (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.65rem',
+                backgroundColor: 'rgba(245, 158, 11, 0.08)',
+                border: '1.5px solid rgba(245, 158, 11, 0.25)',
+                padding: '0.6rem 0.85rem',
+                borderRadius: '14px',
+                color: 'var(--text-main)',
+                boxShadow: '0 2px 8px rgba(245, 158, 11, 0.06)'
+              }}>
+                <div style={{
+                  width: '30px',
+                  height: '30px',
+                  borderRadius: '50%',
+                  backgroundColor: '#f59e0b',
+                  color: '#ffffff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  fontSize: '0.9rem',
+                  boxShadow: '0 2px 6px rgba(245, 158, 11, 0.3)'
+                }}>
+                  🍽️
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 800, color: '#b45309', fontSize: '0.8rem', marginBottom: '0.1rem' }}>
+                    {t.todayGourmetPick || '오늘의 추천 로컬 미식'} : {currentSchedule.foodRecommendation.dishName}
+                  </div>
+                  <div style={{ fontSize: '0.73rem', color: 'var(--text-muted)', lineHeight: 1.35, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {currentSchedule.foodRecommendation.description}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* 🎯 스팟 타임라인 카드 목록 */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.55rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
               {activeSpots.map((spot, idx) => {
                 const bookmarked = isSpotBookmarked(spot);
                 const isFocused = focusedSpotIndex === idx;
@@ -245,20 +283,34 @@ export default function CourseMagazineView({
                     onClick={() => setFocusedSpotIndex(idx)}
                     title={lang === 'en' ? `Pan to ${spot.title} on map (Click)` : lang === 'ja' ? `${spot.title}の位置へ移動（クリック）` : (lang === 'zh' || lang === 'zht') ? `在地图上查看 ${spot.title}（点击）` : `${spot.title} 지도 위치로 이동 (클릭)`}
                     style={{
-                      backgroundColor: isFocused ? 'rgba(37, 99, 235, 0.05)' : 'var(--bg-primary)',
-                      border: isFocused ? '1.5px solid var(--accent-primary)' : '1px solid var(--border-color)',
-                      borderRadius: '12px',
+                      backgroundColor: isFocused ? 'rgba(37, 99, 235, 0.04)' : 'var(--bg-card)',
+                      border: isFocused ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                      borderRadius: '16px',
                       overflow: 'hidden',
-                      boxShadow: isFocused ? '0 0 0 2px rgba(37, 99, 235, 0.18)' : 'var(--shadow-sm)',
+                      boxShadow: isFocused ? '0 8px 24px rgba(37, 99, 235, 0.15)' : '0 2px 10px rgba(0, 0, 0, 0.04)',
                       display: 'flex',
                       alignItems: 'stretch',
-                      gap: '0.5rem',
-                      padding: '0.35rem 0.45rem',
+                      gap: '0.85rem',
+                      padding: '0.75rem 0.85rem',
                       cursor: 'pointer',
-                      transition: 'all var(--transition-fast)'
+                      transition: 'all 0.25s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isFocused) {
+                        e.currentTarget.style.transform = 'translateY(-2px)';
+                        e.currentTarget.style.borderColor = 'var(--border-highlight)';
+                        e.currentTarget.style.boxShadow = '0 8px 20px rgba(0, 0, 0, 0.08)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isFocused) {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.borderColor = 'var(--border-color)';
+                        e.currentTarget.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.04)';
+                      }
                     }}
                   >
-                    {/* Left: Thumbnail with Numbered Pin */}
+                    {/* Left: HD Photo Thumbnail with Pin Badge */}
                     <div
                       onClick={(e) => {
                         e.stopPropagation();
@@ -267,13 +319,14 @@ export default function CourseMagazineView({
                       title={lang === 'en' ? 'Click to view HD photos & details' : lang === 'ja' ? 'クリックして詳細情報と高画質写真を見る' : (lang === 'zh' || lang === 'zht') ? '点击查看高清实景图与详情' : '클릭하여 상세 정보 및 고화질 실사진 보기'}
                       style={{
                         position: 'relative',
-                        width: '72px',
-                        minWidth: '72px',
-                        height: '66px',
-                        borderRadius: '8px',
+                        width: '96px',
+                        minWidth: '96px',
+                        height: '88px',
+                        borderRadius: '12px',
                         overflow: 'hidden',
                         flexShrink: 0,
-                        cursor: 'pointer'
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)'
                       }}
                     >
                       <img
@@ -284,63 +337,50 @@ export default function CourseMagazineView({
                           width: '100%',
                           height: '100%',
                           objectFit: 'cover',
-                          transition: 'transform 0.3s ease'
+                          transition: 'transform 0.4s ease'
                         }}
+                        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.08)'}
+                        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1.0)'}
                       />
                       {/* Numbered Pin Badge */}
                       <div style={{
                         position: 'absolute',
-                        top: '5px',
-                        left: '5px',
-                        width: '20px',
-                        height: '20px',
+                        top: '6px',
+                        left: '6px',
+                        width: '22px',
+                        height: '22px',
                         borderRadius: '50%',
-                        backgroundColor: isFocused ? '#1d4ed8' : 'var(--accent-primary)',
+                        backgroundColor: isFocused ? '#1d4ed8' : '#2563eb',
                         color: '#ffffff',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        fontSize: '0.68rem',
+                        fontSize: '0.72rem',
                         fontWeight: 900,
-                        boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                        boxShadow: '0 2px 6px rgba(0,0,0,0.35)'
                       }}>
                         {idx + 1}
                       </div>
-                      {/* Category Pill */}
-                      <span style={{
-                        position: 'absolute',
-                        bottom: '3px',
-                        left: '3px',
-                        fontSize: '0.58rem',
-                        fontWeight: 800,
-                        backgroundColor: 'rgba(15, 23, 42, 0.75)',
-                        color: '#ffffff',
-                        padding: '0.08rem 0.3rem',
-                        borderRadius: '4px',
-                        backdropFilter: 'blur(4px)'
-                      }}>
-                        {spot.category || (lang === 'en' ? 'Attraction' : lang === 'ja' ? '名所' : '景点')}
-                      </span>
                     </div>
 
-                    {/* Right: Spot Content & Action Buttons */}
+                    {/* Right: Spot Content & Modern Action Buttons */}
                     <div style={{
                       flex: 1,
                       minWidth: 0,
                       display: 'flex',
                       flexDirection: 'column',
                       justifyContent: 'space-between',
-                      gap: '0.2rem'
+                      gap: '0.35rem'
                     }}>
                       {/* Title & Bookmark */}
-                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.35rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.4rem' }}>
                         <div style={{ minWidth: 0 }}>
                           <h4 style={{
                             margin: 0,
-                            fontSize: '0.84rem',
+                            fontSize: '0.95rem',
                             fontWeight: 800,
                             color: isFocused ? 'var(--accent-primary)' : 'var(--text-main)',
-                            lineHeight: 1.25,
+                            lineHeight: 1.3,
                             whiteSpace: 'nowrap',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis'
@@ -348,8 +388,8 @@ export default function CourseMagazineView({
                             {spot.title}
                           </h4>
                           <p style={{
-                            margin: '0.05rem 0 0 0',
-                            fontSize: '0.68rem',
+                            margin: '0.15rem 0 0 0',
+                            fontSize: '0.74rem',
                             color: 'var(--text-muted)',
                             whiteSpace: 'nowrap',
                             overflow: 'hidden',
@@ -371,81 +411,55 @@ export default function CourseMagazineView({
                             border: 'none',
                             cursor: 'pointer',
                             color: bookmarked ? '#ef4444' : 'var(--text-muted)',
-                            padding: '0.15rem',
+                            padding: '0.2rem',
                             display: 'flex',
                             alignItems: 'center',
                             flexShrink: 0
                           }}
                         >
-                          <Heart size={15} fill={bookmarked ? '#ef4444' : 'none'} />
+                          <Heart size={16} fill={bookmarked ? '#ef4444' : 'none'} />
                         </button>
                       </div>
 
-                      {/* Photo Tip & Transit Time (Compact 1-line) */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexWrap: 'nowrap', overflow: 'hidden' }}>
+                      {/* Transit & Photo Tip Badges */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexWrap: 'wrap' }}>
                         <div style={{
                           display: 'inline-flex',
                           alignItems: 'center',
-                          gap: '0.2rem',
-                          fontSize: '0.64rem',
-                          fontWeight: 700,
-                          color: 'var(--accent-primary)',
-                          backgroundColor: 'rgba(37, 99, 235, 0.07)',
-                          padding: '0.08rem 0.3rem',
-                          borderRadius: '5px',
-                          whiteSpace: 'nowrap',
-                          flexShrink: 0
+                          gap: '0.25rem',
+                          fontSize: '0.68rem',
+                          fontWeight: 800,
+                          color: '#2563eb',
+                          backgroundColor: 'rgba(37, 99, 235, 0.08)',
+                          padding: '0.15rem 0.45rem',
+                          borderRadius: '6px',
+                          whiteSpace: 'nowrap'
                         }}>
-                          <Navigation size={8} />
+                          <Navigation size={9} />
                           <span>{getLocalizedTransit(spot.transitTime)}</span>
                         </div>
 
                         {spot.photoTip && (
                           <div style={{
-                            fontSize: '0.63rem',
+                            fontSize: '0.68rem',
                             fontWeight: 700,
-                            color: '#b45309',
-                            backgroundColor: 'rgba(245, 158, 11, 0.08)',
-                            padding: '0.08rem 0.3rem',
-                            borderRadius: '5px',
+                            color: '#d97706',
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            padding: '0.15rem 0.45rem',
+                            borderRadius: '6px',
                             whiteSpace: 'nowrap',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
-                            maxWidth: '180px'
+                            maxWidth: '200px'
                           }}>
-                            {spot.photoTip}
+                            ✨ {spot.photoTip}
                           </div>
                         )}
                       </div>
 
-                      {/* Action Links (Compact Single Line) */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.05rem', flexWrap: 'wrap' }}>
-                        {/* 🗺️ Direct Map Focus Button */}
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setFocusedSpotIndex(idx);
-                          }}
-                          style={{
-                            backgroundColor: isFocused ? 'var(--accent-primary)' : 'rgba(37, 99, 235, 0.08)',
-                            border: '1px solid var(--border-highlight)',
-                            color: isFocused ? '#ffffff' : 'var(--accent-primary)',
-                            padding: '0.15rem 0.4rem',
-                            borderRadius: '6px',
-                            fontSize: '0.65rem',
-                            fontWeight: 800,
-                            cursor: 'pointer',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '0.2rem',
-                            transition: 'all var(--transition-fast)'
-                          }}
-                        >
-                          <Navigation size={8} />
-                          <span>{lang === 'en' ? 'Map' : lang === 'ja' ? '地図' : (lang === 'zh' || lang === 'zht') ? '地图' : '지도'}</span>
-                        </button>
-
+                      {/* Modern Clean Action Buttons */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.15rem', flexWrap: 'wrap' }}>
+                        {/* 🔍 Details & Photos */}
                         <button
                           type="button"
                           onClick={(e) => {
@@ -453,73 +467,75 @@ export default function CourseMagazineView({
                             if (onOpenDetail) onOpenDetail(spot);
                           }}
                           style={{
-                            backgroundColor: 'var(--bg-card)',
+                            backgroundColor: 'var(--bg-primary)',
                             border: '1px solid var(--border-color)',
                             color: 'var(--text-main)',
-                            padding: '0.15rem 0.4rem',
-                            borderRadius: '6px',
-                            fontSize: '0.65rem',
-                            fontWeight: 700,
+                            padding: '0.25rem 0.6rem',
+                            borderRadius: '8px',
+                            fontSize: '0.72rem',
+                            fontWeight: 800,
                             cursor: 'pointer',
                             display: 'inline-flex',
                             alignItems: 'center',
-                            gap: '0.2rem',
-                            transition: 'all var(--transition-fast)'
+                            gap: '0.25rem',
+                            transition: 'all 0.2s ease'
                           }}
                         >
-                          <Info size={9} style={{ color: 'var(--accent-primary)' }} />
-                          <span>{lang === 'en' ? 'Details' : lang === 'ja' ? '詳細' : (lang === 'zh' || lang === 'zht') ? (lang === 'zht' ? '詳情' : '详情') : '상세'}</span>
+                          <Info size={11} style={{ color: 'var(--accent-primary)' }} />
+                          <span>{lang === 'en' ? 'Photos & Details' : lang === 'ja' ? '写真・詳細' : (lang === 'zh' || lang === 'zht') ? '实景·详情' : '사진·상세보기'}</span>
                         </button>
 
+                        {/* 🗺️ Google Place / Route Link */}
                         <a
-                          href={getGooglePlaceSearchUrl(spot.title, targetCity)}
+                          href={getGooglePlaceSearchUrl(spot.title, spot.location || targetCity)}
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={(e) => e.stopPropagation()}
                           style={{
-                            backgroundColor: 'var(--bg-card)',
-                            border: '1px solid var(--border-color)',
-                            color: 'var(--text-muted)',
-                            padding: '0.15rem 0.4rem',
-                            borderRadius: '6px',
-                            fontSize: '0.65rem',
-                            fontWeight: 700,
+                            backgroundColor: 'rgba(37, 99, 235, 0.08)',
+                            border: '1px solid rgba(37, 99, 235, 0.25)',
+                            color: '#2563eb',
+                            padding: '0.25rem 0.6rem',
+                            borderRadius: '8px',
+                            fontSize: '0.72rem',
+                            fontWeight: 800,
                             textDecoration: 'none',
                             display: 'inline-flex',
                             alignItems: 'center',
-                            gap: '0.2rem',
-                            transition: 'all var(--transition-fast)'
+                            gap: '0.25rem',
+                            transition: 'all 0.2s ease'
                           }}
                         >
-                          <MapPin size={9} />
-                          <span>{lang === 'en' ? 'Google' : lang === 'ja' ? 'Google' : (lang === 'zh' || lang === 'zht') ? 'Google' : 'Google'}</span>
+                          <ExternalLink size={11} />
+                          <span>{lang === 'en' ? 'Google Map' : lang === 'ja' ? 'Googleマップ' : (lang === 'zh' || lang === 'zht') ? 'Google地图' : '구글맵 길찾기'}</span>
                         </a>
 
+                        {/* Optional Klook Deal */}
                         {(() => {
-                          const deal = spot.affiliateDeal 
-                            ? getSpotAffiliateDeal(spot.title || spot.name, spot.region || spot.city || targetCity, lang) 
-                            : null;
+                          const deal = getSpotAffiliateDeal(spot.title, targetCity, lang);
                           if (!deal) return null;
                           return (
                             <a
-                              href={deal.dealUrl}
+                              href={deal.url}
                               target="_blank"
                               rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
                               style={{
-                                backgroundColor: '#ff5b00',
+                                background: 'linear-gradient(135deg, #ff5722, #f44336)',
                                 color: '#ffffff',
-                                padding: '0.15rem 0.4rem',
-                                borderRadius: '6px',
-                                fontSize: '0.65rem',
+                                padding: '0.25rem 0.55rem',
+                                borderRadius: '8px',
+                                fontSize: '0.7rem',
                                 fontWeight: 800,
                                 textDecoration: 'none',
                                 display: 'inline-flex',
                                 alignItems: 'center',
-                                gap: '0.2rem',
-                                boxShadow: '0 2px 4px rgba(255, 91, 0, 0.25)'
+                                gap: '0.25rem',
+                                boxShadow: '0 2px 6px rgba(255, 87, 34, 0.25)'
                               }}
                             >
-                              <span>{deal.dealBadge} ↗</span>
+                              <span>{deal.label}</span>
+                              <ExternalLink size={10} />
                             </a>
                           );
                         })()}

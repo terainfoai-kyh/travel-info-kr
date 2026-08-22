@@ -440,6 +440,8 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
             }}
           >
             <input 
+              id="ai-chat-input-field"
+              className="vora-chat-input ai-chat-input"
               type="text"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}

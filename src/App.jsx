@@ -14,6 +14,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import HeroSection from './components/HeroSection';
+import PortalHomePrototype from './components/PortalHomePrototype';
 import VoraAIChat from './components/VoraAIChat';
 import CourseMagazineView from './components/CourseMagazineView';
 import TravelEssentialsSection from './components/TravelEssentialsSection';
@@ -528,12 +529,40 @@ export default function App() {
 
       {/* Main Container (모바일 8px 좌우 여백 최적화) */}
       <main className="app-main-container">
-        {/* 1. Ultra-Compact Modern Hero Section with Smart Prompt Bar */}
-        <HeroSection
+        {/* 🌟 1. Grand Cinematic Portal Hero & Discovery Hub */}
+        <PortalHomePrototype
           lang={lang}
-          onSearch={handleGenerateItinerary}
-          isLoading={isLoading}
-          questionQuota={questionQuota}
+          onSearchSubmit={(promptText) => {
+            handleGenerateItinerary(promptText);
+            const hub = document.getElementById('itinerary-hub');
+            if (hub) hub.scrollIntoView({ behavior: 'smooth' });
+          }}
+          onSelectTheme={(promptText, city) => {
+            handleGenerateItinerary(promptText);
+            const hub = document.getElementById('itinerary-hub');
+            if (hub) hub.scrollIntoView({ behavior: 'smooth' });
+          }}
+          onOpenWeather={(city) => {
+            setWeatherCity(city || itineraryData?.targetCity || '서울');
+            setIsWeatherOpen(true);
+          }}
+          onOpenEssentials={() => setIsEssentialsOpen(true)}
+          onOpenPlanner={() => {
+            setMobileHubTab('chat');
+            const hub = document.getElementById('itinerary-hub');
+            if (hub) {
+              hub.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            setTimeout(() => {
+              const chatInput = document.getElementById('ai-chat-input-field') || 
+                                document.getElementById('vora-chat-input-field') || 
+                                document.querySelector('#itinerary-hub input[type="text"]');
+              if (chatInput) {
+                chatInput.focus({ preventScroll: true });
+              }
+            }, 400);
+          }}
+          targetCity={itineraryData?.targetCity || '서울'}
         />
 
         {/* 📱 Mobile Segmented Tab Switcher (Visible on Mobile only: 1-Tap Toggle between Map & Chat) */}
@@ -554,6 +583,26 @@ export default function App() {
             <MessageSquare size={15} />
             <span>{lang === 'en' ? 'AI Chat' : lang === 'ja' ? 'AI チャット' : (lang === 'zh' || lang === 'zht') ? 'AI 对话' : 'AI 대화'}</span>
           </button>
+        </div>
+
+        {/* Section Header: Vora AI Concierge & Route Planner */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          marginTop: '1.25rem',
+          marginBottom: '0.75rem',
+          padding: '0 0.25rem'
+        }}>
+          <span style={{
+            width: '6px',
+            height: '22px',
+            backgroundColor: 'var(--accent-primary)',
+            borderRadius: '4px'
+          }} />
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 900, margin: 0, color: 'var(--text-main)' }}>
+            {t.portalLivePlannerTitle || '실시간 맞춤 AI 여행 일정 & 스마트 동선 플래너'}
+          </h2>
         </div>
 
         {/* 2. PC 2-Column Split Hub (Dashboard view: Chat on Left / Timeline & Map on Right) */}

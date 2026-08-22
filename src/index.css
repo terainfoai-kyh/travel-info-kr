@@ -902,14 +902,14 @@ button, a, input, select, textarea {
 .itinerary-hub-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 1rem;
-  margin: 0.5rem 0 1.5rem 0;
+  gap: 1.25rem;
+  margin: 0.85rem 0 1.75rem 0;
   align-items: stretch;
 }
 
 .itinerary-hub-column {
-  height: 685px;
-  min-height: 520px;
+  height: 720px;
+  min-height: 540px;
 }
 
 .hero-chips-container {
@@ -941,6 +941,92 @@ button, a, input, select, textarea {
   padding: 0 0.85rem 1.5rem 0.85rem;
   box-sizing: border-box;
   flex: 1;
+}
+
+/* Portal Quick Hub 6-Icon Grid & Theme Magazine Grid */
+.portal-quick-hub-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.85rem;
+}
+
+.portal-quick-hub-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 1.1rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+}
+
+.portal-quick-hub-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  transition: transform 0.25s ease;
+}
+
+.portal-quick-hub-label {
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: var(--text-main);
+  white-space: nowrap;
+}
+
+.portal-theme-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.15rem;
+}
+
+@media (max-width: 960px) {
+  .portal-quick-hub-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.65rem;
+  }
+  .portal-theme-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.95rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .portal-quick-hub-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+  }
+  .portal-quick-hub-card {
+    border-radius: 14px;
+    padding: 0.75rem 0.35rem;
+    gap: 0.4rem;
+  }
+  .portal-quick-hub-icon {
+    width: 42px;
+    height: 42px;
+  }
+  .portal-quick-hub-icon svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+  .portal-quick-hub-label {
+    font-size: 0.74rem;
+    letter-spacing: -0.02em;
+  }
+  .portal-theme-grid {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
 }
 
 /* Mobile Segmented Tab Switcher (Visible only on < 768px) */
