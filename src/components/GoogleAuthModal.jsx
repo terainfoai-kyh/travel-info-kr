@@ -39,30 +39,36 @@ export default function GoogleAuthModal({
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      inset: 0,
-      zIndex: 9999,
-      backgroundColor: 'rgba(0, 0, 0, 0.75)',
-      backdropFilter: 'blur(8px)',
-      WebkitBackdropFilter: 'blur(8px)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '1rem',
-      animation: 'fadeIn 0.25s ease-out'
-    }}>
-      <div style={{
-        backgroundColor: 'var(--bg-card)',
-        color: 'var(--text-main)',
-        borderRadius: '24px',
-        border: '1px solid var(--border-color)',
-        width: '100%',
-        maxWidth: '460px',
-        overflow: 'hidden',
-        boxShadow: 'var(--shadow-xl), 0 0 40px rgba(37, 99, 235, 0.15)',
-        position: 'relative'
-      }}>
+    <div 
+      onClick={onClose}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 9999,
+        backgroundColor: 'rgba(0, 0, 0, 0.75)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '1rem',
+        animation: 'fadeIn 0.25s ease-out'
+      }}
+    >
+      <div 
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          backgroundColor: 'var(--bg-card)',
+          color: 'var(--text-main)',
+          borderRadius: '24px',
+          border: '1px solid var(--border-color)',
+          width: '100%',
+          maxWidth: '460px',
+          overflow: 'hidden',
+          boxShadow: 'var(--shadow-xl), 0 0 40px rgba(37, 99, 235, 0.15)',
+          position: 'relative'
+        }}
+      >
         {/* Top Header */}
         <div style={{
           padding: '1.25rem 1.5rem',

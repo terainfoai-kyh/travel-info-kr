@@ -6,31 +6,37 @@ export default function AboutUsModal({ isOpen, onClose, lang = 'ko' }) {
   if (!isOpen) return null;
 
   return (
-    <div style={{
-      position: 'fixed',
-      inset: 0,
-      backgroundColor: 'rgba(15, 23, 42, 0.75)',
-      backdropFilter: 'blur(8px)',
-      WebkitBackdropFilter: 'blur(8px)',
-      zIndex: 1000,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '1rem'
-    }}>
-      <div style={{
-        backgroundColor: 'var(--bg-card)',
-        color: 'var(--text-main)',
-        border: '1px solid var(--border-color)',
-        borderRadius: '24px',
-        maxWidth: '680px',
-        width: '100%',
-        maxHeight: '85vh',
+    <div 
+      onClick={onClose}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        backgroundColor: 'rgba(15, 23, 42, 0.75)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+        zIndex: 1000,
         display: 'flex',
-        flexDirection: 'column',
-        boxShadow: 'var(--shadow-md)',
-        overflow: 'hidden'
-      }}>
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '1rem'
+      }}
+    >
+      <div 
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          backgroundColor: 'var(--bg-card)',
+          color: 'var(--text-main)',
+          border: '1px solid var(--border-color)',
+          borderRadius: '24px',
+          maxWidth: '680px',
+          width: '100%',
+          maxHeight: '85vh',
+          display: 'flex',
+          flexDirection: 'column',
+          boxShadow: 'var(--shadow-md)',
+          overflow: 'hidden'
+        }}
+      >
         {/* Header */}
         <div style={{
           padding: '1.25rem 1.5rem',

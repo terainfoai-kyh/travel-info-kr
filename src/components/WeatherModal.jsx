@@ -488,31 +488,37 @@ export default function WeatherModal({
   if (!isOpen) return null;
 
   return (
-    <div style={{
-      position: 'fixed',
-      inset: 0,
-      backgroundColor: 'rgba(15, 23, 42, 0.75)',
-      backdropFilter: 'blur(8px)',
-      WebkitBackdropFilter: 'blur(8px)',
-      zIndex: 1000,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '1rem'
-    }}>
-      <div style={{
-        backgroundColor: 'var(--bg-card)',
-        color: 'var(--text-main)',
-        border: '1px solid var(--border-color)',
-        borderRadius: '24px',
-        maxWidth: '540px',
-        width: '100%',
-        maxHeight: '90vh',
+    <div 
+      onClick={onClose}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        backgroundColor: 'rgba(15, 23, 42, 0.75)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+        zIndex: 1000,
         display: 'flex',
-        flexDirection: 'column',
-        boxShadow: 'var(--shadow-md)',
-        overflow: 'hidden'
-      }}>
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '1rem'
+      }}
+    >
+      <div 
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          backgroundColor: 'var(--bg-card)',
+          color: 'var(--text-main)',
+          border: '1px solid var(--border-color)',
+          borderRadius: '24px',
+          maxWidth: '540px',
+          width: '100%',
+          maxHeight: '90vh',
+          display: 'flex',
+          flexDirection: 'column',
+          boxShadow: 'var(--shadow-md)',
+          overflow: 'hidden'
+        }}
+      >
         {/* Modal Header */}
         <div style={{
           padding: '1rem 1.25rem',
