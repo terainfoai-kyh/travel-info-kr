@@ -501,50 +501,52 @@ export default function GoogleMapView({
         />
 
 
-        {/* 🔍 Always Visible Floating "전체 코스 보기" Button Inside Map */}
-        <button
-          type="button"
-          onClick={() => {
-            if (onSelectSpotIndex) onSelectSpotIndex(null);
-            if (leafletMapRef.current && activeBoundsRef.current) {
-              const b = window.L?.latLngBounds(activeBoundsRef.current);
-              if (b && b.isValid()) {
-                leafletMapRef.current.fitBounds(b.pad(0.35), { padding: [30, 30], maxZoom: 14, animate: true });
+        {/* 🔍 Floating "전체 코스 보기" Button Inside Map (Only when not embedded in FullMapTab) */}
+        {!hideHeader && (
+          <button
+            type="button"
+            onClick={() => {
+              if (onSelectSpotIndex) onSelectSpotIndex(null);
+              if (leafletMapRef.current && activeBoundsRef.current) {
+                const b = window.L?.latLngBounds(activeBoundsRef.current);
+                if (b && b.isValid()) {
+                  leafletMapRef.current.fitBounds(b.pad(0.35), { padding: [30, 30], maxZoom: 14, animate: true });
+                }
               }
-            }
-          }}
-          title={lang === 'en' ? 'Click to view full course' : lang === 'ja' ? 'クリックしてコース全体を表示' : (lang === 'zh' || lang === 'zht') ? '点击查看完整路线' : '클릭하여 전체 코스 한눈에 보기'}
-          style={{
-            position: 'absolute',
-            top: '8px',
-            left: '8px',
-            zIndex: 400,
-            backgroundColor: 'rgba(255, 255, 255, 0.95)',
-            backdropFilter: 'blur(8px)',
-            border: '1.5px solid var(--accent-primary)',
-            color: 'var(--accent-primary)',
-            padding: '0.28rem 0.65rem',
-            borderRadius: 'var(--radius-full)',
-            fontSize: '0.7rem',
-            fontWeight: 800,
-            boxShadow: '0 3px 8px rgba(0,0,0,0.15)',
-            cursor: 'pointer',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.25rem',
-            transition: 'all 0.2s ease'
-          }}
-        >
-          <span>
-            {lang === 'en' 
-              ? '🔍 View Full Course' 
-              : lang === 'ja' 
-              ? '🔍 全体コース' 
-              : (lang === 'zh' || lang === 'zht') 
-              ? (lang === 'zht' ? '🔍 完整路線' : '🔍 完整路线') 
-              : '🔍 전체 코스 보기'}
-          </span>
-        </button>
+            }}
+            title={lang === 'en' ? 'Click to view full course' : lang === 'ja' ? 'クリックしてコース全体を表示' : (lang === 'zh' || lang === 'zht') ? '点击查看完整路线' : '클릭하여 전체 코스 한눈에 보기'}
+            style={{
+              position: 'absolute',
+              top: '8px',
+              left: '8px',
+              zIndex: 400,
+              backgroundColor: 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(8px)',
+              border: '1.5px solid var(--accent-primary)',
+              color: 'var(--accent-primary)',
+              padding: '0.28rem 0.65rem',
+              borderRadius: 'var(--radius-full)',
+              fontSize: '0.7rem',
+              fontWeight: 800,
+              boxShadow: '0 3px 8px rgba(0,0,0,0.15)',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.25rem',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            <span>
+              {lang === 'en' 
+                ? '🔍 View Full Course' 
+                : lang === 'ja' 
+                ? '🔍 全体コース' 
+                : (lang === 'zh' || lang === 'zht') 
+                ? (lang === 'zht' ? '🔍 完整路線' : '🔍 完整路线') 
+                : '🔍 전체 코스 보기'}
+            </span>
+          </button>
+        )}
 
         {!isLeafletReady && (
           <div style={{
@@ -579,8 +581,8 @@ export default function GoogleMapView({
         )}
       </div>
 
-      {/* Bottom Sequential Route Chips (슬림 패딩 & 가로 넘침 완벽 격리) */}
-      {spotsToDisplay.length > 0 && (
+      {/* Bottom Sequential Route Chips (Only when not embedded in FullMapTab) */}
+      {!hideHeader && spotsToDisplay.length > 0 && (
         <div
           className="no-scrollbar"
           style={{
@@ -600,6 +602,7 @@ export default function GoogleMapView({
             WebkitOverflowScrolling: 'touch'
           }}
         >
+
           {spotsToDisplay.map((spot, idx) => {
             const isFocused = focusedSpotIndex === idx;
             return (
