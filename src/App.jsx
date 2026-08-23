@@ -870,8 +870,6 @@ export default function App() {
         currentUser={currentUser}
         lang={lang}
       />
-
-      />
     </div>
   );
 }

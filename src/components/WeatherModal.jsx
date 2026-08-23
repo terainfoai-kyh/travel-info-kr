@@ -844,88 +844,87 @@ export default function WeatherModal({
           )}
 
 
-            {/* Smart Affiliate & Curated Reference Links (100% Free + Revenue) */}
-            <div style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: '0.4rem',
-              marginTop: '0.1rem'
-            }}>
-              <a
-                href={sunscreenLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  flex: '1 1 calc(50% - 0.2rem)',
-                  backgroundColor: 'var(--bg-card)',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: '10px',
-                  padding: '0.5rem 0.75rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  textDecoration: 'none',
-                  color: 'var(--text-main)',
-                  fontSize: '0.75rem',
-                  fontWeight: 800
-                }}
-              >
-                <span>{t.weatherSunscreenLink || '🧴 여행용 선크림 & 쿨링패치'}</span>
-                <ExternalLink size={12} style={{ color: 'var(--text-dim)' }} />
-              </a>
+          {/* Smart Affiliate & Curated Reference Links (100% Free + Revenue) */}
+          <div style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '0.4rem',
+            marginTop: '0.1rem'
+          }}>
+            <a
+              href={sunscreenLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                flex: '1 1 calc(50% - 0.2rem)',
+                backgroundColor: 'var(--bg-card)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '10px',
+                padding: '0.5rem 0.75rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                textDecoration: 'none',
+                color: 'var(--text-main)',
+                fontSize: '0.75rem',
+                fontWeight: 800
+              }}
+            >
+              <span>{t.weatherSunscreenLink || '🧴 여행용 선크림 & 쿨링패치'}</span>
+              <ExternalLink size={12} style={{ color: 'var(--text-dim)' }} />
+            </a>
 
-              <a
-                href={hanbokLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  flex: '1 1 calc(50% - 0.2rem)',
-                  backgroundColor: 'var(--bg-card)',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: '10px',
-                  padding: '0.5rem 0.75rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  textDecoration: 'none',
-                  color: 'var(--text-main)',
-                  fontSize: '0.75rem',
-                  fontWeight: 800
-                }}
-              >
-                <span>{t.weatherHanbokLink || '👘 전통 한복/의상 대여'}</span>
-                <ExternalLink size={12} style={{ color: 'var(--text-dim)' }} />
-              </a>
+            <a
+              href={hanbokLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                flex: '1 1 calc(50% - 0.2rem)',
+                backgroundColor: 'var(--bg-card)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '10px',
+                padding: '0.5rem 0.75rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                textDecoration: 'none',
+                color: 'var(--text-main)',
+                fontSize: '0.75rem',
+                fontWeight: 800
+              }}
+            >
+              <span>{t.weatherHanbokLink || '👘 전통 한복/의상 대여'}</span>
+              <ExternalLink size={12} style={{ color: 'var(--text-dim)' }} />
+            </a>
 
-              <a
-                href={kfashionLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  width: '100%',
-                  backgroundColor: 'var(--bg-card)',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: '10px',
-                  padding: '0.5rem 0.75rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  textDecoration: 'none',
-                  color: 'var(--text-main)',
-                  fontSize: '0.75rem',
-                  fontWeight: 800
-                }}
-              >
-                <span>{t.weatherLookbookLink || '📌 K-패션 여행 감성 룩북 (Pinterest)'}</span>
-                <ExternalLink size={12} style={{ color: 'var(--text-dim)' }} />
-              </a>
-            </div>
+            <a
+              href={kfashionLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                width: '100%',
+                backgroundColor: 'var(--bg-card)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '10px',
+                padding: '0.5rem 0.75rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                textDecoration: 'none',
+                color: 'var(--text-main)',
+                fontSize: '0.75rem',
+                fontWeight: 800
+              }}
+            >
+              <span>{t.weatherLookbookLink || '📌 K-패션 여행 감성 룩북 (Pinterest)'}</span>
+              <ExternalLink size={12} style={{ color: 'var(--text-dim)' }} />
+            </a>
           </div>
         </div>
 
         {/* Modal Footer */}
         <div style={{
-          padding: '0.9rem 1.4rem',
+          padding: '0.75rem 1.25rem',
           borderTop: '1px solid var(--border-color)',
           backgroundColor: 'var(--bg-glass)',
           display: 'flex',
@@ -934,13 +933,13 @@ export default function WeatherModal({
           <button
             onClick={onClose}
             style={{
-              backgroundColor: 'var(--accent-primary)',
+              backgroundColor: '#1e293b',
               color: '#ffffff',
               border: 'none',
-              borderRadius: 'var(--radius-sm)',
-              padding: '0.5rem 1.3rem',
+              borderRadius: '8px',
+              padding: '0.45rem 1.2rem',
               fontWeight: 800,
-              fontSize: '0.82rem',
+              fontSize: '0.8rem',
               cursor: 'pointer'
             }}
           >
