@@ -349,17 +349,17 @@ export default function PortalHomePrototype({
         style={{
           position: 'relative',
           width: '100%',
-          minHeight: '440px',
-          maxHeight: '580px',
-          height: '56vh',
-          borderRadius: '28px',
+          minHeight: '360px',
+          maxHeight: '480px',
+          height: '46vh',
+          borderRadius: '24px',
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
-          boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.25)',
-          marginBottom: '2rem',
+          boxShadow: '0 16px 36px -10px rgba(0, 0, 0, 0.25)',
+          marginBottom: '0.85rem',
           border: '1px solid rgba(255, 255, 255, 0.2)'
         }}
       >
@@ -391,57 +391,57 @@ export default function PortalHomePrototype({
           left: 0,
           width: '100%',
           height: '100%',
-          background: 'linear-gradient(180deg, rgba(0, 0, 0, 0.12) 0%, rgba(0, 0, 0, 0.02) 40%, rgba(15, 23, 42, 0.58) 100%)',
+          background: 'linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.02) 35%, rgba(15, 23, 42, 0.55) 100%)',
           zIndex: 2
         }} />
 
-        {/* Hero Content Container */}
+        {/* Hero Content Container (슬림 핏 압축) */}
         <div style={{
           position: 'relative',
           zIndex: 3,
           textAlign: 'center',
           maxWidth: '860px',
-          padding: '1.25rem',
+          padding: '0.9rem 0.85rem 1.6rem 0.85rem',
           width: '100%',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: '0.85rem'
+          gap: '0.45rem'
         }}>
           
-          {/* Top Sparkling Badge */}
+          {/* Top Sparkling Badge (슬림 캡슐) */}
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '0.45rem',
-            padding: '0.35rem 0.95rem',
+            gap: '0.35rem',
+            padding: '0.22rem 0.75rem',
             borderRadius: '9999px',
             backgroundColor: 'rgba(15, 23, 42, 0.65)',
             backdropFilter: 'blur(16px)',
             WebkitBackdropFilter: 'blur(16px)',
             border: '1px solid rgba(255, 255, 255, 0.4)',
             color: '#93c5fd',
-            fontSize: '0.82rem',
+            fontSize: '0.74rem',
             fontWeight: 800,
             boxShadow: '0 4px 15px rgba(0, 0, 0, 0.3)'
           }}>
-            <Sparkles size={14} style={{ color: '#fbbf24' }} />
+            <Sparkles size={12} style={{ color: '#fbbf24' }} />
             <span>
-              {lang === 'en' ? 'VORA AI 3.0 • Official Korea Travel Concierge' :
-               lang === 'ja' ? 'VORA AI 3.0 • 公式韓国旅行コンシェルジュ' :
-               (lang === 'zh' || lang === 'zht') ? 'VORA AI 3.0 • 韩国旅游官方智能礼宾' :
-               'VORA AI 3.0 • 대한민국 대표 AI 여행 컨시어지'}
+              {lang === 'en' ? 'VORA AI 3.0 • Official Travel Concierge' :
+               lang === 'ja' ? 'VORA AI 3.0 • 韓国旅行コンシェルジュ' :
+               (lang === 'zh' || lang === 'zht') ? 'VORA AI 3.0 • 韩国旅游智能礼宾' :
+               'VORA AI 3.0 • 대한민국 대표 여행 컨시어지'}
             </span>
           </div>
 
-          {/* Dynamic Headline */}
+          {/* Dynamic Headline (컴팩트 슬림 폰트) */}
           <h1 style={{
-            fontSize: 'clamp(1.75rem, 4.2vw, 2.85rem)',
+            fontSize: 'clamp(1.3rem, 3.6vw, 2.2rem)',
             fontWeight: 900,
-            lineHeight: 1.22,
+            lineHeight: 1.2,
             color: '#ffffff',
             margin: 0,
-            textShadow: '0 4px 16px rgba(0, 0, 0, 0.8), 0 2px 4px rgba(0, 0, 0, 0.9)',
+            textShadow: '0 3px 12px rgba(0, 0, 0, 0.8), 0 1px 3px rgba(0, 0, 0, 0.9)',
             letterSpacing: '-0.02em'
           }}>
             {lang === 'en' ? currentSlide.titleEn :
@@ -450,15 +450,18 @@ export default function PortalHomePrototype({
              currentSlide.titleKo}
           </h1>
 
-          {/* Subtitle */}
+          {/* Subtitle (1줄 깔끔 압축) */}
           <p style={{
-            fontSize: 'clamp(0.92rem, 1.8vw, 1.15rem)',
-            color: '#ffffff',
+            fontSize: 'clamp(0.78rem, 1.6vw, 0.95rem)',
+            color: '#f1f5f9',
             margin: 0,
-            maxWidth: '680px',
-            lineHeight: 1.5,
+            maxWidth: '620px',
+            lineHeight: 1.35,
             fontWeight: 600,
-            textShadow: '0 2px 10px rgba(0, 0, 0, 0.85), 0 1px 3px rgba(0, 0, 0, 0.9)'
+            textShadow: '0 2px 8px rgba(0, 0, 0, 0.85)',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
           }}>
             {lang === 'en' ? currentSlide.subEn :
              lang === 'ja' ? currentSlide.subJa :
@@ -471,8 +474,8 @@ export default function PortalHomePrototype({
             onSubmit={handleSearch}
             style={{
               width: '100%',
-              maxWidth: '640px',
-              marginTop: '0.4rem',
+              maxWidth: '580px',
+              marginTop: '0.15rem',
               position: 'relative'
             }}
           >
@@ -481,8 +484,8 @@ export default function PortalHomePrototype({
               alignItems: 'center',
               backgroundColor: '#ffffff',
               borderRadius: '9999px',
-              padding: '0.35rem 0.4rem 0.35rem 1.1rem',
-              boxShadow: '0 20px 45px rgba(0, 0, 0, 0.35)',
+              padding: '0.25rem 0.35rem 0.25rem 0.95rem',
+              boxShadow: '0 16px 36px rgba(0, 0, 0, 0.3)',
               border: '2px solid rgba(255, 255, 255, 0.95)',
               transition: 'all 0.3s ease'
             }}>
@@ -595,11 +598,11 @@ export default function PortalHomePrototype({
         {/* Slide Indicators / Navigation Dots */}
         <div style={{
           position: 'absolute',
-          bottom: '0.9rem',
+          bottom: '0.45rem',
           left: '50%',
           transform: 'translateX(-50%)',
           display: 'flex',
-          gap: '0.5rem',
+          gap: '0.45rem',
           zIndex: 3
         }}>
           {HERO_SLIDES.map((_, idx) => (

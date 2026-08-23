@@ -1006,24 +1006,25 @@ button, a, input, select, textarea {
 @media (max-width: 640px) {
   .portal-quick-hub-grid {
     grid-template-columns: repeat(3, 1fr);
-    gap: 0.5rem;
+    gap: 0.45rem;
   }
   .portal-quick-hub-card {
     border-radius: 14px;
-    padding: 0.75rem 0.35rem;
-    gap: 0.4rem;
+    padding: 0.6rem 0.25rem;
+    gap: 0.35rem;
   }
   .portal-quick-hub-icon {
-    width: 42px;
-    height: 42px;
+    width: 38px;
+    height: 38px;
   }
   .portal-quick-hub-icon svg {
-    width: 20px !important;
-    height: 20px !important;
+    width: 19px !important;
+    height: 19px !important;
   }
   .portal-quick-hub-label {
-    font-size: 0.74rem;
+    font-size: 0.72rem;
     letter-spacing: -0.02em;
+    font-weight: 700;
   }
   .portal-theme-grid {
     grid-template-columns: 1fr;
