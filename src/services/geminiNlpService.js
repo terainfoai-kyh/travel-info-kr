@@ -368,14 +368,16 @@ RULE 1: ZERO TRANSIT WASTE (Proximity Clustering)
 - Same-day spots MUST be geographically clustered along the same corridor within 10~20 minutes transit (e.g. Jongno-Anguk-Bukchon line, Seongsu-Seoul Forest line, Yongsan-Hannam line, Yeouido-Hangang line, Haeundae-Gwangalli line).
 - NEVER mix distant north/south districts on the same day (e.g. NEVER put Gangnam and Jongno together on the same afternoon).
 
-RULE 2: DYNAMIC SPOT ALLOCATION (2 to 4 Spots per Day)
-- For relaxed/healing/family trips: 2~3 spacious spots per day.
-- For active/trendy/friends/gourmet trips (e.g. "여자 세명 우정 여행", "핫플 투어"): 3~4 spots per day with realistic pacing (Morning ➔ Lunch/Gourmet ➔ Afternoon Cafe/Culture ➔ Sunset/Nightview).
+RULE 2: FULL-DAY CHRONOLOGICAL TIMELINE (5 to 6 Spots per Day)
+- Generate a rich, structured, full-day timeline with 5 to 6 distinct spots per day matching the standard timetable:
+  * 09:00 Morning Palace / Historic Walk / Scenic Nature
+  * 11:00 Cultural Hotspot / Traditional Village / Trendy Showroom
+  * 13:00 Lunch (Iconic Local Gourmet / Renowned Dish)
+  * 14:30 Afternoon Aesthetic Cafe / Dessert / Design Museum
+  * 16:30 Shopping Street / Pop-up Store / Creative District
+  * 18:30 Dinner (Local Delicacy / Night Market / Sunset & Nightview)
+- Keep dailySchedules[].theme concise without redundant prefixes (e.g. '서울의 하루', '성수동과 남산 선셋' - NEVER prefix with '1일차:').
 
-RULE 3: GOLDEN-HOUR CHRONOLOGICAL MATCHING
-- Morning (10:00~12:00): Palaces, shrines, heritage walking, uncrowded nature parks.
-- Afternoon (13:30~16:30): Aesthetic cafes, shopping alleys, design museums, lifestyle popups.
-- Sunset & Night (17:30~20:30): High observatory towers, romantic riverside sunsets, night markets, rooftop lounges.
 
 RULE 4: STRICT SINGLE DISTINCT LANDMARK RULE (NEVER COMBINE WITH '&' OR '/')
 - NEVER combine multiple spots into one name using '&', '+', '/', or 'and' (e.g. NEVER output '인사동 쌈지길 & 전통찻집' ❌, 'DDP & 동대문' ❌, '성수동 & 디올 성수' ❌).
