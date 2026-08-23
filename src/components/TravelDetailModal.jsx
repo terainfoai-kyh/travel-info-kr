@@ -710,7 +710,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                 boxShadow: '0 2px 6px rgba(0, 0, 0, 0.15)'
               }}
             >
-              <span>{lang === 'en' ? 'Google Maps Route ↗' : '구글맵 실시간 길찾기 ↗'}</span>
+              <span>{lang === 'en' ? 'Google Maps ↗' : '구글맵 ↗'}</span>
               <ExternalLink size={12} />
             </a>
 
