@@ -712,63 +712,65 @@ export default function App() {
         lang={lang}
       />
 
-      {/* Footer with Google AdSense Required Policy Links */}
-      <footer style={{
+      {/* Footer with Google AdSense Required Policy Links (Visible only on Home and More tabs) */}
+      {(activeNavTab === 'home' || activeNavTab === 'more') && (
+        <footer style={{
+          borderTop: '1px solid var(--border-color)',
+          backgroundColor: 'var(--bg-card)',
+          padding: '2.5rem 1.5rem',
+          textAlign: 'center',
+          fontSize: '0.82rem',
+          color: 'var(--text-muted)'
+        }}>
+          <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+            {/* AdSense Policy Links */}
+            <div style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              gap: '1.25rem',
+              marginBottom: '1.25rem',
+              fontWeight: 700
+            }}>
+              <button
+                onClick={() => setIsPrivacyOpen(true)}
+                style={{ background: 'none', border: 'none', color: 'var(--text-main)', cursor: 'pointer', fontSize: '0.84rem' }}
+              >
+                {t.privacyPolicy || '개인정보처리방침'}
+              </button>
+              <span>•</span>
+              <button
+                onClick={() => setIsTermsOpen(true)}
+                style={{ background: 'none', border: 'none', color: 'var(--text-main)', cursor: 'pointer', fontSize: '0.84rem' }}
+              >
+                {t.termsOfService || '이용약관'}
+              </button>
+              <span>•</span>
+              <button
+                onClick={() => setIsAboutOpen(true)}
+                style={{ background: 'none', border: 'none', color: 'var(--text-main)', cursor: 'pointer', fontSize: '0.84rem' }}
+              >
+                {t.aboutUs || '서비스 소개'}
+              </button>
+              <span>•</span>
+              <button
+                onClick={() => setIsContactOpen(true)}
+                style={{ background: 'none', border: 'none', color: 'var(--text-main)', cursor: 'pointer', fontSize: '0.84rem' }}
+              >
+                {t.contactUs || '제휴 및 문의'}
+              </button>
+            </div>
 
-        borderTop: '1px solid var(--border-color)',
-        backgroundColor: 'var(--bg-card)',
-        padding: '2.5rem 1.5rem',
-        textAlign: 'center',
-        fontSize: '0.82rem',
-        color: 'var(--text-muted)'
-      }}>
-        <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
-          {/* AdSense Policy Links */}
-          <div style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-            gap: '1.25rem',
-            marginBottom: '1.25rem',
-            fontWeight: 700
-          }}>
-            <button
-              onClick={() => setIsPrivacyOpen(true)}
-              style={{ background: 'none', border: 'none', color: 'var(--text-main)', cursor: 'pointer', fontSize: '0.84rem' }}
-            >
-              {t.privacyPolicy || '개인정보처리방침'}
-            </button>
-            <span>•</span>
-            <button
-              onClick={() => setIsTermsOpen(true)}
-              style={{ background: 'none', border: 'none', color: 'var(--text-main)', cursor: 'pointer', fontSize: '0.84rem' }}
-            >
-              {t.termsOfService || '이용약관'}
-            </button>
-            <span>•</span>
-            <button
-              onClick={() => setIsAboutOpen(true)}
-              style={{ background: 'none', border: 'none', color: 'var(--text-main)', cursor: 'pointer', fontSize: '0.84rem' }}
-            >
-              {t.aboutUs || '서비스 소개'}
-            </button>
-            <span>•</span>
-            <button
-              onClick={() => setIsContactOpen(true)}
-              style={{ background: 'none', border: 'none', color: 'var(--text-main)', cursor: 'pointer', fontSize: '0.84rem' }}
-            >
-              {t.contactUs || '제휴 및 문의'}
-            </button>
+            <p style={{ margin: '0 0 0.5rem 0', fontWeight: 600 }}>
+              {t.footerCopyright || '© 2026 VORA AI — Korea Smart Travel Concierge. All Rights Reserved.'}
+            </p>
+            <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+              {t.footerTourApiNotice || 'Google Gemini 3.0 AI & Google Maps Platform 연동'} | Official Contact: terainfoai@gmail.com
+            </p>
           </div>
+        </footer>
+      )}
 
-          <p style={{ margin: '0 0 0.5rem 0', fontWeight: 600 }}>
-            {t.footerCopyright || '© 2026 VORA AI — Korea Smart Travel Concierge. All Rights Reserved.'}
-          </p>
-          <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-dim)' }}>
-            {t.footerTourApiNotice || 'Google Gemini 3.0 AI & Google Maps Platform 연동'} | Official Contact: terainfoai@gmail.com
-          </p>
-        </div>
-      </footer>
 
       {/* Modals & Drawers */}
       {selectedSpot && (
