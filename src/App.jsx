@@ -751,6 +751,34 @@ export default function App() {
           spot={selectedSpot}
           onClose={() => setSelectedSpot(null)}
           lang={lang}
+          onReplaceSpot={(targetSpot, newSpot) => {
+            if (!itineraryData || !targetSpot || !newSpot) return;
+            const updatedSchedules = (itineraryData.dailySchedules || []).map(sch => ({
+              ...sch,
+              spots: (sch.spots || []).map(s => {
+                if (s.id === targetSpot.id || s.title === targetSpot.title) {
+                  return { ...newSpot, assignedDay: sch.day };
+                }
+                return s;
+              })
+            }));
+            const updatedSpots = (itineraryData.spots || []).map(s => {
+              if (s.id === targetSpot.id || s.title === targetSpot.title) {
+                return { ...newSpot, assignedDay: s.assignedDay };
+              }
+              return s;
+            });
+            const updatedItinerary = {
+              ...itineraryData,
+              dailySchedules: updatedSchedules,
+              spots: updatedSpots
+            };
+            setItineraryData(updatedItinerary);
+            try {
+              localStorage.setItem('vora_last_itinerary', JSON.stringify(updatedItinerary));
+            } catch (e) {}
+            setSelectedSpot({ ...newSpot, assignedDay: targetSpot.assignedDay });
+          }}
           isBookmarked={bookmarks.some(b => 
             (typeof b === 'object' && ((b.contentId && b.contentId === (selectedSpot.contentId || selectedSpot.id)) || (b.id && b.id === selectedSpot.id) || (b.title && b.title === selectedSpot.title))) ||
             (typeof b === 'string' && (b === selectedSpot.id || b === selectedSpot.contentId || b === selectedSpot.title))
@@ -758,6 +786,7 @@ export default function App() {
           onToggleBookmark={(spot) => handleToggleBookmark(spot || selectedSpot)}
         />
       )}
+
 
       {isWishlistOpen && (
         <WishlistDrawer
