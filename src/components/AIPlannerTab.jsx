@@ -101,30 +101,30 @@ export default function AIPlannerTab({
       backgroundColor: 'var(--bg-card)',
       borderRadius: '24px',
       border: '1px solid var(--border-color)',
-      boxShadow: '0 10px 30px rgba(0, 0, 0, 0.08)',
-      padding: '1.25rem 1.15rem 1.5rem 1.15rem',
+      boxShadow: '0 8px 24px rgba(0, 0, 0, 0.06)',
+      padding: '0.9rem 1rem 1.15rem 1rem',
       boxSizing: 'border-box'
     }}>
       {/* 1. Header Title */}
-      <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
+      <div style={{ textAlign: 'center', marginBottom: '0.85rem' }}>
         <div style={{
           display: 'inline-flex',
           alignItems: 'center',
-          gap: '0.4rem',
-          backgroundColor: 'rgba(37, 99, 235, 0.1)',
+          gap: '0.35rem',
+          backgroundColor: 'rgba(37, 99, 235, 0.08)',
           color: 'var(--accent-primary)',
-          padding: '0.3rem 0.85rem',
+          padding: '0.2rem 0.75rem',
           borderRadius: '9999px',
-          fontSize: '0.8rem',
+          fontSize: '0.75rem',
           fontWeight: 800,
-          marginBottom: '0.4rem'
+          marginBottom: '0.25rem'
         }}>
-          <Sparkles size={14} />
+          <Sparkles size={13} />
           <span>VORA AI Travel Studio</span>
         </div>
         <h2 style={{
           margin: 0,
-          fontSize: 'clamp(1.2rem, 3.5vw, 1.45rem)',
+          fontSize: 'clamp(1.1rem, 3.2vw, 1.35rem)',
           fontWeight: 900,
           color: 'var(--text-main)'
         }}>
@@ -132,11 +132,11 @@ export default function AIPlannerTab({
         </h2>
       </div>
 
-      <form onSubmit={handleCreateSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.15rem' }}>
+      <form onSubmit={handleCreateSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         {/* Step 1: 여행지 선택 */}
         <div>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.45rem' }}>
-            <MapPin size={15} style={{ color: 'var(--accent-primary)' }} />
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.3rem' }}>
+            <MapPin size={14} style={{ color: 'var(--accent-primary)' }} />
             <span>{lang === 'en' ? 'Destination' : lang === 'ja' ? '目的地' : (lang === 'zh' || lang === 'zht') ? '目的地' : '여행지'}</span>
           </label>
           <div style={{
@@ -144,9 +144,9 @@ export default function AIPlannerTab({
             alignItems: 'center',
             backgroundColor: 'var(--bg-glass)',
             border: '1.5px solid var(--border-highlight)',
-            borderRadius: '14px',
-            padding: '0.55rem 0.85rem',
-            marginBottom: '0.5rem'
+            borderRadius: '12px',
+            padding: '0.45rem 0.75rem',
+            marginBottom: '0.4rem'
           }}>
             <input
               type="text"
@@ -158,7 +158,7 @@ export default function AIPlannerTab({
                 border: 'none',
                 outline: 'none',
                 backgroundColor: 'transparent',
-                fontSize: '0.9rem',
+                fontSize: '0.88rem',
                 fontWeight: 700,
                 color: 'var(--text-main)'
               }}
@@ -166,19 +166,19 @@ export default function AIPlannerTab({
           </div>
 
           {/* Quick City Pills */}
-          <div style={{ display: 'flex', gap: '0.35rem', overflowX: 'auto', paddingBottom: '0.2rem', scrollbarWidth: 'none' }}>
+          <div style={{ display: 'flex', gap: '0.3rem', overflowX: 'auto', paddingBottom: '0.15rem', scrollbarWidth: 'none' }}>
             {CITIES.map((city) => (
               <button
                 key={city.id}
                 type="button"
                 onClick={() => setDestination(city.val)}
                 style={{
-                  padding: '0.3rem 0.7rem',
+                  padding: '0.25rem 0.65rem',
                   borderRadius: '9999px',
                   border: destination === city.val ? '1.5px solid var(--accent-primary)' : '1px solid var(--border-color)',
                   backgroundColor: destination === city.val ? 'rgba(37, 99, 235, 0.12)' : 'var(--bg-card)',
                   color: destination === city.val ? 'var(--accent-primary)' : 'var(--text-muted)',
-                  fontSize: '0.78rem',
+                  fontSize: '0.75rem',
                   fontWeight: destination === city.val ? 800 : 600,
                   cursor: 'pointer',
                   whiteSpace: 'nowrap'
@@ -192,11 +192,11 @@ export default function AIPlannerTab({
 
         {/* Step 2: 여행 기간 (1일~5일 칩) */}
         <div>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.45rem' }}>
-            <Calendar size={15} style={{ color: 'var(--accent-primary)' }} />
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.3rem' }}>
+            <Calendar size={14} style={{ color: 'var(--accent-primary)' }} />
             <span>{lang === 'en' ? 'Trip Duration' : lang === 'ja' ? '旅行期間' : (lang === 'zh' || lang === 'zht') ? '旅行天数' : '여행 기간'}</span>
           </label>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '0.4rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '0.35rem' }}>
             {DAYS_OPTIONS.map((d) => {
               const isSelected = selectedDays === d;
               return (
@@ -205,16 +205,16 @@ export default function AIPlannerTab({
                   type="button"
                   onClick={() => setSelectedDays(d)}
                   style={{
-                    padding: '0.65rem 0.2rem',
-                    borderRadius: '12px',
+                    padding: '0.5rem 0.15rem',
+                    borderRadius: '10px',
                     border: isSelected ? '2px solid #2563eb' : '1px solid var(--border-color)',
                     backgroundColor: isSelected ? '#2563eb' : 'var(--bg-glass)',
                     color: isSelected ? '#ffffff' : 'var(--text-main)',
-                    fontSize: '0.86rem',
+                    fontSize: '0.82rem',
                     fontWeight: 800,
                     cursor: 'pointer',
                     transition: 'all 0.15s ease',
-                    boxShadow: isSelected ? '0 4px 12px rgba(37, 99, 235, 0.3)' : 'none'
+                    boxShadow: isSelected ? '0 3px 10px rgba(37, 99, 235, 0.25)' : 'none'
                   }}
                 >
                   {d}{lang === 'en' ? ' Day' : lang === 'ja' ? '日間' : (lang === 'zh' || lang === 'zht') ? '天' : '일'}
@@ -226,11 +226,11 @@ export default function AIPlannerTab({
 
         {/* Step 3: 여행 테마 (복수 선택) */}
         <div>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.45rem' }}>
-            <Compass size={15} style={{ color: 'var(--accent-primary)' }} />
-            <span>{lang === 'en' ? 'Travel Themes (Select all you like)' : lang === 'ja' ? '旅行テーマ（複数選択可）' : (lang === 'zh' || lang === 'zht') ? '旅行主题（可多选）' : '여행 테마 (다중 선택)'}</span>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.3rem' }}>
+            <Compass size={14} style={{ color: 'var(--accent-primary)' }} />
+            <span>{lang === 'en' ? 'Themes' : '여행 테마 (다중 선택)'}</span>
           </label>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
             {THEME_OPTIONS.map((theme) => {
               const isSelected = selectedThemes.includes(theme.val);
               const Icon = theme.icon;
@@ -240,21 +240,21 @@ export default function AIPlannerTab({
                   type="button"
                   onClick={() => handleToggleTheme(theme.val)}
                   style={{
-                    padding: '0.45rem 0.75rem',
-                    borderRadius: '10px',
+                    padding: '0.35rem 0.65rem',
+                    borderRadius: '9px',
                     border: isSelected ? '1.5px solid var(--accent-primary)' : '1px solid var(--border-color)',
                     backgroundColor: isSelected ? 'rgba(37, 99, 235, 0.12)' : 'var(--bg-glass)',
                     color: isSelected ? 'var(--accent-primary)' : 'var(--text-main)',
-                    fontSize: '0.8rem',
+                    fontSize: '0.76rem',
                     fontWeight: isSelected ? 800 : 600,
                     cursor: 'pointer',
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '0.35rem',
+                    gap: '0.25rem',
                     transition: 'all 0.15s ease'
                   }}
                 >
-                  <Icon size={14} />
+                  <Icon size={13} />
                   <span>{theme.label}</span>
                 </button>
               );
@@ -264,11 +264,11 @@ export default function AIPlannerTab({
 
         {/* Step 4: 동행자 선택 */}
         <div>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.45rem' }}>
-            <Users size={15} style={{ color: 'var(--accent-primary)' }} />
-            <span>{lang === 'en' ? 'Who is Traveling?' : lang === 'ja' ? '同行者' : (lang === 'zh' || lang === 'zht') ? '同行同伴' : '동행자'}</span>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.3rem' }}>
+            <Users size={14} style={{ color: 'var(--accent-primary)' }} />
+            <span>{lang === 'en' ? 'Companion' : '동행자'}</span>
           </label>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.4rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.35rem' }}>
             {COMPANION_OPTIONS.map((comp) => {
               const isSelected = selectedCompanion === comp.val;
               return (
@@ -277,12 +277,12 @@ export default function AIPlannerTab({
                   type="button"
                   onClick={() => setSelectedCompanion(comp.val)}
                   style={{
-                    padding: '0.55rem 0.2rem',
-                    borderRadius: '12px',
+                    padding: '0.45rem 0.15rem',
+                    borderRadius: '10px',
                     border: isSelected ? '2px solid #2563eb' : '1px solid var(--border-color)',
                     backgroundColor: isSelected ? '#2563eb' : 'var(--bg-glass)',
                     color: isSelected ? '#ffffff' : 'var(--text-main)',
-                    fontSize: '0.82rem',
+                    fontSize: '0.78rem',
                     fontWeight: 800,
                     cursor: 'pointer',
                     transition: 'all 0.15s ease'
@@ -301,14 +301,14 @@ export default function AIPlannerTab({
             type="text"
             value={customNote}
             onChange={(e) => setCustomNote(e.target.value)}
-            placeholder={lang === 'en' ? 'Optional: e.g. strictly indoor places, halal food, budget-friendly' : '추가 요청 (선택): 예: 비 오는 날 실내 위주, 핫플 카페 2곳 포함, 부모님 동반'}
+            placeholder={lang === 'en' ? 'Optional: e.g. strictly indoor places, halal food' : '추가 요청 (선택): 예: 비 올 때 실내 위주, 핫플 카페'}
             style={{
               width: '100%',
               backgroundColor: 'var(--bg-glass)',
               border: '1px solid var(--border-color)',
-              borderRadius: '12px',
-              padding: '0.6rem 0.85rem',
-              fontSize: '0.8rem',
+              borderRadius: '10px',
+              padding: '0.5rem 0.75rem',
+              fontSize: '0.76rem',
               color: 'var(--text-main)',
               outline: 'none',
               boxSizing: 'border-box'
@@ -321,36 +321,35 @@ export default function AIPlannerTab({
           type="submit"
           disabled={isLoading}
           style={{
-            marginTop: '0.5rem',
+            marginTop: '0.35rem',
             width: '100%',
-            padding: '0.95rem 1rem',
-            borderRadius: '16px',
+            padding: '0.85rem 1rem',
+            borderRadius: '14px',
             border: 'none',
             background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
             color: '#ffffff',
-            fontSize: '1.02rem',
+            fontSize: '0.98rem',
             fontWeight: 900,
             cursor: isLoading ? 'default' : 'pointer',
             opacity: isLoading ? 0.75 : 1,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '0.5rem',
-            boxShadow: '0 8px 24px rgba(37, 99, 235, 0.35)',
+            gap: '0.45rem',
+            boxShadow: '0 6px 20px rgba(37, 99, 235, 0.35)',
             transition: 'transform 0.15s ease'
           }}
-          onMouseDown={(e) => !isLoading && (e.currentTarget.style.transform = 'scale(0.98)')}
-          onMouseUp={(e) => !isLoading && (e.currentTarget.style.transform = 'scale(1)')}
         >
-          <Sparkles size={18} />
+          <Sparkles size={16} />
           <span>
             {isLoading
-              ? (lang === 'en' ? 'Designing Perfect Itinerary...' : lang === 'ja' ? '最適プランを設計中...' : (lang === 'zh' || lang === 'zht') ? '正在生成定制路线...' : 'AI 맞춤 일정 생성 중...')
-              : (lang === 'en' ? '✨ Generate AI Travel Itinerary' : lang === 'ja' ? '✨ AI旅行プランを作成' : (lang === 'zh' || lang === 'zht') ? '✨ 生成AI专属旅游路线' : '✨ AI 여행 일정 만들기')}
+              ? (lang === 'en' ? 'Designing Itinerary...' : 'AI 맞춤 일정 생성 중...')
+              : (lang === 'en' ? '✨ Generate AI Travel Itinerary' : '✨ AI 여행 일정 만들기')}
           </span>
-          {!isLoading && <ArrowRight size={18} />}
+          {!isLoading && <ArrowRight size={16} />}
         </button>
       </form>
     </div>
   );
 }
+
