@@ -304,134 +304,146 @@ export default function LiveTripTab({
       </div>
 
       {/* 🌟 4. '지금 뭐하지?' 주변 핫플 4선 퀵 리스트 모달 (일정으로 튕기지 않고 바로 노출!) */}
-      {selectedQuickCategory && (
-        <div 
-          onClick={() => setSelectedQuickCategory(null)}
-          style={{
-            position: 'fixed',
-            inset: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.72)',
-            backdropFilter: 'blur(6px)',
-            zIndex: 1000,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '1rem'
-          }}
-        >
+      {selectedQuickCategory && (() => {
+        const QuickIcon = selectedQuickCategory.icon;
+        return (
           <div 
-            onClick={(e) => e.stopPropagation()}
+            onClick={() => setSelectedQuickCategory(null)}
             style={{
-              backgroundColor: 'var(--bg-card)',
-              border: '1px solid var(--border-color)',
-              borderRadius: '20px',
-              maxWidth: '440px',
-              width: '100%',
-              maxHeight: '80vh',
-              display: 'flex',
-              flexDirection: 'column',
-              boxShadow: '0 20px 40px rgba(0,0,0,0.35)',
-              overflow: 'hidden'
-            }}
-          >
-            {/* Header */}
-            <div style={{
-              padding: '0.9rem 1.1rem',
-              borderBottom: '1px solid var(--border-color)',
+              position: 'fixed',
+              inset: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.75)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              zIndex: 99999,
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'space-between',
-              backgroundColor: 'var(--bg-glass)'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-                <selectedQuickCategory.icon size={18} style={{ color: selectedQuickCategory.color }} />
-                <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 900, color: 'var(--text-main)' }}>
-                  {targetCity} {selectedQuickCategory.label}
-                </h4>
+              justifyContent: 'center',
+              padding: '1rem',
+              boxSizing: 'border-box'
+            }}
+          >
+            <div 
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                backgroundColor: 'var(--bg-card)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '24px',
+                maxWidth: '440px',
+                width: '100%',
+                maxHeight: '80vh',
+                display: 'flex',
+                flexDirection: 'column',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                overflow: 'hidden',
+                position: 'relative'
+              }}
+            >
+              {/* Header */}
+              <div style={{
+                padding: '1rem 1.25rem',
+                borderBottom: '1px solid var(--border-color)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                backgroundColor: 'var(--bg-glass)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                  {QuickIcon && <QuickIcon size={18} style={{ color: selectedQuickCategory.color }} />}
+                  <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 900, color: 'var(--text-main)' }}>
+                    {targetCity} {selectedQuickCategory.label}
+                  </h4>
+                </div>
+                <button
+                  onClick={() => setSelectedQuickCategory(null)}
+                  style={{
+                    background: 'var(--bg-primary)',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '50%',
+                    width: '28px',
+                    height: '28px',
+                    color: 'var(--text-muted)',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 0
+                  }}
+                >
+                  <X size={16} />
+                </button>
               </div>
-              <button
-                onClick={() => setSelectedQuickCategory(null)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--text-muted)',
-                  cursor: 'pointer',
-                  padding: '0.2rem'
-                }}
-              >
-                <X size={18} />
-              </button>
-            </div>
 
-            {/* List Body */}
-            <div style={{
-              padding: '0.85rem 1rem',
-              overflowY: 'auto',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.5rem'
-            }}>
-              {selectedQuickCategory.items.map((item, idx) => {
-                const itemMapUrl = getGooglePlaceSearchUrl(item.name, targetCity);
-                return (
-                  <div
-                    key={idx}
-                    style={{
-                      padding: '0.65rem 0.8rem',
-                      backgroundColor: 'var(--bg-primary)',
-                      border: '1px solid var(--border-color)',
-                      borderRadius: '12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      gap: '0.5rem'
-                    }}
-                  >
-                    <div style={{ minWidth: 0 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                        <span style={{ fontSize: '0.84rem', fontWeight: 800, color: 'var(--text-main)' }}>
-                          {item.name}
-                        </span>
-                        <span style={{ fontSize: '0.72rem', color: '#f59e0b', fontWeight: 800 }}>
-                          ★ {item.rating}
-                        </span>
-                        <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
-                          ({item.dist})
-                        </span>
-                      </div>
-                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
-                        {item.desc}
-                      </div>
-                    </div>
-
-                    <a
-                      href={itemMapUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
+              {/* List Body */}
+              <div style={{
+                padding: '0.85rem 1rem',
+                overflowY: 'auto',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.5rem'
+              }}>
+                {selectedQuickCategory.items.map((item, idx) => {
+                  const itemMapUrl = getGooglePlaceSearchUrl(item.name, targetCity);
+                  return (
+                    <div
+                      key={idx}
                       style={{
-                        padding: '0.3rem 0.55rem',
-                        backgroundColor: '#1e293b',
-                        color: '#ffffff',
-                        borderRadius: '6px',
-                        fontSize: '0.72rem',
-                        fontWeight: 800,
-                        textDecoration: 'none',
-                        display: 'inline-flex',
+                        padding: '0.65rem 0.8rem',
+                        backgroundColor: 'var(--bg-primary)',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '12px',
+                        display: 'flex',
                         alignItems: 'center',
-                        gap: '0.2rem',
-                        flexShrink: 0
+                        justifyContent: 'space-between',
+                        gap: '0.5rem'
                       }}
                     >
-                      <span>{lang === 'en' ? 'Map ↗' : '구글맵 ↗'}</span>
-                      <ExternalLink size={10} />
-                    </a>
-                  </div>
-                );
-              })}
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                          <span style={{ fontSize: '0.84rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                            {item.name}
+                          </span>
+                          <span style={{ fontSize: '0.72rem', color: '#f59e0b', fontWeight: 800 }}>
+                            ★ {item.rating}
+                          </span>
+                          <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
+                            ({item.dist})
+                          </span>
+                        </div>
+                        <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
+                          {item.desc}
+                        </div>
+                      </div>
+
+                      <a
+                        href={itemMapUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          padding: '0.3rem 0.55rem',
+                          backgroundColor: '#1e293b',
+                          color: '#ffffff',
+                          borderRadius: '6px',
+                          fontSize: '0.72rem',
+                          fontWeight: 800,
+                          textDecoration: 'none',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.2rem',
+                          flexShrink: 0
+                        }}
+                      >
+                        <span>{lang === 'en' ? 'Map ↗' : '구글맵 ↗'}</span>
+                        <ExternalLink size={10} />
+                      </a>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }
