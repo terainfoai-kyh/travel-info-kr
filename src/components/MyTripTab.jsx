@@ -4,20 +4,13 @@ import { TRANSLATIONS } from '../i18n/translations';
 
 /**
  * ==============================================================================
- * MyTripTab.jsx - 화면 2: 내 여행 초간결 플랫 1줄 타임라인 (지피티 원본 100% 일치)
+ * MyTripTab.jsx - 화면 2: 내 여행 초간결 1줄 타임라인 (지피티 1번 사진 100% 일치)
  * 
- * 1. 상단: 여행 제목 (예: 서울 3일 여행 일정), [💾 자동저장], [🔗 일정 공유]
- * 2. DAY 1 / DAY 2 / DAY 3 탭 전환 (슬림 칩)
- * 3. DAY 1 — 서울의 하루 (중복 접두사 제거 1줄 고정)
- * 4. 플랫 1줄 타임라인 (테두리 박스 없는 0초 무스크롤 뷰)
- *    • 09:00  경복궁
- *    • 11:00  북촌한옥마을
- *    • 13:00  점심 (한식)
- *    • 14:30  인사동
- *    • 16:30  익선동
- *    • 18:30  저녁 (종로 맛집)
- * 5. 총 이동시간 (약 40분) & 0원 동선 최적화 배지
- * 6. 하단 듀얼 액션 바: [🗺️ 지도 보기] & [✨ 일정 수정]
+ * 1. 상단: 여행 제목 (예: 서울 3일 여행 일정), [💾 저장], [🔗 공유]
+ * 2. DAY 1 / DAY 2 / DAY 3 탭 바
+ * 3. DAY 1 — 서울의 하루 (1줄 파란색 헤더)
+ * 4. 09:00~18:30 6개 풀코스 1줄 타임라인 (테두리 박스 없는 0초 스크롤 뷰)
+ * 5. 하단 듀얼 액션 바: [🗺️ 지도 보기] & [✨ 일정 수정]
  * ==============================================================================
  */
 
@@ -58,7 +51,7 @@ export default function MyTripTab({
     }
   };
 
-  // 시간대 자동 배정 (09:00, 11:00, 13:00, 14:30, 16:30, 18:30)
+  // 6개 표준 시간대 (09:00, 11:00, 13:00, 14:30, 16:30, 18:30)
   const getTimeSlot = (idx) => {
     const times = ['09:00', '11:00', '13:00', '14:30', '16:30', '18:30'];
     return times[idx % times.length];
@@ -157,7 +150,7 @@ export default function MyTripTab({
         </button>
       </div>
 
-      {/* 2. DAY 1 / DAY 2 / DAY 3 탭 바 (슬림 칩) */}
+      {/* 2. DAY 1 / DAY 2 / DAY 3 탭 바 */}
       <div style={{
         padding: '0.45rem 1rem',
         backgroundColor: 'var(--bg-primary)',
@@ -195,16 +188,16 @@ export default function MyTripTab({
         })}
       </div>
 
-      {/* 3. Day Subtitle (지피티 원본 완벽 일치: DAY 1 — 서울의 하루) */}
+      {/* 3. Day Subtitle (지피티 1번 사진 100% 일치: DAY 1 — 서울의 하루) */}
       <div style={{
-        padding: '0.65rem 1rem 0.35rem 1rem',
+        padding: '0.65rem 1.15rem 0.35rem 1.15rem',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between'
       }}>
         <h3 style={{
           margin: 0,
-          fontSize: '0.92rem',
+          fontSize: '0.94rem',
           fontWeight: 900,
           color: '#2563eb',
           letterSpacing: '-0.01em',
@@ -216,13 +209,13 @@ export default function MyTripTab({
         </h3>
       </div>
 
-      {/* 4. 지피티 원본 사진 100% 일치: 플랫 1줄 타임라인 리스트 (테두리 박스 없음) */}
+      {/* 4. 지피티 1번 사진 100% 일치: 6개 풀코스 1줄 타임라인 리스트 */}
       <div style={{
-        padding: '0.2rem 1rem 0.65rem 1rem',
+        padding: '0.2rem 1.15rem 0.65rem 1.15rem',
         display: 'flex',
         flexDirection: 'column'
       }}>
-        {activeSpots.map((spot, idx) => {
+        {activeSpots.slice(0, 6).map((spot, idx) => {
           const timeSlot = getTimeSlot(idx);
           const cleanTitle = cleanSpotTitle(spot.title);
 
@@ -234,8 +227,8 @@ export default function MyTripTab({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                padding: '0.55rem 0.45rem',
-                borderBottom: idx === activeSpots.length - 1 ? 'none' : '1px solid rgba(226, 232, 240, 0.6)',
+                padding: '0.55rem 0.35rem',
+                borderBottom: idx === Math.min(activeSpots.length, 6) - 1 ? 'none' : '1px solid rgba(226, 232, 240, 0.5)',
                 cursor: 'pointer',
                 transition: 'background-color 0.15s ease',
                 borderRadius: '8px'
@@ -272,7 +265,7 @@ export default function MyTripTab({
                 </span>
               </div>
 
-              {/* Right: Star Rating & Details */}
+              {/* Right: Star Rating */}
               {spot.rating && (
                 <span style={{
                   fontSize: '0.75rem',
@@ -286,39 +279,9 @@ export default function MyTripTab({
             </div>
           );
         })}
-
-        {/* ⚡ Total Transit Time & Reality Check Banner */}
-        <div style={{
-          marginTop: '0.5rem',
-          padding: '0.55rem 0.75rem',
-          borderRadius: '10px',
-          backgroundColor: 'rgba(56, 189, 248, 0.08)',
-          border: '1px solid rgba(56, 189, 248, 0.2)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          fontSize: '0.76rem',
-          fontWeight: 800,
-          color: 'var(--text-main)'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-            <Clock size={13} style={{ color: '#0284c7' }} />
-            <span>총 이동시간: 약 40분 (인근 순환 동선)</span>
-          </div>
-          <span style={{
-            fontSize: '0.66rem',
-            fontWeight: 900,
-            backgroundColor: '#10b981',
-            color: '#ffffff',
-            padding: '0.12rem 0.4rem',
-            borderRadius: '4px'
-          }}>
-            ✓ 0원 최적화
-          </span>
-        </div>
       </div>
 
-      {/* 5. Bottom Dual Action Bar: [🗺️ 지도 보기] & [✨ 일정 수정] (지피티 원본과 100% 일치) */}
+      {/* 5. Bottom Dual Action Bar: [🗺️ 지도 보기] & [✨ 일정 수정] (지피티 1번 사진과 100% 일치) */}
       <div style={{
         padding: '0.75rem 1rem 1rem 1rem',
         backgroundColor: 'var(--bg-glass)',

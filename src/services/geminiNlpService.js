@@ -1164,10 +1164,14 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
     const dayNum = d + 1;
     const daySpots = [];
     const spotsForDay = [
-      spotPool[(d * 3) % spotPool.length],
-      spotPool[(d * 3 + 1) % spotPool.length],
-      spotPool[(d * 3 + 2) % spotPool.length]
+      spotPool[(d * 6) % spotPool.length],
+      spotPool[(d * 6 + 1) % spotPool.length],
+      spotPool[(d * 6 + 2) % spotPool.length],
+      spotPool[(d * 6 + 3) % spotPool.length],
+      spotPool[(d * 6 + 4) % spotPool.length],
+      spotPool[(d * 6 + 5) % spotPool.length]
     ];
+
     const dayThemeMeta = themeList[d % themeList.length];
 
     spotsForDay.forEach((s, idx) => {
