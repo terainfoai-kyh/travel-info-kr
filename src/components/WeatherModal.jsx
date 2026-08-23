@@ -478,6 +478,8 @@ export default function WeatherModal({
 
   const current = getLocalizedWeather(baseCurrent, lang, matchedCityKey);
 
+  const [activeTab, setActiveTab] = useState('weather'); // 'weather' | 'styling'
+
   // Affiliate & Service Reference Links (High-Value Curation)
   const sunscreenLink = buildKlookDeepLink('한국 여행 필수품 선크림');
   const hanbokLink = buildKlookDeepLink(`${matchedCityKey} 한복 체험 대여`);
@@ -503,9 +505,9 @@ export default function WeatherModal({
         color: 'var(--text-main)',
         border: '1px solid var(--border-color)',
         borderRadius: '24px',
-        maxWidth: '580px',
+        maxWidth: '540px',
         width: '100%',
-        maxHeight: '92vh',
+        maxHeight: '90vh',
         display: 'flex',
         flexDirection: 'column',
         boxShadow: 'var(--shadow-md)',
@@ -513,17 +515,17 @@ export default function WeatherModal({
       }}>
         {/* Modal Header */}
         <div style={{
-          padding: '1.1rem 1.4rem',
+          padding: '1rem 1.25rem',
           borderBottom: '1px solid var(--border-color)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           backgroundColor: 'var(--bg-glass)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <CloudSun size={22} style={{ color: 'var(--accent-primary)' }} />
-            <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 900 }}>
-              {t.weatherModalTitle || '대한민국 실시간 날씨 & 여행 스타일링 가이드'}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <CloudSun size={20} style={{ color: 'var(--accent-primary)' }} />
+            <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 900 }}>
+              {t.weatherModalTitle || '대한민국 실시간 날씨 & 스타일링 가이드'}
             </h3>
           </div>
           <button
@@ -532,8 +534,8 @@ export default function WeatherModal({
               background: 'var(--bg-primary)',
               border: 'none',
               borderRadius: '50%',
-              width: '32px',
-              height: '32px',
+              width: '30px',
+              height: '30px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -541,35 +543,92 @@ export default function WeatherModal({
               color: 'var(--text-muted)'
             }}
           >
-            <X size={18} />
+            <X size={16} />
+          </button>
+        </div>
+
+        {/* 2-Segment Tab Selector (☀️ 날씨 & 예보 vs 👗 맞춤 코디 & 준비물) */}
+        <div style={{
+          display: 'flex',
+          padding: '0.45rem 1.25rem 0 1.25rem',
+          gap: '0.4rem',
+          backgroundColor: 'var(--bg-glass)',
+          borderBottom: '1px solid var(--border-color)'
+        }}>
+          <button
+            type="button"
+            onClick={() => setActiveTab('weather')}
+            style={{
+              flex: 1,
+              padding: '0.5rem 0.6rem',
+              border: 'none',
+              borderBottom: activeTab === 'weather' ? '2px solid #2563eb' : '2px solid transparent',
+              backgroundColor: 'transparent',
+              color: activeTab === 'weather' ? '#2563eb' : 'var(--text-muted)',
+              fontSize: '0.84rem',
+              fontWeight: activeTab === 'weather' ? 900 : 700,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.35rem',
+              transition: 'all 0.15s ease'
+            }}
+          >
+            <CloudSun size={15} />
+            <span>{lang === 'en' ? 'Weather & Forecast' : lang === 'ja' ? '天気・予報' : (lang === 'zh' || lang === 'zht') ? '天气与预报' : '날씨 & 예보'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('styling')}
+            style={{
+              flex: 1,
+              padding: '0.5rem 0.6rem',
+              border: 'none',
+              borderBottom: activeTab === 'styling' ? '2px solid #2563eb' : '2px solid transparent',
+              backgroundColor: 'transparent',
+              color: activeTab === 'styling' ? '#2563eb' : 'var(--text-muted)',
+              fontSize: '0.84rem',
+              fontWeight: activeTab === 'styling' ? 900 : 700,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.35rem',
+              transition: 'all 0.15s ease'
+            }}
+          >
+            <Shirt size={15} />
+            <span>{lang === 'en' ? 'Outfits & Essentials' : lang === 'ja' ? '服装・持ち物' : (lang === 'zh' || lang === 'zht') ? '穿搭与必备' : '코디 & 준비물'}</span>
           </button>
         </div>
 
         {/* Scrollable Modal Content */}
         <div style={{
-          padding: '1.1rem 1.4rem',
+          padding: '1rem 1.25rem 1.5rem 1.25rem',
           overflowY: 'auto',
           display: 'flex',
           flexDirection: 'column',
-          gap: '1rem'
+          gap: '0.85rem'
         }}>
           {/* 🔍 Distinct Modern Search Input Field */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '0.65rem',
+            gap: '0.55rem',
             backgroundColor: 'var(--bg-card)',
-            border: '2px solid var(--accent-primary)',
-            borderRadius: '14px',
-            padding: '0.6rem 0.95rem',
-            boxShadow: '0 3px 10px rgba(37, 99, 235, 0.12)'
+            border: '1.5px solid var(--accent-primary)',
+            borderRadius: '12px',
+            padding: '0.5rem 0.85rem',
+            boxShadow: '0 2px 8px rgba(37, 99, 235, 0.08)'
           }}>
-            <Search size={18} style={{ color: 'var(--accent-primary)', flexShrink: 0 }} />
+            <Search size={16} style={{ color: 'var(--accent-primary)', flexShrink: 0 }} />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={t.weatherSearchPlaceholder || '도시나 여행지를 입력하세요 (예: 평택, 제주, 순천, 속초...)'}
+              placeholder={t.weatherSearchPlaceholder || '도시나 여행지 (예: 서울, 제주, 부산, 속초...)'}
               style={{
                 flex: 1,
                 minWidth: 0,
@@ -577,7 +636,7 @@ export default function WeatherModal({
                 border: 'none',
                 outline: 'none',
                 color: 'var(--text-main)',
-                fontSize: '0.92rem',
+                fontSize: '0.88rem',
                 fontWeight: 700
               }}
             />
@@ -589,199 +648,201 @@ export default function WeatherModal({
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '0.25rem',
                   backgroundColor: 'rgba(239, 68, 68, 0.12)',
                   color: '#ef4444',
-                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  border: 'none',
                   borderRadius: 'var(--radius-full)',
-                  padding: '0.28rem 0.65rem',
+                  padding: '0.2rem 0.5rem',
                   cursor: 'pointer',
-                  fontSize: '0.78rem',
+                  fontSize: '0.72rem',
                   fontWeight: 800,
-                  whiteSpace: 'nowrap',
-                  flexShrink: 0,
-                  transition: 'all 0.2s ease'
+                  flexShrink: 0
                 }}
               >
-                <span>{t.weatherClearBtn || '✕ 지우기'}</span>
+                <span>{t.weatherClearBtn || '✕'}</span>
               </button>
             )}
           </div>
 
-          {/* ☀️ Compact Weather Overview + 📅 3-Day Forecast Strip */}
-          <div style={{
-            backgroundColor: 'var(--bg-primary)',
-            border: '1px solid var(--border-color)',
-            borderRadius: '18px',
-            padding: '1rem 1.15rem',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.85rem'
-          }}>
-            {/* Slim Header: Location + Current Temp (Option A: Actual + Feels-like Combined) */}
+          {/* ☀️ TAB 1: Weather Overview + 3-Day Forecast */}
+          {activeTab === 'weather' && (
             <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              flexWrap: 'wrap',
-              gap: '0.5rem'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
-                <MapPin size={17} style={{ color: 'var(--accent-primary)', flexShrink: 0 }} />
-                <span style={{ fontSize: '1rem', fontWeight: 900, color: 'var(--text-main)' }}>
-                  {getLocalizedCityName(matchedCityKey, lang)}
-                </span>
-                <span style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--accent-primary)', marginLeft: '0.15rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-                  <span>{current.temp}</span>
-                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)', backgroundColor: 'rgba(37, 99, 235, 0.08)', padding: '0.15rem 0.45rem', borderRadius: '6px' }}>
-                    {t.weatherFeelsLike || '체감'} {current.feelsLike}
-                  </span>
-                  {isFetchingLive && <Loader2 size={13} style={{ animation: 'spin 1s linear infinite', color: 'var(--accent-primary)' }} />}
-                </span>
-                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-muted)' }}>
-                  {current.weather}
-                </span>
-              </div>
-            </div>
-
-            {/* 4-Stat Micro Grid */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
-              gap: '0.4rem'
-            }}>
-              <div style={{ backgroundColor: 'var(--bg-card)', padding: '0.45rem 0.3rem', borderRadius: '10px', textAlign: 'center' }}>
-                <div style={{ fontSize: '0.68rem', color: 'var(--text-dim)', fontWeight: 700 }}>{t.weatherRainLabel || '💧 강수'}</div>
-                <div style={{ fontSize: '0.82rem', fontWeight: 900, color: 'var(--accent-primary)', marginTop: '0.1rem' }}>{current.rain}</div>
-              </div>
-              <div style={{ backgroundColor: 'var(--bg-card)', padding: '0.45rem 0.3rem', borderRadius: '10px', textAlign: 'center' }}>
-                <div style={{ fontSize: '0.68rem', color: 'var(--text-dim)', fontWeight: 700 }}>{t.weatherDustLabel || '🍃 미세먼지'}</div>
-                <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#10b981', marginTop: '0.1rem' }}>{current.dust}</div>
-              </div>
-              <div style={{ backgroundColor: 'var(--bg-card)', padding: '0.45rem 0.3rem', borderRadius: '10px', textAlign: 'center' }}>
-                <div style={{ fontSize: '0.68rem', color: 'var(--text-dim)', fontWeight: 700 }}>{t.weatherUvLabel || '☀️ 자외선'}</div>
-                <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#f59e0b', marginTop: '0.1rem' }}>{current.uv}</div>
-              </div>
-              <div style={{ backgroundColor: 'var(--bg-card)', padding: '0.45rem 0.3rem', borderRadius: '10px', textAlign: 'center' }}>
-                <div style={{ fontSize: '0.68rem', color: 'var(--text-dim)', fontWeight: 700 }}>{t.weatherHumidityLabel || '💨 습도'}</div>
-                <div style={{ fontSize: '0.82rem', fontWeight: 900, color: 'var(--text-main)', marginTop: '0.1rem' }}>{current.humidity}</div>
-              </div>
-            </div>
-
-            {/* 📅 3-Day Forecast Section (Clean 3-Column Card Layout) */}
-            <div style={{
-              backgroundColor: 'var(--bg-card)',
+              backgroundColor: 'var(--bg-primary)',
               border: '1px solid var(--border-color)',
-              borderRadius: '14px',
-              padding: '0.75rem 0.85rem',
+              borderRadius: '16px',
+              padding: '0.9rem 1rem',
               display: 'flex',
               flexDirection: 'column',
-              gap: '0.55rem'
+              gap: '0.75rem'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 800, fontSize: '0.8rem', color: 'var(--accent-primary)' }}>
-                  <CalendarDays size={15} />
-                  <span>{t.weatherForecastTitle || (lang === 'en' ? '3-Day Forecast' : lang === 'ja' ? '3日間週間天気予報' : (lang === 'zh' || lang === 'zht') ? '3天天气预报' : '3일 주간 예보')}</span>
+              {/* Slim Header: Location + Current Temp */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: '0.4rem'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                  <MapPin size={16} style={{ color: 'var(--accent-primary)', flexShrink: 0 }} />
+                  <span style={{ fontSize: '0.95rem', fontWeight: 900, color: 'var(--text-main)' }}>
+                    {getLocalizedCityName(matchedCityKey, lang)}
+                  </span>
+                  <span style={{ fontSize: '1.15rem', fontWeight: 900, color: 'var(--accent-primary)', marginLeft: '0.15rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                    <span>{current.temp}</span>
+                    <span style={{ fontSize: '0.76rem', fontWeight: 700, color: 'var(--text-muted)', backgroundColor: 'rgba(37, 99, 235, 0.08)', padding: '0.12rem 0.4rem', borderRadius: '6px' }}>
+                      {t.weatherFeelsLike || '체감'} {current.feelsLike}
+                    </span>
+                    {isFetchingLive && <Loader2 size={12} style={{ animation: 'spin 1s linear infinite', color: 'var(--accent-primary)' }} />}
+                  </span>
+                  <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-muted)' }}>
+                    {current.weather}
+                  </span>
                 </div>
-                <span style={{ fontSize: '0.68rem', color: 'var(--text-dim)', fontWeight: 600 }}>
-                  {liveWeatherData?.source === 'kma-official' ? '🇰🇷 기상청 공식 데이터' : '🛰️ 실시간 기상 관측'}
-                </span>
               </div>
 
-              {/* 3-Column Forecast Card Grid: Starting Tomorrow (Day+1, Day+2, Day+3) with Feels-Like Temp */}
+              {/* 4-Stat Micro Grid */}
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
+                gridTemplateColumns: 'repeat(4, 1fr)',
+                gap: '0.35rem'
+              }}>
+                <div style={{ backgroundColor: 'var(--bg-card)', padding: '0.4rem 0.25rem', borderRadius: '10px', textAlign: 'center', border: '1px solid var(--border-color)' }}>
+                  <div style={{ fontSize: '0.66rem', color: 'var(--text-dim)', fontWeight: 700 }}>{t.weatherRainLabel || '💧 강수'}</div>
+                  <div style={{ fontSize: '0.8rem', fontWeight: 900, color: 'var(--accent-primary)', marginTop: '0.1rem' }}>{current.rain}</div>
+                </div>
+                <div style={{ backgroundColor: 'var(--bg-card)', padding: '0.4rem 0.25rem', borderRadius: '10px', textAlign: 'center', border: '1px solid var(--border-color)' }}>
+                  <div style={{ fontSize: '0.66rem', color: 'var(--text-dim)', fontWeight: 700 }}>{t.weatherDustLabel || '🍃 미세먼지'}</div>
+                  <div style={{ fontSize: '0.8rem', fontWeight: 900, color: '#10b981', marginTop: '0.1rem' }}>{current.dust}</div>
+                </div>
+                <div style={{ backgroundColor: 'var(--bg-card)', padding: '0.4rem 0.25rem', borderRadius: '10px', textAlign: 'center', border: '1px solid var(--border-color)' }}>
+                  <div style={{ fontSize: '0.66rem', color: 'var(--text-dim)', fontWeight: 700 }}>{t.weatherUvLabel || '☀️ 자외선'}</div>
+                  <div style={{ fontSize: '0.8rem', fontWeight: 900, color: '#f59e0b', marginTop: '0.1rem' }}>{current.uv}</div>
+                </div>
+                <div style={{ backgroundColor: 'var(--bg-card)', padding: '0.4rem 0.25rem', borderRadius: '10px', textAlign: 'center', border: '1px solid var(--border-color)' }}>
+                  <div style={{ fontSize: '0.66rem', color: 'var(--text-dim)', fontWeight: 700 }}>{t.weatherHumidityLabel || '💨 습도'}</div>
+                  <div style={{ fontSize: '0.8rem', fontWeight: 900, color: 'var(--text-main)', marginTop: '0.1rem' }}>{current.humidity}</div>
+                </div>
+              </div>
+
+              {/* 📅 3-Day Forecast Section */}
+              <div style={{
+                backgroundColor: 'var(--bg-card)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '12px',
+                padding: '0.65rem 0.75rem',
+                display: 'flex',
+                flexDirection: 'column',
                 gap: '0.45rem'
               }}>
-                {current.forecast.map((f, i) => (
-                  <div key={i} style={{
-                    backgroundColor: 'var(--bg-primary)',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '12px',
-                    padding: '0.55rem 0.3rem',
-                    textAlign: 'center',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: '0.15rem'
-                  }}>
-                    <span style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--text-main)' }}>{f.day}</span>
-                    <span style={{ fontSize: '0.78rem', fontWeight: 700, margin: '0.05rem 0' }}>{f.weather}</span>
-                    <span style={{ fontSize: '0.76rem', fontWeight: 900, color: 'var(--accent-primary)' }}>{f.temp}</span>
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '0.2rem',
-                      fontSize: '0.66rem',
-                      fontWeight: 700,
-                      color: 'var(--text-muted)',
-                      marginTop: '0.05rem',
-                      flexWrap: 'wrap'
-                    }}>
-                      {f.feelsLike && <span>{t.weatherFeelsLike || '체감'} {f.feelsLike}</span>}
-                      {f.rain && <span>· 💧{f.rain}</span>}
-                    </div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontWeight: 800, fontSize: '0.78rem', color: 'var(--accent-primary)' }}>
+                    <CalendarDays size={14} />
+                    <span>{t.weatherForecastTitle || (lang === 'en' ? '3-Day Forecast' : lang === 'ja' ? '3日間週間天気予報' : (lang === 'zh' || lang === 'zht') ? '3天天气预报' : '3일 주간 예보')}</span>
                   </div>
-                ))}
+                  <span style={{ fontSize: '0.66rem', color: 'var(--text-dim)', fontWeight: 600 }}>
+                    {liveWeatherData?.source === 'kma-official' ? '🇰🇷 기상청 공식 데이터' : '🛰️ 실시간 기상 관측'}
+                  </span>
+                </div>
+
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(3, 1fr)',
+                  gap: '0.35rem'
+                }}>
+                  {current.forecast.map((f, i) => (
+                    <div key={i} style={{
+                      backgroundColor: 'var(--bg-primary)',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '10px',
+                      padding: '0.45rem 0.25rem',
+                      textAlign: 'center',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '0.1rem'
+                    }}>
+                      <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-main)' }}>{f.day}</span>
+                      <span style={{ fontSize: '0.76rem', fontWeight: 700, margin: '0.05rem 0' }}>{f.weather}</span>
+                      <span style={{ fontSize: '0.74rem', fontWeight: 900, color: 'var(--accent-primary)' }}>{f.temp}</span>
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.15rem',
+                        fontSize: '0.64rem',
+                        fontWeight: 700,
+                        color: 'var(--text-muted)',
+                        marginTop: '0.05rem',
+                        flexWrap: 'wrap'
+                      }}>
+                        {f.feelsLike && <span>{t.weatherFeelsLike || '체감'} {f.feelsLike}</span>}
+                        {f.rain && <span>· 💧{f.rain}</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
-          {/* 👗 Rich Travel Outfit & Styling Guide */}
-          <div style={{
-            backgroundColor: 'var(--bg-primary)',
-            border: '1px solid var(--border-color)',
-            borderRadius: '18px',
-            padding: '1.15rem',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.8rem'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-              <Shirt size={18} style={{ color: 'var(--accent-primary)' }} />
-              <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 900, color: 'var(--text-main)' }}>
-                {t.weatherOutfitSectionTitle ? t.weatherOutfitSectionTitle(getLocalizedCityName(matchedCityKey, lang)) : `오늘 ${getLocalizedCityName(matchedCityKey, lang)} 맞춤 여행 코디 & 필수 준비물`}
-              </h4>
-            </div>
-
+          {/* 👗 TAB 2: Travel Outfit & Styling Guide */}
+          {activeTab === 'styling' && (
             <div style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr',
-              gap: '0.55rem',
-              fontSize: '0.83rem'
-            }}>
-              <div style={{ backgroundColor: 'var(--bg-card)', padding: '0.65rem 0.85rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                <span style={{ fontWeight: 800, color: 'var(--accent-primary)', marginRight: '0.4rem' }}>{t.weatherTopBottom || '👕 상의 / 하의:'}</span>
-                <span style={{ fontWeight: 700, color: 'var(--text-main)' }}>{current.topBottom}</span>
-              </div>
-              <div style={{ backgroundColor: 'var(--bg-card)', padding: '0.65rem 0.85rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                <span style={{ fontWeight: 800, color: 'var(--accent-primary)', marginRight: '0.4rem' }}>{t.weatherOuter || '🧥 아우터 레이어드:'}</span>
-                <span style={{ fontWeight: 700, color: 'var(--text-main)' }}>{current.outer}</span>
-              </div>
-              <div style={{ backgroundColor: 'var(--bg-card)', padding: '0.65rem 0.85rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                <span style={{ fontWeight: 800, color: 'var(--accent-primary)', marginRight: '0.4rem' }}>{t.weatherEssentials || '🎒 필수 여행 소품:'}</span>
-                <span style={{ fontWeight: 700, color: 'var(--text-main)' }}>{current.essentials}</span>
-              </div>
-            </div>
-
-            {/* Stylist Tip Box */}
-            <div style={{
-              backgroundColor: 'rgba(37, 99, 235, 0.05)',
-              border: '1px solid rgba(37, 99, 235, 0.18)',
-              borderRadius: '12px',
-              padding: '0.75rem 0.9rem',
+              backgroundColor: 'var(--bg-primary)',
+              border: '1px solid var(--border-color)',
+              borderRadius: '16px',
+              padding: '0.9rem 1rem',
               display: 'flex',
-              alignItems: 'flex-start',
-              gap: '0.5rem'
+              flexDirection: 'column',
+              gap: '0.65rem'
             }}>
-              <Sparkles size={16} style={{ color: 'var(--accent-primary)', flexShrink: 0, marginTop: '2px' }} />
-              <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)', lineHeight: 1.45 }}>
-                <strong style={{ color: 'var(--accent-primary)' }}>{t.weatherStylistTip || '현지 스타일리스트 꿀팁: '}</strong>
-                {current.tip}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <Shirt size={16} style={{ color: 'var(--accent-primary)' }} />
+                <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 900, color: 'var(--text-main)' }}>
+                  {t.weatherOutfitSectionTitle ? t.weatherOutfitSectionTitle(getLocalizedCityName(matchedCityKey, lang)) : `오늘 ${getLocalizedCityName(matchedCityKey, lang)} 맞춤 여행 코디 & 필수 준비물`}
+                </h4>
+              </div>
+
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr',
+                gap: '0.45rem',
+                fontSize: '0.8rem'
+              }}>
+                <div style={{ backgroundColor: 'var(--bg-card)', padding: '0.55rem 0.75rem', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+                  <span style={{ fontWeight: 800, color: 'var(--accent-primary)', marginRight: '0.35rem' }}>{t.weatherTopBottom || '👕 상의 / 하의:'}</span>
+                  <span style={{ fontWeight: 700, color: 'var(--text-main)' }}>{current.topBottom}</span>
+                </div>
+                <div style={{ backgroundColor: 'var(--bg-card)', padding: '0.55rem 0.75rem', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+                  <span style={{ fontWeight: 800, color: 'var(--accent-primary)', marginRight: '0.35rem' }}>{t.weatherOuter || '🧥 아우터 레이어드:'}</span>
+                  <span style={{ fontWeight: 700, color: 'var(--text-main)' }}>{current.outer}</span>
+                </div>
+                <div style={{ backgroundColor: 'var(--bg-card)', padding: '0.55rem 0.75rem', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+                  <span style={{ fontWeight: 800, color: 'var(--accent-primary)', marginRight: '0.35rem' }}>{t.weatherEssentials || '🎒 필수 여행 소품:'}</span>
+                  <span style={{ fontWeight: 700, color: 'var(--text-main)' }}>{current.essentials}</span>
+                </div>
+              </div>
+
+              {/* Stylist Tip Box */}
+              <div style={{
+                backgroundColor: 'rgba(37, 99, 235, 0.05)',
+                border: '1px solid rgba(37, 99, 235, 0.18)',
+                borderRadius: '10px',
+                padding: '0.65rem 0.8rem',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '0.45rem'
+              }}>
+                <Sparkles size={15} style={{ color: 'var(--accent-primary)', flexShrink: 0, marginTop: '2px' }} />
+                <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-main)', lineHeight: 1.45 }}>
+                  <strong style={{ color: 'var(--accent-primary)' }}>{t.weatherStylistTip || '현지 스타일리스트 꿀팁: '}</strong>
+                  {current.tip}
+                </div>
               </div>
             </div>
+          )}
+
 
             {/* Smart Affiliate & Curated Reference Links (100% Free + Revenue) */}
             <div style={{

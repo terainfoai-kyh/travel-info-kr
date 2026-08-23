@@ -501,31 +501,33 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
             </div>
           </div>
 
-          {/* ⚡ 3. 실시간 모바일 현장 액션 탭 */}
+          {/* ⚡ 3. 실시간 모바일 현장 액션 탭 (둘러보기 모드일 땐 교체 버튼 숨김!) */}
           <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.1rem' }}>
-            <button
-              type="button"
-              onClick={() => setActivePanel(activePanel === 'replace' ? null : 'replace')}
-              style={{
-                flex: 1,
-                padding: '0.42rem 0.5rem',
-                borderRadius: '8px',
-                border: activePanel === 'replace' ? '1px solid #1e293b' : '1px solid var(--border-color)',
-                backgroundColor: activePanel === 'replace' ? '#1e293b' : 'var(--bg-primary)',
-                color: activePanel === 'replace' ? '#ffffff' : 'var(--text-main)',
-                fontSize: '0.74rem',
-                fontWeight: 800,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.3rem',
-                cursor: 'pointer',
-                transition: 'all 0.15s ease'
-              }}
-            >
-              <RefreshCw size={12} />
-              <span>{lang === 'en' ? 'Swap Place' : '다른 장소로 교체'}</span>
-            </button>
+            {!spot.isExploreOnly && (
+              <button
+                type="button"
+                onClick={() => setActivePanel(activePanel === 'replace' ? null : 'replace')}
+                style={{
+                  flex: 1,
+                  padding: '0.42rem 0.5rem',
+                  borderRadius: '8px',
+                  border: activePanel === 'replace' ? '1px solid #1e293b' : '1px solid var(--border-color)',
+                  backgroundColor: activePanel === 'replace' ? '#1e293b' : 'var(--bg-primary)',
+                  color: activePanel === 'replace' ? '#ffffff' : 'var(--text-main)',
+                  fontSize: '0.74rem',
+                  fontWeight: 800,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.3rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <RefreshCw size={12} />
+                <span>{lang === 'en' ? 'Swap Place' : '다른 장소로 교체'}</span>
+              </button>
+            )}
 
             <button
               type="button"

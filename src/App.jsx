@@ -651,9 +651,9 @@ export default function App() {
               targetCity={itineraryData?.targetCity || '서울'}
               nextSpot={itineraryData?.spots?.[1] || null}
               onOpenDetail={(spot) => setSelectedSpot(spot)}
-              onQuickNearbySearch={(query) => {
-                handleGenerateItinerary(query);
-                setActiveNavTab('mytrip');
+              onOpenWeather={(city) => {
+                setWeatherCity(city || itineraryData?.targetCity || '서울');
+                setIsWeatherOpen(true);
               }}
             />
 
