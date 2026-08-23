@@ -377,10 +377,17 @@ RULE 3: GOLDEN-HOUR CHRONOLOGICAL MATCHING
 - Afternoon (13:30~16:30): Aesthetic cafes, shopping alleys, design museums, lifestyle popups.
 - Sunset & Night (17:30~20:30): High observatory towers, romantic riverside sunsets, night markets, rooftop lounges.
 
-RULE 4: COMPOSITE SPOT NAME STANDARDIZATION (Use '&' Connector)
-- When recommending a composite spot or adjacent hotspot pairing, ALWAYS connect them with ' & ' (e.g. '국립중앙박물관 & 거울못 정원', '더현대 서울 & 사운즈 포레스트', '인사동 쌈지길 & 전통찻집', '하이브 인사이트 & 용산 핫플', 'DDP & 동대문', '성수동 & 디올 성수').
+RULE 4: STRICT SINGLE DISTINCT LANDMARK RULE (NEVER COMBINE WITH '&' OR '/')
+- NEVER combine multiple spots into one name using '&', '+', '/', or 'and' (e.g. NEVER output '인사동 쌈지길 & 전통찻집' ❌, 'DDP & 동대문' ❌, '성수동 & 디올 성수' ❌).
+- ALWAYS output ONE clear, distinct, real-world Google Maps searchable landmark per spot (e.g. '경복궁' ⭕, '북촌한옥마을' ⭕, '쌈지길' ⭕, '익선동 한옥마을' ⭕, '디올 성수' ⭕).
+- This ensures 100% accurate Google Places photo matching and precise GPS directions.
 
-Return ONLY this JSON schema:
+RULE 5: OPERATING HOURS & CLOSED-DAY AVOIDANCE (Reality Check)
+- Respect Korean landmark operating schedules:
+  * Gyeongbokgung Palace is closed on Tuesdays (schedule it on other days if multi-day, or recommend Changdeokgung on Tuesdays).
+  * National Museum of Korea is closed on Mondays.
+  * Schedule morning spots (09:00~11:30) for historic palaces/scenic walks, afternoon (13:00~18:00) for trendy cafes/shopping/museums, and evening (18:30~21:00) for nightscapes/sunset spots.
+
 {
   "responseType": "itinerary",
   "tripTitle": "Catchy Magazine Title in ${lang}",
