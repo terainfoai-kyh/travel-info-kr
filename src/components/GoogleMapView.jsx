@@ -373,14 +373,15 @@ export default function GoogleMapView({
       width: '100%',
       maxWidth: '100%',
       boxSizing: 'border-box',
-      borderRadius: '16px',
+      borderRadius: hideHeader ? '0' : '16px',
       overflow: 'hidden',
-      border: '1px solid var(--border-color)',
+      border: hideHeader ? 'none' : '1px solid var(--border-color)',
       backgroundColor: 'var(--bg-primary)',
-      boxShadow: 'var(--shadow-sm)',
+      boxShadow: hideHeader ? 'none' : 'var(--shadow-sm)',
       position: 'relative',
-      marginBottom: '0.75rem'
+      marginBottom: hideHeader ? '0' : '0.75rem'
     }}>
+
       {/* Top Smart Route Header */}
       {!hideHeader && (
         <div style={{

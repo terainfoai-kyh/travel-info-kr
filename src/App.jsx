@@ -387,40 +387,11 @@ export default function App() {
       timestamp: queryTime
     };
 
-    // Check Daily Question Quota
+    // Unlimited Free Pass for Seamless Travel Planning
     const todayStr = new Date().toISOString().slice(0, 10);
-    const maxQuota = currentUser?.isGoogleLoggedIn ? 15 : 5;
-    let currentRemaining = questionQuota.remaining;
-    if (questionQuota.date !== todayStr) {
-      currentRemaining = maxQuota;
-    }
-
-    if (currentRemaining <= 0) {
-      setChatMessages(prev => [
-        ...prev,
-        userMsg,
-        {
-          id: `bot-exhausted-${Date.now()}`,
-          role: 'assistant',
-          isQuotaExhausted: true,
-          text: (lang === 'ko')
-            ? `⚠️ **오늘 제공된 무료 AI 질문(${maxQuota}/${maxQuota}회)을 모두 사용하셨습니다.**\n\n매일 자정(00:00)에 ${maxQuota}회가 자동으로 충전됩니다! ✨\n아래 버튼을 눌러 **15초 광고 시청(+3회 즉시 충전)** 또는 **Google 로그인(매일 15회 확장)**을 이용하실 수 있습니다.`
-            : `⚠️ **You have used all ${maxQuota} free AI questions for today.**\n\nYour ${maxQuota} free quota will automatically recharge at midnight (00:00)! ✨\nWatch a 15s ad for +3 chats or sign in with Google for 15 chats daily!`,
-          generationTime: '0.0',
-          queryTime,
-          replyTime: queryTime,
-          timestamp: queryTime
-        }
-      ]);
-      return;
-    }
-
-    // Decrement quota
-    const updatedQuota = { date: todayStr, remaining: currentRemaining - 1, total: maxQuota };
+    const updatedQuota = { date: todayStr, remaining: 999, total: 999 };
     setQuestionQuota(updatedQuota);
-    try {
-      localStorage.setItem('vora_daily_quota', JSON.stringify(updatedQuota));
-    } catch (e) {}
+
 
     const startTime = Date.now();
     setChatMessages(prev => [...prev, userMsg]);

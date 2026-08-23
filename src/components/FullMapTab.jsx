@@ -131,8 +131,8 @@ export default function FullMapTab({
         </div>
       </div>
 
-      {/* 2. Main High-Res Map View (중복 가로 칩 및 플로팅 버튼 없는 완벽한 순수 지도) */}
-      <div style={{ width: '100%', position: 'relative' }}>
+      {/* 2. Main High-Res Map View (하얀 공백 0% 완전 밀착 200px 지도) */}
+      <div style={{ width: '100%', height: '200px', position: 'relative', overflow: 'hidden' }}>
         <GoogleMapView
           spots={activeSpots}
           targetCity={targetCity}
@@ -140,9 +140,10 @@ export default function FullMapTab({
           focusedSpotIndex={focusedSpotIndex}
           onSelectSpotIndex={(idx) => setFocusedSpotIndex(idx)}
           hideHeader={true}
-          mapHeight="280px"
+          mapHeight="200px"
         />
       </div>
+
 
       {/* 3. 지피티 4번 사진 100% 일치: 테두리 없는 ❶~❻ 플랫 동선 리스트 */}
       <div style={{
