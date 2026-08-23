@@ -63,7 +63,7 @@ export default function MyTripTab({
     <div style={{
       width: '100%',
       maxWidth: '760px',
-      margin: '0 auto',
+      margin: '0 auto 4.5rem auto',
       backgroundColor: 'var(--bg-card)',
       borderRadius: '24px',
       border: '1px solid var(--border-color)',
@@ -383,8 +383,9 @@ export default function MyTripTab({
 
       {/* 6. Bottom Dual Action Floating Bar: [🗺️ 지도 보기] & [✨ 일정 수정] */}
       <div style={{
-        padding: '0.85rem 1.15rem',
+        padding: '0.95rem 1.15rem 1.15rem 1.15rem',
         backgroundColor: 'var(--bg-glass)',
+        backdropFilter: 'blur(16px)',
         borderTop: '1px solid var(--border-color)',
         display: 'grid',
         gridTemplateColumns: 'repeat(2, 1fr)',
@@ -393,12 +394,12 @@ export default function MyTripTab({
         <button
           onClick={onGoToMap}
           style={{
-            padding: '0.75rem',
+            padding: '0.85rem 0.5rem',
             borderRadius: '14px',
             border: '1.5px solid #2563eb',
             backgroundColor: 'rgba(37, 99, 235, 0.08)',
             color: '#2563eb',
-            fontSize: '0.86rem',
+            fontSize: '0.88rem',
             fontWeight: 800,
             cursor: 'pointer',
             display: 'flex',
@@ -415,19 +416,19 @@ export default function MyTripTab({
         <button
           onClick={onGoToModify}
           style={{
-            padding: '0.75rem',
+            padding: '0.85rem 0.5rem',
             borderRadius: '14px',
             border: 'none',
             backgroundColor: '#2563eb',
             color: '#ffffff',
-            fontSize: '0.86rem',
-            fontWeight: 800,
+            fontSize: '0.88rem',
+            fontWeight: 900,
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             gap: '0.4rem',
-            boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)',
+            boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)',
             transition: 'all 0.15s ease'
           }}
         >
@@ -435,6 +436,7 @@ export default function MyTripTab({
           <span>{lang === 'en' ? 'Modify Itinerary' : lang === 'ja' ? '日程を修正' : (lang === 'zh' || lang === 'zht') ? '调整修改行程' : '일정 수정'}</span>
         </button>
       </div>
+
     </div>
   );
 }
