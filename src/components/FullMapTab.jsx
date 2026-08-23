@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Clock, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Clock, ExternalLink, ChevronRight } from 'lucide-react';
 import GoogleMapView from './GoogleMapView';
+import { generateGoogleMapsRouteUrl } from '../services/geminiNlpService';
 import { TRANSLATIONS } from '../i18n/translations';
 
 /**
  * ==============================================================================
- * FullMapTab.jsx - 화면 4: 스마트 여행 동선 지도 탭 (테두리 없는 플랫 미니멀 완성형)
+ * FullMapTab.jsx - 화면 4: 스마트 여행 동선 지도 탭 (하단 공백 0% & 구글맵 전체 길찾기 복원)
  * 
  * 1. 상단: [ ← 내 일정으로 ] 무테 버튼 + [ Day 1 ] [ Day 2 ] [ Day 3 ] 무테 슬림 칩
- * 2. 중앙: 시원하고 넓은 풀사이즈 동선 지도 (중복 가로 칩 및 플로팅 버튼 100% 제거)
- * 3. 하단: 테두리 박스 없는 ❶~❻ 플랫 동선 리스트 (지피티 4번 설계도 완벽 일치)
- * 4. 최하단: 🕒 총 이동시간: 약 40분 (최적 순환 동선)
+ * 2. 중앙: 하얀 공백 0% 완전 밀착 210px 동선 지도 (타일 로딩 100% 보정)
+ * 3. 하단: ❶~❻ 플랫 동선 리스트 (지피티 4번 설계도 완벽 일치)
+ * 4. 최하단: 🕒 총 이동시간: 약 40분 + [ 🗺️ 구글맵 전체 길찾기 ↗ ]
  * ==============================================================================
  */
 
@@ -34,6 +35,9 @@ export default function FullMapTab({
   const displaySchedules = (schedules && schedules.length > 0)
     ? schedules
     : Array.from({ length: Number(itineraryData?.days) || 3 }, (_, i) => ({ day: i + 1 }));
+
+  // 구글맵 1~6번 전체 노선 길찾기 URL 생성
+  const fullRouteUrl = generateGoogleMapsRouteUrl(activeSpots);
 
   // 시간대 자동 배정 (09:00, 11:00, 13:00, 14:30, 16:30, 18:30)
   const getTimeSlot = (idx) => {
@@ -72,7 +76,7 @@ export default function FullMapTab({
         gap: '0.5rem',
         flexWrap: 'wrap'
       }}>
-        {/* Back to Itinerary Button (No border, clean text button) */}
+        {/* Back to Itinerary Button */}
         <button
           onClick={onBackToTrip}
           style={{
@@ -94,7 +98,7 @@ export default function FullMapTab({
           <span>{lang === 'en' ? 'Back to Itinerary' : lang === 'ja' ? '日程に戻る' : (lang === 'zh' || lang === 'zht') ? '返回行程' : '내 일정으로'}</span>
         </button>
 
-        {/* Day Switcher Pills (No border, clean minimal pills) */}
+        {/* Day Switcher Pills */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
@@ -131,8 +135,8 @@ export default function FullMapTab({
         </div>
       </div>
 
-      {/* 2. Main High-Res Map View (하얀 공백 0% 완전 밀착 200px 지도) */}
-      <div style={{ width: '100%', height: '200px', position: 'relative', overflow: 'hidden' }}>
+      {/* 2. Main High-Res Map View (하얀 공백 0% 완전 밀착 210px 지도) */}
+      <div style={{ width: '100%', height: '210px', minHeight: '210px', position: 'relative', overflow: 'hidden' }}>
         <GoogleMapView
           spots={activeSpots}
           targetCity={targetCity}
@@ -140,10 +144,9 @@ export default function FullMapTab({
           focusedSpotIndex={focusedSpotIndex}
           onSelectSpotIndex={(idx) => setFocusedSpotIndex(idx)}
           hideHeader={true}
-          mapHeight="200px"
+          mapHeight="210px"
         />
       </div>
-
 
       {/* 3. 지피티 4번 사진 100% 일치: 테두리 없는 ❶~❻ 플랫 동선 리스트 */}
       <div style={{
@@ -236,7 +239,7 @@ export default function FullMapTab({
           );
         })}
 
-        {/* 4. 지피티 원본 하단: 총 이동시간 배너 */}
+        {/* 4. 최하단: 총 이동시간 배너 + [ 🗺️ 구글맵 전체 길찾기 ↗ ] 버튼 복원 */}
         <div style={{
           marginTop: '0.45rem',
           padding: '0.55rem 0.75rem',
@@ -246,24 +249,37 @@ export default function FullMapTab({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          fontSize: '0.78rem',
-          fontWeight: 800,
-          color: 'var(--text-main)'
+          flexWrap: 'wrap',
+          gap: '0.45rem'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-main)' }}>
             <Clock size={13} style={{ color: '#0284c7' }} />
-            <span>{lang === 'en' ? 'Total Transit: ~40 mins (Optimized Loop)' : lang === 'ja' ? '総移動時間: 約40分 (最適循環ルート)' : (lang === 'zh' || lang === 'zht') ? '总移动时间: 约40分钟 (最佳循环路线)' : '총 이동시간: 약 40분 (인근 순환 동선)'}</span>
+            <span>{lang === 'en' ? 'Total: ~40 mins' : lang === 'ja' ? '総移動: 約40分' : (lang === 'zh' || lang === 'zht') ? '总用时: 约40分' : '총 이동: 약 40분'}</span>
           </div>
-          <span style={{
-            fontSize: '0.66rem',
-            fontWeight: 900,
-            backgroundColor: '#10b981',
-            color: '#ffffff',
-            padding: '0.12rem 0.4rem',
-            borderRadius: '4px'
-          }}>
-            ✓ 0원 최적화
-          </span>
+
+          {/* 🗺️ Open Full Route in Google Maps Big Screen / App */}
+          <a
+            href={fullRouteUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.25rem',
+              backgroundColor: '#2563eb',
+              color: '#ffffff',
+              padding: '0.3rem 0.65rem',
+              borderRadius: '8px',
+              fontSize: '0.74rem',
+              fontWeight: 900,
+              textDecoration: 'none',
+              boxShadow: '0 2px 6px rgba(37, 99, 235, 0.25)',
+              transition: 'all 0.15s ease'
+            }}
+          >
+            <span>{lang === 'en' ? 'Google Maps Route' : lang === 'ja' ? 'Googleマップで開く' : (lang === 'zh' || lang === 'zht') ? '在Google地图中打开' : '구글맵 전체 길찾기'}</span>
+            <ExternalLink size={12} />
+          </a>
         </div>
       </div>
     </div>

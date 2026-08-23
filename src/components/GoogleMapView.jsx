@@ -336,37 +336,38 @@ export default function GoogleMapView({
         window.dispatchEvent(new Event('resize'));
       };
 
-      setTimeout(forceResize, 80);
-      setTimeout(forceResize, 250);
-      setTimeout(forceResize, 600);
-    };
+    setTimeout(forceResize, 50);
+    setTimeout(forceResize, 150);
+    setTimeout(forceResize, 400);
+  };
 
-    // Frame-aligned initialization with height guard
-    let animId = null;
-    const checkAndInit = () => {
-      if (!isMounted || !mapContainerRef.current) return;
-      const rect = mapContainerRef.current.getBoundingClientRect();
-      if (rect.height < 150) {
-        animId = requestAnimationFrame(checkAndInit);
-        return;
-      }
-      initMap();
-    };
+  // Frame-aligned initialization with height guard
+  let animId = null;
+  const checkAndInit = () => {
+    if (!isMounted || !mapContainerRef.current) return;
+    const rect = mapContainerRef.current.getBoundingClientRect();
+    if (rect.height < 120) {
+      animId = requestAnimationFrame(checkAndInit);
+      return;
+    }
+    initMap();
+  };
 
-    animId = requestAnimationFrame(checkAndInit);
+  animId = requestAnimationFrame(checkAndInit);
 
-    return () => {
-      isMounted = false;
-      if (animId) cancelAnimationFrame(animId);
-      if (leafletMapRef.current) {
-        try {
-          leafletMapRef.current.remove();
-        } catch (e) {}
-        leafletMapRef.current = null;
-      }
-    };
+  return () => {
+    isMounted = false;
+    if (animId) cancelAnimationFrame(animId);
+    if (leafletMapRef.current) {
+      try {
+        leafletMapRef.current.remove();
+      } catch (e) {}
+      leafletMapRef.current = null;
+    }
+  };
 
-  }, [isLeafletReady, spotsToDisplay, activeDay, lang]);
+}, [isLeafletReady, spotsToDisplay, activeDay, lang, mapHeight]);
+
 
   return (
     <div style={{
