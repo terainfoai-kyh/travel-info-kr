@@ -493,14 +493,15 @@ export default function WeatherModal({
       style={{
         position: 'fixed',
         inset: 0,
-        backgroundColor: 'rgba(15, 23, 42, 0.75)',
+        backgroundColor: 'rgba(0, 0, 0, 0.75)',
         backdropFilter: 'blur(8px)',
         WebkitBackdropFilter: 'blur(8px)',
-        zIndex: 1000,
+        zIndex: 9999,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '1rem'
+        padding: '1rem',
+        boxSizing: 'border-box'
       }}
     >
       <div 
@@ -512,11 +513,12 @@ export default function WeatherModal({
           borderRadius: '24px',
           maxWidth: '540px',
           width: '100%',
-          maxHeight: '90vh',
+          maxHeight: 'min(90vh, 90dvh)',
           display: 'flex',
           flexDirection: 'column',
-          boxShadow: 'var(--shadow-md)',
-          overflow: 'hidden'
+          boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)',
+          overflow: 'hidden',
+          position: 'relative'
         }}
       >
         {/* Modal Header */}

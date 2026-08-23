@@ -104,30 +104,35 @@ export default function RewardedAdModal({
   const progressPercent = ((15 - timeLeft) / 15) * 100;
 
   return (
-    <div style={{
-      position: 'fixed',
-      inset: 0,
-      zIndex: 9999,
-      backgroundColor: 'rgba(5, 8, 15, 0.85)',
-      backdropFilter: 'blur(14px)',
-      WebkitBackdropFilter: 'blur(14px)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '1.25rem',
-      animation: 'fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
-    }}>
+    <div 
+      onClick={onClose}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 9999,
+        backgroundColor: 'rgba(5, 8, 15, 0.85)',
+        backdropFilter: 'blur(14px)',
+        WebkitBackdropFilter: 'blur(14px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '1.25rem',
+        animation: 'fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
+      }}
+    >
       {/* Cinematic Modal Container (Responsive 760px Widescreen) */}
-      <div style={{
-        backgroundColor: '#0f172a',
-        color: '#ffffff',
-        borderRadius: '24px',
-        border: '1px solid rgba(255, 255, 255, 0.16)',
-        width: '100%',
-        maxWidth: '760px',
-        overflow: 'hidden',
-        boxShadow: '0 30px 70px -15px rgba(0, 0, 0, 0.85), 0 0 50px rgba(59, 130, 246, 0.15)',
-        position: 'relative',
+      <div 
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          backgroundColor: '#0f172a',
+          color: '#ffffff',
+          borderRadius: '24px',
+          border: '1px solid rgba(255, 255, 255, 0.16)',
+          width: '100%',
+          maxWidth: '760px',
+          overflow: 'hidden',
+          boxShadow: '0 30px 70px -15px rgba(0, 0, 0, 0.85), 0 0 50px rgba(59, 130, 246, 0.15)',
+          position: 'relative',
         display: 'flex',
         flexDirection: 'column'
       }}>
