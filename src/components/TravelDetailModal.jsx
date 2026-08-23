@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { 
   X, 
-  MapPin, 
   Navigation, 
   ExternalLink, 
   Clock, 
@@ -12,8 +11,7 @@ import {
   Hourglass,
   RefreshCw,
   Coffee,
-  CheckCircle2,
-  Utensils
+  CheckCircle2
 } from 'lucide-react';
 import { getGooglePlaceSearchUrl } from '../services/geminiNlpService';
 import { TRANSLATIONS } from '../i18n/translations';
@@ -21,12 +19,11 @@ import { getSpotAffiliateDeal } from '../services/affiliateService';
 
 /**
  * ==============================================================================
- * TravelDetailModal.jsx - 프리미엄 모노톤 실시간 모바일 상세 카드
+ * TravelDetailModal.jsx - 프리미엄 다크 모던 상세 모달 (버튼 잘림 0% & 고급 모노톤 룩)
  * 
- * 1. 차분하고 고급스러운 모노톤 텍스트 & 정돈된 레이아웃 (유치한 원색 100% 제거)
- * 2. 맛집/카페 터치 시 구글맵 실시간 길찾기 1초 연동
- * 3. 하단 여백 넉넉하게 확보하여 버튼 잘림 0% 완전 해결
- * 4. 원터치 다른 장소 교체 (일정 & 지도 0초 실시간 갱신)
+ * 1. 쨍한 원색 100% 제거 ➔ 애플 스타일 세련된 다크 차콜 (#1e293b) & 모노톤 버튼
+ * 2. 바닥 안전 여백 넉넉하게 확보하여 하단 탭 바 위로 버튼 100% 쏙 노출 (잘림 완전 해결)
+ * 3. 원터치 실시간 장소 교체 & 맛집별 원클릭 구글맵 길찾기
  * ==============================================================================
  */
 
@@ -39,7 +36,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
   const rawTitle = spot.title || spot.name || '추천 여행 명소';
   const cleanTitle = rawTitle.split('&')[0].split('/')[0].split('+')[0].trim();
 
-  // 인터랙티브 상태 (교체 패널 / 주변 맛집 패널 열림 여부)
+  // 인터랙티브 상태 (교체 패널 / 주변 맛집 패널)
   const [activePanel, setActivePanel] = useState(null); // 'replace' | 'nearby' | null
   const [replaceSuccessMsg, setReplaceSuccessMsg] = useState('');
 
@@ -52,7 +49,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
         { id: 'alt-3', title: '서촌 세종마을', category: '감성골목', rating: 4.6, location: '서울특별시 종로구 자하문로 일대', subway: '3호선 경복궁역 2번 출구 (도보 3분)', image: 'https://tong.visitkorea.or.kr/cms/resource/74/2613174_image2_1.jpg', description: '예술가들의 정취가 살아있는 아기자기한 한옥 골목과 감성 카페 거리입니다.' }
       ];
     }
-    if (cleanTitle.includes('해운대') || cleanTitle.includes('블루라인')) {
+    if (cleanTitle.includes('해운대') || cleanTitle.includes('블루라인') || cleanTitle.includes('엑스더스카이') || cleanTitle.includes('동백섬')) {
       return [
         { id: 'alt-h1', title: '해동용궁사', category: '사찰·바다', rating: 4.7, location: '부산광역시 기장군 용궁길 86', subway: '오시리아역 버스 10분', image: 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg', description: '동해 푸른 바다 절벽 위에 세워진 가장 아름다운 해변 사찰입니다.' },
         { id: 'alt-h2', title: '달맞이길 전망대', category: '전망·카페', rating: 4.6, location: '부산광역시 해운대구 달맞이길 일대', subway: '중동역 도보 15분', image: 'https://tong.visitkorea.or.kr/cms/resource/46/2645646_image2_1.jpg', description: '해운대 바다가 한눈에 내려다보이는 감성 드라이브 & 오션뷰 카페 거리입니다.' },
@@ -74,7 +71,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
         { name: '삼청동 수제비', type: '미식 🍜', distance: '도보 8분', desc: '미쉐린 가이드에 선정된 깔끔한 멸치 육수 수제비' }
       ];
     }
-    if (cleanTitle.includes('해운대') || cleanTitle.includes('광안리')) {
+    if (cleanTitle.includes('해운대') || cleanTitle.includes('광안리') || cleanTitle.includes('블루라인') || cleanTitle.includes('엑스더스카이')) {
       return [
         { name: '해운대 소문난 암소갈비', type: '미식 🥩', distance: '도보 7분', desc: '감자사리가 일품인 부산 최고의 한우 갈비 명가' },
         { name: '랑데자뷰 해운대', type: '오션뷰카페 ☕', distance: '도보 4분', desc: '탁 트인 해운대 바다를 한눈에 담는 오션뷰 카페' },
@@ -180,7 +177,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '0.75rem'
+        padding: '0.75rem 0.75rem 4rem 0.75rem' // 하단 탭 바 영역 여유 확보
       }}
     >
       <div 
@@ -190,17 +187,17 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
           color: 'var(--text-main)',
           border: '1px solid var(--border-color)',
           borderRadius: '20px',
-          maxWidth: '520px',
+          maxWidth: '500px',
           width: '100%',
-          maxHeight: '92vh',
+          maxHeight: '84vh',
           display: 'flex',
           flexDirection: 'column',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
           overflow: 'hidden'
         }}
       >
-        {/* 1. 4K High-Res Hero Photo (210px 슬림 뷰) */}
-        <div style={{ position: 'relative', width: '100%', height: '210px', minHeight: '210px', flexShrink: 0, backgroundColor: '#0f172a', overflow: 'hidden' }}>
+        {/* 1. 4K High-Res Hero Photo (200px 슬림 뷰) */}
+        <div style={{ position: 'relative', width: '100%', height: '200px', minHeight: '200px', flexShrink: 0, backgroundColor: '#0f172a', overflow: 'hidden' }}>
           <img
             src={currentPhoto}
             alt={`${cleanTitle} ${activePhotoIdx + 1}`}
@@ -349,14 +346,14 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
           </div>
         </div>
 
-        {/* 2. Modal Body (차분한 모노톤 & 스크롤 완벽 지원) */}
+        {/* 2. Modal Body (차분한 모노톤 & 넉넉한 하단 여백으로 잘림 0%) */}
         <div 
           style={{
             flex: 1,
             minHeight: 0,
             overflowY: 'auto',
             WebkitOverflowScrolling: 'touch',
-            padding: '0.85rem 1.1rem 2.5rem 1.1rem',
+            padding: '0.85rem 1.1rem 2rem 1.1rem',
             display: 'flex',
             flexDirection: 'column',
             gap: '0.65rem'
@@ -373,7 +370,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
             {description}
           </p>
 
-          {/* 차분한 모노톤 1줄 플랫 정보 리스트 (유치한 색상 100% 제거) */}
+          {/* 차분한 모노톤 1줄 플랫 정보 리스트 */}
           <div style={{
             display: 'flex',
             flexDirection: 'column',
@@ -385,7 +382,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
           }}>
             {/* 1. 찾아가는 법 */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
-              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
+              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '55px', fontWeight: 700 }}>
                 • 교통
               </span>
               <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>: {subwayTransit}</span>
@@ -393,7 +390,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
 
             {/* 2. 관람 시간 */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
-              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
+              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '55px', fontWeight: 700 }}>
                 • 시간
               </span>
               <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>
@@ -403,7 +400,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
 
             {/* 3. 추천 소요시간 */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
-              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
+              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '55px', fontWeight: 700 }}>
                 • 소요
               </span>
               <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>: {duration}</span>
@@ -411,25 +408,25 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
 
             {/* 4. 입장 요금 */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
-              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
+              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '55px', fontWeight: 700 }}>
                 • 요금
               </span>
               <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>: {admissionFee}</span>
             </div>
           </div>
 
-          {/* ⚡ 3. 실시간 모바일 현장 액션 탭 (단정한 모노크롬 버튼) */}
+          {/* ⚡ 3. 실시간 모바일 현장 액션 탭 (고급스러운 슬림 라인 버튼) */}
           <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.1rem' }}>
             <button
               type="button"
               onClick={() => setActivePanel(activePanel === 'replace' ? null : 'replace')}
               style={{
                 flex: 1,
-                padding: '0.45rem 0.5rem',
+                padding: '0.42rem 0.5rem',
                 borderRadius: '8px',
-                border: '1px solid var(--border-color)',
-                backgroundColor: activePanel === 'replace' ? 'var(--bg-primary)' : 'transparent',
-                color: 'var(--text-main)',
+                border: activePanel === 'replace' ? '1px solid #1e293b' : '1px solid var(--border-color)',
+                backgroundColor: activePanel === 'replace' ? '#1e293b' : 'var(--bg-primary)',
+                color: activePanel === 'replace' ? '#ffffff' : 'var(--text-main)',
                 fontSize: '0.74rem',
                 fontWeight: 800,
                 display: 'flex',
@@ -440,8 +437,8 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                 transition: 'all 0.15s ease'
               }}
             >
-              <RefreshCw size={12} style={{ color: '#2563eb' }} />
-              <span>{lang === 'en' ? 'Swap Spot' : '다른 장소로 교체'}</span>
+              <RefreshCw size={12} />
+              <span>{lang === 'en' ? 'Swap Place' : '다른 장소로 교체'}</span>
             </button>
 
             <button
@@ -449,11 +446,11 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
               onClick={() => setActivePanel(activePanel === 'nearby' ? null : 'nearby')}
               style={{
                 flex: 1,
-                padding: '0.45rem 0.5rem',
+                padding: '0.42rem 0.5rem',
                 borderRadius: '8px',
-                border: '1px solid var(--border-color)',
-                backgroundColor: activePanel === 'nearby' ? 'var(--bg-primary)' : 'transparent',
-                color: 'var(--text-main)',
+                border: activePanel === 'nearby' ? '1px solid #1e293b' : '1px solid var(--border-color)',
+                backgroundColor: activePanel === 'nearby' ? '#1e293b' : 'var(--bg-primary)',
+                color: activePanel === 'nearby' ? '#ffffff' : 'var(--text-main)',
                 fontSize: '0.74rem',
                 fontWeight: 800,
                 display: 'flex',
@@ -464,7 +461,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                 transition: 'all 0.15s ease'
               }}
             >
-              <Coffee size={12} style={{ color: '#d97706' }} />
+              <Coffee size={12} />
               <span>{lang === 'en' ? 'Nearby Food/Cafe' : '주변 맛집/카페'}</span>
             </button>
           </div>
@@ -529,7 +526,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                     onClick={() => handleExecuteReplace(alt)}
                     style={{
                       padding: '0.28rem 0.55rem',
-                      backgroundColor: '#2563eb',
+                      backgroundColor: '#1e293b',
                       color: '#ffffff',
                       border: 'none',
                       borderRadius: '6px',
@@ -596,9 +593,10 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{
-                        padding: '0.28rem 0.5rem',
-                        backgroundColor: 'rgba(37, 99, 235, 0.08)',
-                        color: '#2563eb',
+                        padding: '0.25rem 0.45rem',
+                        backgroundColor: 'var(--bg-primary)',
+                        border: '1px solid var(--border-color)',
+                        color: 'var(--text-main)',
                         borderRadius: '6px',
                         fontSize: '0.7rem',
                         fontWeight: 800,
@@ -618,20 +616,20 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
             </div>
           )}
 
-          {/* 4. 하단 원클릭 구글맵 길찾기 (잘림 없이 100% 노출) */}
+          {/* 4. 하단 세련된 다크 차콜 액션 버튼 (잘림 0% 완전 노출) */}
           <div style={{
-            marginTop: '0.25rem',
+            marginTop: '0.35rem',
             display: 'grid',
             gridTemplateColumns: affiliateDeal ? '1.4fr 1fr' : '1fr',
             gap: '0.45rem'
           }}>
-            {/* 1. 구글맵 길찾기 */}
+            {/* 1. 구글맵 길찾기 (세련된 다크 차콜 룩) */}
             <a
               href={googleMapUrl}
               target="_blank"
               rel="noopener noreferrer"
               style={{
-                backgroundColor: '#2563eb',
+                backgroundColor: '#1e293b',
                 color: '#ffffff',
                 textDecoration: 'none',
                 borderRadius: '8px',
@@ -642,22 +640,23 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '0.3rem',
-                boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)'
+                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.15)'
               }}
             >
               <span>{lang === 'en' ? 'Google Maps Route ↗' : '구글맵 실시간 길찾기 ↗'}</span>
               <ExternalLink size={12} />
             </a>
 
-            {/* 2. 티켓/한복 예약 (제휴 시) */}
+            {/* 2. 티켓/한복 예약 (제휴 시 단정한 라인 버튼) */}
             {affiliateDeal && (
               <a
                 href={affiliateDeal.dealUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
-                  backgroundColor: '#ff5b00',
-                  color: '#ffffff',
+                  backgroundColor: 'var(--bg-primary)',
+                  border: '1px solid var(--border-color)',
+                  color: 'var(--text-main)',
                   textDecoration: 'none',
                   borderRadius: '8px',
                   padding: '0.55rem 0.65rem',
