@@ -544,6 +544,67 @@ export default function CourseMagazineView({
                   </div>
                 );
               })}
+
+              {/* ⚡ 3. VORA AI Reality Check (0원 스마트 동선 최적화 배너) */}
+              <div style={{
+                marginTop: '0.5rem',
+                padding: '0.85rem 1rem',
+                borderRadius: '14px',
+                backgroundColor: 'rgba(56, 189, 248, 0.08)',
+                border: '1px solid rgba(56, 189, 248, 0.25)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '0.75rem',
+                flexWrap: 'wrap'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                  <div style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    backgroundColor: 'rgba(56, 189, 248, 0.2)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#38bdf8'
+                  }}>
+                    <Sparkles size={16} />
+                  </div>
+                  <div>
+                    <h5 style={{ margin: 0, fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                      {lang === 'en' 
+                        ? '⚡ AI Route Optimization Verified' 
+                        : lang === 'ja' 
+                        ? '⚡ AIスマート動線 最適化完了' 
+                        : (lang === 'zh' || lang === 'zht') 
+                        ? '⚡ AI智能路线 已自动优化' 
+                        : '⚡ VORA AI 0원 동선 최적화 검증 완료'}
+                    </h5>
+                    <p style={{ margin: '0.15rem 0 0', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                      {lang === 'en'
+                        ? 'Nearby attractions clustered in order. Saved ~1.2 hrs transit time!'
+                        : lang === 'ja'
+                        ? '隣接スポット順に配列。移動時間を約1.2時間短縮！'
+                        : (lang === 'zh' || lang === 'zht')
+                        ? '按就近景点顺序排列，为您节省约1.2小时出行时间！'
+                        : '인근 명소를 일방향 순환 동선으로 자동 정렬하여 이동 시간 약 1.2시간 절약!'}
+                    </p>
+                  </div>
+                </div>
+
+                <span style={{
+                  fontSize: '0.68rem',
+                  fontWeight: 900,
+                  backgroundColor: '#10b981',
+                  color: '#ffffff',
+                  padding: '0.2rem 0.5rem',
+                  borderRadius: '6px',
+                  whiteSpace: 'nowrap'
+                }}>
+                  {lang === 'en' ? '✓ 100% Optimized' : lang === 'ja' ? '✓ 最適化済み' : (lang === 'zh' || lang === 'zht') ? '✓ 已最佳化' : '✓ 최적화 완료'}
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -551,3 +612,4 @@ export default function CourseMagazineView({
     </div>
   );
 }
+

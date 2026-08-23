@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Sparkles, ArrowRight, Compass, Flame } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
+import QuickIntentChips from './QuickIntentChips';
 
 export default function HeroSection({
   lang = 'ko',
@@ -164,37 +165,17 @@ export default function HeroSection({
         </div>
       </form>
 
-      {/* Quick Prompt Recommendation Chips with Swipe Indication */}
-      <div className="hero-chips-wrapper">
-        <div className="hero-chips-container">
-          {(t.promptChips || []).map((chip, idx) => (
-            <button
-              key={idx}
-              onClick={() => handleChipClick(chip.prompt)}
-              disabled={isLoading}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                backgroundColor: 'var(--bg-card)',
-                border: '1px solid var(--border-color)',
-                color: 'var(--text-main)',
-                borderRadius: 'var(--radius-full)',
-                padding: '0.3rem 0.75rem',
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                cursor: isLoading ? 'default' : 'pointer',
-                transition: 'all var(--transition-fast)',
-                userSelect: 'none',
-                whiteSpace: 'nowrap',
-                boxShadow: 'var(--shadow-sm)',
-                flexShrink: 0
-              }}
-            >
-              {chip.label}
-            </button>
-          ))}
-        </div>
+      {/* Quick Prompt Recommendation Chips */}
+      <div style={{ width: '100%', maxWidth: '720px', margin: '0 auto' }}>
+        <QuickIntentChips
+          lang={lang}
+          onSelectIntent={(queryText) => {
+            setQuery(queryText);
+            onSearch(queryText);
+          }}
+        />
       </div>
     </section>
   );
 }
+

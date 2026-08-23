@@ -31,6 +31,9 @@ import ContactUsModal from './components/ContactUsModal';
 import PWAInstallBanner from './components/PWAInstallBanner';
 import RewardedAdModal from './components/RewardedAdModal';
 import GoogleAuthModal from './components/GoogleAuthModal';
+import BottomNav from './components/BottomNav';
+import FullMapTab from './components/FullMapTab';
+import MoreTabSection from './components/MoreTabSection';
 
 import { MapPin, MessageSquare } from 'lucide-react';
 import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
@@ -236,6 +239,9 @@ export default function App() {
       return updated;
     });
   };
+
+  // 5-Tab Screen Navigation State ('home' | 'ai' | 'mytrip' | 'map' | 'more')
+  const [activeNavTab, setActiveNavTab] = useState('home');
 
   // Modals & Drawers Open State
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
@@ -527,93 +533,98 @@ export default function App() {
         onOpenTerms={() => setIsTermsOpen(true)}
       />
 
-      {/* Main Container (모바일 8px 좌우 여백 최적화) */}
-      <main className="app-main-container">
-        {/* 🌟 1. Grand Cinematic Portal Hero & Discovery Hub */}
-        <PortalHomePrototype
-          lang={lang}
-          onSearchSubmit={(promptText) => {
-            handleGenerateItinerary(promptText);
-            const hub = document.getElementById('itinerary-hub');
-            if (hub) hub.scrollIntoView({ behavior: 'smooth' });
-          }}
-          onSelectTheme={(promptText, city) => {
-            handleGenerateItinerary(promptText);
-            const hub = document.getElementById('itinerary-hub');
-            if (hub) hub.scrollIntoView({ behavior: 'smooth' });
-          }}
-          onOpenWeather={(city) => {
-            setWeatherCity(city || itineraryData?.targetCity || '서울');
-            setIsWeatherOpen(true);
-          }}
-          onOpenEssentials={() => setIsEssentialsOpen(true)}
-          onOpenPlanner={() => {
-            setMobileHubTab('chat');
-            const hub = document.getElementById('itinerary-hub');
-            if (hub) {
-              hub.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-            setTimeout(() => {
-              const chatInput = document.getElementById('ai-chat-input-field') || 
-                                document.getElementById('vora-chat-input-field') || 
-                                document.querySelector('#itinerary-hub input[type="text"]');
-              if (chatInput) {
-                chatInput.focus({ preventScroll: true });
-              }
-            }, 400);
-          }}
-          targetCity={itineraryData?.targetCity || '서울'}
-        />
+      {/* Main Container (모바일 5대 탭 전환 & PC 와이드 뷰 최적화) */}
+      <main className="app-main-container" style={{ paddingBottom: '4.5rem' }}>
+        {/* ==============================================================================
+           TAB 1. 🏠 홈 (Home): 시원한 Hero, 퀵 인텐트 칩 & 6대 테마 탐색
+           ============================================================================== */}
+        {activeNavTab === 'home' && (
+          <div className="tab-content-fade-in" style={{ width: '100%' }}>
+            <PortalHomePrototype
+              lang={lang}
+              onSearchSubmit={(promptText) => {
+                handleGenerateItinerary(promptText);
+                setActiveNavTab('mytrip');
+              }}
+              onSelectTheme={(promptText, city) => {
+                handleGenerateItinerary(promptText);
+                setActiveNavTab('mytrip');
+              }}
+              onOpenWeather={(city) => {
+                setWeatherCity(city || itineraryData?.targetCity || '서울');
+                setIsWeatherOpen(true);
+              }}
+              onOpenEssentials={() => setIsEssentialsOpen(true)}
+              onOpenPlanner={() => {
+                setActiveNavTab('ai');
+              }}
+              targetCity={itineraryData?.targetCity || '서울'}
+            />
 
-        {/* 📱 Mobile Segmented Tab Switcher (Visible on Mobile only: 1-Tap Toggle between Map & Chat) */}
-        <div className="mobile-hub-tabs-wrapper">
-          <button
-            type="button"
-            className={`mobile-hub-tab-btn ${mobileHubTab === 'magazine' ? 'active' : 'inactive'}`}
-            onClick={() => setMobileHubTab('magazine')}
-          >
-            <MapPin size={15} />
-            <span>{lang === 'en' ? 'Course & Map' : lang === 'ja' ? 'コース＆地図' : (lang === 'zh' || lang === 'zht') ? '路线与地图' : '코스 & 지도'}</span>
-          </button>
-          <button
-            type="button"
-            className={`mobile-hub-tab-btn ${mobileHubTab === 'chat' ? 'active' : 'inactive'}`}
-            onClick={() => setMobileHubTab('chat')}
-          >
-            <MessageSquare size={15} />
-            <span>{lang === 'en' ? 'AI Chat' : lang === 'ja' ? 'AI チャット' : (lang === 'zh' || lang === 'zht') ? 'AI 对话' : 'AI 대화'}</span>
-          </button>
-        </div>
+            {/* PC 와이드 화면일 때 홈 하단에 2단 대시보드 함께 표시 */}
+            <div className="desktop-only-hub" style={{ marginTop: '2rem' }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                marginBottom: '1rem',
+                padding: '0 0.25rem'
+              }}>
+                <span style={{
+                  width: '6px',
+                  height: '22px',
+                  backgroundColor: 'var(--accent-primary)',
+                  borderRadius: '4px'
+                }} />
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 900, margin: 0, color: 'var(--text-main)' }}>
+                  {t.portalLivePlannerTitle || '실시간 맞춤 AI 여행 일정 & 스마트 동선 플래너'}
+                </h2>
+              </div>
 
-        {/* Section Header: Vora AI Concierge & Route Planner */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          marginTop: '1.25rem',
-          marginBottom: '0.75rem',
-          padding: '0 0.25rem'
-        }}>
-          <span style={{
-            width: '6px',
-            height: '22px',
-            backgroundColor: 'var(--accent-primary)',
-            borderRadius: '4px'
-          }} />
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 900, margin: 0, color: 'var(--text-main)' }}>
-            {t.portalLivePlannerTitle || '실시간 맞춤 AI 여행 일정 & 스마트 동선 플래너'}
-          </h2>
-        </div>
+              <section id="itinerary-hub" className="itinerary-hub-container" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
+                <div className="itinerary-hub-column" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
+                  <VoraAIChat
+                    lang={lang}
+                    chatMessages={chatMessages}
+                    isLoading={isLoading}
+                    onSendMessage={handleGenerateItinerary}
+                    activeDay={activeDay}
+                    onSelectDay={(day) => setActiveDay(day)}
+                    questionQuota={questionQuota}
+                    onOpenRewardedAd={() => setIsRewardedAdOpen(true)}
+                    onOpenGoogleAuth={() => setIsGoogleAuthOpen(true)}
+                    onResetQuotaForDev={handleResetQuotaForDev}
+                    currentUser={currentUser}
+                  />
+                </div>
+                <div className="itinerary-hub-column" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
+                  <CourseMagazineView
+                    lang={lang}
+                    itineraryData={itineraryData}
+                    activeDay={activeDay}
+                    onSelectDay={(day) => setActiveDay(day)}
+                    onOpenDetail={(spot) => setSelectedSpot(spot)}
+                    bookmarks={bookmarks}
+                    onToggleBookmark={handleToggleBookmark}
+                  />
+                </div>
+              </section>
+            </div>
+          </div>
+        )}
 
-        {/* 2. PC 2-Column Split Hub (Dashboard view: Chat on Left / Timeline & Map on Right) */}
-        <section id="itinerary-hub" className="itinerary-hub-container" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
-          {/* Left Column: Vora AI Conversational Chat Stream */}
-          <div className={`itinerary-hub-column ${mobileHubTab !== 'chat' ? 'mobile-hidden' : ''}`} style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
+        {/* ==============================================================================
+           TAB 2. ✨ AI 플래너 (AI Concierge): 1:1 대화형 Vora AI 전용 대화창
+           ============================================================================== */}
+        {activeNavTab === 'ai' && (
+          <div className="tab-content-fade-in" style={{ width: '100%', maxWidth: '880px', margin: '0 auto' }}>
             <VoraAIChat
               lang={lang}
               chatMessages={chatMessages}
               isLoading={isLoading}
-              onSendMessage={handleGenerateItinerary}
+              onSendMessage={(msg) => {
+                handleGenerateItinerary(msg);
+              }}
               activeDay={activeDay}
               onSelectDay={(day) => setActiveDay(day)}
               questionQuota={questionQuota}
@@ -623,9 +634,13 @@ export default function App() {
               currentUser={currentUser}
             />
           </div>
+        )}
 
-          {/* Right Column: Course Magazine View & Google Map */}
-          <div className={`itinerary-hub-column ${mobileHubTab !== 'magazine' ? 'mobile-hidden' : ''}`} style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
+        {/* ==============================================================================
+           TAB 3. 🧳 내 여행 (My Trip): Day 1/2/3 일정 타임라인 & 0원 동선 최적화
+           ============================================================================== */}
+        {activeNavTab === 'mytrip' && (
+          <div className="tab-content-fade-in" style={{ width: '100%', maxWidth: '880px', margin: '0 auto' }}>
             <CourseMagazineView
               lang={lang}
               itineraryData={itineraryData}
@@ -636,32 +651,58 @@ export default function App() {
               onToggleBookmark={handleToggleBookmark}
             />
           </div>
-        </section>
+        )}
 
-        {/* 3. Mid-page Google AdSense Unit */}
-        <AdSenseBanner slot="7890123456" />
+        {/* ==============================================================================
+           TAB 4. 🗺️ 지도 (Map): 이동 경로 번호 핀 및 전체화면 스마트 지도
+           ============================================================================== */}
+        {activeNavTab === 'map' && (
+          <div className="tab-content-fade-in" style={{ width: '100%', maxWidth: '1000px', margin: '0 auto' }}>
+            <FullMapTab
+              lang={lang}
+              itineraryData={itineraryData}
+              activeDay={activeDay}
+              onSelectDay={(day) => setActiveDay(day)}
+              onOpenDetail={(spot) => setSelectedSpot(spot)}
+            />
+          </div>
+        )}
 
-        {/* 4. Travel Essentials Section (Weather & Styling, Subway, Climate card, eSIM, 1330) */}
-        <div id="travel-essentials-section">
-          <TravelEssentialsSection
-            lang={lang}
-            targetCity={itineraryData?.targetCity || '서울'}
-            onOpenWeather={(city) => {
-              setWeatherCity(city || itineraryData?.targetCity || '서울');
-              setIsWeatherOpen(true);
-            }}
-          />
-        </div>
-
-        {/* 5. Mid-page Google AdSense Unit */}
-        <AdSenseBanner slot="8901234567" />
-
-        {/* 6. AdSense Editorial Travel Articles & FAQ Section (High Content Authority) */}
-        <AdSenseArticlesSection lang={lang} />
+        {/* ==============================================================================
+           TAB 5. ☰ 더보기 (More): 여행 필수 정보, 날씨, 다국어 설정, 제휴 문의
+           ============================================================================== */}
+        {activeNavTab === 'more' && (
+          <div className="tab-content-fade-in" style={{ width: '100%', maxWidth: '880px', margin: '0 auto' }}>
+            <MoreTabSection
+              lang={lang}
+              targetCity={itineraryData?.targetCity || '서울'}
+              onOpenWeather={(city) => {
+                setWeatherCity(city || itineraryData?.targetCity || '서울');
+                setIsWeatherOpen(true);
+              }}
+              onOpenPrivacy={() => setIsPrivacyOpen(true)}
+              onOpenTerms={() => setIsTermsOpen(true)}
+              onOpenAbout={() => setIsAboutOpen(true)}
+              onOpenContact={() => setIsContactOpen(true)}
+              onOpenEssentials={() => setIsEssentialsOpen(true)}
+            />
+          </div>
+        )}
       </main>
+
+      {/* 📱 Mobile Fixed 5-Tab Navigation Bar */}
+      <BottomNav
+        activeTab={activeNavTab}
+        onTabChange={(tabId) => {
+          setActiveNavTab(tabId);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        lang={lang}
+      />
 
       {/* Footer with Google AdSense Required Policy Links */}
       <footer style={{
+
         borderTop: '1px solid var(--border-color)',
         backgroundColor: 'var(--bg-card)',
         padding: '2.5rem 1.5rem',

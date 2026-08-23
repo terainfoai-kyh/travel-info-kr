@@ -1258,4 +1258,38 @@ button, a, input, select, textarea {
   }
 }
 
+/* ==========================================================================
+   5-Tab Navigation & View Transition Styles
+   ========================================================================== */
+.tab-content-fade-in {
+  animation: tabFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
 
+@keyframes tabFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile vs PC Display Tuning */
+@media (min-width: 1024px) {
+  /* PC에서는 하단 네비 바를 숨기거나 상단 헤더로 통합 */
+  .mobile-bottom-nav-bar {
+    display: none !important;
+  }
+  
+  .desktop-only-hub {
+    display: block !important;
+  }
+}
+
+@media (max-width: 1023px) {
+  .desktop-only-hub {
+    display: none !important;
+  }
+}
