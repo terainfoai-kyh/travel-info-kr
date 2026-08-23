@@ -343,17 +343,17 @@ export default function FullMapTab({
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.2rem',
-              backgroundColor: '#1e293b',
+              gap: '0.25rem',
+              backgroundColor: 'var(--accent-primary)',
               color: '#ffffff',
-              padding: '0.35rem 0.65rem',
+              padding: '0.38rem 0.7rem',
               borderRadius: '8px',
-              fontSize: '0.74rem',
+              fontSize: '0.75rem',
               fontWeight: 900,
               textDecoration: 'none',
               whiteSpace: 'nowrap',
               flexShrink: 0,
-              boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
+              boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)'
             }}
           >
             <span>{lang === 'en' ? 'Google Maps ↗' : '구글맵 ↗'}</span>

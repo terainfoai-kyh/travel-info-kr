@@ -941,14 +941,15 @@ export default function WeatherModal({
           <button
             onClick={onClose}
             style={{
-              backgroundColor: '#1e293b',
+              backgroundColor: 'var(--accent-primary)',
               color: '#ffffff',
               border: 'none',
-              borderRadius: '8px',
-              padding: '0.45rem 1.2rem',
+              borderRadius: '10px',
+              padding: '0.5rem 1.3rem',
               fontWeight: 800,
-              fontSize: '0.8rem',
-              cursor: 'pointer'
+              fontSize: '0.82rem',
+              cursor: 'pointer',
+              boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)'
             }}
           >
             {getCloseButtonLabel(lang)}

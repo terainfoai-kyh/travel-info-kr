@@ -2,22 +2,23 @@
   --font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
   --font-heading: 'Outfit', 'Pretendard', sans-serif;
 
-  /* Color Palette - Ultra-Clean Bright Minimalist 2026 */
-  --bg-primary: #fafafc;
+  /* Design Guide Color Palette - Clean White & Modern Blue (ChatGPT Style) */
+  --bg-primary: #f8fafc;
   --bg-secondary: #ffffff;
   --bg-card: #ffffff;
-  --bg-glass: rgba(255, 255, 255, 0.92);
+  --bg-glass: rgba(255, 255, 255, 0.94);
 
   --accent-primary: #2563eb;
   --accent-hover: #1d4ed8;
-  --accent-gradient: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  --accent-ai: #6366f1;
+  --accent-gradient: linear-gradient(135deg, #2563eb 0%, #6366f1 100%);
   --accent-glow: radial-gradient(circle, rgba(37, 99, 235, 0.08) 0%, transparent 70%);
 
-  --text-main: #0f172a;
-  --text-muted: #475569;
+  --text-main: #1f2937;
+  --text-muted: #64748b;
   --text-dim: #94a3b8;
 
-  --border-color: rgba(226, 232, 240, 0.8);
+  --border-color: #e2e8f0;
   --border-highlight: rgba(37, 99, 235, 0.25);
 
   --radius-sm: 10px;
@@ -34,26 +35,27 @@
 }
 
 [data-theme="light"] {
-  --bg-primary: #f5f5f7;
-  --bg-secondary: rgba(255, 255, 255, 0.82);
-  --bg-card: rgba(255, 255, 255, 0.85);
-  --bg-glass: rgba(255, 255, 255, 0.88);
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-glass: rgba(255, 255, 255, 0.94);
 
-  --accent-primary: #0071e3;
-  --accent-hover: #0077ed;
-  --accent-gradient: linear-gradient(135deg, #0071e3 0%, #2563eb 100%);
-  --accent-glow: radial-gradient(circle, rgba(0, 113, 227, 0.1) 0%, transparent 70%);
+  --accent-primary: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-ai: #6366f1;
+  --accent-gradient: linear-gradient(135deg, #2563eb 0%, #6366f1 100%);
+  --accent-glow: radial-gradient(circle, rgba(37, 99, 235, 0.08) 0%, transparent 70%);
 
-  --text-main: #1d1d1f;
-  --text-muted: #515154;
-  --text-dim: #86868b;
+  --text-main: #1f2937;
+  --text-muted: #64748b;
+  --text-dim: #94a3b8;
 
-  --border-color: rgba(0, 0, 0, 0.08);
-  --border-highlight: rgba(0, 113, 227, 0.35);
+  --border-color: #e2e8f0;
+  --border-highlight: rgba(37, 99, 235, 0.25);
 
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.06);
-  --shadow-glow: 0 0 20px rgba(0, 113, 227, 0.15);
+  --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.06);
+  --shadow-glow: 0 0 20px rgba(37, 99, 235, 0.12);
 }
 
 [data-theme="dark"] {

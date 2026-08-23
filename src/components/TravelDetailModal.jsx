@@ -509,12 +509,12 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                 onClick={() => setActivePanel(activePanel === 'replace' ? null : 'replace')}
                 style={{
                   flex: 1,
-                  padding: '0.42rem 0.5rem',
-                  borderRadius: '8px',
-                  border: activePanel === 'replace' ? '1px solid #1e293b' : '1px solid var(--border-color)',
-                  backgroundColor: activePanel === 'replace' ? '#1e293b' : 'var(--bg-primary)',
-                  color: activePanel === 'replace' ? '#ffffff' : 'var(--text-main)',
-                  fontSize: '0.74rem',
+                  padding: '0.45rem 0.5rem',
+                  borderRadius: '10px',
+                  border: activePanel === 'replace' ? '1.5px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                  backgroundColor: activePanel === 'replace' ? 'rgba(37, 99, 235, 0.1)' : 'var(--bg-card)',
+                  color: activePanel === 'replace' ? 'var(--accent-primary)' : 'var(--text-main)',
+                  fontSize: '0.76rem',
                   fontWeight: 800,
                   display: 'flex',
                   alignItems: 'center',
@@ -534,12 +534,12 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
               onClick={() => setActivePanel(activePanel === 'nearby' ? null : 'nearby')}
               style={{
                 flex: 1,
-                padding: '0.42rem 0.5rem',
-                borderRadius: '8px',
-                border: activePanel === 'nearby' ? '1px solid #1e293b' : '1px solid var(--border-color)',
-                backgroundColor: activePanel === 'nearby' ? '#1e293b' : 'var(--bg-primary)',
-                color: activePanel === 'nearby' ? '#ffffff' : 'var(--text-main)',
-                fontSize: '0.74rem',
+                padding: '0.45rem 0.5rem',
+                borderRadius: '10px',
+                border: activePanel === 'nearby' ? '1.5px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                backgroundColor: activePanel === 'nearby' ? 'rgba(37, 99, 235, 0.1)' : 'var(--bg-card)',
+                color: activePanel === 'nearby' ? 'var(--accent-primary)' : 'var(--text-main)',
+                fontSize: '0.76rem',
                 fontWeight: 800,
                 display: 'flex',
                 alignItems: 'center',
@@ -594,8 +594,8 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                     type="button"
                     onClick={() => handleRequestReplace(alt)}
                     style={{
-                      padding: '0.28rem 0.55rem',
-                      backgroundColor: '#1e293b',
+                      padding: '0.3rem 0.6rem',
+                      backgroundColor: 'var(--accent-primary)',
                       color: '#ffffff',
                       border: 'none',
                       borderRadius: '6px',
@@ -662,10 +662,10 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{
-                        padding: '0.25rem 0.45rem',
+                        padding: '0.25rem 0.5rem',
                         backgroundColor: 'var(--bg-primary)',
                         border: '1px solid var(--border-color)',
-                        color: 'var(--text-main)',
+                        color: 'var(--accent-primary)',
                         borderRadius: '6px',
                         fontSize: '0.7rem',
                         fontWeight: 800,
@@ -685,7 +685,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
             </div>
           )}
 
-          {/* 4. 하단 세련된 다크 차콜 액션 버튼 (잘림 0% 완전 노출) */}
+          {/* 4. 하단 클린 모던 블루 액션 버튼 (잘림 0% 완전 노출) */}
           <div style={{
             marginTop: '0.35rem',
             display: 'grid',
@@ -698,18 +698,18 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
               target="_blank"
               rel="noopener noreferrer"
               style={{
-                backgroundColor: '#1e293b',
+                backgroundColor: 'var(--accent-primary)',
                 color: '#ffffff',
                 textDecoration: 'none',
-                borderRadius: '8px',
-                padding: '0.55rem 0.65rem',
-                fontSize: '0.78rem',
+                borderRadius: '10px',
+                padding: '0.6rem 0.65rem',
+                fontSize: '0.8rem',
                 fontWeight: 900,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '0.3rem',
-                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.15)'
+                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)'
               }}
             >
               <span>{lang === 'en' ? 'Google Maps ↗' : '구글맵 ↗'}</span>
@@ -723,13 +723,13 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
-                  backgroundColor: 'var(--bg-primary)',
+                  backgroundColor: 'var(--bg-card)',
                   border: '1px solid var(--border-color)',
                   color: 'var(--text-main)',
                   textDecoration: 'none',
-                  borderRadius: '8px',
-                  padding: '0.55rem 0.65rem',
-                  fontSize: '0.78rem',
+                  borderRadius: '10px',
+                  padding: '0.6rem 0.65rem',
+                  fontSize: '0.8rem',
                   fontWeight: 900,
                   display: 'flex',
                   alignItems: 'center',

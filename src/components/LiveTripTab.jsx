@@ -211,7 +211,7 @@ export default function LiveTripTab({
             style={{
               padding: '0.55rem',
               borderRadius: '10px',
-              backgroundColor: '#1e293b',
+              backgroundColor: 'var(--accent-primary)',
               color: '#ffffff',
               fontSize: '0.8rem',
               fontWeight: 800,
@@ -220,7 +220,7 @@ export default function LiveTripTab({
               alignItems: 'center',
               justifyContent: 'center',
               gap: '0.35rem',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)'
+              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)'
             }}
           >
             <Navigation size={13} />
@@ -427,17 +427,18 @@ export default function LiveTripTab({
                           target="_blank"
                           rel="noopener noreferrer"
                           style={{
-                            padding: '0.3rem 0.55rem',
-                            backgroundColor: '#1e293b',
+                            padding: '0.35rem 0.6rem',
+                            backgroundColor: 'var(--accent-primary)',
                             color: '#ffffff',
-                            borderRadius: '6px',
+                            borderRadius: '8px',
                             fontSize: '0.72rem',
                             fontWeight: 800,
                             textDecoration: 'none',
                             display: 'inline-flex',
                             alignItems: 'center',
                             gap: '0.2rem',
-                            flexShrink: 0
+                            flexShrink: 0,
+                            boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)'
                           }}
                         >
                           <span>{lang === 'en' ? 'Map ↗' : '구글맵 ↗'}</span>
