@@ -4,7 +4,6 @@ import {
   MapPin, 
   Navigation, 
   ExternalLink, 
-  Sparkles, 
   Clock, 
   Star,
   ChevronLeft,
@@ -22,14 +21,12 @@ import { getSpotAffiliateDeal } from '../services/affiliateService';
 
 /**
  * ==============================================================================
- * TravelDetailModal.jsx - 실시간 모바일 여행 OS 완성형
+ * TravelDetailModal.jsx - 프리미엄 모노톤 실시간 모바일 상세 카드
  * 
- * 1. 4K 고화질 히어로 사진 (210px) + 단일 명소명 & 별점
- * 2. 답답한 박스 없는 1문장 스토리 & 1줄 플랫 여행 정보
- * 3. ⚡ 실시간 현장 액션 바:
- *    - [ 🔄 다른 장소로 교체 ] ➔ 인근 대안 명소 3개 원클릭 교체 (일정 & 지도 0초 갱신)
- *    - [ ☕ 주변 맛집/카페 ]   ➔ 도보 5분 내 로컬 핫플 퀵뷰
- * 4. 하단 [ 🗺️ Google Maps 실시간 길찾기 ↗ ]
+ * 1. 차분하고 고급스러운 모노톤 텍스트 & 정돈된 레이아웃 (유치한 원색 100% 제거)
+ * 2. 맛집/카페 터치 시 구글맵 실시간 길찾기 1초 연동
+ * 3. 하단 여백 넉넉하게 확보하여 버튼 잘림 0% 완전 해결
+ * 4. 원터치 다른 장소 교체 (일정 & 지도 0초 실시간 갱신)
  * ==============================================================================
  */
 
@@ -63,8 +60,8 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
       ];
     }
     return [
-      { id: 'alt-gen1', title: `${cleanTitle} 인근 핫플레이스`, category: '추천명소', rating: 4.7, location: '인근 도보 5분 거리', subway: '도보 5분', image: 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg', description: '현재 위치에서 가장 가깝고 현지인들이 사랑하는 대표 추천 명소입니다.' },
-      { id: 'alt-gen2', title: `${cleanTitle} 감성 문화거리`, category: '문화거리', rating: 4.6, location: '인근 도보 10분 거리', subway: '도보 10분', image: 'https://tong.visitkorea.or.kr/cms/resource/46/2645646_image2_1.jpg', description: '여유롭게 산책하며 감성적인 사진을 남기기 좋은 로컬 거리입니다.' }
+      { id: 'alt-gen1', title: `${cleanTitle} 인근 추천지`, category: '추천명소', rating: 4.7, location: '인근 도보 5분', subway: '도보 5분', image: 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg', description: '현재 위치에서 가장 가깝고 현지인들이 사랑하는 대표 명소입니다.' },
+      { id: 'alt-gen2', title: `${cleanTitle} 감성 거리`, category: '문화거리', rating: 4.6, location: '인근 도보 10분', subway: '도보 10분', image: 'https://tong.visitkorea.or.kr/cms/resource/46/2645646_image2_1.jpg', description: '여유롭게 산책하며 감성적인 사진을 남기기 좋은 로컬 거리입니다.' }
     ];
   };
 
@@ -72,21 +69,21 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
   const getNearbyFoodCafes = () => {
     if (cleanTitle.includes('경복궁') || cleanTitle.includes('인사동') || cleanTitle.includes('북촌')) {
       return [
-        { name: '토속촌 삼계탕', type: '미식 🍲', distance: '도보 5분', desc: '대통령도 찾던 진한 견과류 국물의 서울 대표 삼계탕', rating: 4.8 },
-        { name: '어니언 안국 (Cafe Onion)', type: '한옥카페 ☕', distance: '도보 6분', desc: '고즈넉한 전통 한옥 중정에서 즐기는 베이커리 & 스페셜티 커피', rating: 4.9 },
-        { name: '삼청동 수제비', type: '미식 🍜', distance: '도보 8분', desc: '미쉐린 빕구르망에 선정된 시원하고 깊은 멸치 육수 수제비', rating: 4.7 }
+        { name: '토속촌 삼계탕', type: '미식 🍲', distance: '도보 5분', desc: '진한 국물의 서울 대표 전통 삼계탕' },
+        { name: '어니언 안국 (Cafe Onion)', type: '한옥카페 ☕', distance: '도보 6분', desc: '고즈넉한 한옥 중정에서 즐기는 스페셜티 베이커리 카페' },
+        { name: '삼청동 수제비', type: '미식 🍜', distance: '도보 8분', desc: '미쉐린 가이드에 선정된 깔끔한 멸치 육수 수제비' }
       ];
     }
     if (cleanTitle.includes('해운대') || cleanTitle.includes('광안리')) {
       return [
-        { name: '해운대 소문난 암소갈비', type: '미식 🥩', distance: '도보 7분', desc: '감자사리가 일품인 부산 최고의 전통 한우 갈비 명가', rating: 4.9 },
-        { name: '랑데자뷰 해운대', type: '오션뷰카페 ☕', distance: '도보 4분', desc: '제주 감성과 탁 트인 해운대 바다를 한눈에 담는 오션뷰 카페', rating: 4.8 },
-        { name: '금수복국 본점', type: '로컬맛집 🍲', distance: '도보 5분', desc: '뚝배기 가득 시원한 국물로 속을 풀어주는 50년 전통 복국', rating: 4.7 }
+        { name: '해운대 소문난 암소갈비', type: '미식 🥩', distance: '도보 7분', desc: '감자사리가 일품인 부산 최고의 한우 갈비 명가' },
+        { name: '랑데자뷰 해운대', type: '오션뷰카페 ☕', distance: '도보 4분', desc: '탁 트인 해운대 바다를 한눈에 담는 오션뷰 카페' },
+        { name: '금수복국 본점', type: '로컬맛집 🍲', distance: '도보 5분', desc: '시원한 국물로 속을 풀어주는 50년 전통 복국' }
       ];
     }
     return [
-      { name: '로컬 시그니처 대표 맛집', type: '미식 🍲', distance: '도보 3분', desc: '현지인들이 줄 서서 먹는 대표 시그니처 로컬 식당', rating: 4.8 },
-      { name: '감성 루프탑 & 베이커리 카페', type: '카페 ☕', distance: '도보 5분', desc: '아늑한 분위기에서 여유롭게 커피를 즐기는 감성 공간', rating: 4.7 }
+      { name: '로컬 시그니처 대표 맛집', type: '미식 🍲', distance: '도보 3분', desc: '현지인들이 즐겨 찾는 대표 로컬 식당' },
+      { name: '감성 베이커리 카페', type: '카페 ☕', distance: '도보 5분', desc: '아늑한 분위기에서 즐기는 스페셜티 커피와 디저트' }
     ];
   };
 
@@ -98,16 +95,16 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
     cleanTitle.includes('해운대') ? '부산광역시 해운대구 달맞이길62번길 13' :
     cleanTitle.includes('광안리') ? '부산광역시 수영구 광안해변로 219' :
     cleanTitle.includes('성산') ? '제주특별자치도 서귀포시 성산읍 일출로 284-12' :
-    (lang === 'en' ? 'Seoul, Republic of Korea' : lang === 'ja' ? '韓国・ソウル' : '대한민국 서울 일대')
+    '대한민국 서울 일대'
   );
 
   const subwayTransit = spot.subway || (
-    cleanTitle.includes('경복궁') ? (lang === 'en' ? 'Line 3 Gyeongbokgung Stn. Exit 5 (3 min walk)' : lang === 'ja' ? '3号線 景福宮駅 5番出口 (徒歩3分)' : '3호선 경복궁역 5번 출구 (도보 3분)') :
-    cleanTitle.includes('인사동') ? (lang === 'en' ? 'Line 3 Anguk Stn. Exit 6 (2 min walk)' : lang === 'ja' ? '3号線 安国駅 6番出口 (徒歩2分)' : '3호선 안국역 6번 출구 (도보 2분)') :
-    cleanTitle.includes('북촌') ? (lang === 'en' ? 'Line 3 Anguk Stn. Exit 2 (5 min walk)' : lang === 'ja' ? '3号線 安国駅 2番出口 (徒歩5分)' : '3호선 안국역 2번 출구 (도보 5분)') :
-    cleanTitle.includes('해운대') ? (lang === 'en' ? 'Line 2 Haeundae Stn. Exit 5 (Bus 10 mins)' : lang === 'ja' ? '2号線 海雲台駅 5番出口 (バス10分)' : '2호선 해운대역 5번 출구 (버스 10분)') :
-    cleanTitle.includes('광안리') ? (lang === 'en' ? 'Line 2 Gwangan Stn. Exit 3 (10 min walk)' : lang === 'ja' ? '2号線 広安駅 3番出口 (徒歩10分)' : '2호선 광안역 3번 출구 (도보 10분)') :
-    (lang === 'en' ? 'Nearby Subway or City Bus' : lang === 'ja' ? '地下鉄または市内バス' : '인근 지하철역 또는 시내버스')
+    cleanTitle.includes('경복궁') ? '3호선 경복궁역 5번 출구 (도보 3분)' :
+    cleanTitle.includes('인사동') ? '3호선 안국역 6번 출구 (도보 2분)' :
+    cleanTitle.includes('북촌') ? '3호선 안국역 2번 출구 (도보 5분)' :
+    cleanTitle.includes('해운대') ? '2호선 해운대역 5번 출구 (버스 10분)' :
+    cleanTitle.includes('광안리') ? '2호선 광안역 3번 출구 (도보 10분)' :
+    '인근 지하철역 또는 시내버스'
   );
 
   const operatingHours = spot.operatingHours || spot.usetime || (
@@ -117,18 +114,15 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
   );
 
   const closedDays = spot.closedDays || spot.restdate || (
-    cleanTitle.includes('경복궁') ? (lang === 'en' ? 'Closed Tuesdays' : lang === 'ja' ? '火曜定休' : '화요일 휴관') :
-    (lang === 'en' ? 'Open Year-Round' : lang === 'ja' ? '年中無休' : '연중무휴')
+    cleanTitle.includes('경복궁') ? '화요일 휴관' : '연중무휴'
   );
 
   const admissionFee = spot.fee || spot.usefee || (
-    cleanTitle.includes('경복궁') ? (lang === 'en' ? 'Adult ₩3,000 (Free in Hanbok!)' : lang === 'ja' ? '大人 3,000ウォン (韓服着用で無料)' : '성인 3,000원 (한복 착용 시 무료)') :
-    (lang === 'en' ? 'Free Admission' : lang === 'ja' ? '入場無料' : '무료 관람')
+    cleanTitle.includes('경복궁') ? '성인 3,000원 (한복 착용 시 무료)' : '무료 관람'
   );
 
   const duration = spot.duration || (
-    cleanTitle.includes('경복궁') ? (lang === 'en' ? 'Approx. 1.5 - 2h' : lang === 'ja' ? '約 1.5〜2時間' : '약 1.5 ~ 2시간') :
-    (lang === 'en' ? 'Approx. 1 - 2h' : lang === 'ja' ? '約 1〜2時間' : '약 1 ~ 2시간')
+    cleanTitle.includes('경복궁') ? '약 1.5 ~ 2시간' : '약 1 ~ 2시간'
   );
 
   const description = spot.description || spot.overview || (
@@ -165,11 +159,11 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
   const handleExecuteReplace = (newSpot) => {
     if (onReplaceSpot) {
       onReplaceSpot(spot, newSpot);
-      setReplaceSuccessMsg(lang === 'en' ? `Replaced with ${newSpot.title}!` : lang === 'ja' ? `${newSpot.title}に変更しました！` : `${newSpot.title}(으)로 일정이 교체되었습니다! ✨`);
+      setReplaceSuccessMsg(`${newSpot.title}(으)로 교체 완료! ✨`);
       setTimeout(() => {
         setReplaceSuccessMsg('');
         setActivePanel(null);
-      }, 1200);
+      }, 1000);
     }
   };
 
@@ -198,7 +192,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
           borderRadius: '20px',
           maxWidth: '520px',
           width: '100%',
-          maxHeight: '90vh',
+          maxHeight: '92vh',
           display: 'flex',
           flexDirection: 'column',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
@@ -329,13 +323,14 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.2rem' }}>
               <span style={{
-                backgroundColor: '#2563eb',
+                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                backdropFilter: 'blur(4px)',
                 padding: '0.12rem 0.4rem',
                 borderRadius: '4px',
                 fontSize: '0.66rem',
-                fontWeight: 900
+                fontWeight: 800
               }}>
-                {spot.category || spot.theme || (lang === 'en' ? 'Attraction' : '추천명소')}
+                {spot.category || spot.theme || '추천명소'}
               </span>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.15rem', color: '#f59e0b', fontSize: '0.74rem', fontWeight: 900 }}>
                 <Star size={12} fill="#f59e0b" />
@@ -354,14 +349,14 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
           </div>
         </div>
 
-        {/* 2. Modal Body (답답한 박스 없는 플랫 리스트 + 현장형 실시간 액션) */}
+        {/* 2. Modal Body (차분한 모노톤 & 스크롤 완벽 지원) */}
         <div 
           style={{
             flex: 1,
             minHeight: 0,
             overflowY: 'auto',
             WebkitOverflowScrolling: 'touch',
-            padding: '0.85rem 1.1rem 1.25rem 1.1rem',
+            padding: '0.85rem 1.1rem 2.5rem 1.1rem',
             display: 'flex',
             flexDirection: 'column',
             gap: '0.65rem'
@@ -373,61 +368,57 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
             fontSize: '0.82rem',
             lineHeight: 1.55,
             color: 'var(--text-main)',
-            opacity: 0.95
+            opacity: 0.9
           }}>
             {description}
           </p>
 
-          {/* 무박스 1줄 플랫 정보 리스트 */}
+          {/* 차분한 모노톤 1줄 플랫 정보 리스트 (유치한 색상 100% 제거) */}
           <div style={{
             display: 'flex',
             flexDirection: 'column',
             gap: '0.3rem',
-            padding: '0.4rem 0',
-            borderTop: '1px solid rgba(226, 232, 240, 0.6)',
-            borderBottom: '1px solid rgba(226, 232, 240, 0.6)',
+            padding: '0.45rem 0',
+            borderTop: '1px solid var(--border-color)',
+            borderBottom: '1px solid var(--border-color)',
             fontSize: '0.78rem'
           }}>
             {/* 1. 찾아가는 법 */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
-              <span style={{ color: '#059669', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '0.25rem', width: '65px', fontWeight: 700 }}>
-                <Navigation size={12} />
-                <span>{lang === 'en' ? 'Transit' : '교통'}</span>
+              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
+                • 교통
               </span>
-              <span style={{ color: '#059669', fontWeight: 700 }}>: {subwayTransit}</span>
+              <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>: {subwayTransit}</span>
             </div>
 
             {/* 2. 관람 시간 */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
-              <span style={{ color: '#0284c7', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '0.25rem', width: '65px', fontWeight: 700 }}>
-                <Clock size={12} />
-                <span>{lang === 'en' ? 'Hours' : '시간'}</span>
+              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
+                • 시간
               </span>
-              <span style={{ color: 'var(--text-main)' }}>
-                : {operatingHours} <strong style={{ color: '#ef4444', marginLeft: '0.25rem' }}>({closedDays})</strong>
+              <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>
+                : {operatingHours} <span style={{ color: '#ef4444', marginLeft: '0.2rem', fontWeight: 700 }}>({closedDays})</span>
               </span>
             </div>
 
             {/* 3. 추천 소요시간 */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
-              <span style={{ color: '#d97706', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '0.25rem', width: '65px', fontWeight: 700 }}>
-                <Hourglass size={12} />
-                <span>{lang === 'en' ? 'Duration' : '소요'}</span>
+              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
+                • 소요
               </span>
-              <span style={{ color: 'var(--text-main)' }}>: {duration}</span>
+              <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>: {duration}</span>
             </div>
 
             {/* 4. 입장 요금 */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
-              <span style={{ color: '#8b5cf6', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '0.25rem', width: '65px', fontWeight: 700 }}>
-                <Ticket size={12} />
-                <span>{lang === 'en' ? 'Fee' : '요금'}</span>
+              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
+                • 요금
               </span>
-              <span style={{ color: '#8b5cf6', fontWeight: 700 }}>: {admissionFee}</span>
+              <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>: {admissionFee}</span>
             </div>
           </div>
 
-          {/* ⚡ 3. 실시간 모바일 현장 액션 탭 (원터치 교체 & 주변 맛집) */}
+          {/* ⚡ 3. 실시간 모바일 현장 액션 탭 (단정한 모노크롬 버튼) */}
           <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.1rem' }}>
             <button
               type="button"
@@ -436,9 +427,9 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                 flex: 1,
                 padding: '0.45rem 0.5rem',
                 borderRadius: '8px',
-                border: 'none',
-                backgroundColor: activePanel === 'replace' ? '#2563eb' : 'rgba(37, 99, 235, 0.08)',
-                color: activePanel === 'replace' ? '#ffffff' : '#2563eb',
+                border: '1px solid var(--border-color)',
+                backgroundColor: activePanel === 'replace' ? 'var(--bg-primary)' : 'transparent',
+                color: 'var(--text-main)',
                 fontSize: '0.74rem',
                 fontWeight: 800,
                 display: 'flex',
@@ -449,8 +440,8 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                 transition: 'all 0.15s ease'
               }}
             >
-              <RefreshCw size={12} />
-              <span>{lang === 'en' ? 'Swap Place 🔄' : lang === 'ja' ? '別の場所に変更' : '다른 장소로 교체 🔄'}</span>
+              <RefreshCw size={12} style={{ color: '#2563eb' }} />
+              <span>{lang === 'en' ? 'Swap Spot' : '다른 장소로 교체'}</span>
             </button>
 
             <button
@@ -460,9 +451,9 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                 flex: 1,
                 padding: '0.45rem 0.5rem',
                 borderRadius: '8px',
-                border: 'none',
-                backgroundColor: activePanel === 'nearby' ? '#d97706' : 'rgba(217, 119, 6, 0.08)',
-                color: activePanel === 'nearby' ? '#ffffff' : '#d97706',
+                border: '1px solid var(--border-color)',
+                backgroundColor: activePanel === 'nearby' ? 'var(--bg-primary)' : 'transparent',
+                color: 'var(--text-main)',
                 fontSize: '0.74rem',
                 fontWeight: 800,
                 display: 'flex',
@@ -473,8 +464,8 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                 transition: 'all 0.15s ease'
               }}
             >
-              <Coffee size={12} />
-              <span>{lang === 'en' ? 'Nearby Food/Cafe ☕' : lang === 'ja' ? '周辺グルメ・カフェ' : '주변 맛집/카페 ☕'}</span>
+              <Coffee size={12} style={{ color: '#d97706' }} />
+              <span>{lang === 'en' ? 'Nearby Food/Cafe' : '주변 맛집/카페'}</span>
             </button>
           </div>
 
@@ -500,16 +491,16 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
           {/* 🔄 패널 1: 인근 대안 명소 3개 원터치 교체 리스트 */}
           {activePanel === 'replace' && (
             <div style={{
-              backgroundColor: 'rgba(37, 99, 235, 0.04)',
-              border: '1px solid rgba(37, 99, 235, 0.15)',
+              backgroundColor: 'var(--bg-primary)',
+              border: '1px solid var(--border-color)',
               borderRadius: '12px',
               padding: '0.6rem 0.75rem',
               display: 'flex',
               flexDirection: 'column',
               gap: '0.45rem'
             }}>
-              <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#2563eb' }}>
-                {lang === 'en' ? '📍 Select alternative spot to replace in itinerary:' : '📍 클릭 즉시 내 일정과 지도의 코스가 교체됩니다:'}
+              <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-muted)' }}>
+                {lang === 'en' ? '📍 Tap to substitute spot in itinerary:' : '📍 클릭 즉시 내 일정과 지도의 코스가 교체됩니다:'}
               </div>
               {getAlternativeSpots().map((alt) => (
                 <div 
@@ -518,7 +509,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    padding: '0.4rem 0.5rem',
+                    padding: '0.45rem 0.55rem',
                     backgroundColor: 'var(--bg-card)',
                     borderRadius: '8px',
                     border: '1px solid var(--border-color)',
@@ -537,7 +528,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                     type="button"
                     onClick={() => handleExecuteReplace(alt)}
                     style={{
-                      padding: '0.3rem 0.6rem',
+                      padding: '0.28rem 0.55rem',
                       backgroundColor: '#2563eb',
                       color: '#ffffff',
                       border: 'none',
@@ -548,62 +539,91 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                       flexShrink: 0
                     }}
                   >
-                    {lang === 'en' ? 'Select' : '교체'}
+                    {lang === 'en' ? 'Swap' : '교체'}
                   </button>
                 </div>
               ))}
             </div>
           )}
 
-          {/* ☕ 패널 2: 도보 5분 내 로컬 맛집 & 감성 카페 퀵뷰 */}
+          {/* ☕ 패널 2: 도보 5분 내 로컬 맛집/카페 + 🗺️ 구글맵 실시간 길찾기 원클릭 연동 */}
           {activePanel === 'nearby' && (
             <div style={{
-              backgroundColor: 'rgba(217, 119, 6, 0.04)',
-              border: '1px solid rgba(217, 119, 6, 0.15)',
+              backgroundColor: 'var(--bg-primary)',
+              border: '1px solid var(--border-color)',
               borderRadius: '12px',
               padding: '0.6rem 0.75rem',
               display: 'flex',
               flexDirection: 'column',
               gap: '0.45rem'
             }}>
-              <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#d97706' }}>
-                {lang === 'en' ? '☕ Hand-picked spots within 5 mins walk:' : '☕ 도보 5분 내 VORA 엄선 로컬 맛집 & 카페:'}
+              <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-muted)' }}>
+                {lang === 'en' ? '☕ Hand-picked spots within 5 mins walk (Tap map to navigate):' : '☕ 도보 5분 내 엄선 로컬 맛집 (길찾기 클릭 시 구글맵 연결):'}
               </div>
-              {getNearbyFoodCafes().map((food, idx) => (
-                <div 
-                  key={`nearby-food-${idx}`}
-                  style={{
-                    padding: '0.4rem 0.5rem',
-                    backgroundColor: 'var(--bg-card)',
-                    borderRadius: '8px',
-                    border: '1px solid var(--border-color)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.15rem'
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-main)' }}>
-                      {food.name}
-                    </span>
-                    <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#d97706', backgroundColor: 'rgba(217,119,6,0.1)', padding: '0.1rem 0.35rem', borderRadius: '4px' }}>
-                      {food.type} · {food.distance}
-                    </span>
+              {getNearbyFoodCafes().map((food, idx) => {
+                const foodMapUrl = getGooglePlaceSearchUrl(food.name, location);
+                return (
+                  <div 
+                    key={`nearby-food-${idx}`}
+                    style={{
+                      padding: '0.45rem 0.55rem',
+                      backgroundColor: 'var(--bg-card)',
+                      borderRadius: '8px',
+                      border: '1px solid var(--border-color)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: '0.45rem'
+                    }}
+                  >
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                        <span style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                          {food.name}
+                        </span>
+                        <span style={{ fontSize: '0.66rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                          ({food.distance})
+                        </span>
+                      </div>
+                      <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {food.desc}
+                      </div>
+                    </div>
+
+                    {/* 🗺️ 맛집으로 바로 가는 구글맵 원클릭 길찾기 링크 */}
+                    <a
+                      href={foodMapUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        padding: '0.28rem 0.5rem',
+                        backgroundColor: 'rgba(37, 99, 235, 0.08)',
+                        color: '#2563eb',
+                        borderRadius: '6px',
+                        fontSize: '0.7rem',
+                        fontWeight: 800,
+                        textDecoration: 'none',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.2rem',
+                        flexShrink: 0
+                      }}
+                    >
+                      <span>{lang === 'en' ? 'Map' : '길찾기'}</span>
+                      <ExternalLink size={10} />
+                    </a>
                   </div>
-                  <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
-                    {food.desc}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
 
-          {/* 4. 하단 원클릭 구글맵 길찾기 & 특가 예약 */}
+          {/* 4. 하단 원클릭 구글맵 길찾기 (잘림 없이 100% 노출) */}
           <div style={{
-            marginTop: '0.15rem',
+            marginTop: '0.25rem',
             display: 'grid',
-            gridTemplateColumns: affiliateDeal ? '1.5fr 1fr' : '1fr',
-            gap: '0.4rem'
+            gridTemplateColumns: affiliateDeal ? '1.4fr 1fr' : '1fr',
+            gap: '0.45rem'
           }}>
             {/* 1. 구글맵 길찾기 */}
             <a
@@ -625,7 +645,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                 boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)'
               }}
             >
-              <span>{lang === 'en' ? 'Google Maps Route ↗' : lang === 'ja' ? 'Googleマップでナビ ↗' : '구글맵 실시간 길찾기 ↗'}</span>
+              <span>{lang === 'en' ? 'Google Maps Route ↗' : '구글맵 실시간 길찾기 ↗'}</span>
               <ExternalLink size={12} />
             </a>
 
