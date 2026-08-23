@@ -6,12 +6,12 @@ import { TRANSLATIONS } from '../i18n/translations';
 
 /**
  * ==============================================================================
- * FullMapTab.jsx - 스마트 여행 동선 지도 탭 (실시간 GPS 이동시간 정밀 계산 엔진 탑재)
+ * FullMapTab.jsx - 스마트 여행 동선 지도 탭 (155px 슬림 밀착 & [구글맵 ↗] 1줄 핏)
  * 
  * 1. 상단: [ ← 내 일정으로 ] 무테 버튼 + [ Day 1 ] [ Day 2 ] [ Day 3 ] 무테 슬림 칩
- * 2. 중앙: 하얀 공백 0% 완전 밀착 210px 동선 지도
- * 3. 하단: ❶~❻ 플랫 동선 리스트
- * 4. 최하단: 🕒 실제 GPS 좌표 기반 실시간 총 이동시간/거리 + [ 🗺️ 구글맵 전체 길찾기 ↗ ]
+ * 2. 중앙: 하얀 공백 0% 완전 밀착 155px 슬림 동선 지도 (타일 로딩 100% 보정)
+ * 3. 하단: ❶~❻ 플랫 동선 리스트 (지피티 4번 설계도 완벽 일치)
+ * 4. 최하단: 🕒 총 이동시간 (GPS 실시간) + [ 구글맵 ↗ ] 슬림 1줄 나란히 배치
  * ==============================================================================
  */
 
@@ -188,20 +188,22 @@ export default function FullMapTab({
         </div>
       </div>
 
-      {/* 2. Map Container: 210px 높이 & 타일 완벽 보정 */}
+      {/* 2. Map Container: 155px 슬림 높이 & 여백 0% 완전 밀착 */}
       <div style={{
         position: 'relative',
         width: '100%',
-        height: '210px',
+        height: '155px',
         backgroundColor: '#e2e8f0',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        margin: 0,
+        padding: 0
       }}>
         <GoogleMapView
           spots={activeSpots}
           city={targetCity}
           activeDay={activeDay}
           focusedSpotIndex={focusedSpotIndex}
-          mapHeight="210px"
+          mapHeight="155px"
           hideHeader={true}
           onMarkerClick={(spot, idx) => {
             setFocusedSpotIndex(idx);
@@ -212,7 +214,7 @@ export default function FullMapTab({
 
       {/* 3. Bottom Itinerary Sequence: ❶~❻ Flat List (하얀 여백 0% 밀착) */}
       <div style={{
-        padding: '0.65rem 0.85rem',
+        padding: '0.45rem 0.85rem 0.65rem 0.85rem',
         display: 'flex',
         flexDirection: 'column',
         gap: '0.35rem'
@@ -296,34 +298,44 @@ export default function FullMapTab({
           );
         })}
 
-        {/* 4. 최하단: 실시간 GPS 기반 총 이동시간 배너 + [ 🗺️ 구글맵 전체 길찾기 ↗ ] 버튼 */}
+        {/* 4. 최하단: 실시간 GPS 기반 총 이동시간 + [ 구글맵 ↗ ] (1줄 완벽 나란히 배치) */}
         <div style={{
-          marginTop: '0.45rem',
-          padding: '0.55rem 0.75rem',
+          marginTop: '0.35rem',
+          padding: '0.5rem 0.75rem',
           borderRadius: '10px',
           backgroundColor: 'var(--bg-primary)',
           border: '1px solid var(--border-color)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          flexWrap: 'wrap',
+          flexWrap: 'nowrap',
           gap: '0.45rem'
         }}>
           {/* 실시간 GPS 이동시간 & 거리 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-main)' }}>
-            <Clock size={13} style={{ color: '#2563eb' }} />
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+            fontSize: '0.76rem',
+            fontWeight: 800,
+            color: 'var(--text-main)',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+          }}>
+            <Clock size={13} style={{ color: '#2563eb', flexShrink: 0 }} />
             <span>
               {lang === 'en' 
-                ? `Total Transit: ~${transitSummary.minutes} mins (${transitSummary.distanceKm} km)` 
+                ? `Total: ~${transitSummary.minutes}m (${transitSummary.distanceKm}km)` 
                 : lang === 'ja' 
-                ? `総移動: 約${transitSummary.minutes}分 (${transitSummary.distanceKm} km)` 
+                ? `総移動: 約${transitSummary.minutes}分 (${transitSummary.distanceKm}km)` 
                 : (lang === 'zh' || lang === 'zht') 
-                ? `总用时: 约${transitSummary.minutes}分 (${transitSummary.distanceKm} km)` 
-                : `총 이동: 약 ${transitSummary.minutes}분 (${transitSummary.distanceKm} km)`}
+                ? `总用时: 约${transitSummary.minutes}分 (${transitSummary.distanceKm}km)` 
+                : `총 이동: 약 ${transitSummary.minutes}분 (${transitSummary.distanceKm}km)`}
             </span>
           </div>
 
-          {/* 🗺️ Open Full Route in Google Maps Big Screen / App */}
+          {/* 🗺️ [ 구글맵 ↗ ] 슬림 1줄 버튼 */}
           <a
             href={fullRouteUrl}
             target="_blank"
@@ -331,7 +343,7 @@ export default function FullMapTab({
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.25rem',
+              gap: '0.2rem',
               backgroundColor: '#1e293b',
               color: '#ffffff',
               padding: '0.35rem 0.65rem',
@@ -339,10 +351,12 @@ export default function FullMapTab({
               fontSize: '0.74rem',
               fontWeight: 900,
               textDecoration: 'none',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
               boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
             }}
           >
-            <span>{lang === 'en' ? 'Full Route in Google Maps ↗' : '구글맵 전체 길찾기 ↗'}</span>
+            <span>{lang === 'en' ? 'Google Maps ↗' : '구글맵 ↗'}</span>
             <ExternalLink size={11} />
           </a>
         </div>
