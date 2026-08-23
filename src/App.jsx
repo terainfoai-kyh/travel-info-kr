@@ -34,6 +34,9 @@ import GoogleAuthModal from './components/GoogleAuthModal';
 import BottomNav from './components/BottomNav';
 import FullMapTab from './components/FullMapTab';
 import MoreTabSection from './components/MoreTabSection';
+import AIPlannerTab from './components/AIPlannerTab';
+import MyTripTab from './components/MyTripTab';
+import LiveTripTab from './components/LiveTripTab';
 
 import { MapPin, MessageSquare } from 'lucide-react';
 import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
@@ -614,41 +617,37 @@ export default function App() {
         )}
 
         {/* ==============================================================================
-           TAB 2. ✨ AI 플래너 (AI Concierge): 1:1 대화형 Vora AI 전용 대화창
+           TAB 2. ✨ AI 플래너 (AI Concierge): 1초 탭 선택형 AI 여행 일정 생성기
            ============================================================================== */}
         {activeNavTab === 'ai' && (
           <div className="tab-content-fade-in" style={{ width: '100%', maxWidth: '880px', margin: '0 auto' }}>
-            <VoraAIChat
+            <AIPlannerTab
               lang={lang}
-              chatMessages={chatMessages}
-              isLoading={isLoading}
-              onSendMessage={(msg) => {
-                handleGenerateItinerary(msg);
+              onGenerateItinerary={(query) => {
+                handleGenerateItinerary(query);
+                setActiveNavTab('mytrip');
               }}
-              activeDay={activeDay}
-              onSelectDay={(day) => setActiveDay(day)}
+              isLoading={isLoading}
               questionQuota={questionQuota}
               onOpenRewardedAd={() => setIsRewardedAdOpen(true)}
               onOpenGoogleAuth={() => setIsGoogleAuthOpen(true)}
-              onResetQuotaForDev={handleResetQuotaForDev}
-              currentUser={currentUser}
             />
           </div>
         )}
 
         {/* ==============================================================================
-           TAB 3. 🧳 내 여행 (My Trip): Day 1/2/3 일정 타임라인 & 0원 동선 최적화
+           TAB 3. 🧳 내 여행 (My Trip): Day 1/2/3 시간대별 타임라인 & 0원 동선 최적화 & 공유
            ============================================================================== */}
         {activeNavTab === 'mytrip' && (
           <div className="tab-content-fade-in" style={{ width: '100%', maxWidth: '880px', margin: '0 auto' }}>
-            <CourseMagazineView
+            <MyTripTab
               lang={lang}
               itineraryData={itineraryData}
               activeDay={activeDay}
               onSelectDay={(day) => setActiveDay(day)}
               onOpenDetail={(spot) => setSelectedSpot(spot)}
-              bookmarks={bookmarks}
-              onToggleBookmark={handleToggleBookmark}
+              onGoToMap={() => setActiveNavTab('map')}
+              onGoToModify={() => setActiveNavTab('ai')}
             />
           </div>
         )}
@@ -669,10 +668,23 @@ export default function App() {
         )}
 
         {/* ==============================================================================
-           TAB 5. ☰ 더보기 (More): 여행 필수 정보, 날씨, 다국어 설정, 제휴 문의
+           TAB 5. ☰ 더보기 (More): 여행 중 모드 ("지금 뭐하지?") + 실시간 날씨 & 필수 정보
            ============================================================================== */}
         {activeNavTab === 'more' && (
-          <div className="tab-content-fade-in" style={{ width: '100%', maxWidth: '880px', margin: '0 auto' }}>
+          <div className="tab-content-fade-in" style={{ width: '100%', maxWidth: '880px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            {/* 🌟 1. 여행 중 모바일 실시간 모드 ("지금 뭐하지?") */}
+            <LiveTripTab
+              lang={lang}
+              targetCity={itineraryData?.targetCity || '서울'}
+              nextSpot={itineraryData?.spots?.[1] || null}
+              onOpenDetail={(spot) => setSelectedSpot(spot)}
+              onQuickNearbySearch={(query) => {
+                handleGenerateItinerary(query);
+                setActiveNavTab('mytrip');
+              }}
+            />
+
+            {/* 📚 2. 필수 여행 정보 및 정책 */}
             <MoreTabSection
               lang={lang}
               targetCity={itineraryData?.targetCity || '서울'}
