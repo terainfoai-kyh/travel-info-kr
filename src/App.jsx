@@ -688,26 +688,19 @@ export default function App() {
       {/* Footer with Google AdSense Required Policy Links (Visible only on Home and More tabs) */}
       {(activeNavTab === 'home' || activeNavTab === 'more') && (
         <footer style={{
+          marginTop: 'auto',
           borderTop: '1px solid var(--border-color)',
-          backgroundColor: 'var(--bg-card)',
-          padding: '2.5rem 1.5rem',
+          padding: '1.75rem 1rem 5.5rem 1rem',
           textAlign: 'center',
-          fontSize: '0.82rem',
-          color: 'var(--text-muted)'
+          fontSize: '0.84rem',
+          color: 'var(--text-muted)',
+          backgroundColor: 'var(--bg-glass)'
         }}>
-          <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
-            {/* AdSense Policy Links */}
-            <div style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              justifyContent: 'center',
-              gap: '1.25rem',
-              marginBottom: '1.25rem',
-              fontWeight: 700
-            }}>
+          <div style={{ maxWidth: '800px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '1rem', fontWeight: 600 }}>
               <button
                 onClick={() => setIsPrivacyOpen(true)}
-                style={{ background: 'none', border: 'none', color: 'var(--text-main)', cursor: 'pointer', fontSize: '0.84rem' }}
+                style={{ background: 'none', border: 'none', color: 'var(--text-main)', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 700 }}
               >
                 {t.privacyPolicy || '개인정보처리방침'}
               </button>
