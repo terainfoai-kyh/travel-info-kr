@@ -10,48 +10,54 @@ import {
   Star,
   ChevronLeft,
   ChevronRight,
-  Image as ImageIcon
+  Copy,
+  Check,
+  Ticket,
+  Car
 } from 'lucide-react';
 import { getGooglePlaceSearchUrl, getKakaoMapSearchUrl, getNaverMapSearchUrl } from '../services/geminiNlpService';
 import { TRANSLATIONS } from '../i18n/translations';
 import { getSpotAffiliateDeal } from '../services/affiliateService';
+
+/**
+ * ==============================================================================
+ * TravelDetailModal.jsx - 지피티 3.0 프리미엄 실용 카드 완성형
+ * 
+ * 1. 4K 고화질 사진 갤러리 슬라이더 (1/8) + 단일 명소명 & 별점
+ * 2. 3대 핵심 실용 정보: [🕒 운영시간·휴무일] [💰 입장료] [📍 주소 & 지하철]
+ * 3. ✨ 에디터 꿀팁 & 감성 포토존
+ * 4. 하단 3대 액션 바: [ 🗺️ 구글맵 길찾기 ] + [ 🎟️ 한복/티켓 예약 ] + [ 🚕 택시 주소 복사 ]
+ * ==============================================================================
+ */
 
 export default function TravelDetailModal({ spot, onClose, lang = 'ko' }) {
   if (!spot) return null;
 
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
 
-  const title = spot.title || spot.name || '추천 여행 명소';
-  const location = spot.location || spot.address || spot.addr1 || (lang === 'en' ? 'Republic of Korea' : lang === 'ja' ? '大韓民国' : (lang === 'zh' || lang === 'zht') ? (lang === 'zht' ? '大韓民國' : '大韩民国') : '대한민국 서울 일대');
+  // 단일 명소명 정제 (& 또는 / 제거)
+  const rawTitle = spot.title || spot.name || '추천 여행 명소';
+  const cleanTitle = rawTitle.split('&')[0].split('/')[0].split('+')[0].trim();
+
+  const location = spot.location || spot.address || spot.addr1 || (lang === 'en' ? 'Seoul, Republic of Korea' : lang === 'ja' ? '韓国・ソウル' : (lang === 'zh' || lang === 'zht') ? '韩国 首尔' : '대한민국 서울 일대');
   const description = spot.description || spot.overview || spot.theme || (lang === 'en' ? 'Carefully curated popular Korean hotspot by VORA AI.' : lang === 'ja' ? 'VORA AIが厳選した韓国の人気スポットです。' : (lang === 'zh' || lang === 'zht') ? 'VORA AI为您精心推荐的韩国精选热门打卡地。' : 'VORA AI가 엄선한 한국의 대표적인 핫플레이스입니다.');
-  const rating = spot.rating || 4.9;
+  const rating = spot.rating || 4.8;
+
+  const [isCopied, setIsCopied] = useState(false);
+
+  // 택시 기사님께 보여주기용 한글 주소 복사
+  const handleCopyKoreanAddress = () => {
+    const addressToCopy = spot.addr1 || spot.address || `${cleanTitle}, ${location}`;
+    navigator.clipboard?.writeText(addressToCopy);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
+  };
 
   const affiliateDeal = spot.affiliateDeal
-    ? getSpotAffiliateDeal(title, spot.region || spot.city || '서울', lang)
+    ? getSpotAffiliateDeal(cleanTitle, spot.region || spot.city || '서울', lang)
     : null;
 
-  const localizedTransit = React.useMemo(() => {
-    if (!spot.transitTime) return null;
-    if (lang === 'ko') return spot.transitTime;
-    const tt = spot.transitTime;
-    if (tt.includes('제주') || tt.includes('급행') || tt.includes('해안도로')) {
-      if (lang === 'en') return 'Jeju Express Bus or Coastal Drive (approx. 15 mins)';
-      if (lang === 'ja') return '済州急行バスまたは海岸道路（約15分）';
-      return '搭乘济州快速公交或沿海公路（约15分钟）';
-    }
-    if (tt.includes('지하철') || tt.includes('도보')) {
-      if (lang === 'en') return 'Accessible by Subway or Walk (approx. 10 mins)';
-      if (lang === 'ja') return '地下鉄または徒歩（約10分）';
-      return '搭乘地铁或步行（约10分钟）';
-    }
-    if (tt.includes('버스') || tt.includes('택시')) {
-      if (lang === 'en') return 'Accessible by City Bus or Taxi (approx. 15 mins)';
-      if (lang === 'ja') return '市内バスまたはタクシー（約15分）';
-      return '搭乘市内公交或出租车（约15分钟）';
-    }
-    return tt;
-  }, [spot.transitTime, lang]);
-
+  // 고화질 사진 리스트
   const photoList = (spot.images && spot.images.length > 0) 
     ? spot.images 
     : [spot.image || 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg'];
@@ -69,9 +75,12 @@ export default function TravelDetailModal({ spot, onClose, lang = 'ko' }) {
     setActivePhotoIdx(prev => (prev === photoList.length - 1 ? 0 : prev + 1));
   };
 
-  const googleMapUrl = getGooglePlaceSearchUrl(title, location);
-  const kakaoMapUrl = getKakaoMapSearchUrl(title, location);
-  const naverMapUrl = getNaverMapSearchUrl(title, location);
+  const googleMapUrl = getGooglePlaceSearchUrl(cleanTitle, location);
+
+  // 운영시간 & 요금 기본값
+  const operatingHours = spot.operatingHours || spot.usetime || '09:00 ~ 18:00 (입장마감 17:00)';
+  const closedDays = spot.closedDays || spot.restdate || (lang === 'en' ? 'Open Year-Round' : lang === 'ja' ? '年中無休' : (lang === 'zh' || lang === 'zht') ? '全年无休' : '연중무휴');
+  const admissionFee = spot.fee || spot.usefee || (lang === 'en' ? 'Free Admission (Special programs may vary)' : lang === 'ja' ? '入場無料 (特別体験は別途)' : (lang === 'zh' || lang === 'zht') ? '免费参观 (特别体验另计)' : '무료 관람 (특별 체험 별도)');
 
   return (
     <div 
@@ -79,14 +88,14 @@ export default function TravelDetailModal({ spot, onClose, lang = 'ko' }) {
       style={{
         position: 'fixed',
         inset: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        backgroundColor: 'rgba(0, 0, 0, 0.72)',
         backdropFilter: 'blur(8px)',
         WebkitBackdropFilter: 'blur(8px)',
         zIndex: 1000,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '1rem'
+        padding: '0.75rem'
       }}
     >
       <div 
@@ -96,55 +105,51 @@ export default function TravelDetailModal({ spot, onClose, lang = 'ko' }) {
           color: 'var(--text-main)',
           border: '1px solid var(--border-color)',
           borderRadius: '24px',
-          maxWidth: '640px',
+          maxWidth: '560px',
           width: '100%',
           maxHeight: '92vh',
           display: 'flex',
           flexDirection: 'column',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4)',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
           overflow: 'hidden'
         }}
       >
-        {/* Bright Hero Photo Container */}
-        <div style={{ position: 'relative', width: '100%', height: '280px', backgroundColor: '#0f172a', overflow: 'hidden' }}>
+        {/* 1. 4K High-Res Hero Photo Container */}
+        <div style={{ position: 'relative', width: '100%', height: '240px', backgroundColor: '#0f172a', overflow: 'hidden' }}>
           <img
             src={currentPhoto}
-            alt={`${title} 사진 ${activePhotoIdx + 1}`}
+            alt={`${cleanTitle} ${activePhotoIdx + 1}`}
             style={{ 
               width: '100%', 
               height: '100%', 
               objectFit: 'cover',
-              transition: 'opacity 0.25s ease-in-out'
+              transition: 'opacity 0.2s ease'
             }}
             onError={(e) => { e.currentTarget.src = 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg'; }}
           />
 
-          {/* Light Bottom Gradient (Keeps photos bright & sunny!) */}
+          {/* Gradient Overlay */}
           <div style={{
             position: 'absolute',
             inset: 0,
-            background: 'linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.2) 35%, transparent 60%)'
+            background: 'linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.2) 40%, transparent 70%)'
           }} />
 
-          {/* Top Left: Multi-Photo Counter Badge */}
+          {/* Top Left: Photo Counter Badge */}
           {photoList.length > 1 && (
             <div style={{
               position: 'absolute',
-              top: '14px',
-              left: '14px',
+              top: '12px',
+              left: '12px',
               backgroundColor: 'rgba(0, 0, 0, 0.65)',
               backdropFilter: 'blur(6px)',
               color: '#ffffff',
-              padding: '0.25rem 0.6rem',
+              padding: '0.2rem 0.55rem',
               borderRadius: '20px',
-              fontSize: '0.75rem',
-              fontWeight: 800,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.3rem'
+              fontSize: '0.72rem',
+              fontWeight: 800
             }}>
-              <ImageIcon size={12} />
-              <span>{activePhotoIdx + 1} / {photoList.length}</span>
+              📷 {activePhotoIdx + 1} / {photoList.length}
             </div>
           )}
 
@@ -153,72 +158,69 @@ export default function TravelDetailModal({ spot, onClose, lang = 'ko' }) {
             onClick={onClose}
             style={{
               position: 'absolute',
-              top: '14px',
-              right: '14px',
+              top: '12px',
+              right: '12px',
               backgroundColor: 'rgba(0, 0, 0, 0.65)',
               color: '#ffffff',
               border: 'none',
               borderRadius: '50%',
-              width: '36px',
-              height: '36px',
+              width: '34px',
+              height: '34px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
-              backdropFilter: 'blur(6px)',
-              transition: 'all var(--transition-fast)'
+              backdropFilter: 'blur(6px)'
             }}
           >
-            <X size={18} />
+            <X size={17} />
           </button>
 
-          {/* Navigation Arrows for Multi-Photos */}
+          {/* Photo Navigation Arrows */}
           {photoList.length > 1 && (
             <>
               <button
                 onClick={handlePrevPhoto}
                 style={{
                   position: 'absolute',
-                  left: '12px',
+                  left: '10px',
                   top: '45%',
                   transform: 'translateY(-50%)',
-                  backgroundColor: 'rgba(0, 0, 0, 0.55)',
+                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
                   color: '#ffffff',
                   border: 'none',
                   borderRadius: '50%',
-                  width: '34px',
-                  height: '34px',
+                  width: '32px',
+                  height: '32px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  cursor: 'pointer',
-                  backdropFilter: 'blur(4px)'
+                  cursor: 'pointer'
                 }}
               >
-                <ChevronLeft size={20} />
+                <ChevronLeft size={18} />
               </button>
 
               <button
                 onClick={handleNextPhoto}
                 style={{
                   position: 'absolute',
-                  right: '12px',
+                  right: '10px',
                   top: '45%',
                   transform: 'translateY(-50%)',
-                  backgroundColor: 'rgba(0, 0, 0, 0.55)',
+                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
                   color: '#ffffff',
                   border: 'none',
                   borderRadius: '50%',
-                  width: '34px',
-                  height: '34px',
+                  width: '32px',
+                  height: '32px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  cursor: 'pointer',
-                  backdropFilter: 'blur(4px)'
+                  cursor: 'pointer'
                 }}
               >
-                <ChevronRight size={20} />
+                <ChevronRight size={18} />
               </button>
             </>
           )}
@@ -226,209 +228,183 @@ export default function TravelDetailModal({ spot, onClose, lang = 'ko' }) {
           {/* Bottom Title & Category Overlay */}
           <div style={{
             position: 'absolute',
-            bottom: '14px',
+            bottom: '12px',
             left: '16px',
             right: '16px',
             color: '#ffffff'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.3rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.25rem' }}>
               <span style={{
-                backgroundColor: 'var(--accent-primary)',
-                padding: '0.18rem 0.6rem',
+                backgroundColor: '#2563eb',
+                padding: '0.15rem 0.5rem',
                 borderRadius: '6px',
-                fontSize: '0.72rem',
-                fontWeight: 800
+                fontSize: '0.7rem',
+                fontWeight: 900
               }}>
-                {spot.category || spot.theme || (lang === 'en' ? 'Top Attraction' : lang === 'ja' ? 'おすすめスポット' : '精选景点')}
+                {spot.category || spot.theme || (lang === 'en' ? 'Top Attraction' : lang === 'ja' ? '人気スポット' : '精选景点')}
               </span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: '#f59e0b', fontSize: '0.8rem', fontWeight: 800 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', color: '#f59e0b', fontSize: '0.78rem', fontWeight: 900 }}>
                 <Star size={13} fill="#f59e0b" />
                 <span>{rating}</span>
               </div>
             </div>
             <h2 style={{
               margin: 0,
-              fontSize: '1.35rem',
+              fontSize: '1.3rem',
               fontWeight: 900,
               color: '#ffffff',
-              textShadow: '0 2px 6px rgba(0, 0, 0, 0.8)'
+              textShadow: '0 2px 8px rgba(0, 0, 0, 0.8)'
             }}>
-              {title}
+              {cleanTitle}
             </h2>
           </div>
         </div>
 
-        {/* Modal Body */}
+        {/* 2. Modal Body (스크롤 최적화) */}
         <div style={{
-          padding: '1.2rem 1.4rem',
+          padding: '1rem 1.25rem',
           overflowY: 'auto',
           display: 'flex',
           flexDirection: 'column',
-          gap: '1rem'
+          gap: '0.85rem'
         }}>
-          {/* Multi-Photo Thumbnails Row */}
-          {/* Multi-Photo Thumbnails Row with Smooth Wheel & Touch Scroll */}
-          {photoList.length > 1 && (
-            <div style={{ position: 'relative' }}>
-              <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.45rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                  <Camera size={13} style={{ color: 'var(--accent-primary)' }} />
-                  <span>{t.detailGalleryTitle ? t.detailGalleryTitle(photoList.length) : `Google Places 공식 고화질 갤러리 (${photoList.length}장의 사진)`}</span>
-                </div>
-                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', opacity: 0.8 }}>
-                  {t.detailDragHint || '휠을 굴리거나 드래그하여 탐색 ↔'}
-                </span>
-              </div>
-
-              <div 
-                onWheel={(e) => {
-                  if (e.deltaY !== 0) {
-                    e.currentTarget.scrollLeft += e.deltaY;
-                  }
-                }}
-                style={{
-                  display: 'flex',
-                  gap: '0.55rem',
-                  overflowX: 'auto',
-                  paddingBottom: '0.4rem',
-                  scrollBehavior: 'smooth',
-                  WebkitOverflowScrolling: 'touch',
-                  scrollbarWidth: 'thin'
-                }}
-              >
-                {photoList.map((p, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setActivePhotoIdx(idx)}
-                    style={{
-                      border: idx === activePhotoIdx ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)',
-                      padding: 0,
-                      borderRadius: '10px',
-                      overflow: 'hidden',
-                      width: '68px',
-                      height: '50px',
-                      flexShrink: 0,
-                      cursor: 'pointer',
-                      opacity: idx === activePhotoIdx ? 1 : 0.65,
-                      boxShadow: idx === activePhotoIdx ? '0 0 8px rgba(37, 99, 235, 0.4)' : 'none',
-                      transition: 'all var(--transition-fast)'
-                    }}
-                  >
-                    <img
-                      src={p}
-                      alt={`${title} thumbnail ${idx + 1}`}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      onError={(e) => { e.currentTarget.src = 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg'; }}
-                    />
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Location & Transit Info Bar */}
+          {/* 3대 핵심 실용 정보 카드 */}
           <div style={{
             backgroundColor: 'var(--bg-primary)',
             border: '1px solid var(--border-color)',
             borderRadius: '16px',
-            padding: '0.85rem 1rem',
+            padding: '0.75rem 0.9rem',
             display: 'flex',
             flexDirection: 'column',
-            gap: '0.45rem'
+            gap: '0.45rem',
+            fontSize: '0.82rem'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.84rem' }}>
-              <MapPin size={15} style={{ color: 'var(--accent-primary)', flexShrink: 0 }} />
-              <span style={{ fontWeight: 600, color: 'var(--text-main)' }}>{location}</span>
+            {/* 운영시간 및 휴무일 */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
+              <Clock size={15} style={{ color: '#0284c7', flexShrink: 0, marginTop: '2px' }} />
+              <div>
+                <strong style={{ color: 'var(--text-main)' }}>
+                  {lang === 'en' ? 'Hours: ' : lang === 'ja' ? '営業時間: ' : (lang === 'zh' || lang === 'zht') ? '营业时间: ' : '운영시간: '}
+                </strong>
+                <span style={{ color: 'var(--text-muted)' }}>{operatingHours}</span>
+                <span style={{ marginLeft: '0.4rem', color: '#ef4444', fontWeight: 700 }}>({closedDays})</span>
+              </div>
             </div>
-            {localizedTransit && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: '#059669', fontWeight: 700 }}>
-                <Navigation size={14} style={{ flexShrink: 0 }} />
-                <span>{localizedTransit}</span>
+
+            {/* 입장료 / 요금 */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
+              <Ticket size={15} style={{ color: '#10b981', flexShrink: 0, marginTop: '2px' }} />
+              <div>
+                <strong style={{ color: 'var(--text-main)' }}>
+                  {lang === 'en' ? 'Admission: ' : lang === 'ja' ? '入場料: ' : (lang === 'zh' || lang === 'zht') ? '门票: ' : '입장료: '}
+                </strong>
+                <span style={{ color: 'var(--text-muted)' }}>{admissionFee}</span>
               </div>
-            )}
-            {spot.bestTime && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: '#b45309', fontWeight: 700 }}>
-                <Clock size={14} style={{ flexShrink: 0 }} />
-                <span>{t.detailBestTime || '추천 방문: '}{spot.bestTime}</span>
+            </div>
+
+            {/* 정확한 위치 및 대중교통 */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
+              <MapPin size={15} style={{ color: '#2563eb', flexShrink: 0, marginTop: '2px' }} />
+              <div>
+                <strong style={{ color: 'var(--text-main)' }}>
+                  {lang === 'en' ? 'Address: ' : lang === 'ja' ? '住所: ' : (lang === 'zh' || lang === 'zht') ? '地址: ' : '주소: '}
+                </strong>
+                <span style={{ color: 'var(--text-muted)' }}>{location}</span>
               </div>
-            )}
+            </div>
           </div>
 
-          {/* Photo Tip & Signature Highlights Card */}
-          {(spot.photoTip || spot.signatureItem) && (
-            <div style={{
-              backgroundColor: 'rgba(37, 99, 235, 0.05)',
-              border: '1px solid var(--border-highlight)',
-              borderRadius: '16px',
-              padding: '0.85rem 1rem',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.5rem'
-            }}>
-              {spot.photoTip && (
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
-                  <Camera size={15} style={{ color: 'var(--accent-primary)', flexShrink: 0, marginTop: '2px' }} />
-                  <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--accent-primary)' }}>
-                    {spot.photoTip}
-                  </span>
-                </div>
-              )}
-              {spot.signatureItem && (
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
-                  <Sparkles size={15} style={{ color: '#d97706', flexShrink: 0, marginTop: '2px' }} />
-                  <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-main)' }}>
-                    {spot.signatureItem}
-                  </span>
-                </div>
-              )}
-            </div>
-          )}
+          {/* ✨ 1줄 에디터 꿀팁 & 포토존 뱃지 */}
+          <div style={{
+            backgroundColor: 'rgba(37, 99, 235, 0.05)',
+            border: '1px solid rgba(37, 99, 235, 0.15)',
+            borderRadius: '14px',
+            padding: '0.65rem 0.85rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.45rem',
+            fontSize: '0.8rem',
+            fontWeight: 800,
+            color: '#2563eb'
+          }}>
+            <Sparkles size={15} style={{ flexShrink: 0 }} />
+            <span>
+              {spot.photoTip || (lang === 'en' ? 'Best Photo Spot: Traditional Hanbok snaps around the main courtyard' : lang === 'ja' ? 'おすすめフォトスポット: 韓服を着てメイン広場での記念撮影' : '추천 꿀팁: 메인 포토존에서의 한복 인생샷 촬영 추천')}
+            </span>
+          </div>
 
-          {/* Magazine Editor Overview */}
+          {/* 에디터 간결 가이드 */}
           <div>
-            <h4 style={{ margin: '0 0 0.35rem 0', fontSize: '0.92rem', fontWeight: 800, color: 'var(--text-main)' }}>
-              {t.detailEditorGuide || '✨ 에디터 상세 가이드'}
+            <h4 style={{ margin: '0 0 0.3rem 0', fontSize: '0.88rem', fontWeight: 800, color: 'var(--text-main)' }}>
+              {lang === 'en' ? '✨ Overview' : lang === 'ja' ? '✨ スポット概要' : (lang === 'zh' || lang === 'zht') ? '✨ 景点简介' : '✨ 에디터 상세 가이드'}
             </h4>
             <p style={{
               margin: 0,
-              fontSize: '0.86rem',
-              lineHeight: 1.65,
-              color: 'var(--text-main)',
+              fontSize: '0.82rem',
+              lineHeight: 1.6,
+              color: 'var(--text-muted)',
               whiteSpace: 'pre-line'
             }}>
               {description}
             </p>
           </div>
 
-          {/* Smart Affiliate Deal Card */}
-          {affiliateDeal && (
-            <div style={{
-              backgroundColor: 'rgba(255, 91, 0, 0.08)',
-              border: '1px solid rgba(255, 91, 0, 0.3)',
-              borderRadius: '16px',
-              padding: '0.85rem 1rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: '0.8rem',
-              flexWrap: 'wrap'
-            }}>
-              <div>
-                <span style={{
-                  backgroundColor: '#ff5b00',
-                  color: '#ffffff',
-                  fontSize: '0.68rem',
-                  fontWeight: 800,
-                  padding: '0.15rem 0.45rem',
-                  borderRadius: '4px'
-                }}>
-                  {affiliateDeal.dealBadge}
-                </span>
-                <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)', marginTop: '0.25rem' }}>
-                  {affiliateDeal.dealTitle}
-                </div>
-              </div>
+          {/* 3대 원클릭 액션 버튼 바 */}
+          <div style={{
+            marginTop: '0.35rem',
+            display: 'grid',
+            gridTemplateColumns: affiliateDeal ? '1fr 1fr 1fr' : '1fr 1fr',
+            gap: '0.45rem'
+          }}>
+            {/* 1. 구글맵 길찾기 */}
+            <a
+              href={googleMapUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                backgroundColor: '#2563eb',
+                color: '#ffffff',
+                textDecoration: 'none',
+                borderRadius: '10px',
+                padding: '0.6rem 0.5rem',
+                fontSize: '0.78rem',
+                fontWeight: 900,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.3rem',
+                boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)'
+              }}
+            >
+              <span>{lang === 'en' ? 'Google Maps' : lang === 'ja' ? 'Googleマップ' : (lang === 'zh' || lang === 'zht') ? 'Google地图' : '구글맵 길찾기'}</span>
+              <ExternalLink size={12} />
+            </a>
 
+            {/* 2. 택시 기사님께 보여주기용 주소 복사 */}
+            <button
+              type="button"
+              onClick={handleCopyKoreanAddress}
+              style={{
+                backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                color: 'var(--text-main)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '10px',
+                padding: '0.6rem 0.5rem',
+                fontSize: '0.76rem',
+                fontWeight: 800,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.3rem',
+                cursor: 'pointer'
+              }}
+            >
+              {isCopied ? <Check size={13} style={{ color: '#10b981' }} /> : <Car size={13} style={{ color: '#f59e0b' }} />}
+              <span>{isCopied ? (lang === 'en' ? 'Copied!' : '복사완료!') : (lang === 'en' ? 'Taxi Address' : lang === 'ja' ? 'タクシー用住所' : '택시용 주소')}</span>
+            </button>
+
+            {/* 3. 티켓/한복 예약 (제휴 시) */}
+            {affiliateDeal && (
               <a
                 href={affiliateDeal.dealUrl}
                 target="_blank"
@@ -437,94 +413,19 @@ export default function TravelDetailModal({ spot, onClose, lang = 'ko' }) {
                   backgroundColor: '#ff5b00',
                   color: '#ffffff',
                   textDecoration: 'none',
-                  borderRadius: '8px',
-                  padding: '0.45rem 0.85rem',
-                  fontSize: '0.78rem',
-                  fontWeight: 800,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.3rem',
-                  boxShadow: '0 2px 6px rgba(255, 91, 0, 0.3)'
-                }}
-              >
-                <span>{t.detailLowestPriceBtn || '최저가 예약 ↗'}</span>
-              </a>
-            </div>
-          )}
-
-          {/* Navigation & Map Direct Buttons */}
-          <div>
-            <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.86rem', fontWeight: 800, color: 'var(--text-main)' }}>
-              {t.detailDirectionsTitle || '🗺️ 길찾기 & 실시간 지도 연동'}
-            </h4>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '0.5rem' }}>
-              <a
-                href={googleMapUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  backgroundColor: 'var(--accent-primary)',
-                  color: '#ffffff',
-                  textDecoration: 'none',
                   borderRadius: '10px',
-                  padding: '0.6rem 0.7rem',
+                  padding: '0.6rem 0.5rem',
                   fontSize: '0.78rem',
-                  fontWeight: 800,
+                  fontWeight: 900,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.35rem',
-                  boxShadow: 'var(--shadow-glow)'
+                  gap: '0.3rem'
                 }}
               >
-                <span>{lang === 'en' ? 'Google Maps' : lang === 'ja' ? 'Googleマップ' : (lang === 'zh' || lang === 'zht') ? 'Google地图' : 'Google 지도'}</span>
-                <ExternalLink size={12} />
+                <span>{lang === 'en' ? 'Book Deals ↗' : lang === 'ja' ? '予約 ↗' : '특가 예약 ↗'}</span>
               </a>
-
-              <a
-                href={kakaoMapUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  backgroundColor: '#fee500',
-                  color: '#191919',
-                  textDecoration: 'none',
-                  borderRadius: '10px',
-                  padding: '0.6rem 0.7rem',
-                  fontSize: '0.78rem',
-                  fontWeight: 800,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.35rem'
-                }}
-              >
-                <span>{lang === 'en' ? 'KakaoMap' : lang === 'ja' ? 'カカオマップ' : (lang === 'zh' || lang === 'zht') ? 'Kakao地图' : '카카오맵'}</span>
-                <ExternalLink size={12} />
-              </a>
-
-              <a
-                href={naverMapUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  backgroundColor: '#03c75a',
-                  color: '#ffffff',
-                  textDecoration: 'none',
-                  borderRadius: '10px',
-                  padding: '0.6rem 0.7rem',
-                  fontSize: '0.78rem',
-                  fontWeight: 800,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.35rem'
-                }}
-              >
-                <span>{lang === 'en' ? 'Naver Map' : lang === 'ja' ? 'ネイバーマップ' : (lang === 'zh' || lang === 'zht') ? 'Naver地图' : '네이버지도'}</span>
-                <ExternalLink size={12} />
-              </a>
-            </div>
+            )}
           </div>
         </div>
       </div>
