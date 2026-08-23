@@ -753,32 +753,42 @@ export default function App() {
           lang={lang}
           onReplaceSpot={(targetSpot, newSpot) => {
             if (!itineraryData || !targetSpot || !newSpot) return;
+            const targetClean = (targetSpot.title || targetSpot.name || '').split('&')[0].split('/')[0].trim();
+
             const updatedSchedules = (itineraryData.dailySchedules || []).map(sch => ({
               ...sch,
               spots: (sch.spots || []).map(s => {
-                if (s.id === targetSpot.id || s.title === targetSpot.title) {
-                  return { ...newSpot, assignedDay: sch.day };
+                const sClean = (s.title || s.name || '').split('&')[0].split('/')[0].trim();
+                if (s.id === targetSpot.id || sClean === targetClean || s.title === targetSpot.title) {
+                  return { ...s, ...newSpot, id: s.id || `spot-${Date.now()}`, assignedDay: sch.day };
                 }
                 return s;
               })
             }));
+
             const updatedSpots = (itineraryData.spots || []).map(s => {
-              if (s.id === targetSpot.id || s.title === targetSpot.title) {
-                return { ...newSpot, assignedDay: s.assignedDay };
+              const sClean = (s.title || s.name || '').split('&')[0].split('/')[0].trim();
+              if (s.id === targetSpot.id || sClean === targetClean || s.title === targetSpot.title) {
+                return { ...s, ...newSpot, id: s.id || `spot-${Date.now()}`, assignedDay: s.assignedDay };
               }
               return s;
             });
+
             const updatedItinerary = {
               ...itineraryData,
               dailySchedules: updatedSchedules,
               spots: updatedSpots
             };
+
             setItineraryData(updatedItinerary);
             try {
               localStorage.setItem('vora_last_itinerary', JSON.stringify(updatedItinerary));
             } catch (e) {}
-            setSelectedSpot({ ...newSpot, assignedDay: targetSpot.assignedDay });
+
+            setSelectedSpot(null); // 모달 자동 닫기!
+            setActiveNavTab('mytrip'); // 내 일정 화면으로 즉시 복귀하여 변경사항 확인!
           }}
+
           isBookmarked={bookmarks.some(b => 
             (typeof b === 'object' && ((b.contentId && b.contentId === (selectedSpot.contentId || selectedSpot.id)) || (b.id && b.id === selectedSpot.id) || (b.title && b.title === selectedSpot.title))) ||
             (typeof b === 'string' && (b === selectedSpot.id || b === selectedSpot.contentId || b === selectedSpot.title))

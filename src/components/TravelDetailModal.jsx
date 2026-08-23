@@ -11,7 +11,7 @@ import {
   Hourglass,
   RefreshCw,
   Coffee,
-  CheckCircle2
+  AlertCircle
 } from 'lucide-react';
 import { getGooglePlaceSearchUrl } from '../services/geminiNlpService';
 import { TRANSLATIONS } from '../i18n/translations';
@@ -19,11 +19,7 @@ import { getSpotAffiliateDeal } from '../services/affiliateService';
 
 /**
  * ==============================================================================
- * TravelDetailModal.jsx - 프리미엄 다크 모던 상세 모달 (버튼 잘림 0% & 고급 모노톤 룩)
- * 
- * 1. 쨍한 원색 100% 제거 ➔ 애플 스타일 세련된 다크 차콜 (#1e293b) & 모노톤 버튼
- * 2. 바닥 안전 여백 넉넉하게 확보하여 하단 탭 바 위로 버튼 100% 쏙 노출 (잘림 완전 해결)
- * 3. 원터치 실시간 장소 교체 & 맛집별 원클릭 구글맵 길찾기
+ * TravelDetailModal.jsx - 확인창 ➔ 즉시 교체 ➔ 모달 닫기 완벽 UX
  * ==============================================================================
  */
 
@@ -36,9 +32,9 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
   const rawTitle = spot.title || spot.name || '추천 여행 명소';
   const cleanTitle = rawTitle.split('&')[0].split('/')[0].split('+')[0].trim();
 
-  // 인터랙티브 상태 (교체 패널 / 주변 맛집 패널)
+  // 인터랙티브 상태 (교체 패널 / 주변 맛집 패널 / 확인 다이얼로그)
   const [activePanel, setActivePanel] = useState(null); // 'replace' | 'nearby' | null
-  const [replaceSuccessMsg, setReplaceSuccessMsg] = useState('');
+  const [confirmTargetSpot, setConfirmTargetSpot] = useState(null); // 교체 확인 대상 명소
 
   // 명소별 스마트 인근 대안 명소 목록
   const getAlternativeSpots = () => {
@@ -152,15 +148,15 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
 
   const googleMapUrl = getGooglePlaceSearchUrl(cleanTitle, location);
 
-  // 원클릭 장소 교체 실행
-  const handleExecuteReplace = (newSpot) => {
-    if (onReplaceSpot) {
-      onReplaceSpot(spot, newSpot);
-      setReplaceSuccessMsg(`${newSpot.title}(으)로 교체 완료! ✨`);
-      setTimeout(() => {
-        setReplaceSuccessMsg('');
-        setActivePanel(null);
-      }, 1000);
+  // 1단계: 교체 버튼 클릭 시 확인 다이얼로그 띄우기
+  const handleRequestReplace = (altSpot) => {
+    setConfirmTargetSpot(altSpot);
+  };
+
+  // 2단계: 확인창에서 '변경하기' 클릭 시 진짜 교체 실행 후 모달 닫기
+  const handleConfirmReplace = () => {
+    if (confirmTargetSpot && onReplaceSpot) {
+      onReplaceSpot(spot, confirmTargetSpot);
     }
   };
 
@@ -177,7 +173,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '0.75rem 0.75rem 4rem 0.75rem' // 하단 탭 바 영역 여유 확보
+        padding: '0.75rem 0.75rem 4rem 0.75rem' // 하단 탭 바 60px 안전 여백
       }}
     >
       <div 
@@ -193,9 +189,93 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
           display: 'flex',
           flexDirection: 'column',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          position: 'relative'
         }}
       >
+        {/* ⚠️ 교체 확인 모달 다이얼로그 (선배님 요청 흐름 완벽 구현) */}
+        {confirmTargetSpot && (
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.75)',
+            backdropFilter: 'blur(6px)',
+            zIndex: 100,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1.5rem'
+          }}>
+            <div style={{
+              backgroundColor: 'var(--bg-card)',
+              border: '1px solid var(--border-color)',
+              borderRadius: '16px',
+              padding: '1.25rem',
+              maxWidth: '340px',
+              width: '100%',
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.85rem',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.4)'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <AlertCircle size={32} style={{ color: '#2563eb' }} />
+              </div>
+              <div>
+                <h4 style={{ margin: '0 0 0.35rem 0', fontSize: '1rem', fontWeight: 900, color: 'var(--text-main)' }}>
+                  {lang === 'en' ? 'Change Itinerary?' : '일정을 변경하시겠습니까?'}
+                </h4>
+                <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+                  <strong style={{ color: 'var(--text-main)' }}>'{cleanTitle}'</strong>
+                  <span style={{ margin: '0 0.3rem' }}>➔</span>
+                  <strong style={{ color: '#2563eb' }}>'{confirmTargetSpot.title}'</strong>
+                  <br />
+                  {lang === 'en' ? 'Update your trip & map route now.' : '내 일정과 지도 경로가 즉시 업데이트됩니다.'}
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.2rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setConfirmTargetSpot(null)}
+                  style={{
+                    flex: 1,
+                    padding: '0.55rem',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border-color)',
+                    backgroundColor: 'var(--bg-primary)',
+                    color: 'var(--text-main)',
+                    fontSize: '0.8rem',
+                    fontWeight: 800,
+                    cursor: 'pointer'
+                  }}
+                >
+                  {lang === 'en' ? 'Cancel' : '취소'}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmReplace}
+                  style={{
+                    flex: 1,
+                    padding: '0.55rem',
+                    borderRadius: '8px',
+                    border: 'none',
+                    backgroundColor: '#1e293b',
+                    color: '#ffffff',
+                    fontSize: '0.8rem',
+                    fontWeight: 900,
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+                  }}
+                >
+                  {lang === 'en' ? 'Confirm' : '변경하기'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* 1. 4K High-Res Hero Photo (200px 슬림 뷰) */}
         <div style={{ position: 'relative', width: '100%', height: '200px', minHeight: '200px', flexShrink: 0, backgroundColor: '#0f172a', overflow: 'hidden' }}>
           <img
@@ -346,7 +426,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
           </div>
         </div>
 
-        {/* 2. Modal Body (차분한 모노톤 & 넉넉한 하단 여백으로 잘림 0%) */}
+        {/* 2. Modal Body (차분한 모노톤 & 안전 여백) */}
         <div 
           style={{
             flex: 1,
@@ -415,7 +495,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
             </div>
           </div>
 
-          {/* ⚡ 3. 실시간 모바일 현장 액션 탭 (고급스러운 슬림 라인 버튼) */}
+          {/* ⚡ 3. 실시간 모바일 현장 액션 탭 */}
           <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.1rem' }}>
             <button
               type="button"
@@ -466,26 +546,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
             </button>
           </div>
 
-          {/* 성공 토스트 메시지 */}
-          {replaceSuccessMsg && (
-            <div style={{
-              padding: '0.45rem 0.75rem',
-              backgroundColor: '#10b981',
-              color: '#ffffff',
-              borderRadius: '8px',
-              fontSize: '0.75rem',
-              fontWeight: 800,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.35rem',
-              animation: 'fadeIn 0.2s ease'
-            }}>
-              <CheckCircle2 size={14} />
-              <span>{replaceSuccessMsg}</span>
-            </div>
-          )}
-
-          {/* 🔄 패널 1: 인근 대안 명소 3개 원터치 교체 리스트 */}
+          {/* 🔄 패널 1: 인근 대안 명소 교체 리스트 */}
           {activePanel === 'replace' && (
             <div style={{
               backgroundColor: 'var(--bg-primary)',
@@ -497,7 +558,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
               gap: '0.45rem'
             }}>
               <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-muted)' }}>
-                {lang === 'en' ? '📍 Tap to substitute spot in itinerary:' : '📍 클릭 즉시 내 일정과 지도의 코스가 교체됩니다:'}
+                {lang === 'en' ? '📍 Tap [Swap] to substitute spot:' : '📍 [교체] 클릭 시 확인 후 즉시 일정이 변경됩니다:'}
               </div>
               {getAlternativeSpots().map((alt) => (
                 <div 
@@ -523,7 +584,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                   </div>
                   <button
                     type="button"
-                    onClick={() => handleExecuteReplace(alt)}
+                    onClick={() => handleRequestReplace(alt)}
                     style={{
                       padding: '0.28rem 0.55rem',
                       backgroundColor: '#1e293b',
@@ -623,7 +684,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
             gridTemplateColumns: affiliateDeal ? '1.4fr 1fr' : '1fr',
             gap: '0.45rem'
           }}>
-            {/* 1. 구글맵 길찾기 (세련된 다크 차콜 룩) */}
+            {/* 1. 구글맵 길찾기 */}
             <a
               href={googleMapUrl}
               target="_blank"
@@ -647,7 +708,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
               <ExternalLink size={12} />
             </a>
 
-            {/* 2. 티켓/한복 예약 (제휴 시 단정한 라인 버튼) */}
+            {/* 2. 티켓/한복 예약 */}
             {affiliateDeal && (
               <a
                 href={affiliateDeal.dealUrl}
