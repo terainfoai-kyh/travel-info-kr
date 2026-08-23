@@ -65,12 +65,12 @@ export default function BottomNav({ activeTab, onTabChange, lang = 'ko', unreadC
         left: 0,
         right: 0,
         zIndex: 9990,
-        backgroundColor: 'rgba(15, 23, 42, 0.92)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        borderTop: '1px solid rgba(255, 255, 255, 0.12)',
-        padding: '0.4rem 0.5rem calc(0.4rem + env(safe-area-inset-bottom, 0px)) 0.5rem',
-        boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.45)',
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        borderTop: '1px solid #e2e8f0',
+        padding: '0.45rem 0.5rem calc(0.45rem + env(safe-area-inset-bottom, 0px)) 0.5rem',
+        boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.05)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-around'
@@ -96,7 +96,7 @@ export default function BottomNav({ activeTab, onTabChange, lang = 'ko', unreadC
               border: 'none',
               padding: '0.35rem 0.2rem',
               cursor: 'pointer',
-              color: isActive ? '#38bdf8' : '#94a3b8',
+              color: isActive ? '#2563eb' : '#64748b',
               transition: 'all 0.2s ease-in-out',
               position: 'relative'
             }}
@@ -111,7 +111,7 @@ export default function BottomNav({ activeTab, onTabChange, lang = 'ko', unreadC
                   height: '36px',
                   borderRadius: '50%',
                   background: isActive 
-                    ? 'radial-gradient(circle, rgba(56, 189, 248, 0.25) 0%, transparent 70%)' 
+                    ? 'radial-gradient(circle, rgba(37, 99, 235, 0.15) 0%, transparent 70%)' 
                     : 'none',
                   pointerEvents: 'none'
                 }}
@@ -128,7 +128,7 @@ export default function BottomNav({ activeTab, onTabChange, lang = 'ko', unreadC
               <Icon
                 size={item.highlight ? 22 : 20}
                 strokeWidth={isActive ? 2.5 : 1.8}
-                color={isActive ? (item.highlight ? '#38bdf8' : '#60a5fa') : '#94a3b8'}
+                color={isActive ? '#2563eb' : '#64748b'}
               />
             </div>
 
@@ -137,7 +137,7 @@ export default function BottomNav({ activeTab, onTabChange, lang = 'ko', unreadC
                 fontSize: '0.7rem',
                 fontWeight: isActive ? 800 : 600,
                 letterSpacing: '-0.01em',
-                color: isActive ? '#ffffff' : '#94a3b8'
+                color: isActive ? '#2563eb' : '#64748b'
               }}
             >
               {item.label}
@@ -150,9 +150,9 @@ export default function BottomNav({ activeTab, onTabChange, lang = 'ko', unreadC
                   width: '4px',
                   height: '4px',
                   borderRadius: '50%',
-                  backgroundColor: '#38bdf8',
-                  marginTop: '1px',
-                  boxShadow: '0 0 6px #38bdf8'
+                  backgroundColor: '#2563eb',
+                  boxShadow: '0 0 8px rgba(37, 99, 235, 0.6)',
+                  marginTop: '1px'
                 }}
               />
             )}

@@ -109,8 +109,8 @@ export default function RewardedAdModal({
       style={{
         position: 'fixed',
         inset: 0,
-        zIndex: 9999,
-        backgroundColor: 'rgba(5, 8, 15, 0.85)',
+        zIndex: 99999,
+        backgroundColor: 'rgba(15, 23, 42, 0.45)',
         backdropFilter: 'blur(14px)',
         WebkitBackdropFilter: 'blur(14px)',
         display: 'flex',
