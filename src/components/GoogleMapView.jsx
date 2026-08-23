@@ -41,8 +41,11 @@ export default function GoogleMapView({
   targetCity = '서울',
   lang = 'ko',
   focusedSpotIndex = null,
-  onSelectSpotIndex = null
+  onSelectSpotIndex = null,
+  hideHeader = false,
+  mapHeight = '185px'
 }) {
+
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
   const spotsToDisplay = Array.isArray(spots) ? spots : [];
   const fullRouteUrl = generateGoogleMapsRouteUrl(spotsToDisplay);
@@ -378,129 +381,125 @@ export default function GoogleMapView({
       position: 'relative',
       marginBottom: '0.75rem'
     }}>
-      {/* Top Map Action Banner (슬림 패딩으로 상단 공간 최적화) */}
-      <div style={{
-        padding: '0.45rem 0.8rem',
-        backgroundColor: 'var(--bg-glass)',
-        backdropFilter: 'blur(8px)',
-        borderBottom: '1px solid var(--border-color)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '0.4rem'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-          <MapPin size={15} style={{ color: 'var(--accent-primary)' }} />
-          <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-main)' }}>
-            {lang === 'en' 
-              ? `Day ${activeDay} Live Google Route` 
-              : lang === 'ja' 
-              ? `${activeDay}日目 リアルタイムGoogleルート` 
-              : (lang === 'zh' || lang === 'zht') 
-              ? (lang === 'zht' ? `第${activeDay}天 即時Google路線` : `第${activeDay}天 实时Google路线`) 
-              : `${activeDay}일차 실시간 Google 동선`}
-          </span>
-          <span style={{
-            fontSize: '0.68rem',
-            fontWeight: 700,
-            backgroundColor: 'rgba(37, 99, 235, 0.1)',
-            color: 'var(--accent-primary)',
-            padding: '0.08rem 0.4rem',
-            borderRadius: '6px'
-          }}>
-            {lang === 'en' 
-              ? `${spotsToDisplay.length} Spots` 
-              : lang === 'ja' 
-              ? `${spotsToDisplay.length}箇所` 
-              : (lang === 'zh' || lang === 'zht') 
-              ? `${spotsToDisplay.length}个景点` 
-              : `${spotsToDisplay.length}개 스팟`}
-          </span>
-        </div>
+      {/* Top Smart Route Header */}
+      {!hideHeader && (
+        <div style={{
+          padding: '0.45rem 0.75rem',
+          backgroundColor: 'var(--bg-glass)',
+          borderBottom: '1px solid var(--border-color)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '0.35rem'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+            <span style={{ fontSize: '0.85rem' }}>📍</span>
+            <span style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-main)' }}>
+              {targetCity} {activeDay}{lang === 'en' ? ' Day Route' : lang === 'ja' ? '日目ルート' : (lang === 'zh' || lang === 'zht') ? '日路线' : '일차 실시간 Google 동선'}
+            </span>
+            <span style={{
+              fontSize: '0.68rem',
+              fontWeight: 700,
+              backgroundColor: 'rgba(37, 99, 235, 0.1)',
+              color: 'var(--accent-primary)',
+              padding: '0.08rem 0.4rem',
+              borderRadius: '6px'
+            }}>
+              {lang === 'en' 
+                ? `${spotsToDisplay.length} Spots` 
+                : lang === 'ja' 
+                ? `${spotsToDisplay.length}箇所` 
+                : (lang === 'zh' || lang === 'zht') 
+                ? `${spotsToDisplay.length}个景点` 
+                : `${spotsToDisplay.length}개 스팟`}
+            </span>
+          </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-          {/* 🔍 Reset to Full Course View Button */}
-          {focusedSpotIndex !== null && (
-            <button
-              onClick={() => onSelectSpotIndex && onSelectSpotIndex(null)}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+            {/* 🔍 Reset to Full Course View Button */}
+            {focusedSpotIndex !== null && (
+              <button
+                onClick={() => onSelectSpotIndex && onSelectSpotIndex(null)}
+                style={{
+                  backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                  border: '1px solid var(--accent-primary)',
+                  color: 'var(--accent-primary)',
+                  padding: '0.22rem 0.55rem',
+                  borderRadius: 'var(--radius-full)',
+                  fontSize: '0.7rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.2rem',
+                  transition: 'all var(--transition-fast)'
+                }}
+              >
+                <span>
+                  {lang === 'en' 
+                    ? '🔍 View Full Course' 
+                    : lang === 'ja' 
+                    ? '🔍 全体コース' 
+                    : (lang === 'zh' || lang === 'zht') 
+                    ? (lang === 'zht' ? '🔍 完整路線' : '🔍 完整路线') 
+                    : '🔍 전체 코스'}
+                </span>
+              </button>
+            )}
+
+            {/* 🗺️ Open Full Route in Google Maps Button */}
+            <a
+              href={fullRouteUrl}
+              target="_blank"
+              rel="noopener noreferrer"
               style={{
-                backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                border: '1px solid var(--accent-primary)',
-                color: 'var(--accent-primary)',
-                padding: '0.22rem 0.55rem',
+                backgroundColor: 'var(--accent-primary)',
+                color: '#ffffff',
+                textDecoration: 'none',
+                padding: '0.24rem 0.55rem',
                 borderRadius: 'var(--radius-full)',
                 fontSize: '0.7rem',
                 fontWeight: 800,
-                cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.2rem',
-                transition: 'all var(--transition-fast)'
+                boxShadow: 'var(--shadow-glow)',
+                transition: 'all var(--transition-fast)',
+                flexShrink: 0
               }}
             >
-              <span>
+              <span className="hide-mobile">
                 {lang === 'en' 
-                  ? '🔍 View Full Course' 
+                  ? 'Google Maps Route' 
                   : lang === 'ja' 
-                  ? '🔍 全体コース' 
+                  ? 'Googleマップ' 
                   : (lang === 'zh' || lang === 'zht') 
-                  ? (lang === 'zht' ? '🔍 完整路線' : '🔍 完整路线') 
-                  : '🔍 전체 코스'}
+                  ? (lang === 'zht' ? 'Google地圖路線' : 'Google地图路线') 
+                  : '구글맵 길찾기'}
               </span>
-            </button>
-          )}
-
-          {/* 🗺️ Open Full Route in Google Maps Button */}
-          <a
-            href={fullRouteUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              backgroundColor: 'var(--accent-primary)',
-              color: '#ffffff',
-              textDecoration: 'none',
-              padding: '0.24rem 0.55rem',
-              borderRadius: 'var(--radius-full)',
-              fontSize: '0.7rem',
-              fontWeight: 800,
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.2rem',
-              boxShadow: 'var(--shadow-glow)',
-              transition: 'all var(--transition-fast)',
-              flexShrink: 0
-            }}
-          >
-            <span className="hide-mobile">
-              {lang === 'en' 
-                ? 'Google Maps Route' 
-                : lang === 'ja' 
-                ? 'Googleマップ' 
-                : (lang === 'zh' || lang === 'zht') 
-                ? (lang === 'zht' ? 'Google地圖路線' : 'Google地图路线') 
-                : '구글맵 길찾기'}
-            </span>
-            <span className="show-mobile-only">
-              {lang === 'en' 
-                ? 'Google' 
-                : lang === 'ja' 
-                ? 'マップ' 
-                : (lang === 'zh' || lang === 'zht') 
-                ? '地图' 
-                : '길찾기'}
-            </span>
-            <ExternalLink size={10} />
-          </a>
+              <span className="show-mobile-only">
+                {lang === 'en' 
+                  ? 'Google' 
+                  : lang === 'ja' 
+                  ? 'マップ' 
+                  : (lang === 'zh' || lang === 'zht') 
+                  ? '地图' 
+                  : '길찾기'}
+              </span>
+              <ExternalLink size={10} />
+            </a>
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* 🗺️ Embedded Leaflet Real-Road Route Map Container (황금 비율 185px 고정) */}
-      <div style={{ position: 'relative', width: '100%', height: '185px', minHeight: '185px', backgroundColor: 'var(--bg-primary)' }}>
+      {/* 🗺️ Embedded Leaflet Real-Road Route Map Container */}
+      <div style={{ position: 'relative', width: '100%', height: mapHeight, minHeight: mapHeight, backgroundColor: 'var(--bg-primary)' }}>
         <div
           ref={mapContainerRef}
-          style={{ width: '100%', height: '185px', minHeight: '185px', zIndex: 1 }}
+          style={{ width: '100%', height: mapHeight, minHeight: mapHeight, zIndex: 1 }}
         />
+
 
         {/* 🔍 Always Visible Floating "전체 코스 보기" Button Inside Map */}
         <button

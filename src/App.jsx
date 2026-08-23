@@ -663,7 +663,9 @@ export default function App() {
               activeDay={activeDay}
               onSelectDay={(day) => setActiveDay(day)}
               onOpenDetail={(spot) => setSelectedSpot(spot)}
+              onBackToTrip={() => setActiveNavTab('mytrip')}
             />
+
           </div>
         )}
 
