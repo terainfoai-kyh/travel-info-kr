@@ -155,8 +155,14 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
 
   // 2단계: 확인창에서 '변경하기' 클릭 시 진짜 교체 실행 후 모달 닫기
   const handleConfirmReplace = () => {
-    if (confirmTargetSpot && onReplaceSpot) {
-      onReplaceSpot(spot, confirmTargetSpot);
+    if (confirmTargetSpot) {
+      if (onReplaceSpot) {
+        onReplaceSpot(spot, confirmTargetSpot);
+      }
+      setConfirmTargetSpot(null);
+      if (onClose) {
+        onClose();
+      }
     }
   };
 

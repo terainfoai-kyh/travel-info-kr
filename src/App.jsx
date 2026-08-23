@@ -878,14 +878,7 @@ export default function App() {
         lang={lang}
       />
 
-      {/* Spot Detail Modal */}
-      {selectedSpot && (
-        <TravelDetailModal
-          spot={selectedSpot}
-          onClose={() => setSelectedSpot(null)}
-          lang={lang}
-        />
-      )}
+      />
     </div>
   );
 }
