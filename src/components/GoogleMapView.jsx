@@ -43,8 +43,9 @@ export default function GoogleMapView({
   focusedSpotIndex = null,
   onSelectSpotIndex = null,
   hideHeader = false,
-  mapHeight = '185px'
+  mapHeight = '155px'
 }) {
+
 
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
   const spotsToDisplay = Array.isArray(spots) ? spots : [];
