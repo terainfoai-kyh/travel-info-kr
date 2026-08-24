@@ -284,6 +284,9 @@ export default function App() {
   // AI Planner 1단계(form) vs 2단계(chat) 진입 모드 관리
   const [plannerInitialMode, setPlannerInitialMode] = useState('form');
 
+  // 💡 작성 중(미저장) AI 일정 상태 관리
+  const [hasActiveUnsavedDraft, setHasActiveUnsavedDraft] = useState(false);
+
   // 🌟 [일정 확정 및 내 여행 저장] 코어 핸들러 (쿼터 1회 차감 & 저장)
   const handleSaveCurrentItinerary = (targetNextTab = 'mytrip') => {
     if (!itineraryData) {
