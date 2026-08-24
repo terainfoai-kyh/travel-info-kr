@@ -486,11 +486,22 @@ export default function App() {
       const replyTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
 
       // 🌟 [핵심 티키타카] "이대로 일정 만들어줘" 버튼을 누른 게 아니거나, 대화형 질문인 경우 티키타카로 응답!
-      const isConversationalQuery = !isDirectGenerateAction && /(노인|어르신|부모님|아이|키즈|비|실내|카페|맛집|추천|어때|수정|변경|추가|가볼만)/i.test(promptQuery);
+      const isAddDayQuery = /(하루 더|1일 더|1일 추가|늘려|연장|하루 추가|이틀 더|2일 더|더 있을래)/i.test(promptQuery);
+      const isConversationalQuery = isAddDayQuery || (!isDirectGenerateAction && /(노인|어르신|부모님|아이|키즈|비|실내|카페|맛집|추천|어때|수정|변경|추가|가볼만)/i.test(promptQuery));
 
       if (isConversationalQuery) {
         let conversationalReply = '';
-        if (/(노인|어르신|부모님|시니어|효도)/i.test(promptQuery)) {
+        let dynamicSuggestDays = 3;
+        const currentDays = itineraryData?.days || extractDaysFromPrompt(fullPromptContext) || 1;
+
+        if (isAddDayQuery) {
+          const addedDays = /(이틀|2일)/.test(promptQuery) ? 2 : 1;
+          dynamicSuggestDays = Math.min(5, currentDays + addedDays);
+          const city = itineraryData?.targetCity || extractLocationKeyword(fullPromptContext) || '부산';
+          conversationalReply = (lang === 'en')
+            ? `Of course! Shall I extend your ${city} itinerary from ${currentDays} days to **${dynamicSuggestDays} days** for a more relaxed trip? 😊\n\nI will add scenic local gems and must-visit spots for the extra day!`
+            : `물론이죠! 기존 ${currentDays}일 코스에서 하루를 더해 **【 ${city} ${dynamicSuggestDays}일 알찬 코스 】**로 여유롭게 확장해 드릴까요? 😊\n\n추가된 하루에는 감성 오션뷰 핫플과 여유로운 로컬 명소를 더해 알차게 조율해 드릴게요! ✨`;
+        } else if (/(노인|어르신|부모님|시니어|효도)/i.test(promptQuery)) {
           conversationalReply = (lang === 'en')
             ? `Noted for traveling with parents & seniors! 😊\nI will adjust the route with gentle walking paths, scenic resting spots, and wholesome local dining.\n\nShall I apply this to your complete itinerary?`
             : `어르신·부모님과 함께하시는 여행이군요! 😊\n계단과 무리한 도보를 줄이고, 편안한 쉼터와 정갈한 보양 한식 명소 위주로 일정을 맞춰드릴게요.\n\n이 조건으로 나만의 맞춤 일정표를 완성할까요?`;
@@ -509,7 +520,9 @@ export default function App() {
           role: 'assistant',
           text: conversationalReply,
           quickSuggestions: [
-            (lang === 'en' ? '🚀 Generate Itinerary with this' : '🚀 이 조건으로 일정표 만들기'),
+            (isAddDayQuery 
+              ? (lang === 'en' ? `🚀 Extend to ${dynamicSuggestDays}-Day Itinerary` : `🚀 ${dynamicSuggestDays}일 일정으로 확장하기`)
+              : (lang === 'en' ? '🚀 Generate Itinerary with this' : '🚀 이 조건으로 일정표 만들기')),
             (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')
           ],
           generationTime: elapsedSeconds,

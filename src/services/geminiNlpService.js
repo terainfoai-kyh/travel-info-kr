@@ -44,13 +44,13 @@ const DEFAULT_GEMINI_FALLBACK = typeof atob !== 'undefined'
   ? atob('QVEuQWI4Uk42S3dLSWRKbVo4eDhPZ0p0WGNkQ0ZKbnd3Nmx1c2kzWml1V0F3RkxkcXNleGc=') 
   : '';
 
-// Verified Gemini API Key Pool (Active 3.5 Flash-Lite Key First)
+// Verified Gemini API Key Pool (Prioritize Environment Variable)
 export const GEMINI_KEY_POOL = [
-  DEFAULT_GEMINI_FALLBACK,
   import.meta.env.VITE_GEMINI_API_KEY,
   import.meta.env.VITE_GEMINI_FREE_KEY,
   import.meta.env.VITE_GEMINI_PAID_KEY,
-  import.meta.env.VITE_GEMINI_KEY
+  import.meta.env.VITE_GEMINI_KEY,
+  DEFAULT_GEMINI_FALLBACK
 ].filter(k => k && typeof k === 'string' && k.trim().length > 5);
 
 export function sanitizeGeminiOutput(text) {
@@ -432,9 +432,9 @@ ALL output text (tripTitle, summary, theme, transitTip, dishName, description, n
     ? `${contextPrompt}\n\nLanguage: ${lang}. Return updated JSON strictly in language ${lang}.` 
     : `User Request: "${cleanPrompt}". Duration: ${days} days, language: ${lang}. Process appropriately as chat clarification or full itinerary strictly in ${lang}.`;
 
-  // AI 응답 속도 최적화: 최신 AQ. 및 AIzaSy. 공식 Gemini 키 모두 지원 & 스마트 Fail-Fast
+  // AI 신뢰도 최적화: 공식 Gemini 2.0 Flash / 1.5 Flash 정품 모델 및 안전한 추론 시간 보장
   const candidateKeys = GEMINI_KEY_POOL.filter(k => k && typeof k === 'string' && (k.startsWith('AQ.') || k.startsWith('AIzaSy') || k.length > 15));
-  const modelCandidates = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+  const modelCandidates = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'];
 
   if (candidateKeys.length > 0) {
     for (const apiKey of candidateKeys) {
@@ -443,7 +443,7 @@ ALL output text (tripTitle, summary, theme, transitTip, dishName, description, n
         try {
           const endpointUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
           const controller = new AbortController();
-          const apiTimeout = days >= 4 ? 4500 : 3000;
+          const apiTimeout = days >= 4 ? 12000 : 8500;
           const timeoutId = setTimeout(() => controller.abort(), apiTimeout);
 
           const res = await fetch(endpointUrl, {
