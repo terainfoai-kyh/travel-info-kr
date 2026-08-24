@@ -380,17 +380,39 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // 📱 모바일 하드웨어/제스처 뒤로가기(popstate) 스마트 가로채기
+  // 📱 모바일 하드웨어/제스처 뒤로가기(popstate) & 새로고침(beforeunload) 2중 방어 시스템
   useEffect(() => {
-    if (activeNavTab === 'ai' && !isCurrentItinerarySaved && itineraryData) {
-      window.history.pushState({ voraTab: 'ai' }, '');
-      const handlePopState = () => {
+    const shouldIntercept = (activeNavTab === 'ai' && !isCurrentItinerarySaved && !!itineraryData);
+
+    if (shouldIntercept) {
+      // 1. 브라우저 히스토리 스택에 가상 티켓 주입
+      try {
+        window.history.pushState({ voraTab: 'ai', timestamp: Date.now() }, '');
+      } catch (e) {}
+
+      // 2. 모바일 뒤로가기 가로채기
+      const handlePopState = (e) => {
+        // 뒤로가기 신호를 받으면 브라우저가 빠져나가지 못하도록 즉시 스택을 다시 채워 고정!
+        try {
+          window.history.pushState({ voraTab: 'ai', timestamp: Date.now() }, '');
+        } catch (err) {}
         setPendingNavTab('home');
         setIsExitModalOpen(true);
       };
+
+      // 3. 브라우저 새로고침(F5) / 탭 닫기(X) 시스템 경고창
+      const handleBeforeUnload = (e) => {
+        e.preventDefault();
+        e.returnValue = '';
+        return '';
+      };
+
       window.addEventListener('popstate', handlePopState);
+      window.addEventListener('beforeunload', handleBeforeUnload);
+
       return () => {
         window.removeEventListener('popstate', handlePopState);
+        window.removeEventListener('beforeunload', handleBeforeUnload);
       };
     }
   }, [activeNavTab, isCurrentItinerarySaved, itineraryData]);
