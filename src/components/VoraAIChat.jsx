@@ -606,8 +606,14 @@ export default function VoraAIChat({
           flex: 1,
           position: 'relative',
           display: 'flex',
-          alignItems: 'center'
+          alignItems: 'center',
+          backgroundColor: '#fffdf5',
+          border: '1.5px solid #f59e0b',
+          borderRadius: 'var(--radius-full)',
+          padding: '0 0.85rem',
+          boxShadow: '0 2px 6px rgba(245, 158, 11, 0.08)'
         }}>
+          <Sparkles size={14} style={{ color: '#d97706', flexShrink: 0, marginRight: '0.4rem' }} />
           <input
             id="vora-chat-input-field"
             type="text"
@@ -624,24 +630,13 @@ export default function VoraAIChat({
             disabled={isLoading}
             style={{
               width: '100%',
-              backgroundColor: '#fffdf5',
-              border: '1.5px solid #f59e0b',
-              borderRadius: 'var(--radius-full)',
-              padding: '0.48rem 0.95rem',
+              backgroundColor: 'transparent',
+              border: 'none',
+              padding: '0.48rem 0',
               fontSize: '0.85rem',
               fontWeight: 700,
               color: '#0f172a',
-              outline: 'none',
-              boxShadow: '0 2px 6px rgba(245, 158, 11, 0.08)',
-              transition: 'border-color var(--transition-fast), box-shadow var(--transition-fast)'
-            }}
-            onFocus={(e) => {
-              e.target.style.borderColor = '#d97706';
-              e.target.style.boxShadow = '0 0 0 3px rgba(245, 158, 11, 0.2)';
-            }}
-            onBlur={(e) => {
-              e.target.style.borderColor = '#f59e0b';
-              e.target.style.boxShadow = '0 2px 6px rgba(245, 158, 11, 0.08)';
+              outline: 'none'
             }}
           />
         </div>

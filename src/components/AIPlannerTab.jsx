@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, MapPin, Calendar, Compass, Users, Heart, Coffee, Utensils, ShoppingBag, Trees, PartyPopper, ArrowRight, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { Sparkles, MapPin, Calendar, Compass, Users, Heart, Coffee, Utensils, ShoppingBag, Trees, PartyPopper, ArrowRight, ArrowLeft, CheckCircle2, Search, PenLine } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
 import VoraAIChat from './VoraAIChat';
 
@@ -230,7 +230,7 @@ export default function AIPlannerTab({
       </div>
 
       <form onSubmit={handleCreateSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-        {/* Step 1: 여행지 (시인성 300% 웜 앰버 골드 대비) */}
+        {/* Step 1: 여행지 (시인성 300% 웜 앰버 골드 + 🔍 검색 아이콘 포인트) */}
         <div>
           <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.25rem' }}>
             <MapPin size={15} style={{ color: '#d97706' }} />
@@ -239,14 +239,16 @@ export default function AIPlannerTab({
           <div style={{
             display: 'flex',
             alignItems: 'center',
+            gap: '0.5rem',
             backgroundColor: '#fffdf5',
             border: '1.5px solid #f59e0b',
             borderRadius: '12px',
-            padding: '0.5rem 0.75rem',
+            padding: '0.48rem 0.75rem',
             boxShadow: '0 2px 8px rgba(245, 158, 11, 0.08)',
             marginBottom: '0.35rem',
             transition: 'border-color 0.15s ease, box-shadow 0.15s ease'
           }}>
+            <Search size={16} style={{ color: '#d97706', flexShrink: 0 }} />
             <input
               type="text"
               value={destination}
@@ -387,18 +389,22 @@ export default function AIPlannerTab({
           </div>
         </div>
 
-        {/* Step 5: 자유 요청사항 (시인성 300% 웜 앰버 골드 대비) */}
+        {/* Step 5: 자유 요청사항 (시인성 300% 웜 앰버 골드 + ✏️ 편집 아이콘 포인트) */}
         <div>
           <label style={{ fontSize: '0.76rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.2rem', display: 'block' }}>
             {lang === 'en' ? 'Special Requests (Optional)' : '추가 요청 (선택): 예: 비 올 때 실내 위주, 핫플 카페 꼭 포함'}
           </label>
           <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
             backgroundColor: '#fffdf5',
             border: '1.5px solid #f59e0b',
             borderRadius: '12px',
-            padding: '0.5rem 0.75rem',
+            padding: '0.48rem 0.75rem',
             boxShadow: '0 2px 8px rgba(245, 158, 11, 0.08)'
           }}>
+            <PenLine size={15} style={{ color: '#d97706', flexShrink: 0 }} />
             <input
               type="text"
               value={customNote}
