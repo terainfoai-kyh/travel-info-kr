@@ -291,7 +291,7 @@ export default function PortalHomePrototype({
   const QUICK_CHIPS = [
     { 
       labelKo: '👑 경복궁 & 북촌', 
-      labelEn: '👑 Gyeongbokgung Palace', 
+      labelEn: '👑 Gyeongbok Palace', 
       labelJa: '👑 景福宮＆北村',
       labelZh: '👑 景福宫·北村',
       promptKo: '경복궁과 북촌 한옥마을, 인사동 전통 문화 코스',
@@ -311,7 +311,7 @@ export default function PortalHomePrototype({
     },
     { 
       labelKo: '🌊 부산 광안리 오션', 
-      labelEn: '🌊 Busan Gwangan Ocean', 
+      labelEn: '🌊 Busan Gwangan', 
       labelJa: '🌊 釜山 広安里オーシャン',
       labelZh: '🌊 釜山广安里海景',
       promptKo: '부산 해운대와 광안리 오션뷰 미식 코스',
@@ -321,7 +321,7 @@ export default function PortalHomePrototype({
     },
     { 
       labelKo: '🍊 제주 서귀포 힐링', 
-      labelEn: '🍊 Jeju Healing Drive', 
+      labelEn: '🍊 Jeju Island', 
       labelJa: '🍊 済州 ヒーリングドライブ',
       labelZh: '🍊 济州西归浦疗愈',
       promptKo: '제주도 애월과 서귀포 해안 힐링 코스',
