@@ -520,81 +520,51 @@ export default function App() {
     }
 
     try {
-      // 🌟 이전 대화 컨텍스트가 있다면 초기 조건과 현재 사용자 질문을 합성하여 전달!
-      let fullPromptContext = promptQuery;
-      const initialBotMsg = chatMessages.find(m => m.text && m.text.includes('**['));
-      if (initialBotMsg && !promptQuery.includes('여행') && !promptQuery.includes('일정')) {
-        fullPromptContext = `${initialBotMsg.text}\n추가 요청: ${promptQuery}`;
-      }
-
-      const result = await geminiGenerateFullItinerary(fullPromptContext, lang, itineraryData);
+      const result = await geminiGenerateFullItinerary(promptQuery, lang, itineraryData);
       const elapsedSeconds = ((Date.now() - startTime) / 1000).toFixed(1);
       const replyTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
 
-      // 🌟 [핵심 티키타카] "이대로 일정 만들어줘" 버튼을 누른 게 아니거나, 대화형 질문인 경우 티키타카로 응답!
-      const isAddDayQuery = /(하루 더|1일 더|1일 추가|늘려|연장|하루 추가|이틀 더|2일 더|더 있을래)/i.test(promptQuery);
-      const isConversationalQuery = isAddDayQuery || (!isDirectGenerateAction && /(노인|어르신|부모님|아이|키즈|비|실내|카페|맛집|추천|어때|수정|변경|추가|가볼만)/i.test(promptQuery));
-
-      if (isConversationalQuery) {
-        let conversationalReply = '';
+      // 🌟 [핵심 티키타카] 사용자가 일정 확정 버튼(🚀)을 누른 게 아니거나, Gemini가 대화(chat)로 응답한 경우 티키타카로 대답!
+      if (!isDirectGenerateAction && (result?.responseType === 'chat' || !promptQuery.includes('일정'))) {
+        const isAddDayQuery = /(하루 더|1일 더|1일 추가|늘려|연장|하루 추가|이틀 더|2일 더|더 있을래)/i.test(promptQuery);
         let dynamicSuggestDays = 3;
-        const currentDays = itineraryData?.days || extractDaysFromPrompt(fullPromptContext) || 1;
+        const currentDays = itineraryData?.days || 1;
+
+        let chatText = result?.message;
+        let quickButtons = result?.quickSuggestions && result.quickSuggestions.length > 0
+          ? result.quickSuggestions
+          : [(lang === 'en' ? '🚀 Generate Itinerary with this' : '🚀 이 조건으로 일정 만들기'), (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')];
 
         if (isAddDayQuery) {
           const addedDays = /(이틀|2일)/.test(promptQuery) ? 2 : 1;
           dynamicSuggestDays = Math.min(5, currentDays + addedDays);
-          const city = itineraryData?.targetCity || extractLocationKeyword(fullPromptContext) || '부산';
-          conversationalReply = (lang === 'en')
+          const city = itineraryData?.targetCity || extractLocationKeyword(promptQuery) || '부산';
+          chatText = (lang === 'en')
             ? `Of course! Shall I extend your ${city} itinerary from ${currentDays} days to **${dynamicSuggestDays} days** for a more relaxed trip? 😊\n\nI will add scenic local gems and must-visit spots for the extra day!`
             : `물론이죠! 기존 ${currentDays}일 코스에서 하루를 더해 **【 ${city} ${dynamicSuggestDays}일 알찬 코스 】**로 여유롭게 확장해 드릴까요? 😊\n\n추가된 하루에는 감성 오션뷰 핫플과 여유로운 로컬 명소를 더해 알차게 조율해 드릴게요! ✨`;
-        } else if (/(노인|어르신|부모님|시니어|효도)/i.test(promptQuery)) {
-          conversationalReply = (lang === 'en')
-            ? `Noted for traveling with parents & seniors! 😊\nI will adjust the route with gentle walking paths, scenic resting spots, and wholesome local dining.\n\nShall I apply this to your complete itinerary?`
-            : `어르신·부모님과 함께하시는 여행이군요! 😊\n계단과 무리한 도보를 줄이고, 편안한 쉼터와 정갈한 보양 한식 명소 위주로 일정을 맞춰드릴게요.\n\n이 조건으로 나만의 맞춤 일정표를 완성할까요?`;
-        } else if (/(아이|어린이|유아|키즈)/i.test(promptQuery)) {
-          conversationalReply = (lang === 'en')
-            ? `Noted for traveling with kids! 🎈\nI will focus on stroller-friendly paths, fun interactive spots, and family-friendly cafes.\n\nShall I create the tailored itinerary now?`
-            : `아이와 함께하는 신나는 가족 여행이군요! 🎈\n유모차 이동이 편하고 아이들이 좋아할 체험 명소와 키즈 프렌들리 맛집 위주로 조율해 드릴게요.\n\n이 조건으로 나만의 맞춤 일정표를 완성할까요?`;
-        } else if (/(실내|비|우천)/i.test(promptQuery)) {
-          conversationalReply = `비가 와도 쾌적하게 즐길 수 있는 대형 복합문화공간, 아쿠아리움, 감성 실내 핫플 위주로 재구성해 드릴게요! ☔✨\n\n이 조건으로 일정표를 업데이트할까요?`;
-        } else {
-          conversationalReply = `말씀해주신 조건(**${promptQuery}**)을 꼼꼼하게 반영하여 최적의 동선으로 조율해 드릴게요! 😊\n\n이 조건으로 완벽한 맞춤 일정표를 완성할까요?`;
+          quickButtons = [
+            (lang === 'en' ? `🚀 Extend to ${dynamicSuggestDays}-Day Itinerary` : `🚀 ${dynamicSuggestDays}일 일정으로 확장하기`),
+            (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')
+          ];
+        } else if (!chatText) {
+          chatText = `말씀해주신 여행 계획(**${promptQuery}**)에 맞춰 최적의 추천 명소와 맞춤 일정을 준비해 드릴게요! 😊\n\n이 조건으로 나만의 완벽한 일정표를 완성할까요?`;
         }
 
         const botMsg = {
           id: `bot-${Date.now()}`,
           role: 'assistant',
-          text: conversationalReply,
-          quickSuggestions: [
-            (isAddDayQuery 
-              ? (lang === 'en' ? `🚀 Extend to ${dynamicSuggestDays}-Day Itinerary` : `🚀 ${dynamicSuggestDays}일 일정으로 확장하기`)
-              : (lang === 'en' ? '🚀 Generate Itinerary with this' : '🚀 이 조건으로 일정표 만들기')),
-            (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')
-          ],
-          generationTime: elapsedSeconds,
-          queryTime,
-          replyTime,
-          timestamp: replyTime
-        };
-        setChatMessages(prev => [...prev, botMsg]);
-      } else if (result && result.responseType === 'chat') {
-        const botMsg = {
-          id: `bot-${Date.now()}`,
-          role: 'assistant',
-          text: result.message,
-          quickSuggestions: result.quickSuggestions && result.quickSuggestions.length > 0 
-            ? result.quickSuggestions 
-            : [(lang === 'en' ? '🚀 Generate Itinerary Now' : '🚀 이 조건으로 일정 만들어줘'), (lang === 'en' ? '⚙️ Change Conditions' : '⚙️ 조건 변경 (폼)')],
-          generationTime: result.generationTime || elapsedSeconds,
+          text: chatText,
+          quickSuggestions: quickButtons,
+          generationTime: result?.generationTime || elapsedSeconds,
           queryTime,
           replyTime,
           timestamp: replyTime
         };
         setChatMessages(prev => [...prev, botMsg]);
       } else {
-        const requestedDays = extractDaysFromPrompt(fullPromptContext) || 3;
+        const requestedDays = extractDaysFromPrompt(promptQuery) || itineraryData?.days || 3;
         const finalResult = {
-          ...(result || generateLocalFallbackItinerary(fullPromptContext, extractLocationKeyword(fullPromptContext), requestedDays, lang)),
+          ...(result || generateLocalFallbackItinerary(promptQuery, extractLocationKeyword(promptQuery), requestedDays, lang)),
           generationTime: elapsedSeconds,
           draftId: `draft-${Date.now()}`
         };
