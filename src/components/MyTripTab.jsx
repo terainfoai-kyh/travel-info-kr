@@ -121,14 +121,44 @@ export default function MyTripTab({
     ? schedules
     : Array.from({ length: Number(itineraryData?.days) || 3 }, (_, i) => ({ day: i + 1 }));
 
-  // 🔗 일정 공유 링크 복사
-  const handleShareTrip = () => {
+  // 🔗 스마트 일정 공유 (타이틀 + 코스 요약 + 링크 복사 및 Web Share API 지원)
+  const handleShareTrip = async () => {
     try {
-      const shareUrl = window.location.href;
-      navigator.clipboard.writeText(shareUrl).then(() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2500);
+      const shareUrl = window.location.origin;
+      let shareText = `✨ [VORA AI Travel] ${tripTitle}\n`;
+      if (itineraryData?.summary) {
+        shareText += `📝 ${itineraryData.summary}\n\n`;
+      }
+      
+      (displaySchedules || []).forEach(ds => {
+        const dayTheme = cleanDayTheme(ds.theme);
+        const daySpots = (ds.spots || []).map(s => cleanSpotTitle(s.title || s.name)).filter(Boolean);
+        shareText += `📍 DAY ${ds.day} (${dayTheme}):\n`;
+        if (daySpots.length > 0) {
+          shareText += `   ${daySpots.join(' ➔ ')}\n`;
+        }
       });
+      
+      shareText += `\n🔗 여행 코스 전체 보기: ${shareUrl}`;
+
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: tripTitle,
+            text: shareText,
+            url: shareUrl
+          });
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2500);
+          return;
+        } catch (err) {
+          // 사용자 취소 시 클립보드로 fallback
+        }
+      }
+
+      await navigator.clipboard.writeText(shareText);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
     } catch (e) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);

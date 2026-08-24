@@ -34,28 +34,19 @@ export default function VoraAIChat({
         if (!container) return;
 
         const lastMsg = chatMessages[chatMessages.length - 1];
-        const lastUserMsg = [...chatMessages].reverse().find(m => m.role === 'user');
-
-        // Focus on the User query of this turn if available, else the message itself
-        const targetMsgId = (lastMsg?.role === 'assistant' && lastUserMsg) ? lastUserMsg.id : lastMsg?.id;
-        const targetElement = targetMsgId ? messageRefs.current[targetMsgId] : null;
+        
+        // 🌟 항상 새로 도착한 메시지(어시스턴트 답변)로 화면을 온전히 스크롤하여 답변이 바로 보이게 처리!
+        const targetElement = lastMsg?.id ? messageRefs.current[lastMsg.id] : null;
 
         if (targetElement) {
-          const containerRect = container.getBoundingClientRect();
-          const elementRect = targetElement.getBoundingClientRect();
-          const relativeTop = elementRect.top - containerRect.top + container.scrollTop;
-
-          container.scrollTo({
-            top: Math.max(0, relativeTop - 12),
-            behavior: 'smooth'
-          });
-        } else if (isLoading) {
+          targetElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } else {
           container.scrollTo({
             top: container.scrollHeight,
             behavior: 'smooth'
           });
         }
-      }, 60);
+      }, 80);
 
       return () => clearTimeout(timer);
     }

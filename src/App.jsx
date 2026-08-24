@@ -341,7 +341,21 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Grant Reward (+3 chats on watching 15s ad)
+  // 📱 작성 중(hasActiveUnsavedDraft) 상태에서 브라우저 종료/새로고침 시 방어선
+  useEffect(() => {
+    if (!hasActiveUnsavedDraft) return;
+
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = '';
+      return '';
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasActiveUnsavedDraft]);
+
+  // Grant Reward (+3 saves on watching 15s ad) - NO 6: 대화창에 시스템 문구 삽입 없이 뱃지만 깔끔 갱신!
   const handleRewardGranted = () => {
     const todayStr = new Date().toISOString().slice(0, 10);
     setQuestionQuota(prev => {
@@ -352,21 +366,6 @@ export default function App() {
       } catch (e) {}
       return updated;
     });
-
-    const queryTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-    setChatMessages(prev => [
-      ...prev,
-      {
-        id: `reward-${Date.now()}`,
-        role: 'assistant',
-        text: (lang === 'ko')
-          ? '🎉 **스폰서 영상 시청 완료! 무료 AI 여행 저장 +3회가 즉시 충전되었습니다.** ✨\n내 여행 일정을 자유롭게 저장해 보세요!'
-          : '🎉 **Sponsor video completed! +3 free AI saves have been granted.** ✨\nFeel free to save your itineraries!',
-        queryTime,
-        replyTime: queryTime,
-        timestamp: queryTime
-      }
-    ]);
 
     // 🌟 저장 대기 중인 일정이 있었다면 즉시 저장 완료 후 [내 여행]으로 쾌적하게 이동!
     if (itineraryData) {

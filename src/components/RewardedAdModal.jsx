@@ -92,13 +92,20 @@ export default function RewardedAdModal({
     return () => clearInterval(timer);
   }, [isOpen]);
 
+  const [isProcessing, setIsProcessing] = useState(false);
+
   if (!isOpen) return null;
 
   const handleClaimReward = () => {
+    if (isProcessing) return;
+    setIsProcessing(true);
     if (onRewardGranted) {
       onRewardGranted();
     }
-    onClose();
+    setTimeout(() => {
+      setIsProcessing(false);
+      onClose();
+    }, 150);
   };
 
   const progressPercent = ((15 - timeLeft) / 15) * 100;
