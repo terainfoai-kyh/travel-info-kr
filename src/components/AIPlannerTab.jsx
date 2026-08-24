@@ -230,21 +230,22 @@ export default function AIPlannerTab({
       </div>
 
       <form onSubmit={handleCreateSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-        {/* Step 1: 여행지 (소프트 블루 틴트) */}
+        {/* Step 1: 여행지 (시인성 300% 웜 앰버 골드 대비) */}
         <div>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.25rem' }}>
-            <MapPin size={14} style={{ color: 'var(--accent-primary)' }} />
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.25rem' }}>
+            <MapPin size={15} style={{ color: '#d97706' }} />
             <span>{lang === 'en' ? 'Destination' : '여행지'}</span>
           </label>
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            backgroundColor: 'rgba(37, 99, 235, 0.035)',
-            border: '1.5px solid rgba(37, 99, 235, 0.28)',
+            backgroundColor: '#fffdf5',
+            border: '1.5px solid #f59e0b',
             borderRadius: '12px',
-            padding: '0.45rem 0.7rem',
-            boxShadow: 'inset 0 1px 3px rgba(37, 99, 235, 0.04)',
-            marginBottom: '0.35rem'
+            padding: '0.5rem 0.75rem',
+            boxShadow: '0 2px 8px rgba(245, 158, 11, 0.08)',
+            marginBottom: '0.35rem',
+            transition: 'border-color 0.15s ease, box-shadow 0.15s ease'
           }}>
             <input
               type="text"
@@ -256,7 +257,7 @@ export default function AIPlannerTab({
                 border: 'none',
                 outline: 'none',
                 backgroundColor: 'transparent',
-                fontSize: '0.88rem',
+                fontSize: '0.92rem',
                 fontWeight: 800,
                 color: '#0f172a'
               }}
@@ -269,12 +270,12 @@ export default function AIPlannerTab({
                 type="button"
                 onClick={() => setDestination(city.val)}
                 style={{
-                  padding: '0.18rem 0.5rem',
+                  padding: '0.2rem 0.55rem',
                   borderRadius: '99px',
-                  border: destination.includes(city.val) ? '1.5px solid #2563eb' : '1px solid var(--border-color)',
-                  backgroundColor: destination.includes(city.val) ? 'rgba(37, 99, 235, 0.12)' : 'var(--bg-glass)',
-                  color: destination.includes(city.val) ? '#2563eb' : 'var(--text-main)',
-                  fontSize: '0.72rem',
+                  border: destination.includes(city.val) ? '1.5px solid #d97706' : '1px solid var(--border-color)',
+                  backgroundColor: destination.includes(city.val) ? 'rgba(245, 158, 11, 0.12)' : 'var(--bg-glass)',
+                  color: destination.includes(city.val) ? '#b45309' : 'var(--text-main)',
+                  fontSize: '0.74rem',
                   fontWeight: 700,
                   cursor: 'pointer',
                   flexShrink: 0
@@ -386,17 +387,17 @@ export default function AIPlannerTab({
           </div>
         </div>
 
-        {/* Step 5: 자유 요청사항 (소프트 블루 틴트) */}
+        {/* Step 5: 자유 요청사항 (시인성 300% 웜 앰버 골드 대비) */}
         <div>
           <label style={{ fontSize: '0.76rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.2rem', display: 'block' }}>
             {lang === 'en' ? 'Special Requests (Optional)' : '추가 요청 (선택): 예: 비 올 때 실내 위주, 핫플 카페 꼭 포함'}
           </label>
           <div style={{
-            backgroundColor: 'rgba(37, 99, 235, 0.035)',
-            border: '1.5px solid rgba(37, 99, 235, 0.28)',
+            backgroundColor: '#fffdf5',
+            border: '1.5px solid #f59e0b',
             borderRadius: '12px',
-            padding: '0.45rem 0.7rem',
-            boxShadow: 'inset 0 1px 3px rgba(37, 99, 235, 0.04)'
+            padding: '0.5rem 0.75rem',
+            boxShadow: '0 2px 8px rgba(245, 158, 11, 0.08)'
           }}>
             <input
               type="text"
@@ -408,7 +409,7 @@ export default function AIPlannerTab({
                 border: 'none',
                 outline: 'none',
                 backgroundColor: 'transparent',
-                fontSize: '0.84rem',
+                fontSize: '0.86rem',
                 fontWeight: 700,
                 color: '#0f172a'
               }}

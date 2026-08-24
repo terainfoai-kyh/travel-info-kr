@@ -624,24 +624,24 @@ export default function VoraAIChat({
             disabled={isLoading}
             style={{
               width: '100%',
-              backgroundColor: 'rgba(37, 99, 235, 0.035)',
-              border: '1.5px solid rgba(37, 99, 235, 0.28)',
+              backgroundColor: '#fffdf5',
+              border: '1.5px solid #f59e0b',
               borderRadius: 'var(--radius-full)',
-              padding: '0.45rem 0.9rem',
-              fontSize: '0.84rem',
+              padding: '0.48rem 0.95rem',
+              fontSize: '0.85rem',
               fontWeight: 700,
               color: '#0f172a',
               outline: 'none',
-              boxShadow: 'inset 0 1px 3px rgba(37, 99, 235, 0.04)',
+              boxShadow: '0 2px 6px rgba(245, 158, 11, 0.08)',
               transition: 'border-color var(--transition-fast), box-shadow var(--transition-fast)'
             }}
             onFocus={(e) => {
-              e.target.style.borderColor = '#2563eb';
-              e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.15)';
+              e.target.style.borderColor = '#d97706';
+              e.target.style.boxShadow = '0 0 0 3px rgba(245, 158, 11, 0.2)';
             }}
             onBlur={(e) => {
-              e.target.style.borderColor = 'rgba(37, 99, 235, 0.28)';
-              e.target.style.boxShadow = 'inset 0 1px 3px rgba(37, 99, 235, 0.04)';
+              e.target.style.borderColor = '#f59e0b';
+              e.target.style.boxShadow = '0 2px 6px rgba(245, 158, 11, 0.08)';
             }}
           />
         </div>
