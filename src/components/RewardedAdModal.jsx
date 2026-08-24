@@ -14,48 +14,48 @@ export default function RewardedAdModal({
 
   const SPONSOR_ADS_KO = [
     {
-      brand: 'Klook Official Partner',
-      title: '디스커버 서울패스 (Discover Seoul Pass) 24h & 48h 특별할인',
-      desc: '서울 주요 50개 대표 명소 무료 입장 + 대중교통 티머니(T-Money) 기능 기본 탑재!',
-      discount: '최대 25% OFF',
-      tag: 'K-Travel 스폰서 파트너',
-      link: 'https://www.klook.com',
+      brand: 'VORA AI Travel Korea',
+      title: '나만의 대한민국 맞춤 여행 코스 3초 완성 ✨',
+      desc: '한국관광공사 공식 데이터 100% 연동 + 구글맵 기반 최적 동선 설계로 나만의 완벽한 여행을 경험해 보세요!',
+      discount: '100% FREE',
+      tag: 'VORA 공식 프리미엄 기능',
+      link: 'https://travelkorea-dev.pages.dev',
       image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1400&q=85'
     }
   ];
 
   const SPONSOR_ADS_EN = [
     {
-      brand: 'Klook Official Partner',
-      title: 'Discover Seoul Pass 24h & 48h Special Discount',
-      desc: 'Free admission to 50+ top Seoul attractions + Built-in Transit T-Money card included!',
-      discount: 'Up to 25% OFF',
-      tag: 'K-Travel Sponsor Partner',
-      link: 'https://www.klook.com',
+      brand: 'VORA AI Travel Korea',
+      title: 'Craft Your Perfect Korea Itinerary in 3 Seconds ✨',
+      desc: 'Powered by Official Korea Tourism TourAPI & Google Maps with zero-waste route optimization!',
+      discount: '100% FREE',
+      tag: 'VORA Official Premium',
+      link: 'https://travelkorea-dev.pages.dev',
       image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1400&q=85'
     }
   ];
 
   const SPONSOR_ADS_JA = [
     {
-      brand: 'Klook 公式パートナー',
-      title: 'ディスカバーソウルパス 24h/48h 特別割引キャンペーン',
-      desc: 'ソウル主要50箇所の人気スポット無料入場＋交通T-Money機能付き！',
-      discount: '最大 25% OFF',
-      tag: 'K-Travel スポンサーパートナー',
-      link: 'https://www.klook.com',
+      brand: 'VORA AI Travel Korea',
+      title: 'あなただけの韓国旅行プランを3秒で自動作成 ✨',
+      desc: '韓国観光公社公式データ＆Googleマップ連動で、最もスマートな韓国旅行を体験！',
+      discount: '完全無料',
+      tag: 'VORA 公式プレミアム',
+      link: 'https://travelkorea-dev.pages.dev',
       image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1400&q=85'
     }
   ];
 
   const SPONSOR_ADS_ZH = [
     {
-      brand: 'Klook 官方合作伙伴',
-      title: '首尔探索卡 (Discover Seoul Pass) 限时特惠',
-      desc: '免费畅游首尔50+热门景点，内置T-Money交通卡畅行无阻！',
-      discount: '最高 75折特惠',
-      tag: 'K-Travel 官方赞助商',
-      link: 'https://www.klook.com',
+      brand: 'VORA AI Travel Korea',
+      title: '3秒为您定制专属韩国精选旅行路线 ✨',
+      desc: '韩国旅游发展局官方数据100%接入，谷歌地图智能路线规划，畅享无忧韩国之旅！',
+      discount: '完全免费',
+      tag: 'VORA 官方尊享功能',
+      link: 'https://travelkorea-dev.pages.dev',
       image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1400&q=85'
     }
   ];

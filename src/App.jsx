@@ -284,11 +284,6 @@ export default function App() {
   // AI Planner 1단계(form) vs 2단계(chat) 진입 모드 관리
   const [plannerInitialMode, setPlannerInitialMode] = useState('form');
 
-  // 💡 스마트 이탈 방지 모달 상태 (실제 AI 일정을 생성했을 때만 true)
-  const [isExitModalOpen, setIsExitModalOpen] = useState(false);
-  const [pendingNavTab, setPendingNavTab] = useState('home');
-  const [hasActiveUnsavedDraft, setHasActiveUnsavedDraft] = useState(false);
-
   // 🌟 [일정 확정 및 내 여행 저장] 코어 핸들러 (쿼터 1회 차감 & 저장)
   const handleSaveCurrentItinerary = (targetNextTab = 'mytrip') => {
     if (!itineraryData) {
@@ -300,7 +295,6 @@ export default function App() {
     const currentRemaining = questionQuota?.remaining || 0;
     if (currentRemaining <= 0) {
       // 🔒 횟수 소진 시 보상형 광고 모달 띄우기!
-      setIsExitModalOpen(false);
       setIsRewardedAdOpen(true);
       return;
     }
@@ -333,68 +327,19 @@ export default function App() {
       return updated;
     });
 
+    setItineraryData(newSaved);
+    setSelectedTripId(newSaved.savedId);
     setHasActiveUnsavedDraft(false);
-    setIsExitModalOpen(false);
-    setActiveNavTab(targetNextTab);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  // 🚪 그냥 나가기 (미저장 일정 완전 폐기 & 차감 없이 즉시 이동)
-  const handleExitWithoutSaving = () => {
-    setHasActiveUnsavedDraft(false);
-    setItineraryData(null); // 임시 일정 완전 폐기!
-    setIsExitModalOpen(false);
-    setActiveNavTab(pendingNavTab || 'home');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  // 탭 네비게이션 가로채기 핸들러 (실제 미저장 일정이 있을 때만 팝업)
-  const handleTabNavigate = (targetTab) => {
-    if (activeNavTab === 'ai' && targetTab !== 'ai' && hasActiveUnsavedDraft && itineraryData) {
-      setPendingNavTab(targetTab);
-      setIsExitModalOpen(true);
-      return;
+    if (targetNextTab) {
+      setActiveNavTab(targetNextTab);
     }
+  };
+
+  // 탭 네비게이션 핸들러 (방해 팝업 없이 즉시 자연스럽게 이동)
+  const handleTabNavigate = (targetTab) => {
     setActiveNavTab(targetTab);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-
-  // 📱 모바일 하드웨어/제스처 뒤로가기(popstate) & 새로고침(beforeunload) 2중 방어 시스템
-  useEffect(() => {
-    const shouldIntercept = (activeNavTab === 'ai' && hasActiveUnsavedDraft && !!itineraryData);
-
-    if (shouldIntercept) {
-      // 1. 브라우저 히스토리 스택에 가상 티켓 주입
-      try {
-        window.history.pushState({ voraTab: 'ai', timestamp: Date.now() }, '');
-      } catch (e) {}
-
-      // 2. 모바일 뒤로가기 가로채기
-      const handlePopState = (e) => {
-        // 뒤로가기 신호를 받으면 브라우저가 빠져나가지 못하도록 즉시 스택을 다시 채워 고정!
-        try {
-          window.history.pushState({ voraTab: 'ai', timestamp: Date.now() }, '');
-        } catch (err) {}
-        setPendingNavTab('home');
-        setIsExitModalOpen(true);
-      };
-
-      // 3. 브라우저 새로고침(F5) / 탭 닫기(X) 시스템 경고창
-      const handleBeforeUnload = (e) => {
-        e.preventDefault();
-        e.returnValue = '';
-        return '';
-      };
-
-      window.addEventListener('popstate', handlePopState);
-      window.addEventListener('beforeunload', handleBeforeUnload);
-
-      return () => {
-        window.removeEventListener('popstate', handlePopState);
-        window.removeEventListener('beforeunload', handleBeforeUnload);
-      };
-    }
-  }, [activeNavTab, hasActiveUnsavedDraft, itineraryData]);
 
   // Grant Reward (+3 chats on watching 15s ad)
   const handleRewardGranted = () => {
@@ -415,13 +360,20 @@ export default function App() {
         id: `reward-${Date.now()}`,
         role: 'assistant',
         text: (lang === 'ko')
-          ? '🎉 **스폰서 영상 시청 완료! 무료 AI 여행 생성 +3회가 즉시 충전되었습니다.** ✨\n원하시는 여행 코스를 자유롭게 설계해 보세요!'
-          : '🎉 **Sponsor video completed! +3 free AI itineraries have been granted.** ✨\nFeel free to plan more trips!',
+          ? '🎉 **스폰서 영상 시청 완료! 무료 AI 여행 저장 +3회가 즉시 충전되었습니다.** ✨\n내 여행 일정을 자유롭게 저장해 보세요!'
+          : '🎉 **Sponsor video completed! +3 free AI saves have been granted.** ✨\nFeel free to save your itineraries!',
         queryTime,
         replyTime: queryTime,
         timestamp: queryTime
       }
     ]);
+
+    // 🌟 저장 대기 중인 일정이 있었다면 즉시 저장 완료 후 [내 여행]으로 쾌적하게 이동!
+    if (itineraryData) {
+      setTimeout(() => {
+        handleSaveCurrentItinerary('mytrip');
+      }, 100);
+    }
   };
 
   // Google Login Success Handler
@@ -681,8 +633,8 @@ export default function App() {
               lang={lang}
               onGenerateItinerary={handleGenerateItinerary}
               onConfirmItinerary={() => {
-                // 🌟 2단계에서 [일정 확정] 터치 시 ➔ 쿼터 1회 차감 & [내 여행]으로 쏙 이동!
-                handleSaveCurrentItinerary('mytrip');
+                // 🌟 NO 1: [일정표 보기] 터치 시 저장/차감 없이 내 여행(타임라인) 화면으로 단순 이동!
+                setActiveNavTab('mytrip');
               }}
               isLoading={isLoading}
               questionQuota={questionQuota}
@@ -725,6 +677,8 @@ export default function App() {
                 setPlannerInitialMode('form');
                 setActiveNavTab('ai');
               }}
+              onSaveCurrentTrip={() => handleSaveCurrentItinerary()}
+              questionQuota={questionQuota}
             />
           </div>
         )}
@@ -974,17 +928,6 @@ export default function App() {
         onLoginSuccess={handleLoginSuccess}
         currentUser={currentUser}
         lang={lang}
-      />
-
-      {/* 💡 Smart Exit Interception Modal (저장하고 나가기 vs 그냥 나가기) */}
-      <ExitConfirmModal
-        isOpen={isExitModalOpen}
-        onClose={() => setIsExitModalOpen(false)}
-        onSaveAndExit={() => handleSaveCurrentItinerary(pendingNavTab || 'home')}
-        onJustExit={handleExitWithoutSaving}
-        itineraryData={itineraryData}
-        lang={lang}
-        remainingQuota={questionQuota?.remaining || 0}
       />
     </div>
   );

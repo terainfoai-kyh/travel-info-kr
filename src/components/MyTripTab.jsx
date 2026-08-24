@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
-import { Calendar, Share2, Check, MapPin, Sparkles, Navigation, Info, ExternalLink, Clock, CheckCircle2, Trash2, PlusCircle, Bookmark } from 'lucide-react';
+import { Calendar, Share2, Check, MapPin, Sparkles, Navigation, Info, ExternalLink, Clock, CheckCircle2, Trash2, PlusCircle, Bookmark, Printer, Download, Zap } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
 
 /**
  * ==============================================================================
  * MyTripTab.jsx - 내 여행 스마트 타임라인 & 멀티 저장 여행 셀렉터
  * 
- * 1. 상단: 🧳 내 저장 여행 (N개) 스마트 가로 스크롤 카드 셀렉터 & [＋ 새 여행]
- * 2. 선택된 여행의 상세 타임라인: DAY 1 / DAY 2 / DAY 3 탭 바
+ * 1. 상단: 🧳 내 저장 여행 (N개) 스마트 가로 스크롤 카드 셀렉터 & [＋ 새 여행] & [⚡ 잔여 저장 N/3회]
+ * 2. 저장 상태별 최적화:
+ *    - 미저장(Draft): [ 📝 작성 중 ] + [ 💾 이 일정 저장하기 (1회 차감) ] 노출 (공유 숨김)
+ *    - 저장완료(Saved): [ ✅ 저장됨 ] + [ 🔗 친구 공유 ] + [ 📄 PDF / 인쇄 ]
  * 3. 09:00~18:30 풀코스 1줄 타임라인 (0초 스크롤 뷰)
- * 4. 하단 듀얼 액션 바: [🗺️ 지도 보기] & [✨ AI 대화로 수정]
+ * 4. 하단 듀얼 액션 바: [🗺️ 지도 보기] & [💬 AI 대화로 수정]
  * ==============================================================================
  */
 
@@ -25,7 +27,9 @@ export default function MyTripTab({
   savedTrips = [],
   onSelectTrip,
   onDeleteTrip,
-  onCreateNewTrip
+  onCreateNewTrip,
+  onSaveCurrentTrip,
+  questionQuota = null
 }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
   const [copied, setCopied] = useState(false);
@@ -100,6 +104,12 @@ export default function MyTripTab({
     );
   }
 
+  // 현재 일정이 실제로 savedTrips에 저장되어 있는지 판별
+  const isCurrentTripSaved = savedTrips.some(t => 
+    (itineraryData?.savedId && t.savedId === itineraryData.savedId) || 
+    (t.tripTitle === (itineraryData?.tripTitle || itineraryData?.title))
+  );
+
   const schedules = itineraryData?.dailySchedules || [];
   const targetCity = itineraryData?.targetCity || '서울';
   const tripTitle = itineraryData?.tripTitle || itineraryData?.title || `${targetCity} ${itineraryData?.days || 3}일 여행 일정`;
@@ -125,6 +135,11 @@ export default function MyTripTab({
     }
   };
 
+  // 📄 PDF / 인쇄 기능
+  const handlePrintPDF = () => {
+    window.print();
+  };
+
   // 6개 표준 시간대 (09:00, 11:00, 13:00, 14:30, 16:30, 18:30)
   const getTimeSlot = (idx) => {
     const times = ['09:00', '11:00', '13:00', '14:30', '16:30', '18:30'];
@@ -143,6 +158,9 @@ export default function MyTripTab({
     return rawTheme.replace(/^\d+일차[:\s—-]*/, '').trim() || `${targetCity}의 하루`;
   };
 
+  const remainingQuota = questionQuota?.remaining ?? 3;
+  const totalQuota = questionQuota?.total ?? 3;
+
   return (
     <div style={{
       width: '100%',
@@ -152,44 +170,70 @@ export default function MyTripTab({
       flexDirection: 'column',
       gap: '0.85rem'
     }}>
-      {/* 🌟 0. 상단 멀티 저장 여행 가로 스크롤 카드 셀렉터 */}
-      {savedTrips && savedTrips.length > 0 && (
-        <div style={{
-          backgroundColor: 'var(--bg-card)',
-          borderRadius: '20px',
-          padding: '0.75rem 1rem',
-          border: '1px solid var(--border-color)',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '0.55rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+      {/* 🌟 0. 상단 멀티 저장 여행 셀렉터 & 잔여 저장 횟수 뱃지 */}
+      <div style={{
+        backgroundColor: 'var(--bg-card)',
+        borderRadius: '20px',
+        padding: '0.75rem 1rem',
+        border: '1px solid var(--border-color)',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0.55rem'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.4rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
               <Bookmark size={14} style={{ color: '#2563eb' }} />
-              <span>{lang === 'en' ? `Saved Itineraries (${savedTrips.length})` : lang === 'ja' ? `保存済みプラン (${savedTrips.length})` : (lang === 'zh' || lang === 'zht') ? `已保存行程 (${savedTrips.length})` : `내 저장 여행 (${savedTrips.length}개)`}</span>
+              <span>{lang === 'en' ? `Saved Trips (${savedTrips.length})` : lang === 'ja' ? `保存済みプラン (${savedTrips.length})` : (lang === 'zh' || lang === 'zht') ? `已保存行程 (${savedTrips.length})` : `내 저장 여행 (${savedTrips.length}개)`}</span>
             </div>
 
-            <button
-              type="button"
-              onClick={onCreateNewTrip || onGoToModify}
+            {/* ⚡ NO 5: 잔여 횟수 뱃지 (2/3회) + 터치 시 즉시 충전 */}
+            <div
+              onClick={onOpenRewardedAd}
+              title={lang === 'en' ? 'Click to recharge +3 saves' : '클릭하여 +3회 무료 충전하기'}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '0.25rem',
-                background: 'none',
-                border: 'none',
-                color: '#2563eb',
-                fontSize: '0.76rem',
+                gap: '0.2rem',
+                backgroundColor: remainingQuota > 0 ? 'rgba(37, 99, 235, 0.08)' : 'rgba(239, 68, 68, 0.1)',
+                color: remainingQuota > 0 ? '#2563eb' : '#ef4444',
+                border: `1px solid ${remainingQuota > 0 ? 'rgba(37, 99, 235, 0.25)' : 'rgba(239, 68, 68, 0.25)'}`,
+                borderRadius: '8px',
+                padding: '0.2rem 0.45rem',
+                fontSize: '0.72rem',
                 fontWeight: 800,
-                cursor: 'pointer'
+                cursor: 'pointer',
+                transition: 'all 0.15s ease'
               }}
             >
-              <PlusCircle size={13} />
-              <span>{lang === 'en' ? '＋ New Trip' : lang === 'ja' ? '＋ 新規プラン' : (lang === 'zh' || lang === 'zht') ? '＋ 新建行程' : '＋ 새 여행 만들기'}</span>
-            </button>
+              <Zap size={11} />
+              <span>{lang === 'en' ? `Saves: ${remainingQuota}/${totalQuota}` : `잔여 저장: ${remainingQuota}/${totalQuota}회`}</span>
+            </div>
           </div>
 
+          <button
+            type="button"
+            onClick={onCreateNewTrip || onGoToModify}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.25rem',
+              background: 'none',
+              border: 'none',
+              color: '#2563eb',
+              fontSize: '0.76rem',
+              fontWeight: 800,
+              cursor: 'pointer'
+            }}
+          >
+            <PlusCircle size={13} />
+            <span>{lang === 'en' ? '＋ New Trip' : lang === 'ja' ? '＋ 新規プラン' : (lang === 'zh' || lang === 'zht') ? '＋ 新建行程' : '＋ 새 여행 만들기'}</span>
+          </button>
+        </div>
+
+        {/* 저장된 여행 목록 가로 스크롤 카드 */}
+        {savedTrips && savedTrips.length > 0 && (
           <div style={{
             display: 'flex',
             gap: '0.5rem',
@@ -251,11 +295,11 @@ export default function MyTripTab({
               );
             })}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      {/* 1. Main Timeline Card */}
-      <div style={{
+      {/* 🌟 1. Main Timeline Card */}
+      <div id="printable-trip-timeline" style={{
         backgroundColor: 'var(--bg-card)',
         borderRadius: '24px',
         border: '1px solid var(--border-color)',
@@ -264,7 +308,7 @@ export default function MyTripTab({
         display: 'flex',
         flexDirection: 'column'
       }}>
-        {/* 1. Top Header: Back to Chat, Title & Auto-Save / Share */}
+        {/* 1. Top Header: Back to Chat, Title & Save / Share / PDF Actions */}
         <div style={{
           padding: '0.75rem 1rem 0.65rem 1rem',
           borderBottom: '1px solid var(--border-color)',
@@ -281,6 +325,7 @@ export default function MyTripTab({
             <button
               type="button"
               onClick={onGoToModify}
+              className="no-print"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -314,48 +359,99 @@ export default function MyTripTab({
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-            <span style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.2rem',
-              backgroundColor: '#ecfdf5',
-              color: '#059669',
-              border: '1px solid #a7f3d0',
-              borderRadius: '6px',
-              padding: '0.2rem 0.45rem',
-              fontSize: '0.7rem',
-              fontWeight: 800
-            }}>
-              <CheckCircle2 size={11} />
-              <span>{lang === 'en' ? 'Saved' : '저장됨'}</span>
-            </span>
+          {/* 🌟 우측 액션: 저장 상태(Saved) vs 미저장(Draft) 분기 처리 */}
+          <div className="no-print" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+            {isCurrentTripSaved ? (
+              // 🌟 NO 6: 저장된 진짜 일정 ➔ [✅ 저장됨] + [🔗 공유] + [📄 PDF]
+              <>
+                <span style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.2rem',
+                  backgroundColor: '#ecfdf5',
+                  color: '#059669',
+                  border: '1px solid #a7f3d0',
+                  borderRadius: '6px',
+                  padding: '0.25rem 0.45rem',
+                  fontSize: '0.72rem',
+                  fontWeight: 800
+                }}>
+                  <CheckCircle2 size={12} />
+                  <span>{lang === 'en' ? 'Saved' : '저장됨'}</span>
+                </span>
 
-            <button
-              type="button"
-              onClick={handleShareTrip}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.25rem',
-                backgroundColor: 'var(--bg-glass)',
-                border: '1px solid var(--border-color)',
-                color: 'var(--text-main)',
-                borderRadius: '8px',
-                padding: '0.35rem 0.6rem',
-                fontSize: '0.75rem',
-                fontWeight: 700,
-                cursor: 'pointer'
-              }}
-            >
-              <Share2 size={12} />
-              <span>{copied ? (lang === 'en' ? 'Copied!' : '복사됨!') : (lang === 'en' ? 'Share' : '공유')}</span>
-            </button>
+                <button
+                  type="button"
+                  onClick={handleShareTrip}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.25rem',
+                    backgroundColor: 'var(--bg-glass)',
+                    border: '1px solid var(--border-color)',
+                    color: 'var(--text-main)',
+                    borderRadius: '8px',
+                    padding: '0.32rem 0.55rem',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    cursor: 'pointer'
+                  }}
+                >
+                  <Share2 size={12} />
+                  <span>{copied ? (lang === 'en' ? 'Copied!' : '복사됨!') : (lang === 'en' ? 'Share' : '공유')}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handlePrintPDF}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.25rem',
+                    backgroundColor: 'var(--bg-glass)',
+                    border: '1px solid var(--border-color)',
+                    color: 'var(--text-main)',
+                    borderRadius: '8px',
+                    padding: '0.32rem 0.55rem',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    cursor: 'pointer'
+                  }}
+                >
+                  <Printer size={12} />
+                  <span>{lang === 'en' ? 'PDF' : 'PDF'}</span>
+                </button>
+              </>
+            ) : (
+              // 🌟 NO 7: 작성 중(미저장) 일정 ➔ 공유 숨김 & [ 💾 이 일정 저장하기 (1회 차감) ] 강조 버튼
+              <button
+                type="button"
+                onClick={onSaveCurrentTrip}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.3rem',
+                  background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '10px',
+                  padding: '0.4rem 0.75rem',
+                  fontSize: '0.78rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(37, 99, 235, 0.35)',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <Bookmark size={13} />
+                <span>{lang === 'en' ? `💾 Save Trip (${remainingQuota} Left)` : `💾 이 일정 저장하기 (1회 차감)`}</span>
+              </button>
+            )}
           </div>
         </div>
 
         {/* 2. DAY 1 / DAY 2 / DAY 3 Segmented Control Tab Bar */}
-        <div style={{
+        <div className="no-print" style={{
           display: 'flex',
           alignItems: 'center',
           gap: '0.35rem',
@@ -522,7 +618,7 @@ export default function MyTripTab({
         </div>
 
         {/* 5. Bottom Dual Actions: [🗺️ 지도 보기] & [💬 AI 대화로 수정] */}
-        <div style={{
+        <div className="no-print" style={{
           padding: '0.75rem 1rem',
           borderTop: '1px solid var(--border-color)',
           backgroundColor: 'var(--bg-glass)',
