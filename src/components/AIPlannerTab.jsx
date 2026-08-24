@@ -104,7 +104,7 @@ export default function AIPlannerTab({
   };
 
   // ==============================================================================
-  // 2단계 : AI 대화 & 코스 조율 모드 (VoraAIChat + 일정표 보기 버튼)
+  // 2단계 : AI 대화 & 코스 조율 모드 (VoraAIChat + 슬림 1줄 일정표 보기 버튼)
   // ==============================================================================
   if (plannerMode === 'chat') {
     return (
@@ -112,21 +112,23 @@ export default function AIPlannerTab({
         width: '100%',
         maxWidth: '820px',
         margin: '0 auto',
+        paddingBottom: '5.5rem',
         display: 'flex',
         flexDirection: 'column',
-        gap: '0.65rem'
+        gap: '0.5rem',
+        boxSizing: 'border-box'
       }}>
-        {/* Top Control Bar: [ ← 조건 다시 선택 ] & [ 📋 상세 일정표 보기 ] */}
+        {/* Top Control Bar: [ ← 조건 변경 ] & [ 📋 일정표 보기 ➔ ] (슬림 1줄) */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '0.5rem 0.75rem',
+          padding: '0.35rem 0.65rem',
           backgroundColor: 'var(--bg-card)',
-          borderRadius: '16px',
-          border: '1.5px solid var(--border-color)',
-          boxShadow: '0 4px 14px rgba(0, 0, 0, 0.05)',
-          gap: '0.5rem'
+          borderRadius: '14px',
+          border: '1px solid rgba(37, 99, 235, 0.2)',
+          boxShadow: '0 2px 10px rgba(37, 99, 235, 0.05)',
+          gap: '0.4rem'
         }}>
           <button
             type="button"
@@ -134,48 +136,49 @@ export default function AIPlannerTab({
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.3rem',
-              background: 'transparent',
+              gap: '0.25rem',
+              background: 'rgba(37, 99, 235, 0.06)',
               border: 'none',
-              color: 'var(--text-main)',
-              fontSize: '0.8rem',
+              color: '#2563eb',
+              fontSize: '0.74rem',
               fontWeight: 800,
               cursor: 'pointer',
-              padding: '0.3rem 0.5rem',
+              padding: '0.25rem 0.5rem',
               borderRadius: '8px'
             }}
           >
-            <ArrowLeft size={15} style={{ color: 'var(--accent-primary)' }} />
-            <span>{lang === 'en' ? 'Edit Studio Form' : lang === 'ja' ? '条件設定に戻る' : (lang === 'zh' || lang === 'zht') ? '返回条件设置' : '← 조건 다시 선택'}</span>
+            <ArrowLeft size={13} />
+            <span>{lang === 'en' ? 'Edit Conditions' : lang === 'ja' ? '条件変更' : (lang === 'zh' || lang === 'zht') ? '修改条件' : '← 조건 변경'}</span>
           </button>
 
-          {/* 🌟 2단계 핵심: 상세 일정표 / 타임라인 보기 버튼 */}
+          {/* 🌟 2단계 핵심: 슬림 콤팩트 일정표 보기 버튼 */}
           <button
             type="button"
             onClick={onConfirmItinerary}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.35rem',
+              gap: '0.3rem',
               background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
               color: '#ffffff',
               border: 'none',
               borderRadius: '9999px',
-              padding: '0.45rem 1rem',
-              fontSize: '0.82rem',
+              padding: '0.32rem 0.75rem',
+              fontSize: '0.76rem',
               fontWeight: 800,
               cursor: 'pointer',
-              boxShadow: '0 4px 14px rgba(37, 99, 235, 0.35)',
-              transition: 'all 0.2s ease'
+              boxShadow: '0 3px 10px rgba(37, 99, 235, 0.3)',
+              transition: 'all 0.2s ease',
+              whiteSpace: 'nowrap'
             }}
           >
-            <CheckCircle2 size={14} />
-            <span>{lang === 'en' ? 'View Itinerary & Timeline ➔' : lang === 'ja' ? '日程表・タイムラインを見る ➔' : (lang === 'zh' || lang === 'zht') ? '查看详细行程与时间线 ➔' : '📋 상세 일정표 & 타임라인 보기 ➔'}</span>
+            <CheckCircle2 size={13} />
+            <span>{lang === 'en' ? 'View Timeline ➔' : lang === 'ja' ? '日程表を見る ➔' : (lang === 'zh' || lang === 'zht') ? '查看行程 ➔' : '📋 일정표 보기 ➔'}</span>
           </button>
         </div>
 
         {/* 2단계 실시간 대화창 (VoraAIChat) */}
-        <div style={{ height: 'calc(100vh - 230px)', minHeight: '520px' }}>
+        <div style={{ height: 'calc(100vh - 220px)', minHeight: '480px' }}>
           <VoraAIChat
             lang={lang}
             chatMessages={chatMessages}
@@ -191,57 +194,57 @@ export default function AIPlannerTab({
   }
 
   // ==============================================================================
-  // 1단계 : AI Studio 조건 선택 폼
+  // 1단계 : AI Studio 조건 선택 폼 (슬림 & 소프트 블루 리디자인)
   // ==============================================================================
   return (
     <div style={{
       width: '100%',
-      maxWidth: '680px',
-      margin: '0 auto',
+      maxWidth: '620px',
+      margin: '0 auto 6.5rem auto',
       backgroundColor: 'var(--bg-card)',
-      borderRadius: '24px',
-      border: '1.5px solid var(--border-color)',
-      boxShadow: '0 10px 30px rgba(0, 0, 0, 0.08)',
-      padding: '1rem 1.1rem 1.3rem 1.1rem',
+      borderRadius: '20px',
+      border: '1px solid rgba(37, 99, 235, 0.18)',
+      boxShadow: '0 8px 25px rgba(37, 99, 235, 0.07)',
+      padding: '0.85rem 0.95rem 1.15rem 0.95rem',
       boxSizing: 'border-box'
     }}>
-      <div style={{ textAlign: 'center', marginBottom: '0.9rem' }}>
+      <div style={{ textAlign: 'center', marginBottom: '0.75rem' }}>
         <div style={{
           display: 'inline-flex',
           alignItems: 'center',
-          gap: '0.35rem',
+          gap: '0.3rem',
           backgroundColor: 'rgba(37, 99, 235, 0.08)',
           color: 'var(--accent-primary)',
-          padding: '0.2rem 0.75rem',
+          padding: '0.15rem 0.65rem',
           borderRadius: '9999px',
-          fontSize: '0.75rem',
+          fontSize: '0.72rem',
           fontWeight: 800,
-          marginBottom: '0.25rem'
+          marginBottom: '0.2rem'
         }}>
-          <Sparkles size={13} />
+          <Sparkles size={12} />
           <span>VORA AI Travel Studio</span>
         </div>
-        <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900, color: 'var(--text-main)' }}>
+        <h2 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 900, color: 'var(--text-main)' }}>
           {lang === 'en' ? 'What kind of trip are you planning?' : lang === 'ja' ? 'どのような旅を計画していますか？' : (lang === 'zh' || lang === 'zht') ? '您想计划怎样的韩国之旅？' : '어떤 여행을 계획할까요?'}
         </h2>
       </div>
 
-      <form onSubmit={handleCreateSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-        {/* Step 1: 여행지 (시인성 200% UP) */}
+      <form onSubmit={handleCreateSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+        {/* Step 1: 여행지 (소프트 블루 틴트) */}
         <div>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
-            <MapPin size={15} style={{ color: 'var(--accent-primary)' }} />
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.25rem' }}>
+            <MapPin size={14} style={{ color: 'var(--accent-primary)' }} />
             <span>{lang === 'en' ? 'Destination' : '여행지'}</span>
           </label>
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            backgroundColor: '#ffffff',
-            border: '2px solid #94a3b8',
+            backgroundColor: 'rgba(37, 99, 235, 0.035)',
+            border: '1.5px solid rgba(37, 99, 235, 0.28)',
             borderRadius: '12px',
-            padding: '0.5rem 0.75rem',
-            boxShadow: '0 2px 6px rgba(0, 0, 0, 0.05)',
-            marginBottom: '0.45rem'
+            padding: '0.45rem 0.7rem',
+            boxShadow: 'inset 0 1px 3px rgba(37, 99, 235, 0.04)',
+            marginBottom: '0.35rem'
           }}>
             <input
               type="text"
@@ -253,57 +256,96 @@ export default function AIPlannerTab({
                 border: 'none',
                 outline: 'none',
                 backgroundColor: 'transparent',
-                fontSize: '0.92rem',
+                fontSize: '0.88rem',
                 fontWeight: 800,
                 color: '#0f172a'
               }}
             />
           </div>
-          <div style={{ display: 'flex', gap: '0.3rem', overflowX: 'auto', marginTop: '0.4rem' }}>
+          <div style={{ display: 'flex', gap: '0.25rem', overflowX: 'auto', scrollbarWidth: 'none' }}>
             {CITIES.map((city) => (
-              <button key={city.id} type="button" onClick={() => setDestination(city.val)} style={{ padding: '0.2rem 0.5rem', borderRadius: '99px', border: '1px solid var(--border-color)', fontSize: '0.75rem' }}>{city.name}</button>
+              <button
+                key={city.id}
+                type="button"
+                onClick={() => setDestination(city.val)}
+                style={{
+                  padding: '0.18rem 0.5rem',
+                  borderRadius: '99px',
+                  border: destination.includes(city.val) ? '1.5px solid #2563eb' : '1px solid var(--border-color)',
+                  backgroundColor: destination.includes(city.val) ? 'rgba(37, 99, 235, 0.12)' : 'var(--bg-glass)',
+                  color: destination.includes(city.val) ? '#2563eb' : 'var(--text-main)',
+                  fontSize: '0.72rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  flexShrink: 0
+                }}
+              >
+                {city.name}
+              </button>
             ))}
           </div>
         </div>
 
-        {/* Step 2: 기간 */}
+        {/* Step 2: 기간 (30% 슬림 콤팩트) */}
         <div>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.3rem' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.25rem' }}>
             <Calendar size={14} style={{ color: 'var(--accent-primary)' }} />
             <span>{lang === 'en' ? 'Duration' : '여행 기간'}</span>
           </label>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '0.35rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '0.3rem' }}>
             {DAYS_OPTIONS.map((d) => (
-              <button key={d} type="button" onClick={() => setSelectedDays(d)} style={{ padding: '0.5rem', borderRadius: '10px', backgroundColor: selectedDays === d ? '#2563eb' : 'var(--bg-glass)', color: selectedDays === d ? '#fff' : 'var(--text-main)', fontWeight: 800 }}>{d}일</button>
+              <button
+                key={d}
+                type="button"
+                onClick={() => setSelectedDays(d)}
+                style={{
+                  padding: '0.38rem 0.2rem',
+                  borderRadius: '9px',
+                  border: selectedDays === d ? '1.5px solid #2563eb' : '1px solid var(--border-color)',
+                  backgroundColor: selectedDays === d ? '#2563eb' : 'var(--bg-glass)',
+                  color: selectedDays === d ? '#ffffff' : 'var(--text-main)',
+                  fontSize: '0.8rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  boxShadow: selectedDays === d ? '0 3px 8px rgba(37, 99, 235, 0.3)' : 'none'
+                }}
+              >
+                {d}일
+              </button>
             ))}
           </div>
         </div>
 
-        {/* Step 3: 테마 */}
+        {/* Step 3: 테마 (슬림 콤팩트 캡슐) */}
         <div>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.3rem' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.25rem' }}>
             <Compass size={14} style={{ color: 'var(--accent-primary)' }} />
             <span>{lang === 'en' ? 'Themes' : '여행 테마'}</span>
           </label>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
             {THEME_OPTIONS.map((theme) => {
               const Icon = theme.icon;
+              const isSelected = selectedThemes.includes(theme.val);
               return (
                 <button
                   key={theme.id}
                   type="button"
                   onClick={() => handleToggleTheme(theme.val)}
                   style={{
-                    padding: '0.35rem 0.65rem',
-                    borderRadius: '9px',
-                    border: selectedThemes.includes(theme.val) ? '1.5px solid var(--accent-primary)' : '1px solid var(--border-color)',
-                    backgroundColor: selectedThemes.includes(theme.val) ? 'rgba(37, 99, 235, 0.12)' : 'var(--bg-glass)',
+                    padding: '0.28rem 0.55rem',
+                    borderRadius: '8px',
+                    border: isSelected ? '1.5px solid #2563eb' : '1px solid var(--border-color)',
+                    backgroundColor: isSelected ? 'rgba(37, 99, 235, 0.12)' : 'var(--bg-glass)',
+                    color: isSelected ? '#2563eb' : 'var(--text-main)',
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '0.25rem'
+                    gap: '0.2rem',
+                    fontSize: '0.75rem',
+                    fontWeight: isSelected ? 800 : 600,
+                    cursor: 'pointer'
                   }}
                 >
-                  <Icon size={12} />
+                  <Icon size={11} />
                   <span>{theme.label}</span>
                 </button>
               );
@@ -311,45 +353,50 @@ export default function AIPlannerTab({
           </div>
         </div>
 
-        {/* Step 4: 동행자 */}
+        {/* Step 4: 동행자 (슬림 콤팩트) */}
         <div>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.3rem' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.25rem' }}>
             <Users size={14} style={{ color: 'var(--accent-primary)' }} />
             <span>{lang === 'en' ? 'Companions' : lang === 'ja' ? '同行者' : (lang === 'zh' || lang === 'zht') ? '同伴' : '동행자'}</span>
           </label>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.35rem' }}>
-            {COMPANION_OPTIONS.map((comp) => (
-              <button
-                key={comp.id}
-                type="button"
-                onClick={() => setSelectedCompanion(comp.val)}
-                style={{
-                  padding: '0.45rem 0.2rem',
-                  borderRadius: '10px',
-                  border: selectedCompanion === comp.val ? '2px solid #2563eb' : '1px solid var(--border-color)',
-                  backgroundColor: selectedCompanion === comp.val ? '#2563eb' : 'var(--bg-glass)',
-                  color: selectedCompanion === comp.val ? '#ffffff' : 'var(--text-main)',
-                  fontSize: '0.78rem',
-                  fontWeight: 800
-                }}
-              >
-                {comp.label}
-              </button>
-            ))}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.3rem' }}>
+            {COMPANION_OPTIONS.map((comp) => {
+              const isSelected = selectedCompanion === comp.val;
+              return (
+                <button
+                  key={comp.id}
+                  type="button"
+                  onClick={() => setSelectedCompanion(comp.val)}
+                  style={{
+                    padding: '0.35rem 0.2rem',
+                    borderRadius: '9px',
+                    border: isSelected ? '1.5px solid #2563eb' : '1px solid var(--border-color)',
+                    backgroundColor: isSelected ? '#2563eb' : 'var(--bg-glass)',
+                    color: isSelected ? '#ffffff' : 'var(--text-main)',
+                    fontSize: '0.76rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    boxShadow: isSelected ? '0 3px 8px rgba(37, 99, 235, 0.25)' : 'none'
+                  }}
+                >
+                  {comp.label}
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        {/* Step 5: 자유 요청사항 (시인성 강화) */}
+        {/* Step 5: 자유 요청사항 (소프트 블루 틴트) */}
         <div>
-          <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.3rem', display: 'block' }}>
+          <label style={{ fontSize: '0.76rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.2rem', display: 'block' }}>
             {lang === 'en' ? 'Special Requests (Optional)' : '추가 요청 (선택): 예: 비 올 때 실내 위주, 핫플 카페 꼭 포함'}
           </label>
           <div style={{
-            backgroundColor: '#ffffff',
-            border: '2px solid #94a3b8',
+            backgroundColor: 'rgba(37, 99, 235, 0.035)',
+            border: '1.5px solid rgba(37, 99, 235, 0.28)',
             borderRadius: '12px',
-            padding: '0.5rem 0.75rem',
-            boxShadow: '0 2px 6px rgba(0, 0, 0, 0.05)'
+            padding: '0.45rem 0.7rem',
+            boxShadow: 'inset 0 1px 3px rgba(37, 99, 235, 0.04)'
           }}>
             <input
               type="text"
@@ -361,7 +408,7 @@ export default function AIPlannerTab({
                 border: 'none',
                 outline: 'none',
                 backgroundColor: 'transparent',
-                fontSize: '0.88rem',
+                fontSize: '0.84rem',
                 fontWeight: 700,
                 color: '#0f172a'
               }}
@@ -369,36 +416,36 @@ export default function AIPlannerTab({
           </div>
         </div>
 
-        {/* Submit Button */}
+        {/* Submit Button (슬림 캡슐 & 시인성 최고) */}
         <button
           type="submit"
           disabled={isLoading}
           style={{
-            marginTop: '0.3rem',
-            padding: '0.75rem 1rem',
-            borderRadius: '14px',
+            marginTop: '0.25rem',
+            padding: '0.68rem 1rem',
+            borderRadius: '13px',
             border: 'none',
             background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
             color: '#ffffff',
-            fontSize: '0.98rem',
+            fontSize: '0.92rem',
             fontWeight: 900,
             cursor: isLoading ? 'default' : 'pointer',
             opacity: isLoading ? 0.75 : 1,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '0.45rem',
-            boxShadow: '0 6px 20px rgba(37, 99, 235, 0.35)',
+            gap: '0.4rem',
+            boxShadow: '0 5px 16px rgba(37, 99, 235, 0.35)',
             transition: 'transform 0.15s ease'
           }}
         >
-          <Sparkles size={16} />
+          <Sparkles size={15} />
           <span>
             {isLoading
               ? (lang === 'en' ? 'Designing Itinerary...' : 'AI 맞춤 일정 생성 중...')
               : (lang === 'en' ? '✨ Generate AI Travel Itinerary' : '✨ AI 여행 일정 만들기')}
           </span>
-          {!isLoading && <ArrowRight size={16} />}
+          {!isLoading && <ArrowRight size={15} />}
         </button>
       </form>
     </div>

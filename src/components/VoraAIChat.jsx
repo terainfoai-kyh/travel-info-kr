@@ -108,52 +108,52 @@ export default function VoraAIChat({
       width: '100%',
       maxWidth: '100%',
       boxSizing: 'border-box',
-      backgroundColor: 'var(--bg-card)',
-      borderRadius: 'var(--radius-lg)',
-      border: '1px solid var(--border-color)',
-      boxShadow: 'var(--shadow-md)',
+      background: 'linear-gradient(180deg, #f0f7ff 0%, #e8f4fd 100%)',
+      borderRadius: '20px',
+      border: '1px solid rgba(37, 99, 235, 0.22)',
+      boxShadow: '0 8px 24px rgba(37, 99, 235, 0.08)',
       overflow: 'hidden'
     }}>
-      {/* Chat Header */}
+      {/* Chat Header (슬림 컴팩트) */}
       <div style={{
-        padding: '0.65rem 0.85rem',
-        borderBottom: '1px solid var(--border-color)',
+        padding: '0.45rem 0.75rem',
+        borderBottom: '1px solid rgba(37, 99, 235, 0.15)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        backgroundColor: 'var(--bg-glass)',
+        backgroundColor: 'rgba(255, 255, 255, 0.85)',
         backdropFilter: 'blur(12px)'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
           <img
             src="/logo.png"
             alt="VORA"
             style={{
-              width: '24px',
-              height: '24px',
+              width: '22px',
+              height: '22px',
               borderRadius: '6px',
               objectFit: 'cover'
             }}
           />
           <div>
-            <h3 style={{ margin: 0, fontSize: '0.86rem', fontWeight: 800, color: 'var(--text-main)' }}>
+            <h3 style={{ margin: 0, fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-main)' }}>
               {t.chatTitle || 'Vora AI 컨시어지 대화'}
             </h3>
           </div>
         </div>
 
         <span style={{
-          fontSize: '0.66rem',
+          fontSize: '0.64rem',
           fontWeight: 700,
-          color: '#10b981',
-          backgroundColor: 'rgba(16, 185, 129, 0.1)',
-          padding: '0.12rem 0.4rem',
+          color: '#059669',
+          backgroundColor: 'rgba(16, 185, 129, 0.12)',
+          padding: '0.1rem 0.38rem',
           borderRadius: 'var(--radius-full)',
           display: 'inline-flex',
           alignItems: 'center',
-          gap: '0.25rem'
+          gap: '0.2rem'
         }}>
-          <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10b981' }} />
+          <span style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: '#10b981' }} />
           <span>{t.chatStatusLive || (lang === 'en' ? 'Live Chat' : '실시간 1:1 대화중')}</span>
         </span>
       </div>
@@ -440,9 +440,11 @@ export default function VoraAIChat({
                     marginTop: '0.45rem'
                   }}>
                     {msg.itinerary.dailySchedules && (
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
                         {msg.itinerary.dailySchedules.map((ds) => {
                           const isCurrentActive = Number(activeDay) === Number(ds.day);
+                          // 중복된 "1일차:", "2일차:" 접두사 정제
+                          const cleanTheme = ds.theme ? ds.theme.replace(/^\d+일차[:\s—-]*/, '').trim() : '';
                           return (
                             <button
                               key={ds.day}
@@ -451,51 +453,51 @@ export default function VoraAIChat({
                               style={{
                                 display: 'inline-flex',
                                 alignItems: 'center',
-                                gap: '0.3rem',
-                                backgroundColor: isCurrentActive ? '#2563eb' : 'var(--bg-primary)',
-                                color: isCurrentActive ? '#ffffff' : 'var(--text-main)',
-                                border: isCurrentActive ? '1.5px solid #2563eb' : '1px solid var(--border-color)',
+                                gap: '0.25rem',
+                                backgroundColor: isCurrentActive ? '#2563eb' : '#ffffff',
+                                color: isCurrentActive ? '#ffffff' : '#0f172a',
+                                border: isCurrentActive ? '1.5px solid #2563eb' : '1px solid rgba(37, 99, 235, 0.2)',
                                 borderRadius: 'var(--radius-full)',
-                                padding: '0.28rem 0.65rem',
-                                fontSize: '0.74rem',
+                                padding: '0.22rem 0.55rem',
+                                fontSize: '0.72rem',
                                 fontWeight: isCurrentActive ? 800 : 600,
                                 cursor: 'pointer',
-                                transition: 'all 0.2s ease'
+                                transition: 'all 0.15s ease'
                               }}
                             >
                               <span style={{ fontWeight: 900 }}>{t.dayBadge ? t.dayBadge(ds.day) : `${ds.day}일차`}</span>
-                              <span style={{ opacity: isCurrentActive ? 0.95 : 0.7, fontSize: '0.7rem' }}>{ds.theme ? `• ${ds.theme}` : ''}</span>
+                              {cleanTheme && <span style={{ opacity: isCurrentActive ? 0.95 : 0.75, fontSize: '0.68rem' }}>• {cleanTheme}</span>}
                             </button>
                           );
                         })}
                       </div>
                     )}
 
-                    {/* 🌟 2단계 핵심: 챗봇 말풍선 바로 밑 상세 일정표 보기 CTA 버튼 */}
+                    {/* 🌟 2단계 핵심: 슬림 콤팩트 일정표 보기 버튼 */}
                     {onViewTimeline && (
                       <button
                         type="button"
                         onClick={onViewTimeline}
                         style={{
                           width: '100%',
-                          padding: '0.6rem 0.95rem',
+                          padding: '0.45rem 0.85rem',
                           background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
                           color: '#ffffff',
                           border: 'none',
-                          borderRadius: '12px',
-                          fontSize: '0.86rem',
+                          borderRadius: '10px',
+                          fontSize: '0.8rem',
                           fontWeight: 800,
                           cursor: 'pointer',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          gap: '0.4rem',
-                          boxShadow: '0 4px 15px rgba(37, 99, 235, 0.35)',
-                          transition: 'all 0.2s ease',
-                          marginTop: '0.25rem'
+                          gap: '0.35rem',
+                          boxShadow: '0 3px 12px rgba(37, 99, 235, 0.3)',
+                          transition: 'all 0.15s ease',
+                          marginTop: '0.2rem'
                         }}
                       >
-                        <Sparkles size={14} />
+                        <Sparkles size={13} />
                         <span>{lang === 'en' ? 'View Itinerary & Timeline ➔' : lang === 'ja' ? '日程表・タイムラインを見る ➔' : (lang === 'zh' || lang === 'zht') ? '查看详细行程与时间线 ➔' : '📋 상세 일정표 & 타임라인 보기 ➔'}</span>
                       </button>
                     )}
@@ -511,15 +513,15 @@ export default function VoraAIChat({
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '0.45rem',
-            padding: '0.6rem 0.85rem',
+            gap: '0.4rem',
+            padding: '0.45rem 0.75rem',
             backgroundColor: 'rgba(37, 99, 235, 0.06)',
-            borderRadius: '16px',
+            borderRadius: '12px',
             border: '1px solid rgba(37, 99, 235, 0.15)',
             width: 'fit-content'
           }}>
-            <Loader2 size={15} className="animate-spin" style={{ color: 'var(--accent-primary)' }} />
-            <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--accent-primary)' }}>
+            <Loader2 size={14} className="animate-spin" style={{ color: 'var(--accent-primary)' }} />
+            <span style={{ fontSize: '0.74rem', fontWeight: 700, color: 'var(--accent-primary)' }}>
               {lang === 'en' 
                 ? 'VORA AI is crafting your tailored itinerary...' 
                 : lang === 'ja'
@@ -534,16 +536,16 @@ export default function VoraAIChat({
         <div ref={chatEndRef} />
       </div>
 
-      {/* Follow-up Quick Modification Chips */}
+      {/* Follow-up Quick Modification Chips (슬림 1줄) */}
       {!isLoading && (
         <div
           className="no-scrollbar"
           style={{
-            padding: '0.4rem 0.65rem',
-            backgroundColor: 'var(--bg-primary)',
-            borderTop: '1px solid var(--border-color)',
+            padding: '0.3rem 0.6rem',
+            backgroundColor: 'rgba(255, 255, 255, 0.7)',
+            borderTop: '1px solid rgba(37, 99, 235, 0.12)',
             display: 'flex',
-            gap: '0.35rem',
+            gap: '0.3rem',
             overflowX: 'auto',
             whiteSpace: 'nowrap',
             width: '100%',
@@ -558,16 +560,16 @@ export default function VoraAIChat({
               key={idx}
               onClick={() => handleQuickChip(chip)}
               style={{
-                backgroundColor: 'var(--bg-card)',
-                border: '1px solid var(--border-color)',
+                backgroundColor: '#ffffff',
+                border: '1px solid rgba(37, 99, 235, 0.2)',
                 borderRadius: 'var(--radius-full)',
-                padding: '0.25rem 0.65rem',
-                fontSize: '0.72rem',
+                padding: '0.2rem 0.55rem',
+                fontSize: '0.7rem',
                 fontWeight: 600,
                 color: 'var(--text-main)',
                 cursor: 'pointer',
                 flexShrink: 0,
-                boxShadow: 'var(--shadow-sm)',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
                 transition: 'all var(--transition-fast)'
               }}
               onMouseEnter={(e) => {
@@ -575,7 +577,7 @@ export default function VoraAIChat({
                 e.currentTarget.style.color = 'var(--accent-primary)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'var(--border-color)';
+                e.currentTarget.style.borderColor = 'rgba(37, 99, 235, 0.2)';
                 e.currentTarget.style.color = 'var(--text-main)';
               }}
             >
@@ -585,16 +587,16 @@ export default function VoraAIChat({
         </div>
       )}
 
-      {/* Chat Input Bar (시인성 200% UP) */}
+      {/* Chat Input Bar (슬림 & 소프트 블루 틴트) */}
       <form
         onSubmit={handleSend}
         style={{
-          padding: '0.6rem 0.75rem calc(0.6rem + env(safe-area-inset-bottom, 0px)) 0.75rem',
+          padding: '0.45rem 0.65rem calc(0.45rem + env(safe-area-inset-bottom, 0px)) 0.65rem',
           display: 'flex',
           alignItems: 'center',
-          gap: '0.45rem',
-          backgroundColor: 'var(--bg-card)',
-          borderTop: '1px solid var(--border-color)',
+          gap: '0.4rem',
+          backgroundColor: '#ffffff',
+          borderTop: '1px solid rgba(37, 99, 235, 0.15)',
           width: '100%',
           maxWidth: '100%',
           boxSizing: 'border-box'
@@ -613,33 +615,33 @@ export default function VoraAIChat({
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             placeholder={lang === 'ko' 
-              ? "추가 질문이나 일정 수정을 적어주세요 (예: 2일차 카페 변경)..." 
+              ? "추가 질문이나 일정 수정을 적어주세요..." 
               : lang === 'ja'
-              ? "ご質問やプランの変更を入力してください (例: 2日目のカフェ変更)..."
+              ? "プランの変更を入力してください..."
               : (lang === 'zh' || lang === 'zht')
-              ? "请输入补充提问或行程调整 (例如: 修改第2天咖啡厅)..."
+              ? "请输入补充提问或行程调整..."
               : "Ask adjustments or questions..."}
             disabled={isLoading}
             style={{
               width: '100%',
-              backgroundColor: '#ffffff',
-              border: '2px solid #94a3b8',
+              backgroundColor: 'rgba(37, 99, 235, 0.035)',
+              border: '1.5px solid rgba(37, 99, 235, 0.28)',
               borderRadius: 'var(--radius-full)',
-              padding: '0.6rem 1.1rem',
-              fontSize: '0.88rem',
+              padding: '0.45rem 0.9rem',
+              fontSize: '0.84rem',
               fontWeight: 700,
               color: '#0f172a',
               outline: 'none',
-              boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
+              boxShadow: 'inset 0 1px 3px rgba(37, 99, 235, 0.04)',
               transition: 'border-color var(--transition-fast), box-shadow var(--transition-fast)'
             }}
             onFocus={(e) => {
               e.target.style.borderColor = '#2563eb';
-              e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.2)';
+              e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.15)';
             }}
             onBlur={(e) => {
-              e.target.style.borderColor = '#94a3b8';
-              e.target.style.boxShadow = '0 2px 6px rgba(0,0,0,0.04)';
+              e.target.style.borderColor = 'rgba(37, 99, 235, 0.28)';
+              e.target.style.boxShadow = 'inset 0 1px 3px rgba(37, 99, 235, 0.04)';
             }}
           />
         </div>
@@ -650,8 +652,8 @@ export default function VoraAIChat({
             backgroundColor: inputText.trim() && !isLoading ? 'var(--accent-primary)' : 'rgba(37, 99, 235, 0.1)',
             color: inputText.trim() && !isLoading ? '#ffffff' : 'var(--accent-primary)',
             border: inputText.trim() && !isLoading ? 'none' : '1px solid rgba(37, 99, 235, 0.2)',
-            width: '38px',
-            height: '38px',
+            width: '34px',
+            height: '34px',
             borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
@@ -664,7 +666,7 @@ export default function VoraAIChat({
           }}
           title={lang === 'ko' ? '메시지 전송' : lang === 'ja' ? '送信' : (lang === 'zh' || lang === 'zht') ? '发送' : 'Send message'}
         >
-          <Send size={16} />
+          <Send size={14} />
         </button>
       </form>
     </div>
