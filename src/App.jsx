@@ -418,9 +418,18 @@ export default function App() {
       const requestedDays = extractDaysFromPrompt(promptQuery) || (isRecommendationChipSubmit ? 1 : 3);
       const targetCity = extractLocationKeyword(promptQuery) || '서울';
 
-      const tagLabel = isRecommendationChipSubmit
-        ? `👑 ${promptQuery.slice(0, 24)}`
-        : `📍 ${targetCity} ${requestedDays}일 코스`;
+      // 테마 및 동행자 추출
+      const companionMatch = promptQuery.match(/(커플|혼자|가족|친구)/);
+      const companionText = companionMatch ? companionMatch[1] : '';
+      const themeMatch = promptQuery.match(/테마:\s*([^,]+(?:,\s*[^,]+)?)/);
+      const themeText = themeMatch ? themeMatch[1] : '';
+
+      let tagLabel = `📍 ${targetCity} ${requestedDays}일`;
+      if (companionText) tagLabel += ` • 👫 ${companionText}`;
+      if (themeText) tagLabel += ` • 🍴 ${themeText}`;
+      if (isRecommendationChipSubmit) {
+        tagLabel = `👑 ${promptQuery.slice(0, 24)}`;
+      }
 
       const briefingText = (lang === 'en')
         ? `**[ ${tagLabel} ]**\nAny extra requirements (indoor spots, rental car, etc.)? 😊\nIf not, I will create your tailored itinerary right away!`
@@ -444,8 +453,9 @@ export default function App() {
           replyTime,
           timestamp: replyTime
         };
-        setChatMessages(prev => [...prev, botMsg]);
-      }, 150);
+        // 🌟 폼/칩 재진입 시 이전 찌꺼기 없이 깨끗하게 1개의 세션으로 리셋!
+        setChatMessages([botMsg]);
+      }, 80);
       return;
     }
 

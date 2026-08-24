@@ -172,8 +172,8 @@ export default function VoraAIChat({
             const isStructuredFormQuery = (msg.text.includes('여행') && (msg.text.includes('테마:') || msg.text.includes('박'))) ||
                                           /(경복궁|성수|광안리|서귀포|행궁동|K-헤리티지|오션|힐링|힙플)/i.test(msg.text);
 
-            if (isStructuredFormQuery && chatMessages[0]?.id === msg.id) {
-              return null; // 첫 진입 선택 데이터는 말풍선 생략하고 보라의 다정한 말풍선으로 바로 시작!
+            if (isStructuredFormQuery) {
+              return null; // 선택으로 유입된 데이터는 말풍선 생략하고 보라의 다정한 말풍선으로 바로 시작!
             }
 
             return (
@@ -191,17 +191,18 @@ export default function VoraAIChat({
                 }}
               >
                 <div style={{
-                  background: 'linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)',
-                  color: '#ffffff',
+                  backgroundColor: '#f1f5f9',
+                  color: '#1e293b',
+                  border: '1px solid rgba(203, 213, 225, 0.9)',
                   borderRadius: '16px 16px 4px 16px',
-                  padding: '0.55rem 0.85rem',
+                  padding: '0.6rem 0.9rem',
                   fontSize: '0.84rem',
                   fontWeight: 600,
                   lineHeight: 1.45,
                   maxWidth: '85%',
                   wordBreak: 'break-word',
                   overflowWrap: 'anywhere',
-                  boxShadow: '0 3px 12px rgba(79, 70, 229, 0.22)'
+                  boxShadow: '0 2px 6px rgba(0, 0, 0, 0.03)'
                 }}>
                   {msg.text}
                 </div>
