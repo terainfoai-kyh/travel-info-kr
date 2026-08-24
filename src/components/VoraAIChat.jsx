@@ -403,106 +403,50 @@ export default function VoraAIChat({
                     </div>
                   )}
 
-                  {/* Copy Button if message has itinerary data */}
-                  {msg.itinerary && (
-                    <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'flex-end' }}>
-                      <button
-                        onClick={() => handleCopyItinerary(msg.itinerary, msg.id)}
-                        style={{
-                          backgroundColor: 'var(--bg-card)',
-                          border: '1px solid var(--border-color)',
-                          color: 'var(--text-main)',
-                          padding: '0.2rem 0.55rem',
-                          borderRadius: 'var(--radius-full)',
-                          fontSize: '0.7rem',
-                          fontWeight: 700,
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '0.25rem',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        {copiedId === msg.id ? <Check size={11} style={{ color: '#10b981' }} /> : <Copy size={11} />}
-                        <span>{copiedId === msg.id ? (lang === 'en' ? 'Copied' : lang === 'ja' ? 'コピー完了' : (lang === 'zh' || lang === 'zht') ? '已复制' : '복사됨') : (lang === 'en' ? 'Copy Itinerary' : lang === 'ja' ? '日程をコピー' : (lang === 'zh' || lang === 'zht') ? '复制行程' : '일정 복사')}</span>
-                      </button>
+                  {/* Sleek Daily Schedule Mini Briefing Card */}
+                  {msg.itinerary && msg.itinerary.dailySchedules && msg.itinerary.dailySchedules.length > 0 && (
+                    <div style={{
+                      marginTop: '0.65rem',
+                      padding: '0.55rem 0.75rem',
+                      backgroundColor: 'rgba(37, 99, 235, 0.04)',
+                      borderRadius: '12px',
+                      border: '1px solid rgba(37, 99, 235, 0.12)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '0.35rem'
+                    }}>
+                      {msg.itinerary.dailySchedules.map((ds) => {
+                        const cleanTheme = ds.theme ? ds.theme.replace(/^\d+일차[:\s—-]*/, '').trim() : '';
+                        return (
+                          <div
+                            key={ds.day}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'baseline',
+                              gap: '0.4rem',
+                              fontSize: '0.78rem',
+                              color: 'var(--text-main)',
+                              lineHeight: 1.45
+                            }}
+                          >
+                            <span style={{
+                              fontWeight: 800,
+                              color: '#2563eb',
+                              flexShrink: 0
+                            }}>
+                              📍 {t.dayBadge ? t.dayBadge(ds.day) : `${ds.day}일차`}
+                            </span>
+                            {cleanTheme && (
+                              <span style={{ fontWeight: 600, color: 'var(--text-main)' }}>
+                                {cleanTheme}
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
-
-                {/* Sleek One-Touch Day Chips & Confirm Action inside Chat */}
-                {msg.itinerary && (
-                  <div style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.45rem',
-                    width: '100%',
-                    boxSizing: 'border-box',
-                    marginTop: '0.45rem'
-                  }}>
-                    {msg.itinerary.dailySchedules && (
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
-                        {msg.itinerary.dailySchedules.map((ds) => {
-                          const isCurrentActive = Number(activeDay) === Number(ds.day);
-                          // 중복된 "1일차:", "2일차:" 접두사 정제
-                          const cleanTheme = ds.theme ? ds.theme.replace(/^\d+일차[:\s—-]*/, '').trim() : '';
-                          return (
-                            <button
-                              key={ds.day}
-                              type="button"
-                              onClick={() => onSelectDay && onSelectDay(ds.day)}
-                              style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '0.25rem',
-                                backgroundColor: isCurrentActive ? '#2563eb' : '#ffffff',
-                                color: isCurrentActive ? '#ffffff' : '#0f172a',
-                                border: isCurrentActive ? '1.5px solid #2563eb' : '1px solid rgba(37, 99, 235, 0.2)',
-                                borderRadius: 'var(--radius-full)',
-                                padding: '0.22rem 0.55rem',
-                                fontSize: '0.72rem',
-                                fontWeight: isCurrentActive ? 800 : 600,
-                                cursor: 'pointer',
-                                transition: 'all 0.15s ease'
-                              }}
-                            >
-                              <span style={{ fontWeight: 900 }}>{t.dayBadge ? t.dayBadge(ds.day) : `${ds.day}일차`}</span>
-                              {cleanTheme && <span style={{ opacity: isCurrentActive ? 0.95 : 0.75, fontSize: '0.68rem' }}>• {cleanTheme}</span>}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )}
-
-                    {/* 🌟 2단계 핵심: 슬림 콤팩트 일정표 보기 버튼 */}
-                    {onViewTimeline && (
-                      <button
-                        type="button"
-                        onClick={onViewTimeline}
-                        style={{
-                          width: '100%',
-                          padding: '0.45rem 0.85rem',
-                          background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
-                          color: '#ffffff',
-                          border: 'none',
-                          borderRadius: '10px',
-                          fontSize: '0.8rem',
-                          fontWeight: 800,
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '0.35rem',
-                          boxShadow: '0 3px 12px rgba(37, 99, 235, 0.3)',
-                          transition: 'all 0.15s ease',
-                          marginTop: '0.2rem'
-                        }}
-                      >
-                        <Sparkles size={13} />
-                        <span>{lang === 'en' ? 'View Itinerary & Timeline ➔' : lang === 'ja' ? '日程表・タイムラインを見る ➔' : (lang === 'zh' || lang === 'zht') ? '查看详细行程与时间线 ➔' : '📋 상세 일정표 & 타임라인 보기 ➔'}</span>
-                      </button>
-                    )}
-                  </div>
-                )}
               </div>
             </div>
           );
