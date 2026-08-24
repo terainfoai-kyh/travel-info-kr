@@ -10,8 +10,10 @@ export default function VoraAIChat({
   activeDay = 1,
   onSelectDay,
   currentUser = null,
-  onViewTimeline
+  onViewTimeline,
+  onConfirmItinerary
 }) {
+  const handleTimelineClick = onConfirmItinerary || onViewTimeline;
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
   const [inputText, setInputText] = useState('');
   const [copiedId, setCopiedId] = useState(null);
@@ -272,7 +274,7 @@ export default function VoraAIChat({
                     <div style={{ marginTop: '0.85rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border-color)' }}>
                       <button
                         type="button"
-                        onClick={onConfirmItinerary}
+                        onClick={handleTimelineClick}
                         style={{
                           width: '100%',
                           padding: '0.7rem 1rem',
