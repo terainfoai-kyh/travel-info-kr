@@ -38,10 +38,10 @@ export default function SubwayMapModal({ isOpen, onClose, lang = 'ko' }) {
       descEn: 'Lines 1-4, Busan-Gimhae Light Rail, Donghae Line',
       descJa: '1〜4号線、釜山-金海軽電鉄、東海線',
       descZh: '1~4号线、釜山金海轻轨、东海线',
-      urlKo: 'https://www.humetro.busan.kr/default/cyber/cyber.do',
-      urlEn: 'https://www.humetro.busan.kr/eng/cyber/cyber.do',
-      urlJa: 'https://www.humetro.busan.kr/jpn/cyber/cyber.do',
-      urlZh: 'https://www.humetro.busan.kr/chn/cyber/cyber.do',
+      urlKo: 'https://www.humetro.busan.kr',
+      urlEn: 'https://www.humetro.busan.kr/eng/index.do',
+      urlJa: 'https://www.humetro.busan.kr/jpn/index.do',
+      urlZh: 'https://www.humetro.busan.kr/chn/index.do',
       color: '#0284c7'
     },
     {
@@ -55,10 +55,10 @@ export default function SubwayMapModal({ isOpen, onClose, lang = 'ko' }) {
       descEn: 'Lines 1-3 including Sky Monorail',
       descJa: '1〜3号線（モノレール含む）',
       descZh: '1~3号线（包含单轨列车）',
-      urlKo: 'https://www.dtro.or.kr/kor/page.do?menu_idx=14',
-      urlEn: 'https://www.dtro.or.kr/eng/page.do?menu_idx=14',
-      urlJa: 'https://www.dtro.or.kr/jpn/page.do?menu_idx=14',
-      urlZh: 'https://www.dtro.or.kr/chn/page.do?menu_idx=14',
+      urlKo: 'https://www.dtro.or.kr',
+      urlEn: 'https://www.dtro.or.kr/eng/index.do',
+      urlJa: 'https://www.dtro.or.kr/jpn/index.do',
+      urlZh: 'https://www.dtro.or.kr/chn/index.do',
       color: '#10b981'
     },
     {
@@ -72,10 +72,10 @@ export default function SubwayMapModal({ isOpen, onClose, lang = 'ko' }) {
       descEn: 'Daejeon Line 1 & Gwangju Line 1',
       descJa: '大田1号線＆光州1号線',
       descZh: '大田1号线＆光州1号线',
-      urlKo: 'https://www.djtc.kr/djtc/page.do?menuIdx=030101',
-      urlEn: 'https://www.djtc.kr/djtc/page.do?menuIdx=030101',
-      urlJa: 'https://www.djtc.kr/djtc/page.do?menuIdx=030101',
-      urlZh: 'https://www.djtc.kr/djtc/page.do?menuIdx=030101',
+      urlKo: 'https://www.djtc.kr',
+      urlEn: 'https://www.djtc.kr',
+      urlJa: 'https://www.djtc.kr',
+      urlZh: 'https://www.djtc.kr',
       color: '#8b5cf6'
     }
   ];

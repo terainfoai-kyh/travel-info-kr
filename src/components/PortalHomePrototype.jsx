@@ -21,6 +21,7 @@ import {
 import { getLocalizedCityName, TRANSLATIONS } from '../i18n/translations';
 import { buildKlookDeepLink } from '../services/apiConfig';
 import SubwayMapModal from './SubwayMapModal';
+import HelplineModal from './HelplineModal';
 
 const HERO_SLIDES = [
   {
@@ -259,6 +260,7 @@ export default function PortalHomePrototype({
   const [isHovered, setIsHovered] = useState(false);
   const [selectedCityTab, setSelectedCityTab] = useState('all');
   const [isSubwayModalOpen, setIsSubwayModalOpen] = useState(false);
+  const [isHelplineModalOpen, setIsHelplineModalOpen] = useState(false);
 
   // Auto-advance cinematic hero slides every 5.5 seconds unless user hovers
   useEffect(() => {
@@ -727,25 +729,10 @@ export default function PortalHomePrototype({
             </div>
           </div>
 
-          {/* Icon 6: 1330 Emergency Helpline (One-Touch Call / Official Page) */}
+          {/* Icon 6: 1330 Emergency Helpline (Smart Modal) */}
           <div 
             className="portal-quick-hub-card"
-            onClick={() => {
-              // 모바일 기기 감지: 스마트폰에서는 원터치 tel:1330, PC에서는 공식 1330 안내 페이지 오픈
-              const isMobileDevice = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-              if (isMobileDevice) {
-                window.location.href = 'tel:1330';
-              } else {
-                const hotlineUrl = lang === 'en' 
-                  ? 'https://english.visitkorea.or.kr/svc/contents/contentsView.do?menuSn=177&vcontsId=129598' 
-                  : lang === 'ja' 
-                  ? 'https://japanese.visitkorea.or.kr/svc/contents/contentsView.do?menuSn=216&vcontsId=129598' 
-                  : (lang === 'zh' || lang === 'zht') 
-                  ? 'https://chinese.visitkorea.or.kr/svc/contents/contentsView.do?menuSn=249&vcontsId=129598' 
-                  : 'https://korean.visitkorea.or.kr/sub/travelinfo/helpline.do';
-                window.open(hotlineUrl, '_blank', 'noopener,noreferrer');
-              }
-            }}
+            onClick={() => setIsHelplineModalOpen(true)}
           >
             <div className="portal-quick-hub-icon" style={{
               background: 'linear-gradient(135deg, #ef4444, #f97316)',
@@ -1066,6 +1053,13 @@ export default function PortalHomePrototype({
       <SubwayMapModal
         isOpen={isSubwayModalOpen}
         onClose={() => setIsSubwayModalOpen(false)}
+        lang={lang}
+      />
+
+      {/* 📞 1330 스마트 헬프라인 모달 */}
+      <HelplineModal
+        isOpen={isHelplineModalOpen}
+        onClose={() => setIsHelplineModalOpen(false)}
         lang={lang}
       />
 
