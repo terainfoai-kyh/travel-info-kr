@@ -37,6 +37,7 @@ import MoreTabSection from './components/MoreTabSection';
 import AIPlannerTab from './components/AIPlannerTab';
 import MyTripTab from './components/MyTripTab';
 import LiveTripTab from './components/LiveTripTab';
+import ExitConfirmModal from './components/ExitConfirmModal';
 
 import { MapPin, MessageSquare } from 'lucide-react';
 import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
@@ -295,6 +296,104 @@ export default function App() {
 
   // AI Planner 1단계(form) vs 2단계(chat) 진입 모드 관리
   const [plannerInitialMode, setPlannerInitialMode] = useState('form');
+
+  // 💡 스마트 이탈 방지 모달 상태
+  const [isExitModalOpen, setIsExitModalOpen] = useState(false);
+  const [pendingNavTab, setPendingNavTab] = useState('home');
+  const [isCurrentItinerarySaved, setIsCurrentItinerarySaved] = useState(false);
+
+  // 저장된 여행 목록 (내 여행 탭 연동)
+  const [savedTrips, setSavedTrips] = useState(() => {
+    try {
+      const saved = localStorage.getItem('vora_saved_trips');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+
+  // 🌟 [일정 확정 및 내 여행 저장] 코어 핸들러 (쿼터 1회 차감 & 저장)
+  const handleSaveCurrentItinerary = (targetNextTab = 'mytrip') => {
+    if (!itineraryData) {
+      setActiveNavTab(targetNextTab);
+      return;
+    }
+
+    // 1. 남은 저장 횟수 확인
+    const currentRemaining = questionQuota?.remaining || 0;
+    if (currentRemaining <= 0) {
+      // 🔒 횟수 소진 시 보상형 광고 모달 띄우기!
+      setIsExitModalOpen(false);
+      setIsRewardedAdOpen(true);
+      return;
+    }
+
+    // 2. 저장 횟수 1회 차감
+    setQuestionQuota(prev => {
+      const updated = {
+        ...prev,
+        remaining: Math.max(0, (prev?.remaining || 1) - 1)
+      };
+      try {
+        localStorage.setItem('vora_daily_quota', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+
+    // 3. [내 여행]에 온전히 보관
+    const newSaved = {
+      ...itineraryData,
+      savedAt: new Date().toISOString(),
+      savedId: `trip-${Date.now()}`
+    };
+
+    setSavedTrips(prev => {
+      const filtered = prev.filter(p => p.tripTitle !== newSaved.tripTitle);
+      const updated = [newSaved, ...filtered];
+      try {
+        localStorage.setItem('vora_saved_trips', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+
+    setIsCurrentItinerarySaved(true);
+    setIsExitModalOpen(false);
+    setActiveNavTab(targetNextTab);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // 🚪 그냥 나가기 (차감 없이 즉시 이동)
+  const handleExitWithoutSaving = () => {
+    setIsExitModalOpen(false);
+    setActiveNavTab(pendingNavTab || 'home');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // 탭 네비게이션 가로채기 핸들러
+  const handleTabNavigate = (targetTab) => {
+    if (activeNavTab === 'ai' && targetTab !== 'ai' && itineraryData && !isCurrentItinerarySaved) {
+      setPendingNavTab(targetTab);
+      setIsExitModalOpen(true);
+      return;
+    }
+    setActiveNavTab(targetTab);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // 📱 모바일 하드웨어/제스처 뒤로가기(popstate) 스마트 가로채기
+  useEffect(() => {
+    if (activeNavTab === 'ai' && !isCurrentItinerarySaved && itineraryData) {
+      window.history.pushState({ voraTab: 'ai' }, '');
+      const handlePopState = () => {
+        setPendingNavTab('home');
+        setIsExitModalOpen(true);
+      };
+      window.addEventListener('popstate', handlePopState);
+      return () => {
+        window.removeEventListener('popstate', handlePopState);
+      };
+    }
+  }, [activeNavTab, isCurrentItinerarySaved, itineraryData]);
 
   // Grant Reward (+3 chats on watching 15s ad)
   const handleRewardGranted = () => {
@@ -563,8 +662,8 @@ export default function App() {
               lang={lang}
               onGenerateItinerary={handleGenerateItinerary}
               onConfirmItinerary={() => {
-                // 🌟 2단계에서 [일정 확정] 터치 시 ➔ 3단계 [내 여행]으로 쏙 이동!
-                setActiveNavTab('mytrip');
+                // 🌟 2단계에서 [일정 확정] 터치 시 ➔ 쿼터 1회 차감 & [내 여행]으로 쏙 이동!
+                handleSaveCurrentItinerary('mytrip');
               }}
               isLoading={isLoading}
               questionQuota={questionQuota}
@@ -656,8 +755,7 @@ export default function App() {
       <BottomNav
         activeTab={activeNavTab}
         onTabChange={(tabId) => {
-          setActiveNavTab(tabId);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+          handleTabNavigate(tabId);
         }}
         lang={lang}
       />
@@ -846,6 +944,17 @@ export default function App() {
         onLoginSuccess={handleLoginSuccess}
         currentUser={currentUser}
         lang={lang}
+      />
+
+      {/* 💡 Smart Exit Interception Modal (저장하고 나가기 vs 그냥 나가기) */}
+      <ExitConfirmModal
+        isOpen={isExitModalOpen}
+        onClose={() => setIsExitModalOpen(false)}
+        onSaveAndExit={() => handleSaveCurrentItinerary(pendingNavTab || 'home')}
+        onJustExit={handleExitWithoutSaving}
+        itineraryData={itineraryData}
+        lang={lang}
+        remainingQuota={questionQuota?.remaining || 0}
       />
     </div>
   );

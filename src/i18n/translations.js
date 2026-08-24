@@ -225,7 +225,12 @@ export const TRANSLATIONS = {
     portalTrendingSubtitle: '전 세계 여행자들이 가장 사랑하는 대한민국 대표 여행 테마를 원클릭으로 만나보세요',
     portalLivePlannerTitle: '실시간 맞춤 AI 여행 일정 & 스마트 동선 플래너',
     todayGourmetPick: '오늘의 추천 로컬 미식',
-    openAiItinerary: 'AI 일정 열기',
+    // Exit Interception Modal
+    exitModalTitle: '작성 중인 여행 일정이 있습니다',
+    exitModalDesc: '지금 나가시면 작성 중인 일정이 사라질 수 있습니다. [내 여행]에 저장하고 이동하시겠습니까?',
+    exitModalSaveAndExit: '💾 저장하고 이동 (1회 차감)',
+    exitModalJustExit: '🚪 그냥 나가기',
+    exitModalCancel: '✕ 계속 작성하기',
 
     // Modals
     modalClose: '닫기',
@@ -365,7 +370,12 @@ export const TRANSLATIONS = {
     portalTrendingSubtitle: "Discover Korea's most-loved travel themes chosen by global travelers in one click",
     portalLivePlannerTitle: 'Live AI Travel Concierge & Route Planner',
     todayGourmetPick: "Today's Gourmet Pick",
-    openAiItinerary: 'Open AI Course',
+    // Exit Interception Modal
+    exitModalTitle: 'Ongoing Trip Itinerary in Progress',
+    exitModalDesc: 'If you leave now, your current itinerary edits may be lost. Would you like to save it to [My Trips] before leaving?',
+    exitModalSaveAndExit: '💾 Save & Exit (Use 1 save)',
+    exitModalJustExit: '🚪 Exit Without Saving',
+    exitModalCancel: '✕ Keep Editing',
 
     // Modals
     modalClose: 'Close',
@@ -505,6 +515,13 @@ export const TRANSLATIONS = {
     portalTrendingSubtitle: '世界中の旅行者が絶賛する韓国を代表する人気テーマコースをワンクリックで',
     portalLivePlannerTitle: 'リアルタイムAIコンシェルジュ＆動線プランナー',
     todayGourmetPick: '本日のおすすめグルメ',
+    // Exit Interception Modal
+    exitModalTitle: '作成中の旅行プランがあります',
+    exitModalDesc: '今移動すると作成中のプランが失われる可能性があります。[マイトリップ]に保存して移動しますか？',
+    exitModalSaveAndExit: '💾 保存して移動 (1回消費)',
+    exitModalJustExit: '🚪 保存せずに移動',
+    exitModalCancel: '✕ 編集を続ける',
+
     openAiItinerary: 'AIプランを開く',
 
     // Modals
@@ -647,6 +664,13 @@ export const TRANSLATIONS = {
     todayGourmetPick: '今日推荐特色美食',
     openAiItinerary: '查看AI行程',
 
+    // Exit Interception Modal
+    exitModalTitle: '您有正在制定的旅行行程',
+    exitModalDesc: '现在离开可能会丢失当前定制的行程。是否保存到【我的行程】后再离开？',
+    exitModalSaveAndExit: '💾 保存并离开 (消耗1次额度)',
+    exitModalJustExit: '🚪 不保存直接离开',
+    exitModalCancel: '✕ 继续编辑',
+
     // Modals
     modalClose: '关闭',
     privacyPolicy: '隐私政策',
@@ -730,7 +754,7 @@ export const TRANSLATIONS = {
     weatherOutfitBadge: '穿搭指南',
     weatherOutfitLink: '查看氣溫穿搭與打包清單 👗',
     badgeTransport: '交通必備',
-    badgeCostSaving: '省錢攻略',
+    badgeCostSaving: '省钱攻略',
     badgeData: '無限流量',
     badgeSupport24h: '24小時支援',
     subwayMapTitle: '地鐵路線圖與轉乘指南',
@@ -786,6 +810,13 @@ export const TRANSLATIONS = {
     portalLivePlannerTitle: '即時AI旅遊定制與智慧路線規劃',
     todayGourmetPick: '今日推薦特色美食',
     openAiItinerary: '查看AI行程',
+
+    // Exit Interception Modal
+    exitModalTitle: '您有正在客製的旅行行程',
+    exitModalDesc: '現在離開可能會遺失當前客製的行程。是否儲存到【我的行程】後再離開？',
+    exitModalSaveAndExit: '💾 儲存並離開 (消耗1次額度)',
+    exitModalJustExit: '🚪 不儲存直接離開',
+    exitModalCancel: '✕ 繼續編輯',
 
     // Modals
     modalClose: '關閉',
