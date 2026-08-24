@@ -354,14 +354,14 @@ export default function PortalHomePrototype({
         style={{
           position: 'relative',
           width: '100%',
-          minHeight: '360px',
-          maxHeight: '480px',
-          height: '46vh',
+          minHeight: '370px',
+          maxHeight: '500px',
+          height: '48vh',
           borderRadius: '24px',
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
-          justifyContent: 'center',
+          justifyContent: 'flex-end',
           alignItems: 'center',
           boxShadow: '0 16px 36px -10px rgba(0, 0, 0, 0.25)',
           marginBottom: '0.85rem',
@@ -380,7 +380,7 @@ export default function PortalHomePrototype({
               height: '100%',
               backgroundImage: `url(${slide.image})`,
               backgroundSize: 'cover',
-              backgroundPosition: 'center',
+              backgroundPosition: 'center 30%', // 중앙/상단 메인 랜드마크 피사체 최적 포커스
               opacity: idx === currentSlideIndex ? 1 : 0,
               transform: idx === currentSlideIndex ? 'scale(1.03)' : 'scale(1.0)',
               transition: 'opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), transform 6s ease-out',
@@ -389,29 +389,29 @@ export default function PortalHomePrototype({
           />
         ))}
 
-        {/* Ambient Subtle Light Scrim (Photos stay 100% bright, sunny and natural) */}
+        {/* Ambient Subtle Light Scrim (중앙 메인 피사체 100% 노출 & 하단 가독성 보장) */}
         <div style={{
           position: 'absolute',
           top: 0,
           left: 0,
           width: '100%',
           height: '100%',
-          background: 'linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.02) 35%, rgba(15, 23, 42, 0.55) 100%)',
+          background: 'linear-gradient(180deg, rgba(0, 0, 0, 0.04) 0%, rgba(0, 0, 0, 0.0) 35%, rgba(15, 23, 42, 0.65) 75%, rgba(15, 23, 42, 0.88) 100%)',
           zIndex: 2
         }} />
 
-        {/* Hero Content Container (슬림 핏 & 명확한 1줄 가치 전달) */}
+        {/* Hero Content Container (하단 안정 안착 뷰) */}
         <div style={{
           position: 'relative',
           zIndex: 3,
           textAlign: 'center',
           maxWidth: '860px',
-          padding: '0.75rem 0.85rem 1.5rem 0.85rem',
+          padding: '0.4rem 0.85rem 1.6rem 0.85rem',
           width: '100%',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: '0.4rem'
+          gap: '0.35rem'
         }}>
           
           {/* Top Sparkling Badge (슬림 캡슐) */}
