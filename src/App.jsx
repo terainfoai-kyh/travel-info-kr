@@ -325,19 +325,42 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // 📱 작성 중(hasActiveUnsavedDraft) 상태에서 브라우저 종료/새로고침 시 방어선
+  // 🚨 브라우저 새로고침 및 모바일 뒤로가기/제스처 이탈 완벽 방어 (토큰 손실 100% 방지)
   useEffect(() => {
     if (!hasActiveUnsavedDraft) return;
 
+    // 1. PC 브라우저 새로고침 / 탭 닫기 방어
     const handleBeforeUnload = (e) => {
       e.preventDefault();
       e.returnValue = '';
       return '';
     };
 
+    // 2. 모바일 브라우저 뒤로가기 버튼 & 제스처 가로채기 (popstate)
+    window.history.pushState({ voraGuard: true }, '', window.location.href);
+    const handlePopState = (e) => {
+      if (hasActiveUnsavedDraft) {
+        // 뒤로가기 스택 유지하고 모달 팝업!
+        window.history.pushState({ voraGuard: true }, '', window.location.href);
+        setIsExitModalOpen(true);
+      }
+    };
+
+    // 3. 만약의 새로고침 대비 임시 로컬스토리지 백업
+    if (itineraryData) {
+      try {
+        localStorage.setItem('vora_temp_active_draft', JSON.stringify(itineraryData));
+      } catch (err) {}
+    }
+
     window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [hasActiveUnsavedDraft]);
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [hasActiveUnsavedDraft, itineraryData]);
 
   // Grant Reward (+3 saves on watching 15s ad) - NO 6: 대화창에 시스템 문구 삽입 없이 뱃지만 깔끔 갱신!
   const handleRewardGranted = () => {
