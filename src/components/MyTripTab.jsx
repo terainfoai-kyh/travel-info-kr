@@ -104,10 +104,10 @@ export default function MyTripTab({
     );
   }
 
-  // 현재 일정이 실제로 savedTrips에 저장되어 있는지 판별
-  const isCurrentTripSaved = savedTrips.some(t => 
-    (itineraryData?.savedId && t.savedId === itineraryData.savedId) || 
-    (t.tripTitle === (itineraryData?.tripTitle || itineraryData?.title))
+  // 현재 일정이 실제로 savedTrips에 저장되어 있는지 판별 (새로 생성된 draftId 일정은 미저장 상태로 정확히 인식!)
+  const isCurrentTripSaved = Boolean(
+    itineraryData?.savedId && 
+    savedTrips.some(t => t.savedId === itineraryData.savedId)
   );
 
   const schedules = itineraryData?.dailySchedules || [];

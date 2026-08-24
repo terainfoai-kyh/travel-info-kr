@@ -1236,21 +1236,42 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
     });
   }
 
+  // 🌟 사용자 테마, 동행자, 추가 요구사항 스마트 파싱하여 다이나믹 타이틀 & 서머리 생성!
+  const isCouple = /(커플|연인|데이트|로맨틱|신혼)/i.test(rawPrompt);
+  const isFamily = /(가족|아이|부모님|어린이)/i.test(rawPrompt);
+  const isSolo = /(혼자|나홀로|솔로|1인)/i.test(rawPrompt);
+  const isIndoor = /(실내|비|우천|비오는|더위|추위)/i.test(rawPrompt);
+  const isFood = /(맛집|미식|먹방|푸드)/i.test(rawPrompt);
+  const isCafe = /(카페|디저트|핫플|인스타|베이커리)/i.test(rawPrompt);
+  const isShopping = /(쇼핑|패션|백화점|아울렛)/i.test(rawPrompt);
+  const isHealing = /(힐링|자연|산책|숲|바다|휴식)/i.test(rawPrompt);
+
+  let themeModifier = '감성 매거진';
+  if (isIndoor) themeModifier = '쾌적한 실내 핫플 & 트렌드';
+  else if (isCouple && isFood) themeModifier = '로맨틱 커플 미식 & 핫플 데이트';
+  else if (isCouple) themeModifier = '로맨틱 커플 감성 데이트';
+  else if (isFamily) themeModifier = '온가족 편안한 명소 & 힐링';
+  else if (isSolo && isHealing) themeModifier = '나홀로 쉼표 & 고즈넉한 힐링 산책';
+  else if (isSolo) themeModifier = '나홀로 트렌디 핫플 탐방';
+  else if (isShopping) themeModifier = '트렌드 쇼핑 & 라이프스타일';
+  else if (isFood && isCafe) themeModifier = '로컬 미식 & 감성 카페 투어';
+  else if (isHealing) themeModifier = '청정 자연 & 도심 힐링';
+
   const tripTitle = lang === 'en'
-    ? `${cityMeta.nameEn || 'Seoul'} ${days}-Day Hotspot Magazine Tour`
+    ? `${cityMeta.nameEn || 'Seoul'} ${days}-Day ${themeModifier} Tour`
     : lang === 'ja'
-    ? `${CITY_TRANSLATIONS.ja[city] || 'ソウル'} ${days}日間 おすすめトレンド旅程`
+    ? `${CITY_TRANSLATIONS.ja[city] || 'ソウル'} ${days}日間 ${themeModifier}コース`
     : (lang === 'zh' || lang === 'zht')
-    ? `${CITY_TRANSLATIONS.zh[city] || '首尔'} ${days}天2晚 精选潮流打卡路线`
-    : `${city} ${days}일 감성 매거진 코스`;
+    ? `${CITY_TRANSLATIONS.zh[city] || '首尔'} ${days}天 ${themeModifier}定制路线`
+    : `${city} ${days}일 ${themeModifier} 코스`;
 
   const summary = lang === 'en'
-    ? `Curated by VORA AI, featuring the ultimate photo spots and authentic local gourmet recommendations for ${cityMeta.nameEn || 'Seoul'}. ✨`
+    ? `Curated by VORA AI tailored for ${themeModifier}, featuring ultimate photo spots and local delights for ${cityMeta.nameEn || 'Seoul'}. ✨`
     : lang === 'ja'
-    ? `VORA AIが提案する${CITY_TRANSLATIONS.ja[city] || 'ソウル'}${days}日間のトレンド旅行コースです。最高のフォトスポットと本場のグルメを網羅しています。✨`
+    ? `VORA AIが提案する${CITY_TRANSLATIONS.ja[city] || 'ソウル'}${days}日間の${themeModifier}コースです。最高のフォトスポットと本場のグルメを網羅しています。✨`
     : (lang === 'zh' || lang === 'zht')
-    ? `VORA AI为您精心定制的${CITY_TRANSLATIONS.zh[city] || '首尔'}${days}天旅行路线，涵盖绝美打卡机位与地道特色美食。✨`
-    : `VORA AI 매거진이 제안하는 ${city} ${days}일 트렌디 여행 코스입니다. 최고의 인생샷 명소와 로컬 미식으로 알차게 구성되었습니다. ✨`;
+    ? `VORA AI为您精心定制的${CITY_TRANSLATIONS.zh[city] || '首尔'}${days}天${themeModifier}路线，涵盖绝美打卡机位与地道特色美食。✨`
+    : `VORA AI가 제안하는 ${city} ${days}일 ${themeModifier} 맞춤 여행 코스입니다. 엄선된 핫플레이스와 특별한 동선으로 알차게 구성되었습니다. ✨`;
 
   return {
     targetCity: city,

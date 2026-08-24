@@ -61,26 +61,7 @@ export default function App() {
   });
 
   const getInitialWelcomeMessages = (currentLang, currentItinerary = null) => {
-    let welcomeText = '';
-    if (currentLang === 'en') {
-      welcomeText = 'Hello! I am VORA, your dedicated AI travel concierge for South Korea. 😊\nTell me where you want to visit or your desired travel style!';
-    } else if (currentLang === 'ja') {
-      welcomeText = 'こんにちは！専属の韓国旅行AIコンシェルジュ、VORA（ボラ）です。😊\n訪れてみたい都市や旅のスタイルを気軽にお知らせください！';
-    } else if (currentLang === 'zh' || currentLang === 'zht') {
-      welcomeText = (currentLang === 'zht')
-        ? '您好！我是您的專屬韓國旅遊AI智能向導 VORA。😊\n請告訴我您想去的城市或旅行風格，我將為您客製專屬行程！'
-        : '您好！我是您的专属韩国旅游AI智能向导 VORA。😊\n请告诉我您想去的城市或旅行风格，我将为您定制专属行程！';
-    } else {
-      welcomeText = '안녕하세요! 당신의 전담 한국 여행 AI 컨시어지 VORA(보라)입니다. 😊\n어떤 여행을 꿈꾸시나요? 가고 싶은 도시나 스타일을 편하게 말씀해 주세요!';
-    }
-
-    const messages = [
-      {
-        id: 'welcome-1',
-        role: 'assistant',
-        text: welcomeText
-      }
-    ];
+    const messages = [];
 
     if (currentItinerary) {
       messages.push({
@@ -418,6 +399,51 @@ export default function App() {
       timestamp: queryTime
     };
     setChatMessages(prev => [...prev, userMsg]);
+
+    // 🌟 1. 폼 초기 진입 확인 (구조화된 폼 데이터가 들어왔을 때 -> 토큰 낭비 없이 조건 브리핑 & 승인 유도!)
+    const isInitialFormSubmit = promptQuery.includes('여행') && (promptQuery.includes('테마:') || promptQuery.includes('박'));
+    const isDirectGenerateAction = /(이대로 바로 일정 만들기|일정 만들어줘|만들어줘|일정 생성|일정 만들어|짜줘|OK|ok|응|네|좋아|진행해)/i.test(promptQuery);
+    const isFormNavigateAction = /(조건 직접 변경하기|조건 변경)/i.test(promptQuery);
+
+    if (isFormNavigateAction) {
+      setPlannerInitialMode('form');
+      return;
+    }
+
+    if (isInitialFormSubmit && !isDirectGenerateAction) {
+      // 폼 제출 직후: 보라가 조건을 깔끔하게 확인하고 추가 조건 여부를 묻는 스마트 브리핑!
+      const replyTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+      const requestedDays = extractDaysFromPrompt(promptQuery) || 3;
+      const targetCity = extractLocationKeyword(promptQuery) || '서울';
+
+      const briefingText = (lang === 'en')
+        ? `I have received your preferences for **${targetCity} ${requestedDays}-Day Trip**! 😊\nDo you have any extra requirements (e.g. indoor hotspots, rental car, specific area)?\n\nIf not, shall I generate your complete customized itinerary right away?`
+        : (lang === 'ja')
+        ? `**${targetCity} ${requestedDays}日間**のご希望条件を確認しました！😊\n追加のご要望（屋内スポット中心、レンタカー利用など）はございますか？\n\n特になければ、すぐに最高のカスタム旅程を作成いたしますか？`
+        : (lang === 'zh' || lang === 'zht')
+        ? `已确认您的**${targetCity} ${requestedDays}天**行程偏好！😊\n您是否有其他补充需求（如雨天室内优先、租车自驾等）？\n\n如果没有，是否立即为您生成专属完整行程？`
+        : `선택하신 **${targetCity} ${requestedDays}일 여행 조건**을 확인했습니다! 😊\n추가로 더 필요한 조건(비 오는 날 실내 위주, 렌트카, 숙소 위치 등)이 있으신가요?\n\n없으시면 바로 나만의 완벽한 맞춤 일정을 만들어 드릴까요?`;
+
+      setTimeout(() => {
+        const botMsg = {
+          id: `bot-briefing-${Date.now()}`,
+          role: 'assistant',
+          text: briefingText,
+          quickSuggestions: [
+            (lang === 'en' ? '🚀 Generate Itinerary Now' : '🚀 이대로 바로 일정 만들기'),
+            (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')
+          ],
+          generationTime: '0.1',
+          queryTime,
+          replyTime,
+          timestamp: replyTime
+        };
+        setChatMessages(prev => [...prev, botMsg]);
+      }, 150);
+      return;
+    }
+
+    // 🌟 2. 사용자가 추가 조건을 말하거나, "일정 만들어줘"를 확정했을 때 -> 실제 풀코스 생성!
     setIsLoading(true);
 
     const dayMatch = promptQuery.match(/([1-5])일차/);
@@ -437,7 +463,9 @@ export default function App() {
           id: `bot-${Date.now()}`,
           role: 'assistant',
           text: result.message,
-          quickSuggestions: result.quickSuggestions || [],
+          quickSuggestions: result.quickSuggestions && result.quickSuggestions.length > 0 
+            ? result.quickSuggestions 
+            : [(lang === 'en' ? '🚀 Generate Itinerary Now' : '🚀 이 조건으로 일정 만들어줘'), (lang === 'en' ? '⚙️ Change Conditions' : '⚙️ 조건 변경 (폼)')],
           generationTime: result.generationTime || elapsedSeconds,
           queryTime,
           replyTime,
@@ -448,11 +476,13 @@ export default function App() {
         const requestedDays = extractDaysFromPrompt(promptQuery) || 3;
         const finalResult = {
           ...(result || generateLocalFallbackItinerary(promptQuery, extractLocationKeyword(promptQuery), requestedDays, lang)),
-          generationTime: elapsedSeconds
+          generationTime: elapsedSeconds,
+          draftId: `draft-${Date.now()}` // 🌟 유니크 임시 ID 부여하여 기존 저장 일정과 100% 분리!
         };
         
         setItineraryData(finalResult);
         setHasActiveUnsavedDraft(true); // 🌟 실제 새 AI 일정이 생성되었을 때만 이탈 감지 활성화!
+        
         const botMsg = {
           id: `bot-${Date.now()}`,
           role: 'assistant',
@@ -464,6 +494,12 @@ export default function App() {
           timestamp: replyTime
         };
         setChatMessages(prev => [...prev, botMsg]);
+
+        // 🌟 일정 생성이 완료되면 1초 후 [내 여행] 타임라인으로 바로 쾌속 이동!
+        setTimeout(() => {
+          setActiveNavTab('mytrip');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }, 1200);
       }
     } catch (err) {
       console.warn('[VORA AI Error]', err);
@@ -472,10 +508,11 @@ export default function App() {
       const requestedDays = extractDaysFromPrompt(promptQuery) || 3;
       const fallback = {
         ...generateLocalFallbackItinerary(promptQuery, extractLocationKeyword(promptQuery), requestedDays, lang),
-        generationTime: elapsedSeconds
+        generationTime: elapsedSeconds,
+        draftId: `draft-${Date.now()}`
       };
       setItineraryData(fallback);
-      setHasActiveUnsavedDraft(true); // 🌟 실제 새 AI 일정이 생성되었을 때만 이탈 감지 활성화!
+      setHasActiveUnsavedDraft(true);
       const botMsg = {
         id: `bot-${Date.now()}`,
         role: 'assistant',
@@ -487,6 +524,12 @@ export default function App() {
         timestamp: replyTime
       };
       setChatMessages(prev => [...prev, botMsg]);
+
+      // 🌟 폴백 완성 시에도 [내 여행]으로 자동 이동!
+      setTimeout(() => {
+        setActiveNavTab('mytrip');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 1200);
     } finally {
       setIsLoading(false);
     }
