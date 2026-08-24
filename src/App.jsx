@@ -60,70 +60,38 @@ export default function App() {
     return detectBrowserLanguage();
   });
 
-  const getInitialWelcomeMessages = (currentLang, currentItinerary) => {
+  const getInitialWelcomeMessages = (currentLang, currentItinerary = null) => {
+    let welcomeText = '';
     if (currentLang === 'en') {
-      return [
-        {
-          id: 'welcome-1',
-          role: 'assistant',
-          text: 'Hello! I am VORA, your dedicated AI travel concierge for South Korea. 😊\nTell me where you want to visit or your desired travel style!'
-        },
-        {
-          id: 'featured-1',
-          role: 'assistant',
-          text: '✨ We have prepared [Seoul 3-Day Hotspot Trend Magazine Tour] as your recommended itinerary.\nFeel free to ask anytime if you want adjustments or want to explore other cities!',
-          itinerary: currentItinerary
-        }
-      ];
+      welcomeText = 'Hello! I am VORA, your dedicated AI travel concierge for South Korea. 😊\nTell me where you want to visit or your desired travel style!';
+    } else if (currentLang === 'ja') {
+      welcomeText = 'こんにちは！専属の韓国旅行AIコンシェルジュ、VORA（ボラ）です。😊\n訪れてみたい都市や旅のスタイルを気軽にお知らせください！';
+    } else if (currentLang === 'zh' || currentLang === 'zht') {
+      welcomeText = (currentLang === 'zht')
+        ? '您好！我是您的專屬韓國旅遊AI智能向導 VORA。😊\n請告訴我您想去的城市或旅行風格，我將為您客製專屬行程！'
+        : '您好！我是您的专属韩国旅游AI智能向导 VORA。😊\n请告诉我您想去的城市或旅行风格，我将为您定制专属行程！';
+    } else {
+      welcomeText = '안녕하세요! 당신의 전담 한국 여행 AI 컨시어지 VORA(보라)입니다. 😊\n어떤 여행을 꿈꾸시나요? 가고 싶은 도시나 스타일을 편하게 말씀해 주세요!';
     }
-    if (currentLang === 'ja') {
-      return [
-        {
-          id: 'welcome-1',
-          role: 'assistant',
-          text: 'こんにちは！専属の韓国旅行AIコンシェルジュ、VORA（ボラ）です。😊\n訪れてみたい都市や旅のスタイルを気軽にお知らせください！'
-        },
-        {
-          id: 'featured-1',
-          role: 'assistant',
-          text: '✨ おすすめプランとして「ソウル3日間 トレンド満喫ツアー」をご用意しました。\nプランの変更や他都市の追加など、いつでもご質問ください！',
-          itinerary: currentItinerary
-        }
-      ];
-    }
-    if (currentLang === 'zh' || currentLang === 'zht') {
-      const isZht = currentLang === 'zht';
-      return [
-        {
-          id: 'welcome-1',
-          role: 'assistant',
-          text: isZht 
-            ? '您好！我是您的專屬韓國旅遊AI智能向導 VORA。😊\n請告訴我您想去的城市或旅行風格，我將為您客製專屬行程！'
-            : '您好！我是您的专属韩国旅游AI智能向导 VORA。😊\n请告诉我您想去的城市或旅行风格，我将为您定制专属行程！'
-        },
-        {
-          id: 'featured-1',
-          role: 'assistant',
-          text: isZht
-            ? '✨ 已為您準備精選推薦路線【首爾3天2晚 潮流打卡之旅】。\n如需調整行程或探索其他城市，請隨時向我提問！'
-            : '✨ 已为您准备精选推荐路线【首尔3天2晚 潮流打卡之旅】。\n如需调整行程或探索其他城市，请随时向我提问！',
-          itinerary: currentItinerary
-        }
-      ];
-    }
-    return [
+
+    const messages = [
       {
         id: 'welcome-1',
         role: 'assistant',
-        text: '안녕하세요! 당신의 전담 한국 여행 AI 컨시어지 VORA(보라)입니다. 😊\n어떤 여행을 꿈꾸시나요? 가고 싶은 도시나 스타일을 편하게 말씀해 주세요!'
-      },
-      {
-        id: 'featured-1',
-        role: 'assistant',
-        text: '✨ [서울 3일 핫플 감성 투어]를 추천 코스로 준비해 두었습니다.\n수정을 원하시거나 새로운 지역을 가고 싶으시면 언제든 질문해 주세요!',
-        itinerary: currentItinerary
+        text: welcomeText
       }
     ];
+
+    if (currentItinerary) {
+      messages.push({
+        id: 'featured-1',
+        role: 'assistant',
+        text: `✨ **${currentItinerary.tripTitle || currentItinerary.title}**\n${currentItinerary.summary || ''}`,
+        itinerary: currentItinerary
+      });
+    }
+
+    return messages;
   };
 
   const handleLanguageChange = (newLang) => {
@@ -132,10 +100,8 @@ export default function App() {
       localStorage.setItem('vora_lang', newLang);
     } catch (e) {}
 
-    // Automatically reset and re-query the itinerary and chat messages in the newly selected language
-    const newItinerary = generateLocalFallbackItinerary('서울 3일 핫플 감성 투어', '서울', 3, newLang);
-    setItineraryData(newItinerary);
-    setChatMessages(getInitialWelcomeMessages(newLang, newItinerary));
+    // Clean reset welcome messages in target language
+    setChatMessages(getInitialWelcomeMessages(newLang, null));
     setActiveDay(1);
     setSelectedSpot(null);
   };
@@ -166,31 +132,52 @@ export default function App() {
     document.documentElement.lang = langMap[lang] || 'ko-KR';
   }, [lang]);
 
-  // Itinerary & Chat State - Pre-populated with rich 3-day Seoul tour on initial load
-  const initialItinerary = React.useMemo(() => {
+  // 저장된 여행 목록 (내 여행 탭 연동)
+  const [savedTrips, setSavedTrips] = useState(() => {
     try {
-      return generateLocalFallbackItinerary('서울 3일 핫플 감성 투어', '서울', 3, lang);
+      const saved = localStorage.getItem('vora_saved_trips');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+
+  // Itinerary State - 기본값은 마지막 저장된 일정 (없으면 null)
+  const [itineraryData, setItineraryData] = useState(() => {
+    try {
+      const saved = localStorage.getItem('vora_saved_trips');
+      const list = saved ? JSON.parse(saved) : [];
+      return list.length > 0 ? list[0] : null;
     } catch (e) {
       return null;
     }
-  }, [lang]);
+  });
 
-  const [itineraryData, setItineraryData] = useState(initialItinerary);
+  // Selected Trip ID for MyTripTab
+  const [selectedTripId, setSelectedTripId] = useState(() => {
+    try {
+      const saved = localStorage.getItem('vora_saved_trips');
+      const list = saved ? JSON.parse(saved) : [];
+      return list.length > 0 ? (list[0].savedId || list[0].id || list[0].tripTitle) : null;
+    } catch (e) {
+      return null;
+    }
+  });
 
-  // Background live photo enrichment via TourAPI 4.0 & Wikimedia (Zero hardcoding)
+  // Background live photo enrichment via TourAPI 4.0 & Wikimedia
   useEffect(() => {
     let isMounted = true;
-    if (initialItinerary) {
-      enrichItineraryPhotosAsync(initialItinerary).then(enriched => {
+    if (itineraryData) {
+      enrichItineraryPhotosAsync(itineraryData).then(enriched => {
         if (isMounted && enriched) {
-          setItineraryData(prev => (prev?.tripTitle === initialItinerary.tripTitle ? enriched : prev));
+          setItineraryData(prev => (prev?.tripTitle === itineraryData.tripTitle ? enriched : prev));
         }
       });
     }
     return () => { isMounted = false; };
-  }, [initialItinerary]);
+  }, [itineraryData?.tripTitle]);
 
-  const [chatMessages, setChatMessages] = useState(() => getInitialWelcomeMessages(lang, initialItinerary));
+  const [chatMessages, setChatMessages] = useState(() => getInitialWelcomeMessages(lang, null));
   const [activeDay, setActiveDay] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedSpot, setSelectedSpot] = useState(null);
@@ -301,16 +288,6 @@ export default function App() {
   const [isExitModalOpen, setIsExitModalOpen] = useState(false);
   const [pendingNavTab, setPendingNavTab] = useState('home');
   const [isCurrentItinerarySaved, setIsCurrentItinerarySaved] = useState(false);
-
-  // 저장된 여행 목록 (내 여행 탭 연동)
-  const [savedTrips, setSavedTrips] = useState(() => {
-    try {
-      const saved = localStorage.getItem('vora_saved_trips');
-      return saved ? JSON.parse(saved) : [];
-    } catch (e) {
-      return [];
-    }
-  });
 
   // 🌟 [일정 확정 및 내 여행 저장] 코어 핸들러 (쿼터 1회 차감 & 저장)
   const handleSaveCurrentItinerary = (targetNextTab = 'mytrip') => {
@@ -557,6 +534,22 @@ export default function App() {
     }
   };
 
+  // 저장된 여행 삭제 핸들러
+  const handleDeleteSavedTrip = (tripId) => {
+    setSavedTrips(prev => {
+      const updated = prev.filter(t => (t.savedId || t.tripTitle) !== tripId);
+      try {
+        localStorage.setItem('vora_saved_trips', JSON.stringify(updated));
+      } catch (e) {}
+      if (updated.length > 0) {
+        setItineraryData(updated[0]);
+      } else {
+        setItineraryData(null);
+      }
+      return updated;
+    });
+  };
+
   return (
     <div style={{
       minHeight: '100vh',
@@ -700,7 +693,7 @@ export default function App() {
         )}
 
         {/* ==============================================================================
-           TAB 3. 🧳 내 여행 (My Trip): 3단계 확정 타임라인 & 0원 동선 최적화 & PDF/공유
+           TAB 3. 🧳 내 여행 (My Trip): 3단계 확정 타임라인 & 멀티 저장 여행 셀렉터 & 0원 동선 최적화
            ============================================================================== */}
         {activeNavTab === 'mytrip' && (
           <div className="tab-content-fade-in" style={{ width: '100%', maxWidth: '880px', margin: '0 auto' }}>
@@ -717,6 +710,17 @@ export default function App() {
                 setActiveNavTab('ai');
               }}
               onOpenRewardedAd={() => setIsRewardedAdOpen(true)}
+              savedTrips={savedTrips}
+              onSelectTrip={(trip) => {
+                setItineraryData(trip);
+                setSelectedTripId(trip.savedId || trip.id || trip.tripTitle);
+                setActiveDay(1);
+              }}
+              onDeleteTrip={handleDeleteSavedTrip}
+              onCreateNewTrip={() => {
+                setPlannerInitialMode('form');
+                setActiveNavTab('ai');
+              }}
             />
           </div>
         )}
