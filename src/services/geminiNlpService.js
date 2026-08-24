@@ -1237,8 +1237,10 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
   }
 
   // 🌟 사용자 테마, 동행자, 추가 요구사항 스마트 파싱하여 다이나믹 타이틀 & 서머리 생성!
+  const isElder = /(노인|어르신|부모님|시니어|효도|할머니|할아버지|노약자)/i.test(rawPrompt);
+  const isKids = /(아이|아이동반|어린이|유아|아기|키즈|초등)/i.test(rawPrompt);
   const isCouple = /(커플|연인|데이트|로맨틱|신혼)/i.test(rawPrompt);
-  const isFamily = /(가족|아이|부모님|어린이)/i.test(rawPrompt);
+  const isFamily = /(가족|패밀리)/i.test(rawPrompt) || (isKids && isElder);
   const isSolo = /(혼자|나홀로|솔로|1인)/i.test(rawPrompt);
   const isIndoor = /(실내|비|우천|비오는|더위|추위)/i.test(rawPrompt);
   const isFood = /(맛집|미식|먹방|푸드)/i.test(rawPrompt);
@@ -1246,16 +1248,43 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
   const isShopping = /(쇼핑|패션|백화점|아울렛)/i.test(rawPrompt);
   const isHealing = /(힐링|자연|산책|숲|바다|휴식)/i.test(rawPrompt);
 
-  let themeModifier = '감성 매거진';
-  if (isIndoor) themeModifier = '쾌적한 실내 핫플 & 트렌드';
-  else if (isCouple && isFood) themeModifier = '로맨틱 커플 미식 & 핫플 데이트';
-  else if (isCouple) themeModifier = '로맨틱 커플 감성 데이트';
-  else if (isFamily) themeModifier = '온가족 편안한 명소 & 힐링';
-  else if (isSolo && isHealing) themeModifier = '나홀로 쉼표 & 고즈넉한 힐링 산책';
-  else if (isSolo) themeModifier = '나홀로 트렌디 핫플 탐방';
-  else if (isShopping) themeModifier = '트렌드 쇼핑 & 라이프스타일';
-  else if (isFood && isCafe) themeModifier = '로컬 미식 & 감성 카페 투어';
-  else if (isHealing) themeModifier = '청정 자연 & 도심 힐링';
+  let themeModifier = '하이라이트 명소 & 미식';
+  let summaryDesc = '엄선된 대표 명소와 최적의 이동 동선으로 알차게 구성했어요! ✨';
+
+  if (isElder && isKids) {
+    themeModifier = '3대 온가족 안심 휴식 & 힐링 명소';
+    summaryDesc = '어르신부터 아이까지 편안하게 즐길 수 있는 안심 동선과 가족 쉼터 위주로 구성했어요! 👨‍👩‍👧‍👦';
+  } else if (isElder) {
+    themeModifier = '부모님·어르신 안심 힐링 & 명품 효도';
+    summaryDesc = '계단과 과도한 보행을 줄이고, 고즈넉한 휴식과 정갈한 보양 한식 명소로 편안하게 구성했어요! 🌿';
+  } else if (isKids) {
+    themeModifier = '우리아이 맞춤 패밀리 명소 & 키즈 힐링';
+    summaryDesc = '아이와 함께 즐길 수 있는 키즈 프렌들리 명소와 유모차 이동이 수월한 쾌적한 동선으로 구성했어요! 🎈';
+  } else if (isIndoor) {
+    themeModifier = '비 와도 쾌적한 실내 핫플 & 복합문화';
+    summaryDesc = '날씨에 구애받지 않고 즐길 수 있는 감성 실내 명소와 복합문화 핫플 위주로 구성했어요! ☔';
+  } else if (isCouple && isFood) {
+    themeModifier = '로맨틱 커플 미식 & 핫플 데이트';
+    summaryDesc = '둘만의 특별한 감성 포토존과 줄 서서 먹는 감각적인 다이닝 명소로 채웠어요! 💖';
+  } else if (isCouple) {
+    themeModifier = '로맨틱 커플 감성 데이트';
+    summaryDesc = '인생샷을 남길 수 있는 로맨틱한 뷰포인트와 분위기 좋은 감성 스팟 위주로 구성했어요! 📸';
+  } else if (isSolo && isHealing) {
+    themeModifier = '나홀로 쉼표 & 고즈넉한 힐링 산책';
+    summaryDesc = '혼자만의 여유로운 쉼과 힐링을 만끽할 수 있는 한적하고 아름다운 산책길로 구성했어요! 🍃';
+  } else if (isSolo) {
+    themeModifier = '나홀로 트렌디 핫플 탐방';
+    summaryDesc = '혼자서도 부담 없이 자유롭게 즐길 수 있는 트렌디한 핫플레이스로 구성했어요! 🚶';
+  } else if (isFood && isCafe) {
+    themeModifier = '로컬 미식 & 감성 카페 투어';
+    summaryDesc = '현지인들이 극찬하는 대표 맛집과 감각적인 시그니처 카페들로 알차게 채웠어요! ☕🍴';
+  } else if (isHealing) {
+    themeModifier = '청정 자연 & 도심 힐링 산책';
+    summaryDesc = '지친 일상을 벗어나 맑은 공기와 푸른 자연 속에서 휴식할 수 있는 힐링 코스예요! 🌲';
+  } else if (isShopping) {
+    themeModifier = '트렌드 쇼핑 & 라이프스타일';
+    summaryDesc = 'K-패션과 트렌디한 감성 편집숍을 한눈에 둘러볼 수 있는 쇼핑 코스예요! 🛍️';
+  }
 
   const tripTitle = lang === 'en'
     ? `${cityMeta.nameEn || 'Seoul'} ${days}-Day ${themeModifier} Tour`
@@ -1266,12 +1295,12 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
     : `${city} ${days}일 ${themeModifier} 코스`;
 
   const summary = lang === 'en'
-    ? `Curated by VORA AI tailored for ${themeModifier}, featuring ultimate photo spots and local delights for ${cityMeta.nameEn || 'Seoul'}. ✨`
+    ? `Tailored by VORA AI for ${themeModifier}. ${summaryDesc}`
     : lang === 'ja'
-    ? `VORA AIが提案する${CITY_TRANSLATIONS.ja[city] || 'ソウル'}${days}日間の${themeModifier}コースです。最高のフォトスポットと本場のグルメを網羅しています。✨`
+    ? `VORA AIが提案する${CITY_TRANSLATIONS.ja[city] || 'ソウル'}${days}日間の${themeModifier}コースです。${summaryDesc}`
     : (lang === 'zh' || lang === 'zht')
-    ? `VORA AI为您精心定制的${CITY_TRANSLATIONS.zh[city] || '首尔'}${days}天${themeModifier}路线，涵盖绝美打卡机位与地道特色美食。✨`
-    : `VORA AI가 제안하는 ${city} ${days}일 ${themeModifier} 맞춤 여행 코스입니다. 엄선된 핫플레이스와 특별한 동선으로 알차게 구성되었습니다. ✨`;
+    ? `VORA AI为您精心定制的${CITY_TRANSLATIONS.zh[city] || '首尔'}${days}天${themeModifier}路线。${summaryDesc}`
+    : `VORA AI가 제안하는 ${city} ${days}일 ${themeModifier} 코스입니다. ${summaryDesc}`;
 
   return {
     targetCity: city,

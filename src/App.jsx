@@ -401,7 +401,7 @@ export default function App() {
     setChatMessages(prev => [...prev, userMsg]);
 
     // 🌟 1. 폼 초기 진입 또는 추천 칩 진입 확인 -> 토큰 낭비 없이 조건 브리핑 & 승인 유도!
-    const isDirectGenerateAction = /(이대로 바로 일정 만들기|일정 만들어줘|만들어줘|일정 생성|일정 만들어|짜줘|OK|ok|응|네|좋아|진행해)/i.test(promptQuery);
+    const isDirectGenerateAction = /(이대로 바로 일정 만들기|이 조건으로 일정|일정 만들어줘|일정 만들어|일정 생성|일정 짜줘|일정표 만들기|OK|ok|응|네|좋아|진행해)/i.test(promptQuery);
     const isFormNavigateAction = /(조건 직접 변경하기|조건 변경)/i.test(promptQuery);
 
     if (isFormNavigateAction) {
@@ -413,20 +413,25 @@ export default function App() {
     const isRecommendationChipSubmit = /(경복궁|성수|광안리|서귀포|행궁동|K-헤리티지|오션|힐링|힙플)/i.test(promptQuery);
 
     if ((isInitialFormSubmit || isRecommendationChipSubmit) && !isDirectGenerateAction) {
-      // 폼/추천 칩 제출 직후: 보라가 군더더기 없이 산뜻한 2줄로 다정하게 맞이!
+      // 폼/추천 칩 제출 직후: 보라가 모든 조건(테마 전체, 추가요청 포함)을 완벽하게 1줄 캡슐로 브리핑!
       const replyTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
       const requestedDays = extractDaysFromPrompt(promptQuery) || (isRecommendationChipSubmit ? 1 : 3);
       const targetCity = extractLocationKeyword(promptQuery) || '서울';
 
-      // 테마 및 동행자 추출
-      const companionMatch = promptQuery.match(/(커플|혼자|가족|친구)/);
+      // 테마, 동행자, 추가요청 전체 정밀 추출
+      const companionMatch = promptQuery.match(/(커플|혼자|가족|친구|아이와 함께|아이|부모님|어르신|시니어)/);
       const companionText = companionMatch ? companionMatch[1] : '';
-      const themeMatch = promptQuery.match(/테마:\s*([^,]+(?:,\s*[^,]+)?)/);
-      const themeText = themeMatch ? themeMatch[1] : '';
+      
+      const themeMatch = promptQuery.match(/테마:\s*([^,]+(?:,\s*[^,]+)*?)(?=, 요구사항:|$)/);
+      const themeText = themeMatch ? themeMatch[1].trim() : '';
+
+      const reqMatch = promptQuery.match(/요구사항:\s*(.+)$/);
+      const reqText = reqMatch ? reqMatch[1].trim() : '';
 
       let tagLabel = `📍 ${targetCity} ${requestedDays}일`;
       if (companionText) tagLabel += ` • 👫 ${companionText}`;
       if (themeText) tagLabel += ` • 🍴 ${themeText}`;
+      if (reqText) tagLabel += ` • ✍️ ${reqText}`;
       if (isRecommendationChipSubmit) {
         tagLabel = `👑 ${promptQuery.slice(0, 24)}`;
       }
@@ -453,13 +458,12 @@ export default function App() {
           replyTime,
           timestamp: replyTime
         };
-        // 🌟 폼/칩 재진입 시 이전 찌꺼기 없이 깨끗하게 1개의 세션으로 리셋!
         setChatMessages([botMsg]);
       }, 80);
       return;
     }
 
-    // 🌟 2. 사용자가 추가 조건을 말하거나, "일정 만들어줘"를 확정했을 때 -> 실제 풀코스 생성!
+    // 🌟 2. 사용자가 대화창에서 질문/조건을 던졌을 때 -> 티키타카 대화 또는 풀코스 생성!
     setIsLoading(true);
 
     const dayMatch = promptQuery.match(/([1-5])일차/);
@@ -470,11 +474,51 @@ export default function App() {
     }
 
     try {
-      const result = await geminiGenerateFullItinerary(promptQuery, lang, itineraryData);
+      // 🌟 이전 대화 컨텍스트가 있다면 초기 조건과 현재 사용자 질문을 합성하여 전달!
+      let fullPromptContext = promptQuery;
+      const initialBotMsg = chatMessages.find(m => m.text && m.text.includes('**['));
+      if (initialBotMsg && !promptQuery.includes('여행') && !promptQuery.includes('일정')) {
+        fullPromptContext = `${initialBotMsg.text}\n추가 요청: ${promptQuery}`;
+      }
+
+      const result = await geminiGenerateFullItinerary(fullPromptContext, lang, itineraryData);
       const elapsedSeconds = ((Date.now() - startTime) / 1000).toFixed(1);
       const replyTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
 
-      if (result && result.responseType === 'chat') {
+      // 🌟 [핵심 티키타카] "이대로 일정 만들어줘" 버튼을 누른 게 아니거나, 대화형 질문인 경우 티키타카로 응답!
+      const isConversationalQuery = !isDirectGenerateAction && /(노인|어르신|부모님|아이|키즈|비|실내|카페|맛집|추천|어때|수정|변경|추가|가볼만)/i.test(promptQuery);
+
+      if (isConversationalQuery) {
+        let conversationalReply = '';
+        if (/(노인|어르신|부모님|시니어|효도)/i.test(promptQuery)) {
+          conversationalReply = (lang === 'en')
+            ? `Noted for traveling with parents & seniors! 😊\nI will adjust the route with gentle walking paths, scenic resting spots, and wholesome local dining.\n\nShall I apply this to your complete itinerary?`
+            : `어르신·부모님과 함께하시는 여행이군요! 😊\n계단과 무리한 도보를 줄이고, 편안한 쉼터와 정갈한 보양 한식 명소 위주로 일정을 맞춰드릴게요.\n\n이 조건으로 나만의 맞춤 일정표를 완성할까요?`;
+        } else if (/(아이|어린이|유아|키즈)/i.test(promptQuery)) {
+          conversationalReply = (lang === 'en')
+            ? `Noted for traveling with kids! 🎈\nI will focus on stroller-friendly paths, fun interactive spots, and family-friendly cafes.\n\nShall I create the tailored itinerary now?`
+            : `아이와 함께하는 신나는 가족 여행이군요! 🎈\n유모차 이동이 편하고 아이들이 좋아할 체험 명소와 키즈 프렌들리 맛집 위주로 조율해 드릴게요.\n\n이 조건으로 나만의 맞춤 일정표를 완성할까요?`;
+        } else if (/(실내|비|우천)/i.test(promptQuery)) {
+          conversationalReply = `비가 와도 쾌적하게 즐길 수 있는 대형 복합문화공간, 아쿠아리움, 감성 실내 핫플 위주로 재구성해 드릴게요! ☔✨\n\n이 조건으로 일정표를 업데이트할까요?`;
+        } else {
+          conversationalReply = `말씀해주신 조건(**${promptQuery}**)을 꼼꼼하게 반영하여 최적의 동선으로 조율해 드릴게요! 😊\n\n이 조건으로 완벽한 맞춤 일정표를 완성할까요?`;
+        }
+
+        const botMsg = {
+          id: `bot-${Date.now()}`,
+          role: 'assistant',
+          text: conversationalReply,
+          quickSuggestions: [
+            (lang === 'en' ? '🚀 Generate Itinerary with this' : '🚀 이 조건으로 일정표 만들기'),
+            (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')
+          ],
+          generationTime: elapsedSeconds,
+          queryTime,
+          replyTime,
+          timestamp: replyTime
+        };
+        setChatMessages(prev => [...prev, botMsg]);
+      } else if (result && result.responseType === 'chat') {
         const botMsg = {
           id: `bot-${Date.now()}`,
           role: 'assistant',
@@ -489,15 +533,15 @@ export default function App() {
         };
         setChatMessages(prev => [...prev, botMsg]);
       } else {
-        const requestedDays = extractDaysFromPrompt(promptQuery) || 3;
+        const requestedDays = extractDaysFromPrompt(fullPromptContext) || 3;
         const finalResult = {
-          ...(result || generateLocalFallbackItinerary(promptQuery, extractLocationKeyword(promptQuery), requestedDays, lang)),
+          ...(result || generateLocalFallbackItinerary(fullPromptContext, extractLocationKeyword(fullPromptContext), requestedDays, lang)),
           generationTime: elapsedSeconds,
-          draftId: `draft-${Date.now()}` // 🌟 유니크 임시 ID 부여하여 기존 저장 일정과 100% 분리!
+          draftId: `draft-${Date.now()}`
         };
         
         setItineraryData(finalResult);
-        setHasActiveUnsavedDraft(true); // 🌟 실제 새 AI 일정이 생성되었을 때만 이탈 감지 활성화!
+        setHasActiveUnsavedDraft(true);
         
         const botMsg = {
           id: `bot-${Date.now()}`,
