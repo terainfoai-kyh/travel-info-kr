@@ -452,14 +452,14 @@ export default function PortalHomePrototype({
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              backgroundColor: '#ffffff',
+              backgroundColor: '#fffdf5',
               borderRadius: '9999px',
               padding: '0.2rem 0.25rem 0.2rem 0.85rem',
-              boxShadow: '0 12px 28px rgba(0, 0, 0, 0.22)',
-              border: '2px solid rgba(255, 255, 255, 0.95)',
+              boxShadow: '0 12px 28px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(245, 158, 11, 0.2)',
+              border: '2px solid #f59e0b',
               transition: 'all 0.3s ease'
             }}>
-              <Search size={18} style={{ color: '#2563eb', flexShrink: 0 }} />
+              <MapPin size={18} style={{ color: '#d97706', flexShrink: 0 }} />
               <input
                 type="text"
                 value={searchQuery}
@@ -468,7 +468,7 @@ export default function PortalHomePrototype({
                   lang === 'en' ? 'Where to explore? (e.g. Jeju, Seongsu)' :
                   lang === 'ja' ? 'どこへ行きますか？ (例: 済州、聖水)' :
                   (lang === 'zh' || lang === 'zht') ? '想去哪里旅行？ (例如: 济州、圣水)' :
-                  '도시·명소 검색 (예: 제주, 성수)'
+                  '도시·명소 입력 (예: 제주, 성수)'
                 }
                 style={{
                   flex: 1,
@@ -485,7 +485,7 @@ export default function PortalHomePrototype({
               <button
                 type="submit"
                 style={{
-                  background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
+                  background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
                   color: '#ffffff',
                   border: 'none',
                   borderRadius: '9999px',
@@ -496,7 +496,7 @@ export default function PortalHomePrototype({
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.3rem',
-                  boxShadow: '0 4px 12px rgba(37, 99, 235, 0.35)',
+                  boxShadow: '0 4px 12px rgba(245, 158, 11, 0.35)',
                   transition: 'all 0.2s ease',
                   flexShrink: 0
                 }}

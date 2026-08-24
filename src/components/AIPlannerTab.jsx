@@ -248,7 +248,7 @@ export default function AIPlannerTab({
             transition: 'all 0.2s ease',
             boxSizing: 'border-box'
           }}>
-            <Search size={16} style={{ color: '#d97706', flexShrink: 0, marginRight: '0.45rem' }} />
+            <MapPin size={16} style={{ color: '#d97706', flexShrink: 0, marginRight: '0.45rem' }} />
             <input
               type="text"
               value={destination}
