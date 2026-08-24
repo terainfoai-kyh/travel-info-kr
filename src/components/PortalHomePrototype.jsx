@@ -19,6 +19,8 @@ import {
   X 
 } from 'lucide-react';
 import { getLocalizedCityName, TRANSLATIONS } from '../i18n/translations';
+import { buildKlookDeepLink } from '../services/apiConfig';
+import SubwayMapModal from './SubwayMapModal';
 
 const HERO_SLIDES = [
   {
@@ -256,6 +258,7 @@ export default function PortalHomePrototype({
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
   const [isHovered, setIsHovered] = useState(false);
   const [selectedCityTab, setSelectedCityTab] = useState('all');
+  const [isSubwayModalOpen, setIsSubwayModalOpen] = useState(false);
 
   // Auto-advance cinematic hero slides every 5.5 seconds unless user hovers
   useEffect(() => {
@@ -689,12 +692,10 @@ export default function PortalHomePrototype({
             </div>
           </div>
 
-          {/* Icon 4: Seoul Metro Map */}
+          {/* Icon 4: Nationwide Metro Map */}
           <div 
             className="portal-quick-hub-card"
-            onClick={() => {
-              window.open('http://www.seoulmetro.co.kr/kr/cyberStation.do', '_blank');
-            }}
+            onClick={() => setIsSubwayModalOpen(true)}
           >
             <div className="portal-quick-hub-icon" style={{
               background: 'linear-gradient(135deg, #0284c7, #3b82f6)',
@@ -707,11 +708,12 @@ export default function PortalHomePrototype({
             </div>
           </div>
 
-          {/* Icon 5: Unlimited eSIM */}
+          {/* Icon 5: Unlimited eSIM (Klook Product Deep Link) */}
           <div 
             className="portal-quick-hub-card"
             onClick={() => {
-              window.open('https://affiliate.klook.com', '_blank');
+              const esimQuery = lang === 'en' ? 'Korea eSIM Unlimited' : lang === 'ja' ? '韓国 無制限 eSIM' : (lang === 'zh' || lang === 'zht') ? '韩国 无限流量 eSIM' : '한국 무제한 eSIM';
+              window.open(buildKlookDeepLink(esimQuery), '_blank', 'noopener,noreferrer');
             }}
           >
             <div className="portal-quick-hub-icon" style={{
@@ -725,11 +727,24 @@ export default function PortalHomePrototype({
             </div>
           </div>
 
-          {/* Icon 6: 1330 Emergency Helpline */}
+          {/* Icon 6: 1330 Emergency Helpline (One-Touch Call / Official Page) */}
           <div 
             className="portal-quick-hub-card"
             onClick={() => {
-              window.open(lang === 'en' ? 'https://english.visitkorea.or.kr' : lang === 'ja' ? 'https://japanese.visitkorea.or.kr' : (lang === 'zh' || lang === 'zht') ? 'https://chinese.visitkorea.or.kr' : 'https://korean.visitkorea.or.kr', '_blank');
+              // 모바일 기기 감지: 스마트폰에서는 원터치 tel:1330, PC에서는 공식 1330 안내 페이지 오픈
+              const isMobileDevice = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+              if (isMobileDevice) {
+                window.location.href = 'tel:1330';
+              } else {
+                const hotlineUrl = lang === 'en' 
+                  ? 'https://english.visitkorea.or.kr/svc/contents/contentsView.do?menuSn=177&vcontsId=129598' 
+                  : lang === 'ja' 
+                  ? 'https://japanese.visitkorea.or.kr/svc/contents/contentsView.do?menuSn=216&vcontsId=129598' 
+                  : (lang === 'zh' || lang === 'zht') 
+                  ? 'https://chinese.visitkorea.or.kr/svc/contents/contentsView.do?menuSn=249&vcontsId=129598' 
+                  : 'https://korean.visitkorea.or.kr/sub/travelinfo/helpline.do';
+                window.open(hotlineUrl, '_blank', 'noopener,noreferrer');
+              }
             }}
           >
             <div className="portal-quick-hub-icon" style={{
@@ -1046,6 +1061,13 @@ export default function PortalHomePrototype({
           ))}
         </div>
       </div>
+
+      {/* 🚇 전국 지하철 노선도 모달 */}
+      <SubwayMapModal
+        isOpen={isSubwayModalOpen}
+        onClose={() => setIsSubwayModalOpen(false)}
+        lang={lang}
+      />
 
     </div>
   );

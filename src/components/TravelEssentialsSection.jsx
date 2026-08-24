@@ -52,12 +52,12 @@ export default function TravelEssentialsSection({
       badge: t.badgeSupport24h || '24시간 지원',
       linkText: t.helplineInfoLink || '1330 공식 안내 ↗',
       linkUrl: lang === 'en' 
-        ? 'https://english.visitkorea.or.kr' 
+        ? 'https://english.visitkorea.or.kr/svc/contents/contentsView.do?menuSn=177&vcontsId=129598' 
         : lang === 'ja' 
-          ? 'https://japanese.visitkorea.or.kr' 
+          ? 'https://japanese.visitkorea.or.kr/svc/contents/contentsView.do?menuSn=216&vcontsId=129598' 
           : (lang === 'zh' || lang === 'zht') 
-            ? 'https://chinese.visitkorea.or.kr' 
-            : 'https://korean.visitkorea.or.kr'
+            ? 'https://chinese.visitkorea.or.kr/svc/contents/contentsView.do?menuSn=249&vcontsId=129598' 
+            : 'https://korean.visitkorea.or.kr/sub/travelinfo/helpline.do'
     }
   ];
 
