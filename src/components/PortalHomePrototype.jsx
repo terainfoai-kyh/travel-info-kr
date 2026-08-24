@@ -400,18 +400,18 @@ export default function PortalHomePrototype({
           zIndex: 2
         }} />
 
-        {/* Hero Content Container (슬림 핏 압축) */}
+        {/* Hero Content Container (슬림 핏 & 명확한 1줄 가치 전달) */}
         <div style={{
           position: 'relative',
           zIndex: 3,
           textAlign: 'center',
           maxWidth: '860px',
-          padding: '0.9rem 0.85rem 1.6rem 0.85rem',
+          padding: '0.75rem 0.85rem 1.5rem 0.85rem',
           width: '100%',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: '0.45rem'
+          gap: '0.4rem'
         }}>
           
           {/* Top Sparkling Badge (슬림 캡슐) */}
@@ -419,68 +419,69 @@ export default function PortalHomePrototype({
             display: 'inline-flex',
             alignItems: 'center',
             gap: '0.35rem',
-            padding: '0.22rem 0.75rem',
+            padding: '0.2rem 0.7rem',
             borderRadius: '9999px',
-            backgroundColor: 'rgba(15, 23, 42, 0.65)',
+            backgroundColor: 'rgba(15, 23, 42, 0.6)',
             backdropFilter: 'blur(16px)',
             WebkitBackdropFilter: 'blur(16px)',
-            border: '1px solid rgba(255, 255, 255, 0.4)',
+            border: '1px solid rgba(255, 255, 255, 0.35)',
             color: '#93c5fd',
-            fontSize: '0.74rem',
+            fontSize: '0.72rem',
             fontWeight: 800,
-            boxShadow: '0 4px 15px rgba(0, 0, 0, 0.3)'
+            boxShadow: '0 4px 15px rgba(0, 0, 0, 0.25)'
           }}>
-            <Sparkles size={12} style={{ color: '#fbbf24' }} />
+            <Sparkles size={11} style={{ color: '#fbbf24' }} />
             <span>
-              {lang === 'en' ? 'VORA AI 3.0 • Official Travel Concierge' :
-               lang === 'ja' ? 'VORA AI 3.0 • 韓国旅行コンシェルジュ' :
-               (lang === 'zh' || lang === 'zht') ? 'VORA AI 3.0 • 韩国旅游智能礼宾' :
-               'VORA AI 3.0 • 대한민국 대표 여행 컨시어지'}
+              {lang === 'en' ? 'VORA AI • Smart Travel Guide' :
+               lang === 'ja' ? 'VORA AI • スマート旅行ガイド' :
+               (lang === 'zh' || lang === 'zht') ? 'VORA AI • 智能旅行指南' :
+               'VORA AI • 스마트 여행 가이드'}
             </span>
           </div>
 
-          {/* Dynamic Headline (컴팩트 슬림 폰트) */}
+          {/* Strong Fixed 1-Line Headline (3초 만에 각인되는 핵심 가치) */}
           <h1 style={{
-            fontSize: 'clamp(1.3rem, 3.6vw, 2.2rem)',
+            fontSize: 'clamp(1.25rem, 3.5vw, 2.1rem)',
             fontWeight: 900,
             lineHeight: 1.2,
             color: '#ffffff',
             margin: 0,
-            textShadow: '0 3px 12px rgba(0, 0, 0, 0.8), 0 1px 3px rgba(0, 0, 0, 0.9)',
-            letterSpacing: '-0.02em'
+            textShadow: '0 3px 12px rgba(0, 0, 0, 0.85), 0 1px 3px rgba(0, 0, 0, 0.95)',
+            letterSpacing: '-0.02em',
+            whiteSpace: 'normal'
           }}>
-            {lang === 'en' ? currentSlide.titleEn :
-             lang === 'ja' ? currentSlide.titleJa :
-             (lang === 'zh' || lang === 'zht') ? currentSlide.titleZh :
-             currentSlide.titleKo}
+            {lang === 'en' ? 'Smart AI Itinerary for Your Perfect Korea Trip' :
+             lang === 'ja' ? 'AIが3秒で完成するあなただけの韓国旅行プラン' :
+             (lang === 'zh' || lang === 'zht') ? 'AI智能定制专属完美韩国旅行路线' :
+             '나만의 완벽한 한국 여행, AI가 3초 만에'}
           </h1>
 
-          {/* Subtitle (1줄 깔끔 압축) */}
+          {/* Subtitle (1줄 슬림 카피) */}
           <p style={{
-            fontSize: 'clamp(0.78rem, 1.6vw, 0.95rem)',
+            fontSize: 'clamp(0.76rem, 1.5vw, 0.92rem)',
             color: '#f1f5f9',
             margin: 0,
             maxWidth: '620px',
-            lineHeight: 1.35,
+            lineHeight: 1.3,
             fontWeight: 600,
             textShadow: '0 2px 8px rgba(0, 0, 0, 0.85)',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis'
           }}>
-            {lang === 'en' ? currentSlide.subEn :
-             lang === 'ja' ? currentSlide.subJa :
-             (lang === 'zh' || lang === 'zht') ? currentSlide.subZh :
-             currentSlide.subKo}
+            {lang === 'en' ? 'Free Route Optimization • Live Weather & 1330 Helpline' :
+             lang === 'ja' ? '最適ルート設計＆リアルタイム天気・通訳案内' :
+             (lang === 'zh' || lang === 'zht') ? '免费路线规划·实时天气与1330即时翻译' :
+             '0원 동선 최적화부터 실시간 날씨·긴급통역까지'}
           </p>
 
-          {/* 🔍 HanaTour / Airbnb Style Pure White Smart Search Box */}
+          {/* 🔍 HanaTour / Airbnb Style Slim Pure White Smart Search Box */}
           <form 
             onSubmit={handleSearch}
             style={{
               width: '100%',
-              maxWidth: '580px',
-              marginTop: '0.15rem',
+              maxWidth: '520px',
+              marginTop: '0.1rem',
               position: 'relative'
             }}
           >
@@ -489,21 +490,21 @@ export default function PortalHomePrototype({
               alignItems: 'center',
               backgroundColor: '#ffffff',
               borderRadius: '9999px',
-              padding: '0.25rem 0.35rem 0.25rem 0.95rem',
-              boxShadow: '0 16px 36px rgba(0, 0, 0, 0.3)',
+              padding: '0.2rem 0.25rem 0.2rem 0.85rem',
+              boxShadow: '0 14px 32px rgba(0, 0, 0, 0.28)',
               border: '2px solid rgba(255, 255, 255, 0.95)',
               transition: 'all 0.3s ease'
             }}>
-              <Search size={20} style={{ color: '#2563eb', flexShrink: 0 }} />
+              <Search size={18} style={{ color: '#2563eb', flexShrink: 0 }} />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={
-                  lang === 'en' ? 'Where do you want to explore? (e.g. 3-day Jeju drive, Seongsu cafes)' :
-                  lang === 'ja' ? 'どこへ行きたいですか？ (例: 済州ドライブ、聖水カフェ)' :
-                  (lang === 'zh' || lang === 'zht') ? '想去哪里旅行？ (例如: 济州3日自驾、首尔圣水洞咖啡)' :
-                  '어디로 떠나고 싶으신가요? (예: 2박3일 제주 힐링, 성수동 카페 투어)'
+                  lang === 'en' ? 'Where do you want to explore?' :
+                  lang === 'ja' ? 'どこへ旅行しますか？' :
+                  (lang === 'zh' || lang === 'zht') ? '想去哪里旅行？' :
+                  '어디로 떠나시나요?'
                 }
                 style={{
                   flex: 1,
@@ -511,9 +512,9 @@ export default function PortalHomePrototype({
                   border: 'none',
                   outline: 'none',
                   color: '#0f172a',
-                  fontSize: '0.95rem',
+                  fontSize: '0.88rem',
                   fontWeight: 700,
-                  padding: '0.6rem 0.8rem',
+                  padding: '0.45rem 0.6rem',
                   minWidth: 0
                 }}
               />
@@ -524,20 +525,20 @@ export default function PortalHomePrototype({
                   color: '#ffffff',
                   border: 'none',
                   borderRadius: '9999px',
-                  padding: '0.65rem 1.35rem',
-                  fontSize: '0.88rem',
+                  padding: '0.45rem 1rem',
+                  fontSize: '0.82rem',
                   fontWeight: 800,
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.4rem',
-                  boxShadow: '0 4px 15px rgba(37, 99, 235, 0.4)',
+                  gap: '0.3rem',
+                  boxShadow: '0 4px 12px rgba(37, 99, 235, 0.35)',
                   transition: 'all 0.2s ease',
                   flexShrink: 0
                 }}
               >
-                <Sparkles size={15} />
-                <span>{lang === 'en' ? 'Generate' : lang === 'ja' ? 'AI作成' : (lang === 'zh' || lang === 'zht') ? 'AI生成' : 'AI 일정생성'}</span>
+                <Sparkles size={13} />
+                <span>{lang === 'en' ? 'Plan' : lang === 'ja' ? '作成' : (lang === 'zh' || lang === 'zht') ? '生成' : 'AI 생성'}</span>
               </button>
             </div>
           </form>
@@ -546,10 +547,10 @@ export default function PortalHomePrototype({
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: '0.45rem',
+            gap: '0.4rem',
             width: '100%',
-            maxWidth: '380px',
-            marginTop: '0.15rem'
+            maxWidth: '360px',
+            marginTop: '0.1rem'
           }}>
             {QUICK_CHIPS.map((chip, idx) => {
               const chipLabel = lang === 'en' ? chip.labelEn : lang === 'ja' ? chip.labelJa : (lang === 'zh' || lang === 'zht') ? chip.labelZh : chip.labelKo;
@@ -559,13 +560,14 @@ export default function PortalHomePrototype({
                   key={idx}
                   onClick={() => handleChipClick(chipPrompt || chip.promptKo)}
                   style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.92)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(255, 255, 255, 0.75)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.84)',
+                    backdropFilter: 'blur(8px)',
+                    WebkitBackdropFilter: 'blur(8px)',
+                    border: '1px solid rgba(255, 255, 255, 0.65)',
                     color: '#1f2937',
-                    padding: '0.36rem 0.55rem',
-                    borderRadius: '12px',
-                    fontSize: '0.75rem',
+                    padding: '0.3rem 0.5rem',
+                    borderRadius: '10px',
+                    fontSize: '0.74rem',
                     fontWeight: 800,
                     cursor: 'pointer',
                     transition: 'all 0.15s ease',
@@ -573,7 +575,7 @@ export default function PortalHomePrototype({
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '0.2rem',
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                    boxShadow: '0 3px 10px rgba(0, 0, 0, 0.12)',
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis'
@@ -585,9 +587,9 @@ export default function PortalHomePrototype({
                     e.currentTarget.style.transform = 'translateY(-1px)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.92)';
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.84)';
                     e.currentTarget.style.color = '#1f2937';
-                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.75)';
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.65)';
                     e.currentTarget.style.transform = 'translateY(0)';
                   }}
                 >
