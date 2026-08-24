@@ -587,14 +587,11 @@ export default function VoraAIChat({
         </div>
       )}
 
-      {/* Chat Input Bar (슬림 & 소프트 블루 틴트) */}
+      {/* Chat Input Bar (홈 검색창과 100% 일치하는 일체형 프리미엄 캡슐) */}
       <form
         onSubmit={handleSend}
         style={{
           padding: '0.45rem 0.65rem calc(0.45rem + env(safe-area-inset-bottom, 0px)) 0.65rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.4rem',
           backgroundColor: '#ffffff',
           borderTop: '1px solid rgba(37, 99, 235, 0.15)',
           width: '100%',
@@ -603,17 +600,18 @@ export default function VoraAIChat({
         }}
       >
         <div style={{
-          flex: 1,
-          position: 'relative',
+          width: '100%',
           display: 'flex',
           alignItems: 'center',
-          backgroundColor: '#fffdf5',
-          border: '1.5px solid #f59e0b',
-          borderRadius: 'var(--radius-full)',
-          padding: '0 0.85rem',
-          boxShadow: '0 2px 6px rgba(245, 158, 11, 0.08)'
+          backgroundColor: '#ffffff',
+          border: '1.5px solid #2563eb',
+          borderRadius: '9999px',
+          padding: '0.18rem 0.25rem 0.18rem 0.85rem',
+          boxShadow: '0 4px 14px rgba(37, 99, 235, 0.12)',
+          transition: 'all 0.2s ease',
+          boxSizing: 'border-box'
         }}>
-          <Sparkles size={14} style={{ color: '#d97706', flexShrink: 0, marginRight: '0.4rem' }} />
+          <Sparkles size={15} style={{ color: '#2563eb', flexShrink: 0, marginRight: '0.45rem' }} />
           <input
             id="vora-chat-input-field"
             type="text"
@@ -629,40 +627,47 @@ export default function VoraAIChat({
               : "Ask adjustments or questions..."}
             disabled={isLoading}
             style={{
-              width: '100%',
+              flex: 1,
               backgroundColor: 'transparent',
               border: 'none',
-              padding: '0.48rem 0',
-              fontSize: '0.85rem',
+              padding: '0.45rem 0',
+              fontSize: '0.86rem',
               fontWeight: 700,
               color: '#0f172a',
-              outline: 'none'
+              outline: 'none',
+              minWidth: 0
             }}
           />
+
+          {/* 일체형 캡슐 전송 버튼 (홈의 AI 생성 버튼과 동일 룩앤필) */}
+          <button
+            type="submit"
+            disabled={!inputText.trim() || isLoading}
+            style={{
+              background: inputText.trim() && !isLoading
+                ? 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)'
+                : 'rgba(37, 99, 235, 0.15)',
+              color: inputText.trim() && !isLoading ? '#ffffff' : 'var(--text-muted)',
+              border: 'none',
+              borderRadius: '9999px',
+              padding: '0.35rem 0.8rem',
+              fontSize: '0.76rem',
+              fontWeight: 900,
+              cursor: inputText.trim() && !isLoading ? 'pointer' : 'default',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.25rem',
+              flexShrink: 0,
+              boxShadow: inputText.trim() && !isLoading ? '0 2px 8px rgba(37, 99, 235, 0.35)' : 'none',
+              transition: 'all 0.2s ease',
+              whiteSpace: 'nowrap'
+            }}
+            title={lang === 'ko' ? '메시지 전송' : lang === 'ja' ? '送信' : (lang === 'zh' || lang === 'zht') ? '发送' : 'Send'}
+          >
+            <span>{lang === 'en' ? 'Send' : lang === 'ja' ? '送信' : (lang === 'zh' || lang === 'zht') ? '发送' : '전송'}</span>
+            <Send size={12} />
+          </button>
         </div>
-        <button
-          type="submit"
-          disabled={!inputText.trim() || isLoading}
-          style={{
-            backgroundColor: inputText.trim() && !isLoading ? 'var(--accent-primary)' : 'rgba(37, 99, 235, 0.1)',
-            color: inputText.trim() && !isLoading ? '#ffffff' : 'var(--accent-primary)',
-            border: inputText.trim() && !isLoading ? 'none' : '1px solid rgba(37, 99, 235, 0.2)',
-            width: '34px',
-            height: '34px',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: inputText.trim() && !isLoading ? 'pointer' : 'default',
-            boxShadow: inputText.trim() && !isLoading ? 'var(--shadow-glow)' : 'none',
-            flexShrink: 0,
-            opacity: inputText.trim() && !isLoading ? 1 : 0.65,
-            transition: 'all var(--transition-fast)'
-          }}
-          title={lang === 'ko' ? '메시지 전송' : lang === 'ja' ? '送信' : (lang === 'zh' || lang === 'zht') ? '发送' : 'Send message'}
-        >
-          <Send size={14} />
-        </button>
       </form>
     </div>
   );

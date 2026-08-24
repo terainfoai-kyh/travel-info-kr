@@ -406,22 +406,22 @@ export default function PortalHomePrototype({
           zIndex: 3,
           textAlign: 'center',
           maxWidth: '860px',
-          padding: '0.4rem 0.85rem 1.35rem 0.85rem',
+          padding: '0.6rem 0.85rem 1.35rem 0.85rem',
           width: '100%',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: '0.45rem'
+          gap: '0.65rem'
         }}>
 
-          {/* Clean 1-Line Headline (군더더기 없는 산뜻한 1줄) */}
+          {/* Clean 1-Line Headline (당당하고 또렷한 폰트 UP & 위치 상승) */}
           <h1 style={{
-            fontSize: 'clamp(1.2rem, 3.4vw, 1.95rem)',
+            fontSize: 'clamp(1.32rem, 4.2vw, 2.15rem)',
             fontWeight: 900,
             lineHeight: 1.25,
             color: '#ffffff',
-            margin: 0,
-            textShadow: '0 2px 10px rgba(0, 0, 0, 0.7), 0 1px 3px rgba(0, 0, 0, 0.9)',
+            margin: '0 0 0.45rem 0',
+            textShadow: '0 2px 12px rgba(0, 0, 0, 0.85), 0 1px 4px rgba(0, 0, 0, 0.95)',
             letterSpacing: '-0.02em'
           }}>
             {lang === 'en' ? 'Smart AI Trip to Korea' :
@@ -436,7 +436,7 @@ export default function PortalHomePrototype({
             style={{
               width: '100%',
               maxWidth: '500px',
-              marginTop: '0.1rem',
+              marginTop: '0.2rem',
               position: 'relative'
             }}
           >
