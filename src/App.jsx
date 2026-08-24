@@ -284,10 +284,10 @@ export default function App() {
   // AI Planner 1단계(form) vs 2단계(chat) 진입 모드 관리
   const [plannerInitialMode, setPlannerInitialMode] = useState('form');
 
-  // 💡 스마트 이탈 방지 모달 상태
+  // 💡 스마트 이탈 방지 모달 상태 (실제 AI 일정을 생성했을 때만 true)
   const [isExitModalOpen, setIsExitModalOpen] = useState(false);
   const [pendingNavTab, setPendingNavTab] = useState('home');
-  const [isCurrentItinerarySaved, setIsCurrentItinerarySaved] = useState(false);
+  const [hasActiveUnsavedDraft, setHasActiveUnsavedDraft] = useState(false);
 
   // 🌟 [일정 확정 및 내 여행 저장] 코어 핸들러 (쿼터 1회 차감 & 저장)
   const handleSaveCurrentItinerary = (targetNextTab = 'mytrip') => {
@@ -333,22 +333,24 @@ export default function App() {
       return updated;
     });
 
-    setIsCurrentItinerarySaved(true);
+    setHasActiveUnsavedDraft(false);
     setIsExitModalOpen(false);
     setActiveNavTab(targetNextTab);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // 🚪 그냥 나가기 (차감 없이 즉시 이동)
+  // 🚪 그냥 나가기 (미저장 일정 완전 폐기 & 차감 없이 즉시 이동)
   const handleExitWithoutSaving = () => {
+    setHasActiveUnsavedDraft(false);
+    setItineraryData(null); // 임시 일정 완전 폐기!
     setIsExitModalOpen(false);
     setActiveNavTab(pendingNavTab || 'home');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // 탭 네비게이션 가로채기 핸들러
+  // 탭 네비게이션 가로채기 핸들러 (실제 미저장 일정이 있을 때만 팝업)
   const handleTabNavigate = (targetTab) => {
-    if (activeNavTab === 'ai' && targetTab !== 'ai' && itineraryData && !isCurrentItinerarySaved) {
+    if (activeNavTab === 'ai' && targetTab !== 'ai' && hasActiveUnsavedDraft && itineraryData) {
       setPendingNavTab(targetTab);
       setIsExitModalOpen(true);
       return;
@@ -359,7 +361,7 @@ export default function App() {
 
   // 📱 모바일 하드웨어/제스처 뒤로가기(popstate) & 새로고침(beforeunload) 2중 방어 시스템
   useEffect(() => {
-    const shouldIntercept = (activeNavTab === 'ai' && !isCurrentItinerarySaved && !!itineraryData);
+    const shouldIntercept = (activeNavTab === 'ai' && hasActiveUnsavedDraft && !!itineraryData);
 
     if (shouldIntercept) {
       // 1. 브라우저 히스토리 스택에 가상 티켓 주입
@@ -392,7 +394,7 @@ export default function App() {
         window.removeEventListener('beforeunload', handleBeforeUnload);
       };
     }
-  }, [activeNavTab, isCurrentItinerarySaved, itineraryData]);
+  }, [activeNavTab, hasActiveUnsavedDraft, itineraryData]);
 
   // Grant Reward (+3 chats on watching 15s ad)
   const handleRewardGranted = () => {
@@ -496,6 +498,7 @@ export default function App() {
         };
         
         setItineraryData(finalResult);
+        setHasActiveUnsavedDraft(true); // 🌟 실제 새 AI 일정이 생성되었을 때만 이탈 감지 활성화!
         const botMsg = {
           id: `bot-${Date.now()}`,
           role: 'assistant',
@@ -518,6 +521,7 @@ export default function App() {
         generationTime: elapsedSeconds
       };
       setItineraryData(fallback);
+      setHasActiveUnsavedDraft(true); // 🌟 실제 새 AI 일정이 생성되었을 때만 이탈 감지 활성화!
       const botMsg = {
         id: `bot-${Date.now()}`,
         role: 'assistant',
