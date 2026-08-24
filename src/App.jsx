@@ -413,18 +413,22 @@ export default function App() {
     const isRecommendationChipSubmit = /(경복궁|성수|광안리|서귀포|행궁동|K-헤리티지|오션|힐링|힙플)/i.test(promptQuery);
 
     if ((isInitialFormSubmit || isRecommendationChipSubmit) && !isDirectGenerateAction) {
-      // 폼/추천 칩 제출 직후: 보라가 조건을 깔끔하게 확인하고 추가 조건 여부를 묻는 스마트 브리핑!
+      // 폼/추천 칩 제출 직후: 보라가 군더더기 없이 산뜻한 2줄로 다정하게 맞이!
       const replyTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
       const requestedDays = extractDaysFromPrompt(promptQuery) || (isRecommendationChipSubmit ? 1 : 3);
       const targetCity = extractLocationKeyword(promptQuery) || '서울';
 
+      const tagLabel = isRecommendationChipSubmit
+        ? `👑 ${promptQuery.slice(0, 24)}`
+        : `📍 ${targetCity} ${requestedDays}일 코스`;
+
       const briefingText = (lang === 'en')
-        ? `I have received your preferences for **${targetCity} ${requestedDays}-Day Trip (${promptQuery.slice(0, 30)}...)**! 😊\nWho are you traveling with? (Couple / Solo / Family / Friends)\nDo you have any extra requirements (e.g. indoor cafes, rental car)?\n\nIf ready, shall I create your tailored itinerary right away?`
+        ? `**[ ${tagLabel} ]**\nAny extra requirements (indoor spots, rental car, etc.)? 😊\nIf not, I will create your tailored itinerary right away!`
         : (lang === 'ja')
-        ? `**${targetCity} ${requestedDays}日間（${promptQuery.slice(0, 30)}...）**のご希望条件を確認しました！😊\nどなたと旅行されますか？（カップル／一人旅／家族／友達）\n追加のご要望（屋内カフェ、レンタカーなど）はございますか？\n\n特になければ、すぐに最高のカスタム旅程を作成いたしますか？`
+        ? `**[ ${tagLabel} ]**\n追加のご要望（屋内スポット、レンタカーなど）はございますか？😊\n特になければ、すぐに最高のカスタム旅程を作成いたします！`
         : (lang === 'zh' || lang === 'zht')
-        ? `已确认您的**${targetCity} ${requestedDays}天（${promptQuery.slice(0, 30)}...）**行程偏好！😊\n您与谁同行？（情侣 / 独自 / 家庭 / 朋友）\n是否有其他补充需求（如室内咖啡馆、租车等）？\n\n如果没有，是否立即为您生成专属行程？`
-        : `선택하신 **${targetCity} ${requestedDays}일 여행 조건**을 확인했습니다! 😊\n\n누구와 함께 가시나요? (커플 / 혼자 / 가족 / 친구)\n혹시 추가로 가고 싶은 카페나 맛집, 실내 위주 조건이 있으신가요?\n\n없으시면 바로 나만의 완벽한 맞춤 일정을 만들어 드릴까요?`;
+        ? `**[ ${tagLabel} ]**\n是否有其他补充需求（室内优先、租车自驾等）？😊\n如果没有，立即为您生成专属定制行程！`
+        : `**[ ${tagLabel} ]**\n추가로 더 필요한 조건(실내 위주, 렌트카, 숙소 등)이 있으신가요? 😊\n없으시면 바로 나만의 맞춤 일정을 만들어 드릴게요!`;
 
       setTimeout(() => {
         const botMsg = {

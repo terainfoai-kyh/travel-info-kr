@@ -168,40 +168,12 @@ export default function VoraAIChat({
           const isUser = msg.role === 'user';
 
           if (isUser) {
-            // 폼에서 넘어온 구조화된 쿼리인지 판별 (심플 1줄 캡슐 다이어트!)
-            const isStructuredFormQuery = msg.text.includes('여행') && (msg.text.includes('테마:') || msg.text.includes('박'));
+            // 폼이나 추천 칩에서 넘어온 텍스트는 첫 화면을 극도로 깔끔하게 유지하기 위해 생략!
+            const isStructuredFormQuery = (msg.text.includes('여행') && (msg.text.includes('테마:') || msg.text.includes('박'))) ||
+                                          /(경복궁|성수|광안리|서귀포|행궁동|K-헤리티지|오션|힐링|힙플)/i.test(msg.text);
 
-            if (isStructuredFormQuery) {
-              return (
-                <div
-                  key={msg.id}
-                  ref={el => { if (el) messageRefs.current[msg.id] = el; }}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    margin: '0.2rem 0 0.4rem',
-                    width: '100%'
-                  }}
-                >
-                  <div style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.35rem',
-                    background: 'rgba(37, 99, 235, 0.08)',
-                    border: '1px solid rgba(37, 99, 235, 0.25)',
-                    borderRadius: '20px',
-                    padding: '0.3rem 0.75rem',
-                    fontSize: '0.74rem',
-                    fontWeight: 700,
-                    color: '#1d4ed8',
-                    maxWidth: '96%',
-                    wordBreak: 'break-word'
-                  }}>
-                    <span>🏷️</span>
-                    <span>{msg.text}</span>
-                  </div>
-                </div>
-              );
+            if (isStructuredFormQuery && chatMessages[0]?.id === msg.id) {
+              return null; // 첫 진입 선택 데이터는 말풍선 생략하고 보라의 다정한 말풍선으로 바로 시작!
             }
 
             return (
@@ -219,7 +191,7 @@ export default function VoraAIChat({
                 }}
               >
                 <div style={{
-                  background: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
+                  background: 'linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)',
                   color: '#ffffff',
                   borderRadius: '16px 16px 4px 16px',
                   padding: '0.55rem 0.85rem',
@@ -229,7 +201,7 @@ export default function VoraAIChat({
                   maxWidth: '85%',
                   wordBreak: 'break-word',
                   overflowWrap: 'anywhere',
-                  boxShadow: '0 3px 10px rgba(37, 99, 235, 0.2)'
+                  boxShadow: '0 3px 12px rgba(79, 70, 229, 0.22)'
                 }}>
                   {msg.text}
                 </div>
@@ -237,40 +209,24 @@ export default function VoraAIChat({
             );
           }
 
-          // Assistant Message Bubble
+          // Assistant Message Bubble (좌측 중복 아바타 완전 삭제 -> 시원한 100% 풀와이드!)
           return (
             <div
               key={msg.id}
               ref={el => { if (el) messageRefs.current[msg.id] = el; }}
               style={{
                 display: 'flex',
-                gap: '0.45rem',
-                alignItems: 'flex-start',
                 marginBottom: '0.3rem',
                 width: '100%',
                 boxSizing: 'border-box'
               }}
             >
-              {/* Bot Avatar */}
-              <img
-                src="/logo.png"
-                alt="VORA AI"
-                style={{
-                  width: '24px',
-                  height: '24px',
-                  borderRadius: '6px',
-                  objectFit: 'cover',
-                  flexShrink: 0,
-                  marginTop: '2px'
-                }}
-              />
-
               <div style={{ flex: 1, minWidth: 0, width: '100%', display: 'flex', flexDirection: 'column', gap: '0.45rem', overflow: 'hidden' }}>
                 {/* Assistant Text Bubble */}
                 <div style={{
                   backgroundColor: 'var(--bg-card)',
                   border: '1px solid var(--border-color)',
-                  borderRadius: '4px 18px 18px 18px',
+                  borderRadius: '18px',
                   padding: '0.85rem 1rem',
                   fontSize: '0.86rem',
                   lineHeight: 1.6,
