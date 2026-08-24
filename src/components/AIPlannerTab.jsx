@@ -104,7 +104,7 @@ export default function AIPlannerTab({
   };
 
   // ==============================================================================
-  // 2단계 : AI 대화 & 코스 조율 모드 (VoraAIChat + 일정 확정 버튼)
+  // 2단계 : AI 대화 & 코스 조율 모드 (VoraAIChat + 일정표 보기 버튼)
   // ==============================================================================
   if (plannerMode === 'chat') {
     return (
@@ -116,16 +116,16 @@ export default function AIPlannerTab({
         flexDirection: 'column',
         gap: '0.65rem'
       }}>
-        {/* Top Control Bar: [ ← 조건 다시 선택 ] & [ 📋 일정 확정 ] */}
+        {/* Top Control Bar: [ ← 조건 다시 선택 ] & [ 📋 상세 일정표 보기 ] */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '0.45rem 0.65rem',
+          padding: '0.5rem 0.75rem',
           backgroundColor: 'var(--bg-card)',
           borderRadius: '16px',
-          border: '1px solid var(--border-color)',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.04)',
+          border: '1.5px solid var(--border-color)',
+          boxShadow: '0 4px 14px rgba(0, 0, 0, 0.05)',
           gap: '0.5rem'
         }}>
           <button
@@ -137,19 +137,19 @@ export default function AIPlannerTab({
               gap: '0.3rem',
               background: 'transparent',
               border: 'none',
-              color: 'var(--text-muted)',
-              fontSize: '0.78rem',
-              fontWeight: 700,
+              color: 'var(--text-main)',
+              fontSize: '0.8rem',
+              fontWeight: 800,
               cursor: 'pointer',
               padding: '0.3rem 0.5rem',
               borderRadius: '8px'
             }}
           >
-            <ArrowLeft size={14} />
-            <span>{lang === 'en' ? 'Edit Studio Form' : lang === 'ja' ? '条件設定に戻る' : (lang === 'zh' || lang === 'zht') ? '返回条件设置' : '조건 다시 선택'}</span>
+            <ArrowLeft size={15} style={{ color: 'var(--accent-primary)' }} />
+            <span>{lang === 'en' ? 'Edit Studio Form' : lang === 'ja' ? '条件設定に戻る' : (lang === 'zh' || lang === 'zht') ? '返回条件设置' : '← 조건 다시 선택'}</span>
           </button>
 
-          {/* 🌟 2단계 핵심: 일정 확정 버튼 */}
+          {/* 🌟 2단계 핵심: 상세 일정표 / 타임라인 보기 버튼 */}
           <button
             type="button"
             onClick={onConfirmItinerary}
@@ -161,7 +161,7 @@ export default function AIPlannerTab({
               color: '#ffffff',
               border: 'none',
               borderRadius: '9999px',
-              padding: '0.42rem 0.95rem',
+              padding: '0.45rem 1rem',
               fontSize: '0.82rem',
               fontWeight: 800,
               cursor: 'pointer',
@@ -170,12 +170,12 @@ export default function AIPlannerTab({
             }}
           >
             <CheckCircle2 size={14} />
-            <span>{lang === 'en' ? 'Confirm Itinerary ➔' : lang === 'ja' ? '日程を確定する ➔' : (lang === 'zh' || lang === 'zht') ? '确认行程并查看 ➔' : '일정 확정 & 내 여행에 담기 ➔'}</span>
+            <span>{lang === 'en' ? 'View Itinerary & Timeline ➔' : lang === 'ja' ? '日程表・タイムラインを見る ➔' : (lang === 'zh' || lang === 'zht') ? '查看详细行程与时间线 ➔' : '📋 상세 일정표 & 타임라인 보기 ➔'}</span>
           </button>
         </div>
 
         {/* 2단계 실시간 대화창 (VoraAIChat) */}
-        <div style={{ height: 'calc(100vh - 240px)', minHeight: '480px' }}>
+        <div style={{ height: 'calc(100vh - 230px)', minHeight: '520px' }}>
           <VoraAIChat
             lang={lang}
             chatMessages={chatMessages}
@@ -183,9 +183,7 @@ export default function AIPlannerTab({
             onSendMessage={onGenerateItinerary}
             activeDay={activeDay}
             onSelectDay={onSelectDay}
-            questionQuota={questionQuota}
-            onOpenRewardedAd={onOpenRewardedAd}
-            onConfirmItinerary={onConfirmItinerary}
+            onViewTimeline={onConfirmItinerary}
           />
         </div>
       </div>
@@ -202,30 +200,65 @@ export default function AIPlannerTab({
       margin: '0 auto',
       backgroundColor: 'var(--bg-card)',
       borderRadius: '24px',
-      border: '1px solid var(--border-color)',
-      boxShadow: '0 8px 24px rgba(0, 0, 0, 0.06)',
-      padding: '0.9rem 1rem 1.15rem 1rem',
+      border: '1.5px solid var(--border-color)',
+      boxShadow: '0 10px 30px rgba(0, 0, 0, 0.08)',
+      padding: '1rem 1.1rem 1.3rem 1.1rem',
       boxSizing: 'border-box'
     }}>
-      <div style={{ textAlign: 'center', marginBottom: '0.85rem' }}>
+      <div style={{ textAlign: 'center', marginBottom: '0.9rem' }}>
+        <div style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '0.35rem',
+          backgroundColor: 'rgba(37, 99, 235, 0.08)',
+          color: 'var(--accent-primary)',
+          padding: '0.2rem 0.75rem',
+          borderRadius: '9999px',
+          fontSize: '0.75rem',
+          fontWeight: 800,
+          marginBottom: '0.25rem'
+        }}>
+          <Sparkles size={13} />
+          <span>VORA AI Travel Studio</span>
+        </div>
         <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900, color: 'var(--text-main)' }}>
-          {lang === 'en' ? 'AI Travel Planner' : 'AI 여행 스튜디오'}
+          {lang === 'en' ? 'What kind of trip are you planning?' : lang === 'ja' ? 'どのような旅を計画していますか？' : (lang === 'zh' || lang === 'zht') ? '您想计划怎样的韩国之旅？' : '어떤 여행을 계획할까요?'}
         </h2>
       </div>
 
-      <form onSubmit={handleCreateSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-        {/* Step 1: 여행지 */}
+      <form onSubmit={handleCreateSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+        {/* Step 1: 여행지 (시인성 200% UP) */}
         <div>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.3rem' }}>
-            <MapPin size={14} style={{ color: 'var(--accent-primary)' }} />
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
+            <MapPin size={15} style={{ color: 'var(--accent-primary)' }} />
             <span>{lang === 'en' ? 'Destination' : '여행지'}</span>
           </label>
-          <input
-            type="text"
-            value={destination}
-            onChange={(e) => setDestination(e.target.value)}
-            style={{ width: '100%', padding: '0.5rem', borderRadius: '10px', border: '1px solid var(--border-color)' }}
-          />
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            backgroundColor: '#ffffff',
+            border: '2px solid #94a3b8',
+            borderRadius: '12px',
+            padding: '0.5rem 0.75rem',
+            boxShadow: '0 2px 6px rgba(0, 0, 0, 0.05)',
+            marginBottom: '0.45rem'
+          }}>
+            <input
+              type="text"
+              value={destination}
+              onChange={(e) => setDestination(e.target.value)}
+              placeholder={lang === 'en' ? 'e.g. Jeju, Seoul, Busan...' : '예: 제주, 서울, 부산, 수원 행궁동...'}
+              style={{
+                width: '100%',
+                border: 'none',
+                outline: 'none',
+                backgroundColor: 'transparent',
+                fontSize: '0.92rem',
+                fontWeight: 800,
+                color: '#0f172a'
+              }}
+            />
+          </div>
           <div style={{ display: 'flex', gap: '0.3rem', overflowX: 'auto', marginTop: '0.4rem' }}>
             {CITIES.map((city) => (
               <button key={city.id} type="button" onClick={() => setDestination(city.val)} style={{ padding: '0.2rem 0.5rem', borderRadius: '99px', border: '1px solid var(--border-color)', fontSize: '0.75rem' }}>{city.name}</button>
@@ -306,28 +339,34 @@ export default function AIPlannerTab({
           </div>
         </div>
 
-        {/* Step 5: 자유 요청사항 */}
+        {/* Step 5: 자유 요청사항 (시인성 강화) */}
         <div>
-          <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.25rem', display: 'block' }}>
+          <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.3rem', display: 'block' }}>
             {lang === 'en' ? 'Special Requests (Optional)' : '추가 요청 (선택): 예: 비 올 때 실내 위주, 핫플 카페 꼭 포함'}
           </label>
-          <input
-            type="text"
-            value={customNote}
-            onChange={(e) => setCustomNote(e.target.value)}
-            placeholder={lang === 'en' ? 'e.g. Indoor spots on rainy day, romantic sunset dinner' : '원하는 조건을 편하게 적어주세요'}
-            style={{
-              width: '100%',
-              padding: '0.45rem 0.75rem',
-              borderRadius: '10px',
-              border: '1px solid var(--border-color)',
-              backgroundColor: 'var(--bg-glass)',
-              color: 'var(--text-main)',
-              fontSize: '0.8rem',
-              outline: 'none',
-              boxSizing: 'border-box'
-            }}
-          />
+          <div style={{
+            backgroundColor: '#ffffff',
+            border: '2px solid #94a3b8',
+            borderRadius: '12px',
+            padding: '0.5rem 0.75rem',
+            boxShadow: '0 2px 6px rgba(0, 0, 0, 0.05)'
+          }}>
+            <input
+              type="text"
+              value={customNote}
+              onChange={(e) => setCustomNote(e.target.value)}
+              placeholder={lang === 'en' ? 'e.g. Indoor spots on rainy day, romantic sunset dinner' : '원하는 조건을 편하게 적어주세요'}
+              style={{
+                width: '100%',
+                border: 'none',
+                outline: 'none',
+                backgroundColor: 'transparent',
+                fontSize: '0.88rem',
+                fontWeight: 700,
+                color: '#0f172a'
+              }}
+            />
+          </div>
         </div>
 
         {/* Submit Button */}

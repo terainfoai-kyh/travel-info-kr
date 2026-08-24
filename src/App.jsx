@@ -347,26 +347,10 @@ export default function App() {
     } catch (e) {}
   };
 
-  // 🚀 AI 여행 일정 생성 코어 핸들러 (1단계 & 2단계 공용)
+  // 🚀 AI 여행 일정 생성 코어 핸들러 (1단계 & 2단계 공용 - 무제한 자유 대화 조율)
   const handleGenerateItinerary = async (promptQuery) => {
     if (!promptQuery || typeof promptQuery !== 'string' || !promptQuery.trim()) return;
     if (isLoading) return;
-
-    // 쿼터 확인 및 정중한 사전 동의 팝업 유도
-    if (questionQuota?.remaining <= 0) {
-      setIsRewardedAdOpen(true);
-      return;
-    }
-
-    // 1회 차감 및 로컬스토리지 저장
-    setQuestionQuota(prev => {
-      const nextRemaining = Math.max((prev?.remaining || 1) - 1, 0);
-      const updated = { ...prev, remaining: nextRemaining };
-      try {
-        localStorage.setItem('vora_daily_quota', JSON.stringify(updated));
-      } catch (e) {}
-      return updated;
-    });
 
     const startTime = Date.now();
     const queryTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
@@ -611,6 +595,7 @@ export default function App() {
                 setPlannerInitialMode('chat');
                 setActiveNavTab('ai');
               }}
+              onOpenRewardedAd={() => setIsRewardedAdOpen(true)}
             />
           </div>
         )}

@@ -369,12 +369,12 @@ export default function RewardedAdModal({
               <Sparkles size={22} />
               <span>
                 {lang === 'en' 
-                  ? '🎁 Claim +3 Free Questions Now' 
+                  ? '🌟 Finalize & Save Itinerary to My Trip' 
                   : lang === 'ja' 
-                  ? '🎁 質問＋3回を今すぐ獲得' 
+                  ? '🌟 プランを確定してマイ旅行に保存' 
                   : (lang === 'zh' || lang === 'zht') 
-                  ? (lang === 'zht' ? '🎁 立即領取 +3次免費提問' : '🎁 立即领取 +3次免费提问') 
-                  : '🎁 질문 +3회 즉시 충전받기'}
+                  ? '🌟 确认行程并保存至我的行程' 
+                  : '🌟 일정 최종 확정 & 내 여행에 저장'}
               </span>
             </button>
           ) : (
@@ -395,12 +395,12 @@ export default function RewardedAdModal({
               <Award size={20} style={{ color: '#f59e0b' }} />
               <span>
                 {lang === 'en' 
-                  ? `+3 Free Questions will be credited in ${timeLeft}s` 
+                  ? `Itinerary will be saved in ${timeLeft}s` 
                   : lang === 'ja' 
-                  ? `${timeLeft}秒後に＋3回の無料質問が付与されます` 
+                  ? `${timeLeft}秒後にプランが確定保存されます` 
                   : (lang === 'zh' || lang === 'zht') 
-                  ? `${timeLeft}秒后将自动充值+3次提问额度` 
-                  : `${timeLeft}초 후 +3회 무료 질문이 충전됩니다`}
+                  ? `${timeLeft}秒后行程将自动确认保存` 
+                  : `⏳ ${timeLeft}초 후 일정이 내 여행에 최종 확정 저장됩니다`}
               </span>
             </div>
           )}

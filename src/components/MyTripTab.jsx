@@ -21,7 +21,8 @@ export default function MyTripTab({
   onSelectDay,
   onOpenDetail,
   onGoToMap,
-  onGoToModify
+  onGoToModify,
+  onOpenRewardedAd
 }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
   const [copied, setCopied] = useState(false);
@@ -82,7 +83,7 @@ export default function MyTripTab({
       display: 'flex',
       flexDirection: 'column'
     }}>
-      {/* 1. Top Header: Title & Auto-Save / Share */}
+      {/* 1. Top Header: Back to Chat, Title & Auto-Save / Share */}
       <div style={{
         padding: '0.75rem 1rem 0.65rem 1rem',
         borderBottom: '1px solid var(--border-color)',
@@ -94,32 +95,40 @@ export default function MyTripTab({
         flexWrap: 'wrap',
         gap: '0.4rem'
       }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', marginBottom: '0.15rem' }}>
-            <span style={{
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          {/* 🌟 일정 ➔ 채팅 복귀 버튼 */}
+          <button
+            type="button"
+            onClick={onGoToModify}
+            style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.2rem',
-              fontSize: '0.7rem',
+              gap: '0.25rem',
+              background: 'rgba(37, 99, 235, 0.1)',
+              color: '#2563eb',
+              border: '1px solid rgba(37, 99, 235, 0.25)',
+              borderRadius: '8px',
+              padding: '0.35rem 0.6rem',
+              fontSize: '0.75rem',
               fontWeight: 800,
-              backgroundColor: 'rgba(16, 185, 129, 0.12)',
-              color: '#059669',
-              padding: '0.1rem 0.45rem',
-              borderRadius: '5px'
+              cursor: 'pointer'
+            }}
+          >
+            <Sparkles size={13} />
+            <span>{lang === 'en' ? '← Back to AI Chat' : lang === 'ja' ? '← AIチャットで修正' : (lang === 'zh' || lang === 'zht') ? '← 返回AI对话修改' : '← AI 대화로 수정'}</span>
+          </button>
+
+          <div>
+            <h2 style={{
+              margin: 0,
+              fontSize: '1.05rem',
+              fontWeight: 900,
+              color: 'var(--text-main)',
+              letterSpacing: '-0.01em'
             }}>
-              <CheckCircle2 size={11} />
-              <span>{lang === 'en' ? 'Auto-Saved' : lang === 'ja' ? '自動保存済み' : (lang === 'zh' || lang === 'zht') ? '已自动保存' : '자동 저장됨'}</span>
-            </span>
+              {tripTitle}
+            </h2>
           </div>
-          <h2 style={{
-            margin: 0,
-            fontSize: '1.05rem',
-            fontWeight: 900,
-            color: 'var(--text-main)',
-            letterSpacing: '-0.01em'
-          }}>
-            {tripTitle}
-          </h2>
         </div>
 
         {/* Action Button: [🔗 일정 공유] */}
@@ -137,16 +146,12 @@ export default function MyTripTab({
             fontSize: '0.75rem',
             fontWeight: 800,
             cursor: 'pointer',
-            transition: 'all 0.15s ease',
-            boxShadow: '0 2px 5px rgba(0, 0, 0, 0.04)'
+            boxShadow: '0 2px 5px rgba(0, 0, 0, 0.04)',
+            transition: 'all 0.15s ease'
           }}
         >
           {copied ? <Check size={13} /> : <Share2 size={13} />}
-          <span>
-            {copied 
-              ? (lang === 'en' ? 'Copied!' : lang === 'ja' ? 'コピー完了！' : (lang === 'zh' || lang === 'zht') ? '已复制！' : '링크 복사됨!')
-              : (lang === 'en' ? 'Share' : lang === 'ja' ? '共有' : (lang === 'zh' || lang === 'zht') ? '分享' : '일정 공유')}
-          </span>
+          <span>{copied ? (lang === 'en' ? 'Link Copied!' : '링크 복사됨!') : (lang === 'en' ? 'Share Trip' : '일정 공유')}</span>
         </button>
       </div>
 
@@ -281,60 +286,100 @@ export default function MyTripTab({
         })}
       </div>
 
-      {/* 5. Bottom Dual Action Bar: [🗺️ 지도 보기] & [✨ 일정 수정] (지피티 1번 사진과 100% 일치) */}
+      {/* 5. Bottom Action Bar: [🗺️ 지도 보기] & [💬 AI 대화로 수정] & [🌟 이 일정 최종 확정] */}
       <div style={{
         padding: '0.75rem 1rem 1rem 1rem',
         backgroundColor: 'var(--bg-glass)',
         backdropFilter: 'blur(16px)',
         borderTop: '1px solid var(--border-color)',
-        display: 'grid',
-        gridTemplateColumns: 'repeat(2, 1fr)',
+        display: 'flex',
+        flexDirection: 'column',
         gap: '0.55rem'
       }}>
+        {/* 🌟 3단계 핵심: 이 일정 최종 확정 & 내 여행에 저장 CTA 버튼 */}
         <button
-          onClick={onGoToMap}
-          style={{
-            padding: '0.75rem 0.4rem',
-            borderRadius: '12px',
-            border: '1.5px solid #2563eb',
-            backgroundColor: 'rgba(37, 99, 235, 0.08)',
-            color: '#2563eb',
-            fontSize: '0.86rem',
-            fontWeight: 800,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.35rem',
-            transition: 'all 0.15s ease'
+          type="button"
+          onClick={() => {
+            if (onOpenRewardedAd) {
+              onOpenRewardedAd();
+            } else {
+              alert(lang === 'en' ? 'Itinerary successfully saved to My Trip!' : '✨ 일정이 내 여행에 최종 확정 저장되었습니다!');
+            }
           }}
-        >
-          <MapPin size={15} />
-          <span>{lang === 'en' ? 'View on Map' : lang === 'ja' ? '地図で確認' : (lang === 'zh' || lang === 'zht') ? '在地图中查看' : '지도 보기'}</span>
-        </button>
-
-        <button
-          onClick={onGoToModify}
           style={{
-            padding: '0.75rem 0.4rem',
-            borderRadius: '12px',
+            width: '100%',
+            padding: '0.8rem 1rem',
+            borderRadius: '14px',
             border: 'none',
-            backgroundColor: '#2563eb',
+            background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
             color: '#ffffff',
-            fontSize: '0.86rem',
+            fontSize: '0.95rem',
             fontWeight: 900,
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '0.35rem',
-            boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)',
+            gap: '0.45rem',
+            boxShadow: '0 6px 18px rgba(37, 99, 235, 0.35)',
             transition: 'all 0.15s ease'
           }}
         >
-          <Sparkles size={15} />
-          <span>{lang === 'en' ? 'Modify Itinerary' : lang === 'ja' ? '日程を修正' : (lang === 'zh' || lang === 'zht') ? '调整修改行程' : '일정 수정'}</span>
+          <CheckCircle2 size={17} />
+          <span>{lang === 'en' ? '🌟 Finalize & Save to My Trip' : lang === 'ja' ? '🌟 このプランを確定して保存' : (lang === 'zh' || lang === 'zht') ? '🌟 最终确认并保存至我的行程' : '🌟 이 일정 최종 확정 & 내 여행에 저장'}</span>
         </button>
+
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(2, 1fr)',
+          gap: '0.5rem'
+        }}>
+          <button
+            type="button"
+            onClick={onGoToMap}
+            style={{
+              padding: '0.65rem 0.4rem',
+              borderRadius: '12px',
+              border: '1.5px solid #2563eb',
+              backgroundColor: 'rgba(37, 99, 235, 0.06)',
+              color: '#2563eb',
+              fontSize: '0.82rem',
+              fontWeight: 800,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.3rem',
+              transition: 'all 0.15s ease'
+            }}
+          >
+            <MapPin size={14} />
+            <span>{lang === 'en' ? 'View on Map' : lang === 'ja' ? '地図で確認' : (lang === 'zh' || lang === 'zht') ? '在地图中查看' : '🗺️ 지도 보기'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={onGoToModify}
+            style={{
+              padding: '0.65rem 0.4rem',
+              borderRadius: '12px',
+              border: '1px solid var(--border-color)',
+              backgroundColor: 'var(--bg-card)',
+              color: 'var(--text-main)',
+              fontSize: '0.82rem',
+              fontWeight: 800,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.3rem',
+              boxShadow: '0 2px 5px rgba(0, 0, 0, 0.03)',
+              transition: 'all 0.15s ease'
+            }}
+          >
+            <Sparkles size={14} style={{ color: 'var(--accent-primary)' }} />
+            <span>{lang === 'en' ? 'Modify via AI Chat' : lang === 'ja' ? 'AIチャットで修正' : (lang === 'zh' || lang === 'zht') ? 'AI对话微调' : '💬 AI 대화로 수정'}</span>
+          </button>
+        </div>
       </div>
     </div>
   );

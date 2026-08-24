@@ -9,12 +9,8 @@ export default function VoraAIChat({
   onSendMessage,
   activeDay = 1,
   onSelectDay,
-  questionQuota = { remaining: 3, total: 3 },
-  onOpenRewardedAd,
-  onOpenGoogleAuth,
-  onResetQuotaForDev,
   currentUser = null,
-  onConfirmItinerary
+  onViewTimeline
 }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
   const [inputText, setInputText] = useState('');
@@ -475,32 +471,32 @@ export default function VoraAIChat({
                       </div>
                     )}
 
-                    {/* 🌟 2단계 핵심: 챗봇 말풍선 바로 밑 일정 확정 CTA 버튼 */}
-                    {onConfirmItinerary && (
+                    {/* 🌟 2단계 핵심: 챗봇 말풍선 바로 밑 상세 일정표 보기 CTA 버튼 */}
+                    {onViewTimeline && (
                       <button
                         type="button"
-                        onClick={onConfirmItinerary}
+                        onClick={onViewTimeline}
                         style={{
                           width: '100%',
-                          padding: '0.55rem 0.85rem',
+                          padding: '0.6rem 0.95rem',
                           background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
                           color: '#ffffff',
                           border: 'none',
                           borderRadius: '12px',
-                          fontSize: '0.82rem',
+                          fontSize: '0.86rem',
                           fontWeight: 800,
                           cursor: 'pointer',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          gap: '0.35rem',
-                          boxShadow: '0 4px 14px rgba(37, 99, 235, 0.3)',
+                          gap: '0.4rem',
+                          boxShadow: '0 4px 15px rgba(37, 99, 235, 0.35)',
                           transition: 'all 0.2s ease',
-                          marginTop: '0.2rem'
+                          marginTop: '0.25rem'
                         }}
                       >
-                        <Sparkles size={13} />
-                        <span>{lang === 'en' ? 'Confirm This Course & Go to My Trip ➔' : lang === 'ja' ? 'このコースで日程を確定する ➔' : (lang === 'zh' || lang === 'zht') ? '以此路线确认行程 ➔' : '✨ 이 코스로 일정 확정 & 내 여행에 담기 ➔'}</span>
+                        <Sparkles size={14} />
+                        <span>{lang === 'en' ? 'View Itinerary & Timeline ➔' : lang === 'ja' ? '日程表・タイムラインを見る ➔' : (lang === 'zh' || lang === 'zht') ? '查看详细行程与时间线 ➔' : '📋 상세 일정표 & 타임라인 보기 ➔'}</span>
                       </button>
                     )}
                   </div>
@@ -589,65 +585,16 @@ export default function VoraAIChat({
         </div>
       )}
 
-      {/* Daily Free Question Quota Badge with Quick Actions */}
-      <div style={{
-        padding: '0.35rem 0.65rem',
-        borderTop: '1px solid var(--border-color)',
-        backgroundColor: 'var(--bg-glass)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '0.35rem',
-        fontSize: '0.72rem',
-        fontWeight: 700,
-        width: '100%',
-        maxWidth: '100%',
-        boxSizing: 'border-box',
-        color: 'var(--text-muted)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-          <span>⚡</span>
-          <span>
-            {lang === 'en' ? 'Daily Free Itineraries: ' : lang === 'ja' ? '本日の無料AI作成: ' : (lang === 'zh' || lang === 'zht') ? '今日免费生成: ' : '오늘 무료 AI 일정: '}
-            <strong style={{ color: 'var(--accent-primary)', fontWeight: 900 }}>{questionQuota?.remaining ?? 3}</strong> / {questionQuota?.total ?? 3}{lang === 'en' ? '' : lang === 'ja' ? '回' : (lang === 'zh' || lang === 'zht') ? '次' : '회'}
-          </span>
-        </div>
-
-        {/* Quick Mini Recharge Actions (동의하에 충전) */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-          <button
-            type="button"
-            onClick={onOpenRewardedAd}
-            title={lang === 'en' ? 'Watch 15s video for +3 free itineraries' : '15초 스폰서 영상 보고 +3회 충전'}
-            style={{
-              background: 'rgba(16, 185, 129, 0.12)',
-              color: '#059669',
-              border: '1px solid rgba(16, 185, 129, 0.3)',
-              borderRadius: '6px',
-              padding: '0.15rem 0.45rem',
-              fontSize: '0.68rem',
-              fontWeight: 800,
-              cursor: 'pointer'
-            }}
-          >
-            {lang === 'en' ? '🎬 +3 Charge' : lang === 'ja' ? '🎬 +3回チャージ' : (lang === 'zh' || lang === 'zht') ? '🎬 +3次充能' : '🎬 +3회 충전'}
-          </button>
-          <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 500, marginLeft: '0.2rem' }}>
-            {lang === 'en' ? 'Resets at 00:00' : lang === 'ja' ? '00:00 リセット' : (lang === 'zh' || lang === 'zht') ? '00:00 重置' : '자정(00:00) 리셋'}
-          </span>
-        </div>
-      </div>
-
-      {/* Chat Input Bar */}
+      {/* Chat Input Bar (시인성 200% UP) */}
       <form
         onSubmit={handleSend}
         style={{
-          padding: '0.55rem 0.65rem calc(0.55rem + env(safe-area-inset-bottom, 0px)) 0.65rem',
+          padding: '0.6rem 0.75rem calc(0.6rem + env(safe-area-inset-bottom, 0px)) 0.75rem',
           display: 'flex',
           alignItems: 'center',
-          gap: '0.4rem',
+          gap: '0.45rem',
           backgroundColor: 'var(--bg-card)',
+          borderTop: '1px solid var(--border-color)',
           width: '100%',
           maxWidth: '100%',
           boxSizing: 'border-box'
@@ -675,24 +622,24 @@ export default function VoraAIChat({
             disabled={isLoading}
             style={{
               width: '100%',
-              backgroundColor: 'var(--bg-primary)',
-              border: '1.5px solid var(--border-color)',
+              backgroundColor: '#ffffff',
+              border: '2px solid #94a3b8',
               borderRadius: 'var(--radius-full)',
-              padding: '0.55rem 1rem',
-              fontSize: '0.84rem',
-              fontWeight: 500,
-              color: 'var(--text-main)',
+              padding: '0.6rem 1.1rem',
+              fontSize: '0.88rem',
+              fontWeight: 700,
+              color: '#0f172a',
               outline: 'none',
-              boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.03)',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
               transition: 'border-color var(--transition-fast), box-shadow var(--transition-fast)'
             }}
             onFocus={(e) => {
-              e.target.style.borderColor = 'var(--accent-primary)';
-              e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.12)';
+              e.target.style.borderColor = '#2563eb';
+              e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.2)';
             }}
             onBlur={(e) => {
-              e.target.style.borderColor = 'var(--border-color)';
-              e.target.style.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.03)';
+              e.target.style.borderColor = '#94a3b8';
+              e.target.style.boxShadow = '0 2px 6px rgba(0,0,0,0.04)';
             }}
           />
         </div>
@@ -703,8 +650,8 @@ export default function VoraAIChat({
             backgroundColor: inputText.trim() && !isLoading ? 'var(--accent-primary)' : 'rgba(37, 99, 235, 0.1)',
             color: inputText.trim() && !isLoading ? '#ffffff' : 'var(--accent-primary)',
             border: inputText.trim() && !isLoading ? 'none' : '1px solid rgba(37, 99, 235, 0.2)',
-            width: '36px',
-            height: '36px',
+            width: '38px',
+            height: '38px',
             borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
@@ -717,7 +664,7 @@ export default function VoraAIChat({
           }}
           title={lang === 'ko' ? '메시지 전송' : lang === 'ja' ? '送信' : (lang === 'zh' || lang === 'zht') ? '发送' : 'Send message'}
         >
-          <Send size={15} />
+          <Send size={16} />
         </button>
       </form>
     </div>
