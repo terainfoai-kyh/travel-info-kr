@@ -9,11 +9,12 @@ export default function VoraAIChat({
   onSendMessage,
   activeDay = 1,
   onSelectDay,
-  questionQuota = { remaining: 5, total: 5 },
+  questionQuota = { remaining: 3, total: 3 },
   onOpenRewardedAd,
   onOpenGoogleAuth,
   onResetQuotaForDev,
-  currentUser = null
+  currentUser = null,
+  onConfirmItinerary
 }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
   const [inputText, setInputText] = useState('');
