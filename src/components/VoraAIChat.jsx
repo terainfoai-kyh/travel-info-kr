@@ -557,6 +557,7 @@ export default function VoraAIChat({
             id="vora-chat-input-field"
             type="text"
             className="vora-chat-input"
+            maxLength={300}
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             placeholder={lang === 'ko' 
@@ -579,6 +580,12 @@ export default function VoraAIChat({
               minWidth: 0
             }}
           />
+
+          {inputText.length > 200 && (
+            <span style={{ fontSize: '0.68rem', color: inputText.length >= 300 ? '#ef4444' : '#94a3b8', marginRight: '0.35rem', fontWeight: 700 }}>
+              {inputText.length}/300
+            </span>
+          )}
 
           {/* 일체형 웜 앰버 골드 전송 버튼 */}
           <button

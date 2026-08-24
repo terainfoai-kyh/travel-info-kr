@@ -39,9 +39,9 @@ import MyTripTab from './components/MyTripTab';
 import LiveTripTab from './components/LiveTripTab';
 import ExitConfirmModal from './components/ExitConfirmModal';
 
-import { MapPin, MessageSquare } from 'lucide-react';
 import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
 import { geminiGenerateFullItinerary, generateLocalFallbackItinerary, enrichItineraryPhotosAsync, extractLocationKeyword, extractDaysFromPrompt } from './services/geminiNlpService';
+import { sanitizeInput, inspectSecurityGuardrails } from './services/securityGuardService';
 
 export default function App() {
   // 4-Language State (ko, en, ja, zh) with 3-Tier Intelligent Auto-Detection
@@ -382,10 +382,14 @@ export default function App() {
     } catch (e) {}
   };
 
-  // 🚀 AI 여행 일정 생성 코어 핸들러 (1단계 & 2단계 공용 - 무제한 자유 대화 조율)
-  const handleGenerateItinerary = async (promptQuery) => {
-    if (!promptQuery || typeof promptQuery !== 'string' || !promptQuery.trim()) return;
+  // 🚀 AI 여행 일정 생성 코어 핸들러 (1단계 & 2단계 공용 - 무제한 자유 대화 조율 + 보안 가드레일)
+  const handleGenerateItinerary = async (rawPromptQuery) => {
+    if (!rawPromptQuery || typeof rawPromptQuery !== 'string' || !rawPromptQuery.trim()) return;
     if (isLoading) return;
+
+    // 🛡️ 1. XSS 살균 및 최대 글자수(300자) 가드
+    const promptQuery = sanitizeInput(rawPromptQuery);
+    if (!promptQuery) return;
 
     const startTime = Date.now();
     const queryTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
@@ -400,7 +404,26 @@ export default function App() {
     };
     setChatMessages(prev => [...prev, userMsg]);
 
-    // 🌟 1. 폼 초기 진입 또는 추천 칩 진입 확인 -> 토큰 낭비 없이 조건 브리핑 & 승인 유도!
+    // 🛡️ 2. 보안 인젝션, 해킹, 유해어, 비관광 잡담 0-토큰 사전 차단
+    const securityCheck = inspectSecurityGuardrails(promptQuery, lang);
+    if (securityCheck.isBlocked) {
+      setTimeout(() => {
+        const botMsg = {
+          id: `bot-guard-${Date.now()}`,
+          role: 'assistant',
+          text: securityCheck.replyText,
+          quickSuggestions: securityCheck.quickSuggestions || ['👑 서울 인기 코스', '🌊 부산 오션뷰 코스'],
+          generationTime: '0.01',
+          queryTime,
+          replyTime: queryTime,
+          timestamp: queryTime
+        };
+        setChatMessages(prev => [...prev, botMsg]);
+      }, 100);
+      return;
+    }
+
+    // 🌟 3. 폼 초기 진입 또는 추천 칩 진입 확인 -> 토큰 낭비 없이 조건 브리핑 & 승인 유도!
     const isDirectGenerateAction = /(이대로 바로 일정 만들기|이 조건으로 일정|일정 만들어줘|일정 만들어|일정 생성|일정 짜줘|일정표 만들기|OK|ok|응|네|좋아|진행해)/i.test(promptQuery);
     const isFormNavigateAction = /(조건 직접 변경하기|조건 변경)/i.test(promptQuery);
 
