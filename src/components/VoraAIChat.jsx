@@ -233,11 +233,6 @@ export default function VoraAIChat({
                 }}>
                   {msg.text}
                 </div>
-                {msg.timestamp && (
-                  <span style={{ fontSize: '0.66rem', color: 'var(--text-muted)', paddingRight: '0.4rem', fontWeight: 500 }}>
-                    {lang === 'en' ? `Inquiry ${msg.timestamp}` : lang === 'ja' ? `送信時刻 ${msg.timestamp}` : (lang === 'zh' || lang === 'zht') ? `提问时间 ${msg.timestamp}` : `문의 시간 ${msg.timestamp}`}
-                  </span>
-                )}
               </div>
             );
           }
@@ -287,46 +282,62 @@ export default function VoraAIChat({
                   width: '100%',
                   maxWidth: '100%'
                 }}>
-                  {/* Generation Speed & Timestamp Badge */}
-                  {(msg.generationTime || msg.itinerary?.generationTime || msg.timestamp) && (
+                  {/* 🌟 Vora 인라인 1줄 슬림 뱃지: ⚡ Vora (N.N초) • HH:MM:SS */}
+                  {(msg.generationTime || msg.itinerary?.generationTime || msg.replyTime || msg.timestamp) && (
                     <div style={{
                       display: 'inline-flex',
                       alignItems: 'center',
-                      flexWrap: 'wrap',
-                      gap: '0.35rem',
+                      gap: '0.4rem',
                       fontSize: '0.7rem',
                       fontWeight: 700,
                       color: '#2563eb',
                       backgroundColor: 'rgba(37, 99, 235, 0.08)',
                       border: '1px solid rgba(37, 99, 235, 0.2)',
-                      padding: '0.2rem 0.55rem',
+                      padding: '0.15rem 0.55rem',
                       borderRadius: '8px',
                       marginBottom: '0.55rem'
                     }}>
                       <span style={{ fontWeight: 800 }}>
-                        {lang === 'en' 
-                          ? `⚡ AI Response (${msg.generationTime || msg.itinerary?.generationTime || '0.9'}s)` 
-                          : lang === 'ja'
-                          ? `⚡ AI 応答 (${msg.generationTime || msg.itinerary?.generationTime || '0.9'}秒)`
-                          : (lang === 'zh' || lang === 'zht')
-                          ? `⚡ AI 响应 (${msg.generationTime || msg.itinerary?.generationTime || '0.9'}秒)`
-                          : `⚡ AI 응답 (${msg.generationTime || msg.itinerary?.generationTime || '0.9'}초)`}
+                        ⚡ Vora ({msg.generationTime || msg.itinerary?.generationTime || '0.9'}s)
                       </span>
-                      {msg.queryTime && msg.replyTime && (
-                        <span style={{ color: 'var(--text-muted)' }}>
-                          {lang === 'en' 
-                            ? `| Asked ${msg.queryTime} ➔ Replied ${msg.replyTime}` 
-                            : lang === 'ja'
-                            ? `| 質問 ${msg.queryTime} ➔ 応答 ${msg.replyTime}`
-                            : (lang === 'zh' || lang === 'zht')
-                            ? `| 提问 ${msg.queryTime} ➔ 回复 ${msg.replyTime}`
-                            : `| 문의 ${msg.queryTime} ➔ 답변 ${msg.replyTime}`}
+                      {(msg.replyTime || msg.timestamp) && (
+                        <span style={{ color: 'var(--text-muted)', fontSize: '0.66rem' }}>
+                          • {msg.replyTime || msg.timestamp}
                         </span>
                       )}
                     </div>
                   )}
 
                   <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'break-word', fontSize: '0.86rem' }}>{msg.text}</div>
+
+                  {/* 🌟 완성된 일정이 포함된 경우: [ 📋 완성된 일정표 보기 (내 여행) ➔ ] 버튼 제공! */}
+                  {msg.itinerary && (
+                    <div style={{ marginTop: '0.85rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border-color)' }}>
+                      <button
+                        type="button"
+                        onClick={onConfirmItinerary}
+                        style={{
+                          width: '100%',
+                          padding: '0.7rem 1rem',
+                          borderRadius: '12px',
+                          border: 'none',
+                          background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
+                          color: '#ffffff',
+                          fontSize: '0.86rem',
+                          fontWeight: 800,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.4rem',
+                          boxShadow: '0 4px 14px rgba(37, 99, 235, 0.3)'
+                        }}
+                      >
+                        <span>📋</span>
+                        <span>{lang === 'en' ? 'View Complete Itinerary (My Trip) ➔' : '완성된 일정표 보기 (내 여행) ➔'}</span>
+                      </button>
+                    </div>
+                  )}
 
                   {/* Quota Exhausted Call to Action Cards (Rewarded Ad & Google Login) */}
                   {(msg.isQuotaExhausted || (msg.text && (msg.text.includes('무료 AI 질문') || msg.text.includes('free AI questions')))) && (
