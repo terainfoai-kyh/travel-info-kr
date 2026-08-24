@@ -432,44 +432,76 @@ export default function VoraAIChat({
                   )}
                 </div>
 
-                {/* Sleek One-Touch Day Chips inside Chat */}
-                {msg.itinerary && msg.itinerary.dailySchedules && (
+                {/* Sleek One-Touch Day Chips & Confirm Action inside Chat */}
+                {msg.itinerary && (
                   <div style={{
                     display: 'flex',
-                    flexWrap: 'wrap',
+                    flexDirection: 'column',
                     gap: '0.45rem',
                     width: '100%',
                     boxSizing: 'border-box',
                     marginTop: '0.45rem'
                   }}>
-                    {msg.itinerary.dailySchedules.map((ds) => {
-                      const isCurrentActive = Number(activeDay) === Number(ds.day);
-                      return (
-                        <button
-                          key={ds.day}
-                          type="button"
-                          onClick={() => onSelectDay && onSelectDay(ds.day)}
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '0.4rem',
-                            backgroundColor: isCurrentActive ? '#2563eb' : 'var(--bg-primary)',
-                            color: isCurrentActive ? '#ffffff' : 'var(--text-main)',
-                            border: isCurrentActive ? '1.5px solid #2563eb' : '1px solid var(--border-color)',
-                            borderRadius: 'var(--radius-full)',
-                            padding: '0.35rem 0.75rem',
-                            fontSize: '0.76rem',
-                            fontWeight: isCurrentActive ? 800 : 600,
-                            cursor: 'pointer',
-                            boxShadow: isCurrentActive ? '0 3px 10px rgba(37, 99, 235, 0.28)' : '0 1px 4px rgba(0,0,0,0.03)',
-                            transition: 'all 0.2s ease'
-                          }}
-                        >
-                          <span style={{ fontWeight: 900 }}>{t.dayBadge ? t.dayBadge(ds.day) : `${ds.day}일차`}</span>
-                          <span style={{ opacity: isCurrentActive ? 0.95 : 0.7, fontSize: '0.72rem' }}>{ds.theme ? `• ${ds.theme}` : ''}</span>
-                        </button>
-                      );
-                    })}
+                    {msg.itinerary.dailySchedules && (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
+                        {msg.itinerary.dailySchedules.map((ds) => {
+                          const isCurrentActive = Number(activeDay) === Number(ds.day);
+                          return (
+                            <button
+                              key={ds.day}
+                              type="button"
+                              onClick={() => onSelectDay && onSelectDay(ds.day)}
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.3rem',
+                                backgroundColor: isCurrentActive ? '#2563eb' : 'var(--bg-primary)',
+                                color: isCurrentActive ? '#ffffff' : 'var(--text-main)',
+                                border: isCurrentActive ? '1.5px solid #2563eb' : '1px solid var(--border-color)',
+                                borderRadius: 'var(--radius-full)',
+                                padding: '0.28rem 0.65rem',
+                                fontSize: '0.74rem',
+                                fontWeight: isCurrentActive ? 800 : 600,
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease'
+                              }}
+                            >
+                              <span style={{ fontWeight: 900 }}>{t.dayBadge ? t.dayBadge(ds.day) : `${ds.day}일차`}</span>
+                              <span style={{ opacity: isCurrentActive ? 0.95 : 0.7, fontSize: '0.7rem' }}>{ds.theme ? `• ${ds.theme}` : ''}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* 🌟 2단계 핵심: 챗봇 말풍선 바로 밑 일정 확정 CTA 버튼 */}
+                    {onConfirmItinerary && (
+                      <button
+                        type="button"
+                        onClick={onConfirmItinerary}
+                        style={{
+                          width: '100%',
+                          padding: '0.55rem 0.85rem',
+                          background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
+                          color: '#ffffff',
+                          border: 'none',
+                          borderRadius: '12px',
+                          fontSize: '0.82rem',
+                          fontWeight: 800,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.35rem',
+                          boxShadow: '0 4px 14px rgba(37, 99, 235, 0.3)',
+                          transition: 'all 0.2s ease',
+                          marginTop: '0.2rem'
+                        }}
+                      >
+                        <Sparkles size={13} />
+                        <span>{lang === 'en' ? 'Confirm This Course & Go to My Trip ➔' : lang === 'ja' ? 'このコースで日程を確定する ➔' : (lang === 'zh' || lang === 'zht') ? '以此路线确认行程 ➔' : '✨ 이 코스로 일정 확정 & 내 여행에 담기 ➔'}</span>
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
@@ -478,25 +510,18 @@ export default function VoraAIChat({
         })}
 
         {/* Live Typing / Thinking Indicator */}
-        {/* AI 응답 속도 최적화 시작 */}
         {isLoading && (
           <div style={{
             display: 'flex',
-            gap: '0.5rem',
             alignItems: 'center',
-            backgroundColor: 'var(--bg-primary)',
-            border: '1px solid var(--border-highlight)',
-            borderRadius: '4px 16px 16px 16px',
-            padding: '0.65rem 0.95rem',
+            gap: '0.45rem',
+            padding: '0.6rem 0.85rem',
+            backgroundColor: 'rgba(37, 99, 235, 0.06)',
+            borderRadius: '16px',
+            border: '1px solid rgba(37, 99, 235, 0.15)',
             width: 'fit-content'
           }}>
-            <div className="spin-animation" style={{
-              width: '16px',
-              height: '16px',
-              borderRadius: '50%',
-              border: '2px solid var(--accent-primary)',
-              borderTopColor: 'transparent'
-            }} />
+            <Loader2 size={15} className="animate-spin" style={{ color: 'var(--accent-primary)' }} />
             <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--accent-primary)' }}>
               {lang === 'en' 
                 ? 'VORA AI is crafting your tailored itinerary...' 
@@ -567,11 +592,7 @@ export default function VoraAIChat({
       <div style={{
         padding: '0.35rem 0.65rem',
         borderTop: '1px solid var(--border-color)',
-        backgroundColor: questionQuota?.remaining > 2
-          ? 'rgba(16, 185, 129, 0.05)'
-          : questionQuota?.remaining > 0
-            ? 'rgba(245, 158, 11, 0.08)'
-            : 'rgba(239, 68, 68, 0.08)',
+        backgroundColor: 'var(--bg-glass)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -582,34 +603,24 @@ export default function VoraAIChat({
         width: '100%',
         maxWidth: '100%',
         boxSizing: 'border-box',
-        color: questionQuota?.remaining > 2
-          ? '#059669'
-          : questionQuota?.remaining > 0
-            ? '#d97706'
-            : '#dc2626'
+        color: 'var(--text-muted)'
       }}>
-        <div 
-          onClick={onResetQuotaForDev}
-          title={lang === 'en' ? 'Click to reset quota (Dev/Test Mode)' : lang === 'ja' ? 'クリックして質問回数を全回復 (テストモード)' : (lang === 'zh' || lang === 'zht') ? '点击一键重置提问次数 (测试模式)' : '클릭하여 질문 횟수 전체 충전 (테스트/개발 모드)'}
-          style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', cursor: 'pointer', userSelect: 'none' }}
-        >
-          <span>{currentUser?.isGoogleLoggedIn ? '👑' : '⚡'}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+          <span>⚡</span>
           <span>
-            {currentUser?.isGoogleLoggedIn 
-              ? 'Google VIP: ' 
-              : (lang === 'en' ? "Today's Free Prompts: " : lang === 'ja' ? '本日の無料質問: ' : (lang === 'zh' || lang === 'zht') ? '今日免费提问: ' : '오늘 무료 질문: ')}
-            <strong style={{ fontWeight: 900 }}>{questionQuota?.remaining ?? 5}</strong> / {questionQuota?.total ?? 5}{lang === 'en' ? '' : lang === 'ja' ? '回' : (lang === 'zh' || lang === 'zht') ? '次' : '회'}
+            {lang === 'en' ? 'Daily Free Itineraries: ' : lang === 'ja' ? '本日の無料AI作成: ' : (lang === 'zh' || lang === 'zht') ? '今日免费生成: ' : '오늘 무료 AI 일정: '}
+            <strong style={{ color: 'var(--accent-primary)', fontWeight: 900 }}>{questionQuota?.remaining ?? 3}</strong> / {questionQuota?.total ?? 3}{lang === 'en' ? '' : lang === 'ja' ? '回' : (lang === 'zh' || lang === 'zht') ? '次' : '회'}
           </span>
         </div>
 
-        {/* Quick Mini Recharge Actions */}
+        {/* Quick Mini Recharge Actions (동의하에 충전) */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
           <button
             type="button"
             onClick={onOpenRewardedAd}
-            title={lang === 'en' ? 'Watch 15s ad for +3 prompts' : lang === 'ja' ? '15秒広告を見て+3回チャージ' : (lang === 'zh' || lang === 'zht') ? '观看15秒广告+3次充能' : '15초 광고 보고 +3회 충전'}
+            title={lang === 'en' ? 'Watch 15s video for +3 free itineraries' : '15초 스폰서 영상 보고 +3회 충전'}
             style={{
-              background: 'rgba(16, 185, 129, 0.15)',
+              background: 'rgba(16, 185, 129, 0.12)',
               color: '#059669',
               border: '1px solid rgba(16, 185, 129, 0.3)',
               borderRadius: '6px',
@@ -619,29 +630,8 @@ export default function VoraAIChat({
               cursor: 'pointer'
             }}
           >
-            {lang === 'en' ? '🎬 +3 Prompts' : lang === 'ja' ? '🎬 +3回チャージ' : (lang === 'zh' || lang === 'zht') ? '🎬 +3次充能' : '🎬 +3회 충전'}
+            {lang === 'en' ? '🎬 +3 Charge' : lang === 'ja' ? '🎬 +3回チャージ' : (lang === 'zh' || lang === 'zht') ? '🎬 +3次充能' : '🎬 +3회 충전'}
           </button>
-
-          {!currentUser?.isGoogleLoggedIn && (
-            <button
-              type="button"
-              onClick={onOpenGoogleAuth}
-              title={lang === 'en' ? 'Sign in with Google for 15 daily prompts' : lang === 'ja' ? 'Googleログインで毎日15回' : (lang === 'zh' || lang === 'zht') ? 'Google登录尊享每日15次' : '구글 로그인하고 매일 15회 받기'}
-              style={{
-                background: 'rgba(37, 99, 235, 0.12)',
-                color: 'var(--accent-primary)',
-                border: '1px solid var(--border-highlight)',
-                borderRadius: '6px',
-                padding: '0.15rem 0.45rem',
-                fontSize: '0.68rem',
-                fontWeight: 800,
-                cursor: 'pointer'
-              }}
-            >
-              {lang === 'en' ? '🔑 15 Pro' : lang === 'ja' ? '🔑 15回拡張' : (lang === 'zh' || lang === 'zht') ? '🔑 15次扩展' : '🔑 15회 확장'}
-            </button>
-          )}
-
           <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 500, marginLeft: '0.2rem' }}>
             {lang === 'en' ? 'Resets at 00:00' : lang === 'ja' ? '00:00 リセット' : (lang === 'zh' || lang === 'zht') ? '00:00 重置' : '자정(00:00) 리셋'}
           </span>

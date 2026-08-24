@@ -267,11 +267,15 @@ export default function App() {
     return null;
   });
 
-  // Daily Question Quota Management (Guest: 5 chats, Google User: 15 chats)
+  // ==============================================================================
+  // 🌟 VORA AI Global Configuration (선배님 설정: 기본 3회 무료 생성)
+  // ==============================================================================
+  const DAILY_FREE_ITINERARY_LIMIT = 3;
+
+  // Daily Question Quota Management (모든 사용자 공평하게 기본 3회 제공)
   const [questionQuota, setQuestionQuota] = useState(() => {
     const todayStr = new Date().toISOString().slice(0, 10);
-    const isGoogle = !!localStorage.getItem('vora_user_profile');
-    const totalLimit = isGoogle ? 15 : 5;
+    const totalLimit = DAILY_FREE_ITINERARY_LIMIT;
 
     try {
       const saved = localStorage.getItem('vora_daily_quota');
@@ -289,12 +293,15 @@ export default function App() {
     return defaultQuota;
   });
 
+  // AI Planner 1단계(form) vs 2단계(chat) 진입 모드 관리
+  const [plannerInitialMode, setPlannerInitialMode] = useState('form');
+
   // Grant Reward (+3 chats on watching 15s ad)
   const handleRewardGranted = () => {
     const todayStr = new Date().toISOString().slice(0, 10);
     setQuestionQuota(prev => {
       const newRemaining = (prev?.remaining || 0) + 3;
-      const updated = { date: todayStr, remaining: newRemaining, total: prev?.total || 5 };
+      const updated = { date: todayStr, remaining: newRemaining, total: prev?.total || DAILY_FREE_ITINERARY_LIMIT };
       try {
         localStorage.setItem('vora_daily_quota', JSON.stringify(updated));
       } catch (e) {}
@@ -308,8 +315,8 @@ export default function App() {
         id: `reward-${Date.now()}`,
         role: 'assistant',
         text: (lang === 'ko')
-          ? '🎉 **스폰서 광고 시청 완료! 무료 AI 질문 +3회가 즉시 충전되었습니다.** ✨\n원하시는 여행 코스나 수정 사항을 자유롭게 물어보세요!'
-          : '🎉 **Sponsor ad completed! +3 free AI questions have been granted.** ✨\nFeel free to ask more travel itineraries!',
+          ? '🎉 **스폰서 영상 시청 완료! 무료 AI 여행 생성 +3회가 즉시 충전되었습니다.** ✨\n원하시는 여행 코스를 자유롭게 설계해 보세요!'
+          : '🎉 **Sponsor video completed! +3 free AI itineraries have been granted.** ✨\nFeel free to plan more trips!',
         queryTime,
         replyTime: queryTime,
         timestamp: queryTime
@@ -320,29 +327,6 @@ export default function App() {
   // Google Login Success Handler
   const handleLoginSuccess = (profile) => {
     setCurrentUser(profile);
-    const todayStr = new Date().toISOString().slice(0, 10);
-    setQuestionQuota(prev => {
-      const updated = { date: todayStr, remaining: Math.max(prev?.remaining || 0, 15), total: 15 };
-      try {
-        localStorage.setItem('vora_daily_quota', JSON.stringify(updated));
-      } catch (e) {}
-      return updated;
-    });
-
-    const queryTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-    setChatMessages(prev => [
-      ...prev,
-      {
-        id: `login-success-${Date.now()}`,
-        role: 'assistant',
-        text: (lang === 'ko')
-          ? `👑 **환영합니다, ${profile.name}님!**\nGoogle VIP 회원 혜택이 적용되어 **매일 15회 무료 질문**과 여행 일정 자동 보관이 활성화되었습니다! ✨`
-          : `👑 **Welcome, ${profile.name}!**\nGoogle VIP tier activated with **15 free daily chats** and automatic itinerary cloud backup! ✨`,
-        queryTime,
-        replyTime: queryTime,
-        timestamp: queryTime
-      }
-    ]);
   };
 
   // Logout Handler
@@ -351,53 +335,53 @@ export default function App() {
       localStorage.removeItem('vora_user_profile');
     } catch (e) {}
     setCurrentUser(null);
-    const todayStr = new Date().toISOString().slice(0, 10);
-    setQuestionQuota(prev => {
-      const updated = { date: todayStr, remaining: Math.min(prev?.remaining || 5, 5), total: 5 };
-      try {
-        localStorage.setItem('vora_daily_quota', JSON.stringify(updated));
-      } catch (e) {}
-      return updated;
-    });
   };
 
   // Reset Quota for Testing / Dev
   const handleResetQuotaForDev = () => {
     const todayStr = new Date().toISOString().slice(0, 10);
-    const totalLimit = currentUser?.isGoogleLoggedIn ? 15 : 5;
-    const reset = { date: todayStr, remaining: totalLimit, total: totalLimit };
+    const reset = { date: todayStr, remaining: DAILY_FREE_ITINERARY_LIMIT, total: DAILY_FREE_ITINERARY_LIMIT };
     setQuestionQuota(reset);
     try {
       localStorage.setItem('vora_daily_quota', JSON.stringify(reset));
     } catch (e) {}
   };
 
-  // Trigger Master Itinerary Planning with Conversational Memory & Ultra-Fast Parallel Engine
+  // 🚀 AI 여행 일정 생성 코어 핸들러 (1단계 & 2단계 공용)
   const handleGenerateItinerary = async (promptQuery) => {
-    if (!promptQuery || isLoading) return;
+    if (!promptQuery || typeof promptQuery !== 'string' || !promptQuery.trim()) return;
+    if (isLoading) return;
 
-    // 📱 Mobile UX: Immediately switch to 'chat' tab so user sees query sending and quota status
-    setMobileHubTab('chat');
+    // 쿼터 확인 및 정중한 사전 동의 팝업 유도
+    if (questionQuota?.remaining <= 0) {
+      setIsRewardedAdOpen(true);
+      return;
+    }
 
+    // 1회 차감 및 로컬스토리지 저장
+    setQuestionQuota(prev => {
+      const nextRemaining = Math.max((prev?.remaining || 1) - 1, 0);
+      const updated = { ...prev, remaining: nextRemaining };
+      try {
+        localStorage.setItem('vora_daily_quota', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+
+    const startTime = Date.now();
     const queryTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+    
+    // Add user message to stream
     const userMsg = {
       id: `user-${Date.now()}`,
       role: 'user',
       text: promptQuery,
+      queryTime,
       timestamp: queryTime
     };
-
-    // Unlimited Free Pass for Seamless Travel Planning
-    const todayStr = new Date().toISOString().slice(0, 10);
-    const updatedQuota = { date: todayStr, remaining: 999, total: 999 };
-    setQuestionQuota(updatedQuota);
-
-
-    const startTime = Date.now();
     setChatMessages(prev => [...prev, userMsg]);
     setIsLoading(true);
 
-    // If query mentions a specific day (e.g. "2일차", "3일차"), auto focus on that day. Otherwise always reset to Day 1!
     const dayMatch = promptQuery.match(/([1-5])일차/);
     if (dayMatch && dayMatch[1]) {
       setActiveDay(Number(dayMatch[1]));
@@ -411,7 +395,6 @@ export default function App() {
       const replyTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
 
       if (result && result.responseType === 'chat') {
-        // 💬 Conversational & Clarifying Mode: Keep existing itinerary screen intact!
         const botMsg = {
           id: `bot-${Date.now()}`,
           role: 'assistant',
@@ -423,9 +406,7 @@ export default function App() {
           timestamp: replyTime
         };
         setChatMessages(prev => [...prev, botMsg]);
-        setMobileHubTab('chat');
       } else {
-        // 📍 Full Itinerary Mode: Render full course and sync map
         const requestedDays = extractDaysFromPrompt(promptQuery) || 3;
         const finalResult = {
           ...(result || generateLocalFallbackItinerary(promptQuery, extractLocationKeyword(promptQuery), requestedDays, lang)),
@@ -444,7 +425,6 @@ export default function App() {
           timestamp: replyTime
         };
         setChatMessages(prev => [...prev, botMsg]);
-        setMobileHubTab('magazine');
       }
     } catch (err) {
       console.warn('[VORA AI Error]', err);
@@ -467,7 +447,6 @@ export default function App() {
         timestamp: replyTime
       };
       setChatMessages(prev => [...prev, botMsg]);
-      setMobileHubTab('magazine');
     } finally {
       setIsLoading(false);
     }
@@ -517,12 +496,16 @@ export default function App() {
             <PortalHomePrototype
               lang={lang}
               onSearchSubmit={(promptText) => {
+                // 🚀 홈 검색 시: 2단계 AI 대화 브리핑 화면으로 스마트 직행!
+                setPlannerInitialMode('chat');
+                setActiveNavTab('ai');
                 handleGenerateItinerary(promptText);
-                setActiveNavTab('mytrip');
               }}
               onSelectTheme={(promptText, city) => {
+                // 🚀 홈 칩 클릭 시: 2단계 AI 대화 브리핑 화면으로 스마트 직행!
+                setPlannerInitialMode('chat');
+                setActiveNavTab('ai');
                 handleGenerateItinerary(promptText);
-                setActiveNavTab('mytrip');
               }}
               onOpenWeather={(city) => {
                 setWeatherCity(city || itineraryData?.targetCity || '서울');
@@ -530,6 +513,8 @@ export default function App() {
               }}
               onOpenEssentials={() => setIsEssentialsOpen(true)}
               onOpenPlanner={() => {
+                // 🚀 퀵 카드 클릭 시: 1단계 AI Studio 조건 폼으로 이동!
+                setPlannerInitialMode('form');
                 setActiveNavTab('ai');
               }}
               targetCity={itineraryData?.targetCity || '서울'}
@@ -566,9 +551,7 @@ export default function App() {
                     onSelectDay={(day) => setActiveDay(day)}
                     questionQuota={questionQuota}
                     onOpenRewardedAd={() => setIsRewardedAdOpen(true)}
-                    onOpenGoogleAuth={() => setIsGoogleAuthOpen(true)}
-                    onResetQuotaForDev={handleResetQuotaForDev}
-                    currentUser={currentUser}
+                    onConfirmItinerary={() => setActiveNavTab('mytrip')}
                   />
                 </div>
                 <div className="itinerary-hub-column" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
@@ -588,26 +571,31 @@ export default function App() {
         )}
 
         {/* ==============================================================================
-           TAB 2. ✨ AI 플래너 (AI Concierge): 1초 탭 선택형 AI 여행 일정 생성기
+           TAB 2. ✨ AI 플래너 (AI Concierge): 1단계 Studio 폼 ➔ 2단계 대화 조율 & 확정
            ============================================================================== */}
         {activeNavTab === 'ai' && (
           <div className="tab-content-fade-in" style={{ width: '100%', maxWidth: '880px', margin: '0 auto' }}>
             <AIPlannerTab
               lang={lang}
-              onGenerateItinerary={(query) => {
-                handleGenerateItinerary(query);
+              onGenerateItinerary={handleGenerateItinerary}
+              onConfirmItinerary={() => {
+                // 🌟 2단계에서 [일정 확정] 터치 시 ➔ 3단계 [내 여행]으로 쏙 이동!
                 setActiveNavTab('mytrip');
               }}
               isLoading={isLoading}
               questionQuota={questionQuota}
               onOpenRewardedAd={() => setIsRewardedAdOpen(true)}
-              onOpenGoogleAuth={() => setIsGoogleAuthOpen(true)}
+              chatMessages={chatMessages}
+              activeDay={activeDay}
+              onSelectDay={(day) => setActiveDay(day)}
+              itineraryData={itineraryData}
+              initialMode={plannerInitialMode}
             />
           </div>
         )}
 
         {/* ==============================================================================
-           TAB 3. 🧳 내 여행 (My Trip): Day 1/2/3 시간대별 타임라인 & 0원 동선 최적화 & 공유
+           TAB 3. 🧳 내 여행 (My Trip): 3단계 확정 타임라인 & 0원 동선 최적화 & PDF/공유
            ============================================================================== */}
         {activeNavTab === 'mytrip' && (
           <div className="tab-content-fade-in" style={{ width: '100%', maxWidth: '880px', margin: '0 auto' }}>
@@ -618,7 +606,11 @@ export default function App() {
               onSelectDay={(day) => setActiveDay(day)}
               onOpenDetail={(spot) => setSelectedSpot(spot)}
               onGoToMap={() => setActiveNavTab('map')}
-              onGoToModify={() => setActiveNavTab('ai')}
+              onGoToModify={() => {
+                // 🌟 3단계에서 [AI와 대화로 수정하기] 터치 시 ➔ 2단계 대화창으로 자연스러운 복귀!
+                setPlannerInitialMode('chat');
+                setActiveNavTab('ai');
+              }}
             />
           </div>
         )}

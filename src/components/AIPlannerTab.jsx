@@ -1,28 +1,39 @@
-import React, { useState } from 'react';
-import { Sparkles, MapPin, Calendar, Compass, Users, Heart, Coffee, Utensils, ShoppingBag, Trees, PartyPopper, Smile, ArrowRight, Flame } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Sparkles, MapPin, Calendar, Compass, Users, Heart, Coffee, Utensils, ShoppingBag, Trees, PartyPopper, ArrowRight, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
+import VoraAIChat from './VoraAIChat';
 
 /**
  * ==============================================================================
- * AIPlannerTab.jsx - 화면 1: 탭 선택형 AI 여행 일정 생성 화면
+ * AIPlannerTab.jsx - 1단계 Studio 폼 & 2단계 대화형 조율 파이프라인
  * 
- * 1. 여행지 입력 & 빠른 도시 칩 (서울, 부산, 제주, 경주, 강릉 등)
- * 2. 여행 기간 선택 칩 (1일, 2일, 3일, 4일, 5일)
- * 3. 여행 테마 선택 칩 (맛집, 카페, 관광지, 쇼핑, 자연, 축제, 힐링)
- * 4. 동행자 선택 칩 (혼자, 커플, 가족, 친구)
- * 5. '✨ AI 여행 일정 만들기' 원클릭 생성 버튼
+ * 1단계: 여행지, 기간(1~5일), 테마, 동행자 선택 폼
+ * 2단계: Vora AI 실시간 대화창 (요약 브리핑 & 피드백 조율) + [ 📋 일정 확정 ] 버튼
  * ==============================================================================
  */
 
 export default function AIPlannerTab({
   lang = 'ko',
   onGenerateItinerary,
+  onConfirmItinerary,
   isLoading = false,
-  questionQuota = { remaining: 5, total: 5 },
+  questionQuota = { remaining: 3, total: 3 },
   onOpenRewardedAd,
-  onOpenGoogleAuth
+  chatMessages = [],
+  activeDay = 1,
+  onSelectDay,
+  initialMode = 'form' // 'form' | 'chat'
 }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
+
+  // 1단계 (폼) vs 2단계 (대화) 전환 모드
+  const [plannerMode, setPlannerMode] = useState(initialMode);
+
+  useEffect(() => {
+    if (initialMode) {
+      setPlannerMode(initialMode);
+    }
+  }, [initialMode]);
 
   // 1. 여행지 State
   const [destination, setDestination] = useState('서울');
@@ -82,17 +93,108 @@ export default function AIPlannerTab({
     if (e) e.preventDefault();
     if (isLoading) return;
 
-    // 질문 잔여량 확인
-    if (questionQuota && questionQuota.remaining <= 0) {
-      if (onOpenRewardedAd) onOpenRewardedAd();
-      return;
-    }
-
     // 자연어 프롬프트 조합 생성
     const combinedQuery = `${destination} ${selectedDays}박${selectedDays}일 ${selectedCompanion} 여행, 테마: ${selectedThemes.join(', ')}${customNote.trim() ? `, 요구사항: ${customNote.trim()}` : ''}`;
-    onGenerateItinerary(combinedQuery);
+    
+    // 2단계 대화 모드로 전환하고 일정 생성 요청
+    setPlannerMode('chat');
+    if (onGenerateItinerary) {
+      onGenerateItinerary(combinedQuery);
+    }
   };
 
+  // ==============================================================================
+  // 2단계 : AI 대화 & 코스 조율 모드 (VoraAIChat + 일정 확정 버튼)
+  // ==============================================================================
+  if (plannerMode === 'chat') {
+    return (
+      <div style={{
+        width: '100%',
+        maxWidth: '820px',
+        margin: '0 auto',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0.65rem'
+      }}>
+        {/* Top Control Bar: [ ← 조건 다시 선택 ] & [ 📋 일정 확정 ] */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0.45rem 0.65rem',
+          backgroundColor: 'var(--bg-card)',
+          borderRadius: '16px',
+          border: '1px solid var(--border-color)',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.04)',
+          gap: '0.5rem'
+        }}>
+          <button
+            type="button"
+            onClick={() => setPlannerMode('form')}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.3rem',
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--text-muted)',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              padding: '0.3rem 0.5rem',
+              borderRadius: '8px'
+            }}
+          >
+            <ArrowLeft size={14} />
+            <span>{lang === 'en' ? 'Edit Studio Form' : lang === 'ja' ? '条件設定に戻る' : (lang === 'zh' || lang === 'zht') ? '返回条件设置' : '조건 다시 선택'}</span>
+          </button>
+
+          {/* 🌟 2단계 핵심: 일정 확정 버튼 */}
+          <button
+            type="button"
+            onClick={onConfirmItinerary}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '9999px',
+              padding: '0.42rem 0.95rem',
+              fontSize: '0.82rem',
+              fontWeight: 800,
+              cursor: 'pointer',
+              boxShadow: '0 4px 14px rgba(37, 99, 235, 0.35)',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            <CheckCircle2 size={14} />
+            <span>{lang === 'en' ? 'Confirm Itinerary ➔' : lang === 'ja' ? '日程を確定する ➔' : (lang === 'zh' || lang === 'zht') ? '确认行程并查看 ➔' : '일정 확정 & 내 여행에 담기 ➔'}</span>
+          </button>
+        </div>
+
+        {/* 2단계 실시간 대화창 (VoraAIChat) */}
+        <div style={{ height: 'calc(100vh - 240px)', minHeight: '480px' }}>
+          <VoraAIChat
+            lang={lang}
+            chatMessages={chatMessages}
+            isLoading={isLoading}
+            onSendMessage={onGenerateItinerary}
+            activeDay={activeDay}
+            onSelectDay={onSelectDay}
+            questionQuota={questionQuota}
+            onOpenRewardedAd={onOpenRewardedAd}
+            onConfirmItinerary={onConfirmItinerary}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // ==============================================================================
+  // 1단계 : AI Studio 조건 선택 폼
+  // ==============================================================================
   return (
     <div style={{
       width: '100%',
@@ -105,134 +207,53 @@ export default function AIPlannerTab({
       padding: '0.9rem 1rem 1.15rem 1rem',
       boxSizing: 'border-box'
     }}>
-      {/* 1. Header Title */}
       <div style={{ textAlign: 'center', marginBottom: '0.85rem' }}>
-        <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '0.35rem',
-          backgroundColor: 'rgba(37, 99, 235, 0.08)',
-          color: 'var(--accent-primary)',
-          padding: '0.2rem 0.75rem',
-          borderRadius: '9999px',
-          fontSize: '0.75rem',
-          fontWeight: 800,
-          marginBottom: '0.25rem'
-        }}>
-          <Sparkles size={13} />
-          <span>VORA AI Travel Studio</span>
-        </div>
-        <h2 style={{
-          margin: 0,
-          fontSize: 'clamp(1.1rem, 3.2vw, 1.35rem)',
-          fontWeight: 900,
-          color: 'var(--text-main)'
-        }}>
-          {lang === 'en' ? 'What kind of trip are you planning?' : lang === 'ja' ? 'どのような旅を計画していますか？' : (lang === 'zh' || lang === 'zht') ? '您想计划怎样的韩国之旅？' : '어떤 여행을 계획할까요?'}
+        <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900, color: 'var(--text-main)' }}>
+          {lang === 'en' ? 'AI Travel Planner' : 'AI 여행 스튜디오'}
         </h2>
       </div>
 
       <form onSubmit={handleCreateSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-        {/* Step 1: 여행지 선택 */}
+        {/* Step 1: 여행지 */}
         <div>
           <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.3rem' }}>
             <MapPin size={14} style={{ color: 'var(--accent-primary)' }} />
-            <span>{lang === 'en' ? 'Destination' : lang === 'ja' ? '目的地' : (lang === 'zh' || lang === 'zht') ? '目的地' : '여행지'}</span>
+            <span>{lang === 'en' ? 'Destination' : '여행지'}</span>
           </label>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            backgroundColor: 'var(--bg-glass)',
-            border: '1.5px solid var(--border-highlight)',
-            borderRadius: '12px',
-            padding: '0.45rem 0.75rem',
-            marginBottom: '0.4rem'
-          }}>
-            <input
-              type="text"
-              value={destination}
-              onChange={(e) => setDestination(e.target.value)}
-              placeholder={lang === 'en' ? 'e.g. Seoul, Busan, Jeju...' : '예: 서울, 부산, 제주, 수원 행궁동...'}
-              style={{
-                width: '100%',
-                border: 'none',
-                outline: 'none',
-                backgroundColor: 'transparent',
-                fontSize: '0.88rem',
-                fontWeight: 700,
-                color: 'var(--text-main)'
-              }}
-            />
-          </div>
-
-          {/* Quick City Pills */}
-          <div style={{ display: 'flex', gap: '0.3rem', overflowX: 'auto', paddingBottom: '0.15rem', scrollbarWidth: 'none' }}>
+          <input
+            type="text"
+            value={destination}
+            onChange={(e) => setDestination(e.target.value)}
+            style={{ width: '100%', padding: '0.5rem', borderRadius: '10px', border: '1px solid var(--border-color)' }}
+          />
+          <div style={{ display: 'flex', gap: '0.3rem', overflowX: 'auto', marginTop: '0.4rem' }}>
             {CITIES.map((city) => (
-              <button
-                key={city.id}
-                type="button"
-                onClick={() => setDestination(city.val)}
-                style={{
-                  padding: '0.25rem 0.65rem',
-                  borderRadius: '9999px',
-                  border: destination === city.val ? '1.5px solid var(--accent-primary)' : '1px solid var(--border-color)',
-                  backgroundColor: destination === city.val ? 'rgba(37, 99, 235, 0.12)' : 'var(--bg-card)',
-                  color: destination === city.val ? 'var(--accent-primary)' : 'var(--text-muted)',
-                  fontSize: '0.75rem',
-                  fontWeight: destination === city.val ? 800 : 600,
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                {city.name}
-              </button>
+              <button key={city.id} type="button" onClick={() => setDestination(city.val)} style={{ padding: '0.2rem 0.5rem', borderRadius: '99px', border: '1px solid var(--border-color)', fontSize: '0.75rem' }}>{city.name}</button>
             ))}
           </div>
         </div>
 
-        {/* Step 2: 여행 기간 (1일~5일 칩) */}
+        {/* Step 2: 기간 */}
         <div>
           <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.3rem' }}>
             <Calendar size={14} style={{ color: 'var(--accent-primary)' }} />
-            <span>{lang === 'en' ? 'Trip Duration' : lang === 'ja' ? '旅行期間' : (lang === 'zh' || lang === 'zht') ? '旅行天数' : '여행 기간'}</span>
+            <span>{lang === 'en' ? 'Duration' : '여행 기간'}</span>
           </label>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '0.35rem' }}>
-            {DAYS_OPTIONS.map((d) => {
-              const isSelected = selectedDays === d;
-              return (
-                <button
-                  key={`day-opt-${d}`}
-                  type="button"
-                  onClick={() => setSelectedDays(d)}
-                  style={{
-                    padding: '0.5rem 0.15rem',
-                    borderRadius: '10px',
-                    border: isSelected ? '2px solid #2563eb' : '1px solid var(--border-color)',
-                    backgroundColor: isSelected ? '#2563eb' : 'var(--bg-glass)',
-                    color: isSelected ? '#ffffff' : 'var(--text-main)',
-                    fontSize: '0.82rem',
-                    fontWeight: 800,
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease',
-                    boxShadow: isSelected ? '0 3px 10px rgba(37, 99, 235, 0.25)' : 'none'
-                  }}
-                >
-                  {d}{lang === 'en' ? ' Day' : lang === 'ja' ? '日間' : (lang === 'zh' || lang === 'zht') ? '天' : '일'}
-                </button>
-              );
-            })}
+            {DAYS_OPTIONS.map((d) => (
+              <button key={d} type="button" onClick={() => setSelectedDays(d)} style={{ padding: '0.5rem', borderRadius: '10px', backgroundColor: selectedDays === d ? '#2563eb' : 'var(--bg-glass)', color: selectedDays === d ? '#fff' : 'var(--text-main)', fontWeight: 800 }}>{d}일</button>
+            ))}
           </div>
         </div>
 
-        {/* Step 3: 여행 테마 (복수 선택) */}
+        {/* Step 3: 테마 */}
         <div>
           <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.3rem' }}>
             <Compass size={14} style={{ color: 'var(--accent-primary)' }} />
-            <span>{lang === 'en' ? 'Themes' : '여행 테마 (다중 선택)'}</span>
+            <span>{lang === 'en' ? 'Themes' : '여행 테마'}</span>
           </label>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
             {THEME_OPTIONS.map((theme) => {
-              const isSelected = selectedThemes.includes(theme.val);
               const Icon = theme.icon;
               return (
                 <button
@@ -242,19 +263,14 @@ export default function AIPlannerTab({
                   style={{
                     padding: '0.35rem 0.65rem',
                     borderRadius: '9px',
-                    border: isSelected ? '1.5px solid var(--accent-primary)' : '1px solid var(--border-color)',
-                    backgroundColor: isSelected ? 'rgba(37, 99, 235, 0.12)' : 'var(--bg-glass)',
-                    color: isSelected ? 'var(--accent-primary)' : 'var(--text-main)',
-                    fontSize: '0.76rem',
-                    fontWeight: isSelected ? 800 : 600,
-                    cursor: 'pointer',
+                    border: selectedThemes.includes(theme.val) ? '1.5px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                    backgroundColor: selectedThemes.includes(theme.val) ? 'rgba(37, 99, 235, 0.12)' : 'var(--bg-glass)',
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '0.25rem',
-                    transition: 'all 0.15s ease'
+                    gap: '0.25rem'
                   }}
                 >
-                  <Icon size={13} />
+                  <Icon size={12} />
                   <span>{theme.label}</span>
                 </button>
               );
@@ -262,71 +278,68 @@ export default function AIPlannerTab({
           </div>
         </div>
 
-        {/* Step 4: 동행자 선택 */}
+        {/* Step 4: 동행자 */}
         <div>
           <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.3rem' }}>
             <Users size={14} style={{ color: 'var(--accent-primary)' }} />
-            <span>{lang === 'en' ? 'Companion' : '동행자'}</span>
+            <span>{lang === 'en' ? 'Companions' : lang === 'ja' ? '同行者' : (lang === 'zh' || lang === 'zht') ? '同伴' : '동행자'}</span>
           </label>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.35rem' }}>
-            {COMPANION_OPTIONS.map((comp) => {
-              const isSelected = selectedCompanion === comp.val;
-              return (
-                <button
-                  key={comp.id}
-                  type="button"
-                  onClick={() => setSelectedCompanion(comp.val)}
-                  style={{
-                    padding: '0.45rem 0.15rem',
-                    borderRadius: '10px',
-                    border: isSelected ? '2px solid #2563eb' : '1px solid var(--border-color)',
-                    backgroundColor: isSelected ? '#2563eb' : 'var(--bg-glass)',
-                    color: isSelected ? '#ffffff' : 'var(--text-main)',
-                    fontSize: '0.78rem',
-                    fontWeight: 800,
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease'
-                  }}
-                >
-                  {comp.label}
-                </button>
-              );
-            })}
+            {COMPANION_OPTIONS.map((comp) => (
+              <button
+                key={comp.id}
+                type="button"
+                onClick={() => setSelectedCompanion(comp.val)}
+                style={{
+                  padding: '0.45rem 0.2rem',
+                  borderRadius: '10px',
+                  border: selectedCompanion === comp.val ? '2px solid #2563eb' : '1px solid var(--border-color)',
+                  backgroundColor: selectedCompanion === comp.val ? '#2563eb' : 'var(--bg-glass)',
+                  color: selectedCompanion === comp.val ? '#ffffff' : 'var(--text-main)',
+                  fontSize: '0.78rem',
+                  fontWeight: 800
+                }}
+              >
+                {comp.label}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Step 5: 자유 요청사항 (선택) */}
+        {/* Step 5: 자유 요청사항 */}
         <div>
+          <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.25rem', display: 'block' }}>
+            {lang === 'en' ? 'Special Requests (Optional)' : '추가 요청 (선택): 예: 비 올 때 실내 위주, 핫플 카페 꼭 포함'}
+          </label>
           <input
             type="text"
             value={customNote}
             onChange={(e) => setCustomNote(e.target.value)}
-            placeholder={lang === 'en' ? 'Optional: e.g. strictly indoor places, halal food' : '추가 요청 (선택): 예: 비 올 때 실내 위주, 핫플 카페'}
+            placeholder={lang === 'en' ? 'e.g. Indoor spots on rainy day, romantic sunset dinner' : '원하는 조건을 편하게 적어주세요'}
             style={{
               width: '100%',
-              backgroundColor: 'var(--bg-glass)',
-              border: '1px solid var(--border-color)',
+              padding: '0.45rem 0.75rem',
               borderRadius: '10px',
-              padding: '0.5rem 0.75rem',
-              fontSize: '0.76rem',
+              border: '1px solid var(--border-color)',
+              backgroundColor: 'var(--bg-glass)',
               color: 'var(--text-main)',
+              fontSize: '0.8rem',
               outline: 'none',
               boxSizing: 'border-box'
             }}
           />
         </div>
 
-        {/* Step 6: '✨ AI 여행 일정 만들기' CTA 버튼 */}
+        {/* Submit Button */}
         <button
           type="submit"
           disabled={isLoading}
           style={{
-            marginTop: '0.35rem',
-            width: '100%',
-            padding: '0.85rem 1rem',
+            marginTop: '0.3rem',
+            padding: '0.75rem 1rem',
             borderRadius: '14px',
             border: 'none',
-            background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+            background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
             color: '#ffffff',
             fontSize: '0.98rem',
             fontWeight: 900,
