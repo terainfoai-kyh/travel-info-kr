@@ -389,98 +389,53 @@ export default function PortalHomePrototype({
           />
         ))}
 
-        {/* Ambient Subtle Light Scrim (중앙 메인 피사체 100% 노출 & 하단 가독성 보장) */}
+        {/* Ambient Subtle Light Scrim (사진의 맑고 찬란한 자연 색감 100% 유지) */}
         <div style={{
           position: 'absolute',
           top: 0,
           left: 0,
           width: '100%',
           height: '100%',
-          background: 'linear-gradient(180deg, rgba(0, 0, 0, 0.04) 0%, rgba(0, 0, 0, 0.0) 35%, rgba(15, 23, 42, 0.65) 75%, rgba(15, 23, 42, 0.88) 100%)',
+          background: 'linear-gradient(180deg, rgba(0, 0, 0, 0.0) 0%, rgba(0, 0, 0, 0.0) 55%, rgba(15, 23, 42, 0.45) 85%, rgba(15, 23, 42, 0.65) 100%)',
           zIndex: 2
         }} />
 
-        {/* Hero Content Container (하단 안정 안착 뷰) */}
+        {/* Hero Content Container (극도로 맑고 시원한 미니멀 뷰) */}
         <div style={{
           position: 'relative',
           zIndex: 3,
           textAlign: 'center',
           maxWidth: '860px',
-          padding: '0.4rem 0.85rem 1.6rem 0.85rem',
+          padding: '0.4rem 0.85rem 1.35rem 0.85rem',
           width: '100%',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: '0.35rem'
+          gap: '0.45rem'
         }}>
-          
-          {/* Top Sparkling Badge (슬림 캡슐) */}
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.35rem',
-            padding: '0.2rem 0.7rem',
-            borderRadius: '9999px',
-            backgroundColor: 'rgba(15, 23, 42, 0.6)',
-            backdropFilter: 'blur(16px)',
-            WebkitBackdropFilter: 'blur(16px)',
-            border: '1px solid rgba(255, 255, 255, 0.35)',
-            color: '#93c5fd',
-            fontSize: '0.72rem',
-            fontWeight: 800,
-            boxShadow: '0 4px 15px rgba(0, 0, 0, 0.25)'
-          }}>
-            <Sparkles size={11} style={{ color: '#fbbf24' }} />
-            <span>
-              {lang === 'en' ? 'VORA AI • Smart Travel Guide' :
-               lang === 'ja' ? 'VORA AI • スマート旅行ガイド' :
-               (lang === 'zh' || lang === 'zht') ? 'VORA AI • 智能旅行指南' :
-               'VORA AI • 스마트 여행 가이드'}
-            </span>
-          </div>
 
-          {/* Strong Fixed 1-Line Headline (3초 만에 각인되는 핵심 가치) */}
+          {/* Clean 1-Line Headline (군더더기 없는 산뜻한 1줄) */}
           <h1 style={{
-            fontSize: 'clamp(1.25rem, 3.5vw, 2.1rem)',
+            fontSize: 'clamp(1.2rem, 3.4vw, 1.95rem)',
             fontWeight: 900,
-            lineHeight: 1.2,
+            lineHeight: 1.25,
             color: '#ffffff',
             margin: 0,
-            textShadow: '0 3px 12px rgba(0, 0, 0, 0.85), 0 1px 3px rgba(0, 0, 0, 0.95)',
-            letterSpacing: '-0.02em',
-            whiteSpace: 'normal'
+            textShadow: '0 2px 10px rgba(0, 0, 0, 0.7), 0 1px 3px rgba(0, 0, 0, 0.9)',
+            letterSpacing: '-0.02em'
           }}>
-            {lang === 'en' ? 'Smart AI Itinerary for Your Perfect Korea Trip' :
-             lang === 'ja' ? 'AIが3秒で完成するあなただけの韓国旅行プラン' :
-             (lang === 'zh' || lang === 'zht') ? 'AI智能定制专属完美韩国旅行路线' :
-             '나만의 완벽한 한국 여행, AI가 3초 만에'}
+            {lang === 'en' ? 'Smart AI Trip to Korea' :
+             lang === 'ja' ? 'AIと旅するスマートな韓国旅行' :
+             (lang === 'zh' || lang === 'zht') ? 'AI智能定制专属完美韩国旅行' :
+             '나만의 완벽한 한국 여행, AI와 함께'}
           </h1>
-
-          {/* Subtitle (1줄 슬림 카피) */}
-          <p style={{
-            fontSize: 'clamp(0.76rem, 1.5vw, 0.92rem)',
-            color: '#f1f5f9',
-            margin: 0,
-            maxWidth: '620px',
-            lineHeight: 1.3,
-            fontWeight: 600,
-            textShadow: '0 2px 8px rgba(0, 0, 0, 0.85)',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis'
-          }}>
-            {lang === 'en' ? 'Free Route Optimization • Live Weather & 1330 Helpline' :
-             lang === 'ja' ? '最適ルート設計＆リアルタイム天気・通訳案内' :
-             (lang === 'zh' || lang === 'zht') ? '免费路线规划·实时天气与1330即时翻译' :
-             '0원 동선 최적화부터 실시간 날씨·긴급통역까지'}
-          </p>
 
           {/* 🔍 HanaTour / Airbnb Style Slim Pure White Smart Search Box */}
           <form 
             onSubmit={handleSearch}
             style={{
               width: '100%',
-              maxWidth: '520px',
+              maxWidth: '500px',
               marginTop: '0.1rem',
               position: 'relative'
             }}
@@ -491,7 +446,7 @@ export default function PortalHomePrototype({
               backgroundColor: '#ffffff',
               borderRadius: '9999px',
               padding: '0.2rem 0.25rem 0.2rem 0.85rem',
-              boxShadow: '0 14px 32px rgba(0, 0, 0, 0.28)',
+              boxShadow: '0 12px 28px rgba(0, 0, 0, 0.22)',
               border: '2px solid rgba(255, 255, 255, 0.95)',
               transition: 'all 0.3s ease'
             }}>
@@ -501,10 +456,10 @@ export default function PortalHomePrototype({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={
-                  lang === 'en' ? 'Where do you want to explore?' :
-                  lang === 'ja' ? 'どこへ旅行しますか？' :
-                  (lang === 'zh' || lang === 'zht') ? '想去哪里旅行？' :
-                  '어디로 떠나시나요?'
+                  lang === 'en' ? 'Where to explore? (e.g. Jeju, Seongsu)' :
+                  lang === 'ja' ? 'どこへ行きますか？ (例: 済州、聖水)' :
+                  (lang === 'zh' || lang === 'zht') ? '想去哪里旅行？ (例如: 济州、圣水)' :
+                  '도시·명소 검색 (예: 제주, 성수)'
                 }
                 style={{
                   flex: 1,
