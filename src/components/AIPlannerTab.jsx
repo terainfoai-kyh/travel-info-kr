@@ -230,25 +230,25 @@ export default function AIPlannerTab({
       </div>
 
       <form onSubmit={handleCreateSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-        {/* Step 1: 여행지 (홈 검색창과 100% 일치하는 프리미엄 일체형 캡슐 바) */}
+        {/* Step 1: 여행지 (시인성 300% 웜 앰버 골드 일체형 캡슐 바) */}
         <div>
           <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.3rem' }}>
-            <MapPin size={15} style={{ color: 'var(--accent-primary)' }} />
+            <MapPin size={15} style={{ color: '#d97706' }} />
             <span>{lang === 'en' ? 'Destination' : '여행지'}</span>
           </label>
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            backgroundColor: '#ffffff',
-            border: '2px solid #2563eb',
+            backgroundColor: '#fffdf5',
+            border: '2px solid #f59e0b',
             borderRadius: '9999px',
             padding: '0.18rem 0.25rem 0.18rem 0.85rem',
-            boxShadow: '0 4px 14px rgba(37, 99, 235, 0.12)',
+            boxShadow: '0 4px 14px rgba(245, 158, 11, 0.15)',
             marginBottom: '0.4rem',
             transition: 'all 0.2s ease',
             boxSizing: 'border-box'
           }}>
-            <Search size={16} style={{ color: '#2563eb', flexShrink: 0, marginRight: '0.45rem' }} />
+            <Search size={16} style={{ color: '#d97706', flexShrink: 0, marginRight: '0.45rem' }} />
             <input
               type="text"
               value={destination}
@@ -265,9 +265,9 @@ export default function AIPlannerTab({
                 minWidth: 0
               }}
             />
-            {/* 우측 캡슐 뱃지 */}
+            {/* 우측 웜 앰버 캡슐 뱃지 */}
             <div style={{
-              background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
+              background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
               color: '#ffffff',
               borderRadius: '9999px',
               padding: '0.3rem 0.75rem',
@@ -277,7 +277,7 @@ export default function AIPlannerTab({
               alignItems: 'center',
               gap: '0.2rem',
               flexShrink: 0,
-              boxShadow: '0 2px 6px rgba(37, 99, 235, 0.25)'
+              boxShadow: '0 2px 6px rgba(245, 158, 11, 0.3)'
             }}>
               <MapPin size={11} />
               <span>{lang === 'en' ? 'City' : '도시'}</span>
@@ -407,7 +407,7 @@ export default function AIPlannerTab({
           </div>
         </div>
 
-        {/* Step 5: 자유 요청사항 (홈 검색창과 100% 일치하는 프리미엄 일체형 캡슐 바) */}
+        {/* Step 5: 자유 요청사항 (시인성 300% 웜 앰버 골드 일체형 캡슐 바) */}
         <div>
           <label style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.3rem', display: 'block' }}>
             {lang === 'en' ? 'Special Requests (Optional)' : '추가 요청 (선택): 예: 비 올 때 실내 위주, 핫플 카페 꼭 포함'}
@@ -415,15 +415,15 @@ export default function AIPlannerTab({
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            backgroundColor: '#ffffff',
-            border: '2px solid #2563eb',
+            backgroundColor: '#fffdf5',
+            border: '2px solid #f59e0b',
             borderRadius: '9999px',
             padding: '0.18rem 0.25rem 0.18rem 0.85rem',
-            boxShadow: '0 4px 14px rgba(37, 99, 235, 0.12)',
+            boxShadow: '0 4px 14px rgba(245, 158, 11, 0.15)',
             transition: 'all 0.2s ease',
             boxSizing: 'border-box'
           }}>
-            <PenLine size={15} style={{ color: '#2563eb', flexShrink: 0, marginRight: '0.45rem' }} />
+            <PenLine size={15} style={{ color: '#d97706', flexShrink: 0, marginRight: '0.45rem' }} />
             <input
               type="text"
               value={customNote}
@@ -440,9 +440,9 @@ export default function AIPlannerTab({
                 minWidth: 0
               }}
             />
-            {/* 우측 캡슐 뱃지 */}
+            {/* 우측 웜 앰버 캡슐 뱃지 */}
             <div style={{
-              background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
+              background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
               color: '#ffffff',
               borderRadius: '9999px',
               padding: '0.3rem 0.75rem',
@@ -452,7 +452,7 @@ export default function AIPlannerTab({
               alignItems: 'center',
               gap: '0.2rem',
               flexShrink: 0,
-              boxShadow: '0 2px 6px rgba(37, 99, 235, 0.25)'
+              boxShadow: '0 2px 6px rgba(245, 158, 11, 0.3)'
             }}>
               <Sparkles size={11} />
               <span>{lang === 'en' ? 'Request' : '요청'}</span>

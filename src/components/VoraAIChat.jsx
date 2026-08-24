@@ -587,13 +587,13 @@ export default function VoraAIChat({
         </div>
       )}
 
-      {/* Chat Input Bar (홈 검색창과 100% 일치하는 일체형 프리미엄 캡슐) */}
+      {/* Chat Input Bar (홈 검색창과 100% 일치하는 프리미엄 웜 앰버 골드 캡슐) */}
       <form
         onSubmit={handleSend}
         style={{
           padding: '0.45rem 0.65rem calc(0.45rem + env(safe-area-inset-bottom, 0px)) 0.65rem',
           backgroundColor: '#ffffff',
-          borderTop: '1px solid rgba(37, 99, 235, 0.15)',
+          borderTop: '1px solid rgba(245, 158, 11, 0.18)',
           width: '100%',
           maxWidth: '100%',
           boxSizing: 'border-box'
@@ -603,15 +603,15 @@ export default function VoraAIChat({
           width: '100%',
           display: 'flex',
           alignItems: 'center',
-          backgroundColor: '#ffffff',
-          border: '1.5px solid #2563eb',
+          backgroundColor: '#fffdf5',
+          border: '2px solid #f59e0b',
           borderRadius: '9999px',
           padding: '0.18rem 0.25rem 0.18rem 0.85rem',
-          boxShadow: '0 4px 14px rgba(37, 99, 235, 0.12)',
+          boxShadow: '0 4px 14px rgba(245, 158, 11, 0.15)',
           transition: 'all 0.2s ease',
           boxSizing: 'border-box'
         }}>
-          <Sparkles size={15} style={{ color: '#2563eb', flexShrink: 0, marginRight: '0.45rem' }} />
+          <Sparkles size={15} style={{ color: '#d97706', flexShrink: 0, marginRight: '0.45rem' }} />
           <input
             id="vora-chat-input-field"
             type="text"
@@ -639,15 +639,15 @@ export default function VoraAIChat({
             }}
           />
 
-          {/* 일체형 캡슐 전송 버튼 (홈의 AI 생성 버튼과 동일 룩앤필) */}
+          {/* 일체형 웜 앰버 골드 전송 버튼 */}
           <button
             type="submit"
             disabled={!inputText.trim() || isLoading}
             style={{
               background: inputText.trim() && !isLoading
-                ? 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)'
-                : 'rgba(37, 99, 235, 0.15)',
-              color: inputText.trim() && !isLoading ? '#ffffff' : 'var(--text-muted)',
+                ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)'
+                : 'rgba(245, 158, 11, 0.18)',
+              color: inputText.trim() && !isLoading ? '#ffffff' : '#b45309',
               border: 'none',
               borderRadius: '9999px',
               padding: '0.35rem 0.8rem',
@@ -658,7 +658,7 @@ export default function VoraAIChat({
               alignItems: 'center',
               gap: '0.25rem',
               flexShrink: 0,
-              boxShadow: inputText.trim() && !isLoading ? '0 2px 8px rgba(37, 99, 235, 0.35)' : 'none',
+              boxShadow: inputText.trim() && !isLoading ? '0 2px 8px rgba(245, 158, 11, 0.35)' : 'none',
               transition: 'all 0.2s ease',
               whiteSpace: 'nowrap'
             }}

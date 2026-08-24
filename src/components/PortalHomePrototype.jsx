@@ -347,23 +347,23 @@ export default function PortalHomePrototype({
   return (
     <div style={{ width: '100%', color: 'var(--text-main)', paddingBottom: '2.5rem' }}>
       
-      {/* ☀️ 1. Grand Natural Bright & Scenic Hero (자연스럽고 편안한 황금비율 그룹핑) */}
+      {/* ☀️ 1. Grand Natural Bright & Scenic Hero (상단 헤드라인 + 하단 검색창 완벽 분리) */}
       <div 
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         style={{
           position: 'relative',
           width: '100%',
-          minHeight: '375px',
-          maxHeight: '500px',
-          height: '48vh',
+          minHeight: '390px',
+          maxHeight: '520px',
+          height: '50vh',
           borderRadius: '24px',
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
-          justifyContent: 'flex-end',
+          justifyContent: 'space-between',
           alignItems: 'center',
-          padding: '1.2rem 0.85rem 1.15rem 0.85rem',
+          padding: '2.5rem 0.85rem 1.15rem 0.85rem',
           boxSizing: 'border-box',
           boxShadow: '0 16px 36px -10px rgba(0, 0, 0, 0.25)',
           marginBottom: '0.85rem',
@@ -398,11 +398,36 @@ export default function PortalHomePrototype({
           left: 0,
           width: '100%',
           height: '100%',
-          background: 'linear-gradient(180deg, rgba(0, 0, 0, 0.0) 0%, rgba(0, 0, 0, 0.0) 35%, rgba(15, 23, 42, 0.45) 75%, rgba(15, 23, 42, 0.7) 100%)',
+          background: 'linear-gradient(180deg, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.0) 30%, rgba(0, 0, 0, 0.0) 50%, rgba(15, 23, 42, 0.55) 80%, rgba(15, 23, 42, 0.75) 100%)',
           zIndex: 2
         }} />
 
-        {/* Hero Content Container (헤드라인 + 검색창 + 칩이 조화롭게 결합된 황금비율 블록) */}
+        {/* [TOP] Clean 1-Line Headline (상단 맑은 하늘/지붕 영역에 당당하게 띄움) */}
+        <div style={{
+          position: 'relative',
+          zIndex: 3,
+          textAlign: 'center',
+          width: '100%',
+          maxWidth: '860px',
+          paddingTop: '0.2rem'
+        }}>
+          <h1 style={{
+            fontSize: 'clamp(1.35rem, 4.4vw, 2.2rem)',
+            fontWeight: 900,
+            lineHeight: 1.25,
+            color: '#ffffff',
+            margin: 0,
+            textShadow: '0 2px 14px rgba(0, 0, 0, 0.9), 0 1px 4px rgba(0, 0, 0, 0.95)',
+            letterSpacing: '-0.02em'
+          }}>
+            {lang === 'en' ? 'Smart AI Trip to Korea' :
+             lang === 'ja' ? 'AIと旅するスマートな韓国旅行' :
+             (lang === 'zh' || lang === 'zht') ? 'AI智能定制专属完美韩国旅行' :
+             '나만의 완벽한 한국 여행, AI와 함께'}
+          </h1>
+        </div>
+
+        {/* [BOTTOM] Hero Search & Quick Chips Container (하단 검색창 & 칩) */}
         <div style={{
           position: 'relative',
           zIndex: 3,
@@ -412,24 +437,8 @@ export default function PortalHomePrototype({
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: '0.6rem'
+          gap: '0.65rem'
         }}>
-
-          {/* Clean 1-Line Headline (가독성 높은 폰트 & 검색창과 조화로운 위치) */}
-          <h1 style={{
-            fontSize: 'clamp(1.22rem, 3.8vw, 1.95rem)',
-            fontWeight: 900,
-            lineHeight: 1.25,
-            color: '#ffffff',
-            margin: '0 0 0.15rem 0',
-            textShadow: '0 2px 12px rgba(0, 0, 0, 0.85), 0 1px 4px rgba(0, 0, 0, 0.95)',
-            letterSpacing: '-0.02em'
-          }}>
-            {lang === 'en' ? 'Smart AI Trip to Korea' :
-             lang === 'ja' ? 'AIと旅するスマートな韓国旅行' :
-             (lang === 'zh' || lang === 'zht') ? 'AI智能定制专属完美韩国旅行' :
-             '나만의 완벽한 한국 여행, AI와 함께'}
-          </h1>
 
           {/* 🔍 HanaTour / Airbnb Style Slim Pure White Smart Search Box */}
           <form 
