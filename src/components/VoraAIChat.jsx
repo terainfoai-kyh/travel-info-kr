@@ -461,26 +461,37 @@ export default function VoraAIChat({
                     </div>
                   )}
 
-                  {/* 🏷️ KoreaTravel 정품 POI 추천 액션 카드 (수평 스크롤) */}
+                  {/* 🏷️ KoreaTravel 정품 POI 추천 액션 카드 (부드러운 모바일 수평 스와이프) */}
                   {msg.recommendedPois && msg.recommendedPois.length > 0 && (
-                    <div style={{ marginTop: '0.85rem' }}>
+                    <div style={{ marginTop: '0.85rem', width: '100%' }}>
                       <div style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--accent-primary)', marginBottom: '0.45rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
                         <span>✨</span>
                         <span>{lang === 'en' ? 'Recommended Spots for You' : '보라가 엄선한 추천 명소'}</span>
+                        <span style={{ fontSize: '0.64rem', color: 'var(--text-muted)', fontWeight: 500, marginLeft: 'auto' }}>
+                          {lang === 'en' ? 'Swipe ➔' : '좌우로 넘겨보세요 ➔'}
+                        </span>
                       </div>
                       <div style={{
                         display: 'flex',
-                        gap: '0.65rem',
+                        gap: '0.75rem',
                         overflowX: 'auto',
-                        paddingBottom: '0.4rem',
+                        paddingBottom: '0.6rem',
+                        paddingTop: '0.2rem',
+                        paddingLeft: '0.1rem',
+                        paddingRight: '0.5rem',
                         scrollbarWidth: 'none',
-                        WebkitOverflowScrolling: 'touch'
+                        WebkitOverflowScrolling: 'touch',
+                        touchAction: 'pan-x',
+                        scrollSnapType: 'x mandatory',
+                        overscrollBehaviorX: 'contain'
                       }}>
                         {msg.recommendedPois.map((poi, pIdx) => (
                           <div
                             key={poi.id || pIdx}
                             style={{
-                              flex: '0 0 220px',
+                              flex: '0 0 min(72vw, 230px)',
+                              width: 'min(72vw, 230px)',
+                              scrollSnapAlign: 'start',
                               backgroundColor: '#ffffff',
                               borderRadius: '16px',
                               border: '1px solid rgba(226, 232, 240, 0.95)',
