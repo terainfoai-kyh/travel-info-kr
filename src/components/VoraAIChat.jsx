@@ -11,7 +11,8 @@ export default function VoraAIChat({
   onSelectDay,
   currentUser = null,
   onViewTimeline,
-  onConfirmItinerary
+  onConfirmItinerary,
+  onAddPoiToItinerary
 }) {
   const handleTimelineClick = onConfirmItinerary || onViewTimeline;
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
@@ -295,6 +296,103 @@ export default function VoraAIChat({
                         <span>📋</span>
                         <span>{lang === 'en' ? 'View Complete Itinerary (My Trip) ➔' : '완성된 일정표 보기 (내 여행) ➔'}</span>
                       </button>
+                    </div>
+                  )}
+
+                  {/* 🏷️ KoreaTravel 정품 POI 추천 액션 카드 (수평 스크롤) */}
+                  {msg.recommendedPois && msg.recommendedPois.length > 0 && (
+                    <div style={{ marginTop: '0.85rem' }}>
+                      <div style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--accent-primary)', marginBottom: '0.45rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                        <span>✨</span>
+                        <span>{lang === 'en' ? 'Recommended Spots for You' : '보라가 엄선한 추천 명소'}</span>
+                      </div>
+                      <div style={{
+                        display: 'flex',
+                        gap: '0.65rem',
+                        overflowX: 'auto',
+                        paddingBottom: '0.4rem',
+                        scrollbarWidth: 'none',
+                        WebkitOverflowScrolling: 'touch'
+                      }}>
+                        {msg.recommendedPois.map((poi, pIdx) => (
+                          <div
+                            key={poi.id || pIdx}
+                            style={{
+                              flex: '0 0 210px',
+                              backgroundColor: '#ffffff',
+                              borderRadius: '14px',
+                              border: '1px solid rgba(226, 232, 240, 0.9)',
+                              boxShadow: '0 3px 10px rgba(0,0,0,0.05)',
+                              overflow: 'hidden',
+                              display: 'flex',
+                              flexDirection: 'column'
+                            }}
+                          >
+                            <div style={{ position: 'relative', width: '100%', height: '110px', backgroundColor: '#f1f5f9' }}>
+                              <img
+                                src={poi.image}
+                                alt={poi.title}
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.src = 'http://tong.visitkorea.or.kr/cms/resource/38/2607538_image2_1.jpg';
+                                }}
+                              />
+                              <div style={{
+                                position: 'absolute',
+                                top: '6px',
+                                right: '6px',
+                                backgroundColor: 'rgba(15, 23, 42, 0.75)',
+                                color: '#ffffff',
+                                fontSize: '0.65rem',
+                                fontWeight: 800,
+                                padding: '0.15rem 0.4rem',
+                                borderRadius: '9999px',
+                                backdropFilter: 'blur(4px)'
+                              }}>
+                                ⏱️ {poi.duration || 90}분
+                              </div>
+                            </div>
+
+                            <div style={{ padding: '0.55rem', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                              <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.2rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                {poi.title}
+                              </div>
+                              <div style={{ fontSize: '0.7rem', color: '#64748b', lineHeight: 1.3, marginBottom: '0.5rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', height: '2.6em' }}>
+                                {poi.summary}
+                              </div>
+
+                              <button
+                                onClick={() => {
+                                  if (onAddPoiToItinerary) {
+                                    onAddPoiToItinerary(poi, activeDay);
+                                  }
+                                }}
+                                style={{
+                                  marginTop: 'auto',
+                                  width: '100%',
+                                  padding: '0.4rem 0.5rem',
+                                  borderRadius: '8px',
+                                  border: 'none',
+                                  background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+                                  color: '#ffffff',
+                                  fontSize: '0.74rem',
+                                  fontWeight: 800,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  gap: '0.25rem',
+                                  cursor: 'pointer',
+                                  boxShadow: '0 2px 6px rgba(37, 99, 235, 0.25)'
+                                }}
+                              >
+                                <span>＋</span>
+                                <span>{lang === 'en' ? `Add to Day ${activeDay}` : `${activeDay}일차 일정에 추가`}</span>
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
 

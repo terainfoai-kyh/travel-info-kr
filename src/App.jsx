@@ -42,6 +42,7 @@ import ExitConfirmModal from './components/ExitConfirmModal';
 import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
 import { geminiGenerateFullItinerary, generateLocalFallbackItinerary, enrichItineraryPhotosAsync, extractLocationKeyword, extractDaysFromPrompt } from './services/geminiNlpService';
 import { sanitizeInput, inspectSecurityGuardrails } from './services/securityGuardService';
+import { findRecommendedPois } from './data/koreaTravelPoiDatabase';
 
 export default function App() {
   // 4-Language State (ko, en, ja, zh) with 3-Tier Intelligent Auto-Detection
@@ -366,7 +367,7 @@ export default function App() {
   const handleRewardGranted = () => {
     const todayStr = new Date().toISOString().slice(0, 10);
     setQuestionQuota(prev => {
-      const newRemaining = (prev?.remaining || 0) + 3;
+    const newRemaining = (prev?.remaining || 0) + 3;
       const updated = { date: todayStr, remaining: newRemaining, total: prev?.total || DAILY_FREE_ITINERARY_LIMIT };
       try {
         localStorage.setItem('vora_daily_quota', JSON.stringify(updated));
@@ -379,6 +380,83 @@ export default function App() {
       setTimeout(() => {
         handleSaveCurrentItinerary('mytrip');
       }, 100);
+    }
+  };
+
+  // 🏷️ KoreaTravel 정품 POI를 현재 활성 일정(Day N)에 원터치 추가하는 핸들러 (0토큰 실시간 연동)
+  const handleAddPoiToItinerary = (poi, targetDay = 1) => {
+    if (!poi) return;
+    
+    // 1. 현재 일정이 있는 경우: 해당 Day 타임라인에 장소 추가
+    if (itineraryData && itineraryData.dailyPlan) {
+      const updatedDays = itineraryData.dailyPlan.map(dayObj => {
+        if (dayObj.day === targetDay) {
+          const newSpot = {
+            id: poi.id || `spot-${Date.now()}`,
+            name: poi.title,
+            title: poi.title,
+            time: '15:00',
+            category: poi.category || '명소',
+            tag: poi.theme || '추천명소',
+            desc: poi.summary || `${poi.title} 탐방 및 힐링`,
+            duration: `${poi.duration || 90}분`,
+            image: poi.image,
+            location: poi.city || poi.region,
+            lat: poi.lat,
+            lng: poi.lng
+          };
+          return {
+            ...dayObj,
+            spots: [...(dayObj.spots || []), newSpot]
+          };
+        }
+        return dayObj;
+      });
+
+      const updatedItinerary = {
+        ...itineraryData,
+        dailyPlan: updatedDays
+      };
+
+      setItineraryData(updatedItinerary);
+      setHasActiveUnsavedDraft(true);
+      try {
+        localStorage.setItem('vora_temp_active_draft', JSON.stringify(updatedItinerary));
+      } catch (e) {}
+
+      // 성공 봇 메시지 피드백
+      const successMsg = {
+        id: `bot-add-${Date.now()}`,
+        role: 'assistant',
+        text: `✨ **${poi.title}**을(를) ${targetDay}일차 일정에 성공적으로 추가했어요! 🗺️\n아래 버튼을 눌러 업데이트된 일정표를 확인해 보세요!`,
+        quickSuggestions: [
+          (lang === 'en' ? '📋 View Updated Itinerary' : '📋 완성된 일정표 보기 (내 여행)'),
+          (lang === 'en' ? '💬 Ask More Questions' : '💬 추가 질문하기')
+        ],
+        generationTime: '0.01',
+        queryTime: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }),
+        replyTime: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }),
+        timestamp: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+      };
+      setChatMessages(prev => [...prev, successMsg]);
+    } else {
+      // 2. 일정이 아직 없는 경우: 해당 POI가 포함된 기본 일정을 생성하여 세팅
+      const location = poi.city || poi.region || '강원';
+      const newPlan = generateLocalFallbackItinerary(`${location} 2박3일 여행`, location, 3, lang);
+      setItineraryData(newPlan);
+      setHasActiveUnsavedDraft(true);
+      
+      const successMsg = {
+        id: `bot-add-${Date.now()}`,
+        role: 'assistant',
+        text: `✨ **${poi.title}**을(를) 포함하여 **【 ${location} 3일 여행 코스 】**를 새로 구성했어요! 🗺️`,
+        itinerary: newPlan,
+        generationTime: '0.01',
+        queryTime: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }),
+        replyTime: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }),
+        timestamp: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+      };
+      setChatMessages(prev => [...prev, successMsg]);
     }
   };
 
@@ -447,7 +525,7 @@ export default function App() {
     }
 
     // 🌟 3. 폼 초기 진입 또는 추천 칩 진입 확인 -> 토큰 낭비 없이 조건 브리핑 & 승인 유도!
-    const isDirectGenerateAction = /(이대로 바로 일정 만들기|이 조건으로 일정|일정 만들어줘|일정 만들어|일정 생성|일정 짜줘|일정표 만들기|OK|ok|응|네|좋아|진행해)/i.test(promptQuery);
+    const isDirectGenerateAction = /(이대로 바로 일정 만들기|이 조건으로 일정|일정 만들어줘|일정 만들어|일정 생성|일정 짜줘|일정표 만들기|업데이트된 일정표 보기|OK|ok|응|네|좋아|진행해)/i.test(promptQuery);
     const isFormNavigateAction = /(조건 직접 변경하기|조건 변경)/i.test(promptQuery);
 
     if (isFormNavigateAction) {
@@ -509,7 +587,7 @@ export default function App() {
       return;
     }
 
-    // 🌟 2. 사용자가 대화창에서 질문/조건을 던졌을 때 -> 티키타카 대화 또는 풀코스 생성!
+    // 🌟 4. 사용자가 대화창에서 질문/조건을 던졌을 때 -> 0토큰 POI 매칭 또는 풀코스 생성!
     setIsLoading(true);
 
     const dayMatch = promptQuery.match(/([1-5])일차/);
@@ -524,16 +602,20 @@ export default function App() {
       const elapsedSeconds = ((Date.now() - startTime) / 1000).toFixed(1);
       const replyTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
 
-      // 🌟 [핵심 티키타카] 사용자가 일정 확정 버튼(🚀)을 누른 게 아니거나, Gemini가 대화(chat)로 응답한 경우 티키타카로 대답!
-      if (!isDirectGenerateAction && (result?.responseType === 'chat' || !promptQuery.includes('일정'))) {
+      // 🌟 [핵심 티키타카] 사용자가 일정 확정 버튼(🚀)을 누른 게 아니거나, 대화형 질문인 경우
+      if (!isDirectGenerateAction && (result?.responseType === 'chat' || !promptQuery.includes('일정') || promptQuery.includes('어디') || promptQuery.includes('추천'))) {
         const isAddDayQuery = /(하루 더|1일 더|1일 추가|늘려|연장|하루 추가|이틀 더|2일 더|더 있을래)/i.test(promptQuery);
         let dynamicSuggestDays = 3;
         const currentDays = itineraryData?.days || 1;
 
+        // 🏷️ 0토큰 KoreaTravel 정품 POI 매칭
+        const targetCity = extractLocationKeyword(promptQuery, false) || '';
+        const matchedPois = findRecommendedPois(promptQuery, targetCity, 3);
+
         let chatText = result?.message;
         let quickButtons = result?.quickSuggestions && result.quickSuggestions.length > 0
           ? result.quickSuggestions
-          : [(lang === 'en' ? '🚀 Generate Itinerary with this' : '🚀 이 조건으로 일정 만들기'), (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')];
+          : [(lang === 'en' ? '🚀 Generate Itinerary with this' : '🚀 이 조건으로 전체 일정표 만들기'), (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')];
 
         if (isAddDayQuery) {
           const addedDays = /(이틀|2일)/.test(promptQuery) ? 2 : 1;
@@ -547,7 +629,9 @@ export default function App() {
             (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')
           ];
         } else if (!chatText) {
-          chatText = `말씀해주신 여행 계획(**${promptQuery}**)에 맞춰 최적의 추천 명소와 맞춤 일정을 준비해 드릴게요! 😊\n\n이 조건으로 나만의 완벽한 일정표를 완성할까요?`;
+          chatText = (lang === 'en')
+            ? `Here are the top curated destinations for **${promptQuery}**! 🌊✨\nTap **[ ＋ Add to Day ${activeDay} ]** on any spot below to instantly include it into your trip:`
+            : `말씀해주신 **"${promptQuery}"**에 딱 맞는 보라의 추천 명소예요! 🌊✨\n원하시는 장소 아래 **[ ＋ ${activeDay}일차 일정에 추가 ]**를 누르시면 내 일정표에 바로 쏙 들어갑니다! 😊`;
         }
 
         const botMsg = {
@@ -728,6 +812,7 @@ export default function App() {
                     questionQuota={questionQuota}
                     onOpenRewardedAd={() => setIsRewardedAdOpen(true)}
                     onConfirmItinerary={() => setActiveNavTab('mytrip')}
+                    onAddPoiToItinerary={handleAddPoiToItinerary}
                   />
                 </div>
                 <div className="itinerary-hub-column" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
@@ -766,6 +851,7 @@ export default function App() {
               onSelectDay={(day) => setActiveDay(day)}
               itineraryData={itineraryData}
               initialMode={plannerInitialMode}
+              onAddPoiToItinerary={handleAddPoiToItinerary}
             />
           </div>
         )}

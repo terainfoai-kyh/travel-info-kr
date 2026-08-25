@@ -22,7 +22,8 @@ export default function AIPlannerTab({
   chatMessages = [],
   activeDay = 1,
   onSelectDay,
-  initialMode = 'form' // 'form' | 'chat'
+  initialMode = 'form', // 'form' | 'chat'
+  onAddPoiToItinerary
 }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
 
@@ -187,6 +188,7 @@ export default function AIPlannerTab({
             activeDay={activeDay}
             onSelectDay={onSelectDay}
             onViewTimeline={onConfirmItinerary}
+            onAddPoiToItinerary={onAddPoiToItinerary}
           />
         </div>
       </div>
