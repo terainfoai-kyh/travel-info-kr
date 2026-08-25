@@ -104,13 +104,20 @@ export function extractLocationKeyword(prompt = '', fallbackToDefault = true) {
     { keys: ['서울', 'seoul', 'ソウル', '首尔', '首爾', '성수', '한남', '홍대', '강남', '명동', '종로', '익선동', '이태원', '잠실', '여의도', '도산', '압구정', '하이브', '용산', '북촌', '인사동', '청와대', '남산'], city: '서울' }
   ];
 
+  // 🛡️ 공항/교통 관문 필터링 (인천공항, 김포공항, 김해공항 등은 관문이므로 목적지 도시 검색 시 분리)
+  const isAirportGateway = /(인천국제공항|인천공항|김포공항|김해공항)/i.test(clean);
+  let cleanForCitySearch = clean;
+  if (isAirportGateway) {
+    cleanForCitySearch = clean.replace(/(인천국제공항|인천공항|김포공항|김해공항)/gi, ' ');
+  }
+
   // 💡 문장에서 가장 먼저 등장한 주요 목적지 도시를 1차 목적지로 우선 선택
   let earliestCity = null;
   let minIndex = Infinity;
 
   for (const item of CITY_MAP) {
     for (const k of item.keys) {
-      const idx = clean.indexOf(k);
+      const idx = cleanForCitySearch.indexOf(k);
       if (idx !== -1 && idx < minIndex) {
         minIndex = idx;
         earliestCity = item.city;

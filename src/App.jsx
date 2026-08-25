@@ -644,9 +644,25 @@ export default function App() {
         const matchedPois = (!isPlanningMode || userIntent === 'OFF_TOPIC') ? [] : findRecommendedPois(promptQuery, targetCity, 3);
         const contextualIntro = generateContextualAdvice(tripContext, lang);
 
+        const isGatewaySelectPrompt = /(공항|ktx|터미널|숙소|호텔)/i.test(promptQuery) && (updatedState.tripMemory?.gateway || updatedState.tripMemory?.hotelArea);
+        const isArrivalTimePrompt = /(오전|오후|저녁|밤|도착)/i.test(promptQuery) && (updatedState.tripMemory?.arrivalTime || /(오전|오후|저녁|밤)/i.test(promptQuery));
+
         let chatText = contextualIntro;
         let quickButtons = !isPlanningMode
           ? []
+          : isGatewaySelectPrompt && !updatedState.tripMemory?.arrivalTime
+          ? [
+              (lang === 'en' ? '☀️ Morning Arrival (Before 12:00)' : '☀️ 오전 도착 (12:00 이전)'),
+              (lang === 'en' ? '🌤️ Afternoon Arrival (14:00~16:00)' : '🌤️ 오후 도착 (14:00~16:00)'),
+              (lang === 'en' ? '🌙 Evening/Night Arrival (After 18:00)' : '🌙 저녁/밤 도착 (18:00 이후)'),
+              (lang === 'en' ? `🚀 Generate ${targetCity} Itinerary` : `🚀 바로 일정표 만들기`)
+            ]
+          : isArrivalTimePrompt
+          ? [
+              (lang === 'en' ? `🚀 Create My Door-to-Door Itinerary!` : `🚀 나만의 도어투도어 일정표 만들기!`),
+              (lang === 'en' ? '🍴 Change Evening Foodie Spots' : '🍴 저녁 미식 코스 변경해줘'),
+              (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')
+            ]
           : [
               (lang === 'en' ? `🚀 Generate ${targetCity} ${requestedDays}D Itinerary` : `🚀 ${targetCity} ${requestedDays}일 전체 일정표 만들기`),
               (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')

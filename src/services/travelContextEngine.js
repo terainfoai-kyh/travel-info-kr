@@ -190,6 +190,12 @@ export function patchTravelState(prevState = INITIAL_TRAVEL_STATE, userPrompt = 
   else if (/(황리단길|대릉원)/i.test(clean)) { nextHotelArea = '황리단길/대릉원'; hasNewCondition = true; }
   else if (/(한옥마을)/i.test(clean)) { nextHotelArea = '전주 한옥마을'; hasNewCondition = true; }
 
+  // 6. Arrival Time Extraction
+  let nextArrivalTime = prevTrip.arrivalTime || null;
+  if (/(오전|아침|12시\s*이전|morning)/i.test(clean)) { nextArrivalTime = '오전'; hasNewCondition = true; }
+  else if (/(오후|낮|14|15|16|afternoon)/i.test(clean)) { nextArrivalTime = '오후'; hasNewCondition = true; }
+  else if (/(저녁|밤|18|19|20|21|night|evening)/i.test(clean)) { nextArrivalTime = '저녁'; hasNewCondition = true; }
+
   return {
     ...prevState,
     tripMemory: {
@@ -200,15 +206,24 @@ export function patchTravelState(prevState = INITIAL_TRAVEL_STATE, userPrompt = 
       isRainPreferred: nextIsRain,
       multiCityInfo: nextMultiCity,
       gateway: nextGateway,
-      hotelArea: nextHotelArea
+      hotelArea: nextHotelArea,
+      arrivalTime: nextArrivalTime
     },
     currentContext: {
       ...prevState.currentContext,
-      currentCity: nextMultiCity ? nextMultiCity.cityNames[0] : nextDestination
+      currentCity: nextDestination,
+      activeFilters: [
+        nextComp.isKids && 'kids',
+        nextComp.isElder && 'elder',
+        nextComp.isSolo && 'solo',
+        nextPrefs.isMinimalWalking && 'minimal_walking',
+        nextPrefs.isFoodie && 'foodie',
+        nextPrefs.isCafe && 'cafe',
+        nextIsRain && 'rain'
+      ].filter(Boolean)
     },
     lastIntent: intent,
-    lastUpdatedPrompt: userPrompt,
-    hasNewCondition
+    hasPendingChanges: hasNewCondition
   };
 }
 
@@ -570,7 +585,39 @@ export function generateContextualAdvice(context, lang = 'ko') {
     return `${layer1}\n\n${layer2}\n\n👉 **${layer3}**`;
   }
 
-  // 2. Standard Scenario Knowledge Resolution (from active tripMemory + prompt)
+  // 2. Door-to-Door Interactive Flow Check (공항/숙소 선택 후 입국 시간 자연스러운 대화 유도)
+  const isGatewaySelectPrompt = /(공항|ktx|터미널|숙소|호텔)/i.test(cleanPrompt) && (context.tripMemory?.gateway || context.tripMemory?.hotelArea);
+  const isArrivalTimePrompt = /(오전|오후|저녁|밤|도착)/i.test(cleanPrompt) && (context.tripMemory?.arrivalTime || /(오전|오후|저녁|밤)/i.test(cleanPrompt));
+
+  if (isGatewaySelectPrompt && !context.tripMemory?.arrivalTime) {
+    const gw = context.tripMemory?.gateway || '공항/역';
+    const hotel = context.tripMemory?.hotelArea || '호텔';
+    return (lang === 'en')
+      ? `Awesome! I'll set up your arrival via **${gw}** and luggage drop at your **${hotel} stay**! ✈️🏨\n\nAround what time do you arrive in Korea? (I'll tailor your Day 1 afternoon schedule seamlessly! 😊)\n\n👉 **Select your arrival time below:**`
+      : `${targetCity} 여행을 위해 **${gw}** 도착 후 **${hotel}** 짐 보관(Luggage Drop) 코스로 딱 잡아드릴게요! ✈️🏨\n\n한국에는 대략 몇 시쯤 도착하시나요? (도착 시간에 맞춰 1일차 알찬 오후 코스를 정밀하게 조율해 드려요 😊)\n\n👉 **도착 시간대를 아래 칩에서 선택해 주세요:**`;
+  }
+
+  if (isArrivalTimePrompt) {
+    const arrTime = context.tripMemory?.arrivalTime || '오후';
+    const hotel = context.tripMemory?.hotelArea || '명동 호텔';
+    const gw = context.tripMemory?.gateway || '공항철도(AREX)';
+    
+    if (arrTime === '오전') {
+      return (lang === 'en')
+        ? `Morning arrival is great! After dropping bags at ${hotel}, enjoy lunch and head straight to **Gyeongbokgung & Bukchon Hanok Village**! 👑\n\nShall I complete your personalized door-to-door itinerary right away?\n\n👉 **Tap the button below to create your itinerary:**`
+        : `오전 도착이시면 호텔에 무거운 캐리어를 먼저 맡기시고 든든한 점심 식사 후 **[경복궁 & 북촌 한옥마을]**부터 알차게 즐기실 수 있어요! 👑\n\n첫날 오후를 꽉 채운 나만의 도어투도어 맞춤 일정표를 바로 완성해 드릴까요? 😊\n\n👉 **아래 [일정표 만들기] 버튼을 눌러주세요:**`;
+    } else if (arrTime === '저녁') {
+      return (lang === 'en')
+        ? `Evening arrival is cozy! Check in at ${hotel} and enjoy **Myeongdong Night Market street food & N Seoul Tower sunset**! 🗼✨\n\nShall I complete your personalized itinerary right away?\n\n👉 **Tap the button below to create your itinerary:**`
+        : `저녁 도착이시면 ${hotel} 체크인 후 **[명동 야시장 로컬 길거리 음식 & N서울타워 로맨틱 야경]**으로 첫날을 산뜻하게 마무리하실 수 있어요! 🗼✨\n\n낭만적인 첫날 야경 코스를 담은 맞춤 일정표를 바로 완성해 드릴까요? 😊\n\n👉 **아래 [일정표 만들기] 버튼을 눌러주세요:**`;
+    } else {
+      return (lang === 'en')
+        ? `For afternoon arrival, taking ${gw} to drop bags at ${hotel} takes until around 5:30 PM! 🧳\n\nHands-free, you can start with **[Gwangjang Market Foodie Street ➔ Cheonggyecheon & DDP Night Stroll]**! Shall I complete your full itinerary right away?\n\n👉 **Tap the button below to create your itinerary:**`
+        : `오후 도착이시면 ${gw}로 ${hotel}에 짐 맡기시고 나면 약 17:30경이 돼요! 🧳\n\n무거운 짐 없이 가볍게 **[광장시장 마약김밥·빈대떡 ➔ 청계천 & DDP 야경 산책]**으로 첫날을 알차게 시작하는 일정표를 바로 완성해 드릴까요? 😊\n\n👉 **아래 [일정표 만들기] 버튼을 눌러주세요:**`;
+    }
+  }
+
+  // 3. Standard Scenario Knowledge Resolution (from active tripMemory + prompt)
   const isKids = context.tripMemory?.companion?.isKids || /(아이|애기|키즈|유모차|어린이|자녀|초등)/i.test(cleanPrompt);
   const isElder = context.tripMemory?.companion?.isElder || /(부모님|어르신|할머니|할아버지|엄마|아빠|시니어)/i.test(cleanPrompt);
   const isRain = context.tripMemory?.isRainPreferred || /(비|우천|비오|폭우|실내|비오는)/i.test(cleanPrompt);
