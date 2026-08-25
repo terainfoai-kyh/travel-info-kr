@@ -567,12 +567,12 @@ export default function App() {
       const dynamicGatewayChips = getDynamicGatewayChips(targetCity, lang);
 
       const briefingText = (lang === 'en')
-        ? `**[ ${tagLabel} ]**\nI'm ready to craft your Door-to-Door ${targetCity} itinerary! ✈️🏨\nWhich airport/station are you arriving at, and where is your hotel? (Select a chip below or tell me freely! 😊)`
+        ? `**[ ${tagLabel} ]**\nI'm ready to craft your Door-to-Door ${targetCity} itinerary! ✈️🏨\nWhich airport/station and what time are you arriving, and where is your hotel? (Select a chip below or tell me freely! 😊)`
         : (lang === 'ja')
-        ? `**[ ${tagLabel} ]**\n空港・駅からホテルへの手荷物預け、初日の名所までシームレスにお繋ぎします！✈️🏨\nご到着の空港・駅やご宿泊先はお決まりですか？（下のチップから選択、またはご自由に入力してください😊）`
+        ? `**[ ${tagLabel} ]**\n空港・駅到着からホテルへの手荷物預け、初日の名所までシームレスにお繋ぎします！✈️🏨\nご到着の空港・駅と到着時間、ご宿泊先はお決まりですか？（下のチップから選択、またはご自由に入力してください😊）`
         : (lang === 'zh' || lang === 'zht')
-        ? `**[ ${tagLabel} ]**\n从机场/车站接驳、酒店行李寄存到首日行程为您一站式定制！✈️🏨\n请问您的到达机场/车站及预订的酒店区域是哪里？（点击下方快捷标签或直接输入😊）`
-        : `**[ ${tagLabel} ]**\n공항/역 도착부터 호텔 짐 보관, 1일차 알찬 코스까지 도어투도어로 연결해 드릴게요! ✈️🏨\n어느 공항/역에 도착하시고 숙소는 어디쯤으로 생각 중이신가요? 😊`;
+        ? `**[ ${tagLabel} ]**\n从机场/车站接驳、酒店行李寄存到首日行程为您一站式定制！✈️🏨\n请问您的到达机场/车站、到达时间及预订的酒店区域是哪里？（点击下方快捷标签或直接输入😊）`
+        : `**[ ${tagLabel} ]**\n공항/역 도착부터 호텔 짐 보관, 1일차 알찬 코스까지 도어투도어로 연결해 드릴게요! ✈️🏨\n어느 공항/역에 몇 시쯤 도착하시고, 숙소는 어디쯤으로 생각 중이신가요? 😊`;
 
       const quickSuggestions = [
         ...dynamicGatewayChips,
