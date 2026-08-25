@@ -14,12 +14,14 @@ export default function VoraAIChat({
   onConfirmItinerary,
   onAddPoiToItinerary,
   sessionContext = {},
-  onRemoveContextChip
+  onRemoveContextChip,
+  onToggleContextChip
 }) {
   const handleTimelineClick = onConfirmItinerary || onViewTimeline;
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
   const [inputText, setInputText] = useState('');
   const [copiedId, setCopiedId] = useState(null);
+  const [isContextDropdownOpen, setIsContextDropdownOpen] = useState(false);
   const chatContainerRef = useRef(null);
   const chatEndRef = useRef(null);
   const messageRefs = useRef({});
@@ -154,72 +156,159 @@ export default function VoraAIChat({
         </span>
       </div>
 
-      {/* 🧠 Active Context Chips Bar (기억된 여행 조건 미니 캡슐) */}
+      {/* 📍 Active Context Chips Bar (현재 여행 조건 미니 캡슐 & 조건 추가 토글) */}
       {(() => {
         const activeChips = getActiveContextChips(sessionContext, lang);
-        if (!activeChips || activeChips.length === 0) return null;
+        const allToggleOptions = [
+          { id: 'kids', label: lang === 'en' ? '👨‍👩‍👧 Kids' : '👨‍👩‍👧 아이 동반' },
+          { id: 'elder', label: lang === 'en' ? '🌿 Parents' : '🌿 부모님' },
+          { id: 'rain', label: lang === 'en' ? '☔ Rain/Indoor' : '☔ 비/실내' },
+          { id: 'minimal_walking', label: lang === 'en' ? '🚶 Minimal Walking' : '🚶 걷기 적게' },
+          { id: 'cafe', label: lang === 'en' ? '☕ Cafe' : '☕ 감성 카페' },
+          { id: 'foodie', label: lang === 'en' ? '🍴 Foodie' : '🍴 로컬 맛집' },
+          { id: 'photo', label: lang === 'en' ? '📸 Photo' : '📸 인생샷' }
+        ];
 
         return (
           <div style={{
-            padding: '0.3rem 0.65rem',
-            backgroundColor: 'rgba(255, 255, 255, 0.92)',
-            borderBottom: '1px solid rgba(37, 99, 235, 0.1)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.35rem',
-            overflowX: 'auto',
-            whiteSpace: 'nowrap',
-            scrollbarWidth: 'none'
+            position: 'relative',
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            borderBottom: '1px solid rgba(37, 99, 235, 0.12)',
+            zIndex: 10
           }}>
-            <span style={{
-              fontSize: '0.68rem',
-              fontWeight: 800,
-              color: '#3b82f6',
-              display: 'inline-flex',
+            <div style={{
+              padding: '0.35rem 0.65rem',
+              display: 'flex',
               alignItems: 'center',
-              gap: '0.2rem',
-              flexShrink: 0
+              justifyContent: 'space-between',
+              gap: '0.4rem',
+              overflowX: 'auto',
+              whiteSpace: 'nowrap',
+              scrollbarWidth: 'none'
             }}>
-              🧠 {lang === 'en' ? 'Context:' : '기억된 조건:'}
-            </span>
-            {activeChips.map(chip => (
-              <span
-                key={chip.id}
-                style={{
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', overflowX: 'auto', scrollbarWidth: 'none' }}>
+                <span style={{
+                  fontSize: '0.68rem',
+                  fontWeight: 800,
+                  color: '#2563eb',
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '0.25rem',
-                  fontSize: '0.68rem',
-                  fontWeight: 700,
-                  padding: '0.12rem 0.45rem',
-                  borderRadius: 'var(--radius-full)',
-                  backgroundColor: `${chip.color}15`,
-                  color: chip.color,
-                  border: `1px solid ${chip.color}35`,
+                  gap: '0.2rem',
                   flexShrink: 0
+                }}>
+                  📍 {lang === 'en' ? 'Trip Filters:' : '현재 여행 조건:'}
+                </span>
+
+                {activeChips.length === 0 ? (
+                  <span style={{ fontSize: '0.66rem', color: '#94a3b8', fontStyle: 'italic' }}>
+                    {lang === 'en' ? 'None (General Tour)' : '기본 (일반 관광)'}
+                  </span>
+                ) : (
+                  activeChips.map(chip => (
+                    <span
+                      key={chip.id}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.25rem',
+                        fontSize: '0.68rem',
+                        fontWeight: 700,
+                        padding: '0.12rem 0.45rem',
+                        borderRadius: 'var(--radius-full)',
+                        backgroundColor: `${chip.color}15`,
+                        color: chip.color,
+                        border: `1px solid ${chip.color}35`,
+                        flexShrink: 0
+                      }}
+                    >
+                      <span>{chip.label}</span>
+                      {onRemoveContextChip && (
+                        <button
+                          onClick={() => onRemoveContextChip(chip.id)}
+                          title={lang === 'en' ? 'Remove filter' : '조건 해제'}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            padding: 0,
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            color: chip.color,
+                            opacity: 0.8
+                          }}
+                        >
+                          <X size={10} />
+                        </button>
+                      )}
+                    </span>
+                  ))
+                )}
+              </div>
+
+              {/* [ ＋ 조건 추가 ] 퀵 토글 버튼 */}
+              <button
+                type="button"
+                onClick={() => setIsContextDropdownOpen(prev => !prev)}
+                style={{
+                  flexShrink: 0,
+                  fontSize: '0.66rem',
+                  fontWeight: 800,
+                  color: '#2563eb',
+                  backgroundColor: 'rgba(37, 99, 235, 0.08)',
+                  border: '1px solid rgba(37, 99, 235, 0.2)',
+                  borderRadius: 'var(--radius-full)',
+                  padding: '0.12rem 0.45rem',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.2rem'
                 }}
               >
-                <span>{chip.label}</span>
-                {onRemoveContextChip && (
-                  <button
-                    onClick={() => onRemoveContextChip(chip.id)}
-                    title={lang === 'en' ? 'Remove condition' : '조건 해제'}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      padding: 0,
-                      cursor: 'pointer',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      color: chip.color,
-                      opacity: 0.75
-                    }}
-                  >
-                    <X size={10} />
-                  </button>
-                )}
-              </span>
-            ))}
+                <span>＋ {lang === 'en' ? 'Add' : '조건 추가'}</span>
+              </button>
+            </div>
+
+            {/* 퀵 조건 추가 드롭다운/토글 바 */}
+            {isContextDropdownOpen && (
+              <div style={{
+                padding: '0.4rem 0.65rem',
+                backgroundColor: '#f8fafc',
+                borderTop: '1px dashed rgba(37, 99, 235, 0.15)',
+                display: 'flex',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: '0.35rem'
+              }}>
+                <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748b', marginRight: '0.2rem' }}>
+                  {lang === 'en' ? 'Quick Toggle:' : '원터치 추가:'}
+                </span>
+                {allToggleOptions.map(opt => {
+                  const isChecked = activeChips.some(c => c.id === opt.id);
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => {
+                        if (onToggleContextChip) onToggleContextChip(opt.id);
+                      }}
+                      style={{
+                        fontSize: '0.68rem',
+                        fontWeight: isChecked ? 800 : 600,
+                        padding: '0.15rem 0.5rem',
+                        borderRadius: 'var(--radius-full)',
+                        border: isChecked ? '1px solid #2563eb' : '1px solid #cbd5e1',
+                        backgroundColor: isChecked ? '#2563eb' : '#ffffff',
+                        color: isChecked ? '#ffffff' : '#334155',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease'
+                      }}
+                    >
+                      {isChecked ? `✓ ${opt.label}` : `＋ ${opt.label}`}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         );
       })()}
@@ -390,17 +479,17 @@ export default function VoraAIChat({
                           <div
                             key={poi.id || pIdx}
                             style={{
-                              flex: '0 0 210px',
+                              flex: '0 0 220px',
                               backgroundColor: '#ffffff',
-                              borderRadius: '14px',
-                              border: '1px solid rgba(226, 232, 240, 0.9)',
-                              boxShadow: '0 3px 10px rgba(0,0,0,0.05)',
+                              borderRadius: '16px',
+                              border: '1px solid rgba(226, 232, 240, 0.95)',
+                              boxShadow: '0 4px 14px rgba(0,0,0,0.06)',
                               overflow: 'hidden',
                               display: 'flex',
                               flexDirection: 'column'
                             }}
                           >
-                            <div style={{ position: 'relative', width: '100%', height: '110px', backgroundColor: '#f1f5f9' }}>
+                            <div style={{ position: 'relative', width: '100%', height: '115px', backgroundColor: '#f1f5f9' }}>
                               <img
                                 src={poi.image}
                                 alt={poi.title}
@@ -413,12 +502,26 @@ export default function VoraAIChat({
                               <div style={{
                                 position: 'absolute',
                                 top: '6px',
-                                right: '6px',
-                                backgroundColor: 'rgba(15, 23, 42, 0.75)',
+                                left: '6px',
+                                backgroundColor: 'rgba(37, 99, 235, 0.85)',
                                 color: '#ffffff',
-                                fontSize: '0.65rem',
+                                fontSize: '0.62rem',
                                 fontWeight: 800,
-                                padding: '0.15rem 0.4rem',
+                                padding: '0.12rem 0.4rem',
+                                borderRadius: '6px',
+                                backdropFilter: 'blur(4px)'
+                              }}>
+                                {poi.theme || poi.category || '추천명소'}
+                              </div>
+                              <div style={{
+                                position: 'absolute',
+                                top: '6px',
+                                right: '6px',
+                                backgroundColor: 'rgba(15, 23, 42, 0.8)',
+                                color: '#ffffff',
+                                fontSize: '0.62rem',
+                                fontWeight: 800,
+                                padding: '0.12rem 0.4rem',
                                 borderRadius: '9999px',
                                 backdropFilter: 'blur(4px)'
                               }}>
@@ -426,11 +529,28 @@ export default function VoraAIChat({
                               </div>
                             </div>
 
-                            <div style={{ padding: '0.55rem', display: 'flex', flexDirection: 'column', flex: 1 }}>
-                              <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.2rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                {poi.title}
+                            <div style={{ padding: '0.6rem', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.2rem' }}>
+                                <div style={{ fontSize: '0.84rem', fontWeight: 900, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                  {poi.title}
+                                </div>
+                                <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#f59e0b', flexShrink: 0 }}>
+                                  ★ {poi.rating || '4.9'}
+                                </span>
                               </div>
-                              <div style={{ fontSize: '0.7rem', color: '#64748b', lineHeight: 1.3, marginBottom: '0.5rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', height: '2.6em' }}>
+
+                              {/* 태그 모음 */}
+                              {poi.tags && poi.tags.length > 0 && (
+                                <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '0.35rem', overflowX: 'hidden' }}>
+                                  {poi.tags.slice(0, 2).map((tg, tIdx) => (
+                                    <span key={tIdx} style={{ fontSize: '0.62rem', fontWeight: 700, color: '#2563eb', backgroundColor: 'rgba(37, 99, 235, 0.08)', padding: '0.08rem 0.3rem', borderRadius: '4px' }}>
+                                      #{tg}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+
+                              <div style={{ fontSize: '0.7rem', color: '#64748b', lineHeight: 1.35, marginBottom: '0.55rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', height: '2.7em' }}>
                                 {poi.summary}
                               </div>
 
@@ -443,8 +563,8 @@ export default function VoraAIChat({
                                 style={{
                                   marginTop: 'auto',
                                   width: '100%',
-                                  padding: '0.4rem 0.5rem',
-                                  borderRadius: '8px',
+                                  padding: '0.42rem 0.5rem',
+                                  borderRadius: '9px',
                                   border: 'none',
                                   background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
                                   color: '#ffffff',
@@ -455,7 +575,8 @@ export default function VoraAIChat({
                                   justifyContent: 'center',
                                   gap: '0.25rem',
                                   cursor: 'pointer',
-                                  boxShadow: '0 2px 6px rgba(37, 99, 235, 0.25)'
+                                  boxShadow: '0 2px 8px rgba(37, 99, 235, 0.28)',
+                                  transition: 'transform 0.15s ease'
                                 }}
                               >
                                 <span>＋</span>

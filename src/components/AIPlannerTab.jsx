@@ -25,7 +25,8 @@ export default function AIPlannerTab({
   initialMode = 'form', // 'form' | 'chat'
   onAddPoiToItinerary,
   sessionContext = {},
-  onRemoveContextChip
+  onRemoveContextChip,
+  onToggleContextChip
 }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
 
@@ -193,6 +194,7 @@ export default function AIPlannerTab({
             onAddPoiToItinerary={onAddPoiToItinerary}
             sessionContext={sessionContext}
             onRemoveContextChip={onRemoveContextChip}
+            onToggleContextChip={onToggleContextChip}
           />
         </div>
       </div>

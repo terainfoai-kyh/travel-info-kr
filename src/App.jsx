@@ -43,7 +43,7 @@ import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
 import { geminiGenerateFullItinerary, generateLocalFallbackItinerary, enrichItineraryPhotosAsync, extractLocationKeyword, extractDaysFromPrompt } from './services/geminiNlpService';
 import { sanitizeInput, inspectSecurityGuardrails } from './services/securityGuardService';
 import { findRecommendedPois } from './data/koreaTravelPoiDatabase';
-import { buildTravelContext, generateContextualAdvice, updateSessionContext, removeContextChip } from './services/travelContextEngine';
+import { buildTravelContext, generateContextualAdvice, updateSessionContext, removeContextChip, toggleContextChip } from './services/travelContextEngine';
 
 export default function App() {
   // 4-Language State (ko, en, ja, zh) with 3-Tier Intelligent Auto-Detection
@@ -734,6 +734,11 @@ export default function App() {
     setSessionContext(prev => removeContextChip(prev, chipId));
   };
 
+  // 🧠 Context Chip 원터치 토글 핸들러
+  const handleToggleContextChip = (chipId) => {
+    setSessionContext(prev => toggleContextChip(prev, chipId));
+  };
+
   // 저장된 여행 삭제 핸들러
   const handleDeleteSavedTrip = (tripId) => {
     setSavedTrips(prev => {
@@ -853,6 +858,7 @@ export default function App() {
                     onAddPoiToItinerary={handleAddPoiToItinerary}
                     sessionContext={sessionContext}
                     onRemoveContextChip={handleRemoveContextChip}
+                    onToggleContextChip={handleToggleContextChip}
                   />
                 </div>
                 <div className="itinerary-hub-column" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
@@ -894,6 +900,7 @@ export default function App() {
               onAddPoiToItinerary={handleAddPoiToItinerary}
               sessionContext={sessionContext}
               onRemoveContextChip={handleRemoveContextChip}
+              onToggleContextChip={handleToggleContextChip}
             />
           </div>
         )}

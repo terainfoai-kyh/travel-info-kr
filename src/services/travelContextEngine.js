@@ -89,6 +89,36 @@ export function removeContextChip(prevContext = {}, chipId = '') {
 }
 
 /**
+ * Toggles a context condition on or off
+ */
+export function toggleContextChip(prevContext = {}, chipId = '') {
+  const updated = { ...prevContext, preferences: { ...(prevContext.preferences || {}) } };
+  const comp = updated.companion || { isKids: false, isElder: false, isCouple: false, isSolo: false, type: '일반' };
+
+  if (chipId === 'kids') {
+    updated.companion = { ...comp, isKids: !comp.isKids, type: !comp.isKids ? '아이 동반' : '일반' };
+  } else if (chipId === 'elder') {
+    updated.companion = { ...comp, isElder: !comp.isElder, type: !comp.isElder ? '부모님 동반' : '일반' };
+  } else if (chipId === 'couple') {
+    updated.companion = { ...comp, isCouple: !comp.isCouple, type: !comp.isCouple ? '커플/데이트' : '일반' };
+  } else if (chipId === 'solo') {
+    updated.companion = { ...comp, isSolo: !comp.isSolo, type: !comp.isSolo ? '나홀로 여행' : '일반' };
+  } else if (chipId === 'rain') {
+    updated.isRainQuery = !updated.isRainQuery;
+  } else if (chipId === 'minimal_walking') {
+    updated.preferences.isMinimalWalking = !updated.preferences.isMinimalWalking;
+  } else if (chipId === 'cafe') {
+    updated.preferences.isCafe = !updated.preferences.isCafe;
+  } else if (chipId === 'foodie') {
+    updated.preferences.isFoodie = !updated.preferences.isFoodie;
+  } else if (chipId === 'photo') {
+    updated.preferences.isPhoto = !updated.preferences.isPhoto;
+  }
+
+  return updated;
+}
+
+/**
  * Returns active context chips for UI display
  */
 export function getActiveContextChips(sessionContext = {}, lang = 'ko') {
