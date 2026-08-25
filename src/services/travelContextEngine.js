@@ -1,166 +1,261 @@
 /**
- * KoreaTravel Travel Context Engine (🧩 여행 컨텍스트 엔진)
+ * KoreaTravel Travel Context Engine (🧩 여행 컨텍스트 엔진 2.0)
  * 
- * 6 Key Context Variables:
- * 1. Target City & Active Day
- * 2. Time Slot (morning, lunch, afternoon, dinner, night)
- * 3. Real-time Weather (rain, hot, cold, clear)
- * 4. Companions (kids, elderly/parents, couple, solo, friends)
- * 5. Current Day Spots & Schedule
- * 6. Travel Preferences & Vibe (minimal walking, cafes/foodie, photo/instagram, shopping, nature)
- * 
- * Architecture:
- * - Stateful Session Memory: Remembers conditions across conversation turns
- * - Dynamic Overrides & Interactive Chips: Users can inspect and dismiss conditions with [✕]
- * - Concise 3-Layer Response Framework: [1. Empathy (only on new change) -> 2. Logical Reason -> 3. Actionable Next Step]
+ * Architecture (3-Tier State Manager with Patch Updates):
+ * 1. Trip Memory: Long-term trip identity (destination, days, companions, preferences)
+ * 2. Current Context: Real-time runtime environment (currentCity, activeDay, timeSlot, weather)
+ * 3. Patch Update Logic: Specific fields are patched incrementally without wipeouts (User Input > Previous Memory)
+ * 4. Distinct Intent Router: Classifies user intent cleanly before routing to POI DB or Gemini.
  */
+
+export const INITIAL_TRAVEL_STATE = {
+  tripMemory: {
+    destination: '서울',
+    days: 3,
+    companion: { isKids: false, isElder: false, isCouple: false, isSolo: false, type: '일반' },
+    preferences: {
+      isMinimalWalking: false,
+      isFoodie: false,
+      isCafe: false,
+      isPhoto: false,
+      isShopping: false,
+      isHealing: false
+    },
+    isRainPreferred: false
+  },
+  currentContext: {
+    currentCity: '서울',
+    activeDay: 1,
+    timeSlot: 'lunch',
+    timeSlotLabel: '점심',
+    weather: { isRainy: false, isHot: false, isCold: false, summary: '쾌적' }
+  },
+  lastIntent: 'INITIAL',
+  lastUpdatedPrompt: '',
+  hasNewCondition: false
+};
 
 /**
- * Intent Types:
- * 1. 'ITINERARY_GENERATION': Explicit full schedule build request ("전체 일정표 만들어줘", "일정 확정", "일정표 생성해줘", "이 조건으로 일정표 만들기")
- * 2. 'CONDITION_UPDATE': Modifier/preference or destination query ("거제도 2박3일", "아이도 동반해", "비 올 땐?", "걷기 싫어")
- * 3. 'CONVERSATIONAL_CHAT': General Q&A / clarification / typo check ("왜 그래?", "바꿨네?", "입장료 얼마야?")
+ * 🎯 Intent Classification
  */
-export function classifyUserIntent(userPrompt = '', sessionContext = {}) {
+export function classifyUserIntent(userPrompt = '', currentState = INITIAL_TRAVEL_STATE) {
   const clean = (userPrompt || '').trim().toLowerCase();
 
-  // 1. Explicit Full Itinerary Finalization (Only when explicitly demanded)
+  // 1. Explicit Full Itinerary Build Intent
   const isExplicitBuild = /(전체\s*일정표\s*(만들|짜|생성|보기)|일정\s*(확정|완성|생성해줘|만들어줘|짜줘)|일정표\s*(보여줘|만들어줘)|이\s*조건으로\s*전체\s*일정)/.test(clean);
   if (isExplicitBuild) {
-    return 'ITINERARY_GENERATION';
+    return 'REGENERATE_ITINERARY';
   }
 
-  // 2. Question / Chit-chat
-  const isQuestionOnly = /(\?|왜|바꿨|맞아|어때|얼마|뭐야|누구|안녕|감사|고마워)/.test(clean);
-  if (isQuestionOnly || clean.endsWith('?') || clean.endsWith('네') || clean.endsWith('요')) {
-    return 'CONVERSATIONAL_CHAT';
+  // 2. Destination Switch Intent
+  const isDestChange = /(으?로\s*(바꿔|변경|갈래|가자|수정|할래)|대신\s*)/.test(clean);
+  if (isDestChange) {
+    return 'UPDATE_DESTINATION';
   }
 
-  // 3. Initial Search or Condition Updates -> Concierge Tiki-Taka!
-  return 'CONDITION_UPDATE';
+  // 3. Question / Verification / Chit-Chat Intent
+  const isQuestion = /(\?|왜|바꿨|맞아|어때|얼마|뭐야|누구|안녕|감사|고마워)/.test(clean);
+  if (isQuestion || clean.endsWith('?') || clean.endsWith('네') || clean.endsWith('요')) {
+    return 'CONFIRM_OR_QUERY';
+  }
+
+  // 4. Condition / Preference / Destination Setup
+  return 'ADD_OR_PATCH_CONDITION';
 }
 
 /**
- * Updates persistent session context from user prompt (City is strictly preserved)
+ * 🧩 Patch-Update State Transition (User Input > Previous Memory)
  */
-export function updateSessionContext(prevContext = {}, userPrompt = '', detectedCity = null) {
+export function patchTravelState(prevState = INITIAL_TRAVEL_STATE, userPrompt = '', detectedCity = null, parsedDays = null) {
   const clean = (userPrompt || '').toLowerCase();
+  const intent = classifyUserIntent(userPrompt, prevState);
   let hasNewCondition = false;
 
-  // 🏙️ Persistent City Inheritance: If a new city is detected, update it. Otherwise, keep existing city!
-  let targetCity = detectedCity || prevContext.targetCity || '서울';
+  const prevTrip = prevState.tripMemory || INITIAL_TRAVEL_STATE.tripMemory;
+  const prevPrefs = prevTrip.preferences || INITIAL_TRAVEL_STATE.tripMemory.preferences;
+  const prevComp = prevTrip.companion || INITIAL_TRAVEL_STATE.tripMemory.companion;
 
-  // Companion analysis with dynamic overwrite
-  let companion = prevContext.companion || { isKids: false, isElder: false, isCouple: false, isSolo: false, type: '일반' };
-  
-  if (/(아이|어린이|유아|아기|키즈|초등)/.test(clean)) {
-    if (!companion.isKids) hasNewCondition = true;
-    companion = { isKids: true, isElder: false, isCouple: false, isSolo: false, type: '아이 동반' };
-  } else if (/(어르신|부모님|시니어|효도|할머니|할아버지)/.test(clean)) {
-    if (!companion.isElder) hasNewCondition = true;
-    companion = { isKids: false, isElder: true, isCouple: false, isSolo: false, type: '부모님 동반' };
-  } else if (/(커플|연인|데이트|로맨틱|신혼)/.test(clean)) {
-    if (!companion.isCouple) hasNewCondition = true;
-    companion = { isKids: false, isElder: false, isCouple: true, isSolo: false, type: '커플/데이트' };
-  } else if (/(혼자|나홀로|솔로|1인)/.test(clean)) {
-    if (!companion.isSolo) hasNewCondition = true;
-    companion = { isKids: false, isElder: false, isCouple: false, isSolo: true, type: '나홀로 여행' };
+  // 1. Patch Destination & Days
+  let nextDestination = prevTrip.destination || '서울';
+  if (detectedCity) {
+    nextDestination = detectedCity;
+    if (detectedCity !== prevTrip.destination) {
+      hasNewCondition = true;
+    }
   }
 
-  // Preferences analysis
-  const prevPrefs = prevContext.preferences || {};
-  const isMinimalWalking = /(걷기 싫|다리 아|많이 안 걷|편하게|유모차|안 걸)/.test(clean) || prevPrefs.isMinimalWalking || false;
-  const isFoodie = /(맛집|미식|먹방|푸드|맛있는)/.test(clean) || prevPrefs.isFoodie || false;
-  const isCafe = /(카페|디저트|베이커리|커피)/.test(clean) || prevPrefs.isCafe || false;
-  const isPhoto = /(사진|인생샷|포토존|뷰|인스타)/.test(clean) || prevPrefs.isPhoto || false;
-  const isShopping = /(쇼핑|패션|백화점|아울렛|소품샵)/.test(clean) || prevPrefs.isShopping || false;
-  const isHealing = /(힐링|휴식|자연|숲|바다|산책)/.test(clean) || prevPrefs.isHealing || false;
+  let nextDays = prevTrip.days || 3;
+  if (parsedDays && parsedDays > 0) {
+    nextDays = parsedDays;
+  }
 
-  // Weather override
-  const isRainQuery = /(비|우천|비오는|폭우|실내)/.test(clean);
-  if (isRainQuery && !prevContext.isRainQuery) {
+  // 2. Patch Companions (Incremental update, respects user overrides)
+  let nextCompanion = { ...prevComp };
+  if (/(아이|어린이|유아|아기|키즈|초등)/.test(clean)) {
+    if (!nextCompanion.isKids) hasNewCondition = true;
+    nextCompanion = { isKids: true, isElder: false, isCouple: false, isSolo: false, type: '아이 동반' };
+  } else if (/(어르신|부모님|시니어|효도|할머니|할아버지)/.test(clean)) {
+    if (!nextCompanion.isElder) hasNewCondition = true;
+    nextCompanion = { isKids: false, isElder: true, isCouple: false, isSolo: false, type: '부모님 동반' };
+  } else if (/(커플|연인|데이트|로맨틱|신혼)/.test(clean)) {
+    if (!nextCompanion.isCouple) hasNewCondition = true;
+    nextCompanion = { isKids: false, isElder: false, isCouple: true, isSolo: false, type: '커플/데이트' };
+  } else if (/(혼자|나홀로|솔로|1인)/.test(clean)) {
+    if (!nextCompanion.isSolo) hasNewCondition = true;
+    nextCompanion = { isKids: false, isElder: false, isCouple: false, isSolo: true, type: '나홀로 여행' };
+  }
+
+  // 3. Patch Preferences (Supports both activation and removal/negation)
+  let nextPrefs = { ...prevPrefs };
+
+  // Minimal walking
+  if (/(걷기 싫|다리 아|많이 안 걷|편하게|유모차|안 걸)/.test(clean)) {
+    nextPrefs.isMinimalWalking = true;
+    hasNewCondition = true;
+  } else if (/(걷는 건 괜찮|많이 걸어도|도보 좋아)/.test(clean)) {
+    nextPrefs.isMinimalWalking = false;
+  }
+
+  // Foodie
+  if (/(맛집|미식|먹방|푸드|맛있는)/.test(clean)) {
+    nextPrefs.isFoodie = true;
     hasNewCondition = true;
   }
 
-  return {
-    ...prevContext,
-    targetCity,
-    companion,
-    preferences: {
-      isMinimalWalking,
-      isFoodie,
-      isCafe,
-      isPhoto,
-      isShopping,
-      isHealing
+  // Cafe
+  if (/(카페|디저트|베이커리|커피)/.test(clean)) {
+    nextPrefs.isCafe = true;
+    hasNewCondition = true;
+  }
+
+  // Photo
+  if (/(사진|인생샷|포토존|뷰|인스타)/.test(clean)) {
+    nextPrefs.isPhoto = true;
+    hasNewCondition = true;
+  }
+
+  // Shopping
+  if (/(쇼핑|패션|백화점|아울렛|소품샵)/.test(clean)) {
+    nextPrefs.isShopping = true;
+    hasNewCondition = true;
+  }
+
+  // Healing
+  if (/(힐링|휴식|자연|숲|바다|산책)/.test(clean)) {
+    nextPrefs.isHealing = true;
+    hasNewCondition = true;
+  }
+
+  // Rain preference
+  let nextRain = prevTrip.isRainPreferred || false;
+  if (/(비|우천|비오는|폭우|실내)/.test(clean)) {
+    nextRain = true;
+    hasNewCondition = true;
+  }
+
+  // Next State Assembly
+  const nextState = {
+    tripMemory: {
+      destination: nextDestination,
+      days: nextDays,
+      companion: nextCompanion,
+      preferences: nextPrefs,
+      isRainPreferred: nextRain
     },
-    isRainQuery: isRainQuery || prevContext.isRainQuery || false,
+    currentContext: {
+      ...prevState.currentContext,
+      currentCity: nextDestination
+    },
+    lastIntent: intent,
     lastUpdatedPrompt: userPrompt,
     hasNewCondition
   };
+
+  // 📋 Console State Transition Log (Debugging Transparency)
+  console.log('[VORA STATE TRANSITION]', {
+    BEFORE: { destination: prevTrip.destination, companion: prevComp.type },
+    INTENT: intent,
+    AFTER: { destination: nextDestination, companion: nextCompanion.type, hasNewCondition }
+  });
+
+  return nextState;
 }
 
 /**
  * Removes a specific context chip when user taps [✕]
  */
-export function removeContextChip(prevContext = {}, chipId = '') {
-  const updated = { ...prevContext };
-  if (chipId === 'kids') updated.companion = { ...updated.companion, isKids: false, type: '일반' };
-  if (chipId === 'elder') updated.companion = { ...updated.companion, isElder: false, type: '일반' };
-  if (chipId === 'couple') updated.companion = { ...updated.companion, isCouple: false, type: '일반' };
-  if (chipId === 'solo') updated.companion = { ...updated.companion, isSolo: false, type: '일반' };
-  if (chipId === 'rain') updated.isRainQuery = false;
-  if (chipId === 'minimal_walking' && updated.preferences) updated.preferences.isMinimalWalking = false;
-  if (chipId === 'foodie' && updated.preferences) updated.preferences.isFoodie = false;
-  if (chipId === 'cafe' && updated.preferences) updated.preferences.isCafe = false;
-  if (chipId === 'photo' && updated.preferences) updated.preferences.isPhoto = false;
-  return updated;
+export function removeContextChip(prevState = INITIAL_TRAVEL_STATE, chipId = '') {
+  const trip = prevState.tripMemory || INITIAL_TRAVEL_STATE.tripMemory;
+  const comp = { ...(trip.companion || {}) };
+  const prefs = { ...(trip.preferences || {}) };
+  let isRain = trip.isRainPreferred;
+
+  if (chipId === 'kids') comp.isKids = false;
+  if (chipId === 'elder') comp.isElder = false;
+  if (chipId === 'couple') comp.isCouple = false;
+  if (chipId === 'solo') comp.isSolo = false;
+  if (chipId === 'rain') isRain = false;
+  if (chipId === 'minimal_walking') prefs.isMinimalWalking = false;
+  if (chipId === 'foodie') prefs.isFoodie = false;
+  if (chipId === 'cafe') prefs.isCafe = false;
+  if (chipId === 'photo') prefs.isPhoto = false;
+
+  return {
+    ...prevState,
+    tripMemory: {
+      ...trip,
+      companion: comp,
+      preferences: prefs,
+      isRainPreferred: isRain
+    }
+  };
 }
 
 /**
- * Toggles a context condition on or off
+ * Toggles a context chip on or off
  */
-export function toggleContextChip(prevContext = {}, chipId = '') {
-  const updated = { ...prevContext, preferences: { ...(prevContext.preferences || {}) } };
-  const comp = updated.companion || { isKids: false, isElder: false, isCouple: false, isSolo: false, type: '일반' };
+export function toggleContextChip(prevState = INITIAL_TRAVEL_STATE, chipId = '') {
+  const trip = prevState.tripMemory || INITIAL_TRAVEL_STATE.tripMemory;
+  const comp = { ...(trip.companion || {}) };
+  const prefs = { ...(trip.preferences || {}) };
+  let isRain = trip.isRainPreferred;
 
-  if (chipId === 'kids') {
-    updated.companion = { ...comp, isKids: !comp.isKids, type: !comp.isKids ? '아이 동반' : '일반' };
-  } else if (chipId === 'elder') {
-    updated.companion = { ...comp, isElder: !comp.isElder, type: !comp.isElder ? '부모님 동반' : '일반' };
-  } else if (chipId === 'couple') {
-    updated.companion = { ...comp, isCouple: !comp.isCouple, type: !comp.isCouple ? '커플/데이트' : '일반' };
-  } else if (chipId === 'solo') {
-    updated.companion = { ...comp, isSolo: !comp.isSolo, type: !comp.isSolo ? '나홀로 여행' : '일반' };
-  } else if (chipId === 'rain') {
-    updated.isRainQuery = !updated.isRainQuery;
-  } else if (chipId === 'minimal_walking') {
-    updated.preferences.isMinimalWalking = !updated.preferences.isMinimalWalking;
-  } else if (chipId === 'cafe') {
-    updated.preferences.isCafe = !updated.preferences.isCafe;
-  } else if (chipId === 'foodie') {
-    updated.preferences.isFoodie = !updated.preferences.isFoodie;
-  } else if (chipId === 'photo') {
-    updated.preferences.isPhoto = !updated.preferences.isPhoto;
-  }
+  if (chipId === 'kids') comp.isKids = !comp.isKids;
+  if (chipId === 'elder') comp.isElder = !comp.isElder;
+  if (chipId === 'couple') comp.isCouple = !comp.isCouple;
+  if (chipId === 'solo') comp.isSolo = !comp.isSolo;
+  if (chipId === 'rain') isRain = !isRain;
+  if (chipId === 'minimal_walking') prefs.isMinimalWalking = !prefs.isMinimalWalking;
+  if (chipId === 'cafe') prefs.isCafe = !prefs.isCafe;
+  if (chipId === 'foodie') prefs.isFoodie = !prefs.isFoodie;
+  if (chipId === 'photo') prefs.isPhoto = !prefs.isPhoto;
 
-  return updated;
+  return {
+    ...prevState,
+    tripMemory: {
+      ...trip,
+      companion: comp,
+      preferences: prefs,
+      isRainPreferred: isRain
+    }
+  };
 }
 
 /**
  * Returns active context chips for UI display
  */
-export function getActiveContextChips(sessionContext = {}, lang = 'ko') {
+export function getActiveContextChips(travelState = INITIAL_TRAVEL_STATE, lang = 'ko') {
   const chips = [];
-  const comp = sessionContext.companion;
-  const prefs = sessionContext.preferences || {};
+  const trip = travelState.tripMemory || travelState;
+  const comp = trip.companion;
+  const prefs = trip.preferences || {};
 
   if (comp?.isKids) chips.push({ id: 'kids', label: lang === 'en' ? '👨‍👩‍👧 With Kids' : '👨‍👩‍👧 아이 동반', color: '#ec4899' });
   if (comp?.isElder) chips.push({ id: 'elder', label: lang === 'en' ? '🌿 With Parents' : '🌿 부모님 동반', color: '#10b981' });
   if (comp?.isCouple) chips.push({ id: 'couple', label: lang === 'en' ? '💖 Couple' : '💖 커플/데이트', color: '#f43f5e' });
   if (comp?.isSolo) chips.push({ id: 'solo', label: lang === 'en' ? '🍃 Solo Trip' : '🍃 나홀로 여행', color: '#06b6d4' });
 
-  if (sessionContext.isRainQuery) chips.push({ id: 'rain', label: lang === 'en' ? '☔ Rainy/Indoor' : '☔ 비/실내 선호', color: '#3b82f6' });
+  if (trip.isRainPreferred || travelState.isRainQuery) chips.push({ id: 'rain', label: lang === 'en' ? '☔ Rainy/Indoor' : '☔ 비/실내 선호', color: '#3b82f6' });
   if (prefs.isMinimalWalking) chips.push({ id: 'minimal_walking', label: lang === 'en' ? '🚶 Minimal Walking' : '🚶 걷기 적게', color: '#8b5cf6' });
   if (prefs.isCafe) chips.push({ id: 'cafe', label: lang === 'en' ? '☕ Cafe Tour' : '☕ 감성 카페', color: '#f59e0b' });
   if (prefs.isFoodie) chips.push({ id: 'foodie', label: lang === 'en' ? '🍴 Gourmet Food' : '🍴 로컬 맛집', color: '#ef4444' });
@@ -170,7 +265,7 @@ export function getActiveContextChips(sessionContext = {}, lang = 'ko') {
 }
 
 /**
- * Builds real-time runtime context snapshot
+ * Builds real-time runtime context snapshot for recommendation / advice
  */
 export function buildTravelContext({
   targetCity = '서울',
@@ -178,12 +273,11 @@ export function buildTravelContext({
   currentItinerary = null,
   userPrompt = '',
   weatherData = null,
-  sessionContext = {}
+  sessionState = INITIAL_TRAVEL_STATE
 }) {
   const now = new Date();
   const currentHour = now.getHours();
 
-  // 1. Time Slot Analysis
   let timeSlot = 'afternoon';
   let timeSlotLabel = '오후';
   if (currentHour >= 6 && currentHour < 11) {
@@ -203,26 +297,25 @@ export function buildTravelContext({
     timeSlotLabel = '야간';
   }
 
-  // 2. Weather Context (Live Weather + Session Override)
+  const trip = sessionState.tripMemory || sessionState;
   const isRainy = weatherData?.condition?.includes('비') || 
                   weatherData?.condition?.includes('rain') || 
                   /(비|우천|비오는|폭우|실내)/i.test(userPrompt) ||
-                  sessionContext.isRainQuery;
+                  trip.isRainPreferred ||
+                  sessionState.isRainQuery;
 
   const isHot = (weatherData?.temp && weatherData.temp >= 30) || /(더위|폭염|더운)/i.test(userPrompt);
   const isCold = (weatherData?.temp && weatherData.temp <= 0) || /(추위|한파|추운)/i.test(userPrompt);
 
-  // 3. Companion Context (Session Stateful)
-  const companion = sessionContext.companion || { isKids: false, isElder: false, isCouple: false, isSolo: false, type: '일반' };
-  const preferences = sessionContext.preferences || {};
+  const companion = trip.companion || { isKids: false, isElder: false, isCouple: false, isSolo: false, type: '일반' };
+  const preferences = trip.preferences || {};
 
-  // 4. Current Day Spots Extraction
   const daySchedule = currentItinerary?.dailySchedules?.find(s => s.day === activeDay);
   const existingSpots = daySchedule?.spots || [];
   const existingSpotNames = existingSpots.map(s => s.title);
 
   return {
-    targetCity,
+    targetCity: targetCity || trip.destination || '서울',
     activeDay,
     currentTime: `${String(currentHour).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`,
     timeSlot,
@@ -237,15 +330,12 @@ export function buildTravelContext({
     preferences,
     existingSpotNames,
     totalSpotsToday: existingSpots.length,
-    hasNewCondition: sessionContext.hasNewCondition
+    hasNewCondition: sessionState.hasNewCondition
   };
 }
 
 /**
- * 3-Layer Response Generator (Concise Diet Version):
- * Layer 1: Empathy (Only shown when new condition is updated to prevent repetitive spam)
- * Layer 2: Logical Judgement & Reason
- * Layer 3: Actionable Next Step
+ * 3-Layer Response Generator (Concise Diet Version)
  */
 export function generateContextualAdvice(context, lang = 'ko') {
   const { targetCity, activeDay, timeSlotLabel, weather, companion, preferences, hasNewCondition } = context;

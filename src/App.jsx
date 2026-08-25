@@ -43,7 +43,7 @@ import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
 import { geminiGenerateFullItinerary, generateLocalFallbackItinerary, enrichItineraryPhotosAsync, extractLocationKeyword, extractDaysFromPrompt } from './services/geminiNlpService';
 import { sanitizeInput, inspectSecurityGuardrails } from './services/securityGuardService';
 import { findRecommendedPois } from './data/koreaTravelPoiDatabase';
-import { buildTravelContext, generateContextualAdvice, updateSessionContext, removeContextChip, toggleContextChip, classifyUserIntent } from './services/travelContextEngine';
+import { buildTravelContext, generateContextualAdvice, patchTravelState, removeContextChip, toggleContextChip, classifyUserIntent, INITIAL_TRAVEL_STATE } from './services/travelContextEngine';
 
 export default function App() {
   // 4-Language State (ko, en, ja, zh) with 3-Tier Intelligent Auto-Detection
@@ -125,8 +125,8 @@ export default function App() {
     }
   });
 
-  // 🧠 6대 변수 Persistent Session Context (아이, 날씨, 취향 등 대화 연속성 기억)
-  const [sessionContext, setSessionContext] = useState({});
+  // 🧠 3-Tier Stateful Travel Context Manager (Trip Memory + Current Context)
+  const [sessionContext, setSessionContext] = useState(INITIAL_TRAVEL_STATE);
 
   // Itinerary State - 기본값은 마지막 저장된 일정 (없으면 null)
   const [itineraryData, setItineraryData] = useState(() => {
@@ -620,20 +620,22 @@ export default function App() {
       const elapsedSeconds = ((Date.now() - startTime) / 1000).toFixed(1);
       const replyTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
 
-      // 🧠 1단계: 도시 추출 및 세션 컨텍스트 실시간 갱신 & 영구 상속
+      // 🧠 1단계: 사용자 입력 패치 (User Input > Previous Memory, 도시/동행/선호 Patch Update)
       const detectedCity = extractLocationKeyword(promptQuery, false);
-      const updatedSessionContext = updateSessionContext(sessionContext, promptQuery, detectedCity);
-      setSessionContext(updatedSessionContext);
+      const parsedDays = extractDaysFromPrompt(promptQuery);
+      const updatedState = patchTravelState(sessionContext, promptQuery, detectedCity, parsedDays);
+      setSessionContext(updatedState);
 
-      const targetCity = updatedSessionContext.targetCity || detectedCity || itineraryData?.targetCity || '서울';
-      const userIntent = classifyUserIntent(promptQuery, updatedSessionContext);
+      const targetCity = updatedState.tripMemory.destination || '서울';
+      const requestedDays = updatedState.tripMemory.days || 3;
+      const userIntent = updatedState.lastIntent;
 
-      // 🌟 [핵심 티키타카 & Intent 분기]
-      // 1. 전체 일정 생성 의도가 아니고, 조건 변경이나 대화/질문인 경우 ➔ 대화창 컨시어지 답변 & POI 추천
-      if (!isDirectGenerateAction && (userIntent === 'CONDITION_UPDATE' || userIntent === 'CONVERSATIONAL_CHAT' || result?.responseType === 'chat')) {
+      // 🌟 [핵심 티키타카 & Intent 라우팅]
+      // 1. 명시적 전체 일정 생성 요청(REGENERATE_ITINERARY or 🚀 확정 버튼)이 아닌 경우 ➔ 대화창 컨시어지 답변 & POI 추천
+      if (!isDirectGenerateAction && userIntent !== 'REGENERATE_ITINERARY' && (userIntent === 'ADD_OR_PATCH_CONDITION' || userIntent === 'UPDATE_DESTINATION' || userIntent === 'CONFIRM_OR_QUERY' || result?.responseType === 'chat')) {
         const isAddDayQuery = /(하루 더|1일 더|1일 추가|늘려|연장|하루 추가|이틀 더|2일 더|더 있을래)/i.test(promptQuery);
-        let dynamicSuggestDays = 3;
-        const currentDays = itineraryData?.days || 1;
+        let dynamicSuggestDays = requestedDays;
+        const currentDays = itineraryData?.days || requestedDays || 1;
 
         // 🏷️ 0토큰 KoreaTravel 큐레이션 POI 매칭 & Context Engine 연동
         const tripContext = buildTravelContext({
@@ -641,7 +643,7 @@ export default function App() {
           activeDay,
           currentItinerary: itineraryData,
           userPrompt: promptQuery,
-          sessionContext: updatedSessionContext
+          sessionState: updatedState
         });
         const matchedPois = findRecommendedPois(promptQuery, targetCity, 3);
         const contextualIntro = generateContextualAdvice(tripContext, lang);
@@ -650,7 +652,7 @@ export default function App() {
         let quickButtons = result?.quickSuggestions && result.quickSuggestions.length > 0
           ? result.quickSuggestions
           : [
-              (lang === 'en' ? `🚀 Generate ${targetCity} Itinerary` : `🚀 ${targetCity} 전체 일정표 만들기`),
+              (lang === 'en' ? `🚀 Generate ${targetCity} ${requestedDays}D Itinerary` : `🚀 ${targetCity} ${requestedDays}일 전체 일정표 만들기`),
               (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')
             ];
 
@@ -665,8 +667,11 @@ export default function App() {
             (lang === 'en' ? `🚀 Extend to ${dynamicSuggestDays}-Day Itinerary` : `🚀 ${dynamicSuggestDays}일 일정으로 확장하기`),
             (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')
           ];
-        } else if (userIntent === 'CONVERSATIONAL_CHAT' && !chatText) {
-          // 단순 질의 / 확인 답변
+        } else if (userIntent === 'UPDATE_DESTINATION') {
+          chatText = lang === 'en'
+            ? `Switched destination to **${targetCity}**! ✨ Here are the best spots for Day ${activeDay}.`
+            : `여행지를 **${targetCity}**로 변경했어요! ✨ 기존에 말씀해주신 여행 조건에 맞춰 ${targetCity} ${activeDay}일차에 어울리는 추천 명소를 준비했습니다.`;
+        } else if (userIntent === 'CONFIRM_OR_QUERY' && !chatText) {
           chatText = lang === 'en'
             ? `I will focus on your **${targetCity}** trip! Let me know any preferences or ask about Day ${activeDay} spots 😊`
             : `네! **${targetCity}** 여행 코스로 꼼꼼하게 맞춰 드릴게요. ${targetCity} ${activeDay}일차에 어울리는 추천 명소를 살펴보시거나 언제든 추가 조건을 말씀해 주세요 😊`;
@@ -687,8 +692,7 @@ export default function App() {
         };
         setChatMessages(prev => [...prev, botMsg]);
       } else {
-        // 2. 명시적 전체 일정 빌드 요청
-        const requestedDays = extractDaysFromPrompt(promptQuery) || itineraryData?.days || 3;
+        // 2. 명시적 전체 일정 빌드 요청 (REGENERATE_ITINERARY or 🚀 확정 버튼)
         const finalResult = {
           ...(result || generateLocalFallbackItinerary(promptQuery, targetCity, requestedDays, lang)),
           targetCity,
@@ -716,8 +720,10 @@ export default function App() {
       const elapsedSeconds = ((Date.now() - startTime) / 1000).toFixed(1);
       const replyTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
       const requestedDays = extractDaysFromPrompt(promptQuery) || 3;
+      const targetCity = extractLocationKeyword(promptQuery, false) || '서울';
       const fallback = {
-        ...generateLocalFallbackItinerary(promptQuery, extractLocationKeyword(promptQuery), requestedDays, lang),
+        ...generateLocalFallbackItinerary(promptQuery, targetCity, requestedDays, lang),
+        targetCity,
         generationTime: elapsedSeconds,
         draftId: `draft-${Date.now()}`
       };
