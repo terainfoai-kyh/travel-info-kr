@@ -43,7 +43,7 @@ import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
 import { geminiGenerateFullItinerary, generateLocalFallbackItinerary, enrichItineraryPhotosAsync, extractLocationKeyword, extractDaysFromPrompt } from './services/geminiNlpService';
 import { sanitizeInput, inspectSecurityGuardrails } from './services/securityGuardService';
 import { findRecommendedPois } from './data/koreaTravelPoiDatabase';
-import { buildTravelContext, generateContextualAdvice, updateSessionContext, removeContextChip, toggleContextChip } from './services/travelContextEngine';
+import { buildTravelContext, generateContextualAdvice, updateSessionContext, removeContextChip, toggleContextChip, classifyUserIntent } from './services/travelContextEngine';
 
 export default function App() {
   // 4-Language State (ko, en, ja, zh) with 3-Tier Intelligent Auto-Detection
@@ -620,18 +620,22 @@ export default function App() {
       const elapsedSeconds = ((Date.now() - startTime) / 1000).toFixed(1);
       const replyTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
 
-      // 🧠 세션 컨텍스트 실시간 갱신 & 누적
-      const updatedSessionContext = updateSessionContext(sessionContext, promptQuery);
+      // 🧠 1단계: 도시 추출 및 세션 컨텍스트 실시간 갱신 & 영구 상속
+      const detectedCity = extractLocationKeyword(promptQuery, false);
+      const updatedSessionContext = updateSessionContext(sessionContext, promptQuery, detectedCity);
       setSessionContext(updatedSessionContext);
 
-      // 🌟 [핵심 티키타카] 사용자가 일정 확정 버튼(🚀)을 누른 게 아니거나, 대화형 질문인 경우
-      if (!isDirectGenerateAction && (result?.responseType === 'chat' || !promptQuery.includes('일정') || promptQuery.includes('어디') || promptQuery.includes('추천') || promptQuery.includes('있어') || promptQuery.includes('해줘') || promptQuery.includes('비'))) {
+      const targetCity = updatedSessionContext.targetCity || detectedCity || itineraryData?.targetCity || '서울';
+      const userIntent = classifyUserIntent(promptQuery, updatedSessionContext);
+
+      // 🌟 [핵심 티키타카 & Intent 분기]
+      // 1. 전체 일정 생성 의도가 아니고, 조건 변경이나 대화/질문인 경우 ➔ 대화창 컨시어지 답변 & POI 추천
+      if (!isDirectGenerateAction && (userIntent === 'CONDITION_UPDATE' || userIntent === 'CONVERSATIONAL_CHAT' || result?.responseType === 'chat')) {
         const isAddDayQuery = /(하루 더|1일 더|1일 추가|늘려|연장|하루 추가|이틀 더|2일 더|더 있을래)/i.test(promptQuery);
         let dynamicSuggestDays = 3;
         const currentDays = itineraryData?.days || 1;
 
         // 🏷️ 0토큰 KoreaTravel 큐레이션 POI 매칭 & Context Engine 연동
-        const targetCity = extractLocationKeyword(promptQuery, false) || itineraryData?.targetCity || '서울';
         const tripContext = buildTravelContext({
           targetCity,
           activeDay,
@@ -653,7 +657,7 @@ export default function App() {
         if (isAddDayQuery) {
           const addedDays = /(이틀|2일)/.test(promptQuery) ? 2 : 1;
           dynamicSuggestDays = Math.min(5, currentDays + addedDays);
-          const city = itineraryData?.targetCity || extractLocationKeyword(promptQuery) || '부산';
+          const city = targetCity;
           chatText = (lang === 'en')
             ? `Of course! Shall I extend your ${city} itinerary from ${currentDays} days to **${dynamicSuggestDays} days** for a more relaxed trip? 😊\n\nI will add scenic local gems and must-visit spots for the extra day!`
             : `물론이죠! 기존 ${currentDays}일 코스에서 하루를 더해 **【 ${city} ${dynamicSuggestDays}일 알찬 코스 】**로 여유롭게 확장해 드릴까요? 😊\n\n추가된 하루에는 감성 오션뷰 핫플과 여유로운 로컬 명소를 더해 알차게 조율해 드릴게요! ✨`;
@@ -661,16 +665,20 @@ export default function App() {
             (lang === 'en' ? `🚀 Extend to ${dynamicSuggestDays}-Day Itinerary` : `🚀 ${dynamicSuggestDays}일 일정으로 확장하기`),
             (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')
           ];
+        } else if (userIntent === 'CONVERSATIONAL_CHAT' && !chatText) {
+          // 단순 질의 / 확인 답변
+          chatText = lang === 'en'
+            ? `I will focus on your **${targetCity}** trip! Let me know any preferences or ask about Day ${activeDay} spots 😊`
+            : `네! **${targetCity}** 여행 코스로 꼼꼼하게 맞춰 드릴게요. ${targetCity} ${activeDay}일차에 어울리는 추천 명소를 살펴보시거나 언제든 추가 조건을 말씀해 주세요 😊`;
         } else if (!chatText) {
-          chatText = (lang === 'en')
-            ? `${contextualIntro}\n\nTap **[ ＋ Add to Day ${activeDay} ]** on any spot below to instantly include it into your trip! 🌊✨`
-            : `${contextualIntro}\n\n원하시는 장소 아래 **[ ＋ ${activeDay}일차 일정에 추가 ]**를 누르시면 내 일정표에 바로 쏙 들어갑니다! 😊`;
+          chatText = contextualIntro;
         }
 
         const botMsg = {
           id: `bot-${Date.now()}`,
           role: 'assistant',
           text: chatText,
+          recommendedPois: matchedPois,
           quickSuggestions: quickButtons,
           generationTime: result?.generationTime || elapsedSeconds,
           queryTime,
@@ -679,9 +687,11 @@ export default function App() {
         };
         setChatMessages(prev => [...prev, botMsg]);
       } else {
+        // 2. 명시적 전체 일정 빌드 요청
         const requestedDays = extractDaysFromPrompt(promptQuery) || itineraryData?.days || 3;
         const finalResult = {
-          ...(result || generateLocalFallbackItinerary(promptQuery, extractLocationKeyword(promptQuery), requestedDays, lang)),
+          ...(result || generateLocalFallbackItinerary(promptQuery, targetCity, requestedDays, lang)),
+          targetCity,
           generationTime: elapsedSeconds,
           draftId: `draft-${Date.now()}`
         };
