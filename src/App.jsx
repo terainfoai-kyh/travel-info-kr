@@ -650,7 +650,7 @@ export default function App() {
         let quickButtons = result?.quickSuggestions && result.quickSuggestions.length > 0
           ? result.quickSuggestions
           : [
-              (lang === 'en' ? '🚀 Generate Itinerary with this' : '🚀 이 조건으로 전체 일정표 만들기'),
+              (lang === 'en' ? `🚀 Generate ${targetCity} Itinerary` : `🚀 ${targetCity} 전체 일정표 만들기`),
               (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')
             ];
 

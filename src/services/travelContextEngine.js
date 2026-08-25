@@ -17,34 +17,27 @@
 
 /**
  * Intent Types:
- * 1. 'ITINERARY_GENERATION': Full schedule build request ("거제도 2박3일", "일정 짜줘", "새로 만들어줘")
- * 2. 'CONDITION_UPDATE': Modifier/preference update ("아이도 동반해", "비 올 땐?", "걷기 싫어")
+ * 1. 'ITINERARY_GENERATION': Explicit full schedule build request ("전체 일정표 만들어줘", "일정 확정", "일정표 생성해줘", "이 조건으로 일정표 만들기")
+ * 2. 'CONDITION_UPDATE': Modifier/preference or destination query ("거제도 2박3일", "아이도 동반해", "비 올 땐?", "걷기 싫어")
  * 3. 'CONVERSATIONAL_CHAT': General Q&A / clarification / typo check ("왜 그래?", "바꿨네?", "입장료 얼마야?")
  */
 export function classifyUserIntent(userPrompt = '', sessionContext = {}) {
   const clean = (userPrompt || '').trim().toLowerCase();
 
-  // 1. Full Itinerary Build Intent
-  const hasDays = /(\d+\s*박\s*\d+\s*일|\d+\s*일\s*(여행|일정|코스)?|당일치기|하루|이틀|사흘)/.test(clean);
-  const hasBuildCommand = /(일정\s*(짜|만들어|생성|추천|잡아)|새로\s*(짜|만들어)|코스\s*(짜|만들어)|전체\s*일정)/.test(clean);
-  if (hasDays || hasBuildCommand) {
+  // 1. Explicit Full Itinerary Finalization (Only when explicitly demanded)
+  const isExplicitBuild = /(전체\s*일정표\s*(만들|짜|생성|보기)|일정\s*(확정|완성|생성해줘|만들어줘|짜줘)|일정표\s*(보여줘|만들어줘)|이\s*조건으로\s*전체\s*일정)/.test(clean);
+  if (isExplicitBuild) {
     return 'ITINERARY_GENERATION';
   }
 
-  // 2. Modifier / Condition Update Intent
-  const hasConditionKeyword = /(아이|어린이|유아|키즈|부모님|어르신|커플|데이트|혼자|솔로|비|우천|실내|걷기|유모차|맛집|카페|디저트|사진|인생샷|쇼핑|힐링|바다)/.test(clean);
+  // 2. Question / Chit-chat
   const isQuestionOnly = /(\?|왜|바꿨|맞아|어때|얼마|뭐야|누구|안녕|감사|고마워)/.test(clean);
-
-  if (hasConditionKeyword && !isQuestionOnly) {
-    return 'CONDITION_UPDATE';
-  }
-
-  // 3. Conversational / Q&A Intent
   if (isQuestionOnly || clean.endsWith('?') || clean.endsWith('네') || clean.endsWith('요')) {
     return 'CONVERSATIONAL_CHAT';
   }
 
-  return hasConditionKeyword ? 'CONDITION_UPDATE' : 'CONVERSATIONAL_CHAT';
+  // 3. Initial Search or Condition Updates -> Concierge Tiki-Taka!
+  return 'CONDITION_UPDATE';
 }
 
 /**
