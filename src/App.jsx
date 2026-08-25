@@ -640,12 +640,12 @@ export default function App() {
           sessionState: updatedState
         });
 
-        // 1단계(순수 대화): POI 카드 및 일정 버튼 숨김 / 2단계(일정 기획): 추천 POI 카드 및 맞춤 버튼 제공
-        const matchedPois = (!isPlanningMode || userIntent === 'OFF_TOPIC') ? [] : findRecommendedPois(promptQuery, targetCity, 3);
-        const contextualIntro = generateContextualAdvice(tripContext, lang);
-
         const isGatewaySelectPrompt = /(공항|ktx|터미널|숙소|호텔)/i.test(promptQuery) && (updatedState.tripMemory?.gateway || updatedState.tripMemory?.hotelArea);
         const isArrivalTimePrompt = /(오전|오후|저녁|밤|도착)/i.test(promptQuery) && (updatedState.tripMemory?.arrivalTime || /(오전|오후|저녁|밤)/i.test(promptQuery));
+
+        // 1단계(순수 대화 & 온보딩 질문 중): POI 카드 숨김 / 2단계(본격 일정/명소 탐색): 추천 POI 카드 제공
+        const matchedPois = (!isPlanningMode || userIntent === 'OFF_TOPIC' || isGatewaySelectPrompt || isArrivalTimePrompt) ? [] : findRecommendedPois(promptQuery, targetCity, 3);
+        const contextualIntro = generateContextualAdvice(tripContext, lang);
 
         let chatText = contextualIntro;
         let quickButtons = !isPlanningMode
