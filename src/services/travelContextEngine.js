@@ -502,7 +502,8 @@ export function buildTravelContext({
     totalSpotsToday: existingSpots.length,
     hasNewCondition: sessionState.hasNewCondition,
     userPrompt: userPrompt || sessionState.lastUpdatedPrompt || '',
-    multiCity: sessionState.multiCity || trip.multiCityInfo
+    multiCity: sessionState.multiCity || trip.multiCityInfo,
+    tripMemory: trip
   };
 }
 
