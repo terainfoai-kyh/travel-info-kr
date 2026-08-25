@@ -531,7 +531,7 @@ export function generateContextualAdvice(context, lang = 'ko') {
   // 1. Check if user input is an emotional or casual Tiki-Taka query!
   const tikitaka = resolveTikitakaResponse(cleanPrompt, targetCity);
   if (tikitaka) {
-    const isMetaOrBanter = ['FOOL_PLAYFUL', 'OTHER_CITY', 'GREETING', 'COMPLIMENT'].includes(tikitaka.matchedKey);
+    const isMetaOrBanter = ['WHO_ARE_YOU', 'FOOL_PLAYFUL', 'OTHER_CITY', 'GREETING', 'COMPLIMENT'].includes(tikitaka.matchedKey);
     if (isMetaOrBanter) {
       return `${tikitaka.reply}\n\n👉 **${tikitaka.followUp}**`;
     }
