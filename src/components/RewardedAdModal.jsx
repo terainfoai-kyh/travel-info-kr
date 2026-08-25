@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Play, Award, Sparkles, CheckCircle2, Volume2, VolumeX, ExternalLink, ShieldCheck } from 'lucide-react';
+import { X, Award, Sparkles, Volume2, VolumeX, ExternalLink, ShieldCheck } from 'lucide-react';
 import { getCloseButtonLabel } from '../i18n/translations';
 
 export default function RewardedAdModal({
@@ -15,12 +15,12 @@ export default function RewardedAdModal({
   const SPONSOR_ADS_KO = [
     {
       brand: 'VORA AI Travel Korea',
-      title: '나만의 대한민국 맞춤 여행 코스 3초 완성 ✨',
-      desc: '한국관광공사 공식 데이터 100% 연동 + 구글맵 기반 최적 동선 설계로 나만의 완벽한 여행을 경험해 보세요!',
+      title: '나만의 맞춤 여행 코스 3초 완성 ✨',
+      desc: '한국관광공사 공식 데이터 100% 연동 + 구글 지도 기반 최적 동선 설계로 나만의 완벽한 여행을 경험해 보세요.',
       discount: '100% FREE',
       tag: 'VORA 공식 프리미엄 기능',
       link: 'https://travelkorea-dev.pages.dev',
-      image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1400&q=85'
+      image: 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg'
     }
   ];
 
@@ -32,7 +32,7 @@ export default function RewardedAdModal({
       discount: '100% FREE',
       tag: 'VORA Official Premium',
       link: 'https://travelkorea-dev.pages.dev',
-      image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1400&q=85'
+      image: 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg'
     }
   ];
 
@@ -40,11 +40,11 @@ export default function RewardedAdModal({
     {
       brand: 'VORA AI Travel Korea',
       title: 'あなただけの韓国旅行プランを3秒で自動作成 ✨',
-      desc: '韓国観光公社公式データ＆Googleマップ連動で、最もスマートな韓国旅行を体験！',
+      desc: '韓国観光公社公式データ＆Googleマップ連動で、ノーストレスな韓国旅行を体験！',
       discount: '完全無料',
       tag: 'VORA 公式プレミアム',
       link: 'https://travelkorea-dev.pages.dev',
-      image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1400&q=85'
+      image: 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg'
     }
   ];
 
@@ -56,7 +56,7 @@ export default function RewardedAdModal({
       discount: '完全免费',
       tag: 'VORA 官方尊享功能',
       link: 'https://travelkorea-dev.pages.dev',
-      image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1400&q=85'
+      image: 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg'
     }
   ];
 
@@ -92,113 +92,83 @@ export default function RewardedAdModal({
     return () => clearInterval(timer);
   }, [isOpen]);
 
-  const [isProcessing, setIsProcessing] = useState(false);
-
   if (!isOpen) return null;
 
   const handleClaimReward = () => {
-    if (isProcessing) return;
-    setIsProcessing(true);
-    if (onRewardGranted) {
-      onRewardGranted();
-    }
-    setTimeout(() => {
-      setIsProcessing(false);
-      onClose();
-    }, 150);
+    if (onRewardGranted) onRewardGranted();
+    if (onClose) onClose();
   };
 
   const progressPercent = ((15 - timeLeft) / 15) * 100;
 
   return (
-    <div 
-      onClick={onClose}
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 99999,
-        backgroundColor: 'rgba(15, 23, 42, 0.45)',
-        backdropFilter: 'blur(14px)',
-        WebkitBackdropFilter: 'blur(14px)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '1.25rem',
-        animation: 'fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
-      }}
-    >
-      {/* Cinematic Modal Container (Responsive 760px Widescreen) */}
-      <div 
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          backgroundColor: '#0f172a',
-          color: '#ffffff',
-          borderRadius: '24px',
-          border: '1px solid rgba(255, 255, 255, 0.16)',
-          width: '100%',
-          maxWidth: '760px',
-          overflow: 'hidden',
-          boxShadow: '0 30px 70px -15px rgba(0, 0, 0, 0.85), 0 0 50px rgba(59, 130, 246, 0.15)',
-          position: 'relative',
+    <div style={{
+      position: 'fixed',
+      inset: 0,
+      zIndex: 99999,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: 'rgba(0, 0, 0, 0.88)',
+      backdropFilter: 'blur(8px)',
+      padding: '1rem',
+      animation: 'fadeIn 0.25s ease-out'
+    }}>
+      <div style={{
+        position: 'relative',
+        width: '100%',
+        maxWidth: '560px',
+        backgroundColor: '#0f172a',
+        borderRadius: '24px',
+        border: '1px solid rgba(255, 255, 255, 0.12)',
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.9)',
+        overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column'
       }}>
         {/* Top Header Bar */}
         <div style={{
-          padding: '1rem 1.5rem',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-          backgroundColor: 'rgba(15, 23, 42, 0.95)',
-          backdropFilter: 'blur(8px)'
+          padding: '0.85rem 1.25rem',
+          backgroundColor: '#0b1120',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.06)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <span style={{
-              backgroundColor: '#f59e0b',
+              background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
               color: '#000000',
               fontWeight: 900,
-              fontSize: '0.72rem',
-              letterSpacing: '0.04em',
-              padding: '0.22rem 0.55rem',
+              fontSize: '0.7rem',
+              padding: '0.2rem 0.5rem',
               borderRadius: '6px',
-              textTransform: 'uppercase'
+              letterSpacing: '0.05em'
             }}>
-              {lang === 'en' ? 'Sponsored Special' : lang === 'ja' ? 'スポンサー特別広告' : (lang === 'zh' || lang === 'zht') ? (lang === 'zht' ? '贊助商特惠' : '赞助商特惠') : '스폰서 특가 보상'}
+              AD SPONSOR
             </span>
-            <span style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-              {isCompleted ? (
-                <span style={{ color: '#34d399', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                  <CheckCircle2 size={16} />
-                  {lang === 'en' ? 'Viewing Complete!' : lang === 'ja' ? '視聴完了！' : (lang === 'zh' || lang === 'zht') ? '观看完成！' : '시청 완료!'}
-                </span>
-              ) : (
-                <span>
-                  {lang === 'en' ? `⏳ Reward unlock in ${timeLeft}s` : lang === 'ja' ? `⏳ ${timeLeft}秒後にリワード付与` : (lang === 'zh' || lang === 'zht') ? `⏳ ${timeLeft}秒后解锁奖励` : `⏳ ${timeLeft}초 후 보상 지급`}
-                </span>
-              )}
+            <span style={{ color: '#94a3b8', fontSize: '0.82rem', fontWeight: 600 }}>
+              {currentAd.tag}
             </span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <button
               onClick={() => setIsMuted(!isMuted)}
-              title={isMuted ? 'Unmute' : 'Mute'}
               style={{
                 background: 'rgba(255, 255, 255, 0.08)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                color: '#ffffff',
+                border: 'none',
+                color: '#cbd5e1',
+                padding: '0.4rem',
                 borderRadius: '50%',
-                width: '34px',
-                height: '34px',
+                cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
+                justifyContent: 'center'
               }}
+              title="Toggle Audio"
             >
-              {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
+              {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
             </button>
 
             {isCompleted ? (
@@ -206,17 +176,15 @@ export default function RewardedAdModal({
                 onClick={onClose}
                 aria-label={getCloseButtonLabel(lang)}
                 style={{
-                  background: 'rgba(255, 255, 255, 0.15)',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  border: 'none',
                   color: '#ffffff',
+                  padding: '0.4rem',
                   borderRadius: '50%',
-                  width: '34px',
-                  height: '34px',
+                  cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  transition: 'background 0.2s'
+                  justifyContent: 'center'
                 }}
               >
                 <X size={17} />
@@ -376,12 +344,12 @@ export default function RewardedAdModal({
               <Sparkles size={22} />
               <span>
                 {lang === 'en' 
-                  ? '🌟 Finalize & Save Itinerary to My Trip' 
+                  ? '✨ Finalize & Save Itinerary to My Trip' 
                   : lang === 'ja' 
-                  ? '🌟 プランを確定してマイ旅行に保存' 
+                  ? '✨ 旅行プランを確定して保存' 
                   : (lang === 'zh' || lang === 'zht') 
-                  ? '🌟 确认行程并保存至我的行程' 
-                  : '🌟 일정 최종 확정 & 내 여행에 저장'}
+                  ? '✨ 确定并保存行程到我的旅行' 
+                  : '✨ 일정 확정 & 내 여행에 저장'}
               </span>
             </button>
           ) : (
@@ -402,12 +370,12 @@ export default function RewardedAdModal({
               <Award size={20} style={{ color: '#f59e0b' }} />
               <span>
                 {lang === 'en' 
-                  ? `Itinerary will be saved in ${timeLeft}s` 
+                  ? `Itinerary will be unlocked in ${timeLeft}s` 
                   : lang === 'ja' 
-                  ? `${timeLeft}秒後にプランが確定保存されます` 
+                  ? `あと ${timeLeft}秒で保存できます` 
                   : (lang === 'zh' || lang === 'zht') 
-                  ? `${timeLeft}秒后行程将自动确认保存` 
-                  : `⏳ ${timeLeft}초 후 일정이 내 여행에 최종 확정 저장됩니다`}
+                  ? `还有 ${timeLeft} 秒即可解锁保存` 
+                  : `약 ${timeLeft}초 후 내 여행에 저장 확정됩니다`}
               </span>
             </div>
           )}
@@ -423,10 +391,10 @@ export default function RewardedAdModal({
               {lang === 'en' 
                 ? 'VORA AI & Official Global Partner Sponsorship' 
                 : lang === 'ja' 
-                ? 'VORA AI ＆ 公式グローバル提携パートナー' 
+                ? 'VORA AI ＆ 公式グローバルパートナー' 
                 : (lang === 'zh' || lang === 'zht') 
-                ? 'VORA AI 与官方全球合作伙伴' 
-                : 'VORA AI & 공식 글로벌 제휴 파트너'}
+                ? 'VORA AI 官方全球赞助伙伴' 
+                : 'VORA AI & 공식 글로벌 파트너십'}
             </span>
             <a
               href={currentAd.link}
@@ -445,10 +413,10 @@ export default function RewardedAdModal({
                 {lang === 'en' 
                   ? 'View Sponsor Deal' 
                   : lang === 'ja' 
-                  ? 'スポンサー特典を見る' 
+                  ? '特典を見る' 
                   : (lang === 'zh' || lang === 'zht') 
-                  ? '查看赞助商优惠' 
-                  : '스폰서 특가 보러가기'}
+                  ? '查看优惠' 
+                  : '스폰서 혜택 보기'}
               </span>
               <ExternalLink size={12} />
             </a>
@@ -458,4 +426,3 @@ export default function RewardedAdModal({
     </div>
   );
 }
-
