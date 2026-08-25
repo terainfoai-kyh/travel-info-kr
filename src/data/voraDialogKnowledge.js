@@ -344,11 +344,13 @@ export function resolveTikitakaResponse(query = '', currentCity = '서울', curr
     }
   }
 
-  // Check Weather / Fashion / Outfit query
-  if (/(복장|뭐입|뭘입|옷차림|패션|코디|옷어떻게|날씨어때|외투|패딩|코트|따뜻하게|옷)/i.test(clean)) {
+  // Check Weather / Fashion / Outfit query (띄어쓰기 및 오타 완벽 포용)
+  if (/(복장|뭐\s*입|뭘\s*입|어떻게\s*입|옷차림|패션|코디|옷어떻게|날씨어때|외투|패딩|코트|따뜻하게|옷|입을|입고)/i.test(clean)) {
     const isRain = /(비|우천)/.test(clean);
     const isWinter = /(겨울|winter|추위|한파|춥|설경)/.test(clean) || currentSeason === '겨울';
     const isSummer = /(여름|summer|더위|폭염|덥)/.test(clean) || currentSeason === '여름';
+    const isSpring = /(봄|spring|벚꽃)/.test(clean) || currentSeason === '봄';
+    const isAutumn = /(가을|autumn|fall|단풍)/.test(clean) || currentSeason === '가을';
     
     const fashion = isRain
       ? K_FASHION_WEATHER_GUIDE.RAINY_DAY
@@ -358,11 +360,19 @@ export function resolveTikitakaResponse(query = '', currentCity = '서울', curr
       ? K_FASHION_WEATHER_GUIDE.HOT_SUMMER
       : K_FASHION_WEATHER_GUIDE.MILD_SPRING_AUTUMN;
 
-    const seasonLabel = isWinter ? '겨울 ' : isSummer ? '여름 ' : isRain ? '우천 ' : '';
+    const seasonLabel = isWinter ? '겨울 ' : isSummer ? '여름 ' : isSpring ? '봄 ' : isAutumn ? '가을 ' : isRain ? '우천 ' : '';
+    const followUp = isWinter
+      ? '추위를 피할 수 있는 따뜻한 실내 핫플 코스로 잡아드릴까요? ☕❄️'
+      : isSummer
+      ? '더위를 식혀줄 시원한 오션뷰 & 쾌적한 실내 코스로 잡아드릴까요? 🌊🕶️'
+      : isRain
+      ? '비 한 방울 안 맞는 몰입형 미디어아트 & 실내 핫플 코스로 잡아드릴까요? ☔🏛️'
+      : '화창한 날씨에 딱 맞는 인생샷 야외 산책 & 감성 카페 코스로 잡아드릴까요? 🌸📸';
+
     return {
       matchedKey: 'FASHION_GUIDE',
       reply: `**${currentCity}** ${seasonLabel}여행 추천 옷차림 가이드입니다! 👗✨\n${fashion.advice}\n\n💡 **추천 꿀아이템**: ${fashion.items.join(', ')}`,
-      followUp: isWinter ? '추위를 피할 수 있는 따뜻한 실내 핫플 코스로 잡아드릴까요? ☕❄️' : '따뜻하고 편안하게 즐길 수 있는 코스로 잡아드릴까요? 📸✨',
+      followUp,
       isTikitaka: true
     };
   }
