@@ -41,8 +41,8 @@ import ExitConfirmModal from './components/ExitConfirmModal';
 
 import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
 import { geminiGenerateFullItinerary, generateLocalFallbackItinerary, enrichItineraryPhotosAsync, extractLocationKeyword, extractDaysFromPrompt } from './services/geminiNlpService';
-import { sanitizeInput, inspectSecurityGuardrails } from './services/securityGuardService';
 import { findRecommendedPois } from './data/koreaTravelPoiDatabase';
+import { getDynamicGatewayChips } from './data/voraDialogKnowledge';
 import { buildTravelContext, generateContextualAdvice, patchTravelState, removeContextChip, toggleContextChip, classifyUserIntent, INITIAL_TRAVEL_STATE } from './services/travelContextEngine';
 
 export default function App() {
@@ -563,23 +563,28 @@ export default function App() {
         tagLabel = `👑 ${promptQuery.slice(0, 24)}`;
       }
 
+      const dynamicGatewayChips = getDynamicGatewayChips(targetCity, lang);
+
       const briefingText = (lang === 'en')
-        ? `**[ ${tagLabel} ]**\nAny extra requirements (indoor spots, rental car, etc.)? 😊\nIf not, I will create your tailored itinerary right away!`
+        ? `**[ ${tagLabel} ]**\nI'm ready to craft your Door-to-Door ${targetCity} itinerary! ✈️🏨\nWhich airport/station are you arriving at, and where is your hotel? (Select a chip below or tell me freely! 😊)`
         : (lang === 'ja')
-        ? `**[ ${tagLabel} ]**\n追加のご要望（屋内スポット、レンタカーなど）はございますか？😊\n特になければ、すぐに最高のカスタム旅程を作成いたします！`
+        ? `**[ ${tagLabel} ]**\n空港・駅からホテルへの手荷物預け、初日の名所までシームレスにお繋ぎします！✈️🏨\nご到着の空港・駅やご宿泊先はお決まりですか？（下のチップから選択、またはご自由に入力してください😊）`
         : (lang === 'zh' || lang === 'zht')
-        ? `**[ ${tagLabel} ]**\n是否有其他补充需求（室内优先、租车自驾等）？😊\n如果没有，立即为您生成专属定制行程！`
-        : `**[ ${tagLabel} ]**\n추가로 더 필요한 조건(실내 위주, 렌트카, 숙소 등)이 있으신가요? 😊\n없으시면 바로 나만의 맞춤 일정을 만들어 드릴게요!`;
+        ? `**[ ${tagLabel} ]**\n从机场/车站接驳、酒店行李寄存到首日行程为您一站式定制！✈️🏨\n请问您的到达机场/车站及预订的酒店区域是哪里？（点击下方快捷标签或直接输入😊）`
+        : `**[ ${tagLabel} ]**\n공항/역 도착부터 호텔 짐 보관, 1일차 알찬 코스까지 도어투도어로 연결해 드릴게요! ✈️🏨\n어느 공항/역에 도착하시고 숙소는 어디쯤으로 생각 중이신가요? 😊`;
+
+      const quickSuggestions = [
+        ...dynamicGatewayChips,
+        (lang === 'en' ? '🚀 Generate Itinerary Right Now' : '🚀 이대로 바로 일정 만들기'),
+        (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')
+      ];
 
       setTimeout(() => {
         const botMsg = {
           id: `bot-briefing-${Date.now()}`,
           role: 'assistant',
           text: briefingText,
-          quickSuggestions: [
-            (lang === 'en' ? '🚀 Generate Itinerary Now' : '🚀 이대로 바로 일정 만들기'),
-            (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')
-          ],
+          quickSuggestions,
           generationTime: '0.1',
           queryTime,
           replyTime,

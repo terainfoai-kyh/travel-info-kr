@@ -164,6 +164,32 @@ export function patchTravelState(prevState = INITIAL_TRAVEL_STATE, userPrompt = 
     hasNewCondition = true;
   }
 
+  // 5. Door-to-Door Gateway & Hotel Area Extraction
+  let nextGateway = prevTrip.gateway || null;
+  let nextHotelArea = prevTrip.hotelArea || null;
+
+  if (/(인천공항|인천국제공항|incheon)/i.test(clean)) { nextGateway = '인천국제공항'; hasNewCondition = true; }
+  else if (/(김포공항|gimpo)/i.test(clean)) { nextGateway = '김포국제공항'; hasNewCondition = true; }
+  else if (/(김해공항|gimhae)/i.test(clean)) { nextGateway = '김해국제공항'; hasNewCondition = true; }
+  else if (/(제주공항|jeju\s*airport)/i.test(clean)) { nextGateway = '제주국제공항'; hasNewCondition = true; }
+  else if (/(서울역|ktx\s*서울)/i.test(clean)) { nextGateway = '서울역 KTX'; hasNewCondition = true; }
+  else if (/(부산역|ktx\s*부산)/i.test(clean)) { nextGateway = '부산역 KTX'; hasNewCondition = true; }
+  else if (/(강릉역|ktx\s*강릉)/i.test(clean)) { nextGateway = 'KTX 강릉역'; hasNewCondition = true; }
+  else if (/(신경주역|경주역)/i.test(clean)) { nextGateway = '신경주역 KTX'; hasNewCondition = true; }
+  else if (/(전주역)/i.test(clean)) { nextGateway = '전주역 KTX'; hasNewCondition = true; }
+  else if (/(여수역|여수expo)/i.test(clean)) { nextGateway = '여수EXPO역 KTX'; hasNewCondition = true; }
+
+  if (/(명동|종로|myeongdong)/i.test(clean)) { nextHotelArea = '명동/종로'; hasNewCondition = true; }
+  else if (/(홍대|마포|hongdae)/i.test(clean)) { nextHotelArea = '홍대/마포'; hasNewCondition = true; }
+  else if (/(강남|잠실|gangnam)/i.test(clean)) { nextHotelArea = '강남/잠실'; hasNewCondition = true; }
+  else if (/(해운대|광안리|haeundae)/i.test(clean)) { nextHotelArea = '해운대/광안리'; hasNewCondition = true; }
+  else if (/(서면|전포|seomyeon)/i.test(clean)) { nextHotelArea = '서면/전포'; hasNewCondition = true; }
+  else if (/(애월|협재|한림|aewol)/i.test(clean)) { nextHotelArea = '애월/협재'; hasNewCondition = true; }
+  else if (/(서귀포|중문|seogwipo)/i.test(clean)) { nextHotelArea = '서귀포/중문'; hasNewCondition = true; }
+  else if (/(경포대|안목|안목해변)/i.test(clean)) { nextHotelArea = '경포대/안목'; hasNewCondition = true; }
+  else if (/(황리단길|대릉원)/i.test(clean)) { nextHotelArea = '황리단길/대릉원'; hasNewCondition = true; }
+  else if (/(한옥마을)/i.test(clean)) { nextHotelArea = '전주 한옥마을'; hasNewCondition = true; }
+
   return {
     ...prevState,
     tripMemory: {
@@ -172,7 +198,9 @@ export function patchTravelState(prevState = INITIAL_TRAVEL_STATE, userPrompt = 
       companion: nextComp,
       preferences: nextPrefs,
       isRainPreferred: nextIsRain,
-      multiCityInfo: nextMultiCity
+      multiCityInfo: nextMultiCity,
+      gateway: nextGateway,
+      hotelArea: nextHotelArea
     },
     currentContext: {
       ...prevState.currentContext,

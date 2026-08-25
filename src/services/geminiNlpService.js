@@ -1056,14 +1056,134 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
     ];
   }
 
+  // ✈️🏨 7. 도어투도어(Door-to-Door) 공항/KTX/호텔 짐보관/택스리펀 지능형 스팟
+  const isDoorToDoor = /(인천공항|김포공항|김해공항|제주공항|서울역|부산역|강릉역|신경주역|전주역|여수expo|명동|홍대|강남|해운대|서귀포|애월|황리단|도어투도어|incheon|gimpo|gimhae|arex|hotel|숙소|공항|짐\s*보관|luggage)/i.test(rawPrompt);
+  
+  let hotelArea = '명동';
+  if (/(홍대|마포|hongdae)/i.test(rawPrompt)) hotelArea = '홍대';
+  else if (/(강남|잠실|gangnam)/i.test(rawPrompt)) hotelArea = '강남';
+  else if (/(해운대|광안리|haeundae)/i.test(rawPrompt)) hotelArea = '해운대';
+  else if (/(서면|전포|seomyeon)/i.test(rawPrompt)) hotelArea = '서면';
+  else if (/(애월|협재|한림|aewol)/i.test(rawPrompt)) hotelArea = '애월';
+  else if (/(서귀포|중문|seogwipo)/i.test(rawPrompt)) hotelArea = '서귀포';
+  else if (/(경포대|안목)/i.test(rawPrompt)) hotelArea = '경포대';
+  else if (/(황리단길|대릉원)/i.test(rawPrompt)) hotelArea = '황리단길';
+  else if (city === '부산') hotelArea = '해운대';
+  else if (city === '제주') hotelArea = '제주시내';
+
+  const getGatewaySpot = (c, isArrival = true) => {
+    if (c === '부산') {
+      if (isArrival) {
+        return {
+          name: lang === 'en' ? 'Busan Station KTX Arrival & Transit' : (lang === 'ja' ? '釜山駅KTX到着＆地下鉄乗換' : (lang === 'zh' ? '釜山站KTX到达与地铁换乘' : '부산역 KTX 도착 & 지하철 환승')),
+          theme: lang === 'en' ? 'Gateway to Maritime Capital' : (lang === 'ja' ? '海洋都市の玄関口' : (lang === 'zh' ? '海洋都市门户' : '해양 수도 부산의 관문')),
+          desc: lang === 'en' ? 'Arrive at Busan Station via KTX bullet train. Direct access to Metro Line 1 or Haeundae express buses.' : 'KTX 고속열차로 부산역 도착. 지하철 1호선 환승 또는 해운대·광안리 방면 급행버스로 이동합니다.',
+          cat: lang === 'en' ? 'Transit Hub' : '교통허브',
+          photo: '📸 부산역 광장 시그니처 샷',
+          sig: '🚅 KTX 탑승 & 부산역 삼진어묵 픽업',
+          time: '오전 11:00',
+          lat: 35.1152, lng: 129.0422
+        };
+      } else {
+        return {
+          name: lang === 'en' ? 'Busan Station / Gimhae Airport Departure' : (lang === 'ja' ? '釜山駅 / 金海空港 出発' : (lang === 'zh' ? '釜山站 / 金海机场 返程' : '부산역 / 김해공항 귀국 및 출발')),
+          theme: lang === 'en' ? 'Safe Departure & Souvenirs' : (lang === 'ja' ? '安全な帰路とお土産ショッピング' : (lang === 'zh' ? '安全返程与特色伴手礼' : '안전한 귀국과 로컬 기념품 쇼핑')),
+          desc: lang === 'en' ? 'Arrive 30 mins before KTX or 1.5 hrs before flights. Pick up Busan fish cakes and souvenirs.' : 'KTX 출발 30분 전 또는 항공편 1시간 30분 전 도착하여 부산 어묵 및 로컬 기념품을 챙기고 여유롭게 귀국합니다.',
+          cat: lang === 'en' ? 'Departure' : '귀국/출발',
+          photo: '📸 부산역 광장 피날레 샷',
+          sig: '🎁 부산 명품 어묵 선물세트',
+          time: '오후 5:30 (출발)',
+          lat: 35.1152, lng: 129.0422
+        };
+      }
+    } else if (c === '제주') {
+      if (isArrival) {
+        return {
+          name: lang === 'en' ? 'Jeju International Airport Arrival & Rental Car' : (lang === 'ja' ? '済州国際空港到着＆レンタカー受取' : (lang === 'zh' ? '济州国际机场到达与租车站台' : '제주국제공항 도착 & 렌트카/급행버스 탑승')),
+          theme: lang === 'en' ? 'Welcome to Jeju Emerald Island' : (lang === 'ja' ? 'エメラルド色の済州島へようこそ' : (lang === 'zh' ? '欢迎来到翡翠之岛济州' : '에메랄드빛 제주의 설레는 첫 관문')),
+          desc: lang === 'en' ? 'Arrive at Jeju Airport Gate 5 for car rental shuttle or express buses across Jeju.' : '제주공항 5번 게이트 앞 렌트카 셔틀버스 탑승장 또는 100번대 급행버스로 제주 전역으로 쾌속 출발합니다.',
+          cat: lang === 'en' ? 'Transit Hub' : '교통허브',
+          photo: '📸 야자수 가득한 제주공항 야외 포토존',
+          sig: '🌴 렌트카 픽업 & 파란 하늘',
+          time: '오전 10:30',
+          lat: 33.5113, lng: 126.4930
+        };
+      } else {
+        return {
+          name: lang === 'en' ? 'Jeju Airport Duty Free & Departure' : (lang === 'ja' ? '済州空港JDC免税店＆帰国' : (lang === 'zh' ? '济州机场免税店与返程' : '제주공항 JDC 면세점 쇼핑 & 귀국')),
+          theme: lang === 'en' ? 'Tax Free Shopping & Farewell Jeju' : (lang === 'ja' ? '免税ショッピングと旅の締めくくり' : (lang === 'zh' ? '免税购物与圆满收官' : '면세점 쇼핑과 알찬 여행의 피날레')),
+          desc: lang === 'en' ? 'Arrive at Jeju Airport 2 hours prior to flight for JDC Duty Free shopping and souvenirs.' : '렌트카 반납 후 출발 2시간 전 제주공항 도착. JDC 면세점 특산품 쇼핑과 감귤 기념품을 챙깁니다.',
+          cat: lang === 'en' ? 'Departure' : '귀국/출발',
+          photo: '📸 활주로 비행기 이륙 선셋 샷',
+          sig: '🍊 제주 마음샌드 & 면세점 쇼핑',
+          time: '오후 6:00 (출발)',
+          lat: 33.5113, lng: 126.4930
+        };
+      }
+    } else {
+      if (isArrival) {
+        return {
+          name: lang === 'en' ? 'Incheon International Airport T1 (AREX Express Train)' : (lang === 'ja' ? '仁川国際空港T1（空港鉄道AREX直通列車）' : (lang === 'zh' ? '仁川国际机场T1（AREX机场直通快线）' : '인천국제공항 T1 (공항철도 AREX 직통열차 탑승)')),
+          theme: lang === 'en' ? 'Fast & Seamless Gateway to Seoul' : (lang === 'ja' ? 'ソウル都心へ最速直通' : (lang === 'zh' ? '直达首尔市中心核心枢纽' : '43분 만에 서울역으로 쾌속 직통 연결')),
+          desc: lang === 'en' ? 'Take the AREX Express Train (43 mins to Seoul Station) or Airport Limousine Bus 6015 directly to your hotel.' : '인천공항 입국 후 공항철도 직통열차(AREX)로 43분 만에 서울역 직통 이동 또는 6015번 공항리무진으로 호텔 앞까지 직행합니다.',
+          cat: lang === 'en' ? 'Transit Hub' : '교통허브',
+          photo: '📸 AREX 직통열차 오렌지 탑승 게이트',
+          sig: '🎫 T-머니 카드 충전 & AREX 직통열차',
+          time: '오전 10:30',
+          lat: 37.4602, lng: 126.4407
+        };
+      } else {
+        return {
+          name: lang === 'en' ? 'Incheon Airport Departure & Tax Refund Kiosk' : (lang === 'ja' ? '仁川空港出発＆タックスリファンド（免税還付）' : (lang === 'zh' ? '仁川机场出发与即时退税（Tax Refund）' : '인천국제공항 귀국 & 택스리펀(Tax Refund) 키오스크')),
+          theme: lang === 'en' ? 'Instant Tax Refund & Duty Free Shopping' : (lang === 'ja' ? '即時免税還付＆免税エリアショッピング' : (lang === 'zh' ? '极速退税与免税店终极购物' : '간편 세금 환급과 면세점 쇼핑 피날레')),
+          desc: lang === 'en' ? 'Arrive at Incheon Airport 3 hours prior to flight. Scan receipts at the Tax Refund kiosk for instant refund.' : '출국 3시간 전 인천공항 도착. 3층 출국장 택스리펀 키오스크에서 영수증 스캔 후 즉시 환급받고 면세구역을 즐깁니다.',
+          cat: lang === 'en' ? 'Departure' : '귀국/출발',
+          photo: '📸 인천공항 면세구역 랜드마크 샷',
+          sig: '💰 즉석 택스리펀 & K-뷰티 면세품 픽업',
+          time: '오후 6:00 (출국)',
+          lat: 37.4602, lng: 126.4407
+        };
+      }
+    }
+  };
+
+  const getHotelLuggageSpot = (area = '명동') => {
+    return {
+      name: lang === 'en' ? `${area} Hotel Arrival & Luggage Drop` : (lang === 'ja' ? `${area} ホテル到着＆手荷物預け（Luggage Drop）` : (lang === 'zh' ? `${area} 酒店到达与行李寄存（Luggage Drop）` : `${area} 호텔 도착 & 캐리어 짐 보관(Luggage Drop)`)),
+      theme: lang === 'en' ? 'Hands-Free Travel & Early Check-In' : (lang === 'ja' ? '身軽な手ぶら観光＆チェックイン' : (lang === 'zh' ? '轻松轻装出行与提前寄存' : '가벼운 손으로 시작하는 1일차 핫플 탐방')),
+      desc: lang === 'en' ? `Arrive at your hotel in ${area}. Drop heavy bags at the front desk before check-in to explore the city hands-free!` : `예약한 ${area} 호텔에 도착하여 체크인 전 프런트에 무거운 캐리어를 무료 보관(Luggage Drop)하고 가벼운 발걸음으로 1일차 여행을 시작합니다.`,
+      cat: lang === 'en' ? 'Hotel & Stay' : '숙소/짐보관',
+      photo: '📸 호텔 로비 & 가벼운 외출 샷',
+      sig: '🧳 무료 캐리어 짐 보관 & 체크인 안내',
+      time: '오후 1:00',
+      lat: 37.5636, lng: 126.9827
+    };
+  };
+
   for (let d = 0; d < days; d++) {
     const dayNum = d + 1;
     const daySpots = [];
     const poolLen = spotPool.length || 1;
-    const spotsForDay = [
+    let spotsForDay = [
       spotPool[(d * 2) % poolLen] || spotPool[0],
       spotPool[(d * 2 + 1) % poolLen] || spotPool[0]
     ].filter(Boolean);
+
+    // 🌟 1일차 도어투도어 적용 (공항 도착 + 호텔 짐 보관)
+    if (isDoorToDoor && dayNum === 1) {
+      spotsForDay = [
+        getGatewaySpot(city, true),
+        getHotelLuggageSpot(hotelArea),
+        ...spotsForDay
+      ];
+    }
+    // 🌟 마지막 날 도어투도어 적용 (귀국 공항/역 + 택스리펀)
+    else if (isDoorToDoor && dayNum === days) {
+      spotsForDay = [
+        ...spotsForDay,
+        getGatewaySpot(city, false)
+      ];
+    }
 
     const dayThemeMeta = themeList[d % themeList.length];
 

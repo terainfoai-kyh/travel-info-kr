@@ -382,6 +382,148 @@ export function resolveTikitakaResponse(query = '', currentCity = '서울') {
   return null;
 }
 
+// ==============================================================================
+// 7. CITY_GATEWAY_HUBS (도시별 교통 거점 & 숙소 허브 도어투도어 지식)
+// ==============================================================================
+export const CITY_GATEWAY_HUBS = {
+  '서울': {
+    gateways: ['인천국제공항', '김포국제공항', '서울역 KTX'],
+    hotelAreas: ['명동/종로', '홍대/마포', '강남/잠실', '동대문/이태원'],
+    arrivalTransit: '인천국제공항 T1/T2에서 공항철도 직통열차(AREX) 또는 6015/6002 공항리무진 탑승',
+    departureAdvice: '서울역 도심공항터미널 얼리 체크인 & 인천공항 3시간 전 도착 후 택스리펀(Tax Refund) 키오스크 이용',
+    defaultChips: [
+      '✈️ 인천공항 & 명동 숙소',
+      '✈️ 김포공항 & 홍대 숙소',
+      '🚅 서울역 KTX & 강남 숙소',
+      '🏢 이미 서울 시내 도착'
+    ]
+  },
+  '부산': {
+    gateways: ['김해국제공항', '부산역 KTX', '부산 서부/종합버스터미널'],
+    hotelAreas: ['해운대/광안리', '서면/전포', '남포동/자갈치', '기장/오시리아'],
+    arrivalTransit: '부산역 KTX 도착 후 지하철 1/2호선 환승 또는 김해공항 리무진버스 탑승',
+    departureAdvice: '부산역 KTX 탑승 30분 전 / 김해공항 국내선 1시간 30분 전 도착 권장',
+    defaultChips: [
+      '🚅 부산역 KTX & 해운대 숙소',
+      '✈️ 김해공항 & 서면 숙소',
+      '🌊 광안리 오션뷰 숙소',
+      '🏢 이미 부산 시내 도착'
+    ]
+  },
+  '제주': {
+    gateways: ['제주국제공항'],
+    hotelAreas: ['제주시내/연동', '애월/한림/협재', '서귀포/중문관광단지', '성산/함덕/월정리'],
+    arrivalTransit: '제주국제공항 5번 게이트 렌트카 셔틀버스 탑승 또는 급행버스(100~180번) 이용',
+    departureAdvice: '렌트카 완전자차 반납 후 제주공항 JDC 내국인/외국인 면세점 쇼핑 2시간 전 도착 권장',
+    defaultChips: [
+      '✈️ 제주공항 & 제주시내 숙소',
+      '🚗 렌트카 & 애월/협재 숙소',
+      '🍊 제주공항 & 서귀포/중문',
+      '🌴 이미 제주 도착'
+    ]
+  },
+  '강릉': {
+    gateways: ['KTX 강릉역', '강릉 고속/시외버스터미널'],
+    hotelAreas: ['안목/경포대/강문해변', '강릉 시내/교동', '정동진/주문진'],
+    arrivalTransit: 'KTX 강릉역 도착 후 안목해변/경포대 방면 시내버스(202-1번) 또는 택시 10분 이동',
+    departureAdvice: 'KTX 강릉역 출발 30분 전 도착 권장 (역사 내 강릉 커피콩빵 & 강릉샌드 기념품 구매)',
+    defaultChips: [
+      '🚅 KTX 강릉역 & 경포대 숙소',
+      '☕ KTX 강릉역 & 안목해변 숙소',
+      '🚌 강릉터미널 & 시내 숙소',
+      '🌊 이미 강릉 도착'
+    ]
+  },
+  '속초': {
+    gateways: ['속초 고속/시외버스터미널'],
+    hotelAreas: ['속초해변/조양동', '속초 중앙시장/동명항', '설악산/척산온천'],
+    arrivalTransit: '속초고속버스터미널 도착 후 속초아이 대관람차 & 속초해변 도보 5분 이동',
+    departureAdvice: '속초터미널 출발 30분 전 도착 권장 (중앙시장 만석닭강정 & 팡파미유 포장)',
+    defaultChips: [
+      '🚌 속초터미널 & 속초해변 숙소',
+      '🦑 속초터미널 & 중앙시장 숙소',
+      '🏔️ 설악산 인근 힐링 숙소',
+      '🌊 이미 속초 도착'
+    ]
+  },
+  '경주': {
+    gateways: ['신경주역 KTX', '경주 고속버스터미널'],
+    hotelAreas: ['황리단길/대릉원 인근', '보문관광단지', '불국사 인근'],
+    arrivalTransit: '신경주역(KTX)에서 700번 급행버스 탑승 후 황리단길/대릉원 25분 이동',
+    departureAdvice: '신경주역 KTX 탑승 30분 전 도착 권장 (황남빵 본점 갓 구운 빵 픽업)',
+    defaultChips: [
+      '🚅 KTX 신경주역 & 황리단길 숙소',
+      '🏛️ KTX 신경주역 & 보문단지 숙소',
+      '🚌 경주터미널 & 대릉원 숙소',
+      '🌿 이미 경주 도착'
+    ]
+  },
+  '여수': {
+    gateways: ['여수EXPO역 KTX', '여수종합버스터미널', '여수공항'],
+    hotelAreas: ['이순신광장/낭만포차', '돌산 오션뷰 호텔/리조트', '여수엑스포역/웅천'],
+    arrivalTransit: '여수EXPO역(KTX) 도착 후 해양레일바이크 및 낭만포차 방면 택시 5~10분 이동',
+    departureAdvice: '여수EXPO역 KTX 탑승 30분 전 도착 권장 (이순신광장 딸기모찌 & 쑥아이스크림 픽업)',
+    defaultChips: [
+      '🚅 KTX 여수EXPO역 & 돌산 숙소',
+      '🌃 여수역 & 이순신광장 숙소',
+      '✈️ 여수공항 & 웅천 숙소',
+      '🌊 이미 여수 도착'
+    ]
+  },
+  '전주': {
+    gateways: ['전주역 KTX', '전주 고속/시외버스터미널'],
+    hotelAreas: ['전주 한옥마을', '객리단길/다가동', '서신/효자동'],
+    arrivalTransit: '전주역(KTX) 도착 후 119번 버스 탑승 시 한옥마을 입구 20분 직통 연결',
+    departureAdvice: '전주역 KTX 탑승 30분 전 도착 권장 (PNB 풍년제과 수제 초코파이 세트 구매)',
+    defaultChips: [
+      '🚅 KTX 전주역 & 한옥마을 숙소',
+      '🛍️ KTX 전주역 & 객리단길 숙소',
+      '🚌 전주터미널 & 한옥마을 숙소',
+      '🏮 이미 전주 도착'
+    ]
+  }
+};
+
+/**
+ * Get Dynamic Gateway Onboarding Chips based on Target City
+ */
+export function getDynamicGatewayChips(targetCity = '서울', lang = 'ko') {
+  const cityKey = Object.keys(CITY_GATEWAY_HUBS).find(k => (targetCity || '').includes(k)) || '서울';
+  const hub = CITY_GATEWAY_HUBS[cityKey] || CITY_GATEWAY_HUBS['서울'];
+  
+  if (lang === 'en') {
+    if (cityKey === '부산') {
+      return [
+        '🚅 Busan Station KTX & Haeundae Hotel',
+        '✈️ Gimhae Airport & Seomyeon Hotel',
+        '🌊 Gwangalli Ocean View Hotel',
+        '🏢 Already in Busan City'
+      ];
+    } else if (cityKey === '제주') {
+      return [
+        '✈️ Jeju Airport & Downtown Hotel',
+        '🚗 Rental Car & Aewol/Hyeopjae',
+        '🍊 Jeju Airport & Seogwipo Resort',
+        '🌴 Already in Jeju'
+      ];
+    } else if (cityKey === '강릉') {
+      return [
+        '🚅 Gangneung KTX & Gyeongpo Beach',
+        '☕ Gangneung KTX & Anmok Cafe Street',
+        '🌊 Already in Gangneung'
+      ];
+    }
+    return [
+      '✈️ Incheon Airport & Myeongdong Hotel',
+      '✈️ Gimpo Airport & Hongdae Hotel',
+      '🚅 Seoul Station KTX & Gangnam Hotel',
+      '🏢 Already in Seoul City'
+    ];
+  }
+
+  return hub.defaultChips;
+}
+
 /**
  * Fallback intent resolver for zero-shot query matching
  */
