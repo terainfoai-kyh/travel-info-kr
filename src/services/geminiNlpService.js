@@ -1101,6 +1101,20 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
       { name: '전포 카페거리 & 소품샵 골목', theme: '공구상가에서 변신한 뉴욕 타임스 선정 핫플레이스', desc: '개성 넘치는 디저트 카페와 감각적인 독립 소품샵, 빈티지 숍들이 골목골목 보물처럼 숨어있습니다.', cat: '감성카페', photo: '📸 레트로 골목 카페 외관 감성 스냅', sig: '☕ 크림 까눌레 & 시그니처 플랫화이트', time: '오전 11:30', lat: 35.1550, lng: 129.0660 },
       { name: '부산시민공원', theme: '과거 하야리아 미군기지에서 푸른 숲으로', desc: '도심 한가운데 조성된 거대한 숲과 잔디광장, 인공 폭포가 어우러져 여유로운 피크닉을 즐기기 좋습니다.', cat: '자연명소', photo: '📸 잔디광장과 도심 스카이라인 샷', sig: '🧺 숲속 피크닉 & 수변 산책', time: '오후 2:30', lat: 35.1680, lng: 129.0570 },
       { name: '황령산 봉수대 야경 전망대', theme: '부산 전역이 360도로 빛나는 최고의 야경 성지', desc: '광안대교, 부산항대교, 서면 도심까지 부산의 반짝이는 불빛을 한눈에 내려다보는 최고의 전망대입니다.', cat: '야경명소', photo: '📸 황령산 정상에서 내려다보는 광안대교 야경 샷', sig: '🌙 황령산 전망 쉼터 차 한잔 & 야경 감상', time: '오후 7:00 (야경)', lat: 35.1585, lng: 129.0825 }
+    ],
+    '거제': [
+      { name: '바람의 언덕 & 도장포 유람선', theme: '이국적인 풍차와 남해의 절경', desc: '푸른 바다가 시원하게 내려다보이는 초록 언덕 위 풍차와 몽돌 바다 산책길', cat: '자연명소', photo: '📸 바람의언덕 풍차 인생샷', sig: '🌭 바람의 핫도그 & 해물라면', time: '오전 10:30', lat: 34.7601, lng: 128.6664 },
+      { name: '신선대 바위 절경', theme: '신선들이 노닐던 기암괴석과 비취빛 파도', desc: '해안 절벽을 따라 깎아지른 바위 위에서 감상하는 남해 바다의 장엄한 파노라마', cat: '자연명소', photo: '📸 신선대 수평선 파노라마 샷', sig: '☕ 도장포 뷰 카페 스페셜티', time: '오후 1:30', lat: 34.7570, lng: 128.6630 },
+      { name: '외도 보타니아 해상식물원', theme: '바다 위 지상낙원 유럽풍 해상정원', desc: '남해의 푸른 바다 한가운데 이국적인 조각과 아열대 식물이 어우러진 해상 낙원', cat: '자연명소', photo: '📸 비너스 가든 & 분수대 샷', sig: '🍹 외도 감성 에이드', time: '오전 10:00', lat: 34.7865, lng: 128.7180 },
+      { name: '학동 흑진주 몽돌해변', theme: '파도가 몽돌을 굴리는 청량한 소리', desc: '검은 몽돌이 자갈자갈 파도와 함께 노래하는 거제 최고의 청정 해변', cat: '오션뷰', photo: '📸 몽돌 해변 파도 실루엣 샷', sig: '🐟 거제 굴구이 & 멍게비빔밥', time: '오후 3:30', lat: 34.7925, lng: 128.6360 },
+      { name: '매미성 & 해안 산책로', theme: '시민이 혼자 쌓아올린 유럽 중세 성곽', desc: '태풍을 막기 위해 화강암으로 홀로 쌓아올린 신비롭고 이국적인 해안 성채', cat: '핫플레이스', photo: '📸 매미성 성곽 액자 샷', sig: '☕ 매미성 몽돌빵 & 바다라떼', time: '오후 5:00', lat: 35.0062, lng: 128.7160 }
+    ],
+    '거제도': [
+      { name: '바람의 언덕 & 도장포 유람선', theme: '이국적인 풍차와 남해의 절경', desc: '푸른 바다가 시원하게 내려다보이는 초록 언덕 위 풍차와 몽돌 바다 산책길', cat: '자연명소', photo: '📸 바람의언덕 풍차 인생샷', sig: '🌭 바람의 핫도그 & 해물라면', time: '오전 10:30', lat: 34.7601, lng: 128.6664 },
+      { name: '신선대 바위 절경', theme: '신선들이 노닐던 기암괴석과 비취빛 파도', desc: '해안 절벽을 따라 깎아지른 바위 위에서 감상하는 남해 바다의 장엄한 파노라마', cat: '자연명소', photo: '📸 신선대 수평선 파노라마 샷', sig: '☕ 도장포 뷰 카페 스페셜티', time: '오후 1:30', lat: 34.7570, lng: 128.6630 },
+      { name: '외도 보타니아 해상식물원', theme: '바다 위 지상낙원 유럽풍 해상정원', desc: '남해의 푸른 바다 한가운데 이국적인 조각과 아열대 식물이 어우러진 해상 낙원', cat: '자연명소', photo: '📸 비너스 가든 & 분수대 샷', sig: '🍹 외도 감성 에이드', time: '오전 10:00', lat: 34.7865, lng: 128.7180 },
+      { name: '학동 흑진주 몽돌해변', theme: '파도가 몽돌을 굴리는 청량한 소리', desc: '검은 몽돌이 자갈자갈 파도와 함께 노래하는 거제 최고의 청정 해변', cat: '오션뷰', photo: '📸 몽돌 해변 파도 실루엣 샷', sig: '🐟 거제 굴구이 & 멍게비빔밥', time: '오후 3:30', lat: 34.7925, lng: 128.6360 },
+      { name: '매미성 & 해안 산책로', theme: '시민이 혼자 쌓아올린 유럽 중세 성곽', desc: '태풍을 막기 위해 화강암으로 홀로 쌓아올린 신비롭고 이국적인 해안 성채', cat: '핫플레이스', photo: '📸 매미성 성곽 액자 샷', sig: '☕ 매미성 몽돌빵 & 바다라떼', time: '오후 5:00', lat: 35.0062, lng: 128.7160 }
     ]
   };
 
@@ -1180,6 +1194,18 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
     ];
   }
 
+  // 🛡️ spotPool이 비어있는 경우 (거제도, 통영 등 소도시 검색 시) 100% 안전한 기본 풀 보장
+  if (!spotPool || spotPool.length === 0) {
+    const latBase = cityMeta?.lat || 37.5665;
+    const lngBase = cityMeta?.lng || 126.9780;
+    spotPool = [
+      { name: `${city} 대표 힐링 명소`, theme: `${city}의 자연과 감성을 느끼는 쉼터`, desc: `${city}에서 가장 사랑받는 대표적인 명소로, 아름다운 풍경과 힐링을 선사합니다.`, cat: '자연명소', photo: `📸 ${city} 포토존 인생샷`, sig: `✨ ${city} 특산 시그니처 미식`, time: '오전 10:30', lat: latBase + 0.005, lng: lngBase - 0.005 },
+      { name: `${city} 감성 카페거리 & 핫플레이스`, theme: `트렌디한 감성과 여유로운 디저트`, desc: `${city}의 젊은 여행자들이 즐겨 찾는 감각적인 공간과 로컬 카페들이 모여 있습니다.`, cat: '감성카페', photo: `📸 감성 테라스 & 인테리어 샷`, sig: `☕ 시그니처 로컬 라떼`, time: '오후 2:30', lat: latBase - 0.005, lng: lngBase + 0.005 },
+      { name: `${city} 로컬 미식 야경 명소`, theme: `오감을 만족시키는 맛과 황홀한 밤 풍경`, desc: `${city}의 대표적인 야경 포인트와 현지인 추천 맛집이 어우러진 저녁 코스입니다.`, cat: '야경명소', photo: `📸 반짝이는 야경 파노라마`, sig: `🍴 ${city} 로컬 대표 미식`, time: '오후 6:30', lat: latBase - 0.008, lng: lngBase - 0.002 },
+      { name: `${city} 랜드마크 전망대`, theme: `탁 트인 파노라마 전경`, desc: `${city}의 도심과 자연 풍경을 한눈에 담을 수 있는 최고의 뷰포인트입니다.`, cat: '랜드마크', photo: `📸 시원한 스카이라인 샷`, sig: `🍦 시그니처 디저트`, time: '오전 11:30', lat: latBase + 0.003, lng: lngBase + 0.004 }
+    ];
+  }
+
   // 테마별 ThemeList 생성
   let themeList = (DAILY_THEMES[city] || [
     { theme: `1일차: ${city}의 청정 자연과 감성 핫플레이스`, transit: `${city} 중심가 및 대중교통 이용 편리`, food: { dishName: `${city} 로컬 대표 미식`, description: `현지인들이 추천하는 신선한 제철 재료로 만든 ${city}의 별미` } },
@@ -1210,14 +1236,16 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
   for (let d = 0; d < days; d++) {
     const dayNum = d + 1;
     const daySpots = [];
+    const poolLen = spotPool.length || 1;
     const spotsForDay = [
-      spotPool[(d * 2) % spotPool.length],
-      spotPool[(d * 2 + 1) % spotPool.length]
-    ];
+      spotPool[(d * 2) % poolLen] || spotPool[0],
+      spotPool[(d * 2 + 1) % poolLen] || spotPool[0]
+    ].filter(Boolean);
 
     const dayThemeMeta = themeList[d % themeList.length];
 
     spotsForDay.forEach((s, idx) => {
+      if (!s || !s.name) return;
       const photoData = resolveSpotPhotoSync(s.name, city, s.cat);
       const spotPhoto = photoData?.primaryImage || photoData;
       const spotPhotos = photoData?.images || [spotPhoto];
