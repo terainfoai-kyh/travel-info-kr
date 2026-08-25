@@ -43,6 +43,7 @@ import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
 import { geminiGenerateFullItinerary, generateLocalFallbackItinerary, enrichItineraryPhotosAsync, extractLocationKeyword, extractDaysFromPrompt } from './services/geminiNlpService';
 import { sanitizeInput, inspectSecurityGuardrails } from './services/securityGuardService';
 import { findRecommendedPois } from './data/koreaTravelPoiDatabase';
+import { buildTravelContext, generateContextualAdvice } from './services/travelContextEngine';
 
 export default function App() {
   // 4-Language State (ko, en, ja, zh) with 3-Tier Intelligent Auto-Detection
@@ -622,9 +623,16 @@ export default function App() {
         let dynamicSuggestDays = 3;
         const currentDays = itineraryData?.days || 1;
 
-        // 🏷️ 0토큰 KoreaTravel 정품 POI 매칭
-        const targetCity = extractLocationKeyword(promptQuery, false) || itineraryData?.targetCity || '';
+        // 🏷️ 0토큰 KoreaTravel 큐레이션 POI 매칭 & Context Engine 연동
+        const targetCity = extractLocationKeyword(promptQuery, false) || itineraryData?.targetCity || '서울';
+        const tripContext = buildTravelContext({
+          targetCity,
+          activeDay,
+          currentItinerary: itineraryData,
+          userPrompt: promptQuery
+        });
         const matchedPois = findRecommendedPois(promptQuery, targetCity, 3);
+        const contextualIntro = generateContextualAdvice(tripContext, lang);
 
         let chatText = result?.message;
         let quickButtons = result?.quickSuggestions && result.quickSuggestions.length > 0
@@ -647,8 +655,8 @@ export default function App() {
           ];
         } else if (!chatText) {
           chatText = (lang === 'en')
-            ? `Here are the top curated destinations for **${promptQuery}**! 🌊✨\nTap **[ ＋ Add to Day ${activeDay} ]** on any spot below to instantly include it into your trip:`
-            : `말씀해주신 **"${promptQuery}"**에 딱 맞는 보라의 추천 명소예요! 🌊✨\n원하시는 장소 아래 **[ ＋ ${activeDay}일차 일정에 추가 ]**를 누르시면 내 일정표에 바로 쏙 들어갑니다! 😊`;
+            ? `${contextualIntro}\n\nTap **[ ＋ Add to Day ${activeDay} ]** on any spot below to instantly include it into your trip! 🌊✨`
+            : `${contextualIntro}\n\n원하시는 장소 아래 **[ ＋ ${activeDay}일차 일정에 추가 ]**를 누르시면 내 일정표에 바로 쏙 들어갑니다! 😊`;
         }
 
         const botMsg = {
