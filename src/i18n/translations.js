@@ -132,9 +132,9 @@ export const TRANSLATIONS = {
     faqTitle: '자주 묻는 질문 (FAQ)',
 
     // Hero Section
-    heroBadge: '✨ 2026 AI-Powered Korea Travel Concierge',
+    heroBadge: '🏛️ 한국관광공사(KTO) TourAPI 4.0 공식 연동',
     heroTitle: '질문 하나로 완성되는 나만의 한국 여행',
-    heroSubtitle: 'Google Gemini 3.0 AI와 Google Places가 설계하는 초개인화 맞춤 코스 & 실시간 구글맵 연동',
+    heroSubtitle: '한국관광공사 공식 인증 데이터와 VORA AI가 설계하는 초개인화 맞춤 코스 & 실시간 지도 연동',
     searchPlaceholder: '어떤 여행을 꿈꾸시나요? (예: 성수동 핫플 카페 2박3일, 제주도 바다뷰 힐링, 비 오는 날 서울 데이트)',
     searchBtn: 'AI 코스 생성',
     promptChipsTitle: '🔥 인기 추천 프롬프트',
@@ -263,10 +263,10 @@ export const TRANSLATIONS = {
     faqTitle: 'Frequently Asked Questions (FAQ)',
 
     // Hero Section
-    heroBadge: '✨ 2026 AI-Powered Korea Travel Concierge',
-    heroTitle: 'Discover Korea Like a Local, Powered by AI',
-    heroSubtitle: 'Google Gemini 3.0 AI and Google Places design your custom itinerary with live Google Maps routes.',
-    searchPlaceholder: 'What kind of trip do you dream of? (e.g. 3-day Seongsu cafe hopping in Seoul, Jeju nature healing, rainy day date)',
+    heroBadge: '🏛️ Powered by Korea Tourism Organization (KTO) TourAPI 4.0',
+    heroTitle: 'Plan Your Perfect Korea Trip with Just One Prompt',
+    heroSubtitle: 'Official KTO certified travel data & VORA AI curated personalized itineraries with real-time maps',
+    searchPlaceholder: 'Where do you want to explore? (e.g. 3-day Jeju drive, Seongsu cafe tour, rainy day Seoul)',
     searchBtn: 'Generate Itinerary',
     promptChipsTitle: '🔥 Popular Prompt Ideas',
     promptChips: [

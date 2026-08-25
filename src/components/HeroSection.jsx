@@ -34,6 +34,25 @@ export default function HeroSection({
       overflow: 'hidden',
       margin: '0 auto'
     }}>
+      {/* Official TourAPI 4.0 Certification Badge */}
+      <div style={{ marginBottom: '0.45rem', textAlign: 'center' }}>
+        <span style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '0.35rem',
+          fontSize: '0.74rem',
+          fontWeight: 700,
+          padding: '0.2rem 0.65rem',
+          borderRadius: 'var(--radius-full)',
+          backgroundColor: 'rgba(59, 130, 246, 0.08)',
+          color: '#2563eb',
+          border: '1px solid rgba(59, 130, 246, 0.22)',
+          letterSpacing: '-0.01em'
+        }}>
+          {t.heroBadge || '🏛️ 한국관광공사(KTO) TourAPI 4.0 공식 연동'}
+        </span>
+      </div>
+
       {/* Sleek Compact Heading with Perfect Symmetry */}
       <div style={{ marginBottom: '0.4rem', textAlign: 'center' }}>
         <h1 style={{

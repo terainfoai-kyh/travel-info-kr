@@ -114,9 +114,9 @@ export default function AboutUsModal({ isOpen, onClose, lang = 'ko' }) {
                   <span>Core Technologies & Partnerships</span>
                 </h4>
                 <p style={{ margin: 0 }}>
+                  • <strong>Korea Tourism Organization (KTO) TourAPI 4.0</strong>: Official South Korea tourism data & verified HD CDN images<br />
                   • <strong>Google Gemini 3.0 AI</strong>: Advanced natural language itinerary orchestration<br />
-                  • <strong>Google Places Platform</strong>: Official global places, verified ratings & HD photos<br />
-                  • <strong>Google Maps Platform</strong>: Seamless global navigation and deep-linked routes<br />
+                  • <strong>Google Places & Maps Platform</strong>: Official global places, verified ratings & transit navigation<br />
                   • Complete 4-language support: Korean, English, Japanese, and Chinese
                 </p>
               </div>
@@ -228,13 +228,13 @@ export default function AboutUsModal({ isOpen, onClose, lang = 'ko' }) {
               <div>
                 <h4 style={{ margin: '0 0 0.4rem 0', color: 'var(--text-main)', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                   <Award size={18} style={{ color: '#10b981' }} />
-                  <span>핵심 기술 및 파트너십</span>
+                  <span>핵심 기술 및 공식 데이터 연동 (Core Technologies)</span>
                 </h4>
                 <p style={{ margin: 0 }}>
-                  • <strong>Google Gemini 3.0 AI</strong> 최신 자연어 여행 설계 지능 탑재<br />
-                  • <strong>Google Places Platform</strong> 글로벌 공식 위치 및 고화질 사진 연동<br />
-                  • <strong>Google Maps Platform</strong> 글로벌 표준 지도 및 길찾기 딥링크 연동<br />
-                  • 한국어, 영어, 일본어, 중국어 4대 언어 완벽 지원
+                  • <strong>한국관광공사(KTO) TourAPI 4.0</strong>: 대한민국 공식 관광지 및 정품 CDN 데이터 정식 연동<br />
+                  • <strong>Google Gemini 3.0 AI</strong>: 초개인화 자연어 일정 설계 및 티키타카 조율 엔진<br />
+                  • <strong>Google Places & Maps Platform</strong>: 글로벌 공식 명소 데이터, 3D 지도 & 대중교통 길찾기<br />
+                  • 한국어·영어·일본어·중국어 4개 국어 완벽 다국어 지원
                 </p>
               </div>
             </>
