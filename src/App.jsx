@@ -687,9 +687,7 @@ export default function App() {
               ? `Oops, my apologies! I will listen much more carefully 💡 Please tell me your preferred city or conditions again and I will organize it perfectly! ✨`
               : `아이쿠 죄송해요! 제가 살짝 헷갈렸네요 😅 원하시는 여행지나 일정을 편하게 다시 말씀해 주시면 딱 맞춰서 꼼꼼히 정리해 드릴게요! ✨`;
           } else {
-            chatText = lang === 'en'
-              ? `I will focus on your **${targetCity}** trip! Let me know any preferences or ask about Day ${activeDay} spots 😊`
-              : `네! **${targetCity}** 여행 코스로 꼼꼼하게 맞춰 드릴게요. ${targetCity} ${activeDay}일차에 어울리는 추천 명소를 살펴보시거나 언제든 추가 조건을 말씀해 주세요 😊`;
+            chatText = contextualIntro;
           }
         } else if (!chatText) {
           chatText = contextualIntro;
