@@ -41,6 +41,7 @@ import ExitConfirmModal from './components/ExitConfirmModal';
 
 import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
 import { geminiGenerateFullItinerary, generateLocalFallbackItinerary, enrichItineraryPhotosAsync, extractLocationKeyword, extractDaysFromPrompt } from './services/geminiNlpService';
+import { sanitizeInput, inspectSecurityGuardrails } from './services/securityGuardService';
 import { findRecommendedPois } from './data/koreaTravelPoiDatabase';
 import { getDynamicGatewayChips } from './data/voraDialogKnowledge';
 import { buildTravelContext, generateContextualAdvice, patchTravelState, removeContextChip, toggleContextChip, classifyUserIntent, INITIAL_TRAVEL_STATE } from './services/travelContextEngine';
