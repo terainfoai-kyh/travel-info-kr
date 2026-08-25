@@ -584,15 +584,7 @@ export function generateContextualAdvice(context, lang = 'ko') {
   // 1. Check if user input is an emotional or casual Tiki-Taka query!
   const tikitaka = resolveTikitakaResponse(cleanPrompt, targetCity, season);
   if (tikitaka) {
-    const isMetaOrBanter = ['WHO_ARE_YOU', 'FOOL_PLAYFUL', 'OTHER_CITY', 'GREETING', 'COMPLIMENT'].includes(tikitaka.matchedKey);
-    if (isMetaOrBanter) {
-      return `${tikitaka.reply}\n\n👉 **${tikitaka.followUp}**`;
-    }
-    const layer1 = tikitaka.reply;
-    const layer2 = `${targetCity} ${activeDay}일차 ${timeSlotLabel} 추천 명소와 최적 이동 동선입니다 💡 (${cityInfo.transitTip})`;
-    const layer3 = tikitaka.followUp;
-
-    return `${layer1}\n\n${layer2}\n\n👉 **${layer3}**`;
+    return `${tikitaka.reply}\n\n👉 **${tikitaka.followUp}**`;
   }
 
   // 2. Door-to-Door Interactive Flow Check (공항/숙소/도착시간/계절 연계)
