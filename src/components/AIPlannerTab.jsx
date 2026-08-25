@@ -26,7 +26,8 @@ export default function AIPlannerTab({
   onAddPoiToItinerary,
   sessionContext = {},
   onRemoveContextChip,
-  onToggleContextChip
+  onToggleContextChip,
+  onResetChat
 }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
 
@@ -195,6 +196,7 @@ export default function AIPlannerTab({
             sessionContext={sessionContext}
             onRemoveContextChip={onRemoveContextChip}
             onToggleContextChip={onToggleContextChip}
+            onResetChat={onResetChat}
           />
         </div>
       </div>

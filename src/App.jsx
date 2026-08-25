@@ -565,18 +565,21 @@ export default function App() {
         tagLabel = `👑 ${promptQuery.slice(0, 24)}`;
       }
 
-      const dynamicGatewayChips = getDynamicGatewayChips(targetCity, lang);
+      const seasonalChips = (lang === 'en')
+        ? ['☀️ Departing This Week', '🍁 Oct Autumn Foliage', '❄️ Dec Winter Trip']
+        : ['☀️ 이번 주 출발', '🍁 10월 가을 단풍', '❄️ 12월 겨울 여행'];
 
       const briefingText = (lang === 'en')
-        ? `**[ ${tagLabel} ]**\nI'm ready to craft your Door-to-Door ${targetCity} itinerary! ✈️🏨\nWhich airport/station and what time are you arriving, and where is your hotel? 😊\n\n*(Feel free to chat, or tap [Generate Itinerary] anytime! ✨)*`
+        ? `💡 Feel free to ask anything, or tap [Create Itinerary Now] anytime!\n\n**[ ${tagLabel} ]**\nWhen (date/season) and what time are you arriving, and where is your hotel? 😊`
         : (lang === 'ja')
-        ? `**[ ${tagLabel} ]**\n空港・駅到着からホテルへの手荷物預け、初日の名所までシームレスにお繋ぎします！✈️🏨\nご到着の空港・駅と到着時間、ご宿泊先はお決まりですか？😊\n\n*（気になる点はお気軽にご質問ください。「いいよ」やボタンでいつでも日程表を完成できます！✨）*`
+        ? `💡 気になる点はお気軽にご質問ください。「いいよ」やボタンでいつでも日程表を完成できます！\n\n**[ ${tagLabel} ]**\nいつ頃（日程/季節）何時頃にご到着され、ご宿泊先はどのエリアですか？😊`
         : (lang === 'zh' || lang === 'zht')
-        ? `**[ ${tagLabel} ]**\n从机场/车站接驳、酒店行李寄存到首日行程为您一站式定制！✈️🏨\n请问您的到达机场/车站、到达时间及预订的酒店区域是哪里？😊\n\n*（随时自由提问，点击[生成行程表]或回复“好”即可立即完成！✨）*`
-        : `**[ ${tagLabel} ]**\n공항/역 도착부터 호텔 짐 보관, 1일차 알찬 코스까지 도어투도어로 연결해 드릴게요! ✈️🏨\n어느 공항/역에 몇 시쯤 도착하시고, 숙소는 어디쯤으로 생각 중이신가요? 😊\n\n*(궁금한 점 편하게 물어보시고, 언제든 '좋아' 또는 [일정표 만들기]를 누르시면 바로 완성해 드려요! ✨)*`;
+        ? `💡 随时自由提问，点击[立即生成行程]或回复“好”即可立即完成！\n\n**[ ${tagLabel} ]**\n请问您大约何时（日期/季节）几点到达，预订的酒店区域是哪里？😊`
+        : `💡 편하게 물어보시고, 언제든 '좋아' 또는 [바로 일정 만들기]를 누르시면 완성해 드려요!\n\n**[ ${tagLabel} ]**\n언제(날짜/계절) 몇 시쯤 어디로 도착하시고, 숙소는 어디쯤이신가요? 😊`;
 
       const quickSuggestions = [
-        (lang === 'en' ? '🚀 Generate Itinerary Right Now' : '🚀 이대로 바로 일정 만들기'),
+        (lang === 'en' ? '🚀 Create Itinerary Now' : '🚀 바로 일정 만들기'),
+        ...seasonalChips,
         ...dynamicGatewayChips,
         (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')
       ];
@@ -766,6 +769,13 @@ export default function App() {
     setSessionContext(prev => toggleContextChip(prev, chipId));
   };
 
+  // 🔄 대화 초기화 및 새 대화 시작 핸들러
+  const handleResetChat = () => {
+    setChatMessages(getInitialWelcomeMessages(lang, null));
+    setSessionContext(INITIAL_TRAVEL_STATE);
+    showToast(lang === 'en' ? 'Starting a fresh new conversation ✨' : '새로운 대화를 시작합니다 ✨');
+  };
+
   // 저장된 여행 삭제 핸들러
   const handleDeleteSavedTrip = (tripId) => {
     setSavedTrips(prev => {
@@ -886,6 +896,7 @@ export default function App() {
                     sessionContext={sessionContext}
                     onRemoveContextChip={handleRemoveContextChip}
                     onToggleContextChip={handleToggleContextChip}
+                    onResetChat={handleResetChat}
                   />
                 </div>
                 <div className="itinerary-hub-column" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
@@ -928,6 +939,7 @@ export default function App() {
               sessionContext={sessionContext}
               onRemoveContextChip={handleRemoveContextChip}
               onToggleContextChip={handleToggleContextChip}
+              onResetChat={handleResetChat}
             />
           </div>
         )}

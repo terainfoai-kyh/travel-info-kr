@@ -16,7 +16,8 @@ export default function VoraAIChat({
   onAddPoiToItinerary,
   sessionContext = {},
   onRemoveContextChip,
-  onToggleContextChip
+  onToggleContextChip,
+  onResetChat
 }) {
   const handleTimelineClick = onConfirmItinerary || onViewTimeline;
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
@@ -141,20 +142,49 @@ export default function VoraAIChat({
           </div>
         </div>
 
-        <span style={{
-          fontSize: '0.62rem',
-          fontWeight: 700,
-          color: '#059669',
-          backgroundColor: 'rgba(16, 185, 129, 0.12)',
-          padding: '0.08rem 0.35rem',
-          borderRadius: 'var(--radius-full)',
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '0.2rem'
-        }}>
-          <span style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: '#10b981' }} />
-          <span>{t.chatStatusLive || (lang === 'en' ? 'Live Chat' : '실시간 1:1 대화중')}</span>
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+          <span style={{
+            fontSize: '0.62rem',
+            fontWeight: 700,
+            color: '#059669',
+            backgroundColor: 'rgba(16, 185, 129, 0.12)',
+            padding: '0.08rem 0.35rem',
+            borderRadius: 'var(--radius-full)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.2rem'
+          }}>
+            <span style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: '#10b981' }} />
+            <span>{t.chatStatusLive || (lang === 'en' ? 'Live Chat' : '실시간 1:1 대화중')}</span>
+          </span>
+
+          {onResetChat && (
+            <button
+              type="button"
+              onClick={onResetChat}
+              title={lang === 'en' ? 'Reset Conversation' : '대화 초기화 및 새 대화 시작'}
+              style={{
+                fontSize: '0.62rem',
+                fontWeight: 700,
+                color: '#64748b',
+                backgroundColor: 'rgba(241, 245, 249, 0.95)',
+                border: '1px solid #cbd5e1',
+                padding: '0.08rem 0.38rem',
+                borderRadius: 'var(--radius-full)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.2rem',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease'
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#e2e8f0'; e.currentTarget.style.color = '#1e293b'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(241, 245, 249, 0.95)'; e.currentTarget.style.color = '#64748b'; }}
+            >
+              <span>🔄</span>
+              <span>{lang === 'en' ? 'Reset' : '새 대화'}</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* 📍 Active Context Chips Bar (현재 여행 조건 미니 캡슐 & 조건 추가 토글) */}
