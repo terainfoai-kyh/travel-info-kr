@@ -115,7 +115,7 @@ export default function VoraAIChat({
     }}>
       {/* Chat Header (슬림 컴팩트) */}
       <div style={{
-        padding: '0.45rem 0.75rem',
+        padding: '0.32rem 0.65rem',
         borderBottom: '1px solid rgba(37, 99, 235, 0.15)',
         display: 'flex',
         alignItems: 'center',
@@ -128,25 +128,25 @@ export default function VoraAIChat({
             src="/logo.png"
             alt="VORA"
             style={{
-              width: '22px',
-              height: '22px',
+              width: '20px',
+              height: '20px',
               borderRadius: '6px',
               objectFit: 'cover'
             }}
           />
           <div>
-            <h3 style={{ margin: 0, fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-main)' }}>
+            <h3 style={{ margin: 0, fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-main)' }}>
               {t.chatTitle || 'Vora AI 컨시어지 대화'}
             </h3>
           </div>
         </div>
 
         <span style={{
-          fontSize: '0.64rem',
+          fontSize: '0.62rem',
           fontWeight: 700,
           color: '#059669',
           backgroundColor: 'rgba(16, 185, 129, 0.12)',
-          padding: '0.1rem 0.38rem',
+          padding: '0.08rem 0.35rem',
           borderRadius: 'var(--radius-full)',
           display: 'inline-flex',
           alignItems: 'center',
@@ -178,11 +178,11 @@ export default function VoraAIChat({
             zIndex: 10
           }}>
             <div style={{
-              padding: '0.35rem 0.65rem',
+              padding: '0.25rem 0.55rem',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              gap: '0.4rem',
+              gap: '0.35rem',
               overflowX: 'auto',
               whiteSpace: 'nowrap',
               scrollbarWidth: 'none'
@@ -675,28 +675,35 @@ export default function VoraAIChat({
                     </div>
                   )}
 
-                  {/* Quick Suggestions Chips for Conversational Mode */}
+                  {/* Quick Suggestions Chips for Conversational Mode (Compact Horizontal Swipe) */}
                   {msg.quickSuggestions && msg.quickSuggestions.length > 0 && (
                     <div style={{
                       display: 'flex',
-                      flexWrap: 'wrap',
-                      gap: '0.4rem',
-                      marginTop: '0.65rem'
+                      flexWrap: 'nowrap',
+                      overflowX: 'auto',
+                      gap: '0.35rem',
+                      marginTop: '0.55rem',
+                      paddingBottom: '0.25rem',
+                      scrollbarWidth: 'none',
+                      WebkitOverflowScrolling: 'touch',
+                      whiteSpace: 'nowrap'
                     }}>
                       {msg.quickSuggestions.map((suggestion, sIdx) => (
                         <button
                           key={sIdx}
                           onClick={() => onSendMessage && onSendMessage(suggestion)}
                           style={{
+                            flexShrink: 0,
                             backgroundColor: 'rgba(37, 99, 235, 0.08)',
                             color: 'var(--accent-primary)',
                             border: '1px solid var(--border-highlight)',
                             borderRadius: 'var(--radius-full)',
-                            padding: '0.3rem 0.65rem',
-                            fontSize: '0.74rem',
+                            padding: '0.25rem 0.55rem',
+                            fontSize: '0.72rem',
                             fontWeight: 700,
                             cursor: 'pointer',
-                            transition: 'all var(--transition-fast)'
+                            transition: 'all var(--transition-fast)',
+                            whiteSpace: 'nowrap'
                           }}
                         >
                           ✨ {suggestion}
