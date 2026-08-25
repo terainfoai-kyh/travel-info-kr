@@ -532,7 +532,8 @@ export default function App() {
     }
 
     // 🌟 3. 폼 초기 진입, 추천 칩 진입, 1번 검색창 도시 진입 확인 (isExternalEntry 일 때만 초기화 브리핑 실행!)
-    const isDirectGenerateAction = /(이대로 바로 일정 만들기|이 조건으로 일정|일정 만들어줘|일정 만들어|일정 생성|일정 짜줘|일정 세워줘|일정표 만들기|업데이트된 일정표 보기|OK|ok|응|네|좋아|좋아요|굿|진행해|가자|콜)/i.test(promptQuery);
+    const isDirectGenerateAction = /(이대로 바로 일정 만들기|이 조건으로 일정|일정 만들어줘|일정 만들어|일정 생성|일정 짜줘|일정 세워줘|일정표 만들기|업데이트된 일정표 보기|완성해줘|만들어|짜줘)/i.test(promptQuery) ||
+      /(^|\s)(좋아|좋아요|굿|오케이|ok|응|네|그래|가자|콜)($|\s|[!?.~])/i.test(promptQuery);
     const isFormNavigateAction = /(조건 직접 변경하기|조건 변경)/i.test(promptQuery);
 
     if (isFormNavigateAction) {
@@ -633,7 +634,8 @@ export default function App() {
       const updatedState = patchTravelState(sessionContext, promptQuery, detectedCity, parsedDays);
       setSessionContext(updatedState);
 
-      const targetCity = updatedState.tripMemory.destination || '서울';
+      const targetCity = updatedState.tripMemory.destination || null;
+      const displayCity = targetCity || (lang === 'en' ? 'Korea' : '대한민국');
       const requestedDays = updatedState.tripMemory.days || 3;
       const userIntent = updatedState.lastIntent;
 
@@ -681,7 +683,7 @@ export default function App() {
               (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')
             ]
           : [
-              (lang === 'en' ? `🚀 Generate ${targetCity} ${requestedDays}D Itinerary` : `🚀 ${targetCity} ${requestedDays}일 전체 일정표 만들기`),
+              (lang === 'en' ? `🚀 Generate ${displayCity} ${requestedDays}D Itinerary` : `🚀 ${displayCity} ${requestedDays}일 전체 일정표 만들기`),
               (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')
             ];
 
@@ -692,7 +694,7 @@ export default function App() {
         } else if (isAddDayQuery) {
           const addedDays = /(이틀|2일)/.test(promptQuery) ? 2 : 1;
           dynamicSuggestDays = Math.min(5, currentDays + addedDays);
-          const city = targetCity;
+          const city = displayCity;
           chatText = (lang === 'en')
             ? `Of course! Shall I extend your ${city} itinerary from ${currentDays} days to **${dynamicSuggestDays} days** for a more relaxed trip? 😊\n\nI will add scenic local gems and must-visit spots for the extra day!`
             : `물론이죠! 기존 ${currentDays}일 코스에서 하루를 더해 **【 ${city} ${dynamicSuggestDays}일 알찬 코스 】**로 여유롭게 확장해 드릴까요? 😊\n\n추가된 하루에는 감성 오션뷰 핫플과 여유로운 로컬 명소를 더해 알차게 조율해 드릴게요! ✨`;
@@ -702,8 +704,8 @@ export default function App() {
           ];
         } else if (userIntent === 'UPDATE_DESTINATION') {
           chatText = lang === 'en'
-            ? `Switched destination to **${targetCity}**! ✨ Here are the best spots for Day ${activeDay}.`
-            : `여행지를 **${targetCity}**로 변경했어요! ✨ 말씀해 주신 조건에 맞춰 ${targetCity} ${activeDay}일차에 어울리는 추천 명소를 준비했습니다.`;
+            ? `Switched destination to **${displayCity}**! ✨ Here are the best spots for Day ${activeDay}.`
+            : `여행지를 **${displayCity}**로 변경했어요! ✨ 말씀해 주신 조건에 맞춰 ${displayCity} ${activeDay}일차에 어울리는 추천 명소를 준비했습니다.`;
         }
 
         const botMsg = {
@@ -720,9 +722,10 @@ export default function App() {
         setChatMessages(prev => [...prev, botMsg]);
       } else {
         // 2. 명시적 전체 일정 빌드 요청 (REGENERATE_ITINERARY or 🚀 확정 버튼)
+        const buildCity = targetCity || '서울';
         const finalResult = {
-          ...generateLocalFallbackItinerary(promptQuery, targetCity, requestedDays, lang),
-          targetCity,
+          ...generateLocalFallbackItinerary(promptQuery, buildCity, requestedDays, lang),
+          targetCity: buildCity,
           generationTime: elapsedSeconds,
           draftId: `draft-${Date.now()}`
         };

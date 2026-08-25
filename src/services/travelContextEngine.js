@@ -23,7 +23,7 @@ import {
 
 export const INITIAL_TRAVEL_STATE = {
   tripMemory: {
-    destination: '서울',
+    destination: null,
     days: 3,
     companion: { isKids: false, isElder: false, isCouple: false, isSolo: false, type: '일반' },
     preferences: {
@@ -37,7 +37,7 @@ export const INITIAL_TRAVEL_STATE = {
     isRainPreferred: false
   },
   currentContext: {
-    currentCity: '서울',
+    currentCity: null,
     activeDay: 1,
     timeSlot: 'lunch',
     timeSlotLabel: '점심',
@@ -54,8 +54,9 @@ export const INITIAL_TRAVEL_STATE = {
 export function classifyUserIntent(userPrompt = '', currentState = INITIAL_TRAVEL_STATE) {
   const clean = (userPrompt || '').trim().toLowerCase();
 
-  // 1. Explicit Full Itinerary Build or Affirmative Agreement Intent (좋아, 굿, 응, 일정 짜줘 등)
-  const isExplicitBuild = /(전체\s*일정\s*(만들|줘|생성|보기)|일정\s*(확정|생성|생성해줘|만들어줘|짜줘|세워줘|짜봐)|일정을\s*(보여줘|만들어줘|짜줘|세워줘)|이\s*조건으로\s*전체\s*일정|바로\s*일정|일정표\s*(만들|줘|보여|생성)|좋아|좋아요|굿|오케이|ok|응|그래|가자|콜|완성해줘|만들어|짜줘)/i.test(clean);
+  // 1. Explicit Full Itinerary Build or Affirmative Agreement Intent (좋아, 굿, 응, 일정 짜줘 등 - 단어 경계 철저)
+  const isExplicitBuild = /(전체\s*일정\s*(만들|줘|생성|보기)|일정\s*(확정|생성|생성해줘|만들어줘|짜줘|세워줘|짜봐)|일정을\s*(보여줘|만들어줘|짜줘|세워줘)|이\s*조건으로\s*전체\s*일정|바로\s*일정|일정표\s*(만들|줘|보여|생성)|완성해줘|만들어|짜줘)/i.test(clean) ||
+    /(^|\s)(좋아|좋아요|굿|오케이|ok|응|네|그래|가자|콜)($|\s|[!?.~])/i.test(clean);
   if (isExplicitBuild) {
     return 'REGENERATE_ITINERARY';
   }
