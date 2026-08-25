@@ -43,7 +43,7 @@ import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
 import { geminiGenerateFullItinerary, generateLocalFallbackItinerary, enrichItineraryPhotosAsync, extractLocationKeyword, extractDaysFromPrompt } from './services/geminiNlpService';
 import { sanitizeInput, inspectSecurityGuardrails } from './services/securityGuardService';
 import { findRecommendedPois } from './data/koreaTravelPoiDatabase';
-import { buildTravelContext, generateContextualAdvice, updateSessionContext } from './services/travelContextEngine';
+import { buildTravelContext, generateContextualAdvice, updateSessionContext, removeContextChip } from './services/travelContextEngine';
 
 export default function App() {
   // 4-Language State (ko, en, ja, zh) with 3-Tier Intelligent Auto-Detection
@@ -729,6 +729,11 @@ export default function App() {
     }
   };
 
+  // 🧠 Context Chip 개별 해제 핸들러
+  const handleRemoveContextChip = (chipId) => {
+    setSessionContext(prev => removeContextChip(prev, chipId));
+  };
+
   // 저장된 여행 삭제 핸들러
   const handleDeleteSavedTrip = (tripId) => {
     setSavedTrips(prev => {
@@ -846,6 +851,8 @@ export default function App() {
                     onOpenRewardedAd={() => setIsRewardedAdOpen(true)}
                     onConfirmItinerary={() => setActiveNavTab('mytrip')}
                     onAddPoiToItinerary={handleAddPoiToItinerary}
+                    sessionContext={sessionContext}
+                    onRemoveContextChip={handleRemoveContextChip}
                   />
                 </div>
                 <div className="itinerary-hub-column" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
@@ -885,6 +892,8 @@ export default function App() {
               itineraryData={itineraryData}
               initialMode={plannerInitialMode}
               onAddPoiToItinerary={handleAddPoiToItinerary}
+              sessionContext={sessionContext}
+              onRemoveContextChip={handleRemoveContextChip}
             />
           </div>
         )}

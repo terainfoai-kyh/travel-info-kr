@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Send, Sparkles, Copy, Check, Share2, CornerDownRight, Utensils, Navigation, User, Bot, Loader2 } from 'lucide-react';
+import { Send, Sparkles, Copy, Check, Share2, CornerDownRight, Utensils, Navigation, User, Bot, Loader2, X } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
+import { getActiveContextChips } from '../services/travelContextEngine';
 
 export default function VoraAIChat({
   lang = 'ko',
@@ -12,7 +12,9 @@ export default function VoraAIChat({
   currentUser = null,
   onViewTimeline,
   onConfirmItinerary,
-  onAddPoiToItinerary
+  onAddPoiToItinerary,
+  sessionContext = {},
+  onRemoveContextChip
 }) {
   const handleTimelineClick = onConfirmItinerary || onViewTimeline;
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
@@ -151,6 +153,76 @@ export default function VoraAIChat({
           <span>{t.chatStatusLive || (lang === 'en' ? 'Live Chat' : '실시간 1:1 대화중')}</span>
         </span>
       </div>
+
+      {/* 🧠 Active Context Chips Bar (기억된 여행 조건 미니 캡슐) */}
+      {(() => {
+        const activeChips = getActiveContextChips(sessionContext, lang);
+        if (!activeChips || activeChips.length === 0) return null;
+
+        return (
+          <div style={{
+            padding: '0.3rem 0.65rem',
+            backgroundColor: 'rgba(255, 255, 255, 0.92)',
+            borderBottom: '1px solid rgba(37, 99, 235, 0.1)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+            overflowX: 'auto',
+            whiteSpace: 'nowrap',
+            scrollbarWidth: 'none'
+          }}>
+            <span style={{
+              fontSize: '0.68rem',
+              fontWeight: 800,
+              color: '#3b82f6',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.2rem',
+              flexShrink: 0
+            }}>
+              🧠 {lang === 'en' ? 'Context:' : '기억된 조건:'}
+            </span>
+            {activeChips.map(chip => (
+              <span
+                key={chip.id}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.25rem',
+                  fontSize: '0.68rem',
+                  fontWeight: 700,
+                  padding: '0.12rem 0.45rem',
+                  borderRadius: 'var(--radius-full)',
+                  backgroundColor: `${chip.color}15`,
+                  color: chip.color,
+                  border: `1px solid ${chip.color}35`,
+                  flexShrink: 0
+                }}
+              >
+                <span>{chip.label}</span>
+                {onRemoveContextChip && (
+                  <button
+                    onClick={() => onRemoveContextChip(chip.id)}
+                    title={lang === 'en' ? 'Remove condition' : '조건 해제'}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      padding: 0,
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      color: chip.color,
+                      opacity: 0.75
+                    }}
+                  >
+                    <X size={10} />
+                  </button>
+                )}
+              </span>
+            ))}
+          </div>
+        );
+      })()}
 
       {/* Chat Message Stream */}
       <div

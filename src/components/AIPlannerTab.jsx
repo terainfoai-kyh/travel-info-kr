@@ -23,7 +23,9 @@ export default function AIPlannerTab({
   activeDay = 1,
   onSelectDay,
   initialMode = 'form', // 'form' | 'chat'
-  onAddPoiToItinerary
+  onAddPoiToItinerary,
+  sessionContext = {},
+  onRemoveContextChip
 }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
 
@@ -189,6 +191,8 @@ export default function AIPlannerTab({
             onSelectDay={onSelectDay}
             onViewTimeline={onConfirmItinerary}
             onAddPoiToItinerary={onAddPoiToItinerary}
+            sessionContext={sessionContext}
+            onRemoveContextChip={onRemoveContextChip}
           />
         </div>
       </div>
