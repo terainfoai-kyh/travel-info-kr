@@ -9,7 +9,101 @@
 
 export const KOREA_TRAVEL_POI_DB = [
   // ==========================================
-  // 1. 강원도 (강릉, 속초, 양양, 평창)
+  // 1. 거제 & 남해 (거제도, 통영)
+  // ==========================================
+  {
+    id: 'kt_gj_windhill',
+    title: '바람의 언덕 & 도장포 유람선',
+    region: '경남',
+    city: '거제',
+    category: '자연명소',
+    theme: '풍차/오션뷰',
+    duration: 90,
+    rating: 4.9,
+    image: 'http://tong.visitkorea.or.kr/cms/resource/66/2784566_image2_1.jpg',
+    lat: 34.7601,
+    lng: 128.6664,
+    tags: ['바다', '풍차', '인생샷', '아이동반', '가족', '대표명소'],
+    summary: '남해의 푸른 바다가 시원하게 내려다보이는 초록 언덕 위 풍차와 몽돌 해안 산책로'
+  },
+  {
+    id: 'kt_gj_sinseondae',
+    title: '신선대 기암절벽',
+    region: '경남',
+    city: '거제',
+    category: '자연명소',
+    theme: '절경/전망',
+    duration: 60,
+    rating: 4.8,
+    image: 'http://tong.visitkorea.or.kr/cms/resource/71/2607571_image2_1.jpg',
+    lat: 34.7570,
+    lng: 128.6630,
+    tags: ['바다', '기암괴석', '포토존', '힐링', '절경'],
+    summary: '신선들이 노닐던 기암괴석 위에서 감상하는 환상적인 비취빛 남해 바다 파노라마'
+  },
+  {
+    id: 'kt_gj_oedo',
+    title: '외도 보타니아 해상식물원',
+    region: '경남',
+    city: '거제',
+    category: '자연명소',
+    theme: '해상정원/보타니아',
+    duration: 120,
+    rating: 4.9,
+    image: 'http://tong.visitkorea.or.kr/cms/resource/38/2607538_image2_1.jpg',
+    lat: 34.7865,
+    lng: 128.7180,
+    tags: ['해상정원', '이국적', '아열대식물', '유람선', '아이동반', '가족'],
+    summary: '푸른 바다 한가운데 이국적인 조각과 아열대 식물이 어우러진 해상 천국'
+  },
+  {
+    id: 'kt_gj_mongdol',
+    title: '학동 흑진주 몽돌해변',
+    region: '경남',
+    city: '거제',
+    category: '바다',
+    theme: '몽돌/해변',
+    duration: 80,
+    rating: 4.8,
+    image: 'http://tong.visitkorea.or.kr/cms/resource/46/2607546_image2_1.jpg',
+    lat: 34.7925,
+    lng: 128.6360,
+    tags: ['바다', '몽돌해변', '파도소리', '아이동반', '힐링', '산책'],
+    summary: '검은 몽돌이 자갈자갈 파도와 함께 노래하는 거제 최고의 청정 해변 산책로'
+  },
+  {
+    id: 'kt_gj_maemi',
+    title: '매미성 & 해안 성곽',
+    region: '경남',
+    city: '거제',
+    category: '핫플',
+    theme: '중세성곽/오션뷰',
+    duration: 70,
+    rating: 4.9,
+    image: 'http://tong.visitkorea.or.kr/cms/resource/78/2650078_image2_1.jpg',
+    lat: 35.0062,
+    lng: 128.7160,
+    tags: ['성곽', '인생샷', '오션뷰', 'MZ핫플', '데이트'],
+    summary: '태풍을 막기 위해 화강암으로 홀로 쌓아올린 신비롭고 이국적인 유럽풍 해안 성채'
+  },
+  {
+    id: 'kt_gj_jungledome',
+    title: '거제식물원 정글돔 (실내)',
+    region: '경남',
+    city: '거제',
+    category: '실내',
+    theme: '실내온실/키즈체험',
+    duration: 100,
+    rating: 4.9,
+    image: 'http://tong.visitkorea.or.kr/cms/resource/02/2784502_image2_1.jpg',
+    lat: 34.8580,
+    lng: 128.5830,
+    tags: ['실내', '비오는날', '정글돔', '새둥지포토존', '아이동반', '키즈'],
+    summary: '국내 최대 유리온실 정글돔에서 만나는 열대 식물과 대형 폭포, 새둥지 인생샷 성지'
+  },
+
+  // ==========================================
+  // 2. 강원도 (강릉, 속초, 양양)
   // ==========================================
   {
     id: 'kt_gw_anmok',
@@ -88,7 +182,7 @@ export const KOREA_TRAVEL_POI_DB = [
   },
 
   // ==========================================
-  // 2. 키즈 & 아이동반 전용 (서울/수도권)
+  // 3. 서울 & 수도권 (키즈/실내/핫플)
   // ==========================================
   {
     id: 'kt_kids_lotte_aquarium',
@@ -135,10 +229,6 @@ export const KOREA_TRAVEL_POI_DB = [
     tags: ['아이동반', '키즈', '테마파크', '실내놀이', '퍼레이드', '비오는날'],
     summary: '세계 최대 규모의 실내 테마파크 어드벤처와 화려한 매직캐슬, 환상적인 야간 퍼레이드'
   },
-
-  // ==========================================
-  // 3. 비오는 날 & 실내 핫플 (서울/수도권)
-  // ==========================================
   {
     id: 'kt_indoor_coex',
     title: '코엑스 별마당도서관 & 아쿠아리움',
@@ -199,10 +289,6 @@ export const KOREA_TRAVEL_POI_DB = [
     tags: ['실내', '비오는날', '건축명소', '전시회', '디자인랩'],
     summary: '자하 하디드의 미래지향적 곡선 건축물 속 다채로운 글로벌 디자인 전시와 라이프스타일 숍'
   },
-
-  // ==========================================
-  // 4. 서울 대표 하이라이트 (성수, 종로, 한남, 홍대)
-  // ==========================================
   {
     id: 'kt_seoul_gyeongbok',
     title: '경복궁 & 국립고궁박물관',
@@ -233,24 +319,9 @@ export const KOREA_TRAVEL_POI_DB = [
     tags: ['카페', '팝업스토어', 'MZ핫플', '쇼핑', '데이트'],
     summary: '붉은 벽돌 공장과 트렌디한 디자이너 팝업, 감성 브루잉 카페가 공존하는 한국의 브루클린'
   },
-  {
-    id: 'kt_seoul_bukchon',
-    title: '북촌한옥마을 & 삼청동길',
-    region: '서울',
-    city: '서울',
-    category: '명소',
-    theme: '전통/골목',
-    duration: 90,
-    rating: 4.8,
-    image: 'http://tong.visitkorea.or.kr/cms/resource/03/2650003_image2_1.jpg',
-    lat: 37.5826,
-    lng: 126.9837,
-    tags: ['한옥', '골목길', '전통공예', '갤러리', '커플'],
-    summary: '도심 속 고즈넉한 기와지붕 골목길과 한옥 갤러리, 삼청동의 감성 공방 투어'
-  },
 
   // ==========================================
-  // 5. 부산 대표 하이라이트
+  // 4. 부산
   // ==========================================
   {
     id: 'kt_bs_gwangan',
@@ -285,52 +356,57 @@ export const KOREA_TRAVEL_POI_DB = [
 ];
 
 /**
- * Fast 0-Token Semantic Matcher for recommended POIs
+ * Fast 0-Token Semantic Matcher for recommended POIs (Strict Regional Containment)
  */
 export function findRecommendedPois(query = '', targetRegion = '', limit = 3) {
-  if (!query && !targetRegion) {
-    return KOREA_TRAVEL_POI_DB.slice(0, limit);
-  }
-
   const clean = (query || '').toLowerCase().replace(/[\s\-_]/g, '');
-  const regionClean = (targetRegion || '').toLowerCase();
+  let regionClean = (targetRegion || '').toLowerCase();
+  if (regionClean.includes('거제')) regionClean = '거제';
+  if (regionClean.includes('강릉') || regionClean.includes('속초') || regionClean.includes('양양')) regionClean = '강원';
+
+  // 1. Strict Region Filter (동일 도시/지역 POI 풀을 최우선 추출)
+  let regionPool = KOREA_TRAVEL_POI_DB.filter(p => {
+    if (!regionClean) return true;
+    const pCity = p.city.toLowerCase();
+    const pRegion = p.region.toLowerCase();
+    return pCity.includes(regionClean) || pRegion.includes(regionClean) || regionClean.includes(pCity) || regionClean.includes(pRegion);
+  });
+
+  // 해당 지역 데이터가 부족할 경우 fallback
+  if (regionPool.length === 0) {
+    regionPool = KOREA_TRAVEL_POI_DB;
+  }
 
   const isKidsQuery = /(아이|키즈|어린이|유아|아기|가족|초등)/i.test(clean);
   const isIndoorQuery = /(실내|비|우천|비오는|더위|추위)/i.test(clean);
+  const isMinimalWalking = /(걷기 싫|다리 아|많이 안 걷|편하게|유모차|안 걸)/i.test(clean);
+  const isCafeQuery = /(카페|디저트|베이커리|커피)/i.test(clean);
   const isSeaQuery = /(바다|해변|오션|해수욕장|서핑)/i.test(clean);
-  const isGangwonQuery = /(강원|강릉|속초|양양|동해)/i.test(clean);
 
-  // Score matching
-  const scored = KOREA_TRAVEL_POI_DB.map(poi => {
-    let score = 0;
+  // Score matching inside target region pool
+  const scored = regionPool.map(poi => {
+    let score = 50; // Base score within valid region
     const titleClean = poi.title.toLowerCase().replace(/[\s\-_]/g, '');
     const summaryClean = poi.summary.toLowerCase();
-    const cityClean = poi.city.toLowerCase();
-    const regionName = poi.region.toLowerCase();
 
-    // 1. Theme Priority Match (+150)
+    // 1. Theme Priority Match
     if (isKidsQuery && (poi.category === '키즈' || poi.tags.includes('아이동반') || poi.tags.includes('키즈'))) {
       score += 150;
     }
     if (isIndoorQuery && (poi.category === '실내' || poi.tags.includes('실내') || poi.tags.includes('비오는날'))) {
       score += 150;
     }
-    if (isSeaQuery && (poi.category === '바다' || poi.tags.includes('바다'))) {
-      score += 120;
-    }
-    if (isGangwonQuery && (regionName === '강원' || ['강릉', '속초', '양양'].includes(cityClean))) {
-      score += 120;
-    }
-
-    // 2. Region Match (+100)
-    if (regionClean && (regionName.includes(regionClean) || cityClean.includes(regionClean))) {
+    if (isMinimalWalking && (poi.category === '실내' || poi.tags.includes('아이동반') || poi.duration <= 90)) {
       score += 100;
     }
-    if (clean.includes('서울') && regionName === '서울') score += 100;
-    if (clean.includes('부산') && regionName === '부산') score += 100;
-    if (clean.includes('제주') && regionName === '제주') score += 100;
+    if (isCafeQuery && (poi.category === '카페' || poi.tags.includes('카페') || poi.tags.includes('카페거리'))) {
+      score += 120;
+    }
+    if (isSeaQuery && (poi.category === '바다' || poi.tags.includes('바다') || poi.tags.includes('오션뷰'))) {
+      score += 120;
+    }
 
-    // 3. Keyword Substring Match (+30)
+    // 2. Keyword Substring Match
     for (const tag of poi.tags) {
       if (clean.includes(tag.toLowerCase())) score += 30;
     }
@@ -340,12 +416,5 @@ export function findRecommendedPois(query = '', targetRegion = '', limit = 3) {
   });
 
   scored.sort((a, b) => b.matchScore - a.matchScore);
-  
-  // Filter top matches
-  const topMatches = scored.filter(p => p.matchScore > 0);
-  if (topMatches.length > 0) {
-    return topMatches.slice(0, limit);
-  }
-
-  return KOREA_TRAVEL_POI_DB.slice(0, limit);
+  return scored.slice(0, limit);
 }
