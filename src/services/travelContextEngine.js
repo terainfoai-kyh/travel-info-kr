@@ -590,7 +590,6 @@ export function generateContextualAdvice(context, lang = 'ko') {
   // 2. Door-to-Door Interactive Flow Check (공항/숙소/도착시간/계절 연계)
   const isGatewayOrHotelMentioned = /(공항|ktx|터미널|숙소|호텔|강남|명동|홍대|해운대|서면|애월|서귀포|바람의언덕|매미성)/i.test(cleanPrompt) || Boolean(context.tripMemory?.gateway || context.tripMemory?.hotelArea);
   const isTimeMentioned = /(오전|오후|저녁|밤|도착|[0-9]+시)/i.test(cleanPrompt) || Boolean(context.tripMemory?.arrivalTime);
-  const season = context.tripMemory?.season || (/(겨울|가을|봄|여름)/.test(cleanPrompt) ? cleanPrompt.match(/(겨울|가을|봄|여름)/)[1] : null);
 
   if (isGatewayOrHotelMentioned && !context.tripMemory?.arrivalTime && !isTimeMentioned) {
     const gw = context.tripMemory?.gateway || '공항/역';
