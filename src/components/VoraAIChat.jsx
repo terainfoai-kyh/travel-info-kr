@@ -688,27 +688,33 @@ export default function VoraAIChat({
                       WebkitOverflowScrolling: 'touch',
                       whiteSpace: 'nowrap'
                     }}>
-                      {msg.quickSuggestions.map((suggestion, sIdx) => (
-                        <button
-                          key={sIdx}
-                          onClick={() => onSendMessage && onSendMessage(suggestion)}
-                          style={{
-                            flexShrink: 0,
-                            backgroundColor: 'rgba(37, 99, 235, 0.08)',
-                            color: 'var(--accent-primary)',
-                            border: '1px solid var(--border-highlight)',
-                            borderRadius: 'var(--radius-full)',
-                            padding: '0.25rem 0.55rem',
-                            fontSize: '0.72rem',
-                            fontWeight: 700,
-                            cursor: 'pointer',
-                            transition: 'all var(--transition-fast)',
-                            whiteSpace: 'nowrap'
-                          }}
-                        >
-                          ✨ {suggestion}
-                        </button>
-                      ))}
+                      {msg.quickSuggestions.map((suggestion, sIdx) => {
+                        const isBuildBtn = suggestion.includes('바로 일정') || suggestion.includes('일정표 만들기') || suggestion.includes('Generate Itinerary');
+                        return (
+                          <button
+                            key={sIdx}
+                            onClick={() => onSendMessage && onSendMessage(suggestion)}
+                            style={{
+                              flexShrink: 0,
+                              background: isBuildBtn
+                                ? 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)'
+                                : 'rgba(37, 99, 235, 0.08)',
+                              color: isBuildBtn ? '#ffffff' : 'var(--accent-primary)',
+                              border: isBuildBtn ? 'none' : '1px solid var(--border-highlight)',
+                              borderRadius: 'var(--radius-full)',
+                              padding: '0.28rem 0.65rem',
+                              fontSize: '0.74rem',
+                              fontWeight: 800,
+                              cursor: 'pointer',
+                              boxShadow: isBuildBtn ? '0 2px 8px rgba(37, 99, 235, 0.35)' : 'none',
+                              transition: 'all var(--transition-fast)',
+                              whiteSpace: 'nowrap'
+                            }}
+                          >
+                            {suggestion.startsWith('🚀') || suggestion.startsWith('⚙️') ? suggestion : `✨ ${suggestion}`}
+                          </button>
+                        );
+                      })}
                     </div>
                   )}
 

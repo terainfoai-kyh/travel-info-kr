@@ -470,6 +470,41 @@ export const CITY_GATEWAY_HUBS = {
       '🌊 이미 여수 도착'
     ]
   },
+  '거제': {
+    gateways: ['거제(고현)버스터미널', '김해국제공항', '통영종합버스터미널'],
+    hotelAreas: ['바람의언덕/해금강', '매미성/흥남해변', '고현/옥포'],
+    arrivalTransit: '부산 사상/노포터미널에서 거가대교 경유 직행버스로 1시간 10분 쾌속 진입',
+    departureAdvice: '거제터미널 출발 20분 전 도착 권장 (바람의 핫도그 & 몽돌빵 포장)',
+    defaultChips: [
+      '🚌 거제터미널 & 바람의언덕 숙소',
+      '🌊 거제터미널 & 매미성 숙소',
+      '✈️ 김해공항 & 거제 리조트',
+      '🏖️ 이미 거제 도착'
+    ]
+  },
+  '인천': {
+    gateways: ['인천국제공항 T1/T2', '인천역 1호선/수인분당선', '송도 센트럴파크'],
+    hotelAreas: ['송도국제도시', '영종도 오션뷰', '개항장/차이나타운'],
+    arrivalTransit: '인천역 또는 공항철도로 송도 센트럴파크 및 개항장 20분 진입',
+    departureAdvice: '인천공항 또는 인천역 출발 30분 전 도착 권장 (신포시장 닭강정 포장)',
+    defaultChips: [
+      '✈️ 인천공항 & 영종도 오션뷰',
+      '🏙️ 인천역 & 송도 센트럴파크',
+      '🥟 인천역 & 개항장 숙소',
+      '🏢 이미 인천 도착'
+    ]
+  },
+  '수원': {
+    gateways: ['수원역 KTX/1호선', '수원버스터미널'],
+    hotelAreas: ['행궁동/화성행궁', '광교호수공원', '수원역 인근'],
+    arrivalTransit: '수원역에서 행궁동 방면 버스로 10분 직통 연결',
+    departureAdvice: '수원역 KTX 탑승 20분 전 도착 권장 (통닭거리 남문통닭 포장)',
+    defaultChips: [
+      '🚅 KTX 수원역 & 행궁동 숙소',
+      '🏞️ 수원역 & 광교호수 숙소',
+      '🏰 이미 수원 도착'
+    ]
+  },
   '전주': {
     gateways: ['전주역 KTX', '전주 고속/시외버스터미널'],
     hotelAreas: ['전주 한옥마을', '객리단길/다가동', '서신/효자동'],
@@ -488,7 +523,8 @@ export const CITY_GATEWAY_HUBS = {
  * Get Dynamic Gateway Onboarding Chips based on Target City
  */
 export function getDynamicGatewayChips(targetCity = '서울', lang = 'ko') {
-  const cityKey = Object.keys(CITY_GATEWAY_HUBS).find(k => (targetCity || '').includes(k)) || '서울';
+  const cleanCity = (targetCity || '').replace(/(도|시|군|구|특별시|광역시)/g, '').trim();
+  const cityKey = Object.keys(CITY_GATEWAY_HUBS).find(k => (targetCity || '').includes(k) || k.includes(cleanCity)) || '서울';
   const hub = CITY_GATEWAY_HUBS[cityKey] || CITY_GATEWAY_HUBS['서울'];
   
   if (lang === 'en') {

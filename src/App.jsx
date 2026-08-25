@@ -576,8 +576,8 @@ export default function App() {
         : `**[ ${tagLabel} ]**\n공항/역 도착부터 호텔 짐 보관, 1일차 알찬 코스까지 도어투도어로 연결해 드릴게요! ✈️🏨\n어느 공항/역에 몇 시쯤 도착하시고, 숙소는 어디쯤으로 생각 중이신가요? 😊\n\n*(궁금한 점 편하게 물어보시고, 언제든 '좋아' 또는 [일정표 만들기]를 누르시면 바로 완성해 드려요! ✨)*`;
 
       const quickSuggestions = [
-        ...dynamicGatewayChips,
         (lang === 'en' ? '🚀 Generate Itinerary Right Now' : '🚀 이대로 바로 일정 만들기'),
+        ...dynamicGatewayChips,
         (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')
       ];
 
