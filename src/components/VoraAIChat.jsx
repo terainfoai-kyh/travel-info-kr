@@ -489,112 +489,110 @@ export default function VoraAIChat({
                           <div
                             key={poi.id || pIdx}
                             style={{
-                              flex: '0 0 min(72vw, 230px)',
-                              width: 'min(72vw, 230px)',
+                              flex: '0 0 min(68vw, 215px)',
+                              width: 'min(68vw, 215px)',
                               scrollSnapAlign: 'start',
                               backgroundColor: '#ffffff',
-                              borderRadius: '16px',
+                              borderRadius: '14px',
                               border: '1px solid rgba(226, 232, 240, 0.95)',
-                              boxShadow: '0 4px 14px rgba(0,0,0,0.06)',
-                              overflow: 'hidden',
+                              boxShadow: '0 3px 10px rgba(0,0,0,0.04)',
+                              padding: '0.75rem',
                               display: 'flex',
-                              flexDirection: 'column'
+                              flexDirection: 'column',
+                              gap: '0.4rem',
+                              boxSizing: 'border-box'
                             }}
                           >
-                            <div style={{ position: 'relative', width: '100%', height: '115px', backgroundColor: '#f1f5f9' }}>
-                              <img
-                                src={poi.image}
-                                alt={poi.title}
-                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                onError={(e) => {
-                                  e.target.onerror = null;
-                                  e.target.src = 'http://tong.visitkorea.or.kr/cms/resource/38/2607538_image2_1.jpg';
-                                }}
-                              />
-                              <div style={{
-                                position: 'absolute',
-                                top: '6px',
-                                left: '6px',
-                                backgroundColor: 'rgba(37, 99, 235, 0.85)',
-                                color: '#ffffff',
-                                fontSize: '0.62rem',
+                            {/* 상단 뱃지 + 평점 + 소요시간 헤더 */}
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.3rem' }}>
+                              <span style={{
+                                backgroundColor: 'rgba(37, 99, 235, 0.08)',
+                                color: '#2563eb',
+                                fontSize: '0.64rem',
                                 fontWeight: 800,
-                                padding: '0.12rem 0.4rem',
-                                borderRadius: '6px',
-                                backdropFilter: 'blur(4px)'
+                                padding: '0.12rem 0.45rem',
+                                borderRadius: '6px'
                               }}>
-                                {poi.theme || poi.category || '추천명소'}
-                              </div>
-                              <div style={{
-                                position: 'absolute',
-                                top: '6px',
-                                right: '6px',
-                                backgroundColor: 'rgba(15, 23, 42, 0.8)',
-                                color: '#ffffff',
-                                fontSize: '0.62rem',
-                                fontWeight: 800,
-                                padding: '0.12rem 0.4rem',
-                                borderRadius: '9999px',
-                                backdropFilter: 'blur(4px)'
-                              }}>
-                                ⏱️ {poi.duration || 90}분
+                                📍 {poi.theme || poi.category || '추천명소'}
+                              </span>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.66rem', fontWeight: 700, color: '#64748b' }}>
+                                <span style={{ color: '#f59e0b', fontWeight: 800 }}>★ {poi.rating || '4.9'}</span>
+                                <span>• ⏱️{poi.duration || 90}m</span>
                               </div>
                             </div>
 
-                            <div style={{ padding: '0.6rem', display: 'flex', flexDirection: 'column', flex: 1 }}>
-                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.2rem' }}>
-                                <div style={{ fontSize: '0.84rem', fontWeight: 900, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                  {poi.title}
-                                </div>
-                                <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#f59e0b', flexShrink: 0 }}>
-                                  ★ {poi.rating || '4.9'}
-                                </span>
-                              </div>
-
-                              {/* 태그 모음 */}
-                              {poi.tags && poi.tags.length > 0 && (
-                                <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '0.35rem', overflowX: 'hidden' }}>
-                                  {poi.tags.slice(0, 2).map((tg, tIdx) => (
-                                    <span key={tIdx} style={{ fontSize: '0.62rem', fontWeight: 700, color: '#2563eb', backgroundColor: 'rgba(37, 99, 235, 0.08)', padding: '0.08rem 0.3rem', borderRadius: '4px' }}>
-                                      #{tg}
-                                    </span>
-                                  ))}
-                                </div>
-                              )}
-
-                              <div style={{ fontSize: '0.7rem', color: '#64748b', lineHeight: 1.35, marginBottom: '0.55rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', height: '2.7em' }}>
-                                {poi.summary}
-                              </div>
-
-                              <button
-                                onClick={() => {
-                                  if (onAddPoiToItinerary) {
-                                    onAddPoiToItinerary(poi, activeDay);
-                                  }
-                                }}
-                                style={{
-                                  marginTop: 'auto',
-                                  width: '100%',
-                                  padding: '0.42rem 0.5rem',
-                                  borderRadius: '9px',
-                                  border: 'none',
-                                  background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
-                                  color: '#ffffff',
-                                  fontSize: '0.74rem',
-                                  fontWeight: 800,
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  gap: '0.25rem',
-                                  cursor: 'pointer',
-                                  boxShadow: '0 2px 8px rgba(37, 99, 235, 0.28)',
-                                  transition: 'transform 0.15s ease'
-                                }}
-                              >
-                                <span>＋</span>
-                                <span>{lang === 'en' ? `Add to Day ${activeDay}` : `${activeDay}일차 일정에 추가`}</span>
-                              </button>
+                            {/* 명소 이름 */}
+                            <div style={{
+                              fontSize: '0.86rem',
+                              fontWeight: 900,
+                              color: '#0f172a',
+                              lineHeight: 1.3,
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis'
+                            }}>
+                              {poi.title}
                             </div>
+
+                            {/* 태그 모음 */}
+                            {poi.tags && poi.tags.length > 0 && (
+                              <div style={{ display: 'flex', gap: '0.25rem', overflowX: 'hidden' }}>
+                                {poi.tags.slice(0, 2).map((tg, tIdx) => (
+                                  <span key={tIdx} style={{
+                                    fontSize: '0.6rem',
+                                    fontWeight: 700,
+                                    color: '#475569',
+                                    backgroundColor: '#f1f5f9',
+                                    padding: '0.08rem 0.3rem',
+                                    borderRadius: '4px'
+                                  }}>
+                                    #{tg}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+
+                            {/* 핵심 2줄 요약 */}
+                            <div style={{
+                              fontSize: '0.7rem',
+                              color: '#64748b',
+                              lineHeight: 1.35,
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden',
+                              height: '2.7em'
+                            }}>
+                              {poi.summary}
+                            </div>
+
+                            {/* ＋ 일정에 추가 버튼 */}
+                            <button
+                              onClick={() => {
+                                if (onAddPoiToItinerary) {
+                                  onAddPoiToItinerary(poi, activeDay);
+                                }
+                              }}
+                              style={{
+                                marginTop: 'auto',
+                                width: '100%',
+                                padding: '0.42rem 0.5rem',
+                                borderRadius: '8px',
+                                border: '1px solid rgba(37, 99, 235, 0.25)',
+                                background: '#eff6ff',
+                                color: '#1d4ed8',
+                                fontSize: '0.72rem',
+                                fontWeight: 800,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '0.25rem',
+                                cursor: 'pointer',
+                                transition: 'all 0.15s ease'
+                              }}
+                            >
+                              <span>＋ {activeDay}일차 일정에 추가</span>
+                            </button>
                           </div>
                         ))}
                       </div>
