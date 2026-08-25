@@ -676,10 +676,15 @@ export default function App() {
             ? `Switched destination to **${targetCity}**! ✨ Here are the best spots for Day ${activeDay}.`
             : `여행지를 **${targetCity}**로 변경했어요! ✨ 기존에 말씀해주신 여행 조건에 맞춰 ${targetCity} ${activeDay}일차에 어울리는 추천 명소를 준비했습니다.`;
         } else if (userIntent === 'CONFIRM_OR_QUERY' && !chatText) {
-          const isChitChatOrFeedback = /(바보|멍청|이상해|틀렸|헷갈|어려운|뭐해|장난|너)/i.test(promptQuery);
-          if (isChitChatOrFeedback) {
+          const isApology = /(미안|죄송|미안해|미안해요)/i.test(promptQuery);
+          const isChitChatOrFeedback = /(바보|멍청|이상해|틀렸|헷갈|어려운|뭐해|장난|너|못\s*알아|말귀)/i.test(promptQuery);
+          if (isApology) {
             chatText = lang === 'en'
-              ? `Oops, my apologies! I got slightly mixed up 😅 Please tell me your preferred city or days again and I will organize it perfectly! ✨`
+              ? `No worries at all! 😊 What city or itinerary should we look into? Tell me anytime!`
+              : `아이쿠, 미안해하지 않으셔도 돼요! 😊 어떤 도시나 여행 일정으로 맞춰 드릴까요? 편하게 말씀해 주세요! ✨`;
+          } else if (isChitChatOrFeedback) {
+            chatText = lang === 'en'
+              ? `Oops, my apologies! I will listen much more carefully 💡 Please tell me your preferred city or conditions again and I will organize it perfectly! ✨`
               : `아이쿠 죄송해요! 제가 살짝 헷갈렸네요 😅 원하시는 여행지나 일정을 편하게 다시 말씀해 주시면 딱 맞춰서 꼼꼼히 정리해 드릴게요! ✨`;
           } else {
             chatText = lang === 'en'

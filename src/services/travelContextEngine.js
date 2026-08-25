@@ -73,17 +73,17 @@ export function parseMultiCityPrompt(prompt = '', prevState = INITIAL_TRAVEL_STA
     };
   }
 
-  // 2. Pattern B: [N]일차/N일은 [도시] (e.g. "2일은 남해 3일은 통영", "2일차는 남해, 3일차는 통영")
-  const dayCityRegex = /(\d+)\s*일\s*(차|은|째|는)?\s*(은|는)?\s*(서울|수원|인천|강릉|속초|양양|부산|제주|서귀포|경주|여수|전주|대구|대전|광주|울산|가평|춘천|포항|통영|거제|남해|안동)/g;
+  // 2. Pattern B: [N]일차/N일은 [도시] (e.g. "2일은 남해 3일은 통영", "2일차는 남해, 3일차는 통영", "2일은 통영으로")
+  const dayCityRegex = /(\d+)\s*일\s*(차|에|에는|째|은|는)?\s*(은|는|에|에는|으로|로)?\s*(서울|수원|인천|강릉|속초|양양|부산|제주|서귀포|경주|여수|전주|대구|대전|광주|울산|가평|춘천|포항|통영|거제|남해|안동)/g;
   const dayCityMatches = [...clean.matchAll(dayCityRegex)];
 
   if (dayCityMatches && dayCityMatches.length >= 1) {
-    const prevDestination = prevState?.tripMemory?.destination || '거제';
-    const baseCity = prevDestination.split('·')[0] || '거제';
+    const prevDestination = prevState?.tripMemory?.destination || prevState?.currentContext?.currentCity || '남해';
+    const baseCity = prevDestination.split('·')[0] || '남해';
     const dayMap = {};
     let maxDay = prevState?.tripMemory?.days || 3;
 
-    // 기본 1일차는 이전 도시로 세팅
+    // 기본 1일차는 이전 목적지 계승
     dayMap[1] = baseCity;
 
     for (const m of dayCityMatches) {
@@ -111,6 +111,30 @@ export function parseMultiCityPrompt(prompt = '', prevState = INITIAL_TRAVEL_STA
       cityNames,
       totalDays: maxDay,
       combinedLabel: cityNames.join('·'),
+      dayByDaySummary: `${dayByDaySummary} 연계 코스`
+    };
+  }
+
+  // 3. Pattern C: Arrow or Separator Sequence ("남해-> 통영->거제", "서울, 강릉, 속초", "부산-경주-포항")
+  const allCitiesInPrompt = [];
+  const cityTokenRegex = /(서울|수원|인천|강릉|속초|양양|부산|제주|서귀포|경주|여수|전주|대구|대전|광주|울산|가평|춘천|포항|통영|거제|남해|안동)/g;
+  let tokenMatch;
+  while ((tokenMatch = cityTokenRegex.exec(clean)) !== null) {
+    if (!allCitiesInPrompt.includes(tokenMatch[1])) {
+      allCitiesInPrompt.push(tokenMatch[1]);
+    }
+  }
+
+  if (allCitiesInPrompt.length >= 2 && /(->|>|➔|→|-|,|\s+)/.test(clean)) {
+    const dayByDayList = allCitiesInPrompt.map((city, idx) => ({ day: idx + 1, city }));
+    const dayByDaySummary = dayByDayList.map(item => `${item.day}일차 ${item.city}`).join(', ');
+
+    return {
+      isMultiCity: true,
+      cityPlans: dayByDayList,
+      cityNames: allCitiesInPrompt,
+      totalDays: Math.min(7, allCitiesInPrompt.length),
+      combinedLabel: allCitiesInPrompt.join('·'),
       dayByDaySummary: `${dayByDaySummary} 연계 코스`
     };
   }
