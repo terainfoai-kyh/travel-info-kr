@@ -593,6 +593,16 @@ export function generateContextualAdvice(context, lang = 'ko') {
   const isGatewayOrHotelMentioned = /(공항|ktx|터미널|숙소|호텔|강남|명동|홍대|해운대|서면|애월|서귀포|바람의언덕|매미성)/i.test(cleanPrompt) || Boolean(context.tripMemory?.gateway || context.tripMemory?.hotelArea);
   const isTimeMentioned = /(오전|오후|저녁|밤|도착|[0-9]+시)/i.test(cleanPrompt) || Boolean(context.tripMemory?.arrivalTime);
 
+  // 2-1. Season / Month specified without gateway/time/hotel
+  const isSeasonOrMonthOnly = /(겨울|가을|봄|여름|[0-9]+월)/.test(cleanPrompt) && !isGatewayOrHotelMentioned && !isTimeMentioned && !/(복장|뭐\s*입|뭘\s*입|옷|패션|코디)/.test(cleanPrompt);
+  if (isSeasonOrMonthOnly) {
+    const seasonName = season || '겨울';
+    const targetLabel = targetCity ? `${targetCity}` : '대한민국';
+    return (lang === 'en')
+      ? `Wonderful choice for a **${seasonName}** trip to **${targetLabel}**! ❄️ What time do you arrive, and where is your hotel? 😊`
+      : `운치 있는 **${seasonName}철 ${targetLabel}** 여행이시군요! ❄️ 혹시 몇 시쯤 어디(공항/터미널/KTX역)로 도착하시고 숙소는 어디쯤이신가요? ✈️🏨`;
+  }
+
   if (isGatewayOrHotelMentioned && !context.tripMemory?.arrivalTime && !isTimeMentioned) {
     const gw = context.tripMemory?.gateway || '공항/역';
     const hotel = context.tripMemory?.hotelArea || '호텔';

@@ -547,6 +547,10 @@ export default function App() {
       const requestedDays = extractDaysFromPrompt(promptQuery) || 3;
       const targetCity = extractLocationKeyword(promptQuery, false);
 
+      const detectedCity = targetCity;
+      const updatedState = patchTravelState(sessionContext, promptQuery, detectedCity, requestedDays);
+      setSessionContext(updatedState);
+
       const seasonalChips = (lang === 'en')
         ? ['☀️ Departing This Week', '🍁 Oct Autumn Foliage', '❄️ Dec Winter Trip']
         : ['☀️ 이번 주 출발', '🍁 10월 가을 단풍', '❄️ 12월 겨울 여행'];
@@ -661,6 +665,7 @@ export default function App() {
 
         const isGatewaySelectPrompt = /(공항|ktx|터미널|숙소|호텔)/i.test(promptQuery) && (updatedState.tripMemory?.gateway || updatedState.tripMemory?.hotelArea);
         const isArrivalTimePrompt = /(오전|오후|저녁|밤|도착)/i.test(promptQuery) && (updatedState.tripMemory?.arrivalTime || /(오전|오후|저녁|밤)/i.test(promptQuery));
+        const isSeasonPrompt = /(겨울|가을|봄|여름|[0-9]+월)/.test(promptQuery) && !isGatewaySelectPrompt && !isArrivalTimePrompt;
 
         // 1단계(순수 대화 & 온보딩 질문 중): POI 카드 숨김 / 2단계(본격 일정/명소 탐색): 추천 POI 카드 제공
         const matchedPois = (!isPlanningMode || userIntent === 'OFF_TOPIC' || isGatewaySelectPrompt || isArrivalTimePrompt) ? [] : findRecommendedPois(promptQuery, targetCity, 3);
@@ -674,7 +679,14 @@ export default function App() {
               (lang === 'en' ? '☀️ Morning Arrival (Before 12:00)' : '☀️ 오전 도착 (12:00 이전)'),
               (lang === 'en' ? '🌤️ Afternoon Arrival (14:00~16:00)' : '🌤️ 오후 도착 (14:00~16:00)'),
               (lang === 'en' ? '🌙 Evening/Night Arrival (After 18:00)' : '🌙 저녁/밤 도착 (18:00 이후)'),
-              (lang === 'en' ? `🚀 Generate ${targetCity} Itinerary` : `🚀 바로 일정표 만들기`)
+              (lang === 'en' ? `🚀 Generate ${displayCity} Itinerary` : `🚀 바로 일정표 만들기`)
+            ]
+          : isSeasonPrompt && !updatedState.tripMemory?.arrivalTime
+          ? [
+              ...getDynamicGatewayChips(targetCity || '서울', lang),
+              (lang === 'en' ? '☀️ Morning Arrival (Before 12:00)' : '☀️ 오전 도착 (12:00 이전)'),
+              (lang === 'en' ? '🌤️ Afternoon Arrival (14:00~16:00)' : '🌤️ 오후 도착 (14:00~16:00)'),
+              (lang === 'en' ? `🚀 Generate ${displayCity} ${requestedDays}D Itinerary` : `🚀 ${displayCity} ${requestedDays}일 전체 일정표 만들기`)
             ]
           : isArrivalTimePrompt
           ? [
