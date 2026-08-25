@@ -148,13 +148,19 @@ export function classifyUserIntent(userPrompt = '', currentState = INITIAL_TRAVE
     return 'UPDATE_DESTINATION';
   }
 
-  // 5. Question / Verification / Chit-Chat Intent
-  const isQuestion = /(\?|왜|바꿨|맞아|어때|얼마|뭐야|누구|안녕|감사|고마워)/.test(clean);
-  if (isQuestion || clean.endsWith('?') || clean.endsWith('네') || clean.endsWith('요')) {
+  // 5. Off-Topic Query ("주식 알려줘", "로또 번호", "코인")
+  const isOffTopic = /(주식|비트코인|코인|부동산|로또|정치|축구|야구|게임|영화|음악\s*추천)/.test(clean);
+  if (isOffTopic) {
+    return 'OFF_TOPIC';
+  }
+
+  // 6. Question / Verification / Feedback / Chit-Chat Intent
+  const isQuestion = /(\?|왜|바꿨|맞아|어때|얼마|뭐야|누구|안녕|감사|고마워|바보|멍청|이상해|틀렸|헷갈|어려운|뭐해|장난)/.test(clean);
+  if (isQuestion || clean.endsWith('?') || clean.endsWith('네') || clean.endsWith('요') || clean.endsWith('구나')) {
     return 'CONFIRM_OR_QUERY';
   }
 
-  // 6. Condition / Preference / Destination Setup
+  // 7. Condition / Preference / Destination Setup
   return 'ADD_OR_PATCH_CONDITION';
 }
 

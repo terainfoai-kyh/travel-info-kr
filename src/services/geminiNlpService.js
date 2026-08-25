@@ -177,8 +177,8 @@ export function extractDaysFromPrompt(text = '') {
   if (!text) return null;
   const t = text.toLowerCase().trim();
 
-  // 0. 특정 일차 지칭 필터 ("2일차", "2일에는", "2일째", "2일은", "2일중" 등은 특정 일차 이벤트이므로 전체 일수를 덮어쓰지 않음)
-  const isDayOrdinal = /(\d+)\s*일\s*(차|에는|째|은|는|중)/.test(t);
+  // 0. 특정 일차 지칭 필터 ("2일차", "2일에", "2일에는", "2일째", "2일은", "2일중" 등은 특정 일차 이벤트이므로 전체 일수를 덮어쓰지 않음)
+  const isDayOrdinal = /(\d+)\s*일\s*(차|에|에는|째|은|는|중|부터|까지)/.test(t);
   const isExplicitDuration = /(\d+)\s*일\s*(간|코스|일정|여행|으로|로\s*해|로\s*바꿔|동안)/.test(t);
 
   if (isDayOrdinal && !isExplicitDuration && !/(\d+)\s*박/.test(t)) {

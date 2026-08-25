@@ -632,7 +632,7 @@ export default function App() {
 
       // 🌟 [핵심 티키타카 & Intent 라우팅]
       // 1. 명시적 전체 일정 생성 요청(REGENERATE_ITINERARY or 🚀 확정 버튼)이 아닌 경우 ➔ 대화창 컨시어지 답변 & POI 추천
-      if (!isDirectGenerateAction && userIntent !== 'REGENERATE_ITINERARY' && (userIntent === 'ADD_OR_PATCH_CONDITION' || userIntent === 'UPDATE_DESTINATION' || userIntent === 'MULTI_CITY_PLAN' || userIntent === 'CONFIRM_OR_QUERY' || result?.responseType === 'chat')) {
+      if (!isDirectGenerateAction && userIntent !== 'REGENERATE_ITINERARY' && (userIntent === 'ADD_OR_PATCH_CONDITION' || userIntent === 'UPDATE_DESTINATION' || userIntent === 'MULTI_CITY_PLAN' || userIntent === 'CONFIRM_OR_QUERY' || userIntent === 'OFF_TOPIC' || result?.responseType === 'chat')) {
         const isAddDayQuery = /(하루 더|1일 더|1일 추가|늘려|연장|하루 추가|이틀 더|2일 더|더 있을래)/i.test(promptQuery);
         let dynamicSuggestDays = requestedDays;
         const currentDays = itineraryData?.days || requestedDays || 1;
@@ -645,7 +645,7 @@ export default function App() {
           userPrompt: promptQuery,
           sessionState: updatedState
         });
-        const matchedPois = findRecommendedPois(promptQuery, targetCity, 3);
+        const matchedPois = userIntent === 'OFF_TOPIC' ? [] : findRecommendedPois(promptQuery, targetCity, 3);
         const contextualIntro = generateContextualAdvice(tripContext, lang);
 
         let chatText = result?.message;
@@ -656,7 +656,11 @@ export default function App() {
               (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')
             ];
 
-        if (isAddDayQuery) {
+        if (userIntent === 'OFF_TOPIC') {
+          chatText = lang === 'en'
+            ? `I am VORA, your dedicated AI Travel Concierge for South Korea! 🇰🇷✨ Please ask me about travel destinations, itineraries, delicious local food, or stays!`
+            : `저는 대한민국 여행 전문 AI 컨시어지 Vora예요! 🇰🇷✨ 가고 싶으신 지역이나 여행 일정, 맛집, 숙소에 대해 물어봐 주시면 가장 멋진 맞춤 코스로 안내해 드릴게요! 😊`;
+        } else if (isAddDayQuery) {
           const addedDays = /(이틀|2일)/.test(promptQuery) ? 2 : 1;
           dynamicSuggestDays = Math.min(5, currentDays + addedDays);
           const city = targetCity;
