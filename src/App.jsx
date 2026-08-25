@@ -541,8 +541,7 @@ export default function App() {
       const replyTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
       const requestedDays = extractDaysFromPrompt(promptQuery) || (isRecommendationChipSubmit ? 1 : 3);
       const targetCity = extractLocationKeyword(promptQuery) || '서울';
-
-      // 테마, 동행자, 추가요청 전체 정밀 추출
+    // 테마, 동행자, 추가요청 전체 정밀 추출
       const companionMatch = promptQuery.match(/(커플|혼자|가족|친구|아이와 함께|아이|부모님|어르신|시니어)/);
       const companionText = companionMatch ? companionMatch[1] : '';
       
@@ -598,24 +597,42 @@ export default function App() {
     }
 
     try {
-      const result = await geminiGenerateFullItinerary(promptQuery, lang, itineraryData);
+      // 🌟 이전 사용자 질의에서 조건(아이, 실내, 바다, 맛집 등)을 계승하여 전달!
+      let effectivePrompt = promptQuery;
+      if (isDirectGenerateAction) {
+        const lastUserMsg = [...chatMessages].reverse().find(m => 
+          m.role === 'user' && 
+          m.text && 
+          !m.text.includes('일정 만들기') && 
+          !m.text.includes('일정 생성') &&
+          !m.text.includes('일정표')
+        );
+        if (lastUserMsg && lastUserMsg.text) {
+          effectivePrompt = `${lastUserMsg.text} ${promptQuery}`;
+        }
+      }
+
+      const result = await geminiGenerateFullItinerary(effectivePrompt, lang, itineraryData);
       const elapsedSeconds = ((Date.now() - startTime) / 1000).toFixed(1);
       const replyTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
 
       // 🌟 [핵심 티키타카] 사용자가 일정 확정 버튼(🚀)을 누른 게 아니거나, 대화형 질문인 경우
-      if (!isDirectGenerateAction && (result?.responseType === 'chat' || !promptQuery.includes('일정') || promptQuery.includes('어디') || promptQuery.includes('추천'))) {
+      if (!isDirectGenerateAction && (result?.responseType === 'chat' || !promptQuery.includes('일정') || promptQuery.includes('어디') || promptQuery.includes('추천') || promptQuery.includes('있어') || promptQuery.includes('해줘'))) {
         const isAddDayQuery = /(하루 더|1일 더|1일 추가|늘려|연장|하루 추가|이틀 더|2일 더|더 있을래)/i.test(promptQuery);
         let dynamicSuggestDays = 3;
         const currentDays = itineraryData?.days || 1;
 
         // 🏷️ 0토큰 KoreaTravel 정품 POI 매칭
-        const targetCity = extractLocationKeyword(promptQuery, false) || '';
+        const targetCity = extractLocationKeyword(promptQuery, false) || itineraryData?.targetCity || '';
         const matchedPois = findRecommendedPois(promptQuery, targetCity, 3);
 
         let chatText = result?.message;
         let quickButtons = result?.quickSuggestions && result.quickSuggestions.length > 0
           ? result.quickSuggestions
-          : [(lang === 'en' ? '🚀 Generate Itinerary with this' : '🚀 이 조건으로 전체 일정표 만들기'), (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')];
+          : [
+              (lang === 'en' ? '🚀 Generate Itinerary with this' : '🚀 이 조건으로 전체 일정표 만들기'),
+              (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')
+            ];
 
         if (isAddDayQuery) {
           const addedDays = /(이틀|2일)/.test(promptQuery) ? 2 : 1;

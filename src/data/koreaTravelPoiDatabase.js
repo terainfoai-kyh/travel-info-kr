@@ -23,7 +23,7 @@ export const KOREA_TRAVEL_POI_DB = [
     image: 'http://tong.visitkorea.or.kr/cms/resource/46/2607546_image2_1.jpg',
     lat: 37.7718,
     lng: 128.9482,
-    tags: ['바다', '카페거리', '커플', '일출'],
+    tags: ['바다', '카페거리', '커플', '일출', '오션뷰'],
     summary: '동해의 푸른 바다를 파노라마로 감상하며 스페셜티 커피를 즐기는 강릉 최고의 감성 핫플'
   },
   {
@@ -38,7 +38,7 @@ export const KOREA_TRAVEL_POI_DB = [
     image: 'http://tong.visitkorea.or.kr/cms/resource/38/2607538_image2_1.jpg',
     lat: 37.8055,
     lng: 128.9080,
-    tags: ['바다', '산책', '자전거', '피크닉'],
+    tags: ['바다', '산책', '자전거', '피크닉', '가족'],
     summary: '끝없이 펼쳐진 백사장과 울창한 해송 숲, 자전거 드라이브가 낭만적인 동해안 대표 해변'
   },
   {
@@ -53,7 +53,7 @@ export const KOREA_TRAVEL_POI_DB = [
     image: 'http://tong.visitkorea.or.kr/cms/resource/66/2784566_image2_1.jpg',
     lat: 38.0286,
     lng: 128.7176,
-    tags: ['바다', '서핑', '이국적', '선셋바'],
+    tags: ['바다', '서핑', '이국적', '선셋바', 'MZ핫플'],
     summary: '이국적인 트로피컬 감성의 비치 바와 서핑 전용 해변으로 젊음의 열기가 가득한 성지'
   },
   {
@@ -68,7 +68,7 @@ export const KOREA_TRAVEL_POI_DB = [
     image: 'http://tong.visitkorea.or.kr/cms/resource/71/2607571_image2_1.jpg',
     lat: 38.2118,
     lng: 128.6015,
-    tags: ['바다', '일출', '해상정자', '인생샷'],
+    tags: ['바다', '일출', '해상정자', '인생샷', '동해'],
     summary: '바위에 부딪히는 거문고 소리 같은 파도와 동해 바다 한가운데 정자가 선사하는 절경'
   },
   {
@@ -83,12 +83,125 @@ export const KOREA_TRAVEL_POI_DB = [
     image: 'http://tong.visitkorea.or.kr/cms/resource/63/2607563_image2_1.jpg',
     lat: 38.2045,
     lng: 128.5925,
-    tags: ['미식', '오징어순대', '갯배체험', '로컬'],
+    tags: ['미식', '오징어순대', '갯배체험', '로컬', '아이동반'],
     summary: '손으로 끄는 무동력 갯배 체험과 고소한 오징어순대, 아바이순대를 맛보는 실향민 마을'
   },
 
   // ==========================================
-  // 2. 서울 (성수, 종로, 한남, 홍대, 잠실, 강남)
+  // 2. 키즈 & 아이동반 전용 (서울/수도권)
+  // ==========================================
+  {
+    id: 'kt_kids_lotte_aquarium',
+    title: '롯데월드 아쿠아리움',
+    region: '서울',
+    city: '서울',
+    category: '키즈',
+    theme: '실내/키즈/체험',
+    duration: 120,
+    rating: 4.9,
+    image: 'http://tong.visitkorea.or.kr/cms/resource/67/2618967_image2_1.jpg',
+    lat: 37.5133,
+    lng: 127.1042,
+    tags: ['아이동반', '키즈', '실내', '아쿠아리움', '벨루가', '비오는날'],
+    summary: '귀여운 벨루가와 바다사자, 650종 5만여 마리의 해양생물이 반겨주는 도심 속 바다 세상'
+  },
+  {
+    id: 'kt_kids_grandpark',
+    title: '서울어린이대공원 & 상상나라',
+    region: '서울',
+    city: '서울',
+    category: '키즈',
+    theme: '자연/동물원/놀이터',
+    duration: 150,
+    rating: 4.8,
+    image: 'http://tong.visitkorea.or.kr/cms/resource/35/2618935_image2_1.jpg',
+    lat: 37.5480,
+    lng: 127.0817,
+    tags: ['아이동반', '키즈', '동물원', '어린이상상나라', '놀이터', '피크닉'],
+    summary: '무료 동물원과 식물원, 오감 체험형 실내 상상나라 박물관이 어우러진 어린이 천국'
+  },
+  {
+    id: 'kt_kids_lotteworld',
+    title: '롯데월드 어드벤처',
+    region: '서울',
+    city: '서울',
+    category: '키즈',
+    theme: '테마파크/실내',
+    duration: 240,
+    rating: 4.9,
+    image: 'http://tong.visitkorea.or.kr/cms/resource/54/2618954_image2_1.jpg',
+    lat: 37.5111,
+    lng: 127.0982,
+    tags: ['아이동반', '키즈', '테마파크', '실내놀이', '퍼레이드', '비오는날'],
+    summary: '세계 최대 규모의 실내 테마파크 어드벤처와 화려한 매직캐슬, 환상적인 야간 퍼레이드'
+  },
+
+  // ==========================================
+  // 3. 비오는 날 & 실내 핫플 (서울/수도권)
+  // ==========================================
+  {
+    id: 'kt_indoor_coex',
+    title: '코엑스 별마당도서관 & 아쿠아리움',
+    region: '서울',
+    city: '서울',
+    category: '실내',
+    theme: '실내/복합문화',
+    duration: 120,
+    rating: 4.9,
+    image: 'http://tong.visitkorea.or.kr/cms/resource/88/2618988_image2_1.jpg',
+    lat: 37.5118,
+    lng: 127.0592,
+    tags: ['실내', '비오는날', '별마당도서관', '쇼핑', '인생샷', '데이트'],
+    summary: '13m 높이의 웅장한 서가와 7만여 권의 책이 선사하는 문화 공간이자 비 오는 날 최적의 실내 명소'
+  },
+  {
+    id: 'kt_indoor_thehyundai',
+    title: '더현대 서울 & 사운즈 포레스트',
+    region: '서울',
+    city: '서울',
+    category: '실내',
+    theme: '쇼핑/카페/실내정원',
+    duration: 150,
+    rating: 4.9,
+    image: 'http://tong.visitkorea.or.kr/cms/resource/02/2784502_image2_1.jpg',
+    lat: 37.5259,
+    lng: 126.9284,
+    tags: ['실내', '비오는날', '팝업스토어', '미식', '실내정원', 'MZ핫플'],
+    summary: '도심 속 거대한 실내 온실 정원과 전 세계 트렌디 팝업스토어, 지하 글로벌 미식관'
+  },
+  {
+    id: 'kt_indoor_museum',
+    title: '국립중앙박물관 & 거울못',
+    region: '서울',
+    city: '서울',
+    category: '실내',
+    theme: '문화/역사/실내',
+    duration: 120,
+    rating: 4.9,
+    image: 'http://tong.visitkorea.or.kr/cms/resource/11/2619011_image2_1.jpg',
+    lat: 37.5240,
+    lng: 126.9803,
+    tags: ['실내', '비오는날', '사유의방', '국보', '박물관', '힐링'],
+    summary: '반가사유상이 빛나는 ‘사유의 방’과 찬란한 대한민국의 국보급 문화유산을 만나는 힐링 실내 공간'
+  },
+  {
+    id: 'kt_indoor_ddp',
+    title: 'DDP 동대문디자인플라자 실내 전시',
+    region: '서울',
+    city: '서울',
+    category: '실내',
+    theme: '건축/디자인/전시',
+    duration: 90,
+    rating: 4.8,
+    image: 'http://tong.visitkorea.or.kr/cms/resource/18/2650018_image2_1.jpg',
+    lat: 37.5665,
+    lng: 127.0092,
+    tags: ['실내', '비오는날', '건축명소', '전시회', '디자인랩'],
+    summary: '자하 하디드의 미래지향적 곡선 건축물 속 다채로운 글로벌 디자인 전시와 라이프스타일 숍'
+  },
+
+  // ==========================================
+  // 4. 서울 대표 하이라이트 (성수, 종로, 한남, 홍대)
   // ==========================================
   {
     id: 'kt_seoul_gyeongbok',
@@ -102,7 +215,7 @@ export const KOREA_TRAVEL_POI_DB = [
     image: 'http://tong.visitkorea.or.kr/cms/resource/23/2678623_image2_1.jpg',
     lat: 37.5796,
     lng: 126.9770,
-    tags: ['한옥', '궁궐', '한복체험', 'K-헤리티지'],
+    tags: ['한옥', '궁궐', '한복체험', 'K-헤리티지', '대표명소'],
     summary: '조선 왕실의 정취가 살아 숨 쉬는 대한민국 제1의 법궁과 근정전의 웅장한 아름다움'
   },
   {
@@ -117,7 +230,7 @@ export const KOREA_TRAVEL_POI_DB = [
     image: 'http://tong.visitkorea.or.kr/cms/resource/78/2650078_image2_1.jpg',
     lat: 37.5445,
     lng: 127.0560,
-    tags: ['카페', '팝업스토어', 'MZ핫플', '쇼핑'],
+    tags: ['카페', '팝업스토어', 'MZ핫플', '쇼핑', '데이트'],
     summary: '붉은 벽돌 공장과 트렌디한 디자이너 팝업, 감성 브루잉 카페가 공존하는 한국의 브루클린'
   },
   {
@@ -132,42 +245,12 @@ export const KOREA_TRAVEL_POI_DB = [
     image: 'http://tong.visitkorea.or.kr/cms/resource/03/2650003_image2_1.jpg',
     lat: 37.5826,
     lng: 126.9837,
-    tags: ['한옥', '골목길', '전통공예', '갤러리'],
+    tags: ['한옥', '골목길', '전통공예', '갤러리', '커플'],
     summary: '도심 속 고즈넉한 기와지붕 골목길과 한옥 갤러리, 삼청동의 감성 공방 투어'
-  },
-  {
-    id: 'kt_seoul_namsan',
-    title: 'N서울타워 & 남산공원',
-    region: '서울',
-    city: '서울',
-    category: '명소',
-    theme: '야경/전망',
-    duration: 100,
-    rating: 4.8,
-    image: 'http://tong.visitkorea.or.kr/cms/resource/20/2650020_image2_1.jpg',
-    lat: 37.5512,
-    lng: 126.9882,
-    tags: ['야경', '케이블카', '사랑의자물쇠', '선셋'],
-    summary: '서울 도심 전체를 360도로 조망하는 랜드마크이자 로맨틱한 선셋과 야경 명소'
-  },
-  {
-    id: 'kt_seoul_hongdae',
-    title: '홍대 걷고싶은거리 & 연남동 연트럴파크',
-    region: '서울',
-    city: '서울',
-    category: '핫플',
-    theme: '스트리트/버스킹',
-    duration: 120,
-    rating: 4.8,
-    image: 'http://tong.visitkorea.or.kr/cms/resource/55/2650055_image2_1.jpg',
-    lat: 37.5563,
-    lng: 126.9230,
-    tags: ['버스킹', '쇼핑', '젊음의거리', '디저트'],
-    summary: '자유로운 버스킹 공연과 인디 문화, 경의선숲길(연트럴파크) 잔디밭 피크닉'
   },
 
   // ==========================================
-  // 3. 부산 (해운대, 광안리, 영도, 기장, 남포)
+  // 5. 부산 대표 하이라이트
   // ==========================================
   {
     id: 'kt_bs_gwangan',
@@ -181,7 +264,7 @@ export const KOREA_TRAVEL_POI_DB = [
     image: 'http://tong.visitkorea.or.kr/cms/resource/28/2650128_image2_1.jpg',
     lat: 35.1532,
     lng: 129.1186,
-    tags: ['바다', '광안대교야경', '드론쇼', '오션뷰카페'],
+    tags: ['바다', '광안대교야경', '드론쇼', '오션뷰카페', '데이트'],
     summary: '광안대교의 찬란한 LED 라이트와 드론 라이트쇼, 트렌디한 복합문화마켓의 오션뷰'
   },
   {
@@ -196,57 +279,8 @@ export const KOREA_TRAVEL_POI_DB = [
     image: 'http://tong.visitkorea.or.kr/cms/resource/82/2784582_image2_1.jpg',
     lat: 35.1587,
     lng: 129.1724,
-    tags: ['스카이캡슐', '오션뷰열차', '인생샷', '해안절벽'],
+    tags: ['스카이캡슐', '오션뷰열차', '인생샷', '해안절벽', '아이동반'],
     summary: '동해남부선 폐선 부지 해안 절벽 위를 달리는 알록달록 공중 캡슐 열차'
-  },
-  {
-    id: 'kt_bs_huinnyeoul',
-    title: '영도 흰여울문화마을',
-    region: '부산',
-    city: '부산',
-    category: '명소',
-    theme: '감성/포토',
-    duration: 90,
-    rating: 4.8,
-    image: 'http://tong.visitkorea.or.kr/cms/resource/74/2650174_image2_1.jpg',
-    lat: 35.0784,
-    lng: 129.0454,
-    tags: ['해안절벽', '골목길', '산토리니', '인생샷'],
-    summary: '절영해안산책로를 따라 이어지는 하얀 집들과 푸른 바다가 어우러진 한국의 산토리니'
-  },
-
-  // ==========================================
-  // 4. 제주 (애월, 서귀포, 성산, 협재)
-  // ==========================================
-  {
-    id: 'kt_jj_aewol',
-    title: '애월 한담해변 산책로',
-    region: '제주',
-    city: '제주',
-    category: '바다',
-    theme: '힐링/선셋',
-    duration: 90,
-    rating: 4.9,
-    image: 'http://tong.visitkorea.or.kr/cms/resource/90/2650290_image2_1.jpg',
-    lat: 33.4623,
-    lng: 126.3115,
-    tags: ['에메랄드바다', '선셋', '투명카약', '해안산책'],
-    summary: '에메랄드빛 투명한 바다와 검은 현무암, 붉게 물드는 석양이 환상적인 해안길'
-  },
-  {
-    id: 'kt_jj_seongsan',
-    title: '성산일출봉 & 광치기해변',
-    region: '제주',
-    city: '서귀포',
-    category: '명소',
-    theme: '자연/유네스코',
-    duration: 120,
-    rating: 4.9,
-    image: 'http://tong.visitkorea.or.kr/cms/resource/35/2650235_image2_1.jpg',
-    lat: 33.4581,
-    lng: 126.9426,
-    tags: ['유네스코', '일출', '화산분화구', '웅장함'],
-    summary: '바다 위로 우뚝 솟은 유네스코 세계자연유산 수성화산체와 신비로운 이끼 갯바위'
   }
 ];
 
@@ -261,6 +295,11 @@ export function findRecommendedPois(query = '', targetRegion = '', limit = 3) {
   const clean = (query || '').toLowerCase().replace(/[\s\-_]/g, '');
   const regionClean = (targetRegion || '').toLowerCase();
 
+  const isKidsQuery = /(아이|키즈|어린이|유아|아기|가족|초등)/i.test(clean);
+  const isIndoorQuery = /(실내|비|우천|비오는|더위|추위)/i.test(clean);
+  const isSeaQuery = /(바다|해변|오션|해수욕장|서핑)/i.test(clean);
+  const isGangwonQuery = /(강원|강릉|속초|양양|동해)/i.test(clean);
+
   // Score matching
   const scored = KOREA_TRAVEL_POI_DB.map(poi => {
     let score = 0;
@@ -269,37 +308,44 @@ export function findRecommendedPois(query = '', targetRegion = '', limit = 3) {
     const cityClean = poi.city.toLowerCase();
     const regionName = poi.region.toLowerCase();
 
-    // 1. Region Match (+100)
-    if (regionClean && (regionName.includes(regionClean) || cityClean.includes(regionClean))) {
-      score += 100;
+    // 1. Theme Priority Match (+150)
+    if (isKidsQuery && (poi.category === '키즈' || poi.tags.includes('아이동반') || poi.tags.includes('키즈'))) {
+      score += 150;
     }
-    if (clean.includes('강원') && (regionName === '강원' || ['강릉', '속초', '양양'].includes(cityClean))) {
+    if (isIndoorQuery && (poi.category === '실내' || poi.tags.includes('실내') || poi.tags.includes('비오는날'))) {
+      score += 150;
+    }
+    if (isSeaQuery && (poi.category === '바다' || poi.tags.includes('바다'))) {
+      score += 120;
+    }
+    if (isGangwonQuery && (regionName === '강원' || ['강릉', '속초', '양양'].includes(cityClean))) {
+      score += 120;
+    }
+
+    // 2. Region Match (+100)
+    if (regionClean && (regionName.includes(regionClean) || cityClean.includes(regionClean))) {
       score += 100;
     }
     if (clean.includes('서울') && regionName === '서울') score += 100;
     if (clean.includes('부산') && regionName === '부산') score += 100;
     if (clean.includes('제주') && regionName === '제주') score += 100;
 
-    // 2. City Direct Match (+80)
-    if (clean.includes(cityClean)) score += 80;
-
-    // 3. Category & Theme Match (+50)
-    if (clean.includes('바다') && (poi.category === '바다' || poi.tags.includes('바다'))) score += 50;
-    if (clean.includes('카페') && (poi.category === '카페' || poi.tags.includes('카페'))) score += 50;
-    if (clean.includes('맛집') && (poi.category === '맛집' || poi.tags.includes('미식'))) score += 50;
-    if (clean.includes('야경') && poi.tags.includes('야경')) score += 50;
-    if (clean.includes('커플') && poi.tags.includes('커플')) score += 40;
-    if (clean.includes('아이') && (poi.tags.includes('피크닉') || poi.tags.includes('산책'))) score += 40;
-
-    // 4. Keyword Substring Match (+30)
+    // 3. Keyword Substring Match (+30)
     for (const tag of poi.tags) {
       if (clean.includes(tag.toLowerCase())) score += 30;
     }
-    if (clean.includes(titleClean) || titleClean.includes(clean)) score += 40;
+    if (clean.includes(titleClean) || titleClean.includes(clean)) score += 50;
 
     return { ...poi, matchScore: score };
   });
 
   scored.sort((a, b) => b.matchScore - a.matchScore);
-  return scored.slice(0, limit);
+  
+  // Filter top matches
+  const topMatches = scored.filter(p => p.matchScore > 0);
+  if (topMatches.length > 0) {
+    return topMatches.slice(0, limit);
+  }
+
+  return KOREA_TRAVEL_POI_DB.slice(0, limit);
 }

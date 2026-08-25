@@ -1135,41 +1135,84 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
     ]
   };
 
-  // Dynamic fallback pool if city is not predefined
-  const spotPool = (lang === 'en' && SAMPLE_SPOTS_MAP_EN[city])
-    ? SAMPLE_SPOTS_MAP_EN[city]
-    : (lang === 'ja' && SAMPLE_SPOTS_MAP_JA[city])
-    ? SAMPLE_SPOTS_MAP_JA[city]
-    : ((lang === 'zh' || lang === 'zht') && SAMPLE_SPOTS_MAP_ZH[city])
-    ? SAMPLE_SPOTS_MAP_ZH[city]
-    : (SAMPLE_SPOTS_MAP[city] || [
-        { name: `${city} 대표 힐링 명소`, theme: `${city}의 자연과 감성을 느끼는 쉼터`, desc: `${city}에서 가장 사랑받는 대표적인 명소로, 아름다운 풍경과 힐링을 선사합니다.`, cat: '자연명소', photo: `📸 ${city} 포토존 인생샷`, sig: `✨ ${city} 특산 시그니처 미식`, time: '오전 10:30', lat: cityMeta.lat + 0.005, lng: cityMeta.lng - 0.005 },
-        { name: `${city} 감성 카페거리 & 핫플레이스`, theme: `트렌디한 감성과 여유로운 디저트`, desc: `${city}의 젊은 여행자들이 즐겨 찾는 감각적인 공간과 로컬 카페들이 모여 있습니다.`, cat: '감성카페', photo: `📸 감성 테라스 & 인테리어 샷`, sig: `☕ 시그니처 로컬 라떼`, time: '오후 2:30', lat: cityMeta.lat - 0.005, lng: cityMeta.lng + 0.005 },
-        { name: `${city} 로컬 미식 야경 명소`, theme: `오감을 만족시키는 맛과 황홀한 밤 풍경`, desc: `${city}의 대표적인 야경 포인트와 현지인 추천 맛집이 어우러진 저녁 코스입니다.`, cat: '야경명소', photo: `📸 반짝이는 야경 파노라마`, sig: `🍴 ${city} 로컬 대표 미식`, time: '오후 6:30', lat: cityMeta.lat - 0.008, lng: cityMeta.lng - 0.002 }
-      ]);
+  // 🌟 사용자 테마, 동행자, 추가 요구사항 스마트 파싱!
+  const isElder = /(노인|어르신|부모님|시니어|효도|할머니|할아버지|노약자)/i.test(rawPrompt);
+  const isKids = /(아이|아이동반|어린이|유아|아기|키즈|초등)/i.test(rawPrompt);
+  const isCouple = /(커플|연인|데이트|로맨틱|신혼)/i.test(rawPrompt);
+  const isFamily = /(가족|패밀리)/i.test(rawPrompt) || (isKids && isElder);
+  const isSolo = /(혼자|나홀로|솔로|1인)/i.test(rawPrompt);
+  const isIndoor = /(실내|비|우천|비오는|더위|추위)/i.test(rawPrompt);
+  const isFood = /(맛집|미식|먹방|푸드)/i.test(rawPrompt);
+  const isCafe = /(카페|디저트|핫플|인스타|베이커리)/i.test(rawPrompt);
+  const isShopping = /(쇼핑|패션|백화점|아울렛)/i.test(rawPrompt);
+  const isHealing = /(힐링|자연|산책|숲|바다|휴식)/i.test(rawPrompt);
+  const isSea = /(바다|해변|오션|해수욕장|서핑)/i.test(rawPrompt) || ['강릉', '속초', '양양', '동해', '부산'].includes(city);
 
-  const themeList = (lang === 'en' && DAILY_THEMES_EN[city])
-    ? DAILY_THEMES_EN[city]
-    : (lang === 'ja' && DAILY_THEMES_JA[city])
-    ? DAILY_THEMES_JA[city]
-    : ((lang === 'zh' || lang === 'zht') && DAILY_THEMES_ZH[city])
-    ? DAILY_THEMES_ZH[city]
-    : (DAILY_THEMES[city] || [
-        { theme: `1일차: ${city}의 청정 자연과 감성 핫플레이스`, transit: `${city} 중심가 및 대중교통 이용 편리`, food: { dishName: `${city} 로컬 대표 미식`, description: `현지인들이 추천하는 신선한 제철 재료로 만든 ${city}의 별미` } },
-        { theme: `2일차: ${city} 역사 문화 산책과 낭만 야경`, transit: `${city} 주요 명소 간 차량/버스 15분`, food: { dishName: `${city} 특산 요리 한상`, description: `${city}만의 고유한 풍미를 담은 든든하고 정갈한 한 끼 식사` } },
-        { theme: `3일차: ${city} 힐링 트레킹과 파노라마 뷰`, transit: `순환 도로 및 시내 연결 버스`, food: { dishName: `${city} 로컬 디저트 & 브런치`, description: `여행의 마지막 여운을 달콤하게 마무리하는 감성 카페 미식` } }
-      ]);
+  // 🎯 테마별 전용 장소 풀 오버라이드 (키즈/실내/바다 요청 시 장소 100% 교체!)
+  let spotPool = (SAMPLE_SPOTS_MAP[city] || []);
+
+  if (isKids && (city === '서울' || city === '수도권' || city === '전국')) {
+    spotPool = [
+      { name: '롯데월드 아쿠아리움', theme: '신비로운 해양생물 오감 탐험', desc: '귀여운 벨루가와 수달, 650종 5만여 마리의 해양생물이 반겨주는 도심 속 아쿠아리움', cat: '키즈체험', photo: '📸 벨루가 & 대형 수조 터널샷', sig: '🐬 바다친구 체험존', time: '오전 10:30', lat: 37.5133, lng: 127.1042 },
+      { name: '서울스카이 전망대 & 석촌호수', theme: '하늘 위 123층 파노라마 뷰', desc: '세계 5위 높이의 타워에서 바라보는 서울 전경과 석촌호수 유모차 산책길', cat: '가족랜드마크', photo: '📸 스카이데크 유리바닥 인증샷', sig: '🍦 123 서울스카이 아이스크림', time: '오후 1:30', lat: 37.5126, lng: 127.1025 },
+      { name: '서울어린이대공원 & 상상나라', theme: '마음껏 뛰노는 자연 동물원', desc: '무료 동물원과 식물원, 오감 발달 어린이 실내 상상나라 체험관', cat: '키즈놀이터', photo: '📸 동물원 & 키즈 상상존', sig: '🎈 패밀리 피크닉 도시락', time: '오전 10:30', lat: 37.5480, lng: 127.0817 },
+      { name: '서울숲 키즈 놀이터 & 사슴 방사장', theme: '도심 속 숲속 힐링 놀이터', desc: '거인상 미끄럼틀 놀이터와 꽃사슴 먹이주기 체험을 즐기는 생태공원', cat: '자연체험', photo: '📸 꽃사슴 & 메타세쿼이아 숲길', sig: '🧺 서울숲 감성 피크닉 세트', time: '오후 2:30', lat: 37.5444, lng: 127.0374 },
+      { name: '롯데월드 어드벤처', theme: '모험과 신비의 실내 테마파크', desc: '날씨 걱정 없는 초대형 실내 어드벤처 놀이기구와 환상적인 퍼레이드', cat: '테마파크', photo: '📸 매직캐슬 앞 가족 인생샷', sig: '🍿 로티로리 캐릭터 팝콘', time: '오전 10:00', lat: 37.5111, lng: 127.0982 },
+      { name: '코엑스 아쿠아리움', theme: '테마별 수중 터널 모험', desc: '무지개 라운지와 바다왕국 상어 수조 등 테마별로 꾸며진 실내 수족관', cat: '키즈체험', photo: '📸 딥블루 해저터널 사진', sig: '🐠 펭귄 수조 먹이주기', time: '오후 3:00', lat: 37.5118, lng: 127.0592 }
+    ];
+  } else if (isIndoor && (city === '서울' || city === '수도권' || city === '전국')) {
+    spotPool = [
+      { name: '코엑스 별마당도서관 & 몰', theme: '13m 거대 서가가 있는 실내 랜드마크', desc: '비 오는 날 쾌적하게 즐기는 웅장한 서가와 쇼핑, 아쿠아리움 복합문화공간', cat: '실내명소', photo: '📸 13m 북타워 시그니처 샷', sig: '☕ 별마당 감성 스페셜티 커피', time: '오전 11:00', lat: 37.5118, lng: 127.0592 },
+      { name: '현대백화점 무역센터점 미식관', theme: '트렌디 글로벌 프리미엄 다이닝', desc: '비 맞지 않고 실내에서 즐기는 전국 유명 셰프들의 프리미엄 맛집 거리', cat: '실내미식', photo: '📸 감각적인 고메 다이닝 샷', sig: '🍴 시그니처 프리미엄 다이닝', time: '오후 1:00', lat: 37.5085, lng: 127.0598 },
+      { name: '더현대 서울 & 사운즈 포레스트', theme: '도심 속 거대한 실내 온실 정원', desc: '채광 가득한 실내 숲 사운즈 포레스트와 감각적인 글로벌 팝업스토어', cat: '실내핫플', photo: '📸 사운즈포레스트 돔 정원 샷', sig: '🥐 카멜커피 & 시그니처 베이커리', time: '오전 11:30', lat: 37.5259, lng: 126.9284 },
+      { name: 'IFC몰 실내 복합 문화공간', theme: '글로벌 패션 & 실내 영화관', desc: '더현대와 지하로 연결되어 쾌적하게 쇼핑과 미식을 원스톱으로 즐기는 공간', cat: '실내쇼핑', photo: '📸 글래스 파빌리온 아트리움', sig: '🍔 글로벌 고메 수제버거', time: '오후 2:30', lat: 37.5251, lng: 126.9255 },
+      { name: '국립중앙박물관 사유의 방', theme: '천년의 미소를 만나는 실내 힐링', desc: '국보 반가사유상이 선사하는 깊은 평온과 대한민국의 찬란한 문화유산', cat: '실내문화', photo: '📸 사유의 방 고요한 실루엣', sig: '🍵 전통 찻집 도자기 오미자차', time: '오후 1:30', lat: 37.5240, lng: 126.9803 },
+      { name: 'DDP 동대문디자인플라자 실내전시', theme: '미래지향적 곡선 건축과 디자인 전시', desc: '자하 하디드의 환상적인 실내 공간에서 만나는 다채로운 글로벌 특별 전시', cat: '실내전시', photo: '📸 디자인랩 나선형 조형계단', sig: '🎨 감각적인 디자이너 굿즈', time: '오후 4:30', lat: 37.5665, lng: 127.0092 }
+    ];
+  } else if (isSea && (city === '강원' || city === '강릉' || city === '속초' || city === '양양')) {
+    spotPool = [
+      { name: '안목해변 커피거리', theme: '푸른 파도와 커피 향의 조화', desc: '동해 바다를 바라보며 스페셜티 커피와 디저트를 즐기는 감성 해변', cat: '바다카페', photo: '📸 통유리창 오션뷰 라떼 샷', sig: '☕ 강릉 스페셜티 드립커피', time: '오전 10:30', lat: 37.7718, lng: 128.9482 },
+      { name: '경포해변 & 경포호수', theme: '동해안 최대 백사장과 해송 숲', desc: '끝없는 모래사장과 시원한 바닷바람, 경포호 자전거 힐링 드라이브', cat: '바다명소', photo: '📸 해송 숲 사이 에메랄드 파도', sig: '🥣 초당 순두부 젤라또', time: '오후 1:30', lat: 37.8055, lng: 128.9080 },
+      { name: '속초 영금정 해상정자', theme: '바위 위에서 듣는 거문고 파도 소리', desc: '동해 바다 한가운데 떠 있는 해상 정자에서 감상하는 환상적인 파노라마 절경', cat: '바다전망', photo: '📸 동해 바다 해상정자 파도샷', sig: '🐟 속초항 싱싱한 활어 물회', time: '오전 10:30', lat: 38.2118, lng: 128.6015 },
+      { name: '속초 아바이마을 & 갯배체험', theme: '손으로 끄는 무동력 갯배와 로컬 미식', desc: '실향민들의 정취가 담긴 마을에서 맛보는 오징어순대와 갯배 나들이', cat: '로컬미식', photo: '📸 갯배 끌기 체험 인증샷', sig: '🦑 속초 명물 오징어순대 & 식해', time: '오후 1:00', lat: 38.2045, lng: 128.5925 },
+      { name: '양양 서피비치', theme: '이국적인 트로피컬 서핑 성지', desc: '하와이 감성의 짚 파라솔과 비치 바, 신나는 서핑 강습과 노을', cat: '바다핫플', photo: '📸 SURFYY 서핑보드 포토존', sig: '🍹 무알콜 모히토 & 수제버거', time: '오후 2:30', lat: 38.0286, lng: 128.7176 },
+      { name: '양양 하조대 & 낙산사', theme: '해안 절벽 위 소나무와 관음성지', desc: '기암절벽과 동해의 푸른 물결이 어우러진 국가 지정 명승과 해수관음상', cat: '바다절경', photo: '📸 하조대 무인등대 & 기암괴석', sig: '☕ 하조대 오션뷰 드립커피', time: '오후 4:30', lat: 38.0201, lng: 128.7231 }
+    ];
+  }
+
+  // 테마별 ThemeList 생성
+  let themeList = (DAILY_THEMES[city] || [
+    { theme: `1일차: ${city}의 청정 자연과 감성 핫플레이스`, transit: `${city} 중심가 및 대중교통 이용 편리`, food: { dishName: `${city} 로컬 대표 미식`, description: `현지인들이 추천하는 신선한 제철 재료로 만든 ${city}의 별미` } },
+    { theme: `2일차: ${city} 역사 문화 산책과 낭만 야경`, transit: `${city} 주요 명소 간 차량/버스 15분`, food: { dishName: `${city} 특산 요리 한상`, description: `${city}만의 고유한 풍미를 담은 든든하고 정갈한 한 끼 식사` } },
+    { theme: `3일차: ${city} 힐링 트레킹과 파노라마 뷰`, transit: `순환 도로 및 시내 연결 버스`, food: { dishName: `${city} 로컬 디저트 & 브런치`, description: `여행의 마지막 여운을 달콤하게 마무리하는 감성 카페 미식` } }
+  ]);
+
+  if (isKids) {
+    themeList = [
+      { theme: `1일차: 신비로운 아쿠아리움과 하늘 위 파노라마`, transit: `잠실역 지하 연결 및 쾌적한 실내 유모차 동선`, food: { dishName: `키즈 오므라이스 & 수제 돈가스`, description: `아이들이 좋아하는 바삭한 수제 돈가스와 부드러운 오므라이스` } },
+      { theme: `2일차: 자연 속 어린이대공원과 상상나라 오감체험`, transit: `어린이대공원역 도보 3분 안심 보행로`, food: { dishName: `성수동 화덕 피자 & 파스타`, description: `온 가족이 함께 나누어 먹는 담백한 화덕 피자` } },
+      { theme: `3일차: 모험과 신비의 롯데월드 어드벤처 탐험`, transit: `실내 테마파크 전용 직통 통로`, food: { dishName: `테마파크 패밀리 고메 세트`, description: `신나는 어트랙션 후 즐기는 달콤한 디저트와 든든한 식사` } }
+    ];
+  } else if (isIndoor) {
+    themeList = [
+      { theme: `1일차: 웅장한 코엑스 별마당도서관과 실내 수족관`, transit: `삼성역 지하 직통 연결로 비 걱정 없는 이동`, food: { dishName: `코엑스 프리미엄 고메 다이닝`, description: `비 맞지 않고 실내에서 즐기는 전국 셰프들의 맛집` } },
+      { theme: `2일차: 더현대 사운즈포레스트와 감성 팝업스토어`, transit: `여의도역 지하 무빙워크 연결 통로`, food: { dishName: `더현대 시그니처 브런치 & 카멜커피`, description: `실내 정원을 바라보며 즐기는 트렌디 미식과 커피` } },
+      { theme: `3일차: 국립중앙박물관 사유의방과 DDP 실내전시`, transit: `이촌역 및 동대문역사문화공원역 지하 연결`, food: { dishName: `전통 다과상 & 오미자 에이드`, description: `고즈넉한 실내 공간에서 나누는 향긋한 전통차 한잔` } }
+    ];
+  } else if (isSea) {
+    themeList = [
+      { theme: `1일차: 푸른 안목 커피거리와 경포호수 힐링`, transit: `강릉 해안도로 및 시내버스 15분`, food: { dishName: `강릉 초당순두부 백반 & 젤라또`, description: `바닷물로 빚어낸 고소하고 부드러운 전통 순두부` } },
+      { theme: `2일차: 속초 영금정 해상정자와 아바이마을 갯배`, transit: `속초 해안 순환선 및 시내 이동`, food: { dishName: `속초 명물 오징어순대 & 물회`, description: `싱싱한 동해안 해산물과 매콤새콤한 물회` } },
+      { theme: `3일차: 양양 서피비치 트로피컬 감성과 하조대 절경`, transit: `양양 7번 국도 해안 드라이브 코스`, food: { dishName: `양양 해변 수제버거 & 생맥주`, description: `시원한 파도 소리와 함께 즐기는 이국적인 비치 푸드` } }
+    ];
+  }
 
   for (let d = 0; d < days; d++) {
     const dayNum = d + 1;
     const daySpots = [];
     const spotsForDay = [
-      spotPool[(d * 6) % spotPool.length],
-      spotPool[(d * 6 + 1) % spotPool.length],
-      spotPool[(d * 6 + 2) % spotPool.length],
-      spotPool[(d * 6 + 3) % spotPool.length],
-      spotPool[(d * 6 + 4) % spotPool.length],
-      spotPool[(d * 6 + 5) % spotPool.length]
+      spotPool[(d * 2) % spotPool.length],
+      spotPool[(d * 2 + 1) % spotPool.length]
     ];
 
     const dayThemeMeta = themeList[d % themeList.length];
@@ -1184,22 +1227,10 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
         ? (isJeju 
             ? 'Jeju Express Bus or Coastal Drive (approx. 15 mins)' 
             : (city.includes('부산') ? 'Busan Metro Line 2 or Coastal Walk' : 'Conveniently accessible by Subway or Walk (10 mins)'))
-        : lang === 'ja'
-        ? (isJeju
-            ? '済州急行バスまたは海岸道路で約15分'
-            : (city.includes('부산') ? '釜山地下鉄2号線または海岸散策路' : '地下鉄または徒歩で約10分'))
-        : (lang === 'zh' || lang === 'zht')
-        ? (isJeju
-            ? '搭乘济州快速公交或沿海公路约15分钟'
-            : (city.includes('부산') ? '釜山地铁2号线或沿海步道' : '搭乘地铁或步行约10分钟'))
         : (isJeju ? '제주 급행 버스 또는 해안도로 이동 15분' : '지하철 또는 도보로 편리하게 이동');
 
       const localizedLocation = lang === 'en'
         ? `${cityMeta.nameEn || 'Seoul'}, Republic of Korea`
-        : lang === 'ja'
-        ? `大韓民国 ${CITY_TRANSLATIONS.ja[city] || 'ソウル'}`
-        : (lang === 'zh' || lang === 'zht')
-        ? `大韩民国 ${CITY_TRANSLATIONS.zh[city] || '首尔'}`
         : `대한민국 ${city} 일대`;
 
       const sp = {
@@ -1235,18 +1266,6 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
       spots: daySpots
     });
   }
-
-  // 🌟 사용자 테마, 동행자, 추가 요구사항 스마트 파싱하여 다이나믹 타이틀 & 서머리 생성!
-  const isElder = /(노인|어르신|부모님|시니어|효도|할머니|할아버지|노약자)/i.test(rawPrompt);
-  const isKids = /(아이|아이동반|어린이|유아|아기|키즈|초등)/i.test(rawPrompt);
-  const isCouple = /(커플|연인|데이트|로맨틱|신혼)/i.test(rawPrompt);
-  const isFamily = /(가족|패밀리)/i.test(rawPrompt) || (isKids && isElder);
-  const isSolo = /(혼자|나홀로|솔로|1인)/i.test(rawPrompt);
-  const isIndoor = /(실내|비|우천|비오는|더위|추위)/i.test(rawPrompt);
-  const isFood = /(맛집|미식|먹방|푸드)/i.test(rawPrompt);
-  const isCafe = /(카페|디저트|핫플|인스타|베이커리)/i.test(rawPrompt);
-  const isShopping = /(쇼핑|패션|백화점|아울렛)/i.test(rawPrompt);
-  const isHealing = /(힐링|자연|산책|숲|바다|휴식)/i.test(rawPrompt);
 
   let themeModifier = '하이라이트 명소 & 미식';
   let summaryDesc = '엄선된 대표 명소와 최적의 이동 동선으로 알차게 구성했어요! ✨';
