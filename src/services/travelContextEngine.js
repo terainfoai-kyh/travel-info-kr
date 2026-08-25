@@ -190,11 +190,18 @@ export function patchTravelState(prevState = INITIAL_TRAVEL_STATE, userPrompt = 
   else if (/(황리단길|대릉원)/i.test(clean)) { nextHotelArea = '황리단길/대릉원'; hasNewCondition = true; }
   else if (/(한옥마을)/i.test(clean)) { nextHotelArea = '전주 한옥마을'; hasNewCondition = true; }
 
-  // 6. Arrival Time Extraction
+  // 6. Season Extraction
+  let nextSeason = prevTrip.season || null;
+  if (/(겨울|winter|동계|눈|설경)/i.test(clean)) { nextSeason = '겨울'; hasNewCondition = true; }
+  else if (/(가을|autumn|fall|단풍)/i.test(clean)) { nextSeason = '가을'; hasNewCondition = true; }
+  else if (/(봄|spring|벚꽃)/i.test(clean)) { nextSeason = '봄'; hasNewCondition = true; }
+  else if (/(여름|summer|물놀이|해수욕|바다)/i.test(clean)) { nextSeason = '여름'; hasNewCondition = true; }
+
+  // 7. Arrival Time Extraction (전체 24시간 및 자연어 완벽 지원)
   let nextArrivalTime = prevTrip.arrivalTime || null;
-  if (/(오전|아침|12시\s*이전|morning)/i.test(clean)) { nextArrivalTime = '오전'; hasNewCondition = true; }
-  else if (/(오후|낮|14|15|16|afternoon)/i.test(clean)) { nextArrivalTime = '오후'; hasNewCondition = true; }
-  else if (/(저녁|밤|18|19|20|21|night|evening)/i.test(clean)) { nextArrivalTime = '저녁'; hasNewCondition = true; }
+  if (/(오전|아침|morning|[6-9]시|10시|11시|12시\s*이전)/i.test(clean)) { nextArrivalTime = '오전'; hasNewCondition = true; }
+  else if (/(오후|낮|afternoon|12시|13시|14시|15시|16시|17시|[1-5]시)/i.test(clean)) { nextArrivalTime = '오후'; hasNewCondition = true; }
+  else if (/(저녁|밤|night|evening|18시|19시|20시|21시|22시|23시|[6-9]시\s*도착)/i.test(clean)) { nextArrivalTime = '저녁'; hasNewCondition = true; }
 
   return {
     ...prevState,
@@ -207,7 +214,8 @@ export function patchTravelState(prevState = INITIAL_TRAVEL_STATE, userPrompt = 
       multiCityInfo: nextMultiCity,
       gateway: nextGateway,
       hotelArea: nextHotelArea,
-      arrivalTime: nextArrivalTime
+      arrivalTime: nextArrivalTime,
+      season: nextSeason
     },
     currentContext: {
       ...prevState.currentContext,
@@ -585,11 +593,12 @@ export function generateContextualAdvice(context, lang = 'ko') {
     return `${layer1}\n\n${layer2}\n\n👉 **${layer3}**`;
   }
 
-  // 2. Door-to-Door Interactive Flow Check (공항/숙소 선택 후 입국 시간 자연스러운 대화 유도)
-  const isGatewaySelectPrompt = /(공항|ktx|터미널|숙소|호텔)/i.test(cleanPrompt) && (context.tripMemory?.gateway || context.tripMemory?.hotelArea);
-  const isArrivalTimePrompt = /(오전|오후|저녁|밤|도착)/i.test(cleanPrompt) && (context.tripMemory?.arrivalTime || /(오전|오후|저녁|밤)/i.test(cleanPrompt));
+  // 2. Door-to-Door Interactive Flow Check (공항/숙소/도착시간/계절 연계)
+  const isGatewayOrHotelMentioned = /(공항|ktx|터미널|숙소|호텔|강남|명동|홍대|해운대|서면|애월|서귀포|바람의언덕|매미성)/i.test(cleanPrompt) || Boolean(context.tripMemory?.gateway || context.tripMemory?.hotelArea);
+  const isTimeMentioned = /(오전|오후|저녁|밤|도착|[0-9]+시)/i.test(cleanPrompt) || Boolean(context.tripMemory?.arrivalTime);
+  const season = context.tripMemory?.season || (/(겨울|가을|봄|여름)/.test(cleanPrompt) ? cleanPrompt.match(/(겨울|가을|봄|여름)/)[1] : null);
 
-  if (isGatewaySelectPrompt && !context.tripMemory?.arrivalTime) {
+  if (isGatewayOrHotelMentioned && !context.tripMemory?.arrivalTime && !isTimeMentioned) {
     const gw = context.tripMemory?.gateway || '공항/역';
     const hotel = context.tripMemory?.hotelArea || '호텔';
     return (lang === 'en')
@@ -597,23 +606,41 @@ export function generateContextualAdvice(context, lang = 'ko') {
       : `${targetCity} 여행을 위해 **${gw}** 도착 후 **${hotel}** 짐 보관(Luggage Drop) 코스로 잡아드릴게요! ✈️🏨\n\n한국에는 대략 몇 시쯤 도착하시나요? 😊`;
   }
 
-  if (isArrivalTimePrompt) {
+  if (isTimeMentioned || (isGatewayOrHotelMentioned && context.tripMemory?.arrivalTime)) {
     const arrTime = context.tripMemory?.arrivalTime || '오후';
-    const hotel = context.tripMemory?.hotelArea || '명동 호텔';
-    const gw = context.tripMemory?.gateway || '공항철도(AREX)';
-    
-    if (arrTime === '오전') {
-      return (lang === 'en')
-        ? `Morning arrival: Drop bags at **${hotel}** ➔ lunch ➔ **[Gyeongbokgung & Bukchon Hanok]** afternoon course. Shall I prepare this itinerary for you? 👑✨`
-        : `오전 도착이시면 **${hotel}** 짐 보관 후 점심 식사 & **[경복궁 & 북촌 한옥마을]** 오후 코스로 산뜻하게 잡아드릴까요? 👑✨`;
-    } else if (arrTime === '저녁') {
-      return (lang === 'en')
-        ? `Evening arrival: Check-in at **${hotel}** ➔ **[Myeongdong Night Market Food & N Seoul Tower Sunset]** night course. Shall I prepare this itinerary for you? 🗼✨`
-        : `저녁 도착이시면 **${hotel}** 체크인 후 **[명동 야시장 길거리 음식 ➔ N서울타워 로맨틱 야경]** 코스로 잡아드릴까요? 🗼✨`;
+    const hotel = context.tripMemory?.hotelArea || (targetCity === '거제' ? '거제 숙소' : targetCity === '부산' ? '해운대 숙소' : targetCity === '제주' ? '제주 숙소' : '숙소');
+    const gw = context.tripMemory?.gateway || (targetCity === '거제' ? '거제터미널' : targetCity === '부산' ? '김해공항' : targetCity === '제주' ? '제주공항' : '인천국제공항');
+    const seasonPrefix = season ? `${season}철 ` : '';
+
+    if (hotel.includes('강남') || targetCity === '서울') {
+      if (arrTime === '오전') {
+        return (lang === 'en')
+          ? `${seasonPrefix}Morning arrival: **${gw}** ➔ **${hotel}** luggage drop ➔ **[Gyeongbokgung & Bukchon Hanok]** afternoon course. Shall I prepare this itinerary for you? 👑✨`
+          : `${seasonPrefix}**${gw}** ➔ **${hotel}** 짐 보관 후 **[경복궁 & 북촌 한옥마을]** 산뜻한 오후 코스로 잡아드릴까요? 👑❄️`;
+      } else if (arrTime === '저녁') {
+        return (lang === 'en')
+          ? `${seasonPrefix}Evening arrival: Check-in at **${hotel}** ➔ **[Gangnam / Myeongdong Night Food & City Lights]** course. Shall I prepare this itinerary for you? 🗼✨`
+          : `${seasonPrefix}**${gw}** ➔ **${hotel}** 체크인 후 **[강남 가로수길 미식 & 코엑스 별마당 야경]** 따뜻한 저녁 코스로 잡아드릴까요? 🗼✨`;
+      } else {
+        return (lang === 'en')
+          ? `${seasonPrefix}Afternoon arrival: **${gw}** ➔ **${hotel}** luggage drop ➔ **[Coex Starfield Library & Bongeunsa Winter Stroll]** course. Shall I prepare this itinerary for you? 🧳✨`
+          : `${seasonPrefix}**${gw}** ➔ **${hotel}** 짐 보관 후 **[코엑스 별마당도서관 & 봉은사 설경 산책]** 오후 코스로 딱 잡아드릴까요? ❄️🧳`;
+      }
     } else {
-      return (lang === 'en')
-        ? `Afternoon arrival: **${gw}** ➔ **${hotel}** luggage drop ➔ **[Gwangjang Market Foodie ➔ Cheonggyecheon & DDP Night Stroll]** course. Shall I prepare this itinerary for you? 🧳✨`
-        : `오후 도착이시면 **${gw}** ➔ **${hotel}** 짐 보관 후 **[광장시장 먹방 ➔ 청계천 & DDP 야경 산책]** 코스로 딱 잡아드릴까요? 🧳✨`;
+      // 부산, 제주, 거제 등 타 지역 맞춤 제안
+      if (arrTime === '오전') {
+        return (lang === 'en')
+          ? `${seasonPrefix}Morning arrival: **${gw}** ➔ **${hotel}** luggage drop ➔ **[${targetCity} signature landmarks & local lunch]** course. Shall I prepare this itinerary for you? 👑✨`
+          : `${seasonPrefix}**${gw}** ➔ **${hotel}** 짐 보관 후 **[${targetCity} 대표 명소 & 로컬 미식]** 산뜻한 오후 코스로 잡아드릴까요? 👑✨`;
+      } else if (arrTime === '저녁') {
+        return (lang === 'en')
+          ? `${seasonPrefix}Evening arrival: Check-in at **${hotel}** ➔ **[${targetCity} romantic night view & dinner]** course. Shall I prepare this itinerary for you? 🗼✨`
+          : `${seasonPrefix}**${gw}** ➔ **${hotel}** 체크인 후 **[${targetCity} 로맨틱 야경 & 제철 미식 만찬]** 코스로 잡아드릴까요? 🗼✨`;
+      } else {
+        return (lang === 'en')
+          ? `${seasonPrefix}Afternoon arrival: **${gw}** ➔ **${hotel}** luggage drop ➔ **[${targetCity} highlight afternoon stroll]** course. Shall I prepare this itinerary for you? 🧳✨`
+          : `${seasonPrefix}**${gw}** ➔ **${hotel}** 짐 보관 후 **[${targetCity} 핵심 힐링 & 오후 티타임]** 코스로 딱 잡아드릴까요? 🧳✨`;
+      }
     }
   }
 
