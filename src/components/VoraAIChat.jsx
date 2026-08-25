@@ -1,3 +1,4 @@
+import React, { useState, useRef, useEffect } from 'react';
 import { Send, Sparkles, Copy, Check, Share2, CornerDownRight, Utensils, Navigation, User, Bot, Loader2, X } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
 import { getActiveContextChips } from '../services/travelContextEngine';
