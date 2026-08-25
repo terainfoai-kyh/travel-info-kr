@@ -1,7 +1,7 @@
 /**
  * KoreaTravel Verified POI (Point of Interest) Database
  * 
- * - Standardized display titles (cleaned from raw TourAPI titles)
+ * - Single Spot Identity (No '&' combined names)
  * - Official TourAPI 4.0 Verified CDN Images & Coordinates
  * - Curated tags, average visit duration, and themes
  * - 0-Token Instant Semantic Matching (< 0.01s)
@@ -9,18 +9,18 @@
 
 export const KOREA_TRAVEL_POI_DB = [
   // ==========================================
-  // 1. 거제 & 남해 (거제도, 통영)
+  // 1. 거제 (단일 명소)
   // ==========================================
   {
     id: 'kt_gj_windhill',
-    title: '바람의 언덕 & 도장포 유람선',
+    title: '바람의 언덕',
     region: '경남',
     city: '거제',
     category: '자연명소',
     theme: '풍차/오션뷰',
     duration: 90,
     rating: 4.9,
-    image: 'http://tong.visitkorea.or.kr/cms/resource/66/2784566_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/03/3566003_image2_1.jpg',
     lat: 34.7601,
     lng: 128.6664,
     tags: ['바다', '풍차', '인생샷', '아이동반', '가족', '대표명소'],
@@ -28,14 +28,14 @@ export const KOREA_TRAVEL_POI_DB = [
   },
   {
     id: 'kt_gj_sinseondae',
-    title: '신선대 기암절벽',
+    title: '신선대',
     region: '경남',
     city: '거제',
     category: '자연명소',
     theme: '절경/전망',
     duration: 60,
     rating: 4.8,
-    image: 'http://tong.visitkorea.or.kr/cms/resource/71/2607571_image2_1.jpg',
+    image: 'http://tong.visitkorea.or.kr/cms/resource/76/3576176_image2_1.JPG',
     lat: 34.7570,
     lng: 128.6630,
     tags: ['바다', '기암괴석', '포토존', '힐링', '절경'],
@@ -43,14 +43,14 @@ export const KOREA_TRAVEL_POI_DB = [
   },
   {
     id: 'kt_gj_oedo',
-    title: '외도 보타니아 해상식물원',
+    title: '외도 보타니아',
     region: '경남',
     city: '거제',
     category: '자연명소',
     theme: '해상정원/보타니아',
     duration: 120,
     rating: 4.9,
-    image: 'http://tong.visitkorea.or.kr/cms/resource/38/2607538_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/05/4059505_image2_1.jpg',
     lat: 34.7865,
     lng: 128.7180,
     tags: ['해상정원', '이국적', '아열대식물', '유람선', '아이동반', '가족'],
@@ -65,7 +65,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '몽돌/해변',
     duration: 80,
     rating: 4.8,
-    image: 'http://tong.visitkorea.or.kr/cms/resource/46/2607546_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/05/4059505_image2_1.jpg',
     lat: 34.7925,
     lng: 128.6360,
     tags: ['바다', '몽돌해변', '파도소리', '아이동반', '힐링', '산책'],
@@ -73,14 +73,14 @@ export const KOREA_TRAVEL_POI_DB = [
   },
   {
     id: 'kt_gj_maemi',
-    title: '매미성 & 해안 성곽',
+    title: '매미성',
     region: '경남',
     city: '거제',
     category: '핫플',
     theme: '중세성곽/오션뷰',
     duration: 70,
     rating: 4.9,
-    image: 'http://tong.visitkorea.or.kr/cms/resource/78/2650078_image2_1.jpg',
+    image: 'http://tong.visitkorea.or.kr/cms/resource/75/2899875_image2_1.jpg',
     lat: 35.0062,
     lng: 128.7160,
     tags: ['성곽', '인생샷', '오션뷰', 'MZ핫플', '데이트'],
@@ -88,14 +88,14 @@ export const KOREA_TRAVEL_POI_DB = [
   },
   {
     id: 'kt_gj_jungledome',
-    title: '거제식물원 정글돔 (실내)',
+    title: '거제식물원 정글돔',
     region: '경남',
     city: '거제',
     category: '실내',
     theme: '실내온실/키즈체험',
     duration: 100,
     rating: 4.9,
-    image: 'http://tong.visitkorea.or.kr/cms/resource/02/2784502_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/17/3521017_image2_1.jpg',
     lat: 34.8580,
     lng: 128.5830,
     tags: ['실내', '비오는날', '정글돔', '새둥지포토존', '아이동반', '키즈'],
@@ -103,18 +103,18 @@ export const KOREA_TRAVEL_POI_DB = [
   },
 
   // ==========================================
-  // 2. 강원도 (강릉, 속초, 양양)
+  // 2. 강원 (단일 명소)
   // ==========================================
   {
     id: 'kt_gw_anmok',
-    title: '안목해변 커피거리',
+    title: '안목해변',
     region: '강원',
     city: '강릉',
     category: '바다',
-    theme: '카페/바다',
+    theme: '카페거리/바다',
     duration: 90,
     rating: 4.9,
-    image: 'http://tong.visitkorea.or.kr/cms/resource/46/2607546_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/58/4075958_image2_1.jpg',
     lat: 37.7718,
     lng: 128.9482,
     tags: ['바다', '카페거리', '커플', '일출', '오션뷰'],
@@ -122,14 +122,14 @@ export const KOREA_TRAVEL_POI_DB = [
   },
   {
     id: 'kt_gw_gyeongpo',
-    title: '경포해변 & 경포호수',
+    title: '경포해변',
     region: '강원',
     city: '강릉',
     category: '바다',
     theme: '자연/명소',
     duration: 100,
     rating: 4.8,
-    image: 'http://tong.visitkorea.or.kr/cms/resource/38/2607538_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/52/3501452_image2_1.jpg',
     lat: 37.8055,
     lng: 128.9080,
     tags: ['바다', '산책', '자전거', '피크닉', '가족'],
@@ -144,7 +144,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '핫플/서핑',
     duration: 120,
     rating: 4.9,
-    image: 'http://tong.visitkorea.or.kr/cms/resource/66/2784566_image2_1.jpg',
+    image: 'http://tong.visitkorea.or.kr/cms/resource/90/2745190_image2_1.jpg',
     lat: 38.0286,
     lng: 128.7176,
     tags: ['바다', '서핑', '이국적', '선셋바', 'MZ핫플'],
@@ -159,7 +159,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '전망/명소',
     duration: 60,
     rating: 4.8,
-    image: 'http://tong.visitkorea.or.kr/cms/resource/71/2607571_image2_1.jpg',
+    image: 'http://tong.visitkorea.or.kr/cms/resource/01/3576201_image2_1.jpg',
     lat: 38.2118,
     lng: 128.6015,
     tags: ['바다', '일출', '해상정자', '인생샷', '동해'],
@@ -167,14 +167,14 @@ export const KOREA_TRAVEL_POI_DB = [
   },
   {
     id: 'kt_gw_abai',
-    title: '속초 아바이마을 & 갯배',
+    title: '속초 아바이마을',
     region: '강원',
     city: '속초',
     category: '맛집',
     theme: '로컬/미식',
     duration: 80,
     rating: 4.7,
-    image: 'http://tong.visitkorea.or.kr/cms/resource/63/2607563_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource_photo/13/4076913_image2_1.jpg',
     lat: 38.2045,
     lng: 128.5925,
     tags: ['미식', '오징어순대', '갯배체험', '로컬', '아이동반'],
@@ -182,7 +182,7 @@ export const KOREA_TRAVEL_POI_DB = [
   },
 
   // ==========================================
-  // 3. 서울 & 수도권 (키즈/실내/핫플)
+  // 3. 서울 (단일 명소)
   // ==========================================
   {
     id: 'kt_kids_lotte_aquarium',
@@ -193,7 +193,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '실내/키즈/체험',
     duration: 120,
     rating: 4.9,
-    image: 'http://tong.visitkorea.or.kr/cms/resource/67/2618967_image2_1.jpg',
+    image: 'http://tong.visitkorea.or.kr/cms/resource/45/2384845_image2_1.jpg',
     lat: 37.5133,
     lng: 127.1042,
     tags: ['아이동반', '키즈', '실내', '아쿠아리움', '벨루가', '비오는날'],
@@ -201,14 +201,14 @@ export const KOREA_TRAVEL_POI_DB = [
   },
   {
     id: 'kt_kids_grandpark',
-    title: '서울어린이대공원 & 상상나라',
+    title: '서울어린이대공원',
     region: '서울',
     city: '서울',
     category: '키즈',
     theme: '자연/동물원/놀이터',
     duration: 150,
     rating: 4.8,
-    image: 'http://tong.visitkorea.or.kr/cms/resource/35/2618935_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg',
     lat: 37.5480,
     lng: 127.0817,
     tags: ['아이동반', '키즈', '동물원', '어린이상상나라', '놀이터', '피크닉'],
@@ -223,7 +223,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '테마파크/실내',
     duration: 240,
     rating: 4.9,
-    image: 'http://tong.visitkorea.or.kr/cms/resource/54/2618954_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/58/4019158_image2_1.jpg',
     lat: 37.5111,
     lng: 127.0982,
     tags: ['아이동반', '키즈', '테마파크', '실내놀이', '퍼레이드', '비오는날'],
@@ -231,14 +231,14 @@ export const KOREA_TRAVEL_POI_DB = [
   },
   {
     id: 'kt_indoor_coex',
-    title: '코엑스 별마당도서관 & 아쿠아리움',
+    title: '별마당도서관',
     region: '서울',
     city: '서울',
     category: '실내',
     theme: '실내/복합문화',
-    duration: 120,
+    duration: 90,
     rating: 4.9,
-    image: 'http://tong.visitkorea.or.kr/cms/resource/88/2618988_image2_1.jpg',
+    image: 'http://tong.visitkorea.or.kr/cms/resource/29/3584529_image2_1.jpg',
     lat: 37.5118,
     lng: 127.0592,
     tags: ['실내', '비오는날', '별마당도서관', '쇼핑', '인생샷', '데이트'],
@@ -246,14 +246,14 @@ export const KOREA_TRAVEL_POI_DB = [
   },
   {
     id: 'kt_indoor_thehyundai',
-    title: '더현대 서울 & 사운즈 포레스트',
+    title: '더현대 서울',
     region: '서울',
     city: '서울',
     category: '실내',
     theme: '쇼핑/카페/실내정원',
     duration: 150,
     rating: 4.9,
-    image: 'http://tong.visitkorea.or.kr/cms/resource/02/2784502_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/88/4095788_image2_1.jpg',
     lat: 37.5259,
     lng: 126.9284,
     tags: ['실내', '비오는날', '팝업스토어', '미식', '실내정원', 'MZ핫플'],
@@ -261,44 +261,29 @@ export const KOREA_TRAVEL_POI_DB = [
   },
   {
     id: 'kt_indoor_museum',
-    title: '국립중앙박물관 & 거울못',
+    title: '국립중앙박물관',
     region: '서울',
     city: '서울',
     category: '실내',
     theme: '문화/역사/실내',
     duration: 120,
     rating: 4.9,
-    image: 'http://tong.visitkorea.or.kr/cms/resource/11/2619011_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/12/3495012_image2_1.jpg',
     lat: 37.5240,
     lng: 126.9803,
     tags: ['실내', '비오는날', '사유의방', '국보', '박물관', '힐링'],
     summary: '반가사유상이 빛나는 ‘사유의 방’과 찬란한 대한민국의 국보급 문화유산을 만나는 힐링 실내 공간'
   },
   {
-    id: 'kt_indoor_ddp',
-    title: 'DDP 동대문디자인플라자 실내 전시',
-    region: '서울',
-    city: '서울',
-    category: '실내',
-    theme: '건축/디자인/전시',
-    duration: 90,
-    rating: 4.8,
-    image: 'http://tong.visitkorea.or.kr/cms/resource/18/2650018_image2_1.jpg',
-    lat: 37.5665,
-    lng: 127.0092,
-    tags: ['실내', '비오는날', '건축명소', '전시회', '디자인랩'],
-    summary: '자하 하디드의 미래지향적 곡선 건축물 속 다채로운 글로벌 디자인 전시와 라이프스타일 숍'
-  },
-  {
     id: 'kt_seoul_gyeongbok',
-    title: '경복궁 & 국립고궁박물관',
+    title: '경복궁',
     region: '서울',
     city: '서울',
     category: '명소',
     theme: '역사/헤리티지',
     duration: 120,
     rating: 4.9,
-    image: 'http://tong.visitkorea.or.kr/cms/resource/23/2678623_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg',
     lat: 37.5796,
     lng: 126.9770,
     tags: ['한옥', '궁궐', '한복체험', 'K-헤리티지', '대표명소'],
@@ -306,14 +291,14 @@ export const KOREA_TRAVEL_POI_DB = [
   },
   {
     id: 'kt_seoul_seongsu',
-    title: '성수동 카페거리 & 연무장길',
+    title: '성수동 카페거리',
     region: '서울',
     city: '서울',
     category: '핫플',
     theme: '카페/쇼핑',
     duration: 120,
     rating: 4.9,
-    image: 'http://tong.visitkorea.or.kr/cms/resource/78/2650078_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/88/4095788_image2_1.jpg',
     lat: 37.5445,
     lng: 127.0560,
     tags: ['카페', '팝업스토어', 'MZ핫플', '쇼핑', '데이트'],
@@ -321,18 +306,18 @@ export const KOREA_TRAVEL_POI_DB = [
   },
 
   // ==========================================
-  // 4. 부산
+  // 4. 부산 (단일 명소)
   // ==========================================
   {
     id: 'kt_bs_gwangan',
-    title: '광안리해수욕장 & 민락더마켓',
+    title: '광안리해수욕장',
     region: '부산',
     city: '부산',
     category: '바다',
     theme: '야경/바다',
     duration: 120,
     rating: 4.9,
-    image: 'http://tong.visitkorea.or.kr/cms/resource/28/2650128_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/45/3311245_image2_1.jpg',
     lat: 35.1532,
     lng: 129.1186,
     tags: ['바다', '광안대교야경', '드론쇼', '오션뷰카페', '데이트'],
@@ -340,14 +325,14 @@ export const KOREA_TRAVEL_POI_DB = [
   },
   {
     id: 'kt_bs_skycapsule',
-    title: '해운대 블루라인파크 스카이캡슐',
+    title: '해운대 블루라인파크',
     region: '부산',
     city: '부산',
     category: '명소',
     theme: '액티비티/전망',
     duration: 90,
     rating: 4.9,
-    image: 'http://tong.visitkorea.or.kr/cms/resource/82/2784582_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/45/3311245_image2_1.jpg',
     lat: 35.1587,
     lng: 129.1724,
     tags: ['스카이캡슐', '오션뷰열차', '인생샷', '해안절벽', '아이동반'],
@@ -364,7 +349,7 @@ export function findRecommendedPois(query = '', targetRegion = '', limit = 3) {
   if (regionClean.includes('거제')) regionClean = '거제';
   if (regionClean.includes('강릉') || regionClean.includes('속초') || regionClean.includes('양양')) regionClean = '강원';
 
-  // 1. Strict Region Filter (동일 도시/지역 POI 풀을 최우선 추출)
+  // 1. Strict Region Filter
   let regionPool = KOREA_TRAVEL_POI_DB.filter(p => {
     if (!regionClean) return true;
     const pCity = p.city.toLowerCase();
@@ -372,7 +357,6 @@ export function findRecommendedPois(query = '', targetRegion = '', limit = 3) {
     return pCity.includes(regionClean) || pRegion.includes(regionClean) || regionClean.includes(pCity) || regionClean.includes(pRegion);
   });
 
-  // 해당 지역 데이터가 부족할 경우 fallback
   if (regionPool.length === 0) {
     regionPool = KOREA_TRAVEL_POI_DB;
   }
@@ -385,11 +369,10 @@ export function findRecommendedPois(query = '', targetRegion = '', limit = 3) {
 
   // Score matching inside target region pool
   const scored = regionPool.map(poi => {
-    let score = 50; // Base score within valid region
+    let score = 50;
     const titleClean = poi.title.toLowerCase().replace(/[\s\-_]/g, '');
-    const summaryClean = poi.summary.toLowerCase();
 
-    // 1. Theme Priority Match
+    // Theme Priority Match
     if (isKidsQuery && (poi.category === '키즈' || poi.tags.includes('아이동반') || poi.tags.includes('키즈'))) {
       score += 150;
     }
@@ -406,7 +389,7 @@ export function findRecommendedPois(query = '', targetRegion = '', limit = 3) {
       score += 120;
     }
 
-    // 2. Keyword Substring Match
+    // Keyword Substring Match
     for (const tag of poi.tags) {
       if (clean.includes(tag.toLowerCase())) score += 30;
     }
