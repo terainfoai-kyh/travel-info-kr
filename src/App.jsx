@@ -43,7 +43,7 @@ import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
 import { geminiGenerateFullItinerary, generateLocalFallbackItinerary, enrichItineraryPhotosAsync, extractLocationKeyword, extractDaysFromPrompt } from './services/geminiNlpService';
 import { sanitizeInput, inspectSecurityGuardrails } from './services/securityGuardService';
 import { findRecommendedPois } from './data/koreaTravelPoiDatabase';
-import { buildTravelContext, generateContextualAdvice } from './services/travelContextEngine';
+import { buildTravelContext, generateContextualAdvice, updateSessionContext } from './services/travelContextEngine';
 
 export default function App() {
   // 4-Language State (ko, en, ja, zh) with 3-Tier Intelligent Auto-Detection
@@ -124,6 +124,9 @@ export default function App() {
       return [];
     }
   });
+
+  // 🧠 6대 변수 Persistent Session Context (아이, 날씨, 취향 등 대화 연속성 기억)
+  const [sessionContext, setSessionContext] = useState({});
 
   // Itinerary State - 기본값은 마지막 저장된 일정 (없으면 null)
   const [itineraryData, setItineraryData] = useState(() => {
@@ -617,8 +620,12 @@ export default function App() {
       const elapsedSeconds = ((Date.now() - startTime) / 1000).toFixed(1);
       const replyTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
 
+      // 🧠 세션 컨텍스트 실시간 갱신 & 누적
+      const updatedSessionContext = updateSessionContext(sessionContext, promptQuery);
+      setSessionContext(updatedSessionContext);
+
       // 🌟 [핵심 티키타카] 사용자가 일정 확정 버튼(🚀)을 누른 게 아니거나, 대화형 질문인 경우
-      if (!isDirectGenerateAction && (result?.responseType === 'chat' || !promptQuery.includes('일정') || promptQuery.includes('어디') || promptQuery.includes('추천') || promptQuery.includes('있어') || promptQuery.includes('해줘'))) {
+      if (!isDirectGenerateAction && (result?.responseType === 'chat' || !promptQuery.includes('일정') || promptQuery.includes('어디') || promptQuery.includes('추천') || promptQuery.includes('있어') || promptQuery.includes('해줘') || promptQuery.includes('비'))) {
         const isAddDayQuery = /(하루 더|1일 더|1일 추가|늘려|연장|하루 추가|이틀 더|2일 더|더 있을래)/i.test(promptQuery);
         let dynamicSuggestDays = 3;
         const currentDays = itineraryData?.days || 1;
@@ -629,7 +636,8 @@ export default function App() {
           targetCity,
           activeDay,
           currentItinerary: itineraryData,
-          userPrompt: promptQuery
+          userPrompt: promptQuery,
+          sessionContext: updatedSessionContext
         });
         const matchedPois = findRecommendedPois(promptQuery, targetCity, 3);
         const contextualIntro = generateContextualAdvice(tripContext, lang);
