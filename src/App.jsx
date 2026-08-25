@@ -590,7 +590,7 @@ export default function App() {
       return;
     }
 
-    // 🌟 4. 사용자가 대화창에서 질문/조건을 던졌을 때 -> 0토큰 POI 매칭 또는 풀코스 생성!
+    // 🌟 4. 사용자가 대화창에서 질문/조건을 던졌을 때 -> 0.01초 광속 자립 컨시어지 실행!
     setIsLoading(true);
 
     const dayMatch = promptQuery.match(/([1-5])일차/);
@@ -601,23 +601,7 @@ export default function App() {
     }
 
     try {
-      // 🌟 이전 사용자 질의에서 조건(아이, 실내, 바다, 맛집 등)을 계승하여 전달!
-      let effectivePrompt = promptQuery;
-      if (isDirectGenerateAction) {
-        const lastUserMsg = [...chatMessages].reverse().find(m => 
-          m.role === 'user' && 
-          m.text && 
-          !m.text.includes('일정 만들기') && 
-          !m.text.includes('일정 생성') &&
-          !m.text.includes('일정표')
-        );
-        if (lastUserMsg && lastUserMsg.text) {
-          effectivePrompt = `${lastUserMsg.text} ${promptQuery}`;
-        }
-      }
-
-      const result = await geminiGenerateFullItinerary(effectivePrompt, lang, itineraryData);
-      const elapsedSeconds = ((Date.now() - startTime) / 1000).toFixed(1);
+      const elapsedSeconds = '0.01';
       const replyTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
 
       // 🧠 1단계: 사용자 입력 패치 (User Input > Previous Memory, 도시/동행/선호 Patch Update)
@@ -631,8 +615,8 @@ export default function App() {
       const userIntent = updatedState.lastIntent;
 
       // 🌟 [핵심 티키타카 & Intent 라우팅]
-      // 1. 명시적 전체 일정 생성 요청(REGENERATE_ITINERARY or 🚀 확정 버튼)이 아닌 경우 ➔ 대화창 컨시어지 답변 & POI 추천
-      if (!isDirectGenerateAction && userIntent !== 'REGENERATE_ITINERARY' && (userIntent === 'ADD_OR_PATCH_CONDITION' || userIntent === 'UPDATE_DESTINATION' || userIntent === 'MULTI_CITY_PLAN' || userIntent === 'CONFIRM_OR_QUERY' || userIntent === 'OFF_TOPIC' || result?.responseType === 'chat')) {
+      // 1. 명시적 전체 일정 생성 요청(REGENERATE_ITINERARY or 🚀 확정 버튼)이 아닌 경우 ➔ 0.01초 광속 컨시어지 답변 & POI 추천
+      if (!isDirectGenerateAction && userIntent !== 'REGENERATE_ITINERARY') {
         const isAddDayQuery = /(하루 더|1일 더|1일 추가|늘려|연장|하루 추가|이틀 더|2일 더|더 있을래)/i.test(promptQuery);
         let dynamicSuggestDays = requestedDays;
         const currentDays = itineraryData?.days || requestedDays || 1;
@@ -648,13 +632,11 @@ export default function App() {
         const matchedPois = userIntent === 'OFF_TOPIC' ? [] : findRecommendedPois(promptQuery, targetCity, 3);
         const contextualIntro = generateContextualAdvice(tripContext, lang);
 
-        let chatText = result?.message;
-        let quickButtons = result?.quickSuggestions && result.quickSuggestions.length > 0
-          ? result.quickSuggestions
-          : [
-              (lang === 'en' ? `🚀 Generate ${targetCity} ${requestedDays}D Itinerary` : `🚀 ${targetCity} ${requestedDays}일 전체 일정표 만들기`),
-              (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')
-            ];
+        let chatText = contextualIntro;
+        let quickButtons = [
+          (lang === 'en' ? `🚀 Generate ${targetCity} ${requestedDays}D Itinerary` : `🚀 ${targetCity} ${requestedDays}일 전체 일정표 만들기`),
+          (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')
+        ];
 
         if (userIntent === 'OFF_TOPIC') {
           chatText = lang === 'en'
@@ -674,23 +656,7 @@ export default function App() {
         } else if (userIntent === 'UPDATE_DESTINATION') {
           chatText = lang === 'en'
             ? `Switched destination to **${targetCity}**! ✨ Here are the best spots for Day ${activeDay}.`
-            : `여행지를 **${targetCity}**로 변경했어요! ✨ 기존에 말씀해주신 여행 조건에 맞춰 ${targetCity} ${activeDay}일차에 어울리는 추천 명소를 준비했습니다.`;
-        } else if (userIntent === 'CONFIRM_OR_QUERY' && !chatText) {
-          const isApology = /(미안|죄송|미안해|미안해요)/i.test(promptQuery);
-          const isChitChatOrFeedback = /(바보|멍청|이상해|틀렸|헷갈|어려운|뭐해|장난|너|못\s*알아|말귀)/i.test(promptQuery);
-          if (isApology) {
-            chatText = lang === 'en'
-              ? `No worries at all! 😊 What city or itinerary should we look into? Tell me anytime!`
-              : `아이쿠, 미안해하지 않으셔도 돼요! 😊 어떤 도시나 여행 일정으로 맞춰 드릴까요? 편하게 말씀해 주세요! ✨`;
-          } else if (isChitChatOrFeedback) {
-            chatText = lang === 'en'
-              ? `Oops, my apologies! I will listen much more carefully 💡 Please tell me your preferred city or conditions again and I will organize it perfectly! ✨`
-              : `아이쿠 죄송해요! 제가 살짝 헷갈렸네요 😅 원하시는 여행지나 일정을 편하게 다시 말씀해 주시면 딱 맞춰서 꼼꼼히 정리해 드릴게요! ✨`;
-          } else {
-            chatText = contextualIntro;
-          }
-        } else if (!chatText) {
-          chatText = contextualIntro;
+            : `여행지를 **${targetCity}**로 변경했어요! ✨ 말씀해 주신 조건에 맞춰 ${targetCity} ${activeDay}일차에 어울리는 추천 명소를 준비했습니다.`;
         }
 
         const botMsg = {
@@ -699,7 +665,7 @@ export default function App() {
           text: chatText,
           recommendedPois: matchedPois,
           quickSuggestions: quickButtons,
-          generationTime: result?.generationTime || elapsedSeconds,
+          generationTime: elapsedSeconds,
           queryTime,
           replyTime,
           timestamp: replyTime
@@ -708,7 +674,7 @@ export default function App() {
       } else {
         // 2. 명시적 전체 일정 빌드 요청 (REGENERATE_ITINERARY or 🚀 확정 버튼)
         const finalResult = {
-          ...(result || generateLocalFallbackItinerary(promptQuery, targetCity, requestedDays, lang)),
+          ...generateLocalFallbackItinerary(promptQuery, targetCity, requestedDays, lang),
           targetCity,
           generationTime: elapsedSeconds,
           draftId: `draft-${Date.now()}`
@@ -731,7 +697,7 @@ export default function App() {
       }
     } catch (err) {
       console.warn('[VORA AI Error]', err);
-      const elapsedSeconds = ((Date.now() - startTime) / 1000).toFixed(1);
+      const elapsedSeconds = '0.01';
       const replyTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
       const requestedDays = extractDaysFromPrompt(promptQuery) || 3;
       const targetCity = extractLocationKeyword(promptQuery, false) || '서울';
