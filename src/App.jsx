@@ -629,14 +629,25 @@ export default function App() {
           userPrompt: promptQuery,
           sessionState: updatedState
         });
-        const matchedPois = userIntent === 'OFF_TOPIC' ? [] : findRecommendedPois(promptQuery, targetCity, 3);
+        // 🏷️ 0토큰 KoreaTravel 큐레이션 POI 매칭 & Context Engine 연동
+        const isPureBanter = /(누구니|누구야|누구세요|자기소개|너의\s*정체|너는\s*뭐|뭐하는\s*애|who\s*are\s*you|바보|멍청|장난|안녕|반가워|고마워|최고야|잘했어)/i.test(promptQuery);
+        const tripContext = buildTravelContext({
+          targetCity,
+          activeDay,
+          currentItinerary: itineraryData,
+          userPrompt: promptQuery,
+          sessionState: updatedState
+        });
+        const matchedPois = (userIntent === 'OFF_TOPIC' || isPureBanter) ? [] : findRecommendedPois(promptQuery, targetCity, 3);
         const contextualIntro = generateContextualAdvice(tripContext, lang);
 
         let chatText = contextualIntro;
-        let quickButtons = [
-          (lang === 'en' ? `🚀 Generate ${targetCity} ${requestedDays}D Itinerary` : `🚀 ${targetCity} ${requestedDays}일 전체 일정표 만들기`),
-          (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')
-        ];
+        let quickButtons = isPureBanter
+          ? []
+          : [
+              (lang === 'en' ? `🚀 Generate ${targetCity} ${requestedDays}D Itinerary` : `🚀 ${targetCity} ${requestedDays}일 전체 일정표 만들기`),
+              (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')
+            ];
 
         if (userIntent === 'OFF_TOPIC') {
           chatText = lang === 'en'
