@@ -621,7 +621,11 @@ export default function App() {
         let dynamicSuggestDays = requestedDays;
         const currentDays = itineraryData?.days || requestedDays || 1;
 
-        // 🏷️ 0토큰 KoreaTravel 큐레이션 POI 매칭 & Context Engine 연동
+        // 🎯 2단계 모드 판별: 순수 일상 대화(1단계) vs 본격 일정 기획/장소 탐색(2단계)
+        const hasExplicitLocation = Boolean(detectedCity) || /(경복궁|성수|해운대|광안리|애월|한담|초당|황리단|남포동|동성로|오션|바다|산책|카페|맛집|코스|일정|여행|호텔|숙소|투어|박|일차)/i.test(promptQuery);
+        const hasActiveItinerary = Boolean(itineraryData && itineraryData.dailySchedules && itineraryData.dailySchedules.length > 0);
+        const isPlanningMode = hasExplicitLocation || hasActiveItinerary || userIntent === 'ADD_OR_PATCH_CONDITION' || userIntent === 'UPDATE_DESTINATION' || userIntent === 'MULTI_CITY_PLAN';
+
         const tripContext = buildTravelContext({
           targetCity,
           activeDay,
@@ -629,20 +633,13 @@ export default function App() {
           userPrompt: promptQuery,
           sessionState: updatedState
         });
-        // 🏷️ 0토큰 KoreaTravel 큐레이션 POI 매칭 & Context Engine 연동
-        const isPureBanter = /(누구니|누구야|누구세요|자기소개|너의\s*정체|너는\s*뭐|뭐하는\s*애|who\s*are\s*you|바보|멍청|장난|안녕|반가워|고마워|최고야|잘했어)/i.test(promptQuery);
-        const tripContext = buildTravelContext({
-          targetCity,
-          activeDay,
-          currentItinerary: itineraryData,
-          userPrompt: promptQuery,
-          sessionState: updatedState
-        });
-        const matchedPois = (userIntent === 'OFF_TOPIC' || isPureBanter) ? [] : findRecommendedPois(promptQuery, targetCity, 3);
+
+        // 1단계(순수 대화): POI 카드 및 일정 버튼 숨김 / 2단계(일정 기획): 추천 POI 카드 및 맞춤 버튼 제공
+        const matchedPois = (!isPlanningMode || userIntent === 'OFF_TOPIC') ? [] : findRecommendedPois(promptQuery, targetCity, 3);
         const contextualIntro = generateContextualAdvice(tripContext, lang);
 
         let chatText = contextualIntro;
-        let quickButtons = isPureBanter
+        let quickButtons = !isPlanningMode
           ? []
           : [
               (lang === 'en' ? `🚀 Generate ${targetCity} ${requestedDays}D Itinerary` : `🚀 ${targetCity} ${requestedDays}일 전체 일정표 만들기`),
