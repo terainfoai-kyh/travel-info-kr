@@ -632,7 +632,7 @@ export default function App() {
 
       // 🌟 [핵심 티키타카 & Intent 라우팅]
       // 1. 명시적 전체 일정 생성 요청(REGENERATE_ITINERARY or 🚀 확정 버튼)이 아닌 경우 ➔ 대화창 컨시어지 답변 & POI 추천
-      if (!isDirectGenerateAction && userIntent !== 'REGENERATE_ITINERARY' && (userIntent === 'ADD_OR_PATCH_CONDITION' || userIntent === 'UPDATE_DESTINATION' || userIntent === 'CONFIRM_OR_QUERY' || result?.responseType === 'chat')) {
+      if (!isDirectGenerateAction && userIntent !== 'REGENERATE_ITINERARY' && (userIntent === 'ADD_OR_PATCH_CONDITION' || userIntent === 'UPDATE_DESTINATION' || userIntent === 'MULTI_CITY_PLAN' || userIntent === 'CONFIRM_OR_QUERY' || result?.responseType === 'chat')) {
         const isAddDayQuery = /(하루 더|1일 더|1일 추가|늘려|연장|하루 추가|이틀 더|2일 더|더 있을래)/i.test(promptQuery);
         let dynamicSuggestDays = requestedDays;
         const currentDays = itineraryData?.days || requestedDays || 1;

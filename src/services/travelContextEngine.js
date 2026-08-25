@@ -36,6 +36,44 @@ export const INITIAL_TRAVEL_STATE = {
 };
 
 /**
+ * 🏙️ Multi-City & Multi-Day Advanced Parser
+ * e.g. "서울 1일 강릉 1일 속초 1일" -> { isMultiCity: true, cityPlans: [...], totalDays: 3, combinedLabel: '서울·강릉·속초' }
+ */
+export function parseMultiCityPrompt(prompt = '') {
+  if (!prompt || typeof prompt !== 'string') return null;
+  const clean = prompt.trim();
+  
+  const cityRegex = /(서울|수원|인천|강릉|속초|양양|부산|제주|서귀포|경주|여수|전주|대구|대전|광주|울산|가평|춘천|포항|통영|거제|남해|안동)\s*(\d+)\s*(일|박)/g;
+  const matches = [...clean.matchAll(cityRegex)];
+
+  if (matches && matches.length >= 2) {
+    const cityPlans = [];
+    let totalDays = 0;
+    const cityNames = [];
+
+    for (const m of matches) {
+      const city = m[1];
+      const count = parseInt(m[2], 10) || 1;
+      cityPlans.push({ city, days: count });
+      totalDays += count;
+      if (!cityNames.includes(city)) {
+        cityNames.push(city);
+      }
+    }
+
+    return {
+      isMultiCity: true,
+      cityPlans,
+      cityNames,
+      totalDays: Math.min(7, totalDays),
+      combinedLabel: cityNames.join('·')
+    };
+  }
+
+  return null;
+}
+
+/**
  * 🎯 Intent Classification
  */
 export function classifyUserIntent(userPrompt = '', currentState = INITIAL_TRAVEL_STATE) {
@@ -47,25 +85,31 @@ export function classifyUserIntent(userPrompt = '', currentState = INITIAL_TRAVE
     return 'REGENERATE_ITINERARY';
   }
 
-  // 2. Days / Duration Change Intent ("4일로 변경해줘", "2박으로 바꿔줘")
+  // 2. Multi-City Combined Intent ("서울 1일 강릉 1일 속초 1일")
+  const multiCity = parseMultiCityPrompt(userPrompt);
+  if (multiCity && multiCity.isMultiCity) {
+    return 'MULTI_CITY_PLAN';
+  }
+
+  // 3. Days / Duration Change Intent ("4일로 변경해줘", "2박으로 바꿔줘")
   const isDaysChange = /(\d+일|\d+박|하루|이틀|사흘|나흘).*(바꿔|변경|늘려|수정|할래|해줘)/.test(clean);
   if (isDaysChange) {
     return 'ADD_OR_PATCH_CONDITION';
   }
 
-  // 3. Destination Switch Intent ("서울로 갈래", "부산으로 바꿔줘")
+  // 4. Destination Switch Intent ("서울로 갈래", "부산으로 바꿔줘")
   const isDestChange = /(으?로\s*(바꿔|변경|갈래|가자|수정|할래)|대신\s*)/.test(clean) && !/(일정|코스|날짜|기간)/.test(clean);
   if (isDestChange) {
     return 'UPDATE_DESTINATION';
   }
 
-  // 4. Question / Verification / Chit-Chat Intent
+  // 5. Question / Verification / Chit-Chat Intent
   const isQuestion = /(\?|왜|바꿨|맞아|어때|얼마|뭐야|누구|안녕|감사|고마워)/.test(clean);
   if (isQuestion || clean.endsWith('?') || clean.endsWith('네') || clean.endsWith('요')) {
     return 'CONFIRM_OR_QUERY';
   }
 
-  // 4. Condition / Preference / Destination Setup
+  // 6. Condition / Preference / Destination Setup
   return 'ADD_OR_PATCH_CONDITION';
 }
 
@@ -74,6 +118,7 @@ export function classifyUserIntent(userPrompt = '', currentState = INITIAL_TRAVE
  */
 export function patchTravelState(prevState = INITIAL_TRAVEL_STATE, userPrompt = '', detectedCity = null, parsedDays = null) {
   const clean = (userPrompt || '').toLowerCase();
+  const multiCity = parseMultiCityPrompt(userPrompt);
   const intent = classifyUserIntent(userPrompt, prevState);
   let hasNewCondition = false;
 
@@ -81,18 +126,28 @@ export function patchTravelState(prevState = INITIAL_TRAVEL_STATE, userPrompt = 
   const prevPrefs = prevTrip.preferences || INITIAL_TRAVEL_STATE.tripMemory.preferences;
   const prevComp = prevTrip.companion || INITIAL_TRAVEL_STATE.tripMemory.companion;
 
-  // 1. Patch Destination & Days
+  // 1. Patch Destination & Days (Multi-City aware)
   let nextDestination = prevTrip.destination || '서울';
-  if (detectedCity) {
-    nextDestination = detectedCity;
-    if (detectedCity !== prevTrip.destination) {
-      hasNewCondition = true;
-    }
-  }
-
   let nextDays = prevTrip.days || 3;
-  if (parsedDays && parsedDays > 0) {
-    nextDays = parsedDays;
+  let nextMultiCity = prevTrip.multiCityInfo || null;
+
+  if (multiCity && multiCity.isMultiCity) {
+    nextDestination = multiCity.combinedLabel;
+    nextDays = multiCity.totalDays;
+    nextMultiCity = multiCity;
+    hasNewCondition = true;
+  } else {
+    if (detectedCity) {
+      nextDestination = detectedCity;
+      nextMultiCity = null; // 단일 도시로 전환 시 다중 도시 정보 초기화
+      if (detectedCity !== prevTrip.destination) {
+        hasNewCondition = true;
+      }
+    }
+
+    if (parsedDays && parsedDays > 0) {
+      nextDays = parsedDays;
+    }
   }
 
   // 2. Patch Companions (Incremental update, respects user overrides)
@@ -360,7 +415,11 @@ export function generateContextualAdvice(context, lang = 'ko') {
 
   // Layer 1: Empathy Intro
   let layer1 = '';
-  if (isKidsTrigger) {
+  const multiCity = parseMultiCityPrompt(userPrompt);
+
+  if (multiCity && multiCity.isMultiCity) {
+    layer1 = `**${multiCity.combinedLabel}**를 아우르는 **【 ${multiCity.totalDays}일 연계 코스 】**로 구성해 드릴게요! 🚗✨\n`;
+  } else if (isKidsTrigger) {
     layer1 = `아이와 함께하는 **${targetCity}** 여행이시군요 🎈\n`;
   } else if (isElderTrigger) {
     layer1 = `부모님·어르신을 모시는 **${targetCity}** 힐링 여행이시군요 🌿\n`;
@@ -372,7 +431,9 @@ export function generateContextualAdvice(context, lang = 'ko') {
 
   // Layer 2: Logical Judgement based on specific prompt trigger & preferences
   let layer2 = `${targetCity} ${activeDay}일차 ${timeSlotLabel} 동선에 어울리는 맞춤 명소예요.`;
-  if (isWalkingQuery || preferences.isMinimalWalking) {
+  if (multiCity && multiCity.isMultiCity) {
+    layer2 = `각 도시별 대표 핫플과 이동에 무리가 없는 **최적의 이동 동선**으로 알차게 조율했습니다 😊`;
+  } else if (isWalkingQuery || preferences.isMinimalWalking) {
     layer2 = `이동 부담 없이 편안하게 즐기실 수 있도록 **도보 거리가 짧고 뷰와 휴식이 뛰어난 명소** 위주로 맞췄어요 🚶‍♂️❌`;
   } else if (isRainTrigger || weather.isRainy) {
     layer2 = `비 오는 날 쾌적하게 즐길 수 있는 **실내 명소와 감성 실내 핫플** 위주로 골랐어요 ☔☕`;
