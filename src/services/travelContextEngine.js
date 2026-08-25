@@ -47,13 +47,19 @@ export function classifyUserIntent(userPrompt = '', currentState = INITIAL_TRAVE
     return 'REGENERATE_ITINERARY';
   }
 
-  // 2. Destination Switch Intent
-  const isDestChange = /(으?로\s*(바꿔|변경|갈래|가자|수정|할래)|대신\s*)/.test(clean);
+  // 2. Days / Duration Change Intent ("4일로 변경해줘", "2박으로 바꿔줘")
+  const isDaysChange = /(\d+일|\d+박|하루|이틀|사흘|나흘).*(바꿔|변경|늘려|수정|할래|해줘)/.test(clean);
+  if (isDaysChange) {
+    return 'ADD_OR_PATCH_CONDITION';
+  }
+
+  // 3. Destination Switch Intent ("서울로 갈래", "부산으로 바꿔줘")
+  const isDestChange = /(으?로\s*(바꿔|변경|갈래|가자|수정|할래)|대신\s*)/.test(clean) && !/(일정|코스|날짜|기간)/.test(clean);
   if (isDestChange) {
     return 'UPDATE_DESTINATION';
   }
 
-  // 3. Question / Verification / Chit-Chat Intent
+  // 4. Question / Verification / Chit-Chat Intent
   const isQuestion = /(\?|왜|바꿨|맞아|어때|얼마|뭐야|누구|안녕|감사|고마워)/.test(clean);
   if (isQuestion || clean.endsWith('?') || clean.endsWith('네') || clean.endsWith('요')) {
     return 'CONFIRM_OR_QUERY';
@@ -330,41 +336,49 @@ export function buildTravelContext({
     preferences,
     existingSpotNames,
     totalSpotsToday: existingSpots.length,
-    hasNewCondition: sessionState.hasNewCondition
+    hasNewCondition: sessionState.hasNewCondition,
+    userPrompt: userPrompt || sessionState.lastUpdatedPrompt || ''
   };
 }
 
 /**
- * 3-Layer Response Generator (Concise Diet Version)
+ * 3-Layer Response Generator (Concise Diet Version - Dynamically adapts to latest user prompt)
  */
 export function generateContextualAdvice(context, lang = 'ko') {
-  const { targetCity, activeDay, timeSlotLabel, weather, companion, preferences, hasNewCondition } = context;
+  const { targetCity, activeDay, timeSlotLabel, weather, companion, preferences, hasNewCondition, userPrompt } = context;
+  const cleanPrompt = (userPrompt || '').toLowerCase();
 
-  // Layer 1: Empathy Intro (Only show on new turn or first question)
+  // 1. Immediate Prompt Trigger Detection
+  const isWalkingQuery = /(걷기 싫|다리 아|많이 안 걷|편하게|유모차|안 걸)/i.test(cleanPrompt);
+  const isKidsTrigger = /(아이|어린이|유아|아기|키즈|초등)/i.test(cleanPrompt);
+  const isElderTrigger = /(어르신|부모님|시니어|효도|할머니|할아버지)/i.test(cleanPrompt);
+  const isCoupleTrigger = /(커플|연인|데이트|로맨틱|신혼)/i.test(cleanPrompt);
+  const isSoloTrigger = /(혼자|나홀로|솔로|1인)/i.test(cleanPrompt);
+  const isCafeTrigger = /(카페|디저트|베이커리|커피)/i.test(cleanPrompt);
+  const isFoodieTrigger = /(맛집|미식|먹방|푸드|맛있는)/i.test(cleanPrompt);
+  const isRainTrigger = /(비|우천|비오는|폭우|실내)/i.test(cleanPrompt);
+
+  // Layer 1: Empathy Intro
   let layer1 = '';
-  if (hasNewCondition) {
-    if (companion.isKids) {
-      layer1 = `아이와 함께하는 **${targetCity}** 여행이시군요 🎈\n`;
-    } else if (companion.isElder) {
-      layer1 = `부모님·어르신을 모시는 **${targetCity}** 힐링 여행이시군요 🌿\n`;
-    } else if (companion.isCouple) {
-      layer1 = `두 분만의 로맨틱한 **${targetCity}** 데이트 코스네요 💖\n`;
-    } else if (companion.isSolo) {
-      layer1 = `나홀로 여유롭게 즐기는 **${targetCity}** 힐링 여행이시군요 🍃\n`;
-    }
+  if (isKidsTrigger) {
+    layer1 = `아이와 함께하는 **${targetCity}** 여행이시군요 🎈\n`;
+  } else if (isElderTrigger) {
+    layer1 = `부모님·어르신을 모시는 **${targetCity}** 힐링 여행이시군요 🌿\n`;
+  } else if (isCoupleTrigger) {
+    layer1 = `두 분만의 로맨틱한 **${targetCity}** 데이트 코스네요 💖\n`;
+  } else if (isSoloTrigger) {
+    layer1 = `나홀로 여유롭게 즐기는 **${targetCity}** 힐링 여행이시군요 🍃\n`;
   }
 
-  // Layer 2: Logical Judgement based on Weather & Preferences
+  // Layer 2: Logical Judgement based on specific prompt trigger & preferences
   let layer2 = `${targetCity} ${activeDay}일차 ${timeSlotLabel} 동선에 어울리는 맞춤 명소예요.`;
-  if (weather.isRainy && companion.isKids) {
-    layer2 = `비 소식이 있고 아이와 함께 이동해야 하니, 유모차 진입이 편하고 날씨 걱정 없는 **대형 실내 아쿠아리움 및 어린이 체험관** 위주로 골랐어요 ☔`;
-  } else if (weather.isRainy) {
-    layer2 = `비 오는 날 쾌적하게 즐길 수 있는 **지하 직통 복합문화공간과 감성 실내 핫플** 위주로 골랐어요 ☔☕`;
-  } else if (preferences.isMinimalWalking && companion.isElder) {
-    layer2 = `계단과 긴 보행을 줄이고 편안하게 쉴 수 있는 **고즈넉한 평지 정원과 정갈한 보양 한식 명소**로 맞췄어요 🚶‍♂️❌`;
-  } else if (companion.isKids) {
+  if (isWalkingQuery || preferences.isMinimalWalking) {
+    layer2 = `이동 부담 없이 편안하게 즐기실 수 있도록 **도보 거리가 짧고 뷰와 휴식이 뛰어난 명소** 위주로 맞췄어요 🚶‍♂️❌`;
+  } else if (isRainTrigger || weather.isRainy) {
+    layer2 = `비 오는 날 쾌적하게 즐길 수 있는 **실내 명소와 감성 실내 핫플** 위주로 골랐어요 ☔☕`;
+  } else if (isKidsTrigger || companion.isKids) {
     layer2 = `아이들이 마음껏 보고 만질 수 있는 **오감 발달 체험 명소와 쾌적한 안심 동선**으로 준비했어요 ✨`;
-  } else if (preferences.isCafe || preferences.isFoodie) {
+  } else if (isCafeTrigger || isFoodieTrigger || preferences.isCafe || preferences.isFoodie) {
     layer2 = `현지인들이 줄 서는 **대표 시그니처 미식과 감성 로컬 카페**를 콕 집어 모았어요 🍴☕`;
   }
 
@@ -374,12 +388,13 @@ export function generateContextualAdvice(context, lang = 'ko') {
     : `원하시는 장소 아래 **[ ＋ ${activeDay}일차 일정에 추가 ]**를 누르시면 내 일정표에 바로 쏙 들어갑니다! 😊`;
 
   if (lang === 'en') {
-    let enIntro = hasNewCondition ? `Traveling with ${companion.type} in **${targetCity}**! ✨\n` : '';
-    let enReason = weather.isRainy 
+    let enReason = isWalkingQuery
+      ? `Picked spots with minimal walking and relaxed scenic views! 🚶‍♂️❌`
+      : weather.isRainy
       ? `Since it's rainy today, I picked comfortable indoor cultural spots and cozy cafes! ☔`
       : `Here are the top curated spots optimized for Day ${activeDay} (${timeSlotLabel}).`;
 
-    return `${enIntro}${enReason}\n\n${layer3}`;
+    return `${enReason}\n\n${layer3}`;
   }
 
   return `${layer1}${layer2}\n\n${layer3}`;
