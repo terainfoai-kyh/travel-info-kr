@@ -544,11 +544,12 @@ export default function App() {
     if (isExternalEntry && !isDirectGenerateAction) {
       // 3대 진입로 공통: 보라가 조건 브리핑 (도시 미지정 시 도시 선택 질문)
       const replyTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-      const requestedDays = extractDaysFromPrompt(promptQuery) || 3;
+      const rawDays = extractDaysFromPrompt(promptQuery);
+      const requestedDays = rawDays || 3;
       const targetCity = extractLocationKeyword(promptQuery, false);
 
       const detectedCity = targetCity;
-      const updatedState = patchTravelState(sessionContext, promptQuery, detectedCity, requestedDays);
+      const updatedState = patchTravelState(sessionContext, promptQuery, detectedCity, rawDays);
       setSessionContext(updatedState);
 
       const seasonalChips = (lang === 'en')
@@ -583,19 +584,32 @@ export default function App() {
         const reqMatch = promptQuery.match(/요구사항:\s*(.+)$/);
         const reqText = reqMatch ? reqMatch[1].trim() : '';
 
-        let tagLabel = `📍 ${targetCity} ${requestedDays}일`;
+        const daysLabel = rawDays ? `${rawDays}일` : (lang === 'en' ? 'Custom Trip' : '맞춤 여행');
+        let tagLabel = `📍 ${targetCity} ${daysLabel}`;
         if (companionText) tagLabel += ` • 👫 ${companionText}`;
         if (themeText) tagLabel += ` • 🍴 ${themeText}`;
         if (reqText) tagLabel += ` • ✍️ ${reqText}`;
 
         const dynamicGatewayChips = getDynamicGatewayChips(targetCity, lang);
+        const durationChips = !rawDays
+          ? (lang === 'en'
+            ? ['🗓️ 2 Days 1 Night', '🗓️ 3 Days 2 Nights', '🗓️ 4 Days 3 Nights']
+            : ['🗓️ 1박 2일', '🗓️ 2박 3일', '🗓️ 3박 4일'])
+          : [];
 
-        briefingText = (lang === 'en')
-          ? `💡 Feel free to ask anything, or tap [Create Itinerary Now] anytime!\n\n**[ ${tagLabel} ]**\nWhen (date/season) and what time are you arriving, and where is your hotel? 😊`
-          : `💡 편하게 물어보시고, 언제든 '좋아' 또는 [바로 일정 만들기]를 누르시면 완성해 드려요!\n\n**[ ${tagLabel} ]**\n언제(날짜/계절) 몇 시쯤 어디로 도착하시고, 숙소는 어디쯤이신가요? 😊`;
+        if (!rawDays) {
+          briefingText = (lang === 'en')
+            ? `💡 Feel free to ask anything, or tap [Create Itinerary Now] anytime!\n\n**[ ${tagLabel} ]**\nHow many days are you staying in ${targetCity}, when (season/time) do you arrive, and where is your hotel? 😊`
+            : `💡 편하게 물어보시고, 언제든 '좋아' 또는 [바로 일정 만들기]를 누르시면 완성해 드려요!\n\n**[ ${tagLabel} ]**\n${targetCity}에서 며칠 동안 머무르실 예정인가요? 그리고 언제(계절/시간) 어디로 도착하시고, 숙소는 어디쯤이신가요? 😊`;
+        } else {
+          briefingText = (lang === 'en')
+            ? `💡 Feel free to ask anything, or tap [Create Itinerary Now] anytime!\n\n**[ ${tagLabel} ]**\nWhen (date/season) and what time are you arriving, and where is your hotel? 😊`
+            : `💡 편하게 물어보시고, 언제든 '좋아' 또는 [바로 일정 만들기]를 누르시면 완성해 드려요!\n\n**[ ${tagLabel} ]**\n언제(날짜/계절) 몇 시쯤 어디로 도착하시고, 숙소는 어디쯤이신가요? 😊`;
+        }
 
         quickSuggestions = [
           (lang === 'en' ? '🚀 Create Itinerary Now' : '🚀 바로 일정 만들기'),
+          ...durationChips,
           ...seasonalChips,
           ...dynamicGatewayChips,
           (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')
