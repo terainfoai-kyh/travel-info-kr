@@ -547,6 +547,9 @@ export default function App() {
       const replyTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
       const requestedDays = extractDaysFromPrompt(promptQuery) || (isRecommendationChipSubmit ? 1 : 3);
       const targetCity = extractLocationKeyword(promptQuery) || '서울';
+      
+      const dynamicGatewayChips = getDynamicGatewayChips(targetCity, lang);
+
       // 테마, 동행자, 추가요청 전체 정밀 추출
       const companionMatch = promptQuery.match(/(커플|혼자|가족|친구|아이와 함께|아이|부모님|어르신|시니어)/);
       const companionText = companionMatch ? companionMatch[1] : '';
