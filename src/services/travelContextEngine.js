@@ -570,18 +570,26 @@ export function generateContextualAdvice(context, lang = 'ko') {
     return `${layer1}\n\n${layer2}\n\n👉 **${layer3}**`;
   }
 
-  // 2. Standard Scenario Knowledge Resolution
+  // 2. Standard Scenario Knowledge Resolution (from active tripMemory + prompt)
+  const isKids = context.tripMemory?.companion?.isKids || /(아이|애기|키즈|유모차|어린이|자녀|초등)/i.test(cleanPrompt);
+  const isElder = context.tripMemory?.companion?.isElder || /(부모님|어르신|할머니|할아버지|엄마|아빠|시니어)/i.test(cleanPrompt);
+  const isRain = context.tripMemory?.isRainPreferred || /(비|우천|비오|폭우|실내|비오는)/i.test(cleanPrompt);
+  const isMinimalWalking = context.tripMemory?.preferences?.isMinimalWalking || /(덜\s*걷|안\s*걷|다리|편안|무릎|걷기\s*싫)/i.test(cleanPrompt);
+  const isSolo = context.tripMemory?.companion?.isSolo || /(혼자|나홀로|솔로|혼행)/i.test(cleanPrompt);
+
   const scenarioKey = resolveKnowledgeScenario(cleanPrompt);
-  let layer1 = `선배님, 요청하신 조건에 딱 맞게 **${targetCity}** 최적 일정을 정갈하게 조율해 드립니다! ✨`;
+  let layer1 = `여행자님, 요청하신 조건에 딱 맞게 **${targetCity}** 최적 일정을 정갈하게 조율해 드립니다! ✨`;
 
   if (multiCity && multiCity.isMultiCity) {
-    layer1 = `선배님, **[${multiCity.combinedLabel}] ${multiCity.totalDays}일 연계 코스**를 광역 교통 최적 동선으로 시원하게 완성했습니다! 🚅✨`;
-  } else if (scenarioKey === 'MINIMAL_WALKING') {
-    layer1 = `어르신이나 보행이 조심스러운 분들도 부담 없이 즐기실 수 있도록, ${targetCity}의 **케이블카·평지 산책로·전망 카페 위주 안심 동선**으로 준비했습니다 😊🌿`;
-  } else if (scenarioKey === 'RAINY_INDOOR') {
+    layer1 = `여행자님, **[${multiCity.combinedLabel}] ${multiCity.totalDays}일 연계 코스**를 광역 교통 최적 동선으로 시원하게 완성했습니다! 🚅✨`;
+  } else if (isKids || scenarioKey === 'KIDS_FAMILY') {
+    layer1 = `아이와 함께하는 여행인 만큼, 유모차 이동이 수월하고 아이들의 호기심을 듬뿍 채워줄 **오감 체험·아쿠아리움·넓은 잔디마당** 중심의 안심 코스로 맞춤 조율했습니다 👨‍👩‍👧‍👦🎈`;
+  } else if (isElder || scenarioKey === 'MINIMAL_WALKING' || isMinimalWalking) {
+    layer1 = `부모님/어르신과 함께 편안하게 즐기실 수 있도록, ${targetCity}의 **케이블카·평지 산책로·전망 카페 위주 안심 힐링 동선**으로 정성껏 준비했습니다 😊🌿`;
+  } else if (isRain || scenarioKey === 'RAINY_INDOOR') {
     layer1 = `비가 와도 여행의 감성은 그대로! ${targetCity}의 **환상적인 몰입형 미디어아트·실내 수족관·오션뷰 카페**로 쾌적하게 꾸몄습니다 ☔☕✨`;
-  } else if (scenarioKey === 'KIDS_FAMILY') {
-    layer1 = `아이들의 호기심을 자극하는 **오감 체험·아쿠아리움·넓은 잔디마당**과 부모님이 편안한 쉼터를 완벽하게 조율했습니다 👨‍👩‍👧‍👦🎈`;
+  } else if (isSolo || scenarioKey === 'SOLO_HEALING') {
+    layer1 = `혼자만의 여유로운 사색과 힐링을 위해, ${targetCity}의 **고즈넉한 산책길과 감성 독립서점·힐링 카페** 위주로 산뜻하게 구성했습니다 🎧🌿`;
   } else if (scenarioKey === 'BUDGET_VALUE') {
     layer1 = `지갑은 가볍게, 경험은 풍성하게! ${targetCity} 현지인들이 인정하는 **착한 가격의 찐 맛집과 무료 힐링 랜드마크**로 알차게 엮었습니다 💰✨`;
   } else if (scenarioKey === 'PUBLIC_TRANSIT') {
