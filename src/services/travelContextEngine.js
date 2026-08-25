@@ -456,6 +456,8 @@ export function generateContextualAdvice(context, lang = 'ko') {
   const isSoloTrigger = /(혼자|나홀로|솔로|1인)/i.test(cleanPrompt);
   const isCafeTrigger = /(카페|디저트|베이커리|커피)/i.test(cleanPrompt);
   const isFoodieTrigger = /(맛집|미식|먹방|푸드|맛있는)/i.test(cleanPrompt);
+  const isBudgetTrigger = /(예산|가성비|5만원|10만원|저렴|알뜰)/i.test(cleanPrompt);
+  const isTransitTrigger = /(대중교통|지하철|버스|뚜벅이|차 없이)/i.test(cleanPrompt);
   const isRainTrigger = /(비|우천|비오는|폭우|실내)/i.test(cleanPrompt);
 
   // Layer 1: Empathy Intro
@@ -478,14 +480,20 @@ export function generateContextualAdvice(context, lang = 'ko') {
   let layer2 = `${targetCity} ${activeDay}일차 ${timeSlotLabel} 동선에 어울리는 맞춤 명소예요.`;
   if (multiCity && multiCity.isMultiCity) {
     layer2 = `각 도시별 대표 핫플과 이동에 무리가 없는 **최적의 이동 동선**으로 알차게 조율했습니다 😊`;
+  } else if (isBudgetTrigger) {
+    layer2 = `요청하신 예산에 맞춰 가성비 뛰어난 로컬 미식과 **알뜰 힐링 명소** 위주로 엄선했어요 💰✨`;
+  } else if (isTransitTrigger) {
+    layer2 = `자가용 없이도 대중교통과 도보로 쾌적하게 이동할 수 있는 **초역세권 안심 동선**으로 맞췄어요 🚇🚌`;
   } else if (isWalkingQuery || preferences.isMinimalWalking) {
     layer2 = `이동 부담 없이 편안하게 즐기실 수 있도록 **도보 거리가 짧고 뷰와 휴식이 뛰어난 명소** 위주로 맞췄어요 🚶‍♂️❌`;
-  } else if (isRainTrigger || weather.isRainy) {
+  } else if (isRainTrigger) {
     layer2 = `비 오는 날 쾌적하게 즐길 수 있는 **실내 명소와 감성 실내 핫플** 위주로 골랐어요 ☔☕`;
   } else if (isKidsTrigger || companion.isKids) {
     layer2 = `아이들이 마음껏 보고 만질 수 있는 **오감 발달 체험 명소와 쾌적한 안심 동선**으로 준비했어요 ✨`;
   } else if (isCafeTrigger || isFoodieTrigger || preferences.isCafe || preferences.isFoodie) {
     layer2 = `현지인들이 줄 서는 **대표 시그니처 미식과 감성 로컬 카페**를 콕 집어 모았어요 🍴☕`;
+  } else if (isElderTrigger || companion.isElder) {
+    layer2 = `계단과 긴 보행을 줄이고 편안하게 쉴 수 있는 **고즈넉한 평지 정원과 정갈한 보양 한식 명소**로 맞췄어요 🌿`;
   }
 
   // Layer 3: Action Prompt

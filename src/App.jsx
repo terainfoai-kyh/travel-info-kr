@@ -672,9 +672,16 @@ export default function App() {
             ? `Switched destination to **${targetCity}**! ✨ Here are the best spots for Day ${activeDay}.`
             : `여행지를 **${targetCity}**로 변경했어요! ✨ 기존에 말씀해주신 여행 조건에 맞춰 ${targetCity} ${activeDay}일차에 어울리는 추천 명소를 준비했습니다.`;
         } else if (userIntent === 'CONFIRM_OR_QUERY' && !chatText) {
-          chatText = lang === 'en'
-            ? `I will focus on your **${targetCity}** trip! Let me know any preferences or ask about Day ${activeDay} spots 😊`
-            : `네! **${targetCity}** 여행 코스로 꼼꼼하게 맞춰 드릴게요. ${targetCity} ${activeDay}일차에 어울리는 추천 명소를 살펴보시거나 언제든 추가 조건을 말씀해 주세요 😊`;
+          const isChitChatOrFeedback = /(바보|멍청|이상해|틀렸|헷갈|어려운|뭐해|장난|너)/i.test(promptQuery);
+          if (isChitChatOrFeedback) {
+            chatText = lang === 'en'
+              ? `Oops, my apologies! I got slightly mixed up 😅 Please tell me your preferred city or days again and I will organize it perfectly! ✨`
+              : `아이쿠 죄송해요! 제가 살짝 헷갈렸네요 😅 원하시는 여행지나 일정을 편하게 다시 말씀해 주시면 딱 맞춰서 꼼꼼히 정리해 드릴게요! ✨`;
+          } else {
+            chatText = lang === 'en'
+              ? `I will focus on your **${targetCity}** trip! Let me know any preferences or ask about Day ${activeDay} spots 😊`
+              : `네! **${targetCity}** 여행 코스로 꼼꼼하게 맞춰 드릴게요. ${targetCity} ${activeDay}일차에 어울리는 추천 명소를 살펴보시거나 언제든 추가 조건을 말씀해 주세요 😊`;
+          }
         } else if (!chatText) {
           chatText = contextualIntro;
         }

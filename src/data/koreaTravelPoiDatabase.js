@@ -416,6 +416,100 @@ export const KOREA_TRAVEL_POI_DB = [
     lng: 129.1724,
     tags: ['스카이캡슐', '오션뷰열차', '인생샷', '해안절벽', '아이동반'],
     summary: '동해남부선 폐선 부지 해안 절벽 위를 달리는 알록달록 공중 캡슐 열차'
+  },
+  {
+    id: 'kt_bs_gamcheon',
+    title: '감천문화마을',
+    region: '부산',
+    city: '부산',
+    category: '핫플',
+    theme: '파스텔골목/어린왕자',
+    duration: 90,
+    rating: 4.8,
+    image: 'https://tong.visitkorea.or.kr/cms/resource/88/4095788_image2_1.jpg',
+    lat: 35.0975,
+    lng: 129.0106,
+    tags: ['어린왕자', '인생샷', '골목투어', '전망대', '데이트'],
+    summary: '계단식 파스텔톤 집들과 아기자기한 골목 조형물, 어린왕자 포토존이 반겨주는 문화예술마을'
+  },
+  {
+    id: 'kt_bs_maritime',
+    title: '국립해양박물관',
+    region: '부산',
+    city: '부산',
+    category: '실내',
+    theme: '해양수족관/실내체험',
+    duration: 110,
+    rating: 4.9,
+    image: 'https://tong.visitkorea.or.kr/cms/resource/12/3495012_image2_1.jpg',
+    lat: 35.0780,
+    lng: 129.0800,
+    tags: ['실내', '비오는날', '수족관', '아이동반', '키즈', '무료입장'],
+    summary: '웅장한 원통형 수족관과 다채로운 해양 미디어 체험관을 무료로 즐기는 실내 랜드마크'
+  },
+
+  // ==========================================
+  // 5. 제주 (단일 명소)
+  // ==========================================
+  {
+    id: 'kt_jj_hyeopjae',
+    title: '협재해수욕장',
+    region: '제주',
+    city: '제주',
+    category: '바다',
+    theme: '에메랄드바다/비양도',
+    duration: 90,
+    rating: 4.9,
+    image: 'https://tong.visitkorea.or.kr/cms/resource/52/3501452_image2_1.jpg',
+    lat: 33.3941,
+    lng: 126.2397,
+    tags: ['바다', '에메랄드', '비양도', '흰모래', '가족'],
+    summary: '비양도가 그림처럼 떠 있는 은빛 백사장과 투명한 에메랄드빛 바다가 펼쳐진 서쪽 대표 해변'
+  },
+  {
+    id: 'kt_jj_seongsan',
+    title: '성산일출봉',
+    region: '제주',
+    city: '제주',
+    category: '명소',
+    theme: '유네스코/화산분화구',
+    duration: 100,
+    rating: 4.9,
+    image: 'https://tong.visitkorea.or.kr/cms/resource/76/3576176_image2_1.JPG',
+    lat: 33.4581,
+    lng: 126.9426,
+    tags: ['유네스코', '일출', '바다전망', '분화구', '대표명소'],
+    summary: '푸른 바다 위 거대한 성채처럼 솟아오른 유네스코 세계자연유산의 웅장한 분화구'
+  },
+  {
+    id: 'kt_jj_osulloc',
+    title: '오설록 티뮤지엄',
+    region: '제주',
+    city: '제주',
+    category: '핫플',
+    theme: '녹차밭/카페',
+    duration: 80,
+    rating: 4.8,
+    image: 'https://tong.visitkorea.or.kr/cms/resource/88/4095788_image2_1.jpg',
+    lat: 33.3060,
+    lng: 126.2895,
+    tags: ['녹차밭', '디저트', '아이스크림', '인생샷', '아이동반'],
+    summary: '끝없이 펼쳐진 초록빛 녹차밭 산책로와 깊은 풍미의 수제 녹차 디저트를 즐기는 힐링 명소'
+  },
+  {
+    id: 'kt_jj_arte',
+    title: '아르떼뮤지엄 제주',
+    region: '제주',
+    city: '제주',
+    category: '실내',
+    theme: '몰입형미디어아트/실내',
+    duration: 90,
+    rating: 4.9,
+    image: 'https://tong.visitkorea.or.kr/cms/resource/17/3521017_image2_1.jpg',
+    lat: 33.3965,
+    lng: 126.3470,
+    tags: ['실내', '비오는날', '미디어아트', '인생샷', '데이트', '키즈'],
+    summary: '빛과 소리로 빚어낸 영원한 자연의 장관을 온몸으로 체험하는 몰입형 미디어아트 전시관'
   }
 ];
 
@@ -426,7 +520,12 @@ export function findRecommendedPois(query = '', targetRegion = '', limit = 3) {
   const clean = (query || '').toLowerCase().replace(/[\s\-_]/g, '');
   let regionClean = (targetRegion || '').toLowerCase();
   if (regionClean.includes('거제')) regionClean = '거제';
-  if (regionClean.includes('강릉') || regionClean.includes('속초') || regionClean.includes('양양')) regionClean = '강원';
+  else if (regionClean.includes('제주') || regionClean.includes('서귀포')) regionClean = '제주';
+  else if (regionClean.includes('부산')) regionClean = '부산';
+  else if (regionClean.includes('남해')) regionClean = '남해';
+  else if (regionClean.includes('통영')) regionClean = '통영';
+  else if (regionClean.includes('강릉') || regionClean.includes('속초') || regionClean.includes('양양')) regionClean = '강원';
+  else if (regionClean.includes('서울')) regionClean = '서울';
 
   // 1. Strict Region Filter
   let regionPool = KOREA_TRAVEL_POI_DB.filter(p => {
@@ -437,7 +536,7 @@ export function findRecommendedPois(query = '', targetRegion = '', limit = 3) {
   });
 
   if (regionPool.length === 0) {
-    regionPool = KOREA_TRAVEL_POI_DB;
+    regionPool = KOREA_TRAVEL_POI_DB.filter(p => p.city === '서울');
   }
 
   const isKidsQuery = /(아이|키즈|어린이|유아|아기|가족|초등)/i.test(clean);

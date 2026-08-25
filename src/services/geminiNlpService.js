@@ -172,20 +172,32 @@ export function getNaverMapSearchUrl(spotTitle, city = '') {
   return `https://map.naver.com/v5/search/${encodeURIComponent(query)}`;
 }
 
-// 🎯 지능형 여행 일수 정밀 파서 (1~14일 완벽 인식)
+// 🎯 지능형 여행 일수 정밀 파서 (1~14일 완벽 인식, N일차 지칭 오동작 100% 방지)
 export function extractDaysFromPrompt(text = '') {
   if (!text) return null;
-  const t = text.toLowerCase();
+  const t = text.toLowerCase().trim();
+
+  // 0. 특정 일차 지칭 필터 ("2일차", "2일에는", "2일째", "2일은", "2일중" 등은 특정 일차 이벤트이므로 전체 일수를 덮어쓰지 않음)
+  const isDayOrdinal = /(\d+)\s*일\s*(차|에는|째|은|는|중)/.test(t);
+  const isExplicitDuration = /(\d+)\s*일\s*(간|코스|일정|여행|으로|로\s*해|로\s*바꿔|동안)/.test(t);
+
+  if (isDayOrdinal && !isExplicitDuration && !/(\d+)\s*박/.test(t)) {
+    return null; // 특정 일차 지칭이므로 전체 일수를 건드리지 않음!
+  }
 
   // 1. "4박 5일", "2박 3일" 형태
   const m1 = t.match(/(\d+)\s*박\s*(\d+)\s*일/i);
   if (m1 && m1[2]) return parseInt(m1[2], 10);
 
-  // 2. "10일", "5일", "7d", "10days", "5박" 형태
-  const m2 = t.match(/(\d+)\s*(?:일|박|d|days?)/i);
+  // 2. "5박", "3박"
+  const mNight = t.match(/(\d+)\s*박/i);
+  if (mNight && mNight[1]) return parseInt(mNight[1], 10) + 1;
+
+  // 3. "10일", "5일", "7d", "10days" 형태
+  const m2 = t.match(/(\d+)\s*(?:일|d|days?)/i);
   if (m2 && m2[1]) return parseInt(m2[1], 10);
 
-  // 3. 한국어 고유어 일수 표현
+  // 4. 한국어 고유어 일수 표현
   if (/(당일|하루|1일)/.test(t)) return 1;
   if (/(이틀|2일)/.test(t)) return 2;
   if (/(사흘|3일)/.test(t)) return 3;
@@ -1206,26 +1218,30 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
     ];
   }
 
-  // 테마별 ThemeList 생성
+  // 테마별 ThemeList 생성 (도시 엄격 격리)
   let themeList = (DAILY_THEMES[city] || [
     { theme: `1일차: ${city}의 청정 자연과 감성 핫플레이스`, transit: `${city} 중심가 및 대중교통 이용 편리`, food: { dishName: `${city} 로컬 대표 미식`, description: `현지인들이 추천하는 신선한 제철 재료로 만든 ${city}의 별미` } },
     { theme: `2일차: ${city} 역사 문화 산책과 낭만 야경`, transit: `${city} 주요 명소 간 차량/버스 15분`, food: { dishName: `${city} 특산 요리 한상`, description: `${city}만의 고유한 풍미를 담은 든든하고 정갈한 한 끼 식사` } },
-    { theme: `3일차: ${city} 힐링 트레킹과 파노라마 뷰`, transit: `순환 도로 및 시내 연결 버스`, food: { dishName: `${city} 로컬 디저트 & 브런치`, description: `여행의 마지막 여운을 달콤하게 마무리하는 감성 카페 미식` } }
+    { theme: `3일차: ${city} 힐링 트레킹과 파노라마 뷰`, transit: `순환 도로 및 시내 연결 버스`, food: { dishName: `${city} 로컬 디저트 & 브런치`, description: `여행의 마지막 여운을 달콤하게 마무리하는 감성 카페 미식` } },
+    { theme: `4일차: ${city} 여유로운 로컬 탐방과 포토스팟`, transit: `${city} 순환 힐링 동선`, food: { dishName: `${city} 감성 베이커리 & 디저트`, description: `여행을 여유롭게 추억하는 로컬 힐링 디저트` } },
+    { theme: `5일차: ${city} 숨은 핫플레이스 탐방`, transit: `${city} 대표 랜드마크 이동`, food: { dishName: `${city} 시그니처 정식`, description: `풍성하고 든든하게 즐기는 ${city} 특선 만찬` } }
   ]);
 
-  if (isKids) {
-    themeList = [
-      { theme: `1일차: 신비로운 아쿠아리움과 하늘 위 파노라마`, transit: `잠실역 지하 연결 및 쾌적한 실내 유모차 동선`, food: { dishName: `키즈 오므라이스 & 수제 돈가스`, description: `아이들이 좋아하는 바삭한 수제 돈가스와 부드러운 오므라이스` } },
-      { theme: `2일차: 자연 속 어린이대공원과 상상나라 오감체험`, transit: `어린이대공원역 도보 3분 안심 보행로`, food: { dishName: `성수동 화덕 피자 & 파스타`, description: `온 가족이 함께 나누어 먹는 담백한 화덕 피자` } },
-      { theme: `3일차: 모험과 신비의 롯데월드 어드벤처 탐험`, transit: `실내 테마파크 전용 직통 통로`, food: { dishName: `테마파크 패밀리 고메 세트`, description: `신나는 어트랙션 후 즐기는 달콤한 디저트와 든든한 식사` } }
-    ];
-  } else if (isIndoor) {
-    themeList = [
-      { theme: `1일차: 웅장한 코엑스 별마당도서관과 실내 수족관`, transit: `삼성역 지하 직통 연결로 비 걱정 없는 이동`, food: { dishName: `코엑스 프리미엄 고메 다이닝`, description: `비 맞지 않고 실내에서 즐기는 전국 셰프들의 맛집` } },
-      { theme: `2일차: 더현대 사운즈포레스트와 감성 팝업스토어`, transit: `여의도역 지하 무빙워크 연결 통로`, food: { dishName: `더현대 시그니처 브런치 & 카멜커피`, description: `실내 정원을 바라보며 즐기는 트렌디 미식과 커피` } },
-      { theme: `3일차: 국립중앙박물관 사유의방과 DDP 실내전시`, transit: `이촌역 및 동대문역사문화공원역 지하 연결`, food: { dishName: `전통 다과상 & 오미자 에이드`, description: `고즈넉한 실내 공간에서 나누는 향긋한 전통차 한잔` } }
-    ];
-  } else if (isSea) {
+  if (city === '서울') {
+    if (isKids) {
+      themeList = [
+        { theme: `1일차: 신비로운 아쿠아리움과 하늘 위 파노라마`, transit: `잠실역 지하 연결 및 쾌적한 실내 유모차 동선`, food: { dishName: `키즈 오므라이스 & 수제 돈가스`, description: `아이들이 좋아하는 바삭한 수제 돈가스와 부드러운 오므라이스` } },
+        { theme: `2일차: 자연 속 어린이대공원과 상상나라 오감체험`, transit: `어린이대공원역 도보 3분 안심 보행로`, food: { dishName: `성수동 화덕 피자 & 파스타`, description: `온 가족이 함께 나누어 먹는 담백한 화덕 피자` } },
+        { theme: `3일차: 모험과 신비의 롯데월드 어드벤처 탐험`, transit: `실내 테마파크 전용 직통 통로`, food: { dishName: `테마파크 패밀리 고메 세트`, description: `신나는 어트랙션 후 즐기는 달콤한 디저트와 든든한 식사` } }
+      ];
+    } else if (isIndoor) {
+      themeList = [
+        { theme: `1일차: 웅장한 코엑스 별마당도서관과 실내 수족관`, transit: `삼성역 지하 직통 연결로 비 걱정 없는 이동`, food: { dishName: `코엑스 프리미엄 고메 다이닝`, description: `비 맞지 않고 실내에서 즐기는 전국 셰프들의 맛집` } },
+        { theme: `2일차: 더현대 사운즈포레스트와 감성 팝업스토어`, transit: `여의도역 지하 무빙워크 연결 통로`, food: { dishName: `더현대 시그니처 브런치 & 카멜커피`, description: `실내 정원을 바라보며 즐기는 트렌디 미식과 커피` } },
+        { theme: `3일차: 국립중앙박물관 사유의방과 DDP 실내전시`, transit: `이촌역 및 동대문역사문화공원역 지하 연결`, food: { dishName: `전통 다과상 & 오미자 에이드`, description: `고즈넉한 실내 공간에서 나누는 향긋한 전통차 한잔` } }
+      ];
+    }
+  } else if (city === '강릉' || city === '속초' || city === '양양') {
     themeList = [
       { theme: `1일차: 푸른 안목 커피거리와 경포호수 힐링`, transit: `강릉 해안도로 및 시내버스 15분`, food: { dishName: `강릉 초당순두부 백반 & 젤라또`, description: `바닷물로 빚어낸 고소하고 부드러운 전통 순두부` } },
       { theme: `2일차: 속초 영금정 해상정자와 아바이마을 갯배`, transit: `속초 해안 순환선 및 시내 이동`, food: { dishName: `속초 명물 오징어순대 & 물회`, description: `싱싱한 동해안 해산물과 매콤새콤한 물회` } },
