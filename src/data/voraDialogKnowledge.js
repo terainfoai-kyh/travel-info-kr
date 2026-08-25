@@ -328,7 +328,7 @@ export const PROACTIVE_CONVERSATION_HOOKS = [
 /**
  * Intelligent Tiki-Taka Query Classifier & Fast Matcher
  */
-export function resolveTikitakaResponse(query = '', currentCity = '서울') {
+export function resolveTikitakaResponse(query = '', currentCity = '서울', currentSeason = null) {
   if (!query || typeof query !== 'string') return null;
   const clean = query.trim();
 
@@ -344,14 +344,25 @@ export function resolveTikitakaResponse(query = '', currentCity = '서울') {
     }
   }
 
-  // Check Weather / Fashion query
-  if (/(뭐입고|옷차림|패션|코디|옷어떻게|날씨어때)/i.test(clean)) {
+  // Check Weather / Fashion / Outfit query
+  if (/(복장|뭐입|뭘입|옷차림|패션|코디|옷어떻게|날씨어때|외투|패딩|코트|따뜻하게|옷)/i.test(clean)) {
     const isRain = /(비|우천)/.test(clean);
-    const fashion = isRain ? K_FASHION_WEATHER_GUIDE.RAINY_DAY : K_FASHION_WEATHER_GUIDE.MILD_SPRING_AUTUMN;
+    const isWinter = /(겨울|winter|추위|한파|춥|설경)/.test(clean) || currentSeason === '겨울';
+    const isSummer = /(여름|summer|더위|폭염|덥)/.test(clean) || currentSeason === '여름';
+    
+    const fashion = isRain
+      ? K_FASHION_WEATHER_GUIDE.RAINY_DAY
+      : isWinter
+      ? K_FASHION_WEATHER_GUIDE.COLD_WINTER
+      : isSummer
+      ? K_FASHION_WEATHER_GUIDE.HOT_SUMMER
+      : K_FASHION_WEATHER_GUIDE.MILD_SPRING_AUTUMN;
+
+    const seasonLabel = isWinter ? '겨울 ' : isSummer ? '여름 ' : isRain ? '우천 ' : '';
     return {
       matchedKey: 'FASHION_GUIDE',
-      reply: `오늘 **${currentCity}** 여행 옷차림 가이드입니다! 👗✨\n${fashion.advice}\n\n💡 **추천 꿀아이템**: ${fashion.items.join(', ')}`,
-      followUp: '추천 코스 중에 실내 위주로 조정해 드릴까요, 아니면 야외 포토스팟 위주로 갈까요? 📸',
+      reply: `**${currentCity}** ${seasonLabel}여행 추천 옷차림 가이드입니다! 👗✨\n${fashion.advice}\n\n💡 **추천 꿀아이템**: ${fashion.items.join(', ')}`,
+      followUp: isWinter ? '추위를 피할 수 있는 따뜻한 실내 핫플 코스로 잡아드릴까요? ☕❄️' : '따뜻하고 편안하게 즐길 수 있는 코스로 잡아드릴까요? 📸✨',
       isTikitaka: true
     };
   }

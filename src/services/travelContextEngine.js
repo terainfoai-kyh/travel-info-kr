@@ -579,9 +579,10 @@ export function generateContextualAdvice(context, lang = 'ko') {
   const timeSlotLabel = context.timeSlotLabel || context.currentContext?.timeSlotLabel || '점심';
   const multiCity = context.multiCity;
   const cityInfo = CITY_LOCAL_KNOWLEDGE[targetCity] || CITY_LOCAL_KNOWLEDGE['서울'];
+  const season = context.tripMemory?.season || (/(겨울|가을|봄|여름)/.test(cleanPrompt) ? cleanPrompt.match(/(겨울|가을|봄|여름)/)[1] : null);
 
   // 1. Check if user input is an emotional or casual Tiki-Taka query!
-  const tikitaka = resolveTikitakaResponse(cleanPrompt, targetCity);
+  const tikitaka = resolveTikitakaResponse(cleanPrompt, targetCity, season);
   if (tikitaka) {
     const isMetaOrBanter = ['WHO_ARE_YOU', 'FOOL_PLAYFUL', 'OTHER_CITY', 'GREETING', 'COMPLIMENT'].includes(tikitaka.matchedKey);
     if (isMetaOrBanter) {
