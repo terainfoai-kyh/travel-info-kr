@@ -360,8 +360,10 @@ export function resolveTikitakaResponse(query = '', currentCity = '서울', curr
       ? K_FASHION_WEATHER_GUIDE.HOT_SUMMER
       : K_FASHION_WEATHER_GUIDE.MILD_SPRING_AUTUMN;
 
-    const seasonLabel = isWinter ? '겨울 ' : isSummer ? '여름 ' : isSpring ? '봄 ' : isAutumn ? '가을 ' : isRain ? '우천 ' : '';
-    const followUp = isWinter
+    const isGeneralCountry = (currentCity === '대한민국' || currentCity === '한국' || currentCity === 'Korea');
+    const followUp = isGeneralCountry
+      ? '가고 싶으신 도시(서울, 부산, 제주, 거제 등)를 말씀해 주시면 딱 맞는 일정을 잡아드릴까요? ✈️🌸'
+      : isWinter
       ? '추위를 피할 수 있는 따뜻한 실내 핫플 코스로 잡아드릴까요? ☕❄️'
       : isSummer
       ? '더위를 식혀줄 시원한 오션뷰 & 쾌적한 실내 코스로 잡아드릴까요? 🌊🕶️'
