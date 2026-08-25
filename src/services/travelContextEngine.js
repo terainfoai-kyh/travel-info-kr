@@ -6,10 +6,20 @@
  * 2. Current Context: Real-time runtime environment (currentCity, activeDay, timeSlot, weather)
  * 3. Gemini-Distilled Knowledge Base Integration: Uses `voraDialogKnowledge.js` for 0.01s instant wisdom
  * 4. Multi-City Advanced Routing: Supports Pattern A (도시 1일 강릉 1일), Pattern B (2일은 남해 3일은 통영), Pattern C (남해->통영->거제)
- * 5. 100% Zero-Hallucination & TourAPI 4.0 Authentic Mapping
+ * 5. Tiki-Taka Chit-Chat & Proactive Hooks: Resolves casual emotions, complaints, banters, and compliments instantly
+ * 6. 100% Zero-Hallucination & TourAPI 4.0 Authentic Mapping
  */
 
-import { CITY_LOCAL_KNOWLEDGE, VORA_INTELLIGENT_DIALOG_TEMPLATES, resolveKnowledgeScenario } from '../data/voraDialogKnowledge.js';
+import {
+  CITY_LOCAL_KNOWLEDGE,
+  TIKITAKA_CHITCHAT_MATRIX,
+  K_FOOD_PAIRING_KNOWLEDGE,
+  K_FASHION_WEATHER_GUIDE,
+  FOREIGNER_ESSENTIALS_KNOWLEDGE,
+  PROACTIVE_CONVERSATION_HOOKS,
+  resolveTikitakaResponse,
+  resolveKnowledgeScenario
+} from '../data/voraDialogKnowledge.js';
 
 export const INITIAL_TRAVEL_STATE = {
   tripMemory: {
@@ -414,7 +424,7 @@ export function generateCuratedDayPlans(city = '서울', days = 3, preferences =
 }
 
 /**
- * Gemini-Distilled 0.01s Instant Layered Advice Generator
+ * Gemini-Distilled 0.01s Instant Layered Advice & Tiki-Taka Generator
  */
 export function generateContextualAdvice(context, lang = 'ko') {
   const cleanPrompt = (context.lastUpdatedPrompt || '').trim();
@@ -422,45 +432,65 @@ export function generateContextualAdvice(context, lang = 'ko') {
   const activeDay = context.currentContext?.activeDay || context.activeDay || 1;
   const timeSlotLabel = context.currentContext?.timeSlotLabel || context.timeSlotLabel || '점심';
   const multiCity = context.multiCity;
-  const companion = context.tripMemory?.companion || context.companion || {};
-  const preferences = context.tripMemory?.preferences || context.preferences || {};
-  const weather = context.currentContext?.weather || context.weather || {};
-
-  // Resolve best knowledge template scenario
-  const scenarioKey = resolveKnowledgeScenario(cleanPrompt);
-  const template = VORA_INTELLIGENT_DIALOG_TEMPLATES[scenarioKey] || VORA_INTELLIGENT_DIALOG_TEMPLATES.FOODIE_CAFE;
   const cityInfo = CITY_LOCAL_KNOWLEDGE[targetCity] || CITY_LOCAL_KNOWLEDGE['서울'];
 
-  // Layer 1: Empathy & Conversational Intro
+  // 1. Check if user input is an emotional or casual Tiki-Taka query!
+  const tikitaka = resolveTikitakaResponse(cleanPrompt, targetCity);
+  if (tikitaka) {
+    const layer1 = tikitaka.reply;
+    const layer2 = `${targetCity} ${activeDay}일차 ${timeSlotLabel} 추천 명소와 최적 이동 동선입니다 💡 (${cityInfo.transitTip})`;
+    const layer3 = tikitaka.followUp;
+
+    return {
+      badge: '💬 VORA 실시간 티키타카',
+      layer1,
+      layer2,
+      layer3,
+      transitSummary: cityInfo.transitTip,
+      combinedText: `${layer1}\n\n${layer2}\n\n👉 **${layer3}**`
+    };
+  }
+
+  // 2. Standard Scenario Knowledge Resolution
+  const scenarioKey = resolveKnowledgeScenario(cleanPrompt);
+  let badge = '✨ VORA 맞춤 코스';
   let layer1 = `선배님, 요청하신 조건에 딱 맞게 **${targetCity}** 최적 일정을 정갈하게 조율해 드립니다! ✨`;
+
   if (multiCity && multiCity.isMultiCity) {
+    badge = '🚅 광역 연계 투어';
     layer1 = `선배님, **[${multiCity.combinedLabel}] ${multiCity.totalDays}일 연계 코스**를 광역 교통 최적 동선으로 시원하게 완성했습니다! 🚅✨`;
   } else if (scenarioKey === 'MINIMAL_WALKING') {
-    layer1 = template.intro(targetCity);
+    badge = '🌿 도보 최소화 힐링';
+    layer1 = `어르신이나 보행이 조심스러운 분들도 부담 없이 즐기실 수 있도록, ${targetCity}의 **케이블카·평지 산책로·전망 카페 위주 안심 동선**으로 준비했습니다 😊🌿`;
   } else if (scenarioKey === 'RAINY_INDOOR') {
-    layer1 = template.intro(targetCity);
+    badge = '☔ 우천 안심 실내 코스';
+    layer1 = `비가 와도 여행의 감성은 그대로! ${targetCity}의 **환상적인 몰입형 미디어아트·실내 수족관·오션뷰 카페**로 쾌적하게 꾸몄습니다 ☔☕✨`;
   } else if (scenarioKey === 'KIDS_FAMILY') {
-    layer1 = template.intro(targetCity);
+    badge = '🎈 키즈 & 패밀리 케어';
+    layer1 = `아이들의 호기심을 자극하는 **오감 체험·아쿠아리움·넓은 잔디마당**과 부모님이 편안한 쉼터를 완벽하게 조율했습니다 👨‍👩‍👧‍👦🎈`;
   } else if (scenarioKey === 'BUDGET_VALUE') {
-    layer1 = template.intro(targetCity);
+    badge = '💰 알뜰 가성비 핫플';
+    layer1 = `지갑은 가볍게, 경험은 풍성하게! ${targetCity} 현지인들이 인정하는 **착한 가격의 찐 맛집과 무료 힐링 랜드마크**로 알차게 엮었습니다 💰✨`;
   } else if (scenarioKey === 'PUBLIC_TRANSIT') {
-    layer1 = template.intro(targetCity);
+    badge = '🚇 뚜벅이 안심 코스';
+    layer1 = `자가용이나 렌터카가 없어도 전혀 걱정 마세요! ${targetCity}의 **지하철역 및 버스정류장 초역세권 랜드마크**만 콕 집었습니다 🚇🚌`;
   }
 
   // Layer 2: Actionable Local Wisdom & Transit Summary
-  const layer2 = `${targetCity} ${activeDay}일차 ${timeSlotLabel} 동선: ${template.tip} 💡 (${cityInfo.transitTip})`;
+  const layer2 = `${targetCity} ${activeDay}일차 ${timeSlotLabel} 동선: 현지 추천 핫플과 환승에 무리 없는 최적 길찾기입니다 💡 (${cityInfo.transitTip})`;
 
-  // Layer 3: Action Prompt
+  // Layer 3: Proactive Conversation Hook
+  const randomHook = PROACTIVE_CONVERSATION_HOOKS[Math.floor(Math.random() * PROACTIVE_CONVERSATION_HOOKS.length)];
   const layer3 = lang === 'en'
     ? `Tap **[ ＋ Add to Day ${activeDay} ]** on any spot below to add it directly to your itinerary!`
-    : `원하시는 장소 아래 **[ ＋ ${activeDay}일차 일정에 추가 ]**를 누르시면 내 일정표에 바로 쏙 들어갑니다! 😊`;
+    : `원하시는 장소 아래 **[ ＋ ${activeDay}일차 일정에 추가 ]**를 누르시면 내 일정표에 바로 쏙 들어갑니다! 😊\n\n👉 **${randomHook}**`;
 
   return {
-    badge: template.badge,
+    badge,
     layer1,
     layer2,
     layer3,
-    transitSummary: template.transitSummary,
+    transitSummary: cityInfo.transitTip,
     combinedText: `${layer1}\n\n${layer2}\n\n${layer3}`
   };
 }

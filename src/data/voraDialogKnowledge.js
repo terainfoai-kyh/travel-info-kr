@@ -1,10 +1,21 @@
 /**
- * VORA AI 2.0 - Gemini-Distilled Autonomous Tourism Dialog & Knowledge Base
+ * VORA AI 2.0 - Gemini-Distilled Autonomous Tourism & Tiki-Taka Dialog Knowledge Base
  * 
- * Pre-ingested knowledge matrix synthesized from Gemini AI and Korean Tourism Organization (TourAPI 4.0).
+ * Pre-ingested 6-Pillar Knowledge Matrix synthesized from Gemini AI and Korean Tourism Organization (TourAPI 4.0).
  * Powers 0.01s instant-response concierge responses with zero hallucination and 100% authentic Korean tourism data.
+ * 
+ * 6 Core Knowledge Pillars:
+ * 1. CITY_LOCAL_KNOWLEDGE (25 Major Korean Cities)
+ * 2. TIKITAKA_CHITCHAT_MATRIX (Emotions, Banters, Slangs, Complaints, Empathy)
+ * 3. K_FOOD_PAIRING_KNOWLEDGE (Regional Signature Foods, Waiting Secrets, Pairings)
+ * 4. K_FASHION_WEATHER_GUIDE (Temperature & Climate Coordination Advice)
+ * 5. FOREIGNER_ESSENTIALS_KNOWLEDGE (Transit cards, Tax Free, 1330 hotline, rides)
+ * 6. PROACTIVE_CONVERSATION_HOOKS (Engaging follow-up questions)
  */
 
+// ==============================================================================
+// 1. CITY_LOCAL_KNOWLEDGE (전국 25개 주요 도시 정밀 로컬 지식)
+// ==============================================================================
 export const CITY_LOCAL_KNOWLEDGE = {
   '서울': {
     nameEn: 'Seoul',
@@ -12,7 +23,7 @@ export const CITY_LOCAL_KNOWLEDGE = {
     signatureHighlights: ['경복궁 & 북촌한옥마을', 'N서울타워 파노라마', 'DDP & 성수동 감성 거리', '더현대 서울 & 한강공원'],
     rainyHotspots: ['코엑스 별마당도서관 & 아쿠아리움', '더현대 서울 사운즈포레스트', '국립중앙박물관 사유의 방', 'DDP 디자인랩 & 갤러리'],
     walkingMinimized: ['N서울타워 케이블카 직통 코스', '청와대 본관 평지 관람로', '한강 유람선 선상 힐링', '인사동 쌈지길 & 전통 찻집'],
-    localFoodieSecret: '광장시장 마약김밥·빈대떡, 성수동 스페셜티 로스터리 카페, 종로 피맛골 백반',
+    localFoodieSecret: '광장시장 마약김밥·빈대떡, 성수동 스페셜티 브루잉 카페, 종로 피맛골 백반',
     transitTip: '지하철 1~9호선 및 기후동행카드로 서울 전역 30분 내 쾌속 이동'
   },
   '부산': {
@@ -113,68 +124,239 @@ export const CITY_LOCAL_KNOWLEDGE = {
     walkingMinimized: ['통영 미륵산 케이블카', '통영항 밤바다 유람선 투어', '강구안 문화마당 벤치 쉼터', '해저터널 평지 산책'],
     localFoodieSecret: '통영 충무김밥, 꿀빵, 다찌 요리(해산물 만찬), 시원한 졸복국',
     transitTip: '통영 종합버스터미널에서 강구안 및 케이블카 방면 시내버스 15분 간격 운행'
+  },
+  '남해': {
+    nameEn: 'Namhae',
+    badge: '보리암의 일출과 다랭이논이 빚어낸 남쪽 바다의 힐링',
+    signatureHighlights: ['보리암 & 금산 산장', '남해 독일마을 & 원예예술촌', '가천 다랭이마을', '상주은모래비치'],
+    rainyHotspots: ['남해 유배문학관', '남해 이순신순국공원 영상관', '바람흔적미술관', '독일마을 맥주 펍 쉼터'],
+    walkingMinimized: ['보리암 셔틀버스 & 평지 전망대', '독일마을 오션뷰 테라스 카페', '상주해변 송림 평지 산책', '지족해협 죽방렴 뷰'],
+    localFoodieSecret: '남해 멸치쌈밥 정식, 독일식 수제 소시지 & 슈바이네학센, 유자 카스테라, 전복죽',
+    transitTip: '남해터미널에서 독일마을 및 보리암 방면 직통 농어촌버스 운행'
+  },
+  '춘천': {
+    nameEn: 'Chuncheon',
+    badge: '호반의 정취와 낭만이 흐르는 호수 도시',
+    signatureHighlights: ['남이섬 & 짚와이어', '춘천 삼악산 호수케이블카', '소양강 스카이워크', '레고랜드 코리아'],
+    rainyHotspots: ['국립춘천박물관', '이상원미술관', '애니메이션박물관 & 토이로봇관', '소양강 실내 카페거리'],
+    walkingMinimized: ['삼악산 호수케이블카 크리스탈 캐빈', '소양호 유람선 청평사 코스', '의암호 물레길 카누 힐링', '구봉산 전망대 카페'],
+    localFoodieSecret: '춘천 명동 철판닭갈비 & 숯불닭갈비, 시원한 동치미 막국수, 감자빵',
+    transitTip: '용산/청량리역에서 ITX-청춘 탑승 시 1시간 만에 남춘천/춘천역 도착'
+  },
+  '안동': {
+    nameEn: 'Andong',
+    badge: '유교 문화의 본향이자 하회마을의 품격',
+    signatureHighlights: ['안동 하회마을 & 부용대', '월영교 분수 야경 & 황포돛배', '도산서원 & 만대루', '만휴정 포토존'],
+    rainyHotspots: ['한국국학진흥원 유교문화박물관', '안동시립민속박물관', '하회세계탈박물관', '이육사문학관'],
+    walkingMinimized: ['월영교 문보트/황포돛배 승선', '하회마을 전동카트 투어', '월영당 쑥떡 카페 쉼터', '부용대 나룻배 이동'],
+    localFoodieSecret: '원조 안동 찜닭, 헛제사밥, 맘모스베이커리 크림치즈빵, 안동 간고등어 구이',
+    transitTip: '청량리역에서 KTX-이음 탑승 시 안동역까지 2시간 쾌속 연결'
+  },
+  '포항': {
+    nameEn: 'Pohang',
+    badge: '스페이스워크와 호미곶 상생의 손이 맞이하는 일출 도시',
+    signatureHighlights: ['환호공원 스페이스워크', '호미곶 해맞이광장', '영일대해수욕장 해상누각', '이가리 닻 전망대'],
+    rainyHotspots: ['포항시립미술관 (환호공원 내)', '국립등대박물관 (호미곶)', '포항제철소 파크1538 역사박물관', '구룡포 근대역사관'],
+    walkingMinimized: ['영일대 해상누각 평지 산책로', '호미곶 광장 해안 데크', '구룡포 일본인가옥거리 찻집', '송도 송림 테마거리'],
+    localFoodieSecret: '포항 죽도시장 영덕대게·물회, 구룡포 과메기, 모리국수, 영일대 조개구이',
+    transitTip: '포항역(KTX)에서 영일대해수욕장까지 택시 10분, 버스 20분 내 연결'
+  },
+  '수원': {
+    nameEn: 'Suwon',
+    badge: '유네스코 세계문화유산 수원화성과 행궁동 핫플',
+    signatureHighlights: ['수원화성 & 방화수류정', '화성행궁 & 행리단길', '플라잉수원 열기구 체험', '스타필드 수원 별마당도서관'],
+    rainyHotspots: ['스타필드 수원 복합문화공간', '수원시립아이파크미술관', '국립농업박물관', '수원화성박물관'],
+    walkingMinimized: ['수원화성 어차(관광열차) 순환 투어', '방화수류정 호반 벤치 쉼터', '플라잉수원 열기구 탑승', '행리단길 루프탑 카페'],
+    localFoodieSecret: '수원 왕갈비, 행궁동 남문통닭거리 진미통닭, 보영만두 쫄면 & 군만두',
+    transitTip: '지하철 1호선 및 수인분당선 수원역에서 화성행궁까지 버스로 10분'
+  },
+  '가평': {
+    nameEn: 'Gapyeong',
+    badge: '아침고요수목원과 청평호반이 빚어낸 힐링 숲',
+    signatureHighlights: ['아침고요수목원', '쁘띠프랑스 & 이탈리아마을', '자라섬 남도 꽃정원', '가평 레일바이크'],
+    rainyHotspots: ['쁘띠프랑스 실내 인형극장', '이탈리아마을 피노키오관', '가평 양떼목장 실내 베이커리 카페', '음악역 1939 실내공간'],
+    walkingMinimized: ['가평 레일바이크 전동 페달 코스', '청평호 유람선 투어', '자라섬 평지 산책로', '수목원 온실정원 쉼터'],
+    localFoodieSecret: '가평 잣두부 정식, 잣막걸리 & 파전, 솥뚜껑 닭볶음탕, 잣 아이스크림',
+    transitTip: 'ITX-청춘 가평역/청평역에서 가평 관광지 순환버스(A/B코스) 이용 시 주요 명소 순환'
   }
 };
 
-/**
- * High-grade conversational response templates and actionable advice synthesized from Gemini
- */
-export const VORA_INTELLIGENT_DIALOG_TEMPLATES = {
-  MINIMAL_WALKING: {
-    badge: '도보 최소화 & 쾌적 힐링',
-    intro: (city) => `어르신이나 보행이 조심스러운 분들도 부담 없이 즐기실 수 있도록, ${city}의 **케이블카·평지 산책로·전망 카페 위주 안심 동선**으로 준비했습니다 😊🌿`,
-    tip: '계단과 언덕을 피하고 차량 및 대중교통 승하차 지점과 가장 가까운 평지 명소를 우선 배치했습니다.',
-    transitSummary: '도보 이동 시간 5분 미만 / 엘리베이터 및 슬로프 완비'
+// ==============================================================================
+// 2. TIKITAKA_CHITCHAT_MATRIX (감정, 피드백, 돌발 상황 위트 티키타카)
+// ==============================================================================
+export const TIKITAKA_CHITCHAT_MATRIX = {
+  // [A] 배고픔 & 미식 갈증
+  HUNGRY: {
+    triggers: /(배고파|배고파요|배고파죽겠|출출해|밥먹자|밥어디서|맛있는거|먹을래|꼬르륵)/i,
+    reply: (city = '서울') => `금강산도 식후경이죠! 꼬르륵 소리 멈추게 할 **${city} 현지인 찐 맛집**으로 바로 모실게요 🤤🍴\n입안 가득 행복해지는 시그니처 미식과 웨이팅 없는 꿀팁까지 준비했습니다!`,
+    followUp: '든든한 한식 백반으로 갈까요, 아니면 분위기 좋은 감성 파스타/로컬 요리로 갈까요? 🍲 vs 🍝'
   },
-  RAINY_INDOOR: {
-    badge: '비 오는 날 안심 실내 코스',
-    intro: (city) => `비가 와도 여행의 감성은 그대로! ${city}의 **환상적인 몰입형 미디어아트·실내 수족관·오션뷰 카페**로 쾌적하게 꾸몄습니다 ☔☕✨`,
-    tip: '우천 시 빗길 안전을 고려하여 주차장/지하철역과 바로 연결되는 대형 실내 복합 문화공간 위주로 구성했습니다.',
-    transitSummary: '지하 직통 연결 및 실내 전용 동선 100%'
+  // [B] 피곤 & 다리 아픔 & 휴식
+  TIRED_LEGS: {
+    triggers: /(다리아파|힘들어|피곤해|지쳐|쉬고싶어|못걷겠|힘들다|다리부러|휴식)/i,
+    reply: (city = '서울') => `오늘 정말 알차고 부지런하게 여행하셨군요! 👏\n더 이상 무리해서 걷지 마세요. 계단 0개, 푹신한 소파와 탁 트인 전망이 있는 **${city} 힐링 오션뷰/전망 카페와 편안한 쉼터**를 골랐습니다 ☕🌿`,
+    followUp: '따뜻한 전통차와 족욕 쉼터로 갈까요, 아니면 편안한 의자가 있는 대형 베이커리 카페로 갈까요? 🍵 vs 🥐'
   },
-  KIDS_FAMILY: {
-    badge: '온 가족 키즈 & 패밀리 케어',
-    intro: (city) => `아이들의 호기심을 자극하는 **오감 체험·아쿠아리움·넓은 잔디마당**과 부모님이 편안한 쉼터를 완벽하게 조율했습니다 👨‍👩‍👧‍👦🎈`,
-    tip: '유모차 진입이 수월하고 키즈 메뉴 및 수유·휴게시설이 잘 갖춰진 가족 친화 스팟들입니다.',
-    transitSummary: '유모차 안심 보행로 & 가족 전용 주차장 인접'
+  // [C] 날씨 불평 (비, 폭우, 더위, 추위)
+  WEATHER_COMPLAINT: {
+    triggers: /(비와서|비오는데|날씨망|짜증나|더워죽|추워죽|비때문에|날씨최악)/i,
+    reply: (city = '서울') => `날씨 때문에 속상하셨죠 ㅠㅠ 하지만 비 오는 날의 **${city}**은 오히려 감성 200% 충전 타임입니다! ☔✨\n빗방울 소리를 통창으로 감상하는 실내 오션뷰/정원 핫플과 몰입형 미디어아트로 인생샷을 건져보세요!`,
+    followUp: '비 한 방울 안 맞는 대형 실내 복합몰로 갈까요, 아니면 빗소리가 운치 있는 한옥 카페로 갈까요? 🏛️ vs ☕'
   },
-  BUDGET_VALUE: {
-    badge: '실속 알뜰 & 로컬 가성비 핫플',
-    intro: (city) => `지갑은 가볍게, 경험은 풍성하게! ${city} 현지인들이 인정하는 **착한 가격의 찐 맛집과 무료 힐링 랜드마크**로 알차게 엮었습니다 💰✨`,
-    tip: '가성비 뛰어난 전통시장 로컬 스트리트 푸드와 입장료 부담 없는 공공 명소를 최적 동선으로 연결했습니다.',
-    transitSummary: '대중교통 환승 할인 극대화 & 도보 최단거리'
+  // [D] 칭찬 & 만족 ("너 짱이다", "똑똑하다", "고마워")
+  COMPLIMENT: {
+    triggers: /(고마워|고맙습니다|너짱|최고야|대단해|천재|똑똑해|잘했어|완벽해|감사|thx|thank)/i,
+    reply: () => `칭찬해 주시니 어깨가 으쓱하네요! 🥰 선배님의 여행 감각이 워낙 뛰어나셔서 제가 더 신나서 찾은 덕분입니다 ✨\n앞으로의 여정도 완벽하게 보필할게요!`,
+    followUp: '다음 일정에 어울리는 환상적인 포토스팟이나 야경 명소도 미리 봐드릴까요? 📸🌃'
   },
-  PUBLIC_TRANSIT: {
-    badge: '차 없이 떠나는 뚜벅이 완벽 코스',
-    intro: (city) => `자가용이나 렌터카가 없어도 전혀 걱정 마세요! ${city}의 **지하철역 및 버스정류장 초역세권 랜드마크**만 콕 집었습니다 🚇🚌`,
-    tip: '배차 간격이 짧은 시내 순환선과 주요 KTX/고속터미널 역세권 명소를 순서대로 엮어 환승 스트레스를 없앴습니다.',
-    transitSummary: '역/정류장 도보 3분 이내 & 직통 버스 노선'
+  // [E] 불만족 & 교체 요청 ("별로야", "딴 데 없어?", "다른 거")
+  DISAPPOINTED_REPLACE: {
+    triggers: /(별로야|맘에안|다른데|다른곳|딴데|바꿔줘|별로인데|맘에안들어|딴거)/i,
+    reply: (city = '서울') => `아이쿠, 제 추천이 선배님 눈높이에 쏙 들지 못했군요! 반성합니다 🙇‍♀️\n그럼 완전히 다른 분위기의 **${city} 숨은 히든 핫플레이스**로 즉시 교체해 드릴게요! 🔄`,
+    followUp: '조용하고 한적한 자연 힐링 스팟을 원하세요, 아니면 활기차고 트렌디한 MZ 핫플을 원하세요? 🌿 vs 🔥'
   },
-  SOLO_HEALING: {
-    badge: '나만의 감성 힐링 & 혼행',
-    intro: (city) => `혼자여도 전혀 어색하지 않고 오롯이 나에게 집중할 수 있는 ${city}의 **감성 서점·전망 카페·고즈넉한 사색 산책로**입니다 🎧🌿`,
-    tip: '1인 식사가 편안한 로컬 바(Bar)와 조용히 물멍·불멍을 즐길 수 있는 히든 스팟을 추천합니다.',
-    transitSummary: '여유로운 1인 이동 동선 & 쾌적한 사색 코스'
+  // [F] 심심함 & 즉흥 재미 ("심심해", "할 거 없어?")
+  BORED: {
+    triggers: /(심심해|할거없|뭐할까|재미있는|지루해|할거추천|즉흥)/i,
+    reply: (city = '서울') => `심심할 틈이 없죠! 지금 시간대에 **${city}**에서 가장 핫한 액티비티와 이색 체험 스팟을 즉시 처방해 드립니다 ⚡🎈`,
+    followUp: '짜릿한 레저/체험 액티비티로 기분 전환할까요, 아니면 레트로 골목 투어 & 소품샵 투어로 갈까요? 🎢 vs 🛍️'
   },
-  FOODIE_CAFE: {
-    badge: '현지인 줄 서는 찐 미식 & 빵지순례',
-    intro: (city) => `SNS 핫플부터 수십 년 전통의 로컬 노포까지! ${city}에서 꼭 맛봐야 할 **시그니처 미식과 스페셜티 카페 투어**입니다 🍴☕🔥`,
-    tip: '식사 시간대 웨이팅을 고려하여 이동 동선 중간에 여유로운 디저트 타임을 절묘하게 배치했습니다.',
-    transitSummary: '미식 거리 밀집 구역 & 맛집 연계 최단 도보'
-  },
-  NIGHT_SUNSET: {
-    badge: '황홀한 노을 & 로맨틱 야경',
-    intro: (city) => `낮보다 밤이 더 아름다운 ${city}! 붉게 물드는 **일몰 명소부터 도심의 불빛이 쏟아지는 야경 뷰포인트**로 낭만을 더했습니다 🌅🌃`,
-    tip: '해 질 녘 골든타임(일몰 전 30분)에 맞춰 전망대와 야외 루프탑에 도착할 수 있도록 시간대를 조율했습니다.',
-    transitSummary: '야간 안전 조명 완비 & 심야 귀가 편리 동선'
-  },
-  MULTI_CITY: {
-    badge: '광역 다구간 스마트 쾌속 투어',
-    intro: (cityList) => `각 도시의 핵심 랜드마크를 놓치지 않으면서도, 도시 간 이동 피로도를 최소화한 **초효율 연계 광역 코스**입니다 🚅✨`,
-    tip: 'KTX, SRT 및 고속버스터미널과 연계된 쾌속 광역 교통망을 기준으로 일자별 도시 이동을 설계했습니다.',
-    transitSummary: '광역 고속철도 & 직통 시외버스 최적화'
+  // [G] 예산 걱정 & 가성비 ("돈 없어", "싸게", "비싸")
+  BUDGET_WORRY: {
+    triggers: /(돈없어|비싸|가성비|싸게|저렴하게|알뜰|지갑|예산부족)/i,
+    reply: (city = '서울') => `걱정 뚝! 지갑은 가볍게, 추억은 두둑하게 채울 수 있는 **${city} 가성비 끝판왕 로컬 코스**가 준비되어 있습니다 💰✨\n입장료 0원 힐링 뷰포인트와 1인 1만 원대 착한 가격 노포를 모았어요.`,
+    followUp: '시장 인심 넘치는 전통시장 먹거리 투어 먼저 볼까요? 🍢'
   }
 };
+
+// ==============================================================================
+// 3. K_FOOD_PAIRING_KNOWLEDGE (지역별 대표 미식 페어링)
+// ==============================================================================
+export const K_FOOD_PAIRING_KNOWLEDGE = {
+  '서울': { signature: '광장시장 마약김밥 & 녹두빈대떡 + 막걸리', tip: '종로 피맛골 백반과 성수동 스페셜티 드립커피 디저트 페어링 추천' },
+  '부산': { signature: '부산 원조 돼지국밥(부추 듬뿍) & 자갈치 생선구이', tip: '식후 남포동 비프광장 원조 씨앗호떡으로 달콤한 마무리' },
+  '제주': { signature: '제주 흑돼지 근고기 멜젓구이 & 고기국수', tip: '애월 한담해변 오션뷰 카페에서 즐기는 한라봉 에이드 페어링' },
+  '경주': { signature: '황리단길 떡갈비 정식 & 맷돌순두부 찌개', tip: '황남빵 본점 갓 구운 따끈한 팥빵과 찰보리빵 간식 세트' },
+  '강릉': { signature: '초당 순두부마을 짬뽕순두부 & 몽글순두부 백반', tip: '안목 커피거리에서 즐기는 에스프레소 & 순두부 젤라또' },
+  '속초': { signature: '아바이마을 모둠순대(오징어순대) & 청초호 시원한 활어 물회', tip: '속초관광수산시장 만석닭강정 & 팡파미유 마늘바게트' },
+  '여수': { signature: '돌산 갓김치 곁들인 간장게장 백반 & 여수 밤바다 해물삼합', tip: '이순신광장 명물 쑥 아이스크림 & 딸기모찌 디저트' },
+  '전주': { signature: '전주 콩나물국밥(수란 세트) & 전주 전통비빔밥', tip: '한옥마을 전주비빔빵 & 달콤 쌉싸름한 모주 한잔' }
+};
+
+// ==============================================================================
+// 4. K_FASHION_WEATHER_GUIDE (날씨·기온별 옷차림 가이드)
+// ==============================================================================
+export const K_FASHION_WEATHER_GUIDE = {
+  HOT_SUMMER: {
+    condition: '기온 28℃ 이상 (무더위/한여름)',
+    advice: '통풍이 잘되는 린넨 셔츠나 반팔 티셔츠를 추천합니다! 실내 에어컨 냉방에 대비해 가벼운 얇은 셔츠나 가디건을 챙기시면 완벽해요 🕶️☀️',
+    items: ['선글라스', '자외선차단제', '휴대용 손선풍기', '양우산']
+  },
+  MILD_SPRING_AUTUMN: {
+    condition: '기온 15℃ ~ 24℃ (봄·가을 환절기)',
+    advice: '일교차가 있으니 니트나 셔츠 위에 트렌치코트, 블레이저, 가죽자켓을 걸치는 레이어드 룩이 사진 찍기에 가장 예쁩니다 🧥🍂',
+    items: ['가벼운 겉옷', '편안한 워킹 스니커즈', '보조배터리']
+  },
+  COLD_WINTER: {
+    condition: '기온 5℃ 이하 (겨울/한파)',
+    advice: '보온성 높은 숏패딩이나 롱패딩, 도톰한 울 코트를 추천합니다. 목도리와 장갑을 포인트 컬러로 매치하면 겨울 인생샷 완성! 🧣❄️',
+    items: ['핫팩', '목도리/장갑', '보습 립밤', '보온 텀블러']
+  },
+  RAINY_DAY: {
+    condition: '우천 / 비 오는 날',
+    advice: '젖어도 부담 없는 편안한 방수 슈즈나 가벼운 운동화, 빗물이 튀지 않는 어두운 톤의 바지와 쾌적한 윈드브레이커를 추천합니다 ☔',
+    items: ['3단 접이식 자동우산', '방수 파우치', '여분 양말']
+  }
+};
+
+// ==============================================================================
+// 5. FOREIGNER_ESSENTIALS_KNOWLEDGE (외국인 관광객 필수 실전 팁)
+// ==============================================================================
+export const FOREIGNER_ESSENTIALS_KNOWLEDGE = {
+  TRANSIT_CARD: {
+    title: 'Korea Transit (T-Money & Climate Card)',
+    tip: 'Buy a T-Money card at any subway station or convenience store (CU, GS25, 7-Eleven). For unlimited rides in Seoul, get the Climate Card (기후동행카드) for ₩3,000/day!'
+  },
+  HOTLINE_1330: {
+    title: '1330 Korea Travel Helpline (24/7 Free)',
+    tip: 'Call 1330 (without area code) anytime for free multilingual tourist interpretation and emergency translation (English, Japanese, Chinese, Russian, etc.).'
+  },
+  TAX_REFUND: {
+    title: 'Immediate Tax Free (TAX FREE)',
+    tip: 'Look for "Tax Free" logos at shops. Present your passport at checkout to get instant 7~10% VAT deduction directly on the receipt for purchases over ₩15,000.'
+  },
+  TAXI_APP: {
+    title: 'Ride-Hailing in Korea',
+    tip: 'Kakao T and Uber (UT) work seamlessly across Korea. International credit cards (Visa/Mastercard) are accepted everywhere in registered taxis.'
+  }
+};
+
+// ==============================================================================
+// 6. PROACTIVE_CONVERSATION_HOOKS (선제적 핑퐁 대화 훅)
+// ==============================================================================
+export const PROACTIVE_CONVERSATION_HOOKS = [
+  '점심 식사 후 감성 카페 한 잔 하실래요, 아니면 시원한 오션/도심 전망대로 바로 갈까요? ☕ vs 🏙️',
+  '이 동선 주변에 현지인만 아는 꿀맛 길거리 간식이 있는데 그것도 소개해 드릴까요? 😋',
+  '해 질 녘에 인생샷 건질 수 있는 일몰 뷰포인트도 일정에 추가해 드릴까요? 🌅📸',
+  '쇼핑이나 소품샵 투어가 필요하시면 동선에 쏙 넣어드릴게요! 🛍️'
+];
+
+/**
+ * Intelligent Tiki-Taka Query Classifier & Fast Matcher
+ */
+export function resolveTikitakaResponse(query = '', currentCity = '서울') {
+  if (!query || typeof query !== 'string') return null;
+  const clean = query.trim();
+
+  // Check Tiki-Taka Matrix Triggers
+  for (const [key, item] of Object.entries(TIKITAKA_CHITCHAT_MATRIX)) {
+    if (item.triggers.test(clean)) {
+      return {
+        matchedKey: key,
+        reply: item.reply(currentCity),
+        followUp: item.followUp,
+        isTikitaka: true
+      };
+    }
+  }
+
+  // Check Weather / Fashion query
+  if (/(뭐입고|옷차림|패션|코디|옷어떻게|날씨어때)/i.test(clean)) {
+    const isRain = /(비|우천)/.test(clean);
+    const fashion = isRain ? K_FASHION_WEATHER_GUIDE.RAINY_DAY : K_FASHION_WEATHER_GUIDE.MILD_SPRING_AUTUMN;
+    return {
+      matchedKey: 'FASHION_GUIDE',
+      reply: `오늘 **${currentCity}** 여행 옷차림 가이드입니다! 👗✨\n${fashion.advice}\n\n💡 **추천 꿀아이템**: ${fashion.items.join(', ')}`,
+      followUp: '추천 코스 중에 실내 위주로 조정해 드릴까요, 아니면 야외 포토스팟 위주로 갈까요? 📸',
+      isTikitaka: true
+    };
+  }
+
+  // Check Foodie Pairing query
+  if (/(뭐먹지|대표음식|맛집조합|페어링|꼭먹어야)/i.test(clean)) {
+    const food = K_FOOD_PAIRING_KNOWLEDGE[currentCity] || K_FOOD_PAIRING_KNOWLEDGE['서울'];
+    return {
+      matchedKey: 'FOOD_PAIRING',
+      reply: `**${currentCity}**에 오셨다면 이건 무조건 맛보셔야죠! 🍴🔥\n\n⭐ **시그니처 미식**: ${food.signature}\n💡 **현지인 꿀팁**: ${food.tip}`,
+      followUp: '이 식당 근처에서 바로 걸어갈 수 있는 디저트 카페도 찾아드릴까요? ☕',
+      isTikitaka: true
+    };
+  }
+
+  // Check Foreigner Tips query
+  if (/(교통카드|티머니|기후동행|면세|택시|1330|tax|transit|t-money)/i.test(clean)) {
+    const isTransit = /(교통|티머니|기후|transit|card)/i.test(clean);
+    const tip = isTransit ? FOREIGNER_ESSENTIALS_KNOWLEDGE.TRANSIT_CARD : FOREIGNER_ESSENTIALS_KNOWLEDGE.TAX_REFUND;
+    return {
+      matchedKey: 'FOREIGNER_TIP',
+      reply: `💡 **${tip.title}**\n${tip.tip}`,
+      followUp: '더 궁금하신 대중교통이나 결제 팁이 있으신가요? 💳',
+      isTikitaka: true
+    };
+  }
+
+  return null;
+}
 
 /**
  * Fallback intent resolver for zero-shot query matching
