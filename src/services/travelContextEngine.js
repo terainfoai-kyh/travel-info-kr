@@ -37,21 +37,24 @@ export const INITIAL_TRAVEL_STATE = {
 
 /**
  * 🏙️ Multi-City & Multi-Day Advanced Parser
- * e.g. "서울 1일 강릉 1일 속초 1일" -> { isMultiCity: true, cityPlans: [...], totalDays: 3, combinedLabel: '서울·강릉·속초' }
+ * Supports:
+ * - Pattern A: "서울 1일 강릉 1일 속초 1일" (City + Days)
+ * - Pattern B: "2일은 남해 3일은 통영으로 해줘" (Day-by-Day City Assignment)
  */
-export function parseMultiCityPrompt(prompt = '') {
+export function parseMultiCityPrompt(prompt = '', prevState = INITIAL_TRAVEL_STATE) {
   if (!prompt || typeof prompt !== 'string') return null;
   const clean = prompt.trim();
   
-  const cityRegex = /(서울|수원|인천|강릉|속초|양양|부산|제주|서귀포|경주|여수|전주|대구|대전|광주|울산|가평|춘천|포항|통영|거제|남해|안동)\s*(\d+)\s*(일|박)/g;
-  const matches = [...clean.matchAll(cityRegex)];
+  // 1. Pattern A: [도시] [N]일/박 (e.g. "서울 1일 강릉 1일 속초 1일")
+  const cityDayRegex = /(서울|수원|인천|강릉|속초|양양|부산|제주|서귀포|경주|여수|전주|대구|대전|광주|울산|가평|춘천|포항|통영|거제|남해|안동)\s*(\d+)\s*(일|박)/g;
+  const cityDayMatches = [...clean.matchAll(cityDayRegex)];
 
-  if (matches && matches.length >= 2) {
+  if (cityDayMatches && cityDayMatches.length >= 2) {
     const cityPlans = [];
     let totalDays = 0;
     const cityNames = [];
 
-    for (const m of matches) {
+    for (const m of cityDayMatches) {
       const city = m[1];
       const count = parseInt(m[2], 10) || 1;
       cityPlans.push({ city, days: count });
@@ -70,6 +73,48 @@ export function parseMultiCityPrompt(prompt = '') {
     };
   }
 
+  // 2. Pattern B: [N]일차/N일은 [도시] (e.g. "2일은 남해 3일은 통영", "2일차는 남해, 3일차는 통영")
+  const dayCityRegex = /(\d+)\s*일\s*(차|은|째|는)?\s*(은|는)?\s*(서울|수원|인천|강릉|속초|양양|부산|제주|서귀포|경주|여수|전주|대구|대전|광주|울산|가평|춘천|포항|통영|거제|남해|안동)/g;
+  const dayCityMatches = [...clean.matchAll(dayCityRegex)];
+
+  if (dayCityMatches && dayCityMatches.length >= 1) {
+    const prevDestination = prevState?.tripMemory?.destination || '거제';
+    const baseCity = prevDestination.split('·')[0] || '거제';
+    const dayMap = {};
+    let maxDay = prevState?.tripMemory?.days || 3;
+
+    // 기본 1일차는 이전 도시로 세팅
+    dayMap[1] = baseCity;
+
+    for (const m of dayCityMatches) {
+      const dayNum = parseInt(m[1], 10) || 1;
+      const city = m[4];
+      dayMap[dayNum] = city;
+      if (dayNum > maxDay) maxDay = dayNum;
+    }
+
+    const cityNames = [];
+    const dayByDayList = [];
+    for (let d = 1; d <= maxDay; d++) {
+      const assignedCity = dayMap[d] || baseCity;
+      dayByDayList.push({ day: d, city: assignedCity });
+      if (!cityNames.includes(assignedCity)) {
+        cityNames.push(assignedCity);
+      }
+    }
+
+    const dayByDaySummary = dayByDayList.map(item => `${item.day}일차 ${item.city}`).join(', ');
+
+    return {
+      isMultiCity: true,
+      cityPlans: dayByDayList,
+      cityNames,
+      totalDays: maxDay,
+      combinedLabel: cityNames.join('·'),
+      dayByDaySummary: `${dayByDaySummary} 연계 코스`
+    };
+  }
+
   return null;
 }
 
@@ -85,8 +130,8 @@ export function classifyUserIntent(userPrompt = '', currentState = INITIAL_TRAVE
     return 'REGENERATE_ITINERARY';
   }
 
-  // 2. Multi-City Combined Intent ("서울 1일 강릉 1일 속초 1일")
-  const multiCity = parseMultiCityPrompt(userPrompt);
+  // 2. Multi-City Combined Intent ("서울 1일 강릉 1일 속초 1일" or "2일은 남해 3일은 통영")
+  const multiCity = parseMultiCityPrompt(userPrompt, currentState);
   if (multiCity && multiCity.isMultiCity) {
     return 'MULTI_CITY_PLAN';
   }
@@ -118,7 +163,7 @@ export function classifyUserIntent(userPrompt = '', currentState = INITIAL_TRAVE
  */
 export function patchTravelState(prevState = INITIAL_TRAVEL_STATE, userPrompt = '', detectedCity = null, parsedDays = null) {
   const clean = (userPrompt || '').toLowerCase();
-  const multiCity = parseMultiCityPrompt(userPrompt);
+  const multiCity = parseMultiCityPrompt(userPrompt, prevState);
   const intent = classifyUserIntent(userPrompt, prevState);
   let hasNewCondition = false;
 

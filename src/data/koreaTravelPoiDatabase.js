@@ -103,7 +103,86 @@ export const KOREA_TRAVEL_POI_DB = [
   },
 
   // ==========================================
-  // 2. 강원 (단일 명소)
+  // 2. 남해 & 통영 (단일 명소)
+  // ==========================================
+  {
+    id: 'kt_nh_german',
+    title: '남해 독일마을',
+    region: '경남',
+    city: '남해',
+    category: '핫플',
+    theme: '이국적/오션뷰',
+    duration: 90,
+    rating: 4.8,
+    image: 'https://tong.visitkorea.or.kr/cms/resource/03/3566003_image2_1.jpg',
+    lat: 34.8037,
+    lng: 128.0264,
+    tags: ['이국적', '독일맥주', '소시지', '파독전시관', '바다전망'],
+    summary: '붉은 지붕과 하얀 벽이 남해의 푸른 바다와 어우러진 이국적인 독일풍 문화마을'
+  },
+  {
+    id: 'kt_nh_boriam',
+    title: '남해 보리암',
+    region: '경남',
+    city: '남해',
+    category: '명소',
+    theme: '절경/사찰',
+    duration: 110,
+    rating: 4.9,
+    image: 'http://tong.visitkorea.or.kr/cms/resource/76/3576176_image2_1.JPG',
+    lat: 34.7503,
+    lng: 127.9862,
+    tags: ['절경', '일출', '금산', '오션뷰', '힐링'],
+    summary: '기암괴석 솟은 금산 정상에서 바라보는 한려해상 국립공원의 웅장한 바다 비경'
+  },
+  {
+    id: 'kt_nh_daraengi',
+    title: '남해 다랭이마을',
+    region: '경남',
+    city: '남해',
+    category: '자연명소',
+    theme: '계단식논/바다산책',
+    duration: 90,
+    rating: 4.8,
+    image: 'https://tong.visitkorea.or.kr/cms/resource/05/4059505_image2_1.jpg',
+    lat: 34.7275,
+    lng: 127.8942,
+    tags: ['자연', '계단식논', '해안산책', '포토존', '힐링'],
+    summary: '바다를 향해 층층이 뻗은 100여 층의 계단식 논과 해안 절벽 산책로가 주는 힐링'
+  },
+  {
+    id: 'kt_ty_dongpirang',
+    title: '통영 동피랑 벽화마을',
+    region: '경남',
+    city: '통영',
+    category: '핫플',
+    theme: '벽화골목/전망',
+    duration: 80,
+    rating: 4.8,
+    image: 'https://tong.visitkorea.or.kr/cms/resource/75/2899875_image2_1.jpg',
+    lat: 34.8465,
+    lng: 128.4285,
+    tags: ['벽화', '인생샷', '포토존', '중앙시장', '데이트'],
+    summary: '아기자기한 벽화 골목을 따라 올라가면 통영항의 아름다운 전경이 시원하게 펼쳐지는 명소'
+  },
+  {
+    id: 'kt_ty_cablecar',
+    title: '통영 케이블카',
+    region: '경남',
+    city: '통영',
+    category: '명소',
+    theme: '케이블카/한려수도',
+    duration: 90,
+    rating: 4.9,
+    image: 'https://tong.visitkorea.or.kr/cms/resource/17/3521017_image2_1.jpg',
+    lat: 34.8276,
+    lng: 128.4230,
+    tags: ['케이블카', '미륵산', '한려수도', '파노라마뷰', '아이동반'],
+    summary: '국내 최장 케이블카를 타고 미륵산 정상에 올라 감상하는 동양의 나폴리 한려수도'
+  },
+
+  // ==========================================
+  // 3. 강원 (단일 명소)
   // ==========================================
   {
     id: 'kt_gw_anmok',
