@@ -152,7 +152,7 @@ export default function AIPlannerTab({
             }}
           >
             <ArrowLeft size={13} />
-            <span>{lang === 'en' ? 'Edit Conditions' : lang === 'ja' ? '条件変更' : (lang === 'zh' || lang === 'zht') ? '修改条件' : '← 조건 변경'}</span>
+            <span>{lang === 'en' ? 'Edit Conditions' : lang === 'ja' ? '条件変更' : (lang === 'zh' || lang === 'zht') ? '修改条件' : '조건 변경'}</span>
           </button>
 
           {/* 🌟 2단계 핵심: 슬림 콤팩트 일정표 보기 버튼 */}
