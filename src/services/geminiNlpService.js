@@ -63,7 +63,7 @@ export function sanitizeGeminiOutput(text) {
 }
 
 // Extract City Keyword from User Prompt (Comprehensive Korean Cities & Districts)
-export function extractLocationKeyword(prompt = '', fallbackToDefault = true) {
+export function extractLocationKeyword(prompt = '', fallbackToDefault = false) {
   if (!prompt || typeof prompt !== 'string') return fallbackToDefault ? '서울' : null;
   const clean = prompt.toLowerCase();
 

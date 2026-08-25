@@ -489,7 +489,7 @@ export default function App() {
   };
 
   // 🚀 AI 여행 일정 생성 코어 핸들러 (1단계 & 2단계 공용 - 무제한 자유 대화 조율 + 보안 가드레일)
-  const handleGenerateItinerary = async (rawPromptQuery) => {
+  const handleGenerateItinerary = async (rawPromptQuery, isDirectAction = false, isExternalEntry = false) => {
     if (!rawPromptQuery || typeof rawPromptQuery !== 'string' || !rawPromptQuery.trim()) return;
     if (isLoading) return;
 
@@ -500,15 +500,17 @@ export default function App() {
     const startTime = Date.now();
     const queryTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
     
-    // Add user message to stream
-    const userMsg = {
-      id: `user-${Date.now()}`,
-      role: 'user',
-      text: promptQuery,
-      queryTime,
-      timestamp: queryTime
-    };
-    setChatMessages(prev => [...prev, userMsg]);
+    // 외부 진입이 아닐 때만(채팅창 내부 대화 중) 유저 메시지를 대화창에 추가
+    if (!isExternalEntry) {
+      const userMsg = {
+        id: `user-${Date.now()}`,
+        role: 'user',
+        text: promptQuery,
+        queryTime,
+        timestamp: queryTime
+      };
+      setChatMessages(prev => [...prev, userMsg]);
+    }
 
     // 🛡️ 2. 보안 인젝션, 해킹, 유해어, 비관광 잡담 0-토큰 사전 차단
     const securityCheck = inspectSecurityGuardrails(promptQuery, lang);
@@ -529,7 +531,7 @@ export default function App() {
       return;
     }
 
-    // 🌟 3. 폼 초기 진입, 추천 칩 진입, 1번 검색창 도시 진입 확인 -> 토큰 낭비 없이 1:1 VIP 온보딩 브리핑!
+    // 🌟 3. 폼 초기 진입, 추천 칩 진입, 1번 검색창 도시 진입 확인 (isExternalEntry 일 때만 초기화 브리핑 실행!)
     const isDirectGenerateAction = /(이대로 바로 일정 만들기|이 조건으로 일정|일정 만들어줘|일정 만들어|일정 생성|일정 짜줘|일정 세워줘|일정표 만들기|업데이트된 일정표 보기|OK|ok|응|네|좋아|좋아요|굿|진행해|가자|콜)/i.test(promptQuery);
     const isFormNavigateAction = /(조건 직접 변경하기|조건 변경)/i.test(promptQuery);
 
@@ -538,54 +540,62 @@ export default function App() {
       return;
     }
 
-    const isInitialFormSubmit = promptQuery.includes('여행') && (promptQuery.includes('테마:') || promptQuery.includes('박'));
-    const isRecommendationChipSubmit = /(경복궁|성수|광안리|서귀포|행궁동|K-헤리티지|오션|힐링|힙플)/i.test(promptQuery);
-    const isExplicitDestinationEntry = chatMessages.length <= 1 && Boolean(extractLocationKeyword(promptQuery, false));
-
-    if ((isInitialFormSubmit || isRecommendationChipSubmit || isExplicitDestinationEntry) && !isDirectGenerateAction) {
-      // 3대 진입로 공통: 보라가 모든 조건(목적지, 테마, 동행자)을 완벽하게 1줄 캡슐로 브리핑!
+    if (isExternalEntry && !isDirectGenerateAction) {
+      // 3대 진입로 공통: 보라가 조건 브리핑 (도시 미지정 시 도시 선택 질문)
       const replyTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-      const requestedDays = extractDaysFromPrompt(promptQuery) || (isRecommendationChipSubmit ? 1 : 3);
-      const targetCity = extractLocationKeyword(promptQuery) || '서울';
-      
-      const dynamicGatewayChips = getDynamicGatewayChips(targetCity, lang);
-
-      // 테마, 동행자, 추가요청 전체 정밀 추출
-      const companionMatch = promptQuery.match(/(커플|혼자|가족|친구|아이와 함께|아이|부모님|어르신|시니어)/);
-      const companionText = companionMatch ? companionMatch[1] : '';
-      
-      const themeMatch = promptQuery.match(/테마:\s*([^,]+(?:,\s*[^,]+)*?)(?=, 요구사항:|$)/);
-      const themeText = themeMatch ? themeMatch[1].trim() : '';
-
-      const reqMatch = promptQuery.match(/요구사항:\s*(.+)$/);
-      const reqText = reqMatch ? reqMatch[1].trim() : '';
-
-      let tagLabel = `📍 ${targetCity} ${requestedDays}일`;
-      if (companionText) tagLabel += ` • 👫 ${companionText}`;
-      if (themeText) tagLabel += ` • 🍴 ${themeText}`;
-      if (reqText) tagLabel += ` • ✍️ ${reqText}`;
-      if (isRecommendationChipSubmit) {
-        tagLabel = `👑 ${promptQuery.slice(0, 24)}`;
-      }
+      const requestedDays = extractDaysFromPrompt(promptQuery) || 3;
+      const targetCity = extractLocationKeyword(promptQuery, false);
 
       const seasonalChips = (lang === 'en')
         ? ['☀️ Departing This Week', '🍁 Oct Autumn Foliage', '❄️ Dec Winter Trip']
         : ['☀️ 이번 주 출발', '🍁 10월 가을 단풍', '❄️ 12월 겨울 여행'];
 
-      const briefingText = (lang === 'en')
-        ? `💡 Feel free to ask anything, or tap [Create Itinerary Now] anytime!\n\n**[ ${tagLabel} ]**\nWhen (date/season) and what time are you arriving, and where is your hotel? 😊`
-        : (lang === 'ja')
-        ? `💡 気になる点はお気軽にご質問ください。「いいよ」やボタンでいつでも日程表を完成できます！\n\n**[ ${tagLabel} ]**\nいつ頃（日程/季節）何時頃にご到着され、ご宿泊先はどのエリアですか？😊`
-        : (lang === 'zh' || lang === 'zht')
-        ? `💡 随时自由提问，点击[立即生成行程]或回复“好”即可立即完成！\n\n**[ ${tagLabel} ]**\n请问您大约何时（日期/季节）几点到达，预订的酒店区域是哪里？😊`
-        : `💡 편하게 물어보시고, 언제든 '좋아' 또는 [바로 일정 만들기]를 누르시면 완성해 드려요!\n\n**[ ${tagLabel} ]**\n언제(날짜/계절) 몇 시쯤 어디로 도착하시고, 숙소는 어디쯤이신가요? 😊`;
+      let briefingText = '';
+      let quickSuggestions = [];
 
-      const quickSuggestions = [
-        (lang === 'en' ? '🚀 Create Itinerary Now' : '🚀 바로 일정 만들기'),
-        ...seasonalChips,
-        ...dynamicGatewayChips,
-        (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')
-      ];
+      if (!targetCity) {
+        // 💡 도시 미지정 시: 서울로 강제하지 않고 어디로 가실지 친절하게 질문!
+        briefingText = (lang === 'en')
+          ? `💡 Feel free to ask anything, or tap [Create Itinerary Now] anytime!\n\n**[ ✈️ Korea Custom Travel ]**\nWhich city or region in Korea would you like to visit? 😊 (Tell me freely or tap a popular destination below!)`
+          : `💡 편하게 물어보시고, 언제든 '좋아' 또는 [바로 일정 만들기]를 누르시면 완성해 드려요!\n\n**[ ✈️ 대한민국 맞춤 여행 ]**\n어느 도시나 지역으로 떠나고 싶으신가요? 😊 (가고 싶은 곳을 말씀해 주시거나 아래 추천 도시를 선택해 주세요!)`;
+
+        quickSuggestions = [
+          '👑 서울',
+          '🌊 부산',
+          '🌴 제주',
+          '🏖️ 거제/통영',
+          '☕ 강릉/속초',
+          '🏛️ 경주',
+          '🏮 전주',
+          '🌃 여수'
+        ];
+      } else {
+        // 💡 도시 지정 시: 해당 도시 맞춤 브리핑 & 관문 칩 제공
+        const companionMatch = promptQuery.match(/(커플|혼자|가족|친구|아이와 함께|아이|부모님|어르신|시니어)/);
+        const companionText = companionMatch ? companionMatch[1] : '';
+        const themeMatch = promptQuery.match(/테마:\s*([^,]+(?:,\s*[^,]+)*?)(?=, 요구사항:|$)/);
+        const themeText = themeMatch ? themeMatch[1].trim() : '';
+        const reqMatch = promptQuery.match(/요구사항:\s*(.+)$/);
+        const reqText = reqMatch ? reqMatch[1].trim() : '';
+
+        let tagLabel = `📍 ${targetCity} ${requestedDays}일`;
+        if (companionText) tagLabel += ` • 👫 ${companionText}`;
+        if (themeText) tagLabel += ` • 🍴 ${themeText}`;
+        if (reqText) tagLabel += ` • ✍️ ${reqText}`;
+
+        const dynamicGatewayChips = getDynamicGatewayChips(targetCity, lang);
+
+        briefingText = (lang === 'en')
+          ? `💡 Feel free to ask anything, or tap [Create Itinerary Now] anytime!\n\n**[ ${tagLabel} ]**\nWhen (date/season) and what time are you arriving, and where is your hotel? 😊`
+          : `💡 편하게 물어보시고, 언제든 '좋아' 또는 [바로 일정 만들기]를 누르시면 완성해 드려요!\n\n**[ ${tagLabel} ]**\n언제(날짜/계절) 몇 시쯤 어디로 도착하시고, 숙소는 어디쯤이신가요? 😊`;
+
+        quickSuggestions = [
+          (lang === 'en' ? '🚀 Create Itinerary Now' : '🚀 바로 일정 만들기'),
+          ...seasonalChips,
+          ...dynamicGatewayChips,
+          (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')
+        ];
+      }
 
       setTimeout(() => {
         const botMsg = {
@@ -842,13 +852,13 @@ export default function App() {
                 // 🚀 홈 검색 시: 2단계 AI 대화 브리핑 화면으로 스마트 직행!
                 setPlannerInitialMode('chat');
                 setActiveNavTab('ai');
-                handleGenerateItinerary(promptText);
+                handleGenerateItinerary(promptText, false, true);
               }}
               onSelectTheme={(promptText, city) => {
                 // 🚀 홈 칩 클릭 시: 2단계 AI 대화 브리핑 화면으로 스마트 직행!
                 setPlannerInitialMode('chat');
                 setActiveNavTab('ai');
-                handleGenerateItinerary(promptText);
+                handleGenerateItinerary(promptText, false, true);
               }}
               onOpenWeather={(city) => {
                 setWeatherCity(city || itineraryData?.targetCity || '서울');

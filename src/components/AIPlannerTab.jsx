@@ -104,7 +104,7 @@ export default function AIPlannerTab({
     // 2단계 대화 모드로 전환하고 일정 생성 요청
     setPlannerMode('chat');
     if (onGenerateItinerary) {
-      onGenerateItinerary(combinedQuery);
+      onGenerateItinerary(combinedQuery, false, true);
     }
   };
 
