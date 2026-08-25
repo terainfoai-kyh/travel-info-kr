@@ -54,8 +54,8 @@ export const INITIAL_TRAVEL_STATE = {
 export function classifyUserIntent(userPrompt = '', currentState = INITIAL_TRAVEL_STATE) {
   const clean = (userPrompt || '').trim().toLowerCase();
 
-  // 1. Explicit Full Itinerary Build Intent
-  const isExplicitBuild = /(전체\s*일정\s*(만들|줘|생성|보기)|일정\s*(확정|생성|생성해줘|만들어줘|짜줘)|일정을\s*(보여줘|만들어줘)|이\s*조건으로\s*전체\s*일정)/.test(clean);
+  // 1. Explicit Full Itinerary Build or Affirmative Agreement Intent (좋아, 굿, 응, 일정 짜줘 등)
+  const isExplicitBuild = /(전체\s*일정\s*(만들|줘|생성|보기)|일정\s*(확정|생성|생성해줘|만들어줘|짜줘|세워줘|짜봐)|일정을\s*(보여줘|만들어줘|짜줘|세워줘)|이\s*조건으로\s*전체\s*일정|바로\s*일정|일정표\s*(만들|줘|보여|생성)|좋아|좋아요|굿|오케이|ok|응|그래|가자|콜|완성해줘|만들어|짜줘)/i.test(clean);
   if (isExplicitBuild) {
     return 'REGENERATE_ITINERARY';
   }
@@ -593,8 +593,8 @@ export function generateContextualAdvice(context, lang = 'ko') {
     const gw = context.tripMemory?.gateway || '공항/역';
     const hotel = context.tripMemory?.hotelArea || '호텔';
     return (lang === 'en')
-      ? `Awesome! I'll set up your arrival via **${gw}** and luggage drop at your **${hotel} stay**! ✈️🏨\n\nAround what time do you arrive in Korea? (I'll tailor your Day 1 afternoon schedule seamlessly! 😊)\n\n👉 **Select your arrival time below:**`
-      : `${targetCity} 여행을 위해 **${gw}** 도착 후 **${hotel}** 짐 보관(Luggage Drop) 코스로 딱 잡아드릴게요! ✈️🏨\n\n한국에는 대략 몇 시쯤 도착하시나요? (도착 시간에 맞춰 1일차 알찬 오후 코스를 정밀하게 조율해 드려요 😊)\n\n👉 **도착 시간대를 아래 칩에서 선택해 주세요:**`;
+      ? `${targetCity} trip: Arrival via **${gw}** & luggage drop at **${hotel} stay**! ✈️🏨\n\nAround what time do you arrive in Korea? 😊`
+      : `${targetCity} 여행을 위해 **${gw}** 도착 후 **${hotel}** 짐 보관(Luggage Drop) 코스로 잡아드릴게요! ✈️🏨\n\n한국에는 대략 몇 시쯤 도착하시나요? 😊`;
   }
 
   if (isArrivalTimePrompt) {
@@ -604,53 +604,59 @@ export function generateContextualAdvice(context, lang = 'ko') {
     
     if (arrTime === '오전') {
       return (lang === 'en')
-        ? `Morning arrival is great! After dropping bags at ${hotel}, enjoy lunch and head straight to **Gyeongbokgung & Bukchon Hanok Village**! 👑\n\nShall I complete your personalized door-to-door itinerary right away?\n\n👉 **Tap the button below to create your itinerary:**`
-        : `오전 도착이시면 호텔에 무거운 캐리어를 먼저 맡기시고 든든한 점심 식사 후 **[경복궁 & 북촌 한옥마을]**부터 알차게 즐기실 수 있어요! 👑\n\n첫날 오후를 꽉 채운 나만의 도어투도어 맞춤 일정표를 바로 완성해 드릴까요? 😊\n\n👉 **아래 [일정표 만들기] 버튼을 눌러주세요:**`;
+        ? `Morning arrival: Drop bags at **${hotel}** ➔ lunch ➔ **[Gyeongbokgung & Bukchon Hanok]** afternoon course. Shall I prepare this itinerary for you? 👑✨`
+        : `오전 도착이시면 **${hotel}** 짐 보관 후 점심 식사 & **[경복궁 & 북촌 한옥마을]** 오후 코스로 산뜻하게 잡아드릴까요? 👑✨`;
     } else if (arrTime === '저녁') {
       return (lang === 'en')
-        ? `Evening arrival is cozy! Check in at ${hotel} and enjoy **Myeongdong Night Market street food & N Seoul Tower sunset**! 🗼✨\n\nShall I complete your personalized itinerary right away?\n\n👉 **Tap the button below to create your itinerary:**`
-        : `저녁 도착이시면 ${hotel} 체크인 후 **[명동 야시장 로컬 길거리 음식 & N서울타워 로맨틱 야경]**으로 첫날을 산뜻하게 마무리하실 수 있어요! 🗼✨\n\n낭만적인 첫날 야경 코스를 담은 맞춤 일정표를 바로 완성해 드릴까요? 😊\n\n👉 **아래 [일정표 만들기] 버튼을 눌러주세요:**`;
+        ? `Evening arrival: Check-in at **${hotel}** ➔ **[Myeongdong Night Market Food & N Seoul Tower Sunset]** night course. Shall I prepare this itinerary for you? 🗼✨`
+        : `저녁 도착이시면 **${hotel}** 체크인 후 **[명동 야시장 길거리 음식 ➔ N서울타워 로맨틱 야경]** 코스로 잡아드릴까요? 🗼✨`;
     } else {
       return (lang === 'en')
-        ? `For afternoon arrival, taking ${gw} to drop bags at ${hotel} takes until around 5:30 PM! 🧳\n\nHands-free, you can start with **[Gwangjang Market Foodie Street ➔ Cheonggyecheon & DDP Night Stroll]**! Shall I complete your full itinerary right away?\n\n👉 **Tap the button below to create your itinerary:**`
-        : `오후 도착이시면 ${gw}로 ${hotel}에 짐 맡기시고 나면 약 17:30경이 돼요! 🧳\n\n무거운 짐 없이 가볍게 **[광장시장 마약김밥·빈대떡 ➔ 청계천 & DDP 야경 산책]**으로 첫날을 알차게 시작하는 일정표를 바로 완성해 드릴까요? 😊\n\n👉 **아래 [일정표 만들기] 버튼을 눌러주세요:**`;
+        ? `Afternoon arrival: **${gw}** ➔ **${hotel}** luggage drop ➔ **[Gwangjang Market Foodie ➔ Cheonggyecheon & DDP Night Stroll]** course. Shall I prepare this itinerary for you? 🧳✨`
+        : `오후 도착이시면 **${gw}** ➔ **${hotel}** 짐 보관 후 **[광장시장 먹방 ➔ 청계천 & DDP 야경 산책]** 코스로 딱 잡아드릴까요? 🧳✨`;
     }
   }
 
-  // 3. Standard Scenario Knowledge Resolution (from active tripMemory + prompt)
+  // 3. Standard Scenario Knowledge Resolution (Crisp 1~2 lines proposal)
   const isKids = context.tripMemory?.companion?.isKids || /(아이|애기|키즈|유모차|어린이|자녀|초등)/i.test(cleanPrompt);
   const isElder = context.tripMemory?.companion?.isElder || /(부모님|어르신|할머니|할아버지|엄마|아빠|시니어)/i.test(cleanPrompt);
   const isRain = context.tripMemory?.isRainPreferred || /(비|우천|비오|폭우|실내|비오는)/i.test(cleanPrompt);
   const isMinimalWalking = context.tripMemory?.preferences?.isMinimalWalking || /(덜\s*걷|안\s*걷|다리|편안|무릎|걷기\s*싫)/i.test(cleanPrompt);
   const isSolo = context.tripMemory?.companion?.isSolo || /(혼자|나홀로|솔로|혼행)/i.test(cleanPrompt);
-
-  const scenarioKey = resolveKnowledgeScenario(cleanPrompt);
-  let layer1 = `여행자님, 요청하신 조건에 딱 맞게 **${targetCity}** 최적 일정을 정갈하게 조율해 드립니다! ✨`;
+  const isFoodie = context.tripMemory?.preferences?.isFoodie || /(배고파|맛집|미식|먹방|식사|밥)/i.test(cleanPrompt);
 
   if (multiCity && multiCity.isMultiCity) {
-    layer1 = `여행자님, **[${multiCity.combinedLabel}] ${multiCity.totalDays}일 연계 코스**를 광역 교통 최적 동선으로 시원하게 완성했습니다! 🚅✨`;
-  } else if (isKids || scenarioKey === 'KIDS_FAMILY') {
-    layer1 = `아이와 함께하는 여행인 만큼, 유모차 이동이 수월하고 아이들의 호기심을 듬뿍 채워줄 **오감 체험·아쿠아리움·넓은 잔디마당** 중심의 안심 코스로 맞춤 조율했습니다 👨‍👩‍👧‍👦🎈`;
-  } else if (isElder || scenarioKey === 'MINIMAL_WALKING' || isMinimalWalking) {
-    layer1 = `부모님/어르신과 함께 편안하게 즐기실 수 있도록, ${targetCity}의 **케이블카·평지 산책로·전망 카페 위주 안심 힐링 동선**으로 정성껏 준비했습니다 😊🌿`;
-  } else if (isRain || scenarioKey === 'RAINY_INDOOR') {
-    layer1 = `비가 와도 여행의 감성은 그대로! ${targetCity}의 **환상적인 몰입형 미디어아트·실내 수족관·오션뷰 카페**로 쾌적하게 꾸몄습니다 ☔☕✨`;
-  } else if (isSolo || scenarioKey === 'SOLO_HEALING') {
-    layer1 = `혼자만의 여유로운 사색과 힐링을 위해, ${targetCity}의 **고즈넉한 산책길과 감성 독립서점·힐링 카페** 위주로 산뜻하게 구성했습니다 🎧🌿`;
-  } else if (scenarioKey === 'BUDGET_VALUE') {
-    layer1 = `지갑은 가볍게, 경험은 풍성하게! ${targetCity} 현지인들이 인정하는 **착한 가격의 찐 맛집과 무료 힐링 랜드마크**로 알차게 엮었습니다 💰✨`;
-  } else if (scenarioKey === 'PUBLIC_TRANSIT') {
-    layer1 = `자가용이나 렌터카가 없어도 전혀 걱정 마세요! ${targetCity}의 **지하철역 및 버스정류장 초역세권 랜드마크**만 콕 집었습니다 🚇🚌`;
+    return (lang === 'en')
+      ? `Shall I craft a seamless multi-city itinerary for **[${multiCity.combinedLabel}] ${multiCity.totalDays} Days**? 🚅✨`
+      : `**[${multiCity.combinedLabel}] ${multiCity.totalDays}일 연계 코스**를 광역 교통 최적 동선으로 시원하게 잡아드릴까요? 🚅✨`;
+  }
+  if (isKids) {
+    return (lang === 'en')
+      ? `Shall I tailor a stroller-friendly itinerary featuring hands-on interactive experiences, aquariums & spacious parks for kids? 👨‍👩‍👧‍👦🎈`
+      : `아이와 함께 편하게 이동할 수 있는 **오감 체험·아쿠아리움·넓은 잔디마당** 중심의 안심 코스로 잡아드릴까요? 👨‍👩‍👧‍👦🎈`;
+  }
+  if (isElder || isMinimalWalking) {
+    return (lang === 'en')
+      ? `Shall I prepare a gentle, step-free itinerary focusing on scenic cable cars, flat walking trails & panoramic cafes? 😊🌿`
+      : `부모님과 함께 계단 없이 편안한 **케이블카·평지 산책로·전망 카페** 위주 안심 코스로 잡아드릴까요? 😊🌿`;
+  }
+  if (isRain) {
+    return (lang === 'en')
+      ? `Shall I craft an indoor itinerary with mesmerizing media art, indoor aquariums & ocean-view cafes? ☔☕✨`
+      : `비 한 방울 안 맞는 **환상적인 몰입형 미디어아트 & 실내 수족관·오션뷰 카페** 코스로 잡아드릴까요? ☔☕✨`;
+  }
+  if (isSolo) {
+    return (lang === 'en')
+      ? `Shall I design a peaceful solo journey with tranquil walking paths, indie bookstores & cozy cafes? 🎧🌿`
+      : `혼자만의 여유로운 사색을 위한 **고즈넉한 산책길 & 감성 독립서점·힐링 카페** 코스로 잡아드릴까요? 🎧🌿`;
+  }
+  if (isFoodie) {
+    return (lang === 'en')
+      ? `Shall I tailor a delicious local foodie trail with authentic, highly-rated local restaurants? 🍴🤤`
+      : `현지인들이 줄 서는 **착한 가격의 찐 맛집 & 로컬 미식 투어** 코스로 맞춰드릴까요? 🍴🤤`;
   }
 
-  // Layer 2: Actionable Local Wisdom & Transit Summary
-  const layer2 = `${targetCity} ${activeDay}일차 ${timeSlotLabel} 동선: 현지 추천 핫플과 환승에 무리 없는 최적 길찾기입니다 💡 (${cityInfo.transitTip})`;
-
-  // Layer 3: Proactive Conversation Hook
-  const randomHook = PROACTIVE_CONVERSATION_HOOKS[Math.floor(Math.random() * PROACTIVE_CONVERSATION_HOOKS.length)];
-  const layer3 = lang === 'en'
-    ? `Tap **[ ＋ Add to Day ${activeDay} ]** on any spot below to add it directly to your itinerary!`
-    : `원하시는 장소 아래 **[ ＋ ${activeDay}일차 일정에 추가 ]**를 누르시면 내 일정표에 바로 쏙 들어갑니다! 😊\n\n👉 **${randomHook}**`;
-
-  return `${layer1}\n\n${layer2}\n\n${layer3}`;
+  return (lang === 'en')
+    ? `Shall I craft the best **${targetCity}** itinerary with local highlights and smooth transit routes? ✨`
+    : `**${targetCity}**의 현지 추천 핫플과 이동하기 편한 최적 동선 코스로 잡아드릴까요? ✨`;
 }

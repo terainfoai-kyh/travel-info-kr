@@ -529,8 +529,8 @@ export default function App() {
       return;
     }
 
-    // 🌟 3. 폼 초기 진입 또는 추천 칩 진입 확인 -> 토큰 낭비 없이 조건 브리핑 & 승인 유도!
-    const isDirectGenerateAction = /(이대로 바로 일정 만들기|이 조건으로 일정|일정 만들어줘|일정 만들어|일정 생성|일정 짜줘|일정표 만들기|업데이트된 일정표 보기|OK|ok|응|네|좋아|진행해)/i.test(promptQuery);
+    // 🌟 3. 폼 초기 진입, 추천 칩 진입, 1번 검색창 도시 진입 확인 -> 토큰 낭비 없이 1:1 VIP 온보딩 브리핑!
+    const isDirectGenerateAction = /(이대로 바로 일정 만들기|이 조건으로 일정|일정 만들어줘|일정 만들어|일정 생성|일정 짜줘|일정 세워줘|일정표 만들기|업데이트된 일정표 보기|OK|ok|응|네|좋아|좋아요|굿|진행해|가자|콜)/i.test(promptQuery);
     const isFormNavigateAction = /(조건 직접 변경하기|조건 변경)/i.test(promptQuery);
 
     if (isFormNavigateAction) {
@@ -540,13 +540,14 @@ export default function App() {
 
     const isInitialFormSubmit = promptQuery.includes('여행') && (promptQuery.includes('테마:') || promptQuery.includes('박'));
     const isRecommendationChipSubmit = /(경복궁|성수|광안리|서귀포|행궁동|K-헤리티지|오션|힐링|힙플)/i.test(promptQuery);
+    const isExplicitDestinationEntry = chatMessages.length <= 1 && Boolean(extractLocationKeyword(promptQuery, false));
 
-    if ((isInitialFormSubmit || isRecommendationChipSubmit) && !isDirectGenerateAction) {
-      // 폼/추천 칩 제출 직후: 보라가 모든 조건(테마 전체, 추가요청 포함)을 완벽하게 1줄 캡슐로 브리핑!
+    if ((isInitialFormSubmit || isRecommendationChipSubmit || isExplicitDestinationEntry) && !isDirectGenerateAction) {
+      // 3대 진입로 공통: 보라가 모든 조건(목적지, 테마, 동행자)을 완벽하게 1줄 캡슐로 브리핑!
       const replyTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
       const requestedDays = extractDaysFromPrompt(promptQuery) || (isRecommendationChipSubmit ? 1 : 3);
       const targetCity = extractLocationKeyword(promptQuery) || '서울';
-    // 테마, 동행자, 추가요청 전체 정밀 추출
+      // 테마, 동행자, 추가요청 전체 정밀 추출
       const companionMatch = promptQuery.match(/(커플|혼자|가족|친구|아이와 함께|아이|부모님|어르신|시니어)/);
       const companionText = companionMatch ? companionMatch[1] : '';
       
@@ -567,12 +568,12 @@ export default function App() {
       const dynamicGatewayChips = getDynamicGatewayChips(targetCity, lang);
 
       const briefingText = (lang === 'en')
-        ? `**[ ${tagLabel} ]**\nI'm ready to craft your Door-to-Door ${targetCity} itinerary! ✈️🏨\nWhich airport/station and what time are you arriving, and where is your hotel? (Select a chip below or tell me freely! 😊)`
+        ? `**[ ${tagLabel} ]**\nI'm ready to craft your Door-to-Door ${targetCity} itinerary! ✈️🏨\nWhich airport/station and what time are you arriving, and where is your hotel? 😊\n\n*(Feel free to chat, or tap [Generate Itinerary] anytime! ✨)*`
         : (lang === 'ja')
-        ? `**[ ${tagLabel} ]**\n空港・駅到着からホテルへの手荷物預け、初日の名所までシームレスにお繋ぎします！✈️🏨\nご到着の空港・駅と到着時間、ご宿泊先はお決まりですか？（下のチップから選択、またはご自由に入力してください😊）`
+        ? `**[ ${tagLabel} ]**\n空港・駅到着からホテルへの手荷物預け、初日の名所までシームレスにお繋ぎします！✈️🏨\nご到着の空港・駅と到着時間、ご宿泊先はお決まりですか？😊\n\n*（気になる点はお気軽にご質問ください。「いいよ」やボタンでいつでも日程表を完成できます！✨）*`
         : (lang === 'zh' || lang === 'zht')
-        ? `**[ ${tagLabel} ]**\n从机场/车站接驳、酒店行李寄存到首日行程为您一站式定制！✈️🏨\n请问您的到达机场/车站、到达时间及预订的酒店区域是哪里？（点击下方快捷标签或直接输入😊）`
-        : `**[ ${tagLabel} ]**\n공항/역 도착부터 호텔 짐 보관, 1일차 알찬 코스까지 도어투도어로 연결해 드릴게요! ✈️🏨\n어느 공항/역에 몇 시쯤 도착하시고, 숙소는 어디쯤으로 생각 중이신가요? 😊`;
+        ? `**[ ${tagLabel} ]**\n从机场/车站接驳、酒店行李寄存到首日行程为您一站式定制！✈️🏨\n请问您的到达机场/车站、到达时间及预订的酒店区域是哪里？😊\n\n*（随时自由提问，点击[生成行程表]或回复“好”即可立即完成！✨）*`
+        : `**[ ${tagLabel} ]**\n공항/역 도착부터 호텔 짐 보관, 1일차 알찬 코스까지 도어투도어로 연결해 드릴게요! ✈️🏨\n어느 공항/역에 몇 시쯤 도착하시고, 숙소는 어디쯤으로 생각 중이신가요? 😊\n\n*(궁금한 점 편하게 물어보시고, 언제든 '좋아' 또는 [일정표 만들기]를 누르시면 바로 완성해 드려요! ✨)*`;
 
       const quickSuggestions = [
         ...dynamicGatewayChips,
