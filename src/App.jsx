@@ -46,7 +46,7 @@ import { sanitizeInput, inspectSecurityGuardrails } from './services/securityGua
 import { findRecommendedPois } from './data/koreaTravelPoiDatabase';
 import { getDynamicGatewayChips } from './data/voraDialogKnowledge';
 import { matchVoraQna } from './services/voraQnaMatcher';
-import { buildTravelContext, generateContextualAdvice, patchTravelState, removeContextChip, toggleContextChip, classifyUserIntent, INITIAL_TRAVEL_STATE } from './services/travelContextEngine';
+import { buildTravelContext, generateContextualAdvice, patchTravelState, removeContextChip, toggleContextChip, classifyUserIntent, getActiveContextChips, INITIAL_TRAVEL_STATE } from './services/travelContextEngine';
 
 export default function App() {
   // 4-Language State (ko, en, ja, zh) with 3-Tier Intelligent Auto-Detection
