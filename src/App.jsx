@@ -537,8 +537,8 @@ export default function App() {
     // 🌟 3. 폼 초기 진입, 추천 칩 진입, 1번 검색창 도시 진입 확인 (isExternalEntry 일 때만 초기화 브리핑 실행!)
     const isQuestionAskingRecommendation = /(어디|뭐|언제|누구|어느|어떤|왜|무슨|몇)\s*(가|이|는|은|에)?\s*(좋아|좋을까|나을까|어때)/i.test(promptQuery);
     const isDirectGenerateAction = !isQuestionAskingRecommendation && (
-      /(이대로 바로 일정 만들기|이 조건으로 일정|일정 만들어줘|일정 만들어|일정 생성|일정 짜줘|일정 세워줘|일정표 만들기|업데이트된 일정표 보기|완성해줘|만들어|짜줘)/i.test(promptQuery) ||
-      /^(좋아|좋아요|굿|오케이|ok|응|네|그래|가자|콜)($|[!.~])/i.test(promptQuery.trim())
+      /(이대로 바로 일정 만들기|이 조건으로 일정|일정 만들어줘|일정 만들어|일정 생성|일정 짜줘|일정 세워줘|일정표 만들기|업데이트된 일정표 보기|완성해줘|만들어줘|만들어|짜줘|짜주세요|맞춰줘|맞춰주세요|추천해줘|코스 추천|일정 추천|이걸로 해줘|알아서 해줘|알아서|뽑아줘|부탁해|부탁해요|해봐|가자|가보자|그냥 짜줘|그냥 추천해줘|그냥 추천|이대로|시작해|시작|일정 뽑아줘|코스 짜줘|일정 완성해줘)/i.test(promptQuery) ||
+      /^(좋아|좋아요|굿|오케이|ok|응|어|네|예|콜|그래|yes|yep|sure|please)($|[!.~])/i.test(promptQuery.trim())
     );
     const isFormNavigateAction = /(조건 직접 변경하기|조건 변경)/i.test(promptQuery);
 
@@ -778,10 +778,37 @@ export default function App() {
         };
         setChatMessages(prev => [...prev, botMsg]);
       } else {
-        // 2. 명시적 전체 일정 빌드 요청 (REGENERATE_ITINERARY or 🚀 확정 버튼)
+        // 2. 명시적 전체 일정 빌드 요청 (REGENERATE_ITINERARY or 🚀 확정 버튼 or 자연어 수락/지시어)
         const buildCity = targetCity || '서울';
+
+        // 🌟 현재 세션에 선택/누적된 모든 조건(동행/테마/선호/교통)을 100% 반영하여 조합 프롬프트 생성!
+        const mem = updatedState.tripMemory || {};
+        const comp = mem.companion || {};
+        const prefs = mem.preferences || {};
+
+        const compList = [];
+        if (typeof comp === 'string' && comp.trim()) compList.push(comp);
+        else {
+          if (comp.isKids) compList.push('아이 동반');
+          if (comp.isElder) compList.push('부모님 동반');
+          if (comp.isCouple) compList.push('커플');
+          if (comp.isSolo) compList.push('혼자');
+        }
+
+        const prefList = [];
+        if (prefs.isCafe) prefList.push('감성 카페');
+        if (prefs.isFoodie) prefList.push('로컬 맛집');
+        if (prefs.isPhoto) prefList.push('인생샷 명소');
+        if (prefs.isMinimalWalking) prefList.push('걷기 적은 편안한 동선');
+        if (mem.isRainPreferred) prefList.push('실내/비오는날 코스');
+        if (mem.gateway) prefList.push(`도착 거점: ${mem.gateway}`);
+        if (mem.hotelArea) prefList.push(`숙소 위치: ${mem.hotelArea}`);
+        if (mem.arrivalTime) prefList.push(`도착 시간: ${mem.arrivalTime}`);
+
+        const compositePrompt = `${buildCity} ${requestedDays}일 ${compList.join('/')} 여행${prefList.length > 0 ? `, 테마: ${prefList.join(', ')}` : ''}, ${promptQuery}`;
+
         const finalResult = {
-          ...generateLocalFallbackItinerary(promptQuery, buildCity, requestedDays, lang),
+          ...generateLocalFallbackItinerary(compositePrompt, buildCity, requestedDays, lang),
           targetCity: buildCity,
           generationTime: elapsedSeconds,
           draftId: `draft-${Date.now()}`
