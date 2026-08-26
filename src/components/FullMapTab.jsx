@@ -90,9 +90,19 @@ export default function FullMapTab({
   // 실시간 GPS 기반 총 이동시간 & 거리 계산
   const transitSummary = calculateTransitSummary(activeSpots);
 
-  // 시간대 자동 배정 (09:00, 11:00, 13:00, 14:30, 16:30, 18:30)
-  const getTimeSlot = (idx) => {
-    const times = ['09:00', '11:00', '13:00', '14:30', '16:30', '18:30'];
+  // 동적 시간대 배정 (스팟 개수 및 체류 시간에 따라 아침~밤까지 자연스러운 스케일링)
+  const getTimeSlot = (idx, totalCount = 5) => {
+    if (totalCount >= 5) {
+      const times5 = ['09:00', '11:00', '13:00', '15:30', '18:30', '20:00'];
+      return times5[idx] || '20:30';
+    } else if (totalCount === 4) {
+      const times4 = ['10:00', '12:30', '15:30', '18:30'];
+      return times4[idx] || '19:00';
+    } else if (totalCount === 3) {
+      const times3 = ['10:30', '14:00', '18:30'];
+      return times3[idx] || '19:00';
+    }
+    const times = ['09:00', '11:00', '13:00', '15:30', '18:30'];
     return times[idx % times.length];
   };
 

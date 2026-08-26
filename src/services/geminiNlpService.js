@@ -1181,25 +1181,34 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
     const dayNum = d + 1;
     const daySpots = [];
     const poolLen = spotPool.length || 1;
-    let spotsForDay = [
-      spotPool[(d * 2) % poolLen] || spotPool[0],
-      spotPool[(d * 2 + 1) % poolLen] || spotPool[0]
+    const baseIdx = d * 3;
+    let daySightseeingSpots = [
+      spotPool[baseIdx % poolLen],
+      spotPool[(baseIdx + 1) % poolLen],
+      spotPool[(baseIdx + 2) % poolLen]
     ].filter(Boolean);
 
-    // 🌟 1일차 도어투도어 적용 (공항 도착 + 호텔 짐 보관)
+    // Remove duplicate spots within the same day
+    daySightseeingSpots = daySightseeingSpots.filter((v, i, a) => a.findIndex(t => t.name === v.name) === i);
+
+    let spotsForDay = [];
+
+    // 🌟 1일차 도어투도어 적용 (공항/역 도착 + 호텔 짐 보관 + 오후 명소 + 저녁/야경)
     if (isDoorToDoor && dayNum === 1) {
       spotsForDay = [
         getGatewaySpot(city, true),
         getHotelLuggageSpot(hotelArea),
-        ...spotsForDay
+        ...daySightseeingSpots
       ];
     }
-    // 🌟 마지막 날 도어투도어 적용 (귀국 공항/역 + 택스리펀)
+    // 🌟 마지막 날 도어투도어 적용 (명소 탐방 + 귀국 공항/역 출발)
     else if (isDoorToDoor && dayNum === days) {
       spotsForDay = [
-        ...spotsForDay,
+        ...daySightseeingSpots,
         getGatewaySpot(city, false)
       ];
+    } else {
+      spotsForDay = daySightseeingSpots;
     }
 
     const dayThemeMeta = themeList[d % themeList.length];
