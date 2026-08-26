@@ -684,7 +684,175 @@ export const VORA_QNA_VAULT = [
       ko: "동행하시는 분들의 편안함과 즐거움을 최우선으로 고려하여 **{city:의}** 가장 안심되고 매력적인 명소들로 정성껏 코스를 맞춰드릴게요! 👨‍👩‍👧‍👦✨",
       en: "We will tailor the best spots in **{city}** ensuring maximum comfort and joy for your travel companions! 👨‍👩‍👧‍👦✨"
     },
-    followUp: "원하시는 여행 기간(1박2일, 2박3일 등)이나 선호하시는 스타일을 말씀해 주시면 일정을 바로 완성해 드려요! ✈️🌸",
-    suggestedChips: ["🗓️ 1박 2일", "🗓️ 2박 3일", "🗓️ 3박 4일", "🚀 바로 일정 만들기"]
+    followUp: "원하시는 여행 기간이나 선호하시는 스타일을 말씀해 주시면 일정을 바로 완성해 드려요! ✈️🌸",
+    suggestedChips: ["🗓️ 1박 2일", "🗓️ 2박 3일", "🗓️ 3박 4일", "🚀 이제 일정 짜줘"]
+  },
+
+  // =========================================================================
+  // 8. 호텔 & 숙소 문의 (ACCOMMODATION_HOTEL)
+  // =========================================================================
+  {
+    id: "qna_hotel_booking_inquiry",
+    category: "ACCOMMODATION_HOTEL",
+    targetCity: "all",
+    season: "all",
+    questionVariations: [
+      "호텔도 해주나?",
+      "호텔도 예약해줘?",
+      "숙소도 찾아줘?",
+      "호텔 추천해줘",
+      "숙소 추천",
+      "어디서 자야 돼?",
+      "한옥 스테이 있어?",
+      "호텔도 돼?",
+      "펜션 추천",
+      "숙박 예약"
+    ],
+    intentKeywords: ["호텔", "숙소", "숙박", "펜션", "한옥스테이", "리조트", "호텔예약", "예약"],
+    geminiAnswer: {
+      ko: "네, 물론이죠! **{city}**의 평점 9.0+ 인기 호텔, 감성 오션뷰 펜션, 고즈넉한 한옥 스테이 정보를 추천해 드리고, 최저가 실시간 아고다(Agoda) 특가 예약 링크까지 연결해 드려요! 🏨✨",
+      en: "Yes, absolutely! We recommend top-rated 9.0+ hotels, oceanview pensions, and traditional hanok stays in **{city}** with real-time Agoda discount booking links! 🏨✨"
+    },
+    followUp: "혹시 어느 지역의 어떤 스타일(가성비, 오션뷰 호텔, 감성 한옥) 숙소를 찾고 계신가요? 😊",
+    suggestedChips: ["🏨 가성비 인기 호텔", "🌊 오션뷰 감성 펜션", "🏯 전통 한옥 스테이", "🚀 이제 일정 짜줘"]
+  },
+
+  // =========================================================================
+  // 9. 복합 조건 (3대 대가족: 부모님 + 아이) (COMPOSITE_CONDITIONS)
+  // =========================================================================
+  {
+    id: "qna_companion_3generations",
+    category: "COMPOSITE_CONDITIONS",
+    targetCity: "all",
+    season: "all",
+    questionVariations: [
+      "부모님이랑 아이랑 같이 가",
+      "할머니 손주 여행",
+      "3대 대가족 여행",
+      "부모님 모시고 아이 동반",
+      "온 가족 여행 코스"
+    ],
+    intentKeywords: ["3대", "부모님", "아이", "조부모", "대가족", "할머니", "손주", "온가족"],
+    geminiAnswer: {
+      ko: "어르신(부모님)과 우리 아이까지 온 가족 3대가 함께 떠나는 정말 뜻깊은 여행이시군요! 👨‍👩‍👧‍👦👴👵 어르신의 무릎과 아이의 유모차를 모두 배려하여, 계단 없는 평지 산책로와 케이블카, 아쿠아리움이 결합된 **【 3대 안심 힐링 코스 】**로 잡아드릴게요! ✨",
+      en: "A wonderful multi-generational family journey with grandparents and kids! 👨‍👩‍👧‍👦👴👵 We prioritize step-free flat paths, scenic cable cars, and exciting aquariums with nourishing dining for all generations! ✨"
+    },
+    followUp: "온 가족이 무리 없이 편안하게 즐길 수 있는 **{city}** 3대 안심 코스로 잡아드릴까요? 🌿🎈",
+    suggestedChips: ["🎈 3대 가족 안심 힐링 코스", "🍴 정갈한 보양 한정식", "🚀 이제 일정 짜줘"]
+  },
+
+  // =========================================================================
+  // 10. 일상 대화 & 감성 티키타카 (DAILY_CHITCHAT)
+  // =========================================================================
+  {
+    id: "qna_chitchat_greetings",
+    category: "DAILY_CHITCHAT",
+    targetCity: "all",
+    season: "all",
+    questionVariations: [
+      "안녕",
+      "안녕하세요",
+      "반가워",
+      "하이",
+      "hello",
+      "hi",
+      "좋은 아침",
+      "보라 안녕"
+    ],
+    intentKeywords: ["안녕", "안녕하세요", "반가워", "하이", "hello", "hi", "반갑습니다"],
+    geminiAnswer: {
+      ko: "안녕하세요! 만나서 정말 반가워요! 🌸 저는 대한민국 여행 전문 AI 컨시어지 VORA예요. 오늘 어떤 설레는 한국 여행을 꿈꾸고 계신가요? 😊",
+      en: "Hello! So wonderful to meet you! 🌸 I am VORA, your dedicated AI Travel Concierge for South Korea. What exciting trip are you dreaming of today? 😊"
+    },
+    followUp: "가고 싶으신 도시나 여행 테마를 편하게 말씀해 주세요! ✈️✨",
+    suggestedChips: ["🌊 거제 & 남해 힐링", "🏙️ 서울 핫플 투어", "🏖️ 부산 바다 미식", "🚀 인기 도시 추천"]
+  },
+  {
+    id: "qna_chitchat_compliment",
+    category: "DAILY_CHITCHAT",
+    targetCity: "all",
+    season: "all",
+    questionVariations: [
+      "너 진짜 똑똑하다",
+      "똑똑해",
+      "고마워",
+      "감사합니다",
+      "대박",
+      "최고야",
+      "짱이다",
+      "도움 많이 됐어"
+    ],
+    intentKeywords: ["똑똑", "고마워", "감사", "대박", "최고", "짱이다", "도움", "친절"],
+    geminiAnswer: {
+      ko: "헤헤, 칭찬해 주셔서 어깨가 으쓱하네요! 🥰 여행자님의 완벽하고 행복한 한국 여행을 위해 매일 제미나이 스승님께 열심히 배우고 있답니다! 💖",
+      en: "Aww, thank you so much! 🥰 I work hard every day with master Gemini to make your Korea trip truly unforgettable! 💖"
+    },
+    followUp: "혹시 더 궁금한 점이나 보고 싶으신 코스가 있으신가요? 편하게 물어보세요! 😊",
+    suggestedChips: ["🍴 현지인 맛집 보기", "📸 인생샷 포토존 보기", "🚀 이제 일정 짜줘"]
+  },
+  {
+    id: "qna_chitchat_fatigue",
+    category: "DAILY_CHITCHAT",
+    targetCity: "all",
+    season: "all",
+    questionVariations: [
+      "다리 너무 아파",
+      "다리아파",
+      "너무 피곤해",
+      "피곤하다",
+      "지쳐",
+      "힘들어",
+      "쉬고 싶어",
+      "다리 아파서 못 걷겠어"
+    ],
+    intentKeywords: ["다리", "아파", "다리아파", "피곤", "지쳐", "힘들", "쉬고", "휴식", "족욕"],
+    geminiAnswer: {
+      ko: "오늘 정말 열심히 걸으셨군요! 🥺 무리하지 마시고 잠시 쉬어가세요. 근처에 **폭신한 소파가 있는 전망 좋은 힐링 카페나 따뜻한 족욕 카페, 편안한 찜질방**에서 다리의 피로를 풀어보시는 건 어떨까요? ☕🛋️",
+      en: "You've walked so much today! 🥺 Take a gentle break at a nearby cozy view cafe with plush sofas, a warm foot bath cafe, or a relaxing Korean spa! ☕🛋️"
+    },
+    followUp: "근처에서 편안하게 쉴 수 있는 힐링 스팟을 안내해 드릴까요? ☕🛋️",
+    suggestedChips: ["☕ 폭신한 소파 힐링 카페", "♨️ 따뜻한 스파/찜질방", "🚕 이동 편한 코스로 변경"]
+  },
+  {
+    id: "qna_chitchat_hunger",
+    category: "DAILY_CHITCHAT",
+    targetCity: "all",
+    season: "all",
+    questionVariations: [
+      "배고파",
+      "배고파 죽겠어",
+      "밥 뭐 먹지",
+      "너무 배고파",
+      "출출해",
+      "야식 땡겨"
+    ],
+    intentKeywords: ["배고파", "배고파죽", "출출", "밥", "야식", "식사", "뭐먹지"],
+    geminiAnswer: {
+      ko: "금강산도 식후경이죠! 🤤 든든하게 배를 채워야 여행도 더 즐거운 법이에요. 지금 계신 곳에서 가장 빠르게 닿는 **현지인 줄 서는 찐 로컬 맛집이나 따끈한 뚝배기 한 상**을 바로 찾아드릴까요? 🍲✨",
+      en: "Eating well is the heart of traveling! 🤤 Shall we find the most authentic local diner or comforting hot soup spot closest to where you are right now? 🍲✨"
+    },
+    followUp: "지금 가장 땡기는 음식 종류(고기, 국물, 분식, 디저트)를 말씀해 주세요! 🍴🤤",
+    suggestedChips: ["🍲 따끈한 국물 & 뚝배기", "🥩 든든한 숯불 고기 구이", "🥟 바삭한 길거리 분식", "☕ 달콤한 베이커리 카페"]
+  },
+  {
+    id: "qna_chitchat_identity",
+    category: "DAILY_CHITCHAT",
+    targetCity: "all",
+    season: "all",
+    questionVariations: [
+      "너 누구야?",
+      "너 사람이야 AI야?",
+      "보라가 뭐야?",
+      "너 몇 살이야?",
+      "너 이름이 뭐야?",
+      "who are you"
+    ],
+    intentKeywords: ["누구야", "사람이야", "ai야", "보라가", "몇살", "이름이", "정체"],
+    geminiAnswer: {
+      ko: "저는 대한민국 전국 방방곡곡의 매력을 24시간 든든하게 안내해 드리는 한국 여행 전문 AI 요정 **VORA(보라)**예요! 🧚‍♀️ 보랏빛 설렘을 가득 담아, 여행자님께 가장 완벽한 여행을 선물해 드릴게요! 💜✨",
+      en: "I am **VORA**, your 24/7 dedicated AI Travel fairy specialized in South Korea! 🧚‍♀️ I am here to make every moment of your Korean journey smooth, exciting, and unforgettable! 💜✨"
+    },
+    followUp: "오늘 저와 함께 어떤 멋진 여행을 떠나보실까요? ✈️🌸",
+    suggestedChips: ["✨ 나만의 맞춤 여행 시작", "🗺️ 전국 인기 명소 구경", "💡 여행 꿀팁 물어보기"]
   }
 ];
