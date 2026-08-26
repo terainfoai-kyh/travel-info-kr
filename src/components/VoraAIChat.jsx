@@ -454,35 +454,6 @@ export default function VoraAIChat({
 
                   <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'break-word', fontSize: '0.86rem' }}>{msg.text}</div>
 
-                  {/* 🌟 완성된 일정이 포함된 경우: [ 📋 완성된 일정표 보기 (내 여행) ➔ ] 버튼 제공! */}
-                  {msg.itinerary && (
-                    <div style={{ marginTop: '0.85rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border-color)' }}>
-                      <button
-                        type="button"
-                        onClick={handleTimelineClick}
-                        style={{
-                          width: '100%',
-                          padding: '0.7rem 1rem',
-                          borderRadius: '12px',
-                          border: 'none',
-                          background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
-                          color: '#ffffff',
-                          fontSize: '0.86rem',
-                          fontWeight: 800,
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '0.4rem',
-                          boxShadow: '0 4px 14px rgba(37, 99, 235, 0.3)'
-                        }}
-                      >
-                        <span>📋</span>
-                        <span>{lang === 'en' ? 'View Complete Itinerary (My Trip) ➔' : '완성된 일정표 보기 (내 여행) ➔'}</span>
-                      </button>
-                    </div>
-                  )}
-
                   {/* 🏷️ KoreaTravel 정품 POI 추천 액션 카드 (부드러운 모바일 수평 스와이프) */}
                   {msg.recommendedPois && msg.recommendedPois.length > 0 && (
                     <div style={{ marginTop: '0.85rem', width: '100%' }}>
