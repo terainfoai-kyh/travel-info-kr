@@ -167,8 +167,9 @@ export function patchTravelState(prevState = INITIAL_TRAVEL_STATE, userPrompt = 
   }
 
   // 5. Door-to-Door Gateway & Hotel Area Extraction
-  let nextGateway = prevTrip.gateway || null;
-  let nextHotelArea = prevTrip.hotelArea || null;
+  const isCityChanged = Boolean(nextDestination && prevTrip.destination && (nextDestination !== prevTrip.destination));
+  let nextGateway = isCityChanged ? null : (prevTrip.gateway || null);
+  let nextHotelArea = isCityChanged ? null : (prevTrip.hotelArea || null);
 
   if (/(인천공항|인천국제공항|incheon)/i.test(clean)) { nextGateway = '인천국제공항'; hasNewCondition = true; }
   else if (/(김포공항|gimpo)/i.test(clean)) { nextGateway = '김포국제공항'; hasNewCondition = true; }
@@ -180,17 +181,21 @@ export function patchTravelState(prevState = INITIAL_TRAVEL_STATE, userPrompt = 
   else if (/(신경주역|경주역)/i.test(clean)) { nextGateway = '신경주역 KTX'; hasNewCondition = true; }
   else if (/(전주역)/i.test(clean)) { nextGateway = '전주역 KTX'; hasNewCondition = true; }
   else if (/(여수역|여수expo)/i.test(clean)) { nextGateway = '여수EXPO역 KTX'; hasNewCondition = true; }
+  else if (/(수원역)/i.test(clean)) { nextGateway = '수원역 KTX'; hasNewCondition = true; }
 
   if (/(명동|종로|myeongdong)/i.test(clean)) { nextHotelArea = '명동/종로'; hasNewCondition = true; }
   else if (/(홍대|마포|hongdae)/i.test(clean)) { nextHotelArea = '홍대/마포'; hasNewCondition = true; }
   else if (/(강남|잠실|gangnam)/i.test(clean)) { nextHotelArea = '강남/잠실'; hasNewCondition = true; }
-  else if (/(해운대|광안리|haeundae)/i.test(clean)) { nextHotelArea = '해운대/광안리'; hasNewCondition = true; }
+  else if (/(해운대|haeundae)/i.test(clean)) { nextHotelArea = '해운대'; hasNewCondition = true; }
+  else if (/(광안리|gwangalli)/i.test(clean)) { nextHotelArea = '광안리'; hasNewCondition = true; }
   else if (/(서면|전포|seomyeon)/i.test(clean)) { nextHotelArea = '서면/전포'; hasNewCondition = true; }
   else if (/(애월|협재|한림|aewol)/i.test(clean)) { nextHotelArea = '애월/협재'; hasNewCondition = true; }
   else if (/(서귀포|중문|seogwipo)/i.test(clean)) { nextHotelArea = '서귀포/중문'; hasNewCondition = true; }
   else if (/(경포대|안목|안목해변)/i.test(clean)) { nextHotelArea = '경포대/안목'; hasNewCondition = true; }
   else if (/(황리단길|대릉원)/i.test(clean)) { nextHotelArea = '황리단길/대릉원'; hasNewCondition = true; }
-  else if (/(한옥마을)/i.test(clean)) { nextHotelArea = '전주 한옥마을'; hasNewCondition = true; }
+  else if (/(한옥마을|객리단길)/i.test(clean)) { nextHotelArea = '전주 한옥마을'; hasNewCondition = true; }
+  else if (/(행궁동|화성행궁)/i.test(clean)) { nextHotelArea = '수원 행궁동'; hasNewCondition = true; }
+  else if (/(돌산|해양공원|이순신광장)/i.test(clean)) { nextHotelArea = '여수 돌산/해양공원'; hasNewCondition = true; }
 
   // 6. Season Extraction
   let nextSeason = prevTrip.season || null;
