@@ -363,14 +363,6 @@ export default function VoraAIChat({
           const isUser = msg.role === 'user';
 
           if (isUser) {
-            // 폼이나 추천 칩에서 넘어온 텍스트는 첫 화면을 극도로 깔끔하게 유지하기 위해 생략!
-            const isStructuredFormQuery = (msg.text.includes('여행') && (msg.text.includes('테마:') || msg.text.includes('박'))) ||
-                                          /(경복궁|성수|광안리|서귀포|행궁동|K-헤리티지|오션|힐링|힙플)/i.test(msg.text);
-
-            if (isStructuredFormQuery) {
-              return null; // 선택으로 유입된 데이터는 말풍선 생략하고 보라의 다정한 말풍선으로 바로 시작!
-            }
-
             return (
               <div
                 key={msg.id}
