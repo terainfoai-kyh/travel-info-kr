@@ -108,7 +108,14 @@ export default function AdminBatchModal({
       setBatchLogs(prev => [...prev, `⚠️ 모델 탐색 스킵: ${le.message}`]);
     }
 
-    const targetUrl = `https://generativelanguage.googleapis.com/v1beta/${activeModelPath}:generateContent?key=${encodeURIComponent(cleanKey)}`;
+    const fallbackModelNames = [
+      'models/gemini-2.5-flash-lite',
+      'models/gemini-3.7-flash',
+      'models/gemini-3.5-flash',
+      'models/gemini-3.1-flash-lite',
+      'models/gemini-flash-latest',
+      'models/gemini-pro-latest'
+    ];
 
     for (let i = 0; i < unansweredList.length; i++) {
       const q = unansweredList[i];
@@ -143,44 +150,51 @@ export default function AdminBatchModal({
   "suggestedChips": ["버튼1", "버튼2"]
 }`;
 
-      try {
-        const response = await fetch(targetUrl, {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'x-goog-api-key': cleanKey
-          },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: promptText }] }],
-            generationConfig: {
-              temperature: 0.2
-            }
-          })
-        });
+      let rawOutput = '';
+      let success = false;
 
-        if (!response.ok) {
-          const errTxt = await response.text();
-          setBatchLogs(prev => [...prev, `❌ [${response.status}] 오류: ${errTxt.slice(0, 150)}`]);
-          continue;
-        }
+      for (const mName of fallbackModelNames) {
+        try {
+          const targetUrl = `https://generativelanguage.googleapis.com/v1beta/${mName}:generateContent?key=${encodeURIComponent(cleanKey)}`;
+          const response = await fetch(targetUrl, {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'x-goog-api-key': cleanKey
+            },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: promptText }] }],
+              generationConfig: {
+                temperature: 0.2
+              }
+            })
+          });
 
-        const responseData = await response.json();
-        const rawOutput = responseData.candidates?.[0]?.content?.parts?.[0]?.text || '';
-        
-        // Clean markdown code fence if present (```json ... ```)
-        const cleanedJson = rawOutput.replace(/```json/gi, '').replace(/```/g, '').trim();
-        
-        if (cleanedJson) {
-          try {
-            const parsed = JSON.parse(cleanedJson);
-            newDistilled.push(parsed);
-            setBatchLogs(prev => [...prev, `✅ "${q.rawQuery}" ➔ 황금 Q&A 지식 생성 완료!`]);
-          } catch (pe) {
-            setBatchLogs(prev => [...prev, `⚠️ "${q.rawQuery}" JSON 파싱 오류: ${pe.message}`]);
+          if (response.ok) {
+            const responseData = await response.json();
+            rawOutput = responseData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            success = true;
+            break;
+          } else if (response.status === 503 || response.status === 429) {
+            // High demand on this model, immediately try next fast model!
+            continue;
           }
+        } catch (e) {
+          // Try next model
         }
-      } catch (e) {
-        setBatchLogs(prev => [...prev, `❌ "${q.rawQuery}" 통신 에러: ${e.message}`]);
+      }
+
+      if (success && rawOutput) {
+        const cleanedJson = rawOutput.replace(/```json/gi, '').replace(/```/g, '').trim();
+        try {
+          const parsed = JSON.parse(cleanedJson);
+          newDistilled.push(parsed);
+          setBatchLogs(prev => [...prev, `✅ "${q.rawQuery}" ➔ 황금 Q&A 지식 생성 완료!`]);
+        } catch (pe) {
+          setBatchLogs(prev => [...prev, `⚠️ "${q.rawQuery}" JSON 파싱 오류: ${pe.message}`]);
+        }
+      } else {
+        setBatchLogs(prev => [...prev, `⚠️ "${q.rawQuery}" 일시적 구글 트래픽 초과 (다음 턴에 재시도)`]);
       }
     }
 
