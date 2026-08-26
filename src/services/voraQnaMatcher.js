@@ -151,9 +151,9 @@ export function matchVoraQna(query = '', targetCity = null, context = {}, lang =
   const displayCity = targetCity || (lang === 'en' ? 'Korea' : '대한민국');
   const activeSeason = context.tripMemory?.season || (/(겨울|가을|봄|여름)/.test(clean) ? clean.match(/(겨울|가을|봄|여름)/)[1] : '사계절');
 
-  // 🛡️ 사용자 구체적 여행 조건 입력 (예: "오후 1시에 도착이고 숙소는 신라호텔이야", "13시 도착", "숙소는 롯데호텔")은 일반 Q&A 가로채기 방지!
-  const isTripConfigDirective = /(\d{1,2}시\s*도착|도착이고|도착이야|도착해서|숙소는|호텔은\s*.*(호텔|리조트|펜션|게하|게스트하우스|신라|롯데|하얏트|조선|힐튼|메리어트)|숙소는\s*.*(야|이야|으로|로|잡았어|예약|해줘)|제공항|제주공항|김포공항|인천공항|부산역|서울역)/i.test(clean);
-  if (isTripConfigDirective && /(도착|숙소는|호텔은|출발|일정|코스)/.test(clean)) {
+  // 🛡️ 사용자 구체적 여행 조건 입력 (예: "2박 3일 커플 여행, 테마: 맛집, 카페", "도착이고", "숙소는")은 일반 Q&A 가로채기 100% 방지!
+  const isTripConfigDirective = /(\d+\s*박|\d+\s*일|당일치기|커플\s*여행|가족\s*여행|친구\s*여행|혼자\s*여행|테마:\s*|\d{1,2}시\s*도착|도착이고|도착이야|도착해서|숙소는|호텔은|제공항|제주공항|김포공항|인천공항|부산역|서울역)/i.test(clean);
+  if (isTripConfigDirective) {
     return null;
   }
 
