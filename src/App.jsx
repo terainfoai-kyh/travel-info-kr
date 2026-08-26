@@ -31,6 +31,7 @@ import ContactUsModal from './components/ContactUsModal';
 import PWAInstallBanner from './components/PWAInstallBanner';
 import RewardedAdModal from './components/RewardedAdModal';
 import GoogleAuthModal from './components/GoogleAuthModal';
+import AdminBatchModal from './components/AdminBatchModal';
 import BottomNav from './components/BottomNav';
 import FullMapTab from './components/FullMapTab';
 import MoreTabSection from './components/MoreTabSection';
@@ -232,6 +233,7 @@ export default function App() {
   const [isContactOpen, setIsContactOpen] = useState(false);
   const [isRewardedAdOpen, setIsRewardedAdOpen] = useState(false);
   const [isGoogleAuthOpen, setIsGoogleAuthOpen] = useState(false);
+  const [isAdminBatchOpen, setIsAdminBatchOpen] = useState(false);
   const [weatherCity, setWeatherCity] = useState('서울');
 
   // User Profile State (Google Logged In vs Guest)
@@ -884,6 +886,7 @@ export default function App() {
         onOpenAbout={() => setIsAboutOpen(true)}
         onOpenPrivacy={() => setIsPrivacyOpen(true)}
         onOpenTerms={() => setIsTermsOpen(true)}
+        onOpenAdminBatch={() => setIsAdminBatchOpen(true)}
       />
 
       {/* Main Container (모바일 5대 탭 전환 & PC 와이드 뷰 최적화) */}
@@ -1282,6 +1285,14 @@ export default function App() {
         isOpen={isGoogleAuthOpen}
         onClose={() => setIsGoogleAuthOpen(false)}
         onLoginSuccess={handleLoginSuccess}
+        currentUser={currentUser}
+        lang={lang}
+      />
+
+      {/* 🔒 Super Admin Batch Knowledge Center Modal */}
+      <AdminBatchModal
+        isOpen={isAdminBatchOpen}
+        onClose={() => setIsAdminBatchOpen(false)}
         currentUser={currentUser}
         lang={lang}
       />

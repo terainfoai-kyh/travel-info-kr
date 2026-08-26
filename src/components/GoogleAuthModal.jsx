@@ -12,22 +12,31 @@ export default function GoogleAuthModal({
   const [isLoading, setIsLoading] = useState(false);
   const [customName, setCustomName] = useState('');
 
+  const [customEmail, setCustomEmail] = useState('');
+
   if (!isOpen) return null;
 
-  const handleSimulatedGoogleLogin = (email = 'traveler@gmail.com', name = 'K-Traveler') => {
+  const handleSimulatedGoogleLogin = (email = 'titkyh@gmail.com', name = '영환 (Admin)') => {
     setIsLoading(true);
     setTimeout(() => {
-      const finalName = customName.trim() || name;
+      const finalEmail = customEmail.trim() || email;
+      const finalName = customName.trim() || (finalEmail === 'titkyh@gmail.com' ? '영환 (Admin)' : name);
+      const isAdmin = finalEmail === 'titkyh@gmail.com' || finalEmail === 'terainfoai@gmail.com';
+      
       const userProfile = {
-        email: email,
+        email: finalEmail,
         name: finalName,
         picture: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
         isGoogleLoggedIn: true,
+        isAdmin,
         loginTime: new Date().toISOString()
       };
 
       try {
         localStorage.setItem('vora_user_profile', JSON.stringify(userProfile));
+        if (isAdmin) {
+          localStorage.setItem('vora_admin_mode', 'true');
+        }
       } catch (e) {}
 
       setIsLoading(false);
@@ -35,7 +44,7 @@ export default function GoogleAuthModal({
         onLoginSuccess(userProfile);
       }
       onClose();
-    }, 600);
+    }, 500);
   };
 
   return (

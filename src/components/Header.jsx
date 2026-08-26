@@ -53,7 +53,8 @@ export default function Header({
   targetCity = '서울',
   onOpenAbout,
   onOpenPrivacy,
-  onOpenTerms
+  onOpenTerms,
+  onOpenAdminBatch
 }) {
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -911,6 +912,47 @@ export default function Header({
                     {themeMode === 'light' ? 'OFF' : 'ON'}
                   </span>
                 </button>
+
+                {/* 🔒 99. SUPER ADMIN ONLY: Batch Knowledge Center */}
+                {(currentUser?.email === 'titkyh@gmail.com' || currentUser?.email === 'terainfoai@gmail.com' || currentUser?.isAdmin || (typeof window !== 'undefined' && localStorage.getItem('vora_admin_mode') === 'true')) && (
+                  <button
+                    onClick={() => {
+                      setIsMainMenuOpen(false);
+                      if (onOpenAdminBatch) onOpenAdminBatch();
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      width: '100%',
+                      padding: '0.65rem 0.85rem',
+                      border: '1px solid rgba(139, 92, 246, 0.4)',
+                      borderRadius: '14px',
+                      background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(59, 130, 246, 0.1))',
+                      color: 'var(--text-main)',
+                      fontWeight: 800,
+                      fontSize: '0.82rem',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      marginTop: '0.2rem'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                      <Sparkles size={16} style={{ color: '#8b5cf6' }} />
+                      <span>⚡ VORA AI 배치 지식 학습</span>
+                    </div>
+                    <span style={{
+                      fontSize: '0.65rem',
+                      backgroundColor: '#8b5cf6',
+                      color: '#ffffff',
+                      padding: '0.1rem 0.4rem',
+                      borderRadius: '6px',
+                      fontWeight: 900
+                    }}>
+                      ADMIN
+                    </span>
+                  </button>
+                )}
 
                 <div style={{ height: '1px', backgroundColor: 'var(--border-color)', margin: '0.2rem 0' }} />
 
