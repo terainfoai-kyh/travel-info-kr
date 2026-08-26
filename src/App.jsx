@@ -560,7 +560,14 @@ export default function App() {
       let briefingText = '';
       let quickSuggestions = [];
 
-      if (!targetCity) {
+      // 🌟 1. Check if external query is a Q&A knowledge question (e.g. "넌 누구니?", "호텔도 해주나?", "겨울복장은?")
+      const externalQnaMatch = matchVoraQna(promptQuery, targetCity, { tripMemory: updatedState.tripMemory }, lang);
+      if (externalQnaMatch) {
+        briefingText = externalQnaMatch.followUp 
+          ? `${externalQnaMatch.reply}\n\n👉 **${externalQnaMatch.followUp}**`
+          : externalQnaMatch.reply;
+        quickSuggestions = externalQnaMatch.suggestedChips || [];
+      } else if (!targetCity) {
         // 💡 도시 미지정 시: 서울로 강제하지 않고 어디로 가실지 친절하게 질문!
         briefingText = (lang === 'en')
           ? `💡 Feel free to ask anything, or tap [Create Itinerary Now] anytime!\n\n**[ ✈️ Korea Custom Travel ]**\nWhich city or region in Korea would you like to visit? 😊 (Tell me freely or tap a popular destination below!)`

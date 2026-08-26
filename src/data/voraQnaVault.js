@@ -841,13 +841,17 @@ export const VORA_QNA_VAULT = [
     season: "all",
     questionVariations: [
       "너 누구야?",
+      "넌 누구니?",
+      "넌누구니",
+      "넌 누구야",
       "너 사람이야 AI야?",
       "보라가 뭐야?",
       "너 몇 살이야?",
       "너 이름이 뭐야?",
+      "자기소개해줘",
       "who are you"
     ],
-    intentKeywords: ["누구야", "사람이야", "ai야", "보라가", "몇살", "이름이", "정체"],
+    intentKeywords: ["누구야", "누구니", "넌누구", "사람이야", "ai야", "보라가", "몇살", "이름이", "정체", "자기소개"],
     geminiAnswer: {
       ko: "저는 대한민국 전국 방방곡곡의 매력을 24시간 든든하게 안내해 드리는 한국 여행 전문 AI 요정 **VORA(보라)**예요! 🧚‍♀️ 보랏빛 설렘을 가득 담아, 여행자님께 가장 완벽한 여행을 선물해 드릴게요! 💜✨",
       en: "I am **VORA**, your 24/7 dedicated AI Travel fairy specialized in South Korea! 🧚‍♀️ I am here to make every moment of your Korean journey smooth, exciting, and unforgettable! 💜✨"
