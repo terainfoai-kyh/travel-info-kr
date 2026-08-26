@@ -687,28 +687,69 @@ export default function VoraAIChat({
                             key={ds.day}
                             style={{
                               display: 'flex',
-                              alignItems: 'baseline',
-                              gap: '0.4rem',
-                              fontSize: '0.78rem',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              gap: '0.5rem',
+                              fontSize: '0.8rem',
                               color: 'var(--text-main)',
-                              lineHeight: 1.45
+                              padding: '0.15rem 0'
                             }}
                           >
-                            <span style={{
-                              fontWeight: 800,
-                              color: '#2563eb',
-                              flexShrink: 0
-                            }}>
-                              📍 {t.dayBadge ? t.dayBadge(ds.day) : `${ds.day}일차`}
-                            </span>
-                            {cleanTheme && (
-                              <span style={{ fontWeight: 600, color: 'var(--text-main)' }}>
-                                {cleanTheme}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', overflow: 'hidden' }}>
+                              <span style={{
+                                fontWeight: 800,
+                                color: '#2563eb',
+                                flexShrink: 0
+                              }}>
+                                📍 {t.dayBadge ? t.dayBadge(ds.day) : `${ds.day}일차`}
                               </span>
-                            )}
+                              {cleanTheme && (
+                                <span style={{ fontWeight: 600, color: 'var(--text-main)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                  {cleanTheme}
+                                </span>
+                              )}
+                            </div>
+                            <span style={{
+                              fontSize: '0.7rem',
+                              fontWeight: 700,
+                              color: '#2563eb',
+                              backgroundColor: 'rgba(37, 99, 235, 0.08)',
+                              border: '1px solid rgba(37, 99, 235, 0.2)',
+                              padding: '0.12rem 0.45rem',
+                              borderRadius: '6px',
+                              flexShrink: 0,
+                              whiteSpace: 'nowrap'
+                            }}>
+                              ⏰ 09:00 ~ 18:00 ▾
+                            </span>
                           </div>
                         );
                       })}
+
+                      {/* 🚀 바로 일정표 보기 (기본 09:00~18:00) */}
+                      <button
+                        type="button"
+                        onClick={handleTimelineClick}
+                        style={{
+                          marginTop: '0.4rem',
+                          width: '100%',
+                          padding: '0.55rem 0.8rem',
+                          borderRadius: '10px',
+                          border: 'none',
+                          background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
+                          color: '#ffffff',
+                          fontSize: '0.82rem',
+                          fontWeight: 800,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.35rem',
+                          boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)'
+                        }}
+                      >
+                        <span>🚀 바로 일정표 보기 (기본 09:00~18:00) ➔</span>
+                      </button>
                     </div>
                   )}
                 </div>
