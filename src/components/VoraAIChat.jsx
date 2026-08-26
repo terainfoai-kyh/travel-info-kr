@@ -810,9 +810,12 @@ export default function VoraAIChat({
             rawBottomChips = [...(t.chatQuickModifications || [])];
           }
         } else {
-          // 온보딩/도시 탐색 단계에서만 맨 앞에 [바로 일정 만들기] 노출
-          const hasCreateBtn = rawBottomChips.some(c => c.includes('일정 생성') || c.includes('바로 일정') || c.includes('일정표 만들기') || c.includes('일정 짜줘') || c.includes('Create Plan') || c.includes('Generate Itinerary'));
-          if (!hasCreateBtn) {
+          // 온보딩/도시 탐색 단계: [바로 일정 만들기]를 무조건 맨 앞(Index 0)으로 최우선 배치!
+          const createBtnIdx = rawBottomChips.findIndex(c => c.includes('일정 생성') || c.includes('바로 일정') || c.includes('일정표 만들기') || c.includes('일정 짜줘') || c.includes('Create Plan') || c.includes('Generate Itinerary'));
+          if (createBtnIdx > 0) {
+            const [btn] = rawBottomChips.splice(createBtnIdx, 1);
+            rawBottomChips.unshift(btn);
+          } else if (createBtnIdx === -1) {
             rawBottomChips.unshift(defaultCreateLabel);
           }
         }
