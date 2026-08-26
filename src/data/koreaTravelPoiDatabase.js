@@ -390,6 +390,98 @@ export const KOREA_TRAVEL_POI_DB = [
     lng: 126.3470,
     tags: ['실내', '비오는날', '미디어아트', '인생샷', '데이트', '키즈'],
     summary: '빛과 소리로 빚어낸 영원한 자연의 장관을 온몸으로 체험하는 몰입형 미디어아트 전시관'
+  },
+  // ── 수원 ──
+  {
+    id: 'kt_sw_hwaseong',
+    title: '수원화성 & 방화수류정',
+    region: '경기',
+    city: '수원',
+    category: '랜드마크',
+    theme: '성곽길/피크닉/야경',
+    duration: 120,
+    rating: 4.9,
+    image: 'https://tong.visitkorea.or.kr/cms/resource/66/2612066_image2_1.jpg',
+    lat: 37.2873,
+    lng: 127.0119,
+    tags: ['유네스코', '성곽길', '피크닉', '야경', '방화수류정'],
+    summary: '조선 정조의 꿈이 깃든 유네스코 세계문화유산 성곽길과 용연 연못의 황홀한 야경'
+  },
+  {
+    id: 'kt_sw_haengnidan',
+    title: '행리단길 감성 카페거리',
+    region: '경기',
+    city: '수원',
+    category: '핫플',
+    theme: '한옥카페/베이커리/미식',
+    duration: 90,
+    rating: 4.8,
+    image: 'https://tong.visitkorea.or.kr/cms/resource/88/4095788_image2_1.jpg',
+    lat: 37.2835,
+    lng: 127.0142,
+    tags: ['카페', '맛집', '데이트', '인생샷', '행리단길'],
+    summary: '성곽을 따라 펼쳐진 개성 넘치는 한옥 카페, 감성 소품샵, 줄 서는 트렌디 맛집 골목'
+  },
+  {
+    id: 'kt_sw_chicken_street',
+    title: '수원 통닭거리 & 왕갈비 맛집',
+    region: '경기',
+    city: '수원',
+    category: '맛집',
+    theme: '가마솥통닭/수원왕갈비',
+    duration: 80,
+    rating: 4.8,
+    image: 'https://tong.visitkorea.or.kr/cms/resource/84/2612084_image2_1.jpg',
+    lat: 37.2789,
+    lng: 127.0182,
+    tags: ['맛집', '미식', '통닭거리', '왕갈비', '로컬미식'],
+    summary: '가마솥에 튀겨낸 바삭한 원조 통닭과 육즙 가득한 숯불 수원 왕갈비를 맛보는 미식 성지'
+  },
+  // ── 창원 / 마산 / 진해 ──
+  {
+    id: 'kt_cw_yongji_lake',
+    title: '용지호수공원 & 무빙보트',
+    region: '경남',
+    city: '창원',
+    category: '힐링',
+    theme: '호수공원/음악분수/야경',
+    duration: 90,
+    rating: 4.8,
+    image: 'https://tong.visitkorea.or.kr/cms/resource/88/4095788_image2_1.jpg',
+    lat: 35.2289,
+    lng: 128.6812,
+    tags: ['호수', '야경', '힐링', '산책', '가족', '아이동반'],
+    summary: '도심 속 푸른 호수와 화려한 레이저 음악분수, 무빙보트 체험이 어우러진 창원 대표 쉼터'
+  },
+  {
+    id: 'kt_cw_masan_market',
+    title: '마산어시장 & 아구찜거리',
+    region: '경남',
+    city: '창원',
+    category: '맛집',
+    theme: '수산시장/원조아구찜',
+    duration: 90,
+    rating: 4.7,
+    image: 'https://tong.visitkorea.or.kr/cms/resource/84/2612084_image2_1.jpg',
+    lat: 35.2045,
+    lng: 128.5789,
+    tags: ['맛집', '미식', '수산시장', '아구찜', '로컬미식'],
+    summary: '250년 역사를 자랑하는 동남권 최대 수산시장과 매콤달콤 원조 마산 아구찜의 깊은 풍미'
+  },
+  {
+    id: 'kt_cw_jinhae_cherry',
+    title: '진해 여좌천 로망스다리',
+    region: '경남',
+    city: '창원',
+    category: '핫플',
+    theme: '벚꽃명소/포토존/산책',
+    duration: 80,
+    rating: 4.9,
+    image: 'https://tong.visitkorea.or.kr/cms/resource/17/3521017_image2_1.jpg',
+    lat: 35.1534,
+    lng: 128.6601,
+    tags: ['벚꽃', '포토존', '인생샷', '데이트', '산책'],
+    summary: '흐드러지게 핀 벚꽃 터널과 운치 있는 다리가 낭만을 더하는 전국 최고의 벚꽃 성지'
   }
 ];
 
@@ -402,6 +494,11 @@ export function findRecommendedPois(query = '', targetRegion = '', limit = 3) {
   if (regionClean.includes('거제')) regionClean = '거제';
   else if (regionClean.includes('제주') || regionClean.includes('서귀포')) regionClean = '제주';
   else if (regionClean.includes('부산')) regionClean = '부산';
+  else if (regionClean.includes('수원')) regionClean = '수원';
+  else if (regionClean.includes('창원') || regionClean.includes('마산') || regionClean.includes('진해')) regionClean = '창원';
+  else if (regionClean.includes('경주')) regionClean = '경주';
+  else if (regionClean.includes('전주')) regionClean = '전주';
+  else if (regionClean.includes('여수')) regionClean = '여수';
   else if (regionClean.includes('남해')) regionClean = '남해';
   else if (regionClean.includes('통영')) regionClean = '통영';
   else if (regionClean.includes('강릉') || regionClean.includes('속초') || regionClean.includes('양양')) regionClean = '강원';

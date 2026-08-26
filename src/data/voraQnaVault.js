@@ -657,13 +657,36 @@ export const VORA_QNA_VAULT = [
       "겨울철",
       "겨울"
     ],
-    intentKeywords: ["겨울", "12월", "1월", "2월", "겨울철", "눈"],
+    intentKeywords: ["겨울", "12월", "1월", "2월", "겨울철", "눈", "설경"],
     geminiAnswer: {
       ko: "눈부신 설경과 낭만이 가득한 **겨울철 {city:은/는}** 여행이시군요! ❄️ 혹시 몇 시쯤 어디(공항/터미널/KTX역)로 도착하시고, 숙소는 어디쯤이신가요? 😊",
       en: "Wonderful choice for a winter journey to **{city}**! ❄️ Around what time do you arrive, and where is your hotel stay located? 😊"
     },
     followUp: "도착 시간이나 숙소 위치를 말씀해 주시면 첫날부터 완벽한 동선으로 맞춰드릴게요! ✈️🏨",
-    suggestedChips: ["☀️ 오전 도착 (12:00 이전)", "🌤️ 오후 도착 (14:00~16:00)", "🌙 저녁/밤 도착 (18:00 이후)", "🚀 바로 일정 만들기"]
+    suggestedChips: ["☀️ 오전 도착 (12:00 이전)", "🌤️ 오후 도착 (14:00~16:00)", "🌙 저녁/밤 도착 (18:00 이후)", "🚀 이제 일정 짜줘"]
+  },
+  {
+    id: "qna_fragment_autumn_only",
+    category: "SLOT_FRAGMENT",
+    targetCity: "all",
+    season: "autumn",
+    questionVariations: [
+      "가을에",
+      "9월에",
+      "10월에",
+      "11월에",
+      "가을 여행",
+      "단풍 여행",
+      "가을철",
+      "가을"
+    ],
+    intentKeywords: ["가을", "9월", "10월", "11월", "가을철", "단풍", "억새", "핑크뮬리"],
+    geminiAnswer: {
+      ko: "청명한 하늘과 붉은 단풍이 아름다운 **가을철 {city:은/는}** 여행이시군요! 🍁 혹시 몇 시쯤 어디(공항/터미널/KTX역)로 도착하시고, 숙소는 어디쯤이신가요? 😊",
+      en: "Wonderful choice for a crisp autumn trip to **{city}**! 🍁 Around what time do you arrive, and where is your hotel stay located? 😊"
+    },
+    followUp: "도착 시간이나 숙소 위치를 말씀해 주시면 첫날부터 완벽한 동선으로 맞춰드릴게요! ✈️🏨",
+    suggestedChips: ["☀️ 오전 도착 (12:00 이전)", "🌤️ 오후 도착 (14:00~16:00)", "🌙 저녁/밤 도착 (18:00 이후)", "🚀 이제 일정 짜줘"]
   },
   {
     id: "qna_fragment_companion_only",

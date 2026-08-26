@@ -582,7 +582,15 @@ export function generateContextualAdvice(context, lang = 'ko') {
   const timeSlotLabel = context.timeSlotLabel || context.currentContext?.timeSlotLabel || '점심';
   const multiCity = context.multiCity;
   const cityInfo = CITY_LOCAL_KNOWLEDGE[targetCity] || CITY_LOCAL_KNOWLEDGE['서울'];
-  const season = context.tripMemory?.season || (/(겨울|가을|봄|여름)/.test(cleanPrompt) ? cleanPrompt.match(/(겨울|가을|봄|여름)/)[1] : null);
+  const seasonMatch = cleanPrompt.match(/(겨울|가을|봄|여름|[0-9]+월)/);
+  let season = context.tripMemory?.season || null;
+  if (seasonMatch) {
+    const raw = seasonMatch[1];
+    if (raw === '12월' || raw === '1월' || raw === '2월' || raw === '겨울') season = '겨울';
+    else if (raw === '9월' || raw === '10월' || raw === '11월' || raw === '가을') season = '가을';
+    else if (raw === '3월' || raw === '4월' || raw === '5월' || raw === '봄') season = '봄';
+    else if (raw === '6월' || raw === '7월' || raw === '8월' || raw === '여름') season = '여름';
+  }
 
   // 1. Primary High-Speed Q&A Knowledge Vault Matcher (Golden Distilled AI Intelligence)
   const qnaMatch = matchVoraQna(cleanPrompt, targetCity, context, lang);
@@ -600,17 +608,17 @@ export function generateContextualAdvice(context, lang = 'ko') {
   }
 
   // 2. Door-to-Door Interactive Flow Check (공항/숙소/도착시간/계절 연계)
-  const isGatewayOrHotelMentioned = /(공항|ktx|터미널|숙소|호텔|강남|명동|홍대|해운대|서면|애월|서귀포|바람의언덕|매미성)/i.test(cleanPrompt) || Boolean(context.tripMemory?.gateway || context.tripMemory?.hotelArea);
+  const isGatewayOrHotelMentioned = /(공항|ktx|터미널|강남|명동|홍대|해운대|서면|애월|서귀포|바람의언덕|매미성)/i.test(cleanPrompt) || Boolean(context.tripMemory?.gateway || context.tripMemory?.hotelArea);
   const isTimeMentioned = /(오전|오후|저녁|밤|도착|[0-9]+시)/i.test(cleanPrompt) || Boolean(context.tripMemory?.arrivalTime);
 
   // 2-1. Season / Month specified without gateway/time/hotel
   const isSeasonOrMonthOnly = /(겨울|가을|봄|여름|[0-9]+월)/.test(cleanPrompt) && !isGatewayOrHotelMentioned && !isTimeMentioned && !/(복장|뭐\s*입|뭘\s*입|옷|패션|코디)/.test(cleanPrompt);
   if (isSeasonOrMonthOnly) {
-    const seasonName = season || '겨울';
+    const seasonName = season || '가을';
     const targetLabel = targetCity ? `${targetCity}` : '대한민국';
     return (lang === 'en')
-      ? `Wonderful choice for a **${seasonName}** trip to **${targetLabel}**! ❄️ What time do you arrive, and where is your hotel? 😊`
-      : `운치 있는 **${seasonName}철 ${targetLabel}** 여행이시군요! ❄️ 혹시 몇 시쯤 어디(공항/터미널/KTX역)로 도착하시고 숙소는 어디쯤이신가요? ✈️🏨`;
+      ? `Wonderful choice for a **${seasonName}** trip to **${targetLabel}**! 🍁 What time do you arrive, and where is your hotel? 😊`
+      : `운치 있는 **${seasonName}철 ${targetLabel}** 여행이시군요! 🍁 혹시 몇 시쯤 어디(공항/터미널/KTX역)로 도착하시고 숙소는 어디쯤이신가요? ✈️🏨`;
   }
 
   if (isGatewayOrHotelMentioned && !context.tripMemory?.arrivalTime && !isTimeMentioned) {
@@ -624,83 +632,66 @@ export function generateContextualAdvice(context, lang = 'ko') {
 
   if (isTimeMentioned || (isGatewayOrHotelMentioned && context.tripMemory?.arrivalTime)) {
     const arrTime = context.tripMemory?.arrivalTime || '오후';
-    const hotel = context.tripMemory?.hotelArea || (targetCity === '거제' ? '거제 숙소' : targetCity === '부산' ? '해운대 숙소' : targetCity === '제주' ? '제주 숙소' : '숙소');
+    const hotel = context.tripMemory?.hotelArea || (targetCity ? `${targetCity} 숙소` : '숙소');
     const gw = context.tripMemory?.gateway || (targetCity === '거제' ? '거제터미널' : targetCity === '부산' ? '김해공항' : targetCity === '제주' ? '제주공항' : '인천국제공항');
     const seasonPrefix = season ? `${season}철 ` : '';
 
-    if (hotel.includes('강남') || targetCity === '서울') {
-      if (arrTime === '오전') {
-        return (lang === 'en')
-          ? `${seasonPrefix}Morning arrival: **${gw}** ➔ **${hotel}** luggage drop ➔ **[Gyeongbokgung & Bukchon Hanok]** afternoon course. Shall I prepare this itinerary for you? 👑✨`
-          : `${seasonPrefix}**${gw}** ➔ **${hotel}** 짐 보관 후 **[경복궁 & 북촌 한옥마을]** 산뜻한 오후 코스로 잡아드릴까요? 👑❄️`;
-      } else if (arrTime === '저녁') {
-        return (lang === 'en')
-          ? `${seasonPrefix}Evening arrival: Check-in at **${hotel}** ➔ **[Gangnam / Myeongdong Night Food & City Lights]** course. Shall I prepare this itinerary for you? 🗼✨`
-          : `${seasonPrefix}**${gw}** ➔ **${hotel}** 체크인 후 **[강남 가로수길 미식 & 코엑스 별마당 야경]** 따뜻한 저녁 코스로 잡아드릴까요? 🗼✨`;
-      } else {
-        return (lang === 'en')
-          ? `${seasonPrefix}Afternoon arrival: **${gw}** ➔ **${hotel}** luggage drop ➔ **[Coex Starfield Library & Bongeunsa Winter Stroll]** course. Shall I prepare this itinerary for you? 🧳✨`
-          : `${seasonPrefix}**${gw}** ➔ **${hotel}** 짐 보관 후 **[코엑스 별마당도서관 & 봉은사 설경 산책]** 오후 코스로 딱 잡아드릴까요? ❄️🧳`;
-      }
+    const cityLabel = targetCity || '한국';
+    if (arrTime === '오전') {
+      return (lang === 'en')
+        ? `${seasonPrefix}Morning arrival: **${gw}** ➔ **${hotel}** luggage drop ➔ **[${cityLabel} signature landmarks & local lunch]** course. Shall I prepare this itinerary for you? 👑✨`
+        : `${seasonPrefix}**${gw}** ➔ **${hotel}** 짐 보관 후 **[${cityLabel} 대표 명소 & 로컬 미식]** 산뜻한 오후 코스로 잡아드릴까요? 👑✨`;
+    } else if (arrTime === '저녁') {
+      return (lang === 'en')
+        ? `${seasonPrefix}Evening arrival: Check-in at **${hotel}** ➔ **[${cityLabel} romantic night view & dinner]** course. Shall I prepare this itinerary for you? 🗼✨`
+        : `${seasonPrefix}**${gw}** ➔ **${hotel}** 체크인 후 **[${cityLabel} 로맨틱 야경 & 제철 미식 만찬]** 코스로 잡아드릴까요? 🗼✨`;
     } else {
-      // 부산, 제주, 거제 등 타 지역 맞춤 제안
-      const cityLabel = targetCity || '한국';
-      if (arrTime === '오전') {
-        return (lang === 'en')
-          ? `${seasonPrefix}Morning arrival: **${gw}** ➔ **${hotel}** luggage drop ➔ **[${cityLabel} signature landmarks & local lunch]** course. Shall I prepare this itinerary for you? 👑✨`
-          : `${seasonPrefix}**${gw}** ➔ **${hotel}** 짐 보관 후 **[${cityLabel} 대표 명소 & 로컬 미식]** 산뜻한 오후 코스로 잡아드릴까요? 👑✨`;
-      } else if (arrTime === '저녁') {
-        return (lang === 'en')
-          ? `${seasonPrefix}Evening arrival: Check-in at **${hotel}** ➔ **[${cityLabel} romantic night view & dinner]** course. Shall I prepare this itinerary for you? 🗼✨`
-          : `${seasonPrefix}**${gw}** ➔ **${hotel}** 체크인 후 **[${cityLabel} 로맨틱 야경 & 제철 미식 만찬]** 코스로 잡아드릴까요? 🗼✨`;
-      } else {
-        return (lang === 'en')
-          ? `${seasonPrefix}Afternoon arrival: **${gw}** ➔ **${hotel}** luggage drop ➔ **[${cityLabel} highlight afternoon stroll]** course. Shall I prepare this itinerary for you? 🧳✨`
-          : `${seasonPrefix}**${gw}** ➔ **${hotel}** 짐 보관 후 **[${cityLabel} 핵심 힐링 & 오후 티타임]** 코스로 딱 잡아드릴까요? 🧳✨`;
-      }
+      return (lang === 'en')
+        ? `${seasonPrefix}Afternoon arrival: **${gw}** ➔ **${hotel}** luggage drop ➔ **[${cityLabel} highlight afternoon stroll]** course. Shall I prepare this itinerary for you? 🧳✨`
+        : `${seasonPrefix}**${gw}** ➔ **${hotel}** 짐 보관 후 **[${cityLabel} 핵심 힐링 & 오후 티타임]** 코스로 딱 잡아드릴까요? 🧳✨`;
     }
   }
 
-  // 3. Standard Scenario Knowledge Resolution (Crisp 1~2 lines proposal)
-  const isKids = context.tripMemory?.companion?.isKids || /(아이|애기|키즈|유모차|어린이|자녀|초등)/i.test(cleanPrompt);
-  const isElder = context.tripMemory?.companion?.isElder || /(부모님|어르신|할머니|할아버지|엄마|아빠|시니어)/i.test(cleanPrompt);
-  const isRain = context.tripMemory?.isRainPreferred || /(비|우천|비오|폭우|실내|비오는)/i.test(cleanPrompt);
-  const isMinimalWalking = context.tripMemory?.preferences?.isMinimalWalking || /(덜\s*걷|안\s*걷|다리|편안|무릎|걷기\s*싫)/i.test(cleanPrompt);
-  const isSolo = context.tripMemory?.companion?.isSolo || /(혼자|나홀로|솔로|혼행)/i.test(cleanPrompt);
-  const isFoodie = context.tripMemory?.preferences?.isFoodie || /(배고파|맛집|미식|먹방|식사|밥)/i.test(cleanPrompt);
+  // 3. Prompt-Specific Scenario Matching (Only triggers when the CURRENT prompt explicitly asks for it!)
+  const isPromptKids = /(아이|애기|키즈|유모차|어린이|자녀|초등)/i.test(cleanPrompt);
+  const isPromptElder = /(부모님|어르신|할머니|할아버지|엄마|아빠|시니어)/i.test(cleanPrompt);
+  const isPromptRain = /(비|우천|비오|폭우|실내|비오는)/i.test(cleanPrompt);
+  const isPromptWalking = /(덜\s*걷|안\s*걷|다리\s*아|편안|무릎|걷기\s*싫)/i.test(cleanPrompt);
+  const isPromptSolo = /(혼자|나홀로|솔로|혼행)/i.test(cleanPrompt);
+  const isPromptFoodie = /(배고파|맛집|미식|먹방|식사|밥|뭐\s*먹)/i.test(cleanPrompt);
 
   if (multiCity && multiCity.isMultiCity) {
     return (lang === 'en')
       ? `Shall I craft a seamless multi-city itinerary for **[${multiCity.combinedLabel}] ${multiCity.totalDays} Days**? 🚅✨`
       : `**[${multiCity.combinedLabel}] ${multiCity.totalDays}일 연계 코스**를 광역 교통 최적 동선으로 시원하게 잡아드릴까요? 🚅✨`;
   }
-  if (isKids) {
+  if (isPromptKids) {
     return (lang === 'en')
       ? `Shall I tailor a stroller-friendly itinerary featuring hands-on interactive experiences, aquariums & spacious parks for kids? 👨‍👩‍👧‍👦🎈`
       : `아이와 함께 편하게 이동할 수 있는 **오감 체험·아쿠아리움·넓은 잔디마당** 중심의 안심 코스로 잡아드릴까요? 👨‍👩‍👧‍👦🎈`;
   }
-  if (isElder || isMinimalWalking) {
+  if (isPromptElder || isPromptWalking) {
     return (lang === 'en')
       ? `Shall I prepare a gentle, step-free itinerary focusing on scenic cable cars, flat walking trails & panoramic cafes? 😊🌿`
       : `부모님과 함께 계단 없이 편안한 **케이블카·평지 산책로·전망 카페** 위주 안심 코스로 잡아드릴까요? 😊🌿`;
   }
-  if (isRain) {
+  if (isPromptRain) {
     return (lang === 'en')
       ? `Shall I craft an indoor itinerary with mesmerizing media art, indoor aquariums & ocean-view cafes? ☔☕✨`
       : `비 한 방울 안 맞는 **환상적인 몰입형 미디어아트 & 실내 수족관·오션뷰 카페** 코스로 잡아드릴까요? ☔☕✨`;
   }
-  if (isSolo) {
+  if (isPromptSolo) {
     return (lang === 'en')
       ? `Shall I design a peaceful solo journey with tranquil walking paths, indie bookstores & cozy cafes? 🎧🌿`
       : `혼자만의 여유로운 사색을 위한 **고즈넉한 산책길 & 감성 독립서점·힐링 카페** 코스로 잡아드릴까요? 🎧🌿`;
   }
-  if (isFoodie) {
+  if (isPromptFoodie) {
     return (lang === 'en')
       ? `Shall I tailor a delicious local foodie trail with authentic, highly-rated local restaurants? 🍴🤤`
       : `현지인들이 줄 서는 **착한 가격의 찐 맛집 & 로컬 미식 투어** 코스로 맞춰드릴까요? 🍴🤤`;
   }
 
-  // 4. 오타, 모호한 문장, 미인식 입력 시 센스 있는 지능형 재질문 (서울 강제 단정 100% 제거)
+  // 4. 오타, 모호한 문장, 미인식 입력 시 센스 있는 지능형 재질문 (절대 이전 상태를 앵무새처럼 반복하지 않음!)
   if (targetCity) {
     return (lang === 'en')
       ? `Could you tell me a little more detail so I can tailor your **${targetCity}** itinerary perfectly? 😊 (e.g. cafe tour, local foodie, relaxing course)`
@@ -708,6 +699,7 @@ export function generateContextualAdvice(context, lang = 'ko') {
   }
 
   return (lang === 'en')
-    ? `Could you tell me which city in Korea (Seoul, Busan, Jeju, Geoje, etc.) you'd like to visit, or what you're curious about? 🌸✨`
-    : `말씀해 주신 내용을 조금만 더 자세히 알려주실 수 있나요? 🥺 가고 싶으신 도시(서울, 부산, 제주, 거제 등)나 궁금하신 점을 편하게 말씀해 주세요! 🌸✨`;
+    ? `Could you tell me which city in Korea (Seoul, Busan, Jeju, Geoje, Suwon, Changwon, Gangneung, etc.) you'd like to visit, or what you're curious about? 🌸✨`
+    : `말씀해 주신 내용을 조금만 더 자세히 알려주실 수 있나요? 🥺 가고 싶으신 도시(서울, 부산, 제주, 거제, 수원, 창원, 강릉 등)나 궁금하신 점을 편하게 말씀해 주세요! 🌸✨`;
+}
 }
