@@ -574,21 +574,31 @@ export default function App() {
           : externalQnaMatch.reply;
         quickSuggestions = externalQnaMatch.suggestedChips || [];
       } else if (!targetCity) {
-        // 💡 도시 미지정 시: 서울로 강제하지 않고 어디로 가실지 친절하게 질문!
-        briefingText = (lang === 'en')
-          ? `💡 Feel free to ask anything, or tap [Create Itinerary Now] anytime!\n\n**[ ✈️ Korea Custom Travel ]**\nWhich city or region in Korea would you like to visit? 😊 (Tell me freely or tap a popular destination below!)`
-          : `💡 편하게 물어보시고, 언제든 '좋아' 또는 [바로 일정 만들기]를 누르시면 완성해 드려요!\n\n**[ ✈️ 대한민국 맞춤 여행 ]**\n어느 도시나 지역으로 떠나고 싶으신가요? 😊 (가고 싶은 곳을 말씀해 주시거나 아래 추천 도시를 선택해 주세요!)`;
+        // 💡 도시 미지정 시: 선택된 조건(기간, 동행, 테마)을 멋지게 요약하고 도시만 깔끔하게 대화로 질문!
+        const companionMatch = promptQuery.match(/(커플|혼자|가족|친구|아이와 함께|아이|부모님|어르신|시니어)/);
+        const companionText = companionMatch ? companionMatch[1] : '';
+        const themeMatch = promptQuery.match(/테마:\s*([^,]+(?:,\s*[^,]+)*?)(?=, 요구사항:|$)/);
+        const themeText = themeMatch ? themeMatch[1].trim() : '';
 
-        quickSuggestions = [
-          '👑 서울',
-          '🌊 부산',
-          '🌴 제주',
-          '🏖️ 거제/통영',
-          '☕ 강릉/속초',
-          '🏛️ 경주',
-          '🏮 전주',
-          '🌃 여수'
-        ];
+        const daysPrefix = rawDays ? (rawDays === 1 ? '당일치기' : `${rawDays - 1}박 ${rawDays}일`) : '';
+        let tagParts = [];
+        if (daysPrefix) tagParts.push(daysPrefix);
+        if (companionText) tagParts.push(`${companionText} 여행`);
+        if (themeText) tagParts.push(themeText);
+
+        const summaryTag = tagParts.length > 0 ? tagParts.join(' · ') : (lang === 'en' ? 'Korea Custom Travel' : '대한민국 맞춤 여행');
+
+        if (tagParts.length > 0) {
+          briefingText = (lang === 'en')
+            ? `✨ **[ ✈️ ${summaryTag} ]**\nI've prepared your preferences for **${summaryTag}**! 💕\n\n👉 **Which city or region would you like to visit?**\n*(Tell me freely like Jeju, Busan, Gangneung, Seoul, Wonju, Gyeongju, etc.! 😊)*`
+            : `✨ **[ ✈️ ${summaryTag} ]**\n선택하신 **${summaryTag}**에 맞춘 황금 동선을 준비하고 있어요! 💕\n\n👉 **어느 도시나 지역으로 떠나고 싶으신가요?**\n*(제주, 부산, 강릉, 원주, 경주 등 가고 싶은 곳을 편하게 말씀해 주세요! 😊)*`;
+        } else {
+          briefingText = (lang === 'en')
+            ? `💡 Feel free to ask anything, or tell me where you want to go!\n\n**[ ✈️ Korea Custom Travel ]**\nWhich city or region in Korea would you like to visit? 😊 (e.g. Jeju, Busan, Seoul, Gangneung, Wonju)`
+            : `💡 편하게 물어보시고, 가고 싶은 곳을 말씀해 주세요!\n\n**[ ✈️ 대한민국 맞춤 여행 ]**\n어느 도시나 지역으로 떠나고 싶으신가요? 😊 (제주, 부산, 강릉, 서울, 원주 등 편하게 말씀해 주세요!)`;
+        }
+
+        quickSuggestions = [];
       } else {
         // 💡 도시 지정 시: 해당 도시 맞춤 브리핑 & 관문 칩 제공
         const companionMatch = promptQuery.match(/(커플|혼자|가족|친구|아이와 함께|아이|부모님|어르신|시니어)/);

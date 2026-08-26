@@ -67,7 +67,13 @@ export default function AIPlannerTab({
     { id: 'suwon', name: lang === 'en' ? 'Suwon' : lang === 'ja' ? '水原' : (lang === 'zh' || lang === 'zht') ? '水原' : '수원', val: '수원' }
   ];
 
-  const DAYS_OPTIONS = [1, 2, 3, 4, 5];
+  const DAYS_OPTIONS = [
+    { days: 1, labelKo: '당일치기', labelEn: '1 Day', labelJa: '日帰り', labelZh: '当天' },
+    { days: 2, labelKo: '1박 2일', labelEn: '1N 2D', labelJa: '1泊2日', labelZh: '1晚2天' },
+    { days: 3, labelKo: '2박 3일', labelEn: '2N 3D', labelJa: '2泊3日', labelZh: '2晚3天' },
+    { days: 4, labelKo: '3박 4일', labelEn: '3N 4D', labelJa: '3泊4日', labelZh: '3晚4天' },
+    { days: 5, labelKo: '4박 5일', labelEn: '4N 5D', labelJa: '4泊5日', labelZh: '4晚5天' }
+  ];
 
   const THEME_OPTIONS = [
     { id: 'food', label: lang === 'en' ? 'Foodie' : lang === 'ja' ? 'グルメ' : (lang === 'zh' || lang === 'zht') ? '美食' : '맛집', icon: Utensils, val: '맛집' },
@@ -102,7 +108,8 @@ export default function AIPlannerTab({
 
     // 자연어 프롬프트 조합 생성
     const destPrefix = destination.trim() ? `${destination.trim()} ` : '';
-    const combinedQuery = `${destPrefix}${selectedDays}박${selectedDays}일 ${selectedCompanion} 여행, 테마: ${selectedThemes.join(', ')}${customNote.trim() ? `, 요구사항: ${customNote.trim()}` : ''}`.trim();
+    const daysText = selectedDays === 1 ? '당일치기' : `${selectedDays - 1}박 ${selectedDays}일`;
+    const combinedQuery = `${destPrefix}${daysText} ${selectedCompanion} 여행, 테마: ${selectedThemes.join(', ')}${customNote.trim() ? `, 요구사항: ${customNote.trim()}` : ''}`.trim();
     
     // 2단계 대화 모드로 전환하고 일정 생성 요청
     setPlannerMode('chat');
@@ -334,24 +341,25 @@ export default function AIPlannerTab({
             <span>{lang === 'en' ? 'Duration' : '여행 기간'}</span>
           </label>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '0.3rem' }}>
-            {DAYS_OPTIONS.map((d) => (
+            {DAYS_OPTIONS.map((opt) => (
               <button
-                key={d}
+                key={opt.days}
                 type="button"
-                onClick={() => setSelectedDays(d)}
+                onClick={() => setSelectedDays(opt.days)}
                 style={{
-                  padding: '0.38rem 0.2rem',
+                  padding: '0.42rem 0.15rem',
                   borderRadius: '9px',
-                  border: selectedDays === d ? '1.5px solid #2563eb' : '1px solid var(--border-color)',
-                  backgroundColor: selectedDays === d ? '#2563eb' : 'var(--bg-glass)',
-                  color: selectedDays === d ? '#ffffff' : 'var(--text-main)',
-                  fontSize: '0.8rem',
+                  border: selectedDays === opt.days ? '1.5px solid #2563eb' : '1px solid var(--border-color)',
+                  backgroundColor: selectedDays === opt.days ? '#2563eb' : 'var(--bg-glass)',
+                  color: selectedDays === opt.days ? '#ffffff' : 'var(--text-main)',
+                  fontSize: '0.74rem',
                   fontWeight: 800,
                   cursor: 'pointer',
-                  boxShadow: selectedDays === d ? '0 3px 8px rgba(37, 99, 235, 0.3)' : 'none'
+                  boxShadow: selectedDays === opt.days ? '0 3px 8px rgba(37, 99, 235, 0.3)' : 'none',
+                  whiteSpace: 'nowrap'
                 }}
               >
-                {d}일
+                {lang === 'en' ? opt.labelEn : (lang === 'ja' ? opt.labelJa : ((lang === 'zh' || lang === 'zht') ? opt.labelZh : opt.labelKo))}
               </button>
             ))}
           </div>
