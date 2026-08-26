@@ -109,7 +109,6 @@ export default function AdminBatchModal({
     }
 
     const fallbackModelNames = [
-      'models/gemini-2.5-flash-lite',
       'models/gemini-3.1-flash-lite',
       'models/gemini-flash-lite-latest',
       'models/gemini-3.7-flash',
@@ -197,7 +196,19 @@ export default function AdminBatchModal({
     setDistilledResults(newDistilled);
     setBatchProgress(100);
     setIsRunningBatch(false);
-    setBatchLogs(prev => [...prev, `🎉 총 ${newDistilled.length}개 신규 지식 학습이 완료되었습니다!`]);
+
+    // 🧹 학습 완료된 질문들은 대기 큐에서 자동 비우기!
+    try {
+      localStorage.removeItem('vora_unanswered_qna');
+      setUnansweredList([]);
+
+      // 💾 새로 학습된 지식을 브라우저 볼트에 누적 저장!
+      const existingVault = JSON.parse(localStorage.getItem('vora_custom_qna_vault') || '[]');
+      const updatedVault = [...existingVault, ...newDistilled];
+      localStorage.setItem('vora_custom_qna_vault', JSON.stringify(updatedVault));
+    } catch (e) {}
+
+    setBatchLogs(prev => [...prev, `🎉 총 ${newDistilled.length}개 신규 지식 학습 완료 & 대기 큐 자동 정리 완료! ✨`]);
   };
 
   const handleCopyJson = () => {

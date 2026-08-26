@@ -109,10 +109,17 @@ export function matchVoraQna(query = '', targetCity = null, context = {}, lang =
   const displayCity = targetCity || (lang === 'en' ? 'Korea' : '대한민국');
   const activeSeason = context.tripMemory?.season || (/(겨울|가을|봄|여름)/.test(clean) ? clean.match(/(겨울|가을|봄|여름)/)[1] : '사계절');
 
-  let bestMatch = null;
-  let highestScore = 0;
+  let combinedVault = [...VORA_QNA_VAULT];
+  try {
+    if (typeof localStorage !== 'undefined') {
+      const customVault = JSON.parse(localStorage.getItem('vora_custom_qna_vault') || '[]');
+      if (Array.isArray(customVault) && customVault.length > 0) {
+        combinedVault = [...customVault, ...combinedVault];
+      }
+    }
+  } catch (e) {}
 
-  for (const item of VORA_QNA_VAULT) {
+  for (const item of combinedVault) {
     let score = 0;
 
     // 1. City Relevance Check
