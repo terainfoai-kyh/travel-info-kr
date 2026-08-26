@@ -625,6 +625,13 @@ export default function App() {
       }
 
       setTimeout(() => {
+        const userMsg = {
+          id: `user-init-${Date.now()}`,
+          role: 'user',
+          text: promptQuery,
+          queryTime,
+          timestamp: queryTime
+        };
         const botMsg = {
           id: `bot-briefing-${Date.now()}`,
           role: 'assistant',
@@ -635,7 +642,7 @@ export default function App() {
           replyTime,
           timestamp: replyTime
         };
-        setChatMessages([botMsg]);
+        setChatMessages([userMsg, botMsg]);
       }, 80);
       return;
     }
