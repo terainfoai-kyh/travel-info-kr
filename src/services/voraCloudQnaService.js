@@ -142,7 +142,34 @@ export async function fetchQuestionsFromCloud() {
 }
 
 /**
- * 🗑️ [개발자 보라 ➔ 중앙 클라우드 보라 DB] 제미나이 학습 머지 완료 후 서버 질문 큐 초기화
+ * 🗑️ [개발자 보라 ➔ 중앙 클라우드 보라 DB] 특정 미답변 질문 1건 개별 삭제
+ */
+export async function deleteQuestionFromCloud(rawQuery) {
+  if (!rawQuery) return;
+  const k = normKey(rawQuery);
+  try {
+    const res = await fetch(CLOUD_API_BASE);
+    if (res.ok) {
+      const data = await res.json();
+      const current = data.data?.unanswered || [];
+      const updated = current.filter(item => {
+        const q = item.rawQueryB64 ? base64ToUtf8(item.rawQueryB64) : (item.rawQuery || '');
+        return normKey(q) !== k;
+      });
+      await fetch(CLOUD_API_BASE, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: 'travelkorea_vora_global_master_vault_v1',
+          data: { unanswered: updated }
+        })
+      });
+    }
+  } catch (e) {}
+}
+
+/**
+ * 🗑️ [개발자 보라 ➔ 중앙 클라우드 보라 DB] 제미나이 학습 머지 완료 후 서버 질문 큐 전체 초기화
  */
 export async function clearQuestionsFromCloud() {
   try {

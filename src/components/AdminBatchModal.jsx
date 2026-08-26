@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Sparkles, Database, Play, CheckCircle2, Copy, Download, RefreshCw, Key, ShieldCheck, AlertCircle, Cloud, Smartphone } from 'lucide-react';
 import { getVoraQnaVault } from '../data/voraQnaVault';
 import { interpolateTemplate } from '../utils/koreanParticles';
-import { fetchQuestionsFromCloud, clearQuestionsFromCloud, publishKnowledgeToCloudMaster } from '../services/voraCloudQnaService';
+import { fetchQuestionsFromCloud, clearQuestionsFromCloud, deleteQuestionFromCloud, publishKnowledgeToCloudMaster } from '../services/voraCloudQnaService';
 
 export default function AdminBatchModal({
   isOpen,
@@ -103,8 +103,16 @@ export default function AdminBatchModal({
     setIsKeySaved(true);
   };
 
+  const handleDeleteUnansweredItem = (targetItem) => {
+    const targetQ = targetItem.rawQuery || targetItem.question;
+    deleteQuestionFromCloud(targetQ);
+    const updated = unansweredList.filter(item => (item.rawQuery || item.question) !== targetQ);
+    setUnansweredList(updated);
+    localStorage.setItem('vora_unanswered_qna', JSON.stringify(updated));
+  };
+
   const handleClearUnanswered = () => {
-    clearQuestionsFromCloud(unansweredList);
+    clearQuestionsFromCloud();
     localStorage.removeItem('vora_unanswered_qna');
     setUnansweredList([]);
   };
@@ -586,7 +594,7 @@ export default function AdminBatchModal({
                         </span>
                       )}
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexShrink: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0 }}>
                       {q.context?.companion && (
                         <span style={{ fontSize: '0.65rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', color: '#2563eb', padding: '0.1rem 0.35rem', borderRadius: '4px' }}>
                           {q.context.companion}
@@ -595,6 +603,30 @@ export default function AdminBatchModal({
                       <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700 }}>
                         {q.targetCity || q.context?.city || '전국'}
                       </span>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteUnansweredItem(q);
+                        }}
+                        title="이 질문 1건 삭제"
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#ef4444',
+                          fontSize: '0.72rem',
+                          cursor: 'pointer',
+                          padding: '0.15rem 0.3rem',
+                          borderRadius: '4px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          transition: 'background-color 0.15s ease'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                      >
+                        ❌
+                      </button>
                     </div>
                   </div>
                 ))
