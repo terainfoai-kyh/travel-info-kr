@@ -1177,6 +1177,10 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
     };
   };
 
+  const isHotelExcluded = /(호텔제외|숙소제외|호텔빼|숙소빼|호텔은\s*빼|숙소\s*빼|호텔\s*빼)/i.test(rawPrompt);
+  const isDayTrip = /(당일|원데이|day\s*trip)/i.test(rawPrompt);
+  const isGatewayExcluded = /(공항제외|역제외|도착제외)/i.test(rawPrompt);
+
   for (let d = 0; d < days; d++) {
     const dayNum = d + 1;
     const daySpots = [];
@@ -1193,16 +1197,22 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
 
     let spotsForDay = [];
 
-    // 🌟 1일차 도어투도어 적용 (공항/역 도착 + 호텔 짐 보관 + 오후 명소 + 저녁/야경)
-    if (isDoorToDoor && dayNum === 1) {
+    // 🌟 1일차: [KTX/공항 도착 - 당일치기/도착제외 아닐 시] + [호텔 짐보관 - 호텔 제외 아닐 시] + 관광 명소들
+    if (dayNum === 1) {
+      const day1Prefix = [];
+      if (!isGatewayExcluded && (!isDayTrip || /(부산역|서울역|공항|ktx)/i.test(rawPrompt))) {
+        day1Prefix.push(getGatewaySpot(city, true));
+      }
+      if (!isHotelExcluded && !isDayTrip) {
+        day1Prefix.push(getHotelLuggageSpot(hotelArea));
+      }
       spotsForDay = [
-        getGatewaySpot(city, true),
-        getHotelLuggageSpot(hotelArea),
+        ...day1Prefix,
         ...daySightseeingSpots
       ];
     }
-    // 🌟 마지막 날 도어투도어 적용 (명소 탐방 + 귀국 공항/역 출발)
-    else if (isDoorToDoor && dayNum === days) {
+    // 🌟 마지막 날: 관광 명소들 + [귀국 관문(공항/KTX) - 당일치기 아닐 시]
+    else if (dayNum === days && !isDayTrip && !isGatewayExcluded && days > 1) {
       spotsForDay = [
         ...daySightseeingSpots,
         getGatewaySpot(city, false)

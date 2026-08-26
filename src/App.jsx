@@ -747,10 +747,16 @@ export default function App() {
           const exItem = matchEx ? matchEx[1] : '해당 항목';
           if (exItem === '호텔' || exItem === '숙소') {
             updatedState.tripMemory.hotelArea = null;
+            updatedState.tripMemory.isHotelExcluded = true;
           }
+
+          const dayLabel = currentDays === 1 
+            ? (lang === 'en' ? 'Day Trip' : '당일치기 코스')
+            : (lang === 'en' ? `${currentDays}-Day Trip` : `${currentDays}일 알찬 핵심 코스`);
+
           chatText = (lang === 'en')
-            ? `✨ Got it! I have excluded **[${exItem}]** and optimized your itinerary for a smooth, focused day trip! 👉 Shall we generate the updated plan? 🚀`
-            : `✨ 알겠습니다! 요청하신 **[${exItem}]** 항목을 깔끔하게 제외하고 알찬 당일치기/핵심 코스로 재조율해 드릴게요! 👉 **이 조건으로 일정을 바로 뽑아드릴까요? 🚀**`;
+            ? `✨ Got it! I have excluded **[${exItem}]** and optimized your **【 ${displayCity} ${dayLabel} 】**! 👉 **Shall we generate the updated plan? 🚀**`
+            : `✨ 알겠습니다! 요청하신 **[${exItem}]** 항목을 깔끔하게 제외하고 **【 ${displayCity} ${dayLabel} 】**로 스마트하게 재조율해 드릴게요! 👉 **이 조건으로 일정을 바로 뽑아드릴까요? 🚀**`;
           quickButtons = [
             (lang === 'en' ? '🚀 일정 생성' : '🚀 일정 생성'),
             (lang === 'en' ? '🍴 Local Food Trails' : '🍴 현지인 맛집 코스'),
