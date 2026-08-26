@@ -702,4 +702,3 @@ export function generateContextualAdvice(context, lang = 'ko') {
     ? `Could you tell me which city in Korea (Seoul, Busan, Jeju, Geoje, Suwon, Changwon, Gangneung, etc.) you'd like to visit, or what you're curious about? 🌸✨`
     : `말씀해 주신 내용을 조금만 더 자세히 알려주실 수 있나요? 🥺 가고 싶으신 도시(서울, 부산, 제주, 거제, 수원, 창원, 강릉 등)나 궁금하신 점을 편하게 말씀해 주세요! 🌸✨`;
 }
-}
