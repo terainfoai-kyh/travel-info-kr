@@ -604,12 +604,12 @@ export default function App() {
         if (themeText) tagLabel += ` • 🍴 ${themeText}`;
         if (reqText) tagLabel += ` • ✍️ ${reqText}`;
 
-        const dynamicGatewayChips = getDynamicGatewayChips(targetCity, lang);
-        const durationChips = !rawDays
-          ? (lang === 'en'
-            ? ['🗓️ 2 Days 1 Night', '🗓️ 3 Days 2 Nights', '🗓️ 4 Days 3 Nights']
-            : ['🗓️ 1박 2일', '🗓️ 2박 3일', '🗓️ 3박 4일'])
-          : [];
+        const durationChips = [
+          (lang === 'en' ? '🗓️ 1 Day (Day Trip)' : '🗓️ 당일치기'),
+          (lang === 'en' ? '🗓️ 2 Days (1N2D)' : '🗓️ 1박 2일'),
+          (lang === 'en' ? '🗓️ 3 Days (2N3D)' : '🗓️ 2박 3일'),
+          (lang === 'en' ? '🗓️ 4 Days (3N4D)' : '🗓️ 3박 4일')
+        ];
 
         if (!rawDays) {
           briefingText = (lang === 'en')
@@ -622,7 +622,8 @@ export default function App() {
         }
 
         quickSuggestions = [
-          (lang === 'en' ? '🚀 Create Itinerary Now' : '🚀 바로 일정 만들기'),
+          (lang === 'en' ? `🚀 Create ${targetCity} ${rawDays || 3}D Plan` : `🚀 바로 ${targetCity} ${rawDays || 3}일 일정 만들기`),
+          ...durationChips,
           (lang === 'en' ? `🍴 ${targetCity} Foodies` : `🍴 ${targetCity} 대표 맛집 & 카페`),
           (lang === 'en' ? `📸 ${targetCity} Photo Spots` : `📸 ${targetCity} 인생샷 명소`),
           (lang === 'en' ? `🏨 ${targetCity} Top Hotels` : `🏨 ${targetCity} 인기 숙소 추천`)
@@ -717,8 +718,11 @@ export default function App() {
               (lang === 'en' ? '🏖️ Gangneung / Sokcho' : '🏖️ 강릉/속초')
             ]
           : [
-              (lang === 'en' ? `🚀 Generate ${displayCity} ${requestedDays}D Plan (09:00~18:00)` : `🚀 바로 ${displayCity} ${requestedDays}일 일정표 만들기`),
-              (lang === 'en' ? `🍴 ${displayCity} Signature Foodies` : `🍴 ${displayCity} 대표 맛집 & 카페`),
+              (lang === 'en' ? `🚀 Generate ${displayCity} ${requestedDays}D Plan` : `🚀 바로 ${displayCity} ${requestedDays}일 일정표 만들기`),
+              (lang === 'en' ? '🗓️ 1 Day' : '🗓️ 당일치기'),
+              (lang === 'en' ? '🗓️ 2 Days' : '🗓️ 1박 2일'),
+              (lang === 'en' ? '🗓️ 3 Days' : '🗓️ 2박 3일'),
+              (lang === 'en' ? `🍴 ${displayCity} Foodies` : `🍴 ${displayCity} 대표 맛집 & 카페`),
               (lang === 'en' ? `📸 ${displayCity} Best Photo Spots` : `📸 ${displayCity} 인생샷 핫플레이스`),
               (lang === 'en' ? `🏨 ${displayCity} Top Hotels` : `🏨 ${displayCity} 인기 호텔/숙소`)
             ];
