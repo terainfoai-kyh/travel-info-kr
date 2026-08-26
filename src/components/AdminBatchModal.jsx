@@ -597,7 +597,7 @@ export default function AdminBatchModal({
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0 }}>
                       {q.context?.companion && (
                         <span style={{ fontSize: '0.65rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', color: '#2563eb', padding: '0.1rem 0.35rem', borderRadius: '4px' }}>
-                          {q.context.companion}
+                          {typeof q.context.companion === 'object' ? (q.context.companion.type || '동행') : String(q.context.companion)}
                         </span>
                       )}
                       <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700 }}>
