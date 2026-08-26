@@ -11,7 +11,7 @@
  * ==============================================================================
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Header from './components/Header';
 import HeroSection from './components/HeroSection';
 import PortalHomePrototype from './components/PortalHomePrototype';
@@ -866,86 +866,82 @@ export default function App() {
     }
   };
 
-  const CHIP_FEEDBACK = {
-    kids: {
-      ko: '아이와 함께하는 안심 힐링 여행이시군요! 유모차가 편하고 아이들이 신나게 즐길 수 있는 키즈 맞춤 명소로 맞춰드릴게요 🎈✨',
-      en: 'Traveling with kids! I will focus on stroller-friendly paths and fun activities for children 🎈✨',
-      ja: 'お子様連れの安心旅行ですね！ベビーカーで移動しやすく子供が喜ぶスポットを中心に調整します 🎈✨',
-      zh: '亲子安心游！为您精选婴儿车推行方便、孩子们喜欢的趣味景点 🎈✨'
-    },
-    elder: {
-      ko: '부모님과 함께하는 효도 여행이시군요! 경사가 완만하고 편안한 명소와 정갈한 보양 한정식 위주로 조율해 드릴게요 🌿✨',
-      en: 'Traveling with parents! I will select gentle, scenic paths and comforting Korean gourmet dining 🌿✨',
-      ja: 'ご両親との旅行ですね！歩きやすく落ち着いた名所と体に優しい韓定食を中心にご案内します 🌿✨',
-      zh: '带父母长辈出行！为您安排平缓舒适的景点与养生韩定食美馔 🌿✨'
-    },
-    cafe: {
-      ko: '감성 가득한 로컬 카페 투어를 추가했어요! 탁 트인 뷰 맛집과 시그니처 디저트 명소로 챙겨드릴게요 ☕🍰',
-      en: 'Added trendy local cafes! I will include scenic cafe views and signature desserts ☕🍰',
-      ja: 'おしゃれなカフェ巡りを追加しました！景色の良いカフェと話題のデザート店をご用意します ☕🍰',
-      zh: '已添加氛围咖啡探店！精选海景/山景咖啡厅与招牌甜品店 ☕🍰'
-    },
-    foodie: {
-      ko: '현지인이 인정하는 찐 로컬 맛집 투어로 세팅했어요! 식도락 힐링을 듬뿍 담아드릴게요 🍲✨',
-      en: 'Set to authentic local gourmet! Get ready for delicious food discoveries 🍲✨',
-      ja: '地元で愛される本場のグルメツアーを設定しました！美味しい食事を満喫してください 🍲✨',
-      zh: '已设定地道美食路线！带您大快朵颐韩国当地老字号与热门美食 🍲✨'
-    },
-    minimal_walking: {
-      ko: '다리가 편안한 덜 걷는 최적 동선으로 맞췄어요! 이동은 편하게, 풍경은 가득 담아드릴게요 🚕✨',
-      en: 'Optimized for minimal walking! Easy transfers and relaxed sightseeing 🚕✨',
-      ja: '歩行を抑えた楽々ルートに調整しました！移動は快適に、景色は存分に楽しめます 🚕✨',
-      zh: '已优化为少步行的舒适路线！交通便捷，轻松饱览美景 🚕✨'
-    },
-    rain: {
-      ko: '비가 와도 뽀송뽀송하게 즐길 수 있는 실내 아쿠아리움 & 미디어아트 중심 코스로 조율할게요 ☔🏛️',
-      en: 'Rainy-day indoor mode! Featuring cozy indoor media art, aquariums, and covered cultural spots ☔🏛️',
-      ja: '雨の日も快適な屋内アクアリウム＆メディアアート中心のルートに調整します ☔🏛️',
-      zh: '已切换为雨天室内惬意路线！精选室内水族馆、沉浸式光影艺术与特色商街 ☔🏛️'
-    },
-    photo: {
-      ko: 'SNS 인생샷 명소와 탁 트인 뷰포인트 위주로 반짝이게 꾸며드릴게요 📸✨',
-      en: 'Added scenic photo spots! Perfect for capturing stunning memories 📸✨',
-      ja: 'SNS映えするフォトスポット＆絶景ポイントを中心にお届けします 📸✨',
-      zh: '已加入绝美拍照打卡点！让您的旅程留下难忘的唯美大片 📸✨'
-    }
-  };
+  const chipDebounceRef = useRef(null);
 
   // 🧠 Context Chip 개별 해제 핸들러
   const handleRemoveContextChip = (chipId) => {
-    setSessionContext(prev => removeContextChip(prev, chipId));
-  };
-
-  // 🧠 Context Chip 원터치 토글 핸들러 (실시간 대화 티키타카 연동)
-  const handleToggleContextChip = (chipId) => {
-    let isNowActive = false;
     setSessionContext(prev => {
-      const next = toggleContextChip(prev, chipId);
-      const activeList = getActiveContextChips(next);
-      isNowActive = activeList.some(c => c.id === chipId);
+      const next = removeContextChip(prev, chipId);
+      triggerSynthesizedChipFeedback(next);
       return next;
     });
+  };
 
-    const replyTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-    const replyText = isNowActive
-      ? (CHIP_FEEDBACK[chipId]?.[lang] || CHIP_FEEDBACK[chipId]?.ko || (lang === 'en' ? 'Updated your travel preferences! ✨' : '새로운 여행 조건을 반영했어요! ✨'))
-      : (lang === 'en' ? 'Removed the selected condition. ✨' : '해당 조건을 해제했어요! ✨');
+  // 🧠 Context Chip 원터치 토글 핸들러 (조용한 실시간 토글 + 0.6초 뒤 1회 종합 티키타카 제안)
+  const handleToggleContextChip = (chipId) => {
+    setSessionContext(prev => {
+      const next = toggleContextChip(prev, chipId);
+      triggerSynthesizedChipFeedback(next);
+      return next;
+    });
+  };
 
-    const botMsg = {
-      id: `bot-chip-${Date.now()}`,
-      role: 'assistant',
-      text: replyText,
-      quickSuggestions: [
-        (lang === 'en' ? '🚀 Create Plan' : '🚀 일정 생성'),
-        (lang === 'en' ? '☀️ Morning Arrival' : '☀️ 오전 도착'),
-        (lang === 'en' ? '🏨 Hotel Check' : '🏨 숙소 변경')
-      ],
-      generationTime: '0.01',
-      queryTime: replyTime,
-      replyTime,
-      timestamp: replyTime
-    };
-    setChatMessages(prev => [...prev, botMsg]);
+  // 🌟 조건 칩 변경 시 0.65초 뒤 모든 활성 조건을 종합하여 1회의 생생한 티키타카 제안 브리핑 생성
+  const triggerSynthesizedChipFeedback = (currentState) => {
+    if (chipDebounceRef.current) {
+      clearTimeout(chipDebounceRef.current);
+    }
+
+    chipDebounceRef.current = setTimeout(() => {
+      const activeList = getActiveContextChips(currentState, lang);
+      const targetCity = currentState.tripMemory?.destination || (lang === 'en' ? 'Korea' : '대한민국');
+      const targetDays = currentState.tripMemory?.days || 3;
+
+      if (activeList.length === 0) {
+        const replyTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+        const botMsg = {
+          id: `bot-chip-${Date.now()}`,
+          role: 'assistant',
+          text: lang === 'en'
+            ? `Reset extra conditions for **${targetCity} ${targetDays}-Day** trip! ✨\nReady to tailor a fresh itinerary for you.`
+            : `**${targetCity} ${targetDays}일 여행**의 추가 조건을 기본으로 정돈했어요! ✨\n원하시는 새 테마를 언제든 편하게 골라주세요.`,
+          quickSuggestions: [
+            (lang === 'en' ? '🚀 Create Plan' : '🚀 일정 생성'),
+            (lang === 'en' ? '✨ Build Plan Now' : '✨ 바로 짜줘'),
+            (lang === 'en' ? '☀️ Morning Arrival' : '☀️ 오전 도착')
+          ],
+          generationTime: '0.01',
+          queryTime: replyTime,
+          replyTime,
+          timestamp: replyTime
+        };
+        setChatMessages(prev => [...prev, botMsg]);
+        return;
+      }
+
+      const activeLabels = activeList.map(c => c.label.replace(/^[✓＋+]\s*/, '')).join(', ');
+      const replyTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+
+      const replyText = lang === 'en'
+        ? `✨ **[${targetCity} ${targetDays}-Day Trip]** with **${activeLabels}**!\nI will tailor a seamless, optimal route incorporating all your chosen preferences 🌊🏰☕\n\n👉 **Shall I generate this customized itinerary for you right now? 🚀**`
+        : `✨ **[${targetCity} ${targetDays}일 여행]**에 **${activeLabels}** 조건을 모두 담아 최적의 동선으로 **딱 맞춰드릴게요!** 🌊🏰☕\n\n👉 **이 조건으로 완벽한 맞춤 일정을 바로 뽑아드릴까요? 🚀**`;
+
+      const botMsg = {
+        id: `bot-chip-${Date.now()}`,
+        role: 'assistant',
+        text: replyText,
+        quickSuggestions: [
+          (lang === 'en' ? '🚀 Create Plan' : '🚀 일정 생성'),
+          (lang === 'en' ? '✨ Build Plan Now' : '✨ 바로 짜줘'),
+          (lang === 'en' ? '☀️ Morning Arrival' : '☀️ 오전 도착')
+        ],
+        generationTime: '0.01',
+        queryTime: replyTime,
+        replyTime,
+        timestamp: replyTime
+      };
+      setChatMessages(prev => [...prev, botMsg]);
+    }, 650);
   };
 
   // 🔄 대화 초기화 및 새 대화 시작 핸들러
