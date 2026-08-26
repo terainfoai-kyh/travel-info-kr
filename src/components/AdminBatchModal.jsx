@@ -23,7 +23,14 @@ export default function AdminBatchModal({
   const loadUnansweredFromStorage = () => {
     try {
       const stored = JSON.parse(localStorage.getItem('vora_unanswered_qna') || '[]');
-      setUnansweredList(stored);
+      // 🛡️ 중복 질문 자동 병합/정리 (Deduplication)
+      const unique = stored.filter((v, i, a) => 
+        a.findIndex(t => t.rawQuery.trim().toLowerCase() === v.rawQuery.trim().toLowerCase()) === i
+      );
+      setUnansweredList(unique);
+      if (unique.length !== stored.length) {
+        localStorage.setItem('vora_unanswered_qna', JSON.stringify(unique));
+      }
     } catch (e) {
       setUnansweredList([]);
     }

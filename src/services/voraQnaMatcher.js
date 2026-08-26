@@ -22,18 +22,23 @@ export function logUnansweredQuestion(rawQuery, targetCity = null) {
   const clean = rawQuery.trim();
   if (clean.length < 2) return;
 
-  const entry = {
-    id: `unans-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-    rawQuery: clean,
-    targetCity: targetCity || null,
-    timestamp: new Date().toISOString()
-  };
-
-  unansweredQueueCache.push(entry);
-
   try {
     if (typeof localStorage !== 'undefined') {
       const existing = JSON.parse(localStorage.getItem('vora_unanswered_qna') || '[]');
+      
+      // 🛡️ 중복 질문 완벽 방지: 이미 대기 큐에 같은 질문이 있으면 추가하지 않음!
+      const isDuplicate = existing.some(item => 
+        item.rawQuery.trim().toLowerCase() === clean.toLowerCase()
+      );
+      if (isDuplicate) return;
+
+      const entry = {
+        id: `unans-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        rawQuery: clean,
+        targetCity: targetCity || null,
+        timestamp: new Date().toISOString()
+      };
+
       existing.push(entry);
       // Keep last 100 entries
       localStorage.setItem('vora_unanswered_qna', JSON.stringify(existing.slice(-100)));
