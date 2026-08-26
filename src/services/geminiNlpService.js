@@ -1477,6 +1477,7 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
           lat: coords.lat, lng: coords.lng
         };
       }
+    }
   };
 
   const getHotelLuggageSpot = (area = '해운대', cityContext = '부산') => {
