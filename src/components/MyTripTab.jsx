@@ -111,8 +111,8 @@ export default function MyTripTab({
   );
 
   const schedules = itineraryData?.dailySchedules || [];
-  const targetCity = itineraryData?.targetCity || '서울';
-  const tripTitle = itineraryData?.tripTitle || itineraryData?.title || `${targetCity} ${itineraryData?.days || 3}일 여행 일정`;
+  const targetCity = itineraryData?.targetCity || itineraryData?.city || (itineraryData?.tripTitle && itineraryData.tripTitle.includes('제주') ? '제주' : (itineraryData?.tripTitle && itineraryData.tripTitle.includes('부산') ? '부산' : (itineraryData?.tripTitle && itineraryData.tripTitle.includes('강릉') ? '강릉' : '서울')));
+  const tripTitle = itineraryData?.tripTitle || itineraryData?.title || `${targetCity} ${itineraryData?.days || schedules.length || 3}일 여행 일정`;
 
   const currentSchedule = schedules.find(s => Number(s.day) === Number(activeDay)) || schedules[0];
   const activeSpots = currentSchedule?.spots || (itineraryData?.spots || []).filter(s => Number(s.assignedDay) === Number(activeDay));

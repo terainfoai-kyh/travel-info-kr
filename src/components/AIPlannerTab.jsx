@@ -161,7 +161,12 @@ export default function AIPlannerTab({
           {/* 🌟 2단계 핵심: 슬림 콤팩트 일정표 보기 버튼 */}
           <button
             type="button"
-            onClick={onConfirmItinerary}
+            onClick={() => {
+              const activePlan = itineraryData || chatMessages.slice().reverse().find(m => m.itinerary)?.itinerary;
+              if (onConfirmItinerary) {
+                onConfirmItinerary(activePlan);
+              }
+            }}
             style={{
               display: 'inline-flex',
               alignItems: 'center',

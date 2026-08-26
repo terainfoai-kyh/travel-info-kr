@@ -828,6 +828,10 @@ export default function App() {
         
         setItineraryData(finalResult);
         setHasActiveUnsavedDraft(true);
+        setActiveDay(1);
+        try {
+          localStorage.setItem('vora_temp_active_draft', JSON.stringify(finalResult));
+        } catch (e) {}
         
         const replySummary = isDayChangeQuery
           ? (lang === 'en'
