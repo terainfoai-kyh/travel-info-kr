@@ -729,14 +729,22 @@ export default function App() {
               (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')
             ]
           : [
-              (lang === 'en' ? `🚀 Generate ${displayCity} ${requestedDays}D Itinerary` : `🚀 ${displayCity} ${requestedDays}일 전체 일정표 만들기`),
-              (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')
+              (lang === 'en' ? '👑 Seoul Highlights' : '👑 서울 명소'),
+              (lang === 'en' ? '🌊 Busan Foodie' : '🌊 부산 맛집'),
+              (lang === 'en' ? '🌴 Jeju Healing' : '🌴 제주 힐링'),
+              (lang === 'en' ? '🏖️ Geoje / Tongyeong' : '🏖️ 거제/통영'),
+              (lang === 'en' ? '🚀 Create Custom Itinerary' : '🚀 맞춤 일정 만들기')
             ];
 
         if (userIntent === 'OFF_TOPIC') {
           chatText = lang === 'en'
             ? `I am VORA, your dedicated AI Travel Concierge for South Korea! 🇰🇷✨ Please ask me about travel destinations, itineraries, delicious local food, or stays!`
             : `저는 대한민국 여행 전문 AI 컨시어지 Vora예요! 🇰🇷✨ 가고 싶으신 지역이나 여행 일정, 맛집, 숙소에 대해 물어봐 주시면 가장 멋진 맞춤 코스로 안내해 드릴게요! 😊`;
+        } else if (!qnaDirectMatch && !hasExplicitLocation && !hasActiveItinerary) {
+          // 🌟 대안 A: 대답을 못 찾거나 모호한 경우 뜬금없는 서울 3일 강제 생성 중단 & 정중한 지능형 재질문
+          chatText = lang === 'en'
+            ? `I didn't quite catch that 🥺 Please tell me a bit more about the city (Seoul, Busan, Jeju, Geoje, Changwon, etc.), local foodie spots, or travel theme you are looking for! 🌸✨`
+            : `말씀해 주신 내용을 완벽하게 이해하지 못했어요 🥺 가고 싶으신 지역(서울, 부산, 제주, 창원, 거제 등)이나 맛집, 여행 일정에 대해 조금만 더 자세히 알려주시면 딱 맞춰 안내해 드릴게요! 🌸✨`;
         } else if (isAddDayQuery) {
           const addedDays = /(이틀|2일)/.test(promptQuery) ? 2 : 1;
           dynamicSuggestDays = Math.min(5, currentDays + addedDays);

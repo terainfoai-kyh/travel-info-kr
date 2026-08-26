@@ -699,6 +699,6 @@ export function generateContextualAdvice(context, lang = 'ko') {
   }
 
   return (lang === 'en')
-    ? `Could you tell me which city in Korea (Seoul, Busan, Jeju, Geoje, Suwon, Changwon, Gangneung, etc.) you'd like to visit, or what you're curious about? 🌸✨`
-    : `말씀해 주신 내용을 조금만 더 자세히 알려주실 수 있나요? 🥺 가고 싶으신 도시(서울, 부산, 제주, 거제, 수원, 창원, 강릉 등)나 궁금하신 점을 편하게 말씀해 주세요! 🌸✨`;
+    ? `I didn't quite catch that 🥺 Please tell me a bit more about the city (Seoul, Busan, Jeju, Geoje, Changwon, etc.), local foodie spots, or travel theme you are looking for! 🌸✨`
+    : `말씀해 주신 내용을 완벽하게 이해하지 못했어요 🥺 가고 싶으신 지역(서울, 부산, 제주, 창원, 거제 등)이나 맛집, 여행 일정에 대해 조금만 더 자세히 알려주시면 딱 맞춰 안내해 드릴게요! 🌸✨`;
 }
