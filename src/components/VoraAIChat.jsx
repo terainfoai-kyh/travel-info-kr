@@ -779,9 +779,18 @@ export default function VoraAIChat({
         const lastAssistantMsg = [...chatMessages].reverse().find(m => m.role === 'assistant');
         const activeQuickSuggestions = lastAssistantMsg?.quickSuggestions || [];
         const hasSuggestions = activeQuickSuggestions.length > 0;
-        const bottomChips = hasSuggestions ? activeQuickSuggestions : (t.chatQuickModifications || []);
+        const rawBottomChips = hasSuggestions ? activeQuickSuggestions : (t.chatQuickModifications || []);
 
-        if (!bottomChips || bottomChips.length === 0) return null;
+        if (!rawBottomChips || rawBottomChips.length === 0) return null;
+
+        // 🌟 [🚀 바로 일정 만들기] 류의 핵심 액션 버튼은 무조건 100% 최우선 맨 앞(Index 0)으로 정렬!
+        const bottomChips = [...rawBottomChips].sort((a, b) => {
+          const isBuildA = a.includes('바로 일정') || a.includes('일정표 만들기') || a.includes('일정 짜줘') || a.includes('Create Itinerary') || a.includes('Generate Itinerary');
+          const isBuildB = b.includes('바로 일정') || b.includes('일정표 만들기') || b.includes('일정 짜줘') || b.includes('Create Itinerary') || b.includes('Generate Itinerary');
+          if (isBuildA && !isBuildB) return -1;
+          if (!isBuildA && isBuildB) return 1;
+          return 0;
+        });
 
         return (
           <div
