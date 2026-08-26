@@ -33,12 +33,16 @@ export default function HelplineModal({ isOpen, onClose, lang = 'ko' }) {
   };
 
   const officialUrl = lang === 'en' 
-    ? 'https://english.visitkorea.or.kr/svc/contents/contentsView.do?menuSn=177&vcontsId=129598' 
+    ? 'https://english.visitkorea.or.kr/svc/contents/contentsView.do?vcontsId=139369&menuSn=509' 
     : lang === 'ja' 
-    ? 'https://japanese.visitkorea.or.kr/svc/contents/contentsView.do?menuSn=216&vcontsId=129598' 
+    ? 'https://japanese.visitkorea.or.kr/svc/contents/contentsView.do?vcontsId=139369&menuSn=509' 
     : (lang === 'zh' || lang === 'zht') 
-    ? 'https://chinese.visitkorea.or.kr/svc/contents/contentsView.do?menuSn=249&vcontsId=129598' 
-    : 'https://korean.visitkorea.or.kr/sub/travelinfo/helpline.do';
+    ? 'https://chinese.visitkorea.or.kr/svc/contents/contentsView.do?vcontsId=139369&menuSn=509' 
+    : 'https://korean.visitkorea.or.kr/svc/contents/contentsView.do?vcontsId=139369&menuSn=509';
+
+  const chatUrl = lang === 'ko'
+    ? 'https://pf.kakao.com/_xgjIxbj'
+    : 'https://english.visitkorea.or.kr/svc/contents/contentsView.do?vcontsId=139369&menuSn=509';
 
   return ReactDOM.createPortal(
     <div
@@ -180,7 +184,7 @@ export default function HelplineModal({ isOpen, onClose, lang = 'ko' }) {
 
           {/* Option 2: 24/7 Live Text Chat */}
           <a
-            href="https://1330chat.visitkorea.or.kr"
+            href={chatUrl}
             target="_blank"
             rel="noopener noreferrer"
             style={{
