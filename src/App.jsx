@@ -711,33 +711,17 @@ export default function App() {
         let quickButtons = (qnaDirectMatch && qnaDirectMatch.suggestedChips && qnaDirectMatch.suggestedChips.length > 0)
           ? qnaDirectMatch.suggestedChips
           : !isPlanningMode
-          ? []
-          : isGatewaySelectPrompt && !updatedState.tripMemory?.arrivalTime
           ? [
-              (lang === 'en' ? '☀️ Morning Arrival (Before 12:00)' : '☀️ 오전 도착 (12:00 이전)'),
-              (lang === 'en' ? '🌤️ Afternoon Arrival (14:00~16:00)' : '🌤️ 오후 도착 (14:00~16:00)'),
-              (lang === 'en' ? '🌙 Evening/Night Arrival (After 18:00)' : '🌙 저녁/밤 도착 (18:00 이후)'),
-              (lang === 'en' ? `🚀 Generate ${displayCity} Itinerary` : `🚀 바로 일정표 만들기`)
-            ]
-          : isSeasonPrompt && !updatedState.tripMemory?.arrivalTime
-          ? [
-              ...getDynamicGatewayChips(targetCity || '서울', lang),
-              (lang === 'en' ? '☀️ Morning Arrival (Before 12:00)' : '☀️ 오전 도착 (12:00 이전)'),
-              (lang === 'en' ? '🌤️ Afternoon Arrival (14:00~16:00)' : '🌤️ 오후 도착 (14:00~16:00)'),
-              (lang === 'en' ? `🚀 Generate ${displayCity} ${requestedDays}D Itinerary` : `🚀 ${displayCity} ${requestedDays}일 전체 일정표 만들기`)
-            ]
-          : isArrivalTimePrompt
-          ? [
-              (lang === 'en' ? `🚀 Create My Door-to-Door Itinerary!` : `🚀 나만의 도어투도어 일정표 만들기!`),
-              (lang === 'en' ? '🍴 Change Evening Foodie Spots' : '🍴 저녁 미식 코스 변경해줘'),
-              (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')
+              (lang === 'en' ? '👑 Seoul Tour' : '👑 서울 투어'),
+              (lang === 'en' ? '🌊 Busan Ocean' : '🌊 부산 바다'),
+              (lang === 'en' ? '🌴 Jeju Healing' : '🌴 제주 힐링'),
+              (lang === 'en' ? '🏖️ Gangneung / Sokcho' : '🏖️ 강릉/속초')
             ]
           : [
-              (lang === 'en' ? '👑 Seoul Highlights' : '👑 서울 명소'),
-              (lang === 'en' ? '🌊 Busan Foodie' : '🌊 부산 맛집'),
-              (lang === 'en' ? '🌴 Jeju Healing' : '🌴 제주 힐링'),
-              (lang === 'en' ? '🏖️ Geoje / Tongyeong' : '🏖️ 거제/통영'),
-              (lang === 'en' ? '🚀 Create Custom Itinerary' : '🚀 맞춤 일정 만들기')
+              (lang === 'en' ? `🚀 Generate ${displayCity} ${requestedDays}D Plan (09:00~18:00)` : `🚀 바로 ${displayCity} ${requestedDays}일 일정표 만들기`),
+              (lang === 'en' ? `🍴 ${displayCity} Signature Foodies` : `🍴 ${displayCity} 대표 맛집 & 카페`),
+              (lang === 'en' ? `📸 ${displayCity} Best Photo Spots` : `📸 ${displayCity} 인생샷 핫플레이스`),
+              (lang === 'en' ? `🏨 ${displayCity} Top Hotels` : `🏨 ${displayCity} 인기 호텔/숙소`)
             ];
 
         // 🛡️ [특수 지시어 처리: 호텔은 빼줘 / ~제외해줘]

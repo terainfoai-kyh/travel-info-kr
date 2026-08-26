@@ -639,39 +639,27 @@ export function generateContextualAdvice(context, lang = 'ko') {
     const seasonName = season || '가을';
     const targetLabel = targetCity ? `${targetCity}` : '대한민국';
     return (lang === 'en')
-      ? `Wonderful choice for a **${seasonName}** trip to **${targetLabel}**! 🍁 What time do you arrive, and where is your hotel? 😊`
-      : `운치 있는 **${seasonName}철 ${targetLabel}** 여행이시군요! 🍁 혹시 몇 시쯤 어디(공항/터미널/KTX역)로 도착하시고 숙소는 어디쯤이신가요? ✈️🏨`;
+      ? `Shall I prepare a wonderful **${seasonName}** highlight course for **${targetLabel}**? 🍁✨ (Default: 09:00~18:00)`
+      : `운치 있는 **${seasonName}철 ${targetLabel} 3일 하이라이트 코스**로 바로 잡아드릴까요? 🍁✨ (기본 09:00~18:00)`;
   }
 
   if (isGatewayOrHotelMentioned && !context.tripMemory?.arrivalTime && !isTimeMentioned) {
-    const gw = context.tripMemory?.gateway || '공항/역';
-    const hotel = context.tripMemory?.hotelArea || '호텔';
-    const targetLabel = targetCity ? `${targetCity} 여행` : '한국 여행';
+    const hotel = context.tripMemory?.hotelArea || (targetCity ? `${targetCity} 숙소` : '숙소');
+    const targetLabel = targetCity ? `${targetCity}` : '한국';
     return (lang === 'en')
-      ? `${targetLabel}: Arrival via **${gw}** & luggage drop at **${hotel} stay**! ✈️🏨\n\nAround what time do you arrive in Korea? 😊`
-      : `${targetLabel}을 위해 **${gw}** 도착 후 **${hotel}** 짐 보관(Luggage Drop) 코스로 잡아드릴게요! ✈️🏨\n\n한국에는 대략 몇 시쯤 도착하시나요? 😊`;
+      ? `Shall I prepare a **${targetLabel}** itinerary with luggage drop at **${hotel}**? 🧳✨ (Default: 09:00~18:00)`
+      : `**${hotel}** 짐 보관 후 출발하는 **[${targetLabel} 3일 추천 코스]**로 바로 잡아드릴까요? 🧳✨ (기본 09:00~18:00)`;
   }
 
   if (isTimeMentioned || (isGatewayOrHotelMentioned && context.tripMemory?.arrivalTime)) {
     const arrTime = context.tripMemory?.arrivalTime || '오후';
     const hotel = context.tripMemory?.hotelArea || (targetCity ? `${targetCity} 숙소` : '숙소');
-    const gw = context.tripMemory?.gateway || (targetCity === '거제' ? '거제터미널' : targetCity === '부산' ? '김해공항' : targetCity === '제주' ? '제주공항' : '인천국제공항');
     const seasonPrefix = season ? `${season}철 ` : '';
-
     const cityLabel = targetCity || '한국';
-    if (arrTime === '오전') {
-      return (lang === 'en')
-        ? `${seasonPrefix}Morning arrival: **${gw}** ➔ **${hotel}** luggage drop ➔ **[${cityLabel} signature landmarks & local lunch]** course. Shall I prepare this itinerary for you? 👑✨`
-        : `${seasonPrefix}**${gw}** ➔ **${hotel}** 짐 보관 후 **[${cityLabel} 대표 명소 & 로컬 미식]** 산뜻한 오후 코스로 잡아드릴까요? 👑✨`;
-    } else if (arrTime === '저녁') {
-      return (lang === 'en')
-        ? `${seasonPrefix}Evening arrival: Check-in at **${hotel}** ➔ **[${cityLabel} romantic night view & dinner]** course. Shall I prepare this itinerary for you? 🗼✨`
-        : `${seasonPrefix}**${gw}** ➔ **${hotel}** 체크인 후 **[${cityLabel} 로맨틱 야경 & 제철 미식 만찬]** 코스로 잡아드릴까요? 🗼✨`;
-    } else {
-      return (lang === 'en')
-        ? `${seasonPrefix}Afternoon arrival: **${gw}** ➔ **${hotel}** luggage drop ➔ **[${cityLabel} highlight afternoon stroll]** course. Shall I prepare this itinerary for you? 🧳✨`
-        : `${seasonPrefix}**${gw}** ➔ **${hotel}** 짐 보관 후 **[${cityLabel} 핵심 힐링 & 오후 티타임]** 코스로 딱 잡아드릴까요? 🧳✨`;
-    }
+
+    return (lang === 'en')
+      ? `${seasonPrefix}Shall I tailor a **[${cityLabel} ${arrTime} Custom Course]** starting from **${hotel}**? 🧳✨`
+      : `${seasonPrefix}**${hotel}** 짐 보관 후 출발하는 **[${cityLabel} ${arrTime} 맞춤 코스]**로 바로 잡아드릴까요? 🧳✨`;
   }
 
   // 3. Prompt-Specific Scenario Matching (Only triggers when the CURRENT prompt explicitly asks for it!)
