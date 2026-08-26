@@ -43,8 +43,56 @@ export function logUnansweredQuestion(rawQuery, targetCity = null) {
   }
 }
 
+// Common Typo & Slang Normalization Dictionary
+const TYPO_RULES = [
+  { pattern: /(거재도|거재)/gi, replacement: '거제' },
+  { pattern: /(부싼|부샨)/gi, replacement: '부산' },
+  { pattern: /(재주도|재주|쩨주)/gi, replacement: '제주' },
+  { pattern: /(서율|서을)/gi, replacement: '서울' },
+  { pattern: /(수원시|수언)/gi, replacement: '수원' },
+  { pattern: /(맛짚|맞집|맜집|맛잇는집|맛나는집)/gi, replacement: '맛집' },
+  { pattern: /(일쩡|알정|일죵)/gi, replacement: '일정' },
+  { pattern: /(호탤)/gi, replacement: '호텔' },
+  { pattern: /(추천해죠|추천점|추천좀|추처)/gi, replacement: '추천' },
+  { pattern: /(겨을|겨율)/gi, replacement: '겨울' },
+  { pattern: /(티머늬|티모니)/gi, replacement: '티머니' },
+  { pattern: /(바버|바뷰|멍청)/gi, replacement: '바보' },
+  { pattern: /(넌누구|너누구|누구니|누구새요|너사람)/gi, replacement: '넌누구니' },
+  { pattern: /(뭘할수|뭐할수|뭘할수있|기능이뭐)/gi, replacement: '여기서뭘할수있지' }
+];
+
+function normalizeTypos(str) {
+  let res = str;
+  for (const rule of TYPO_RULES) {
+    res = res.replace(rule.pattern, rule.replacement);
+  }
+  return res;
+}
+
+function calcLevenshtein(a, b) {
+  if (a.length === 0) return b.length;
+  if (b.length === 0) return a.length;
+  const matrix = [];
+  for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+  for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j] + 1
+        );
+      }
+    }
+  }
+  return matrix[b.length][a.length];
+}
+
 /**
- * Match user query against VORA Q&A Knowledge Vault
+ * Match user query against VORA Q&A Knowledge Vault (with Typo & Fuzzy Matching)
  * @param {string} query User raw query string
  * @param {string|null} targetCity Selected city or null
  * @param {object} context Travel context session state
@@ -54,7 +102,8 @@ export function logUnansweredQuestion(rawQuery, targetCity = null) {
 export function matchVoraQna(query = '', targetCity = null, context = {}, lang = 'ko') {
   if (!query || typeof query !== 'string') return null;
   const clean = query.trim().toLowerCase();
-  const normalizedQuery = clean.replace(/[\s\-_?!.~,]/g, '');
+  const typoFixed = normalizeTypos(clean);
+  const normalizedQuery = typoFixed.replace(/[\s\-_?!.~,]/g, '');
   if (normalizedQuery.length < 2) return null;
 
   const displayCity = targetCity || (lang === 'en' ? 'Korea' : '대한민국');
@@ -72,7 +121,7 @@ export function matchVoraQna(query = '', targetCity = null, context = {}, lang =
       continue; // Skip items specific to other cities
     }
 
-    // 2. Exact or Substring Variation Match (Level 1 - Score: 100)
+    // 2. Exact, Substring & Fuzzy Variation Match (Level 1 - Score: 75~100)
     for (const variation of item.questionVariations) {
       const normVar = variation.toLowerCase().replace(/[\s\-_?!.~,]/g, '');
       if (normalizedQuery === normVar) {
@@ -81,11 +130,17 @@ export function matchVoraQna(query = '', targetCity = null, context = {}, lang =
       }
       if (normalizedQuery.includes(normVar) || (normVar.length >= 4 && normVar.includes(normalizedQuery))) {
         score = Math.max(score, 85);
+      } else if (normVar.length >= 3 && Math.abs(normVar.length - normalizedQuery.length) <= 1) {
+        // Fuzzy edit distance for typo tolerance (e.g. 거재도 vs 거제도)
+        const dist = calcLevenshtein(normVar, normalizedQuery);
+        if (dist === 1) {
+          score = Math.max(score, 80);
+        }
       }
     }
 
     // 3. Intent Keywords Intersection Match (Level 2 - Score: 50~80)
-    if (score < 85 && item.intentKeywords && item.intentKeywords.length > 0) {
+    if (score < 80 && item.intentKeywords && item.intentKeywords.length > 0) {
       let matchedKwCount = 0;
       for (const kw of item.intentKeywords) {
         const normKw = kw.toLowerCase().replace(/[\s\-_]/g, '');
