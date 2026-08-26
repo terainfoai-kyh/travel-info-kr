@@ -796,26 +796,28 @@ export default function VoraAIChat({
       {/* 🌟 단일화된 최신 맥락 전용 1줄 퀵 액션 바 (Unified Contextual Floating Bar) */}
       {!isLoading && (() => {
         const lastAssistantMsg = [...chatMessages].reverse().find(m => m.role === 'assistant');
+        const hasItineraryCard = Boolean(lastAssistantMsg?.itinerary || chatMessages.some(m => m.itinerary));
         const activeQuickSuggestions = lastAssistantMsg?.quickSuggestions || [];
         const hasSuggestions = activeQuickSuggestions.length > 0;
         let rawBottomChips = hasSuggestions ? [...activeQuickSuggestions] : [...(t.chatQuickModifications || [])];
 
-        const defaultCreateLabel = lang === 'en' ? '🚀 Create Plan' : lang === 'ja' ? '🚀 日程生成' : (lang === 'zh' || lang === 'zht') ? '🚀 生成行程' : '🚀 일정 생성';
+        const defaultCreateLabel = lang === 'en' ? '🚀 Create Plan' : lang === 'ja' ? '🚀 日程生成' : (lang === 'zh' || lang === 'zht') ? '🚀 生成行程' : '🚀 바로 일정 만들기';
 
-        // 🌟 '🚀 일정 생성' 류의 버튼이 없으면 항상 맨 앞에 주입!
-        const hasCreateBtn = rawBottomChips.some(c => c.includes('일정 생성') || c.includes('바로 일정') || c.includes('일정표 만들기') || c.includes('일정 짜줘') || c.includes('Create Plan') || c.includes('Generate Itinerary'));
-        if (!hasCreateBtn) {
-          rawBottomChips.unshift(defaultCreateLabel);
+        if (hasItineraryCard) {
+          // 🌟 일정이 이미 카드에 완성된 상태: 헷갈리는 [일정 생성] 버튼 100% 제거 & 순수 수정 칩만 유지
+          rawBottomChips = rawBottomChips.filter(c => !c.includes('일정 생성') && !c.includes('바로 일정') && !c.includes('일정표 만들기') && !c.includes('일정 짜줘') && !c.includes('Create Plan') && !c.includes('Generate Itinerary'));
+          if (rawBottomChips.length === 0) {
+            rawBottomChips = [...(t.chatQuickModifications || [])];
+          }
+        } else {
+          // 온보딩/도시 탐색 단계에서만 맨 앞에 [바로 일정 만들기] 노출
+          const hasCreateBtn = rawBottomChips.some(c => c.includes('일정 생성') || c.includes('바로 일정') || c.includes('일정표 만들기') || c.includes('일정 짜줘') || c.includes('Create Plan') || c.includes('Generate Itinerary'));
+          if (!hasCreateBtn) {
+            rawBottomChips.unshift(defaultCreateLabel);
+          }
         }
 
-        // 🌟 [🚀 일정 생성] 류의 핵심 액션 버튼은 무조건 100% 최우선 맨 앞(Index 0)으로 정렬!
-        const bottomChips = rawBottomChips.sort((a, b) => {
-          const isBuildA = a.includes('일정 생성') || a.includes('바로 일정') || a.includes('일정표 만들기') || a.includes('일정 짜줘') || a.includes('Create Plan') || a.includes('Generate Itinerary');
-          const isBuildB = b.includes('일정 생성') || b.includes('바로 일정') || b.includes('일정표 만들기') || b.includes('일정 짜줘') || b.includes('Create Plan') || b.includes('Generate Itinerary');
-          if (isBuildA && !isBuildB) return -1;
-          if (!isBuildA && isBuildB) return 1;
-          return 0;
-        });
+        const bottomChips = rawBottomChips;
 
         return (
           <div
