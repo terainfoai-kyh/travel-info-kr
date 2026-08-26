@@ -247,10 +247,8 @@ export default function MyTripTab({
               <span>{lang === 'en' ? `Saved Trips (${savedTrips.length})` : lang === 'ja' ? `保存済みプラン (${savedTrips.length})` : (lang === 'zh' || lang === 'zht') ? `已保存行程 (${savedTrips.length})` : `내 저장 여행 (${savedTrips.length}개)`}</span>
             </div>
 
-            {/* ⚡ NO 5: 잔여 횟수 뱃지 (2/3회) + 터치 시 즉시 충전 */}
+            {/* ⚡ 잔여 저장 횟수 상태 뱃지 */}
             <div
-              onClick={onOpenRewardedAd}
-              title={lang === 'en' ? 'Click to recharge +3 saves' : '클릭하여 +3회 무료 충전하기'}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -262,8 +260,8 @@ export default function MyTripTab({
                 padding: '0.2rem 0.45rem',
                 fontSize: '0.72rem',
                 fontWeight: 800,
-                cursor: 'pointer',
-                transition: 'all 0.15s ease'
+                cursor: 'default',
+                userSelect: 'none'
               }}
             >
               <Zap size={11} />
