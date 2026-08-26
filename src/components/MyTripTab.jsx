@@ -267,7 +267,11 @@ export default function MyTripTab({
               }}
             >
               <Zap size={11} />
-              <span>{lang === 'en' ? `Saves: ${remainingQuota}/${totalQuota}` : `잔여 저장: ${remainingQuota}/${totalQuota}회`}</span>
+              <span>
+                {remainingQuota > totalQuota
+                  ? (lang === 'en' ? `Saves: ${remainingQuota} Left` : `잔여 저장: ${remainingQuota}회 (충전됨)`)
+                  : (lang === 'en' ? `Saves: ${remainingQuota}/${totalQuota}` : `잔여 저장: ${remainingQuota}/${totalQuota}회`)}
+              </span>
             </div>
           </div>
 
