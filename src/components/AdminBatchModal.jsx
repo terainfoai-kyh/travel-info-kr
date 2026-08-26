@@ -20,6 +20,15 @@ export default function AdminBatchModal({
   const [testResult, setTestResult] = useState(null);
   const [copySuccess, setCopySuccess] = useState(false);
 
+  const loadUnansweredFromStorage = () => {
+    try {
+      const stored = JSON.parse(localStorage.getItem('vora_unanswered_qna') || '[]');
+      setUnansweredList(stored);
+    } catch (e) {
+      setUnansweredList([]);
+    }
+  };
+
   useEffect(() => {
     if (isOpen) {
       // Load saved key
@@ -27,13 +36,12 @@ export default function AdminBatchModal({
       setApiKey(savedKey);
       if (savedKey) setIsKeySaved(true);
 
-      // Load unanswered questions from localStorage
-      try {
-        const stored = JSON.parse(localStorage.getItem('vora_unanswered_qna') || '[]');
-        setUnansweredList(stored);
-      } catch (e) {
-        setUnansweredList([]);
-      }
+      // Load unanswered questions
+      loadUnansweredFromStorage();
+
+      // 실시간 자동 동기화 (1초마다 새 질문 실시간 감지)
+      const intervalId = setInterval(loadUnansweredFromStorage, 1000);
+      return () => clearInterval(intervalId);
     }
   }, [isOpen]);
 
@@ -391,6 +399,24 @@ export default function AdminBatchModal({
                 }}>
                   {unansweredList.length}건 대기 중
                 </span>
+                <button
+                  onClick={loadUnansweredFromStorage}
+                  title="새로고침"
+                  style={{
+                    background: 'none',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '8px',
+                    padding: '0.2rem 0.5rem',
+                    color: 'var(--text-muted)',
+                    fontSize: '0.72rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.2rem'
+                  }}
+                >
+                  🔄 새로고침
+                </button>
                 {unansweredList.length > 0 && (
                   <button
                     onClick={handleClearUnanswered}
