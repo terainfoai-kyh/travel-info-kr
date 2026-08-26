@@ -697,49 +697,6 @@ export default function VoraAIChat({
                     </div>
                   )}
 
-                  {/* Quick Suggestions Chips for Conversational Mode (Compact Horizontal Swipe) */}
-                  {msg.quickSuggestions && msg.quickSuggestions.length > 0 && (
-                    <div style={{
-                      display: 'flex',
-                      flexWrap: 'nowrap',
-                      overflowX: 'auto',
-                      gap: '0.35rem',
-                      marginTop: '0.55rem',
-                      paddingBottom: '0.25rem',
-                      scrollbarWidth: 'none',
-                      WebkitOverflowScrolling: 'touch',
-                      whiteSpace: 'nowrap'
-                    }}>
-                      {msg.quickSuggestions.map((suggestion, sIdx) => {
-                        const isBuildBtn = suggestion.includes('바로 일정') || suggestion.includes('일정표 만들기') || suggestion.includes('Generate Itinerary');
-                        return (
-                          <button
-                            key={sIdx}
-                            onClick={() => onSendMessage && onSendMessage(suggestion)}
-                            style={{
-                              flexShrink: 0,
-                              background: isBuildBtn
-                                ? 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)'
-                                : 'rgba(37, 99, 235, 0.08)',
-                              color: isBuildBtn ? '#ffffff' : 'var(--accent-primary)',
-                              border: isBuildBtn ? 'none' : '1px solid var(--border-highlight)',
-                              borderRadius: 'var(--radius-full)',
-                              padding: '0.28rem 0.65rem',
-                              fontSize: '0.74rem',
-                              fontWeight: 800,
-                              cursor: 'pointer',
-                              boxShadow: isBuildBtn ? '0 2px 8px rgba(37, 99, 235, 0.35)' : 'none',
-                              transition: 'all var(--transition-fast)',
-                              whiteSpace: 'nowrap'
-                            }}
-                          >
-                            {suggestion.startsWith('🚀') || suggestion.startsWith('⚙️') ? suggestion : `✨ ${suggestion}`}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
-
                   {/* Sleek Daily Schedule Mini Briefing Card */}
                   {msg.itinerary && msg.itinerary.dailySchedules && msg.itinerary.dailySchedules.length > 0 && (
                     <div style={{
@@ -817,56 +774,80 @@ export default function VoraAIChat({
         <div ref={chatEndRef} />
       </div>
 
-      {/* Follow-up Quick Modification Chips (슬림 1줄) */}
-      {!isLoading && (
-        <div
-          className="no-scrollbar"
-          style={{
-            padding: '0.3rem 0.6rem',
-            backgroundColor: 'rgba(255, 255, 255, 0.7)',
-            borderTop: '1px solid rgba(37, 99, 235, 0.12)',
-            display: 'flex',
-            gap: '0.3rem',
-            overflowX: 'auto',
-            whiteSpace: 'nowrap',
-            width: '100%',
-            maxWidth: '100%',
-            boxSizing: 'border-box',
-            scrollbarWidth: 'none',
-            WebkitOverflowScrolling: 'touch'
-          }}
-        >
-          {(t.chatQuickModifications || []).map((chip, idx) => (
-            <button
-              key={idx}
-              onClick={() => handleQuickChip(chip)}
-              style={{
-                backgroundColor: '#ffffff',
-                border: '1px solid rgba(37, 99, 235, 0.2)',
-                borderRadius: 'var(--radius-full)',
-                padding: '0.2rem 0.55rem',
-                fontSize: '0.7rem',
-                fontWeight: 600,
-                color: 'var(--text-main)',
-                cursor: 'pointer',
-                flexShrink: 0,
-                boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
-                transition: 'all var(--transition-fast)'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = 'var(--accent-primary)';
-                e.currentTarget.style.color = 'var(--accent-primary)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'rgba(37, 99, 235, 0.2)';
-                e.currentTarget.style.color = 'var(--text-main)';
-              }}
-            >
-              + {chip}
-            </button>
-          ))}
-        </div>
-      )}
+      {/* 🌟 단일화된 최신 맥락 전용 1줄 퀵 액션 바 (Unified Contextual Floating Bar) */}
+      {!isLoading && (() => {
+        const lastAssistantMsg = [...chatMessages].reverse().find(m => m.role === 'assistant');
+        const activeQuickSuggestions = lastAssistantMsg?.quickSuggestions || [];
+        const hasSuggestions = activeQuickSuggestions.length > 0;
+        const bottomChips = hasSuggestions ? activeQuickSuggestions : (t.chatQuickModifications || []);
+
+        if (!bottomChips || bottomChips.length === 0) return null;
+
+        return (
+          <div
+            className="no-scrollbar"
+            style={{
+              padding: '0.35rem 0.65rem',
+              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+              borderTop: '1px solid rgba(37, 99, 235, 0.15)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              overflowX: 'auto',
+              whiteSpace: 'nowrap',
+              width: '100%',
+              maxWidth: '100%',
+              boxSizing: 'border-box',
+              scrollbarWidth: 'none',
+              WebkitOverflowScrolling: 'touch'
+            }}
+          >
+            {bottomChips.map((chip, idx) => {
+              const isBuildBtn = chip.includes('바로 일정') || chip.includes('일정표 만들기') || chip.includes('Create Itinerary') || chip.includes('Generate Itinerary');
+              return (
+                <button
+                  key={idx}
+                  onClick={() => handleQuickChip(chip)}
+                  style={{
+                    flexShrink: 0,
+                    background: isBuildBtn
+                      ? 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)'
+                      : '#ffffff',
+                    color: isBuildBtn ? '#ffffff' : 'var(--accent-primary)',
+                    border: isBuildBtn ? 'none' : '1px solid rgba(37, 99, 235, 0.25)',
+                    borderRadius: 'var(--radius-full)',
+                    padding: isBuildBtn ? '0.32rem 0.8rem' : '0.22rem 0.6rem',
+                    fontSize: isBuildBtn ? '0.78rem' : '0.72rem',
+                    fontWeight: isBuildBtn ? 900 : 700,
+                    cursor: 'pointer',
+                    boxShadow: isBuildBtn ? '0 2px 8px rgba(37, 99, 235, 0.35)' : '0 1px 3px rgba(0,0,0,0.03)',
+                    transition: 'all var(--transition-fast)',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.25rem'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isBuildBtn) {
+                      e.currentTarget.style.borderColor = 'var(--accent-primary)';
+                      e.currentTarget.style.backgroundColor = 'rgba(37, 99, 235, 0.05)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isBuildBtn) {
+                      e.currentTarget.style.borderColor = 'rgba(37, 99, 235, 0.25)';
+                      e.currentTarget.style.backgroundColor = '#ffffff';
+                    }
+                  }}
+                >
+                  {isBuildBtn ? chip : (hasSuggestions ? (chip.startsWith('✨') || chip.startsWith('🚀') || chip.startsWith('⚙️') || chip.startsWith('👑') || chip.startsWith('🌊') || chip.startsWith('🌴') || chip.startsWith('🏖️') || chip.startsWith('☀️') || chip.startsWith('🌤️') || chip.startsWith('🌙') || chip.startsWith('🗓️') || chip.startsWith('📍') || chip.startsWith('🌸') || chip.startsWith('🍁') || chip.startsWith('🏔️') || chip.startsWith('🌾') || chip.startsWith('🏮') ? chip : `✨ ${chip}`) : `＋ ${chip}`)}
+                </button>
+              );
+            })}
+          </div>
+        );
+      })()}
 
       {/* Chat Input Bar (홈 검색창과 100% 일치하는 프리미엄 웜 앰버 골드 캡슐) */}
       <form
