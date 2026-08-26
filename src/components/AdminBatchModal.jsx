@@ -110,29 +110,21 @@ export default function AdminBatchModal({
 
     const fallbackModelNames = [
       'models/gemini-2.5-flash-lite',
-      'models/gemini-3.7-flash',
-      'models/gemini-3.5-flash',
       'models/gemini-3.1-flash-lite',
-      'models/gemini-flash-latest',
-      'models/gemini-pro-latest'
+      'models/gemini-flash-lite-latest',
+      'models/gemini-3.7-flash',
+      'models/gemini-flash-latest'
     ];
 
     for (let i = 0; i < unansweredList.length; i++) {
       const q = unansweredList[i];
-      setBatchLogs(prev => [...prev, `⏳ [${i + 1}/${unansweredList.length}] "${q.rawQuery}" 지식 증류 중...`]);
+      setBatchLogs(prev => [...prev, `⚡ [${i + 1}/${unansweredList.length}] "${q.rawQuery}" 초고속 증류 중...`]);
       setBatchProgress(Math.round(((i + 1) / unansweredList.length) * 80));
 
       const promptText = `당신은 대한민국 여행 전문 AI 'VORA(보라)'의 최고 수석 지식 설계자입니다.
-사용자가 방금 질문한 여행 질의: "${q.rawQuery}" (목적지: ${q.targetCity || '전국'})
+사용자 질문: "${q.rawQuery}" (목적지: ${q.targetCity || '전국'})
 
-다음 요구사항에 맞춰 100% 완벽한 JSON 포맷으로만 응답해 주세요:
-1. questionVariations: 원본 질문 및 모바일에서 발생할 수 있는 오타/자모탈락/줄임말/변형 5개 이상 (예: 거재도, 부싼, 맛짚, 일쩡 등)
-2. intentKeywords: 핵심 키워드 4개 이상
-3. geminiAnswer: 한국어(ko), 영어(en), 일본어(ja), 중국어(zh) 정품 답변 (친절하고 신뢰도 높은 어조, 2~3문장 이내)
-4. followUp: 다음 단계 제안 문구
-5. suggestedChips: 사용자가 누를 수 있는 3~4개의 퀵 버튼 라벨
-
-반드시 코드 블록이나 다른 설명 없이 오직 순수 JSON 데이터만 출력하세요:
+다음 JSON 포맷으로만 즉시 출력하세요:
 {
   "id": "qna_auto_${Date.now()}_${i}",
   "category": "DYNAMIC_KNOWLEDGE",
@@ -141,7 +133,7 @@ export default function AdminBatchModal({
   "questionVariations": ["${q.rawQuery}"],
   "intentKeywords": ["키워드1", "키워드2"],
   "geminiAnswer": {
-    "ko": "한국어 답변",
+    "ko": "친절한 2문장 한국어 답변",
     "en": "English answer",
     "ja": "日本語",
     "zh": "中文"
@@ -155,9 +147,13 @@ export default function AdminBatchModal({
 
       for (const mName of fallbackModelNames) {
         try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 4000); // 4초 초과 시 즉시 다음 쾌속 모델로 스위칭!
+
           const targetUrl = `https://generativelanguage.googleapis.com/v1beta/${mName}:generateContent?key=${encodeURIComponent(cleanKey)}`;
           const response = await fetch(targetUrl, {
             method: 'POST',
+            signal: controller.signal,
             headers: { 
               'Content-Type': 'application/json',
               'x-goog-api-key': cleanKey
@@ -165,22 +161,22 @@ export default function AdminBatchModal({
             body: JSON.stringify({
               contents: [{ parts: [{ text: promptText }] }],
               generationConfig: {
-                temperature: 0.2
+                temperature: 0.2,
+                maxOutputTokens: 600
               }
             })
           });
+
+          clearTimeout(timeoutId);
 
           if (response.ok) {
             const responseData = await response.json();
             rawOutput = responseData.candidates?.[0]?.content?.parts?.[0]?.text || '';
             success = true;
             break;
-          } else if (response.status === 503 || response.status === 429) {
-            // High demand on this model, immediately try next fast model!
-            continue;
           }
         } catch (e) {
-          // Try next model
+          // Timeout or Network issue -> immediately fallback
         }
       }
 
