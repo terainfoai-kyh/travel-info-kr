@@ -10,6 +10,7 @@
 
 import { VORA_QNA_VAULT } from '../data/voraQnaVault.js';
 import { interpolateTemplate } from '../utils/koreanParticles.js';
+import { pushQuestionToCloud } from './voraCloudQnaService.js';
 
 // Local In-Memory Unanswered Queue
 let unansweredQueueCache = [];
@@ -48,6 +49,7 @@ export function logUnansweredQuestion(rawQuery, targetCity = null, tripContext =
         existing[existingIndex].count = (existing[existingIndex].count || 1) + 1;
         existing[existingIndex].lastSeen = new Date().toISOString();
         localStorage.setItem('vora_unanswered_qna', JSON.stringify(existing));
+        pushQuestionToCloud(existing[existingIndex]);
         return;
       }
 
@@ -71,6 +73,9 @@ export function logUnansweredQuestion(rawQuery, targetCity = null, tripContext =
       existing.push(entry);
       // Keep last 100 entries
       localStorage.setItem('vora_unanswered_qna', JSON.stringify(existing.slice(-100)));
+
+      // 🌐 4. 클라우드 DB 실시간 비동기 전송
+      pushQuestionToCloud(entry);
     }
   } catch (err) {
     // Silent fail for storage limits

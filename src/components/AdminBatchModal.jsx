@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { X, Sparkles, Database, Play, CheckCircle2, Copy, Download, RefreshCw, Key, ShieldCheck, AlertCircle } from 'lucide-react';
+import { X, Sparkles, Database, Play, CheckCircle2, Copy, Download, RefreshCw, Key, ShieldCheck, AlertCircle, Cloud, Smartphone } from 'lucide-react';
 import { VORA_QNA_VAULT } from '../data/voraQnaVault';
 import { interpolateTemplate } from '../utils/koreanParticles';
+import { fetchQuestionsFromCloud, clearQuestionsFromCloud } from '../services/voraCloudQnaService';
 
 export default function AdminBatchModal({
   isOpen,
@@ -12,6 +13,7 @@ export default function AdminBatchModal({
   const [apiKey, setApiKey] = useState('');
   const [isKeySaved, setIsKeySaved] = useState(false);
   const [unansweredList, setUnansweredList] = useState([]);
+  const [isSyncingCloud, setIsSyncingCloud] = useState(false);
   const [isRunningBatch, setIsRunningBatch] = useState(false);
   const [batchProgress, setBatchProgress] = useState(0);
   const [batchLogs, setBatchLogs] = useState([]);
@@ -20,16 +22,37 @@ export default function AdminBatchModal({
   const [testResult, setTestResult] = useState(null);
   const [copySuccess, setCopySuccess] = useState(false);
 
-  const loadUnansweredFromStorage = () => {
+  const loadUnansweredFromStorage = async (syncCloud = false) => {
     try {
       const stored = JSON.parse(localStorage.getItem('vora_unanswered_qna') || '[]');
-      // 🛡️ 중복 질문 자동 병합/정리 (Deduplication)
-      const unique = stored.filter((v, i, a) => 
+      let merged = stored.filter((v, i, a) => 
         a.findIndex(t => t.rawQuery.trim().toLowerCase() === v.rawQuery.trim().toLowerCase()) === i
       );
-      setUnansweredList(unique);
-      if (unique.length !== stored.length) {
-        localStorage.setItem('vora_unanswered_qna', JSON.stringify(unique));
+
+      setUnansweredList(merged);
+
+      // 🌐 클라우드(핸드폰/타기기/전세계) 실시간 동기화
+      if (syncCloud) {
+        setIsSyncingCloud(true);
+        const cloudItems = await fetchQuestionsFromCloud();
+        setIsSyncingCloud(false);
+
+        if (cloudItems && cloudItems.length > 0) {
+          const nextList = [...merged];
+          cloudItems.forEach(cItem => {
+            const idx = nextList.findIndex(m => m.rawQuery.trim().toLowerCase() === cItem.rawQuery.trim().toLowerCase());
+            if (idx >= 0) {
+              nextList[idx].count = Math.max(nextList[idx].count || 1, cItem.count || 1);
+              if (cItem.context && Object.keys(cItem.context).length > 0) {
+                nextList[idx].context = cItem.context;
+              }
+            } else {
+              nextList.push(cItem);
+            }
+          });
+          setUnansweredList(nextList);
+          localStorage.setItem('vora_unanswered_qna', JSON.stringify(nextList));
+        }
       }
     } catch (e) {
       setUnansweredList([]);
@@ -43,11 +66,11 @@ export default function AdminBatchModal({
       setApiKey(savedKey);
       if (savedKey) setIsKeySaved(true);
 
-      // Load unanswered questions
-      loadUnansweredFromStorage();
+      // Load unanswered questions & sync cloud
+      loadUnansweredFromStorage(true);
 
-      // 실시간 자동 동기화 (1초마다 새 질문 실시간 감지)
-      const intervalId = setInterval(loadUnansweredFromStorage, 1000);
+      // 실시간 자동 동기화 (3초마다 클라우드 및 로컬 실시간 감지)
+      const intervalId = setInterval(() => loadUnansweredFromStorage(true), 3500);
       return () => clearInterval(intervalId);
     }
   }, [isOpen]);
@@ -62,6 +85,7 @@ export default function AdminBatchModal({
   };
 
   const handleClearUnanswered = () => {
+    clearQuestionsFromCloud(unansweredList);
     localStorage.removeItem('vora_unanswered_qna');
     setUnansweredList([]);
   };
@@ -428,9 +452,80 @@ export default function AdminBatchModal({
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.2rem'
+                <button
+                  onClick={() => loadUnansweredFromStorage(true)}
+                  title="클라우드 실시간 동기화"
+                  style={{
+                    background: 'none',
+                    border: '1px solid #3b82f6',
+                    borderRadius: '8px',
+                    padding: '0.2rem 0.5rem',
+                    color: '#3b82f6',
+                    fontSize: '0.72rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.2rem',
+                    fontWeight: 700
                   }}
                 >
-                  🔄 새로고침
+                  <Cloud size={13} /> {isSyncingCloud ? '동기화 중...' : '클라우드 동기화'}
+                </button>
+                <button
+                  onClick={() => {
+                    const jsonStr = JSON.stringify(unansweredList, null, 2);
+                    navigator.clipboard.writeText(jsonStr);
+                    alert('📋 미답변 질문 큐가 클립보드에 JSON으로 복사되었습니다! (다른 PC나 메신저에 붙여넣기 가능)');
+                  }}
+                  title="JSON 복사"
+                  style={{
+                    background: 'none',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '8px',
+                    padding: '0.2rem 0.45rem',
+                    color: 'var(--text-muted)',
+                    fontSize: '0.72rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  📋 복사
+                </button>
+                <button
+                  onClick={() => {
+                    const input = prompt('📥 다른 기기에서 복사한 미답변 질문 JSON을 붙여넣으세요:');
+                    if (!input) return;
+                    try {
+                      const parsed = JSON.parse(input);
+                      if (Array.isArray(parsed)) {
+                        const merged = [...unansweredList];
+                        parsed.forEach(pItem => {
+                          const idx = merged.findIndex(m => (m.rawQuery || m.question || '').trim().toLowerCase() === (pItem.rawQuery || pItem.question || '').trim().toLowerCase());
+                          if (idx >= 0) {
+                            merged[idx].count = (merged[idx].count || 1) + (pItem.count || 1);
+                          } else {
+                            merged.push(pItem);
+                          }
+                        });
+                        setUnansweredList(merged);
+                        localStorage.setItem('vora_unanswered_qna', JSON.stringify(merged));
+                        alert(`✨ ${parsed.length}건의 질문을 성공적으로 병합하여 불러왔습니다!`);
+                      }
+                    } catch (e) {
+                      alert('올바른 JSON 형식이 아닙니다.');
+                    }
+                  }}
+                  title="JSON 붙여넣기"
+                  style={{
+                    background: 'none',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '8px',
+                    padding: '0.2rem 0.45rem',
+                    color: 'var(--text-muted)',
+                    fontSize: '0.72rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  📥 가져오기
                 </button>
                 {unansweredList.length > 0 && (
                   <button
@@ -452,7 +547,7 @@ export default function AdminBatchModal({
 
             {/* List preview */}
             <div style={{
-              maxHeight: '120px',
+              maxHeight: '150px',
               overflowY: 'auto',
               display: 'flex',
               flexDirection: 'column',
@@ -461,22 +556,41 @@ export default function AdminBatchModal({
             }}>
               {unansweredList.length === 0 ? (
                 <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textAlign: 'center', padding: '0.8rem 0' }}>
-                  현재 수집된 미답변 질문이 없습니다. (사이트에서 새로운 질문을 하면 자동으로 쌓입니다!)
+                  현재 수집된 미답변 질문이 없습니다. (핸드폰/PC/전 세계 어디서든 질문이 들어오면 클라우드로 자동 수집됩니다!)
                 </div>
               ) : (
                 unansweredList.map((q, idx) => (
                   <div key={idx} style={{
                     fontSize: '0.78rem',
-                    padding: '0.35rem 0.6rem',
+                    padding: '0.4rem 0.65rem',
                     backgroundColor: 'var(--bg-card)',
                     borderRadius: '8px',
                     border: '1px solid var(--border-color)',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'space-between'
+                    justifyContent: 'space-between',
+                    gap: '0.5rem'
                   }}>
-                    <span>💬 "{q.rawQuery}"</span>
-                    <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>{q.targetCity || '전국'}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', minWidth: 0, flex: 1 }}>
+                      <span style={{ fontWeight: 600, color: 'var(--text-main)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        💬 "{q.rawQuery || q.question}"
+                      </span>
+                      {q.count > 1 && (
+                        <span style={{ fontSize: '0.65rem', backgroundColor: '#ef4444', color: '#ffffff', padding: '0.1rem 0.4rem', borderRadius: '100px', fontWeight: 800, flexShrink: 0 }}>
+                          🔥 {q.count}회
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexShrink: 0 }}>
+                      {q.context?.companion && (
+                        <span style={{ fontSize: '0.65rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', color: '#2563eb', padding: '0.1rem 0.35rem', borderRadius: '4px' }}>
+                          {q.context.companion}
+                        </span>
+                      )}
+                      <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700 }}>
+                        {q.targetCity || q.context?.city || '전국'}
+                      </span>
+                    </div>
                   </div>
                 ))
               )}
