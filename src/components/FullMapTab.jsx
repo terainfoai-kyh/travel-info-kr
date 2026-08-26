@@ -106,6 +106,7 @@ export default function FullMapTab({
     '인천': { lat: 37.4563, lng: 126.7052 }
   };
 
+  const currentSchedule = schedules.find(s => Number(s.day) === Number(activeDay)) || schedules[0];
   const rawActiveSpots = currentSchedule?.spots || (itineraryData?.spots || []).filter(s => Number(s.assignedDay) === Number(activeDay));
   const activeSpots = rawActiveSpots.map(s => {
     if (s.category === '숙소/짐보관' || s.category === 'Hotel & Stay' || (s.title || s.name || '').includes('호텔')) {
