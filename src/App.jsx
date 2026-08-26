@@ -44,7 +44,7 @@ import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
 import { geminiGenerateFullItinerary, generateLocalFallbackItinerary, enrichItineraryPhotosAsync, extractLocationKeyword, extractDaysFromPrompt } from './services/geminiNlpService';
 import { sanitizeInput, inspectSecurityGuardrails } from './services/securityGuardService';
 import { findRecommendedPois } from './data/koreaTravelPoiDatabase';
-import { getDynamicGatewayChips } from './data/voraDialogKnowledge';
+import { getDynamicGatewayChips, CITY_LOCAL_KNOWLEDGE } from './data/voraDialogKnowledge';
 import { matchVoraQna } from './services/voraQnaMatcher';
 import { buildTravelContext, generateContextualAdvice, patchTravelState, removeContextChip, toggleContextChip, classifyUserIntent, getActiveContextChips, INITIAL_TRAVEL_STATE } from './services/travelContextEngine';
 
@@ -604,6 +604,11 @@ export default function App() {
         if (themeText) tagLabel += ` • 🍴 ${themeText}`;
         if (reqText) tagLabel += ` • ✍️ ${reqText}`;
 
+        const cityKnowledge = CITY_LOCAL_KNOWLEDGE[targetCity];
+        const highlightText = cityKnowledge?.signatureHighlights
+          ? `${cityKnowledge.signatureHighlights.slice(0, 2).join(', ')} 등 `
+          : '';
+
         const durationChips = [
           (lang === 'en' ? '🗓️ 1 Day (Day Trip)' : '🗓️ 당일치기'),
           (lang === 'en' ? '🗓️ 2 Days (1N2D)' : '🗓️ 1박 2일'),
@@ -613,16 +618,16 @@ export default function App() {
 
         if (!rawDays) {
           briefingText = (lang === 'en')
-            ? `**[ ${tagLabel} ]**\n${targetCity} is best experienced with a **3-Day Highlight Course**! Shall I prepare it for you? ✨ (Default: 09:00~18:00)`
-            : `**[ ${tagLabel} ]**\n${targetCity}는 보통 3일 코스가 가장 알차요! 대표 랜드마크 & 힐링 중심 **[${targetCity} 3일 코스]**로 바로 잡아드릴까요? ✨ (기본 09:00~18:00)`;
+            ? `**[ ${tagLabel} ]**\n${highlightText ? `Featuring iconic spots like ${highlightText}, ` : ''}${targetCity} is best experienced with a **3-Day (2N3D) Highlight Course**! ✨ (Default: 09:00~18:00)\n\n💡 **Tap your desired trip duration below:**\n*(You can easily customize companions and themes in **[ + Add Conditions ]** at the top! 😊)*`
+            : `**[ ${tagLabel} ]**\n${highlightText ? `${highlightText}대표 명소를 알차게 담아 ` : ''}**[ 3일(2박 3일) 추천 코스 ]**로 준비해 드릴까요? ✨ (기본 09:00~18:00)\n\n💡 **원하시는 여행 기간을 아래에서 톡 눌러주세요:**\n*(동행이나 테마 같은 다른 조건은 상단 **\`[ + 조건 추가 ]\`**에서 언제든 편하게 바꾸실 수 있어요! 😊)*`;
         } else {
           briefingText = (lang === 'en')
-            ? `**[ ${tagLabel} ]**\nShall I create your customized **${targetCity} ${rawDays}-Day Course** right away? ✨ (Default: 09:00~18:00)`
-            : `**[ ${tagLabel} ]**\n선택하신 조건에 맞춰 **[${targetCity} ${rawDays}일 알찬 코스]**로 바로 잡아드릴까요? ✨ (기본 09:00~18:00)`;
+            ? `**[ ${tagLabel} ]**\n${highlightText ? `Featuring iconic spots like ${highlightText}, ` : ''}Shall I prepare your tailored **[ ${targetCity} ${rawDays}-Day Course ]** right away? ✨ (Default: 09:00~18:00)\n\n*(You can easily customize companions and themes in **[ + Add Conditions ]** at the top! 😊)*`
+            : `**[ ${tagLabel} ]**\n${highlightText ? `${highlightText}대표 명소를 담아 ` : ''}선택하신 조건에 맞춰 **[ ${targetCity} ${rawDays}일 맞춤 코스 ]**로 바로 잡아드릴까요? ✨ (기본 09:00~18:00)\n\n*(동행이나 테마 같은 다른 조건은 상단 **\`[ + 조건 추가 ]\`**에서 언제든 편하게 바꾸실 수 있어요! 😊)*`;
         }
 
         quickSuggestions = [
-          (lang === 'en' ? `🚀 Create ${targetCity} ${rawDays || 3}D Plan` : `🚀 바로 ${targetCity} ${rawDays || 3}일 일정 만들기`),
+          (lang === 'en' ? `🚀 Create ${targetCity} ${rawDays || 3}D Plan` : `🚀 추천 ${targetCity} ${rawDays || 3}일 코스 만들기`),
           ...durationChips,
           (lang === 'en' ? `🍴 ${targetCity} Foodies` : `🍴 ${targetCity} 대표 맛집 & 카페`),
           (lang === 'en' ? `📸 ${targetCity} Photo Spots` : `📸 ${targetCity} 인생샷 명소`),
