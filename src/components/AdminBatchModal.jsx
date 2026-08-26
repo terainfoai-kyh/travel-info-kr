@@ -70,6 +70,41 @@ export default function AdminBatchModal({
 
     const newDistilled = [];
 
+    const cleanKey = keyToUse.trim();
+
+    // 1. Dynamic Model Discovery from Google AI Studio
+    let activeModelPath = 'models/gemini-1.5-flash';
+    try {
+      setBatchLogs(prev => [...prev, '🔍 구글 AI 사용 가능 모델 탐색 중...']);
+      const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(cleanKey)}`, {
+        headers: { 'x-goog-api-key': cleanKey }
+      });
+      if (listRes.ok) {
+        const listData = await listRes.json();
+        const models = listData.models || [];
+        const preferred = models.find(m => (m.name.includes('gemini-1.5-flash') || m.name.includes('gemini-2.0-flash')) && m.supportedGenerationMethods?.includes('generateContent'))
+          || models.find(m => m.name.includes('flash') && m.supportedGenerationMethods?.includes('generateContent'))
+          || models.find(m => m.supportedGenerationMethods?.includes('generateContent'));
+
+        if (preferred) {
+          activeModelPath = preferred.name;
+          setBatchLogs(prev => [...prev, `✨ 연결 성공! 정품 모델 활성화: [ ${activeModelPath} ]`]);
+        }
+      } else {
+        const errTxt = await listRes.text();
+        setBatchLogs(prev => [...prev, `⚠️ 모델 탐색 응답: ${listRes.status} (${errTxt.slice(0, 100)})`]);
+      }
+    } catch (le) {
+      setBatchLogs(prev => [...prev, `⚠️ 모델 탐색 스킵: ${le.message}`]);
+    }
+
+    const candidateEndpoints = [
+      `https://generativelanguage.googleapis.com/v1beta/${activeModelPath}:generateContent`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-8b:generateContent`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent`
+    ];
+
     for (let i = 0; i < unansweredList.length; i++) {
       const q = unansweredList[i];
       setBatchLogs(prev => [...prev, `⏳ [${i + 1}/${unansweredList.length}] "${q.rawQuery}" 지식 증류 중...`]);
@@ -103,19 +138,10 @@ JSON 형식 예시:
   "suggestedChips": ["버튼1", "버튼2"]
 }`;
 
-      const cleanKey = keyToUse.trim();
-      const endpoints = [
-        'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent',
-        'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent',
-        'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
-        'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent',
-        'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent'
-      ];
-
       let responseData = null;
       let lastErrMsg = '';
 
-      for (const ep of endpoints) {
+      for (const ep of candidateEndpoints) {
         try {
           const url = `${ep}?key=${encodeURIComponent(cleanKey)}`;
           const response = await fetch(url, {
