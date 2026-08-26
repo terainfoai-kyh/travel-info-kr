@@ -22,6 +22,7 @@ export default function AIPlannerTab({
   chatMessages = [],
   activeDay = 1,
   onSelectDay,
+  itineraryData = null,
   initialMode = 'form', // 'form' | 'chat'
   onAddPoiToItinerary,
   sessionContext = {},
