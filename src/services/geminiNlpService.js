@@ -1646,7 +1646,7 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
     ? `VORA AI为您精心定制的${CITY_TRANSLATIONS.zh[city] || '首尔'}${days}天${themeModifier}路线。${summaryDesc}`
     : `VORA AI가 제안하는 ${city} ${days}일 ${themeModifier} 코스입니다. ${summaryDesc}`;
 
-  let resolvedArrivalTime = context?.tripMemory?.arrivalTime || null;
+  let resolvedArrivalTime = null;
   const matchHour = rawPrompt.match(/(\d{1,2})\s*(?:시|:00)/);
   if (matchHour) {
     let h = parseInt(matchHour[1], 10);
