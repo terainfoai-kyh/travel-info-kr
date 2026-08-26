@@ -665,6 +665,66 @@ export const VORA_QNA_VAULT = [
     followUp: "도착 시간이나 숙소 위치를 말씀해 주시면 첫날부터 완벽한 동선으로 맞춰드릴게요! ✈️🏨",
     suggestedChips: ["☀️ 오전 도착 (12:00 이전)", "🌤️ 오후 도착 (14:00~16:00)", "🌙 저녁/밤 도착 (18:00 이후)", "🚀 이제 일정 짜줘"]
   },
+  // =========================================================================
+  // 1-1. 사계절 대표 여행지 추천 (SEASONAL_RECOMMENDATION)
+  // =========================================================================
+  {
+    id: "qna_spring_best_destinations",
+    category: "SEASONAL_RECOMMENDATION",
+    targetCity: "all",
+    season: "spring",
+    questionVariations: [
+      "봄에는",
+      "봄엔",
+      "봄은",
+      "봄에는 어디가 좋아",
+      "봄에 어디가 좋아",
+      "봄 어디가 좋아",
+      "봄엔 어디가 좋아",
+      "봄 어디가 좋을까",
+      "봄 여행지 추천",
+      "봄 여행 어디",
+      "봄에 갈만한곳",
+      "벚꽃 명소 추천"
+    ],
+    intentKeywords: ["봄", "봄에는", "봄엔", "어디가", "좋아", "추천", "벚꽃", "유채꽃", "여행지", "명소"],
+    geminiAnswer: {
+      ko: "화사한 봄 대한민국 여행은 눈부신 벚꽃 터널의 **[진해 여좌천·경화역]**, 벚꽃과 황리단길의 낭만 **[경주 보문호·대릉원]**, 노란 유채꽃이 끝없이 펼쳐진 **[제주 가시리 녹산로]**, 오션뷰 벚꽃 드라이브 **[부산 달맞이길]**이 최고 인기 명소예요! 🌸🌿✨",
+      en: "Top spring destinations in Korea include the legendary cherry blossoms of **[Jinhae Yeojwacheon]**, the historic flower paths of **[Gyeongju Bomun Lake]**, the golden canola fields of **[Jeju Noksan-ro]**, and coastal blossoms at **[Busan Moontan Road]**! 🌸✨",
+      ja: "春の韓国旅行は、桜のトンネルが広がる**【鎮海 余佐川】**、桜と歴史ある街並みが美しい**【慶州 普門湖】**、菜の花が一面に広がる**【済州 鹿山路】**、海沿いの桜が絶景の**【釜山 月見の丘】**が大人気です！🌸🌿",
+      zh: "春季韩国旅游首推樱花烂漫的**【镇海 余佐川】**、古都樱花名所**【庆州 普门湖】**、金色油菜花海**【济州 鹿山路】**以及海景樱花大道**【釜山 迎月路】**！🌸✨"
+    },
+    followUp: "어느 지역의 화사한 봄꽃 풍경으로 일정을 잡아드릴까요? 🌸",
+    suggestedChips: ["🌸 진해 벚꽃 투어", "🚲 경주 봄꽃 힐링", "🌼 제주 유채꽃 코스", "🌊 부산 오션 벚꽃"]
+  },
+  {
+    id: "qna_summer_best_destinations",
+    category: "SEASONAL_RECOMMENDATION",
+    targetCity: "all",
+    season: "summer",
+    questionVariations: [
+      "여름에는",
+      "여름엔",
+      "여름은",
+      "여름에는 어디가 좋아",
+      "여름에 어디가 좋아",
+      "여름 어디가 좋아",
+      "여름엔 어디가 좋아",
+      "여름 여행지 추천",
+      "여름 여행 어디",
+      "여름 바다 추천",
+      "여름에 갈만한곳"
+    ],
+    intentKeywords: ["여름", "여름에는", "여름엔", "어디가", "좋아", "추천", "바다", "해변", "서핑", "여행지", "명소"],
+    geminiAnswer: {
+      ko: "시원한 여름 대한민국 여행은 에메랄드빛 투명한 바다 **[제주 협재·함덕해변]**, 서핑과 힙한 비치 바이브 **[양양 서피비치·강릉 안목해변]**, 화려한 오션뷰와 해운대 나이트라이프 **[부산 해운대·광안리]**, 푸른 남해 비경 **[거제 바람의언덕·외도]**가 최고 인기예요! 🏄‍♂️🌊🏖️",
+      en: "Top summer destinations in Korea include the crystal-clear emerald waters of **[Jeju Hyeopjae & Hamdeok]**, trendy surf vibes at **[Yangyang Surfyy Beach & Gangneung]**, vibrant nightlife at **[Busan Haeundae & Gwangalli]**, and scenic coastlines of **[Geoje Island]**! 🌊🏖️",
+      ja: "夏の韓国旅行は、エメラルドグリーンの海が広がる**【済州 挟才・咸徳ビーチ】**、サーフィンとトレンディな**【襄陽 サーフィービーチ＆江陵】**、華やかなオーシャンビューの**【釜山 海雲台・広安里】**、南海の絶景**【巨済島 風の丘】**が大人気です！🏄‍♂️🌊",
+      zh: "夏季韩国旅游首推果冻海名胜**【济州 挟才·咸德海滩】**、冲浪圣地**【襄阳 Surfyy Beach·江陵】**、繁华海景与夜景**【釜山 海云台·广安里】**以及绝美南海风光**【巨济 风之丘】**！🏄‍♂️🌊"
+    },
+    followUp: "어느 시원한 바다로 떠나보고 싶으신가요? 🏖️",
+    suggestedChips: ["🌊 부산 해운대/광안리", "🏄‍♂️ 강릉/양양 서핑", "🌴 제주 에메랄드 바다", "🏖️ 거제/통영 오션뷰"]
+  },
   {
     id: "qna_autumn_best_destinations",
     category: "SEASONAL_RECOMMENDATION",
@@ -672,6 +732,8 @@ export const VORA_QNA_VAULT = [
     season: "autumn",
     questionVariations: [
       "가을은 어디가 좋아",
+      "가을에는 어디가 좋아",
+      "가을엔 어디가 좋아",
       "가을에 어디가 좋아",
       "가을 어디가 좋아",
       "가을 어디가 좋을까",
@@ -681,7 +743,7 @@ export const VORA_QNA_VAULT = [
       "가을에 갈만한곳",
       "가을 단풍 명소 추천"
     ],
-    intentKeywords: ["가을", "어디가", "좋아", "추천", "단풍", "여행지", "명소", "가볼만한곳"],
+    intentKeywords: ["가을", "가을에는", "가을엔", "어디가", "좋아", "추천", "단풍", "여행지", "명소", "가볼만한곳"],
     geminiAnswer: {
       ko: "가을 대한민국 여행은 붉은 단풍과 은빛 억새가 장관인 **[경주 불국사·보문호]**, 오색 단풍의 절경 **[강원 설악산·남이섬]**, 핑크뮬리와 억새 물결의 **[제주 새별오름·산굼부리]**, 고즈넉한 노란 은행나무길 **[전주 한옥마을]**이 최고 인기 명소예요! 🍁🍂✨",
       en: "Top autumn destinations in Korea include the historic maple trails of **[Gyeongju Bulguksa & Bomun Lake]**, the majestic fall colors of **[Seoraksan & Nami Island]**, the silver grass & pink muhly of **[Jeju Saebyeol Oreum]**, and golden ginkgo paths of **[Jeonju Hanok Village]**! 🍁✨",
@@ -690,6 +752,34 @@ export const VORA_QNA_VAULT = [
     },
     followUp: "어느 지역의 가을 풍경이 가장 끌리시나요? 😊",
     suggestedChips: ["🍁 경주 단풍 힐링", "🏔️ 설악/강릉 가을", "🌾 제주 억새·핑크뮬리", "🏮 전주 한옥 낭만"]
+  },
+  {
+    id: "qna_winter_best_destinations",
+    category: "SEASONAL_RECOMMENDATION",
+    targetCity: "all",
+    season: "winter",
+    questionVariations: [
+      "겨울에는",
+      "겨울엔",
+      "겨울은",
+      "겨울에는 어디가 좋아",
+      "겨울에 어디가 좋아",
+      "겨울 어디가 좋아",
+      "겨울 어디가 좋을까",
+      "겨울 여행지 추천",
+      "겨울 여행 어디",
+      "겨울 설경 명소",
+      "겨울에 갈만한곳"
+    ],
+    intentKeywords: ["겨울", "겨울에는", "겨울엔", "어디가", "좋아", "추천", "눈", "설경", "온천", "여행지", "명소"],
+    geminiAnswer: {
+      ko: "낭만적인 겨울 대한민국 여행은 환상적인 눈꽃 설경 **[평창 대관령 양떼목장·발왕산 케이블카]**, 은빛 순백의 숲 **[인제 자작나무숲]**, 따뜻한 오션뷰 스파 **[부산 해운대 스파랜드·제주 산방산 온천]**, 화려한 도심 빛축제 **[서울 명소·청계천]**이 최고 인기예요! ⛄❄️♨️",
+      en: "Top winter destinations in Korea include the breathtaking snowscapes of **[Pyeongchang Daegwallyeong & Mt. Balwang]**, the magical white birch forest of **[Inje]**, relaxing ocean-view hot springs at **[Busan & Jeju]**, and sparkling winter light festivals in **[Seoul]**! ❄️♨️",
+      ja: "冬の韓国旅行は、白銀の絶景が広がる**【平昌 大関嶺羊牧場・発旺山】**、神秘的な純白の**【麟蹄 シラカバの森】**、温かいオーシャンビュースパ**【釜山 海雲台・済州 温泉】**、華やかな光のフェスティバル**【ソウル】**が大人気です！⛄❄️",
+      zh: "冬季韩国旅游首推梦幻雪景胜地**【平昌 大关岭羊群牧场·发旺山缆车】**、纯白童话般的**【麟蹄 白桦林】**、温暖惬意的海景温泉**【釜山 海云台·济州】**以及流光溢彩的**【首尔 冬季灯光节】**！⛄❄️"
+    },
+    followUp: "어느 겨울 낭만 코스로 일정을 잡아드릴까요? ❄️",
+    suggestedChips: ["❄️ 평창/강원 설경 투어", "🌲 인제 자작나무숲", "♨️ 온천 & 오션뷰 힐링", "✨ 서울 도심 겨울 야경"]
   },
   {
     id: "qna_fragment_autumn_only",
@@ -708,7 +798,7 @@ export const VORA_QNA_VAULT = [
     ],
     intentKeywords: ["가을", "9월", "10월", "11월", "가을철", "단풍", "억새", "핑크뮬리"],
     geminiAnswer: {
-      ko: "청명한 하늘과 붉은 단풍이 아름다운 **가을철 {city:은/는}** 여행이시군요! 🍁 혹시 몇 시쯤 어디(공항/터미널/KTX역)로 도착하시고, 숙소는 어디쯤이신가요? 😊",
+      ko: "청명한 하늘과 붉은 단풍이 아름다운 **가을철 {city} 여행**이시군요! 🍁 혹시 몇 시쯤 어디(공항/터미널/KTX역)로 도착하시고, 숙소는 어디쯤이신가요? 😊",
       en: "Wonderful choice for a crisp autumn trip to **{city}**! 🍁 Around what time do you arrive, and where is your hotel stay located? 😊"
     },
     followUp: "도착 시간이나 숙소 위치를 말씀해 주시면 첫날부터 완벽한 동선으로 맞춰드릴게요! ✈️🏨",
