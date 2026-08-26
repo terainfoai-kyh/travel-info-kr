@@ -881,5 +881,31 @@ export const VORA_QNA_VAULT = [
     },
     followUp: "오늘 저와 함께 어떤 멋진 여행을 떠나보실까요? ✈️🌸",
     suggestedChips: ["✨ 나만의 맞춤 여행 시작", "🗺️ 전국 인기 명소 구경", "💡 여행 꿀팁 물어보기"]
+  },
+  {
+    id: "qna_service_capabilities_guide",
+    category: "DAILY_CHITCHAT",
+    targetCity: "all",
+    season: "all",
+    questionVariations: [
+      "여기서 뭘 할수 있지",
+      "여기서 뭘 할 수 있어?",
+      "너 뭐 할 수 있어?",
+      "보라는 뭘 할 수 있어?",
+      "기능이 뭐야?",
+      "사용법 알려줘",
+      "어떻게 쓰는 거야?",
+      "뭘 도와줄 수 있어?",
+      "여기 뭐하는 곳이야?",
+      "what can you do",
+      "how to use"
+    ],
+    intentKeywords: ["뭘 할수", "뭐 할수", "뭘할수", "뭐할수", "기능", "사용법", "도와줄", "도움말", "어떻게 써", "뭐하는 곳"],
+    geminiAnswer: {
+      ko: "저는 여행자님의 완벽한 대한민국 여행을 위해 다음과 같은 일들을 든든하게 도와드려요! 🧚‍♀️✨\n\n1. **🗺️ 0.01초 맞춤 일정표 생성**: 가고 싶으신 도시, 일정, 계절, 동행자에 맞춘 최적 동선 코스\n2. **👗 사계절 옷차림 & 실시간 날씨 코디**: 계절별/날씨별 최적 패션과 필수 꿀템 가이드\n3. **🍴 찐 로컬 맛집 & 감성 카페 추천**: 현지인 추천 노포부터 오션뷰 베이커리 카페까지\n4. **🏨 호텔 & 펜션 최저가 예약**: 아고다 제휴 특가 링크 및 지역별 평점 9.0+ 숙소 안내\n5. **🧳 교통 & 짐보관 & 여행 팁**: 공항철도, KTX, 티머니, 즉시 텍스리펀 꿀팁",
+      en: "I am here to make your South Korea travel seamless and magical! 🧚‍♀️✨\n\n1. **🗺️ Instant Itinerary Planning**: Custom daily schedules tailored to your duration, style & companion\n2. **👗 Seasonal Outfit & Weather Guides**: What to wear and essential travel packing tips\n3. **🍴 Authentic Food & Cafe Trails**: Local foodie spots to scenic oceanview bakeries\n4. **🏨 Best Hotels & Stays**: Handpicked stays with direct discounted Agoda rates\n5. **🧳 Transit & Local Hacks**: AREX, KTX, T-Money & instant tax refund guides"
+    },
+    followUp: "가고 싶으신 지역이나 궁금한 점을 편하게 말씀해 주세요! 😊✈️",
+    suggestedChips: ["🗺️ 2박3일 맞춤 일정 만들기", "👗 계절별 옷차림 물어보기", "🍴 현지인 찐맛집 추천", "🏨 인기 숙소/호텔 보기"]
   }
 ];
