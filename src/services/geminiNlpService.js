@@ -1482,10 +1482,13 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
 
   const getHotelLuggageSpot = (area = '해운대', cityContext = '부산') => {
     const coords = HOTEL_COORDS_MAP[area] || HOTEL_COORDS_MAP[cityContext] || HOTEL_COORDS_MAP['서울'];
+    const displayName = (area.includes('호텔') || area.includes('리조트') || area.includes('펜션') || area.includes('게하'))
+      ? area
+      : `${area} 호텔`;
     return {
-      name: lang === 'en' ? `${area} Hotel Arrival & Luggage Drop` : (lang === 'ja' ? `${area} ホテル到着＆手荷物預け（Luggage Drop）` : (lang === 'zh' ? `${area} 酒店到达与行李寄存（Luggage Drop）` : `${area} 호텔 도착 & 캐리어 짐 보관(Luggage Drop)`)),
+      name: lang === 'en' ? `${displayName} Arrival & Luggage Drop` : (lang === 'ja' ? `${displayName} 到着＆手荷物預け（Luggage Drop）` : (lang === 'zh' ? `${displayName} 到达与行李寄存（Luggage Drop）` : `${displayName} 도착 & 캐리어 짐 보관(Luggage Drop)`)),
       theme: lang === 'en' ? 'Hands-Free Travel & Early Check-In' : (lang === 'ja' ? '身軽な手ぶら観光＆チェックイン' : (lang === 'zh' ? '轻松轻装出行与提前寄存' : '가벼운 손으로 시작하는 1일차 핫플 탐방')),
-      desc: lang === 'en' ? `Arrive at your hotel in ${area}. Drop heavy bags at the front desk before check-in to explore the city hands-free!` : `예약한 ${area} 호텔에 도착하여 체크인 전 프런트에 무거운 캐리어를 무료 보관(Luggage Drop)하고 가벼운 발걸음으로 1일차 여행을 시작합니다.`,
+      desc: lang === 'en' ? `Arrive at your stay at ${displayName}. Drop heavy bags at the front desk before check-in to explore the city hands-free!` : `예약한 ${displayName}에 도착하여 체크인 전 프런트에 무거운 캐리어를 무료 보관(Luggage Drop)하고 가벼운 발걸음으로 1일차 여행을 시작합니다.`,
       cat: lang === 'en' ? 'Hotel & Stay' : '숙소/짐보관',
       photo: '📸 호텔 로비 & 가벼운 외출 샷',
       sig: '🧳 무료 캐리어 짐 보관 & 체크인 안내',
