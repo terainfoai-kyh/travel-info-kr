@@ -8,7 +8,7 @@
  * 3. Fallback Logging to Unanswered Queue (Active Learning Data Loop)
  */
 
-import { VORA_QNA_VAULT } from '../data/voraQnaVault.js';
+import { getVoraQnaVault } from '../data/voraQnaVault.js';
 import { interpolateTemplate } from '../utils/koreanParticles.js';
 import { pushQuestionToCloud } from './voraCloudQnaService.js';
 
@@ -30,8 +30,11 @@ export function logUnansweredQuestion(rawQuery, targetCity = null, tripContext =
   const isSimpleActionOrAccept = /^(짜줘|맞춰줘|해줘|잡아줘|추천해줘|만들어줘|일정\s*생성|생성해줘|설계해줘|준비해줘|정해줘|응|어|네|예|좋아|좋아요|오케이|ok|콜|그래|부탁해|이대로|시작|가자|가보자)$/i.test(clean);
   const isSimpleThemeOnly = /^(맛집|카페|관광지|쇼핑|자연|야경|힐링|인생샷|덜\s*걷기|비\/실내|실내|비오는날)$/i.test(clean);
 
-  if (isSimpleCityOnly || isSimpleDuration || isSimpleCompanion || isSimpleActionOrAccept || isSimpleThemeOnly) {
-    return; // 단순 상태 조건은 큐에 저장하지 않음!
+  // 🛡️ 2. 일정 편집/제외 명령어는 질문 큐 저장에서 100% 원천 차단! (e.g. 호텔은 빼줘, 숙소 제외해줘)
+  const isExclusionDirective = /(빼줘|빼주세요|제외해줘|제외|없애줘|삭제해줘|빼|지워줘)/i.test(clean);
+
+  if (isSimpleCityOnly || isSimpleDuration || isSimpleCompanion || isSimpleActionOrAccept || isSimpleThemeOnly || isExclusionDirective) {
+    return; // 단순 상태 조건 및 편집 제외 명령어는 큐에 저장하지 않음!
   }
 
   try {
@@ -148,7 +151,8 @@ export function matchVoraQna(query = '', targetCity = null, context = {}, lang =
   const displayCity = targetCity || (lang === 'en' ? 'Korea' : '대한민국');
   const activeSeason = context.tripMemory?.season || (/(겨울|가을|봄|여름)/.test(clean) ? clean.match(/(겨울|가을|봄|여름)/)[1] : '사계절');
 
-  let combinedVault = [...VORA_QNA_VAULT];
+  const baseVault = getVoraQnaVault() || [];
+  let combinedVault = Array.isArray(baseVault) ? [...baseVault] : [];
   try {
     if (typeof localStorage !== 'undefined') {
       const customVault = JSON.parse(localStorage.getItem('vora_custom_qna_vault') || '[]');

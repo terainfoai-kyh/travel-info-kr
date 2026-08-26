@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Sparkles, Database, Play, CheckCircle2, Copy, Download, RefreshCw, Key, ShieldCheck, AlertCircle, Cloud, Smartphone } from 'lucide-react';
-import { VORA_QNA_VAULT } from '../data/voraQnaVault';
+import { getVoraQnaVault } from '../data/voraQnaVault';
 import { interpolateTemplate } from '../utils/koreanParticles';
 import { fetchQuestionsFromCloud, clearQuestionsFromCloud } from '../services/voraCloudQnaService';
 
@@ -13,6 +13,7 @@ export default function AdminBatchModal({
   const [apiKey, setApiKey] = useState('');
   const [isKeySaved, setIsKeySaved] = useState(false);
   const [unansweredList, setUnansweredList] = useState([]);
+  const [customVaultList, setCustomVaultList] = useState([]);
   const [isSyncingCloud, setIsSyncingCloud] = useState(false);
   const [isRunningBatch, setIsRunningBatch] = useState(false);
   const [batchProgress, setBatchProgress] = useState(0);
@@ -21,6 +22,15 @@ export default function AdminBatchModal({
   const [testQuery, setTestQuery] = useState('');
   const [testResult, setTestResult] = useState(null);
   const [copySuccess, setCopySuccess] = useState(false);
+
+  const loadCustomVaultFromStorage = () => {
+    try {
+      const stored = JSON.parse(localStorage.getItem('vora_custom_qna_vault') || '[]');
+      setCustomVaultList(Array.isArray(stored) ? stored : []);
+    } catch (e) {
+      setCustomVaultList([]);
+    }
+  };
 
   const loadUnansweredFromStorage = async (syncCloud = false) => {
     try {
@@ -66,8 +76,9 @@ export default function AdminBatchModal({
       setApiKey(savedKey);
       if (savedKey) setIsKeySaved(true);
 
-      // Load unanswered questions once upon modal open
+      // Load unanswered questions and custom learned vault
       loadUnansweredFromStorage(false);
+      loadCustomVaultFromStorage();
     }
   }, [isOpen]);
 
@@ -660,6 +671,80 @@ export default function AdminBatchModal({
                   <Copy size={14} />
                   {copySuccess ? '복사 완료! ✅' : 'Q&A JSON 전체 복사'}
                 </button>
+              </div>
+            </div>
+          )}
+
+          {/* 5. Custom Learned Vault Management */}
+          {customVaultList.length > 0 && (
+            <div style={{
+              backgroundColor: 'var(--bg-primary)',
+              padding: '1rem 1.2rem',
+              borderRadius: '16px',
+              border: '1px solid var(--border-color)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.6rem'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <Sparkles size={16} color="#10b981" /> 🧠 브라우저 학습 커스텀 지식 ({customVaultList.length}건)
+                </span>
+                <button
+                  onClick={() => {
+                    if (confirm('브라우저에 누적된 커스텀 학습 지식을 모두 삭제하시겠습니까?')) {
+                      localStorage.removeItem('vora_custom_qna_vault');
+                      setCustomVaultList([]);
+                    }
+                  }}
+                  style={{
+                    background: 'none',
+                    border: '1px solid rgba(239, 68, 68, 0.4)',
+                    color: '#ef4444',
+                    fontSize: '0.72rem',
+                    padding: '0.2rem 0.5rem',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontWeight: 700
+                  }}
+                >
+                  🗑️ 전체 초기화
+                </button>
+              </div>
+              <div style={{ maxHeight: '140px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+                {customVaultList.map((item, idx) => (
+                  <div key={idx} style={{
+                    fontSize: '0.75rem',
+                    padding: '0.35rem 0.6rem',
+                    backgroundColor: 'var(--bg-card)',
+                    borderRadius: '6px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '0.5rem'
+                  }}>
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      💡 {item.questionVariations?.[0] || item.id || `지식 #${idx + 1}`}
+                    </span>
+                    <button
+                      onClick={() => {
+                        const next = customVaultList.filter((_, i) => i !== idx);
+                        localStorage.setItem('vora_custom_qna_vault', JSON.stringify(next));
+                        setCustomVaultList(next);
+                      }}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#ef4444',
+                        cursor: 'pointer',
+                        fontSize: '0.72rem',
+                        fontWeight: 700
+                      }}
+                    >
+                      ❌ 삭제
+                    </button>
+                  </div>
+                ))}
               </div>
             </div>
           )}

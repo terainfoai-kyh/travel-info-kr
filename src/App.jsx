@@ -740,6 +740,24 @@ export default function App() {
               (lang === 'en' ? '🚀 Create Custom Itinerary' : '🚀 맞춤 일정 만들기')
             ];
 
+        // 🛡️ [특수 지시어 처리: 호텔은 빼줘 / ~제외해줘]
+        const isExclusionDirective = /(호텔|숙소|카페|박물관|쇼핑|맛집)\s*(은|는|이|가|도)?\s*(빼줘|빼주세요|제외해줘|제외|없애줘|삭제해줘|빼|지워줘)/i.test(promptQuery);
+        if (isExclusionDirective) {
+          const matchEx = promptQuery.match(/(호텔|숙소|카페|박물관|쇼핑|맛집)/i);
+          const exItem = matchEx ? matchEx[1] : '해당 항목';
+          if (exItem === '호텔' || exItem === '숙소') {
+            updatedState.tripMemory.hotelArea = null;
+          }
+          chatText = (lang === 'en')
+            ? `✨ Got it! I have excluded **[${exItem}]** and optimized your itinerary for a smooth, focused day trip! 👉 Shall we generate the updated plan? 🚀`
+            : `✨ 알겠습니다! 요청하신 **[${exItem}]** 항목을 깔끔하게 제외하고 알찬 당일치기/핵심 코스로 재조율해 드릴게요! 👉 **이 조건으로 일정을 바로 뽑아드릴까요? 🚀**`;
+          quickButtons = [
+            (lang === 'en' ? '🚀 일정 생성' : '🚀 일정 생성'),
+            (lang === 'en' ? '🍴 Local Food Trails' : '🍴 현지인 맛집 코스'),
+            (lang === 'en' ? '🌊 Scenic View Spots' : '🌊 오션뷰/전망 명소')
+          ];
+        }
+
         if (userIntent === 'OFF_TOPIC') {
           chatText = lang === 'en'
             ? `I am VORA, your dedicated AI Travel Concierge for South Korea! 🇰🇷✨ Please ask me about travel destinations, itineraries, delicious local food, or stays!`
