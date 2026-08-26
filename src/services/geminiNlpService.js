@@ -1164,7 +1164,39 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
     }
   };
 
-  const getHotelLuggageSpot = (area = '명동') => {
+  const HOTEL_COORDS_MAP = {
+    '해운대': { lat: 35.1587, lng: 129.1604 },
+    '광안리': { lat: 35.1532, lng: 129.1186 },
+    '서면': { lat: 35.1578, lng: 129.0594 },
+    '남포동': { lat: 35.0975, lng: 129.0306 },
+    '부산': { lat: 35.1587, lng: 129.1604 },
+    '제주시내': { lat: 33.5060, lng: 126.5200 },
+    '서귀포': { lat: 33.2480, lng: 126.4120 },
+    '중문': { lat: 33.2480, lng: 126.4120 },
+    '애월': { lat: 33.4650, lng: 126.3200 },
+    '제주': { lat: 33.5060, lng: 126.5200 },
+    '홍대': { lat: 37.5563, lng: 126.9230 },
+    '강남': { lat: 37.4979, lng: 127.0276 },
+    '동대문': { lat: 37.5665, lng: 127.0092 },
+    '명동': { lat: 37.5636, lng: 126.9827 },
+    '서울': { lat: 37.5636, lng: 126.9827 },
+    '경포대': { lat: 37.7950, lng: 128.8960 },
+    '안목': { lat: 37.7715, lng: 128.9480 },
+    '강릉': { lat: 37.7950, lng: 128.8960 },
+    '황리단길': { lat: 35.8380, lng: 129.2100 },
+    '경주': { lat: 35.8380, lng: 129.2100 },
+    '행궁동': { lat: 37.2842, lng: 127.0142 },
+    '수원': { lat: 37.2842, lng: 127.0142 },
+    '여수': { lat: 34.7440, lng: 127.7370 },
+    '전주': { lat: 35.8150, lng: 127.1530 },
+    '거제': { lat: 34.8800, lng: 128.6200 },
+    '포항': { lat: 36.0190, lng: 129.3430 },
+    '대구': { lat: 35.8714, lng: 128.6014 },
+    '인천': { lat: 37.4563, lng: 126.7052 }
+  };
+
+  const getHotelLuggageSpot = (area = '해운대', cityContext = '부산') => {
+    const coords = HOTEL_COORDS_MAP[area] || HOTEL_COORDS_MAP[cityContext] || HOTEL_COORDS_MAP['서울'];
     return {
       name: lang === 'en' ? `${area} Hotel Arrival & Luggage Drop` : (lang === 'ja' ? `${area} ホテル到着＆手荷物預け（Luggage Drop）` : (lang === 'zh' ? `${area} 酒店到达与行李寄存（Luggage Drop）` : `${area} 호텔 도착 & 캐리어 짐 보관(Luggage Drop)`)),
       theme: lang === 'en' ? 'Hands-Free Travel & Early Check-In' : (lang === 'ja' ? '身軽な手ぶら観光＆チェックイン' : (lang === 'zh' ? '轻松轻装出行与提前寄存' : '가벼운 손으로 시작하는 1일차 핫플 탐방')),
@@ -1173,7 +1205,8 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
       photo: '📸 호텔 로비 & 가벼운 외출 샷',
       sig: '🧳 무료 캐리어 짐 보관 & 체크인 안내',
       time: '오후 1:00',
-      lat: 37.5636, lng: 126.9827
+      lat: coords.lat,
+      lng: coords.lng
     };
   };
 
@@ -1204,7 +1237,7 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
         day1Prefix.push(getGatewaySpot(city, true));
       }
       if (!isHotelExcluded && !isDayTrip) {
-        day1Prefix.push(getHotelLuggageSpot(hotelArea));
+        day1Prefix.push(getHotelLuggageSpot(hotelArea, city));
       }
       spotsForDay = [
         ...day1Prefix,
