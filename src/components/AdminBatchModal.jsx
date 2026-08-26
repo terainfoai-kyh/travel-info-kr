@@ -32,16 +32,26 @@ export default function AdminBatchModal({
     }
   };
 
-  const loadUnansweredFromStorage = async (syncCloud = false) => {
+  const loadUnansweredFromStorage = async (syncCloud = true) => {
     try {
       const stored = JSON.parse(localStorage.getItem('vora_unanswered_qna') || '[]');
-      let merged = stored.filter((v, i, a) => 
-        a.findIndex(t => t.rawQuery.trim().toLowerCase() === v.rawQuery.trim().toLowerCase()) === i
-      );
+      const normKey = (s) => (s || '').trim().toLowerCase().replace(/[\s\-_?!.~,()[\]]/g, '');
+      
+      let merged = [];
+      stored.forEach(item => {
+        const k = normKey(item.rawQuery || item.question);
+        if (!k) return;
+        const idx = merged.findIndex(m => normKey(m.rawQuery || m.question) === k);
+        if (idx >= 0) {
+          merged[idx].count = Math.max(merged[idx].count || 1, item.count || 1);
+        } else {
+          merged.push({ ...item, count: item.count || 1 });
+        }
+      });
 
       setUnansweredList(merged);
 
-      // 🌐 클라우드(핸드폰/타기기/전세계) 실시간 동기화
+      // 🌐 중앙 클라우드 보라 DB 실시간 동기화
       if (syncCloud) {
         setIsSyncingCloud(true);
         const cloudItems = await fetchQuestionsFromCloud();
@@ -50,14 +60,16 @@ export default function AdminBatchModal({
         if (cloudItems && cloudItems.length > 0) {
           const nextList = [...merged];
           cloudItems.forEach(cItem => {
-            const idx = nextList.findIndex(m => m.rawQuery.trim().toLowerCase() === cItem.rawQuery.trim().toLowerCase());
+            const ck = normKey(cItem.rawQuery || cItem.question);
+            if (!ck) return;
+            const idx = nextList.findIndex(m => normKey(m.rawQuery || m.question) === ck);
             if (idx >= 0) {
               nextList[idx].count = Math.max(nextList[idx].count || 1, cItem.count || 1);
               if (cItem.context && Object.keys(cItem.context).length > 0) {
                 nextList[idx].context = cItem.context;
               }
             } else {
-              nextList.push(cItem);
+              nextList.push({ ...cItem, count: cItem.count || 1 });
             }
           });
           setUnansweredList(nextList);
@@ -76,8 +88,8 @@ export default function AdminBatchModal({
       setApiKey(savedKey);
       if (savedKey) setIsKeySaved(true);
 
-      // Load unanswered questions and custom learned vault
-      loadUnansweredFromStorage(false);
+      // Load unanswered questions from Central Cloud DB and custom learned vault
+      loadUnansweredFromStorage(true);
       loadCustomVaultFromStorage();
     }
   }, [isOpen]);
