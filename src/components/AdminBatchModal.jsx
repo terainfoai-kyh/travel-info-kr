@@ -82,13 +82,12 @@ export default function AdminBatchModal({
       if (listRes.ok) {
         const listData = await listRes.json();
         const models = listData.models || [];
-        const preferred = models.find(m => (m.name.includes('gemini-1.5-flash') || m.name.includes('gemini-2.0-flash')) && m.supportedGenerationMethods?.includes('generateContent'))
-          || models.find(m => m.name.includes('flash') && m.supportedGenerationMethods?.includes('generateContent'))
+        const preferred = models.find(m => m.supportedGenerationMethods?.includes('generateContent') && (m.name.includes('gemini-2.5-flash') || m.name.includes('gemini-1.5-flash') || m.name.includes('flash')))
           || models.find(m => m.supportedGenerationMethods?.includes('generateContent'));
 
         if (preferred) {
           activeModelPath = preferred.name;
-          setBatchLogs(prev => [...prev, `✨ 연결 성공! 정품 모델 활성화: [ ${activeModelPath} ]`]);
+          setBatchLogs(prev => [...prev, `✨ 구글 정품 모델 연결 성공: [ ${activeModelPath} ]`]);
         }
       } else {
         const errTxt = await listRes.text();
@@ -98,12 +97,7 @@ export default function AdminBatchModal({
       setBatchLogs(prev => [...prev, `⚠️ 모델 탐색 스킵: ${le.message}`]);
     }
 
-    const candidateEndpoints = [
-      `https://generativelanguage.googleapis.com/v1beta/${activeModelPath}:generateContent`,
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-8b:generateContent`,
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent`,
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent`
-    ];
+    const targetUrl = `https://generativelanguage.googleapis.com/v1beta/${activeModelPath}:generateContent?key=${encodeURIComponent(cleanKey)}`;
 
     for (let i = 0; i < unansweredList.length; i++) {
       const q = unansweredList[i];
@@ -120,7 +114,7 @@ export default function AdminBatchModal({
 4. followUp: 다음 단계 제안 문구
 5. suggestedChips: 사용자가 누를 수 있는 3~4개의 퀵 버튼 라벨
 
-JSON 형식 예시:
+반드시 코드 블록이나 다른 설명 없이 오직 순수 JSON 데이터만 출력하세요:
 {
   "id": "qna_auto_${Date.now()}_${i}",
   "category": "DYNAMIC_KNOWLEDGE",
@@ -138,52 +132,44 @@ JSON 형식 예시:
   "suggestedChips": ["버튼1", "버튼2"]
 }`;
 
-      let responseData = null;
-      let lastErrMsg = '';
+      try {
+        const response = await fetch(targetUrl, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'x-goog-api-key': cleanKey
+          },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: promptText }] }],
+            generationConfig: {
+              temperature: 0.2
+            }
+          })
+        });
 
-      for (const ep of candidateEndpoints) {
-        try {
-          const url = `${ep}?key=${encodeURIComponent(cleanKey)}`;
-          const response = await fetch(url, {
-            method: 'POST',
-            headers: { 
-              'Content-Type': 'application/json',
-              'x-goog-api-key': cleanKey
-            },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: promptText }] }],
-              generationConfig: {
-                temperature: 0.2,
-                responseMimeType: "application/json"
-              }
-            })
-          });
-
-          if (response.ok) {
-            responseData = await response.json();
-            break;
-          } else {
-            const errTxt = await response.text();
-            lastErrMsg = `[${response.status}] ${errTxt.slice(0, 120)}`;
-          }
-        } catch (e) {
-          lastErrMsg = e.message;
+        if (!response.ok) {
+          const errTxt = await response.text();
+          setBatchLogs(prev => [...prev, `❌ [${response.status}] 오류: ${errTxt.slice(0, 150)}`]);
+          continue;
         }
-      }
 
-      if (responseData) {
-        const jsonText = responseData.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (jsonText) {
+        const responseData = await response.json();
+        const rawOutput = responseData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        
+        // Clean markdown code fence if present (```json ... ```)
+        const cleanedJson = rawOutput.replace(/```json/gi, '').replace(/```/g, '').trim();
+        
+        if (cleanedJson) {
           try {
-            const parsed = JSON.parse(jsonText);
+            const parsed = JSON.parse(cleanedJson);
             newDistilled.push(parsed);
             setBatchLogs(prev => [...prev, `✅ "${q.rawQuery}" ➔ 황금 Q&A 지식 생성 완료!`]);
           } catch (pe) {
-            setBatchLogs(prev => [...prev, `⚠️ "${q.rawQuery}" 파싱 오류: ${pe.message}`]);
+            setBatchLogs(prev => [...prev, `⚠️ "${q.rawQuery}" JSON 파싱 오류: ${pe.message}`]);
           }
         }
-      } else {
-        setBatchLogs(prev => [...prev, `❌ "${q.rawQuery}" 생성 실패: ${lastErrMsg}`]);
+      } catch (e) {
+        setBatchLogs(prev => [...prev, `❌ "${q.rawQuery}" 통신 에러: ${e.message}`]);
       }
     }
 
