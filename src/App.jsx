@@ -613,20 +613,19 @@ export default function App() {
 
         if (!rawDays) {
           briefingText = (lang === 'en')
-            ? `💡 Feel free to ask anything, or tap [Create Itinerary Now] anytime!\n\n**[ ${tagLabel} ]**\nHow many days are you staying in ${targetCity}, when (season/time) do you arrive, and where is your hotel? 😊`
-            : `💡 편하게 물어보시고, 언제든 '좋아' 또는 [바로 일정 만들기]를 누르시면 완성해 드려요!\n\n**[ ${tagLabel} ]**\n${targetCity}에서 며칠 동안 머무르실 예정인가요? 그리고 언제(계절/시간) 어디로 도착하시고, 숙소는 어디쯤이신가요? 😊`;
+            ? `**[ ${tagLabel} ]**\n${targetCity} is best experienced with a **3-Day Highlight Course**! Shall I prepare it for you? ✨ (Default: 09:00~18:00)`
+            : `**[ ${tagLabel} ]**\n${targetCity}는 보통 3일 코스가 가장 알차요! 대표 랜드마크 & 힐링 중심 **[${targetCity} 3일 코스]**로 바로 잡아드릴까요? ✨ (기본 09:00~18:00)`;
         } else {
           briefingText = (lang === 'en')
-            ? `💡 Feel free to ask anything, or tap [Create Itinerary Now] anytime!\n\n**[ ${tagLabel} ]**\nWhen (date/season) and what time are you arriving, and where is your hotel? 😊`
-            : `💡 편하게 물어보시고, 언제든 '좋아' 또는 [바로 일정 만들기]를 누르시면 완성해 드려요!\n\n**[ ${tagLabel} ]**\n언제(날짜/계절) 몇 시쯤 어디로 도착하시고, 숙소는 어디쯤이신가요? 😊`;
+            ? `**[ ${tagLabel} ]**\nShall I create your customized **${targetCity} ${rawDays}-Day Course** right away? ✨ (Default: 09:00~18:00)`
+            : `**[ ${tagLabel} ]**\n선택하신 조건에 맞춰 **[${targetCity} ${rawDays}일 알찬 코스]**로 바로 잡아드릴까요? ✨ (기본 09:00~18:00)`;
         }
 
         quickSuggestions = [
           (lang === 'en' ? '🚀 Create Itinerary Now' : '🚀 바로 일정 만들기'),
-          ...durationChips,
-          ...seasonalChips,
-          ...dynamicGatewayChips,
-          (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')
+          (lang === 'en' ? `🍴 ${targetCity} Foodies` : `🍴 ${targetCity} 대표 맛집 & 카페`),
+          (lang === 'en' ? `📸 ${targetCity} Photo Spots` : `📸 ${targetCity} 인생샷 명소`),
+          (lang === 'en' ? `🏨 ${targetCity} Top Hotels` : `🏨 ${targetCity} 인기 숙소 추천`)
         ];
       }
 
