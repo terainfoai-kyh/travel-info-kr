@@ -119,6 +119,9 @@ export function matchVoraQna(query = '', targetCity = null, context = {}, lang =
     }
   } catch (e) {}
 
+  let bestMatch = null;
+  let highestScore = 0;
+
   for (const item of combinedVault) {
     let score = 0;
 
