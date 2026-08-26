@@ -27,7 +27,8 @@ export default function AIPlannerTab({
   sessionContext = {},
   onRemoveContextChip,
   onToggleContextChip,
-  onResetChat
+  onResetChat,
+  onUpdateTimeSlot
 }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
 
@@ -199,6 +200,7 @@ export default function AIPlannerTab({
             onRemoveContextChip={onRemoveContextChip}
             onToggleContextChip={onToggleContextChip}
             onResetChat={onResetChat}
+            onUpdateTimeSlot={onUpdateTimeSlot}
           />
         </div>
       </div>

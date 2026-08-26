@@ -877,6 +877,26 @@ export default function App() {
     }
   };
 
+  // ⏰ 일차별 시간 변경 즉시 실시간 동기화 핸들러
+  const handleUpdateTimeSlot = (day, newTimeSlot, currentMsgPlan) => {
+    setItineraryData(prev => {
+      const base = prev || currentMsgPlan;
+      if (!base) return prev;
+      const updated = {
+        ...base,
+        dayTimeSlots: { ...(base.dayTimeSlots || {}), [day]: newTimeSlot }
+      };
+      if (Number(day) === 1) {
+        updated.arrivalTime = newTimeSlot.split('~')[0].trim();
+      }
+      try {
+        localStorage.setItem('vora_temp_active_draft', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+    setHasActiveUnsavedDraft(true);
+  };
+
   const chipDebounceRef = useRef(null);
 
   // 🧠 Context Chip 개별 해제 핸들러
@@ -1084,6 +1104,7 @@ export default function App() {
                     onRemoveContextChip={handleRemoveContextChip}
                     onToggleContextChip={handleToggleContextChip}
                     onResetChat={handleResetChat}
+                    onUpdateTimeSlot={handleUpdateTimeSlot}
                   />
                 </div>
                 <div className="itinerary-hub-column" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
@@ -1133,6 +1154,7 @@ export default function App() {
               onRemoveContextChip={handleRemoveContextChip}
               onToggleContextChip={handleToggleContextChip}
               onResetChat={handleResetChat}
+              onUpdateTimeSlot={handleUpdateTimeSlot}
             />
           </div>
         )}

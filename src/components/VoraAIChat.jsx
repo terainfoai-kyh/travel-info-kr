@@ -17,7 +17,8 @@ export default function VoraAIChat({
   sessionContext = {},
   onRemoveContextChip,
   onToggleContextChip,
-  onResetChat
+  onResetChat,
+  onUpdateTimeSlot
 }) {
   const handleTimelineClick = onConfirmItinerary || onViewTimeline;
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
@@ -722,6 +723,9 @@ export default function VoraAIChat({
                                       msg.itinerary.arrivalTime = newTime.split('~')[0].trim();
                                     }
                                   }
+                                  if (onUpdateTimeSlot) {
+                                    onUpdateTimeSlot(ds.day, newTime, msg.itinerary);
+                                  }
                                 }}
                                 style={{
                                   appearance: 'none',
@@ -753,31 +757,6 @@ export default function VoraAIChat({
                           </div>
                         );
                       })}
-
-                      {/* 🚀 바로 일정표 보기 (내 여행 이동) */}
-                      <button
-                        type="button"
-                        onClick={() => handleTimelineClick(msg.itinerary)}
-                        style={{
-                          marginTop: '0.4rem',
-                          width: '100%',
-                          padding: '0.55rem 0.8rem',
-                          borderRadius: '10px',
-                          border: 'none',
-                          background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
-                          color: '#ffffff',
-                          fontSize: '0.82rem',
-                          fontWeight: 800,
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '0.35rem',
-                          boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)'
-                        }}
-                      >
-                        <span>🚀 바로 일정표 보기 (기본 09:00~18:00) ➔</span>
-                      </button>
                     </div>
                   )}
                 </div>
