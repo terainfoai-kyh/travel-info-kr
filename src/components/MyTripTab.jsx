@@ -170,8 +170,31 @@ export default function MyTripTab({
     window.print();
   };
 
-  // 동적 시간대 배정 (스팟 개수 및 체류 시간에 따라 아침~밤까지 자연스러운 스케일링)
-  const getTimeSlot = (idx, totalCount = 5) => {
+  // 동적 시간대 배정 (스팟 개수, 체류 시간, 도착 시간에 따라 아침/오후/밤까지 자연스러운 스케일링)
+  const getTimeSlot = (idx, totalCount = 5, dayNum = 1) => {
+    const arrivalTime = itineraryData?.arrivalTime || '09:00';
+    let startHour = 9;
+    if (Number(dayNum) === 1 && arrivalTime) {
+      const match = arrivalTime.match(/^(\d{1,2})/);
+      if (match) startHour = parseInt(match[1], 10);
+    }
+
+    if (startHour >= 13) {
+      // 13:00(오후 1시) 이후 도착 시
+      if (startHour === 13) {
+        if (totalCount >= 5) return ['13:00', '14:30', '16:30', '18:30', '20:30'][idx] || '21:00';
+        if (totalCount === 4) return ['13:00', '15:00', '17:30', '20:00'][idx] || '21:00';
+        if (totalCount === 3) return ['13:00', '16:00', '19:00'][idx] || '21:00';
+      } else if (startHour >= 14 && startHour < 17) {
+        if (totalCount >= 5) return [`${startHour}:00`, `${startHour + 1}:30`, `${startHour + 3}:00`, '19:00', '21:00'][idx] || '21:30';
+        if (totalCount === 4) return [`${startHour}:00`, `${startHour + 2}:00`, '18:30', '20:30'][idx] || '21:30';
+        if (totalCount === 3) return [`${startHour}:00`, '18:00', '20:30'][idx] || '21:30';
+      } else if (startHour >= 17) {
+        if (totalCount >= 4) return [`${startHour}:00`, '19:00', '20:30', '22:00'][idx] || '22:30';
+        return [`${startHour}:00`, '19:30', '21:30'][idx] || '22:30';
+      }
+    }
+
     if (totalCount >= 5) {
       const times5 = ['09:00', '11:00', '13:00', '15:30', '18:30', '20:00'];
       return times5[idx] || '20:30';
@@ -562,7 +585,7 @@ export default function MyTripTab({
           padding: '0.25rem 0.75rem'
         }}>
           {activeSpots.map((spot, idx) => {
-            const timeStr = getTimeSlot(idx, activeSpots.length);
+            const timeStr = getTimeSlot(idx, activeSpots.length, activeDay);
             const cleanTitle = cleanSpotTitle(spot.title || spot.name);
             const isLast = idx === activeSpots.length - 1;
 

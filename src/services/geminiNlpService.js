@@ -1646,11 +1646,26 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
     ? `VORA AI为您精心定制的${CITY_TRANSLATIONS.zh[city] || '首尔'}${days}天${themeModifier}路线。${summaryDesc}`
     : `VORA AI가 제안하는 ${city} ${days}일 ${themeModifier} 코스입니다. ${summaryDesc}`;
 
+  let resolvedArrivalTime = context?.tripMemory?.arrivalTime || null;
+  const matchHour = rawPrompt.match(/(\d{1,2})\s*(?:시|:00)/);
+  if (matchHour) {
+    let h = parseInt(matchHour[1], 10);
+    if (/(오후|낮|pm)/i.test(rawPrompt) && h < 12) h += 12;
+    resolvedArrivalTime = `${String(h).padStart(2, '0')}:00`;
+  } else if (/(오후|낮|afternoon)/i.test(rawPrompt)) {
+    resolvedArrivalTime = '13:00';
+  } else if (/(저녁|밤|evening|night)/i.test(rawPrompt)) {
+    resolvedArrivalTime = '18:00';
+  } else if (/(오전|아침|morning)/i.test(rawPrompt)) {
+    resolvedArrivalTime = '09:00';
+  }
+
   return {
     targetCity: city,
     days,
     tripTitle,
     summary,
+    arrivalTime: resolvedArrivalTime || '09:00',
     dailySchedules: finalizedSchedules,
     spots: flatSpots,
     generationTime: '0.9',
