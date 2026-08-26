@@ -255,7 +255,7 @@ export default function GoogleAuthModal({
 
           {/* Google Sign-in Action Button */}
           <button
-            onClick={() => handleSimulatedGoogleLogin('traveler@gmail.com', lang === 'en' ? 'Global Traveler' : lang === 'ja' ? '日本旅行者' : '旅行者')}
+            onClick={() => handleSimulatedGoogleLogin('titkyh@gmail.com', '영환 (Admin)')}
             disabled={isLoading}
             style={{
               width: '100%',
