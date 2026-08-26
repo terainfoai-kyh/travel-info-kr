@@ -828,6 +828,20 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
   };
 
   const SAMPLE_SPOTS_MAP = {
+    '원주': [
+      // Day 1 (뮤지엄산-소금산-미로시장)
+      { name: '뮤지엄 산 & 제임스터렐관', theme: '안도 타다오 건축과 물 위의 갤러리', desc: '자연과 건축, 빛과 공간이 완벽한 조화를 이루는 세계적인 힐링 문화 예술 공간입니다.', cat: '역사문화', photo: '📸 물의 정원 워터가든 아치웨이 반영 샷', sig: '🎨 제임스터렐관 빛의 명상 & 카페 테라스', time: '오전 10:30', lat: 37.4087, lng: 127.8184 },
+      { name: '소금산 그랜드밸리 출렁다리', theme: '100m 상공 암벽을 잇는 아찔한 스릴', desc: '기암괴석 절벽 사이를 가로지르는 200m 길이의 출렁다리와 잔도, 울렁다리를 걸으며 삼산천 절경을 감상합니다.', cat: '액티비티', photo: '📸 절벽 위 출렁다리 전경 & 삼산천 뷰 샷', sig: '🌁 출렁다리 & 스카이타워 파노라마', time: '오후 2:00', lat: 37.3625, lng: 127.8340 },
+      { name: '원주 미로예술시장 & 중앙시장', theme: '골목마다 피어난 청년 예술과 로컬 미식', desc: '골목골목 아기자기한 공방과 백종원 골목식당 맛집, 소고기 골목이 어우러진 활기찬 전통시장입니다.', cat: '로컬미식', photo: '📸 미로예술시장 청년몰 감성 골목 샷', sig: '🥩 중앙시장 소고기구이 & 칼국수 골목', time: '오후 6:00', lat: 37.3482, lng: 127.9505 },
+      // Day 2 (치악산-한지-카페거리)
+      { name: '치악산 구룡사 & 금강소나무 숲길', theme: '천년 고찰과 피톤치드 가득한 전나무 숲', desc: '치악산 국립공원 초입의 웅장한 금강소나무 숲길을 따라 걸으며 천년 고찰 구룡사의 고즈넉한 정취를 만끽합니다.', cat: '자연명소', photo: '📸 구룡사 일주문 & 소나무 숲길 반영 샷', sig: '🌲 금강소나무길 맨발 힐링 산책', time: '오전 10:00', lat: 37.3980, lng: 128.0530 },
+      { name: '원주 한지테마파크', theme: '천년의 숨결을 품은 닥나무 전통 한지', desc: '유네스코 등재를 추진 중인 원주 한지의 역사와 다채로운 한지 공예 체험, 야외 정원이 어우러진 공간입니다.', cat: '역사문화', photo: '📸 한지 조명 갤러리 & 한옥 마당 샷', sig: '📜 전통 한지 뜨기 체험 & 공예품', time: '오후 2:00', lat: 37.3325, lng: 127.9350 },
+      { name: '행구동 수변공원 & 감성 카페거리', theme: '치악산 자락 호수 뷰와 여유로운 커피 타임', desc: '치악산 맑은 공기를 품은 수변공원 데크길과 분위기 좋은 대형 베이커리 카페들이 모여있는 힐링 스팟입니다.', cat: '감성카페', photo: '📸 수변공원 분수 & 카페 루프탑 치악산 뷰', sig: '☕ 시그니처 옥수수 라떼 & 소금빵', time: '오후 5:30 (선셋)', lat: 37.3450, lng: 127.9890 },
+      // Day 3 (박경리-반계리-간현)
+      { name: '박경리문학공원 & 옛집', theme: '대하소설 토지의 산실과 문학의 정원', desc: '작가 박경리 선생이 토지 4, 5부를 집필한 옛집과 정원, 전시관이 평화롭게 보존된 문학 힐링 공간입니다.', cat: '역사문화', photo: '📸 박경리 동상 & 옛집 정원 산책 샷', sig: '📖 토지 북카페 쉼 & 문학 산책', time: '오전 10:30', lat: 37.3275, lng: 127.9510 },
+      { name: '원주 반계리 은행나무', theme: '800년 수령의 웅장한 천연기념물 거목', desc: '황금빛 잎을 웅장하게 펼치는 국내에서 가장 아름다운 거대한 은행나무로 가을 인생샷의 최고 명소입니다.', cat: '자연명소', photo: '📸 거대한 황금 은행나무 전경 샷', sig: '📸 800년 은행나무 앞 인생샷 스냅', time: '오후 2:00', lat: 37.2340, lng: 127.8180 },
+      { name: '원주 로컬 미식 투어 (곤드레밥 & 추어탕)', theme: '강원도 청정 나물과 원주 원조 미식', desc: '치악산에서 채취한 향긋한 곤드레 솥밥과 구수한 원주식 추어탕으로 여행을 든든하게 마무리합니다.', cat: '로컬미식', photo: '📸 지글지글 곤드레 솥밥 한상 샷', sig: '🍲 곤드레 솥밥 정식 & 복숭아 빵', time: '오후 6:00', lat: 37.3490, lng: 127.9480 }
+    ],
     '수원': [
       // Day 1 (화성-행궁동 코스)
       { name: '수원화성 방화수류정', theme: '연못 위 정자와 성곽이 빚어내는 절경', desc: '용연 연못 위 언덕에 자리한 방화수류정은 낮에는 싱그러운 피크닉 명소로, 밤에는 은은한 성곽 조명이 환상적인 야경을 선사합니다.', cat: '자연명소', photo: '📸 용연 연못에 비치는 방화수류정 반영 샷 & 피크닉 매트 샷', sig: '🧺 용연 피크닉 세트 & 방화수류정 산책', time: '오전 10:30', lat: 37.2891, lng: 127.0194 },
@@ -1516,31 +1530,8 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
     // Remove duplicate spots within the same day
     daySightseeingSpots = daySightseeingSpots.filter((v, i, a) => a.findIndex(t => t.name === v.name) === i);
 
-    let spotsForDay = [];
-
-    // 🌟 1일차: [KTX/공항 도착 - 당일치기/도착제외 아닐 시] + [호텔 짐보관 - 호텔 제외 아닐 시] + 관광 명소들
-    if (dayNum === 1) {
-      const day1Prefix = [];
-      if (!isGatewayExcluded && (!isDayTrip || /(부산역|서울역|공항|ktx)/i.test(rawPrompt))) {
-        day1Prefix.push(getGatewaySpot(city, true));
-      }
-      if (!isHotelExcluded && !isDayTrip) {
-        day1Prefix.push(getHotelLuggageSpot(hotelArea, city));
-      }
-      spotsForDay = [
-        ...day1Prefix,
-        ...daySightseeingSpots
-      ];
-    }
-    // 🌟 마지막 날: 관광 명소들 + [귀국 관문(공항/KTX) - 당일치기 아닐 시]
-    else if (dayNum === days && !isDayTrip && !isGatewayExcluded && days > 1) {
-      spotsForDay = [
-        ...daySightseeingSpots,
-        getGatewaySpot(city, false)
-      ];
-    } else {
-      spotsForDay = daySightseeingSpots;
-    }
+    // 🌟 모든 일차는 KTX역/공항/호텔 등 이동 거점을 100% 배제하고, 순수 100% 관광 명소/맛집/카페로만 구성!
+    const spotsForDay = daySightseeingSpots;
 
     const dayThemeMeta = themeList[d % themeList.length];
 
