@@ -103,24 +103,27 @@ JSON 형식 예시:
   "suggestedChips": ["버튼1", "버튼2"]
 }`;
 
-      try {
-        let response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${keyToUse}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: promptText }] }],
-            generationConfig: {
-              temperature: 0.2,
-              responseMimeType: "application/json"
-            }
-          })
-        });
+      const cleanKey = keyToUse.trim();
+      const endpoints = [
+        'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent',
+        'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent',
+        'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
+        'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent',
+        'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent'
+      ];
 
-        if (!response.ok) {
-          // Fallback to gemini-2.0-flash if needed
-          response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${keyToUse}`, {
+      let responseData = null;
+      let lastErrMsg = '';
+
+      for (const ep of endpoints) {
+        try {
+          const url = `${ep}?key=${encodeURIComponent(cleanKey)}`;
+          const response = await fetch(url, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'x-goog-api-key': cleanKey
+            },
             body: JSON.stringify({
               contents: [{ parts: [{ text: promptText }] }],
               generationConfig: {
@@ -129,21 +132,32 @@ JSON 형식 예시:
               }
             })
           });
-        }
 
-        if (!response.ok) {
-          throw new Error(`API Error: ${response.status}`);
+          if (response.ok) {
+            responseData = await response.json();
+            break;
+          } else {
+            const errTxt = await response.text();
+            lastErrMsg = `[${response.status}] ${errTxt.slice(0, 120)}`;
+          }
+        } catch (e) {
+          lastErrMsg = e.message;
         }
+      }
 
-        const data = await response.json();
-        const jsonText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (responseData) {
+        const jsonText = responseData.candidates?.[0]?.content?.parts?.[0]?.text;
         if (jsonText) {
-          const parsed = JSON.parse(jsonText);
-          newDistilled.push(parsed);
-          setBatchLogs(prev => [...prev, `✅ "${q.rawQuery}" ➔ 황금 Q&A 생성 완료!`]);
+          try {
+            const parsed = JSON.parse(jsonText);
+            newDistilled.push(parsed);
+            setBatchLogs(prev => [...prev, `✅ "${q.rawQuery}" ➔ 황금 Q&A 지식 생성 완료!`]);
+          } catch (pe) {
+            setBatchLogs(prev => [...prev, `⚠️ "${q.rawQuery}" 파싱 오류: ${pe.message}`]);
+          }
         }
-      } catch (err) {
-        setBatchLogs(prev => [...prev, `❌ "${q.rawQuery}" 생성 오류: ${err.message}`]);
+      } else {
+        setBatchLogs(prev => [...prev, `❌ "${q.rawQuery}" 생성 실패: ${lastErrMsg}`]);
       }
     }
 
