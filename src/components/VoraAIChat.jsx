@@ -779,14 +779,20 @@ export default function VoraAIChat({
         const lastAssistantMsg = [...chatMessages].reverse().find(m => m.role === 'assistant');
         const activeQuickSuggestions = lastAssistantMsg?.quickSuggestions || [];
         const hasSuggestions = activeQuickSuggestions.length > 0;
-        const rawBottomChips = hasSuggestions ? activeQuickSuggestions : (t.chatQuickModifications || []);
+        let rawBottomChips = hasSuggestions ? [...activeQuickSuggestions] : [...(t.chatQuickModifications || [])];
 
-        if (!rawBottomChips || rawBottomChips.length === 0) return null;
+        const defaultCreateLabel = lang === 'en' ? '🚀 Create Plan' : lang === 'ja' ? '🚀 日程生成' : (lang === 'zh' || lang === 'zht') ? '🚀 生成行程' : '🚀 일정 생성';
 
-        // 🌟 [🚀 바로 일정 만들기] 류의 핵심 액션 버튼은 무조건 100% 최우선 맨 앞(Index 0)으로 정렬!
-        const bottomChips = [...rawBottomChips].sort((a, b) => {
-          const isBuildA = a.includes('바로 일정') || a.includes('일정표 만들기') || a.includes('일정 짜줘') || a.includes('Create Itinerary') || a.includes('Generate Itinerary');
-          const isBuildB = b.includes('바로 일정') || b.includes('일정표 만들기') || b.includes('일정 짜줘') || b.includes('Create Itinerary') || b.includes('Generate Itinerary');
+        // 🌟 '🚀 일정 생성' 류의 버튼이 없으면 항상 맨 앞에 주입!
+        const hasCreateBtn = rawBottomChips.some(c => c.includes('일정 생성') || c.includes('바로 일정') || c.includes('일정표 만들기') || c.includes('일정 짜줘') || c.includes('Create Plan') || c.includes('Generate Itinerary'));
+        if (!hasCreateBtn) {
+          rawBottomChips.unshift(defaultCreateLabel);
+        }
+
+        // 🌟 [🚀 일정 생성] 류의 핵심 액션 버튼은 무조건 100% 최우선 맨 앞(Index 0)으로 정렬!
+        const bottomChips = rawBottomChips.sort((a, b) => {
+          const isBuildA = a.includes('일정 생성') || a.includes('바로 일정') || a.includes('일정표 만들기') || a.includes('일정 짜줘') || a.includes('Create Plan') || a.includes('Generate Itinerary');
+          const isBuildB = b.includes('일정 생성') || b.includes('바로 일정') || b.includes('일정표 만들기') || b.includes('일정 짜줘') || b.includes('Create Plan') || b.includes('Generate Itinerary');
           if (isBuildA && !isBuildB) return -1;
           if (!isBuildA && isBuildB) return 1;
           return 0;
@@ -796,14 +802,14 @@ export default function VoraAIChat({
           <div
             className="no-scrollbar"
             style={{
-              padding: '0.35rem 0.65rem',
-              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+              padding: '0.3rem 0.55rem',
+              backgroundColor: 'rgba(255, 255, 255, 0.92)',
               backdropFilter: 'blur(10px)',
               WebkitBackdropFilter: 'blur(10px)',
               borderTop: '1px solid rgba(37, 99, 235, 0.15)',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.35rem',
+              gap: '0.3rem',
               overflowX: 'auto',
               whiteSpace: 'nowrap',
               width: '100%',
@@ -814,7 +820,11 @@ export default function VoraAIChat({
             }}
           >
             {bottomChips.map((chip, idx) => {
-              const isBuildBtn = chip.includes('바로 일정') || chip.includes('일정표 만들기') || chip.includes('Create Itinerary') || chip.includes('Generate Itinerary');
+              const isBuildBtn = chip.includes('일정 생성') || chip.includes('바로 일정') || chip.includes('일정표 만들기') || chip.includes('일정 짜줘') || chip.includes('Create Plan') || chip.includes('Generate Itinerary');
+              const displayLabel = isBuildBtn
+                ? (chip.length > 12 ? defaultCreateLabel : chip)
+                : (hasSuggestions ? (chip.startsWith('✨') || chip.startsWith('🚀') || chip.startsWith('⚙️') || chip.startsWith('👑') || chip.startsWith('🌊') || chip.startsWith('🌴') || chip.startsWith('🏖️') || chip.startsWith('☀️') || chip.startsWith('🌤️') || chip.startsWith('🌙') || chip.startsWith('🗓️') || chip.startsWith('📍') || chip.startsWith('🌸') || chip.startsWith('🍁') || chip.startsWith('🏔️') || chip.startsWith('🌾') || chip.startsWith('🏮') ? chip : `✨ ${chip}`) : `＋ ${chip}`);
+
               return (
                 <button
                   key={idx}
@@ -825,17 +835,17 @@ export default function VoraAIChat({
                       ? 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)'
                       : '#ffffff',
                     color: isBuildBtn ? '#ffffff' : 'var(--accent-primary)',
-                    border: isBuildBtn ? 'none' : '1px solid rgba(37, 99, 235, 0.25)',
+                    border: isBuildBtn ? 'none' : '1px solid rgba(37, 99, 235, 0.22)',
                     borderRadius: 'var(--radius-full)',
-                    padding: isBuildBtn ? '0.32rem 0.8rem' : '0.22rem 0.6rem',
-                    fontSize: isBuildBtn ? '0.78rem' : '0.72rem',
+                    padding: isBuildBtn ? '0.24rem 0.65rem' : '0.2rem 0.55rem',
+                    fontSize: isBuildBtn ? '0.74rem' : '0.7rem',
                     fontWeight: isBuildBtn ? 900 : 700,
                     cursor: 'pointer',
                     boxShadow: isBuildBtn ? '0 2px 8px rgba(37, 99, 235, 0.35)' : '0 1px 3px rgba(0,0,0,0.03)',
                     transition: 'all var(--transition-fast)',
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '0.25rem'
+                    gap: '0.2rem'
                   }}
                   onMouseEnter={(e) => {
                     if (!isBuildBtn) {
@@ -845,12 +855,12 @@ export default function VoraAIChat({
                   }}
                   onMouseLeave={(e) => {
                     if (!isBuildBtn) {
-                      e.currentTarget.style.borderColor = 'rgba(37, 99, 235, 0.25)';
+                      e.currentTarget.style.borderColor = 'rgba(37, 99, 235, 0.22)';
                       e.currentTarget.style.backgroundColor = '#ffffff';
                     }
                   }}
                 >
-                  {isBuildBtn ? chip : (hasSuggestions ? (chip.startsWith('✨') || chip.startsWith('🚀') || chip.startsWith('⚙️') || chip.startsWith('👑') || chip.startsWith('🌊') || chip.startsWith('🌴') || chip.startsWith('🏖️') || chip.startsWith('☀️') || chip.startsWith('🌤️') || chip.startsWith('🌙') || chip.startsWith('🗓️') || chip.startsWith('📍') || chip.startsWith('🌸') || chip.startsWith('🍁') || chip.startsWith('🏔️') || chip.startsWith('🌾') || chip.startsWith('🏮') ? chip : `✨ ${chip}`) : `＋ ${chip}`)}
+                  {displayLabel}
                 </button>
               );
             })}

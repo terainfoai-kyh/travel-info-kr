@@ -40,8 +40,8 @@ export default function AIPlannerTab({
     }
   }, [initialMode]);
 
-  // 1. 여행지 State
-  const [destination, setDestination] = useState('서울');
+  // 1. 여행지 State (기본값 빈 문자열로 두어 자율 선택 및 질문 유도)
+  const [destination, setDestination] = useState('');
 
   // 2. 여행 기간 State (기본 3일)
   const [selectedDays, setSelectedDays] = useState(3);
@@ -99,7 +99,8 @@ export default function AIPlannerTab({
     if (isLoading) return;
 
     // 자연어 프롬프트 조합 생성
-    const combinedQuery = `${destination} ${selectedDays}박${selectedDays}일 ${selectedCompanion} 여행, 테마: ${selectedThemes.join(', ')}${customNote.trim() ? `, 요구사항: ${customNote.trim()}` : ''}`;
+    const destPrefix = destination.trim() ? `${destination.trim()} ` : '';
+    const combinedQuery = `${destPrefix}${selectedDays}박${selectedDays}일 ${selectedCompanion} 여행, 테마: ${selectedThemes.join(', ')}${customNote.trim() ? `, 요구사항: ${customNote.trim()}` : ''}`.trim();
     
     // 2단계 대화 모드로 전환하고 일정 생성 요청
     setPlannerMode('chat');
