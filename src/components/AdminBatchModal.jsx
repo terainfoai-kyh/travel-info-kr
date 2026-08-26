@@ -81,6 +81,7 @@ export default function AdminBatchModal({
       });
       if (listRes.ok) {
         const listData = await listRes.json();
+        const models = listData.models || [];
         const preferred = models.find(m => m.name.includes('gemini-2.0-flash') && m.supportedGenerationMethods?.includes('generateContent'))
           || models.find(m => m.name.includes('gemini-1.5-flash-latest') && m.supportedGenerationMethods?.includes('generateContent'))
           || models.find(m => m.name.includes('gemini-1.5-flash') && !m.name.includes('2.5') && m.supportedGenerationMethods?.includes('generateContent'))
