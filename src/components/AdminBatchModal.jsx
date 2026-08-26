@@ -81,13 +81,15 @@ export default function AdminBatchModal({
       });
       if (listRes.ok) {
         const listData = await listRes.json();
-        const models = listData.models || [];
-        const preferred = models.find(m => m.supportedGenerationMethods?.includes('generateContent') && (m.name.includes('gemini-2.5-flash') || m.name.includes('gemini-1.5-flash') || m.name.includes('flash')))
-          || models.find(m => m.supportedGenerationMethods?.includes('generateContent'));
+        const preferred = models.find(m => m.name.includes('gemini-2.0-flash') && m.supportedGenerationMethods?.includes('generateContent'))
+          || models.find(m => m.name.includes('gemini-1.5-flash-latest') && m.supportedGenerationMethods?.includes('generateContent'))
+          || models.find(m => m.name.includes('gemini-1.5-flash') && !m.name.includes('2.5') && m.supportedGenerationMethods?.includes('generateContent'))
+          || models.find(m => m.name.includes('gemini-2.0') && m.supportedGenerationMethods?.includes('generateContent'))
+          || models.find(m => m.name.includes('gemini-1.5') && !m.name.includes('2.5') && m.supportedGenerationMethods?.includes('generateContent'));
 
         if (preferred) {
           activeModelPath = preferred.name;
-          setBatchLogs(prev => [...prev, `✨ 구글 정품 모델 연결 성공: [ ${activeModelPath} ]`]);
+          setBatchLogs(prev => [...prev, `✨ 구글 최신 정품 모델 활성화: [ ${activeModelPath} ]`]);
         }
       } else {
         const errTxt = await listRes.text();
