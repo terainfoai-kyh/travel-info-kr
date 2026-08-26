@@ -75,8 +75,51 @@ export default function FullMapTab({
   const schedules = itineraryData?.dailySchedules || [];
   const targetCity = itineraryData?.targetCity || '서울';
 
-  const currentSchedule = schedules.find(s => Number(s.day) === Number(activeDay)) || schedules[0];
-  const activeSpots = currentSchedule?.spots || (itineraryData?.spots || []).filter(s => Number(s.assignedDay) === Number(activeDay));
+  const HOTEL_COORDS_MAP = {
+    '해운대': { lat: 35.1587, lng: 129.1604 },
+    '광안리': { lat: 35.1532, lng: 129.1186 },
+    '서면': { lat: 35.1578, lng: 129.0594 },
+    '남포동': { lat: 35.0975, lng: 129.0306 },
+    '부산': { lat: 35.1587, lng: 129.1604 },
+    '제주시내': { lat: 33.5060, lng: 126.5200 },
+    '서귀포': { lat: 33.2480, lng: 126.4120 },
+    '중문': { lat: 33.2480, lng: 126.4120 },
+    '애월': { lat: 33.4650, lng: 126.3200 },
+    '제주': { lat: 33.5060, lng: 126.5200 },
+    '홍대': { lat: 37.5563, lng: 126.9230 },
+    '강남': { lat: 37.4979, lng: 127.0276 },
+    '동대문': { lat: 37.5665, lng: 127.0092 },
+    '명동': { lat: 37.5636, lng: 126.9827 },
+    '서울': { lat: 37.5636, lng: 126.9827 },
+    '경포대': { lat: 37.7950, lng: 128.8960 },
+    '안목': { lat: 37.7715, lng: 128.9480 },
+    '강릉': { lat: 37.7950, lng: 128.8960 },
+    '황리단길': { lat: 35.8380, lng: 129.2100 },
+    '경주': { lat: 35.8380, lng: 129.2100 },
+    '행궁동': { lat: 37.2842, lng: 127.0142 },
+    '수원': { lat: 37.2842, lng: 127.0142 },
+    '여수': { lat: 34.7440, lng: 127.7370 },
+    '전주': { lat: 35.8150, lng: 127.1530 },
+    '거제': { lat: 34.8800, lng: 128.6200 },
+    '포항': { lat: 36.0190, lng: 129.3430 },
+    '대구': { lat: 35.8714, lng: 128.6014 },
+    '인천': { lat: 37.4563, lng: 126.7052 }
+  };
+
+  const rawActiveSpots = currentSchedule?.spots || (itineraryData?.spots || []).filter(s => Number(s.assignedDay) === Number(activeDay));
+  const activeSpots = rawActiveSpots.map(s => {
+    if (s.category === '숙소/짐보관' || s.category === 'Hotel & Stay' || (s.title || s.name || '').includes('호텔')) {
+      const matchKey = Object.keys(HOTEL_COORDS_MAP).find(k => (s.title || s.name || '').includes(k)) || targetCity;
+      if (matchKey && HOTEL_COORDS_MAP[matchKey]) {
+        return {
+          ...s,
+          lat: HOTEL_COORDS_MAP[matchKey].lat,
+          lng: HOTEL_COORDS_MAP[matchKey].lng
+        };
+      }
+    }
+    return s;
+  });
 
   const [focusedSpotIndex, setFocusedSpotIndex] = useState(0);
 
