@@ -20,6 +20,7 @@ import {
   resolveTikitakaResponse,
   resolveKnowledgeScenario
 } from '../data/voraDialogKnowledge.js';
+import { matchVoraQna } from './voraQnaMatcher.js';
 
 export const INITIAL_TRAVEL_STATE = {
   tripMemory: {
@@ -583,7 +584,16 @@ export function generateContextualAdvice(context, lang = 'ko') {
   const cityInfo = CITY_LOCAL_KNOWLEDGE[targetCity] || CITY_LOCAL_KNOWLEDGE['서울'];
   const season = context.tripMemory?.season || (/(겨울|가을|봄|여름)/.test(cleanPrompt) ? cleanPrompt.match(/(겨울|가을|봄|여름)/)[1] : null);
 
-  // 1. Check if user input is an emotional or casual Tiki-Taka query!
+  // 1. Primary High-Speed Q&A Knowledge Vault Matcher (Golden Distilled AI Intelligence)
+  const qnaMatch = matchVoraQna(cleanPrompt, targetCity, context, lang);
+  if (qnaMatch) {
+    if (qnaMatch.followUp) {
+      return `${qnaMatch.reply}\n\n👉 **${qnaMatch.followUp}**`;
+    }
+    return qnaMatch.reply;
+  }
+
+  // 1-1. Secondary Legacy Tiki-Taka Matrix Matcher (Fallback)
   const tikitaka = resolveTikitakaResponse(cleanPrompt, displayCity, season);
   if (tikitaka) {
     return `${tikitaka.reply}\n\n👉 **${tikitaka.followUp}**`;

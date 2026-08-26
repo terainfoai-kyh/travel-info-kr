@@ -44,6 +44,7 @@ import { geminiGenerateFullItinerary, generateLocalFallbackItinerary, enrichItin
 import { sanitizeInput, inspectSecurityGuardrails } from './services/securityGuardService';
 import { findRecommendedPois } from './data/koreaTravelPoiDatabase';
 import { getDynamicGatewayChips } from './data/voraDialogKnowledge';
+import { matchVoraQna } from './services/voraQnaMatcher';
 import { buildTravelContext, generateContextualAdvice, patchTravelState, removeContextChip, toggleContextChip, classifyUserIntent, INITIAL_TRAVEL_STATE } from './services/travelContextEngine';
 
 export default function App() {
@@ -682,11 +683,14 @@ export default function App() {
         const isSeasonPrompt = /(겨울|가을|봄|여름|[0-9]+월)/.test(promptQuery) && !isGatewaySelectPrompt && !isArrivalTimePrompt;
 
         // 1단계(순수 대화 & 온보딩 질문 중): POI 카드 숨김 / 2단계(본격 일정/명소 탐색): 추천 POI 카드 제공
-        const matchedPois = (!isPlanningMode || userIntent === 'OFF_TOPIC' || isGatewaySelectPrompt || isArrivalTimePrompt) ? [] : findRecommendedPois(promptQuery, targetCity, 3);
+        const qnaDirectMatch = matchVoraQna(promptQuery, targetCity, tripContext, lang);
+        const matchedPois = (qnaDirectMatch || !isPlanningMode || userIntent === 'OFF_TOPIC' || isGatewaySelectPrompt || isArrivalTimePrompt) ? [] : findRecommendedPois(promptQuery, targetCity, 3);
         const contextualIntro = generateContextualAdvice(tripContext, lang);
 
         let chatText = contextualIntro;
-        let quickButtons = !isPlanningMode
+        let quickButtons = (qnaDirectMatch && qnaDirectMatch.suggestedChips && qnaDirectMatch.suggestedChips.length > 0)
+          ? qnaDirectMatch.suggestedChips
+          : !isPlanningMode
           ? []
           : isGatewaySelectPrompt && !updatedState.tripMemory?.arrivalTime
           ? [
