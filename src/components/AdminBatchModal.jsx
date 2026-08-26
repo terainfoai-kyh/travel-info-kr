@@ -87,15 +87,18 @@ export default function AdminBatchModal({
         const modelNames = validModels.map(m => m.name.replace('models/', '')).join(', ');
         setBatchLogs(prev => [...prev, `📋 사용 가능한 모델 목록 (${validModels.length}개): ${modelNames}`]);
 
-        const preferred = validModels.find(m => m.name.includes('2.0') && m.name.includes('flash'))
-          || validModels.find(m => m.name.includes('1.5') && m.name.includes('flash'))
-          || validModels.find(m => m.name.includes('flash'))
-          || validModels.find(m => m.name.includes('pro'))
+        const preferred = validModels.find(m => m.name.includes('gemini-flash-latest'))
+          || validModels.find(m => m.name.includes('gemini-2.5-flash-lite'))
+          || validModels.find(m => m.name.includes('gemini-3.7-flash'))
+          || validModels.find(m => m.name.includes('gemini-3.5-flash'))
+          || validModels.find(m => m.name.includes('gemini-flash-lite-latest'))
+          || validModels.find(m => m.name.includes('gemini-pro-latest'))
+          || validModels.find(m => !m.name.endsWith('gemini-2.5-flash') && m.name.includes('flash'))
           || validModels[0];
 
         if (preferred) {
           activeModelPath = preferred.name;
-          setBatchLogs(prev => [...prev, `✨ 구글 정품 모델 연결 성공: [ ${activeModelPath} ]`]);
+          setBatchLogs(prev => [...prev, `✨ 구글 최신 활성 모델 연결 성공: [ ${activeModelPath} ]`]);
         }
       } else {
         const errTxt = await listRes.text();
