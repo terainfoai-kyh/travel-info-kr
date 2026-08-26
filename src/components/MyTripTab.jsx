@@ -172,41 +172,37 @@ export default function MyTripTab({
 
   // 동적 시간대 배정 (스팟 개수, 체류 시간, 도착 시간에 따라 아침/오후/밤까지 자연스러운 스케일링)
   const getTimeSlot = (idx, totalCount = 5, dayNum = 1) => {
-    const arrivalTime = itineraryData?.arrivalTime || '09:00';
+    const customSlot = itineraryData?.dayTimeSlots?.[dayNum];
     let startHour = 9;
-    if (Number(dayNum) === 1 && arrivalTime) {
-      const match = arrivalTime.match(/^(\d{1,2})/);
-      if (match) startHour = parseInt(match[1], 10);
-    }
+    let endHour = 18;
 
-    if (startHour >= 13) {
-      // 13:00(오후 1시) 이후 도착 시
-      if (startHour === 13) {
-        if (totalCount >= 5) return ['13:00', '14:30', '16:30', '18:30', '20:30'][idx] || '21:00';
-        if (totalCount === 4) return ['13:00', '15:00', '17:30', '20:00'][idx] || '21:00';
-        if (totalCount === 3) return ['13:00', '16:00', '19:00'][idx] || '21:00';
-      } else if (startHour >= 14 && startHour < 17) {
-        if (totalCount >= 5) return [`${startHour}:00`, `${startHour + 1}:30`, `${startHour + 3}:00`, '19:00', '21:00'][idx] || '21:30';
-        if (totalCount === 4) return [`${startHour}:00`, `${startHour + 2}:00`, '18:30', '20:30'][idx] || '21:30';
-        if (totalCount === 3) return [`${startHour}:00`, '18:00', '20:30'][idx] || '21:30';
-      } else if (startHour >= 17) {
-        if (totalCount >= 4) return [`${startHour}:00`, '19:00', '20:30', '22:00'][idx] || '22:30';
-        return [`${startHour}:00`, '19:30', '21:30'][idx] || '22:30';
+    if (customSlot) {
+      const match = customSlot.match(/(\d{1,2}):\d{2}\s*~\s*(\d{1,2}):\d{2}/);
+      if (match) {
+        startHour = parseInt(match[1], 10);
+        endHour = parseInt(match[2], 10);
+      }
+    } else if (Number(dayNum) === 1 && itineraryData?.arrivalTime) {
+      const match = itineraryData.arrivalTime.match(/^(\d{1,2})/);
+      if (match) {
+        startHour = parseInt(match[1], 10);
+        endHour = startHour >= 13 ? 21 : 18;
       }
     }
 
-    if (totalCount >= 5) {
-      const times5 = ['09:00', '11:00', '13:00', '15:30', '18:30', '20:00'];
-      return times5[idx] || '20:30';
-    } else if (totalCount === 4) {
-      const times4 = ['10:00', '12:30', '15:30', '18:30'];
-      return times4[idx] || '19:00';
-    } else if (totalCount === 3) {
-      const times3 = ['10:30', '14:00', '18:30'];
-      return times3[idx] || '19:00';
-    }
-    const times = ['09:00', '11:00', '13:00', '15:30', '18:30'];
-    return times[idx % times.length];
+    if (totalCount <= 1) return `${String(startHour).padStart(2, '0')}:00`;
+
+    // 스팟 수에 맞춰 startHour부터 endHour까지 균등 배분 (10분 단위 라운딩)
+    const totalMinutes = Math.max(60, (endHour - startHour) * 60);
+    const intervalMinutes = Math.floor(totalMinutes / Math.max(1, totalCount - 1));
+    const currentMinutes = startHour * 60 + idx * intervalMinutes;
+    const hour = Math.floor(currentMinutes / 60);
+    const minute = currentMinutes % 60;
+    const roundedMinute = Math.round(minute / 10) * 10;
+    const finalHour = roundedMinute === 60 ? hour + 1 : hour;
+    const finalMinute = roundedMinute === 60 ? 0 : roundedMinute;
+
+    return `${String(finalHour).padStart(2, '0')}:${String(finalMinute).padStart(2, '0')}`;
   };
 
   // & 및 불필요한 결합 문자열 단일 명소로 정제

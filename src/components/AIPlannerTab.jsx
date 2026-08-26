@@ -192,6 +192,7 @@ export default function AIPlannerTab({
             onSendMessage={onGenerateItinerary}
             activeDay={activeDay}
             onSelectDay={onSelectDay}
+            onConfirmItinerary={onConfirmItinerary}
             onViewTimeline={onConfirmItinerary}
             onAddPoiToItinerary={onAddPoiToItinerary}
             sessionContext={sessionContext}

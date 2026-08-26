@@ -696,7 +696,7 @@ export default function VoraAIChat({
                               padding: '0.15rem 0'
                             }}
                           >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', overflow: 'hidden' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flex: 1, minWidth: 0, overflow: 'hidden' }}>
                               <span style={{
                                 fontWeight: 800,
                                 color: '#2563eb',
@@ -705,53 +705,59 @@ export default function VoraAIChat({
                                 📍 {t.dayBadge ? t.dayBadge(ds.day) : `${ds.day}일차`}
                               </span>
                               {cleanTheme && (
-                                <span style={{ fontWeight: 600, color: 'var(--text-main)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                <span style={{ fontWeight: 600, color: 'var(--text-main)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1, minWidth: 0 }}>
                                   {cleanTheme}
                                 </span>
                               )}
                             </div>
                             <div style={{ position: 'relative', flexShrink: 0 }}>
                               <select
-                                value={dayTimeSlots[ds.day] || (ds.day === 1 && msg.itinerary?.arrivalTime && msg.itinerary.arrivalTime >= '13:00' ? `${msg.itinerary.arrivalTime} ~ 20:00` : '09:00 ~ 18:00')}
+                                value={dayTimeSlots[ds.day] || (ds.day === 1 && msg.itinerary?.arrivalTime && msg.itinerary.arrivalTime >= '13:00' ? `${msg.itinerary.arrivalTime} ~ 20:00` : (msg.itinerary?.dayTimeSlots?.[ds.day] || '09:00 ~ 18:00'))}
                                 onChange={(e) => {
                                   const newTime = e.target.value;
                                   setDayTimeSlots(prev => ({ ...prev, [ds.day]: newTime }));
+                                  if (msg.itinerary) {
+                                    msg.itinerary.dayTimeSlots = { ...(msg.itinerary.dayTimeSlots || {}), [ds.day]: newTime };
+                                    if (Number(ds.day) === 1) {
+                                      msg.itinerary.arrivalTime = newTime.split('~')[0].trim();
+                                    }
+                                  }
                                 }}
                                 style={{
                                   appearance: 'none',
                                   WebkitAppearance: 'none',
-                                  fontSize: '0.7rem',
+                                  fontSize: '0.68rem',
                                   fontWeight: 700,
                                   color: '#2563eb',
                                   backgroundColor: 'rgba(37, 99, 235, 0.08)',
                                   border: '1px solid rgba(37, 99, 235, 0.25)',
-                                  padding: '0.18rem 1.1rem 0.18rem 0.45rem',
+                                  padding: '0.16rem 1rem 0.16rem 0.35rem',
                                   borderRadius: '6px',
                                   cursor: 'pointer',
                                   outline: 'none',
                                   textAlign: 'center',
                                   backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e")`,
                                   backgroundRepeat: 'no-repeat',
-                                  backgroundPosition: 'right 0.15rem center',
-                                  backgroundSize: '12px'
+                                  backgroundPosition: 'right 0.12rem center',
+                                  backgroundSize: '10px'
                                 }}
                               >
-                                <option value="09:00 ~ 18:00">⏰ 09:00 ~ 18:00 (기본 종일)</option>
-                                <option value="10:00 ~ 18:00">⏰ 10:00 ~ 18:00 (오전 출발)</option>
-                                <option value="13:00 ~ 20:00">⏰ 13:00 ~ 20:00 (오후 출발)</option>
-                                <option value="14:00 ~ 21:00">⏰ 14:00 ~ 21:00 (오후 늦게)</option>
-                                <option value="09:00 ~ 15:00">⏰ 09:00 ~ 15:00 (이른 마감)</option>
-                                <option value="09:00 ~ 21:00">⏰ 09:00 ~ 21:00 (야경 풀코스)</option>
+                                <option value="09:00 ~ 18:00">⏰ 09:00 ~ 18:00</option>
+                                <option value="10:00 ~ 18:00">⏰ 10:00 ~ 18:00</option>
+                                <option value="13:00 ~ 20:00">⏰ 13:00 ~ 20:00</option>
+                                <option value="14:00 ~ 21:00">⏰ 14:00 ~ 21:00</option>
+                                <option value="09:00 ~ 15:00">⏰ 09:00 ~ 15:00</option>
+                                <option value="09:00 ~ 21:00">⏰ 09:00 ~ 21:00</option>
                               </select>
                             </div>
                           </div>
                         );
                       })}
 
-                      {/* 🚀 바로 일정표 보기 (기본 09:00~18:00) */}
+                      {/* 🚀 바로 일정표 보기 (내 여행 이동) */}
                       <button
                         type="button"
-                        onClick={handleTimelineClick}
+                        onClick={() => handleTimelineClick(msg.itinerary)}
                         style={{
                           marginTop: '0.4rem',
                           width: '100%',

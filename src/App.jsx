@@ -1110,8 +1110,14 @@ export default function App() {
             <AIPlannerTab
               lang={lang}
               onGenerateItinerary={handleGenerateItinerary}
-              onConfirmItinerary={() => {
-                // 🌟 NO 1: [일정표 보기] 터치 시 저장/차감 없이 내 여행(타임라인) 화면으로 단순 이동!
+              onConfirmItinerary={(updatedPlan) => {
+                if (updatedPlan) {
+                  setItineraryData(updatedPlan);
+                  setHasActiveUnsavedDraft(true);
+                  try {
+                    localStorage.setItem('vora_temp_active_draft', JSON.stringify(updatedPlan));
+                  } catch (e) {}
+                }
                 setActiveNavTab('mytrip');
               }}
               isLoading={isLoading}
