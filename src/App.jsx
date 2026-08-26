@@ -538,7 +538,7 @@ export default function App() {
     const isQuestionAskingRecommendation = /(어디|뭐|언제|누구|어느|어떤|왜|무슨|몇)\s*(가|이|는|은|에)?\s*(좋아|좋을까|나을까|어때)/i.test(promptQuery);
     const isDayChangeQuery = /(\d+)\s*(일|박)\s*(으로|로)?\s*(바꿔|줄여|늘려|해줘|짜줘|변경|수정|해)/i.test(promptQuery) || /(하루\s*줄여|하루\s*더|이틀\s*더|하루\s*추가|이틀\s*추가)/i.test(promptQuery);
     const isDirectGenerateAction = isDayChangeQuery || (!isQuestionAskingRecommendation && (
-      /(이대로 바로 일정 만들기|이 조건으로 일정|일정 만들어줘|일정 만들어|일정 생성|일정 짜줘|일정 세워줘|일정표 만들기|업데이트된 일정표 보기|완성해줘|만들어줘|만들어|짜줘|짜주세요|맞춰줘|맞춰주세요|잡아줘|잡아주세요|잡아봐|잡아|설계해줘|설계해주세요|계획해줘|계획해주세요|정해줘|정해주세요|준비해줘|준비해주세요|보여줘|보여주세요|안내해줘|안내해주세요|추천해줘|코스 추천|일정 추천|이걸로 해줘|알아서 해줘|알아서|뽑아줘|부탁해|부탁해요|해봐|가자|가보자|그냥 짜줘|그냥 추천해줘|그냥 추천|이대로|시작해|시작|일정 뽑아줘|코스 짜줘|일정 완성해줘)/i.test(promptQuery) ||
+      /(이대로 바로 일정 만들기|이 조건으로 일정|일정 만들어줘|일정 만들어|일정 생성|일정 짜줘|일정 세워줘|일정표 만들기|업데이트된 일정표 보기|완성해줘|만들어줘|만들어|짜줘|짜주세요|맞춰줘|맞춰주세요|챙겨줘|챙겨주세요|담아줘|담아주세요|조율해줘|조율해주세요|잡아줘|잡아주세요|잡아봐|잡아|설계해줘|설계해주세요|계획해줘|계획해주세요|정해줘|정해주세요|준비해줘|준비해주세요|보여줘|보여주세요|안내해줘|안내해주세요|추천해줘|코스 추천|일정 추천|이걸로 해줘|알아서 해줘|알아서|뽑아줘|부탁해|부탁해요|해봐|가자|가보자|그냥 짜줘|그냥 추천해줘|그냥 추천|이대로|시작해|시작|일정 뽑아줘|코스 짜줘|일정 완성해줘)/i.test(promptQuery) ||
       /^(좋아|좋아요|굿|오케이|ok|응|어|네|예|콜|그래|yes|yep|sure|please)($|[!.~])/i.test(promptQuery.trim())
     ));
     const isFormNavigateAction = /(조건 직접 변경하기|조건 변경)/i.test(promptQuery);
@@ -866,14 +866,86 @@ export default function App() {
     }
   };
 
+  const CHIP_FEEDBACK = {
+    kids: {
+      ko: '아이와 함께하는 안심 힐링 여행이시군요! 유모차가 편하고 아이들이 신나게 즐길 수 있는 키즈 맞춤 명소로 맞춰드릴게요 🎈✨',
+      en: 'Traveling with kids! I will focus on stroller-friendly paths and fun activities for children 🎈✨',
+      ja: 'お子様連れの安心旅行ですね！ベビーカーで移動しやすく子供が喜ぶスポットを中心に調整します 🎈✨',
+      zh: '亲子安心游！为您精选婴儿车推行方便、孩子们喜欢的趣味景点 🎈✨'
+    },
+    elder: {
+      ko: '부모님과 함께하는 효도 여행이시군요! 경사가 완만하고 편안한 명소와 정갈한 보양 한정식 위주로 조율해 드릴게요 🌿✨',
+      en: 'Traveling with parents! I will select gentle, scenic paths and comforting Korean gourmet dining 🌿✨',
+      ja: 'ご両親との旅行ですね！歩きやすく落ち着いた名所と体に優しい韓定食を中心にご案内します 🌿✨',
+      zh: '带父母长辈出行！为您安排平缓舒适的景点与养生韩定食美馔 🌿✨'
+    },
+    cafe: {
+      ko: '감성 가득한 로컬 카페 투어를 추가했어요! 탁 트인 뷰 맛집과 시그니처 디저트 명소로 챙겨드릴게요 ☕🍰',
+      en: 'Added trendy local cafes! I will include scenic cafe views and signature desserts ☕🍰',
+      ja: 'おしゃれなカフェ巡りを追加しました！景色の良いカフェと話題のデザート店をご用意します ☕🍰',
+      zh: '已添加氛围咖啡探店！精选海景/山景咖啡厅与招牌甜品店 ☕🍰'
+    },
+    foodie: {
+      ko: '현지인이 인정하는 찐 로컬 맛집 투어로 세팅했어요! 식도락 힐링을 듬뿍 담아드릴게요 🍲✨',
+      en: 'Set to authentic local gourmet! Get ready for delicious food discoveries 🍲✨',
+      ja: '地元で愛される本場のグルメツアーを設定しました！美味しい食事を満喫してください 🍲✨',
+      zh: '已设定地道美食路线！带您大快朵颐韩国当地老字号与热门美食 🍲✨'
+    },
+    minimal_walking: {
+      ko: '다리가 편안한 덜 걷는 최적 동선으로 맞췄어요! 이동은 편하게, 풍경은 가득 담아드릴게요 🚕✨',
+      en: 'Optimized for minimal walking! Easy transfers and relaxed sightseeing 🚕✨',
+      ja: '歩行を抑えた楽々ルートに調整しました！移動は快適に、景色は存分に楽しめます 🚕✨',
+      zh: '已优化为少步行的舒适路线！交通便捷，轻松饱览美景 🚕✨'
+    },
+    rain: {
+      ko: '비가 와도 뽀송뽀송하게 즐길 수 있는 실내 아쿠아리움 & 미디어아트 중심 코스로 조율할게요 ☔🏛️',
+      en: 'Rainy-day indoor mode! Featuring cozy indoor media art, aquariums, and covered cultural spots ☔🏛️',
+      ja: '雨の日も快適な屋内アクアリウム＆メディアアート中心のルートに調整します ☔🏛️',
+      zh: '已切换为雨天室内惬意路线！精选室内水族馆、沉浸式光影艺术与特色商街 ☔🏛️'
+    },
+    photo: {
+      ko: 'SNS 인생샷 명소와 탁 트인 뷰포인트 위주로 반짝이게 꾸며드릴게요 📸✨',
+      en: 'Added scenic photo spots! Perfect for capturing stunning memories 📸✨',
+      ja: 'SNS映えするフォトスポット＆絶景ポイントを中心にお届けします 📸✨',
+      zh: '已加入绝美拍照打卡点！让您的旅程留下难忘的唯美大片 📸✨'
+    }
+  };
+
   // 🧠 Context Chip 개별 해제 핸들러
   const handleRemoveContextChip = (chipId) => {
     setSessionContext(prev => removeContextChip(prev, chipId));
   };
 
-  // 🧠 Context Chip 원터치 토글 핸들러
+  // 🧠 Context Chip 원터치 토글 핸들러 (실시간 대화 티키타카 연동)
   const handleToggleContextChip = (chipId) => {
-    setSessionContext(prev => toggleContextChip(prev, chipId));
+    let isNowActive = false;
+    setSessionContext(prev => {
+      const next = toggleContextChip(prev, chipId);
+      const activeList = getActiveContextChips(next);
+      isNowActive = activeList.some(c => c.id === chipId);
+      return next;
+    });
+
+    const replyTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+    const replyText = isNowActive
+      ? (CHIP_FEEDBACK[chipId]?.[lang] || CHIP_FEEDBACK[chipId]?.ko || (lang === 'en' ? 'Updated your travel preferences! ✨' : '새로운 여행 조건을 반영했어요! ✨'))
+      : (lang === 'en' ? 'Removed the selected condition. ✨' : '해당 조건을 해제했어요! ✨');
+
+    const botMsg = {
+      id: `bot-chip-${Date.now()}`,
+      role: 'assistant',
+      text: replyText,
+      quickSuggestions: [
+        (lang === 'en' ? '🚀 Create Plan' : '🚀 일정 생성'),
+        (lang === 'en' ? '☀️ Morning Arrival' : '☀️ 오전 도착'),
+        (lang === 'en' ? '🏨 Hotel Check' : '🏨 숙소 변경')
+      ],
+      generationTime: '0.01',
+      queryTime: replyTime,
+      replyTime,
+      timestamp: replyTime
+    };
+    setChatMessages(prev => [...prev, botMsg]);
   };
 
   // 🔄 대화 초기화 및 새 대화 시작 핸들러
