@@ -1074,19 +1074,34 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
   }
 
   // ✈️🏨 7. 도어투도어(Door-to-Door) 공항/KTX/호텔 짐보관/택스리펀 지능형 스팟
-  const isDoorToDoor = /(인천공항|김포공항|김해공항|제주공항|서울역|부산역|강릉역|신경주역|전주역|여수expo|명동|홍대|강남|해운대|서귀포|애월|황리단|도어투도어|incheon|gimpo|gimhae|arex|hotel|숙소|공항|짐\s*보관|luggage)/i.test(rawPrompt);
-  
-  let hotelArea = '명동';
+  const DEFAULT_HOTEL_AREA_MAP = {
+    '부산': '해운대',
+    '제주': '제주시내',
+    '여수': '돌산/해양공원',
+    '강릉': '경포대',
+    '경주': '황리단길',
+    '전주': '한옥마을',
+    '수원': '행궁동',
+    '거제': '바람의언덕',
+    '포항': '영일대',
+    '대구': '동성로',
+    '인천': '송도',
+    '서울': '명동'
+  };
+
+  let hotelArea = DEFAULT_HOTEL_AREA_MAP[city] || '명동';
   if (/(홍대|마포|hongdae)/i.test(rawPrompt)) hotelArea = '홍대';
   else if (/(강남|잠실|gangnam)/i.test(rawPrompt)) hotelArea = '강남';
-  else if (/(해운대|광안리|haeundae)/i.test(rawPrompt)) hotelArea = '해운대';
+  else if (/(해운대|haeundae)/i.test(rawPrompt)) hotelArea = '해운대';
+  else if (/(광안리|gwangalli)/i.test(rawPrompt)) hotelArea = '광안리';
   else if (/(서면|전포|seomyeon)/i.test(rawPrompt)) hotelArea = '서면';
   else if (/(애월|협재|한림|aewol)/i.test(rawPrompt)) hotelArea = '애월';
   else if (/(서귀포|중문|seogwipo)/i.test(rawPrompt)) hotelArea = '서귀포';
   else if (/(경포대|안목)/i.test(rawPrompt)) hotelArea = '경포대';
   else if (/(황리단길|대릉원)/i.test(rawPrompt)) hotelArea = '황리단길';
-  else if (city === '부산') hotelArea = '해운대';
-  else if (city === '제주') hotelArea = '제주시내';
+  else if (/(돌산|해양공원|이순신광장)/i.test(rawPrompt)) hotelArea = '돌산/해양공원';
+  else if (/(한옥마을|객리단길)/i.test(rawPrompt)) hotelArea = '한옥마을';
+  else if (/(행궁동|화성행궁)/i.test(rawPrompt)) hotelArea = '행궁동';
 
   const getGatewaySpot = (c, isArrival = true) => {
     if (c === '부산') {
@@ -1135,6 +1150,126 @@ export function generateLocalFallbackItinerary(rawPrompt = '', targetCity = '서
           sig: '🍊 제주 마음샌드 & 면세점 쇼핑',
           time: '오후 6:00 (출발)',
           lat: 33.5113, lng: 126.4930
+        };
+      }
+    } else if (c === '여수') {
+      if (isArrival) {
+        return {
+          name: lang === 'en' ? 'Yeosu EXPO Station KTX Arrival & Bus Transit' : '여수EXPO역 KTX 도착 & 시내버스 환승',
+          theme: lang === 'en' ? 'Gateway to Romance Harbor' : '낭만 밤바다의 도시 여수 도착',
+          desc: lang === 'en' ? 'Arrive at Yeosu EXPO Station via KTX. Direct access to Odongdo island or Romantic Port area.' : 'KTX 전라선 열차로 여수EXPO역 도착. 오동도 및 이순신광장 방면 시내버스로 이동합니다.',
+          cat: lang === 'en' ? 'Transit Hub' : '교통허브',
+          photo: '📸 여수EXPO역 시그니처 샷',
+          sig: '🚅 KTX 탑승 & 여수 밤바다 첫 만남',
+          time: '오전 10:30',
+          lat: 34.7529, lng: 127.7472
+        };
+      } else {
+        return {
+          name: lang === 'en' ? 'Yeosu EXPO Station Departure' : '여수EXPO역 KTX 귀경 및 출발',
+          theme: lang === 'en' ? 'Safe Departure & Souvenirs' : '안전한 귀경과 여수 특산품 쇼핑',
+          desc: lang === 'en' ? 'Arrive 30 mins before KTX departure. Pick up Yeosu Geombong specialty and souvenirs.' : 'KTX 출발 30분 전 여수EXPO역 도착. 여수 갓김치와 딸기모찌 기념품을 챙기고 여유롭게 귀경합니다.',
+          cat: lang === 'en' ? 'Departure' : '귀국/출발',
+          photo: '📸 여수EXPO역 피날레 샷',
+          sig: '🎁 여수 돌산갓김치 & 딸기모찌 선물세트',
+          time: '오후 6:00 (출발)',
+          lat: 34.7529, lng: 127.7472
+        };
+      }
+    } else if (c === '강릉') {
+      if (isArrival) {
+        return {
+          name: lang === 'en' ? 'Gangneung Station KTX Arrival' : '강릉역 KTX 도착 & 해안 셔틀 탑승',
+          theme: lang === 'en' ? 'Gateway to East Coast Pines' : '푸른 동해 바다와 솔향 강릉의 첫 관문',
+          desc: 'KTX 강릉선 고속열차로 강릉역 도착. 안목 커피거리 및 경포대 방면 버스로 이동합니다.',
+          cat: '교통허브',
+          photo: '📸 강릉역 시그니처 샷',
+          sig: '🚅 KTX 탑승 & 솔향 강릉 웰컴',
+          time: '오전 10:30',
+          lat: 37.7638, lng: 128.8995
+        };
+      } else {
+        return {
+          name: lang === 'en' ? 'Gangneung Station KTX Departure' : '강릉역 KTX 귀경 및 출발',
+          theme: '안전한 귀경과 로컬 디저트 쇼핑',
+          desc: 'KTX 출발 30분 전 강릉역 도착. 강릉 커피콩빵과 순두부 젤라또 기념품을 챙깁니다.',
+          cat: '귀국/출발',
+          photo: '📸 강릉역 피날레 샷',
+          sig: '🎁 강릉 커피콩빵 & 로컬 선물',
+          time: '오후 6:00 (출발)',
+          lat: 37.7638, lng: 128.8995
+        };
+      }
+    } else if (c === '경주') {
+      if (isArrival) {
+        return {
+          name: lang === 'en' ? 'Singyeongju Station KTX Arrival' : '신경주역 KTX 도착 & 황리단길 버스 환승',
+          theme: '천년 고도 경주의 첫 관문',
+          desc: 'KTX 경부선 고속열차로 신경주역 도착. 700번 급행버스로 황리단길 및 대릉원으로 직행합니다.',
+          cat: '교통허브',
+          photo: '📸 신경주역 광장 시그니처 샷',
+          sig: '🚅 KTX 탑승 & 경주 첫 만남',
+          time: '오전 10:30',
+          lat: 35.7984, lng: 129.1396
+        };
+      } else {
+        return {
+          name: lang === 'en' ? 'Singyeongju Station KTX Departure' : '신경주역 KTX 귀경 및 출발',
+          theme: '안전한 귀경과 황남빵 쇼핑',
+          desc: 'KTX 출발 30분 전 신경주역 도착. 명품 황남빵과 경주 기념품을 챙기고 여유롭게 귀경합니다.',
+          cat: '귀국/출발',
+          photo: '📸 신경주역 피날레 샷',
+          sig: '🎁 경주 황남빵 & 찰보리빵 선물세트',
+          time: '오후 6:00 (출발)',
+          lat: 35.7984, lng: 129.1396
+        };
+      }
+    } else if (c === '전주') {
+      if (isArrival) {
+        return {
+          name: lang === 'en' ? 'Jeonju Station KTX Arrival' : '전주역 KTX 도착 & 한옥마을 버스 환승',
+          theme: '전통과 미식의 도시 전주 첫 관문',
+          desc: 'KTX 전라선 열차로 전주역 도착. 한옥마을 직행 셔틀/시내버스로 이동합니다.',
+          cat: '교통허브',
+          photo: '📸 전주역 한옥풍 역사 시그니처 샷',
+          sig: '🚅 KTX 탑승 & 전주역 풍경',
+          time: '오전 10:30',
+          lat: 35.8501, lng: 127.1618
+        };
+      } else {
+        return {
+          name: lang === 'en' ? 'Jeonju Station KTX Departure' : '전주역 KTX 귀경 및 출발',
+          theme: '안전한 귀경과 수제 초코파이 쇼핑',
+          desc: 'KTX 출발 30분 전 전주역 도착. 전주 PNB 풍년제과 수제초코파이를 챙기고 여유롭게 귀경합니다.',
+          cat: '귀국/출발',
+          photo: '📸 전주역 피날레 샷',
+          sig: '🎁 전주 수제초코파이 & 모주 선물세트',
+          time: '오후 6:00 (출발)',
+          lat: 35.8501, lng: 127.1618
+        };
+      }
+    } else if (c === '수원') {
+      if (isArrival) {
+        return {
+          name: lang === 'en' ? 'Suwon Station KTX Arrival' : '수원역 KTX/1호선 도착 & 행궁동 환승',
+          theme: '역사 문화도시 수원의 중심 관문',
+          desc: 'KTX 또는 수도권 1호선/수인분당선으로 수원역 도착. 행궁동 방면 버스로 환승합니다.',
+          cat: '교통허브',
+          photo: '📸 수원역 시그니처 샷',
+          sig: '🚅 수원역 도착 & 화성행궁 출발',
+          time: '오전 10:30',
+          lat: 37.2657, lng: 127.0000
+        };
+      } else {
+        return {
+          name: lang === 'en' ? 'Suwon Station Departure' : '수원역 귀경 및 출발',
+          theme: '안전한 귀경과 수원 통닭거리 추억',
+          desc: '열차 출발 30분 전 수원역 도착. 여유롭게 플랫폼으로 이동하여 안전하게 귀경합니다.',
+          cat: '귀국/출발',
+          photo: '📸 수원역 피날레 샷',
+          sig: '🎁 수원 통닭거리 & 로컬 특산품',
+          time: '오후 6:00 (출발)',
+          lat: 37.2657, lng: 127.0000
         };
       }
     } else {
