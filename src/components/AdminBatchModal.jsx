@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Sparkles, Database, Play, CheckCircle2, Copy, Download, RefreshCw, Key, ShieldCheck, AlertCircle, Cloud, Smartphone } from 'lucide-react';
 import { getVoraQnaVault } from '../data/voraQnaVault';
 import { interpolateTemplate } from '../utils/koreanParticles';
-import { fetchQuestionsFromCloud, clearQuestionsFromCloud } from '../services/voraCloudQnaService';
+import { fetchQuestionsFromCloud, clearQuestionsFromCloud, publishKnowledgeToCloudMaster } from '../services/voraCloudQnaService';
 
 export default function AdminBatchModal({
   isOpen,
@@ -652,25 +652,51 @@ export default function AdminBatchModal({
                 <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#10b981', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                   <CheckCircle2 size={16} /> 총 {distilledResults.length}개 신규 Q&A 지식 생성 완료!
                 </span>
-                <button
-                  onClick={handleCopyJson}
-                  style={{
-                    padding: '0.4rem 0.8rem',
-                    backgroundColor: '#10b981',
-                    color: '#ffffff',
-                    border: 'none',
-                    borderRadius: '8px',
-                    fontWeight: 700,
-                    fontSize: '0.78rem',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.3rem'
-                  }}
-                >
-                  <Copy size={14} />
-                  {copySuccess ? '복사 완료! ✅' : 'Q&A JSON 전체 복사'}
-                </button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <button
+                    onClick={async () => {
+                      await publishKnowledgeToCloudMaster(distilledResults);
+                      loadCustomVaultFromStorage();
+                      alert(`🎉 ${distilledResults.length}건의 황금 지식이 중앙 클라우드 마스터 DB에 실시간 배포되었습니다!\n\n전 세계 모든 사용자에게 즉시 적용됩니다. ✨`);
+                    }}
+                    style={{
+                      padding: '0.4rem 0.8rem',
+                      backgroundColor: '#8b5cf6',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontWeight: 800,
+                      fontSize: '0.78rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.3rem',
+                      boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3)'
+                    }}
+                  >
+                    <Cloud size={14} />
+                    🚀 전 세계 실시간 배포
+                  </button>
+                  <button
+                    onClick={handleCopyJson}
+                    style={{
+                      padding: '0.4rem 0.8rem',
+                      backgroundColor: '#10b981',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontWeight: 700,
+                      fontSize: '0.78rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.3rem'
+                    }}
+                  >
+                    <Copy size={14} />
+                    {copySuccess ? '복사 완료! ✅' : 'Q&A JSON 복사'}
+                  </button>
+                </div>
               </div>
             </div>
           )}

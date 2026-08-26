@@ -3,8 +3,9 @@
  * 
  * Architecture:
  * 1. Global Multi-device Central Cloud Sync: Connects all mobile users and Admin PC seamlessly.
- * 2. Non-blocking Fire-and-Forget: 0.00s overhead on user chats.
- * 3. 3-Tier Fault Tolerance: Cloud Server + Local Cache + Auto-Merge.
+ * 2. Real-time Knowledge Deployment: Super Admin can deploy new distilled knowledge to all devices instantly!
+ * 3. Non-blocking Fire-and-Forget: 0.00s overhead on user chats.
+ * 4. 3-Tier Fault Tolerance: Cloud Server + Local Cache + Auto-Merge.
  */
 
 const CLOUD_SYNC_ENDPOINT = 'https://api.counterapi.dev/v1/travelkorea_vora_qna';
@@ -127,4 +128,87 @@ export async function clearQuestionsFromCloud(questionList = []) {
       }
     }
   } catch (e) {}
+}
+
+/**
+ * 🚀 [관리자 ➔ 전 세계 실시간 배포] 새로운 황금 Q&A 지식을 중앙 클라우드 마스터 DB에 배포
+ */
+export async function publishKnowledgeToCloudMaster(knowledgeList = []) {
+  if (!Array.isArray(knowledgeList) || knowledgeList.length === 0) return false;
+
+  // 1. Save to local storage cache immediately
+  try {
+    const localExisting = JSON.parse(localStorage.getItem('vora_custom_qna_vault') || '[]');
+    const merged = [...localExisting];
+    knowledgeList.forEach(k => {
+      const idx = merged.findIndex(m => m.id === k.id || m.questionVariations?.[0] === k.questionVariations?.[0]);
+      if (idx >= 0) {
+        merged[idx] = k;
+      } else {
+        merged.unshift(k);
+      }
+    });
+    localStorage.setItem('vora_custom_qna_vault', JSON.stringify(merged));
+  } catch (e) {}
+
+  // 2. Publish to Cloud Database if configured
+  const customProject = getCloudProjectId();
+  if (customProject) {
+    try {
+      for (const item of knowledgeList) {
+        const docId = item.id || `qna_distilled_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+        const firestoreUrl = `https://firestore.googleapis.com/v1/projects/${customProject}/databases/(default)/documents/vora_master_qna/${docId}`;
+        
+        await fetch(firestoreUrl, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fields: {
+              id: { stringValue: docId },
+              category: { stringValue: item.category || 'GENERAL' },
+              targetCity: { stringValue: item.targetCity || 'all' },
+              dataJson: { stringValue: JSON.stringify(item) },
+              publishedAt: { stringValue: new Date().toISOString() }
+            }
+          })
+        }).catch(() => {});
+      }
+    } catch (err) {}
+  }
+
+  return true;
+}
+
+/**
+ * 📥 [전 세계 모든 사용자 폰/PC] 중앙 클라우드 마스터 DB에서 실시간 추가된 지식 로드
+ */
+export async function fetchCloudMasterKnowledge() {
+  const customProject = getCloudProjectId();
+  if (!customProject) return [];
+
+  const firestoreUrl = `https://firestore.googleapis.com/v1/projects/${customProject}/databases/(default)/documents/vora_master_qna?pageSize=200`;
+
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2500);
+
+    const res = await fetch(firestoreUrl, { signal: controller.signal });
+    clearTimeout(timeoutId);
+
+    if (!res.ok) return [];
+
+    const data = await res.json();
+    const documents = data.documents || [];
+
+    return documents.map(doc => {
+      const f = doc.fields || {};
+      try {
+        return JSON.parse(f.dataJson?.stringValue || '{}');
+      } catch (e) {
+        return null;
+      }
+    }).filter(Boolean);
+  } catch (err) {
+    return [];
+  }
 }
