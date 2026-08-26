@@ -439,20 +439,6 @@ export default function AdminBatchModal({
                   {unansweredList.length}건 대기 중
                 </span>
                 <button
-                  onClick={loadUnansweredFromStorage}
-                  title="새로고침"
-                  style={{
-                    background: 'none',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '8px',
-                    padding: '0.2rem 0.5rem',
-                    color: 'var(--text-muted)',
-                    fontSize: '0.72rem',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.2rem'
-                <button
                   onClick={() => loadUnansweredFromStorage(true)}
                   title="클라우드 실시간 동기화"
                   style={{
