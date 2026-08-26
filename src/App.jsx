@@ -535,8 +535,11 @@ export default function App() {
     }
 
     // 🌟 3. 폼 초기 진입, 추천 칩 진입, 1번 검색창 도시 진입 확인 (isExternalEntry 일 때만 초기화 브리핑 실행!)
-    const isDirectGenerateAction = /(이대로 바로 일정 만들기|이 조건으로 일정|일정 만들어줘|일정 만들어|일정 생성|일정 짜줘|일정 세워줘|일정표 만들기|업데이트된 일정표 보기|완성해줘|만들어|짜줘)/i.test(promptQuery) ||
-      /(^|\s)(좋아|좋아요|굿|오케이|ok|응|네|그래|가자|콜)($|\s|[!?.~])/i.test(promptQuery);
+    const isQuestionAskingRecommendation = /(어디|뭐|언제|누구|어느|어떤|왜|무슨|몇)\s*(가|이|는|은|에)?\s*(좋아|좋을까|나을까|어때)/i.test(promptQuery);
+    const isDirectGenerateAction = !isQuestionAskingRecommendation && (
+      /(이대로 바로 일정 만들기|이 조건으로 일정|일정 만들어줘|일정 만들어|일정 생성|일정 짜줘|일정 세워줘|일정표 만들기|업데이트된 일정표 보기|완성해줘|만들어|짜줘)/i.test(promptQuery) ||
+      /^(좋아|좋아요|굿|오케이|ok|응|네|그래|가자|콜)($|[!.~])/i.test(promptQuery.trim())
+    );
     const isFormNavigateAction = /(조건 직접 변경하기|조건 변경)/i.test(promptQuery);
 
     if (isFormNavigateAction) {

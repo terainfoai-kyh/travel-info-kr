@@ -666,6 +666,32 @@ export const VORA_QNA_VAULT = [
     suggestedChips: ["☀️ 오전 도착 (12:00 이전)", "🌤️ 오후 도착 (14:00~16:00)", "🌙 저녁/밤 도착 (18:00 이후)", "🚀 이제 일정 짜줘"]
   },
   {
+    id: "qna_autumn_best_destinations",
+    category: "SEASONAL_RECOMMENDATION",
+    targetCity: "all",
+    season: "autumn",
+    questionVariations: [
+      "가을은 어디가 좋아",
+      "가을에 어디가 좋아",
+      "가을 어디가 좋아",
+      "가을 어디가 좋을까",
+      "가을 어디로 갈까",
+      "가을 여행지 추천",
+      "가을 여행 어디",
+      "가을에 갈만한곳",
+      "가을 단풍 명소 추천"
+    ],
+    intentKeywords: ["가을", "어디가", "좋아", "추천", "단풍", "여행지", "명소", "가볼만한곳"],
+    geminiAnswer: {
+      ko: "가을 대한민국 여행은 붉은 단풍과 은빛 억새가 장관인 **[경주 불국사·보문호]**, 오색 단풍의 절경 **[강원 설악산·남이섬]**, 핑크뮬리와 억새 물결의 **[제주 새별오름·산굼부리]**, 고즈넉한 노란 은행나무길 **[전주 한옥마을]**이 최고 인기 명소예요! 🍁🍂✨",
+      en: "Top autumn destinations in Korea include the historic maple trails of **[Gyeongju Bulguksa & Bomun Lake]**, the majestic fall colors of **[Seoraksan & Nami Island]**, the silver grass & pink muhly of **[Jeju Saebyeol Oreum]**, and golden ginkgo paths of **[Jeonju Hanok Village]**! 🍁✨",
+      ja: "秋の韓国旅行は、美しい紅葉が広がる**【慶州 仏国寺・普門湖】**、壮大な紅葉の**【雪岳山・南怡島】**、ススキとピンクミューリーが美しい**【済州 セビョルオルム】**、黄金のイチョウ並木が続く**【全州 韓屋村】**が大人気です！🍁🍂",
+      zh: "秋季韩国旅游首推红枫与银芒交相辉映的**【庆州 佛国寺·普门湖】**、壮美枫叶胜地**【江原道 雪岳山·南怡岛】**、粉黛乱子草与芒草摇曳的**【济州 晓星岳】**以及满地金黄银杏的**【全州 韩屋村】**！🍁✨"
+    },
+    followUp: "어느 지역의 가을 풍경이 가장 끌리시나요? 😊",
+    suggestedChips: ["🍁 경주 단풍 힐링", "🏔️ 설악/강릉 가을", "🌾 제주 억새·핑크뮬리", "🏮 전주 한옥 낭만"]
+  },
+  {
     id: "qna_fragment_autumn_only",
     category: "SLOT_FRAGMENT",
     targetCity: "all",
