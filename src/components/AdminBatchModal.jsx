@@ -135,19 +135,27 @@ export default function AdminBatchModal({
       setBatchLogs(prev => [...prev, `⚡ [${i + 1}/${unansweredList.length}] "${q.rawQuery}" 초고속 증류 중...`]);
       setBatchProgress(Math.round(((i + 1) / unansweredList.length) * 80));
 
+      const ctx = q.context || {};
+      const ctxSummary = [
+        q.targetCity || ctx.city ? `목적지: ${q.targetCity || ctx.city}` : null,
+        ctx.days ? `여행일수: ${ctx.days}일` : null,
+        ctx.companion ? `동행: ${ctx.companion}` : null,
+        ctx.themes?.length ? `테마: ${ctx.themes.join(', ')}` : null
+      ].filter(Boolean).join(' | ');
+
       const promptText = `당신은 대한민국 여행 전문 AI 'VORA(보라)'의 최고 수석 지식 설계자입니다.
-사용자 질문: "${q.rawQuery}" (목적지: ${q.targetCity || '전국'})
+사용자 질문: "${q.rawQuery}" (${ctxSummary || '목적지: 전국'})
 
 다음 JSON 포맷으로만 즉시 출력하세요:
 {
   "id": "qna_auto_${Date.now()}_${i}",
   "category": "DYNAMIC_KNOWLEDGE",
-  "targetCity": "${q.targetCity || 'all'}",
+  "targetCity": "${q.targetCity || ctx.city || 'all'}",
   "season": "all",
   "questionVariations": ["${q.rawQuery}"],
   "intentKeywords": ["키워드1", "키워드2"],
   "geminiAnswer": {
-    "ko": "친절한 2문장 한국어 답변",
+    "ko": "친절하고 정확한 2~3문장 한국어 핵심 맞춤 답변 (질문자가 ${q.targetCity || ctx.city || '대한민국'} 여행 중이므로 해당 도시 문맥에 맞춰 답변)",
     "en": "English answer",
     "ja": "日本語",
     "zh": "中文"

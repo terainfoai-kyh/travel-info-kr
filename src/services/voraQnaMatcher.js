@@ -17,25 +17,54 @@ let unansweredQueueCache = [];
 /**
  * Log unseen questions to local queue for next batch Gemini distillation
  */
-export function logUnansweredQuestion(rawQuery, targetCity = null) {
+export function logUnansweredQuestion(rawQuery, targetCity = null, tripContext = null) {
   if (!rawQuery || typeof rawQuery !== 'string') return;
   const clean = rawQuery.trim();
-  if (clean.length < 2) return;
+  if (clean.length < 3) return;
+
+  // 🛡️ 1. 단순 단편어 & 키워드 & 수락어는 질문 큐 저장에서 필터링!
+  const isSimpleCityOnly = /^(서울|부산|제주|경주|강릉|수원|인천|전주|여수|대구|대전|광주|포항|통영|거제|춘천|속초|안동|한국|korea|seoul|busan|jeju)$/i.test(clean);
+  const isSimpleDuration = /^(\d+\s*일|\d+\s*박\s*\d+\s*일|\d+\s*박|당일치기|하루|이틀|사흘|\d+\s*days?)$/i.test(clean);
+  const isSimpleCompanion = /^(혼자|커플|가족|친구|아이|부모님|아이\s*동반|부모님\s*동반|아이랑|부모님이랑|친구랑|연인이랑)$/i.test(clean);
+  const isSimpleActionOrAccept = /^(짜줘|맞춰줘|해줘|잡아줘|추천해줘|만들어줘|일정\s*생성|생성해줘|설계해줘|준비해줘|정해줘|응|어|네|예|좋아|좋아요|오케이|ok|콜|그래|부탁해|이대로|시작|가자|가보자)$/i.test(clean);
+  const isSimpleThemeOnly = /^(맛집|카페|관광지|쇼핑|자연|야경|힐링|인생샷|덜\s*걷기|비\/실내|실내|비오는날)$/i.test(clean);
+
+  if (isSimpleCityOnly || isSimpleDuration || isSimpleCompanion || isSimpleActionOrAccept || isSimpleThemeOnly) {
+    return; // 단순 상태 조건은 큐에 저장하지 않음!
+  }
 
   try {
     if (typeof localStorage !== 'undefined') {
       const existing = JSON.parse(localStorage.getItem('vora_unanswered_qna') || '[]');
       
-      // 🛡️ 중복 질문 완벽 방지: 이미 대기 큐에 같은 질문이 있으면 추가하지 않음!
-      const isDuplicate = existing.some(item => 
-        item.rawQuery.trim().toLowerCase() === clean.toLowerCase()
+      // 🛡️ 2. 질문 정규화 (공백/특수문자 제거 후 비교)
+      const normClean = clean.replace(/[\s\?\.\!\,\~\-]/g, '').toLowerCase();
+      const existingIndex = existing.findIndex(item => 
+        (item.rawQuery || item.question || '').replace(/[\s\?\.\!\,\~\-]/g, '').toLowerCase() === normClean
       );
-      if (isDuplicate) return;
+
+      // 이미 존재하면 count만 증가시켜 랭킹 집계!
+      if (existingIndex >= 0) {
+        existing[existingIndex].count = (existing[existingIndex].count || 1) + 1;
+        existing[existingIndex].lastSeen = new Date().toISOString();
+        localStorage.setItem('vora_unanswered_qna', JSON.stringify(existing));
+        return;
+      }
+
+      // 🛡️ 3. 전후 여행 문맥(Context) 번들링
+      const bundledContext = {
+        city: targetCity || tripContext?.targetCity || tripContext?.city || null,
+        days: tripContext?.requestedDays || tripContext?.days || null,
+        companion: tripContext?.companion || null,
+        themes: tripContext?.themes || []
+      };
 
       const entry = {
         id: `unans-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
         rawQuery: clean,
-        targetCity: targetCity || null,
+        targetCity: targetCity || tripContext?.targetCity || null,
+        context: bundledContext,
+        count: 1,
         timestamp: new Date().toISOString()
       };
 
@@ -208,6 +237,6 @@ export function matchVoraQna(query = '', targetCity = null, context = {}, lang =
   }
 
   // Not matched in vault -> Log to unanswered queue for future Gemini batch training!
-  logUnansweredQuestion(query, targetCity);
+  logUnansweredQuestion(query, targetCity, context);
   return null;
 }

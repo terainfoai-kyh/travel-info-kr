@@ -1023,5 +1023,90 @@ export const VORA_QNA_VAULT = [
     },
     followUp: "가고 싶으신 지역이나 궁금한 점을 편하게 말씀해 주세요! 😊✈️",
     suggestedChips: ["🗺️ 2박3일 맞춤 일정 만들기", "👗 계절별 옷차림 물어보기", "🍴 현지인 찐맛집 추천", "🏨 인기 숙소/호텔 보기"]
+  },
+  // =========================================================================
+  // 11. 지역별 찐 노포 주문 & 미식 치트시트 (AUTHENTIC_FOOD_ORDERING_GUIDE)
+  // =========================================================================
+  {
+    id: "qna_food_busan_pork_soup",
+    category: "AUTHENTIC_FOOD_ORDERING",
+    targetCity: "부산",
+    season: "all",
+    questionVariations: [
+      "돼지국밥 어떻게 시켜?",
+      "돼지국밥 먹는법",
+      "돼지국밥 어떻게 먹어?",
+      "부산 돼지국밥 주문법",
+      "따로국밥이 뭐야?",
+      "섞어국밥이 뭐야?",
+      "돼지국밥 팁",
+      "국밥 먹는 방법"
+    ],
+    intentKeywords: ["돼지국밥", "국밥", "먹는법", "어떻게 먹어", "어떻게 시켜", "주문법", "따로국밥", "섞어국밥", "정구지"],
+    geminiAnswer: {
+      ko: "부산 현지인이 전수하는 **돼지국밥 100점짜리 주문 & 먹팁**입니다! 🍲✨\n\n1. **주문 팁**: 맑은 국물을 원하시면 밥이 따로 나오는 **'따로국밥'**, 고기와 내장을 함께 즐기시려면 **'섞어국밥'**으로 주문하세요!\n2. **먹는 순서**: 국물이 뜨거울 때 **소면 사리**를 먼저 넣고, **부추무침(정구지)**을 듬뿍 넣은 뒤 **새우젓**으로 간을 맞추세요!\n3. **양념(다대기)**: 매콤 칼칼한 국물을 원하시면 빨간 양념장을 듬뿍 풀어드시면 최고입니다. 🍚🥢",
+      en: "Local Gourmet Guide to **Busan Pork Soup (Dwaeji Gukbap)**! 🍲✨\n\n1. **Ordering**: Order **'Ttaro-gukbap'** to get rice served separately, or **'Seokkeo-gukbap'** for mixed pork and tripe!\n2. **How to Eat**: Add chives (Jeongguji), season with salted shrimp sauce (Saeujeot), and stir in noodles while hot!\n3. **Spicy Paste**: Add red pepper paste (Dadaegi) for a rich, hearty kick! 🍚🥢"
+    },
+    followUp: "돼지국밥 든든하게 드시고 산책하기 좋은 해운대·광안리 오션뷰 코스도 잡아드릴까요? 🌊☕",
+    suggestedChips: ["🌊 광안대교 오션뷰 코스", "🚡 해운대 블루라인파크", "🚀 바로 일정 만들기"]
+  },
+  {
+    id: "qna_food_busan_milmyeon",
+    category: "AUTHENTIC_FOOD_ORDERING",
+    targetCity: "부산",
+    season: "all",
+    questionVariations: [
+      "밀면 어떻게 먹어?",
+      "부산 밀면 먹는법",
+      "물밀면 비빔밀면 차이",
+      "밀면 먹는 팁",
+      "밀면 주문법"
+    ],
+    intentKeywords: ["밀면", "물밀면", "비빔밀면", "먹는법", "어떻게 먹어", "주문법", "온육수"],
+    geminiAnswer: {
+      ko: "부산의 소울푸드 **밀면 찐 먹팁**입니다! 🍜✨\n\n1. **시작은 온육수**: 주문 후 주전자에 나오는 따뜻한 **사골 온육수**를 한 모금 마시며 속을 달래주세요.\n2. **가위질은 딱 1번만**: 쫄깃한 면발의 탄력을 위해 가위질은 십자가(+)가 아닌 **딱 1번만(+)** 자르는 게 정석입니다!\n3. **식초 & 겨자**: 국물을 먼저 맛본 뒤, 식초와 겨자를 한 바퀴 둘러 감칠맛을 폭발시켜 주세요! 🥟 찐만두와 함께 먹으면 환상의 짝꿍입니다.",
+      en: "Busan Soul Food **Milmyeon (Wheat Noodles) Guide**! 🍜✨\n\n1. **Start with Hot Broth**: Enjoy the complimentary warm savory bone broth before your bowl arrives.\n2. **Cut Just Once**: Cut the chewy noodles only once across to preserve maximum springy texture!\n3. **Mustard & Vinegar**: Taste the broth first, then swirl a bit of vinegar and yellow mustard for peak umami! 🥟 Pairs perfectly with steamed dumplings."
+    },
+    followUp: "시원한 밀면 드신 뒤 가기 좋은 감성 카페나 흰여울마을 코스로 연결해 드릴까요? 🌊☕",
+    suggestedChips: ["☕ 영도 오션뷰 카페 투어", "🏡 흰여울문화마을", "🚀 바로 일정 만들기"]
+  },
+  {
+    id: "qna_food_jeju_blackpork",
+    category: "AUTHENTIC_FOOD_ORDERING",
+    targetCity: "제주",
+    season: "all",
+    questionVariations: [
+      "제주 흑돼지 먹는법",
+      "흑돼지 멜젓 어떻게 먹어?",
+      "멜젓이 뭐야?",
+      "제주 흑돼지 주문 팁"
+    ],
+    intentKeywords: ["흑돼지", "멜젓", "먹는법", "어떻게 먹어", "오겹살", "목살", "제주돼지"],
+    geminiAnswer: {
+      ko: "제주 **흑돼지 & 멜젓(멸치젓) 환상 조합 먹팁**입니다! 🥩🔥\n\n1. **멜젓 끓이기**: 불판 가운데에 멜젓 종지를 올리고, **청양고추와 마늘 한 조각, 소주 살짝**을 넣어 보글보글 끓여 비린내를 날립니다.\n2. **두툼한 육즙**: 겉바속촉으로 두툼하게 구운 오겹살/목살을 끓는 멜젓에 푹 찍어 고추 한 조각과 함께 드세요!\n3. **제주 고사리**: 불판 한 켠에 제주 생고사리를 함께 구워 고기에 싸 먹으면 고소함이 2배가 됩니다. 🥬✨",
+      en: "Jeju Island **Black Pork BBQ & Meljeot (Anchovy Sauce) Master Guide**! 🥩🔥\n\n1. **Boil the Meljeot**: Place the seasoned anchovy dip on the grill with sliced hot chili and garlic until bubbly.\n2. **Juicy Thick Cut**: Dip the thick, grilled crispy pork belly right into the boiling sauce!\n3. **Jeju Gosari (Fern)**: Grill fresh Jeju bracken ferns on the side and wrap together for an earthy, savory flavor explosion! 🥬✨"
+    },
+    followUp: "흑돼지 드시고 가기 좋은 제주 서쪽 선셋 해변이나 야경 코스를 맞춰드릴까요? 🌅🌴",
+    suggestedChips: ["🌅 애월 선셋 카페거리", "🌴 협재·금능 에메랄드 해변", "🚀 바로 일정 만들기"]
+  },
+  {
+    id: "qna_food_jeonju_gukbap",
+    category: "AUTHENTIC_FOOD_ORDERING",
+    targetCity: "전주",
+    season: "all",
+    questionVariations: [
+      "콩나물국밥 수란 어떻게 먹어?",
+      "전주 콩나물국밥 먹는법",
+      "수란 먹는법",
+      "남부시장식 콩나물국밥"
+    ],
+    intentKeywords: ["콩나물국밥", "수란", "먹는법", "어떻게 먹어", "남부시장", "오징어사리", "모주"],
+    geminiAnswer: {
+      ko: "전주 현지인이 알려주는 **콩나물국밥 & 수란 찐 먹팁**입니다! 🍲🍳\n\n1. **수란은 국에 넣지 마세요**: 수란 그릇에 **김가루를 부수어 넣고, 뜨거운 국밥 국물 3~4숟가락**을 넣은 뒤 먼저 호로록 떠드세요! (국물에 넣으면 맑은 국물이 탁해져요)\n2. **오징어사리 추가**: 삶은 오징어 사리를 추가해 국밥에 넣으면 쫄깃한 식감과 감칠맛이 폭발합니다.\n3. **전주 모주 한 잔**: 계피향 솔솔 나는 달콤한 전주 전통 모주(저알콜 약주)를 곁들이면 완벽한 해장 완성! 🍶✨",
+      en: "Authentic Jeonju **Bean Sprout Soup & Poached Egg (Suran) Guide**! 🍲🍳\n\n1. **Do NOT drop the egg into the soup**: Add crushed seaweed and 3-4 spoonfuls of hot broth into the small poached egg bowl first, and enjoy it separately!\n2. **Add Chopped Squid**: Toss in tender boiled squid pieces for extra chewiness and umami.\n3. **Moju Pairing**: Pair with a glass of sweet cinnamon rice wine (Moju) for the ultimate comforting finish! 🍶✨"
+    },
+    followUp: "콩나물국밥 든든하게 드시고 전주 한옥마을 경기전과 감성 카페로 이어지는 코스를 잡아드릴까요? 🏮✨",
+    suggestedChips: ["🏮 전주 한옥마을 골목투어", "☕ 한옥 감성 카페거리", "🚀 바로 일정 만들기"]
   }
 ];
+
