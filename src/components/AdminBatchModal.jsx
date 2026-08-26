@@ -66,12 +66,8 @@ export default function AdminBatchModal({
       setApiKey(savedKey);
       if (savedKey) setIsKeySaved(true);
 
-      // Load unanswered questions & sync cloud
-      loadUnansweredFromStorage(true);
-
-      // 실시간 자동 동기화 (3초마다 클라우드 및 로컬 실시간 감지)
-      const intervalId = setInterval(() => loadUnansweredFromStorage(true), 3500);
-      return () => clearInterval(intervalId);
+      // Load unanswered questions once upon modal open
+      loadUnansweredFromStorage(false);
     }
   }, [isOpen]);
 

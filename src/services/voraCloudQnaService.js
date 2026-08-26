@@ -7,15 +7,14 @@
  * 3. Automatic Deduplication & Context Preservation
  */
 
-// Default Firebase / Cloud Project Config
-const DEFAULT_FIREBASE_PROJECT_ID = 'travelkorea-vora';
+// Default Firebase / Cloud Project Config (Explicitly configured projects only)
 const CLOUD_STORAGE_KEY = 'vora_cloud_project_id';
 
 export function getCloudProjectId() {
   if (typeof localStorage !== 'undefined') {
-    return localStorage.getItem(CLOUD_STORAGE_KEY) || DEFAULT_FIREBASE_PROJECT_ID;
+    return localStorage.getItem(CLOUD_STORAGE_KEY) || '';
   }
-  return DEFAULT_FIREBASE_PROJECT_ID;
+  return '';
 }
 
 export function setCloudProjectId(projectId) {
@@ -31,6 +30,8 @@ export async function pushQuestionToCloud(entry) {
   if (!entry || !entry.rawQuery) return;
 
   const projectId = getCloudProjectId();
+  if (!projectId) return; // Project ID가 설정되지 않았으면 불필요한 403 네트워크 요청 차단!
+
   const docId = entry.id || `unans_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
   
   const payload = {
@@ -51,9 +52,7 @@ export async function pushQuestionToCloud(entry) {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
-    }).catch(() => {
-      // Fallback: local sync handles offline
-    });
+    }).catch(() => {});
   } catch (e) {
     // Silent fail
   }
