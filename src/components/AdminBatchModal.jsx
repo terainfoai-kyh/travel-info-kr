@@ -22,6 +22,7 @@ export default function AdminBatchModal({
   const [testQuery, setTestQuery] = useState('');
   const [testResult, setTestResult] = useState(null);
   const [copySuccess, setCopySuccess] = useState(false);
+  const [manualInput, setManualInput] = useState('');
 
   const loadCustomVaultFromStorage = () => {
     try {
@@ -115,6 +116,22 @@ export default function AdminBatchModal({
     clearQuestionsFromCloud();
     localStorage.removeItem('vora_unanswered_qna');
     setUnansweredList([]);
+  };
+
+  const handleAddManualQuestion = () => {
+    const trimmed = manualInput.trim();
+    if (!trimmed) return;
+    const newItem = {
+      id: `manual-${Date.now()}`,
+      rawQuery: trimmed,
+      question: trimmed,
+      timestamp: new Date().toISOString(),
+      count: 1
+    };
+    const updated = [newItem, ...unansweredList];
+    setUnansweredList(updated);
+    localStorage.setItem('vora_unanswered_qna', JSON.stringify(updated));
+    setManualInput('');
   };
 
   // Run Batch Distillation with Gemini 2.5 Flash
@@ -633,6 +650,56 @@ export default function AdminBatchModal({
                   </div>
                 ))
               )}
+            </div>
+
+            {/* ✍️ 수동 질문/키워드 즉시 추가 바 */}
+            <div style={{
+              display: 'flex',
+              gap: '0.4rem',
+              marginTop: '0.2rem',
+              padding: '0.35rem',
+              backgroundColor: 'var(--bg-card)',
+              borderRadius: '10px',
+              border: '1px dashed #8b5cf6'
+            }}>
+              <input
+                type="text"
+                placeholder="✍️ 학습할 질문이나 키워드 입력 (예: 독도 여행 팁, 남해 독일마을 맛집)"
+                value={manualInput}
+                onChange={(e) => setManualInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleAddManualQuestion();
+                  }
+                }}
+                style={{
+                  flex: 1,
+                  padding: '0.45rem 0.65rem',
+                  fontSize: '0.8rem',
+                  borderRadius: '8px',
+                  border: '1px solid var(--border-color)',
+                  backgroundColor: 'var(--bg-primary)',
+                  color: 'var(--text-main)',
+                  outline: 'none'
+                }}
+              />
+              <button
+                onClick={handleAddManualQuestion}
+                style={{
+                  padding: '0.45rem 0.8rem',
+                  backgroundColor: '#8b5cf6',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: 700,
+                  fontSize: '0.78rem',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                ＋ 큐에 추가
+              </button>
             </div>
 
             {/* Run Button */}
