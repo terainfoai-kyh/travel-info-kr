@@ -832,7 +832,8 @@ export default function VoraAIChat({
           }
         }
 
-        const bottomChips = rawBottomChips;
+        // 🛡️ 모바일 최적화: 어떤 경우에도 칩 개수를 최대 4개(일정 생성 후엔 3개)로 엄격히 제한!
+        const bottomChips = rawBottomChips.slice(0, isCurrentMsgItineraryCard ? 3 : 4);
 
         return (
           <div

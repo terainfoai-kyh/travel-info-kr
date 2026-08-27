@@ -743,12 +743,9 @@ export default function App() {
         } else {
           quickButtons = [
             defaultActionChip,
-            (lang === 'en' ? '🗓️ 1 Day' : '🗓️ 당일치기'),
-            (lang === 'en' ? '🗓️ 2 Days' : '🗓️ 1박 2일'),
-            (lang === 'en' ? '🗓️ 3 Days' : '🗓️ 2박 3일'),
-            (lang === 'en' ? `🍴 ${displayCity} Foodies` : `🍴 ${displayCity} 대표 맛집 & 카페`),
-            (lang === 'en' ? `📸 ${displayCity} Best Photo Spots` : `📸 ${displayCity} 인생샷 핫플레이스`),
-            (lang === 'en' ? `🏨 ${displayCity} Top Hotels` : `🏨 ${displayCity} 인기 호텔/숙소`)
+            (lang === 'en' ? `🍴 ${displayCity} Foodies` : `🍴 ${displayCity} 대표 맛집`),
+            (lang === 'en' ? `🌃 ${displayCity} Night Views` : `🌃 ${displayCity} 낭만 야경`),
+            (lang === 'en' ? `🏨 ${displayCity} Top Hotels` : `🏨 ${displayCity} 인기 숙소`)
           ];
         }
 
