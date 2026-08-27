@@ -182,6 +182,9 @@ export function matchVoraQna(query = '', targetCity = null, context = {}, lang =
   let bestMatch = null;
   let highestScore = 0;
 
+  for (const item of combinedVault) {
+    let score = 0;
+
     // 1. Exact, Substring & Fuzzy Variation Match (Level 1 - Score: 75~100)
     for (const variation of item.questionVariations) {
       const normVar = variation.toLowerCase().replace(/[\s\-_?!.~,]/g, '');

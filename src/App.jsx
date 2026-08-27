@@ -771,7 +771,7 @@ export default function App() {
         }
 
         // 🛡️ [중복 100% 원천 차단 & 최대 4개 캡]
-        const quickButtons = Array.from(new Set(rawButtons)).slice(0, 4);
+        let quickButtons = Array.from(new Set(rawButtons)).slice(0, 4);
 
         // 🛡️ [특수 지시어 처리: 호텔은 빼줘 / ~제외해줘]
         const isExclusionDirective = /(호텔|숙소|카페|박물관|쇼핑|맛집)\s*(은|는|이|가|도)?\s*(빼줘|빼주세요|제외해줘|제외|없애줘|삭제해줘|빼|지워줘)/i.test(promptQuery);
