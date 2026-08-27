@@ -23,6 +23,10 @@ export default function AdminBatchModal({
   const [testResult, setTestResult] = useState(null);
   const [copySuccess, setCopySuccess] = useState(false);
   const [manualInput, setManualInput] = useState('');
+  const [searchKnowledgeQuery, setSearchKnowledgeQuery] = useState('');
+  const [expandedKnowledgeId, setExpandedKnowledgeId] = useState(null);
+  const [activeLangTab, setActiveLangTab] = useState('ko');
+  const [masterVaultList, setMasterVaultList] = useState([]);
 
   const loadCustomVaultFromStorage = () => {
     try {
@@ -30,6 +34,12 @@ export default function AdminBatchModal({
       setCustomVaultList(Array.isArray(stored) ? stored : []);
     } catch (e) {
       setCustomVaultList([]);
+    }
+    try {
+      const masterVault = getVoraQnaVault() || [];
+      setMasterVaultList(Array.isArray(masterVault) ? masterVault : []);
+    } catch (e) {
+      setMasterVaultList([]);
     }
   };
 
@@ -337,7 +347,7 @@ export default function AdminBatchModal({
           borderRadius: '24px',
           border: '2px solid rgba(139, 92, 246, 0.4)',
           width: '100%',
-          maxWidth: '720px',
+          maxWidth: '1040px',
           maxHeight: '90vh',
           overflowY: 'auto',
           boxShadow: '0 25px 50px -12px rgba(139, 92, 246, 0.25)',
@@ -369,7 +379,7 @@ export default function AdminBatchModal({
             </div>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>VORA AI 배치 지식 학습 센터</h3>
+                <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>VORA AI 배치 지식 학습 & Q&A 통합 관리 센터</h3>
                 <span style={{
                   fontSize: '0.65rem',
                   backgroundColor: '#8b5cf6',
@@ -401,424 +411,79 @@ export default function AdminBatchModal({
           </button>
         </div>
 
-        {/* Body Content */}
-        <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+        {/* 2-Column Wide Grid Content */}
+        <div style={{
+          padding: '1.25rem',
+          display: 'grid',
+          gridTemplateColumns: 'minmax(340px, 420px) 1fr',
+          gap: '1.25rem',
+          alignItems: 'start'
+        }}>
           
-          {/* 1. Gemini API Key Input */}
-          <div style={{
-            backgroundColor: 'var(--bg-primary)',
-            padding: '1rem 1.2rem',
-            borderRadius: '16px',
-            border: '1px solid var(--border-color)',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.6rem'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '0.85rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <Key size={16} color="#8b5cf6" /> 제미나이(Gemini) API 키 설정
-              </span>
-              {isKeySaved && (
-                <span style={{ fontSize: '0.72rem', color: '#10b981', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
-                  <ShieldCheck size={14} /> 브라우저에 안전하게 저장됨
-                </span>
-              )}
-            </div>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <input
-                type="password"
-                placeholder="AIzaSy... (구글 AI 스튜디오 키를 붙여넣으세요)"
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                style={{
-                  flex: 1,
-                  padding: '0.6rem 0.8rem',
-                  fontSize: '0.85rem',
-                  borderRadius: '10px',
-                  border: '1px solid var(--border-color)',
-                  backgroundColor: 'var(--bg-card)',
-                  color: 'var(--text-main)',
-                  outline: 'none'
-                }}
-              />
-              <button
-                onClick={handleSaveKey}
-                style={{
-                  padding: '0.6rem 1rem',
-                  backgroundColor: '#8b5cf6',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '10px',
-                  fontWeight: 700,
-                  fontSize: '0.82rem',
-                  cursor: 'pointer'
-                }}
-              >
-                저장
-              </button>
-            </div>
-          </div>
-
-          {/* 2. Unanswered Queue Status */}
-          <div style={{
-            backgroundColor: 'var(--bg-primary)',
-            padding: '1rem 1.2rem',
-            borderRadius: '16px',
-            border: '1px solid var(--border-color)',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.6rem'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '0.85rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <Database size={16} color="#3b82f6" /> 수집된 미답변 질문 현황
-              </span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span style={{
-                  fontSize: '0.78rem',
-                  backgroundColor: unansweredList.length > 0 ? 'rgba(239, 68, 68, 0.12)' : 'rgba(16, 185, 129, 0.12)',
-                  color: unansweredList.length > 0 ? '#ef4444' : '#10b981',
-                  padding: '0.2rem 0.6rem',
-                  borderRadius: '100px',
-                  fontWeight: 800
-                }}>
-                  {unansweredList.length}건 대기 중
-                </span>
-                <button
-                  onClick={() => loadUnansweredFromStorage(true)}
-                  title="클라우드 실시간 동기화"
-                  style={{
-                    background: 'none',
-                    border: '1px solid #3b82f6',
-                    borderRadius: '8px',
-                    padding: '0.2rem 0.5rem',
-                    color: '#3b82f6',
-                    fontSize: '0.72rem',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.2rem',
-                    fontWeight: 700
-                  }}
-                >
-                  <Cloud size={13} /> {isSyncingCloud ? '동기화 중...' : '클라우드 동기화'}
-                </button>
-                <button
-                  onClick={() => {
-                    const jsonStr = JSON.stringify(unansweredList, null, 2);
-                    navigator.clipboard.writeText(jsonStr);
-                    alert('📋 미답변 질문 큐가 클립보드에 JSON으로 복사되었습니다! (다른 PC나 메신저에 붙여넣기 가능)');
-                  }}
-                  title="JSON 복사"
-                  style={{
-                    background: 'none',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '8px',
-                    padding: '0.2rem 0.45rem',
-                    color: 'var(--text-muted)',
-                    fontSize: '0.72rem',
-                    cursor: 'pointer'
-                  }}
-                >
-                  📋 복사
-                </button>
-                <button
-                  onClick={() => {
-                    const input = prompt('📥 다른 기기에서 복사한 미답변 질문 JSON을 붙여넣으세요:');
-                    if (!input) return;
-                    try {
-                      const parsed = JSON.parse(input);
-                      if (Array.isArray(parsed)) {
-                        const merged = [...unansweredList];
-                        parsed.forEach(pItem => {
-                          const idx = merged.findIndex(m => (m.rawQuery || m.question || '').trim().toLowerCase() === (pItem.rawQuery || pItem.question || '').trim().toLowerCase());
-                          if (idx >= 0) {
-                            merged[idx].count = (merged[idx].count || 1) + (pItem.count || 1);
-                          } else {
-                            merged.push(pItem);
-                          }
-                        });
-                        setUnansweredList(merged);
-                        localStorage.setItem('vora_unanswered_qna', JSON.stringify(merged));
-                        alert(`✨ ${parsed.length}건의 질문을 성공적으로 병합하여 불러왔습니다!`);
-                      }
-                    } catch (e) {
-                      alert('올바른 JSON 형식이 아닙니다.');
-                    }
-                  }}
-                  title="JSON 붙여넣기"
-                  style={{
-                    background: 'none',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '8px',
-                    padding: '0.2rem 0.45rem',
-                    color: 'var(--text-muted)',
-                    fontSize: '0.72rem',
-                    cursor: 'pointer'
-                  }}
-                >
-                  📥 가져오기
-                </button>
-                {unansweredList.length > 0 && (
-                  <button
-                    onClick={handleClearUnanswered}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: 'var(--text-muted)',
-                      fontSize: '0.72rem',
-                      cursor: 'pointer',
-                      textDecoration: 'underline'
-                    }}
-                  >
-                    초기화
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* List preview */}
-            <div style={{
-              maxHeight: '150px',
-              overflowY: 'auto',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.35rem',
-              padding: '0.4rem 0'
-            }}>
-              {unansweredList.length === 0 ? (
-                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textAlign: 'center', padding: '0.8rem 0' }}>
-                  현재 수집된 미답변 질문이 없습니다. (핸드폰/PC/전 세계 어디서든 질문이 들어오면 클라우드로 자동 수집됩니다!)
-                </div>
-              ) : (
-                unansweredList.map((q, idx) => (
-                  <div key={idx} style={{
-                    fontSize: '0.78rem',
-                    padding: '0.4rem 0.65rem',
-                    backgroundColor: 'var(--bg-card)',
-                    borderRadius: '8px',
-                    border: '1px solid var(--border-color)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: '0.5rem'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', minWidth: 0, flex: 1 }}>
-                      <span style={{ fontWeight: 600, color: 'var(--text-main)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        💬 "{q.rawQuery || q.question}"
-                      </span>
-                      {q.count > 1 && (
-                        <span style={{ fontSize: '0.65rem', backgroundColor: '#ef4444', color: '#ffffff', padding: '0.1rem 0.4rem', borderRadius: '100px', fontWeight: 800, flexShrink: 0 }}>
-                          🔥 {q.count}회
-                        </span>
-                      )}
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0 }}>
-                      {q.context?.companion && (
-                        <span style={{ fontSize: '0.65rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', color: '#2563eb', padding: '0.1rem 0.35rem', borderRadius: '4px' }}>
-                          {typeof q.context.companion === 'object' ? (q.context.companion.type || '동행') : String(q.context.companion)}
-                        </span>
-                      )}
-                      <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700 }}>
-                        {q.targetCity || q.context?.city || '전국'}
-                      </span>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteUnansweredItem(q);
-                        }}
-                        title="이 질문 1건 삭제"
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          color: '#ef4444',
-                          fontSize: '0.72rem',
-                          cursor: 'pointer',
-                          padding: '0.15rem 0.3rem',
-                          borderRadius: '4px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          transition: 'background-color 0.15s ease'
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                      >
-                        ❌
-                      </button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-
-            {/* ✍️ 수동 질문/키워드 즉시 추가 바 */}
-            <div style={{
-              display: 'flex',
-              gap: '0.4rem',
-              marginTop: '0.2rem',
-              padding: '0.35rem',
-              backgroundColor: 'var(--bg-card)',
-              borderRadius: '10px',
-              border: '1px dashed #8b5cf6'
-            }}>
-              <input
-                type="text"
-                placeholder="✍️ 학습할 질문이나 키워드 입력 (예: 독도 여행 팁, 남해 독일마을 맛집)"
-                value={manualInput}
-                onChange={(e) => setManualInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleAddManualQuestion();
-                  }
-                }}
-                style={{
-                  flex: 1,
-                  padding: '0.45rem 0.65rem',
-                  fontSize: '0.8rem',
-                  borderRadius: '8px',
-                  border: '1px solid var(--border-color)',
-                  backgroundColor: 'var(--bg-primary)',
-                  color: 'var(--text-main)',
-                  outline: 'none'
-                }}
-              />
-              <button
-                onClick={handleAddManualQuestion}
-                style={{
-                  padding: '0.45rem 0.8rem',
-                  backgroundColor: '#8b5cf6',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontWeight: 700,
-                  fontSize: '0.78rem',
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                ＋ 큐에 추가
-              </button>
-            </div>
-
-            {/* Run Button */}
-            <button
-              onClick={handleRunBatch}
-              disabled={isRunningBatch}
-              style={{
-                marginTop: '0.4rem',
-                padding: '0.75rem',
-                backgroundColor: isRunningBatch ? '#94a3b8' : 'linear-gradient(135deg, #8b5cf6, #3b82f6)',
-                background: isRunningBatch ? '#94a3b8' : 'linear-gradient(135deg, #8b5cf6, #3b82f6)',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '12px',
-                fontWeight: 800,
-                fontSize: '0.9rem',
-                cursor: isRunningBatch ? 'not-allowed' : 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.5rem',
-                boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3)'
-              }}
-            >
-              {isRunningBatch ? <RefreshCw size={18} className="animate-spin" /> : <Play size={18} />}
-              {isRunningBatch ? `배치 지식 학습 실행 중 (${batchProgress}%)...` : `제미나이 2.5 배치 학습 즉시 실행하기 🚀`}
-            </button>
-          </div>
-
-          {/* 3. Batch Progress Logs */}
-          {batchLogs.length > 0 && (
-            <div style={{
-              backgroundColor: '#0f172a',
-              color: '#f8fafc',
-              padding: '1rem',
-              borderRadius: '16px',
-              fontSize: '0.75rem',
-              fontFamily: 'monospace',
-              maxHeight: '160px',
-              overflowY: 'auto',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.25rem'
-            }}>
-              {batchLogs.map((log, idx) => (
-                <div key={idx}>{log}</div>
-              ))}
-            </div>
-          )}
-
-          {/* 4. Distilled Results & Copy Action */}
-          {distilledResults.length > 0 && (
-            <div style={{
-              backgroundColor: 'rgba(16, 185, 129, 0.08)',
-              border: '1px solid rgba(16, 185, 129, 0.3)',
-              borderRadius: '16px',
-              padding: '1rem 1.2rem',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.6rem'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#10b981', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <CheckCircle2 size={16} /> 총 {distilledResults.length}개 신규 Q&A 지식 생성 완료!
-                </span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <button
-                    onClick={async () => {
-                      await publishKnowledgeToCloudMaster(distilledResults);
-                      loadCustomVaultFromStorage();
-                      alert(`🎉 ${distilledResults.length}건의 황금 지식이 중앙 클라우드 마스터 DB에 실시간 배포되었습니다!\n\n전 세계 모든 사용자에게 즉시 적용됩니다. ✨`);
-                    }}
-                    style={{
-                      padding: '0.4rem 0.8rem',
-                      backgroundColor: '#8b5cf6',
-                      color: '#ffffff',
-                      border: 'none',
-                      borderRadius: '8px',
-                      fontWeight: 800,
-                      fontSize: '0.78rem',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.3rem',
-                      boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3)'
-                    }}
-                  >
-                    <Cloud size={14} />
-                    🚀 전 세계 실시간 배포
-                  </button>
-                  <button
-                    onClick={handleCopyJson}
-                    style={{
-                      padding: '0.4rem 0.8rem',
-                      backgroundColor: '#10b981',
-                      color: '#ffffff',
-                      border: 'none',
-                      borderRadius: '8px',
-                      fontWeight: 700,
-                      fontSize: '0.78rem',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.3rem'
-                    }}
-                  >
-                    <Copy size={14} />
-                    {copySuccess ? '복사 완료! ✅' : 'Q&A JSON 복사'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* 5. Custom Learned Vault Management */}
-          {customVaultList.length > 0 && (
+          {/* ========================================================================= */}
+          {/* LEFT COLUMN: API Key, Unanswered Queue & Batch Training                   */}
+          {/* ========================================================================= */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            
+            {/* 1. Gemini API Key Input */}
             <div style={{
               backgroundColor: 'var(--bg-primary)',
-              padding: '1rem 1.2rem',
+              padding: '0.9rem 1rem',
+              borderRadius: '16px',
+              border: '1px solid var(--border-color)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.5rem'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: '0.82rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <Key size={15} color="#8b5cf6" /> 제미나이(Gemini) API 키 설정
+                </span>
+                {isKeySaved && (
+                  <span style={{ fontSize: '0.7rem', color: '#10b981', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                    <ShieldCheck size={13} /> 저장됨
+                  </span>
+                )}
+              </div>
+              <div style={{ display: 'flex', gap: '0.4rem' }}>
+                <input
+                  type="password"
+                  placeholder="AIzaSy... (구글 AI 스튜디오 키)"
+                  value={apiKey}
+                  onChange={(e) => setApiKey(e.target.value)}
+                  style={{
+                    flex: 1,
+                    padding: '0.5rem 0.7rem',
+                    fontSize: '0.8rem',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border-color)',
+                    backgroundColor: 'var(--bg-card)',
+                    color: 'var(--text-main)',
+                    outline: 'none'
+                  }}
+                />
+                <button
+                  onClick={handleSaveKey}
+                  style={{
+                    padding: '0.5rem 0.8rem',
+                    backgroundColor: '#8b5cf6',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontWeight: 700,
+                    fontSize: '0.78rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  저장
+                </button>
+              </div>
+            </div>
+
+            {/* 2. Unanswered Queue Status */}
+            <div style={{
+              backgroundColor: 'var(--bg-primary)',
+              padding: '1rem',
               borderRadius: '16px',
               border: '1px solid var(--border-color)',
               display: 'flex',
@@ -826,67 +491,483 @@ export default function AdminBatchModal({
               gap: '0.6rem'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: '0.85rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <Sparkles size={16} color="#10b981" /> 🧠 브라우저 학습 커스텀 지식 ({customVaultList.length}건)
+                <span style={{ fontSize: '0.85rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <Database size={15} color="#3b82f6" /> 학습 대기 질문 큐
                 </span>
-                <button
-                  onClick={() => {
-                    if (confirm('브라우저에 누적된 커스텀 학습 지식을 모두 삭제하시겠습니까?')) {
-                      localStorage.removeItem('vora_custom_qna_vault');
-                      setCustomVaultList([]);
-                    }
-                  }}
-                  style={{
-                    background: 'none',
-                    border: '1px solid rgba(239, 68, 68, 0.4)',
-                    color: '#ef4444',
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <span style={{
                     fontSize: '0.72rem',
-                    padding: '0.2rem 0.5rem',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontWeight: 700
-                  }}
-                >
-                  🗑️ 전체 초기화
-                </button>
-              </div>
-              <div style={{ maxHeight: '140px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-                {customVaultList.map((item, idx) => (
-                  <div key={idx} style={{
-                    fontSize: '0.75rem',
-                    padding: '0.35rem 0.6rem',
-                    backgroundColor: 'var(--bg-card)',
-                    borderRadius: '6px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: '0.5rem'
+                    backgroundColor: unansweredList.length > 0 ? 'rgba(239, 68, 68, 0.12)' : 'rgba(16, 185, 129, 0.12)',
+                    color: unansweredList.length > 0 ? '#ef4444' : '#10b981',
+                    padding: '0.15rem 0.5rem',
+                    borderRadius: '100px',
+                    fontWeight: 800
                   }}>
-                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      💡 {item.questionVariations?.[0] || item.id || `지식 #${idx + 1}`}
-                    </span>
+                    {unansweredList.length}건 대기
+                  </span>
+                  <button
+                    onClick={() => loadUnansweredFromStorage(true)}
+                    title="클라우드 동기화"
+                    style={{
+                      background: 'none',
+                      border: '1px solid #3b82f6',
+                      borderRadius: '6px',
+                      padding: '0.15rem 0.4rem',
+                      color: '#3b82f6',
+                      fontSize: '0.68rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.2rem',
+                      fontWeight: 700
+                    }}
+                  >
+                    <Cloud size={11} /> {isSyncingCloud ? '동기화...' : '동기화'}
+                  </button>
+                  {unansweredList.length > 0 && (
                     <button
-                      onClick={() => {
-                        const next = customVaultList.filter((_, i) => i !== idx);
-                        localStorage.setItem('vora_custom_qna_vault', JSON.stringify(next));
-                        setCustomVaultList(next);
-                      }}
+                      onClick={handleClearUnanswered}
                       style={{
                         background: 'none',
                         border: 'none',
-                        color: '#ef4444',
+                        color: 'var(--text-muted)',
+                        fontSize: '0.68rem',
                         cursor: 'pointer',
-                        fontSize: '0.72rem',
-                        fontWeight: 700
+                        textDecoration: 'underline'
                       }}
                     >
-                      ❌ 삭제
+                      초기화
                     </button>
+                  )}
+                </div>
+              </div>
+
+              {/* List preview */}
+              <div style={{
+                maxHeight: '130px',
+                overflowY: 'auto',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.3rem'
+              }}>
+                {unansweredList.length === 0 ? (
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center', padding: '0.6rem 0' }}>
+                    대기 중인 질문이 없습니다. 아래 입력창에 질문을 직접 추가해 보세요!
                   </div>
+                ) : (
+                  unansweredList.map((q, idx) => (
+                    <div key={idx} style={{
+                      fontSize: '0.75rem',
+                      padding: '0.35rem 0.55rem',
+                      backgroundColor: 'var(--bg-card)',
+                      borderRadius: '6px',
+                      border: '1px solid var(--border-color)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: '0.4rem'
+                    }}>
+                      <span style={{ fontWeight: 600, color: 'var(--text-main)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
+                        💬 {q.rawQuery || q.question}
+                      </span>
+                      <button
+                        onClick={() => handleDeleteUnansweredItem(q)}
+                        title="삭제"
+                        style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '0.7rem', cursor: 'pointer' }}
+                      >
+                        ❌
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* ✍️ 수동 질문/키워드 즉시 추가 바 */}
+              <div style={{
+                display: 'flex',
+                gap: '0.35rem',
+                marginTop: '0.1rem',
+                padding: '0.3rem',
+                backgroundColor: 'var(--bg-card)',
+                borderRadius: '8px',
+                border: '1px dashed #8b5cf6'
+              }}>
+                <input
+                  type="text"
+                  placeholder="✍️ 학습할 질문 입력 (예: 독도 여행 팁)"
+                  value={manualInput}
+                  onChange={(e) => setManualInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddManualQuestion();
+                    }
+                  }}
+                  style={{
+                    flex: 1,
+                    padding: '0.4rem 0.55rem',
+                    fontSize: '0.78rem',
+                    borderRadius: '6px',
+                    border: '1px solid var(--border-color)',
+                    backgroundColor: 'var(--bg-primary)',
+                    color: 'var(--text-main)',
+                    outline: 'none'
+                  }}
+                />
+                <button
+                  onClick={handleAddManualQuestion}
+                  style={{
+                    padding: '0.4rem 0.65rem',
+                    backgroundColor: '#8b5cf6',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontWeight: 700,
+                    fontSize: '0.75rem',
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  ＋ 추가
+                </button>
+              </div>
+
+              {/* Run Button */}
+              <button
+                onClick={handleRunBatch}
+                disabled={isRunningBatch}
+                style={{
+                  marginTop: '0.2rem',
+                  padding: '0.7rem',
+                  background: isRunningBatch ? '#94a3b8' : 'linear-gradient(135deg, #8b5cf6, #3b82f6)',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '10px',
+                  fontWeight: 800,
+                  fontSize: '0.85rem',
+                  cursor: isRunningBatch ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.4rem',
+                  boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3)'
+                }}
+              >
+                {isRunningBatch ? <RefreshCw size={16} className="animate-spin" /> : <Play size={16} />}
+                {isRunningBatch ? `배치 지식 학습 실행 중 (${batchProgress}%)...` : `제미나이 2.5 배치 학습 즉시 실행하기 🚀`}
+              </button>
+            </div>
+
+            {/* 3. Batch Progress Logs */}
+            {batchLogs.length > 0 && (
+              <div style={{
+                backgroundColor: '#0f172a',
+                color: '#f8fafc',
+                padding: '0.8rem',
+                borderRadius: '12px',
+                fontSize: '0.72rem',
+                fontFamily: 'monospace',
+                maxHeight: '130px',
+                overflowY: 'auto',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.2rem'
+              }}>
+                {batchLogs.map((log, idx) => (
+                  <div key={idx}>{log}</div>
                 ))}
               </div>
+            )}
+
+            {/* 4. Distilled Results & Copy Action */}
+            {distilledResults.length > 0 && (
+              <div style={{
+                backgroundColor: 'rgba(16, 185, 129, 0.08)',
+                border: '1px solid rgba(16, 185, 129, 0.3)',
+                borderRadius: '12px',
+                padding: '0.8rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.5rem'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#10b981', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                    <CheckCircle2 size={15} /> 총 {distilledResults.length}개 지식 생성 완료!
+                  </span>
+                  <button
+                    onClick={async () => {
+                      await publishKnowledgeToCloudMaster(distilledResults);
+                      loadCustomVaultFromStorage();
+                      alert(`🎉 ${distilledResults.length}건의 황금 지식이 중앙 클라우드 마스터 DB에 실시간 배포되었습니다! ✨`);
+                    }}
+                    style={{
+                      padding: '0.35rem 0.7rem',
+                      backgroundColor: '#8b5cf6',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontWeight: 800,
+                      fontSize: '0.74rem',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    🚀 전 세계 배포
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* ========================================================================= */}
+          {/* RIGHT COLUMN: Real-Time Knowledge & Multilingual Answer Search & Viewer   */}
+          {/* ========================================================================= */}
+          <div style={{
+            backgroundColor: 'var(--bg-primary)',
+            padding: '1.1rem',
+            borderRadius: '16px',
+            border: '1px solid var(--border-color)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.8rem',
+            minHeight: '480px'
+          }}>
+            
+            {/* Search Header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: '0.9rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <Search size={16} color="#8b5cf6" /> 🔍 지식 & 제미나이 답변 통합 검색기
+              </span>
+              <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                총 <strong>{(masterVaultList.length || 0) + customVaultList.length}</strong>개 영구 지식 보유
+              </span>
             </div>
-          )}
+
+            {/* Live Search Input */}
+            <div style={{ position: 'relative' }}>
+              <input
+                type="text"
+                placeholder="🔎 질문명 또는 답변 본문 내용 검색 (예: 독도, 사동항, 경복궁, 한복, 성수동, 커피, 미식...)"
+                value={searchKnowledgeQuery}
+                onChange={(e) => setSearchKnowledgeQuery(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '0.65rem 0.9rem',
+                  fontSize: '0.85rem',
+                  borderRadius: '10px',
+                  border: '2px solid rgba(139, 92, 246, 0.3)',
+                  backgroundColor: 'var(--bg-card)',
+                  color: 'var(--text-main)',
+                  outline: 'none',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)'
+                }}
+              />
+              {searchKnowledgeQuery && (
+                <button
+                  onClick={() => setSearchKnowledgeQuery('')}
+                  style={{
+                    position: 'absolute',
+                    right: '10px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-muted)',
+                    cursor: 'pointer',
+                    fontSize: '0.8rem'
+                  }}
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {/* Knowledge List Accordion */}
+            <div style={{
+              flex: 1,
+              maxHeight: '460px',
+              overflowY: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.5rem',
+              paddingRight: '0.2rem'
+            }}>
+              {(() => {
+                const allKnowledge = [...customVaultList, ...masterVaultList];
+                const cleanQuery = searchKnowledgeQuery.trim().toLowerCase();
+                
+                const filtered = cleanQuery ? allKnowledge.filter(item => {
+                  const title = (item.title || '').toLowerCase();
+                  const city = (item.targetCity || '').toLowerCase();
+                  const variations = (item.questionVariations || []).join(' ').toLowerCase();
+                  const intentKw = (item.intentKeywords || []).join(' ').toLowerCase();
+                  const answerKo = (item.geminiAnswer?.ko || '').toLowerCase();
+                  const answerEn = (item.geminiAnswer?.en || '').toLowerCase();
+                  return title.includes(cleanQuery) 
+                    || city.includes(cleanQuery)
+                    || variations.includes(cleanQuery)
+                    || intentKw.includes(cleanQuery)
+                    || answerKo.includes(cleanQuery)
+                    || answerEn.includes(cleanQuery);
+                }) : allKnowledge;
+
+                if (filtered.length === 0) {
+                  return (
+                    <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', textAlign: 'center', padding: '3rem 1rem' }}>
+                      {cleanQuery ? `"${searchKnowledgeQuery}" 관련 지식/답변이 없습니다.` : '등록된 지식이 없습니다.'}
+                    </div>
+                  );
+                }
+
+                return filtered.map((item, idx) => {
+                  const itemId = item.id || `qna-${idx}`;
+                  const isExpanded = expandedKnowledgeId === itemId;
+
+                  return (
+                    <div
+                      key={itemId}
+                      style={{
+                        backgroundColor: 'var(--bg-card)',
+                        borderRadius: '12px',
+                        border: isExpanded ? '2px solid #8b5cf6' : '1px solid var(--border-color)',
+                        overflow: 'hidden',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      {/* Card Header (Click to toggle accordion) */}
+                      <div
+                        onClick={() => setExpandedKnowledgeId(isExpanded ? null : itemId)}
+                        style={{
+                          padding: '0.75rem 0.9rem',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: '0.6rem',
+                          backgroundColor: isExpanded ? 'rgba(139, 92, 246, 0.06)' : 'transparent'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, minWidth: 0 }}>
+                          <span style={{
+                            fontSize: '0.68rem',
+                            padding: '0.15rem 0.45rem',
+                            borderRadius: '4px',
+                            backgroundColor: '#8b5cf6',
+                            color: '#ffffff',
+                            fontWeight: 800,
+                            flexShrink: 0
+                          }}>
+                            {item.targetCity || '전국'}
+                          </span>
+                          <strong style={{ fontSize: '0.85rem', color: 'var(--text-main)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {item.title || item.questionVariations?.[0] || '지식 항목'}
+                          </strong>
+                        </div>
+                        <span style={{ fontSize: '0.75rem', color: '#8b5cf6', fontWeight: 800 }}>
+                          {isExpanded ? '▲ 접기' : '▼ 답변 보기'}
+                        </span>
+                      </div>
+
+                      {/* Expanded Accordion: Full Multilingual Answer Viewer */}
+                      {isExpanded && (
+                        <div style={{
+                          padding: '0.9rem',
+                          borderTop: '1px solid var(--border-color)',
+                          backgroundColor: 'var(--bg-primary)',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '0.6rem'
+                        }}>
+                          {/* Question Variations Tag Bar */}
+                          {item.questionVariations && item.questionVariations.length > 0 && (
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem', alignItems: 'center' }}>
+                              <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700 }}>트리거 질문:</span>
+                              {item.questionVariations.map((qv, qIdx) => (
+                                <span key={qIdx} style={{
+                                  fontSize: '0.68rem',
+                                  padding: '0.1rem 0.4rem',
+                                  backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                  color: '#2563eb',
+                                  borderRadius: '4px'
+                                }}>
+                                  💬 {qv}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Language Tabs */}
+                          <div style={{ display: 'flex', gap: '0.3rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.3rem' }}>
+                            {[
+                              { code: 'ko', label: '🇰🇷 한국어' },
+                              { code: 'en', label: '🇺🇸 English' },
+                              { code: 'ja', label: '🇯🇵 日本語' },
+                              { code: 'zh', label: '🇨🇳 中文' }
+                            ].map((tab) => (
+                              <button
+                                key={tab.code}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setActiveLangTab(tab.code);
+                                }}
+                                style={{
+                                  padding: '0.25rem 0.6rem',
+                                  fontSize: '0.72rem',
+                                  fontWeight: activeLangTab === tab.code ? 800 : 500,
+                                  color: activeLangTab === tab.code ? '#8b5cf6' : 'var(--text-muted)',
+                                  border: 'none',
+                                  borderBottom: activeLangTab === tab.code ? '2px solid #8b5cf6' : 'none',
+                                  background: 'none',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                {tab.label}
+                              </button>
+                            ))}
+                          </div>
+
+                          {/* Gemini Answer Full Text Box */}
+                          <div style={{
+                            padding: '0.75rem',
+                            backgroundColor: 'var(--bg-card)',
+                            borderRadius: '8px',
+                            border: '1px solid var(--border-color)',
+                            fontSize: '0.8rem',
+                            lineHeight: 1.6,
+                            color: 'var(--text-main)',
+                            whiteSpace: 'pre-line',
+                            maxHeight: '180px',
+                            overflowY: 'auto'
+                          }}>
+                            {item.geminiAnswer?.[activeLangTab] || item.geminiAnswer?.ko || '등록된 다국어 답변이 없습니다.'}
+                          </div>
+
+                          {/* Suggested Action Chips */}
+                          {item.suggestedChips && item.suggestedChips.length > 0 && (
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem', alignItems: 'center' }}>
+                              <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 700 }}>추천 칩:</span>
+                              {item.suggestedChips.map((chip, cIdx) => (
+                                <span key={cIdx} style={{
+                                  fontSize: '0.68rem',
+                                  padding: '0.15rem 0.5rem',
+                                  backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                                  color: '#7c3aed',
+                                  borderRadius: '100px',
+                                  fontWeight: 700
+                                }}>
+                                  {chip}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                });
+              })()}
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
