@@ -1,8 +1,8 @@
 import { resolveSpotPhotoSync } from '../services/photoPipeline.js';
 
 export const PINPOINT_PHOTOS = {
-  palace: ['https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1200&q=85'],
-  ocean: ['https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=85']
+  palace: ['https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg'],
+  ocean: ['https://tong.visitkorea.or.kr/cms/resource/13/2678613_image2_1.jpg']
 };
 
 export function getPinpointSpotImage(spotTitle = '', city = '서울') {

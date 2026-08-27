@@ -552,7 +552,7 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
           loop
           muted
           playsInline
-          poster="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80"
+          poster="https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg"
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         >
           <source src="https://assets.mixkit.co/videos/preview/mixkit-beautiful-aerial-view-of-the-beach-and-the-sea-41548-large.mp4" type="video/mp4" />

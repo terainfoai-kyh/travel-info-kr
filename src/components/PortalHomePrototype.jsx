@@ -832,7 +832,7 @@ export default function PortalHomePrototype({
                   src={theme.image}
                   alt={theme.titleKo}
                   onError={(e) => {
-                    e.currentTarget.src = 'https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=1200&q=85';
+                    e.currentTarget.src = 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg';
                   }}
                   style={{
                     width: '100%',

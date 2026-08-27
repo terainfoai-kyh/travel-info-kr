@@ -140,10 +140,10 @@ export function resolveSpotPhotoSync(spotTitle = '', city = '서울', category =
     fetchGooglePlacesPhotos(spotTitle, city).catch(() => {});
   }
 
-  // Neutral verified Korea landmark baseline
+  // Neutral verified Korea landmark baseline (TourAPI genuine CDN)
   return {
-    primaryImage: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1200&q=85',
-    images: ['https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1200&q=85'],
+    primaryImage: 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg',
+    images: ['https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg'],
     rating: 4.8,
     displayName: spotTitle
   };
