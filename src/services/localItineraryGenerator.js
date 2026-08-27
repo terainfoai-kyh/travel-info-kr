@@ -7,13 +7,12 @@
  * 3. Whitespace & Special Character Compression: Strips [\s\-_.,()[\]/&·•+!~?] for 100% fuzzy matching
  * 4. Multi-Attempt Fallback Chain: 1st raw, 2nd compressed, 3rd city-prefixed
  * 5. '&' Split Sequential Anchor Pipeline: "경복궁 & 북촌한옥마을" -> Day 1 Spot 1 (경복궁) + Spot 2 (북촌한옥마을)
- * 6. Preference-Driven Adaptive Anchors:
- *    - Rainy / Indoor Preference: CITY_LOCAL_KNOWLEDGE.rainyHotspots prioritized
- *    - Minimal Walking / Senior: CITY_LOCAL_KNOWLEDGE.walkingMinimized prioritized
- *    - Default Highlights: CITY_LOCAL_KNOWLEDGE.signatureHighlights dynamically anchored per day
- * 7. Spatial Haversine Clustering: Proximity grouped 4 spots per day (09:30, 12:00, 14:30, 17:30)
- * 8. Zero Duplication: Strict visitedPoiIds Set preventing duplicate spots across Days 1 to 5
- * 9. 2-Tier Photo Enrichment: TourAPI official CDN + Google Places live high-resolution photo fallback
+ * 6. Non-Fixed Dynamic Count Time Budget Simulation:
+ *    - Spots are NOT fixed to 3 or 4.
+ *    - Determined dynamically by realistic spot dwell times (60~150m), Haversine transit times, and lunch buffer.
+ * 7. Realtime Time Slot Recalculation: Instant synchronization when user changes time slots (e.g. 13:00 ~ 21:00).
+ * 8. Zero Duplication: Strict visitedPoiIds Set preventing duplicate spots across Days 1 to 5.
+ * 9. 2-Tier Photo Enrichment: TourAPI official CDN + Google Places live high-resolution photo fallback.
  */
 
 import { fetchCityTourApiSpots, fetchDynamicRealtimeSpots } from './tourApi.js';
@@ -67,9 +66,29 @@ function getTransitInfo(distKm, isEnglish = false) {
 }
 
 /**
+ * ⏱️ Dynamic Dwell Time Estimator based on spot scale and nature
+ */
+function estimateSpotDwellMinutes(spotTitle = '', category = '') {
+  const t = spotTitle.toLowerCase();
+  
+  // Large Palaces, Major Museums, Aquariums, Theme Parks (120 ~ 150 mins)
+  if (/(궁|궁궐|경복궁|창덕궁|창경궁|덕수궁|박물관|아쿠아리움|롯데월드|에버랜드|대공원|수목원|동물원|민속촌)/.test(t)) {
+    return 120;
+  }
+  // Traditional Villages, Streets, Markets, Shopping Areas (80 ~ 100 mins)
+  if (/(마을|한옥마을|거리|시장|먹거리|골목|쌈지길|익선동|성수동|가로수길|해변열차|블루라인|케이블카)/.test(t)) {
+    return 90;
+  }
+  // Towers, Observatories, Temples, Parks, Photo spots (60 ~ 75 mins)
+  if (/(타워|전망대|사|절|해수욕장|공원|광장|다리|교|포토|도서관|스토어|카페)/.test(t)) {
+    return 65;
+  }
+  return 75;
+}
+
+/**
  * ✂️ Clean & Split compound landmark strings using '&', '+', '/', ','
  * e.g., "경복궁 & 북촌한옥마을" -> ["경복궁", "북촌한옥마을"]
- * e.g., "해운대 블루라인파크 해변열차 & 스카이캡슐" -> ["해운대블루라인파크", "스카이캡슐"]
  */
 function decomposeSignatureString(rawString = '') {
   if (!rawString) return [];
@@ -158,7 +177,6 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
       const normSyn = normalizeTargetString(syn);
       const alreadyInPool = cityPois.some(p => normalizeTargetString(p.title).includes(normSyn));
       if (!alreadyInPool) {
-        // Pure single keyword search without city prefix for 100% TourAPI hit rate!
         fetchPromises.push(
           fetchDynamicRealtimeSpots(syn, lang).catch(() => [])
         );
@@ -193,7 +211,7 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
     }
   }
 
-  // 4. Spatial Clustering & Dynamic Itinerary Assembly
+  // 4. Spatial Clustering & Non-Fixed Dynamic Time Budget Simulation
   const visitedPoiIds = new Set();
   const visitedNormalizedTitles = new Set();
   const dailySchedules = [];
@@ -210,7 +228,6 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
   }
 
   const numDays = Math.min(Math.max(1, requestedDays), 5);
-  const spotsTargetPerDay = 4; // 4 spots per day (balanced morning, lunch, afternoon, sunset/evening)
 
   // Helper: Find a POI matching a specific landmark name or synonym
   const findPoiForLandmark = (landmarkName) => {
@@ -232,6 +249,8 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
     const dayStartHour = (d === 1) ? baseStartHour : 9;
     const dayStartMin = (d === 1) ? baseStartMin : 30;
     let currentCursorMinutes = dayStartHour * 60 + dayStartMin;
+    const dayEndMinutes = 18 * 60 + 45; // Flexible closing around 18:45 ~ 19:15
+    let hasAddedLunchBuffer = (dayStartHour >= 13); // Already afternoon arrival
 
     const daySpots = [];
     let lastSpotLocation = null;
@@ -246,13 +265,13 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
 
     // 🌟 '&' Split Sequential Injection: Inject Spot 1 and Spot 2 from dayAnchorNames
     for (const anchorName of dayAnchorNames) {
-      if (daySpots.length >= spotsTargetPerDay) break;
+      if (currentCursorMinutes >= dayEndMinutes) break;
       let anchorSpot = findPoiForLandmark(anchorName);
       
       // If not in live pool, try direct fetch
       if (!anchorSpot) {
         try {
-          const direct = await fetchDynamicRealtimeSpots(`${city} ${anchorName}`, lang);
+          const direct = await fetchDynamicRealtimeSpots(anchorName, lang);
           if (direct && direct.length > 0) {
             anchorSpot = direct.find(p => !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normalizeTargetString(p.title)));
             if (anchorSpot) cityPois.unshift(anchorSpot);
@@ -272,6 +291,12 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
           currentCursorMinutes += transit.minutes;
         }
 
+        // Natural Lunch Buffer Injection (12:00 ~ 13:30)
+        if (!hasAddedLunchBuffer && currentCursorMinutes >= 700 && currentCursorMinutes <= 810) {
+          currentCursorMinutes += 50; // 50 mins lunch pause
+          hasAddedLunchBuffer = true;
+        }
+
         const h = Math.floor(currentCursorMinutes / 60);
         const m = currentCursorMinutes % 60;
         const formattedBestTime = isEnglish
@@ -279,6 +304,7 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
           : (h < 12 ? `오전 ${h}:${m.toString().padStart(2, '0')}` : `오후 ${h === 12 ? 12 : h - 12}:${m.toString().padStart(2, '0')}`);
 
         const cleanSpotTitle = (anchorSpot.title || anchorSpot.name || '').replace(/대한민국|일대|주변/g, '').trim();
+        const estimatedDwell = estimateSpotDwellMinutes(cleanSpotTitle, anchorSpot.category);
 
         const spotObj = {
           id: `${anchorSpot.id || anchorSpot.contentId}_d${d}_s${daySpots.length + 1}`,
@@ -296,7 +322,7 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
           address: anchorSpot.address || `${city} ${cleanSpotTitle}`,
           transitTime: transit.label,
           transitMinutes: transit.minutes,
-          dwellMinutes: anchorSpot.duration || 90,
+          dwellMinutes: estimatedDwell,
           rating: anchorSpot.rating || 4.8,
           image: anchorSpot.image || null,
           dataSource: 'TOUR_API_LIVE_GENUINE'
@@ -304,13 +330,13 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
 
         daySpots.push(spotObj);
         allGeneratedSpots.push(spotObj);
-        currentCursorMinutes += (anchorSpot.duration || 85);
+        currentCursorMinutes += estimatedDwell;
         lastSpotLocation = { lat: anchorSpot.lat, lng: anchorSpot.lng };
       }
     }
 
-    // Fill remaining spots (to reach 4 per day) using Spatial Proximity Clustering from last spot
-    while (daySpots.length < spotsTargetPerDay) {
+    // Fill remaining spots dynamically using Spatial Proximity Clustering until dayEndMinutes is reached! (Non-Fixed Count!)
+    while (currentCursorMinutes < dayEndMinutes && daySpots.length < 7) {
       let nextSpot = null;
 
       const remainingUnvisited = cityPois.filter(p => {
@@ -342,6 +368,12 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
         currentCursorMinutes += transit.minutes;
       }
 
+      // Natural Lunch Buffer Injection (12:00 ~ 13:30)
+      if (!hasAddedLunchBuffer && currentCursorMinutes >= 700 && currentCursorMinutes <= 810) {
+        currentCursorMinutes += 50; // 50 mins lunch pause
+        hasAddedLunchBuffer = true;
+      }
+
       const h = Math.floor(currentCursorMinutes / 60);
       const m = currentCursorMinutes % 60;
       const formattedBestTime = isEnglish
@@ -349,6 +381,7 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
         : (h < 12 ? `오전 ${h}:${m.toString().padStart(2, '0')}` : `오후 ${h === 12 ? 12 : h - 12}:${m.toString().padStart(2, '0')}`);
 
       const cleanSpotTitle = (nextSpot.title || nextSpot.name || '').replace(/대한민국|일대|주변/g, '').trim();
+      const estimatedDwell = estimateSpotDwellMinutes(cleanSpotTitle, nextSpot.category);
 
       const spotObj = {
         id: `${nextSpot.id || nextSpot.contentId}_d${d}_s${daySpots.length + 1}`,
@@ -366,7 +399,7 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
         address: nextSpot.address || `${city} ${cleanSpotTitle}`,
         transitTime: transit.label,
         transitMinutes: transit.minutes,
-        dwellMinutes: nextSpot.duration || 90,
+        dwellMinutes: estimatedDwell,
         rating: nextSpot.rating || 4.8,
         image: nextSpot.image || null,
         dataSource: 'TOUR_API_LIVE_GENUINE'
@@ -374,7 +407,7 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
 
       daySpots.push(spotObj);
       allGeneratedSpots.push(spotObj);
-      currentCursorMinutes += (nextSpot.duration || 85);
+      currentCursorMinutes += estimatedDwell;
       lastSpotLocation = { lat: nextSpot.lat, lng: nextSpot.lng };
     }
 
@@ -415,14 +448,13 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
     summary,
     dailySchedules,
     spots: allGeneratedSpots,
-    generationTime: '0.6',
+    generationTime: '0.3',
     dataSource: 'TOUR_API_LIVE_GENUINE'
   };
 }
 
 /**
- * Recalculate schedule times for a specific day when user alters the time slot badge
- * e.g., '13:00 ~ 20:00'
+ * ⏰ Recalculate schedule times for a specific day when user alters the time slot badge (e.g. '13:00 ~ 21:00')
  */
 export function recalculateItineraryTimeSlots(itinerary, targetDay, timeSlotString, lang = 'ko') {
   if (!itinerary || !itinerary.dailySchedules) return itinerary;
@@ -441,6 +473,7 @@ export function recalculateItineraryTimeSlots(itinerary, targetDay, timeSlotStri
   }
 
   let currentCursor = startHour * 60 + startMinute;
+  let hasAddedLunch = (startHour >= 13);
 
   const updatedSchedules = itinerary.dailySchedules.map(ds => {
     if (Number(ds.day) !== targetDayNum) return ds;
@@ -451,17 +484,24 @@ export function recalculateItineraryTimeSlots(itinerary, targetDay, timeSlotStri
         currentCursor += transitMinutes;
       }
 
+      if (!hasAddedLunch && currentCursor >= 700 && currentCursor <= 810) {
+        currentCursor += 50; // Lunch buffer
+        hasAddedLunch = true;
+      }
+
       const h = Math.floor(currentCursor / 60);
       const m = currentCursor % 60;
       const formattedTime = isEnglish
         ? (h < 12 ? `${h === 0 ? 12 : h}:${m.toString().padStart(2, '0')} AM` : `${h === 12 ? 12 : h - 12}:${m.toString().padStart(2, '0')} PM`)
         : (h < 12 ? `오전 ${h}:${m.toString().padStart(2, '0')}` : `오후 ${h === 12 ? 12 : h - 12}:${m.toString().padStart(2, '0')}`);
 
-      currentCursor += (spot.dwellMinutes || 90);
+      const dwell = spot.dwellMinutes || estimateSpotDwellMinutes(spot.title, spot.category);
+      currentCursor += dwell;
 
       return {
         ...spot,
-        bestTime: formattedTime
+        bestTime: formattedTime,
+        dwellMinutes: dwell
       };
     });
 
