@@ -13,11 +13,10 @@
    - **초고속 Q&A 지식 매칭 완화 (`voraQnaMatcher.js`)**: 도시 미선택 상태에서도 질문 일치도 75점 이상 시 0.01초 만에 지식 즉시 매칭 프리패스 장착.
    - **관리자 2열 와이드 대시보드 리뉴얼 & 중복 제거/삭제 기능 (`AdminBatchModal.jsx`)**: 1040px 와이드 뷰, 중복 Upsert 및 `[ 🗑️ ]` 개별 삭제 완료.
    - **통영 & 욕지도 정품 로컬 지식 팩 탑재 (`voraDialogKnowledge.js`)**: 출렁다리, 펠리컨바위, 고등어회, 고메원도넛, 삼덕항 배편 정보 탑재.
+   - **한국관광공사 TourAPI 시군구 코드(`sigunguCode`) 정밀 매핑 & 주소 필터 장착 (`tourApi.js`)**: 통영(`sigunguCode: 17`), 거제(`sigunguCode: 1`), 남해(`sigunguCode: 5`), 강릉(`sigunguCode: 1`) 등 전국 30대 시군구 코드 등록 및 `item.addr1` 시군구 주소 검증 필터로 타 지역(하동 등) 명소 혼입 100% 원천 차단.
+   - **진짜 100% 실시간 클라우드 자가학습 파이프라인 직결 (`voraCloudQnaService.js` & `functions/api/qna.js`)**: 로컬 저장이 아닌 실제 Cloudflare Pages Serverless Edge REST API (`/api/qna`) 실시간 GET/POST/DELETE 직결 및 2중 오프라인 안전망 완성.
 2. **다음 작업 1순위**:
-   - **[선배님 설계 5-Lane 자가 학습 플라이휠 파이프라인] 실시간 클라우드 직결**:
-     - ① 사용자의 미답변 질문 발생 시 `voraCloudQnaService`를 통해 중앙 클라우드 DB에 실시간 전송 & 축적.
-     - ② 관리자 화면 [학습 대기 질문 큐]가 로컬이 아닌 중앙 클라우드 DB에서 실시간 로딩되도록 연동.
-     - ③ 통영 추천 카드에서 경남 타 지역(하동 등)이 섞이지 않도록 `sigunguCode: 17` 및 주소 필터 완벽 고정.
+   - 선배님과 함께 실시간 클라우드 큐 및 통영/욕지도 추천 카드 동작 상태 최종 실서버 검증.
 
 ---
 

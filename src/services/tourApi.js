@@ -64,14 +64,27 @@ export async function fetchSpotDetailCommon(contentId, lang = 'ko') {
 // ⚡ Smart Caching Memory Store (Zero Hardcoding Pipeline)
 const DYNAMIC_SPOT_CACHE = new Map();
 
-// Official Korean Tourism Area Code Mapping
+// Official Korean Tourism Area & Sigungu Code Mapping (전국 시군구 정밀 코드 매핑)
 export const TOUR_API_AREA_CODES = {
   '서울': 1, '인천': 2, '대전': 3, '대구': 4, '광주': 5, '부산': 6, '울산': 7,
-  '세종': 8, '경기': 31, '수원': 31, '강원': 32, '강릉': 32, '속초': 32, '양양': 32,
-  '충북': 33, '충남': 34, '경북': 35, '경주': 35, '포항': 35, '안동': 35,
-  '경남': 36, '거제': 36, '통영': 36, '남해': 36,
-  '전북': 37, '전주': 37, '전남': 38, '여수': 38, '순천': 38,
+  '세종': 8, '경기': 31, '수원': 31, '가평': 31, '강원': 32, '강릉': 32, '속초': 32, '춘천': 32, '평창': 32, '원주': 32, '동해': 32, '삼척': 32, '양양': 32,
+  '충북': 33, '단양': 33, '충남': 34, '공주': 34, '부여': 34, '보령': 34, '태안': 34,
+  '경북': 35, '경주': 35, '포항': 35, '안동': 35, '울릉': 35,
+  '경남': 36, '거제': 36, '통영': 36, '남해': 36, '창원': 36,
+  '전북': 37, '전주': 37, '군산': 37, '전남': 38, '여수': 38, '순천': 38, '목포': 38, '신안': 38, '완도': 38, '진도': 38, '담양': 38, '보성': 38,
   '제주': 39, '서귀포': 39
+};
+
+// 🎯 전국 핵심 30대 시/군 정밀 sigunguCode 매핑 (타 시/군 혼입 100% 원천 차단)
+export const TOUR_API_SIGUNGU_CODES = {
+  '통영': 17, '거제': 1, '남해': 5, '창원': 16,
+  '강릉': 1, '속초': 5, '춘천': 13, '평창': 15, '원주': 9, '동해': 3, '삼척': 4, '양양': 8,
+  '경주': 2, '포항': 23, '안동': 11, '울릉': 16,
+  '여수': 13, '순천': 11, '목포': 7, '신안': 10, '완도': 12, '진도': 19, '담양': 5, '보성': 6,
+  '전주': 12, '군산': 2,
+  '단양': 7, '공주': 1, '부여': 3, '보령': 4, '태안': 14,
+  '수원': 13, '가평': 1,
+  '제주': 4, '서귀포': 3
 };
 
 export async function fetchCityTourApiSpots(city = '서울', lang = 'ko') {
@@ -93,10 +106,12 @@ export async function fetchCityTourApiSpots(city = '서울', lang = 'ko') {
 
   try {
     const areaCode = TOUR_API_AREA_CODES[cleanCity] || TOUR_API_AREA_CODES[city];
+    const sigunguCode = TOUR_API_SIGUNGU_CODES[cleanCity] || TOUR_API_SIGUNGU_CODES[city];
     let fetchUrl = '';
     if (areaCode) {
-      // Area-based query: STRICT Popularity / View Count Ranking (arrange=P) across ALL attractions (palaces, culture, landmarks)
-      fetchUrl = `${apiBase}/areaBasedList2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&areaCode=${areaCode}&arrange=P&numOfRows=100&pageNo=1`;
+      // Area & Sigungu based query: STRICT Popularity Ranking (arrange=P)
+      const sigunguParam = sigunguCode ? `&sigunguCode=${sigunguCode}` : '';
+      fetchUrl = `${apiBase}/areaBasedList2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&areaCode=${areaCode}${sigunguParam}&arrange=P&numOfRows=100&pageNo=1`;
     } else {
       // Keyword search fallback (arrange=P for popularity)
       fetchUrl = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&keyword=${encodeURIComponent(cleanCity)}&arrange=P&numOfRows=100&pageNo=1`;
@@ -114,6 +129,15 @@ export async function fetchCityTourApiSpots(city = '서울', lang = 'ko') {
         const lng = parseFloat(item.mapx);
         const isCoordsValid = lat && lng && lat > 32 && lat < 40 && lng > 124 && lng < 132;
         if (!isCoordsValid) return false;
+
+        // 🛡️ 광역도(경남 등) 조회 시 해당 시군구(예: 통영) 주소 검증 (타 시/군 혼입 100% 원천 차단!)
+        if (sigunguCode && cleanCity && cleanCity !== '서울' && cleanCity !== '부산' && cleanCity !== '인천' && cleanCity !== '대구' && cleanCity !== '대전' && cleanCity !== '광주' && cleanCity !== '울산') {
+          const addr = (item.addr1 || '').toLowerCase();
+          const cityLower = cleanCity.toLowerCase();
+          if (!addr.includes(cityLower) && !addr.includes(city.toLowerCase())) {
+            return false; // 타 시/군(하동, 산청 등) 명소는 원천 배제!
+          }
+        }
 
         // 🛡️ Official TourAPI Category Enforcement: Only 12 (Sightseeing), 14 (Culture/Palaces), 28 (Leisure/Activities)
         const typeId = String(item.contenttypeid || '');
