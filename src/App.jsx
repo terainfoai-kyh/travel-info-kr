@@ -722,6 +722,7 @@ export default function App() {
         const qnaDirectMatch = matchVoraQna(promptQuery, targetCity, tripContext, lang);
         const matchedPois = (qnaDirectMatch || !isPlanningMode || userIntent === 'OFF_TOPIC' || isGatewaySelectPrompt || isArrivalTimePrompt) ? [] : findRecommendedPois(promptQuery, targetCity, 3);
         const contextualIntro = generateContextualAdvice(tripContext, lang);
+        let chatText = contextualIntro;
 
         const defaultActionChip = (lang === 'en' ? `🚀 Build ${displayCity} Plan Now` : `🚀 바로 일정 만들기`);
         let quickButtons = [];
