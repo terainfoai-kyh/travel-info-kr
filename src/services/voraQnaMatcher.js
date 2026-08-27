@@ -182,31 +182,28 @@ export function matchVoraQna(query = '', targetCity = null, context = {}, lang =
   let bestMatch = null;
   let highestScore = 0;
 
-  for (const item of combinedVault) {
-    let score = 0;
-
-    // 1. City Relevance Check
-    const cityMatches = (item.targetCity === 'all') || (targetCity && item.targetCity === targetCity);
-    if (!cityMatches && item.targetCity !== 'all') {
-      continue; // Skip items specific to other cities
-    }
-
-    // 2. Exact, Substring & Fuzzy Variation Match (Level 1 - Score: 75~100)
+    // 1. Exact, Substring & Fuzzy Variation Match (Level 1 - Score: 75~100)
     for (const variation of item.questionVariations) {
       const normVar = variation.toLowerCase().replace(/[\s\-_?!.~,]/g, '');
       if (normalizedQuery === normVar) {
         score = Math.max(score, 100);
         break;
       }
-      if (normalizedQuery.includes(normVar) || (normVar.length >= 4 && normVar.includes(normalizedQuery))) {
+      if (normalizedQuery.includes(normVar) || (normVar.length >= 3 && normVar.includes(normalizedQuery))) {
         score = Math.max(score, 85);
       } else if (normVar.length >= 3 && Math.abs(normVar.length - normalizedQuery.length) <= 1) {
-        // Fuzzy edit distance for typo tolerance (e.g. 거재도 vs 거제도)
+        // Fuzzy edit distance for typo tolerance (e.g. 욕지도 vs 욕지)
         const dist = calcLevenshtein(normVar, normalizedQuery);
         if (dist === 1) {
           score = Math.max(score, 80);
         }
       }
+    }
+
+    // 2. City Relevance Check (질문 자체에 높은 점수(>=75)로 매칭된 경우 도시 제한 프리패스!)
+    const cityMatches = (item.targetCity === 'all') || !targetCity || (item.targetCity === targetCity) || (score >= 75);
+    if (!cityMatches && item.targetCity !== 'all') {
+      continue; // Skip generic items specific to other cities
     }
 
     // 3. Intent Keywords Intersection Match (Level 2 - Score: 50~80)
