@@ -153,7 +153,7 @@ export const KOREA_TRAVEL_POI_DB = [
   },
 
   // ==============================================================================
-  // 3. 서울 (200 OK 검증 고화질 CDN)
+  // 3. 서울 (200 OK 검증 고화질 CDN - 명소별 100% 고유 사진)
   // ==============================================================================
   {
     id: 'kt_se_gwangjang',
@@ -164,7 +164,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '전통시장/로컬미식',
     duration: 90,
     rating: 4.9,
-    image: 'https://tong.visitkorea.or.kr/cms/resource/45/3505945_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/45/3311245_image2_1.jpg', // 한국관광공사 전통시장 먹거리
     lat: 37.5700,
     lng: 126.9997,
     tags: ['맛집', '미식', '먹거리', '시장', '마약김밥', '빈대떡', '육회', '한국음식'],
@@ -179,7 +179,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '조선궁궐/한복체험',
     duration: 120,
     rating: 4.9,
-    image: 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg', // 한국관광공사 경복궁 경회루
     lat: 37.5796,
     lng: 126.9770,
     tags: ['역사', '한복', '궁궐', '사진명소', '가족', '대표명소'],
@@ -194,7 +194,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '도심서재/아쿠아리움',
     duration: 90,
     rating: 4.9,
-    image: 'https://tong.visitkorea.or.kr/cms/resource/45/3365745_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/45/3365745_image2_1.jpg', // 한국관광공사 코엑스 별마당도서관 거대 서가
     lat: 37.5126,
     lng: 127.0588,
     tags: ['실내', '비오는날', '도서관', '인생샷', '쇼핑', '아이동반'],
@@ -209,7 +209,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '카페/쇼핑/미식',
     duration: 120,
     rating: 4.9,
-    image: 'https://tong.visitkorea.or.kr/cms/resource/74/2613174_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/88/4095788_image2_1.jpg', // 한국관광공사 성수동 감성 카페 & 붉은벽돌 골목
     lat: 37.5445,
     lng: 127.0560,
     tags: ['카페', '맛집', '미식', '디저트', '팝업스토어', 'MZ핫플', '쇼핑', '데이트'],
@@ -224,7 +224,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '야경/파노라마',
     duration: 90,
     rating: 4.9,
-    image: 'https://tong.visitkorea.or.kr/cms/resource/66/2612066_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/82/2561582_image2_1.jpg', // 한국관광공사 N서울타워 본체 & 야경 랜드마크
     lat: 37.5512,
     lng: 126.9882,
     tags: ['야경', '타워', '전망대', '케이블카', '인생샷', '데이트'],
@@ -239,7 +239,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '미래건축/디자인전시',
     duration: 90,
     rating: 4.8,
-    image: 'https://tong.visitkorea.or.kr/cms/resource/46/2645646_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/46/2645646_image2_1.jpg', // 한국관광공사 DDP 미래지향적 곡선 건축
     lat: 37.5668,
     lng: 127.0096,
     tags: ['전시', '건축', '야경', '디자인', '쇼핑', '핫플'],
@@ -254,7 +254,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '전통한옥/골목산책',
     duration: 90,
     rating: 4.8,
-    image: 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/76/3576176_image2_1.JPG', // 한국관광공사 전통 한옥 기와 골목길
     lat: 37.5826,
     lng: 126.9836,
     tags: ['한옥', '골목길', '전통', '사진명소', '데이트', '힐링'],
