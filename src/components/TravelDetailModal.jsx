@@ -17,6 +17,7 @@ import { getGooglePlaceSearchUrl } from '../services/geminiNlpService';
 import { TRANSLATIONS } from '../i18n/translations';
 import { getSpotAffiliateDeal } from '../services/affiliateService';
 import { fetchSpotDetailImages, fetchSpotDetailIntro } from '../services/tourApi';
+import { KOREA_TRAVEL_POI_DB } from '../data/koreaTravelPoiDatabase';
 
 /**
  * ==============================================================================
@@ -117,20 +118,36 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
   };
 
   // 정확한 위치 및 대중교통
-  const location = spot.addr1 || spot.address || spot.location || (
+  // 🌟 KOREA_TRAVEL_POI_DB 정품 정보 1:1 매핑
+  const matchedPoi = (KOREA_TRAVEL_POI_DB || []).find(p => {
+    const pTitle = p.title.replace(/[\s\-\_\.]/g, '').toLowerCase();
+    const cTitle = cleanTitle.replace(/[\s\-\_\.]/g, '').toLowerCase();
+    return pTitle.includes(cTitle) || cTitle.includes(pTitle);
+  });
+
+  // 정확한 위치 및 도로명 주소
+  const location = spot.addr1 || spot.address || spot.location || matchedPoi?.location || (
     cleanTitle.includes('경복궁') ? '서울특별시 종로구 사직로 161' :
     cleanTitle.includes('인사동') ? '서울특별시 종로구 인사동길 44' :
     cleanTitle.includes('북촌') ? '서울특별시 종로구 계동길 37' :
+    cleanTitle.includes('N서울타워') || cleanTitle.includes('남산') ? '서울특별시 용산구 남산공원길 105' :
+    cleanTitle.includes('DDP') || cleanTitle.includes('동대문') ? '서울특별시 중구 을지로 281' :
+    cleanTitle.includes('코엑스') || cleanTitle.includes('별마당') ? '서울특별시 강남구 영동대로 513' :
+    cleanTitle.includes('성수동') ? '서울특별시 성동구 성수이로 일대' :
     cleanTitle.includes('해운대') ? '부산광역시 해운대구 달맞이길62번길 13' :
     cleanTitle.includes('광안리') ? '부산광역시 수영구 광안해변로 219' :
     cleanTitle.includes('성산') ? '제주특별자치도 서귀포시 성산읍 일출로 284-12' :
-    '대한민국 서울 일대'
+    '대한민국 관광 명소'
   );
 
   const subwayTransit = spot.subway || (
     cleanTitle.includes('경복궁') ? '3호선 경복궁역 5번 출구 (도보 3분)' :
     cleanTitle.includes('인사동') ? '3호선 안국역 6번 출구 (도보 2분)' :
     cleanTitle.includes('북촌') ? '3호선 안국역 2번 출구 (도보 5분)' :
+    cleanTitle.includes('N서울타워') ? '4호선 명동역 3번 출구 ➔ 남산 케이블카' :
+    cleanTitle.includes('DDP') ? '2/4/5호선 동대문역사문화공원역 1번 출구 (직결)' :
+    cleanTitle.includes('코엑스') ? '2호선 삼성역 5/6번 출구 (코엑스몰 연결)' :
+    cleanTitle.includes('성수동') ? '2호선 성수역 3번/4번 출구' :
     cleanTitle.includes('해운대') ? '2호선 해운대역 5번 출구 (버스 10분)' :
     cleanTitle.includes('광안리') ? '2호선 광안역 3번 출구 (도보 10분)' :
     '인근 지하철역 또는 시내버스'
@@ -143,26 +160,50 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
   const isPalaceOrMuseum = /(궁|궁궐|박물관|미술관|도서관|대공원|동물원|수목원|식물원|유적|행궁)/i.test(cleanTitle);
   const isTowerOrNightView = /(타워|전망대|야경|드론|케이블카)/i.test(cleanTitle);
   const isMarketOrStreet = /(시장|야시장|먹거리|가로수길|카페거리|쌈지길)/i.test(cleanTitle);
+  const isAquariumOrThemePark = /(아쿠아리움|롯데월드|에버랜드|레고랜드|테마파크|워터파크)/i.test(cleanTitle);
 
   // 1. 운영시간: 한국관광공사 실시간 상세(usetime) ➔ 장소 특성별 지능형 24시간/야간 표기
   const operatingHours = liveIntroDetails?.usetime || spot.operatingHours || spot.usetime || (
     isOutdoorParkOrBeach ? '24시간 상시 개방 (자유 관람)' :
     isTowerOrNightView ? '10:00 ~ 22:30 (야경 관람 가능)' :
     isMarketOrStreet ? '09:00 ~ 22:00 (점포별 상이)' :
+    isAquariumOrThemePark ? '10:00 ~ 20:00 (입장 마감 19:00)' :
     isPalaceOrMuseum ? '09:00 ~ 18:00 (입장마감 17:00)' :
     '24시간 상시 개방 (연중무휴)'
   );
 
   // 2. 휴무일: 한국관광공사 실시간 상세(restdate) ➔ 장소 특성별 휴무일
   const closedDays = liveIntroDetails?.restdate || spot.closedDays || spot.restdate || (
-    isPalaceOrMuseum ? (cleanTitle.includes('경복궁') ? '매주 화요일 휴관' : '매주 월요일 휴관 (공휴일 익일)') :
+    isPalaceOrMuseum ? (cleanTitle.includes('경복궁') ? '매주 화요일 정기 휴궁' : '매주 월요일 휴관 (공휴일 익일)') :
     '연중무휴'
   );
 
-  // 3. 입장료: 궁궐/타워/공원별 상식 부합 입장료
+  // 3. 입장료: 궁궐/타워/공원/아쿠아리움별 상식 부합 입장료
   const admissionFee = spot.fee || spot.usefee || (
-    isOutdoorParkOrBeach ? '무료 개방' :
+    isOutdoorParkOrBeach ? '무료 개방 (자유 관람)' :
     cleanTitle.includes('경복궁') ? '성인 3,000원 (한복 착용 시 무료)' :
+    cleanTitle.includes('창덕궁') ? '성인 3,000원 (후원 별도 5,000원)' :
+    cleanTitle.includes('N서울타워') || cleanTitle.includes('남산') ? '전망대 대인 21,000원 / 소인 16,000원' :
+    cleanTitle.includes('DDP') ? '야외/디자인랩 무료 (기획전시별 상이)' :
+    cleanTitle.includes('코엑스 별마당') ? '무료 관람 (자유 열람)' :
+    isAquariumOrThemePark ? '유료 관람 (현장 및 공식/네이버 예매)' :
+    isPalaceOrMuseum ? '성인 1,000원~3,000원 내외' :
+    '무료 관람'
+  );
+
+  // 4. 상세 소개글 (고정 문구 척결 & 정품 summary 매핑)
+  const description = matchedPoi?.summary 
+    || spot.description 
+    || spot.overview 
+    || (lang === 'en' ? `A signature landmark in South Korea registered with the Korea Tourism Organization.` : `한국관광공사에 정품 등록된 대한민국 대표 힐링 관광 명소입니다.`);
+
+  // 5. 추천 소요 시간
+  const duration = spot.duration 
+    ? (typeof spot.duration === 'number' ? `약 ${spot.duration}분` : spot.duration) 
+    : (matchedPoi?.duration ? `약 ${matchedPoi.duration}분` : '약 1 ~ 1.5시간');
+
+  // 6. 평점
+  const rating = spot.rating || matchedPoi?.rating || 4.8;
     isPalaceOrMuseum ? '성인 1,000~3,000원 (문화재 관람)' :
     isTowerOrNightView ? '전망대 입장권 별도' :
     '무료 관람'
@@ -517,17 +558,25 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
             {description}
           </p>
 
-          {/* 차분한 모노톤 1줄 플랫 정보 리스트 */}
+          {/* 차분한 모노톤 1줄 플랫 정보 리스트 (모바일 최적화 풀 팩) */}
           <div style={{
             display: 'flex',
             flexDirection: 'column',
-            gap: '0.3rem',
-            padding: '0.45rem 0',
+            gap: '0.35rem',
+            padding: '0.55rem 0',
             borderTop: '1px solid var(--border-color)',
             borderBottom: '1px solid var(--border-color)',
             fontSize: '0.78rem'
           }}>
-            {/* 1. 찾아가는 법 */}
+            {/* 1. 도로명 주소 */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
+              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '55px', fontWeight: 700 }}>
+                • 위치
+              </span>
+              <span style={{ color: 'var(--text-main)', fontWeight: 600, wordBreak: 'keep-all' }}>: {location}</span>
+            </div>
+
+            {/* 2. 대중교통 */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
               <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '55px', fontWeight: 700 }}>
                 • 교통
@@ -535,7 +584,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
               <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>: {subwayTransit}</span>
             </div>
 
-            {/* 2. 관람 시간 */}
+            {/* 3. 관람 시간 */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
               <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '55px', fontWeight: 700 }}>
                 • 시간
@@ -545,7 +594,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
               </span>
             </div>
 
-            {/* 3. 추천 소요시간 */}
+            {/* 4. 추천 소요시간 */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
               <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '55px', fontWeight: 700 }}>
                 • 소요
@@ -553,13 +602,40 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
               <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>: {duration}</span>
             </div>
 
-            {/* 4. 입장 요금 */}
+            {/* 5. 입장 요금 */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
               <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '55px', fontWeight: 700 }}>
                 • 요금
               </span>
               <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>: {admissionFee}</span>
             </div>
+
+            {/* 6. 테마 태그 */}
+            {matchedPoi?.tags && matchedPoi.tags.length > 0 && (
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem', marginTop: '0.2rem' }}>
+                <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '55px', fontWeight: 700 }}>
+                  • 테마
+                </span>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
+                  {matchedPoi.tags.slice(0, 4).map((tag, tIdx) => (
+                    <span 
+                      key={`tag-${tIdx}`}
+                      style={{
+                        padding: '0.1rem 0.4rem',
+                        backgroundColor: 'var(--bg-primary)',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '4px',
+                        fontSize: '0.68rem',
+                        color: 'var(--accent-primary)',
+                        fontWeight: 700
+                      }}
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* ⚡ 3. 실시간 모바일 현장 액션 탭 (둘러보기 모드일 땐 교체 버튼 숨김!) */}
