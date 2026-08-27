@@ -4,15 +4,16 @@
  * 🛡️ CONSTITUTIONAL SPECIFICATIONS (AGENTS.md & DECISIONS.md):
  * 1. Direct Live Sourcing: Korea Tourism Organization (TourAPI 4.0) Official REST API (arrange=P popularity ranking)
  * 2. Strict Multilingual Case-Insensitive Normalization: Both query and DB titles unified with .toUpperCase()
- * 3. Whitespace & Special Character Compression: Strips [\s\-_.,()[\]/&] for 100% fuzzy matching
+ * 3. Whitespace & Special Character Compression: Strips [\s\-_.,()[\]/&·•+!~?] for 100% fuzzy matching
  * 4. Multi-Attempt Fallback Chain: 1st raw, 2nd compressed, 3rd city-prefixed
- * 5. Preference-Driven Adaptive Anchors:
+ * 5. '&' Split Sequential Anchor Pipeline: "경복궁 & 북촌한옥마을" -> Day 1 Spot 1 (경복궁) + Spot 2 (북촌한옥마을)
+ * 6. Preference-Driven Adaptive Anchors:
  *    - Rainy / Indoor Preference: CITY_LOCAL_KNOWLEDGE.rainyHotspots prioritized
  *    - Minimal Walking / Senior: CITY_LOCAL_KNOWLEDGE.walkingMinimized prioritized
  *    - Default Highlights: CITY_LOCAL_KNOWLEDGE.signatureHighlights dynamically anchored per day
- * 6. Spatial Haversine Clustering: Proximity grouped 3-4 spots per day (09:30, 11:45, 14:30, 17:30)
- * 7. Zero Duplication: Strict visitedPoiIds Set preventing duplicate spots across Days 1 to 5
- * 8. 2-Tier Photo Enrichment: TourAPI official CDN + Google Places live high-resolution photo fallback
+ * 7. Spatial Haversine Clustering: Proximity grouped 4 spots per day (09:30, 12:00, 14:30, 17:30)
+ * 8. Zero Duplication: Strict visitedPoiIds Set preventing duplicate spots across Days 1 to 5
+ * 9. 2-Tier Photo Enrichment: TourAPI official CDN + Google Places live high-resolution photo fallback
  */
 
 import { fetchCityTourApiSpots, fetchDynamicRealtimeSpots } from './tourApi.js';
@@ -66,8 +67,9 @@ function getTransitInfo(distKm, isEnglish = false) {
 }
 
 /**
- * Clean complex compound landmark strings into clean single search anchors
- * e.g., "해운대 블루라인파크 해변열차&스카이캡슐" -> ["해운대블루라인파크", "스카이캡슐"]
+ * ✂️ Clean & Split compound landmark strings using '&', '+', '/', ','
+ * e.g., "경복궁 & 북촌한옥마을" -> ["경복궁", "북촌한옥마을"]
+ * e.g., "해운대 블루라인파크 해변열차 & 스카이캡슐" -> ["해운대블루라인파크", "스카이캡슐"]
  */
 function decomposeSignatureString(rawString = '') {
   if (!rawString) return [];
@@ -85,6 +87,21 @@ function decomposeSignatureString(rawString = '') {
 
   return results.length > 0 ? results : [rawString.trim()];
 }
+
+// 🌟 Landmark Synonym & Alias Dictionary for 100% TourAPI Matching
+const SYNONYM_MAP = {
+  '경복궁': ['경복궁', '광화문', 'Gyeongbokgung'],
+  '북촌한옥마을': ['북촌한옥마을', '북촌', 'Bukchon Hanok Village'],
+  'N서울타워': ['N서울타워', '남산서울타워', '남산타워', 'N Seoul Tower'],
+  'DDP': ['동대문디자인플라자', 'DDP', 'Dongdaemun Design Plaza'],
+  '더현대 서울': ['더현대 서울', '더현대', '여의도 한강공원', 'The Hyundai Seoul'],
+  '해운대': ['해운대', '해운대해수욕장', '해운대블루라인파크', 'Haeundae'],
+  '광안리': ['광안리', '광안리해수욕장', '광안대교', 'Gwangalli'],
+  '감천문화마을': ['감천문화마을', 'Gamcheon Culture Village'],
+  '자갈치시장': ['자갈치시장', '자갈치', 'Jagalchi Market'],
+  '성산일출봉': ['성산일출봉', 'Seongsan Ilchulbong'],
+  '수원화성': ['수원화성', '화성행궁', 'Suwon Hwaseong Fortress']
+};
 
 /**
  * 100% Live TourAPI 4.0 Direct Pipeline Itinerary Generator
@@ -131,22 +148,8 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
 
   const parsedSignatureAnchors = anchorSourcePool.map(sig => decomposeSignatureString(sig));
 
-  // 🌟 Landmark Synonym & Alias Dictionary for 100% TourAPI Matching
-  const SYNONYM_MAP = {
-    '경복궁': ['경복궁', '광화문', 'Gyeongbokgung'],
-    'N서울타워': ['N서울타워', '남산서울타워', '남산타워', 'N Seoul Tower'],
-    'DDP': ['동대문디자인플라자', 'DDP', 'Dongdaemun Design Plaza'],
-    '더현대 서울': ['더현대 서울', '더현대', '여의도 한강공원', 'The Hyundai Seoul'],
-    '해운대': ['해운대', '해운대해수욕장', '해운대블루라인파크', 'Haeundae'],
-    '광안리': ['광안리', '광안리해수욕장', '광안대교', 'Gwangalli'],
-    '감천문화마을': ['감천문화마을', 'Gamcheon Culture Village'],
-    '자갈치시장': ['자갈치시장', '자갈치', 'Jagalchi Market'],
-    '성산일출봉': ['성산일출봉', 'Seongsan Ilchulbong'],
-    '수원화성': ['수원화성', '화성행궁', 'Suwon Hwaseong Fortress']
-  };
-
-  // 🌟 Guarantee Genuine TourAPI POI data for all day anchors (e.g. 경복궁, N서울타워, DDP)
-  const anchorKeywordsToFetch = parsedSignatureAnchors.flat().slice(0, 8);
+  // 🌟 Guarantee Genuine TourAPI POI data for all day anchors (Split & Fetch directly!)
+  const anchorKeywordsToFetch = parsedSignatureAnchors.flat().slice(0, 10);
   for (const anchorKw of anchorKeywordsToFetch) {
     const synonyms = SYNONYM_MAP[anchorKw] || [anchorKw];
     for (const syn of synonyms) {
@@ -199,7 +202,23 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
   }
 
   const numDays = Math.min(Math.max(1, requestedDays), 5);
-  const spotsTargetPerDay = 4; // 3-4 spots per day (balanced morning, lunch, afternoon, sunset/evening)
+  const spotsTargetPerDay = 4; // 4 spots per day (balanced morning, lunch, afternoon, sunset/evening)
+
+  // Helper: Find a POI matching a specific landmark name or synonym
+  const findPoiForLandmark = (landmarkName) => {
+    const synonyms = SYNONYM_MAP[landmarkName] || [landmarkName];
+    for (const syn of synonyms) {
+      const normSyn = normalizeTargetString(syn);
+      if (!normSyn) continue;
+      const found = cityPois.find(p => {
+        const normPTitle = normalizeTargetString(p.title);
+        const notVisited = !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normPTitle);
+        return notVisited && (normPTitle === normSyn || normPTitle.includes(normSyn) || normSyn.includes(normPTitle));
+      });
+      if (found) return found;
+    }
+    return null;
+  };
 
   for (let d = 1; d <= numDays; d++) {
     const dayStartHour = (d === 1) ? baseStartHour : 9;
@@ -209,7 +228,7 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
     const daySpots = [];
     let lastSpotLocation = null;
 
-    // Determine Day Anchor Candidates
+    // Determine Day Anchor Candidates (e.g. Day 1: ['경복궁', '북촌한옥마을'])
     let dayAnchorNames = [];
     if (d === 1 && explicitlyRequestedSpotName) {
       dayAnchorNames = [explicitlyRequestedSpotName];
@@ -217,125 +236,138 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
       dayAnchorNames = parsedSignatureAnchors[d - 1] || parsedSignatureAnchors[0] || [];
     }
 
-    // 🌟 3-Tier Normalized Matcher for Anchors (with Synonym Expansion!)
-    let currentSpot = null;
+    // 🌟 '&' Split Sequential Injection: Inject Spot 1 and Spot 2 from dayAnchorNames
     for (const anchorName of dayAnchorNames) {
-      const synonyms = SYNONYM_MAP[anchorName] || [anchorName];
-      for (const syn of synonyms) {
-        const normSyn = normalizeTargetString(syn);
-        if (!normSyn) continue;
-
-        // Exact & Substring Match
-        currentSpot = cityPois.find(p => {
-          const normPTitle = normalizeTargetString(p.title);
-          const notVisited = !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normPTitle);
-          return notVisited && (normPTitle === normSyn || normPTitle.includes(normSyn) || normSyn.includes(normPTitle));
-        });
-
-        if (currentSpot) break;
-      }
-      if (currentSpot) break;
-    }
-
-    // If anchor not found in live pool, dynamically fetch anchor from TourAPI!
-    if (!currentSpot && dayAnchorNames.length > 0) {
-      for (const anchorName of dayAnchorNames) {
+      if (daySpots.length >= spotsTargetPerDay) break;
+      let anchorSpot = findPoiForLandmark(anchorName);
+      
+      // If not in live pool, try direct fetch
+      if (!anchorSpot) {
         try {
-          const directSpots = await fetchDynamicRealtimeSpots(`${city} ${anchorName}`, lang);
-          if (directSpots && directSpots.length > 0) {
-            const found = directSpots.find(p => {
-              const normPTitle = normalizeTargetString(p.title);
-              return !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normPTitle);
-            });
-            if (found) {
-              currentSpot = found;
-              cityPois.unshift(found);
-              break;
-            }
+          const direct = await fetchDynamicRealtimeSpots(`${city} ${anchorName}`, lang);
+          if (direct && direct.length > 0) {
+            anchorSpot = direct.find(p => !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normalizeTargetString(p.title)));
+            if (anchorSpot) cityPois.unshift(anchorSpot);
           }
         } catch (e) {}
       }
-    }
 
-    // If still not found, pick first available unvisited POI
-    if (!currentSpot) {
-      const unvisited = cityPois.filter(p => {
-        const normPTitle = normalizeTargetString(p.title);
-        return !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normPTitle);
-      });
-      if (unvisited.length > 0) {
-        currentSpot = unvisited[0];
+      if (anchorSpot) {
+        const normTitle = normalizeTargetString(anchorSpot.title);
+        visitedPoiIds.add(anchorSpot.id);
+        visitedNormalizedTitles.add(normTitle);
+
+        let transit = { minutes: 0, label: isEnglish ? 'Starting Point' : '출발 거점' };
+        if (lastSpotLocation) {
+          const distKm = calculateDistanceKm(lastSpotLocation.lat, lastSpotLocation.lng, anchorSpot.lat, anchorSpot.lng);
+          transit = getTransitInfo(distKm, isEnglish);
+          currentCursorMinutes += transit.minutes;
+        }
+
+        const h = Math.floor(currentCursorMinutes / 60);
+        const m = currentCursorMinutes % 60;
+        const formattedBestTime = isEnglish
+          ? (h < 12 ? `${h === 0 ? 12 : h}:${m.toString().padStart(2, '0')} AM` : `${h === 12 ? 12 : h - 12}:${m.toString().padStart(2, '0')} PM`)
+          : (h < 12 ? `오전 ${h}:${m.toString().padStart(2, '0')}` : `오후 ${h === 12 ? 12 : h - 12}:${m.toString().padStart(2, '0')}`);
+
+        const cleanSpotTitle = (anchorSpot.title || anchorSpot.name || '').replace(/대한민국|일대|주변/g, '').trim();
+
+        const spotObj = {
+          id: `${anchorSpot.id || anchorSpot.contentId}_d${d}_s${daySpots.length + 1}`,
+          contentId: anchorSpot.contentId || '',
+          title: cleanSpotTitle,
+          name: cleanSpotTitle,
+          category: anchorSpot.category || (isEnglish ? 'Sightseeing' : '관광명소'),
+          theme: anchorSpot.theme || (isEnglish ? 'TourAPI Heritage' : '한국관광공사 정품 명소'),
+          description: anchorSpot.description || `${city}의 대표적인 한국관광공사 등록 관광지입니다.`,
+          bestTime: formattedBestTime,
+          photoTip: `📸 ${cleanSpotTitle} 시그니처 포토스팟`,
+          signatureItem: `✨ ${city} 대표 관광 탐방`,
+          lat: anchorSpot.lat || cityMeta.lat,
+          lng: anchorSpot.lng || cityMeta.lng,
+          address: anchorSpot.address || `${city} ${cleanSpotTitle}`,
+          transitTime: transit.label,
+          transitMinutes: transit.minutes,
+          dwellMinutes: anchorSpot.duration || 90,
+          rating: anchorSpot.rating || 4.8,
+          image: anchorSpot.image || null,
+          dataSource: 'TOUR_API_LIVE_GENUINE'
+        };
+
+        daySpots.push(spotObj);
+        allGeneratedSpots.push(spotObj);
+        currentCursorMinutes += (anchorSpot.duration || 85);
+        lastSpotLocation = { lat: anchorSpot.lat, lng: anchorSpot.lng };
       }
     }
 
-    // Fill 3-4 spots for this day using spatial proximity clustering
-    while (currentSpot && daySpots.length < spotsTargetPerDay) {
-      const normCurrentTitle = normalizeTargetString(currentSpot.title);
-      visitedPoiIds.add(currentSpot.id);
-      visitedNormalizedTitles.add(normCurrentTitle);
+    // Fill remaining spots (to reach 4 per day) using Spatial Proximity Clustering from last spot
+    while (daySpots.length < spotsTargetPerDay) {
+      let nextSpot = null;
 
-      // Transit calculation from previous spot
+      const remainingUnvisited = cityPois.filter(p => {
+        const normPTitle = normalizeTargetString(p.title);
+        return !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normPTitle);
+      });
+
+      if (remainingUnvisited.length > 0) {
+        if (lastSpotLocation) {
+          remainingUnvisited.sort((a, b) => {
+            const distA = calculateDistanceKm(lastSpotLocation.lat, lastSpotLocation.lng, a.lat, a.lng);
+            const distB = calculateDistanceKm(lastSpotLocation.lat, lastSpotLocation.lng, b.lat, b.lng);
+            return distA - distB;
+          });
+        }
+        nextSpot = remainingUnvisited[0];
+      }
+
+      if (!nextSpot) break;
+
+      const normTitle = normalizeTargetString(nextSpot.title);
+      visitedPoiIds.add(nextSpot.id);
+      visitedNormalizedTitles.add(normTitle);
+
       let transit = { minutes: 0, label: isEnglish ? 'Starting Point' : '출발 거점' };
       if (lastSpotLocation) {
-        const distKm = calculateDistanceKm(lastSpotLocation.lat, lastSpotLocation.lng, currentSpot.lat, currentSpot.lng);
+        const distKm = calculateDistanceKm(lastSpotLocation.lat, lastSpotLocation.lng, nextSpot.lat, nextSpot.lng);
         transit = getTransitInfo(distKm, isEnglish);
         currentCursorMinutes += transit.minutes;
       }
 
-      // Format Best Time
       const h = Math.floor(currentCursorMinutes / 60);
       const m = currentCursorMinutes % 60;
       const formattedBestTime = isEnglish
         ? (h < 12 ? `${h === 0 ? 12 : h}:${m.toString().padStart(2, '0')} AM` : `${h === 12 ? 12 : h - 12}:${m.toString().padStart(2, '0')} PM`)
         : (h < 12 ? `오전 ${h}:${m.toString().padStart(2, '0')}` : `오후 ${h === 12 ? 12 : h - 12}:${m.toString().padStart(2, '0')}`);
 
-      const cleanSpotTitle = (currentSpot.title || currentSpot.name || '').replace(/대한민국|일대|주변/g, '').trim();
+      const cleanSpotTitle = (nextSpot.title || nextSpot.name || '').replace(/대한민국|일대|주변/g, '').trim();
 
       const spotObj = {
-        id: `${currentSpot.id || currentSpot.contentId}_d${d}_s${daySpots.length + 1}`,
-        contentId: currentSpot.contentId || '',
+        id: `${nextSpot.id || nextSpot.contentId}_d${d}_s${daySpots.length + 1}`,
+        contentId: nextSpot.contentId || '',
         title: cleanSpotTitle,
         name: cleanSpotTitle,
-        category: currentSpot.category || (isEnglish ? 'Sightseeing' : '관광명소'),
-        theme: currentSpot.theme || (isEnglish ? 'TourAPI Heritage' : '한국관광공사 정품 명소'),
-        description: currentSpot.description || `${city}의 대표적인 한국관광공사 등록 관광지입니다.`,
+        category: nextSpot.category || (isEnglish ? 'Sightseeing' : '관광명소'),
+        theme: nextSpot.theme || (isEnglish ? 'TourAPI Heritage' : '한국관광공사 정품 명소'),
+        description: nextSpot.description || `${city}의 대표적인 한국관광공사 등록 관광지입니다.`,
         bestTime: formattedBestTime,
         photoTip: `📸 ${cleanSpotTitle} 시그니처 포토스팟`,
         signatureItem: `✨ ${city} 대표 관광 탐방`,
-        lat: currentSpot.lat || cityMeta.lat,
-        lng: currentSpot.lng || cityMeta.lng,
-        address: currentSpot.address || `${city} ${cleanSpotTitle}`,
+        lat: nextSpot.lat || cityMeta.lat,
+        lng: nextSpot.lng || cityMeta.lng,
+        address: nextSpot.address || `${city} ${cleanSpotTitle}`,
         transitTime: transit.label,
         transitMinutes: transit.minutes,
-        dwellMinutes: currentSpot.duration || 90,
-        rating: currentSpot.rating || 4.8,
-        image: currentSpot.image || null,
+        dwellMinutes: nextSpot.duration || 90,
+        rating: nextSpot.rating || 4.8,
+        image: nextSpot.image || null,
         dataSource: 'TOUR_API_LIVE_GENUINE'
       };
 
       daySpots.push(spotObj);
       allGeneratedSpots.push(spotObj);
-
-      // Advance clock by spot dwell time (balanced 75~90 mins)
-      currentCursorMinutes += (currentSpot.duration || 80);
-      lastSpotLocation = { lat: currentSpot.lat, lng: currentSpot.lng };
-
-      // Find NEXT closest unvisited spot (Spatial Proximity Clustering)
-      const remainingUnvisited = cityPois.filter(p => {
-        const normPTitle = normalizeTargetString(p.title);
-        return !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normPTitle);
-      });
-
-      if (remainingUnvisited.length > 0 && lastSpotLocation) {
-        remainingUnvisited.sort((a, b) => {
-          const distA = calculateDistanceKm(lastSpotLocation.lat, lastSpotLocation.lng, a.lat, a.lng);
-          const distB = calculateDistanceKm(lastSpotLocation.lat, lastSpotLocation.lng, b.lat, b.lng);
-          return distA - distB;
-        });
-        currentSpot = remainingUnvisited[0];
-      } else {
-        currentSpot = null;
-      }
+      currentCursorMinutes += (nextSpot.duration || 85);
+      lastSpotLocation = { lat: nextSpot.lat, lng: nextSpot.lng };
     }
 
     // Day Theme & Dining Tip (Separated food recommendation)
