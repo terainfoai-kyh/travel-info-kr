@@ -3,16 +3,19 @@
  * 
  * 🛡️ CONSTITUTIONAL SPECIFICATIONS (AGENTS.md & DECISIONS.md):
  * 1. Direct Live Sourcing: Korea Tourism Organization (TourAPI 4.0) Official REST API (arrange=P popularity ranking)
- * 2. Strict Multilingual Case-Insensitive Normalization: Both query and DB titles unified with .toUpperCase()
- * 3. Whitespace & Special Character Compression: Strips [\s\-_.,()[\]/&·•+!~?] for 100% fuzzy matching
- * 4. Multi-Attempt Fallback Chain: 1st raw, 2nd compressed, 3rd city-prefixed
- * 5. '&' Split Sequential Anchor Pipeline: "경복궁 & 북촌한옥마을" -> Day 1 Spot 1 (경복궁) + Spot 2 (북촌한옥마을)
- * 6. Non-Fixed Dynamic Count Time Budget Simulation:
+ * 2. Official TourAPI Category Enforcement: Only 12 (Sightseeing), 14 (Culture/Palaces), 28 (Leisure/Activities)
+ * 3. Strict Multilingual Case-Insensitive Normalization: Both query and DB titles unified with .toUpperCase()
+ * 4. Whitespace & Special Character Compression: Strips [\s\-_.,()[\]/&·•+!~?] for 100% fuzzy matching
+ * 5. Multi-Attempt Fallback Chain: 1st raw, 2nd compressed, 3rd city-prefixed
+ * 6. '&' Split Sequential Anchor Pipeline: "경복궁 & 북촌한옥마을" -> Day 1 Spot 1 (경복궁) + Spot 2 (북촌한옥마을)
+ * 7. Non-Fixed Dynamic Count Time Budget Simulation:
  *    - Spots are NOT fixed to 3 or 4.
  *    - Determined dynamically by realistic spot dwell times (60~150m), Haversine transit times, and lunch buffer.
- * 7. Realtime Time Slot Recalculation: Instant synchronization when user changes time slots (e.g. 13:00 ~ 21:00).
- * 8. Zero Duplication: Strict visitedPoiIds Set preventing duplicate spots across Days 1 to 5.
- * 9. 2-Tier Photo Enrichment: TourAPI official CDN + Google Places live high-resolution photo fallback.
+ * 8. Operating Hours & Distance De-duplication:
+ *    - Prohibits < 300m sub-facility repetition (e.g. N Seoul Tower + sub-shops).
+ *    - Restricts daytime-closing spots before 16:30; evening spots dedicated to night views/markets/towers.
+ * 9. Realtime Time Slot Recalculation: Instant synchronization when user changes time slots (e.g. 13:00 ~ 21:00).
+ * 10. Multi-Day Pre-Reservation: Future day anchors (e.g. Day 3 DDP) strictly protected from premature consumption on Day 1 or Day 2.
  */
 
 import { fetchCityTourApiSpots, fetchDynamicRealtimeSpots } from './tourApi.js';
@@ -80,7 +83,7 @@ function estimateSpotDwellMinutes(spotTitle = '', category = '') {
     return 90;
   }
   // Towers, Observatories, Temples, Parks, Photo spots (60 ~ 75 mins)
-  if (/(타워|전망대|사|절|해수욕장|공원|광장|다리|교|포토|도서관|스토어|카페)/.test(t)) {
+  if (/(타워|전망대|사|절|해수욕장|공원|광장|다리|교|포토|도서관|카페)/.test(t)) {
     return 65;
   }
   return 75;
@@ -263,6 +266,18 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
       dayAnchorNames = parsedSignatureAnchors[d - 1] || parsedSignatureAnchors[0] || [];
     }
 
+    // 🌟 Protect Future Day Anchors from being prematurely consumed in current day!
+    const futureDayAnchorKeywords = [];
+    for (let fd = d + 1; fd <= numDays; fd++) {
+      const fNames = parsedSignatureAnchors[fd - 1] || [];
+      for (const fn of fNames) {
+        const syns = SYNONYM_MAP[fn] || [fn];
+        for (const s of syns) {
+          futureDayAnchorKeywords.push(normalizeTargetString(s));
+        }
+      }
+    }
+
     // 🌟 '&' Split Sequential Injection: Inject Spot 1 and Spot 2 from dayAnchorNames
     for (const anchorName of dayAnchorNames) {
       if (currentCursorMinutes >= dayEndMinutes) break;
@@ -336,12 +351,37 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
     }
 
     // Fill remaining spots dynamically using Spatial Proximity Clustering until dayEndMinutes is reached! (Non-Fixed Count!)
-    while (currentCursorMinutes < dayEndMinutes && daySpots.length < 7) {
+    while (currentCursorMinutes < dayEndMinutes && daySpots.length < 6) {
       let nextSpot = null;
 
       const remainingUnvisited = cityPois.filter(p => {
         const normPTitle = normalizeTargetString(p.title);
-        return !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normPTitle);
+        const isNotVisited = !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normPTitle);
+        if (!isNotVisited) return false;
+
+        // 🛡️ Do NOT consume future day anchor keywords in today's filler loop!
+        const isReservedForFutureDay = futureDayAnchorKeywords.some(fkw => normPTitle.includes(fkw));
+        if (isReservedForFutureDay) return false;
+
+        // 🛡️ Anti-Redundancy: Skip ultra-close sub-facility duplicates (< 350m and similar name keywords)
+        if (lastSpotLocation) {
+          const distFromLast = calculateDistanceKm(lastSpotLocation.lat, lastSpotLocation.lng, p.lat, p.lng);
+          if (distFromLast < 0.35) {
+            const lastSpotObj = daySpots[daySpots.length - 1];
+            const lastTitle = normalizeTargetString(lastSpotObj?.title || '');
+            if (normPTitle.includes(lastTitle) || lastTitle.includes(normPTitle)) {
+              return false; // Skip redundant sub-attractions on same mountain/tower/park
+            }
+          }
+        }
+
+        // 🛡️ Operating Hours Filter: If current time > 17:30, prohibit daytime-closing parks/museums
+        if (currentCursorMinutes >= 1050) { // 17:30
+          const isDaytimeClosing = /(대공원|동물원|수목원|식물원|궁|박물관|미술관|도서관|민속촌)/.test(normPTitle);
+          if (isDaytimeClosing) return false;
+        }
+
+        return true;
       });
 
       if (remainingUnvisited.length > 0) {

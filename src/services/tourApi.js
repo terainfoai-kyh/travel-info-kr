@@ -115,9 +115,14 @@ export async function fetchCityTourApiSpots(city = '서울', lang = 'ko') {
         const isCoordsValid = lat && lng && lat > 32 && lat < 40 && lng > 124 && lng < 132;
         if (!isCoordsValid) return false;
 
-        // 🛡️ Filter out retail wholesale stores / commercial shopping complexes from sightseeing spots
+        // 🛡️ Official TourAPI Category Enforcement: Only 12 (Sightseeing), 14 (Culture/Palaces), 28 (Leisure/Activities)
+        const typeId = String(item.contenttypeid || '');
+        const isSightseeingType = (typeId === '12' || typeId === '14' || typeId === '28');
+        if (!isSightseeingType) return false;
+
+        // 🛡️ Secondary Title Filter for commercial stores / chain convenience shops
         const title = (item.title || '').trim();
-        const isCommercialStore = /(종합상가|한복매장|귀금속|도매상가|도매시장|유통단지|쇼핑타운|지하상가|수산상회|청과물)/i.test(title);
+        const isCommercialStore = /(gs25|cu|세븐일레븐|이마트24|미니스톱|종합상가|한복매장|귀금속|도매상가|도매시장|유통단지|쇼핑타운|지하상가|수산상회|청과물|플래그쉽|플래그십|스토어|점$|점\s|식당|본점|직영점)/i.test(title);
         return !isCommercialStore;
       })
       .map(item => ({
@@ -125,7 +130,7 @@ export async function fetchCityTourApiSpots(city = '서울', lang = 'ko') {
         contentId: String(item.contentid || ''),
         title: item.title,
         name: item.title,
-        category: (String(item.contenttypeid) === '14' ? '문화시설' : String(item.contenttypeid) === '15' ? '축제' : '명소'),
+        category: (String(item.contenttypeid) === '14' ? '문화시설' : String(item.contenttypeid) === '28' ? '체험/레포츠' : '관광명소'),
         theme: item.cat3 || '한국 대표 관광지',
         description: item.addr1 || `${city}의 대표 관광 명소입니다.`,
         lat: parseFloat(item.mapy),
