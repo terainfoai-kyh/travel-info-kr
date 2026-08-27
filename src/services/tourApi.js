@@ -95,11 +95,11 @@ export async function fetchCityTourApiSpots(city = '서울', lang = 'ko') {
     const areaCode = TOUR_API_AREA_CODES[cleanCity] || TOUR_API_AREA_CODES[city];
     let fetchUrl = '';
     if (areaCode) {
-      // Area-based query: STRICT Popularity / View Count Ranking (arrange=P)
-      fetchUrl = `${apiBase}/areaBasedList2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&areaCode=${areaCode}&contentTypeId=12&arrange=P&numOfRows=50&pageNo=1`;
+      // Area-based query: STRICT Popularity / View Count Ranking (arrange=P) across ALL attractions (palaces, culture, landmarks)
+      fetchUrl = `${apiBase}/areaBasedList2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&areaCode=${areaCode}&arrange=P&numOfRows=100&pageNo=1`;
     } else {
       // Keyword search fallback (arrange=P for popularity)
-      fetchUrl = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&keyword=${encodeURIComponent(cleanCity)}&arrange=P&numOfRows=50&pageNo=1`;
+      fetchUrl = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&keyword=${encodeURIComponent(cleanCity)}&arrange=P&numOfRows=100&pageNo=1`;
     }
 
     const res = await fetch(fetchUrl);

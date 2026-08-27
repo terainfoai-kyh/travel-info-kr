@@ -209,7 +209,27 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
       if (currentSpot) break;
     }
 
-    // If anchor not found in live pool, pick first available unvisited POI
+    // If anchor not found in live pool, dynamically fetch anchor from TourAPI!
+    if (!currentSpot && dayAnchorNames.length > 0) {
+      for (const anchorName of dayAnchorNames) {
+        try {
+          const directSpots = await fetchDynamicRealtimeSpots(`${city} ${anchorName}`, lang);
+          if (directSpots && directSpots.length > 0) {
+            const found = directSpots.find(p => {
+              const normPTitle = normalizeTargetString(p.title);
+              return !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normPTitle);
+            });
+            if (found) {
+              currentSpot = found;
+              cityPois.unshift(found);
+              break;
+            }
+          }
+        } catch (e) {}
+      }
+    }
+
+    // If still not found, pick first available unvisited POI
     if (!currentSpot) {
       const unvisited = cityPois.filter(p => {
         const normPTitle = normalizeTargetString(p.title);
