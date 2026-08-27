@@ -185,15 +185,30 @@ export async function fetchDynamicRealtimeSpots(query, lang = 'ko') {
     const items = Array.isArray(itemsRaw) ? itemsRaw : (itemsRaw ? [itemsRaw] : []);
     let spotList = [];
     if (items.length > 0) {
-      let filteredItems = items;
-      if (excludeFood) {
-        filteredItems = items.filter(item => {
-          const isFoodType = String(item.contenttypeid) === '39';
-          const isFoodTitle = /(돼지갈비|식당|갈비|고깃집|음식점|푸드|맛집)/i.test(item.title);
-          return !isFoodType && !isFoodTitle;
-        });
-        if (filteredItems.length === 0) filteredItems = items;
-      }
+      // 🛡️ Enforce Sightseeing Categories (12, 14, 28) and filter out food/commercial stores
+      const filteredItems = items.filter(item => {
+        const typeId = String(item.contenttypeid || '');
+        // If contenttypeid is available, must be 12 (tourist), 14 (culture), 28 (leisure)
+        if (typeId && (typeId === '39' || typeId === '38' || typeId === '32')) {
+          return !excludeFood ? false : false;
+        }
+
+        const title = (item.title || '').trim();
+        const isCommercialOrFood = /(한쿡|gs25|cu|세븐일레븐|이마트24|식당|음식점|맛집|갈비|푸드|카페|커피|베이커리|스토어|플래그쉽|직영점|본점)/i.test(title);
+        return !isCommercialOrFood;
+      });
+
+      // Sort exact match first (e.g. '남산서울타워' or 'N서울타워' before sub-facilities)
+      const cleanNormQ = cleanQ.toUpperCase().replace(/\s/g, '');
+      filteredItems.sort((a, b) => {
+        const aTitle = (a.title || '').toUpperCase().replace(/\s/g, '');
+        const bTitle = (b.title || '').toUpperCase().replace(/\s/g, '');
+        const aExact = (aTitle === cleanNormQ || aTitle === 'N서울타워' || aTitle === '남산서울타워');
+        const bExact = (bTitle === cleanNormQ || bTitle === 'N서울타워' || bTitle === '남산서울타워');
+        if (aExact && !bExact) return -1;
+        if (!aExact && bExact) return 1;
+        return 0;
+      });
 
       spotList = filteredItems.map(item => ({
         id: String(item.contentid || Math.random()),
@@ -204,7 +219,7 @@ export async function fetchDynamicRealtimeSpots(query, lang = 'ko') {
         lat: parseFloat(item.mapy) || 37.5665,
         lng: parseFloat(item.mapx) || 126.9780,
         rating: 4.8,
-        tags: [cleanQ, excludeFood ? '명소전용' : '공공정품관광지'],
+        tags: [cleanQ, '공공정품관광지'],
         image: item.firstimage || item.firstimage2 || null,
         dataSource: 'TOUR_API_LIVE_GENUINE'
       }));

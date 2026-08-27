@@ -238,12 +238,24 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
     for (const syn of synonyms) {
       const normSyn = normalizeTargetString(syn);
       if (!normSyn) continue;
-      const found = cityPois.find(p => {
+
+      // 1st pass: Exact Title Match
+      const exactMatch = cityPois.find(p => {
         const normPTitle = normalizeTargetString(p.title);
         const notVisited = !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normPTitle);
-        return notVisited && (normPTitle === normSyn || normPTitle.includes(normSyn) || normSyn.includes(normPTitle));
+        const isCommercialOrFood = /(한쿡|식당|음식점|맛집|gs25|cu|세븐일레븐|이마트24|스토어|플래그쉽|직영점|본점|매장)/i.test(p.title);
+        return notVisited && !isCommercialOrFood && (normPTitle === normSyn);
       });
-      if (found) return found;
+      if (exactMatch) return exactMatch;
+
+      // 2nd pass: Partial Match (without restaurant/store names)
+      const partialMatch = cityPois.find(p => {
+        const normPTitle = normalizeTargetString(p.title);
+        const notVisited = !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normPTitle);
+        const isCommercialOrFood = /(한쿡|식당|음식점|맛집|gs25|cu|세븐일레븐|이마트24|스토어|플래그쉽|직영점|본점|매장)/i.test(p.title);
+        return notVisited && !isCommercialOrFood && (normPTitle.includes(normSyn) || normSyn.includes(normPTitle));
+      });
+      if (partialMatch) return partialMatch;
     }
     return null;
   };
