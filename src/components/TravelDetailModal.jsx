@@ -100,22 +100,36 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
     '인근 지하철역 또는 시내버스'
   );
 
+  const isOutdoorParkOrBeach = /(공원|근린공원|한강|해수욕장|해변|거리|골목|광장|마을|산책로|다리|교$)/i.test(cleanTitle);
+  const isPalaceOrMuseum = /(궁|궁궐|박물관|미술관|도서관|대공원|동물원|수목원|식물원|유적|행궁)/i.test(cleanTitle);
+  const isTowerOrNightView = /(타워|전망대|야경|드론|케이블카)/i.test(cleanTitle);
+  const isMarketOrStreet = /(시장|야시장|먹거리|가로수길|카페거리|쌈지길)/i.test(cleanTitle);
+
   const operatingHours = spot.operatingHours || spot.usetime || (
-    cleanTitle.includes('경복궁') ? '09:00 ~ 18:00 (입장마감 17:00)' :
-    cleanTitle.includes('인사동') ? '10:30 ~ 20:30 (매장별 상이)' :
-    '09:00 ~ 18:00 (상시 운영)'
+    isOutdoorParkOrBeach ? '24시간 상시 개방 (자유 관람)' :
+    isTowerOrNightView ? '10:00 ~ 22:30 (야경 관람 가능)' :
+    isMarketOrStreet ? '09:00 ~ 22:00 (점포별 상이)' :
+    isPalaceOrMuseum ? '09:00 ~ 18:00 (입장마감 17:00)' :
+    '24시간 상시 개방 (연중무휴)'
   );
 
   const closedDays = spot.closedDays || spot.restdate || (
-    cleanTitle.includes('경복궁') ? '화요일 휴관' : '연중무휴'
+    isPalaceOrMuseum ? (cleanTitle.includes('경복궁') ? '매주 화요일 휴관' : '매주 월요일 휴관 (공휴일 익일)') :
+    '연중무휴'
   );
 
   const admissionFee = spot.fee || spot.usefee || (
-    cleanTitle.includes('경복궁') ? '성인 3,000원 (한복 착용 시 무료)' : '무료 관람'
+    isOutdoorParkOrBeach ? '무료 개방' :
+    cleanTitle.includes('경복궁') ? '성인 3,000원 (한복 착용 시 무료)' :
+    isPalaceOrMuseum ? '성인 1,000~3,000원 (문화재 관람)' :
+    isTowerOrNightView ? '전망대 입장권 별도' :
+    '무료 관람'
   );
 
   const duration = spot.duration || (
-    cleanTitle.includes('경복궁') ? '약 1.5 ~ 2시간' : '약 1 ~ 2시간'
+    isPalaceOrMuseum ? '약 1.5 ~ 2시간' :
+    isOutdoorParkOrBeach ? '약 40분 ~ 1시간' :
+    '약 1 ~ 1.5시간'
   );
 
   const description = spot.description || spot.overview || (

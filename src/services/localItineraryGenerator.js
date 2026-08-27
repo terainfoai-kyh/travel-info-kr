@@ -387,9 +387,9 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
           }
         }
 
-        // 🛡️ Operating Hours Filter: If current time > 17:30, prohibit daytime-closing parks/museums
-        if (currentCursorMinutes >= 1050) { // 17:30
-          const isDaytimeClosing = /(대공원|동물원|수목원|식물원|궁|박물관|미술관|도서관|민속촌)/.test(normPTitle);
+        // 🛡️ Operating Hours Filter: If arrival time > 16:30 (990 mins), strictly prohibit daytime-closing facilities (closing at 18:00)
+        if (currentCursorMinutes >= 990) { // 16:30
+          const isDaytimeClosing = /(대공원|어린이대공원|동물원|수목원|식물원|궁|궁궐|박물관|미술관|도서관|민속촌|유적지|기념관|행궁)/.test(normPTitle);
           if (isDaytimeClosing) return false;
         }
 
@@ -399,6 +399,13 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
       if (remainingUnvisited.length > 0) {
         if (lastSpotLocation) {
           remainingUnvisited.sort((a, b) => {
+            // Evening preference (17:00+): Boost night views, markets, open streets, towers, and rivers
+            if (currentCursorMinutes >= 1020) {
+              const aNight = /(타워|야경|시장|먹거리|거리|한강|공원|광장|청계천|다리|골목)/.test(a.title);
+              const bNight = /(타워|야경|시장|먹거리|거리|한강|공원|광장|청계천|다리|골목)/.test(b.title);
+              if (aNight && !bNight) return -1;
+              if (!aNight && bNight) return 1;
+            }
             const distA = calculateDistanceKm(lastSpotLocation.lat, lastSpotLocation.lng, a.lat, a.lng);
             const distB = calculateDistanceKm(lastSpotLocation.lat, lastSpotLocation.lng, b.lat, b.lng);
             return distA - distB;
