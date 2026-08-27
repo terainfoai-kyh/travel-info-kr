@@ -33,15 +33,15 @@
 
 ---
 
-## 2. 프로젝트 최우선 대원칙 (Never Forget)
+## 2. 프로젝트 최우선 대원칙 & 배포 격리 (Never Forget)
 1. **섣부른 대공사 절대 금지 (No Reckless Rewriting)**:
    - 기존에 잘 작동하고 있는 코드베이스, Gemini 연동, Context Engine, UI 디테일을 임의로 뒤엎지 않는다.
    - 반드시 선배님의 의도와 확인을 거친 후 핀셋으로 안전하게 작업한다.
 2. **서브밋 / Proceed 팝업 100% 완전 봉인 (P0)**:
    - 화면을 방해하는 인터랙티브 팝업 카드 및 `ask_question` 유발 금지 (`RequestFeedback: false` 고정).
-3. **Two-Track 배포 분리**:
-   - 개발/테스트 배포: `origin` (`travelkorea_2.git`) ➔ Cloudflare Pages (`travelkorea-dev.pages.dev`)
-   - 실운영 서비스 배포: `prod` (`travel-info-kr.git`) ➔ GitHub Pages (`travel-info-kr`)
+3. **Two-Track 배포 분리 & 운영 레포 내부 문서 100% 차단**:
+   - **개발/테스트 배포 (`origin`: `travelkorea_2.git`)**: 에이전트 인수인계 및 기억 유지를 위해 `DECISIONS.md` 포함 푸시 ➔ Cloudflare Pages (`travelkorea-dev.pages.dev`).
+   - **실운영 서비스 배포 (`prod`: `travel-info-kr.git`)**: `DECISIONS.md`, `.agents/` 등 내부 설계/기억 문서는 **운영 깃 레포 및 웹 빌드 번들(`dist/`)에 100% 절대 미포함/원천 제외** ➔ GitHub Pages (`travel-info-kr`).
 
 ---
 
