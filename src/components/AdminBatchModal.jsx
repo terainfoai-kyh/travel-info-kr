@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Sparkles, Database, Play, CheckCircle2, Copy, Download, RefreshCw, Key, ShieldCheck, AlertCircle, Cloud, Smartphone } from 'lucide-react';
+import { X, Sparkles, Database, Play, CheckCircle2, Copy, Download, RefreshCw, Key, ShieldCheck, AlertCircle, Cloud, Smartphone, Search } from 'lucide-react';
 import { getVoraQnaVault } from '../data/voraQnaVault';
 import { interpolateTemplate } from '../utils/koreanParticles';
 import { fetchQuestionsFromCloud, clearQuestionsFromCloud, deleteQuestionFromCloud, publishKnowledgeToCloudMaster } from '../services/voraCloudQnaService';
