@@ -750,27 +750,28 @@ export default function App() {
           : contextualIntro;
 
         const defaultActionChip = (lang === 'en' ? `🚀 Build ${displayCity} Plan Now` : `🚀 바로 일정 만들기`);
-        let quickButtons = [];
+        let rawButtons = [];
 
         if (qnaDirectMatch && qnaDirectMatch.suggestedChips && qnaDirectMatch.suggestedChips.length > 0) {
-          quickButtons = qnaDirectMatch.suggestedChips.includes(defaultActionChip)
-            ? qnaDirectMatch.suggestedChips
-            : [defaultActionChip, ...qnaDirectMatch.suggestedChips];
+          rawButtons = [defaultActionChip, ...qnaDirectMatch.suggestedChips.filter(c => c !== defaultActionChip)];
         } else if (!isPlanningMode) {
-          quickButtons = [
+          rawButtons = [
             (lang === 'en' ? '👑 Seoul Tour' : '👑 서울 투어'),
             (lang === 'en' ? '🌊 Busan Ocean' : '🌊 부산 바다'),
             (lang === 'en' ? '🌴 Jeju Healing' : '🌴 제주 힐링'),
             (lang === 'en' ? '🏖️ Gangneung / Sokcho' : '🏖️ 강릉/속초')
           ];
         } else {
-          quickButtons = [
+          rawButtons = [
             defaultActionChip,
             (lang === 'en' ? `🍴 ${displayCity} Foodies` : `🍴 ${displayCity} 대표 맛집`),
             (lang === 'en' ? `🌃 ${displayCity} Night Views` : `🌃 ${displayCity} 낭만 야경`),
             (lang === 'en' ? `🏨 ${displayCity} Top Hotels` : `🏨 ${displayCity} 인기 숙소`)
           ];
         }
+
+        // 🛡️ [중복 100% 원천 차단 & 최대 4개 캡]
+        const quickButtons = Array.from(new Set(rawButtons)).slice(0, 4);
 
         // 🛡️ [특수 지시어 처리: 호텔은 빼줘 / ~제외해줘]
         const isExclusionDirective = /(호텔|숙소|카페|박물관|쇼핑|맛집)\s*(은|는|이|가|도)?\s*(빼줘|빼주세요|제외해줘|제외|없애줘|삭제해줘|빼|지워줘)/i.test(promptQuery);
