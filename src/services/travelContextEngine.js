@@ -635,21 +635,10 @@ export function generateContextualAdvice(context, lang = 'ko') {
     return `${tikitaka.reply}\n\n👉 **${tikitaka.followUp}**`;
   }
 
-  // 2. Door-to-Door Interactive Flow Check (공항/숙소/도착시간/계절 직접 지정 시)
-  const isDirectGatewayMention = /(인천공항|김포공항|김해공항|제주공항|서울역|부산역|강릉역|전주역|여수역|수원역|ktx|공항철도|터미널)/i.test(cleanPrompt);
-  const isDirectHotelMention = /(숙소|호텔|리조트|펜션|스테이|게하|신라호텔|롯데호텔|하얏트|조선호텔|워커힐|파라다이스)/i.test(cleanPrompt);
-  const isDirectTimeMention = /(오전\s*도착|오후\s*도착|저녁\s*도착|[0-9]+시\s*도착|[0-9]+시까지)/i.test(cleanPrompt);
-
-  if (isDirectGatewayMention || isDirectHotelMention || isDirectTimeMention) {
-    const hotel = context.tripMemory?.hotelArea || (targetCity ? `${targetCity} 숙소` : '숙소');
-    const targetLabel = targetCity ? `${targetCity}` : '한국';
-    const arrTime = context.tripMemory?.arrivalTime || '';
-    const timePrefix = arrTime ? `${arrTime} ` : '';
-
-    return (lang === 'en')
-      ? `Shall I tailor a **[${targetLabel} ${timePrefix}3-Day Course]** starting after luggage drop at **${hotel}**? 🧳✨ (Default: 09:00~18:00)`
-      : `**${hotel}** 짐 보관 후 출발하는 **[${targetLabel} ${timePrefix}3일 추천 코스]**로 바로 잡아드릴까요? 🧳✨ (기본 09:00~18:00)`;
-  }
+  // 2. 관광 일정 제안 브리핑 (순수 관광 조건 중심: 09:00~18:00)
+  const targetLabel = targetCity || '서울';
+  const currentDays = context.requestedDays || 3;
+  const daysText = currentDays === 1 ? '당일치기' : `${currentDays}일`;
 
   // 3. Prompt-Specific Scenario Matching (Only triggers when the CURRENT prompt explicitly asks for it!)
   const isPromptKids = /(아이|애기|키즈|유모차|어린이|자녀|초등)/i.test(cleanPrompt);
