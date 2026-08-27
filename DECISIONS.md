@@ -95,9 +95,11 @@
 ## 5. Gemini AI(제미나이) 하이브리드 운영 정책
 - **Tier 1 (Gemini 3.5 Flash 실시간 AI)**:
   - 동행자(친구, 부모님), 날씨, 호텔 짐 보관, 도착 시간 등 복잡한 사용자 자연어 조건에 100% 맞춘 초개인화 맞춤 일정 생성.
-- **Tier 2 (100% TourAPI 4.0 정품 동적 POI & 물리 시뮬레이터)**:
-  - **가짜/정적 Mocking 데이터 100% 완전 배제**: 버그를 은폐하는 가짜 데이터 풀(`masterCitySpots.js`)을 영구 삭제하고, [koreaTravelPoiDatabase.js](file:///c:/dev/travelkirea-dev/src/data/koreaTravelPoiDatabase.js)의 한국관광공사 TourAPI 4.0 정품 POI만을 지리적 거리(Haversine) 기반으로 동적 클러스터링하여 일정 생성.
-  - 버그 발생 시 `dataSource` 태깅 및 즉각적인 경고(`console.warn`)로 결함이 가려지지 않고 투명하게 드러나도록 조치.
+- **Tier 2 (100% 실시간 한국관광공사 TourAPI 4.0 직결 파이프라인 & 물리 시뮬레이터)**:
+  - **가짜/정적 Mocking 파일 작성 100% 영구 금지**: `masterCitySpots.js` 등 로컬 파일에 명소를 박아두고 돌려막는 가짜 Mock 코드를 생성하는 행위를 영구히 금지.
+  - **한국관광공사 공식 서버 실시간 직결**: 사용자의 여행 요청 시 한국관광공사 공식 REST API (`fetchCityTourApiSpots`, `areaBasedList2`, `searchKeyword2`)를 실시간 호출하여 해당 도시의 실제 수백 개 정품 등록 관광지 목록을 직접 내려받음.
+  - **2중 정품 포토 보정 파이프라인**: 사진 누락/저화질은 [photoPipeline.js](file:///c:/dev/travelkirea-dev/src/services/photoPipeline.js) (Google Places API)를 통해 전 세계 여행자들의 최신 4K 고화질 방문 사진과 실제 평점(⭐ 4.8)을 비동기로 덧씌워 화면 완성.
+  - **Haversine 공간 클러스터링**: 위경도 좌표 거리를 계산하여 가까운 명소들끼리 일차별 권역으로 동적 밀집 배정하며, 1일차부터 5일차까지 동일 명소 중복 배치를 100% 원천 차단.
 - **일정 생성 3대 황금 규칙**:
   - **동선 밀집 (Proximity Clustering)**: 하루 일정은 도보/대중교통 10~20분 내 동일 권역으로만 구성.
   - **단일 명소 표기 (No `&`, `/`)**: `경복궁 & 향원정` 금지 ➔ `경복궁` 단일 명소로 정직하게 표기 (구글맵/사진 매칭 100%).

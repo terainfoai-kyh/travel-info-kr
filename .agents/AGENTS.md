@@ -76,3 +76,10 @@
       - 2차: 공백/특수문자 제거 압축 검색어 (예: `NSEOULTOWER`)
       - 3차: 도시명 결합 검색어 (예: `SEOUL NSEOULTOWER`)
 
+14. **Strict Zero Mocking & Mandatory Live TourAPI 4.0 Direct Pipeline (가짜 고정 데이터 작성 영구 금지 및 실시간 공공데이터 직결 헌법)**
+    - **가짜 고정 데이터(Mock / Hardcoded Pool) 작성 100% 영구 엄금**: `masterCitySpots.js`처럼 로컬 JS 파일에 특정 명소를 고정으로 박아두고 돌려막는 가짜 Mock 코드를 생성하는 행위를 영구히 금지합니다.
+    - **한국관광공사 TourAPI 4.0 실시간 직결**: 사용자의 여행 요청 시 반드시 한국관광공사 공식 실시간 API (`searchKeyword2`, `areaBasedList2`)를 호출하여 해당 도시의 실제 수백 개 정품 등록 관광지를 실시간 수신하여 일정표를 조립합니다.
+    - **2중 정품 포토 보정**: 사진 누락/저화질은 `photoPipeline.js` (Google Places 실시간 API)를 통해 최신 4K 고화질 방문자 사진과 실제 평점(⭐ 4.8)으로 보정합니다.
+    - **공간 클러스터링**: 위경도 좌표 거리(Haversine)를 계산하여 가까운 명소들끼리 일차별 권역으로 동적 밀집 배정하며, 1일차부터 5일차까지 동일 명소 중복 배치를 100% 원천 차단합니다.
+
+

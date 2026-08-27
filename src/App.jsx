@@ -835,8 +835,9 @@ export default function App() {
 
         const compositePrompt = `${buildCity} ${requestedDays}일 ${compList.join('/')} 여행${prefList.length > 0 ? `, 테마: ${prefList.join(', ')}` : ''}, ${promptQuery}`;
 
+        const rawResult = await generateLocalFallbackItinerary(compositePrompt, buildCity, requestedDays, lang);
         const finalResult = {
-          ...generateLocalFallbackItinerary(compositePrompt, buildCity, requestedDays, lang),
+          ...rawResult,
           targetCity: buildCity,
           generationTime: elapsedSeconds,
           draftId: `draft-${Date.now()}`
@@ -848,6 +849,17 @@ export default function App() {
         try {
           localStorage.setItem('vora_temp_active_draft', JSON.stringify(finalResult));
         } catch (e) {}
+
+        // 📸 2-Tier Photo Enrichment: Background Google Places live photo enhancement
+        enrichItineraryPhotosAsync(finalResult).then(enriched => {
+          if (enriched && enriched.dailySchedules) {
+            setItineraryData(prev => ({
+              ...prev,
+              dailySchedules: enriched.dailySchedules,
+              spots: enriched.spots
+            }));
+          }
+        }).catch(err => console.warn('[Photo Enricher Error]', err));
         
         const replySummary = isDayChangeQuery
           ? (lang === 'en'

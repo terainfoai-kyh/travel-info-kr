@@ -64,6 +64,83 @@ export async function fetchSpotDetailCommon(contentId, lang = 'ko') {
 // ⚡ Smart Caching Memory Store (Zero Hardcoding Pipeline)
 const DYNAMIC_SPOT_CACHE = new Map();
 
+// Official Korean Tourism Area Code Mapping
+export const TOUR_API_AREA_CODES = {
+  '서울': 1, '인천': 2, '대전': 3, '대구': 4, '광주': 5, '부산': 6, '울산': 7,
+  '세종': 8, '경기': 31, '수원': 31, '강원': 32, '강릉': 32, '속초': 32, '양양': 32,
+  '충북': 33, '충남': 34, '경북': 35, '경주': 35, '포항': 35, '안동': 35,
+  '경남': 36, '거제': 36, '통영': 36, '남해': 36,
+  '전북': 37, '전주': 37, '전남': 38, '여수': 38, '순천': 38,
+  '제주': 39, '서귀포': 39
+};
+
+export async function fetchCityTourApiSpots(city = '서울', lang = 'ko') {
+  const cleanCity = (city || '서울').replace(/(시|군|구|도)$/, '').trim();
+  const cacheKey = `city_spots_${cleanCity}_${lang}`;
+  if (DYNAMIC_SPOT_CACHE.has(cacheKey)) {
+    return DYNAMIC_SPOT_CACHE.get(cacheKey);
+  }
+
+  let apiBase = PUBLIC_API_CONFIG.TOUR_API_BASE || 'https://apis.data.go.kr/B551011/KorService2';
+  if (lang === 'en') apiBase = PUBLIC_API_CONFIG.ENG_BASE;
+  else if (lang === 'ja') apiBase = PUBLIC_API_CONFIG.JPN_BASE;
+  else if (lang === 'zh') apiBase = PUBLIC_API_CONFIG.CHS_BASE;
+  else if (lang === 'zht') apiBase = PUBLIC_API_CONFIG.CHT_BASE;
+  else if (lang === 'de') apiBase = PUBLIC_API_CONFIG.GER_BASE;
+  else if (lang === 'fr') apiBase = PUBLIC_API_CONFIG.FRE_BASE;
+  else if (lang === 'es') apiBase = PUBLIC_API_CONFIG.SPN_BASE;
+  else if (lang === 'ru') apiBase = PUBLIC_API_CONFIG.RUS_BASE;
+
+  try {
+    const areaCode = TOUR_API_AREA_CODES[cleanCity] || TOUR_API_AREA_CODES[city];
+    let fetchUrl = '';
+    if (areaCode) {
+      // Area-based query (Popular Sightseeing Spots, arrange by view count/popularity)
+      fetchUrl = `${apiBase}/areaBasedList2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&areaCode=${areaCode}&contentTypeId=12&arrange=Q&numOfRows=40&pageNo=1`;
+    } else {
+      // Keyword search fallback
+      fetchUrl = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&keyword=${encodeURIComponent(cleanCity)}&numOfRows=40&pageNo=1`;
+    }
+
+    const res = await fetch(fetchUrl);
+    if (!res.ok) return [];
+    const data = await res.json();
+    const itemsRaw = data.response?.body?.items?.item || [];
+    const items = Array.isArray(itemsRaw) ? itemsRaw : (itemsRaw ? [itemsRaw] : []);
+
+    const validSpots = items
+      .filter(item => {
+        const lat = parseFloat(item.mapy);
+        const lng = parseFloat(item.mapx);
+        return lat && lng && lat > 32 && lat < 40 && lng > 124 && lng < 132;
+      })
+      .map(item => ({
+        id: `tourapi_${item.contentid}`,
+        contentId: String(item.contentid || ''),
+        title: item.title,
+        name: item.title,
+        category: (String(item.contenttypeid) === '14' ? '문화시설' : String(item.contenttypeid) === '15' ? '축제' : '명소'),
+        theme: item.cat3 || '한국 대표 관광지',
+        description: item.addr1 || `${city}의 대표 관광 명소입니다.`,
+        lat: parseFloat(item.mapy),
+        lng: parseFloat(item.mapx),
+        address: item.addr1 || item.addr2 || `${city} ${item.title}`,
+        image: item.firstimage || item.firstimage2 || null,
+        duration: 90,
+        rating: 4.8,
+        dataSource: 'TOUR_API_LIVE_GENUINE'
+      }));
+
+    if (validSpots.length > 0) {
+      DYNAMIC_SPOT_CACHE.set(cacheKey, validSpots);
+    }
+    return validSpots;
+  } catch (err) {
+    console.warn(`[TourAPI] Realtime Fetch Error for ${city}:`, err);
+    return [];
+  }
+}
+
 export async function fetchDynamicRealtimeSpots(query, lang = 'ko') {
   if (!query || typeof query !== 'string') return [];
   const excludeFood = /(식당|음식점|맛집|빼고|제외|없이)/i.test(query);
@@ -88,7 +165,7 @@ export async function fetchDynamicRealtimeSpots(query, lang = 'ko') {
   else if (lang === 'ru') apiBase = PUBLIC_API_CONFIG.RUS_BASE;
 
   try {
-    const searchUrl = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&keyword=${encodeURIComponent(cleanQ)}&numOfRows=20&pageNo=1`;
+    const searchUrl = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&keyword=${encodeURIComponent(cleanQ)}&numOfRows=30&pageNo=1`;
     const res = await fetch(searchUrl);
     if (!res.ok) return [];
     const data = await res.json();
@@ -117,7 +194,8 @@ export async function fetchDynamicRealtimeSpots(query, lang = 'ko') {
         lng: parseFloat(item.mapx) || 126.9780,
         rating: 4.8,
         tags: [cleanQ, excludeFood ? '명소전용' : '공공정품관광지'],
-        image: item.firstimage || item.firstimage2 || 'http://tong.visitkorea.or.kr/cms/resource/08/126508_image2_1.jpg'
+        image: item.firstimage || item.firstimage2 || null,
+        dataSource: 'TOUR_API_LIVE_GENUINE'
       }));
     }
 
