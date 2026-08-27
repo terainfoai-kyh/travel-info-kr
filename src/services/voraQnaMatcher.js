@@ -10,6 +10,7 @@
 
 import { getVoraQnaVault } from '../data/voraQnaVault.js';
 import { CITY_LOCAL_KNOWLEDGE } from '../data/voraDialogKnowledge.js';
+import { KOREA_TRAVEL_POI_DATABASE } from '../data/koreaTravelPoiDatabase.js';
 import { interpolateTemplate } from '../utils/koreanParticles.js';
 import { pushQuestionToCloud } from './voraCloudQnaService.js';
 
@@ -29,15 +30,22 @@ export function logUnansweredQuestion(rawQuery, targetCity = null, tripContext =
   const isSimpleDuration = /^(\d+\s*일|\d+\s*박\s*\d+\s*일|\d+\s*박|당일치기|하루|이틀|사흘|\d+\s*days?)$/i.test(clean);
   const isSimpleCompanion = /^(혼자|커플|가족|친구|아이|부모님|아이\s*동반|부모님\s*동반|아이랑|부모님이랑|친구랑|연인이랑)$/i.test(clean);
   const isSimpleActionOrAccept = /^(짜줘|맞춰줘|해줘|잡아줘|추천해줘|추천|만들어줘|일정\s*생성|생성해줘|설계해줘|준비해줘|정해줘|응|어|네|예|좋아|좋아요|오케이|ok|콜|그래|부탁해|이대로|시작|가자|가보자|바로\s*일정\s*만들기|바로\s*짜줘|일정표\s*만들기)$/i.test(clean);
-  const isSimpleThemeOnly = /^(맛집|카페|관광지|쇼핑|자연|야경|힐링|인생샷|핫플레이스|핫플|덜\s*걷기|걷기\s*적게|비\/실내|실내|비오는날|아이\s*동반|로컬\s*맛집)$/i.test(clean);
+  const isSimpleThemeOnly = /^(맛집|카페|관광지|쇼핑|자연|야경|힐링|인생샷|핫플레이스|핫플|덜\s*걷기|걷기\s*적게|비\/실내|실내|비오는날|아이\s*동반|로컬\s*맛집|야경\s*맛집(\s*추천)?|감성\s*카페(\s*투어)?|인생샷\s*핫플레이스|대표\s*맛집\s*&\s*카페|인기\s*호텔\/숙소|전통\s*한옥\s*스테이|가성비\s*인기\s*호텔|오션뷰\s*감성\s*펜션)$/i.test(clean);
   const isArrivalTimeDirective = /(\d{1,2}:\d{2}|오전\s*도착|오후\s*도착|도착\s*\()/i.test(clean);
-  const isButtonChipPrefix = /^(📷|📍|✨|🚀|🍴|☔|🚶|👨‍👩‍👧|☕|🌅)/.test(clean);
+  const isButtonChipPrefix = /^(📷|📍|✨|🚀|🍴|☔|🚶|👨‍👩‍👧|☕|🌅|🏙️|🏮|🏨|🌊|🏖️|🏢)/.test(clean);
 
-  // 🛡️ 2. 일정 편집/제외 명령어는 질문 큐 저장에서 100% 원천 차단! (e.g. 호텔은 빼줘, 숙소 제외해줘)
+  // 🛡️ 2. POI 명소명 단독 입력 필터링 (e.g. 남산 서울타워, 경복궁, DDP 등은 질문이 아니라 명소 탐색임!)
+  const cleanNorm = clean.replace(/[\s\-\_\.]/g, '').toLowerCase();
+  const isPoiName = KOREA_TRAVEL_POI_DATABASE.some(poi => {
+    const poiNorm = poi.title.replace(/[\s\-\_\.]/g, '').toLowerCase();
+    return cleanNorm.includes(poiNorm) || poiNorm.includes(cleanNorm);
+  });
+
+  // 🛡️ 3. 일정 편집/제외 명령어는 질문 큐 저장에서 100% 원천 차단!
   const isExclusionDirective = /(빼줘|빼주세요|제외해줘|제외|없애줘|삭제해줘|빼|지워줘)/i.test(clean);
 
-  if (isSimpleCityOnly || isSimpleDuration || isSimpleCompanion || isSimpleActionOrAccept || isSimpleThemeOnly || isArrivalTimeDirective || isButtonChipPrefix || isExclusionDirective) {
-    return; // 단순 상태 조건, 버튼 클릭 칩, 시간대 텍스트는 큐에 절대 저장하지 않음!
+  if (isSimpleCityOnly || isSimpleDuration || isSimpleCompanion || isSimpleActionOrAccept || isSimpleThemeOnly || isArrivalTimeDirective || isButtonChipPrefix || isPoiName || isExclusionDirective) {
+    return; // 단순 상태 조건, 버튼 클릭 칩, 명소명은 큐에 절대 저장하지 않음!
   }
 
   try {
@@ -279,6 +287,52 @@ export function matchVoraQna(query = '', targetCity = null, context = {}, lang =
             (lang === 'en' ? '🏨 Shopping & Transit Hotel' : '🏨 쇼핑 & 역세권 호텔')
           ];
         }
+      }
+    }
+
+    // 🌃 [지능형 야경 큐레이션 엔진] 도시별 제미나이 정품 야경 명소 답변 장착!
+    const isNightQuery = bestMatch.category === 'NIGHT_VIEW' || /(야경|night|밤야경|야경명소|야경맛집|야간명소)/i.test(bestMatch.id) || /(야경|밤\s*야경|야경\s*맛집|야경\s*명소|야간\s*명소|밤에\s*갈|나이트뷰)/i.test(query);
+    if (isNightQuery) {
+      const cityKnowledge = CITY_LOCAL_KNOWLEDGE[targetCity || '서울'] || CITY_LOCAL_KNOWLEDGE['서울'];
+      const nightList = cityKnowledge?.nightHighlights || [];
+      if (nightList.length > 0) {
+        const nightLines = nightList.map((n, i) => `${i + 1}. **${n.name}**\n   - ${n.desc}`).join('\n');
+        reply = (lang === 'en')
+          ? `Here are the most breathtaking night view spots in **${displayCity}**! 🌃✨\n\n${nightLines}\n\n💡 *Would you like me to add these night spots to your evening schedule (after 17:00)?* 😊`
+          : `**${displayCity}**에서 가장 아름다운 대표 야경 & 나이트 명소 큐레이션이에요! 🌃✨\n\n${nightLines}\n\n💡 *이 중 마음에 드는 야경 명소를 오늘 저녁 코스(17:00 이후)에 바로 쏙 넣어드릴까요? 🚀*`;
+        
+        followUp = (lang === 'en')
+          ? `Shall I add this night view into your ${displayCity} evening course?`
+          : `이 야경 명소를 저녁 일정에 바로 반영해 드릴까요? 🚀`;
+
+        baseChips = [
+          (lang === 'en' ? '🚀 Add to Evening Plan' : '🚀 저녁 야경 코스에 추가'),
+          nightList[0]?.name ? `🗼 ${nightList[0].name.split('&')[0].trim()}` : '🗼 대표 야경 스팟',
+          nightList[1]?.name ? `🌌 ${nightList[1].name.split('&')[0].trim()}` : '🌌 감성 성곽/해변'
+        ];
+      }
+    }
+
+    // ☕ [지능형 감성 카페 큐레이션 엔진] 도시별 대표 카페거리 답변 장착!
+    const isCafeQuery = /(카페|디저트|cafe|커피)/i.test(bestMatch.id) || /(카페|감성\s*카페|카페거리|디저트|베이커리|커피)/i.test(query);
+    if (isCafeQuery && !isHotelQuery && !isNightQuery) {
+      const cityKnowledge = CITY_LOCAL_KNOWLEDGE[targetCity || '서울'] || CITY_LOCAL_KNOWLEDGE['서울'];
+      const cafeList = cityKnowledge?.cafeHighlights || [];
+      if (cafeList.length > 0) {
+        const cafeLines = cafeList.map((c, i) => `${i + 1}. **${c.name}**\n   - ${c.desc}`).join('\n');
+        reply = (lang === 'en')
+          ? `Here are top curated aesthetic cafe trails in **${displayCity}**! ☕🍰\n\n${cafeLines}\n\n💡 *Shall I weave a relaxing cafe break into your afternoon itinerary?* 😊`
+          : `**${displayCity}**에서 분위기와 커피 맛이 검증된 대표 감성 카페거리 큐레이션이에요! ☕🍰\n\n${cafeLines}\n\n💡 *나른한 오후 일정(14:00~16:00)에 감성 카페 쉼표를 쏙 넣어드릴까요? 😊*`;
+
+        followUp = (lang === 'en')
+          ? `Shall I include this cafe into your afternoon itinerary?`
+          : `이 감성 카페를 오후 일정에 바로 넣어드릴까요? 🚀`;
+
+        baseChips = [
+          (lang === 'en' ? '🚀 Add Cafe to Itinerary' : '🚀 오후 카페 일정에 추가'),
+          cafeList[0]?.name ? `☕ ${cafeList[0].name.split('/')[0].trim()}` : '☕ 핫플 카페거리',
+          cafeList[1]?.name ? `🍰 ${cafeList[1].name.split('/')[0].trim()}` : '🍰 감성 디저트'
+        ];
       }
     }
 
