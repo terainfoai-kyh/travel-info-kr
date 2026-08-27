@@ -204,26 +204,6 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
 
   // 6. 평점
   const rating = spot.rating || matchedPoi?.rating || 4.8;
-    isPalaceOrMuseum ? '성인 1,000~3,000원 (문화재 관람)' :
-    isTowerOrNightView ? '전망대 입장권 별도' :
-    '무료 관람'
-  );
-
-  const duration = spot.duration || (
-    isPalaceOrMuseum ? '약 1.5 ~ 2시간' :
-    isOutdoorParkOrBeach ? '약 40분 ~ 1시간' :
-    '약 1 ~ 1.5시간'
-  );
-
-  const description = spot.description || spot.overview || (
-    cleanTitle.includes('경복궁') 
-      ? '조선 왕조 제일의 법궁으로, 웅장한 근정전과 연못 위에 세워진 경회루의 수려한 처마선이 한국 전통 건축미의 정점을 보여줍니다.'
-      : cleanTitle.includes('인사동')
-      ? '전통과 현대가 어우러진 거리로, 골목마다 자리한 전통 찻집과 나선형 쌈지길에서 한국의 감성을 만끽할 수 있습니다.'
-      : 'VORA AI가 엄선한 한국의 대표적인 핫플레이스로 편리한 동선과 아름다운 경관을 자랑합니다.'
-  );
-
-  const rating = spot.rating || 4.8;
   const affiliateDeal = spot.affiliateDeal ? getSpotAffiliateDeal(cleanTitle, spot.region || spot.city || '서울', lang) : null;
 
   // 📷 사진 목록: 한국관광공사 공식 고화질 갤러리(detailImage2) ➔ 대표 사진 fallback
