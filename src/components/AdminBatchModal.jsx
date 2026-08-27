@@ -271,18 +271,20 @@ export default function AdminBatchModal({
     setBatchProgress(100);
     setIsRunningBatch(false);
 
-    // 🧹 학습 완료된 질문들은 대기 큐에서 자동 비우기!
+    // 🧹 학습 완료된 질문들은 로컬 및 중앙 클라우드 서버 대기 큐에서 완전 비우기!
     try {
       localStorage.removeItem('vora_unanswered_qna');
       setUnansweredList([]);
+      await clearQuestionsFromCloud();
 
       // 💾 새로 학습된 지식을 브라우저 볼트에 누적 저장!
       const existingVault = JSON.parse(localStorage.getItem('vora_custom_qna_vault') || '[]');
       const updatedVault = [...existingVault, ...newDistilled];
       localStorage.setItem('vora_custom_qna_vault', JSON.stringify(updatedVault));
+      loadCustomVaultFromStorage();
     } catch (e) {}
 
-    setBatchLogs(prev => [...prev, `🎉 총 ${newDistilled.length}개 신규 지식 학습 완료 & 대기 큐 자동 정리 완료! ✨`]);
+    setBatchLogs(prev => [...prev, `🎉 총 ${newDistilled.length}개 신규 지식 학습 완료 & 중앙 클라우드 대기 큐 완전 비우기 완료! ✨`]);
   };
 
   const handleCopyJson = () => {
