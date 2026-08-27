@@ -224,7 +224,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '야경/파노라마',
     duration: 90,
     rating: 4.9,
-    image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?w=800&q=80', // N서울타워 본체 정면 사진
+    image: 'https://images.unsplash.com/photo-1538485399081-7191377e8241?w=800&q=80', // N서울타워 본체 타워 야경
     lat: 37.5512,
     lng: 126.9882,
     tags: ['야경', '타워', '전망대', '케이블카', '인생샷', '데이트'],
@@ -239,7 +239,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '미래건축/디자인전시',
     duration: 90,
     rating: 4.8,
-    image: 'https://images.unsplash.com/photo-1578637387939-43c525550085?w=800&q=80', // DDP 유선형 은빛 야경
+    image: 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&q=80', // DDP 미래지향적 곡선 건축
     lat: 37.5668,
     lng: 127.0096,
     tags: ['전시', '건축', '야경', '디자인', '쇼핑', '핫플'],
@@ -254,7 +254,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '전통한옥/골목산책',
     duration: 90,
     rating: 4.8,
-    image: 'https://images.unsplash.com/photo-1578637387939-43c525550085?w=800&q=80', // 북촌 한옥마을 기와 돌담길
+    image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?w=800&q=80', // 북촌 한옥마을 기와 돌담길 전경
     lat: 37.5826,
     lng: 126.9836,
     tags: ['한옥', '골목길', '전통', '사진명소', '데이트', '힐링'],
