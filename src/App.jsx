@@ -723,25 +723,31 @@ export default function App() {
         const matchedPois = (qnaDirectMatch || !isPlanningMode || userIntent === 'OFF_TOPIC' || isGatewaySelectPrompt || isArrivalTimePrompt) ? [] : findRecommendedPois(promptQuery, targetCity, 3);
         const contextualIntro = generateContextualAdvice(tripContext, lang);
 
-        let chatText = contextualIntro;
-        let quickButtons = (qnaDirectMatch && qnaDirectMatch.suggestedChips && qnaDirectMatch.suggestedChips.length > 0)
-          ? qnaDirectMatch.suggestedChips
-          : !isPlanningMode
-          ? [
-              (lang === 'en' ? '👑 Seoul Tour' : '👑 서울 투어'),
-              (lang === 'en' ? '🌊 Busan Ocean' : '🌊 부산 바다'),
-              (lang === 'en' ? '🌴 Jeju Healing' : '🌴 제주 힐링'),
-              (lang === 'en' ? '🏖️ Gangneung / Sokcho' : '🏖️ 강릉/속초')
-            ]
-          : [
-              (lang === 'en' ? `🚀 Generate ${displayCity} ${requestedDays}D Plan` : `🚀 바로 ${displayCity} ${requestedDays}일 일정표 만들기`),
-              (lang === 'en' ? '🗓️ 1 Day' : '🗓️ 당일치기'),
-              (lang === 'en' ? '🗓️ 2 Days' : '🗓️ 1박 2일'),
-              (lang === 'en' ? '🗓️ 3 Days' : '🗓️ 2박 3일'),
-              (lang === 'en' ? `🍴 ${displayCity} Foodies` : `🍴 ${displayCity} 대표 맛집 & 카페`),
-              (lang === 'en' ? `📸 ${displayCity} Best Photo Spots` : `📸 ${displayCity} 인생샷 핫플레이스`),
-              (lang === 'en' ? `🏨 ${displayCity} Top Hotels` : `🏨 ${displayCity} 인기 호텔/숙소`)
-            ];
+        const defaultActionChip = (lang === 'en' ? `🚀 Build ${displayCity} Plan Now` : `🚀 바로 일정 만들기`);
+        let quickButtons = [];
+
+        if (qnaDirectMatch && qnaDirectMatch.suggestedChips && qnaDirectMatch.suggestedChips.length > 0) {
+          quickButtons = qnaDirectMatch.suggestedChips.includes(defaultActionChip)
+            ? qnaDirectMatch.suggestedChips
+            : [defaultActionChip, ...qnaDirectMatch.suggestedChips];
+        } else if (!isPlanningMode) {
+          quickButtons = [
+            (lang === 'en' ? '👑 Seoul Tour' : '👑 서울 투어'),
+            (lang === 'en' ? '🌊 Busan Ocean' : '🌊 부산 바다'),
+            (lang === 'en' ? '🌴 Jeju Healing' : '🌴 제주 힐링'),
+            (lang === 'en' ? '🏖️ Gangneung / Sokcho' : '🏖️ 강릉/속초')
+          ];
+        } else {
+          quickButtons = [
+            defaultActionChip,
+            (lang === 'en' ? '🗓️ 1 Day' : '🗓️ 당일치기'),
+            (lang === 'en' ? '🗓️ 2 Days' : '🗓️ 1박 2일'),
+            (lang === 'en' ? '🗓️ 3 Days' : '🗓️ 2박 3일'),
+            (lang === 'en' ? `🍴 ${displayCity} Foodies` : `🍴 ${displayCity} 대표 맛집 & 카페`),
+            (lang === 'en' ? `📸 ${displayCity} Best Photo Spots` : `📸 ${displayCity} 인생샷 핫플레이스`),
+            (lang === 'en' ? `🏨 ${displayCity} Top Hotels` : `🏨 ${displayCity} 인기 호텔/숙소`)
+          ];
+        }
 
         // 🛡️ [특수 지시어 처리: 호텔은 빼줘 / ~제외해줘]
         const isExclusionDirective = /(호텔|숙소|카페|박물관|쇼핑|맛집)\s*(은|는|이|가|도)?\s*(빼줘|빼주세요|제외해줘|제외|없애줘|삭제해줘|빼|지워줘)/i.test(promptQuery);

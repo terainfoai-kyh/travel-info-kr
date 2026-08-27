@@ -199,8 +199,14 @@ export function patchTravelState(prevState = INITIAL_TRAVEL_STATE, userPrompt = 
   else if (/(애월|협재|한림|aewol)/i.test(clean)) { nextHotelArea = '애월/협재'; hasNewCondition = true; }
   else if (/(서귀포|중문|seogwipo)/i.test(clean)) { nextHotelArea = '서귀포/중문'; hasNewCondition = true; }
   else if (/(경포대|안목|안목해변)/i.test(clean)) { nextHotelArea = '경포대/안목'; hasNewCondition = true; }
-  else if (/(황리단길|대릉원)/i.test(clean)) { nextHotelArea = '황리단길/대릉원'; hasNewCondition = true; }
-  else if (/(한옥마을|객리단길)/i.test(clean)) { nextHotelArea = '전주 한옥마을'; hasNewCondition = true; }
+  else if (/(황리단길|대릉원)/i.test(clean)) { nextHotelArea = '경주 황리단길'; hasNewCondition = true; }
+  else if (/(전주\s*한옥마을|전주한옥마을|객리단길)/i.test(clean)) { nextHotelArea = '전주 한옥마을'; hasNewCondition = true; }
+  else if (/(북촌\s*한옥마을|북촌한옥마을|북촌)/i.test(clean)) { nextHotelArea = '서울 북촌/삼청동'; hasNewCondition = true; }
+  else if (/(한옥마을|한옥)/i.test(clean)) {
+    const currentCity = nextDestination || prevTrip.destination || '서울';
+    nextHotelArea = (currentCity === '전주') ? '전주 한옥마을' : `${currentCity} 숙소`;
+    hasNewCondition = true;
+  }
   else if (/(행궁동|화성행궁)/i.test(clean)) { nextHotelArea = '수원 행궁동'; hasNewCondition = true; }
   else if (/(돌산|해양공원|이순신광장)/i.test(clean)) { nextHotelArea = '여수 돌산/해양공원'; hasNewCondition = true; }
   else {
