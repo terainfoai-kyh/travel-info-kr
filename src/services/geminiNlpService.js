@@ -1,4 +1,4 @@
-﻿import { generateLocalFallbackItinerary } from './localItineraryGenerator.js';
+import { generateLocalFallbackItinerary } from './localItineraryGenerator.js';
 /**
  * VORA AI 18.0 - High-Speed Parallel Gemini Concierge with 100% Pure Dynamic Photo Engine
  * 
@@ -140,19 +140,35 @@ export function extractLocationKeyword(prompt = '', fallbackToDefault = false) {
   return fallbackToDefault ? '서울' : null;
 }
 
-// Generate Google Maps Directions Full Day Route URL
+// Generate Google Maps Directions Full Day Route URL (Enhanced for Global Tourists)
 export function generateGoogleMapsRouteUrl(spots = []) {
   if (!spots || spots.length === 0) return 'https://www.google.com/maps';
+  
+  const formatSpotTarget = (spot) => {
+    if (!spot) return '';
+    const cleanTitle = (spot.title || spot.name || '').split('&')[0].trim();
+    if (spot.lat && spot.lng && (spot.lat > 30 && spot.lat < 45)) {
+      return `${spot.lat},${spot.lng}`;
+    }
+    const cleanCity = (spot.region || spot.city || '').replace(/대한민국/g, '').trim();
+    return encodeURIComponent(`${cleanCity} ${cleanTitle}`.trim() || cleanTitle);
+  };
+
   if (spots.length === 1) {
-    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spots[0].title + ' ' + (spots[0].region || ''))}`;
+    const s = spots[0];
+    const cleanTitle = (s.title || s.name || '').split('&')[0].trim();
+    if (s.lat && s.lng && (s.lat > 30 && s.lat < 45)) {
+      return `https://www.google.com/maps/search/?api=1&query=${s.lat},${s.lng}`;
+    }
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(cleanTitle + ' ' + (s.region || ''))}`;
   }
 
-  const origin = encodeURIComponent(spots[0].title + ' ' + (spots[0].region || ''));
-  const destination = encodeURIComponent(spots[spots.length - 1].title + ' ' + (spots[spots.length - 1].region || ''));
+  const origin = formatSpotTarget(spots[0]);
+  const destination = formatSpotTarget(spots[spots.length - 1]);
   
   let waypointsParam = '';
   if (spots.length > 2) {
-    const waypoints = spots.slice(1, spots.length - 1).map(s => encodeURIComponent(s.title + ' ' + (s.region || ''))).join('|');
+    const waypoints = spots.slice(1, spots.length - 1).map(s => formatSpotTarget(s)).join('|');
     waypointsParam = `&waypoints=${waypoints}`;
   }
 
