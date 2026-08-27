@@ -31,7 +31,21 @@ export default function AdminBatchModal({
   const loadCustomVaultFromStorage = () => {
     try {
       const stored = JSON.parse(localStorage.getItem('vora_custom_qna_vault') || '[]');
-      setCustomVaultList(Array.isArray(stored) ? stored : []);
+      if (Array.isArray(stored)) {
+        const norm = (s) => (s || '').trim().toLowerCase().replace(/[\s\-_?!.~,()[\]]/g, '');
+        const map = new Map();
+        stored.forEach(item => {
+          const key = norm(item.title || item.questionVariations?.[0] || item.id);
+          if (key) map.set(key, item);
+        });
+        const deduped = Array.from(map.values());
+        setCustomVaultList(deduped);
+        if (deduped.length !== stored.length) {
+          localStorage.setItem('vora_custom_qna_vault', JSON.stringify(deduped));
+        }
+      } else {
+        setCustomVaultList([]);
+      }
     } catch (e) {
       setCustomVaultList([]);
     }
@@ -304,14 +318,28 @@ export default function AdminBatchModal({
       setUnansweredList([]);
       await clearQuestionsFromCloud();
 
-      // 💾 새로 학습된 지식을 브라우저 볼트에 누적 저장!
+      // 💾 새로 학습된 지식을 브라우저 볼트에 스마트 중복 제거 후 병합 저장!
       const existingVault = JSON.parse(localStorage.getItem('vora_custom_qna_vault') || '[]');
-      const updatedVault = [...existingVault, ...newDistilled];
+      const norm = (s) => (s || '').trim().toLowerCase().replace(/[\s\-_?!.~,()[\]]/g, '');
+      
+      const mergedMap = new Map();
+      // 1. 기존 지식 등록
+      existingVault.forEach(item => {
+        const key = norm(item.title || item.questionVariations?.[0] || item.id);
+        if (key) mergedMap.set(key, item);
+      });
+      // 2. 신규 지식 덮어쓰기 (Upsert)
+      newDistilled.forEach(item => {
+        const key = norm(item.title || item.questionVariations?.[0] || item.id);
+        if (key) mergedMap.set(key, item);
+      });
+
+      const updatedVault = Array.from(mergedMap.values());
       localStorage.setItem('vora_custom_qna_vault', JSON.stringify(updatedVault));
       loadCustomVaultFromStorage();
     } catch (e) {}
 
-    setBatchLogs(prev => [...prev, `🎉 총 ${newDistilled.length}개 신규 지식 학습 완료 & 중앙 클라우드 대기 큐 완전 비우기 완료! ✨`]);
+    setBatchLogs(prev => [...prev, `🎉 총 ${newDistilled.length}개 신규 지식 학습 완료 & 중복 완벽 제거 완료! ✨`]);
   };
 
   const handleCopyJson = () => {
@@ -792,7 +820,22 @@ export default function AdminBatchModal({
               paddingRight: '0.2rem'
             }}>
               {(() => {
-                const allKnowledge = [...customVaultList, ...masterVaultList];
+                const norm = (s) => (s || '').trim().toLowerCase().replace(/[\s\-_?!.~,()[\]]/g, '');
+                const knowledgeMap = new Map();
+
+                // 1. 마스터 지식 등록
+                masterVaultList.forEach((item, idx) => {
+                  const k = norm(item.title || item.questionVariations?.[0] || item.id || `master_${idx}`);
+                  if (k) knowledgeMap.set(k, { ...item, _isMaster: true });
+                });
+
+                // 2. 커스텀 학습 지식 등록 (커스텀이 마스터를 오버라이드하거나 유니크하게 유지)
+                customVaultList.forEach((item, idx) => {
+                  const k = norm(item.title || item.questionVariations?.[0] || item.id || `custom_${idx}`);
+                  if (k) knowledgeMap.set(k, { ...item, _isCustom: true });
+                });
+
+                const allKnowledge = Array.from(knowledgeMap.values());
                 const cleanQuery = searchKnowledgeQuery.trim().toLowerCase();
                 
                 const filtered = cleanQuery ? allKnowledge.filter(item => {
@@ -851,20 +894,46 @@ export default function AdminBatchModal({
                             fontSize: '0.68rem',
                             padding: '0.15rem 0.45rem',
                             borderRadius: '4px',
-                            backgroundColor: '#8b5cf6',
+                            backgroundColor: item._isCustom ? '#10b981' : '#8b5cf6',
                             color: '#ffffff',
                             fontWeight: 800,
                             flexShrink: 0
                           }}>
-                            {item.targetCity || '전국'}
+                            {item._isCustom ? '🧠 커스텀' : (item.targetCity || '전국')}
                           </span>
                           <strong style={{ fontSize: '0.85rem', color: 'var(--text-main)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {item.title || item.questionVariations?.[0] || '지식 항목'}
                           </strong>
                         </div>
-                        <span style={{ fontSize: '0.75rem', color: '#8b5cf6', fontWeight: 800 }}>
-                          {isExpanded ? '▲ 접기' : '▼ 답변 보기'}
-                        </span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+                          {item._isCustom && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (confirm(`"${item.title || item.questionVariations?.[0]}" 지식을 삭제하시겠습니까?`)) {
+                                  const updated = customVaultList.filter(c => c.id !== item.id && norm(c.title || c.questionVariations?.[0]) !== norm(item.title || item.questionVariations?.[0]));
+                                  localStorage.setItem('vora_custom_qna_vault', JSON.stringify(updated));
+                                  setCustomVaultList(updated);
+                                }
+                              }}
+                              title="이 지식 삭제"
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                color: '#ef4444',
+                                fontSize: '0.75rem',
+                                cursor: 'pointer',
+                                padding: '0.2rem 0.4rem',
+                                borderRadius: '4px'
+                              }}
+                            >
+                              🗑️
+                            </button>
+                          )}
+                          <span style={{ fontSize: '0.75rem', color: '#8b5cf6', fontWeight: 800 }}>
+                            {isExpanded ? '▲ 접기' : '▼ 답변 보기'}
+                          </span>
+                        </div>
                       </div>
 
                       {/* Expanded Accordion: Full Multilingual Answer Viewer */}
