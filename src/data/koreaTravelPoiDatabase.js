@@ -224,7 +224,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '야경/파노라마',
     duration: 90,
     rating: 4.9,
-    image: 'https://images.unsplash.com/photo-1538485399081-7191377e8241?w=800&q=80', // 서울 도심 파노라마 야경 타워
+    image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?w=800&q=80', // N서울타워 본체 정면 사진
     lat: 37.5512,
     lng: 126.9882,
     tags: ['야경', '타워', '전망대', '케이블카', '인생샷', '데이트'],
@@ -239,7 +239,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '미래건축/디자인전시',
     duration: 90,
     rating: 4.8,
-    image: 'https://images.unsplash.com/photo-1546874177-9e664107314e?w=800&q=80', // DDP 미래지향 은빛 곡선
+    image: 'https://images.unsplash.com/photo-1578637387939-43c525550085?w=800&q=80', // DDP 유선형 은빛 야경
     lat: 37.5668,
     lng: 127.0096,
     tags: ['전시', '건축', '야경', '디자인', '쇼핑', '핫플'],

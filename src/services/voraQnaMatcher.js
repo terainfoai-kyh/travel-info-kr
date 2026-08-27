@@ -9,6 +9,7 @@
  */
 
 import { getVoraQnaVault } from '../data/voraQnaVault.js';
+import { CITY_LOCAL_KNOWLEDGE } from '../data/voraDialogKnowledge.js';
 import { interpolateTemplate } from '../utils/koreanParticles.js';
 import { pushQuestionToCloud } from './voraCloudQnaService.js';
 
@@ -228,8 +229,8 @@ export function matchVoraQna(query = '', targetCity = null, context = {}, lang =
   // If match found with confidence threshold >= 50
   if (bestMatch && highestScore >= 50) {
     const rawAnswer = (bestMatch.geminiAnswer && bestMatch.geminiAnswer[lang]) 
-      || bestMatch.geminiAnswer.ko 
-      || bestMatch.geminiAnswer.en;
+      || bestMatch.geminiAnswer?.ko 
+      || bestMatch.geminiAnswer?.en || '';
 
     const templateVars = {
       city: displayCity,
@@ -238,12 +239,52 @@ export function matchVoraQna(query = '', targetCity = null, context = {}, lang =
       gateway: context.tripMemory?.gateway || (lang === 'en' ? 'Airport' : '공항/역')
     };
 
-    const reply = interpolateTemplate(rawAnswer, templateVars);
-    const followUp = interpolateTemplate(bestMatch.followUp || '', templateVars);
+    let reply = interpolateTemplate(rawAnswer, templateVars);
+    let followUp = interpolateTemplate(bestMatch.followUp || '', templateVars);
+    let baseChips = bestMatch.suggestedChips || [];
 
-    const baseChips = bestMatch.suggestedChips || [];
+    // 🏨 [지능형 호텔/숙소 큐레이션 엔진] 내륙 vs 해안 도시별 제미나이 정품 숙소 답변 장착!
+    if (bestMatch.category === 'HOTEL' || /(호텔|숙소|리조트|펜션|스테이)/.test(bestMatch.id)) {
+      const cityKnowledge = CITY_LOCAL_KNOWLEDGE[targetCity || '서울'] || CITY_LOCAL_KNOWLEDGE['서울'];
+      const hotelList = cityKnowledge?.signatureHotels || [];
+      const hotelType = cityKnowledge?.hotelType || 'inland';
+
+      if (hotelList.length > 0) {
+        const hotelLines = hotelList.map((h, i) => `${i + 1}. **${h.name}** (${h.type})\n   - ${h.desc}`).join('\n');
+        reply = (lang === 'en')
+          ? `Here are top curated hotel picks for **${displayCity}**! 🏨✨\n\n${hotelLines}\n\n💡 *Let me know your preferred area or style (luxury, budget, ocean view, hanok stay)!* 😊`
+          : `**${displayCity}**에서 평점과 접근성이 가장 뛰어난 추천 숙소 큐레이션이에요! 🏨✨\n\n${hotelLines}\n\n💡 *원하시는 권역이나 스타일(가성비, 럭셔리 호캉스, 감성 한옥)을 말씀해 주시면 딱 맞춰 드릴게요! 😊*`;
+        
+        followUp = (lang === 'en')
+          ? `Shall I include this accommodation into your ${displayCity} itinerary?`
+          : `이 숙소를 거점으로 ${displayCity} 일정을 바로 잡아드릴까요? 🚀`;
+
+        if (hotelType === 'coastal') {
+          baseChips = [
+            (lang === 'en' ? '🌊 Ocean View Luxury' : '🌊 오션뷰 럭셔리 호텔'),
+            (lang === 'en' ? '🏖️ Ocean View Pool Villa' : '🏖️ 오션뷰 감성 풀빌라'),
+            (lang === 'en' ? '🏨 Value Top Hotel' : '🏨 가성비 인기 호텔')
+          ];
+        } else if (hotelType === 'heritage') {
+          baseChips = [
+            (lang === 'en' ? '🏮 Traditional Hanok Stay' : '🏮 전통 한옥 스테이'),
+            (lang === 'en' ? '🏨 Lake View Resort' : '🏨 호수/전경 뷰 리조트'),
+            (lang === 'en' ? '🏢 Downtown Hotel' : '🏢 도심 가성비 호텔')
+          ];
+        } else {
+          baseChips = [
+            (lang === 'en' ? '🏙️ Luxury City Staycation' : '🏙️ 럭셔리 호캉스 & 전망'),
+            (lang === 'en' ? '🏮 Private Hanok Stay' : '🏮 북촌/감성 한옥 스테이'),
+            (lang === 'en' ? '🏨 Shopping & Transit Hotel' : '🏨 쇼핑 & 역세권 호텔')
+          ];
+        }
+      }
+    }
+
     const actionChip = (lang === 'en' ? '🚀 Build Itinerary Now' : '🚀 바로 일정 만들기');
-    const chipsWithAction = baseChips.includes(actionChip) ? baseChips : [actionChip, ...baseChips];
+    // 중복 제거 및 [바로 일정 만들기] 0번 배치
+    const cleanChips = baseChips.filter(c => !c.includes('일정 생성') && !c.includes('바로 일정') && !c.includes('일정 짜줘') && !c.includes('Build Itinerary'));
+    const chipsWithAction = [actionChip, ...cleanChips];
 
     return {
       matched: true,
