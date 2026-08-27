@@ -184,22 +184,27 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
       dayAnchorNames = parsedSignatureAnchors[d - 1] || parsedSignatureAnchors[0] || [];
     }
 
-    // 🌟 3-Tier Normalized Matcher for Anchors
+    // 🌟 3-Tier Normalized Matcher for Anchors (Exact Match Prioritized!)
     let currentSpot = null;
     for (const anchorName of dayAnchorNames) {
       const normAnchor = normalizeTargetString(anchorName);
       if (!normAnchor) continue;
 
+      // 1. Exact Match First (e.g. "경복궁" exact match before "북촌한옥마을")
       currentSpot = cityPois.find(p => {
         const normPTitle = normalizeTargetString(p.title);
         const notVisited = !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normPTitle);
-        if (!notVisited) return false;
-
-        // 1. Full substring match
-        if (normPTitle.includes(normAnchor) || normAnchor.includes(normPTitle)) return true;
-        // 2. Exact match
-        return normPTitle === normAnchor;
+        return notVisited && normPTitle === normAnchor;
       });
+
+      // 2. Full Substring Match Fallback
+      if (!currentSpot) {
+        currentSpot = cityPois.find(p => {
+          const normPTitle = normalizeTargetString(p.title);
+          const notVisited = !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normPTitle);
+          return notVisited && (normPTitle.includes(normAnchor) || normAnchor.includes(normPTitle));
+        });
+      }
 
       if (currentSpot) break;
     }

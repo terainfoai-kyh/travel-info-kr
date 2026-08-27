@@ -241,13 +241,17 @@ export function matchVoraQna(query = '', targetCity = null, context = {}, lang =
     const reply = interpolateTemplate(rawAnswer, templateVars);
     const followUp = interpolateTemplate(bestMatch.followUp || '', templateVars);
 
+    const baseChips = bestMatch.suggestedChips || [];
+    const actionChip = (lang === 'en' ? '🚀 Build Itinerary Now' : '🚀 바로 일정 만들기');
+    const chipsWithAction = baseChips.includes(actionChip) ? baseChips : [actionChip, ...baseChips];
+
     return {
       matched: true,
       id: bestMatch.id,
       category: bestMatch.category,
       reply,
       followUp,
-      suggestedChips: bestMatch.suggestedChips || [],
+      suggestedChips: chipsWithAction,
       isTikitaka: true,
       score: highestScore
     };
