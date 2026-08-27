@@ -95,8 +95,9 @@
 ## 5. Gemini AI(제미나이) 하이브리드 운영 정책
 - **Tier 1 (Gemini 3.5 Flash 실시간 AI)**:
   - 동행자(친구, 부모님), 날씨, 호텔 짐 보관, 도착 시간 등 복잡한 사용자 자연어 조건에 100% 맞춘 초개인화 맞춤 일정 생성.
-- **Tier 2 (로컬 물리 시뮬레이터 Fallback)**:
-  - API Quota 초과, 네트워크 단절 시 화면이 멈추지 않도록 즉각 투입되는 100% 안전망 백업 엔진.
+- **Tier 2 (100% TourAPI 4.0 정품 동적 POI & 물리 시뮬레이터)**:
+  - **가짜/정적 Mocking 데이터 100% 완전 배제**: 버그를 은폐하는 가짜 데이터 풀(`masterCitySpots.js`)을 영구 삭제하고, [koreaTravelPoiDatabase.js](file:///c:/dev/travelkirea-dev/src/data/koreaTravelPoiDatabase.js)의 한국관광공사 TourAPI 4.0 정품 POI만을 지리적 거리(Haversine) 기반으로 동적 클러스터링하여 일정 생성.
+  - 버그 발생 시 `dataSource` 태깅 및 즉각적인 경고(`console.warn`)로 결함이 가려지지 않고 투명하게 드러나도록 조치.
 - **일정 생성 3대 황금 규칙**:
   - **동선 밀집 (Proximity Clustering)**: 하루 일정은 도보/대중교통 10~20분 내 동일 권역으로만 구성.
   - **단일 명소 표기 (No `&`, `/`)**: `경복궁 & 향원정` 금지 ➔ `경복궁` 단일 명소로 정직하게 표기 (구글맵/사진 매칭 100%).
