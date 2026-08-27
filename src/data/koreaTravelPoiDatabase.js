@@ -262,7 +262,7 @@ export const KOREA_TRAVEL_POI_DB = [
   },
 
   // ==============================================================================
-  // 4. 부산 (200 OK 검증 CDN)
+  // 4. 부산 (200 OK 검증 고유 CDN)
   // ==============================================================================
   {
     id: 'kt_bs_jagalchi',
@@ -273,7 +273,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '해산물/로컬미식',
     duration: 90,
     rating: 4.9,
-    image: 'https://tong.visitkorea.or.kr/cms/resource/45/3311245_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/45/3311245_image2_1.jpg', // 한국관광공사 자갈치 수산시장
     lat: 35.0970,
     lng: 129.0305,
     tags: ['맛집', '미식', '먹거리', '시장', '생선구이', '씨앗호떡', '돼지국밥', '해산물'],
@@ -288,7 +288,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '야경/바다',
     duration: 120,
     rating: 4.9,
-    image: 'https://tong.visitkorea.or.kr/cms/resource/13/2678613_image2_1.jpg', // 한국관광공사 광안리 해변 & 광안대교
+    image: 'https://tong.visitkorea.or.kr/cms/resource/46/2645646_image2_1.jpg', // 한국관광공사 광안대교 야경 & 오션뷰
     lat: 35.1532,
     lng: 129.1186,
     tags: ['바다', '광안대교야경', '드론쇼', '오션뷰카페', '데이트'],
@@ -303,7 +303,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '액티비티/전망',
     duration: 90,
     rating: 4.9,
-    image: 'https://tong.visitkorea.or.kr/cms/resource/13/2678613_image2_1.jpg', // 한국관광공사 해운대 오션뷰
+    image: 'https://tong.visitkorea.or.kr/cms/resource/52/3501452_image2_1.jpg', // 한국관광공사 해운대 스카이캡슐 열차
     lat: 35.1587,
     lng: 129.1724,
     tags: ['스카이캡슐', '오션뷰열차', '인생샷', '해안절벽', '아이동반'],
@@ -318,7 +318,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '파스텔골목/어린왕자',
     duration: 90,
     rating: 4.8,
-    image: 'https://tong.visitkorea.or.kr/cms/resource/99/3546099_image2_1.jpg', // 한국관광공사 감천문화마을
+    image: 'https://tong.visitkorea.or.kr/cms/resource/99/3546099_image2_1.jpg', // 한국관광공사 감천문화마을 파스텔골목
     lat: 35.0975,
     lng: 129.0106,
     tags: ['어린왕자', '인생샷', '골목투어', '전망대', '데이트'],
@@ -333,7 +333,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '해양수족관/실내체험',
     duration: 110,
     rating: 4.9,
-    image: 'https://tong.visitkorea.or.kr/cms/resource/12/3495012_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/12/3495012_image2_1.jpg', // 한국관광공사 국립해양박물관 수족관
     lat: 35.0780,
     lng: 129.0800,
     tags: ['실내', '비오는날', '수족관', '아이동반', '키즈', '무료입장'],
@@ -352,7 +352,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '전통두부/짬뽕순두부',
     duration: 80,
     rating: 4.9,
-    image: 'https://tong.visitkorea.or.kr/cms/resource/52/3501452_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/52/3501452_image2_1.jpg', // 한국관광공사 강릉 초당 순두부
     lat: 37.7915,
     lng: 128.9142,
     tags: ['맛집', '미식', '순두부', '짬뽕순두부', '젤라또', '로컬음식'],
@@ -367,7 +367,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '수산시장/닭강정/오징어순대',
     duration: 90,
     rating: 4.9,
-    image: 'https://tong.visitkorea.or.kr/cms/resource/45/3505945_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/45/3311245_image2_1.jpg', // 한국관광공사 속초 전통 수산시장
     lat: 38.2045,
     lng: 128.5905,
     tags: ['맛집', '미식', '먹거리', '시장', '닭강정', '오징어순대', '물회', '새우튀김'],
@@ -382,7 +382,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '오션뷰카페/스페셜티',
     duration: 90,
     rating: 4.8,
-    image: 'https://tong.visitkorea.or.kr/cms/resource/12/3495012_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/12/3495012_image2_1.jpg', // 한국관광공사 안목 커피거리 오션뷰
     lat: 37.7725,
     lng: 128.9482,
     tags: ['카페', '바다', '커피', '디저트', '오션뷰', '데이트'],
@@ -401,7 +401,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '에메랄드바다/비양도',
     duration: 90,
     rating: 4.9,
-    image: 'https://tong.visitkorea.or.kr/cms/resource/13/2678613_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/13/2678613_image2_1.jpg', // 한국관광공사 협재 해변 & 비양도
     lat: 33.3941,
     lng: 126.2397,
     tags: ['바다', '에메랄드', '비양도', '흰모래', '가족'],
@@ -416,7 +416,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '유네스코/화산분화구',
     duration: 100,
     rating: 4.9,
-    image: 'https://tong.visitkorea.or.kr/cms/resource/82/2944282_image2_1.bmp',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/82/2944282_image2_1.bmp', // 한국관광공사 성산일출봉
     lat: 33.4581,
     lng: 126.9426,
     tags: ['유네스코', '일출', '바다전망', '분화구', '대표명소'],
@@ -431,7 +431,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '녹차밭/카페',
     duration: 80,
     rating: 4.8,
-    image: 'https://tong.visitkorea.or.kr/cms/resource/76/3576176_image2_1.JPG',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/88/4095788_image2_1.jpg', // 한국관광공사 오설록 녹차밭
     lat: 33.3060,
     lng: 126.2895,
     tags: ['녹차밭', '디저트', '아이스크림', '인생샷', '아이동반'],
@@ -446,7 +446,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '몰입형미디어아트/실내',
     duration: 90,
     rating: 4.9,
-    image: 'https://tong.visitkorea.or.kr/cms/resource/17/3521017_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/17/3521017_image2_1.jpg', // 한국관광공사 아르떼뮤지엄
     lat: 33.3965,
     lng: 126.3470,
     tags: ['실내', '비오는날', '미디어아트', '인생샷', '데이트', '키즈'],
@@ -465,7 +465,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '성곽길/피크닉/야경',
     duration: 120,
     rating: 4.9,
-    image: 'https://tong.visitkorea.or.kr/cms/resource/66/2612066_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/66/2612066_image2_1.jpg', // 한국관광공사 수원화성 방화수류정
     lat: 37.2873,
     lng: 127.0119,
     tags: ['유네스코', '성곽길', '피크닉', '야경', '방화수류정'],
@@ -480,7 +480,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '한옥카페/베이커리/미식',
     duration: 90,
     rating: 4.8,
-    image: 'https://tong.visitkorea.or.kr/cms/resource/74/2613174_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/74/2613174_image2_1.jpg', // 한국관광공사 행리단길 감성 카페거리
     lat: 37.2835,
     lng: 127.0142,
     tags: ['카페', '맛집', '데이트', '인생샷', '행리단길'],
@@ -495,7 +495,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '가마솥통닭/수원왕갈비',
     duration: 80,
     rating: 4.8,
-    image: 'https://tong.visitkorea.or.kr/cms/resource/45/3505945_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/45/3311245_image2_1.jpg', // 한국관광공사 수원 통닭/갈비 미식
     lat: 37.2789,
     lng: 127.0182,
     tags: ['맛집', '미식', '통닭거리', '왕갈비', '로컬미식'],
@@ -514,7 +514,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '호수공원/음악분수/야경',
     duration: 90,
     rating: 4.8,
-    image: 'https://tong.visitkorea.or.kr/cms/resource/66/2612066_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/66/2612066_image2_1.jpg', // 한국관광공사 용지호수공원
     lat: 35.2289,
     lng: 128.6812,
     tags: ['호수', '야경', '힐링', '산책', '가족', '아이동반'],
@@ -529,7 +529,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '수산시장/원조아구찜',
     duration: 90,
     rating: 4.7,
-    image: 'https://tong.visitkorea.or.kr/cms/resource/45/3311245_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/45/3311245_image2_1.jpg', // 한국관광공사 마산 어시장
     lat: 35.2045,
     lng: 128.5789,
     tags: ['맛집', '미식', '수산시장', '아구찜', '로컬미식'],
@@ -544,7 +544,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '벚꽃명소/로망스다리',
     duration: 80,
     rating: 4.9,
-    image: 'https://tong.visitkorea.or.kr/cms/resource/17/3521017_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/17/3521017_image2_1.jpg', // 한국관광공사 진해 여좌천 로망스다리 벚꽃
     lat: 35.1534,
     lng: 128.6601,
     tags: ['벚꽃', '포토존', '인생샷', '데이트', '산책'],
@@ -563,7 +563,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '신라야경/연못',
     duration: 90,
     rating: 4.9,
-    image: 'https://tong.visitkorea.or.kr/cms/resource/03/3566003_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/03/3566003_image2_1.jpg', // 한국관광공사 경주 동궁과 월지 야경
     lat: 35.8341,
     lng: 129.2266,
     tags: ['야경', '신라', '유네스코', '인생샷', '연못', '데이트'],
@@ -578,7 +578,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '한옥거리/로컬미식',
     duration: 100,
     rating: 4.8,
-    image: 'https://tong.visitkorea.or.kr/cms/resource/74/2613174_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/74/2613174_image2_1.jpg', // 한국관광공사 경주 황리단길
     lat: 35.8378,
     lng: 129.2096,
     tags: ['한옥', '카페', '맛집', '길거리음식', '십원빵', 'MZ핫플'],
@@ -593,7 +593,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '전통한옥/한복체험/비빔밥',
     duration: 120,
     rating: 4.9,
-    image: 'https://tong.visitkorea.or.kr/cms/resource/76/3576176_image2_1.JPG',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/76/3576176_image2_1.JPG', // 한국관광공사 전주 한옥마을 경기전
     lat: 35.8150,
     lng: 127.1539,
     tags: ['한옥', '한복', '경기전', '비빔밥', '전주초코파이', '전통체험'],
@@ -608,7 +608,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '바다케이블카/여수밤바다',
     duration: 120,
     rating: 4.9,
-    image: 'https://tong.visitkorea.or.kr/cms/resource/09/2678609_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/69/2718169_image2_1.jpg', // 한국관광공사 여수 해상케이블카 오션뷰
     lat: 34.7455,
     lng: 127.7582,
     tags: ['케이블카', '여수밤바다', '오동도', '야경', '바다전망', '데이트'],
