@@ -224,7 +224,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '야경/파노라마',
     duration: 90,
     rating: 4.9,
-    image: 'https://images.unsplash.com/photo-1538485399081-7191377e8241?w=800&q=80', // N서울타워 본체 타워 야경
+    image: 'https://tong.visitkorea.or.kr/cms/resource/66/2612066_image2_1.jpg', // 한국관광공사 정품 CDN N서울타워 & 남산 전경
     lat: 37.5512,
     lng: 126.9882,
     tags: ['야경', '타워', '전망대', '케이블카', '인생샷', '데이트'],
