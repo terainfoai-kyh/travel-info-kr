@@ -505,7 +505,18 @@ export default function VoraAIChat({
                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                 onError={(e) => {
                                   e.target.onerror = null;
-                                  e.target.src = 'https://tong.visitkorea.or.kr/cms/resource/03/3566003_image2_1.jpg';
+                                  const fallbackMap = {
+                                    '서울': 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg',
+                                    '부산': 'https://tong.visitkorea.or.kr/cms/resource/87/2604787_image2_1.jpg',
+                                    '제주': 'https://tong.visitkorea.or.kr/cms/resource/76/3576176_image2_1.JPG',
+                                    '강원': 'https://tong.visitkorea.or.kr/cms/resource/52/3501452_image2_1.jpg',
+                                    '수원': 'https://tong.visitkorea.or.kr/cms/resource/66/2612066_image2_1.jpg',
+                                    '경주': 'https://tong.visitkorea.or.kr/cms/resource/04/2604804_image2_1.jpg',
+                                    '전주': 'https://tong.visitkorea.or.kr/cms/resource/06/2604806_image2_1.jpg',
+                                    '여수': 'https://tong.visitkorea.or.kr/cms/resource/07/2604807_image2_1.jpg',
+                                    '거제': 'https://tong.visitkorea.or.kr/cms/resource/03/3566003_image2_1.jpg'
+                                  };
+                                  e.target.src = fallbackMap[poi.city] || fallbackMap[poi.region] || 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg';
                                 }}
                               />
                               <div style={{
@@ -796,21 +807,22 @@ export default function VoraAIChat({
       {/* 🌟 단일화된 최신 맥락 전용 1줄 퀵 액션 바 (Unified Contextual Floating Bar) */}
       {!isLoading && (() => {
         const lastAssistantMsg = [...chatMessages].reverse().find(m => m.role === 'assistant');
-        const hasItineraryCard = Boolean(lastAssistantMsg?.itinerary || chatMessages.some(m => m.itinerary));
+        // 🌟 현재 바로 직전 메시지에 일정표 카드가 직접 붙어있을 때만 수정 전용 칩으로 전환하고, 추천 카드 탐색 중일 때는 [🚀 바로 일정 만들기]를 무조건 맨 앞에 항상 유지!
+        const isCurrentMsgItineraryCard = Boolean(lastAssistantMsg?.itinerary && lastAssistantMsg.itinerary.dailySchedules?.length > 0);
         const activeQuickSuggestions = lastAssistantMsg?.quickSuggestions || [];
         const hasSuggestions = activeQuickSuggestions.length > 0;
         let rawBottomChips = hasSuggestions ? [...activeQuickSuggestions] : [...(t.chatQuickModifications || [])];
 
         const defaultCreateLabel = lang === 'en' ? '🚀 Create Plan' : lang === 'ja' ? '🚀 日程生成' : (lang === 'zh' || lang === 'zht') ? '🚀 生成行程' : '🚀 바로 일정 만들기';
 
-        if (hasItineraryCard) {
-          // 🌟 일정이 이미 카드에 완성된 상태: 헷갈리는 [일정 생성] 버튼 100% 제거 & 순수 수정 칩만 유지
+        if (isCurrentMsgItineraryCard) {
+          // 🌟 일정이 바로 위 메시지 카드에 완성된 상태: 헷갈리는 [일정 생성] 버튼 제거 & 순수 수정 칩만 유지
           rawBottomChips = rawBottomChips.filter(c => !c.includes('일정 생성') && !c.includes('바로 일정') && !c.includes('일정표 만들기') && !c.includes('일정 짜줘') && !c.includes('Create Plan') && !c.includes('Generate Itinerary'));
           if (rawBottomChips.length === 0) {
             rawBottomChips = [...(t.chatQuickModifications || [])];
           }
         } else {
-          // 온보딩/도시 탐색 단계: [바로 일정 만들기]를 무조건 맨 앞(Index 0)으로 최우선 배치!
+          // 🌟 온보딩, 도시 탐색, 추천 카드 탐색 단계: [바로 일정 만들기]를 무조건 맨 앞(Index 0)으로 최우선 배치!
           const createBtnIdx = rawBottomChips.findIndex(c => c.includes('일정 생성') || c.includes('바로 일정') || c.includes('일정표 만들기') || c.includes('일정 짜줘') || c.includes('Create Plan') || c.includes('Generate Itinerary'));
           if (createBtnIdx > 0) {
             const [btn] = rawBottomChips.splice(createBtnIdx, 1);
