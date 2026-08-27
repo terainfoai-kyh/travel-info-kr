@@ -635,37 +635,20 @@ export function generateContextualAdvice(context, lang = 'ko') {
     return `${tikitaka.reply}\n\n👉 **${tikitaka.followUp}**`;
   }
 
-  // 2. Door-to-Door Interactive Flow Check (공항/숙소/도착시간/계절 연계)
-  const isGatewayOrHotelMentioned = /(공항|ktx|터미널|강남|명동|홍대|해운대|서면|애월|서귀포|바람의언덕|매미성)/i.test(cleanPrompt) || Boolean(context.tripMemory?.gateway || context.tripMemory?.hotelArea);
-  const isTimeMentioned = /(오전|오후|저녁|밤|도착|[0-9]+시)/i.test(cleanPrompt) || Boolean(context.tripMemory?.arrivalTime);
+  // 2. Door-to-Door Interactive Flow Check (공항/숙소/도착시간/계절 직접 지정 시)
+  const isDirectGatewayMention = /(인천공항|김포공항|김해공항|제주공항|서울역|부산역|강릉역|전주역|여수역|수원역|ktx|공항철도|터미널)/i.test(cleanPrompt);
+  const isDirectHotelMention = /(숙소|호텔|리조트|펜션|스테이|게하|신라호텔|롯데호텔|하얏트|조선호텔|워커힐|파라다이스)/i.test(cleanPrompt);
+  const isDirectTimeMention = /(오전\s*도착|오후\s*도착|저녁\s*도착|[0-9]+시\s*도착|[0-9]+시까지)/i.test(cleanPrompt);
 
-  // 2-1. Season / Month specified without gateway/time/hotel
-  const isSeasonOrMonthOnly = /(겨울|가을|봄|여름|[0-9]+월)/.test(cleanPrompt) && !isGatewayOrHotelMentioned && !isTimeMentioned && !/(복장|뭐\s*입|뭘\s*입|옷|패션|코디)/.test(cleanPrompt);
-  if (isSeasonOrMonthOnly) {
-    const seasonName = season || '가을';
-    const targetLabel = targetCity ? `${targetCity}` : '대한민국';
-    return (lang === 'en')
-      ? `Shall I prepare a wonderful **${seasonName}** highlight course for **${targetLabel}**? 🍁✨ (Default: 09:00~18:00)`
-      : `운치 있는 **${seasonName}철 ${targetLabel} 3일 하이라이트 코스**로 바로 잡아드릴까요? 🍁✨ (기본 09:00~18:00)`;
-  }
-
-  if (isGatewayOrHotelMentioned && !context.tripMemory?.arrivalTime && !isTimeMentioned) {
+  if (isDirectGatewayMention || isDirectHotelMention || isDirectTimeMention) {
     const hotel = context.tripMemory?.hotelArea || (targetCity ? `${targetCity} 숙소` : '숙소');
     const targetLabel = targetCity ? `${targetCity}` : '한국';
-    return (lang === 'en')
-      ? `Shall I prepare a **${targetLabel}** itinerary with luggage drop at **${hotel}**? 🧳✨ (Default: 09:00~18:00)`
-      : `**${hotel}** 짐 보관 후 출발하는 **[${targetLabel} 3일 추천 코스]**로 바로 잡아드릴까요? 🧳✨ (기본 09:00~18:00)`;
-  }
-
-  if (isTimeMentioned || (isGatewayOrHotelMentioned && context.tripMemory?.arrivalTime)) {
-    const arrTime = context.tripMemory?.arrivalTime || '오후';
-    const hotel = context.tripMemory?.hotelArea || (targetCity ? `${targetCity} 숙소` : '숙소');
-    const seasonPrefix = season ? `${season}철 ` : '';
-    const cityLabel = targetCity || '한국';
+    const arrTime = context.tripMemory?.arrivalTime || '';
+    const timePrefix = arrTime ? `${arrTime} ` : '';
 
     return (lang === 'en')
-      ? `${seasonPrefix}Shall I tailor a **[${cityLabel} ${arrTime} Custom Course]** starting from **${hotel}**? 🧳✨`
-      : `${seasonPrefix}**${hotel}** 짐 보관 후 출발하는 **[${cityLabel} ${arrTime} 맞춤 코스]**로 바로 잡아드릴까요? 🧳✨`;
+      ? `Shall I tailor a **[${targetLabel} ${timePrefix}3-Day Course]** starting after luggage drop at **${hotel}**? 🧳✨ (Default: 09:00~18:00)`
+      : `**${hotel}** 짐 보관 후 출발하는 **[${targetLabel} ${timePrefix}3일 추천 코스]**로 바로 잡아드릴까요? 🧳✨ (기본 09:00~18:00)`;
   }
 
   // 3. Prompt-Specific Scenario Matching (Only triggers when the CURRENT prompt explicitly asks for it!)

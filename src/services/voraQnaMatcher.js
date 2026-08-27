@@ -244,7 +244,8 @@ export function matchVoraQna(query = '', targetCity = null, context = {}, lang =
     let baseChips = bestMatch.suggestedChips || [];
 
     // 🏨 [지능형 호텔/숙소 큐레이션 엔진] 내륙 vs 해안 도시별 제미나이 정품 숙소 답변 장착!
-    if (bestMatch.category === 'HOTEL' || /(호텔|숙소|리조트|펜션|스테이)/.test(bestMatch.id)) {
+    const isHotelQuery = bestMatch.category === 'HOTEL' || /(호텔|숙소|리조트|펜션|스테이|hotel|stay)/i.test(bestMatch.id) || /(호텔|숙소|리조트|펜션|스테이|호캉스|게스트하우스|게하|hotel|stay|resort)/i.test(query);
+    if (isHotelQuery) {
       const cityKnowledge = CITY_LOCAL_KNOWLEDGE[targetCity || '서울'] || CITY_LOCAL_KNOWLEDGE['서울'];
       const hotelList = cityKnowledge?.signatureHotels || [];
       const hotelType = cityKnowledge?.hotelType || 'inland';
