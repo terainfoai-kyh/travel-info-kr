@@ -131,18 +131,36 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
 
   const parsedSignatureAnchors = anchorSourcePool.map(sig => decomposeSignatureString(sig));
 
+  // 🌟 Landmark Synonym & Alias Dictionary for 100% TourAPI Matching
+  const SYNONYM_MAP = {
+    '경복궁': ['경복궁', '광화문', 'Gyeongbokgung'],
+    'N서울타워': ['N서울타워', '남산서울타워', '남산타워', 'N Seoul Tower'],
+    'DDP': ['동대문디자인플라자', 'DDP', 'Dongdaemun Design Plaza'],
+    '더현대 서울': ['더현대 서울', '더현대', '여의도 한강공원', 'The Hyundai Seoul'],
+    '해운대': ['해운대', '해운대해수욕장', '해운대블루라인파크', 'Haeundae'],
+    '광안리': ['광안리', '광안리해수욕장', '광안대교', 'Gwangalli'],
+    '감천문화마을': ['감천문화마을', 'Gamcheon Culture Village'],
+    '자갈치시장': ['자갈치시장', '자갈치', 'Jagalchi Market'],
+    '성산일출봉': ['성산일출봉', 'Seongsan Ilchulbong'],
+    '수원화성': ['수원화성', '화성행궁', 'Suwon Hwaseong Fortress']
+  };
+
   // 🌟 Guarantee Genuine TourAPI POI data for all day anchors (e.g. 경복궁, N서울타워, DDP)
   const anchorKeywordsToFetch = parsedSignatureAnchors.flat().slice(0, 8);
   for (const anchorKw of anchorKeywordsToFetch) {
-    const normKw = normalizeTargetString(anchorKw);
-    const alreadyInPool = cityPois.some(p => normalizeTargetString(p.title).includes(normKw));
-    if (!alreadyInPool) {
-      try {
-        const directResults = await fetchDynamicRealtimeSpots(`${city} ${anchorKw}`, lang);
-        if (directResults && directResults.length > 0) {
-          cityPois.unshift(...directResults);
-        }
-      } catch (e) {}
+    const synonyms = SYNONYM_MAP[anchorKw] || [anchorKw];
+    for (const syn of synonyms) {
+      const normSyn = normalizeTargetString(syn);
+      const alreadyInPool = cityPois.some(p => normalizeTargetString(p.title).includes(normSyn));
+      if (!alreadyInPool) {
+        try {
+          const directResults = await fetchDynamicRealtimeSpots(`${city} ${syn}`, lang);
+          if (directResults && directResults.length > 0) {
+            cityPois.unshift(...directResults);
+            break;
+          }
+        } catch (e) {}
+      }
     }
   }
 
@@ -199,28 +217,23 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
       dayAnchorNames = parsedSignatureAnchors[d - 1] || parsedSignatureAnchors[0] || [];
     }
 
-    // 🌟 3-Tier Normalized Matcher for Anchors (Exact Match Prioritized!)
+    // 🌟 3-Tier Normalized Matcher for Anchors (with Synonym Expansion!)
     let currentSpot = null;
     for (const anchorName of dayAnchorNames) {
-      const normAnchor = normalizeTargetString(anchorName);
-      if (!normAnchor) continue;
+      const synonyms = SYNONYM_MAP[anchorName] || [anchorName];
+      for (const syn of synonyms) {
+        const normSyn = normalizeTargetString(syn);
+        if (!normSyn) continue;
 
-      // 1. Exact Match First (e.g. "경복궁" exact match before "북촌한옥마을")
-      currentSpot = cityPois.find(p => {
-        const normPTitle = normalizeTargetString(p.title);
-        const notVisited = !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normPTitle);
-        return notVisited && normPTitle === normAnchor;
-      });
-
-      // 2. Full Substring Match Fallback
-      if (!currentSpot) {
+        // Exact & Substring Match
         currentSpot = cityPois.find(p => {
           const normPTitle = normalizeTargetString(p.title);
           const notVisited = !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normPTitle);
-          return notVisited && (normPTitle.includes(normAnchor) || normAnchor.includes(normPTitle));
+          return notVisited && (normPTitle === normSyn || normPTitle.includes(normSyn) || normSyn.includes(normPTitle));
         });
-      }
 
+        if (currentSpot) break;
+      }
       if (currentSpot) break;
     }
 
