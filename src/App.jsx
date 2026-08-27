@@ -42,6 +42,7 @@ import ExitConfirmModal from './components/ExitConfirmModal';
 
 import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
 import { geminiGenerateFullItinerary, generateLocalFallbackItinerary, enrichItineraryPhotosAsync, extractLocationKeyword, extractDaysFromPrompt } from './services/geminiNlpService';
+import { recalculateItineraryTimeSlots } from './services/localItineraryGenerator';
 import { sanitizeInput, inspectSecurityGuardrails } from './services/securityGuardService';
 import { findRecommendedPois } from './data/koreaTravelPoiDatabase';
 import { getDynamicGatewayChips, CITY_LOCAL_KNOWLEDGE } from './data/voraDialogKnowledge';
@@ -896,15 +897,12 @@ export default function App() {
     }
   };
 
-  // ⏰ 일차별 시간 변경 즉시 실시간 동기화 핸들러
+  // ⏰ 일차별 시간 변경 즉시 실시간 동기화 및 타임라인 물리 시뮬레이션 재계산 핸들러
   const handleUpdateTimeSlot = (day, newTimeSlot, currentMsgPlan) => {
     setItineraryData(prev => {
       const base = prev || currentMsgPlan;
       if (!base) return prev;
-      const updated = {
-        ...base,
-        dayTimeSlots: { ...(base.dayTimeSlots || {}), [day]: newTimeSlot }
-      };
+      const updated = recalculateItineraryTimeSlots(base, day, newTimeSlot, lang);
       if (Number(day) === 1) {
         updated.arrivalTime = newTimeSlot.split('~')[0].trim();
       }
