@@ -112,7 +112,13 @@ export async function fetchCityTourApiSpots(city = '서울', lang = 'ko') {
       .filter(item => {
         const lat = parseFloat(item.mapy);
         const lng = parseFloat(item.mapx);
-        return lat && lng && lat > 32 && lat < 40 && lng > 124 && lng < 132;
+        const isCoordsValid = lat && lng && lat > 32 && lat < 40 && lng > 124 && lng < 132;
+        if (!isCoordsValid) return false;
+
+        // 🛡️ Filter out retail wholesale stores / commercial shopping complexes from sightseeing spots
+        const title = (item.title || '').trim();
+        const isCommercialStore = /(종합상가|한복매장|귀금속|도매상가|도매시장|유통단지|쇼핑타운|지하상가|수산상회|청과물)/i.test(title);
+        return !isCommercialStore;
       })
       .map(item => ({
         id: `tourapi_${item.contentid}`,

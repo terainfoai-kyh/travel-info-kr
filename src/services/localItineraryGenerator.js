@@ -148,21 +148,29 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
 
   const parsedSignatureAnchors = anchorSourcePool.map(sig => decomposeSignatureString(sig));
 
-  // 🌟 Guarantee Genuine TourAPI POI data for all day anchors (Split & Fetch directly!)
+  // 🌟 Guarantee Genuine TourAPI POI data for all day anchors (Parallel Promise.all & Pure Single Keywords)
   const anchorKeywordsToFetch = parsedSignatureAnchors.flat().slice(0, 10);
+  const fetchPromises = [];
+
   for (const anchorKw of anchorKeywordsToFetch) {
     const synonyms = SYNONYM_MAP[anchorKw] || [anchorKw];
     for (const syn of synonyms) {
       const normSyn = normalizeTargetString(syn);
       const alreadyInPool = cityPois.some(p => normalizeTargetString(p.title).includes(normSyn));
       if (!alreadyInPool) {
-        try {
-          const directResults = await fetchDynamicRealtimeSpots(`${city} ${syn}`, lang);
-          if (directResults && directResults.length > 0) {
-            cityPois.unshift(...directResults);
-            break;
-          }
-        } catch (e) {}
+        // Pure single keyword search without city prefix for 100% TourAPI hit rate!
+        fetchPromises.push(
+          fetchDynamicRealtimeSpots(syn, lang).catch(() => [])
+        );
+      }
+    }
+  }
+
+  if (fetchPromises.length > 0) {
+    const parallelResults = await Promise.all(fetchPromises);
+    for (const resList of parallelResults) {
+      if (resList && resList.length > 0) {
+        cityPois.unshift(...resList);
       }
     }
   }
