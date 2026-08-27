@@ -131,6 +131,21 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
 
   const parsedSignatureAnchors = anchorSourcePool.map(sig => decomposeSignatureString(sig));
 
+  // 🌟 Guarantee Genuine TourAPI POI data for all day anchors (e.g. 경복궁, N서울타워, DDP)
+  const anchorKeywordsToFetch = parsedSignatureAnchors.flat().slice(0, 8);
+  for (const anchorKw of anchorKeywordsToFetch) {
+    const normKw = normalizeTargetString(anchorKw);
+    const alreadyInPool = cityPois.some(p => normalizeTargetString(p.title).includes(normKw));
+    if (!alreadyInPool) {
+      try {
+        const directResults = await fetchDynamicRealtimeSpots(`${city} ${anchorKw}`, lang);
+        if (directResults && directResults.length > 0) {
+          cityPois.unshift(...directResults);
+        }
+      } catch (e) {}
+    }
+  }
+
   // 3. User Mentioned Landmark Priority
   const commonLandmarks = [
     '경복궁', 'N서울타워', '남산타워', '북촌한옥마을', '익선동', '명동', '성수동', '동대문디자인플라자', 'DDP', '롯데월드타워', '한강공원', '홍대', '인사동',
