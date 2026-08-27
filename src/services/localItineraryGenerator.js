@@ -76,9 +76,29 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
   }
   let cityPois = Array.from(uniqueMap.values());
 
-  // 🚨 Warning for transparency: If public API returned 0 spots, log immediate developer warning
-  if (cityPois.length === 0) {
-    console.warn(`⚠️ [VORA TourAPI Engine] TourAPI returned 0 spots for city "${city}".`);
+  // 🌟 Extract requested landmark from user prompt (e.g. "경복궁", "N서울타워", "해운대", "자갈치")
+  const commonLandmarks = [
+    '경복궁', 'N서울타워', '남산타워', '북촌한옥마을', '익선동', '명동', '성수동', '동대문디자인플라자', 'DDP', '롯데월드타워', '한강공원', '홍대', '인사동',
+    '해운대', '광안리', '자갈치시장', '감천문화마을', '블루라인파크', '태종대', '흰여울문화마을', '용궁사', '해동용궁사',
+    '성산일출봉', '협재해수욕장', '함덕해수욕장', '카멜리아힐', '우도', '섭지코지', '한라산',
+    '화성행궁', '수원화성', '행궁동', '방화수류정', '불국사', '첨성대', '황리단길', '동궁과월지'
+  ];
+
+  let requestedAnchorSpot = null;
+  for (const lm of commonLandmarks) {
+    if (rawPrompt && rawPrompt.includes(lm)) {
+      // Find in current live POIs
+      const found = cityPois.find(p => p.title.includes(lm));
+      if (found) {
+        requestedAnchorSpot = found;
+        break;
+      }
+    }
+  }
+
+  // If requested anchor spot found, move it to the very top (1st place of Day 1)
+  if (requestedAnchorSpot) {
+    cityPois = [requestedAnchorSpot, ...cityPois.filter(p => p.id !== requestedAnchorSpot.id)];
   }
 
   // 2. Spatial Clustering: Group POIs by proximity to minimize zigzag travel
