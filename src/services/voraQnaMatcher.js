@@ -10,7 +10,7 @@
 
 import { getVoraQnaVault } from '../data/voraQnaVault.js';
 import { CITY_LOCAL_KNOWLEDGE } from '../data/voraDialogKnowledge.js';
-import { KOREA_TRAVEL_POI_DATABASE } from '../data/koreaTravelPoiDatabase.js';
+import { KOREA_TRAVEL_POI_DB } from '../data/koreaTravelPoiDatabase.js';
 import { interpolateTemplate } from '../utils/koreanParticles.js';
 import { pushQuestionToCloud } from './voraCloudQnaService.js';
 
@@ -36,7 +36,7 @@ export function logUnansweredQuestion(rawQuery, targetCity = null, tripContext =
 
   // 🛡️ 2. POI 명소명 단독 입력 필터링 (e.g. 남산 서울타워, 경복궁, DDP 등은 질문이 아니라 명소 탐색임!)
   const cleanNorm = clean.replace(/[\s\-\_\.]/g, '').toLowerCase();
-  const isPoiName = KOREA_TRAVEL_POI_DATABASE.some(poi => {
+  const isPoiName = (KOREA_TRAVEL_POI_DB || []).some(poi => {
     const poiNorm = poi.title.replace(/[\s\-\_\.]/g, '').toLowerCase();
     return cleanNorm.includes(poiNorm) || poiNorm.includes(cleanNorm);
   });

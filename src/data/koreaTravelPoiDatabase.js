@@ -691,3 +691,5 @@ export function findRecommendedPois(query = '', targetRegion = '', limit = 3) {
   scored.sort((a, b) => b.score - a.score);
   return scored.slice(0, limit).map(item => item.poi);
 }
+
+export const KOREA_TRAVEL_POI_DATABASE = KOREA_TRAVEL_POI_DB;
