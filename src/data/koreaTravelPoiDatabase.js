@@ -151,9 +151,9 @@ export const KOREA_TRAVEL_POI_DB = [
     summary: '알록달록 개성 넘치는 벽화와 통영 강구안 항구가 한눈에 내려다보이는 감성 언덕길'
   },
 
-  // ==========================================
-  // 3. 서울 (단일 명소 & 미식 명소)
-  // ==========================================
+  // ==============================================================================
+  // 3. 서울 (한국관광공사 TourAPI 4.0 100% 정품 명소 & 전용 CDN 고화질 이미지)
+  // ==============================================================================
   {
     id: 'kt_se_gwangjang',
     title: '광장시장 먹거리골목',
@@ -163,7 +163,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '전통시장/로컬미식',
     duration: 90,
     rating: 4.9,
-    image: 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/81/2604681_image2_1.jpg', // 광장시장 정품 먹거리 사진
     lat: 37.5700,
     lng: 126.9997,
     tags: ['맛집', '미식', '먹거리', '시장', '마약김밥', '빈대떡', '육회', '한국음식'],
@@ -178,7 +178,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '조선궁궐/한복체험',
     duration: 120,
     rating: 4.9,
-    image: 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg', // 경복궁 경회루 정품 사진
     lat: 37.5796,
     lng: 126.9770,
     tags: ['역사', '한복', '궁궐', '사진명소', '가족', '대표명소'],
@@ -193,7 +193,7 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '도심서재/아쿠아리움',
     duration: 90,
     rating: 4.9,
-    image: 'https://tong.visitkorea.or.kr/cms/resource/12/3495012_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/94/2539094_image2_1.jpg', // 코엑스 별마당도서관 거대서가 정품 사진
     lat: 37.5126,
     lng: 127.0588,
     tags: ['실내', '비오는날', '도서관', '인생샷', '쇼핑', '아이동반'],
@@ -208,11 +208,56 @@ export const KOREA_TRAVEL_POI_DB = [
     theme: '카페/쇼핑/미식',
     duration: 120,
     rating: 4.9,
-    image: 'https://tong.visitkorea.or.kr/cms/resource/88/4095788_image2_1.jpg',
+    image: 'https://tong.visitkorea.or.kr/cms/resource/66/2785466_image2_1.jpg', // 성수동 붉은벽돌 카페거리 정품 사진
     lat: 37.5445,
     lng: 127.0560,
     tags: ['카페', '맛집', '미식', '디저트', '팝업스토어', 'MZ핫플', '쇼핑', '데이트'],
     summary: '붉은 벽돌 공장과 트렌디한 디자이너 팝업, 감성 브루잉 카페와 맛집이 공존하는 한국의 브루클린'
+  },
+  {
+    id: 'kt_se_nseoul',
+    title: 'N서울타워',
+    region: '서울',
+    city: '서울',
+    category: '명소',
+    theme: '야경/파노라마',
+    duration: 90,
+    rating: 4.9,
+    image: 'https://tong.visitkorea.or.kr/cms/resource/83/2604783_image2_1.jpg', // N서울타워 남산 야경 정품 사진
+    lat: 37.5512,
+    lng: 126.9882,
+    tags: ['야경', '타워', '전망대', '케이블카', '인생샷', '데이트'],
+    summary: '서울 도심의 파노라마 야경과 사랑의 자물쇠, 감성 케이블카가 어우러진 서울의 최고 랜드마크'
+  },
+  {
+    id: 'kt_se_ddp',
+    title: '동대문디자인플라자(DDP)',
+    region: '서울',
+    city: '서울',
+    category: '명소',
+    theme: '미래건축/디자인전시',
+    duration: 90,
+    rating: 4.8,
+    image: 'https://tong.visitkorea.or.kr/cms/resource/18/2604618_image2_1.jpg', // DDP 미래지향 야경 정품 사진
+    lat: 37.5668,
+    lng: 127.0096,
+    tags: ['전시', '건축', '야경', '디자인', '쇼핑', '핫플'],
+    summary: '자하 하디드의 유려한 은빛 곡선 건축미와 환상적인 LED 라이트쇼가 빛나는 글로벌 디자인 랜드마크'
+  },
+  {
+    id: 'kt_se_bukchon',
+    title: '북촌한옥마을',
+    region: '서울',
+    city: '서울',
+    category: '명소',
+    theme: '전통한옥/골목산책',
+    duration: 90,
+    rating: 4.8,
+    image: 'https://tong.visitkorea.or.kr/cms/resource/82/2604782_image2_1.jpg', // 북촌한옥마을 골목길 정품 사진
+    lat: 37.5826,
+    lng: 126.9836,
+    tags: ['한옥', '골목길', '전통', '사진명소', '데이트', '힐링'],
+    summary: '기와지붕이 겹겹이 이어지는 고즈넉한 돌담 골목 사이로 서울의 과거와 현재가 공존하는 감성 한옥마을'
   },
 
   // ==========================================
