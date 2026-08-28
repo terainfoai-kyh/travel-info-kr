@@ -49,10 +49,17 @@ export async function fetchSpotDetailCommon(contentId, lang = 'ko') {
         imgUrl = '/default-spot.png';
       }
 
+      const cleanHtml = (str) => (str || '').replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').trim();
+
       return {
         ...item,
         firstimage: imgUrl,
-        homepageUrl: hpUrl
+        homepageUrl: hpUrl,
+        overview: cleanHtml(item.overview),
+        homepage: cleanHtml(item.homepage),
+        tel: cleanHtml(item.tel || item.telname),
+        addr1: cleanHtml(item.addr1),
+        title: cleanHtml(item.title)
       };
     }
   } catch (err) {
@@ -302,51 +309,6 @@ export async function fetchSpotDetailIntro(contentId, contentTypeId = '14', lang
     }
   } catch (err) {
     console.warn('Detail Intro API fallback:', err);
-  }
-  return null;
-}
-
-// 한국관광공사 TourAPI 4.0 - 공통정보조회 (/detailCommon2 - overview, homepage, tel)
-export async function fetchSpotDetailCommon(contentId, lang = 'ko') {
-  if (!contentId) return null;
-
-  let baseUrl = PUBLIC_API_CONFIG.DETAIL_COMMON_URL || 'https://apis.data.go.kr/B551011/KorService2/detailCommon2';
-  if (lang === 'en') baseUrl = `${PUBLIC_API_CONFIG.ENG_BASE}/detailCommon2`;
-  else if (lang === 'ja') baseUrl = `${PUBLIC_API_CONFIG.JPN_BASE}/detailCommon2`;
-  else if (lang === 'zh') baseUrl = `${PUBLIC_API_CONFIG.CHS_BASE}/detailCommon2`;
-  else if (lang === 'zht') baseUrl = `${PUBLIC_API_CONFIG.CHT_BASE}/detailCommon2`;
-  else if (lang === 'de') baseUrl = `${PUBLIC_API_CONFIG.GER_BASE}/detailCommon2`;
-  else if (lang === 'fr') baseUrl = `${PUBLIC_API_CONFIG.FRE_BASE}/detailCommon2`;
-  else if (lang === 'es') baseUrl = `${PUBLIC_API_CONFIG.SPN_BASE}/detailCommon2`;
-  else if (lang === 'ru') baseUrl = `${PUBLIC_API_CONFIG.RUS_BASE}/detailCommon2`;
-
-  const url = `${baseUrl}?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&contentId=${contentId}&overviewYN=Y&defaultYN=Y&addrinfoYN=Y`;
-
-  try {
-    const res = await fetch(url);
-    if (!res.ok) return null;
-    const data = await res.json();
-    
-    const itemsRaw = data.response?.body?.items?.item;
-    let item = null;
-    if (Array.isArray(itemsRaw)) {
-      item = itemsRaw[0];
-    } else if (itemsRaw && typeof itemsRaw === 'object') {
-      item = itemsRaw;
-    }
-
-    if (item) {
-      const cleanHtml = (str) => (str || '').replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').trim();
-      return {
-        overview: cleanHtml(item.overview),
-        homepage: cleanHtml(item.homepage),
-        tel: cleanHtml(item.tel || item.telname),
-        addr1: cleanHtml(item.addr1),
-        title: cleanHtml(item.title)
-      };
-    }
-  } catch (err) {
-    console.warn('Detail Common API fallback:', err);
   }
   return null;
 }
