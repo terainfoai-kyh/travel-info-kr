@@ -313,6 +313,45 @@ export async function fetchSpotDetailIntro(contentId, contentTypeId = '14', lang
   return null;
 }
 
+// 한국관광공사 TourAPI 4.0 - 코스정보조회 (/detailCourse2)
+export async function fetchSpotDetailCourse(contentId, lang = 'ko') {
+  if (!contentId) return [];
+
+  let baseUrl = PUBLIC_API_CONFIG.DETAIL_COURSE_URL || 'https://apis.data.go.kr/B551011/KorService2/detailCourse2';
+  if (lang === 'en') baseUrl = `${PUBLIC_API_CONFIG.ENG_BASE}/detailCourse2`;
+  else if (lang === 'ja') baseUrl = `${PUBLIC_API_CONFIG.JPN_BASE}/detailCourse2`;
+  else if (lang === 'zh') baseUrl = `${PUBLIC_API_CONFIG.CHS_BASE}/detailCourse2`;
+  else if (lang === 'zht') baseUrl = `${PUBLIC_API_CONFIG.CHT_BASE}/detailCourse2`;
+  else if (lang === 'de') baseUrl = `${PUBLIC_API_CONFIG.GER_BASE}/detailCourse2`;
+  else if (lang === 'fr') baseUrl = `${PUBLIC_API_CONFIG.FRE_BASE}/detailCourse2`;
+  else if (lang === 'es') baseUrl = `${PUBLIC_API_CONFIG.SPN_BASE}/detailCourse2`;
+  else if (lang === 'ru') baseUrl = `${PUBLIC_API_CONFIG.RUS_BASE}/detailCourse2`;
+
+  const url = `${baseUrl}?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&contentId=${contentId}`;
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return [];
+    const data = await res.json();
+    
+    const itemsRaw = data.response?.body?.items?.item;
+    const items = Array.isArray(itemsRaw) ? itemsRaw : (itemsRaw ? [itemsRaw] : []);
+    const cleanHtml = (str) => (str || '').replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').trim();
+
+    return items.map(sub => ({
+      subNum: sub.subnum,
+      subName: cleanHtml(sub.subname),
+      subOverview: cleanHtml(sub.subdetailoverview),
+      subImage: (sub.subdetailimg || '').replace(/^http:\/\//i, 'https://') || null,
+      subDistance: cleanHtml(sub.subdetailalt || sub.distance),
+      subTime: cleanHtml(sub.taketime)
+    }));
+  } catch (err) {
+    console.warn('Detail Course API fallback:', err);
+  }
+  return [];
+}
+
 // 한국관광공사 TourAPI 4.0 - 이미지정보조회 (/detailImage2)
 export async function fetchSpotDetailImages(contentId, lang = 'ko') {
   if (!contentId) return [];

@@ -477,8 +477,20 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
 
         // 🛡️ Operating Hours Filter: If arrival time > 16:30 (990 mins), strictly prohibit daytime-closing facilities (closing at 18:00)
         if (currentCursorMinutes >= 990) { // 16:30
+          // 16:30 Cutoff Rule for daytime closing facilities
           const isDaytimeClosing = /(대공원|어린이대공원|동물원|수목원|식물원|궁|궁궐|박물관|미술관|도서관|민속촌|유적지|기념관|행궁)/.test(normPTitle);
           if (isDaytimeClosing) return false;
+        }
+
+        // 🏝️ [단일 섬 전일 완결 헌법] 사량도/욕지도 등 섬 일정 날에는 배편 이동 불가능한 다른 섬(추도, 만지도 등) 혼입 100% 원천 차단!
+        const isCurrentDaySaryang = dayAnchorNames.some(n => /사량도/i.test(n));
+        const isCurrentDayYokji = dayAnchorNames.some(n => /욕지도/i.test(n));
+        if (isCurrentDaySaryang) {
+          const isOtherIsland = /(욕지도|추도|만지도|연화도|비진도|소매물도|한산도|매물도|장사도|지심도)/i.test(p.title);
+          if (isOtherIsland) return false;
+        } else if (isCurrentDayYokji) {
+          const isOtherIsland = /(사량도|추도|만지도|연화도|비진도|소매물도|한산도|매물도|장사도|지심도)/i.test(p.title);
+          if (isOtherIsland) return false;
         }
 
         return true;
