@@ -95,8 +95,13 @@ export const TOUR_API_SIGUNGU_CODES = {
 };
 
 export async function fetchCityTourApiSpots(city = '서울', lang = 'ko') {
-  const cleanCity = (city || '서울').replace(/(시|군|구|도)$/, '').trim();
-  const cacheKey = `city_spots_${cleanCity}_${lang}`;
+  // 🎯 [복합 지명 스마트 정규화] '제주·서귀포' -> cleanCity: '제주', subCity: '서귀포'
+  const rawCityStr = (city || '서울').trim();
+  const cityParts = rawCityStr.split(/[·/,\-+\s]/).map(p => p.replace(/(시|군|구|도)$/, '').trim()).filter(Boolean);
+  const cleanCity = cityParts[0] || '서울';
+  const subCity = cityParts[1] || null;
+
+  const cacheKey = `city_spots_${rawCityStr}_${lang}`;
   if (DYNAMIC_SPOT_CACHE.has(cacheKey)) {
     return DYNAMIC_SPOT_CACHE.get(cacheKey);
   }
@@ -112,8 +117,9 @@ export async function fetchCityTourApiSpots(city = '서울', lang = 'ko') {
   else if (lang === 'ru') apiBase = PUBLIC_API_CONFIG.RUS_BASE;
 
   try {
-    const areaCode = TOUR_API_AREA_CODES[cleanCity] || TOUR_API_AREA_CODES[city];
-    const sigunguCode = TOUR_API_SIGUNGU_CODES[cleanCity] || TOUR_API_SIGUNGU_CODES[city];
+    const areaCode = TOUR_API_AREA_CODES[cleanCity] || TOUR_API_AREA_CODES[rawCityStr];
+    // 복합 권역(제주·서귀포, 통영·거제 등)일 때는 특정 sigunguCode로 제한하지 않고 권역 전체를 조회!
+    const sigunguCode = subCity ? null : (TOUR_API_SIGUNGU_CODES[cleanCity] || TOUR_API_SIGUNGU_CODES[rawCityStr]);
     let fetchUrl = '';
     if (areaCode) {
       // Area & Sigungu based query: TourAPI 4.0 Standard Title/Popularity (arrange=A)

@@ -161,10 +161,12 @@ const SYNONYM_MAP = {
  */
 export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requestedDays = 3, lang = 'ko', previousItinerary = null, isModification = false, focusedSpot = null) {
   const isEnglish = (lang === 'en');
-  const city = targetCity || '서울';
-  const dynMeta = getDynamicRegionMeta(city);
-  const cityMeta = CITY_COORDINATES[city] || (dynMeta?.lat ? { lat: dynMeta.lat, lng: dynMeta.lng, nameEn: city } : { lat: 37.5665, lng: 126.9780, nameEn: city });
-  const cityKnowledge = CITY_LOCAL_KNOWLEDGE[city] || null; // 🛡️ 서울로 강제 대체 금지!
+  const rawCityStr = (targetCity || '서울').trim();
+  const cityParts = rawCityStr.split(/[·/,\-+\s]/).map(p => p.replace(/(시|군|구|도)$/, '').trim()).filter(Boolean);
+  const city = cityParts[0] || '서울';
+  const dynMeta = getDynamicRegionMeta(rawCityStr) || getDynamicRegionMeta(city);
+  const cityMeta = CITY_COORDINATES[rawCityStr] || CITY_COORDINATES[city] || (dynMeta?.lat ? { lat: dynMeta.lat, lng: dynMeta.lng, nameEn: city } : { lat: 37.5665, lng: 126.9780, nameEn: city });
+  const cityKnowledge = CITY_LOCAL_KNOWLEDGE[rawCityStr] || CITY_LOCAL_KNOWLEDGE[city] || null; // 🛡️ 서울로 강제 대체 금지!
 
   // Parse User Preferences & Constraints from prompt
   const isRainPreference = /(비|실내|비오는날|rain|indoor)/i.test(rawPrompt);
