@@ -1161,6 +1161,47 @@ export default function App() {
     });
   };
 
+  // 🌟 구글 로그인 성공 핸들러 (유저 상태 저장 및 클라우드 일정 실시간 동기화 & 로딩)
+  const handleLoginSuccess = async (userProfile) => {
+    setCurrentUser(userProfile);
+    if (userProfile?.email) {
+      try {
+        const cloudList = await fetchCloudTrips(userProfile.email);
+        if (Array.isArray(cloudList) && cloudList.length > 0) {
+          setSavedTrips(prev => {
+            const map = new Map();
+            for (const t of cloudList) {
+              const k = t.savedId || t.tripTitle || t.id;
+              if (k) map.set(k, t);
+            }
+            for (const t of prev) {
+              const k = t.savedId || t.tripTitle || t.id;
+              if (k) map.set(k, t);
+            }
+            const merged = Array.from(map.values());
+            try { localStorage.setItem('vora_saved_trips', JSON.stringify(merged)); } catch (e) {}
+            return merged;
+          });
+          if (cloudList.length > 0) {
+            setItineraryData(cloudList[0]);
+            setSelectedTripId(cloudList[0].savedId || cloudList[0].tripTitle);
+          }
+        }
+      } catch (e) {
+        console.warn('[handleLoginSuccess Sync Error]', e);
+      }
+    }
+  };
+
+  // 🚪 로그아웃 핸들러
+  const handleLogout = () => {
+    setCurrentUser(null);
+    try {
+      localStorage.removeItem('vora_user_profile');
+      localStorage.removeItem('vora_admin_mode');
+    } catch (e) {}
+  };
+
   return (
     <div style={{
       minHeight: '100vh',
@@ -1356,6 +1397,8 @@ export default function App() {
               }}
               onSaveCurrentTrip={() => handleSaveCurrentItinerary()}
               questionQuota={questionQuota}
+              currentUser={currentUser}
+              onOpenGoogleAuth={() => setIsGoogleAuthOpen(true)}
             />
           </div>
         )}

@@ -160,8 +160,11 @@ export default function Header({
       <div className="header-inner-container">
         {/* Left: Brand Logo & Tagline */}
         <div 
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', cursor: 'pointer', userSelect: 'none' }}
+          onClick={() => {
+            if (onNavigateTab) onNavigateTab('home');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', cursor: 'pointer', userSelect: 'none', flexShrink: 0 }}
         >
           <img
             src="/logo.png"
@@ -205,122 +208,9 @@ export default function Header({
           </div>
         </div>
 
-        {/* Center / Navigation Links: Desktop Main Nav Tabs & Weather Capsule */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
-          {/* 💻 Center Desktop Main Nav Tabs (홈 | AI 플래너 | 내 여행 | 지도) */}
-          <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', backgroundColor: 'var(--bg-glass)', padding: '0.2rem', borderRadius: '14px', border: '1px solid var(--border-color)', flexShrink: 0 }}>
-            <button
-              type="button"
-              onClick={() => onNavigateTab && onNavigateTab('home')}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.3rem',
-                padding: '0.35rem 0.65rem',
-                borderRadius: '10px',
-                border: 'none',
-                backgroundColor: activeNavTab === 'home' ? 'var(--accent-primary)' : 'transparent',
-                color: activeNavTab === 'home' ? '#ffffff' : 'var(--text-muted)',
-                fontSize: '0.78rem',
-                fontWeight: 800,
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                flexShrink: 0,
-                transition: 'all 0.15s ease'
-              }}
-            >
-              <Compass size={14} style={{ flexShrink: 0 }} />
-              <span style={{ whiteSpace: 'nowrap' }}>{lang === 'en' ? 'Home' : '홈'}</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => onNavigateTab && onNavigateTab('ai')}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.3rem',
-                padding: '0.35rem 0.65rem',
-                borderRadius: '10px',
-                border: 'none',
-                backgroundColor: activeNavTab === 'ai' ? 'var(--accent-primary)' : 'transparent',
-                color: activeNavTab === 'ai' ? '#ffffff' : 'var(--text-muted)',
-                fontSize: '0.78rem',
-                fontWeight: 800,
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                flexShrink: 0,
-                transition: 'all 0.15s ease'
-              }}
-            >
-              <Sparkles size={14} style={{ flexShrink: 0 }} />
-              <span style={{ whiteSpace: 'nowrap' }}>{lang === 'en' ? 'AI Planner' : 'AI 플래너'}</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => onNavigateTab && onNavigateTab('mytrip')}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.3rem',
-                padding: '0.35rem 0.65rem',
-                borderRadius: '10px',
-                border: 'none',
-                backgroundColor: activeNavTab === 'mytrip' ? 'var(--accent-primary)' : 'transparent',
-                color: activeNavTab === 'mytrip' ? '#ffffff' : 'var(--text-muted)',
-                fontSize: '0.78rem',
-                fontWeight: 800,
-                cursor: 'pointer',
-                position: 'relative',
-                whiteSpace: 'nowrap',
-                flexShrink: 0,
-                transition: 'all 0.15s ease'
-              }}
-            >
-              <Calendar size={14} style={{ flexShrink: 0 }} />
-              <span style={{ whiteSpace: 'nowrap' }}>{lang === 'en' ? 'My Trips' : '내 여행'}</span>
-              {savedTripsCount > 0 && (
-                <span style={{
-                  fontSize: '0.65rem',
-                  backgroundColor: activeNavTab === 'mytrip' ? '#ffffff' : 'var(--accent-primary)',
-                  color: activeNavTab === 'mytrip' ? 'var(--accent-primary)' : '#ffffff',
-                  padding: '0.05rem 0.35rem',
-                  borderRadius: '8px',
-                  fontWeight: 900,
-                  marginLeft: '0.15rem'
-                }}>
-                  {savedTripsCount}
-                </span>
-              )}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => onNavigateTab && onNavigateTab('map')}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.3rem',
-                padding: '0.35rem 0.65rem',
-                borderRadius: '10px',
-                border: 'none',
-                backgroundColor: activeNavTab === 'map' ? 'var(--accent-primary)' : 'transparent',
-                color: activeNavTab === 'map' ? '#ffffff' : 'var(--text-muted)',
-                fontSize: '0.78rem',
-                fontWeight: 800,
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                flexShrink: 0,
-                transition: 'all 0.15s ease'
-              }}
-            >
-              <MapPin size={14} style={{ flexShrink: 0 }} />
-              <span style={{ whiteSpace: 'nowrap' }}>{lang === 'en' ? 'Map' : '지도'}</span>
-            </button>
-          </div>
-
-          {/* ☀️ Smart Live Weather & Outfit Guide Capsule (3.5s Rolling Ticker) */}
+        {/* Center: Fixed-width Weather Capsule & Standalone My Trips Button (선배님 황금 설계) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', flexShrink: 0 }}>
+          {/* ☀️ Smart Live Weather & Outfit Guide Capsule (고정 너비로 덜덜거림 100% 방지) */}
           <button
             onClick={() => onOpenWeather && onOpenWeather(targetCity)}
             title="실시간 날씨 & 맞춤 여행 코디 가이드"
@@ -332,17 +222,19 @@ export default function Header({
               padding: '0.35rem 0.65rem',
               display: 'flex',
               alignItems: 'center',
+              justifyContent: 'center',
               gap: '0.3rem',
               fontSize: '0.74rem',
               fontWeight: 800,
               cursor: 'pointer',
               whiteSpace: 'nowrap',
               flexShrink: 0,
+              minWidth: '150px',
               overflow: 'hidden',
               transition: 'all var(--transition-fast)'
             }}
           >
-            <div key={tickerStep} className="header-weather-ticker-item" style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+            <div key={tickerStep} className="header-weather-ticker-item" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem', width: '100%' }}>
               {tickerStep === 0 ? (
                 <>
                   <CloudSun size={14} style={{ color: 'var(--accent-primary)', flexShrink: 0 }} />
@@ -357,6 +249,47 @@ export default function Header({
                 </>
               )}
             </div>
+          </button>
+
+          {/* 🧳 Standalone My Trips Button (Desktop Only) */}
+          <button
+            type="button"
+            onClick={() => onNavigateTab && onNavigateTab('mytrip')}
+            title="저장된 내 여행 일정 보기"
+            className="hide-mobile"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              padding: '0.38rem 0.75rem',
+              borderRadius: 'var(--radius-full)',
+              border: activeNavTab === 'mytrip' ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)',
+              backgroundColor: activeNavTab === 'mytrip' ? 'rgba(37, 99, 235, 0.1)' : 'var(--bg-card)',
+              color: activeNavTab === 'mytrip' ? 'var(--accent-primary)' : 'var(--text-main)',
+              fontSize: '0.78rem',
+              fontWeight: 800,
+              cursor: 'pointer',
+              position: 'relative',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+              transition: 'all 0.15s ease'
+            }}
+          >
+            <Calendar size={14} style={{ flexShrink: 0, color: activeNavTab === 'mytrip' ? 'var(--accent-primary)' : '#8b5cf6' }} />
+            <span style={{ whiteSpace: 'nowrap' }}>{lang === 'en' ? 'My Trips' : '내 여행'}</span>
+            {savedTripsCount > 0 && (
+              <span style={{
+                fontSize: '0.65rem',
+                backgroundColor: 'var(--accent-primary)',
+                color: '#ffffff',
+                padding: '0.05rem 0.35rem',
+                borderRadius: '10px',
+                fontWeight: 900,
+                marginLeft: '0.15rem'
+              }}>
+                {savedTripsCount}
+              </span>
+            )}
           </button>
         </div>
 

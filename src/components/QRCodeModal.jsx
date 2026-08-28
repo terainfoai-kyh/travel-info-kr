@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { X, Smartphone, Copy, Check, QrCode, Sparkles, ExternalLink } from 'lucide-react';
 import { generateShareableTripUrl } from '../services/tripSyncService';
+import { generateQRCodeSVG } from '../services/qrCodeGenerator';
 
 export default function QRCodeModal({
   isOpen,
@@ -10,10 +11,17 @@ export default function QRCodeModal({
 }) {
   const [copied, setCopied] = useState(false);
 
-  if (!isOpen || !trip) return null;
+  const shareUrl = useMemo(() => {
+    if (!trip) return '';
+    return generateShareableTripUrl(trip);
+  }, [trip]);
 
-  const shareUrl = generateShareableTripUrl(trip);
-  const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=280x280&margin=12&format=svg&data=${encodeURIComponent(shareUrl)}`;
+  const qrSvg = useMemo(() => {
+    if (!shareUrl) return '';
+    return generateQRCodeSVG(shareUrl, 210);
+  }, [shareUrl]);
+
+  if (!isOpen || !trip) return null;
 
   const handleCopyLink = () => {
     try {
@@ -113,25 +121,23 @@ export default function QRCodeModal({
             : '스마트폰 기본 카메라로 아래 QR 코드를 비추면, PC에서 짠 일정이 폰 화면에 0.1초 만에 짠! 하고 열립니다.'}
         </p>
 
-        {/* QR Code Container */}
+        {/* Local Crisp SVG QR Code Container */}
         <div style={{
           background: '#f8fafc',
-          padding: '1rem',
+          padding: '0.85rem',
           borderRadius: '18px',
-          display: 'inline-block',
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
           border: '1px solid #e2e8f0',
           marginBottom: '1.2rem',
-          boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
+          boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)',
+          minWidth: '220px',
+          minHeight: '220px'
         }}>
-          <img 
-            src={qrImageUrl} 
-            alt="Mobile QR Code" 
-            style={{
-              width: '200px',
-              height: '200px',
-              display: 'block',
-              borderRadius: '8px'
-            }}
+          <div 
+            dangerouslySetInnerHTML={{ __html: qrSvg }} 
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           />
         </div>
 
