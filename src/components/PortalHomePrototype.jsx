@@ -394,19 +394,19 @@ export default function PortalHomePrototype({
         style={{
           position: 'relative',
           width: '100%',
-          minHeight: '320px',
-          maxHeight: '480px',
-          height: '44vh',
+          minHeight: '260px',
+          maxHeight: '360px',
+          height: 'clamp(260px, 34vh, 340px)',
           borderRadius: '22px',
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
           alignItems: 'center',
-          padding: '1.75rem 0.75rem 0.85rem 0.75rem',
+          padding: '1.4rem 0.75rem 0.65rem 0.75rem',
           boxSizing: 'border-box',
           boxShadow: '0 12px 30px -8px rgba(0, 0, 0, 0.22)',
-          marginBottom: '0.6rem',
+          marginBottom: '0.5rem',
           border: '1px solid rgba(255, 255, 255, 0.2)'
         }}
       >
