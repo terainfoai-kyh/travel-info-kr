@@ -546,19 +546,6 @@ export default function App() {
     }
   };
 
-  // Google Login Success Handler
-  const handleLoginSuccess = (profile) => {
-    setCurrentUser(profile);
-  };
-
-  // Logout Handler
-  const handleLogout = () => {
-    try {
-      localStorage.removeItem('vora_user_profile');
-    } catch (e) {}
-    setCurrentUser(null);
-  };
-
   // Reset Quota for Testing / Dev
   const handleResetQuotaForDev = () => {
     const todayStr = new Date().toISOString().slice(0, 10);
