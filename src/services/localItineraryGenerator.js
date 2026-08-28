@@ -586,11 +586,16 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
           }
         }
 
-        // 🛡️ Operating Hours Filter: If arrival time > 16:30 (990 mins), strictly prohibit daytime-closing facilities (closing at 18:00)
+        // 🛡️ [운영시간 컷오프 철벽 헌법 1단계]: 16:30(990분) 이후에는 18:00에 문 닫는 모든 주간 시설 100% 원천 차단!
         if (currentCursorMinutes >= 990) { // 16:30
-          // 16:30 Cutoff Rule for daytime closing facilities
-          const isDaytimeClosing = /(대공원|어린이대공원|동물원|수목원|식물원|궁|궁궐|박물관|미술관|도서관|민속촌|유적지|기념관|행궁)/.test(normPTitle);
+          const isDaytimeClosing = /(대공원|어린이대공원|동물원|수목원|식물원|궁|궁궐|박물관|미술관|도서관|민속촌|유적지|기념관|행궁|성지|생가|서원|향교|전각|사찰|절|성곽|사당|능|고분|전시관|체험관|아트센터|문화관|예술회관|센터|체험마을)/.test(normPTitle);
           if (isDaytimeClosing) return false;
+        }
+
+        // 🛡️ [운영시간 컷오프 철벽 헌법 2단계]: 17:15(1035분) 이후에는 오직 24시간 상시 개방 명소 & 야간 명소만 100% 허용!
+        if (currentCursorMinutes >= 1035) { // 17:15 이후
+          const isNightFriendlyOr24H = /(타워|전망대|야경|드론쇼|선셋|노을|일몰|해변|해수욕장|바다|거리|골목|카페거리|광장|공원|한강|청계천|다리|대교|시장|야시장|포차|스카이워크|야간)/i.test(normPTitle);
+          if (!isNightFriendlyOr24H) return false;
         }
 
         // 🏝️ [단일 섬 전일 완결 헌법] 사량도/욕지도 등 섬 일정 날에는 배편 이동 불가능한 다른 섬(추도, 만지도 등) 혼입 100% 원천 차단!
@@ -616,10 +621,10 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
             return scoreB - scoreA; // 점수 높은 스팟 최우선 선택!
           }
 
-          // 2. 🌙 저녁(17:00+) 야경/시장/타워 선호
+          // 2. 🌙 저녁(17:00+) 야경/시장/타워/해변 최우선 순위
           if (currentCursorMinutes >= 1020) {
-            const aNight = /(타워|야경|시장|먹거리|거리|한강|공원|광장|청계천|다리|골목)/.test(a.title);
-            const bNight = /(타워|야경|시장|먹거리|거리|한강|공원|광장|청계천|다리|골목)/.test(b.title);
+            const aNight = /(타워|전망대|야경|드론쇼|선셋|노을|일몰|해변|해수욕장|바다|거리|골목|카페거리|광장|공원|한강|청계천|다리|대교|시장|야시장|포차)/i.test(a.title);
+            const bNight = /(타워|전망대|야경|드론쇼|선셋|노을|일몰|해변|해수욕장|바다|거리|골목|카페거리|광장|공원|한강|청계천|다리|대교|시장|야시장|포차)/i.test(b.title);
             if (aNight && !bNight) return -1;
             if (!aNight && bNight) return 1;
           }
