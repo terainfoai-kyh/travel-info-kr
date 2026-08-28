@@ -1058,17 +1058,26 @@ export default function App() {
     showToast(lang === 'en' ? 'Starting a fresh new conversation ✨' : '새로운 대화를 시작합니다 ✨');
   };
 
-  // 저장된 여행 삭제 핸들러
+  // 저장된 여행 삭제 핸들러 (작성 중인 새 미저장 일정 100% 보호)
   const handleDeleteSavedTrip = (tripId) => {
     setSavedTrips(prev => {
       const updated = prev.filter(t => (t.savedId || t.tripTitle) !== tripId);
       try {
         localStorage.setItem('vora_saved_trips', JSON.stringify(updated));
       } catch (e) {}
-      if (updated.length > 0) {
-        setItineraryData(updated[0]);
-      } else {
-        setItineraryData(null);
+
+      // 🛡️ 현재 보고 있는 일정이 '작성 중인 새 미저장 일정'이라면 절대 날리지 않고 그대로 유지!
+      if (!hasActiveUnsavedDraft) {
+        const isCurrentActiveDeleted = itineraryData && (itineraryData.savedId === tripId || itineraryData.tripTitle === tripId);
+        if (isCurrentActiveDeleted) {
+          if (updated.length > 0) {
+            setItineraryData(updated[0]);
+            setSelectedTripId(updated[0].savedId);
+          } else {
+            setItineraryData(null);
+            setSelectedTripId(null);
+          }
+        }
       }
       return updated;
     });
