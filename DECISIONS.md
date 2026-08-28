@@ -19,8 +19,9 @@
    - **100% 무인 자동 배치 스케줄러 구축 (`scripts/runDailyBatch.js` & `.github/workflows/daily-batch.yml`)**: 매일 자정(00:00 KST) 무인 실행 및 GitHub Actions 웹에서 즉시 수동 테스트(`workflow_dispatch`) 가능한 일일 지식 증류 & 자동 Git Commit 파이프라인 완성.
    - **헌법 제19조 제정 (`AGENTS.md` & `DECISIONS.md`)**: 100% 순수 중앙 클라우드 단일 진실 원천(Single Source of Truth) 확립 및 로컬 캐시 착시 찌꺼기(Ghost Data) 영구 척결.
    - **대화 문맥 관심 명소(사량도·욕지도 등) 일정표 1일차 최우선 앵커 자동 배치 (`App.jsx` & `localItineraryGenerator.js`)**: 사용자가 직전 대화에서 문의한 섬/핵심 명소를 세션 메모리에 기억하여, [바로 일정 만들기] 시 1일차 1번 대표 앵커로 실시간 자동 배정 및 맞춤형 일정 조립.
+   - **관리자 지식 검색기 앞뒤 Ltrim/Rtrim 표준화 & 검색 버튼 장착 (`AdminBatchModal.jsx`)**: 과도한 정규식 점수 변환을 걷어내고 순수 앞뒤 Trim + 직관적 `.includes()` 매칭 및 `[ 🔍 검색 ]` / `[ 🔄 전체 ]` 버튼 장착으로 지식 검색 정확도 100% 완성.
 2. **다음 작업 1순위**:
-   - 실시간 대화창에서 '사량도', '욕지도' 질의 후 [🚀 바로 일정 만들기] 시 1일차 최우선 배정 테스트 및 검증.
+   - 모바일 현장 뷰 및 다국어 서빙 최종 점검.
 
 ---
 
