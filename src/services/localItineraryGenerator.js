@@ -168,8 +168,72 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
 
   // Parse User Preferences & Constraints from prompt
   const isRainPreference = /(비|실내|비오는날|rain|indoor)/i.test(rawPrompt);
-  const isMinimalWalking = /(걷기\s*적게|덜\s*걷기|부모님|senior|minimal walking)/i.test(rawPrompt);
+  const isMinimalWalking = /(걷기\s*적게|덜\s*걷기|편안한\s*동선|minimal walking)/i.test(rawPrompt);
+  const isSeniorCompanion = /(부모님|어르신|senior|효도)/i.test(rawPrompt);
   const isKidsCompanion = /(아이|아이동반|자녀|키즈|kids|family)/i.test(rawPrompt);
+  const isCafeLover = /(감성\s*카페|카페|디저트|cafe)/i.test(rawPrompt);
+  const isFoodie = /(로컬\s*맛집|맛집|미식|foodie|gourmet)/i.test(rawPrompt);
+  const isPhotoSpot = /(인생샷|포토존|야경|photo)/i.test(rawPrompt);
+
+  const preferences = {
+    isRainPreference,
+    isMinimalWalking: isMinimalWalking || isSeniorCompanion,
+    isSeniorCompanion,
+    isKidsCompanion,
+    isCafeLover,
+    isFoodie,
+    isPhotoSpot
+  };
+
+  /**
+   * 🌟 Calculate Preference Match Score for Dynamic Boosting
+   */
+  const calculateSpotPreferenceScore = (spot) => {
+    let score = 0;
+    const t = (spot.title || '').toLowerCase();
+    const c = (spot.category || '').toLowerCase();
+
+    // 1. 비/실내 선호: 실내 명소 극대화 (+100), 야외 등산/해변 감점 (-80)
+    if (preferences.isRainPreference) {
+      if (/(박물관|미술관|아쿠아리움|온천|식물원|전시|기념관|실내|동굴|문학관|체험관|아트센터)/.test(t) || c === '문화시설') {
+        score += 100;
+      } else if (/(산|봉|등산|해수욕장|해변|암릉|출렁다리|스카이워크|일주)/.test(t)) {
+        score -= 80;
+      }
+    }
+
+    // 2. 걷기 적게 / 부모님: 케이블카/전망대/모노레일 극대화 (+80), 하드코어 등산/종주 감점 (-100)
+    if (preferences.isMinimalWalking) {
+      if (/(케이블카|모노레일|유람선|전망대|공원|행궁|평지|정원|호수|셔틀)/.test(t)) {
+        score += 80;
+      } else if (/(종주|산행|봉|등산|트레킹|암릉|지리망산)/.test(t)) {
+        score -= 100;
+      }
+    }
+
+    // 3. 아이 동반: 동물원, 아쿠아리움, 키즈 테마파크 (+80)
+    if (preferences.isKidsCompanion) {
+      if (/(동물원|아쿠아리움|테마파크|어린이|체험|레포츠|박물관|놀이)/.test(t)) {
+        score += 80;
+      }
+    }
+
+    // 4. 감성 카페 / 로컬 맛집 (+80)
+    if (preferences.isCafeLover || preferences.isFoodie) {
+      if (/(시장|먹거리|골목|거리|한옥마을|카페|특화거리)/.test(t)) {
+        score += 80;
+      }
+    }
+
+    // 5. 인생샷 / 뷰 포인트 (+80)
+    if (preferences.isPhotoSpot) {
+      if (/(타워|전망대|야경|스카이|바위|해안|출렁다리|포토|일출|노을|낙조)/.test(t)) {
+        score += 80;
+      }
+    }
+
+    return score;
+  };
 
   // 1. Fetch Realtime Genuine TourAPI 4.0 Spots from Korea Tourism Organization Server
   let liveSpots = await fetchCityTourApiSpots(city, lang).catch(() => []);
@@ -518,20 +582,30 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
       });
 
       if (remainingUnvisited.length > 0) {
-        if (lastSpotLocation) {
-          remainingUnvisited.sort((a, b) => {
-            // Evening preference (17:00+): Boost night views, markets, open streets, towers, and rivers
-            if (currentCursorMinutes >= 1020) {
-              const aNight = /(타워|야경|시장|먹거리|거리|한강|공원|광장|청계천|다리|골목)/.test(a.title);
-              const bNight = /(타워|야경|시장|먹거리|거리|한강|공원|광장|청계천|다리|골목)/.test(b.title);
-              if (aNight && !bNight) return -1;
-              if (!aNight && bNight) return 1;
-            }
+        remainingUnvisited.sort((a, b) => {
+          // 1. 🌟 사용자 선택 조건 가중치 점수 반영 (Score-Boost)
+          const scoreA = calculateSpotPreferenceScore(a);
+          const scoreB = calculateSpotPreferenceScore(b);
+          if (scoreA !== scoreB) {
+            return scoreB - scoreA; // 점수 높은 스팟 최우선 선택!
+          }
+
+          // 2. 🌙 저녁(17:00+) 야경/시장/타워 선호
+          if (currentCursorMinutes >= 1020) {
+            const aNight = /(타워|야경|시장|먹거리|거리|한강|공원|광장|청계천|다리|골목)/.test(a.title);
+            const bNight = /(타워|야경|시장|먹거리|거리|한강|공원|광장|청계천|다리|골목)/.test(b.title);
+            if (aNight && !bNight) return -1;
+            if (!aNight && bNight) return 1;
+          }
+
+          // 3. 📍 이동 거리 최단 동선 정렬
+          if (lastSpotLocation) {
             const distA = calculateDistanceKm(lastSpotLocation.lat, lastSpotLocation.lng, a.lat, a.lng);
             const distB = calculateDistanceKm(lastSpotLocation.lat, lastSpotLocation.lng, b.lat, b.lng);
             return distA - distB;
-          });
-        }
+          }
+          return 0;
+        });
         nextSpot = remainingUnvisited[0];
       }
 
