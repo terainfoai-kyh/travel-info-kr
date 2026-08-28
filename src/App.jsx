@@ -952,21 +952,49 @@ export default function App() {
 
         const compositePrompt = `${buildCity} ${requestedDays}일 ${compList.join('/')} 여행${prefList.length > 0 ? `, 테마: ${prefList.join(', ')}` : ''}, ${promptQuery}`;
 
-        // 🧠 [대화 히스토리 역추적 명소 추출] 직전 대화에서 사용자가 명소를 언급했거나, Q&A로 추천된 랜드마크 역추적!
+        // 🧠 [대화 히스토리 역추적 명소 추출] 현재 도시(buildCity)와 일치하는 명소만 안전하게 역추적!
         let focusedSpot = updatedState.tripMemory?.focusedSpot || null;
+        
+        // 🛡️ 도시 불일치 검증: 만약 focusedSpot이 타 도시 명소(예: 제주인데 경복궁)라면 즉시 무효화!
+        const CITY_KNOWN_SPOTS = {
+          '서울': ['경복궁', 'N서울타워', '남산타워', '북촌한옥마을', '성수동', 'DDP', '명동', '익선동', '인사동', '한강공원', '홍대'],
+          '부산': ['해운대', '광안리', '해동용궁사', '용궁사', '블루라인파크', '흰여울문화마을', '감천문화마을', '자갈치시장', '태종대'],
+          '제주': ['성산일출봉', '우도', '협재', '협재해수욕장', '함덕', '카멜리아힐', '섭지코지', '한라산', '애월', '중문', '천지연폭포'],
+          '경주': ['불국사', '석굴암', '첨성대', '동궁과 월지', '동궁과월지', '황리단길', '대릉원', '보문단지'],
+          '강릉': ['안목해변', '경포대', '정동진', '커피거리', '강문해변', 'BTS 정류장'],
+          '속초': ['설악산', '권금성', '속초관광수산시장', '아바이마을', '영금정', '속초해수욕장'],
+          '수원': ['수원화성', '화성행궁', '행궁동', '방화수류정', '연무대'],
+          '전주': ['전주한옥마을', '경기전', '전동성당', '오목대', '자만벽화마을'],
+          '여수': ['오동도', '향일암', '돌산대교', '낭만포차', '해상케이블카', '아쿠아플라넷'],
+          '통영': ['동피랑', '사량도', '욕지도', '디피랑', '이순신공원', '케이블카']
+        };
+
+        const currentCityKnown = CITY_KNOWN_SPOTS[buildCity] || [];
+        if (focusedSpot && currentCityKnown.length > 0) {
+          const isBelongToCity = currentCityKnown.some(sp => focusedSpot.includes(sp) || sp.includes(focusedSpot));
+          if (!isBelongToCity) {
+            focusedSpot = null; // 타 도시 명소 즉시 파기!
+          }
+        }
+
         if (!focusedSpot && chatMessages.length > 0) {
           const recentUserMsgs = chatMessages.filter(m => m.role === 'user').slice(-3).reverse();
           for (const uMsg of recentUserMsgs) {
             const uText = uMsg.text || '';
             const match = matchVoraQna(uText, buildCity, {}, lang);
-            if (match && match.title) {
-              focusedSpot = match.title.replace(/\s*\(.*?\)/g, '').trim();
-              break;
+            if (match && match.title && (match.targetCity === buildCity || match.targetCity === 'all' || !match.targetCity)) {
+              const spotTitle = match.title.replace(/\s*\(.*?\)/g, '').trim();
+              if (currentCityKnown.length === 0 || currentCityKnown.some(sp => spotTitle.includes(sp) || sp.includes(spotTitle))) {
+                focusedSpot = spotTitle;
+                break;
+              }
             }
-            const spotMatch = uText.match(/(해동용궁사|용궁사|불국사|석굴암|첨성대|동궁과\s*월지|황리단길|대릉원|경복궁|N서울타워|남산타워|북촌한옥마을|성수동|성산일출봉|우도|협재|안목해변|설악산|수원화성|행궁동|전주한옥마을|오동도|향일암|사량도|퍼플섬|청산도|남이섬)/i);
-            if (spotMatch && spotMatch[1]) {
-              focusedSpot = spotMatch[1].trim();
-              break;
+            if (currentCityKnown.length > 0) {
+              const matchedSpot = currentCityKnown.find(sp => uText.includes(sp));
+              if (matchedSpot) {
+                focusedSpot = matchedSpot;
+                break;
+              }
             }
           }
         }

@@ -338,15 +338,22 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
       try {
         const directList = await fetchDynamicRealtimeSpots(explicitlyRequestedSpotName, lang);
         if (directList && directList.length > 0) {
-          // 현재 도시 주소와 호환되는지 확인
+          // 현재 도시 주소와 호환되는지 엄격 확인 (타 도시 명소는 100% 무효화!)
           const validCitySpot = directList.find(s => {
             const addr = (s.location || s.address || '').toLowerCase();
             return addr.includes(city.toLowerCase()) || addr.includes((cityMeta.name || '').toLowerCase());
-          }) || directList[0];
-          cityPois.unshift(validCitySpot);
+          });
+          if (validCitySpot) {
+            cityPois.unshift(validCitySpot);
+          } else {
+            explicitlyRequestedSpotName = null; // 타 도시 명소(예: 제주인데 경복궁) 강제 제거!
+          }
+        } else {
+          explicitlyRequestedSpotName = null;
         }
       } catch (err) {
         console.warn('Realtime fetch for explicitlyRequestedSpotName failed:', err);
+        explicitlyRequestedSpotName = null;
       }
     }
   }
