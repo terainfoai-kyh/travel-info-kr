@@ -171,14 +171,17 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
   const isMinimalWalking = /(걷기\s*적게|덜\s*걷기|부모님|senior|minimal walking)/i.test(rawPrompt);
   const isKidsCompanion = /(아이|아이동반|자녀|키즈|kids|family)/i.test(rawPrompt);
 
-  // 1. Fetch Realtime Genuine TourAPI 4.0 Spots from Korea Tourism Organization Server (arrange=P popularity)
+  // 1. Fetch Realtime Genuine TourAPI 4.0 Spots from Korea Tourism Organization Server
   let liveSpots = await fetchCityTourApiSpots(city, lang).catch(() => []);
 
-  // If live spots are few, search keyword dynamically for the specific city
-  if (!liveSpots || liveSpots.length < 10) {
-    const keywordSpots = await fetchDynamicRealtimeSpots(`${city} 관광지`, lang).catch(() => []);
-    if (keywordSpots && keywordSpots.length > 0) {
-      liveSpots = [...(liveSpots || []), ...keywordSpots];
+  // If live spots are few, search keyword dynamically for the specific city (cleanCity: '울릉', '울릉도', '독도' etc.)
+  if (!liveSpots || liveSpots.length < 8) {
+    const cleanCityName = city.replace(/(시|군|구|도)$/, '').trim();
+    const keywordSpots = await fetchDynamicRealtimeSpots(cleanCityName, lang).catch(() => []);
+    const keywordSpots2 = await fetchDynamicRealtimeSpots(`${cleanCityName}도`, lang).catch(() => []);
+    const combined = [...(keywordSpots || []), ...(keywordSpots2 || [])];
+    if (combined.length > 0) {
+      liveSpots = [...(liveSpots || []), ...combined];
     }
   }
 
@@ -384,6 +387,11 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
           lng: isSaryang ? 128.2045 : (isYokji ? 128.2541 : 128.4332),
           image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=800&q=80'
         };
+      }
+
+      // 🌟 [최후의 방탄 Fallback] anchorSpot이 아직 비어있다면, cityPois에서 미방문 명소를 즉시 채택!
+      if (!anchorSpot && cityPois.length > 0) {
+        anchorSpot = cityPois.find(p => !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normalizeTargetString(p.title)));
       }
 
       if (anchorSpot) {
