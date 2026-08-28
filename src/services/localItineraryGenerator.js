@@ -327,15 +327,27 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
     }
   }
 
-  // 🛡️ 2중 철벽 방어: explicitlyRequestedSpotName이 현재 도시(targetCity)의 후보 목록에 전혀 없는 타 도시 명소(예: 경주 일정인데 해운대)라면 100% 무시!
-  if (explicitlyRequestedSpotName && cityPois.length > 0) {
+  // 🛡️ 1순위 요청 명소 실시간 자동 보정: explicitlyRequestedSpotName(예: 해동용궁사)이 기본 목록에 없으면 실시간 TourAPI로 즉시 수신하여 cityPois 맨 앞에 투입!
+  if (explicitlyRequestedSpotName) {
     const normReq = normalizeTargetString(explicitlyRequestedSpotName);
-    const existsInCity = cityPois.some(s => {
+    const existing = cityPois.find(s => {
       const sNorm = normalizeTargetString(s.title || s.name || '');
       return sNorm.includes(normReq) || normReq.includes(sNorm);
     });
-    if (!existsInCity) {
-      explicitlyRequestedSpotName = null;
+    if (!existing) {
+      try {
+        const directList = await fetchDynamicRealtimeSpots(explicitlyRequestedSpotName, lang);
+        if (directList && directList.length > 0) {
+          // 현재 도시 주소와 호환되는지 확인
+          const validCitySpot = directList.find(s => {
+            const addr = (s.location || s.address || '').toLowerCase();
+            return addr.includes(city.toLowerCase()) || addr.includes((cityMeta.name || '').toLowerCase());
+          }) || directList[0];
+          cityPois.unshift(validCitySpot);
+        }
+      } catch (err) {
+        console.warn('Realtime fetch for explicitlyRequestedSpotName failed:', err);
+      }
     }
   }
 
