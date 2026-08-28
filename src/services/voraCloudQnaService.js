@@ -21,7 +21,7 @@ function normKey(str) {
  */
 export async function fetchQuestionsFromCloud() {
   try {
-    const res = await fetch(CLOUD_API_ENDPOINT, {
+    const res = await fetch(`${CLOUD_API_ENDPOINT}?type=queue`, {
       method: 'GET',
       headers: { 'Accept': 'application/json' },
       cache: 'no-cache'
@@ -30,7 +30,6 @@ export async function fetchQuestionsFromCloud() {
     if (res.ok) {
       const data = await res.json();
       if (data && Array.isArray(data.list)) {
-        // 클라우드에서 받은 최신 큐를 로컬 스토리지에도 안전하게 미러링 백업
         try {
           localStorage.setItem('vora_unanswered_qna', JSON.stringify(data.list));
         } catch (e) {}
@@ -38,15 +37,63 @@ export async function fetchQuestionsFromCloud() {
       }
     }
   } catch (err) {
-    console.info('[VoraCloudQna] Cloud API offline or local dev, falling back to local vault:', err.message);
+    console.info('[VoraCloudQna] Cloud API offline, using local fallback:', err.message);
   }
 
-  // 🛡️ 오프라인 / 네트워크 지연 시 로컬 안전망 (Fallback)
   try {
     const local = JSON.parse(localStorage.getItem('vora_unanswered_qna') || '[]');
     return Array.isArray(local) ? local : [];
   } catch (e) {
     return [];
+  }
+}
+
+/**
+ * 📥 새로 학습된 커스텀 지식을 [중앙 클라우드 DB (/api/qna?type=custom_vault)]에서 실시간 수신
+ */
+export async function fetchCustomVaultFromCloud() {
+  try {
+    const res = await fetch(`${CLOUD_API_ENDPOINT}?type=custom_vault`, {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' },
+      cache: 'no-cache'
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data && Array.isArray(data.list)) {
+        return data.list;
+      }
+    }
+  } catch (err) {
+    console.info('[VoraCloudQna] Fetch custom vault offline:', err.message);
+  }
+
+  try {
+    const local = JSON.parse(localStorage.getItem('vora_custom_qna_vault') || '[]');
+    return Array.isArray(local) ? local : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+/**
+ * 📤 새로 학습된 커스텀 지식 목록을 [중앙 클라우드 DB]로 실시간 업로드 & 보관
+ */
+export async function pushCustomVaultToCloud(vaultList) {
+  if (!Array.isArray(vaultList)) return;
+
+  try {
+    await fetch(CLOUD_API_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'save_custom_vault',
+        vault: vaultList
+      })
+    });
+  } catch (err) {
+    console.warn('[VoraCloudQna] Failed to push custom vault to cloud:', err.message);
   }
 }
 
@@ -67,7 +114,6 @@ export async function pushQuestionToCloud(entry) {
     timestamp: entry.timestamp || new Date().toISOString()
   };
 
-  // 1. [진짜 클라우드 전송] Cloudflare Serverless Edge API로 실시간 POST
   try {
     fetch(CLOUD_API_ENDPOINT, {
       method: 'POST',
@@ -76,7 +122,6 @@ export async function pushQuestionToCloud(entry) {
     }).catch(() => {});
   } catch (e) {}
 
-  // 2. [로컬 안전망] 브라우저 로컬 저장소에도 즉시 반영
   try {
     const k = normKey(rawQuery);
     const local = JSON.parse(localStorage.getItem('vora_unanswered_qna') || '[]');
@@ -92,61 +137,40 @@ export async function pushQuestionToCloud(entry) {
     }
 
     localStorage.setItem('vora_unanswered_qna', JSON.stringify(local));
-  } catch (err) {
-    // Silent fail-safe
-  }
+  } catch (err) {}
 }
 
 /**
- * 🗑️ 특정 미답변 질문 1건 개별 삭제
- */
-export async function deleteQuestionFromCloud(rawQuery) {
-  if (!rawQuery) return;
-  const k = normKey(rawQuery);
-
-  // 로컬 미러링 삭제
-  try {
-    const local = JSON.parse(localStorage.getItem('vora_unanswered_qna') || '[]');
-    const updated = local.filter(item => normKey(item.rawQuery || item.question) !== k);
-    localStorage.setItem('vora_unanswered_qna', JSON.stringify(updated));
-  } catch (e) {}
-}
-
-/**
- * 🗑️ 제미나이 학습 완료 후 미답변 질문 큐 전체 초기화 (클라우드 & 로컬 동시 클리어)
+ * 🧹 중앙 클라우드 대기 큐 완전 초기화
  */
 export async function clearQuestionsFromCloud() {
   try {
-    // 클라우드 큐 삭제 요청
-    fetch(CLOUD_API_ENDPOINT, { method: 'DELETE' }).catch(() => {});
-  } catch (e) {}
-
-  try {
-    localStorage.removeItem('vora_unanswered_qna');
-  } catch (e) {}
+    await fetch(`${CLOUD_API_ENDPOINT}?type=queue`, {
+      method: 'DELETE'
+    });
+  } catch (err) {}
 }
 
 /**
- * 🚀 새로운 황금 Q&A 지식을 영구 지식 금고에 저장 및 배포
+ * 🗑️ 특정 질문을 중앙 클라우드 큐에서 삭제
  */
-export async function publishKnowledgeToCloudMaster(knowledgeList = []) {
-  if (!Array.isArray(knowledgeList) || knowledgeList.length === 0) return true;
-
+export async function deleteQuestionFromCloud(rawQuery) {
+  if (!rawQuery) return;
   try {
-    const localExisting = JSON.parse(localStorage.getItem('vora_custom_qna_vault') || '[]');
-    const merged = [...localExisting];
-    knowledgeList.forEach(k => {
-      const idx = merged.findIndex(m => m.id === k.id || m.questionVariations?.[0] === k.questionVariations?.[0]);
-      if (idx >= 0) {
-        merged[idx] = k;
-      } else {
-        merged.unshift(k);
-      }
+    await fetch(`${CLOUD_API_ENDPOINT}?type=single_queue&query=${encodeURIComponent(rawQuery)}`, {
+      method: 'DELETE'
     });
-    localStorage.setItem('vora_custom_qna_vault', JSON.stringify(merged));
-    return true;
-  } catch (e) {
-    return false;
-  }
+  } catch (err) {}
 }
 
+/**
+ * 🗑️ 커스텀 지식을 중앙 클라우드에서 영구 삭제
+ */
+export async function deleteCustomKnowledgeFromCloud(knowledgeIdOrTitle) {
+  if (!knowledgeIdOrTitle) return;
+  try {
+    await fetch(`${CLOUD_API_ENDPOINT}?type=custom_vault&id=${encodeURIComponent(knowledgeIdOrTitle)}`, {
+      method: 'DELETE'
+    });
+  } catch (err) {}
+}

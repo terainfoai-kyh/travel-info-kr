@@ -2,7 +2,15 @@ import React, { useState, useEffect, useRef } from 'react';
 import { X, Sparkles, Database, Play, CheckCircle2, Copy, Download, RefreshCw, Key, ShieldCheck, AlertCircle, Cloud, Smartphone, Search, Lock, Unlock, FileJson, Upload } from 'lucide-react';
 import { getVoraQnaVault } from '../data/voraQnaVault';
 import { interpolateTemplate } from '../utils/koreanParticles';
-import { fetchQuestionsFromCloud, clearQuestionsFromCloud, deleteQuestionFromCloud, publishKnowledgeToCloudMaster } from '../services/voraCloudQnaService';
+import { 
+  fetchQuestionsFromCloud, 
+  clearQuestionsFromCloud, 
+  deleteQuestionFromCloud, 
+  publishKnowledgeToCloudMaster,
+  fetchCustomVaultFromCloud,
+  pushCustomVaultToCloud,
+  deleteCustomKnowledgeFromCloud
+} from '../services/voraCloudQnaService';
 import { encryptVaultData, decryptVaultData } from '../utils/vaultCrypto';
 
 export default function AdminBatchModal({
@@ -30,27 +38,40 @@ export default function AdminBatchModal({
   const [masterVaultList, setMasterVaultList] = useState([]);
   const fileInputRef = useRef(null);
 
-  const loadCustomVaultFromStorage = () => {
+  // 🌐 [기기간 100% 실시간 커스텀 지식 동기화] (핸드폰 ➔ 클라우드 ➔ PC 웹)
+  const loadCustomVaultFromStorage = async () => {
+    const norm = (s) => (s || '').trim().toLowerCase().replace(/[\s\-_?!.~,()[\]]/g, '');
+    const map = new Map();
+
+    // 1. 로컬 스토리지에 저장된 커스텀 지식 1차 로드
     try {
       const stored = JSON.parse(localStorage.getItem('vora_custom_qna_vault') || '[]');
       if (Array.isArray(stored)) {
-        const norm = (s) => (s || '').trim().toLowerCase().replace(/[\s\-_?!.~,()[\]]/g, '');
-        const map = new Map();
         stored.forEach(item => {
           const key = norm(item.title || item.questionVariations?.[0] || item.id);
           if (key) map.set(key, item);
         });
-        const deduped = Array.from(map.values());
-        setCustomVaultList(deduped);
-        if (deduped.length !== stored.length) {
-          localStorage.setItem('vora_custom_qna_vault', JSON.stringify(deduped));
-        }
-      } else {
-        setCustomVaultList([]);
       }
-    } catch (e) {
-      setCustomVaultList([]);
-    }
+    } catch (e) {}
+
+    // 2. ☁️ 중앙 클라우드 서버에서 다른 기기(핸드폰)가 학습한 지식 실시간 동기화
+    try {
+      const cloudVault = await fetchCustomVaultFromCloud();
+      if (Array.isArray(cloudVault) && cloudVault.length > 0) {
+        cloudVault.forEach(item => {
+          const key = norm(item.title || item.questionVariations?.[0] || item.id);
+          if (key) map.set(key, item);
+        });
+      }
+    } catch (e) {}
+
+    const mergedVault = Array.from(map.values());
+    setCustomVaultList(mergedVault);
+    try {
+      localStorage.setItem('vora_custom_qna_vault', JSON.stringify(mergedVault));
+    } catch (e) {}
+
+    // 3. 소스코드 기본 마스터 지식 로드
     try {
       const masterVault = getVoraQnaVault() || [];
       setMasterVaultList(Array.isArray(masterVault) ? masterVault : []);
@@ -59,50 +80,40 @@ export default function AdminBatchModal({
     }
   };
 
+  // 🌐 [기기간 100% 실시간 미답변 큐 동기화]
   const loadUnansweredFromStorage = async (syncCloud = true) => {
     try {
-      const stored = JSON.parse(localStorage.getItem('vora_unanswered_qna') || '[]');
       const normKey = (s) => (s || '').trim().toLowerCase().replace(/[\s\-_?!.~,()[\]]/g, '');
-      
-      let merged = [];
-      stored.forEach(item => {
-        const k = normKey(item.rawQuery || item.question);
-        if (!k) return;
-        const idx = merged.findIndex(m => normKey(m.rawQuery || m.question) === k);
-        if (idx >= 0) {
-          merged[idx].count = Math.max(merged[idx].count || 1, item.count || 1);
-        } else {
-          merged.push({ ...item, count: item.count || 1 });
-        }
-      });
 
-      setUnansweredList(merged);
-
-      // 🌐 중앙 클라우드 보라 DB 실시간 동기화
       if (syncCloud) {
         setIsSyncingCloud(true);
         const cloudItems = await fetchQuestionsFromCloud();
         setIsSyncingCloud(false);
 
-        if (cloudItems && cloudItems.length > 0) {
-          const nextList = [...merged];
-          cloudItems.forEach(cItem => {
-            const ck = normKey(cItem.rawQuery || cItem.question);
-            if (!ck) return;
-            const idx = nextList.findIndex(m => normKey(m.rawQuery || m.question) === ck);
-            if (idx >= 0) {
-              nextList[idx].count = Math.max(nextList[idx].count || 1, cItem.count || 1);
-              if (cItem.context && Object.keys(cItem.context).length > 0) {
-                nextList[idx].context = cItem.context;
+        // 클라우드 큐가 기준이 되며, 서버에 존재하는 질문 목록으로 100% 일치
+        if (Array.isArray(cloudItems)) {
+          const dedupedMap = new Map();
+          cloudItems.forEach(item => {
+            const k = normKey(item.rawQuery || item.question);
+            if (k) {
+              if (dedupedMap.has(k)) {
+                const prev = dedupedMap.get(k);
+                prev.count = Math.max(prev.count || 1, item.count || 1);
+              } else {
+                dedupedMap.set(k, { ...item, count: item.count || 1 });
               }
-            } else {
-              nextList.push({ ...cItem, count: cItem.count || 1 });
             }
           });
-          setUnansweredList(nextList);
-          localStorage.setItem('vora_unanswered_qna', JSON.stringify(nextList));
+          const list = Array.from(dedupedMap.values());
+          setUnansweredList(list);
+          localStorage.setItem('vora_unanswered_qna', JSON.stringify(list));
+          return;
         }
       }
+
+      // Fallback
+      const stored = JSON.parse(localStorage.getItem('vora_unanswered_qna') || '[]');
+      setUnansweredList(Array.isArray(stored) ? stored : []);
     } catch (e) {
       setUnansweredList([]);
     }
@@ -115,7 +126,7 @@ export default function AdminBatchModal({
       setApiKey(savedKey);
       if (savedKey) setIsKeySaved(true);
 
-      // Load unanswered questions from Central Cloud DB and custom learned vault
+      // Load unanswered questions and custom vault with real-time cloud sync
       loadUnansweredFromStorage(true);
       loadCustomVaultFromStorage();
     }
@@ -343,10 +354,11 @@ export default function AdminBatchModal({
 
       const updatedVault = Array.from(mergedMap.values());
       localStorage.setItem('vora_custom_qna_vault', JSON.stringify(updatedVault));
-      loadCustomVaultFromStorage();
+      await pushCustomVaultToCloud(updatedVault);
+      await loadCustomVaultFromStorage();
     } catch (e) {}
 
-    setBatchLogs(prev => [...prev, `🎉 총 ${newDistilled.length}개 신규 지식 학습 완료 & 중복 완벽 제거 완료! ✨`]);
+    setBatchLogs(prev => [...prev, `🎉 총 ${newDistilled.length}개 신규 지식 학습 완료 & 클라우드 영구 동기화 완료! ✨`]);
   };
 
   // 📥 [전체 지식 DB 복호화 평문 JSON 다운로드]
@@ -1094,12 +1106,14 @@ export default function AdminBatchModal({
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
                           {item._isCustom && (
                             <button
-                              onClick={(e) => {
+                              onClick={async (e) => {
                                 e.stopPropagation();
                                 if (confirm(`"${item.title || item.questionVariations?.[0]}" 지식을 삭제하시겠습니까?`)) {
                                   const updated = customVaultList.filter(c => c.id !== item.id && norm(c.title || c.questionVariations?.[0]) !== norm(item.title || item.questionVariations?.[0]));
                                   localStorage.setItem('vora_custom_qna_vault', JSON.stringify(updated));
                                   setCustomVaultList(updated);
+                                  await deleteCustomKnowledgeFromCloud(item.id || item.title || item.questionVariations?.[0]);
+                                  await pushCustomVaultToCloud(updated);
                                 }
                               }}
                               title="이 지식 삭제"
