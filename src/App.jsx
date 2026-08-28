@@ -617,9 +617,15 @@ export default function App() {
         if (reqText) tagLabel += ` • ✍️ ${reqText}`;
 
         const cityKnowledge = CITY_LOCAL_KNOWLEDGE[targetCity];
-        const highlightText = cityKnowledge?.signatureHighlights
-          ? `${cityKnowledge.signatureHighlights.slice(0, 2).join(', ')} 등 `
-          : '';
+        const specificSpotMatch = promptQuery.match(/(사량도|욕지도|독도|우도|청산도|남이섬|금오도|퍼플섬|외도|소매물도|비진도|지심도|경복궁|N서울타워|남산타워|북촌한옥마을|동피랑|해운대|광안리|성산일출봉|수원화성|행궁동)/i);
+        let highlightText = '';
+        if (specificSpotMatch && specificSpotMatch[1]) {
+          const mentioned = specificSpotMatch[1];
+          const otherHighlight = cityKnowledge?.signatureHighlights?.find(h => !h.includes(mentioned));
+          highlightText = otherHighlight ? `${mentioned}, ${otherHighlight} 등 ` : `${mentioned} 등 `;
+        } else if (cityKnowledge?.signatureHighlights) {
+          highlightText = `${cityKnowledge.signatureHighlights.slice(0, 2).join(', ')} 등 `;
+        }
 
         const durationChips = [
           (lang === 'en' ? '🗓️ 1 Day (Day Trip)' : '🗓️ 당일치기'),
