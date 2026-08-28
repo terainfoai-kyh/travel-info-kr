@@ -255,6 +255,12 @@ export default function AdminBatchModal({
       const promptText = `당신은 대한민국 여행 전문 AI 'VORA(보라)'의 최고 수석 지식 설계자입니다.
 사용자 질문: "${q.rawQuery}" (${ctxSummary || '목적지: 전국'})
 
+[핵심 지식 증류 필수 원칙]:
+1. 동음이의어 또는 전국에 여러 곳이 존재하는 지명/명소(예: 옥녀봉, 남산, 미륵산, 용두산, 관음도, 비렁길 등) 질문 시:
+   - 전국에서 관광객/등산객에게 가장 유명하고 인지도가 압도적인 대표 1등 명소(예: 통영 사량도 옥녀봉·출렁다리, 서울 청계산 옥녀봉, 거제 옥녀봉 등)를 1순위로 반드시 가장 먼저 언급할 것!
+2. 답변은 여행자가 모바일에서 편하게 읽을 수 있도록 군더더기 없이 친절하고 정갈한 2~3문장으로 핵심을 요약할 것.
+3. suggestedChips에는 사용자가 다음 행동으로 누를 만한 전국 대표 1등 명소 버튼(예: "통영 사량도 옥녀봉", "청계산 옥녀봉", "논산 옥녀봉", "사량도 가는 법")을 우선순위로 3~4개 추천할 것.
+
 다음 JSON 포맷으로만 즉시 출력하세요:
 {
   "id": "qna_auto_${Date.now()}_${i}",
@@ -265,13 +271,13 @@ export default function AdminBatchModal({
   "questionVariations": ["${q.rawQuery}"],
   "intentKeywords": ["키워드1", "키워드2"],
   "geminiAnswer": {
-    "ko": "친절하고 정확한 2~3문장 한국어 핵심 맞춤 답변 (질문자가 ${q.targetCity || ctx.city || '대한민국'} 여행 중이므로 해당 도시 문맥에 맞춰 답변)",
-    "en": "English answer",
-    "ja": "日本語",
-    "zh": "中文"
+    "ko": "친절하고 정확한 2~3문장 한국어 핵심 맞춤 답변 (전국 1등 대표 명소 최우선 안내)",
+    "en": "Concise 2~3 sentence English travel concierge answer",
+    "ja": "2〜3文の親切な日本語の旅行案内",
+    "zh": "亲切准确的2~3句中文旅游向导回答"
   },
   "followUp": "다음 제안 질문?",
-  "suggestedChips": ["버튼1", "버튼2"]
+  "suggestedChips": ["대표명소1", "대표명소2", "대표명소3"]
 }`;
 
       let rawOutput = '';
