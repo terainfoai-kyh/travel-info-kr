@@ -16,7 +16,7 @@ import {
 import { getGooglePlaceSearchUrl } from '../services/geminiNlpService';
 import { TRANSLATIONS } from '../i18n/translations';
 import { getSpotAffiliateDeal } from '../services/affiliateService';
-import { fetchSpotDetailImages, fetchSpotDetailIntro } from '../services/tourApi';
+import { fetchSpotDetailImages, fetchSpotDetailIntro, fetchSpotDetailCommon } from '../services/tourApi';
 import { KOREA_TRAVEL_POI_DB } from '../data/koreaTravelPoiDatabase';
 
 /**
@@ -25,10 +25,10 @@ import { KOREA_TRAVEL_POI_DB } from '../data/koreaTravelPoiDatabase';
  * 
  * 🛡️ CONSTITUTIONAL ARCHITECTURE:
  * 1. Live Korea Tourism Organization (TourAPI 4.0) Official CDN Direct Sourcing
- * 2. detailImage2 Multi-angle High-Resolution Genuine Photo Pipeline (Zero Receipts/Zero Selcas)
- * 3. detailIntro2 Realtime Operating Hours & Admission Fees
- * 4. CSS Sharpness & Contrast Optimization for Crisp Visual Experience
- * 5. Interactive Replacement & Nearby Food/Cafe Discovery
+ * 2. detailImage2 Multi-angle High-Resolution Genuine Photo Pipeline
+ * 3. detailIntro2 Realtime Operating Hours, Parking, Pet & Barrier-Free Facilities
+ * 4. detailCommon2 Genuine Overview & Official Homepage
+ * 5. Intelligent Multi-modal Transit Routing (Islands / Inland / Subway)
  * ==============================================================================
  */
 
@@ -45,11 +45,12 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
   const [activePanel, setActivePanel] = useState(null); // 'replace' | 'nearby' | null
   const [confirmTargetSpot, setConfirmTargetSpot] = useState(null); // 교체 확인 대상 명소
 
-  // 🌟 실시간 공공데이터 상세 이미지 & 소개 정보 상태 관리
+  // 🌟 실시간 공공데이터 상세 이미지 & 소개/공통 정보 상태 관리
   const [liveGalleryImages, setLiveGalleryImages] = useState(spot.images || []);
   const [liveIntroDetails, setLiveIntroDetails] = useState(null);
+  const [liveCommonDetails, setLiveCommonDetails] = useState(null);
 
-  // 🌟 한국관광공사 TourAPI 4.0 공식 갤러리(detailImage2) 및 이용정보(detailIntro2) 실시간 로딩
+  // 🌟 한국관광공사 TourAPI 4.0 공식 갤러리(detailImage2) 및 이용정보(detailIntro2), 공통개요(detailCommon2) 실시간 로딩
   useEffect(() => {
     let isMounted = true;
     const contentId = spot.contentId || (spot.id ? String(spot.id).replace('tourapi_', '') : null);
@@ -62,10 +63,17 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
         }
       }).catch(() => {});
 
-      // 2. 실제 정부 등록 운영시간, 휴무일, 입장료 실시간 수신
+      // 2. 실제 정부 등록 운영시간, 휴무일, 주차, 반려동물 실시간 수신
       fetchSpotDetailIntro(contentId, spot.contentTypeId || '12', lang).then(introData => {
         if (isMounted && introData) {
           setLiveIntroDetails(introData);
+        }
+      }).catch(() => {});
+
+      // 3. 실제 문화관광 정품 스토리 개요(overview) 및 홈페이지 수신
+      fetchSpotDetailCommon(contentId, lang).then(commonData => {
+        if (isMounted && commonData) {
+          setLiveCommonDetails(commonData);
         }
       }).catch(() => {});
     }
@@ -90,8 +98,8 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
       ];
     }
     return [
-      { id: 'alt-gen1', title: `${cleanTitle} 인근 추천지`, category: '추천명소', rating: 4.7, location: '인근 도보 5분', subway: '도보 5분', image: 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg', description: '현재 위치에서 가장 가깝고 현지인들이 사랑하는 대표 명소입니다.' },
-      { id: 'alt-gen2', title: `${cleanTitle} 감성 거리`, category: '문화거리', rating: 4.6, location: '인근 도보 10분', subway: '도보 10분', image: 'https://tong.visitkorea.or.kr/cms/resource/46/2645646_image2_1.jpg', description: '여유롭게 산책하며 감성적인 사진을 남기기 좋은 로컬 거리입니다.' }
+      { id: 'alt-g1', title: `${cleanTitle} 인근 힐링 명소`, category: '추천명소', rating: 4.7, location: spot.addr1 || spot.location || '인근 권역', subway: '도보 또는 시내버스 10분', image: 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg', description: '인근에서 가장 평점이 높고 산책하기 좋은 대표 연계 명소입니다.' },
+      { id: 'alt-g2', title: `${cleanTitle} 전망 명소`, category: '전망대·공원', rating: 4.6, location: spot.addr1 || spot.location || '인근 권역', subway: '차량 5분', image: 'https://tong.visitkorea.or.kr/cms/resource/46/2645646_image2_1.jpg', description: '탁 트인 파노라마 전경을 감상할 수 있는 감성 포토존입니다.' }
     ];
   };
 
@@ -118,7 +126,6 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
   };
 
   // 정확한 위치 및 대중교통
-  // 🌟 KOREA_TRAVEL_POI_DB 정품 정보 1:1 매핑
   const matchedPoi = (KOREA_TRAVEL_POI_DB || []).find(p => {
     const pTitle = p.title.replace(/[\s\-\_\.]/g, '').toLowerCase();
     const cTitle = cleanTitle.replace(/[\s\-\_\.]/g, '').toLowerCase();
@@ -550,23 +557,23 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
           }}>
             {/* 1. 도로명 주소 */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
-              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '55px', fontWeight: 700 }}>
+              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
                 • 위치
               </span>
               <span style={{ color: 'var(--text-main)', fontWeight: 600, wordBreak: 'keep-all' }}>: {location}</span>
             </div>
 
-            {/* 2. 대중교통 */}
+            {/* 2. 대중교통 & 배편 */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
-              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '55px', fontWeight: 700 }}>
+              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
                 • 교통
               </span>
-              <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>: {subwayTransit}</span>
+              <span style={{ color: '#2563eb', fontWeight: 700 }}>: {subwayTransit}</span>
             </div>
 
             {/* 3. 관람 시간 */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
-              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '55px', fontWeight: 700 }}>
+              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
                 • 시간
               </span>
               <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>
@@ -576,7 +583,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
 
             {/* 4. 추천 소요시간 */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
-              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '55px', fontWeight: 700 }}>
+              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
                 • 소요
               </span>
               <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>: {duration}</span>
@@ -584,16 +591,70 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
 
             {/* 5. 입장 요금 */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
-              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '55px', fontWeight: 700 }}>
+              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
                 • 요금
               </span>
               <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>: {admissionFee}</span>
             </div>
 
-            {/* 6. 테마 태그 */}
+            {/* 6. 🚗 주차 시설 */}
+            {liveIntroDetails?.parking && (
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
+                <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
+                  • 주차
+                </span>
+                <span style={{ color: 'var(--text-main)', fontWeight: 600, wordBreak: 'keep-all' }}>: {liveIntroDetails.parking}</span>
+              </div>
+            )}
+
+            {/* 7. 📞 문의 및 안내 */}
+            {(liveIntroDetails?.infocenter || liveCommonDetails?.tel) && (
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
+                <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
+                  • 문의
+                </span>
+                <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>
+                  : {liveIntroDetails?.infocenter || liveCommonDetails?.tel}
+                </span>
+              </div>
+            )}
+
+            {/* 8. 🐶 반려동물 동반 */}
+            {liveIntroDetails?.chkpet && (
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
+                <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
+                  • 반려동물
+                </span>
+                <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>: {liveIntroDetails.chkpet}</span>
+              </div>
+            )}
+
+            {/* 9. 👶 ♿ 유모차 / 편의시설 */}
+            {liveIntroDetails?.chkbabycarriage && (
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
+                <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
+                  • 편의/대여
+                </span>
+                <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>: {liveIntroDetails.chkbabycarriage}</span>
+              </div>
+            )}
+
+            {/* 10. 🌐 공식 홈페이지 링크 */}
+            {liveCommonDetails?.homepage && (
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
+                <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
+                  • 홈페이지
+                </span>
+                <span style={{ color: '#2563eb', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  : <span dangerouslySetInnerHTML={{ __html: liveCommonDetails.homepage }} />
+                </span>
+              </div>
+            )}
+
+            {/* 11. 테마 태그 */}
             {matchedPoi?.tags && matchedPoi.tags.length > 0 && (
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem', marginTop: '0.2rem' }}>
-                <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '55px', fontWeight: 700 }}>
+                <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
                   • 테마
                 </span>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
@@ -617,6 +678,30 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
               </div>
             )}
           </div>
+
+          {/* 📖 관광공사 정품 상세 스토리 (overview) */}
+          {liveCommonDetails?.overview && (
+            <div style={{
+              backgroundColor: 'var(--bg-primary)',
+              borderRadius: '8px',
+              padding: '0.65rem 0.8rem',
+              border: '1px solid var(--border-color)',
+              marginTop: '0.2rem'
+            }}>
+              <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
+                🏛️ 한국관광공사 정품 상세 스토리
+              </div>
+              <p style={{
+                margin: 0,
+                fontSize: '0.78rem',
+                lineHeight: 1.6,
+                color: 'var(--text-main)',
+                opacity: 0.95
+              }}>
+                {liveCommonDetails.overview}
+              </p>
+            </div>
+          )}
 
           {/* ⚡ 3. 실시간 모바일 현장 액션 탭 (둘러보기 모드일 땐 교체 버튼 숨김!) */}
           <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.1rem' }}>
