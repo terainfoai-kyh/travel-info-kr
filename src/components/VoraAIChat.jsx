@@ -657,10 +657,12 @@ export default function VoraAIChat({
         const isCurrentMsgItineraryCard = Boolean(lastAssistantMsg?.itinerary && lastAssistantMsg.itinerary.dailySchedules?.length > 0);
         const activeQuickSuggestions = lastAssistantMsg?.quickSuggestions || [];
         const hasSuggestions = activeQuickSuggestions.length > 0;
-        let rawBottomChips = hasSuggestions ? [...activeQuickSuggestions] : [...(t.chatQuickModifications || [])];
+        let sourceChips = hasSuggestions ? [...activeQuickSuggestions] : [...(t.chatQuickModifications || [])];
 
-        // 🛡️ 중복/혼란 방지: [바로 일정 만들기] 계열 중복 버튼 완전 제거 & 순수 테마/수정 칩만 깔끔하게 유지
-        rawBottomChips = rawBottomChips.filter(c => 
+        const defaultCreateLabel = lang === 'en' ? '🚀 Create Plan' : lang === 'ja' ? '🚀 日程生成' : (lang === 'zh' || lang === 'zht') ? '🚀 生成行程' : '🚀 바로 일정 만들기';
+
+        // 🛡️ 중복 제거: 먼저 '바로 일정 만들기' 계열을 전부 걸러낸 순수 서브 칩 목록 추출
+        const cleanSubChips = sourceChips.filter(c => 
           !c.includes('바로 일정') && 
           !c.includes('일정 생성') && 
           !c.includes('일정표 만들기') && 
@@ -669,12 +671,15 @@ export default function VoraAIChat({
           !c.includes('Generate Itinerary')
         );
 
-        if (rawBottomChips.length === 0) {
-          rawBottomChips = [...(t.chatQuickModifications || [])];
-        }
+        let finalChips = [];
 
-        // 🛡️ 모바일 최적화: 칩 개수를 최대 4개로 제한
-        const bottomChips = rawBottomChips.slice(0, isCurrentMsgItineraryCard ? 3 : 4);
+        if (isCurrentMsgItineraryCard) {
+          // 🌟 이미 일정이 완성된 상태: 헷갈리지 않게 순수 일정 수정 칩만 최대 3개 노출
+          finalChips = cleanSubChips.length > 0 ? cleanSubChips.slice(0, 3) : [...(t.chatQuickModifications || [])].slice(0, 3);
+        } else {
+          // 🌟 온보딩/탐색 단계: 맨 앞(Index 0)에 [🚀 바로 일정 만들기]를 단 하나만 딱 배치하고, 뒤에 서브 칩 3개 연결 (중복 100% 원천 차단!)
+          finalChips = [defaultCreateLabel, ...cleanSubChips.slice(0, 3)];
+        }
 
         return (
           <div
@@ -697,10 +702,11 @@ export default function VoraAIChat({
               WebkitOverflowScrolling: 'touch'
             }}
           >
-            {bottomChips.map((chip, idx) => {
-              const displayLabel = hasSuggestions 
-                ? (chip.startsWith('✨') || chip.startsWith('🚀') || chip.startsWith('⚙️') || chip.startsWith('👑') || chip.startsWith('🌊') || chip.startsWith('🌴') || chip.startsWith('🏖️') || chip.startsWith('☀️') || chip.startsWith('🌤️') || chip.startsWith('🌙') || chip.startsWith('🗓️') || chip.startsWith('📍') || chip.startsWith('🌸') || chip.startsWith('🍁') || chip.startsWith('🏔️') || chip.startsWith('🌾') || chip.startsWith('🏮') ? chip : `✨ ${chip}`) 
-                : `＋ ${chip}`;
+            {finalChips.map((chip, idx) => {
+              const isBuildBtn = chip.includes('일정 생성') || chip.includes('바로 일정') || chip.includes('일정표 만들기') || chip.includes('일정 짜줘') || chip.includes('Create Plan') || chip.includes('Generate Itinerary');
+              const displayLabel = isBuildBtn
+                ? defaultCreateLabel
+                : (hasSuggestions ? (chip.startsWith('✨') || chip.startsWith('🚀') || chip.startsWith('⚙️') || chip.startsWith('👑') || chip.startsWith('🌊') || chip.startsWith('🌴') || chip.startsWith('🏖️') || chip.startsWith('☀️') || chip.startsWith('🌤️') || chip.startsWith('🌙') || chip.startsWith('🗓️') || chip.startsWith('📍') || chip.startsWith('🌸') || chip.startsWith('🍁') || chip.startsWith('🏔️') || chip.startsWith('🌾') || chip.startsWith('🏮') ? chip : `✨ ${chip}`) : `＋ ${chip}`);
 
               return (
                 <button
@@ -708,27 +714,33 @@ export default function VoraAIChat({
                   onClick={() => handleQuickChip(chip)}
                   style={{
                     flexShrink: 0,
-                    background: '#ffffff',
-                    color: 'var(--accent-primary)',
-                    border: '1px solid rgba(37, 99, 235, 0.22)',
+                    background: isBuildBtn
+                      ? 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)'
+                      : '#ffffff',
+                    color: isBuildBtn ? '#ffffff' : 'var(--accent-primary)',
+                    border: isBuildBtn ? 'none' : '1px solid rgba(37, 99, 235, 0.22)',
                     borderRadius: 'var(--radius-full)',
-                    padding: '0.2rem 0.55rem',
-                    fontSize: '0.7rem',
-                    fontWeight: 700,
+                    padding: isBuildBtn ? '0.24rem 0.65rem' : '0.2rem 0.55rem',
+                    fontSize: isBuildBtn ? '0.74rem' : '0.7rem',
+                    fontWeight: isBuildBtn ? 900 : 700,
                     cursor: 'pointer',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+                    boxShadow: isBuildBtn ? '0 2px 8px rgba(37, 99, 235, 0.35)' : '0 1px 3px rgba(0,0,0,0.03)',
                     transition: 'all var(--transition-fast)',
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: '0.2rem'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = 'var(--accent-primary)';
-                    e.currentTarget.style.backgroundColor = 'rgba(37, 99, 235, 0.05)';
+                    if (!isBuildBtn) {
+                      e.currentTarget.style.borderColor = 'var(--accent-primary)';
+                      e.currentTarget.style.backgroundColor = 'rgba(37, 99, 235, 0.05)';
+                    }
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(37, 99, 235, 0.22)';
-                    e.currentTarget.style.backgroundColor = '#ffffff';
+                    if (!isBuildBtn) {
+                      e.currentTarget.style.borderColor = 'rgba(37, 99, 235, 0.22)';
+                      e.currentTarget.style.backgroundColor = '#ffffff';
+                    }
                   }}
                 >
                   {displayLabel}
