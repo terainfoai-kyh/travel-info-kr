@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, Share2, Check, MapPin, Sparkles, Navigation, Info, ExternalLink, Clock, CheckCircle2, Trash2, PlusCircle, Bookmark, Printer, Download, Zap, Smartphone } from 'lucide-react';
+import { Calendar, Share2, Check, MapPin, Sparkles, Navigation, Info, ExternalLink, Clock, CheckCircle2, Trash2, PlusCircle, Bookmark, Printer, Download, Zap, Smartphone, RotateCw, X } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
 import QRCodeModal from './QRCodeModal';
 
@@ -7,12 +7,13 @@ import QRCodeModal from './QRCodeModal';
  * ==============================================================================
  * MyTripTab.jsx - 내 여행 스마트 타임라인 & 멀티 저장 여행 셀렉터
  * 
- * 1. 상단: 🧳 내 저장 여행 (N개) 스마트 가로 스크롤 카드 셀렉터 & [＋ 새 여행] & [⚡ 잔여 저장 N/3회]
- * 2. 저장 상태별 최적화:
+ * 1. 상단: 🧳 내 저장 여행 (N개) 스마트 가로 스크롤 카드 셀렉터 & [＋ 새 여행] & [⚡ 잔여 저장 N/3회] & [🔄 동기화]
+ * 2. 비회원 유입 고객 ➔ 구글 계정 영구 보관 & 15회 혜택 스마트 넛지(Nudge) 배너
+ * 3. 저장 상태별 최적화:
  *    - 미저장(Draft): [ 📝 작성 중 ] + [ 💾 이 일정 저장하기 (1회 차감) ] 노출 (공유 숨김)
  *    - 저장완료(Saved): [ ✅ 저장됨 ] + [ 📱 모바일 QR ] + [ 🔗 친구 공유 ] + [ 📄 PDF / 인쇄 ]
- * 3. 09:00~18:30 풀코스 1줄 타임라인 (0초 스크롤 뷰)
- * 4. 하단 듀얼 액션 바: [🗺️ 지도 보기] & [💬 AI 대화로 수정]
+ * 4. 09:00~18:30 풀코스 1줄 타임라인 (0초 스크롤 뷰)
+ * 5. 하단 듀얼 액션 바: [🗺️ 지도 보기] & [💬 AI 대화로 수정]
  * ==============================================================================
  */
 
@@ -32,11 +33,36 @@ export default function MyTripTab({
   onSaveCurrentTrip,
   questionQuota = null,
   currentUser = null,
-  onOpenGoogleAuth = null
+  onOpenGoogleAuth = null,
+  onSyncTrips = null
 }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
   const [copied, setCopied] = useState(false);
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [isNudgeDismissed, setIsNudgeDismissed] = useState(false);
+  const [syncFeedback, setSyncFeedback] = useState('');
+
+  // 🔄 원터치 수동 클라우드 동기화 핸들러
+  const handleTriggerSync = async () => {
+    if (isSyncing) return;
+    if (!currentUser?.isGoogleLoggedIn) {
+      if (onOpenGoogleAuth) onOpenGoogleAuth();
+      return;
+    }
+    setIsSyncing(true);
+    try {
+      if (onSyncTrips) {
+        await onSyncTrips();
+      }
+      setSyncFeedback(lang === 'en' ? 'Synced with Cloud ✨' : '클라우드 동기화 완료 ✨');
+      setTimeout(() => setSyncFeedback(''), 2500);
+    } catch (e) {
+      console.warn('[Sync Error]', e);
+    } finally {
+      setTimeout(() => setIsSyncing(false), 400);
+    }
+  };
 
   // 저장된 여행도 없고 현재 활성 일정도 없을 때의 엠프티 뷰
   if (!itineraryData && (!savedTrips || savedTrips.length === 0)) {
@@ -268,7 +294,89 @@ export default function MyTripTab({
       flexDirection: 'column',
       gap: '0.85rem'
     }}>
-      {/* 🌟 0. 상단 멀티 저장 여행 셀렉터 & 잔여 저장 횟수 뱃지 */}
+      {/* 🚀 0. 잠재 고객 확보용 구글 로그인 스마트 넛지 (Nudge) 배너 (비로그인 사용자 전용) */}
+      {!currentUser?.isGoogleLoggedIn && !isNudgeDismissed && onOpenGoogleAuth && (
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, rgba(124, 58, 237, 0.08) 100%)',
+          border: '1px solid rgba(37, 99, 235, 0.25)',
+          borderRadius: '16px',
+          padding: '0.75rem 1rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '0.75rem',
+          boxShadow: '0 4px 12px rgba(37, 99, 235, 0.06)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+            <div style={{
+              width: '32px',
+              height: '32px',
+              borderRadius: '10px',
+              backgroundColor: '#ffffff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+              boxShadow: '0 2px 6px rgba(0, 0, 0, 0.06)'
+            }}>
+              <svg width="18" height="18" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+              </svg>
+            </div>
+            <div>
+              <div style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                {lang === 'en' ? 'Sync & Save with Google Account' : '구글 로그인하고 전 기기 평생 보관'}
+              </div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                {lang === 'en' ? 'Get 15 daily AI prompts + automatic cloud sync' : '매일 AI 15회 무료 + PC-모바일 실시간 동기화'}
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0 }}>
+            <button
+              type="button"
+              onClick={onOpenGoogleAuth}
+              style={{
+                padding: '0.4rem 0.8rem',
+                borderRadius: '8px',
+                border: 'none',
+                backgroundColor: 'var(--accent-primary)',
+                color: '#ffffff',
+                fontSize: '0.75rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                boxShadow: '0 2px 8px rgba(37, 99, 235, 0.3)'
+              }}
+            >
+              {lang === 'en' ? 'Sign in' : '1초 로그인'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsNudgeDismissed(true)}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--text-muted)',
+                cursor: 'pointer',
+                padding: '0.2rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+              title="닫기"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 🌟 1. 상단 멀티 저장 여행 셀렉터 & 잔여 저장 횟수 뱃지 & 원터치 동기화 */}
       <div style={{
         backgroundColor: 'var(--bg-card)',
         borderRadius: '20px',
@@ -312,24 +420,48 @@ export default function MyTripTab({
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={onCreateNewTrip || onGoToModify}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.25rem',
-              background: 'none',
-              border: 'none',
-              color: '#2563eb',
-              fontSize: '0.76rem',
-              fontWeight: 800,
-              cursor: 'pointer'
-            }}
-          >
-            <PlusCircle size={13} />
-            <span>{lang === 'en' ? '＋ New Trip' : lang === 'ja' ? '＋ 新規プラン' : (lang === 'zh' || lang === 'zht') ? '＋ 新建行程' : '＋ 새 여행 만들기'}</span>
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+            {/* 🔄 원터치 클라우드 동기화 버튼 */}
+            <button
+              type="button"
+              onClick={handleTriggerSync}
+              title="클라우드 최신 일정 동기화"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.25rem',
+                background: 'none',
+                border: 'none',
+                color: isSyncing ? '#2563eb' : 'var(--text-muted)',
+                fontSize: '0.76rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              <RotateCw size={13} style={{ transform: isSyncing ? 'rotate(360deg)' : 'none', transition: isSyncing ? 'transform 0.6s linear' : 'none' }} />
+              <span>{syncFeedback || (lang === 'en' ? 'Sync' : '동기화')}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={onCreateNewTrip || onGoToModify}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.25rem',
+                background: 'none',
+                border: 'none',
+                color: '#2563eb',
+                fontSize: '0.76rem',
+                fontWeight: 800,
+                cursor: 'pointer'
+              }}
+            >
+              <PlusCircle size={13} />
+              <span>{lang === 'en' ? '＋ New Trip' : lang === 'ja' ? '＋ 新規プラン' : (lang === 'zh' || lang === 'zht') ? '＋ 新建行程' : '＋ 새 여행 만들기'}</span>
+            </button>
+          </div>
         </div>
 
         {/* 저장된 여행 목록 가로 스크롤 카드 */}

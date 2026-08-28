@@ -1180,6 +1180,41 @@ export default function App() {
     }
   };
 
+  // 🔄 클라우드 일정 수동/원터치 실시간 동기화 핸들러
+  const handleSyncTrips = async () => {
+    if (!currentUser?.email) {
+      setIsGoogleAuthOpen(true);
+      return false;
+    }
+    try {
+      const cloudList = await fetchCloudTrips(currentUser.email);
+      if (Array.isArray(cloudList)) {
+        setSavedTrips(prev => {
+          const map = new Map();
+          for (const t of cloudList) {
+            const k = t.savedId || t.tripTitle || t.id;
+            if (k) map.set(k, t);
+          }
+          for (const t of prev) {
+            const k = t.savedId || t.tripTitle || t.id;
+            if (k) map.set(k, t);
+          }
+          const merged = Array.from(map.values());
+          try { localStorage.setItem('vora_saved_trips', JSON.stringify(merged)); } catch (e) {}
+          return merged;
+        });
+        if (cloudList.length > 0 && !itineraryData) {
+          setItineraryData(cloudList[0]);
+          setSelectedTripId(cloudList[0].savedId || cloudList[0].tripTitle);
+        }
+        return true;
+      }
+    } catch (e) {
+      console.warn('[handleSyncTrips Error]', e);
+    }
+    return false;
+  };
+
   // 🚪 로그아웃 핸들러
   const handleLogout = () => {
     setCurrentUser(null);
@@ -1386,6 +1421,7 @@ export default function App() {
               questionQuota={questionQuota}
               currentUser={currentUser}
               onOpenGoogleAuth={() => setIsGoogleAuthOpen(true)}
+              onSyncTrips={handleSyncTrips}
             />
           </div>
         )}
