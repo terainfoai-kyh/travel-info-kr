@@ -618,6 +618,7 @@ export function resolveTikitakaResponse(query = '', currentCity = '서울', curr
     const isSpring = /(봄|spring|벚꽃)/.test(clean) || currentSeason === '봄';
     const isAutumn = /(가을|autumn|fall|단풍)/.test(clean) || currentSeason === '가을';
     
+    const seasonLabel = isRain ? '우천 ' : (currentSeason ? `${currentSeason} ` : '');
     const fashion = isRain
       ? K_FASHION_WEATHER_GUIDE.RAINY_DAY
       : isWinter
