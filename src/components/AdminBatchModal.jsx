@@ -38,40 +38,29 @@ export default function AdminBatchModal({
   const [masterVaultList, setMasterVaultList] = useState([]);
   const fileInputRef = useRef(null);
 
-  // 🌐 [기기간 100% 실시간 커스텀 지식 동기화] (핸드폰 ➔ 클라우드 ➔ PC 웹)
+  // 🌐 [헌법 제19조] 100% 순수 중앙 클라우드 단일 진실 원천 커스텀 지식 동기화
   const loadCustomVaultFromStorage = async () => {
     const norm = (s) => (s || '').trim().toLowerCase().replace(/[\s\-_?!.~,()[\]]/g, '');
-    const map = new Map();
-
-    // 1. 로컬 스토리지에 저장된 커스텀 지식 1차 로드
-    try {
-      const stored = JSON.parse(localStorage.getItem('vora_custom_qna_vault') || '[]');
-      if (Array.isArray(stored)) {
-        stored.forEach(item => {
-          const key = norm(item.title || item.questionVariations?.[0] || item.id);
-          if (key) map.set(key, item);
-        });
-      }
-    } catch (e) {}
-
-    // 2. ☁️ 중앙 클라우드 서버에서 다른 기기(핸드폰)가 학습한 지식 실시간 동기화
+    
+    // 1. ☁️ 중앙 클라우드 서버에서 최신 커스텀 지식 실시간 수신 (단일 원천)
     try {
       const cloudVault = await fetchCustomVaultFromCloud();
-      if (Array.isArray(cloudVault) && cloudVault.length > 0) {
+      if (Array.isArray(cloudVault)) {
+        const map = new Map();
         cloudVault.forEach(item => {
           const key = norm(item.title || item.questionVariations?.[0] || item.id);
           if (key) map.set(key, item);
         });
+        const cleanList = Array.from(map.values());
+        setCustomVaultList(cleanList);
+        localStorage.setItem('vora_custom_qna_vault', JSON.stringify(cleanList));
       }
-    } catch (e) {}
+    } catch (e) {
+      const stored = JSON.parse(localStorage.getItem('vora_custom_qna_vault') || '[]');
+      setCustomVaultList(Array.isArray(stored) ? stored : []);
+    }
 
-    const mergedVault = Array.from(map.values());
-    setCustomVaultList(mergedVault);
-    try {
-      localStorage.setItem('vora_custom_qna_vault', JSON.stringify(mergedVault));
-    } catch (e) {}
-
-    // 3. 소스코드 기본 마스터 지식 로드
+    // 2. 소스코드 기본 마스터 지식 로드
     try {
       const masterVault = getVoraQnaVault() || [];
       setMasterVaultList(Array.isArray(masterVault) ? masterVault : []);
@@ -80,7 +69,7 @@ export default function AdminBatchModal({
     }
   };
 
-  // 🌐 [기기간 100% 실시간 미답변 큐 동기화]
+  // 🌐 [헌법 제19조] 100% 순수 중앙 클라우드 단일 진실 원천 미답변 큐 동기화 (유령 착시 100% 척결)
   const loadUnansweredFromStorage = async (syncCloud = true) => {
     try {
       const normKey = (s) => (s || '').trim().toLowerCase().replace(/[\s\-_?!.~,()[\]]/g, '');
@@ -90,7 +79,7 @@ export default function AdminBatchModal({
         const cloudItems = await fetchQuestionsFromCloud();
         setIsSyncingCloud(false);
 
-        // 클라우드 큐가 기준이 되며, 서버에 존재하는 질문 목록으로 100% 일치
+        // 클라우드 서버 데이터가 100% 기준 (서버에 없으면 로컬도 즉시 0건!)
         if (Array.isArray(cloudItems)) {
           const dedupedMap = new Map();
           cloudItems.forEach(item => {
@@ -111,7 +100,7 @@ export default function AdminBatchModal({
         }
       }
 
-      // Fallback
+      // 오프라인 fallback
       const stored = JSON.parse(localStorage.getItem('vora_unanswered_qna') || '[]');
       setUnansweredList(Array.isArray(stored) ? stored : []);
     } catch (e) {
