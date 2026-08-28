@@ -1549,8 +1549,8 @@ export default function App() {
         lang={lang}
       />
 
-      {/* Footer with Google AdSense Required Policy Links (Visible only on Home and More tabs) */}
-      {(activeNavTab === 'home' || activeNavTab === 'more') && (
+      {/* Footer with Google AdSense Required Policy Links (Visible on More tab & Desktop) */}
+      {activeNavTab === 'more' && (
         <footer style={{
           marginTop: 'auto',
           borderTop: '1px solid var(--border-color)',
