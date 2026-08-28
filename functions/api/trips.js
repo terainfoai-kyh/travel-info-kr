@@ -69,18 +69,49 @@ export async function onRequestPost({ request, env }) {
       });
     }
 
+    const isOverwrite = Boolean(body.overwrite);
+
     // 1. Try Cloudflare KV Storage
     if (env && env.VORA_KV) {
       const kvKey = `user_trips_${email}`;
-      let existing = [];
-      try {
-        const kvExisting = await env.VORA_KV.get(kvKey, { type: 'json' });
-        if (Array.isArray(kvExisting)) existing = kvExisting;
-      } catch (e) {}
+      let finalTrips = trips;
 
-      // Merge new trips with existing
+      if (!isOverwrite) {
+        let existing = [];
+        try {
+          const kvExisting = await env.VORA_KV.get(kvKey, { type: 'json' });
+          if (Array.isArray(kvExisting)) existing = kvExisting;
+        } catch (e) {}
+
+        // Merge new trips with existing
+        const tripMap = new Map();
+        for (const t of existing) {
+          const k = t.savedId || t.tripTitle || t.id;
+          if (k) tripMap.set(k, t);
+        }
+        for (const t of trips) {
+          const k = t.savedId || t.tripTitle || t.id;
+          if (k) tripMap.set(k, t);
+        }
+        finalTrips = Array.from(tripMap.values());
+      }
+
+      await env.VORA_KV.put(kvKey, JSON.stringify(finalTrips), {
+        expirationTtl: 60 * 60 * 24 * 90 // 90 days retention
+      });
+
+      inMemoryUserTrips.set(email, finalTrips);
+      return new Response(JSON.stringify({ success: true, count: finalTrips.length, source: 'KV' }), {
+        headers: CORS_HEADERS
+      });
+    }
+
+    // 2. In-Memory fallback
+    let finalMemTrips = trips;
+    if (!isOverwrite) {
+      let existingMem = inMemoryUserTrips.get(email) || [];
       const tripMap = new Map();
-      for (const t of existing) {
+      for (const t of existingMem) {
         const k = t.savedId || t.tripTitle || t.id;
         if (k) tripMap.set(k, t);
       }
@@ -88,33 +119,11 @@ export async function onRequestPost({ request, env }) {
         const k = t.savedId || t.tripTitle || t.id;
         if (k) tripMap.set(k, t);
       }
-
-      const merged = Array.from(tripMap.values());
-      await env.VORA_KV.put(kvKey, JSON.stringify(merged), {
-        expirationTtl: 60 * 60 * 24 * 90 // 90 days retention
-      });
-
-      inMemoryUserTrips.set(email, merged);
-      return new Response(JSON.stringify({ success: true, count: merged.length, source: 'KV' }), {
-        headers: CORS_HEADERS
-      });
+      finalMemTrips = Array.from(tripMap.values());
     }
+    inMemoryUserTrips.set(email, finalMemTrips);
 
-    // 2. In-Memory fallback
-    let existingMem = inMemoryUserTrips.get(email) || [];
-    const tripMap = new Map();
-    for (const t of existingMem) {
-      const k = t.savedId || t.tripTitle || t.id;
-      if (k) tripMap.set(k, t);
-    }
-    for (const t of trips) {
-      const k = t.savedId || t.tripTitle || t.id;
-      if (k) tripMap.set(k, t);
-    }
-    const mergedMem = Array.from(tripMap.values());
-    inMemoryUserTrips.set(email, mergedMem);
-
-    return new Response(JSON.stringify({ success: true, count: mergedMem.length, source: 'MEMORY' }), {
+    return new Response(JSON.stringify({ success: true, count: finalMemTrips.length, source: 'MEMORY' }), {
       headers: CORS_HEADERS
     });
   } catch (err) {

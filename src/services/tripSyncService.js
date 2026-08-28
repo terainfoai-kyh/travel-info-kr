@@ -49,6 +49,31 @@ export async function pushTripsToCloud(email, trips) {
 }
 
 /**
+ * ☁️ Overwrite user's trips in Cloudflare Central Cloud (Mirroring SSOT)
+ */
+export async function overwriteTripsToCloud(email, trips) {
+  if (!email) return false;
+  try {
+    const tripList = Array.isArray(trips) ? trips : (trips ? [trips] : []);
+    const res = await fetch(API_BASE, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: email.trim().toLowerCase(),
+        trips: tripList,
+        overwrite: true
+      })
+    });
+    if (!res.ok) return false;
+    const data = await res.json();
+    return Boolean(data.success);
+  } catch (err) {
+    console.warn('[TripSync] Overwrite Trips Failed:', err);
+    return false;
+  }
+}
+
+/**
  * ☁️ Delete trip from Cloudflare Central Cloud
  */
 export async function deleteTripFromCloud(email, tripId) {

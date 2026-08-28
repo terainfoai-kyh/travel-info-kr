@@ -49,7 +49,7 @@ import { fetchCityTourApiSpots, fetchDynamicRealtimeSpots } from './services/tou
 import { getDynamicGatewayChips, CITY_LOCAL_KNOWLEDGE } from './data/voraDialogKnowledge';
 import { matchVoraQna } from './services/voraQnaMatcher';
 import { buildTravelContext, generateContextualAdvice, patchTravelState, removeContextChip, toggleContextChip, classifyUserIntent, getActiveContextChips, INITIAL_TRAVEL_STATE } from './services/travelContextEngine';
-import { fetchCloudTrips, pushTripsToCloud, deleteTripFromCloud, parseTripFromUrl } from './services/tripSyncService';
+import { fetchCloudTrips, pushTripsToCloud, overwriteTripsToCloud, deleteTripFromCloud, parseTripFromUrl } from './services/tripSyncService';
 
 export default function App() {
   // 4-Language State (ko, en, ja, zh) with 3-Tier Intelligent Auto-Detection
@@ -1118,26 +1118,27 @@ export default function App() {
     showToast(lang === 'en' ? 'Starting a fresh new conversation ✨' : '새로운 대화를 시작합니다 ✨');
   };
 
-  // 저장된 여행 삭제 핸들러 (작성 중인 새 미저장 일정 100% 보호 & 클라우드 실시간 삭제)
+  // 저장된 여행 삭제 핸들러 (100% 클라우드 단일 진실 원천 미러링 & 로컬 캐시 찌꺼기 원천 차단)
   const handleDeleteSavedTrip = (tripId) => {
     setSavedTrips(prev => {
-      const updated = prev.filter(t => (t.savedId || t.tripTitle) !== tripId);
+      const updated = prev.filter(t => (t.savedId || t.tripTitle || t.id) !== tripId);
       try {
         localStorage.setItem('vora_saved_trips', JSON.stringify(updated));
       } catch (e) {}
 
-      // ☁️ 클라우드에서도 실시간 삭제
+      // ☁️ 클라우드에서도 단일 진실 원천으로 완전 덮어쓰기 & 삭제
       if (currentUser?.email) {
         deleteTripFromCloud(currentUser.email, tripId).catch(e => console.warn('[Cloud Delete Error]', e));
+        overwriteTripsToCloud(currentUser.email, updated).catch(e => console.warn('[Cloud Overwrite Error]', e));
       }
 
       // 🛡️ 현재 보고 있는 일정이 '작성 중인 새 미저장 일정'이라면 절대 날리지 않고 그대로 유지!
       if (!hasActiveUnsavedDraft) {
-        const isCurrentActiveDeleted = itineraryData && (itineraryData.savedId === tripId || itineraryData.tripTitle === tripId);
+        const isCurrentActiveDeleted = itineraryData && (itineraryData.savedId === tripId || itineraryData.tripTitle === tripId || itineraryData.id === tripId);
         if (isCurrentActiveDeleted) {
           if (updated.length > 0) {
             setItineraryData(updated[0]);
-            setSelectedTripId(updated[0].savedId);
+            setSelectedTripId(updated[0].savedId || updated[0].tripTitle);
           } else {
             setItineraryData(null);
             setSelectedTripId(null);
@@ -1148,30 +1149,24 @@ export default function App() {
     });
   };
 
-  // 🌟 구글 로그인 성공 핸들러 (유저 상태 저장 및 클라우드 일정 실시간 동기화 & 로딩)
+  // 🌟 구글 로그인 성공 핸들러 (클라우드 단일 진실 원천 미러링 & 즉시 동기화)
   const handleLoginSuccess = async (userProfile) => {
     setCurrentUser(userProfile);
     if (userProfile?.email) {
       try {
         const cloudList = await fetchCloudTrips(userProfile.email);
-        if (Array.isArray(cloudList) && cloudList.length > 0) {
-          setSavedTrips(prev => {
-            const map = new Map();
-            for (const t of cloudList) {
-              const k = t.savedId || t.tripTitle || t.id;
-              if (k) map.set(k, t);
-            }
-            for (const t of prev) {
-              const k = t.savedId || t.tripTitle || t.id;
-              if (k) map.set(k, t);
-            }
-            const merged = Array.from(map.values());
-            try { localStorage.setItem('vora_saved_trips', JSON.stringify(merged)); } catch (e) {}
-            return merged;
-          });
+        if (Array.isArray(cloudList)) {
+          setSavedTrips(cloudList);
+          try { 
+            localStorage.setItem('vora_saved_trips', JSON.stringify(cloudList)); 
+          } catch (e) {}
+          
           if (cloudList.length > 0) {
             setItineraryData(cloudList[0]);
             setSelectedTripId(cloudList[0].savedId || cloudList[0].tripTitle);
+          } else if (!hasActiveUnsavedDraft) {
+            setItineraryData(null);
+            setSelectedTripId(null);
           }
         }
       } catch (e) {
@@ -1180,7 +1175,7 @@ export default function App() {
     }
   };
 
-  // 🔄 클라우드 일정 수동/원터치 실시간 동기화 핸들러
+  // 🔄 클라우드 일정 수동/원터치 실시간 동기화 핸들러 (Single Source of Truth Mirroring)
   const handleSyncTrips = async () => {
     if (!currentUser?.email) {
       setIsGoogleAuthOpen(true);
@@ -1189,23 +1184,20 @@ export default function App() {
     try {
       const cloudList = await fetchCloudTrips(currentUser.email);
       if (Array.isArray(cloudList)) {
-        setSavedTrips(prev => {
-          const map = new Map();
-          for (const t of cloudList) {
-            const k = t.savedId || t.tripTitle || t.id;
-            if (k) map.set(k, t);
+        // 🏛️ 헌법 제19조: 클라우드 서버의 최신 목록을 그대로 단일 진실 원천으로 완벽 미러링
+        setSavedTrips(cloudList);
+        try { 
+          localStorage.setItem('vora_saved_trips', JSON.stringify(cloudList)); 
+        } catch (e) {}
+
+        if (cloudList.length > 0) {
+          if (!itineraryData || !cloudList.some(t => (t.savedId || t.tripTitle) === (itineraryData.savedId || itineraryData.tripTitle))) {
+            setItineraryData(cloudList[0]);
+            setSelectedTripId(cloudList[0].savedId || cloudList[0].tripTitle);
           }
-          for (const t of prev) {
-            const k = t.savedId || t.tripTitle || t.id;
-            if (k) map.set(k, t);
-          }
-          const merged = Array.from(map.values());
-          try { localStorage.setItem('vora_saved_trips', JSON.stringify(merged)); } catch (e) {}
-          return merged;
-        });
-        if (cloudList.length > 0 && !itineraryData) {
-          setItineraryData(cloudList[0]);
-          setSelectedTripId(cloudList[0].savedId || cloudList[0].tripTitle);
+        } else if (!hasActiveUnsavedDraft) {
+          setItineraryData(null);
+          setSelectedTripId(null);
         }
         return true;
       }
