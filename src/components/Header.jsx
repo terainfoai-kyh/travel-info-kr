@@ -206,9 +206,9 @@ export default function Header({
         </div>
 
         {/* Center / Navigation Links: Desktop Main Nav Tabs & Weather Capsule */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
           {/* 💻 Center Desktop Main Nav Tabs (홈 | AI 플래너 | 내 여행 | 지도) */}
-          <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', backgroundColor: 'var(--bg-glass)', padding: '0.25rem', borderRadius: '14px', border: '1px solid var(--border-color)' }}>
+          <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', backgroundColor: 'var(--bg-glass)', padding: '0.2rem', borderRadius: '14px', border: '1px solid var(--border-color)', flexShrink: 0 }}>
             <button
               type="button"
               onClick={() => onNavigateTab && onNavigateTab('home')}
@@ -224,11 +224,13 @@ export default function Header({
                 fontSize: '0.78rem',
                 fontWeight: 800,
                 cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                flexShrink: 0,
                 transition: 'all 0.15s ease'
               }}
             >
-              <Compass size={14} />
-              <span>{lang === 'en' ? 'Home' : '홈'}</span>
+              <Compass size={14} style={{ flexShrink: 0 }} />
+              <span style={{ whiteSpace: 'nowrap' }}>{lang === 'en' ? 'Home' : '홈'}</span>
             </button>
 
             <button
@@ -246,11 +248,13 @@ export default function Header({
                 fontSize: '0.78rem',
                 fontWeight: 800,
                 cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                flexShrink: 0,
                 transition: 'all 0.15s ease'
               }}
             >
-              <Sparkles size={14} />
-              <span>{lang === 'en' ? 'AI Planner' : 'AI 플래너'}</span>
+              <Sparkles size={14} style={{ flexShrink: 0 }} />
+              <span style={{ whiteSpace: 'nowrap' }}>{lang === 'en' ? 'AI Planner' : 'AI 플래너'}</span>
             </button>
 
             <button
@@ -269,17 +273,19 @@ export default function Header({
                 fontWeight: 800,
                 cursor: 'pointer',
                 position: 'relative',
+                whiteSpace: 'nowrap',
+                flexShrink: 0,
                 transition: 'all 0.15s ease'
               }}
             >
-              <Calendar size={14} />
-              <span>{lang === 'en' ? 'My Trips' : '내 여행'}</span>
+              <Calendar size={14} style={{ flexShrink: 0 }} />
+              <span style={{ whiteSpace: 'nowrap' }}>{lang === 'en' ? 'My Trips' : '내 여행'}</span>
               {savedTripsCount > 0 && (
                 <span style={{
                   fontSize: '0.65rem',
                   backgroundColor: activeNavTab === 'mytrip' ? '#ffffff' : 'var(--accent-primary)',
                   color: activeNavTab === 'mytrip' ? 'var(--accent-primary)' : '#ffffff',
-                  padding: '0.1rem 0.35rem',
+                  padding: '0.05rem 0.35rem',
                   borderRadius: '8px',
                   fontWeight: 900,
                   marginLeft: '0.15rem'
@@ -304,11 +310,13 @@ export default function Header({
                 fontSize: '0.78rem',
                 fontWeight: 800,
                 cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                flexShrink: 0,
                 transition: 'all 0.15s ease'
               }}
             >
-              <MapPin size={14} />
-              <span>{lang === 'en' ? 'Map' : '지도'}</span>
+              <MapPin size={14} style={{ flexShrink: 0 }} />
+              <span style={{ whiteSpace: 'nowrap' }}>{lang === 'en' ? 'Map' : '지도'}</span>
             </button>
           </div>
 
@@ -321,7 +329,7 @@ export default function Header({
               border: '1px solid var(--border-highlight)',
               color: 'var(--accent-primary)',
               borderRadius: 'var(--radius-full)',
-              padding: '0.32rem 0.65rem',
+              padding: '0.35rem 0.65rem',
               display: 'flex',
               alignItems: 'center',
               gap: '0.3rem',
@@ -350,66 +358,11 @@ export default function Header({
               )}
             </div>
           </button>
-
-          {/* 🧭 Travel Essentials Header Shortcut */}
-          <button
-            onClick={() => {
-              const el = document.getElementById('travel-essentials-section');
-              if (el) {
-                el.scrollIntoView({ behavior: 'smooth' });
-              } else if (onOpenEssentials) {
-                onOpenEssentials();
-              }
-            }}
-            title={t.navEssentials || '여행 필수정보'}
-            style={{
-              background: 'var(--bg-card)',
-              border: '1px solid var(--border-color)',
-              color: 'var(--text-main)',
-              borderRadius: 'var(--radius-full)',
-              padding: '0.42rem 0.75rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.35rem',
-              fontSize: '0.78rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              transition: 'all var(--transition-fast)'
-            }}
-            className="hide-mobile"
-          >
-            <Compass size={15} style={{ color: '#10b981' }} />
-            <span>{t.navEssentials || '여행 필수정보'}</span>
-          </button>
-
-          {/* 📲 PWA App Install Header Shortcut (Desktop) */}
-          <button
-            onClick={handleOpenPWA}
-            title={lang === 'en' ? 'Install App (PC & Mobile)' : lang === 'ja' ? 'アプリをインストール' : (lang === 'zh' || lang === 'zht') ? '安装应用程序' : '앱 설치하기'}
-            style={{
-              background: 'rgba(37, 99, 235, 0.08)',
-              border: '1px solid var(--border-highlight)',
-              color: 'var(--accent-primary)',
-              borderRadius: 'var(--radius-full)',
-              padding: '0.42rem 0.75rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.35rem',
-              fontSize: '0.78rem',
-              fontWeight: 800,
-              cursor: 'pointer',
-              transition: 'all var(--transition-fast)'
-            }}
-            className="hide-mobile"
-          >
-            <Download size={15} style={{ color: 'var(--accent-primary)' }} />
-            <span>{lang === 'en' ? 'Install App' : lang === 'ja' ? 'アプリインストール' : (lang === 'zh' || lang === 'zht') ? '安装应用' : '앱 설치'}</span>
-          </button>
         </div>
 
         {/* Right: Key Controls & Hamburger Menu */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-          {/* Wishlist Button with Counter Badge (Desktop Only, on Mobile it's in Hamburger) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexShrink: 0 }}>
+          {/* Wishlist Icon Button with Counter Badge (Desktop) */}
           <button
             onClick={onOpenWishlist}
             title={t.navWishlist || 'Wishlist'}
@@ -419,19 +372,20 @@ export default function Header({
               border: '1px solid var(--border-color)',
               color: 'var(--text-main)',
               borderRadius: 'var(--radius-full)',
-              padding: '0.45rem 0.75rem',
+              padding: '0.45rem 0.55rem',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.35rem',
+              justifyContent: 'center',
+              gap: '0.25rem',
               fontSize: '0.78rem',
               fontWeight: 700,
               cursor: 'pointer',
               position: 'relative',
+              flexShrink: 0,
               transition: 'all var(--transition-fast)'
             }}
           >
             <Heart size={15} style={{ color: wishlistCount > 0 ? '#ef4444' : 'var(--text-dim)', fill: wishlistCount > 0 ? '#ef4444' : 'none' }} />
-            <span>{t.navWishlist || '위시리스트'}</span>
             {wishlistCount > 0 && (
               <span style={{
                 background: '#ef4444',
@@ -439,8 +393,7 @@ export default function Header({
                 fontSize: '0.65rem',
                 fontWeight: 900,
                 borderRadius: '10px',
-                padding: '0.05rem 0.35rem',
-                marginLeft: '0.15rem'
+                padding: '0.05rem 0.35rem'
               }}>
                 {wishlistCount}
               </span>
@@ -448,7 +401,7 @@ export default function Header({
           </button>
 
           {/* 4-Language Universal Switcher Dropdown (Desktop) */}
-          <div ref={langMenuRef} className="hide-mobile" style={{ position: 'relative' }}>
+          <div ref={langMenuRef} className="hide-mobile" style={{ position: 'relative', flexShrink: 0 }}>
             <button
               onClick={() => setIsLangOpen(!isLangOpen)}
               style={{
@@ -456,18 +409,20 @@ export default function Header({
                 border: '1px solid var(--border-color)',
                 color: 'var(--text-main)',
                 borderRadius: 'var(--radius-full)',
-                padding: '0.45rem 0.75rem',
+                padding: '0.42rem 0.6rem',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.35rem',
+                gap: '0.25rem',
                 fontSize: '0.78rem',
                 fontWeight: 700,
                 cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                flexShrink: 0,
                 transition: 'all var(--transition-fast)'
               }}
             >
               <span>{currentLangObj.flag}</span>
-              <span className="hide-mobile">{currentLangObj.label}</span>
+              <span style={{ fontWeight: 800, fontSize: '0.75rem' }}>{currentLangObj.short}</span>
               <ChevronDown size={12} style={{ opacity: 0.6 }} />
             </button>
 
