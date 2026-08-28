@@ -952,7 +952,25 @@ export default function App() {
 
         const compositePrompt = `${buildCity} ${requestedDays}일 ${compList.join('/')} 여행${prefList.length > 0 ? `, 테마: ${prefList.join(', ')}` : ''}, ${promptQuery}`;
 
-        const focusedSpot = updatedState.tripMemory.focusedSpot || null;
+        // 🧠 [대화 히스토리 역추적 명소 추출] 직전 대화에서 사용자가 명소를 언급했거나, Q&A로 추천된 랜드마크 역추적!
+        let focusedSpot = updatedState.tripMemory?.focusedSpot || null;
+        if (!focusedSpot && chatMessages.length > 0) {
+          const recentUserMsgs = chatMessages.filter(m => m.role === 'user').slice(-3).reverse();
+          for (const uMsg of recentUserMsgs) {
+            const uText = uMsg.text || '';
+            const match = matchVoraQna(uText, buildCity, {}, lang);
+            if (match && match.title) {
+              focusedSpot = match.title.replace(/\s*\(.*?\)/g, '').trim();
+              break;
+            }
+            const spotMatch = uText.match(/(해동용궁사|용궁사|불국사|석굴암|첨성대|동궁과\s*월지|황리단길|대릉원|경복궁|N서울타워|남산타워|북촌한옥마을|성수동|성산일출봉|우도|협재|안목해변|설악산|수원화성|행궁동|전주한옥마을|오동도|향일암|사량도|퍼플섬|청산도|남이섬)/i);
+            if (spotMatch && spotMatch[1]) {
+              focusedSpot = spotMatch[1].trim();
+              break;
+            }
+          }
+        }
+
         const rawResult = await generateLocalFallbackItinerary(compositePrompt, buildCity, requestedDays, lang, null, false, focusedSpot);
         const finalResult = {
           ...rawResult,
