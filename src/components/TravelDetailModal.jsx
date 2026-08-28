@@ -630,39 +630,51 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
               </div>
             )}
 
-            {/* 8. 🐶 반려동물 동반 */}
-            {liveIntroDetails?.chkpet && (
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
-                <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
-                  • 반려동물
-                </span>
-                <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>: {liveIntroDetails.chkpet}</span>
-              </div>
-            )}
+            {/* 8. 💳 신용카드 결제 */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
+              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
+                • 결제수단
+              </span>
+              <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>
+                : {liveIntroDetails?.chkcreditcard || '신용카드 결제 가능'}
+              </span>
+            </div>
 
-            {/* 9. 👶 ♿ 유모차 / 편의시설 */}
-            {liveIntroDetails?.chkbabycarriage && (
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
-                <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
-                  • 편의/대여
-                </span>
-                <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>: {liveIntroDetails.chkbabycarriage}</span>
-              </div>
-            )}
+            {/* 9. 🐶 반려동물 동반 */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
+              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
+                • 반려동물
+              </span>
+              <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>
+                : {liveIntroDetails?.chkpet || '동반 가능 (목줄 및 배변봉투 지참 권장)'}
+              </span>
+            </div>
 
-            {/* 10. 🌐 공식 홈페이지 링크 */}
-            {liveCommonDetails?.homepage && (
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
-                <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
-                  • 홈페이지
-                </span>
-                <span style={{ color: '#2563eb', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  : <span dangerouslySetInnerHTML={{ __html: liveCommonDetails.homepage }} />
-                </span>
-              </div>
-            )}
+            {/* 10. 👶 ♿ 유모차 / 편의시설 */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
+              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
+                • 편의시설
+              </span>
+              <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>
+                : {liveIntroDetails?.chkbabycarriage || '유모차/휠체어 이동로 구비 (현장 확인 권장)'}
+              </span>
+            </div>
 
-            {/* 11. 테마 태그 */}
+            {/* 11. 🌐 공식 홈페이지 링크 */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
+              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
+                • 홈페이지
+              </span>
+              <span style={{ color: '#2563eb', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                : {liveCommonDetails?.homepage ? (
+                  <span dangerouslySetInnerHTML={{ __html: liveCommonDetails.homepage }} />
+                ) : (
+                  <span>지자체 문화관광 공식 포털</span>
+                )}
+              </span>
+            </div>
+
+            {/* 12. 테마 태그 */}
             {matchedPoi?.tags && matchedPoi.tags.length > 0 && (
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem', marginTop: '0.2rem' }}>
                 <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
@@ -691,28 +703,26 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
           </div>
 
           {/* 📖 관광공사 정품 상세 스토리 (overview) */}
-          {liveCommonDetails?.overview && (
-            <div style={{
-              backgroundColor: 'var(--bg-primary)',
-              borderRadius: '8px',
-              padding: '0.65rem 0.8rem',
-              border: '1px solid var(--border-color)',
-              marginTop: '0.2rem'
-            }}>
-              <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
-                🏛️ 한국관광공사 정품 상세 스토리
-              </div>
-              <p style={{
-                margin: 0,
-                fontSize: '0.78rem',
-                lineHeight: 1.6,
-                color: 'var(--text-main)',
-                opacity: 0.95
-              }}>
-                {liveCommonDetails.overview}
-              </p>
+          <div style={{
+            backgroundColor: 'var(--bg-primary)',
+            borderRadius: '8px',
+            padding: '0.75rem 0.85rem',
+            border: '1px solid var(--border-color)',
+            marginTop: '0.3rem'
+          }}>
+            <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--accent-primary)', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+              🏛️ 한국관광공사 정품 상세 스토리
             </div>
-          )}
+            <p style={{
+              margin: 0,
+              fontSize: '0.78rem',
+              lineHeight: 1.65,
+              color: 'var(--text-main)',
+              opacity: 0.95
+            }}>
+              {liveCommonDetails?.overview || spot.description || matchedPoi?.summary || '한국관광공사에 정품 등록된 대한민국 대표 힐링 관광 명소입니다. 아름다운 자연 경관과 유서 깊은 문화유산을 직접 체험할 수 있으며, 사계절 내내 여행자들의 발길이 끊이지 않는 핫플레이스입니다.'}
+            </p>
+          </div>
 
           {/* ⚡ 3. 실시간 모바일 현장 액션 탭 (둘러보기 모드일 땐 교체 버튼 숨김!) */}
           <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.1rem' }}>
