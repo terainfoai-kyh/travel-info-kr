@@ -412,32 +412,48 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
 
   const numDays = Math.min(Math.max(1, requestedDays), 5);
 
-  // Helper: Find a POI matching a specific landmark name or synonym
+  // Helper: Find a POI matching a specific landmark name or synonym with Representativeness Scoring
   const findPoiForLandmark = (landmarkName) => {
     const synonyms = SYNONYM_MAP[landmarkName] || [landmarkName];
+    const candidates = [];
+
     for (const syn of synonyms) {
       const normSyn = normalizeTargetString(syn);
       if (!normSyn) continue;
 
-      // 1st pass: Exact Title Match
-      const exactMatch = cityPois.find(p => {
+      for (const p of cityPois) {
         const normPTitle = normalizeTargetString(p.title);
         const coreKey = extractCoreLandmarkKey(p.title);
         const notVisited = !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normPTitle) && !visitedCoreLandmarkKeys.has(coreKey);
         const isCommercialOrFood = /(한쿡|식당|음식점|맛집|gs25|cu|세븐일레븐|이마트24|스토어|플래그쉽|직영점|본점|매장)/i.test(p.title);
-        return notVisited && !isCommercialOrFood && (normPTitle === normSyn);
-      });
-      if (exactMatch) return exactMatch;
+        if (!notVisited || isCommercialOrFood) continue;
 
-      // 2nd pass: Partial Match (without restaurant/store names)
-      const partialMatch = cityPois.find(p => {
-        const normPTitle = normalizeTargetString(p.title);
-        const coreKey = extractCoreLandmarkKey(p.title);
-        const notVisited = !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normPTitle) && !visitedCoreLandmarkKeys.has(coreKey);
-        const isCommercialOrFood = /(한쿡|식당|음식점|맛집|gs25|cu|세븐일레븐|이마트24|스토어|플래그쉽|직영점|본점|매장)/i.test(p.title);
-        return notVisited && !isCommercialOrFood && (normPTitle.includes(normSyn) || normSyn.includes(normPTitle));
-      });
-      if (partialMatch) return partialMatch;
+        let score = 0;
+        if (normPTitle === normSyn) {
+          score += 100;
+        } else if (normPTitle.includes(normSyn) || normSyn.includes(normPTitle)) {
+          score += 50;
+        } else {
+          continue;
+        }
+
+        // 🌟 순수 대표 관광지 유형 가중치 (+30): 해수욕장, 해변, 공원, 타워, 사찰, 궁, 문화마을, 케이블카, 블루라인파크 등
+        if (/(해수욕장|해변|비치|공원|타워|전망대|사찰|절|궁|궁궐|마을|문화마을|케이블카|블루라인|스카이캡슐|유람선|수목원|식물원|오름|폭포|바다|산책로|디피랑|동피랑)/i.test(p.title)) {
+          score += 30;
+        }
+
+        // 🛡️ 부속/비관광 시설 감점 (-40): 온천, 온천센터, 사우나, 목욕, 스파 등
+        if (/(온천|온천센터|사우나|목욕|스파|찜질|헬스|체육)/i.test(p.title)) {
+          score -= 40;
+        }
+
+        candidates.push({ spot: p, score });
+      }
+    }
+
+    if (candidates.length > 0) {
+      candidates.sort((a, b) => b.score - a.score);
+      return candidates[0].spot;
     }
     return null;
   };
