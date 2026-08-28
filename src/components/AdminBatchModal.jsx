@@ -976,7 +976,7 @@ export default function AdminBatchModal({
               </div>
             </div>
 
-            {/* Search Input Bar with [ 🔍 검색 ] & [ 🔄 전체 ] Buttons */}
+            {/* Search Input Bar with Permanent [ 🔍 검색 ] & [ 🔄 전체 ] Buttons */}
             <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
               <div style={{ position: 'relative', flex: 1 }}>
                 <input
@@ -1020,6 +1020,26 @@ export default function AdminBatchModal({
                   </button>
                 )}
               </div>
+              <button
+                onClick={() => {}}
+                style={{
+                  padding: '0.65rem 0.9rem',
+                  backgroundColor: '#8b5cf6',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '10px',
+                  fontWeight: 800,
+                  fontSize: '0.8rem',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.25rem',
+                  boxShadow: '0 2px 8px rgba(139, 92, 246, 0.3)'
+                }}
+              >
+                <Search size={14} /> 검색
+              </button>
               {searchKnowledgeQuery && (
                 <button
                   onClick={() => setSearchKnowledgeQuery('')}
