@@ -530,13 +530,81 @@ export function resolveTikitakaResponse(query = '', currentCity = '서울', curr
   if (!query || typeof query !== 'string') return null;
   const clean = query.trim();
 
-  // Check Tiki-Taka Matrix Triggers
-  for (const [key, item] of Object.entries(TIKITAKA_CHITCHAT_MATRIX)) {
-    if (item.triggers.test(clean)) {
+  // 🌟 [대한민국 대표 도시별 N일 코스 시그니처 지식 즉시 응답]
+  const isCityTripPlan = /(제주|서울|부산|경주|강릉|속초|전주|여수|수원|통영|거제|포항|인천|안동|춘천|대구|대전|광주)/i.test(clean) &&
+                         /(\d+\s*일|\d+\s*박\s*\d+\s*일|\d+\s*박|당일치기|코스|여행|추천|일정|가볼만한)/i.test(clean);
+  if (isCityTripPlan) {
+    const isJeju = /(제주|jeju)/i.test(clean);
+    const isSeoul = /(서울|seoul)/i.test(clean);
+    const isBusan = /(부산|busan)/i.test(clean);
+    const isGyeongju = /(경주|gyeongju)/i.test(clean);
+    const isGangneung = /(강릉|속초|gangneung|sokcho)/i.test(clean);
+    const isJeonju = /(전주|jeonju)/i.test(clean);
+    const isYeosu = /(여수|yeosu)/i.test(clean);
+    const isSuwon = /(수원|suwon)/i.test(clean);
+    const isTongyeong = /(통영|거제|tongyeong|geoje)/i.test(clean);
+
+    if (isJeju) {
       return {
-        matchedKey: key,
-        reply: item.reply(currentCity),
-        followUp: item.followUp,
+        matchedKey: 'JEJU_SIGNATURE_COURSE',
+        reply: `**제주도 여행**은 **1일차 동부(성산일출봉 & 우도 산호해변), 2일차 남부(서귀포 올레시장 & 천지연폭포), 3일차 서부(협재해수욕장 & 애월 한담해변 카페거리)**로 순환하는 것이 가장 완벽한 황금 동선입니다! 🌴🌊✨`,
+        followUp: '성산일출봉과 협재 바다를 담은 제주 맞춤 코스로 잡아드릴까요? 🍊🌊',
+        isTikitaka: true
+      };
+    } else if (isSeoul) {
+      return {
+        matchedKey: 'SEOUL_SIGNATURE_COURSE',
+        reply: `**서울 여행**은 **1일차 전통 문화(경복궁·북촌한옥마을·인사동), 2일차 랜드마크 & 쇼핑(N서울타워·명동·성수동 팝업), 3일차 트렌드 & 힐링(DDP·여의도 한강공원)**이 핵심 황금 코스입니다! 👑🗼✨`,
+        followUp: '경복궁과 N서울타워 파노라마를 담은 서울 맞춤 코스로 잡아드릴까요? 🏙️✨',
+        isTikitaka: true
+      };
+    } else if (isBusan) {
+      return {
+        matchedKey: 'BUSAN_SIGNATURE_COURSE',
+        reply: `**부산 여행**은 **1일차 오션 & 액티비티(해운대 블루라인파크 스카이캡슐·해동용궁사), 2일차 낭만 야경(광안대교 드론쇼 & 해변 산책), 3일차 감성 골목(영도 흰여울문화마을 & 감천문화마을·자갈치시장)**이 최고의 황금 루트입니다! 🌊🚡✨`,
+        followUp: '스카이캡슐과 광안대교 선셋 뷰를 담은 부산 맞춤 코스로 잡아드릴까요? 🌊✨',
+        isTikitaka: true
+      };
+    } else if (isGyeongju) {
+      return {
+        matchedKey: 'GYEONGJU_SIGNATURE_COURSE',
+        reply: `천년고도 **경주 여행**은 **1일차 핫플 & 역사(황리단길 감성 카페·대릉원·첨성대·동궁과 월지 반영 야경), 2일차 세계문화유산(불국사 & 석굴암 힐링 산책)**이 가장 완벽한 코스입니다! 🏯🌙✨`,
+        followUp: '황리단길 감성과 환상적인 달빛 야경을 담은 경주 맞춤 코스로 잡아드릴까요? 🏯✨',
+        isTikitaka: true
+      };
+    } else if (isGangneung) {
+      return {
+        matchedKey: 'GANGNEUNG_SIGNATURE_COURSE',
+        reply: `청정 동해 **강릉·속초 여행**은 **1일차 바다 감성(안목 커피거리 & 강문해변·BTS 버스정류장), 2일차 힐링 & 명산(설악산 권금성 케이블카 & 속초 중앙시장 닭강정)**이 대표 코스입니다! ☕🌲🌊`,
+        followUp: '푸른 동해 파도와 설악산 절경을 담은 강릉·속초 맞춤 코스로 잡아드릴까요? 🌊✨',
+        isTikitaka: true
+      };
+    } else if (isJeonju) {
+      return {
+        matchedKey: 'JEONJU_SIGNATURE_COURSE',
+        reply: `맛과 멋의 고장 **전주 여행**은 **1일차 한옥 감성(전주한옥마을 한복 체험·경기전·전동성당·오목대 전망), 2일차 미식 & 골목(남부시장 야시장 피순대·자만벽화마을)**이 핵심입니다! 🍱🏮✨`,
+        followUp: '고즈넉한 한옥 골목과 전통 미식을 담은 전주 맞춤 코스로 잡아드릴까요? 🏮✨',
+        isTikitaka: true
+      };
+    } else if (isYeosu) {
+      return {
+        matchedKey: 'YEOSU_SIGNATURE_COURSE',
+        reply: `낭만 바다 **여수 여행**은 **1일차 해상 파노라마(여수 해상케이블카·오동도 동백섬·돌산대교 낭만포차 밤바다), 2일차 일출 & 비경(향일암 바위 절벽 사찰 & 아쿠아플라넷)**이 최고의 코스입니다! 🚢🌙✨`,
+        followUp: '해상케이블카와 여수 밤바다를 담은 여수 맞춤 코스로 잡아드릴까요? 🌊✨',
+        isTikitaka: true
+      };
+    } else if (isSuwon) {
+      return {
+        matchedKey: 'SUWON_SIGNATURE_COURSE',
+        reply: `세계문화유산 **수원 여행**은 **수원화성 성곽길 트레킹 & 화성행궁, 방화수류정 노을 피크닉, 그리고 행궁동 감성 공방 & 카페거리**가 당일 및 1박 2일 필수 코스입니다! 🏹🏰✨`,
+        followUp: '수원화성 야경과 행궁동 감성 카페를 담은 수원 맞춤 코스로 잡아드릴까요? 🏰✨',
+        isTikitaka: true
+      };
+    } else if (isTongyeong) {
+      return {
+        matchedKey: 'TONGYEONG_SIGNATURE_COURSE',
+        reply: `한국의 나폴리 **통영·거제 여행**은 **1일차 예술 & 항구(동피랑 벽화마을·중앙시장 충무김밥·통영 케이블카), 2일차 섬 & 바다(사량도 옥녀봉 출렁다리 또는 거제 바람의언덕·외도 보타니아)**가 황금 루트입니다! 🚡🏝️✨`,
+        followUp: '통영의 에메랄드 바다와 힐링 섬 투어를 담은 맞춤 코스로 잡아드릴까요? 🏝️✨',
         isTikitaka: true
       };
     }
