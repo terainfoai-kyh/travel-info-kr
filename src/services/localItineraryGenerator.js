@@ -353,6 +353,26 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
         } catch (e) {}
       }
 
+      // 🌟 [100% 무조건 보장] 사용자가 대화에서 명시적으로 지목한 관심 섬/명소는 무조건 1일차 1번에 장착!
+      if (!anchorSpot && explicitlyRequestedSpotName === anchorName) {
+        const isSaryang = /사량도/i.test(anchorName);
+        const isYokji = /욕지도/i.test(anchorName);
+        anchorSpot = {
+          id: `anchor_${Date.now()}`,
+          title: isSaryang ? '사량도 (옥녀봉·출렁다리)' : (isYokji ? '욕지도 (출렁다리·펠리컨바위)' : anchorName),
+          category: '관광명소',
+          theme: '핵심명소',
+          addr1: `${city || '통영시'} ${anchorName}`,
+          description: isSaryang 
+            ? '아찔한 옥녀봉 기암괴석과 바다 위 출렁다리를 건너는 대한민국 대표 섬 산행 코스' 
+            : `${anchorName} 탐방 및 힐링 코스`,
+          duration: 120,
+          lat: isSaryang ? 34.8465 : (isYokji ? 34.6985 : 34.8544),
+          lng: isSaryang ? 128.2045 : (isYokji ? 128.2541 : 128.4332),
+          image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=800&q=80'
+        };
+      }
+
       if (anchorSpot) {
         const normTitle = normalizeTargetString(anchorSpot.title);
         const coreKey = extractCoreLandmarkKey(anchorSpot.title);

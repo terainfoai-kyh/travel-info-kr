@@ -233,6 +233,13 @@ export function patchTravelState(prevState = INITIAL_TRAVEL_STATE, userPrompt = 
   else if (/(오후|낮|afternoon|12시|13시|14시|15시|16시|17시|[1-5]시)/i.test(clean)) { nextArrivalTime = '오후'; hasNewCondition = true; }
   else if (/(저녁|밤|night|evening|18시|19시|20시|21시|22시|23시|[6-9]시\s*도착)/i.test(clean)) { nextArrivalTime = '저녁'; hasNewCondition = true; }
 
+  // 8. 🧠 [대화 문맥 관심 명소/섬 보존]
+  let nextFocusedSpot = prevTrip.focusedSpot || null;
+  const landmarkSpotMatch = userPrompt.match(/(사량도|욕지도|독도|우도|청산도|남이섬|금오도|퍼플섬|외도|소매물도|비진도|지심도|경복궁|N서울타워|남산타워|북촌한옥마을|동피랑|해운대|광안리|성산일출봉|수원화성|행궁동)/i);
+  if (landmarkSpotMatch && landmarkSpotMatch[1]) {
+    nextFocusedSpot = landmarkSpotMatch[1];
+  }
+
   return {
     ...prevState,
     tripMemory: {
@@ -245,7 +252,8 @@ export function patchTravelState(prevState = INITIAL_TRAVEL_STATE, userPrompt = 
       gateway: nextGateway,
       hotelArea: nextHotelArea,
       arrivalTime: nextArrivalTime,
-      season: nextSeason
+      season: nextSeason,
+      focusedSpot: nextFocusedSpot
     },
     currentContext: {
       ...prevState.currentContext,
