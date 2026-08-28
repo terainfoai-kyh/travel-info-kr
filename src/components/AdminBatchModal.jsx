@@ -1039,21 +1039,46 @@ export default function AdminBatchModal({
 
                 const allKnowledge = Array.from(knowledgeMap.values());
                 const cleanQuery = searchKnowledgeQuery.trim().toLowerCase();
+                const normQuery = cleanQuery.replace(/[\s\-_?!.~,()[\]]/g, '');
                 
-                const filtered = cleanQuery ? allKnowledge.filter(item => {
-                  const title = (item.title || '').toLowerCase();
-                  const city = (item.targetCity || '').toLowerCase();
-                  const variations = (item.questionVariations || []).join(' ').toLowerCase();
-                  const intentKw = (item.intentKeywords || []).join(' ').toLowerCase();
-                  const answerKo = (item.geminiAnswer?.ko || '').toLowerCase();
-                  const answerEn = (item.geminiAnswer?.en || '').toLowerCase();
-                  return title.includes(cleanQuery) 
-                    || city.includes(cleanQuery)
-                    || variations.includes(cleanQuery)
-                    || intentKw.includes(cleanQuery)
-                    || answerKo.includes(cleanQuery)
-                    || answerEn.includes(cleanQuery);
-                }) : allKnowledge;
+                let filtered = allKnowledge;
+                if (normQuery) {
+                  const scoredList = [];
+                  for (const item of allKnowledge) {
+                    const title = (item.title || '').toLowerCase();
+                    const normTitle = title.replace(/[\s\-_?!.~,()[\]]/g, '');
+                    const variations = (item.questionVariations || []).map(v => v.toLowerCase());
+                    const normVars = variations.map(v => v.replace(/[\s\-_?!.~,()[\]]/g, ''));
+                    const city = (item.targetCity || '').toLowerCase();
+                    const intentKw = (item.intentKeywords || []).map(k => k.toLowerCase());
+                    const answerKo = (item.geminiAnswer?.ko || '').toLowerCase();
+                    const answerEn = (item.geminiAnswer?.en || '').toLowerCase();
+
+                    let score = 0;
+                    // 1순위: 제목 또는 트리거 질문과 완벽 일치 (100점)
+                    if (normTitle === normQuery || normVars.some(v => v === normQuery)) {
+                      score += 100;
+                    }
+                    // 2순위: 제목 또는 질문 변형에 포함 (50점)
+                    else if (normTitle.includes(normQuery) || normVars.some(v => v.includes(normQuery))) {
+                      score += 50;
+                    }
+                    // 3순위: 도시명 또는 대표 키워드 일치 (30점)
+                    else if (city.includes(cleanQuery) || intentKw.some(k => k.includes(cleanQuery))) {
+                      score += 30;
+                    }
+                    // 4순위: 본문 검색 (단, 1글자 잡음 방지를 위해 2글자 이상일 때만 매칭, 10점)
+                    else if (normQuery.length >= 2 && (answerKo.includes(cleanQuery) || answerEn.includes(cleanQuery))) {
+                      score += 10;
+                    }
+
+                    if (score > 0) {
+                      scoredList.push({ item, score });
+                    }
+                  }
+                  scoredList.sort((a, b) => b.score - a.score);
+                  filtered = scoredList.map(s => s.item);
+                }
 
                 if (filtered.length === 0) {
                   return (
