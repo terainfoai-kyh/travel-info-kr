@@ -654,32 +654,26 @@ export default function VoraAIChat({
       {/* 🌟 단일화된 최신 맥락 전용 1줄 퀵 액션 바 (Unified Contextual Floating Bar) */}
       {!isLoading && (() => {
         const lastAssistantMsg = [...chatMessages].reverse().find(m => m.role === 'assistant');
-        // 🌟 현재 바로 직전 메시지에 일정표 카드가 직접 붙어있을 때만 수정 전용 칩으로 전환하고, 추천 카드 탐색 중일 때는 [🚀 바로 일정 만들기]를 무조건 맨 앞에 항상 유지!
         const isCurrentMsgItineraryCard = Boolean(lastAssistantMsg?.itinerary && lastAssistantMsg.itinerary.dailySchedules?.length > 0);
         const activeQuickSuggestions = lastAssistantMsg?.quickSuggestions || [];
         const hasSuggestions = activeQuickSuggestions.length > 0;
         let rawBottomChips = hasSuggestions ? [...activeQuickSuggestions] : [...(t.chatQuickModifications || [])];
 
-        const defaultCreateLabel = lang === 'en' ? '🚀 Create Plan' : lang === 'ja' ? '🚀 日程生成' : (lang === 'zh' || lang === 'zht') ? '🚀 生成行程' : '🚀 바로 일정 만들기';
+        // 🛡️ 중복/혼란 방지: [바로 일정 만들기] 계열 중복 버튼 완전 제거 & 순수 테마/수정 칩만 깔끔하게 유지
+        rawBottomChips = rawBottomChips.filter(c => 
+          !c.includes('바로 일정') && 
+          !c.includes('일정 생성') && 
+          !c.includes('일정표 만들기') && 
+          !c.includes('일정 짜줘') && 
+          !c.includes('Create Plan') && 
+          !c.includes('Generate Itinerary')
+        );
 
-        if (isCurrentMsgItineraryCard) {
-          // 🌟 일정이 바로 위 메시지 카드에 완성된 상태: 헷갈리는 [일정 생성] 버튼 제거 & 순수 수정 칩만 유지
-          rawBottomChips = rawBottomChips.filter(c => !c.includes('일정 생성') && !c.includes('바로 일정') && !c.includes('일정표 만들기') && !c.includes('일정 짜줘') && !c.includes('Create Plan') && !c.includes('Generate Itinerary'));
-          if (rawBottomChips.length === 0) {
-            rawBottomChips = [...(t.chatQuickModifications || [])];
-          }
-        } else {
-          // 🌟 온보딩, 도시 탐색, 추천 카드 탐색 단계: [바로 일정 만들기]를 무조건 맨 앞(Index 0)으로 최우선 배치!
-          const createBtnIdx = rawBottomChips.findIndex(c => c.includes('일정 생성') || c.includes('바로 일정') || c.includes('일정표 만들기') || c.includes('일정 짜줘') || c.includes('Create Plan') || c.includes('Generate Itinerary'));
-          if (createBtnIdx > 0) {
-            const [btn] = rawBottomChips.splice(createBtnIdx, 1);
-            rawBottomChips.unshift(btn);
-          } else if (createBtnIdx === -1) {
-            rawBottomChips.unshift(defaultCreateLabel);
-          }
+        if (rawBottomChips.length === 0) {
+          rawBottomChips = [...(t.chatQuickModifications || [])];
         }
 
-        // 🛡️ 모바일 최적화: 어떤 경우에도 칩 개수를 최대 4개(일정 생성 후엔 3개)로 엄격히 제한!
+        // 🛡️ 모바일 최적화: 칩 개수를 최대 4개로 제한
         const bottomChips = rawBottomChips.slice(0, isCurrentMsgItineraryCard ? 3 : 4);
 
         return (
@@ -704,10 +698,9 @@ export default function VoraAIChat({
             }}
           >
             {bottomChips.map((chip, idx) => {
-              const isBuildBtn = chip.includes('일정 생성') || chip.includes('바로 일정') || chip.includes('일정표 만들기') || chip.includes('일정 짜줘') || chip.includes('Create Plan') || chip.includes('Generate Itinerary');
-              const displayLabel = isBuildBtn
-                ? (chip.length > 12 ? defaultCreateLabel : chip)
-                : (hasSuggestions ? (chip.startsWith('✨') || chip.startsWith('🚀') || chip.startsWith('⚙️') || chip.startsWith('👑') || chip.startsWith('🌊') || chip.startsWith('🌴') || chip.startsWith('🏖️') || chip.startsWith('☀️') || chip.startsWith('🌤️') || chip.startsWith('🌙') || chip.startsWith('🗓️') || chip.startsWith('📍') || chip.startsWith('🌸') || chip.startsWith('🍁') || chip.startsWith('🏔️') || chip.startsWith('🌾') || chip.startsWith('🏮') ? chip : `✨ ${chip}`) : `＋ ${chip}`);
+              const displayLabel = hasSuggestions 
+                ? (chip.startsWith('✨') || chip.startsWith('🚀') || chip.startsWith('⚙️') || chip.startsWith('👑') || chip.startsWith('🌊') || chip.startsWith('🌴') || chip.startsWith('🏖️') || chip.startsWith('☀️') || chip.startsWith('🌤️') || chip.startsWith('🌙') || chip.startsWith('🗓️') || chip.startsWith('📍') || chip.startsWith('🌸') || chip.startsWith('🍁') || chip.startsWith('🏔️') || chip.startsWith('🌾') || chip.startsWith('🏮') ? chip : `✨ ${chip}`) 
+                : `＋ ${chip}`;
 
               return (
                 <button
@@ -715,33 +708,27 @@ export default function VoraAIChat({
                   onClick={() => handleQuickChip(chip)}
                   style={{
                     flexShrink: 0,
-                    background: isBuildBtn
-                      ? 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)'
-                      : '#ffffff',
-                    color: isBuildBtn ? '#ffffff' : 'var(--accent-primary)',
-                    border: isBuildBtn ? 'none' : '1px solid rgba(37, 99, 235, 0.22)',
+                    background: '#ffffff',
+                    color: 'var(--accent-primary)',
+                    border: '1px solid rgba(37, 99, 235, 0.22)',
                     borderRadius: 'var(--radius-full)',
-                    padding: isBuildBtn ? '0.24rem 0.65rem' : '0.2rem 0.55rem',
-                    fontSize: isBuildBtn ? '0.74rem' : '0.7rem',
-                    fontWeight: isBuildBtn ? 900 : 700,
+                    padding: '0.2rem 0.55rem',
+                    fontSize: '0.7rem',
+                    fontWeight: 700,
                     cursor: 'pointer',
-                    boxShadow: isBuildBtn ? '0 2px 8px rgba(37, 99, 235, 0.35)' : '0 1px 3px rgba(0,0,0,0.03)',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
                     transition: 'all var(--transition-fast)',
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: '0.2rem'
                   }}
                   onMouseEnter={(e) => {
-                    if (!isBuildBtn) {
-                      e.currentTarget.style.borderColor = 'var(--accent-primary)';
-                      e.currentTarget.style.backgroundColor = 'rgba(37, 99, 235, 0.05)';
-                    }
+                    e.currentTarget.style.borderColor = 'var(--accent-primary)';
+                    e.currentTarget.style.backgroundColor = 'rgba(37, 99, 235, 0.05)';
                   }}
                   onMouseLeave={(e) => {
-                    if (!isBuildBtn) {
-                      e.currentTarget.style.borderColor = 'rgba(37, 99, 235, 0.22)';
-                      e.currentTarget.style.backgroundColor = '#ffffff';
-                    }
+                    e.currentTarget.style.borderColor = 'rgba(37, 99, 235, 0.22)';
+                    e.currentTarget.style.backgroundColor = '#ffffff';
                   }}
                 >
                   {displayLabel}
