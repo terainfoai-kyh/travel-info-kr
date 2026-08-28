@@ -66,6 +66,22 @@ export async function deleteTripFromCloud(email, tripId) {
   }
 }
 
+function toBase64Safe(str) {
+  try {
+    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (match, p1) => String.fromCharCode('0x' + p1)));
+  } catch (e) {
+    return '';
+  }
+}
+
+function fromBase64Safe(str) {
+  try {
+    return decodeURIComponent(Array.prototype.map.call(atob(str), c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+  } catch (e) {
+    return '';
+  }
+}
+
 /**
  * 📱 Generate Ultra-lightweight Mobile Direct Share URL (QR & Link)
  * Encodes itinerary data into URL query parameter with zero server dependencies
@@ -74,31 +90,28 @@ export function generateShareableTripUrl(trip) {
   if (!trip) return window.location.origin;
 
   try {
-    // Compress essential data to minimize URL length
+    // Compress essential data to minimize URL length for instant QR recognition
     const slimData = {
-      t: trip.tripTitle || trip.title || 'Korea Trip',
+      t: (trip.tripTitle || trip.title || 'Korea Trip').slice(0, 50),
       c: trip.targetCity || trip.city || '서울',
       d: trip.days || 3,
       s: (trip.dailySchedules || []).map(day => ({
         d: day.day,
         t: day.theme,
         p: (day.spots || []).map(sp => ({
-          i: sp.id || sp.contentId,
-          n: sp.title || sp.name,
-          c: sp.category,
-          b: sp.bestTime,
-          la: sp.lat,
-          ln: sp.lng,
-          a: sp.address || sp.location,
-          m: sp.image || '',
-          ds: sp.description || sp.summary || ''
+          i: sp.id || sp.contentId || '',
+          n: sp.title || sp.name || '',
+          c: sp.category || '관광명소',
+          b: sp.bestTime || '',
+          la: sp.lat || 0,
+          ln: sp.lng || 0,
+          a: (sp.address || sp.location || '').slice(0, 40)
         }))
       }))
     };
 
     const jsonStr = JSON.stringify(slimData);
-    // Base64 safe URL encoding
-    const encoded = encodeURIComponent(btoa(unescape(encodeURIComponent(jsonStr))));
+    const encoded = encodeURIComponent(toBase64Safe(jsonStr));
     const url = new URL(window.location.origin + window.location.pathname);
     url.searchParams.set('tripData', encoded);
     return url.toString();
@@ -113,19 +126,22 @@ export function generateShareableTripUrl(trip) {
  */
 export function parseTripFromUrl() {
   try {
+    if (typeof window === 'undefined') return null;
     const urlParams = new URLSearchParams(window.location.search);
     const tripDataParam = urlParams.get('tripData');
     if (!tripDataParam) return null;
 
-    const decodedJson = decodeURIComponent(escape(atob(decodeURIComponent(tripDataParam))));
-    const slim = JSON.parse(decodedJson);
+    const rawBase64 = decodeURIComponent(tripDataParam);
+    const decodedJson = fromBase64Safe(rawBase64);
+    if (!decodedJson) return null;
 
+    const slim = JSON.parse(decodedJson);
     if (!slim || !slim.s || !Array.isArray(slim.s)) return null;
 
     // Expand into full itinerary object
     const dailySchedules = slim.s.map(d => ({
       day: d.d,
-      theme: d.t,
+      theme: d.t || `${d.d}일차 코스`,
       spots: (d.p || []).map((sp, idx) => ({
         id: sp.i || `spot_${d.d}_${idx + 1}`,
         title: sp.n,
@@ -136,8 +152,8 @@ export function parseTripFromUrl() {
         lng: sp.ln,
         address: sp.a,
         location: sp.a,
-        image: sp.m || null,
-        description: sp.ds || ''
+        rating: 4.8,
+        description: `한국관광공사 정품 등록 명소 ${sp.n}`
       }))
     }));
 

@@ -121,11 +121,19 @@ export default function App() {
     document.documentElement.lang = langMap[lang] || 'ko-KR';
   }, [lang]);
 
-  // 저장된 여행 목록 (내 여행 탭 연동)
+  // 저장된 여행 목록 (내 여행 탭 연동 & URL 즉시 복원)
   const [savedTrips, setSavedTrips] = useState(() => {
     try {
+      const fromUrl = parseTripFromUrl();
       const saved = localStorage.getItem('vora_saved_trips');
-      return saved ? JSON.parse(saved) : [];
+      const list = saved ? JSON.parse(saved) : [];
+      if (fromUrl) {
+        const filtered = list.filter(t => (t.savedId || t.tripTitle) !== fromUrl.savedId && t.tripTitle !== fromUrl.tripTitle);
+        const updated = [fromUrl, ...filtered];
+        try { localStorage.setItem('vora_saved_trips', JSON.stringify(updated)); } catch (e) {}
+        return updated;
+      }
+      return list;
     } catch (e) {
       return [];
     }
@@ -134,9 +142,11 @@ export default function App() {
   // 🧠 3-Tier Stateful Travel Context Manager (Trip Memory + Current Context)
   const [sessionContext, setSessionContext] = useState(INITIAL_TRAVEL_STATE);
 
-  // Itinerary State - 기본값은 마지막 저장된 일정 (없으면 null)
+  // Itinerary State - URL에서 온 일정이 있으면 최우선 로딩
   const [itineraryData, setItineraryData] = useState(() => {
     try {
+      const fromUrl = parseTripFromUrl();
+      if (fromUrl) return fromUrl;
       const saved = localStorage.getItem('vora_saved_trips');
       const list = saved ? JSON.parse(saved) : [];
       return list.length > 0 ? list[0] : null;
@@ -148,6 +158,8 @@ export default function App() {
   // Selected Trip ID for MyTripTab
   const [selectedTripId, setSelectedTripId] = useState(() => {
     try {
+      const fromUrl = parseTripFromUrl();
+      if (fromUrl) return fromUrl.savedId;
       const saved = localStorage.getItem('vora_saved_trips');
       const list = saved ? JSON.parse(saved) : [];
       return list.length > 0 ? (list[0].savedId || list[0].id || list[0].tripTitle) : null;
@@ -246,7 +258,14 @@ export default function App() {
   };
 
   // 5-Tab Screen Navigation State ('home' | 'ai' | 'mytrip' | 'map' | 'more')
-  const [activeNavTab, setActiveNavTab] = useState('home');
+  const [activeNavTab, setActiveNavTab] = useState(() => {
+    try {
+      if (typeof window !== 'undefined' && window.location.search.includes('tripData')) {
+        return 'mytrip';
+      }
+    } catch (e) {}
+    return 'home';
+  });
 
   // Modals & Drawers Open State
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
