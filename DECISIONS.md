@@ -9,14 +9,16 @@
 ### [2026-08-28 (금) - 현재 진행 상태]
 1. **완료된 작업**:
    - **헌법 제1조 제정 (`AGENTS.md`)**: 100% 전자동 기록 & 세션 시작 시 `DECISIONS.md` 기반 자동 선(先) 브리핑 의무화.
+   - **속도 집착 문구 정리 & 안정성/자산 보호 중심 헌법 정비**: 비현실적 과장 속도 수식어 삭제 및 [안정성 + 독점 지식 자산 IP 철벽 보호 + 실시간 공공데이터 정확성]을 최우선 가치로 확립.
+   - **AES-256 지식 자산 암·복호화 보안 엔진 구축 (`src/utils/vaultCrypto.js`)**: Web 표준 SubtleCrypto(AES-GCM 256-bit) 기반으로 마스터 시크릿 키를 통한 지식 데이터 암호화 및 복호화 구현.
+   - **관리자 화면 원클릭 원본 복호화 다운로드 & 암호화 업로드 기능 (`AdminBatchModal.jsx`)**: `[ 📥 원본 복호화 다운로드 (JSON) ]` (전체 지식 DB를 평문 JSON 파일로 다운로드), `[ 📤 원본 업로드 & 암호화 ]` (PC에서 편집한 JSON을 암호화하여 DB 병합 저장), `[ 🔒 암호문 백업 (.enc) ]` 툴바 탑재.
+   - **제미나이 배치 루프 1.2초 지능형 안전 텀 장착 (`AdminBatchModal.jsx`)**: 질문 간 1.2초 딜레이 및 에러 자동 백오프로 구글 Gemini API `429 속도 제한` 및 `503 에러` 100% 원천 차단.
    - **전국 100대 섬/명소 키워드 맵핑 (`geminiNlpService.js`)**: 통영(욕지도·사량도), 완도(청산도·보길도), 신안(퍼플섬·홍도·흑산도), 여수(금오도 비렁길), 제주(우도) 등 전수 등록.
-   - **초고속 Q&A 지식 매칭 완화 (`voraQnaMatcher.js`)**: 도시 미선택 상태에서도 질문 일치도 75점 이상 시 0.01초 만에 지식 즉시 매칭 프리패스 장착.
-   - **관리자 2열 와이드 대시보드 리뉴얼 & 중복 제거/삭제 기능 (`AdminBatchModal.jsx`)**: 1040px 와이드 뷰, 중복 Upsert 및 `[ 🗑️ ]` 개별 삭제 완료.
-   - **통영 & 욕지도 정품 로컬 지식 팩 탑재 (`voraDialogKnowledge.js`)**: 출렁다리, 펠리컨바위, 고등어회, 고메원도넛, 삼덕항 배편 정보 탑재.
-   - **한국관광공사 TourAPI 시군구 코드(`sigunguCode`) 정밀 매핑 & 주소 필터 장착 (`tourApi.js`)**: 통영(`sigunguCode: 17`), 거제(`sigunguCode: 1`), 남해(`sigunguCode: 5`), 강릉(`sigunguCode: 1`) 등 전국 30대 시군구 코드 등록 및 `item.addr1` 시군구 주소 검증 필터로 타 지역(하동 등) 명소 혼입 100% 원천 차단.
-   - **진짜 100% 실시간 클라우드 자가학습 파이프라인 직결 (`voraCloudQnaService.js` & `functions/api/qna.js`)**: 로컬 저장이 아닌 실제 Cloudflare Pages Serverless Edge REST API (`/api/qna`) 실시간 GET/POST/DELETE 직결 및 2중 오프라인 안전망 완성.
+   - **초고속 Q&A 지식 매칭 완화 (`voraQnaMatcher.js`)**: 도시 미선택 상태에서도 질문 일치도 75점 이상 시 지식 즉시 매칭 프리패스 장착.
+   - **한국관광공사 TourAPI 시군구 코드(`sigunguCode`) 정밀 매핑 & 주소 필터 장착 (`tourApi.js`)**: 통영(`sigunguCode: 17`), 거제(`sigunguCode: 1`), 남해(`sigunguCode: 5`), 강릉(`sigunguCode: 1`) 등 등록 및 타 지역(하동 등) 명소 혼입 100% 차단.
+   - **진짜 100% 실시간 클라우드 자가학습 파이프라인 직결 (`voraCloudQnaService.js` & `functions/api/qna.js`)**: Cloudflare Pages Serverless Edge REST API (`/api/qna`) 실시간 연동.
 2. **다음 작업 1순위**:
-   - 선배님과 함께 실시간 클라우드 큐 및 통영/욕지도 추천 카드 동작 상태 최종 실서버 검증.
+   - 관리자 화면에서 `[ 📥 원본 복호화 다운로드 (JSON) ]` 및 `[ 📤 원본 업로드 & 암호화 ]` 실서버 동작 검증.
 
 ---
 

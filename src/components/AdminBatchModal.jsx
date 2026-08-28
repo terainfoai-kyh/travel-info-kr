@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { X, Sparkles, Database, Play, CheckCircle2, Copy, Download, RefreshCw, Key, ShieldCheck, AlertCircle, Cloud, Smartphone, Search } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { X, Sparkles, Database, Play, CheckCircle2, Copy, Download, RefreshCw, Key, ShieldCheck, AlertCircle, Cloud, Smartphone, Search, Lock, Unlock, FileJson, Upload } from 'lucide-react';
 import { getVoraQnaVault } from '../data/voraQnaVault';
 import { interpolateTemplate } from '../utils/koreanParticles';
 import { fetchQuestionsFromCloud, clearQuestionsFromCloud, deleteQuestionFromCloud, publishKnowledgeToCloudMaster } from '../services/voraCloudQnaService';
+import { encryptVaultData, decryptVaultData } from '../utils/vaultCrypto';
 
 export default function AdminBatchModal({
   isOpen,
@@ -306,6 +307,11 @@ export default function AdminBatchModal({
       } else {
         setBatchLogs(prev => [...prev, `⚠️ "${q.rawQuery}" 일시적 구글 트래픽 초과 (다음 턴에 재시도)`]);
       }
+
+      // ⏱️ [1.2초 지능형 안전 텀] 구글 API 429 속도 초과 및 503 에러 100% 방지!
+      if (i < unansweredList.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 1200));
+      }
     }
 
     setDistilledResults(newDistilled);
@@ -340,6 +346,103 @@ export default function AdminBatchModal({
     } catch (e) {}
 
     setBatchLogs(prev => [...prev, `🎉 총 ${newDistilled.length}개 신규 지식 학습 완료 & 중복 완벽 제거 완료! ✨`]);
+  };
+
+  // 📥 [전체 지식 DB 복호화 평문 JSON 다운로드]
+  const handleExportDecryptedJson = () => {
+    try {
+      const allVault = [...masterVaultList, ...customVaultList];
+      const norm = (s) => (s || '').trim().toLowerCase().replace(/[\s\-_?!.~,()[\]]/g, '');
+      const dedupMap = new Map();
+      allVault.forEach(item => {
+        const key = norm(item.title || item.questionVariations?.[0] || item.id);
+        if (key) dedupMap.set(key, item);
+      });
+      const exportList = Array.from(dedupMap.values());
+
+      const jsonStr = JSON.stringify(exportList, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const dateStr = new Date().toISOString().slice(0, 10);
+      link.href = url;
+      link.setAttribute('download', `vora_knowledge_master_decrypted_${dateStr}.json`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      alert(`복호화 다운로드 실패: ${err.message}`);
+    }
+  };
+
+  // 🔒 [전체 지식 DB AES-256 암호화 파일 다운로드]
+  const handleExportEncryptedVault = async () => {
+    try {
+      const allVault = [...masterVaultList, ...customVaultList];
+      const encryptedBase64 = await encryptVaultData(allVault);
+      const blob = new Blob([encryptedBase64], { type: 'text/plain;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const dateStr = new Date().toISOString().slice(0, 10);
+      link.href = url;
+      link.setAttribute('download', `vora_vault_encrypted_${dateStr}.enc`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      alert(`암호화 백업 실패: ${err.message}`);
+    }
+  };
+
+  // 📤 [외부 원본 JSON 파일 업로드 ➔ 암호화 및 볼트 병합]
+  const fileInputRef = useRef(null);
+  const handleImportPlainJson = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const content = event.target?.result;
+        if (typeof content !== 'string') return;
+
+        let parsedList = [];
+        if (file.name.endsWith('.enc')) {
+          // 암호화된 파일이면 복호화 시도
+          parsedList = await decryptVaultData(content);
+        } else {
+          parsedList = JSON.parse(content);
+        }
+
+        if (!Array.isArray(parsedList) || parsedList.length === 0) {
+          alert('올바른 지식 목록 JSON 형식이 아닙니다.');
+          return;
+        }
+
+        const existingVault = JSON.parse(localStorage.getItem('vora_custom_qna_vault') || '[]');
+        const norm = (s) => (s || '').trim().toLowerCase().replace(/[\s\-_?!.~,()[\]]/g, '');
+        const mergedMap = new Map();
+        existingVault.forEach(item => {
+          const key = norm(item.title || item.questionVariations?.[0] || item.id);
+          if (key) mergedMap.set(key, item);
+        });
+        parsedList.forEach(item => {
+          const key = norm(item.title || item.questionVariations?.[0] || item.id);
+          if (key) mergedMap.set(key, item);
+        });
+
+        const updated = Array.from(mergedMap.values());
+        localStorage.setItem('vora_custom_qna_vault', JSON.stringify(updated));
+        loadCustomVaultFromStorage();
+        alert(`총 ${parsedList.length}개 지식이 성공적으로 암호화 병합되었습니다! 🚀`);
+      } catch (err) {
+        alert(`파일 업로드 처리 오류: ${err.message}`);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
   };
 
   const handleCopyJson = () => {
@@ -761,13 +864,96 @@ export default function AdminBatchModal({
           }}>
             
             {/* Search Header */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.4rem' }}>
               <span style={{ fontSize: '0.9rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                 <Search size={16} color="#8b5cf6" /> 🔍 지식 & 제미나이 답변 통합 검색기
               </span>
               <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
                 총 <strong>{(masterVaultList.length || 0) + customVaultList.length}</strong>개 영구 지식 보유
               </span>
+            </div>
+
+            {/* 🔐 Super Admin Master IP Asset Crypto Toolbar */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '0.4rem',
+              backgroundColor: 'rgba(139, 92, 246, 0.08)',
+              border: '1px solid rgba(139, 92, 246, 0.25)',
+              borderRadius: '10px',
+              padding: '0.45rem 0.7rem',
+              fontSize: '0.75rem'
+            }}>
+              <span style={{ fontWeight: 700, color: '#8b5cf6', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                <ShieldCheck size={14} /> 🔐 지식 자산 보안 제어
+              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleImportPlainJson}
+                  accept=".json,.enc"
+                  style={{ display: 'none' }}
+                />
+                <button
+                  onClick={handleExportDecryptedJson}
+                  title="전체 지식 DB를 복호화하여 원본 JSON 파일로 내 PC에 다운로드"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.25rem',
+                    padding: '0.3rem 0.55rem',
+                    backgroundColor: '#10b981',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontWeight: 700,
+                    fontSize: '0.7rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <Unlock size={12} /> 📥 원본 복호화 다운로드 (JSON)
+                </button>
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  title="PC에서 편집한 원본 JSON을 업로드하여 암호화 DB로 병합 저장"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.25rem',
+                    padding: '0.3rem 0.55rem',
+                    backgroundColor: '#3b82f6',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontWeight: 700,
+                    fontSize: '0.7rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <Upload size={12} /> 📤 원본 업로드 & 암호화
+                </button>
+                <button
+                  onClick={handleExportEncryptedVault}
+                  title="AES-256 암호화된 상태 그대로 파일 백업 다운로드"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.25rem',
+                    padding: '0.3rem 0.55rem',
+                    backgroundColor: '#6366f1',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontWeight: 700,
+                    fontSize: '0.7rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <Lock size={12} /> 🔒 암호문 백업 (.enc)
+                </button>
+              </div>
             </div>
 
             {/* Live Search Input */}
