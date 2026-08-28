@@ -316,13 +316,31 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
     }
   }
 
-  // 🛡️ [반경 35km 거리 가드 (Distance Guard)] 타 지역 명소 100% 필터링!
+  // 🛡️ [반경 35km 거리 가드 & 주소 검증 (Distance & Address Guard)] 타 지역 명소 100% 원천 차단!
   const isIslandOrWide = (city === '제주' || city === '강원' || city === '경북' || city === '전남' || city === '신안' || /울릉|독도|통영|거제|남해|완도|진도/i.test(city));
   const maxRadiusKm = isIslandOrWide ? 90 : 35;
   cityPois = cityPois.filter(spot => {
-    if (!spot.lat || !spot.lng) return true;
+    // 1. 유효 좌표 검증: 좌표가 없거나 0이면 유령 데이터이므로 즉시 배제
+    if (!spot.lat || !spot.lng || isNaN(spot.lat) || isNaN(spot.lng)) return false;
     const distFromCenter = calculateDistanceKm(cityMeta.lat, cityMeta.lng, spot.lat, spot.lng);
-    return distFromCenter <= maxRadiusKm;
+    if (distFromCenter > maxRadiusKm) return false;
+
+    // 2. 주소 크로스 체킹 (타 광역시/도 명소 100% 필터링)
+    const addr = (spot.location || spot.addr1 || spot.address || '').toLowerCase();
+    if (city === '부산') {
+      if (addr.includes('제주') || addr.includes('서귀포') || addr.includes('서울') || addr.includes('인천') || addr.includes('강원') || addr.includes('경기') || addr.includes('전남') || addr.includes('충남')) {
+        return false;
+      }
+    } else if (city === '서울') {
+      if (addr.includes('제주') || addr.includes('부산') || addr.includes('대구') || addr.includes('광주') || addr.includes('대전') || addr.includes('울산') || addr.includes('경남') || addr.includes('전남')) {
+        return false;
+      }
+    } else if (city === '제주') {
+      if (addr.includes('서울') || addr.includes('부산') || addr.includes('인천') || addr.includes('대구') || addr.includes('광주') || addr.includes('대전') || addr.includes('경기') || addr.includes('강원')) {
+        return false;
+      }
+    }
+    return true;
   });
 
   // 3. User Mentioned Landmark Priority
@@ -759,8 +777,9 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
     }
 
     // Day Theme & Dining Tip (Separated food recommendation)
-    const primaryAnchor = daySpots.length > 0 ? daySpots[0].title : (isEnglish ? 'Highlights' : '핵심 랜드마크');
-    const dayThemeTitle = isEnglish ? `Day ${d}: ${city} ${primaryAnchor} Corridor` : `${d}일차: ${city} ${primaryAnchor} & 권역 코스`;
+    const rawPrimaryAnchor = daySpots.length > 0 ? daySpots[0].title : (isEnglish ? 'Highlights' : '핵심 랜드마크');
+    const cleanPrimaryAnchor = rawPrimaryAnchor.replace(new RegExp(`^${city}\\s*`, 'i'), '').trim();
+    const dayThemeTitle = isEnglish ? `Day ${d}: ${city} ${cleanPrimaryAnchor} Corridor` : `${d}일차: ${city} ${cleanPrimaryAnchor} & 권역 코스`;
     const transitTip = isEnglish
       ? `Within 10-25 mins transit between nearby cluster spots`
       : `권역 내 이동: 스팟 간 대중교통/도보 10~25분 소요`;
