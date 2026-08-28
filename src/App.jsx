@@ -761,7 +761,7 @@ export default function App() {
     }
 
     try {
-      const elapsedSeconds = '0.01';
+      const elapsedSeconds = Math.max(0.08, ((Date.now() - startTime) / 1000)).toFixed(2);
       const replyTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
 
       // 🧠 1단계: 사용자 입력 패치 (User Input > Previous Memory, 도시/동행/선호 Patch Update)
@@ -1011,10 +1011,11 @@ export default function App() {
         }
 
         const rawResult = await generateLocalFallbackItinerary(compositePrompt, buildCity, requestedDays, lang, null, false, focusedSpot);
+        const buildElapsedSeconds = Math.max(0.12, ((Date.now() - startTime) / 1000)).toFixed(2);
         const finalResult = {
           ...rawResult,
           targetCity: buildCity,
-          generationTime: elapsedSeconds,
+          generationTime: buildElapsedSeconds,
           draftId: `draft-${Date.now()}`,
           savedId: null
         };
@@ -1048,7 +1049,7 @@ export default function App() {
           role: 'assistant',
           text: replySummary,
           itinerary: finalResult,
-          generationTime: elapsedSeconds,
+          generationTime: buildElapsedSeconds,
           queryTime,
           replyTime,
           timestamp: replyTime
