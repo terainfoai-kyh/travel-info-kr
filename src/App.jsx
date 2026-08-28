@@ -800,6 +800,14 @@ export default function App() {
 
         // 1단계(순수 대화 & 온보딩 질문 중): POI 카드 숨김 / 2단계(본격 일정/명소 탐색): 100% 한국관광공사 TourAPI 4.0 실시간 정품 POI 카드 직결!
         const qnaDirectMatch = matchVoraQna(promptQuery, targetCity, tripContext, lang);
+        if (qnaDirectMatch) {
+          if (qnaDirectMatch.title) {
+            updatedState.tripMemory.focusedSpot = qnaDirectMatch.title.replace(/\s*\(.*?\)/g, '').trim();
+          }
+          if (qnaDirectMatch.targetCity && qnaDirectMatch.targetCity !== 'all') {
+            updatedState.tripMemory.destination = qnaDirectMatch.targetCity;
+          }
+        }
         let matchedPois = [];
         if (!qnaDirectMatch && isPlanningMode && userIntent !== 'OFF_TOPIC' && !isGatewaySelectPrompt && !isArrivalTimePrompt) {
           try {

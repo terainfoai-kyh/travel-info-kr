@@ -157,9 +157,9 @@ export async function fetchCityTourApiSpots(city = '서울', lang = 'ko') {
         const isSightseeingType = (typeId === '12' || typeId === '14' || typeId === '28');
         if (!isSightseeingType) return false;
 
-        // 🛡️ Secondary Title Filter: Commercial stores, public offices, libraries, campsites, residential gyms
+        // 🛡️ Secondary Title Filter: Commercial stores, food alleys, public offices, libraries, campsites, residential gyms
         const title = (item.title || '').trim();
-        const isCommercialOrNonTourist = /(gs25|cu|세븐일레븐|이마트24|미니스톱|종합상가|한복매장|귀금속|도매상가|도매시장|유통단지|쇼핑타운|지하상가|수산상회|청과물|플래그쉽|플래그십|스토어|점$|점\s|식당|본점|직영점|도서관|열람실|독서실|구청|시청|군청|주민센터|행정복지센터|종합운동장|체육관|캠핑장|캠핑체험|글램핑|야영장|수련원|연수원|노인복지|어린이집)/i.test(title);
+        const isCommercialOrNonTourist = /(gs25|cu|세븐일레븐|이마트24|미니스톱|종합상가|한복매장|귀금속|도매상가|도매시장|유통단지|쇼핑타운|지하상가|수산상회|청과물|플래그쉽|플래그십|스토어|점$|점\s|식당|본점|직영점|도서관|열람실|독서실|구청|시청|군청|주민센터|행정복지센터|종합운동장|체육관|캠핑장|캠핑체험|글램핑|야영장|수련원|연수원|노인복지|어린이집|양곱창|곱창골목|먹자골목|닭갈비골목|순대골목|장어골목|떡볶이골목|생선구이골목|음식거리|먹거리골목|음식특화)/i.test(title);
         return !isCommercialOrNonTourist;
       })
       .map(item => ({
@@ -231,7 +231,7 @@ export async function fetchDynamicRealtimeSpots(query, lang = 'ko') {
         }
 
         const title = (item.title || '').trim();
-        const isCommercialOrNonTourist = /(한쿡|gs25|cu|세븐일레븐|이마트24|식당|음식점|맛집|갈비|푸드|카페|커피|베이커리|스토어|플래그쉽|직영점|본점|도서관|열람실|독서실|구청|시청|군청|주민센터|행정복지센터|종합운동장|체육관|캠핑장|캠핑체험|글램핑|야영장|수련원|연수원|노인복지|어린이집)/i.test(title);
+        const isCommercialOrNonTourist = /(한쿡|gs25|cu|세븐일레븐|이마트24|식당|음식점|맛집|갈비|푸드|카페|커피|베이커리|스토어|플래그쉽|직영점|본점|도서관|열람실|독서실|구청|시청|군청|주민센터|행정복지센터|종합운동장|체육관|캠핑장|캠핑체험|글램핑|야영장|수련원|연수원|노인복지|어린이집|양곱창|곱창골목|먹자골목|닭갈비골목|순대골목|장어골목|떡볶이골목|생선구이골목|음식거리|먹거리골목|음식특화)/i.test(title);
         return !isCommercialOrNonTourist;
       });
 
