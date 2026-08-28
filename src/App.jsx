@@ -695,6 +695,12 @@ export default function App() {
       const requestedDays = updatedState.tripMemory.days || 3;
       const userIntent = updatedState.lastIntent;
 
+      // 🧠 [대화 문맥 지능형 명소 기억] 사용자가 방금 대화에서 질문한 섬/핵심 명소 기억!
+      const landmarkSpotMatch = promptQuery.match(/(사량도|욕지도|독도|우도|청산도|남이섬|금오도|퍼플섬|외도|소매물도|비진도|지심도|경복궁|N서울타워|남산타워|북촌한옥마을|동피랑|해운대|광안리|성산일출봉|수원화성|행궁동)/i);
+      if (landmarkSpotMatch && landmarkSpotMatch[1]) {
+        updatedState.tripMemory.focusedSpot = landmarkSpotMatch[1];
+      }
+
       // 🌟 [핵심 티키타카 & Intent 라우팅]
       // 1. 명시적 전체 일정 생성 요청(REGENERATE_ITINERARY or 🚀 확정 버튼)이 아닌 경우 ➔ 0.01초 광속 컨시어지 답변 & POI 추천
       if (!isDirectGenerateAction && userIntent !== 'REGENERATE_ITINERARY') {
@@ -865,7 +871,8 @@ export default function App() {
 
         const compositePrompt = `${buildCity} ${requestedDays}일 ${compList.join('/')} 여행${prefList.length > 0 ? `, 테마: ${prefList.join(', ')}` : ''}, ${promptQuery}`;
 
-        const rawResult = await generateLocalFallbackItinerary(compositePrompt, buildCity, requestedDays, lang);
+        const focusedSpot = updatedState.tripMemory.focusedSpot || null;
+        const rawResult = await generateLocalFallbackItinerary(compositePrompt, buildCity, requestedDays, lang, null, false, focusedSpot);
         const finalResult = {
           ...rawResult,
           targetCity: buildCity,

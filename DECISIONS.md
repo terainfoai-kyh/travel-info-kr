@@ -18,8 +18,9 @@
    - **한국관광공사 TourAPI 시군구 코드(`sigunguCode`) 정밀 매핑 & 주소 필터 장착 (`tourApi.js`)**: 통영(`sigunguCode: 17`), 거제(`sigunguCode: 1`), 남해(`sigunguCode: 5`), 강릉(`sigunguCode: 1`) 등 등록 및 타 지역(하동 등) 명소 혼입 100% 차단.
    - **100% 무인 자동 배치 스케줄러 구축 (`scripts/runDailyBatch.js` & `.github/workflows/daily-batch.yml`)**: 매일 자정(00:00 KST) 무인 실행 및 GitHub Actions 웹에서 즉시 수동 테스트(`workflow_dispatch`) 가능한 일일 지식 증류 & 자동 Git Commit 파이프라인 완성.
    - **헌법 제19조 제정 (`AGENTS.md` & `DECISIONS.md`)**: 100% 순수 중앙 클라우드 단일 진실 원천(Single Source of Truth) 확립 및 로컬 캐시 착시 찌꺼기(Ghost Data) 영구 척결.
+   - **대화 문맥 관심 명소(사량도·욕지도 등) 일정표 1일차 최우선 앵커 자동 배치 (`App.jsx` & `localItineraryGenerator.js`)**: 사용자가 직전 대화에서 문의한 섬/핵심 명소를 세션 메모리에 기억하여, [바로 일정 만들기] 시 1일차 1번 대표 앵커로 실시간 자동 배정 및 맞춤형 일정 조립.
 2. **다음 작업 1순위**:
-   - 관리자 화면 100% 순수 클라우드 직결 상태에서 실서버 동기화 검증.
+   - 실시간 대화창에서 '사량도', '욕지도' 질의 후 [🚀 바로 일정 만들기] 시 1일차 최우선 배정 테스트 및 검증.
 
 ---
 

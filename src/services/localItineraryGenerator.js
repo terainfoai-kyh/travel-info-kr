@@ -140,13 +140,21 @@ const SYNONYM_MAP = {
   '감천문화마을': ['감천문화마을', 'Gamcheon Culture Village'],
   '자갈치시장': ['자갈치시장', '자갈치', 'Jagalchi Market'],
   '성산일출봉': ['성산일출봉', 'Seongsan Ilchulbong'],
-  '수원화성': ['수원화성', '화성행궁', 'Suwon Hwaseong Fortress']
+  '수원화성': ['수원화성', '화성행궁', 'Suwon Hwaseong Fortress'],
+  '사량도': ['사량도', '지리망산', '옥녀봉', '사량도출렁다리', 'Saryangdo'],
+  '욕지도': ['욕지도', '출렁다리', '펠리컨바위', '욕지도고등어회', 'Yokjido'],
+  '독도': ['독도', '독도전망대', 'Dokdo'],
+  '우도': ['우도', '우도봉', '검멀레', '산호해수욕장', 'Udo Island'],
+  '청산도': ['청산도', '슬로길', '서편제촬영지', 'Cheongsando'],
+  '남이섬': ['남이섬', '나미나라공화국', 'Nami Island'],
+  '금오도': ['금오도', '비렁길', 'Geumodo'],
+  '퍼플섬': ['퍼플섬', '반월도', '박지도', 'Purple Island']
 };
 
 /**
  * 100% Live TourAPI 4.0 Direct Pipeline Itinerary Generator
  */
-export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requestedDays = 3, lang = 'ko', previousItinerary = null, isModification = false) {
+export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requestedDays = 3, lang = 'ko', previousItinerary = null, isModification = false, focusedSpot = null) {
   const isEnglish = (lang === 'en');
   const city = targetCity || '서울';
   const cityMeta = CITY_COORDINATES[city] || { lat: 37.5665, lng: 126.9780, nameEn: city };
@@ -229,11 +237,12 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
     '경복궁', 'N서울타워', '남산타워', '북촌한옥마을', '익선동', '명동', '성수동', '동대문디자인플라자', 'DDP', '롯데월드타워', '한강공원', '홍대', '인사동',
     '해운대', '광안리', '자갈치시장', '감천문화마을', '블루라인파크', '태종대', '흰여울문화마을', '용궁사', '해동용궁사',
     '성산일출봉', '협재해수욕장', '함덕해수욕장', '카멜리아힐', '우도', '섭지코지', '한라산',
-    '화성행궁', '수원화성', '행궁동', '방화수류정', '불국사', '첨성대', '황리단길', '동궁과월지'
+    '화성행궁', '수원화성', '행궁동', '방화수류정', '불국사', '첨성대', '황리단길', '동궁과월지',
+    '사량도', '욕지도', '독도', '청산도', '남이섬', '금오도', '퍼플섬', '외도', '소매물도', '비진도', '지심도'
   ];
 
-  let explicitlyRequestedSpotName = null;
-  if (rawPrompt && !/바로\s*일정\s*만들기|바로\s*짜줘|추천해줘|짜줘/i.test(rawPrompt)) {
+  let explicitlyRequestedSpotName = focusedSpot || null;
+  if (!explicitlyRequestedSpotName && rawPrompt && !/바로\s*일정\s*만들기|바로\s*짜줘|추천해줘|짜줘/i.test(rawPrompt)) {
     for (const lm of commonLandmarks) {
       if (rawPrompt.includes(lm)) {
         explicitlyRequestedSpotName = lm;
@@ -333,6 +342,13 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
           if (direct && direct.length > 0) {
             anchorSpot = direct.find(p => !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normalizeTargetString(p.title)) && !visitedCoreLandmarkKeys.has(extractCoreLandmarkKey(p.title)));
             if (anchorSpot) cityPois.unshift(anchorSpot);
+          } else {
+            // 2차 시도: 도시명 결합 검색
+            const directWithCity = await fetchDynamicRealtimeSpots(`${city} ${anchorName}`, lang);
+            if (directWithCity && directWithCity.length > 0) {
+              anchorSpot = directWithCity.find(p => !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normalizeTargetString(p.title)) && !visitedCoreLandmarkKeys.has(extractCoreLandmarkKey(p.title)));
+              if (anchorSpot) cityPois.unshift(anchorSpot);
+            }
           }
         } catch (e) {}
       }
