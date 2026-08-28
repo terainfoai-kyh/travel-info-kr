@@ -302,6 +302,12 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
         fetchPromises.push(
           fetchDynamicRealtimeSpots(queryWithCity, lang).catch(() => [])
         );
+        // 🌟 '기장군' 등 군/구 단위 랜드마크(해동용궁사 등) 완벽 수신을 위한 순수 키워드 병렬 쿼리
+        if (syn !== queryWithCity && syn.length >= 3) {
+          fetchPromises.push(
+            fetchDynamicRealtimeSpots(syn, lang).catch(() => [])
+          );
+        }
       }
     }
   }
