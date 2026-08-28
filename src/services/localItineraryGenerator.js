@@ -140,16 +140,33 @@ const SYNONYM_MAP = {
   'N서울타워': ['N서울타워', '남산서울타워', 'N Seoul Tower'],
   'DDP': ['동대문디자인플라자', 'DDP', 'Dongdaemun Design Plaza'],
   '더현대 서울': ['더현대 서울', '더현대', '여의도 한강공원', 'The Hyundai Seoul'],
-  '해운대': ['해운대', '해운대해수욕장', '해운대블루라인파크', 'Haeundae'],
+  '성수동': ['성수동', '성수동카페거리', 'Seongsu'],
+  '해운대': ['해운대', '해운대해수욕장', 'Haeundae'],
+  '블루라인파크': ['해운대블루라인파크', '블루라인파크', '스카이캡슐', '해변열차', '송정역', '미포', '청사포', 'Blueline Park'],
+  '해운대 블루라인파크': ['해운대블루라인파크', '블루라인파크', '스카이캡슐', '해변열차', '미포', '청사포'],
+  '해동용궁사': ['해동용궁사', '용궁사', '기장해동용궁사', 'Haedong Yonggungsa'],
   '광안리': ['광안리', '광안리해수욕장', '광안대교', 'Gwangalli'],
+  '광안대교': ['광안대교', '광안리해수욕장', '광안리', '민락수변공원'],
+  '광안리해수욕장': ['광안리해수욕장', '광안리', '광안대교'],
   '감천문화마을': ['감천문화마을', 'Gamcheon Culture Village'],
+  '흰여울문화마을': ['흰여울문화마을', '흰여울마을', '영도흰여울문화마을', 'Huinnyeoul Culture Village'],
   '자갈치시장': ['자갈치시장', '자갈치', 'Jagalchi Market'],
-  '성산일출봉': ['성산일출봉', 'Seongsan Ilchulbong'],
+  '성산일출봉': ['성산일출봉', '일출봉', 'Seongsan Ilchulbong'],
+  '우도': ['우도', '우도봉', '검멀레', '산호해수욕장', '서빈백사', 'Udo Island'],
+  '협재해수욕장': ['협재해수욕장', '협재해변', '협재', 'Hyeopjae Beach'],
+  '애월': ['애월한담', '한담해변', '애월카페거리', '애월', 'Aewol'],
+  '천지연폭포': ['천지연폭포', '천제연폭포', '정방폭포', 'Cheonjiyeon Waterfall'],
+  '서귀포 매일올레시장': ['서귀포매일올레시장', '서귀포올레시장', '올레시장', 'Seogwipo Olle Market'],
+  '불국사': ['불국사', 'Bulguksa'],
+  '석굴암': ['석굴암', 'Seokguram'],
+  '황리단길': ['황리단길', 'Hwangridan-gil'],
+  '대릉원': ['대릉원', '천마총', 'Daereungwon'],
+  '첨성대': ['첨성대', 'Cheomseongdae'],
+  '동궁과 월지': ['동궁과월지', '동궁과 월지', '안압지', 'Donggung Palace and Wolji Pond'],
   '수원화성': ['수원화성', '화성행궁', 'Suwon Hwaseong Fortress'],
   '사량도': ['사량도', '지리망산', '옥녀봉', '사량도출렁다리', 'Saryangdo'],
   '욕지도': ['욕지도', '출렁다리', '펠리컨바위', '욕지도고등어회', 'Yokjido'],
   '독도': ['독도', '독도전망대', 'Dokdo'],
-  '우도': ['우도', '우도봉', '검멀레', '산호해수욕장', 'Udo Island'],
   '청산도': ['청산도', '슬로길', '서편제촬영지', 'Cheongsando'],
   '남이섬': ['남이섬', '나미나라공화국', 'Nami Island'],
   '금오도': ['금오도', '비렁길', 'Geumodo'],
@@ -448,18 +465,18 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
       if (currentCursorMinutes >= dayEndMinutes) break;
       let anchorSpot = findPoiForLandmark(anchorName);
       
-      // If not in live pool, try direct fetch
+      // If not in live pool, try direct fetch (도시명 결합 1순위)
       if (!anchorSpot) {
         try {
-          const direct = await fetchDynamicRealtimeSpots(anchorName, lang);
-          if (direct && direct.length > 0) {
-            anchorSpot = direct.find(p => !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normalizeTargetString(p.title)) && !visitedCoreLandmarkKeys.has(extractCoreLandmarkKey(p.title)));
+          const directWithCity = await fetchDynamicRealtimeSpots(`${city} ${anchorName}`, lang);
+          if (directWithCity && directWithCity.length > 0) {
+            anchorSpot = directWithCity.find(p => !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normalizeTargetString(p.title)) && !visitedCoreLandmarkKeys.has(extractCoreLandmarkKey(p.title)));
             if (anchorSpot) cityPois.unshift(anchorSpot);
-          } else {
-            // 2차 시도: 도시명 결합 검색
-            const directWithCity = await fetchDynamicRealtimeSpots(`${city} ${anchorName}`, lang);
-            if (directWithCity && directWithCity.length > 0) {
-              anchorSpot = directWithCity.find(p => !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normalizeTargetString(p.title)) && !visitedCoreLandmarkKeys.has(extractCoreLandmarkKey(p.title)));
+          }
+          if (!anchorSpot) {
+            const direct = await fetchDynamicRealtimeSpots(anchorName, lang);
+            if (direct && direct.length > 0) {
+              anchorSpot = direct.find(p => !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normalizeTargetString(p.title)) && !visitedCoreLandmarkKeys.has(extractCoreLandmarkKey(p.title)));
               if (anchorSpot) cityPois.unshift(anchorSpot);
             }
           }
