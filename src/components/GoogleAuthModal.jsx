@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, CheckCircle, Sparkles, Shield, Bookmark, MapPin, Zap, User } from 'lucide-react';
 import { getCloseButtonLabel } from '../i18n/translations';
+import { pushTripsToCloud } from '../services/tripSyncService';
 
 export default function GoogleAuthModal({
   isOpen,
@@ -36,6 +37,15 @@ export default function GoogleAuthModal({
         localStorage.setItem('vora_user_profile', JSON.stringify(userProfile));
         if (isAdmin) {
           localStorage.setItem('vora_admin_mode', 'true');
+        }
+
+        // ☁️ 로그인 시점에 로컬에 있던 일정들을 클라우드로 즉시 업로드 동기화!
+        const localSaved = localStorage.getItem('vora_saved_trips');
+        if (localSaved) {
+          const list = JSON.parse(localSaved);
+          if (Array.isArray(list) && list.length > 0) {
+            pushTripsToCloud(finalEmail, list).catch(e => console.warn('[Cloud Upload on Login Error]', e));
+          }
         }
       } catch (e) {}
 

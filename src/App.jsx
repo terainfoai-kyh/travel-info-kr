@@ -49,6 +49,7 @@ import { fetchCityTourApiSpots, fetchDynamicRealtimeSpots } from './services/tou
 import { getDynamicGatewayChips, CITY_LOCAL_KNOWLEDGE } from './data/voraDialogKnowledge';
 import { matchVoraQna } from './services/voraQnaMatcher';
 import { buildTravelContext, generateContextualAdvice, patchTravelState, removeContextChip, toggleContextChip, classifyUserIntent, getActiveContextChips, INITIAL_TRAVEL_STATE } from './services/travelContextEngine';
+import { fetchCloudTrips, pushTripsToCloud, deleteTripFromCloud, parseTripFromUrl } from './services/tripSyncService';
 
 export default function App() {
   // 4-Language State (ko, en, ja, zh) with 3-Tier Intelligent Auto-Detection
@@ -168,6 +169,28 @@ export default function App() {
     return () => { isMounted = false; };
   }, [itineraryData?.tripTitle]);
 
+  // 📱 [모바일 QR / 1초 링크 진입 감지] URL에 tripData가 있으면 즉시 복원하여 화면에 표시 및 자동 보관!
+  useEffect(() => {
+    const tripFromUrl = parseTripFromUrl();
+    if (tripFromUrl) {
+      setItineraryData(tripFromUrl);
+      setSelectedTripId(tripFromUrl.savedId);
+      setHasActiveUnsavedDraft(false);
+      setActiveNavTab('mytrip');
+      setSavedTrips(prev => {
+        const filtered = prev.filter(t => (t.savedId || t.tripTitle) !== tripFromUrl.savedId && t.tripTitle !== tripFromUrl.tripTitle);
+        const updated = [tripFromUrl, ...filtered];
+        try {
+          localStorage.setItem('vora_saved_trips', JSON.stringify(updated));
+        } catch (e) {}
+        return updated;
+      });
+      try {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } catch (e) {}
+    }
+  }, []);
+
   const [chatMessages, setChatMessages] = useState(() => getInitialWelcomeMessages(lang, null));
   const [activeDay, setActiveDay] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -247,6 +270,32 @@ export default function App() {
     return null;
   });
 
+  // ☁️ [클라우드 일정 실시간 동기화] 구글 로그인 시 서버와 양방향 병합
+  useEffect(() => {
+    if (!currentUser || !currentUser.email) return;
+    let isMounted = true;
+    fetchCloudTrips(currentUser.email).then(cloudList => {
+      if (!isMounted || !Array.isArray(cloudList) || cloudList.length === 0) return;
+      setSavedTrips(prev => {
+        const map = new Map();
+        for (const t of cloudList) {
+          const k = t.savedId || t.tripTitle || t.id;
+          if (k) map.set(k, t);
+        }
+        for (const t of prev) {
+          const k = t.savedId || t.tripTitle || t.id;
+          if (k) map.set(k, t);
+        }
+        const merged = Array.from(map.values());
+        try {
+          localStorage.setItem('vora_saved_trips', JSON.stringify(merged));
+        } catch (e) {}
+        return merged;
+      });
+    }).catch(err => console.warn('[CloudSync Init Error]', err));
+    return () => { isMounted = false; };
+  }, [currentUser?.email]);
+
   // ==============================================================================
   // 🌟 VORA AI Global Configuration (선배님 설정: 기본 3회 무료 생성)
   // ==============================================================================
@@ -279,7 +328,7 @@ export default function App() {
   // 💡 작성 중(미저장) AI 일정 상태 관리
   const [hasActiveUnsavedDraft, setHasActiveUnsavedDraft] = useState(false);
 
-  // 🌟 [일정 확정 및 내 여행 저장] 코어 핸들러 (쿼터 1회 차감 & 저장)
+  // 🌟 [일정 확정 및 내 여행 저장] 코어 핸들러 (쿼터 1회 차감 & 저장 & 클라우드 실시간 푸시)
   const handleSaveCurrentItinerary = (targetNextTab = 'mytrip', bypassQuotaCheck = false) => {
     if (!itineraryData) {
       setActiveNavTab(targetNextTab);
@@ -324,6 +373,11 @@ export default function App() {
       } catch (e) {}
       return updated;
     });
+
+    // 4. ☁️ 로그인 사용자라면 Cloudflare 중앙 클라우드로 즉시 동기화 백업!
+    if (currentUser?.email) {
+      pushTripsToCloud(currentUser.email, [newSaved]).catch(e => console.warn('[Cloud Push Error]', e));
+    }
 
     setItineraryData(newSaved);
     setSelectedTripId(newSaved.savedId);
@@ -1058,13 +1112,18 @@ export default function App() {
     showToast(lang === 'en' ? 'Starting a fresh new conversation ✨' : '새로운 대화를 시작합니다 ✨');
   };
 
-  // 저장된 여행 삭제 핸들러 (작성 중인 새 미저장 일정 100% 보호)
+  // 저장된 여행 삭제 핸들러 (작성 중인 새 미저장 일정 100% 보호 & 클라우드 실시간 삭제)
   const handleDeleteSavedTrip = (tripId) => {
     setSavedTrips(prev => {
       const updated = prev.filter(t => (t.savedId || t.tripTitle) !== tripId);
       try {
         localStorage.setItem('vora_saved_trips', JSON.stringify(updated));
       } catch (e) {}
+
+      // ☁️ 클라우드에서도 실시간 삭제
+      if (currentUser?.email) {
+        deleteTripFromCloud(currentUser.email, tripId).catch(e => console.warn('[Cloud Delete Error]', e));
+      }
 
       // 🛡️ 현재 보고 있는 일정이 '작성 중인 새 미저장 일정'이라면 절대 날리지 않고 그대로 유지!
       if (!hasActiveUnsavedDraft) {

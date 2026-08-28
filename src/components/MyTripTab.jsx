@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Calendar, Share2, Check, MapPin, Sparkles, Navigation, Info, ExternalLink, Clock, CheckCircle2, Trash2, PlusCircle, Bookmark, Printer, Download, Zap } from 'lucide-react';
+import { Calendar, Share2, Check, MapPin, Sparkles, Navigation, Info, ExternalLink, Clock, CheckCircle2, Trash2, PlusCircle, Bookmark, Printer, Download, Zap, Smartphone } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
+import QRCodeModal from './QRCodeModal';
 
 /**
  * ==============================================================================
@@ -9,7 +10,7 @@ import { TRANSLATIONS } from '../i18n/translations';
  * 1. 상단: 🧳 내 저장 여행 (N개) 스마트 가로 스크롤 카드 셀렉터 & [＋ 새 여행] & [⚡ 잔여 저장 N/3회]
  * 2. 저장 상태별 최적화:
  *    - 미저장(Draft): [ 📝 작성 중 ] + [ 💾 이 일정 저장하기 (1회 차감) ] 노출 (공유 숨김)
- *    - 저장완료(Saved): [ ✅ 저장됨 ] + [ 🔗 친구 공유 ] + [ 📄 PDF / 인쇄 ]
+ *    - 저장완료(Saved): [ ✅ 저장됨 ] + [ 📱 모바일 QR ] + [ 🔗 친구 공유 ] + [ 📄 PDF / 인쇄 ]
  * 3. 09:00~18:30 풀코스 1줄 타임라인 (0초 스크롤 뷰)
  * 4. 하단 듀얼 액션 바: [🗺️ 지도 보기] & [💬 AI 대화로 수정]
  * ==============================================================================
@@ -33,6 +34,7 @@ export default function MyTripTab({
 }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
   const [copied, setCopied] = useState(false);
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
 
   // 저장된 여행도 없고 현재 활성 일정도 없을 때의 엠프티 뷰
   if (!itineraryData && (!savedTrips || savedTrips.length === 0)) {
@@ -443,6 +445,29 @@ export default function MyTripTab({
 
                 <button
                   type="button"
+                  onClick={() => setIsQrModalOpen(true)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.25rem',
+                    backgroundColor: '#eff6ff',
+                    border: '1px solid #bfdbfe',
+                    color: '#1d4ed8',
+                    borderRadius: '8px',
+                    padding: '0.32rem 0.6rem',
+                    fontSize: '0.75rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 6px rgba(37, 99, 235, 0.12)'
+                  }}
+                  title={lang === 'en' ? 'Open on Mobile with QR' : '스마트폰으로 1초 만에 보기'}
+                >
+                  <Smartphone size={13} />
+                  <span>{lang === 'en' ? '📱 Mobile' : '📱 폰으로 보기'}</span>
+                </button>
+
+                <button
+                  type="button"
                   onClick={handleShareTrip}
                   style={{
                     display: 'inline-flex',
@@ -735,6 +760,14 @@ export default function MyTripTab({
           </button>
         </div>
       </div>
+
+      {/* 📱 Mobile 1-Sec Instant QR Modal */}
+      <QRCodeModal
+        isOpen={isQrModalOpen}
+        onClose={() => setIsQrModalOpen(false)}
+        trip={itineraryData}
+        lang={lang}
+      />
     </div>
   );
 }
