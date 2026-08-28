@@ -122,12 +122,12 @@ export async function fetchCityTourApiSpots(city = '서울', lang = 'ko') {
     const sigunguCode = subCity ? null : (TOUR_API_SIGUNGU_CODES[cleanCity] || TOUR_API_SIGUNGU_CODES[rawCityStr]);
     let fetchUrl = '';
     if (areaCode) {
-      // Area & Sigungu based query: TourAPI 4.0 Standard Title/Popularity (arrange=A)
+      // Area & Sigungu based query: TourAPI 4.0 Standard Realtime Popularity (arrange=P)
       const sigunguParam = sigunguCode ? `&sigunguCode=${sigunguCode}` : '';
-      fetchUrl = `${apiBase}/areaBasedList2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&areaCode=${areaCode}${sigunguParam}&arrange=A&numOfRows=100&pageNo=1`;
+      fetchUrl = `${apiBase}/areaBasedList2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&areaCode=${areaCode}${sigunguParam}&arrange=P&numOfRows=100&pageNo=1`;
     } else {
-      // Keyword search fallback (arrange=A)
-      fetchUrl = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&keyword=${encodeURIComponent(cleanCity)}&arrange=A&numOfRows=100&pageNo=1`;
+      // Keyword search fallback (arrange=P)
+      fetchUrl = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&keyword=${encodeURIComponent(cleanCity)}&arrange=P&numOfRows=100&pageNo=1`;
     }
 
     const res = await fetch(fetchUrl);

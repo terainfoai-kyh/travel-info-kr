@@ -544,7 +544,11 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
           ? (h < 12 ? `${h === 0 ? 12 : h}:${m.toString().padStart(2, '0')} AM` : `${h === 12 ? 12 : h - 12}:${m.toString().padStart(2, '0')} PM`)
           : (h < 12 ? `오전 ${h}:${m.toString().padStart(2, '0')}` : `오후 ${h === 12 ? 12 : h - 12}:${m.toString().padStart(2, '0')}`);
 
-        const cleanSpotTitle = (anchorSpot.title || anchorSpot.name || '').replace(/대한민국|일대|주변/g, '').trim();
+        let cleanSpotTitle = (anchorSpot.title || anchorSpot.name || '').replace(/대한민국|일대|주변/g, '').trim();
+        const doubleCityRegex = new RegExp(`^(${city})\\s+\\1\\s*`, 'i');
+        if (doubleCityRegex.test(cleanSpotTitle)) {
+          cleanSpotTitle = cleanSpotTitle.replace(doubleCityRegex, `${city} `);
+        }
         const estimatedDwell = estimateSpotDwellMinutes(cleanSpotTitle, anchorSpot.category);
 
         // 🌟 KOREA_TRAVEL_POI_DB 정품 지식과 1:1 매핑
@@ -701,7 +705,11 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
         ? (h < 12 ? `${h === 0 ? 12 : h}:${m.toString().padStart(2, '0')} AM` : `${h === 12 ? 12 : h - 12}:${m.toString().padStart(2, '0')} PM`)
         : (h < 12 ? `오전 ${h}:${m.toString().padStart(2, '0')}` : `오후 ${h === 12 ? 12 : h - 12}:${m.toString().padStart(2, '0')}`);
 
-      const cleanSpotTitle = (nextSpot.title || nextSpot.name || '').replace(/대한민국|일대|주변/g, '').trim();
+      let cleanSpotTitle = (nextSpot.title || nextSpot.name || '').replace(/대한민국|일대|주변/g, '').trim();
+      const doubleCityRegex = new RegExp(`^(${city})\\s+\\1\\s*`, 'i');
+      if (doubleCityRegex.test(cleanSpotTitle)) {
+        cleanSpotTitle = cleanSpotTitle.replace(doubleCityRegex, `${city} `);
+      }
       const estimatedDwell = estimateSpotDwellMinutes(cleanSpotTitle, nextSpot.category);
 
       // 🌟 KOREA_TRAVEL_POI_DB 정품 지식과 1:1 매핑
