@@ -39,6 +39,7 @@ import AIPlannerTab from './components/AIPlannerTab';
 import MyTripTab from './components/MyTripTab';
 import LiveTripTab from './components/LiveTripTab';
 import ExitConfirmModal from './components/ExitConfirmModal';
+import DesktopMapExplorer from './components/DesktopMapExplorer';
 
 import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
 import { geminiGenerateFullItinerary, generateLocalFallbackItinerary, enrichItineraryPhotosAsync, extractLocationKeyword, extractDaysFromPrompt } from './services/geminiNlpService';
@@ -1372,59 +1373,16 @@ export default function App() {
               targetCity={itineraryData?.targetCity || '서울'}
             />
 
-            {/* PC 와이드 화면일 때 홈 하단에 2단 대시보드 함께 표시 */}
-            <div className="desktop-only-hub" style={{ marginTop: '2rem' }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                marginBottom: '1rem',
-                padding: '0 0.25rem'
-              }}>
-                <span style={{
-                  width: '6px',
-                  height: '22px',
-                  backgroundColor: 'var(--accent-primary)',
-                  borderRadius: '4px'
-                }} />
-                <h2 style={{ fontSize: '1.25rem', fontWeight: 900, margin: 0, color: 'var(--text-main)' }}>
-                  {t.portalLivePlannerTitle || '실시간 맞춤 AI 여행 일정 & 스마트 동선 플래너'}
-                </h2>
-              </div>
-
-              <section id="itinerary-hub" className="itinerary-hub-container" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
-                <div className="itinerary-hub-column" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
-                  <VoraAIChat
-                    lang={lang}
-                    chatMessages={chatMessages}
-                    isLoading={isLoading}
-                    onSendMessage={handleGenerateItinerary}
-                    activeDay={activeDay}
-                    onSelectDay={(day) => setActiveDay(day)}
-                    questionQuota={questionQuota}
-                    onOpenRewardedAd={() => setIsRewardedAdOpen(true)}
-                    onConfirmItinerary={() => setActiveNavTab('mytrip')}
-                    onAddPoiToItinerary={handleAddPoiToItinerary}
-                    sessionContext={sessionContext}
-                    onRemoveContextChip={handleRemoveContextChip}
-                    onToggleContextChip={handleToggleContextChip}
-                    onResetChat={handleResetChat}
-                    onUpdateTimeSlot={handleUpdateTimeSlot}
-                  />
-                </div>
-                <div className="itinerary-hub-column" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
-                  <CourseMagazineView
-                    lang={lang}
-                    itineraryData={itineraryData}
-                    activeDay={activeDay}
-                    onSelectDay={(day) => setActiveDay(day)}
-                    onOpenDetail={(spot) => setSelectedSpot(spot)}
-                    bookmarks={bookmarks}
-                    onToggleBookmark={handleToggleBookmark}
-                  />
-                </div>
-              </section>
-            </div>
+            {/* 🗺️ PC 와이드 화면 전용: 외국인을 위한 대한민국 인터랙티브 비주얼 맵 탐색관 */}
+            <DesktopMapExplorer
+              lang={lang}
+              onSelectCityPlan={(cityName, days) => {
+                // 🚀 지도에서 도시 선택 후 일정 생성 클릭 시: 2단계 AI 대화 브리핑 화면으로 스마트 직행!
+                setPlannerInitialMode('chat');
+                setActiveNavTab('ai');
+                handleGenerateItinerary(`${cityName} ${days}일 여행 코스`, false, true);
+              }}
+            />
           </div>
         )}
 

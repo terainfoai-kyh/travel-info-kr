@@ -1512,3 +1512,19 @@ button, a, input, select, textarea {
     padding: 0 !important;
   }
 }
+
+/* ==========================================================================
+   Desktop-Only Interactive Map Explorer & Responsive Visibility Utilities
+   ========================================================================== */
+@media (max-width: 860px) {
+  .hide-mobile,
+  .desktop-map-explorer-container {
+    display: none !important;
+  }
+}
+
+@media (min-width: 861px) {
+  .hide-desktop {
+    display: none !important;
+  }
+}
