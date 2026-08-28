@@ -288,7 +288,7 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
 
   const parsedSignatureAnchors = anchorSourcePool.map(sig => decomposeSignatureString(sig));
 
-  // 🌟 Guarantee Genuine TourAPI POI data for all day anchors (City Prefixed to prevent cross-city leaking)
+  // 🌟 Guarantee Genuine TourAPI POI data for all day anchors (Single Preloading Pipeline)
   const anchorKeywordsToFetch = parsedSignatureAnchors.flat().slice(0, 10);
   const fetchPromises = [];
 
@@ -298,7 +298,6 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
       const normSyn = normalizeTargetString(syn);
       const alreadyInPool = cityPois.some(p => normalizeTargetString(p.title).includes(normSyn));
       if (!alreadyInPool) {
-        // 🏙️ 도시명 반드시 결합하여 전국 검색으로 인한 타 지역(강릉, 단양 등) 유입 100% 원천 차단!
         const queryWithCity = (syn.includes(city) || city === '전국') ? syn : `${city} ${syn}`;
         fetchPromises.push(
           fetchDynamicRealtimeSpots(queryWithCity, lang).catch(() => [])
@@ -311,37 +310,45 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
     const parallelResults = await Promise.all(fetchPromises);
     for (const resList of parallelResults) {
       if (resList && resList.length > 0) {
-        cityPois.unshift(...resList);
+        cityPois.push(...resList);
       }
     }
   }
 
-  // 🛡️ [반경 35km 거리 가드 & 주소 검증 (Distance & Address Guard)] 타 지역 명소 100% 원천 차단!
+  // 🛡️ [반경 35km 거리 가드 & 주소 검증 (Unified Single Distance & Address Guard)] 타 지역 명소 100% 원천 차단!
   const isIslandOrWide = (city === '제주' || city === '강원' || city === '경북' || city === '전남' || city === '신안' || /울릉|독도|통영|거제|남해|완도|진도/i.test(city));
   const maxRadiusKm = isIslandOrWide ? 90 : 35;
-  cityPois = cityPois.filter(spot => {
-    // 1. 유효 좌표 검증: 좌표가 없거나 0이면 유령 데이터이므로 즉시 배제
-    if (!spot.lat || !spot.lng || isNaN(spot.lat) || isNaN(spot.lng)) return false;
+  const filteredUniqueMap = new Map();
+
+  for (const spot of cityPois) {
+    // 1. 유효 좌표 검증: 좌표가 없거나 NaN이면 유령 데이터이므로 즉시 배제
+    if (!spot.lat || !spot.lng || isNaN(spot.lat) || isNaN(spot.lng)) continue;
     const distFromCenter = calculateDistanceKm(cityMeta.lat, cityMeta.lng, spot.lat, spot.lng);
-    if (distFromCenter > maxRadiusKm) return false;
+    if (distFromCenter > maxRadiusKm) continue;
 
     // 2. 주소 크로스 체킹 (타 광역시/도 명소 100% 필터링)
     const addr = (spot.location || spot.addr1 || spot.address || '').toLowerCase();
     if (city === '부산') {
-      if (addr.includes('제주') || addr.includes('서귀포') || addr.includes('서울') || addr.includes('인천') || addr.includes('강원') || addr.includes('경기') || addr.includes('전남') || addr.includes('충남')) {
-        return false;
+      if (addr.includes('제주') || addr.includes('서귀포') || addr.includes('서울') || addr.includes('인천') || addr.includes('강원') || addr.includes('경기') || addr.includes('전남') || addr.includes('충남') || addr.includes('전북')) {
+        continue;
       }
     } else if (city === '서울') {
       if (addr.includes('제주') || addr.includes('부산') || addr.includes('대구') || addr.includes('광주') || addr.includes('대전') || addr.includes('울산') || addr.includes('경남') || addr.includes('전남')) {
-        return false;
+        continue;
       }
     } else if (city === '제주') {
       if (addr.includes('서울') || addr.includes('부산') || addr.includes('인천') || addr.includes('대구') || addr.includes('광주') || addr.includes('대전') || addr.includes('경기') || addr.includes('강원')) {
-        return false;
+        continue;
       }
     }
-    return true;
-  });
+
+    const cleanTitleKey = normalizeTargetString(spot.title);
+    if (cleanTitleKey && !filteredUniqueMap.has(cleanTitleKey)) {
+      filteredUniqueMap.set(cleanTitleKey, spot);
+    }
+  }
+
+  cityPois = Array.from(filteredUniqueMap.values());
 
   // 3. User Mentioned Landmark Priority
   const commonLandmarks = [
@@ -437,14 +444,14 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
           continue;
         }
 
-        // 🌟 순수 대표 관광지 유형 가중치 (+30): 해수욕장, 해변, 공원, 타워, 사찰, 궁, 문화마을, 케이블카, 블루라인파크 등
-        if (/(해수욕장|해변|비치|공원|타워|전망대|사찰|절|궁|궁궐|마을|문화마을|케이블카|블루라인|스카이캡슐|유람선|수목원|식물원|오름|폭포|바다|산책로|디피랑|동피랑)/i.test(p.title)) {
-          score += 30;
+        // 🌟 순수 대표 관광지 유형 가중치 (+40): 해수욕장, 해변, 블루라인파크, 스카이캡슐, 해동용궁사, 문화마을, 타워, 공원 등
+        if (/(해수욕장|해변|비치|공원|타워|전망대|사찰|절|궁|궁궐|마을|문화마을|케이블카|블루라인|스카이캡슐|유람선|수목원|식물원|오름|폭포|바다|산책로|디피랑|동피랑|해동용궁사|불국사|석굴암|첨성대|동궁과월지|성산일출봉|우도)/i.test(p.title)) {
+          score += 40;
         }
 
-        // 🛡️ 부속/비관광 시설 감점 (-40): 온천, 온천센터, 사우나, 목욕, 스파 등
-        if (/(온천|온천센터|사우나|목욕|스파|찜질|헬스|체육)/i.test(p.title)) {
-          score -= 40;
+        // 🛡️ 행정구역/특구/부속시설 감점 (-50): 관광특구, 특구, 온천, 온천센터, 사우나, 목욕, 스파 등
+        if (/(관광특구|특구|온천|온천센터|사우나|목욕|스파|찜질|헬스|체육)/i.test(p.title)) {
+          score -= 50;
         }
 
         candidates.push({ spot: p, score });
@@ -494,38 +501,10 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
       }
     }
 
-    // 🌟 '&' Split Sequential Injection: Inject Spot 1 and Spot 2 from dayAnchorNames
+    // 🌟 '&' Split Sequential Injection: Inject Spot 1 and Spot 2 from dayAnchorNames (Instant 0.001s in-memory matching)
     for (const anchorName of dayAnchorNames) {
       if (currentCursorMinutes >= dayEndMinutes) break;
       let anchorSpot = findPoiForLandmark(anchorName);
-      
-      // If not in live pool, try direct fetch across synonyms (도시명 결합 & 단축 키워드 3중 연쇄)
-      if (!anchorSpot) {
-        try {
-          const synonyms = SYNONYM_MAP[anchorName] || [anchorName];
-          for (const syn of synonyms) {
-            if (anchorSpot) break;
-            const queryWithCity = syn.includes(city) ? syn : `${city} ${syn}`;
-            const directWithCity = await fetchDynamicRealtimeSpots(queryWithCity, lang).catch(() => []);
-            if (directWithCity && directWithCity.length > 0) {
-              anchorSpot = directWithCity.find(p => !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normalizeTargetString(p.title)) && !visitedCoreLandmarkKeys.has(extractCoreLandmarkKey(p.title)));
-              if (anchorSpot) {
-                cityPois.unshift(anchorSpot);
-                break;
-              }
-            }
-            // 2차: 순수 단축 키워드 단독 검색
-            const directPure = await fetchDynamicRealtimeSpots(syn, lang).catch(() => []);
-            if (directPure && directPure.length > 0) {
-              anchorSpot = directPure.find(p => !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normalizeTargetString(p.title)) && !visitedCoreLandmarkKeys.has(extractCoreLandmarkKey(p.title)));
-              if (anchorSpot) {
-                cityPois.unshift(anchorSpot);
-                break;
-              }
-            }
-          }
-        } catch (e) {}
-      }
 
       // 🌟 [100% 무조건 보장] 사용자가 대화에서 명시적으로 지목한 관심 섬/명소는 무조건 1일차 1번에 장착!
       if (!anchorSpot && explicitlyRequestedSpotName === anchorName) {
