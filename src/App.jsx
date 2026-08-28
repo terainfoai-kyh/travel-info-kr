@@ -764,10 +764,14 @@ export default function App() {
       const requestedDays = updatedState.tripMemory.days || 3;
       const userIntent = updatedState.lastIntent;
 
-      // 🧠 [대화 문맥 지능형 명소 기억] 사용자가 방금 대화에서 질문한 섬/핵심 명소 기억!
-      const landmarkSpotMatch = promptQuery.match(/(사량도|욕지도|독도|우도|청산도|남이섬|금오도|퍼플섬|외도|소매물도|비진도|지심도|경복궁|N서울타워|남산타워|북촌한옥마을|동피랑|해운대|광안리|성산일출봉|수원화성|행궁동)/i);
+      // 🧠 [대화 문맥 지능형 명소 기억 및 도시 전환 시 즉시 초기화]
+      const prevCity = sessionContext.tripMemory?.destination;
+      if (detectedCity && prevCity && detectedCity !== prevCity) {
+        updatedState.tripMemory.focusedSpot = null;
+      }
+      const landmarkSpotMatch = promptQuery.match(/(사량도|욕지도|독도|우도|청산도|남이섬|금오도|퍼플섬|외도|소매물도|비진도|지심도|경복궁|N서울타워|남산타워|북촌한옥마을|동피랑|해운대|광안리|성산일출봉|수원화성|행궁동|불국사|석굴암|첨성대|동궁과\s*월지|황리단길|대릉원)/i);
       if (landmarkSpotMatch && landmarkSpotMatch[1]) {
-        updatedState.tripMemory.focusedSpot = landmarkSpotMatch[1];
+        updatedState.tripMemory.focusedSpot = landmarkSpotMatch[1].trim();
       }
 
       // 🌟 [핵심 티키타카 & Intent 라우팅]

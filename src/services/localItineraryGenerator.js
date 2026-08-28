@@ -327,6 +327,18 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
     }
   }
 
+  // 🛡️ 2중 철벽 방어: explicitlyRequestedSpotName이 현재 도시(targetCity)의 후보 목록에 전혀 없는 타 도시 명소(예: 경주 일정인데 해운대)라면 100% 무시!
+  if (explicitlyRequestedSpotName && candidateSpots.length > 0) {
+    const normReq = normalizeTargetString(explicitlyRequestedSpotName);
+    const existsInCity = candidateSpots.some(s => {
+      const sNorm = normalizeTargetString(s.title || s.name || '');
+      return sNorm.includes(normReq) || normReq.includes(sNorm);
+    });
+    if (!existsInCity) {
+      explicitlyRequestedSpotName = null;
+    }
+  }
+
   // 4. Spatial Clustering & Non-Fixed Dynamic Time Budget Simulation
   const visitedPoiIds = new Set();
   const visitedNormalizedTitles = new Set();
