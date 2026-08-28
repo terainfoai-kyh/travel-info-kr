@@ -976,41 +976,66 @@ export default function AdminBatchModal({
               </div>
             </div>
 
-            {/* Live Search Input */}
-            <div style={{ position: 'relative' }}>
-              <input
-                type="text"
-                placeholder="🔎 질문명 또는 답변 본문 내용 검색 (예: 독도, 사동항, 경복궁, 한복, 성수동, 커피, 미식...)"
-                value={searchKnowledgeQuery}
-                onChange={(e) => setSearchKnowledgeQuery(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '0.65rem 0.9rem',
-                  fontSize: '0.85rem',
-                  borderRadius: '10px',
-                  border: '2px solid rgba(139, 92, 246, 0.3)',
-                  backgroundColor: 'var(--bg-card)',
-                  color: 'var(--text-main)',
-                  outline: 'none',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)'
-                }}
-              />
+            {/* Search Input Bar with [ 🔍 검색 ] & [ 🔄 전체 ] Buttons */}
+            <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+              <div style={{ position: 'relative', flex: 1 }}>
+                <input
+                  type="text"
+                  placeholder="🔎 질문명 또는 키워드 검색 (예: 옥녀봉, 사량도, 독도, 경복궁, 부산...)"
+                  value={searchKnowledgeQuery}
+                  onChange={(e) => setSearchKnowledgeQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                    }
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '0.65rem 2.2rem 0.65rem 0.9rem',
+                    fontSize: '0.85rem',
+                    borderRadius: '10px',
+                    border: '2px solid rgba(139, 92, 246, 0.3)',
+                    backgroundColor: 'var(--bg-card)',
+                    color: 'var(--text-main)',
+                    outline: 'none',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)'
+                  }}
+                />
+                {searchKnowledgeQuery && (
+                  <button
+                    onClick={() => setSearchKnowledgeQuery('')}
+                    style={{
+                      position: 'absolute',
+                      right: '10px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      color: 'var(--text-muted)',
+                      cursor: 'pointer',
+                      fontSize: '0.8rem'
+                    }}
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
               {searchKnowledgeQuery && (
                 <button
                   onClick={() => setSearchKnowledgeQuery('')}
                   style={{
-                    position: 'absolute',
-                    right: '10px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'none',
-                    border: 'none',
-                    color: 'var(--text-muted)',
+                    padding: '0.65rem 0.8rem',
+                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                    color: '#8b5cf6',
+                    border: '1px solid rgba(139, 92, 246, 0.3)',
+                    borderRadius: '10px',
+                    fontWeight: 700,
+                    fontSize: '0.78rem',
                     cursor: 'pointer',
-                    fontSize: '0.8rem'
+                    whiteSpace: 'nowrap'
                   }}
                 >
-                  ✕
+                  🔄 전체
                 </button>
               )}
             </div>
@@ -1026,7 +1051,7 @@ export default function AdminBatchModal({
               paddingRight: '0.2rem'
             }}>
               {(() => {
-                const norm = (s) => (s || '').trim().toLowerCase().replace(/[\s\-_?!.~,()[\]]/g, '');
+                const norm = (s) => (s || '').trim().toLowerCase();
                 const knowledgeMap = new Map();
 
                 // 1. 마스터 지식 등록
@@ -1042,46 +1067,31 @@ export default function AdminBatchModal({
                 });
 
                 const allKnowledge = Array.from(knowledgeMap.values());
-                const cleanQuery = searchKnowledgeQuery.trim().toLowerCase();
-                const normQuery = cleanQuery.replace(/[\s\-_?!.~,()[\]]/g, '');
+                // 🧹 [Ltrim & Rtrim] 앞뒤 공백만 깔끔하게 제거한 표준 검색어!
+                const cleanQuery = (searchKnowledgeQuery || '').trim().toLowerCase();
                 
                 let filtered = allKnowledge;
-                if (normQuery) {
-                  const scoredList = [];
-                  for (const item of allKnowledge) {
-                    const title = (item.title || '').toLowerCase();
-                    const normTitle = title.replace(/[\s\-_?!.~,()[\]]/g, '');
-                    const variations = (item.questionVariations || []).map(v => v.toLowerCase());
-                    const normVars = variations.map(v => v.replace(/[\s\-_?!.~,()[\]]/g, ''));
+                if (cleanQuery) {
+                  filtered = allKnowledge.filter(item => {
+                    const title = (item.title || item.questionVariations?.[0] || '').toLowerCase();
                     const city = (item.targetCity || '').toLowerCase();
-                    const intentKw = (item.intentKeywords || []).map(k => k.toLowerCase());
-                    const answerKo = (item.geminiAnswer?.ko || '').toLowerCase();
-                    const answerEn = (item.geminiAnswer?.en || '').toLowerCase();
+                    const variations = (item.questionVariations || []).map(v => (v || '').toLowerCase());
+                    const intentKw = (item.intentKeywords || []).map(k => (k || '').toLowerCase());
 
-                    let score = 0;
-                    // 1순위: 제목 또는 트리거 질문과 완벽 일치 (100점)
-                    if (normTitle === normQuery || normVars.some(v => v === normQuery)) {
-                      score += 100;
+                    // 1. 질문 제목에 포함?
+                    if (title.includes(cleanQuery)) return true;
+                    // 2. 유사 질문(트리거)에 포함?
+                    if (variations.some(v => v.includes(cleanQuery))) return true;
+                    // 3. 도시명 또는 대표 키워드에 포함?
+                    if (city.includes(cleanQuery) || intentKw.some(k => k.includes(cleanQuery))) return true;
+                    // 4. 본문 검색 (단, 1글자 잡음 방지를 위해 2글자 이상일 때만 매칭)
+                    if (cleanQuery.length >= 2) {
+                      const answerKo = (item.geminiAnswer?.ko || '').toLowerCase();
+                      const answerEn = (item.geminiAnswer?.en || '').toLowerCase();
+                      if (answerKo.includes(cleanQuery) || answerEn.includes(cleanQuery)) return true;
                     }
-                    // 2순위: 제목 또는 질문 변형에 포함 (50점)
-                    else if (normTitle.includes(normQuery) || normVars.some(v => v.includes(normQuery))) {
-                      score += 50;
-                    }
-                    // 3순위: 도시명 또는 대표 키워드 일치 (30점)
-                    else if (city.includes(cleanQuery) || intentKw.some(k => k.includes(cleanQuery))) {
-                      score += 30;
-                    }
-                    // 4순위: 본문 검색 (단, 1글자 잡음 방지를 위해 2글자 이상일 때만 매칭, 10점)
-                    else if (normQuery.length >= 2 && (answerKo.includes(cleanQuery) || answerEn.includes(cleanQuery))) {
-                      score += 10;
-                    }
-
-                    if (score > 0) {
-                      scoredList.push({ item, score });
-                    }
-                  }
-                  scoredList.sort((a, b) => b.score - a.score);
-                  filtered = scoredList.map(s => s.item);
+                    return false;
+                  });
                 }
 
                 if (filtered.length === 0) {
