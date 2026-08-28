@@ -174,3 +174,7 @@ export async function deleteCustomKnowledgeFromCloud(knowledgeIdOrTitle) {
     });
   } catch (err) {}
 }
+
+// Backward-compatibility alias
+export const publishKnowledgeToCloudMaster = pushCustomVaultToCloud;
+

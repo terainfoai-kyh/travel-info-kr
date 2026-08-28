@@ -6,7 +6,6 @@ import {
   fetchQuestionsFromCloud, 
   clearQuestionsFromCloud, 
   deleteQuestionFromCloud, 
-  publishKnowledgeToCloudMaster,
   fetchCustomVaultFromCloud,
   pushCustomVaultToCloud,
   deleteCustomKnowledgeFromCloud
