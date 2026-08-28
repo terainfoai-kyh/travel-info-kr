@@ -16,9 +16,9 @@
    - **전국 100대 섬/명소 키워드 맵핑 (`geminiNlpService.js`)**: 통영(욕지도·사량도), 완도(청산도·보길도), 신안(퍼플섬·홍도·흑산도), 여수(금오도 비렁길), 제주(우도) 등 전수 등록.
    - **초고속 Q&A 지식 매칭 완화 (`voraQnaMatcher.js`)**: 도시 미선택 상태에서도 질문 일치도 75점 이상 시 지식 즉시 매칭 프리패스 장착.
    - **한국관광공사 TourAPI 시군구 코드(`sigunguCode`) 정밀 매핑 & 주소 필터 장착 (`tourApi.js`)**: 통영(`sigunguCode: 17`), 거제(`sigunguCode: 1`), 남해(`sigunguCode: 5`), 강릉(`sigunguCode: 1`) 등 등록 및 타 지역(하동 등) 명소 혼입 100% 차단.
-   - **진짜 100% 실시간 클라우드 자가학습 파이프라인 직결 (`voraCloudQnaService.js` & `functions/api/qna.js`)**: Cloudflare Pages Serverless Edge REST API (`/api/qna`) 실시간 연동.
+   - **100% 무인 자동 배치 스케줄러 구축 (`scripts/runDailyBatch.js` & `.github/workflows/daily-batch.yml`)**: 매일 자정(00:00 KST) 무인 실행 및 GitHub Actions 웹에서 즉시 수동 테스트(`workflow_dispatch`) 가능한 일일 지식 증류 & 자동 Git Commit 파이프라인 완성.
 2. **다음 작업 1순위**:
-   - 관리자 화면에서 `[ 📥 원본 복호화 다운로드 (JSON) ]` 및 `[ 📤 원본 업로드 & 암호화 ]` 실서버 동작 검증.
+   - 깃허브 Actions 탭에서 `[ Run workflow ]` 즉시 실행 테스트 및 로그 검증.
 
 ---
 

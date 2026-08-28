@@ -1,0 +1,45 @@
+name: VORA AI Daily Knowledge Batch
+
+on:
+  # 1. 매일 밤 자정(00:00 KST / 15:00 UTC) 100% 무인 자동 실행
+  schedule:
+    - cron: '0 15 * * *'
+  
+  # 2. 깃허브 웹(Actions 탭)에서 즉시 테스트 가능한 수동 실행 버튼
+  workflow_dispatch:
+
+jobs:
+  distill-knowledge:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: 📥 레포지토리 체크아웃
+        uses: actions/checkout@v4
+
+      - name: 🟢 Node.js 환경 세팅
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 🚀 VORA 일일 무인 지식 증류 배치 실행
+        env:
+          GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY || secrets.GEMINI_API_KEY }}
+          VORA_CLOUD_API_URL: 'https://travelkorea-dev.pages.dev/api/qna'
+        run: |
+          node scripts/runDailyBatch.js
+
+      - name: 💾 학습된 지식 Git 자동 커밋 및 배포
+        run: |
+          git config --global user.name 'vora-batch-bot[bot]'
+          git config --global user.email 'vora-bot@users.noreply.github.com'
+          
+          if [[ -n $(git status -s src/data/voraQnaVault.js) ]]; then
+            git add src/data/voraQnaVault.js
+            git commit -m "chore(auto-batch): nightly knowledge distillation and vault merge [skip ci]"
+            git push origin main
+            echo "🎉 새로운 지식이 소스코드에 성공적으로 커밋 및 배포되었습니다!"
+          else
+            echo "✨ 새로 학습된 지식이 없어 커밋을 생략합니다."
+          fi
