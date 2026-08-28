@@ -258,6 +258,7 @@ export default function AdminBatchModal({
 다음 JSON 포맷으로만 즉시 출력하세요:
 {
   "id": "qna_auto_${Date.now()}_${i}",
+  "title": "${q.rawQuery}",
   "category": "DYNAMIC_KNOWLEDGE",
   "targetCity": "${q.targetCity || ctx.city || 'all'}",
   "season": "all",
@@ -315,6 +316,9 @@ export default function AdminBatchModal({
         const cleanedJson = rawOutput.replace(/```json/gi, '').replace(/```/g, '').trim();
         try {
           const parsed = JSON.parse(cleanedJson);
+          parsed.id = parsed.id || `custom_${Date.now()}_${i}`;
+          parsed.title = parsed.title || parsed.questionVariations?.[0] || q.rawQuery;
+          parsed.targetCity = parsed.targetCity || q.targetCity || 'all';
           newDistilled.push(parsed);
           setBatchLogs(prev => [...prev, `✅ "${q.rawQuery}" ➔ 황금 Q&A 지식 생성 완료!`]);
         } catch (pe) {
@@ -358,8 +362,8 @@ export default function AdminBatchModal({
 
       const updatedVault = Array.from(mergedMap.values());
       localStorage.setItem('vora_custom_qna_vault', JSON.stringify(updatedVault));
+      setCustomVaultList(updatedVault);
       await pushCustomVaultToCloud(updatedVault);
-      await loadCustomVaultFromStorage();
     } catch (e) {}
 
     setBatchLogs(prev => [...prev, `🎉 총 ${newDistilled.length}개 신규 지식 학습 완료 & 클라우드 영구 동기화 완료! ✨`]);
