@@ -208,9 +208,9 @@ export default function Header({
           </div>
         </div>
 
-        {/* Center: Fixed-width Weather Capsule & Standalone My Trips Button (선배님 황금 설계) */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', flexShrink: 0 }}>
-          {/* ☀️ Smart Live Weather & Outfit Guide Capsule (고정 너비로 덜덜거림 100% 방지) */}
+        {/* Center: Live Weather & Outfit Guide Capsule (단독 배치로 덜덜거림 100% 원천 차단) */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          {/* ☀️ Smart Live Weather & Outfit Guide Capsule */}
           <button
             onClick={() => onOpenWeather && onOpenWeather(targetCity)}
             title="실시간 날씨 & 맞춤 여행 코디 가이드"
@@ -250,8 +250,11 @@ export default function Header({
               )}
             </div>
           </button>
+        </div>
 
-          {/* 🧳 Standalone My Trips Button (Desktop Only) */}
+        {/* Right: Key Controls & Hamburger Menu */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexShrink: 0 }}>
+          {/* 🧳 Standalone My Trips Button (찜목록 왼쪽 고정 배치 - 흔들림 0%) */}
           <button
             type="button"
             onClick={() => onNavigateTab && onNavigateTab('mytrip')}
@@ -261,7 +264,7 @@ export default function Header({
               display: 'flex',
               alignItems: 'center',
               gap: '0.35rem',
-              padding: '0.38rem 0.75rem',
+              padding: '0.4rem 0.75rem',
               borderRadius: 'var(--radius-full)',
               border: activeNavTab === 'mytrip' ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)',
               backgroundColor: activeNavTab === 'mytrip' ? 'rgba(37, 99, 235, 0.1)' : 'var(--bg-card)',
@@ -291,10 +294,7 @@ export default function Header({
               </span>
             )}
           </button>
-        </div>
 
-        {/* Right: Key Controls & Hamburger Menu */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexShrink: 0 }}>
           {/* Wishlist Icon Button with Counter Badge (Desktop) */}
           <button
             onClick={onOpenWishlist}
