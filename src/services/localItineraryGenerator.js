@@ -46,7 +46,19 @@ function extractCoreLandmarkKey(str = '') {
   if (/(DDP|동대문디자인플라자|동대문역사문화공원)/i.test(norm)) return 'LANDMARK_DDP';
   if (/(북촌|북촌한옥마을|백인제)/i.test(norm)) return 'LANDMARK_BUKCHON';
   if (/(해운대|블루라인|스카이캡슐)/i.test(norm)) return 'LANDMARK_HAEUNDAE';
-  if (/(광안리|광안대교|드론쇼)/i.test(norm)) return 'LANDMARK_GWANGALLI';
+  if (/(청사포|다릿돌)/i.test(norm)) return 'LANDMARK_CHEONGSAPO';
+  if (/(용궁사|해동용궁사)/i.test(norm)) return 'LANDMARK_YONGGUNGSA';
+  if (/(동백섬|동백공원|누리마루|더베이)/i.test(norm)) return 'LANDMARK_DONGBARK';
+  if (/(광안리|광안대교|드론쇼|민락)/i.test(norm)) return 'LANDMARK_GWANGALLI';
+  if (/(자갈치|남포동|BIFF|비프광장)/i.test(norm)) return 'LANDMARK_JAGALCHI';
+  if (/(감천|감천문화)/i.test(norm)) return 'LANDMARK_GAMCHEON';
+  if (/(흰여울|영도흰여울)/i.test(norm)) return 'LANDMARK_HUINNYEOUL';
+  if (/(성산일출봉|일출봉)/i.test(norm)) return 'LANDMARK_SEONGSAN';
+  if (/(우도)/i.test(norm)) return 'LANDMARK_UDO';
+  if (/(협재)/i.test(norm)) return 'LANDMARK_HYEOPJAE';
+  if (/(애월|한담)/i.test(norm)) return 'LANDMARK_AEWOL';
+  if (/(불국사|석굴암)/i.test(norm)) return 'LANDMARK_BULGUKSA';
+  if (/(황리단|대릉원|천마총|첨성대)/i.test(norm)) return 'LANDMARK_HWANGRIDAN';
   return norm;
 }
 
