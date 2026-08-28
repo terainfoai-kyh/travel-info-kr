@@ -234,13 +234,45 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
   const [activePhotoIdx, setActivePhotoIdx] = useState(0);
   const currentPhoto = photoList[activePhotoIdx] || photoList[0];
 
+  // 📱 모바일 터치 스와이프 (Touch Swipe) 제스처 핸들러
+  const touchStartXRef = useRef(null);
+  const touchStartYRef = useRef(null);
+
+  const handleTouchStart = (e) => {
+    if (e.touches && e.touches.length > 0) {
+      touchStartXRef.current = e.touches[0].clientX;
+      touchStartYRef.current = e.touches[0].clientY;
+    }
+  };
+
+  const handleTouchEnd = (e) => {
+    if (touchStartXRef.current === null || !e.changedTouches || e.changedTouches.length === 0) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
+    const diffX = touchEndX - touchStartXRef.current;
+    const diffY = touchEndY - touchStartYRef.current;
+
+    // 수평 스와이프 감지 (최소 35px 이동 및 수평 이동이 수직 이동보다 클 때)
+    if (Math.abs(diffX) > 35 && Math.abs(diffX) > Math.abs(diffY)) {
+      if (diffX < 0) {
+        // 👈 왼쪽으로 스와이프 -> 다음 사진
+        setActivePhotoIdx(prev => (prev === photoList.length - 1 ? 0 : prev + 1));
+      } else {
+        // 👉 오른쪽으로 스와이프 -> 이전 사진
+        setActivePhotoIdx(prev => (prev === 0 ? photoList.length - 1 : prev - 1));
+      }
+    }
+    touchStartXRef.current = null;
+    touchStartYRef.current = null;
+  };
+
   const handlePrevPhoto = (e) => {
-    e.stopPropagation();
+    if (e) e.stopPropagation();
     setActivePhotoIdx(prev => (prev === 0 ? photoList.length - 1 : prev - 1));
   };
 
   const handleNextPhoto = (e) => {
-    e.stopPropagation();
+    if (e) e.stopPropagation();
     setActivePhotoIdx(prev => (prev === photoList.length - 1 ? 0 : prev + 1));
   };
 
@@ -380,8 +412,22 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
           </div>
         )}
 
-        {/* 1. 4K High-Res Hero Photo (200px 슬림 뷰) */}
-        <div style={{ position: 'relative', width: '100%', height: '200px', minHeight: '200px', flexShrink: 0, backgroundColor: '#0f172a', overflow: 'hidden' }}>
+        {/* 1. 4K High-Res Hero Photo (200px 슬림 뷰 + 모바일 터치 스와이프 지원) */}
+        <div 
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          style={{ 
+            position: 'relative', 
+            width: '100%', 
+            height: '200px', 
+            minHeight: '200px', 
+            flexShrink: 0, 
+            backgroundColor: '#0f172a', 
+            overflow: 'hidden',
+            touchAction: 'pan-y',
+            userSelect: 'none'
+          }}
+        >
           <img
             src={currentPhoto}
             alt={`${cleanTitle} ${activePhotoIdx + 1}`}
