@@ -28,6 +28,7 @@ export default function AdminBatchModal({
   const [expandedKnowledgeId, setExpandedKnowledgeId] = useState(null);
   const [activeLangTab, setActiveLangTab] = useState('ko');
   const [masterVaultList, setMasterVaultList] = useState([]);
+  const fileInputRef = useRef(null);
 
   const loadCustomVaultFromStorage = () => {
     try {
@@ -397,7 +398,6 @@ export default function AdminBatchModal({
   };
 
   // 📤 [외부 원본 JSON 파일 업로드 ➔ 암호화 및 볼트 병합]
-  const fileInputRef = useRef(null);
   const handleImportPlainJson = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
