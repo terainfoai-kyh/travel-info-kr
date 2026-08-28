@@ -452,7 +452,7 @@ export default function PortalHomePrototype({
           paddingTop: '0.2rem'
         }}>
           <h1 style={{
-            fontSize: 'clamp(1.35rem, 4.4vw, 2.2rem)',
+            fontSize: 'clamp(1.2rem, 3.8vw, 1.85rem)',
             fontWeight: 900,
             lineHeight: 1.25,
             color: '#ffffff',
@@ -467,7 +467,7 @@ export default function PortalHomePrototype({
           </h1>
         </div>
 
-        {/* [BOTTOM] Hero Search & Quick Chips Container (하단 검색창 & 칩) */}
+        {/* [BOTTOM] Hero Search Container */}
         <div style={{
           position: 'relative',
           zIndex: 3,
@@ -477,7 +477,7 @@ export default function PortalHomePrototype({
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: '0.65rem'
+          paddingBottom: '1.25rem'
         }}>
 
           {/* 🔍 HanaTour / Airbnb Style Slim Pure White Smart Search Box */}
@@ -485,7 +485,7 @@ export default function PortalHomePrototype({
             onSubmit={handleSearch}
             style={{
               width: '100%',
-              maxWidth: '500px',
+              maxWidth: '480px',
               position: 'relative'
             }}
           >
@@ -494,12 +494,12 @@ export default function PortalHomePrototype({
               alignItems: 'center',
               backgroundColor: '#ffffff',
               borderRadius: '9999px',
-              padding: '0.2rem 0.25rem 0.2rem 0.85rem',
-              boxShadow: '0 12px 30px rgba(0, 0, 0, 0.22)',
+              padding: '0.15rem 0.2rem 0.15rem 0.75rem',
+              boxShadow: '0 12px 28px rgba(0, 0, 0, 0.2)',
               border: '2px solid rgba(255, 255, 255, 0.95)',
               transition: 'all 0.3s ease'
             }}>
-              <MapPin size={18} style={{ color: '#2563eb', flexShrink: 0 }} />
+              <MapPin size={16} style={{ color: '#2563eb', flexShrink: 0 }} />
               <input
                 type="text"
                 value={searchQuery}
@@ -516,9 +516,9 @@ export default function PortalHomePrototype({
                   border: 'none',
                   outline: 'none',
                   color: '#0f172a',
-                  fontSize: '0.88rem',
+                  fontSize: '0.80rem',
                   fontWeight: 700,
-                  padding: '0.45rem 0.6rem',
+                  padding: '0.35rem 0.5rem',
                   minWidth: 0
                 }}
               />
@@ -529,19 +529,19 @@ export default function PortalHomePrototype({
                   color: '#ffffff',
                   border: 'none',
                   borderRadius: '9999px',
-                  padding: '0.45rem 1rem',
-                  fontSize: '0.82rem',
+                  padding: '0.35rem 0.8rem',
+                  fontSize: '0.76rem',
                   fontWeight: 800,
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.3rem',
+                  gap: '0.25rem',
                   boxShadow: '0 4px 12px rgba(37, 99, 235, 0.35)',
                   transition: 'all 0.2s ease',
                   flexShrink: 0
                 }}
               >
-                <Sparkles size={13} />
+                <Sparkles size={12} />
                 <span>{lang === 'en' ? 'Plan' : lang === 'ja' ? '作成' : (lang === 'zh' || lang === 'zht') ? '生成' : 'AI 생성'}</span>
               </button>
             </div>
@@ -551,7 +551,7 @@ export default function PortalHomePrototype({
         {/* Slide Indicators / Navigation Dots */}
         <div style={{
           position: 'absolute',
-          bottom: '0.45rem',
+          bottom: '0.35rem',
           left: '50%',
           transform: 'translateX(-50%)',
           display: 'flex',
