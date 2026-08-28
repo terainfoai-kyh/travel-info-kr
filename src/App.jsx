@@ -1194,6 +1194,9 @@ export default function App() {
         onOpenPrivacy={() => setIsPrivacyOpen(true)}
         onOpenTerms={() => setIsTermsOpen(true)}
         onOpenAdminBatch={() => setIsAdminBatchOpen(true)}
+        activeNavTab={activeNavTab}
+        onNavigateTab={handleTabNavigate}
+        savedTripsCount={savedTrips.length}
       />
 
       {/* Main Container (모바일 5대 탭 전환 & PC 와이드 뷰 최적화) */}

@@ -17,7 +17,9 @@ import {
   Sparkles,
   LogOut,
   ChevronDown,
-  Thermometer
+  Thermometer,
+  Calendar,
+  MapPin
 } from 'lucide-react';
 import { TRANSLATIONS, CITY_TRANSLATIONS, getLocalizedCityName } from '../i18n/translations';
 import { fetchRealtimeWeather } from '../services/weatherApi';
@@ -54,7 +56,10 @@ export default function Header({
   onOpenAbout,
   onOpenPrivacy,
   onOpenTerms,
-  onOpenAdminBatch
+  onOpenAdminBatch,
+  activeNavTab = 'home',
+  onNavigateTab,
+  savedTripsCount = 0
 }) {
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -200,8 +205,113 @@ export default function Header({
           </div>
         </div>
 
-        {/* Center / Navigation Links: Dynamic Weather Capsule & Essentials Link */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        {/* Center / Navigation Links: Desktop Main Nav Tabs & Weather Capsule */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+          {/* 💻 Center Desktop Main Nav Tabs (홈 | AI 플래너 | 내 여행 | 지도) */}
+          <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', backgroundColor: 'var(--bg-glass)', padding: '0.25rem', borderRadius: '14px', border: '1px solid var(--border-color)' }}>
+            <button
+              type="button"
+              onClick={() => onNavigateTab && onNavigateTab('home')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.3rem',
+                padding: '0.35rem 0.65rem',
+                borderRadius: '10px',
+                border: 'none',
+                backgroundColor: activeNavTab === 'home' ? 'var(--accent-primary)' : 'transparent',
+                color: activeNavTab === 'home' ? '#ffffff' : 'var(--text-muted)',
+                fontSize: '0.78rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              <Compass size={14} />
+              <span>{lang === 'en' ? 'Home' : '홈'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => onNavigateTab && onNavigateTab('ai')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.3rem',
+                padding: '0.35rem 0.65rem',
+                borderRadius: '10px',
+                border: 'none',
+                backgroundColor: activeNavTab === 'ai' ? 'var(--accent-primary)' : 'transparent',
+                color: activeNavTab === 'ai' ? '#ffffff' : 'var(--text-muted)',
+                fontSize: '0.78rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              <Sparkles size={14} />
+              <span>{lang === 'en' ? 'AI Planner' : 'AI 플래너'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => onNavigateTab && onNavigateTab('mytrip')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.3rem',
+                padding: '0.35rem 0.65rem',
+                borderRadius: '10px',
+                border: 'none',
+                backgroundColor: activeNavTab === 'mytrip' ? 'var(--accent-primary)' : 'transparent',
+                color: activeNavTab === 'mytrip' ? '#ffffff' : 'var(--text-muted)',
+                fontSize: '0.78rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                position: 'relative',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              <Calendar size={14} />
+              <span>{lang === 'en' ? 'My Trips' : '내 여행'}</span>
+              {savedTripsCount > 0 && (
+                <span style={{
+                  fontSize: '0.65rem',
+                  backgroundColor: activeNavTab === 'mytrip' ? '#ffffff' : 'var(--accent-primary)',
+                  color: activeNavTab === 'mytrip' ? 'var(--accent-primary)' : '#ffffff',
+                  padding: '0.1rem 0.35rem',
+                  borderRadius: '8px',
+                  fontWeight: 900,
+                  marginLeft: '0.15rem'
+                }}>
+                  {savedTripsCount}
+                </span>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => onNavigateTab && onNavigateTab('map')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.3rem',
+                padding: '0.35rem 0.65rem',
+                borderRadius: '10px',
+                border: 'none',
+                backgroundColor: activeNavTab === 'map' ? 'var(--accent-primary)' : 'transparent',
+                color: activeNavTab === 'map' ? '#ffffff' : 'var(--text-muted)',
+                fontSize: '0.78rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              <MapPin size={14} />
+              <span>{lang === 'en' ? 'Map' : '지도'}</span>
+            </button>
+          </div>
+
           {/* ☀️ Smart Live Weather & Outfit Guide Capsule (3.5s Rolling Ticker) */}
           <button
             onClick={() => onOpenWeather && onOpenWeather(targetCity)}
