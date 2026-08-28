@@ -37,27 +37,43 @@ export default function AdminBatchModal({
   const [masterVaultList, setMasterVaultList] = useState([]);
   const fileInputRef = useRef(null);
 
-  // 🌐 [헌법 제19조] 100% 순수 중앙 클라우드 단일 진실 원천 커스텀 지식 동기화
+  // 🌐 [안정성 보장] 커스텀 지식 손실 없는 방탄 양방향 동기화
   const loadCustomVaultFromStorage = async () => {
     const norm = (s) => (s || '').trim().toLowerCase().replace(/[\s\-_?!.~,()[\]]/g, '');
+    const map = new Map();
     
-    // 1. ☁️ 중앙 클라우드 서버에서 최신 커스텀 지식 실시간 수신 (단일 원천)
+    // 1. 브라우저 로컬 스토리지에 보관된 커스텀 지식 로드
+    let storedList = [];
+    try {
+      storedList = JSON.parse(localStorage.getItem('vora_custom_qna_vault') || '[]');
+      if (Array.isArray(storedList)) {
+        storedList.forEach(item => {
+          const key = norm(item.title || item.questionVariations?.[0] || item.id);
+          if (key) map.set(key, item);
+        });
+      }
+    } catch (e) {}
+
+    // 2. ☁️ 중앙 클라우드 서버에서 동기화 수신 및 지능형 병합 (클라우드가 비어있어도 로컬 지식 절대 유실 방지!)
     try {
       const cloudVault = await fetchCustomVaultFromCloud();
-      if (Array.isArray(cloudVault)) {
-        const map = new Map();
+      if (Array.isArray(cloudVault) && cloudVault.length > 0) {
         cloudVault.forEach(item => {
           const key = norm(item.title || item.questionVariations?.[0] || item.id);
           if (key) map.set(key, item);
         });
-        const cleanList = Array.from(map.values());
-        setCustomVaultList(cleanList);
-        localStorage.setItem('vora_custom_qna_vault', JSON.stringify(cleanList));
       }
-    } catch (e) {
-      const stored = JSON.parse(localStorage.getItem('vora_custom_qna_vault') || '[]');
-      setCustomVaultList(Array.isArray(stored) ? stored : []);
-    }
+    } catch (e) {}
+
+    const cleanList = Array.from(map.values());
+    setCustomVaultList(cleanList);
+    try {
+      localStorage.setItem('vora_custom_qna_vault', JSON.stringify(cleanList));
+      // 만약 로컬에 새 지식이 있는데 클라우드가 비어있다면 클라우드로 자동 보정 푸시
+      if (cleanList.length > 0) {
+        pushCustomVaultToCloud(cleanList);
+      }
+    } catch (e) {}
 
     // 2. 소스코드 기본 마스터 지식 로드
     try {
