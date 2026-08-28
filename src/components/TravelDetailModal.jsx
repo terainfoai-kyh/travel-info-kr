@@ -147,7 +147,17 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
     '대한민국 관광 명소'
   );
 
+  // 🚢 🚇 [지능형 교통 안내 분기] 섬(배편) vs 대도시(지하철) vs 지방소도시(시내버스/택시)
+  const isIsland = /(사량도|욕지도|독도|우도|청산도|외도|소매물도|비진도|지심도|추도|만지도|홍도|흑산도|보길도|자월도|덕적도|선재도|영흥도|거문도|백령도|연평도)/i.test(cleanTitle) || /(도$|섬$)/.test(cleanTitle);
+  const isMetropolitan = /(서울|부산|대구|인천|광주|대전)/i.test(location || '');
+
   const subwayTransit = spot.subway || (
+    cleanTitle.includes('사량도') ? '통영 가오치선착장/여객선터미널에서 여객선(배편 약 40분)' :
+    cleanTitle.includes('욕지도') ? '통영 삼덕항/여객선터미널에서 여객선(배편 약 50분)' :
+    cleanTitle.includes('우도') ? '제주 성산포항 여객터미널에서 도항선(배편 약 15분)' :
+    cleanTitle.includes('독도') ? '울릉도 저동항/사동항에서 여객선(배편 약 1시간 40분)' :
+    cleanTitle.includes('청산도') ? '완도항 여객선터미널에서 여객선(배편 약 50분)' :
+    isIsland ? '인근 여객선터미널에서 여객선/도항선(배편) 이용' :
     cleanTitle.includes('경복궁') ? '3호선 경복궁역 5번 출구 (도보 3분)' :
     cleanTitle.includes('인사동') ? '3호선 안국역 6번 출구 (도보 2분)' :
     cleanTitle.includes('북촌') ? '3호선 안국역 2번 출구 (도보 5분)' :
@@ -157,7 +167,8 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
     cleanTitle.includes('성수동') ? '2호선 성수역 3번/4번 출구' :
     cleanTitle.includes('해운대') ? '2호선 해운대역 5번 출구 (버스 10분)' :
     cleanTitle.includes('광안리') ? '2호선 광안역 3번 출구 (도보 10분)' :
-    '인근 지하철역 또는 시내버스'
+    isMetropolitan ? '인근 지하철역 및 시내버스 이용' :
+    '시내버스 및 택시 이용 (자가용/렌터카 권장)'
   );
 
   // ==============================================================================

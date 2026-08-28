@@ -92,6 +92,10 @@ function getTransitInfo(distKm, isEnglish = false) {
 function estimateSpotDwellMinutes(spotTitle = '', category = '') {
   const t = spotTitle.toLowerCase();
   
+  // 🧗‍♂️ Major Mountains, Island Traversals, Ridge Trekking (180 ~ 240 mins)
+  if (/(사량도|지리산|옥녀봉|한라산|설악산|주왕산|북한산|치악산|월출산|종주|트레킹|등산|산행)/.test(t)) {
+    return 180;
+  }
   // Large Palaces, Major Museums, Aquariums, Theme Parks (120 ~ 150 mins)
   if (/(궁|궁궐|경복궁|창덕궁|창경궁|덕수궁|박물관|아쿠아리움|롯데월드|에버랜드|대공원|수목원|동물원|민속촌)/.test(t)) {
     return 120;
