@@ -708,13 +708,22 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
     });
   }
 
+  // 🌟 선택된 조건 칩에 따라 맞춤형 테마 태그 생성 (비/실내, 걷기적게, 아이동반, 카페/맛집, 인생샷)
+  let conditionTag = '';
+  if (preferences.isRainPreference) conditionTag = isEnglish ? '[☂️ Rainy & Indoor]' : '[☂️ 비·실내 힐링]';
+  else if (preferences.isMinimalWalking) conditionTag = isEnglish ? '[🚶‍♂️ Easy Walk & Senior]' : '[🚶‍♂️ 걷기 편한 효도]';
+  else if (preferences.isKidsCompanion) conditionTag = isEnglish ? '[👨‍👩‍👧 Family & Kids]' : '[👨‍👩‍👧 아이 동반 체험]';
+  else if (preferences.isCafeLover || preferences.isFoodie) conditionTag = isEnglish ? '[☕ Cafe & Gourmet]' : '[☕ 감성 카페·미식]';
+  else if (preferences.isPhotoSpot) conditionTag = isEnglish ? '[📸 Photo & Nightview]' : '[📸 인생샷 명소]';
+  else conditionTag = isEnglish ? '[✨ Core Highlights]' : '[✨ 핵심 랜드마크]';
+
   const tripTitle = isEnglish
-    ? `✨ ${cityMeta.nameEn || city} ${requestedDays}-Day TourAPI 4.0 Verified Route`
-    : `✨ ${city} ${requestedDays}일 한국관광공사 정품 실시간 코스`;
+    ? `✨ ${cityMeta.nameEn || city} ${requestedDays}D ${conditionTag} Route`
+    : `✨ ${city} ${requestedDays}일 ${conditionTag} 실시간 코스`;
 
   const summary = isEnglish
-    ? `🌟 Live generated ${requestedDays}-day itinerary for ${cityMeta.nameEn || city}, constructed with authentic Korea Tourism Organization TourAPI 4.0 data and intelligent spatial proximity clustering.`
-    : `🌟 한국관광공사 TourAPI 4.0 실시간 공공데이터와 공간 클러스터링으로 동적 조립된 ${city} ${requestedDays}일 정품 여행 코스입니다.`;
+    ? `🌟 Live generated ${requestedDays}-day itinerary for ${cityMeta.nameEn || city} (${conditionTag}), constructed with authentic Korea Tourism Organization TourAPI 4.0 data and intelligent spatial proximity clustering.`
+    : `🌟 한국관광공사 TourAPI 4.0 실시간 공공데이터와 공간 클러스터링으로 동적 조립된 ${city} ${requestedDays}일 ${conditionTag} 정품 여행 코스입니다.`;
 
   return {
     responseType: 'itinerary',

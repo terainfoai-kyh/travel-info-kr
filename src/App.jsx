@@ -280,41 +280,44 @@ export default function App() {
   const [hasActiveUnsavedDraft, setHasActiveUnsavedDraft] = useState(false);
 
   // 🌟 [일정 확정 및 내 여행 저장] 코어 핸들러 (쿼터 1회 차감 & 저장)
-  const handleSaveCurrentItinerary = (targetNextTab = 'mytrip') => {
+  const handleSaveCurrentItinerary = (targetNextTab = 'mytrip', bypassQuotaCheck = false) => {
     if (!itineraryData) {
       setActiveNavTab(targetNextTab);
       return;
     }
 
-    // 1. 남은 저장 횟수 확인
+    // 1. 남은 저장 횟수 확인 (광고 시청 직후 bypass인 경우 즉시 통과!)
     const currentRemaining = questionQuota?.remaining || 0;
-    if (currentRemaining <= 0) {
+    if (!bypassQuotaCheck && currentRemaining <= 0) {
       // 🔒 횟수 소진 시 보상형 광고 모달 띄우기!
       setIsRewardedAdOpen(true);
       return;
     }
 
-    // 2. 저장 횟수 1회 차감
-    setQuestionQuota(prev => {
-      const updated = {
-        ...prev,
-        remaining: Math.max(0, (prev?.remaining || 1) - 1)
-      };
-      try {
-        localStorage.setItem('vora_daily_quota', JSON.stringify(updated));
-      } catch (e) {}
-      return updated;
-    });
+    // 2. 저장 횟수 1회 차감 (bypass가 아닐 때만 차감)
+    if (!bypassQuotaCheck) {
+      setQuestionQuota(prev => {
+        const updated = {
+          ...prev,
+          remaining: Math.max(0, (prev?.remaining || 1) - 1)
+        };
+        try {
+          localStorage.setItem('vora_daily_quota', JSON.stringify(updated));
+        } catch (e) {}
+        return updated;
+      });
+    }
 
-    // 3. [내 여행]에 온전히 보관
+    // 3. [내 여행]에 온전히 보관 (고유 savedId 부여)
     const newSaved = {
       ...itineraryData,
       savedAt: new Date().toISOString(),
-      savedId: `trip-${Date.now()}`
+      savedId: itineraryData.savedId || `trip-${Date.now()}`
     };
 
     setSavedTrips(prev => {
-      const filtered = prev.filter(p => p.tripTitle !== newSaved.tripTitle);
+      // 🌟 동일한 savedId를 가진 항목만 교체하고, 새로 생성된 다른 일정은 보관함에 온전히 신규 추가!
+      const filtered = prev.filter(p => p.savedId !== newSaved.savedId);
       const updated = [newSaved, ...filtered];
       try {
         localStorage.setItem('vora_saved_trips', JSON.stringify(updated));
@@ -377,7 +380,7 @@ export default function App() {
   const handleRewardGranted = () => {
     const todayStr = new Date().toISOString().slice(0, 10);
     setQuestionQuota(prev => {
-    const newRemaining = (prev?.remaining || 0) + 3;
+      const newRemaining = (prev?.remaining || 0) + 2; // +3회 지급 후 현재 일정 저장에 1회 소모하므로 +2
       const updated = { date: todayStr, remaining: newRemaining, total: prev?.total || DAILY_FREE_ITINERARY_LIMIT };
       try {
         localStorage.setItem('vora_daily_quota', JSON.stringify(updated));
@@ -385,11 +388,11 @@ export default function App() {
       return updated;
     });
 
-    // 🌟 저장 대기 중인 일정이 있었다면 즉시 저장 완료 후 [내 여행]으로 쾌적하게 이동!
+    // 🌟 저장 대기 중인 일정이 있었다면 광고 중복 호출 없이(bypassQuotaCheck=true) 즉시 저장 완료 후 [내 여행]으로 이동!
     if (itineraryData) {
       setTimeout(() => {
-        handleSaveCurrentItinerary('mytrip');
-      }, 100);
+        handleSaveCurrentItinerary('mytrip', true);
+      }, 50);
     }
   };
 
@@ -883,7 +886,8 @@ export default function App() {
           ...rawResult,
           targetCity: buildCity,
           generationTime: elapsedSeconds,
-          draftId: `draft-${Date.now()}`
+          draftId: `draft-${Date.now()}`,
+          savedId: null
         };
         
         setItineraryData(finalResult);
