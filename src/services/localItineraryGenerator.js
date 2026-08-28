@@ -465,19 +465,29 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
       if (currentCursorMinutes >= dayEndMinutes) break;
       let anchorSpot = findPoiForLandmark(anchorName);
       
-      // If not in live pool, try direct fetch (도시명 결합 1순위)
+      // If not in live pool, try direct fetch across synonyms (도시명 결합 & 단축 키워드 3중 연쇄)
       if (!anchorSpot) {
         try {
-          const directWithCity = await fetchDynamicRealtimeSpots(`${city} ${anchorName}`, lang);
-          if (directWithCity && directWithCity.length > 0) {
-            anchorSpot = directWithCity.find(p => !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normalizeTargetString(p.title)) && !visitedCoreLandmarkKeys.has(extractCoreLandmarkKey(p.title)));
-            if (anchorSpot) cityPois.unshift(anchorSpot);
-          }
-          if (!anchorSpot) {
-            const direct = await fetchDynamicRealtimeSpots(anchorName, lang);
-            if (direct && direct.length > 0) {
-              anchorSpot = direct.find(p => !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normalizeTargetString(p.title)) && !visitedCoreLandmarkKeys.has(extractCoreLandmarkKey(p.title)));
-              if (anchorSpot) cityPois.unshift(anchorSpot);
+          const synonyms = SYNONYM_MAP[anchorName] || [anchorName];
+          for (const syn of synonyms) {
+            if (anchorSpot) break;
+            const queryWithCity = syn.includes(city) ? syn : `${city} ${syn}`;
+            const directWithCity = await fetchDynamicRealtimeSpots(queryWithCity, lang).catch(() => []);
+            if (directWithCity && directWithCity.length > 0) {
+              anchorSpot = directWithCity.find(p => !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normalizeTargetString(p.title)) && !visitedCoreLandmarkKeys.has(extractCoreLandmarkKey(p.title)));
+              if (anchorSpot) {
+                cityPois.unshift(anchorSpot);
+                break;
+              }
+            }
+            // 2차: 순수 단축 키워드 단독 검색
+            const directPure = await fetchDynamicRealtimeSpots(syn, lang).catch(() => []);
+            if (directPure && directPure.length > 0) {
+              anchorSpot = directPure.find(p => !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normalizeTargetString(p.title)) && !visitedCoreLandmarkKeys.has(extractCoreLandmarkKey(p.title)));
+              if (anchorSpot) {
+                cityPois.unshift(anchorSpot);
+                break;
+              }
             }
           }
         } catch (e) {}

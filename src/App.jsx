@@ -46,7 +46,7 @@ import { recalculateItineraryTimeSlots } from './services/localItineraryGenerato
 import { sanitizeInput, inspectSecurityGuardrails } from './services/securityGuardService';
 import { findRecommendedPois } from './data/koreaTravelPoiDatabase';
 import { fetchCityTourApiSpots, fetchDynamicRealtimeSpots } from './services/tourApi';
-import { getDynamicGatewayChips, CITY_LOCAL_KNOWLEDGE } from './data/voraDialogKnowledge';
+import { getDynamicGatewayChips, CITY_LOCAL_KNOWLEDGE, resolveTikitakaResponse } from './data/voraDialogKnowledge';
 import { matchVoraQna } from './services/voraQnaMatcher';
 import { buildTravelContext, generateContextualAdvice, patchTravelState, removeContextChip, toggleContextChip, classifyUserIntent, getActiveContextChips, INITIAL_TRAVEL_STATE } from './services/travelContextEngine';
 import { fetchCloudTrips, pushTripsToCloud, overwriteTripsToCloud, deleteTripFromCloud, parseTripFromUrl } from './services/tripSyncService';
@@ -631,9 +631,20 @@ export default function App() {
       let briefingText = '';
       let quickSuggestions = [];
 
-      // 🌟 1. Check if external query is a Q&A knowledge question (e.g. "넌 누구니?", "호텔도 해주나?", "겨울복장은?")
+      // 🌟 1. Check if external query matches Signature Course or Tiki-Taka Knowledge first (e.g. "부산 3일", "제주 3일", "넌 누구니?")
+      const tikitakaMatch = resolveTikitakaResponse(promptQuery, targetCity);
       const externalQnaMatch = matchVoraQna(promptQuery, targetCity, { tripMemory: updatedState.tripMemory }, lang);
-      if (externalQnaMatch) {
+
+      if (tikitakaMatch) {
+        briefingText = tikitakaMatch.followUp 
+          ? `${tikitakaMatch.reply}\n\n👉 **${tikitakaMatch.followUp}**`
+          : tikitakaMatch.reply;
+        quickSuggestions = [
+          (lang === 'en' ? '🚀 Create Itinerary Now' : '🚀 바로 일정 만들기'),
+          (lang === 'en' ? `🍴 ${targetCity || 'Local'} Foodies` : `🍴 ${targetCity || '현지'} 대표 맛집`),
+          (lang === 'en' ? `📸 ${targetCity || 'Best'} Photo Spots` : `📸 ${targetCity || '인생샷'} 핫플`)
+        ];
+      } else if (externalQnaMatch) {
         briefingText = externalQnaMatch.followUp 
           ? `${externalQnaMatch.reply}\n\n👉 **${externalQnaMatch.followUp}**`
           : externalQnaMatch.reply;
