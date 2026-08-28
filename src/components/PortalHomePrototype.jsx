@@ -713,7 +713,7 @@ export default function PortalHomePrototype({
           border: '1px solid rgba(37, 99, 235, 0.16)',
           borderRadius: '9999px',
           cursor: 'pointer',
-          marginBottom: '0.65rem',
+          marginBottom: '0.25rem',
           transition: 'all 0.2s ease',
           boxShadow: '0 2px 8px rgba(37, 99, 235, 0.04)'
         }}

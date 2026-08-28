@@ -3,6 +3,7 @@ import { Sparkles, Compass, MapPin, ChevronRight, RefreshCw, ZoomIn, ZoomOut, Na
 
 // 🗺️ 전국 대표 권역 빠른 좌표 오프라인 Fallback 맵
 const REGIONAL_FALLBACK_CENTERS = [
+  { nameKo: '서울 경복궁', nameEn: 'Seoul Gyeongbokgung', lat: 37.5796, lng: 126.9770 },
   { nameKo: '서울', nameEn: 'Seoul', lat: 37.5665, lng: 126.9780 },
   { nameKo: '수원', nameEn: 'Suwon', lat: 37.2636, lng: 127.0286 },
   { nameKo: '인천', nameEn: 'Incheon', lat: 37.4563, lng: 126.7052 },
@@ -27,7 +28,6 @@ const REGIONAL_FALLBACK_CENTERS = [
   { nameKo: '서귀포', nameEn: 'Seogwipo', lat: 33.2541, lng: 126.5601 }
 ];
 
-// 🧮 두 위경도 사이의 직선거리 (km) 계산
 function getDistanceKm(lat1, lng1, lat2, lng2) {
   const R = 6371;
   const dLat = (lat2 - lat1) * (Math.PI / 180);
@@ -40,14 +40,15 @@ function getDistanceKm(lat1, lng1, lat2, lng2) {
 }
 
 export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
+  // 👑 Default Location: 서울 경복궁 (Gyeongbokgung)
   const [selectedLocation, setSelectedLocation] = useState({
-    nameKo: '안동',
-    nameEn: 'Andong',
-    fullAddress: '경상북도 안동시',
-    lat: 36.5683,
-    lng: 128.7294
+    nameKo: '서울 경복궁',
+    nameEn: 'Seoul Gyeongbokgung',
+    fullAddress: '서울특별시 종로구 경복궁',
+    lat: 37.5796,
+    lng: 126.9770
   });
-  const [selectedDays, setSelectedDays] = useState(2);
+  const [selectedDays, setSelectedDays] = useState(3);
   const [isLeafletReady, setIsLeafletReady] = useState(Boolean(typeof window !== 'undefined' && window.L));
   const [isGeocoding, setIsGeocoding] = useState(false);
 
@@ -80,23 +81,23 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
     }
   }, []);
 
-  // 2. Initialize Full-Width Real Leaflet Map with Click-to-Explore Listener
+  // 2. Initialize Full-Width Real OpenStreetMap Leaflet Map
   useEffect(() => {
     if (!isLeafletReady || !window.L || !mapContainerRef.current) return;
 
     if (!leafletMapRef.current) {
       const map = window.L.map(mapContainerRef.current, {
-        center: [35.8, 127.8],
-        zoom: 7.2,
+        center: [36.2, 127.8],
+        zoom: 7.0,
         zoomControl: false,
         attributionControl: false,
         scrollWheelZoom: false
       });
 
-      // CartoDB Voyager / OpenStreetMap Clean High-DPI Tiles
-      window.L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        maxZoom: 18,
-        subdomains: 'abcd'
+      // 🗺️ 100% Free Unlimited Official OpenStreetMap High-DPI Standard Tiles (No API key / No gray cutoffs)
+      window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        subdomains: ['a', 'b', 'c']
       }).addTo(map);
 
       leafletMapRef.current = map;
@@ -107,7 +108,7 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
         handleMapLocationSelected(lat, lng);
       });
 
-      // 초기 마커 장착
+      // 초기 마커 장착 (서울 경복궁)
       const initPinHtml = createMarkerPinHtml(selectedLocation.nameKo, selectedLocation.nameEn, lang);
       const customIcon = window.L.divIcon({
         html: initPinHtml,
@@ -117,14 +118,23 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
 
       markerRef.current = window.L.marker([selectedLocation.lat, selectedLocation.lng], { icon: customIcon }).addTo(map);
 
-      // Force Invalidate Size to prevent gray blanks
-      setTimeout(() => {
-        if (leafletMapRef.current) {
-          leafletMapRef.current.invalidateSize();
-        }
-      }, 250);
+      // 🛡️ 3중 타일 사이즈 강제 동기화 (회색 잘림 100% 영구 해결)
+      setTimeout(() => { if (leafletMapRef.current) leafletMapRef.current.invalidateSize(); }, 100);
+      setTimeout(() => { if (leafletMapRef.current) leafletMapRef.current.invalidateSize(); }, 300);
+      setTimeout(() => { if (leafletMapRef.current) leafletMapRef.current.invalidateSize(); }, 600);
     }
   }, [isLeafletReady]);
+
+  // Window Resize Listener for zero tile cutoffs
+  useEffect(() => {
+    const handleResize = () => {
+      if (leafletMapRef.current) {
+        leafletMapRef.current.invalidateSize();
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // 3. Pin Icon Generator Helper
   const createMarkerPinHtml = (nameKo, nameEn, currentLang) => {
@@ -136,18 +146,18 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
         gap: 6px;
         background: linear-gradient(135deg, #2563eb, #7c3aed);
         color: #ffffff;
-        padding: 6px 14px;
+        padding: 5px 12px;
         border-radius: 9999px;
-        font-size: 13px;
+        font-size: 12px;
         font-weight: 800;
         white-space: nowrap;
-        box-shadow: 0 8px 24px rgba(37,99,235,0.45), 0 0 0 4px rgba(255,255,255,0.9);
+        box-shadow: 0 8px 20px rgba(37,99,235,0.4), 0 0 0 3px rgba(255,255,255,0.95);
         border: 2px solid #ffffff;
         cursor: pointer;
         transform: translate(-50%, -50%);
-        animation: voraPinPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        animation: voraPinPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
       ">
-        <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #38bdf8; box-shadow: 0 0 8px #38bdf8;"></span>
+        <span style="width: 7px; height: 7px; border-radius: 50%; background-color: #38bdf8; box-shadow: 0 0 6px #38bdf8;"></span>
         <span>📍 ${label}</span>
       </div>
     `;
@@ -157,7 +167,6 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
   const handleMapLocationSelected = async (lat, lng) => {
     setIsGeocoding(true);
 
-    // 1순위: 가장 가까운 한국 대표 권역 즉시 계산 (0.0001초 응답 보장)
     let closestCity = REGIONAL_FALLBACK_CENTERS[0];
     let minDistance = 999999;
     REGIONAL_FALLBACK_CENTERS.forEach((c) => {
@@ -172,7 +181,6 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
     let detectedCityNameEn = closestCity.nameEn;
     let detectedFullAddr = `${closestCity.nameKo} 일대`;
 
-    // 2순위: OpenStreetMap Nominatim Live Reverse Geocoding 호출로 정밀 행정구역 추출
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 1200);
@@ -195,7 +203,7 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
         }
       }
     } catch {
-      // Fallback to nearest city
+      // Fallback
     }
 
     const newLoc = {
@@ -209,7 +217,6 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
     setSelectedLocation(newLoc);
     setIsGeocoding(false);
 
-    // Move Marker & Update Icon
     if (markerRef.current && window.L) {
       markerRef.current.setLatLng([lat, lng]);
       const pinHtml = createMarkerPinHtml(newLoc.nameKo, newLoc.nameEn, lang);
@@ -223,7 +230,7 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
 
   const handleResetMap = () => {
     if (leafletMapRef.current) {
-      leafletMapRef.current.flyTo([35.8, 127.8], 7.2, { duration: 0.8 });
+      leafletMapRef.current.flyTo([36.2, 127.8], 7.0, { duration: 0.8 });
     }
   };
 
@@ -237,39 +244,39 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
     <div className="desktop-map-explorer-container hide-mobile" style={{
       width: '100%',
       maxWidth: '1260px',
-      margin: '0.6rem auto 2.2rem',
+      margin: '0.2rem auto 1.8rem', // 위로 바짝 끌어올림!
       backgroundColor: '#ffffff',
-      borderRadius: '24px',
+      borderRadius: '22px',
       border: '1px solid #e2e8f0',
-      boxShadow: '0 20px 45px -12px rgba(15, 23, 42, 0.1)',
+      boxShadow: '0 16px 36px -10px rgba(15, 23, 42, 0.08)',
       overflow: 'hidden',
-      padding: '1.2rem 1.4rem'
+      padding: '1rem 1.2rem'
     }}>
       {/* 🌟 Header Title Bar */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: '0.8rem',
-        paddingBottom: '0.6rem',
+        marginBottom: '0.6rem',
+        paddingBottom: '0.5rem',
         borderBottom: '1px solid #f1f5f9'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <div style={{
-            width: '32px',
-            height: '32px',
-            borderRadius: '10px',
+            width: '28px',
+            height: '28px',
+            borderRadius: '8px',
             backgroundColor: 'rgba(37, 99, 235, 0.1)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             color: '#2563eb'
           }}>
-            <Compass size={18} />
+            <Compass size={16} />
           </div>
           <div>
             <h2 style={{
-              fontSize: '1.15rem',
+              fontSize: '1.05rem',
               fontWeight: 900,
               color: '#0f172a',
               margin: 0,
@@ -279,26 +286,16 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
                 ? 'Click Anywhere on Korea Map to Plan Your AI Trip!' 
                 : '지명을 몰라도 괜찮아요! 지도에서 가고 싶은 곳 어디든 콕 찍어보세요'}
             </h2>
-            <p style={{
-              fontSize: '0.76rem',
-              color: '#64748b',
-              margin: '0.1rem 0 0',
-              fontWeight: 500
-            }}>
-              {lang === 'en'
-                ? 'Click any region on the map -> Select trip days -> Click "AI Course Plan" to chat!'
-                : '지도 위 원하는 지역을 자유롭게 클릭하면 위치가 인식되며, 우측 버튼으로 0.2초 만에 AI 일정을 시작할 수 있습니다.'}
-            </p>
           </div>
         </div>
 
         {/* Zoom & Reset Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
           <button
             onClick={() => leafletMapRef.current && leafletMapRef.current.zoomIn()}
             style={{
-              width: '28px',
-              height: '28px',
+              width: '26px',
+              height: '26px',
               backgroundColor: '#ffffff',
               border: '1px solid #cbd5e1',
               borderRadius: '6px',
@@ -309,13 +306,13 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
             }}
             title="확대"
           >
-            <ZoomIn size={14} color="#0f172a" />
+            <ZoomIn size={13} color="#0f172a" />
           </button>
           <button
             onClick={() => leafletMapRef.current && leafletMapRef.current.zoomOut()}
             style={{
-              width: '28px',
-              height: '28px',
+              width: '26px',
+              height: '26px',
               backgroundColor: '#ffffff',
               border: '1px solid #cbd5e1',
               borderRadius: '6px',
@@ -326,26 +323,26 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
             }}
             title="축소"
           >
-            <ZoomOut size={14} color="#0f172a" />
+            <ZoomOut size={13} color="#0f172a" />
           </button>
           <button
             onClick={handleResetMap}
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '0.3rem',
+              gap: '0.25rem',
               backgroundColor: '#f8fafc',
               border: '1px solid #cbd5e1',
               borderRadius: '6px',
-              padding: '0.25rem 0.55rem',
-              fontSize: '0.72rem',
+              padding: '0.2rem 0.5rem',
+              fontSize: '0.70rem',
               fontWeight: 700,
               color: '#475569',
               cursor: 'pointer'
             }}
             title="전국 전도 리셋"
           >
-            <RefreshCw size={12} />
+            <RefreshCw size={11} />
             <span>전국 보기</span>
           </button>
         </div>
@@ -355,9 +352,9 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
       <div style={{
         position: 'relative',
         width: '100%',
-        height: '420px',
+        height: '380px', // 노트북 핏팅
         backgroundColor: '#e2e8f0',
-        borderRadius: '18px',
+        borderRadius: '16px',
         overflow: 'hidden',
         border: '1px solid #cbd5e1',
         boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.06)'
@@ -365,34 +362,34 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
         {/* Leaflet Mount Node */}
         <div 
           ref={mapContainerRef} 
-          style={{ width: '100%', height: '100%', minHeight: '420px' }} 
+          style={{ width: '100%', height: '100%', minHeight: '380px' }} 
         />
 
-        {/* 🌟 [선배님 직관 디자인] 지도 하단 플로팅 선택 바 (선택된 지명 + 기간 + AI 플랜 만들기) */}
+        {/* 🌟 [선배님 직관 디자인] 지도 하단 플로팅 선택 바 */}
         <div style={{
           position: 'absolute',
-          bottom: '14px',
+          bottom: '12px',
           left: '50%',
           transform: 'translateX(-50%)',
-          width: 'calc(100% - 32px)',
+          width: 'calc(100% - 28px)',
           maxWidth: '920px',
           backgroundColor: 'rgba(255, 255, 255, 0.96)',
           backdropFilter: 'blur(16px)',
-          borderRadius: '16px',
+          borderRadius: '14px',
           border: '1.5px solid rgba(37, 99, 235, 0.3)',
-          boxShadow: '0 12px 32px rgba(15, 23, 42, 0.22)',
-          padding: '0.65rem 1rem',
+          boxShadow: '0 10px 28px rgba(15, 23, 42, 0.2)',
+          padding: '0.55rem 0.9rem',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           zIndex: 500,
-          gap: '1rem'
+          gap: '0.8rem'
         }}>
           {/* Left: Selected Region Info */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0 }}>
             <div style={{
-              width: '36px',
-              height: '36px',
+              width: '32px',
+              height: '32px',
               borderRadius: '50%',
               backgroundColor: '#2563eb',
               color: '#ffffff',
@@ -400,16 +397,16 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
               alignItems: 'center',
               justifyContent: 'center',
               flexShrink: 0,
-              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.35)'
+              boxShadow: '0 4px 10px rgba(37, 99, 235, 0.35)'
             }}>
-              <MapPin size={18} />
+              <MapPin size={16} />
             </div>
             <div style={{ minWidth: 0 }}>
-              <div style={{ fontSize: '0.70rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>
-                {lang === 'en' ? 'Selected Region on Map' : '지도에서 선택한 지역'}
+              <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>
+                {lang === 'en' ? 'Selected Location' : '지도에서 선택한 지역'}
               </div>
               <div style={{
-                fontSize: '1.05rem',
+                fontSize: '0.98rem',
                 fontWeight: 900,
                 color: '#0f172a',
                 whiteSpace: 'nowrap',
@@ -417,7 +414,7 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
                 textOverflow: 'ellipsis'
               }}>
                 {selectedLocation.fullAddress || selectedLocation.nameKo}
-                <span style={{ fontSize: '0.80rem', color: '#2563eb', marginLeft: '0.35rem', fontWeight: 800 }}>
+                <span style={{ fontSize: '0.78rem', color: '#2563eb', marginLeft: '0.3rem', fontWeight: 800 }}>
                   ({selectedLocation.nameEn})
                 </span>
               </div>
@@ -425,11 +422,11 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
           </div>
 
           {/* Center: Trip Days Pill Picker */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
-            <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#64748b' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0 }}>
+            <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748b' }}>
               {lang === 'en' ? 'Duration:' : '여행 기간:'}
             </span>
-            <div style={{ display: 'flex', gap: '0.25rem' }}>
+            <div style={{ display: 'flex', gap: '0.2rem' }}>
               {[1, 2, 3, 4, 5].map((d) => (
                 <button
                   key={d}
@@ -439,8 +436,8 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
                     backgroundColor: selectedDays === d ? '#2563eb' : '#ffffff',
                     color: selectedDays === d ? '#ffffff' : '#475569',
                     borderRadius: '6px',
-                    padding: '0.18rem 0.5rem',
-                    fontSize: '0.74rem',
+                    padding: '0.16rem 0.45rem',
+                    fontSize: '0.72rem',
                     fontWeight: 800,
                     cursor: 'pointer',
                     transition: 'all 0.15s ease'
@@ -459,28 +456,28 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
               background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
               color: '#ffffff',
               border: 'none',
-              borderRadius: '10px',
-              padding: '0.6rem 1.1rem',
-              fontSize: '0.88rem',
+              borderRadius: '9999px',
+              padding: '0.55rem 1rem',
+              fontSize: '0.84rem',
               fontWeight: 800,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.35rem',
-              boxShadow: '0 6px 18px rgba(37, 99, 235, 0.35)',
+              gap: '0.3rem',
+              boxShadow: '0 6px 16px rgba(37, 99, 235, 0.3)',
               transition: 'all 0.2s ease',
               flexShrink: 0
             }}
             onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-1px)'}
             onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
           >
-            <Sparkles size={15} />
+            <Sparkles size={14} />
             <span>
               {lang === 'en' 
                 ? `Create ${selectedLocation.nameEn} Plan 🚀` 
                 : `✨ ${selectedLocation.nameKo} AI 코스 플랜 만들기 🚀`}
             </span>
-            <ChevronRight size={15} />
+            <ChevronRight size={14} />
           </button>
         </div>
 
@@ -488,21 +485,21 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
         <div style={{
           position: 'absolute',
           top: '10px',
-          left: '12px',
+          left: '10px',
           backgroundColor: 'rgba(255, 255, 255, 0.92)',
           backdropFilter: 'blur(8px)',
-          padding: '4px 10px',
-          borderRadius: '8px',
-          fontSize: '11px',
+          padding: '3px 8px',
+          borderRadius: '6px',
+          fontSize: '10px',
           fontWeight: 800,
           color: '#2563eb',
           zIndex: 400,
-          boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+          boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
           display: 'flex',
           alignItems: 'center',
           gap: '4px'
         }}>
-          <Navigation size={12} />
+          <Navigation size={11} />
           <span>{lang === 'en' ? 'Click anywhere on Korea map' : '지도 위 가고 싶은 곳 어디든 클릭해보세요!'}</span>
         </div>
       </div>
