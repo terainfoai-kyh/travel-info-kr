@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, Compass, MapPin, ChevronRight, RefreshCw, ZoomIn, ZoomOut, Navigation } from 'lucide-react';
+import { Sparkles, Compass, MapPin, ChevronRight, RefreshCw, ZoomIn, ZoomOut, Navigation, Clock, Maximize2, Minimize2, Edit3, ArrowLeft } from 'lucide-react';
 
 // 🗺️ 전국 대표 권역 빠른 좌표 오프라인 Fallback 맵
 const REGIONAL_FALLBACK_CENTERS = [
@@ -39,8 +39,13 @@ function getDistanceKm(lat1, lng1, lat2, lng2) {
   return R * c;
 }
 
-export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
-  // 👑 Default Location: 서울 경복궁 (Gyeongbokgung)
+export default function DesktopMapExplorer({ 
+  lang = 'ko', 
+  onSelectCityPlan,
+  activeItineraryData = null,
+  isCollapsedToSidebar = false,
+  onToggleExpand
+}) {
   const [selectedLocation, setSelectedLocation] = useState({
     nameKo: '서울 경복궁',
     nameEn: 'Seoul Gyeongbokgung',
@@ -56,32 +61,14 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
   const leafletMapRef = useRef(null);
   const markerRef = useRef(null);
 
-  // 1. Leaflet CSS & JS Dynamic Loader
+  // 1. Ensure Leaflet readiness
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    if (window.L) {
+    if (typeof window !== 'undefined' && window.L) {
       setIsLeafletReady(true);
-      return;
-    }
-
-    if (!document.getElementById('leaflet-css')) {
-      const link = document.createElement('link');
-      link.id = 'leaflet-css';
-      link.rel = 'stylesheet';
-      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-      document.head.appendChild(link);
-    }
-
-    if (!document.getElementById('leaflet-js')) {
-      const script = document.createElement('script');
-      script.id = 'leaflet-js';
-      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-      script.onload = () => setIsLeafletReady(true);
-      document.head.appendChild(script);
     }
   }, []);
 
-  // 2. Initialize Full-Width Real OpenStreetMap Leaflet Map
+  // 2. Initialize Leaflet Map Instance with Strict Invalidation
   useEffect(() => {
     if (!isLeafletReady || !window.L || !mapContainerRef.current) return;
 
@@ -94,7 +81,7 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
         scrollWheelZoom: false
       });
 
-      // 🗺️ 100% Free Unlimited Official OpenStreetMap High-DPI Standard Tiles (No API key / No gray cutoffs)
+      // 🗺️ 100% Free Official OpenStreetMap Standard Tiles
       window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         subdomains: ['a', 'b', 'c']
@@ -102,13 +89,13 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
 
       leafletMapRef.current = map;
 
-      // 🌟 [핵심 인터랙션] 지도 위 어디든 클릭 시 해당 지역 감지 및 핀 이동!
-      map.on('click', async (e) => {
+      // Click anywhere to select location
+      map.on('click', (e) => {
         const { lat, lng } = e.latlng;
         handleMapLocationSelected(lat, lng);
       });
 
-      // 초기 마커 장착 (서울 경복궁)
+      // Add Default Gyeongbokgung Pin
       const initPinHtml = createMarkerPinHtml(selectedLocation.nameKo, selectedLocation.nameEn, lang);
       const customIcon = window.L.divIcon({
         html: initPinHtml,
@@ -118,25 +105,37 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
 
       markerRef.current = window.L.marker([selectedLocation.lat, selectedLocation.lng], { icon: customIcon }).addTo(map);
 
-      // 🛡️ 3중 타일 사이즈 강제 동기화 (회색 잘림 100% 영구 해결)
-      setTimeout(() => { if (leafletMapRef.current) leafletMapRef.current.invalidateSize(); }, 100);
-      setTimeout(() => { if (leafletMapRef.current) leafletMapRef.current.invalidateSize(); }, 300);
-      setTimeout(() => { if (leafletMapRef.current) leafletMapRef.current.invalidateSize(); }, 600);
+      // 🛡️ Zero-Gray Invalidation Sequence
+      map.whenReady(() => {
+        map.invalidateSize();
+      });
+
+      const timer1 = setTimeout(() => { if (leafletMapRef.current) leafletMapRef.current.invalidateSize(); }, 80);
+      const timer2 = setTimeout(() => { if (leafletMapRef.current) leafletMapRef.current.invalidateSize(); }, 250);
+      const timer3 = setTimeout(() => { if (leafletMapRef.current) leafletMapRef.current.invalidateSize(); }, 600);
+
+      return () => {
+        clearTimeout(timer1);
+        clearTimeout(timer2);
+        clearTimeout(timer3);
+      };
     }
   }, [isLeafletReady]);
 
-  // Window Resize Listener for zero tile cutoffs
+  // 3. ResizeObserver for 100% full height coverage whenever size or sidebar changes
   useEffect(() => {
-    const handleResize = () => {
+    if (!mapContainerRef.current) return;
+
+    const resizeObserver = new ResizeObserver(() => {
       if (leafletMapRef.current) {
         leafletMapRef.current.invalidateSize();
       }
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+    });
 
-  // 3. Pin Icon Generator Helper
+    resizeObserver.observe(mapContainerRef.current);
+    return () => resizeObserver.disconnect();
+  }, [isCollapsedToSidebar]);
+
   const createMarkerPinHtml = (nameKo, nameEn, currentLang) => {
     const label = currentLang === 'en' ? nameEn : nameKo;
     return `
@@ -163,7 +162,6 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
     `;
   };
 
-  // 4. Reverse Geocoding Handler (OSM API + Instant Fallback)
   const handleMapLocationSelected = async (lat, lng) => {
     setIsGeocoding(true);
 
@@ -244,27 +242,28 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
     <div className="desktop-map-explorer-container hide-mobile" style={{
       width: '100%',
       maxWidth: '1260px',
-      margin: '0.2rem auto 1.8rem', // 위로 바짝 끌어올림!
+      margin: '0.1rem auto 1.4rem',
       backgroundColor: '#ffffff',
       borderRadius: '22px',
       border: '1px solid #e2e8f0',
       boxShadow: '0 16px 36px -10px rgba(15, 23, 42, 0.08)',
       overflow: 'hidden',
-      padding: '1rem 1.2rem'
+      padding: '0.85rem 1.1rem',
+      boxSizing: 'border-box'
     }}>
       {/* 🌟 Header Title Bar */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: '0.6rem',
-        paddingBottom: '0.5rem',
+        marginBottom: '0.5rem',
+        paddingBottom: '0.45rem',
         borderBottom: '1px solid #f1f5f9'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <div style={{
-            width: '28px',
-            height: '28px',
+            width: '26px',
+            height: '26px',
             borderRadius: '8px',
             backgroundColor: 'rgba(37, 99, 235, 0.1)',
             display: 'flex',
@@ -272,11 +271,11 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
             justifyContent: 'center',
             color: '#2563eb'
           }}>
-            <Compass size={16} />
+            <Compass size={15} />
           </div>
           <div>
             <h2 style={{
-              fontSize: '1.05rem',
+              fontSize: '0.98rem',
               fontWeight: 900,
               color: '#0f172a',
               margin: 0,
@@ -289,16 +288,16 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
           </div>
         </div>
 
-        {/* Zoom & Reset Controls */}
+        {/* Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
           <button
             onClick={() => leafletMapRef.current && leafletMapRef.current.zoomIn()}
             style={{
-              width: '26px',
-              height: '26px',
+              width: '24px',
+              height: '24px',
               backgroundColor: '#ffffff',
               border: '1px solid #cbd5e1',
-              borderRadius: '6px',
+              borderRadius: '5px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -306,16 +305,16 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
             }}
             title="확대"
           >
-            <ZoomIn size={13} color="#0f172a" />
+            <ZoomIn size={12} color="#0f172a" />
           </button>
           <button
             onClick={() => leafletMapRef.current && leafletMapRef.current.zoomOut()}
             style={{
-              width: '26px',
-              height: '26px',
+              width: '24px',
+              height: '24px',
               backgroundColor: '#ffffff',
               border: '1px solid #cbd5e1',
-              borderRadius: '6px',
+              borderRadius: '5px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -323,73 +322,85 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
             }}
             title="축소"
           >
-            <ZoomOut size={13} color="#0f172a" />
+            <ZoomOut size={12} color="#0f172a" />
           </button>
           <button
             onClick={handleResetMap}
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '0.25rem',
+              gap: '0.2rem',
               backgroundColor: '#f8fafc',
               border: '1px solid #cbd5e1',
-              borderRadius: '6px',
-              padding: '0.2rem 0.5rem',
-              fontSize: '0.70rem',
+              borderRadius: '5px',
+              padding: '0.18rem 0.45rem',
+              fontSize: '0.68rem',
               fontWeight: 700,
               color: '#475569',
               cursor: 'pointer'
             }}
             title="전국 전도 리셋"
           >
-            <RefreshCw size={11} />
+            <RefreshCw size={10} />
             <span>전국 보기</span>
           </button>
         </div>
       </div>
 
-      {/* 🗺️ Real Leaflet Wide Map Canvas with Click-to-Explore */}
+      {/* 🗺️ Real Leaflet Wide Map Canvas with Strict Inlined Full Height */}
       <div style={{
         position: 'relative',
         width: '100%',
-        height: '380px', // 노트북 핏팅
+        height: '380px',
+        minHeight: '380px',
+        maxHeight: '380px',
         backgroundColor: '#e2e8f0',
         borderRadius: '16px',
         overflow: 'hidden',
         border: '1px solid #cbd5e1',
-        boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.06)'
+        boxSizing: 'border-box'
       }}>
-        {/* Leaflet Mount Node */}
+        {/* Leaflet Mount Node - Strict 100% Height */}
         <div 
           ref={mapContainerRef} 
-          style={{ width: '100%', height: '100%', minHeight: '380px' }} 
+          style={{ 
+            width: '100%', 
+            height: '380px', 
+            minHeight: '380px',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0
+          }} 
         />
 
         {/* 🌟 [선배님 직관 디자인] 지도 하단 플로팅 선택 바 */}
         <div style={{
           position: 'absolute',
-          bottom: '12px',
+          bottom: '10px',
           left: '50%',
           transform: 'translateX(-50%)',
-          width: 'calc(100% - 28px)',
+          width: 'calc(100% - 24px)',
           maxWidth: '920px',
           backgroundColor: 'rgba(255, 255, 255, 0.96)',
           backdropFilter: 'blur(16px)',
           borderRadius: '14px',
           border: '1.5px solid rgba(37, 99, 235, 0.3)',
           boxShadow: '0 10px 28px rgba(15, 23, 42, 0.2)',
-          padding: '0.55rem 0.9rem',
+          padding: '0.5rem 0.85rem',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           zIndex: 500,
-          gap: '0.8rem'
+          gap: '0.8rem',
+          boxSizing: 'border-box'
         }}>
           {/* Left: Selected Region Info */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', minWidth: 0 }}>
             <div style={{
-              width: '32px',
-              height: '32px',
+              width: '30px',
+              height: '30px',
               borderRadius: '50%',
               backgroundColor: '#2563eb',
               color: '#ffffff',
@@ -399,14 +410,14 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
               flexShrink: 0,
               boxShadow: '0 4px 10px rgba(37, 99, 235, 0.35)'
             }}>
-              <MapPin size={16} />
+              <MapPin size={15} />
             </div>
             <div style={{ minWidth: 0 }}>
-              <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>
+              <div style={{ fontSize: '0.66rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>
                 {lang === 'en' ? 'Selected Location' : '지도에서 선택한 지역'}
               </div>
               <div style={{
-                fontSize: '0.98rem',
+                fontSize: '0.94rem',
                 fontWeight: 900,
                 color: '#0f172a',
                 whiteSpace: 'nowrap',
@@ -414,7 +425,7 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
                 textOverflow: 'ellipsis'
               }}>
                 {selectedLocation.fullAddress || selectedLocation.nameKo}
-                <span style={{ fontSize: '0.78rem', color: '#2563eb', marginLeft: '0.3rem', fontWeight: 800 }}>
+                <span style={{ fontSize: '0.75rem', color: '#2563eb', marginLeft: '0.3rem', fontWeight: 800 }}>
                   ({selectedLocation.nameEn})
                 </span>
               </div>
@@ -422,8 +433,8 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
           </div>
 
           {/* Center: Trip Days Pill Picker */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0 }}>
-            <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748b' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexShrink: 0 }}>
+            <span style={{ fontSize: '0.70rem', fontWeight: 800, color: '#64748b' }}>
               {lang === 'en' ? 'Duration:' : '여행 기간:'}
             </span>
             <div style={{ display: 'flex', gap: '0.2rem' }}>
@@ -435,9 +446,9 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
                     border: selectedDays === d ? '1.5px solid #2563eb' : '1px solid #cbd5e1',
                     backgroundColor: selectedDays === d ? '#2563eb' : '#ffffff',
                     color: selectedDays === d ? '#ffffff' : '#475569',
-                    borderRadius: '6px',
-                    padding: '0.16rem 0.45rem',
-                    fontSize: '0.72rem',
+                    borderRadius: '5px',
+                    padding: '0.15rem 0.42rem',
+                    fontSize: '0.70rem',
                     fontWeight: 800,
                     cursor: 'pointer',
                     transition: 'all 0.15s ease'
@@ -457,8 +468,8 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
               color: '#ffffff',
               border: 'none',
               borderRadius: '9999px',
-              padding: '0.55rem 1rem',
-              fontSize: '0.84rem',
+              padding: '0.5rem 0.95rem',
+              fontSize: '0.82rem',
               fontWeight: 800,
               cursor: 'pointer',
               display: 'flex',
@@ -471,13 +482,13 @@ export default function DesktopMapExplorer({ lang = 'ko', onSelectCityPlan }) {
             onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-1px)'}
             onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
           >
-            <Sparkles size={14} />
+            <Sparkles size={13} />
             <span>
               {lang === 'en' 
                 ? `Create ${selectedLocation.nameEn} Plan 🚀` 
                 : `✨ ${selectedLocation.nameKo} AI 코스 플랜 만들기 🚀`}
             </span>
-            <ChevronRight size={14} />
+            <ChevronRight size={13} />
           </button>
         </div>
 

@@ -1528,3 +1528,17 @@ button, a, input, select, textarea {
     display: none !important;
   }
 }
+
+/* Leaflet Desktop Map Tile Full-Coverage Enforcement */
+.leaflet-container {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 380px !important;
+  z-index: 1 !important;
+}
+
+.leaflet-tile-container img {
+  width: 256px !important;
+  height: 256px !important;
+}
+
