@@ -245,6 +245,37 @@ const CURATED_THEMES = [
   }
 ];
 
+const ROLLING_TIPS = [
+  {
+    textKo: '"경복궁 & 북촌 한옥마을 K-헤리티지 코스 짜줘"',
+    textEn: '"Create a Gyeongbokgung & Bukchon Hanok heritage trip"',
+    textJa: '「景福宮＆北村韓屋村の伝統歴史コース教えて」',
+    textZh: '“规划景福宫与北村韩屋村传统文化一日游”',
+    prompt: '서울 경복궁과 북촌 한옥마을, 인사동 전통찻집 1일 헤리티지 코스'
+  },
+  {
+    textKo: '"성수동 감성 카페 & K-패션 팝업스토어 추천해줘"',
+    textEn: '"Recommend Seongsu hip cafes & K-fashion pop-ups"',
+    textJa: '「聖水洞の映えカフェ＆Kファッション巡り教えて」',
+    textZh: '“推荐圣水洞人气咖啡馆与潮牌快闪店攻略”',
+    prompt: '서울 성수동 디뮤지엄, 핫플 팝업스토어, 감성 카페거리 2박3일 트렌드 코스'
+  },
+  {
+    textKo: '"부산 광안리 오션뷰 & 해운대 미식 힐링 일정 짜줘"',
+    textEn: '"Plan a Busan Gwangalli Ocean & Haeundae gourmet trip"',
+    textJa: '「釜山 広安里オーシャンビュー＆海雲台グルメコース」',
+    textZh: '“定制釜山广安里海景与海云台美食治愈之旅”',
+    prompt: '부산 광안리 해변과 해운대 블루라인파크, 해동용궁사 3박4일 힐링 코스'
+  },
+  {
+    textKo: '"제주 서귀포 에메랄드 해안 드라이브 코스 추천해줘"',
+    textEn: '"Recommend Jeju Seogwipo Emerald coastal drive trip"',
+    textJa: '「済州 西帰浦エメラルド海岸ドライブコース教えて」',
+    textZh: '“推荐济州西归浦翡翠海岸自驾疗愈之旅”',
+    prompt: '제주 서귀포 애월 해안도로, 성산일출봉, 오설록 3박4일 드라이브 코스'
+  }
+];
+
 export default function PortalHomePrototype({
   lang = 'ko',
   onSearchSubmit,
@@ -255,6 +286,7 @@ export default function PortalHomePrototype({
   targetCity = '서울'
 }) {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [currentTipIndex, setCurrentTipIndex] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
   const [isHovered, setIsHovered] = useState(false);
@@ -270,6 +302,14 @@ export default function PortalHomePrototype({
     }, 5500);
     return () => clearInterval(interval);
   }, [isHovered]);
+
+  // Auto-rotate smart recommendation tips every 4.0 seconds
+  useEffect(() => {
+    const tipInterval = setInterval(() => {
+      setCurrentTipIndex((prev) => (prev + 1) % ROLLING_TIPS.length);
+    }, 4000);
+    return () => clearInterval(tipInterval);
+  }, []);
 
   const currentSlide = HERO_SLIDES[currentSlideIndex];
 
@@ -506,64 +546,6 @@ export default function PortalHomePrototype({
               </button>
             </div>
           </form>
-
-          {/* Quick Suggestion Chips (2x2 칼각 슬림 글래스 칩) */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: '0.4rem',
-            width: '100%',
-            maxWidth: '360px',
-            marginTop: '0.1rem'
-          }}>
-            {QUICK_CHIPS.map((chip, idx) => {
-              const chipLabel = lang === 'en' ? chip.labelEn : lang === 'ja' ? chip.labelJa : (lang === 'zh' || lang === 'zht') ? chip.labelZh : chip.labelKo;
-              const chipPrompt = lang === 'en' ? chip.promptEn : lang === 'ja' ? chip.promptJa : (lang === 'zh' || lang === 'zht') ? chip.promptZh : chip.promptKo;
-              return (
-                <button
-                  key={idx}
-                  onClick={() => handleChipClick(chipPrompt || chip.promptKo)}
-                  style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.84)',
-                    backdropFilter: 'blur(8px)',
-                    WebkitBackdropFilter: 'blur(8px)',
-                    border: '1px solid rgba(255, 255, 255, 0.65)',
-                    color: '#1f2937',
-                    padding: '0.3rem 0.5rem',
-                    borderRadius: '10px',
-                    fontSize: '0.74rem',
-                    fontWeight: 800,
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.2rem',
-                    boxShadow: '0 3px 10px rgba(0, 0, 0, 0.12)',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#2563eb';
-                    e.currentTarget.style.color = '#ffffff';
-                    e.currentTarget.style.borderColor = '#2563eb';
-                    e.currentTarget.style.transform = 'translateY(-1px)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.84)';
-                    e.currentTarget.style.color = '#1f2937';
-                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.65)';
-                    e.currentTarget.style.transform = 'translateY(0)';
-                  }}
-                >
-                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {chipLabel}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
         </div>
 
         {/* Slide Indicators / Navigation Dots */}
@@ -596,7 +578,7 @@ export default function PortalHomePrototype({
       </div>
 
       {/* ⚡ 2. HanaTour / VisitKorea Style 6-Icon Circular Quick Hub (Responsive 6-in-row on PC / 3x2 on Mobile) */}
-      <div style={{ marginBottom: '2rem' }}>
+      <div style={{ marginBottom: '0.6rem' }}>
         <div className="portal-quick-hub-grid">
           
           {/* Icon 1: AI Course Planner */}
@@ -712,6 +694,62 @@ export default function PortalHomePrototype({
           </div>
 
         </div>
+      </div>
+
+      {/* 💡 3. Cute Interactive 1-Line AI Live Tip Pill (손가락 톡 누르면 코스 바로 생성) */}
+      <div 
+        onClick={() => {
+          const currentTip = ROLLING_TIPS[currentTipIndex];
+          if (currentTip) {
+            handleChipClick(currentTip.prompt);
+          }
+        }}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0.45rem 0.85rem',
+          backgroundColor: 'rgba(37, 99, 235, 0.05)',
+          border: '1px solid rgba(37, 99, 235, 0.16)',
+          borderRadius: '9999px',
+          cursor: 'pointer',
+          marginBottom: '0.65rem',
+          transition: 'all 0.2s ease',
+          boxShadow: '0 2px 8px rgba(37, 99, 235, 0.04)'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', overflow: 'hidden', flex: 1 }}>
+          <span style={{ fontSize: '0.85rem', flexShrink: 0 }}>💡</span>
+          <span style={{
+            fontSize: '0.73rem',
+            fontWeight: 800,
+            color: 'var(--text-main)',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+          }}>
+            <span style={{ color: 'var(--accent-primary)', fontWeight: 900 }}>
+              {lang === 'en' ? 'VORA Tip: ' : lang === 'ja' ? 'VORA ヒント: ' : (lang === 'zh' || lang === 'zht') ? 'VORA 贴士: ' : 'VORA 꿀팁: '}
+            </span>
+            {lang === 'en' ? ROLLING_TIPS[currentTipIndex].textEn : lang === 'ja' ? ROLLING_TIPS[currentTipIndex].textJa : (lang === 'zh' || lang === 'zht') ? ROLLING_TIPS[currentTipIndex].textZh : ROLLING_TIPS[currentTipIndex].textKo}
+          </span>
+        </div>
+        <span style={{
+          fontSize: '0.70rem',
+          fontWeight: 900,
+          color: 'var(--accent-primary)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.2rem',
+          flexShrink: 0,
+          marginLeft: '0.5rem',
+          padding: '0.15rem 0.5rem',
+          borderRadius: '9999px',
+          backgroundColor: 'rgba(37, 99, 235, 0.1)'
+        }}>
+          <span>{lang === 'en' ? 'Ask' : lang === 'ja' ? '作成' : (lang === 'zh' || lang === 'zht') ? '提问' : '질문'}</span>
+          <Sparkles size={10} />
+        </span>
       </div>
 
       {/* 🚇 전국 지하철 노선도 모달 */}
