@@ -387,66 +387,41 @@ export default function FullMapTab({
           );
         })}
 
-        {/* 4. 최하단: 실시간 GPS 기반 총 이동시간 + [ 구글맵 ↗ ] (1줄 완벽 나란히 배치) */}
+        {/* 4. 최하단: 🗺️ [ 구글맵에서 오늘 코스 전체 길찾기 ↗ ] 와이드 풀버튼 */}
         <div style={{
-          marginTop: '0.35rem',
-          padding: '0.5rem 0.75rem',
-          borderRadius: '10px',
-          backgroundColor: 'var(--bg-primary)',
-          border: '1px solid var(--border-color)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'nowrap',
-          gap: '0.45rem'
+          marginTop: '0.4rem'
         }}>
-          {/* 실시간 GPS 이동시간 & 거리 */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.35rem',
-            fontSize: '0.76rem',
-            fontWeight: 800,
-            color: 'var(--text-main)',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis'
-          }}>
-            <Clock size={13} style={{ color: '#2563eb', flexShrink: 0 }} />
-            <span>
-              {lang === 'en' 
-                ? `Total: ~${transitSummary.minutes}m (${transitSummary.distanceKm}km)` 
-                : lang === 'ja' 
-                ? `総移動: 約${transitSummary.minutes}分 (${transitSummary.distanceKm}km)` 
-                : (lang === 'zh' || lang === 'zht') 
-                ? `总用时: 约${transitSummary.minutes}分 (${transitSummary.distanceKm}km)` 
-                : `총 이동: 약 ${transitSummary.minutes}분 (${transitSummary.distanceKm}km)`}
-            </span>
-          </div>
-
-          {/* 🗺️ [ 구글맵 ↗ ] 슬림 1줄 버튼 */}
           <a
             href={fullRouteUrl}
             target="_blank"
             rel="noopener noreferrer"
             style={{
-              display: 'inline-flex',
+              display: 'flex',
               alignItems: 'center',
-              gap: '0.25rem',
+              justifyContent: 'center',
+              gap: '0.4rem',
+              width: '100%',
               backgroundColor: 'var(--accent-primary)',
               color: '#ffffff',
-              padding: '0.38rem 0.7rem',
-              borderRadius: '8px',
-              fontSize: '0.75rem',
+              padding: '0.65rem 1rem',
+              borderRadius: '10px',
+              fontSize: '0.82rem',
               fontWeight: 900,
               textDecoration: 'none',
-              whiteSpace: 'nowrap',
-              flexShrink: 0,
-              boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)'
+              boxShadow: '0 4px 14px rgba(37, 99, 235, 0.28)',
+              transition: 'transform 0.15s ease'
             }}
           >
-            <span>{lang === 'en' ? 'Google Maps ↗' : '구글맵 ↗'}</span>
-            <ExternalLink size={11} />
+            <span>
+              {lang === 'en' 
+                ? '🗺️ Open Full Route in Google Maps ↗' 
+                : lang === 'ja' 
+                ? '🗺️ Googleマップで本日の全ルート案内 ↗' 
+                : (lang === 'zh' || lang === 'zht') 
+                ? '🗺️ 在Google地图中查看今日完整路线 ↗' 
+                : '🗺️ 구글맵에서 오늘 코스 전체 길찾기 ↗'}
+            </span>
+            <ExternalLink size={13} />
           </a>
         </div>
       </div>

@@ -971,18 +971,26 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                 color: '#ffffff',
                 textDecoration: 'none',
                 borderRadius: '10px',
-                padding: '0.6rem 0.65rem',
-                fontSize: '0.8rem',
+                padding: '0.65rem 0.75rem',
+                fontSize: '0.82rem',
                 fontWeight: 900,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '0.3rem',
+                gap: '0.35rem',
                 boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)'
               }}
             >
-              <span>{lang === 'en' ? 'Google Maps ↗' : '구글맵 ↗'}</span>
-              <ExternalLink size={12} />
+              <span>
+                {lang === 'en' 
+                  ? '🗺️ Navigate on Google Maps ↗' 
+                  : lang === 'ja' 
+                  ? '🗺️ Googleマップでルート案内 ↗' 
+                  : (lang === 'zh' || lang === 'zht') 
+                  ? '🗺️ 在Google地图中导航 ↗' 
+                  : '🗺️ 구글맵에서 길찾기 ↗'}
+              </span>
+              <ExternalLink size={13} />
             </a>
 
             {/* 2. 티켓/한복 예약 */}
