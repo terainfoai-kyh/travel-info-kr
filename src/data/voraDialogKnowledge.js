@@ -236,7 +236,7 @@ export const CITY_LOCAL_KNOWLEDGE = {
   '안동': {
     nameEn: 'Andong',
     badge: '유교 문화의 본향이자 하회마을의 품격',
-    signatureHighlights: ['안동 하회마을 & 부용대', '월영교 분수 야경 & 황포돛배', '도산서원 & 만대루', '만휴정 포토존'],
+    signatureHighlights: ['안동 하회마을 & 부용대', '병산서원 (만대루) & 월영교 분수', '도산서원 & 만휴정'],
     rainyHotspots: ['한국국학진흥원 유교문화박물관', '안동시립민속박물관', '하회세계탈박물관', '이육사문학관'],
     walkingMinimized: ['월영교 문보트/황포돛배 승선', '하회마을 전동카트 투어', '월영당 쑥떡 카페 쉼터', '부용대 나룻배 이동'],
     localFoodieSecret: '원조 안동 찜닭, 헛제사밥, 맘모스베이커리 크림치즈빵, 안동 간고등어 구이',

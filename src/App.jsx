@@ -780,14 +780,25 @@ export default function App() {
       if (detectedCity && prevCity && detectedCity !== prevCity) {
         updatedState.tripMemory.focusedSpot = null;
       }
-      const landmarkSpotMatch = promptQuery.match(/(사량도|욕지도|독도|우도|청산도|남이섬|금오도|퍼플섬|외도|소매물도|비진도|지심도|경복궁|N서울타워|남산타워|북촌한옥마을|동피랑|해운대|광안리|성산일출봉|수원화성|행궁동|불국사|석굴암|첨성대|동궁과\s*월지|황리단길|대릉원)/i);
+      const landmarkSpotMatch = promptQuery.match(/(사량도|욕지도|독도|우도|청산도|남이섬|금오도|퍼플섬|외도|소매물도|비진도|지심도|경복궁|N서울타워|남산타워|북촌한옥마을|동피랑|해운대|광안리|성산일출봉|수원화성|행궁동|불국사|석굴암|첨성대|동궁과\s*월지|황리단길|대릉원|병산서원|도산서원|월영교|만대루|하회마을|[가-힣]{2,8}(?:서원|사찰|궁|타워|마을|해수욕장|해변|전망대|공원|폭포|산|도))/i);
       if (landmarkSpotMatch && landmarkSpotMatch[1]) {
         updatedState.tripMemory.focusedSpot = landmarkSpotMatch[1].trim();
       }
 
+      // "~추가해줘", "~넣어줘", "~포함해줘" 명시적 장소 추가/수정 지시어 지능형 감지
+      const isAddOrModifyQuery = /(?:추가|넣어|포함|반영|가고\s*싶|가볼래)/i.test(promptQuery);
+      const addSpotExtract = promptQuery.match(/([가-힣a-zA-Z0-9\s]{2,12})\s*(?:추가|넣어|포함|반영|가고\s*싶|가볼래)/i);
+      if (addSpotExtract && addSpotExtract[1]) {
+        const cleanAddSpot = addSpotExtract[1].replace(/(?:일정에|코스에|안동에|서울에|부산에|제주에|도|에)/g, '').trim();
+        if (cleanAddSpot.length >= 2) {
+          updatedState.tripMemory.focusedSpot = cleanAddSpot;
+        }
+      }
+
       // 🌟 [핵심 티키타카 & Intent 라우팅]
-      // 1. 명시적 전체 일정 생성 요청(REGENERATE_ITINERARY or 🚀 확정 버튼)이 아닌 경우 ➔ 0.01초 광속 컨시어지 답변 & POI 추천
-      if (!isDirectGenerateAction && userIntent !== 'REGENERATE_ITINERARY') {
+      // 1. 명시적 전체 일정 생성 요청(REGENERATE_ITINERARY or 🚀 확정 버튼 or ~추가해줘)이 아닌 경우 ➔ 0.01초 광속 컨시어지 답변 & POI 추천
+      const shouldRegenerateDirectly = isDirectGenerateAction || userIntent === 'REGENERATE_ITINERARY' || (isAddOrModifyQuery && Boolean(updatedState.tripMemory.focusedSpot));
+      if (!shouldRegenerateDirectly) {
         const isAddDayQuery = /(하루 더|1일 더|1일 추가|늘려|연장|하루 추가|이틀 더|2일 더|더 있을래)/i.test(promptQuery);
         let dynamicSuggestDays = requestedDays;
         const currentDays = itineraryData?.days || requestedDays || 1;
@@ -972,19 +983,24 @@ export default function App() {
           '부산': ['해운대', '광안리', '해동용궁사', '용궁사', '블루라인파크', '흰여울문화마을', '감천문화마을', '자갈치시장', '태종대'],
           '제주': ['성산일출봉', '우도', '협재', '협재해수욕장', '함덕', '카멜리아힐', '섭지코지', '한라산', '애월', '중문', '천지연폭포'],
           '경주': ['불국사', '석굴암', '첨성대', '동궁과 월지', '동궁과월지', '황리단길', '대릉원', '보문단지'],
+          '안동': ['하회마을', '병산서원', '월영교', '도산서원', '부용대', '만대루', '봉정사', '낙동강'],
           '강릉': ['안목해변', '경포대', '정동진', '커피거리', '강문해변', 'BTS 정류장'],
           '속초': ['설악산', '권금성', '속초관광수산시장', '아바이마을', '영금정', '속초해수욕장'],
           '수원': ['수원화성', '화성행궁', '행궁동', '방화수류정', '연무대'],
           '전주': ['전주한옥마을', '경기전', '전동성당', '오목대', '자만벽화마을'],
           '여수': ['오동도', '향일암', '돌산대교', '낭만포차', '해상케이블카', '아쿠아플라넷'],
-          '통영': ['동피랑', '사량도', '욕지도', '디피랑', '이순신공원', '케이블카']
+          '통영': ['동피랑', '사량도', '욕지도', '디피랑', '이순신공원', '케이블카'],
+          '대구': ['서문시장', '동성로', '김광석다시그리기길', '앞산전망대', '수성못'],
+          '인천': ['송도센트럴파크', '차이나타운', '월미도', '개항장', '을왕리']
         };
 
         const currentCityKnown = CITY_KNOWN_SPOTS[buildCity] || [];
         if (focusedSpot && currentCityKnown.length > 0) {
           const isBelongToCity = currentCityKnown.some(sp => focusedSpot.includes(sp) || sp.includes(focusedSpot));
-          if (!isBelongToCity) {
-            focusedSpot = null; // 타 도시 명소 즉시 파기!
+          // 타 도시 대표명소일 때만 파기하고, 모르는 명소이거나 해당 도시 명소면 100% 보존!
+          const isOtherKnownCitySpot = Object.entries(CITY_KNOWN_SPOTS).some(([cName, spots]) => cName !== buildCity && spots.some(s => s === focusedSpot));
+          if (isOtherKnownCitySpot && !isBelongToCity) {
+            focusedSpot = null;
           }
         }
 
@@ -993,12 +1009,10 @@ export default function App() {
           for (const uMsg of recentUserMsgs) {
             const uText = uMsg.text || '';
             const match = matchVoraQna(uText, buildCity, {}, lang);
-            if (match && match.title && (match.targetCity === buildCity || match.targetCity === 'all' || !match.targetCity)) {
+            if (match && match.title) {
               const spotTitle = match.title.replace(/\s*\(.*?\)/g, '').trim();
-              if (currentCityKnown.length === 0 || currentCityKnown.some(sp => spotTitle.includes(sp) || sp.includes(spotTitle))) {
-                focusedSpot = spotTitle;
-                break;
-              }
+              focusedSpot = spotTitle;
+              break;
             }
             if (currentCityKnown.length > 0) {
               const matchedSpot = currentCityKnown.find(sp => uText.includes(sp));

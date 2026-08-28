@@ -374,6 +374,7 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
     '해운대', '광안리', '자갈치시장', '감천문화마을', '블루라인파크', '태종대', '흰여울문화마을', '용궁사', '해동용궁사',
     '성산일출봉', '협재해수욕장', '함덕해수욕장', '카멜리아힐', '우도', '섭지코지', '한라산',
     '화성행궁', '수원화성', '행궁동', '방화수류정', '불국사', '첨성대', '황리단길', '동궁과월지',
+    '하회마을', '병산서원', '월영교', '도산서원', '부용대', '만대루', '봉정사', '만휴정',
     '사량도', '욕지도', '독도', '청산도', '남이섬', '금오도', '퍼플섬', '외도', '소매물도', '비진도', '지심도'
   ];
 
@@ -528,19 +529,34 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
       if (!anchorSpot && explicitlyRequestedSpotName === anchorName) {
         const isSaryang = /사량도/i.test(anchorName);
         const isYokji = /욕지도/i.test(anchorName);
+        const isByeongsan = /병산서원/i.test(anchorName);
+        const isHahoe = /하회마을/i.test(anchorName);
+        const isDosan = /도산서원/i.test(anchorName);
+        const isWolyeong = /월영교/i.test(anchorName);
         anchorSpot = {
           id: `anchor_${Date.now()}`,
-          title: isSaryang ? '사량도 (옥녀봉·출렁다리)' : (isYokji ? '욕지도 (출렁다리·펠리컨바위)' : anchorName),
-          category: '관광명소',
-          theme: '핵심명소',
-          addr1: `${city || '통영시'} ${anchorName}`,
-          description: isSaryang 
-            ? '아찔한 옥녀봉 기암괴석과 바다 위 출렁다리를 건너는 대한민국 대표 섬 산행 코스' 
-            : `${anchorName} 탐방 및 힐링 코스`,
-          duration: 120,
-          lat: isSaryang ? 34.8465 : (isYokji ? 34.6985 : 34.8544),
-          lng: isSaryang ? 128.2045 : (isYokji ? 128.2541 : 128.4332),
-          image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=800&q=80'
+          title: isByeongsan ? '병산서원 (유네스코 세계유산·만대루)' :
+                 isHahoe ? '안동 하회마을 (유네스코 세계문화유산)' :
+                 isDosan ? '도산서원 (퇴계 이황의 학문 공간)' :
+                 isWolyeong ? '월영교 (국내 최장 목책교 & 분수 야경)' :
+                 (isSaryang ? '사량도 (옥녀봉·출렁다리)' : (isYokji ? '욕지도 (출렁다리·펠리컨바위)' : anchorName)),
+          category: (isByeongsan || isDosan || isHahoe) ? '문화유적' : '관광명소',
+          theme: (isByeongsan || isHahoe || isDosan) ? '유네스코 세계유산' : '핵심명소',
+          addr1: isByeongsan ? '경상북도 안동시 풍천면 병산길 217' :
+                 isHahoe ? '경상북도 안동시 풍천면 하회종가길 2-1' :
+                 isDosan ? '경상북도 안동시 도산면 도산서원길 154' :
+                 isWolyeong ? '경상북도 안동시 상아동 569' :
+                 `${city || '대한민국'} ${anchorName}`,
+          description: isByeongsan 
+            ? '유네스코 세계문화유산으로 지정된 한국 서원 건축의 백미. 만대루에서 바라보는 낙동강과 기암절벽 병산의 파노라마 뷰가 압권인 고즈넉한 명소.'
+            : (isHahoe ? '조선시대 양반 문화와 전통 가옥이 그대로 보존된 유네스코 세계문화유산 대표 민속마을.' :
+               (isSaryang ? '아찔한 옥녀봉 기암괴석과 바다 위 출렁다리를 건너는 대한민국 대표 섬 산행 코스' : `${anchorName} 탐방 및 힐링 코스`)),
+          duration: isByeongsan ? 90 : (isHahoe ? 120 : 90),
+          lat: isByeongsan ? 36.5401 : (isHahoe ? 36.5393 : (isDosan ? 36.7197 : (isWolyeong ? 36.5772 : (isSaryang ? 34.8465 : (isYokji ? 34.6985 : (cityMeta.lat || 36.5683)))))),
+          lng: isByeongsan ? 128.5305 : (isHahoe ? 128.5178 : (isDosan ? 128.8315 : (isWolyeong ? 128.7554 : (isSaryang ? 128.2045 : (isYokji ? 128.2541 : (cityMeta.lng || 128.7294)))))),
+          image: isByeongsan 
+            ? 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg' 
+            : (isHahoe ? 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg' : 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=800&q=80')
         };
       }
 
