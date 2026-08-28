@@ -52,7 +52,19 @@ export const REGION_META = {
   '경남': { areaCode: '36', nx: 91, ny: 77, lat: 35.2383, lng: 128.6924, regIdLand: '11H20000', regIdTa: '11H20301', stnId: '159' },
   '전북': { areaCode: '37', nx: 63, ny: 89, lat: 35.8242, lng: 127.1480, regIdLand: '11F10000', regIdTa: '11F10201', stnId: '146' },
   '전남': { areaCode: '38', nx: 51, ny: 67, lat: 34.8161, lng: 126.4629, regIdLand: '11F20000', regIdTa: '11F20501', stnId: '156' },
-  '제주': { areaCode: '39', nx: 52, ny: 38, lat: 33.4996, lng: 126.5312, regIdLand: '11G00000', regIdTa: '11G00201', stnId: '184' }
+  '제주': { areaCode: '39', nx: 52, ny: 38, lat: 33.4996, lng: 126.5312, regIdLand: '11G00000', regIdTa: '11G00201', stnId: '184' },
+  // 🎯 전국 주요 핫플/도서/관광도시 정밀 좌표 (거리 필터링 오차 100% 방지)
+  '울릉': { areaCode: '35', sigunguCode: 16, nx: 127, ny: 127, lat: 37.4843, lng: 130.9057, regIdLand: '11H10000', regIdTa: '11H10501', stnId: '115' },
+  '울릉도': { areaCode: '35', sigunguCode: 16, nx: 127, ny: 127, lat: 37.4843, lng: 130.9057, regIdLand: '11H10000', regIdTa: '11H10501', stnId: '115' },
+  '독도': { areaCode: '35', sigunguCode: 16, nx: 144, ny: 123, lat: 37.2431, lng: 131.8667, regIdLand: '11H10000', regIdTa: '11H10501', stnId: '115' },
+  '통영': { areaCode: '36', sigunguCode: 17, nx: 90, ny: 70, lat: 34.8544, lng: 128.4332, regIdLand: '11H20000', regIdTa: '11H20301', stnId: '162' },
+  '거제': { areaCode: '36', sigunguCode: 1, nx: 90, ny: 69, lat: 34.8806, lng: 128.6211, regIdLand: '11H20000', regIdTa: '11H20301', stnId: '162' },
+  '남해': { areaCode: '36', sigunguCode: 5, nx: 77, ny: 68, lat: 34.8377, lng: 127.8924, regIdLand: '11H20000', regIdTa: '11H20301', stnId: '162' },
+  '여수': { areaCode: '38', sigunguCode: 13, nx: 73, ny: 66, lat: 34.7604, lng: 127.6622, regIdLand: '11F20000', regIdTa: '11F20501', stnId: '168' },
+  '순천': { areaCode: '38', sigunguCode: 11, nx: 70, ny: 70, lat: 34.9506, lng: 127.4872, regIdLand: '11F20000', regIdTa: '11F20501', stnId: '168' },
+  '강릉': { areaCode: '32', sigunguCode: 1, nx: 92, ny: 131, lat: 37.7519, lng: 128.8761, regIdLand: '11D10000', regIdTa: '11D10101', stnId: '105' },
+  '속초': { areaCode: '32', sigunguCode: 5, nx: 87, ny: 141, lat: 38.2070, lng: 128.5918, regIdLand: '11D10000', regIdTa: '11D10101', stnId: '105' },
+  '경주': { areaCode: '35', sigunguCode: 2, nx: 100, ny: 88, lat: 35.8562, lng: 129.2247, regIdLand: '11H10000', regIdTa: '11H10701', stnId: '143' }
 };
 
 // Dynamic Region Normalizer (0% Hardcode Risk, Nationwide Fallback)
@@ -62,6 +74,17 @@ export function getDynamicRegionMeta(rawRegion = '') {
   }
   const clean = rawRegion.trim();
   if (REGION_META[clean]) return REGION_META[clean];
+
+  if (clean.includes('울릉')) return REGION_META['울릉'];
+  if (clean.includes('독도')) return REGION_META['독도'];
+  if (clean.includes('통영')) return REGION_META['통영'];
+  if (clean.includes('거제')) return REGION_META['거제'];
+  if (clean.includes('남해')) return REGION_META['남해'];
+  if (clean.includes('여수')) return REGION_META['여수'];
+  if (clean.includes('순천')) return REGION_META['순천'];
+  if (clean.includes('강릉')) return REGION_META['강릉'];
+  if (clean.includes('속초')) return REGION_META['속초'];
+  if (clean.includes('경주')) return REGION_META['경주'];
 
   if (clean.includes('강원')) return REGION_META['강원'];
   if (clean.includes('경기')) return REGION_META['경기'];

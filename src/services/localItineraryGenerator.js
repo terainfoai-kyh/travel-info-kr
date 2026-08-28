@@ -20,6 +20,7 @@
  */
 
 import { fetchCityTourApiSpots, fetchDynamicRealtimeSpots } from './tourApi.js';
+import { getDynamicRegionMeta } from './apiConfig.js';
 import { CITY_COORDINATES } from './geminiNlpService.js';
 import { CITY_LOCAL_KNOWLEDGE } from '../data/voraDialogKnowledge.js';
 import { KOREA_TRAVEL_POI_DB } from '../data/koreaTravelPoiDatabase.js';
@@ -161,7 +162,8 @@ const SYNONYM_MAP = {
 export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requestedDays = 3, lang = 'ko', previousItinerary = null, isModification = false, focusedSpot = null) {
   const isEnglish = (lang === 'en');
   const city = targetCity || '서울';
-  const cityMeta = CITY_COORDINATES[city] || { lat: 37.5665, lng: 126.9780, nameEn: city };
+  const dynMeta = getDynamicRegionMeta(city);
+  const cityMeta = CITY_COORDINATES[city] || (dynMeta?.lat ? { lat: dynMeta.lat, lng: dynMeta.lng, nameEn: city } : { lat: 37.5665, lng: 126.9780, nameEn: city });
   const cityKnowledge = CITY_LOCAL_KNOWLEDGE[city] || null; // 🛡️ 서울로 강제 대체 금지!
 
   // Parse User Preferences & Constraints from prompt
@@ -229,7 +231,8 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
   }
 
   // 🛡️ [반경 35km 거리 가드 (Distance Guard)] 타 지역 명소 100% 필터링!
-  const maxRadiusKm = (city === '제주' || city === '강원' || city === '경북' || city === '신안') ? 65 : 35;
+  const isIslandOrWide = (city === '제주' || city === '강원' || city === '경북' || city === '전남' || city === '신안' || /울릉|독도|통영|거제|남해|완도|진도/i.test(city));
+  const maxRadiusKm = isIslandOrWide ? 90 : 35;
   cityPois = cityPois.filter(spot => {
     if (!spot.lat || !spot.lng) return true;
     const distFromCenter = calculateDistanceKm(cityMeta.lat, cityMeta.lng, spot.lat, spot.lng);
@@ -318,8 +321,14 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
     let dayAnchorNames = [];
     if (d === 1 && explicitlyRequestedSpotName) {
       dayAnchorNames = [explicitlyRequestedSpotName];
+    } else if (parsedSignatureAnchors[d - 1] && parsedSignatureAnchors[d - 1].length > 0) {
+      dayAnchorNames = parsedSignatureAnchors[d - 1];
     } else {
-      dayAnchorNames = parsedSignatureAnchors[d - 1] || parsedSignatureAnchors[0] || [];
+      // 🌟 [전국 100% 자동 분배] 도시 지식이 없어도 TourAPI 인기 명소 목록에서 일차별 대표 앵커 자동 선발!
+      const unvisitedTop = cityPois.filter(p => !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normalizeTargetString(p.title)));
+      if (unvisitedTop.length > 0) {
+        dayAnchorNames = [unvisitedTop[0].title];
+      }
     }
 
     // 🌟 Protect Future Day Anchors from being prematurely consumed in current day!
