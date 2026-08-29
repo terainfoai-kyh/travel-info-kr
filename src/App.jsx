@@ -38,9 +38,10 @@ import MoreTabSection from './components/MoreTabSection';
 import AIPlannerTab from './components/AIPlannerTab';
 import MyTripTab from './components/MyTripTab';
 import LiveTripTab from './components/LiveTripTab';
-import ExitConfirmModal from './components/ExitConfirmModal';
 import DesktopMapExplorer from './components/DesktopMapExplorer';
-import WebMapDashboard from './components/WebMapDashboard';
+import DesktopNavSidebar from './components/DesktopNavSidebar';
+import SubwayMapModal from './components/SubwayMapModal';
+import HelplineModal from './components/HelplineModal';
 
 import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
 import { geminiGenerateFullItinerary, generateLocalFallbackItinerary, enrichItineraryPhotosAsync, extractLocationKeyword, extractDaysFromPrompt } from './services/geminiNlpService';
@@ -272,6 +273,8 @@ export default function App() {
   // Modals & Drawers Open State
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isWeatherOpen, setIsWeatherOpen] = useState(false);
+  const [isSubwayMapOpen, setIsSubwayMapOpen] = useState(false);
+  const [isHelplineModalOpen, setIsHelplineModalOpen] = useState(false);
   const [isEssentialsOpen, setIsEssentialsOpen] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [isTermsOpen, setIsTermsOpen] = useState(false);
@@ -1340,13 +1343,32 @@ export default function App() {
         savedTripsCount={savedTrips.length}
       />
 
-      {/* Main Container (모바일 5대 탭 전환 & PC 와이드 뷰 최적화) */}
-      <main className="app-main-container" style={{ paddingBottom: '4.5rem' }}>
-        {/* ==============================================================================
-           TAB 1. 🏠 홈 (Home): 4K 와이드 히어로, 퀵 칩/카드 & 하단 네이버 지도형 탐색관
-           ============================================================================== */}
-        {activeNavTab === 'home' && (
-          <div className="tab-content-fade-in" style={{ width: '100%' }}>
+      {/* App Body Layout: Desktop Slim Sidebar (Left) + Main Scrollable Area */}
+      <div className="app-body-wrapper" style={{ display: 'flex', width: '100%', minHeight: 'calc(100vh - 68px)' }}>
+        {/* 🖥️ PC/데스크톱 전용: 최좌측 64px 네이버 지도 스타일 슬림 내비게이션 바 */}
+        <DesktopNavSidebar
+          lang={lang}
+          activeNavTab={activeNavTab}
+          onNavigateTab={handleTabNavigate}
+          onOpenWeather={(city) => {
+            setWeatherCity(city || itineraryData?.targetCity || '서울');
+            setIsWeatherOpen(true);
+          }}
+          onOpenEssentials={() => setIsEssentialsOpen(true)}
+          onOpenSubwayModal={() => setIsSubwayMapOpen(true)}
+          onOpenHelplineModal={() => setIsHelplineModalOpen(true)}
+          onOpenWishlist={() => setIsWishlistOpen(true)}
+          wishlistCount={bookmarks.length}
+          targetCity={itineraryData?.targetCity || '서울'}
+        />
+
+        {/* Main Container (모바일 5대 탭 전환 & PC 와이드 뷰 최적화) */}
+        <main className="app-main-container" style={{ flex: 1, paddingBottom: '4.5rem', width: '100%' }}>
+          {/* ==============================================================================
+             TAB 1. 🏠 홈 (Home): 4K 와이드 히어로, 퀵 칩/카드 & 하단 네이버 지도형 탐색관
+             ============================================================================== */}
+          {activeNavTab === 'home' && (
+            <div className="tab-content-fade-in" style={{ width: '100%' }}>
             {/* 👑 상단: 찬란한 4K 와이드 히어로 배너, 검색창, 5개 칩 & 6대 퀵 유틸리티 바 */}
             <PortalHomePrototype
               lang={lang}
@@ -1509,6 +1531,7 @@ export default function App() {
           </div>
         )}
       </main>
+      </div>
 
       {/* 📱 Mobile Fixed 5-Tab Navigation Bar */}
       <BottomNav
@@ -1710,6 +1733,20 @@ export default function App() {
         isOpen={isAdminBatchOpen}
         onClose={() => setIsAdminBatchOpen(false)}
         currentUser={currentUser}
+        lang={lang}
+      />
+
+      {/* 🚇 전국 지하철 노선도 모달 */}
+      <SubwayMapModal
+        isOpen={isSubwayMapOpen}
+        onClose={() => setIsSubwayMapOpen(false)}
+        lang={lang}
+      />
+
+      {/* 📞 1330 스마트 헬프라인 모달 */}
+      <HelplineModal
+        isOpen={isHelplineModalOpen}
+        onClose={() => setIsHelplineModalOpen(false)}
         lang={lang}
       />
     </div>

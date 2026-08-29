@@ -577,8 +577,8 @@ export default function PortalHomePrototype({
         </div>
       </div>
 
-      {/* ⚡ 2. HanaTour / VisitKorea Style 6-Icon Circular Quick Hub (Responsive 6-in-row on PC / 3x2 on Mobile) */}
-      <div style={{ marginBottom: '0.6rem' }}>
+      {/* ⚡ 2. HanaTour / VisitKorea Style 6-Icon Circular Quick Hub (Mobile Only - Desktop uses Slim Nav Sidebar) */}
+      <div className="hide-desktop" style={{ marginBottom: '0.6rem' }}>
         <div className="portal-quick-hub-grid">
           
           {/* Icon 1: AI Course Planner */}
