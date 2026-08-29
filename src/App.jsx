@@ -40,6 +40,7 @@ import MyTripTab from './components/MyTripTab';
 import LiveTripTab from './components/LiveTripTab';
 import ExitConfirmModal from './components/ExitConfirmModal';
 import DesktopMapExplorer from './components/DesktopMapExplorer';
+import WebMapDashboard from './components/WebMapDashboard';
 
 import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
 import { geminiGenerateFullItinerary, generateLocalFallbackItinerary, enrichItineraryPhotosAsync, extractLocationKeyword, extractDaysFromPrompt } from './services/geminiNlpService';
@@ -1342,47 +1343,60 @@ export default function App() {
       {/* Main Container (모바일 5대 탭 전환 & PC 와이드 뷰 최적화) */}
       <main className="app-main-container" style={{ paddingBottom: '4.5rem' }}>
         {/* ==============================================================================
-           TAB 1. 🏠 홈 (Home): 시원한 Hero, 퀵 인텐트 칩 & 6대 테마 탐색
+           TAB 1. 🏠 홈 (Home): 모바일 1-Screen 프리미엄 홈 & PC 3단 네이버 지도형 대시보드
            ============================================================================== */}
         {activeNavTab === 'home' && (
           <div className="tab-content-fade-in" style={{ width: '100%' }}>
-            <PortalHomePrototype
-              lang={lang}
-              onSearchSubmit={(promptText) => {
-                // 🚀 홈 검색 시: 2단계 AI 대화 브리핑 화면으로 스마트 직행!
-                setPlannerInitialMode('chat');
-                setActiveNavTab('ai');
-                handleGenerateItinerary(promptText, false, true);
-              }}
-              onSelectTheme={(promptText, city) => {
-                // 🚀 홈 칩 클릭 시: 2단계 AI 대화 브리핑 화면으로 스마트 직행!
-                setPlannerInitialMode('chat');
-                setActiveNavTab('ai');
-                handleGenerateItinerary(promptText, false, true);
-              }}
-              onOpenWeather={(city) => {
-                setWeatherCity(city || itineraryData?.targetCity || '서울');
-                setIsWeatherOpen(true);
-              }}
-              onOpenEssentials={() => setIsEssentialsOpen(true)}
-              onOpenPlanner={() => {
-                // 🚀 퀵 카드 클릭 시: 1단계 AI Studio 조건 폼으로 이동!
-                setPlannerInitialMode('form');
-                setActiveNavTab('ai');
-              }}
-              targetCity={itineraryData?.targetCity || '서울'}
-            />
+            {/* 📱 모바일 전용: 100% 무스크롤 1-Screen 프리미엄 홈 */}
+            <div className="hide-desktop">
+              <PortalHomePrototype
+                lang={lang}
+                onSearchSubmit={(promptText) => {
+                  setPlannerInitialMode('chat');
+                  setActiveNavTab('ai');
+                  handleGenerateItinerary(promptText, false, true);
+                }}
+                onSelectTheme={(promptText, city) => {
+                  setPlannerInitialMode('chat');
+                  setActiveNavTab('ai');
+                  handleGenerateItinerary(promptText, false, true);
+                }}
+                onOpenWeather={(city) => {
+                  setWeatherCity(city || itineraryData?.targetCity || '서울');
+                  setIsWeatherOpen(true);
+                }}
+                onOpenEssentials={() => setIsEssentialsOpen(true)}
+                onOpenPlanner={() => {
+                  setPlannerInitialMode('form');
+                  setActiveNavTab('ai');
+                }}
+                targetCity={itineraryData?.targetCity || '서울'}
+              />
+            </div>
 
-            {/* 🗺️ PC 와이드 화면 전용: 외국인을 위한 대한민국 인터랙티브 비주얼 맵 탐색관 */}
-            <DesktopMapExplorer
-              lang={lang}
-              onSelectCityPlan={(cityName, days) => {
-                // 🚀 지도에서 도시 선택 후 일정 생성 클릭 시: 2단계 AI 대화 브리핑 화면으로 스마트 직행!
-                setPlannerInitialMode('chat');
-                setActiveNavTab('ai');
-                handleGenerateItinerary(`${cityName} ${days}일 여행 코스`, false, true);
-              }}
-            />
+            {/* 🖥️ PC/웹 전용: 네이버 지도 스타일 3단 탄력 대시보드 [슬림바 + 리얼 지도 + AI 일정] */}
+            <div className="hide-mobile">
+              <WebMapDashboard
+                lang={lang}
+                onGenerateItinerary={handleGenerateItinerary}
+                itineraryData={itineraryData}
+                isLoading={isLoading}
+                chatMessages={chatMessages}
+                onSendMessage={(msg) => handleSendMessage(msg)}
+                onOpenWeather={(city) => {
+                  setWeatherCity(city || itineraryData?.targetCity || '서울');
+                  setIsWeatherOpen(true);
+                }}
+                onOpenEssentials={() => setIsEssentialsOpen(true)}
+                onOpenWishlist={() => setIsWishlistOpen(true)}
+                wishlistCount={bookmarks.length}
+                savedTripsCount={savedTrips.length}
+                onNavigateTab={(tab) => setActiveNavTab(tab)}
+                onSelectSpot={(spot) => setSelectedSpot(spot)}
+                onToggleBookmark={(spot) => handleToggleBookmark(spot)}
+                bookmarks={bookmarks}
+              />
+            </div>
           </div>
         )}
 
