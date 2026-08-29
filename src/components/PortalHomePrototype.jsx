@@ -696,8 +696,9 @@ export default function PortalHomePrototype({
         </div>
       </div>
 
-      {/* 💡 3. Cute Interactive 1-Line AI Live Tip Pill (손가락 톡 누르면 코스 바로 생성) */}
+      {/* 💡 3. Cute Interactive 1-Line AI Live Tip Pill (Mobile Only) */}
       <div 
+        className="hide-desktop"
         onClick={() => {
           const currentTip = ROLLING_TIPS[currentTipIndex];
           if (currentTip) {

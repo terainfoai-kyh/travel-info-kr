@@ -14,9 +14,15 @@ import {
   Layers,
   Heart,
   Star,
-  ExternalLink
+  CloudSun,
+  CreditCard,
+  Train,
+  Wifi,
+  PhoneCall
 } from 'lucide-react';
-import { getLocalizedCityName } from '../i18n/translations';
+import { buildKlookDeepLink } from '../services/apiConfig';
+import SubwayMapModal from './SubwayMapModal';
+import HelplineModal from './HelplineModal';
 
 // 🗺️ 전국 대표 권역 빠른 좌표 오프라인 Fallback 맵 & 대표 4K 사진
 const REGIONAL_FALLBACK_CENTERS = [
@@ -165,13 +171,17 @@ function getDistanceKm(lat1, lng1, lat2, lng2) {
 
 export default function DesktopMapExplorer({ 
   lang = 'ko', 
-  onSelectCityPlan
+  onSelectCityPlan,
+  onOpenWeather,
+  onOpenEssentials
 }) {
   const [selectedLocation, setSelectedLocation] = useState(REGIONAL_FALLBACK_CENTERS[0]);
   const [selectedDays, setSelectedDays] = useState(3);
   const [isLeafletReady, setIsLeafletReady] = useState(Boolean(typeof window !== 'undefined' && window.L));
   const [isGeocoding, setIsGeocoding] = useState(false);
   const [isMapExpandedFull, setIsMapExpandedFull] = useState(false);
+  const [isSubwayModalOpen, setIsSubwayModalOpen] = useState(false);
+  const [isHelplineModalOpen, setIsHelplineModalOpen] = useState(false);
 
   const mapContainerRef = useRef(null);
   const leafletMapRef = useRef(null);
@@ -350,13 +360,13 @@ export default function DesktopMapExplorer({
     <div className="desktop-map-explorer-container hide-mobile" style={{
       width: '100%',
       maxWidth: '1260px',
-      margin: '0 auto 2.5rem',
+      margin: '0.1rem auto 2.5rem',
       backgroundColor: '#ffffff',
       borderRadius: '24px',
       border: '1px solid #e2e8f0',
       boxShadow: '0 20px 45px -12px rgba(15, 23, 42, 0.08)',
       overflow: 'hidden',
-      padding: '1.2rem',
+      padding: '1rem',
       boxSizing: 'border-box'
     }}>
       {/* 🌟 Header Title Bar */}
@@ -364,26 +374,26 @@ export default function DesktopMapExplorer({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: '0.85rem',
-        paddingBottom: '0.65rem',
+        marginBottom: '0.75rem',
+        paddingBottom: '0.55rem',
         borderBottom: '1px solid #f1f5f9'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
           <div style={{
-            width: '32px',
-            height: '32px',
-            borderRadius: '10px',
+            width: '30px',
+            height: '30px',
+            borderRadius: '9px',
             backgroundColor: 'rgba(37, 99, 235, 0.1)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             color: '#2563eb'
           }}>
-            <Compass size={18} />
+            <Compass size={17} />
           </div>
           <div>
             <h2 style={{
-              fontSize: '1.1rem',
+              fontSize: '1.05rem',
               fontWeight: 900,
               color: '#0f172a',
               margin: 0,
@@ -393,16 +403,6 @@ export default function DesktopMapExplorer({
                 ? 'Click Anywhere on Korea Map to Explore & Plan AI Itinerary' 
                 : '지명을 몰라도 괜찮아요! 지도에서 가고 싶은 곳 어디든 콕 찍어보세요'}
             </h2>
-            <p style={{
-              margin: '2px 0 0',
-              fontSize: '0.78rem',
-              color: '#64748b',
-              fontWeight: 600
-            }}>
-              {lang === 'en'
-                ? 'Select any region to preview curated attractions and generate instant customized courses'
-                : '지도 위 어디든 클릭하면 해당 지역의 대표 매력과 AI 맞춤 일정을 즉시 추천해 드립니다'}
-            </p>
           </div>
         </div>
 
@@ -411,38 +411,38 @@ export default function DesktopMapExplorer({
           <button
             onClick={() => leafletMapRef.current && leafletMapRef.current.zoomIn()}
             style={{
-              width: '28px',
-              height: '28px',
+              width: '26px',
+              height: '26px',
               backgroundColor: '#ffffff',
               border: '1px solid #cbd5e1',
-              borderRadius: '7px',
+              borderRadius: '6px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
-              boxShadow: '0 2px 6px rgba(0,0,0,0.04)'
+              boxShadow: '0 2px 5px rgba(0,0,0,0.04)'
             }}
             title="확대"
           >
-            <ZoomIn size={14} color="#0f172a" />
+            <ZoomIn size={13} color="#0f172a" />
           </button>
           <button
             onClick={() => leafletMapRef.current && leafletMapRef.current.zoomOut()}
             style={{
-              width: '28px',
-              height: '28px',
+              width: '26px',
+              height: '26px',
               backgroundColor: '#ffffff',
               border: '1px solid #cbd5e1',
-              borderRadius: '7px',
+              borderRadius: '6px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
-              boxShadow: '0 2px 6px rgba(0,0,0,0.04)'
+              boxShadow: '0 2px 5px rgba(0,0,0,0.04)'
             }}
             title="축소"
           >
-            <ZoomOut size={14} color="#0f172a" />
+            <ZoomOut size={13} color="#0f172a" />
           </button>
           <button
             onClick={handleResetMap}
@@ -452,37 +452,184 @@ export default function DesktopMapExplorer({
               gap: '0.3rem',
               backgroundColor: '#f8fafc',
               border: '1px solid #cbd5e1',
-              borderRadius: '7px',
-              padding: '0.28rem 0.6rem',
-              fontSize: '0.74rem',
+              borderRadius: '6px',
+              padding: '0.24rem 0.55rem',
+              fontSize: '0.72rem',
               fontWeight: 800,
               color: '#475569',
               cursor: 'pointer',
-              boxShadow: '0 2px 6px rgba(0,0,0,0.04)'
+              boxShadow: '0 2px 5px rgba(0,0,0,0.04)'
             }}
             title="전국 전도 리셋"
           >
-            <RefreshCw size={12} />
+            <RefreshCw size={11} />
             <span>전국 보기</span>
           </button>
         </div>
       </div>
 
       {/* =========================================================================
-          🗺️ 네이버 지도 스타일 2-Column 인터랙티브 영역 [좌: 리얼 지도 + 우: AI 프리뷰 카드]
+          🗺️ 일체형 3-Section 지도 스테이션 [좌측 52px 미니 툴바 + 리얼 지도 + AI 프리뷰]
           ========================================================================= */}
       <div style={{
         display: 'flex',
-        gap: '1.2rem',
+        gap: '0.85rem',
         height: '420px',
         position: 'relative'
       }}>
-        {/* [좌측] 리얼 OpenStreetMap 지도 영역 (50% ↔ 100% 가변) */}
+        {/* [1. 최좌측 일체형 52px 미니 툴바] */}
         <div style={{
-          flex: isMapExpandedFull ? '1 1 100%' : '1 1 52%',
+          width: '52px',
+          height: '100%',
+          backgroundColor: '#f8fafc',
+          borderRadius: '14px',
+          border: '1px solid #e2e8f0',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0.6rem 0',
+          boxSizing: 'border-box',
+          flexShrink: 0
+        }}>
+          {/* Top Tools */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.55rem', width: '100%' }}>
+            {/* Map Reset */}
+            <button
+              onClick={handleResetMap}
+              title={lang === 'en' ? 'Reset Map' : '지도 리셋'}
+              style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '10px',
+                backgroundColor: '#eff6ff',
+                color: '#2563eb',
+                border: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.15s'
+              }}
+            >
+              <Compass size={17} />
+            </button>
+
+            {/* Weather */}
+            <button
+              onClick={() => onOpenWeather && onOpenWeather(selectedLocation.nameKo)}
+              title={lang === 'en' ? 'Weather & Outfit' : '실시간 날씨 & 코디'}
+              style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '10px',
+                backgroundColor: 'transparent',
+                color: '#f59e0b',
+                border: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer'
+              }}
+            >
+              <CloudSun size={17} />
+            </button>
+
+            {/* Climate Pass */}
+            <button
+              onClick={() => onOpenEssentials && onOpenEssentials()}
+              title={lang === 'en' ? 'Climate Card' : '기후동행카드'}
+              style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '10px',
+                backgroundColor: 'transparent',
+                color: '#059669',
+                border: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer'
+              }}
+            >
+              <CreditCard size={17} />
+            </button>
+
+            {/* Subway */}
+            <button
+              onClick={() => setIsSubwayModalOpen(true)}
+              title={lang === 'en' ? 'Metro Map' : '지하철 노선도'}
+              style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '10px',
+                backgroundColor: 'transparent',
+                color: '#0284c7',
+                border: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer'
+              }}
+            >
+              <Train size={17} />
+            </button>
+
+            {/* eSIM */}
+            <button
+              onClick={() => {
+                const esimQuery = lang === 'en' ? 'Korea eSIM Unlimited' : lang === 'ja' ? '韓国 無制限 eSIM' : (lang === 'zh' || lang === 'zht') ? '韩国 无限流量 eSIM' : '한국 무제한 eSIM';
+                window.open(buildKlookDeepLink(esimQuery), '_blank', 'noopener,noreferrer');
+              }}
+              title={lang === 'en' ? 'Korea eSIM' : '무제한 eSIM'}
+              style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '10px',
+                backgroundColor: 'transparent',
+                color: '#8b5cf6',
+                border: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer'
+              }}
+            >
+              <Wifi size={17} />
+            </button>
+
+            {/* 1330 */}
+            <button
+              onClick={() => setIsHelplineModalOpen(true)}
+              title={lang === 'en' ? '1330 Hotline' : '1330 긴급통역'}
+              style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '10px',
+                backgroundColor: 'transparent',
+                color: '#ef4444',
+                border: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer'
+              }}
+            >
+              <PhoneCall size={17} />
+            </button>
+          </div>
+
+          <div style={{ fontSize: '9px', fontWeight: 800, color: '#94a3b8' }}>
+            VORA
+          </div>
+        </div>
+
+        {/* [2. 중앙 리얼 OpenStreetMap 지도 영역 (50% ↔ 100% 가변)] */}
+        <div style={{
+          flex: isMapExpandedFull ? '1 1 100%' : '1 1 50%',
           height: '100%',
           backgroundColor: '#e2e8f0',
-          borderRadius: '18px',
+          borderRadius: '16px',
           overflow: 'hidden',
           position: 'relative',
           border: '1px solid #cbd5e1',
@@ -503,11 +650,11 @@ export default function DesktopMapExplorer({
           {/* Map Top Guide Chip */}
           <div style={{
             position: 'absolute',
-            top: '12px',
-            left: '12px',
+            top: '10px',
+            left: '10px',
             backgroundColor: 'rgba(255, 255, 255, 0.94)',
             backdropFilter: 'blur(8px)',
-            padding: '5px 12px',
+            padding: '4px 10px',
             borderRadius: '9999px',
             fontSize: '11px',
             fontWeight: 800,
@@ -516,9 +663,9 @@ export default function DesktopMapExplorer({
             boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
             display: 'flex',
             alignItems: 'center',
-            gap: '5px'
+            gap: '4px'
           }}>
-            <Navigation size={12} />
+            <Navigation size={11} />
             <span>{lang === 'en' ? 'Click anywhere on map' : '지도 위 가고 싶은 곳 어디든 클릭해보세요!'}</span>
           </div>
 
@@ -532,8 +679,8 @@ export default function DesktopMapExplorer({
               right: 0,
               transform: 'translateY(-50%)',
               zIndex: 450,
-              width: '24px',
-              height: '52px',
+              width: '22px',
+              height: '48px',
               backgroundColor: '#ffffff',
               border: '1px solid #cbd5e1',
               borderRight: 'none',
@@ -546,17 +693,17 @@ export default function DesktopMapExplorer({
               color: '#475569'
             }}
           >
-            {isMapExpandedFull ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
+            {isMapExpandedFull ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}
           </button>
         </div>
 
-        {/* [우측] VORA AI 선택 지역 4K 포토 & 3대 핵심 매력 & AI 코스 생성 프리뷰 카드 (48% ↔ 0%) */}
+        {/* [3. 우측 VORA AI 선택 지역 4K 포토 & 3대 핵심 매력 & AI 코스 생성 프리뷰 카드 (50% ↔ 0%)] */}
         <div style={{
-          flex: isMapExpandedFull ? '0 0 0px' : '1 1 48%',
+          flex: isMapExpandedFull ? '0 0 0px' : '1 1 50%',
           width: isMapExpandedFull ? 0 : 'auto',
           height: '100%',
           backgroundColor: '#ffffff',
-          borderRadius: '18px',
+          borderRadius: '16px',
           border: isMapExpandedFull ? 'none' : '1px solid #e2e8f0',
           boxShadow: '0 8px 24px rgba(15, 23, 42, 0.05)',
           overflow: 'hidden',
@@ -741,6 +888,20 @@ export default function DesktopMapExplorer({
           </div>
         </div>
       </div>
+
+      {/* 🚇 전국 지하철 노선도 모달 */}
+      <SubwayMapModal
+        isOpen={isSubwayModalOpen}
+        onClose={() => setIsSubwayModalOpen(false)}
+        lang={lang}
+      />
+
+      {/* 📞 1330 스마트 헬프라인 모달 */}
+      <HelplineModal
+        isOpen={isHelplineModalOpen}
+        onClose={() => setIsHelplineModalOpen(false)}
+        lang={lang}
+      />
     </div>
   );
 }

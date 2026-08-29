@@ -1343,33 +1343,14 @@ export default function App() {
         savedTripsCount={savedTrips.length}
       />
 
-      {/* App Body Layout: Desktop Slim Sidebar (Left) + Main Scrollable Area */}
-      <div className="app-body-wrapper" style={{ display: 'flex', width: '100%', minHeight: 'calc(100vh - 68px)' }}>
-        {/* 🖥️ PC/데스크톱 전용: 최좌측 64px 네이버 지도 스타일 슬림 내비게이션 바 */}
-        <DesktopNavSidebar
-          lang={lang}
-          activeNavTab={activeNavTab}
-          onNavigateTab={handleTabNavigate}
-          onOpenWeather={(city) => {
-            setWeatherCity(city || itineraryData?.targetCity || '서울');
-            setIsWeatherOpen(true);
-          }}
-          onOpenEssentials={() => setIsEssentialsOpen(true)}
-          onOpenSubwayModal={() => setIsSubwayMapOpen(true)}
-          onOpenHelplineModal={() => setIsHelplineModalOpen(true)}
-          onOpenWishlist={() => setIsWishlistOpen(true)}
-          wishlistCount={bookmarks.length}
-          targetCity={itineraryData?.targetCity || '서울'}
-        />
-
-        {/* Main Container (모바일 5대 탭 전환 & PC 와이드 뷰 최적화) */}
-        <main className="app-main-container" style={{ flex: 1, paddingBottom: '4.5rem', width: '100%' }}>
-          {/* ==============================================================================
-             TAB 1. 🏠 홈 (Home): 4K 와이드 히어로, 퀵 칩/카드 & 하단 네이버 지도형 탐색관
-             ============================================================================== */}
-          {activeNavTab === 'home' && (
-            <div className="tab-content-fade-in" style={{ width: '100%' }}>
-            {/* 👑 상단: 찬란한 4K 와이드 히어로 배너, 검색창, 5개 칩 & 6대 퀵 유틸리티 바 */}
+      {/* Main Container (모바일 5대 탭 전환 & PC 와이드 뷰 최적화) */}
+      <main className="app-main-container" style={{ paddingBottom: '4.5rem', width: '100%' }}>
+        {/* ==============================================================================
+           TAB 1. 🏠 홈 (Home): 4K 와이드 히어로 & 하단 일체형 네이버 지도 스테이션
+           ============================================================================== */}
+        {activeNavTab === 'home' && (
+          <div className="tab-content-fade-in" style={{ width: '100%' }}>
+            {/* 👑 상단: 찬란한 4K 와이드 히어로 배너 & 검색창 & 5개 칩 */}
             <PortalHomePrototype
               lang={lang}
               onSearchSubmit={(promptText) => {
@@ -1394,7 +1375,7 @@ export default function App() {
               targetCity={itineraryData?.targetCity || '서울'}
             />
 
-            {/* 🗺️ 하단 (PC/웹 전용): 네이버 지도 스타일 2-Column 인터랙티브 탐색관 [리얼 지도 + AI 코스 프리뷰] */}
+            {/* 🗺️ 하단 (PC/웹 전용): 네이버 지도 스타일 일체형 2-Column 인터랙티브 탐색관 */}
             <DesktopMapExplorer
               lang={lang}
               onSelectCityPlan={(cityName, days) => {
@@ -1402,6 +1383,11 @@ export default function App() {
                 setActiveNavTab('ai');
                 handleGenerateItinerary(`${cityName} ${days}일 여행 코스`, false, true);
               }}
+              onOpenWeather={(city) => {
+                setWeatherCity(city || itineraryData?.targetCity || '서울');
+                setIsWeatherOpen(true);
+              }}
+              onOpenEssentials={() => setIsEssentialsOpen(true)}
             />
           </div>
         )}
@@ -1531,7 +1517,6 @@ export default function App() {
           </div>
         )}
       </main>
-      </div>
 
       {/* 📱 Mobile Fixed 5-Tab Navigation Bar */}
       <BottomNav
