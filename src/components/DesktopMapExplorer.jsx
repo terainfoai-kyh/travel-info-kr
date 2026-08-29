@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { buildKlookDeepLink } from '../services/apiConfig';
 import { fetchDynamicRealtimeSpots } from '../services/tourApi';
+import { CITY_LOCAL_KNOWLEDGE } from '../data/voraDialogKnowledge';
 import SubwayMapModal from './SubwayMapModal';
 import HelplineModal from './HelplineModal';
 
@@ -483,10 +484,37 @@ export default function DesktopMapExplorer({
   };
 
   const getSelectedDesc = () => {
+    // 🧠 1순위: 보라 AI 학습 공식 로컬 지식베이스 (CITY_LOCAL_KNOWLEDGE)
+    const cleanCityKey = Object.keys(CITY_LOCAL_KNOWLEDGE).find(k => 
+      selectedLocation.nameKo.includes(k) || k.includes(selectedLocation.nameKo)
+    );
+    
+    if (cleanCityKey && CITY_LOCAL_KNOWLEDGE[cleanCityKey]) {
+      const cityData = CITY_LOCAL_KNOWLEDGE[cleanCityKey];
+      if (lang === 'en') return cityData.descEn || cityData.badgeEn || selectedLocation.descEn || cityData.badge;
+      if (lang === 'ja') return cityData.descJa || cityData.badgeJa || selectedLocation.descJa || cityData.badge;
+      if (lang === 'zh' || lang === 'zht') return cityData.descZh || cityData.badgeZh || selectedLocation.descZh || cityData.badge;
+      return cityData.badge || selectedLocation.descKo;
+    }
+
     if (lang === 'en') return selectedLocation.descEn || selectedLocation.descKo;
     if (lang === 'ja') return selectedLocation.descJa || selectedLocation.descKo;
     if (lang === 'zh' || lang === 'zht') return selectedLocation.descZh || selectedLocation.descKo;
     return selectedLocation.descKo;
+  };
+
+  const getSelectedTransitTip = () => {
+    const cleanCityKey = Object.keys(CITY_LOCAL_KNOWLEDGE).find(k => 
+      selectedLocation.nameKo.includes(k) || k.includes(selectedLocation.nameKo)
+    );
+    if (cleanCityKey && CITY_LOCAL_KNOWLEDGE[cleanCityKey]?.transitTip) {
+      return lang === 'en' 
+        ? (selectedLocation.transitTipEn || 'Subway & KTX Direct Access')
+        : CITY_LOCAL_KNOWLEDGE[cleanCityKey].transitTip;
+    }
+    return lang === 'en' 
+      ? (selectedLocation.transitTipEn || 'Easy Public Transit Access') 
+      : (selectedLocation.transitTipKo || '대중교통 접근 편리');
   };
 
   return (
@@ -1039,7 +1067,7 @@ export default function DesktopMapExplorer({
               }}>
                 <span style={{ fontSize: '0.70rem', fontWeight: 800, color: '#0369a1', display: 'flex', alignItems: 'center', gap: '3px' }}>
                   <Train size={11} />
-                  <span>{lang === 'en' ? selectedLocation.transitTipEn || 'Easy Transit Access' : selectedLocation.transitTipKo || '대중교통 접근 편리'}</span>
+                  <span>{getSelectedTransitTip()}</span>
                 </span>
                 <span style={{ color: '#cbd5e1' }}>•</span>
                 <span style={{ fontSize: '0.70rem', fontWeight: 800, color: '#059669', display: 'flex', alignItems: 'center', gap: '3px' }}>
