@@ -385,7 +385,7 @@ export default function PortalHomePrototype({
     : CURATED_THEMES.filter(t => t.cityCode === selectedCityTab);
 
   return (
-    <div style={{ width: '100%', color: 'var(--text-main)', paddingBottom: '2.5rem' }}>
+    <div style={{ width: '100%', color: 'var(--text-main)', paddingBottom: 0 }}>
       
       {/* ☀️ 1. Grand Natural Bright & Scenic Hero (상단 헤드라인 + 하단 검색창 완벽 분리) */}
       <div 
