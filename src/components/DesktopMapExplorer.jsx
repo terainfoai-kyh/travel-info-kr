@@ -158,6 +158,16 @@ const REGIONAL_FALLBACK_CENTERS = [
   }
 ];
 
+// 🏰 외국인 선호 & 선배님 최애 6대 인기 거점 퀵점프 칩
+const POPULAR_QUICK_CITIES = [
+  { nameKo: '서울', nameEn: 'Seoul', icon: '📍', lat: 37.5665, lng: 126.9780, zoom: 11 },
+  { nameKo: '수원', nameEn: 'Suwon', icon: '🏰', lat: 37.2636, lng: 127.0286, zoom: 12 },
+  { nameKo: '부산', nameEn: 'Busan', icon: '🌊', lat: 35.1796, lng: 129.0756, zoom: 11 },
+  { nameKo: '제주', nameEn: 'Jeju', icon: '🌴', lat: 33.4996, lng: 126.5312, zoom: 10 },
+  { nameKo: '경주', nameEn: 'Gyeongju', icon: '🏛️', lat: 35.8562, lng: 129.2247, zoom: 12 },
+  { nameKo: '강릉', nameEn: 'Gangneung', icon: '☕', lat: 37.7519, lng: 128.8761, zoom: 12 }
+];
+
 function getDistanceKm(lat1, lng1, lat2, lng2) {
   const R = 6371;
   const dLat = (lat2 - lat1) * (Math.PI / 180);
@@ -350,6 +360,32 @@ export default function DesktopMapExplorer({
     }
   };
 
+  const handleQuickCityClick = (city) => {
+    const foundData = REGIONAL_FALLBACK_CENTERS.find(c => c.nameKo.includes(city.nameKo) || city.nameKo.includes(c.nameKo)) || REGIONAL_FALLBACK_CENTERS[0];
+    const newLoc = {
+      ...foundData,
+      nameKo: city.nameKo,
+      nameEn: city.nameEn,
+      lat: city.lat,
+      lng: city.lng
+    };
+    setSelectedLocation(newLoc);
+
+    if (leafletMapRef.current) {
+      leafletMapRef.current.flyTo([city.lat, city.lng], city.zoom || 11, { duration: 0.8 });
+    }
+
+    if (markerRef.current && window.L) {
+      markerRef.current.setLatLng([city.lat, city.lng]);
+      const pinHtml = createMarkerPinHtml(newLoc.nameKo, newLoc.nameEn, lang);
+      markerRef.current.setIcon(window.L.divIcon({
+        html: pinHtml,
+        className: 'vora-explorer-div-icon',
+        iconSize: [0, 0]
+      }));
+    }
+  };
+
   const handleStartPlan = () => {
     if (onSelectCityPlan) {
       onSelectCityPlan(selectedLocation.nameKo, selectedDays);
@@ -366,105 +402,156 @@ export default function DesktopMapExplorer({
       border: '1px solid #e2e8f0',
       boxShadow: '0 20px 45px -12px rgba(15, 23, 42, 0.08)',
       overflow: 'hidden',
-      padding: '1rem',
+      padding: '0.9rem 1.1rem 1.1rem 1.1rem',
       boxSizing: 'border-box'
     }}>
-      {/* 🌟 Header Title Bar */}
+      {/* =========================================================================
+          🌟 3-Zone Smart Top Header [좌: 조작 툴킷 + 중: 가이드 타이틀 + 우: 6대 도시 스마트 칩]
+          ========================================================================= */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         marginBottom: '0.75rem',
-        paddingBottom: '0.55rem',
-        borderBottom: '1px solid #f1f5f9'
+        paddingBottom: '0.65rem',
+        borderBottom: '1px solid #f1f5f9',
+        gap: '0.8rem'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+        {/* [Zone 1. 좌측 맵 컨트롤 탭 그룹] */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.35rem',
+          backgroundColor: '#f8fafc',
+          padding: '0.25rem 0.45rem',
+          borderRadius: '10px',
+          border: '1px solid #e2e8f0'
+        }}>
           <div style={{
-            width: '30px',
-            height: '30px',
-            borderRadius: '9px',
-            backgroundColor: 'rgba(37, 99, 235, 0.1)',
+            width: '24px',
+            height: '24px',
+            borderRadius: '6px',
+            backgroundColor: 'rgba(37, 99, 235, 0.12)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#2563eb'
+            color: '#2563eb',
+            marginRight: '0.15rem'
           }}>
-            <Compass size={17} />
+            <Compass size={14} />
           </div>
-          <div>
-            <h2 style={{
-              fontSize: '1.05rem',
-              fontWeight: 900,
-              color: '#0f172a',
-              margin: 0,
-              letterSpacing: '-0.02em'
-            }}>
-              {lang === 'en' 
-                ? 'Click Anywhere on Korea Map to Explore & Plan AI Itinerary' 
-                : '지명을 몰라도 괜찮아요! 지도에서 가고 싶은 곳 어디든 콕 찍어보세요'}
-            </h2>
-          </div>
-        </div>
-
-        {/* Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
           <button
             onClick={() => leafletMapRef.current && leafletMapRef.current.zoomIn()}
             style={{
-              width: '26px',
-              height: '26px',
+              width: '24px',
+              height: '24px',
               backgroundColor: '#ffffff',
               border: '1px solid #cbd5e1',
               borderRadius: '6px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              cursor: 'pointer',
-              boxShadow: '0 2px 5px rgba(0,0,0,0.04)'
+              cursor: 'pointer'
             }}
             title="확대"
           >
-            <ZoomIn size={13} color="#0f172a" />
+            <ZoomIn size={12} color="#0f172a" />
           </button>
           <button
             onClick={() => leafletMapRef.current && leafletMapRef.current.zoomOut()}
             style={{
-              width: '26px',
-              height: '26px',
+              width: '24px',
+              height: '24px',
               backgroundColor: '#ffffff',
               border: '1px solid #cbd5e1',
               borderRadius: '6px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              cursor: 'pointer',
-              boxShadow: '0 2px 5px rgba(0,0,0,0.04)'
+              cursor: 'pointer'
             }}
             title="축소"
           >
-            <ZoomOut size={13} color="#0f172a" />
+            <ZoomOut size={12} color="#0f172a" />
           </button>
           <button
             onClick={handleResetMap}
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '0.3rem',
-              backgroundColor: '#f8fafc',
+              gap: '0.25rem',
+              backgroundColor: '#ffffff',
               border: '1px solid #cbd5e1',
               borderRadius: '6px',
-              padding: '0.24rem 0.55rem',
-              fontSize: '0.72rem',
+              padding: '0.2rem 0.5rem',
+              fontSize: '0.70rem',
               fontWeight: 800,
               color: '#475569',
-              cursor: 'pointer',
-              boxShadow: '0 2px 5px rgba(0,0,0,0.04)'
+              cursor: 'pointer'
             }}
             title="전국 전도 리셋"
           >
-            <RefreshCw size={11} />
+            <RefreshCw size={10} />
             <span>전국 보기</span>
           </button>
+        </div>
+
+        {/* [Zone 2. 중앙 간결 가이드 문구] */}
+        <div style={{ flex: 1, textAlign: 'left', paddingLeft: '0.3rem' }}>
+          <h2 style={{
+            fontSize: '0.96rem',
+            fontWeight: 900,
+            color: '#0f172a',
+            margin: 0,
+            letterSpacing: '-0.02em',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.35rem'
+          }}>
+            <span>{lang === 'en' ? 'Explore Korea by Map' : '대한민국 어디든 지도를 콕 찍어보세요!'}</span>
+          </h2>
+        </div>
+
+        {/* [Zone 3. 우측 6대 인기 거점 스마트 퀵점프 칩 (수원 포함 🏰)] */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.35rem',
+          flexWrap: 'nowrap'
+        }}>
+          {POPULAR_QUICK_CITIES.map((city) => {
+            const isSelected = selectedLocation.nameKo.includes(city.nameKo) || city.nameKo.includes(selectedLocation.nameKo);
+            return (
+              <button
+                key={city.nameKo}
+                onClick={() => handleQuickCityClick(city)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.25rem',
+                  padding: '0.25rem 0.55rem',
+                  borderRadius: '9999px',
+                  fontSize: '0.72rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                  border: isSelected 
+                    ? '1px solid #2563eb' 
+                    : '1px solid #e2e8f0',
+                  background: isSelected 
+                    ? 'linear-gradient(135deg, #2563eb, #7c3aed)' 
+                    : '#f8fafc',
+                  color: isSelected ? '#ffffff' : '#475569',
+                  boxShadow: isSelected ? '0 3px 10px rgba(37, 99, 235, 0.35)' : 'none',
+                  transform: isSelected ? 'scale(1.04)' : 'scale(1)'
+                }}
+              >
+                <span>{city.icon}</span>
+                <span>{lang === 'en' ? city.nameEn : city.nameKo}</span>
+                {isSelected && <span style={{ fontSize: '0.65rem' }}>★</span>}
+              </button>
+            );
+          })}
         </div>
       </div>
 
