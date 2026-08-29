@@ -14,6 +14,51 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+const SALT_VECTORS = [0x5A, 0xA5, 0x3C, 0xC3, 0x69, 0x96, 0x7E, 0xE7];
+
+function encryptData(data, secretKey = 'vora_secure_vault_2026') {
+  try {
+    const jsonStr = typeof data === 'string' ? data : JSON.stringify(data);
+    const utf8Bytes = Buffer.from(jsonStr, 'utf8');
+    const keyBytes = Buffer.from(secretKey, 'utf8');
+    const cipherBytes = new Uint8Array(utf8Bytes.length);
+
+    for (let i = 0; i < utf8Bytes.length; i++) {
+      const k = keyBytes[i % keyBytes.length];
+      const s = SALT_VECTORS[i % SALT_VECTORS.length];
+      cipherBytes[i] = utf8Bytes[i] ^ k ^ s;
+    }
+
+    return Buffer.from(cipherBytes).toString('base64');
+  } catch (e) {
+    console.error('Encryption failed:', e);
+    return '';
+  }
+}
+
+function decryptData(cipherText, secretKey = 'vora_secure_vault_2026') {
+  if (!cipherText || typeof cipherText !== 'string') return null;
+  try {
+    const binary = Buffer.from(cipherText, 'base64').toString('binary');
+    const cipherBytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      cipherBytes[i] = binary.charCodeAt(i);
+    }
+    const keyBytes = Buffer.from(secretKey, 'utf8');
+    const plainBytes = new Uint8Array(cipherBytes.length);
+    for (let i = 0; i < cipherBytes.length; i++) {
+      const k = keyBytes[i % keyBytes.length];
+      const s = SALT_VECTORS[i % SALT_VECTORS.length];
+      plainBytes[i] = cipherBytes[i] ^ k ^ s;
+    }
+    const jsonStr = Buffer.from(plainBytes).toString('utf8');
+    return JSON.parse(jsonStr);
+  } catch (e) {
+    console.error('Decryption failed:', e);
+    return null;
+  }
+}
+
 async function runBatch() {
   const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19);
   console.log(`\n======================================================`);
@@ -49,12 +94,12 @@ async function runBatch() {
   }
 
   // 2. Gemini Knowledge Distillation Loop with 1.2s Throttle Delay
-  console.log(`🧠 Gemini 2.5 Flash 일괄 지식 증류 시작 (질문 수: ${unansweredList.length}개)...`);
+  console.log(`🧠 Gemini Flash 일괄 지식 증류 시작 (질문 수: ${unansweredList.length}개)...`);
   const newKnowledgeList = [];
 
   for (let i = 0; i < unansweredList.length; i++) {
     const q = unansweredList[i];
-    const rawQuery = q.rawQuery || q.query || '';
+    const rawQuery = q.rawQuery || q.question || '';
     if (!rawQuery.trim()) continue;
 
     console.log(`⚡ [${i + 1}/${unansweredList.length}] "${rawQuery}" 증류 중...`);
@@ -103,11 +148,11 @@ async function runBatch() {
     let success = false;
     let rawOutput = '';
 
-    // Primary & Fallback Models
+    // Primary & Fallback Models (공식 지원 모델)
     const modelsToTry = [
-      'gemini-2.5-flash',
+      'gemini-2.0-flash',
       'gemini-1.5-flash',
-      'gemini-2.0-flash'
+      'gemini-1.5-pro'
     ];
 
     for (const modelName of modelsToTry) {
@@ -160,38 +205,44 @@ async function runBatch() {
 
   // 3. Merge with Master Knowledge Vault file (src/data/voraQnaVault.js)
   if (newKnowledgeList.length > 0) {
-    console.log(`💾 생성된 ${newKnowledgeList.length}개 지식을 마스터 볼트 파일에 병합 중...`);
+    console.log(`💾 생성된 ${newKnowledgeList.length}개 지식을 암호화 마스터 볼트 파일에 병합 중...`);
     const vaultFilePath = path.join(__dirname, '..', 'src', 'data', 'voraQnaVault.js');
 
     try {
       let fileContent = fs.readFileSync(vaultFilePath, 'utf8');
 
-      // Export array parsing
-      const arrayMatch = fileContent.match(/export const VORA_QNA_VAULT = (\[[\s\S]*?\]);/);
-      if (arrayMatch) {
-        const currentVault = eval(arrayMatch[1]);
-        const norm = (s) => (s || '').trim().toLowerCase().replace(/[\s\-_?!.~,()[\]]/g, '');
-        const map = new Map();
+      // Match Encrypted Payload
+      const payloadMatch = fileContent.match(/VORA_ENCRYPTED_VAULT_PAYLOAD = "([^"]+)";/);
+      let currentVault = [];
+      if (payloadMatch) {
+        currentVault = decryptData(payloadMatch[1]) || [];
+      }
 
-        currentVault.forEach(item => {
-          const key = norm(item.title || item.questionVariations?.[0] || item.id);
-          if (key) map.set(key, item);
-        });
+      const norm = (s) => (s || '').trim().toLowerCase().replace(/[\s\-_?!.~,()[\]]/g, '');
+      const map = new Map();
 
-        newKnowledgeList.forEach(item => {
-          const key = norm(item.title || item.questionVariations?.[0] || item.id);
-          if (key) map.set(key, item);
-        });
+      currentVault.forEach(item => {
+        const key = norm(item.title || item.questionVariations?.[0] || item.id);
+        if (key) map.set(key, item);
+      });
 
-        const mergedList = Array.from(map.values());
-        const updatedArrayString = JSON.stringify(mergedList, null, 2);
+      newKnowledgeList.forEach(item => {
+        const key = norm(item.title || item.questionVariations?.[0] || item.id);
+        if (key) map.set(key, item);
+      });
+
+      const mergedList = Array.from(map.values());
+      const encryptedPayload = encryptData(mergedList);
+
+      if (encryptedPayload) {
         const updatedContent = fileContent.replace(
-          /export const VORA_QNA_VAULT = \[[\s\S]*?\];/,
-          `export const VORA_QNA_VAULT = ${updatedArrayString};`
+          /VORA_ENCRYPTED_VAULT_PAYLOAD = "[^"]+";/,
+          `VORA_ENCRYPTED_VAULT_PAYLOAD = "${encryptedPayload}";`
         );
-
         fs.writeFileSync(vaultFilePath, updatedContent, 'utf8');
-        console.log(`🎉 voraQnaVault.js 업데이트 완료 (총 ${mergedList.length}개 지식 보유)`);
+        console.log(`🎉 voraQnaVault.js 업데이트 완료 (총 ${mergedList.length}개 암호화 지식 보유)`);
+      } else {
+        console.error(`❌ 볼트 암호화 실패`);
       }
     } catch (fsErr) {
       console.error(`❌ 파일 저장 오류: ${fsErr.message}`);
