@@ -505,10 +505,10 @@ export default function PortalHomePrototype({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={
-                  lang === 'en' ? 'Where to explore? (e.g. Jeju, Seongsu)' :
-                  lang === 'ja' ? 'どこへ行きますか？ (例: 済州、聖水)' :
-                  (lang === 'zh' || lang === 'zht') ? '想去哪里旅行？ (例如: 济州、圣水)' :
-                  '도시·명소 입력 (예: 제주, 성수)'
+                  lang === 'en' ? 'Search destination (e.g. Jeju, Hongdae, Suwon Fortress)' :
+                  lang === 'ja' ? '都市・名所を入力 (例: 済州, 弘大, 水原華城)' :
+                  (lang === 'zh' || lang === 'zht') ? '输入城市或景点 (例如: 济州, 弘大, 水原华城)' :
+                  '도시·명소 입력 (예: 제주, 성수, 수원화성)'
                 }
                 style={{
                   flex: 1,

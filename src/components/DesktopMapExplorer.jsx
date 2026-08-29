@@ -24,148 +24,151 @@ import { buildKlookDeepLink } from '../services/apiConfig';
 import SubwayMapModal from './SubwayMapModal';
 import HelplineModal from './HelplineModal';
 
-// 🗺️ 전국 대표 권역 빠른 좌표 오프라인 Fallback 맵 & 대표 4K 사진
+// 🗺️ 전국 대표 권역 상세 데이터 & 태그별 정밀 좌표
 const REGIONAL_FALLBACK_CENTERS = [
   { 
     nameKo: '서울 경복궁', 
     nameEn: 'Seoul Gyeongbokgung', 
+    nameJa: 'ソウル 景福宮',
+    nameZh: '首尔 景福宫',
     lat: 37.5796, 
     lng: 126.9770,
+    zoom: 13,
     image: '/images/themes/theme-gyeongbokgung.jpg',
-    highlightsKo: ['경복궁 & 근정전', '북촌 한옥마을', '익선동 감성거리'],
-    highlightsEn: ['Gyeongbokgung Palace', 'Bukchon Hanok Village', 'Ikseon-dong Cafe Alley'],
-    descKo: '600년 조선 왕조의 숨결과 현대적인 K-컬처가 공존하는 한국 여행 1번지'
+    highlights: [
+      { ko: '경복궁 & 근정전', en: 'Gyeongbokgung Palace', ja: '景福宮', zh: '景福宫', lat: 37.5796, lng: 126.9770, zoom: 15 },
+      { ko: '북촌 한옥마을', en: 'Bukchon Hanok Village', ja: '北村韓屋村', zh: '北村韩屋村', lat: 37.5826, lng: 126.9835, zoom: 15 },
+      { ko: '익선동 감성거리', en: 'Ikseon-dong Alley', ja: '益善洞', zh: '益善洞', lat: 37.5744, lng: 126.9892, zoom: 15 }
+    ],
+    descKo: '600년 조선 왕조의 숨결과 현대적인 K-컬처가 공존하는 한국 여행 1번지',
+    descEn: 'The heartbeat of Korea where 600 years of royal heritage meets modern K-culture.',
+    descJa: '600年の歴史を持つ朝鮮王朝の伝統と現代のK-カルチャーが共存する韓国観光の拠点',
+    descZh: '融合600年朝鲜王朝历史底蕴与现代K-Culture潮流的韩国必游名所'
   },
   { 
     nameKo: '서울', 
     nameEn: 'Seoul', 
+    nameJa: 'ソウル',
+    nameZh: '首尔',
     lat: 37.5665, 
     lng: 126.9780,
+    zoom: 12,
     image: '/images/themes/hero-hangang.jpg',
-    highlightsKo: ['성수동 팝업거리', '한강 달빛피크닉', 'N서울타워 야경'],
-    highlightsEn: ['Seongsu Pop-up Street', 'Hangang River Picnic', 'N Seoul Tower Sunset'],
-    descKo: '트렌디한 K-패션 쇼핑부터 한강의 황금빛 노을까지 완벽한 하루'
+    highlights: [
+      { ko: '성수동 팝업거리', en: 'Seongsu Pop-up Street', ja: '聖水洞', zh: '圣水洞', lat: 37.5445, lng: 127.0560, zoom: 15 },
+      { ko: '한강 달빛피크닉', en: 'Hangang River Picnic', ja: '漢江ピクニック', zh: '汉江公园', lat: 37.5284, lng: 126.9341, zoom: 14 },
+      { ko: 'N서울타워 야경', en: 'N Seoul Tower Sunset', ja: 'Nソウルタワー', zh: 'N首尔塔', lat: 37.5512, lng: 126.9882, zoom: 15 }
+    ],
+    descKo: '트렌디한 K-패션 쇼핑부터 한강의 황금빛 노을까지 완벽한 하루',
+    descEn: 'From trendy K-fashion popup stores to golden sunsets over the Hangang River.',
+    descJa: 'トレンディなK-ファッションから漢江の美しい夕日まで楽しめる人気コース',
+    descZh: '从潮流K-Fashion快闪店到汉江金色落日野餐的完美一日游'
   },
   { 
     nameKo: '수원', 
     nameEn: 'Suwon', 
+    nameJa: '水原',
+    nameZh: '水原',
     lat: 37.2636, 
     lng: 127.0286,
+    zoom: 13,
     image: '/images/themes/theme-suwon.jpg',
-    highlightsKo: ['수원화성 성곽길', '행궁동 감성카페', '통닭거리 미식'],
-    highlightsEn: ['Suwon Hwaseong Fortress', 'Haenggung-dong Cafes', 'Fried Chicken Street'],
-    descKo: '유네스코 세계문화유산 수원화성과 감성 가득한 행리단길 투어'
-  },
-  { 
-    nameKo: '인천', 
-    nameEn: 'Incheon', 
-    lat: 37.4563, 
-    lng: 126.7052,
-    image: '/images/themes/theme-gyeongbokgung.jpg',
-    highlightsKo: ['송도 센트럴파크', '차이나타운', '월미도 바다열차'],
-    highlightsEn: ['Songdo Central Park', 'Chinatown', 'Wolmido Ocean Train'],
-    descKo: '미래형 국제도시 송도와 근대 역사가 살아 숨 쉬는 해양 도시'
-  },
-  { 
-    nameKo: '강릉', 
-    nameEn: 'Gangneung', 
-    lat: 37.7519, 
-    lng: 128.8761,
-    image: '/images/themes/theme-gangneung.jpg',
-    highlightsKo: ['안목 커피거리', '경포대 에메랄드 해변', 'BTS 버스정류장'],
-    highlightsEn: ['Anmok Coffee Street', 'Gyeongpo Beach', 'BTS Bus Stop'],
-    descKo: '푸른 동해 바다와 짙은 커피 향이 어우러진 낭만적인 힐링 여행지'
-  },
-  { 
-    nameKo: '속초', 
-    nameEn: 'Sokcho', 
-    lat: 38.2070, 
-    lng: 128.5918,
-    image: '/images/themes/theme-gangneung.jpg',
-    highlightsKo: ['설악산 권금성', '속초관광수산시장', '아바이마을'],
-    highlightsEn: ['Seoraksan Cable Car', 'Sokcho Tourist Market', 'Abai Village'],
-    descKo: '웅장한 설악산의 절경과 신선한 동해 해산물 미식 탐방'
-  },
-  { 
-    nameKo: '안동', 
-    nameEn: 'Andong', 
-    lat: 36.5683, 
-    lng: 128.7294,
-    image: '/images/themes/theme-gyeongbokgung.jpg',
-    highlightsKo: ['안동 하회마을', '병산서원 만대루', '월영교 야경'],
-    highlightsEn: ['Andong Hahoe Village', 'Byeongsan Seowon', 'Woryeonggyo Bridge'],
-    descKo: '한국의 전통 유교 문화와 고즈넉한 고택의 정취를 느끼는 헤리티지 여행'
-  },
-  { 
-    nameKo: '경주', 
-    nameEn: 'Gyeongju', 
-    lat: 35.8562, 
-    lng: 129.2247,
-    image: '/images/themes/theme-gyeongju.jpg',
-    highlightsKo: ['불국사 & 석굴암', '동궁과 월지 야경', '황리단길 핫플'],
-    highlightsEn: ['Bulguksa Temple', 'Donggung & Wolji Pond', 'Hwangridan-gil Street'],
-    descKo: '천년 신라의 찬란한 유적과 트렌디한 황리단길이 만나는 지붕 없는 박물관'
-  },
-  { 
-    nameKo: '대구', 
-    nameEn: 'Daegu', 
-    lat: 35.8714, 
-    lng: 128.6014,
-    image: '/images/themes/theme-gyeongbokgung.jpg',
-    highlightsKo: ['김광석 다시그리기길', '서문시장 야시장', '앞산전망대'],
-    highlightsEn: ['Kim Gwangseok Street', 'Seomun Night Market', 'Apsan Observatory'],
-    descKo: '음악과 미식, 야경이 살아있는 활기찬 영남의 중심 도시'
+    highlights: [
+      { ko: '수원화성 성곽길', en: 'Suwon Hwaseong Fortress', ja: '水原華城', zh: '水原华城', lat: 37.2872, lng: 127.0118, zoom: 15 },
+      { ko: '행궁동 감성카페', en: 'Haenggung-dong Cafes', ja: '行宮洞カフェ通り', zh: '行宫洞咖啡街', lat: 37.2830, lng: 127.0150, zoom: 15 },
+      { ko: '통닭거리 미식', en: 'Fried Chicken Street', ja: 'チキン通り', zh: '炸鸡一条街', lat: 37.2790, lng: 127.0175, zoom: 15 }
+    ],
+    descKo: '유네스코 세계문화유산 수원화성과 감성 가득한 행리단길 투어',
+    descEn: 'UNESCO World Heritage fortress walking trails and vibrant cafe culture in Haengridan-gil.',
+    descJa: 'ユネスコ世界遺産の水原華城とレトロな行宮洞カフェ通りを巡る旅',
+    descZh: '漫步联合国教科文组织世界遗产水原华城与充满情调的行宫洞'
   },
   { 
     nameKo: '부산', 
     nameEn: 'Busan', 
+    nameJa: '釜山',
+    nameZh: '釜山',
     lat: 35.1796, 
     lng: 129.0756,
+    zoom: 12,
     image: '/images/themes/theme-busan.jpg',
-    highlightsKo: ['해운대 블루라인파크', '광안대교 드론쇼', '감천문화마을'],
-    highlightsEn: ['Haeundae Blueline Park', 'Gwangandaegyo Bridge', 'Gamcheon Village'],
-    descKo: '끝없는 푸른 바다와 다채로운 해양 액티비티, 신선한 미식의 해양 수도'
-  },
-  { 
-    nameKo: '여수', 
-    nameEn: 'Yeosu', 
-    lat: 34.7604, 
-    lng: 127.6622,
-    image: '/images/themes/theme-busan.jpg',
-    highlightsKo: ['여수 해상케이블카', '오동도 동백숲', '낭만포차 밤바다'],
-    highlightsEn: ['Yeosu Cable Car', 'Odongdo Island', 'Romantic Night Pocha'],
-    descKo: '아름다운 남해 밤바다의 낭만과 신선한 해물 삼합의 미식 여행'
-  },
-  { 
-    nameKo: '전주', 
-    nameEn: 'Jeonju', 
-    lat: 35.8242, 
-    lng: 127.1480,
-    image: '/images/themes/theme-jeonju.jpg',
-    highlightsKo: ['전주한옥마을', '경기전 한복체험', '전주비빔밥 & 막걸리골목'],
-    highlightsEn: ['Jeonju Hanok Village', 'Gyeonggijeon Hanbok', 'Jeonju Bibimbap'],
-    descKo: '700여 채 한옥의 고풍스러운 골목길과 유네스코 음식창의도시의 맛'
+    highlights: [
+      { ko: '해운대 블루라인파크', en: 'Haeundae Blueline Park', ja: '海雲台ブルーライン', zh: '海云台蓝线公园', lat: 35.1631, lng: 129.1764, zoom: 14 },
+      { ko: '광안대교 드론쇼', en: 'Gwangandaegyo Bridge', ja: '広安大橋', zh: '广安大桥', lat: 35.1532, lng: 129.1189, zoom: 14 },
+      { ko: '감천문화마을', en: 'Gamcheon Culture Village', ja: '甘川文化村', zh: '甘川文化村', lat: 35.0975, lng: 129.0106, zoom: 15 }
+    ],
+    descKo: '끝없는 푸른 바다와 다채로운 해양 액티비티, 신선한 미식의 해양 수도',
+    descEn: 'Dynamic marine capital with ocean-view capsule trains and fresh seafood markets.',
+    descJa: '青い海と多彩なアクティビティ、新鮮な海鮮グルメが楽しめる海洋都市',
+    descZh: '坐拥绝美海岸胶囊列车与丰富海鲜美食的活力海洋之都'
   },
   { 
     nameKo: '제주', 
     nameEn: 'Jeju', 
+    nameJa: '済州',
+    nameZh: '济州',
     lat: 33.4996, 
     lng: 126.5312,
+    zoom: 10,
     image: '/images/themes/theme-jeju.jpg',
-    highlightsKo: ['성산일출봉', '협재 & 애월 해안도로', '우도 산호해변'],
-    highlightsEn: ['Seongsan Sunrise Peak', 'Hyeopjae Beach', 'Udo Coral Beach'],
-    descKo: '에메랄드빛 청정 바다와 유네스코 세계자연유산이 빚어낸 힐링 아일랜드'
+    highlights: [
+      { ko: '성산일출봉', en: 'Seongsan Sunrise Peak', ja: '城山日出峰', zh: '城山日出峰', lat: 33.4581, lng: 126.9426, zoom: 14 },
+      { ko: '협재 & 애월 해안도로', en: 'Hyeopjae & Aewol Coast', ja: '挟才・涯月海岸', zh: '挟才·涯月海岸', lat: 33.3941, lng: 126.2397, zoom: 14 },
+      { ko: '우도 산호해변', en: 'Udo Island Coral Beach', ja: '牛島 サンゴビーチ', zh: '牛岛 珊瑚海滩', lat: 33.5042, lng: 126.9545, zoom: 14 }
+    ],
+    descKo: '에메랄드빛 청정 바다와 유네스코 세계자연유산이 빚어낸 힐링 아일랜드',
+    descEn: 'Emerald ocean coastlines and volcanic natural wonders on Korea’s premier resort island.',
+    descJa: 'エメラルドグリーンの海とユネスコ世界自然遺産が織りなす癒しの島',
+    descZh: '拥有翡翠色纯净大海与联合国世界自然遗产的疗愈度假胜地'
+  },
+  { 
+    nameKo: '경주', 
+    nameEn: 'Gyeongju', 
+    nameJa: '慶州',
+    nameZh: '庆州',
+    lat: 35.8562, 
+    lng: 129.2247,
+    zoom: 13,
+    image: '/images/themes/theme-gyeongju.jpg',
+    highlights: [
+      { ko: '불국사 & 석굴암', en: 'Bulguksa Temple', ja: '仏国寺', zh: '佛国寺', lat: 35.7900, lng: 129.3320, zoom: 14 },
+      { ko: '동궁과 월지 야경', en: 'Donggung & Wolji Pond', ja: '東宮と月池', zh: '东宫与月池', lat: 35.8341, lng: 129.2267, zoom: 15 },
+      { ko: '황리단길 핫플', en: 'Hwangridan-gil Street', ja: '皇理団通り', zh: '皇理团路', lat: 35.8378, lng: 129.2096, zoom: 15 }
+    ],
+    descKo: '천년 신라의 찬란한 유적과 트렌디한 황리단길이 만나는 지붕 없는 박물관',
+    descEn: 'Open-air museum of millennium Silla dynasty heritage meets retro Hanok cafes.',
+    descJa: '千年王国新羅の歴史遺産とトレンディな皇理団通りが調和する古都',
+    descZh: '千年新罗灿烂历史遗址与复古韩屋咖啡街交相辉映的无露天博物馆'
+  },
+  { 
+    nameKo: '강릉', 
+    nameEn: 'Gangneung', 
+    nameJa: '江陵',
+    nameZh: '江陵',
+    lat: 37.7519, 
+    lng: 128.8761,
+    zoom: 12,
+    image: '/images/themes/theme-gangneung.jpg',
+    highlights: [
+      { ko: '안목 커피거리', en: 'Anmok Coffee Street', ja: '安木コーヒー通り', zh: '安木咖啡街', lat: 37.7719, lng: 128.9482, zoom: 15 },
+      { ko: '경포대 에메랄드 해변', en: 'Gyeongpo Beach', ja: '鏡浦海水浴場', zh: '镜浦海水浴场', lat: 37.8055, lng: 128.9079, zoom: 14 },
+      { ko: 'BTS 버스정류장', en: 'BTS Bus Stop', ja: 'BTSバス停', zh: 'BTS防弹少年团车站', lat: 37.8917, lng: 128.8276, zoom: 15 }
+    ],
+    descKo: '푸른 동해 바다와 짙은 커피 향이 어우러진 낭만적인 힐링 여행지',
+    descEn: 'Romantic seaside city famous for specialty coffee aroma and crystal blue East Sea.',
+    descJa: '青い東海と香ばしいコーヒーの香りが広がるロマンチックな癒しの地',
+    descZh: '漫溢浓郁咖啡香气与蔚蓝东海美景的浪漫治愈之城'
   }
 ];
 
-// 🏰 외국인 선호 & 선배님 최애 6대 인기 거점 퀵점프 칩
+// 🏰 6대 인기 거점 퀵점프 칩 라인업 (수원 포함)
 const POPULAR_QUICK_CITIES = [
-  { nameKo: '서울', nameEn: 'Seoul', icon: '📍', lat: 37.5665, lng: 126.9780, zoom: 11 },
-  { nameKo: '수원', nameEn: 'Suwon', icon: '🏰', lat: 37.2636, lng: 127.0286, zoom: 12 },
-  { nameKo: '부산', nameEn: 'Busan', icon: '🌊', lat: 35.1796, lng: 129.0756, zoom: 11 },
-  { nameKo: '제주', nameEn: 'Jeju', icon: '🌴', lat: 33.4996, lng: 126.5312, zoom: 10 },
-  { nameKo: '경주', nameEn: 'Gyeongju', icon: '🏛️', lat: 35.8562, lng: 129.2247, zoom: 12 },
-  { nameKo: '강릉', nameEn: 'Gangneung', icon: '☕', lat: 37.7519, lng: 128.8761, zoom: 12 }
+  { nameKo: '서울', nameEn: 'Seoul', nameJa: 'ソウル', nameZh: '首尔', icon: '📍', lat: 37.5665, lng: 126.9780, zoom: 11 },
+  { nameKo: '수원', nameEn: 'Suwon', nameJa: '水原', nameZh: '水原', icon: '🏰', lat: 37.2636, lng: 127.0286, zoom: 12 },
+  { nameKo: '부산', nameEn: 'Busan', nameJa: '釜山', nameZh: '釜山', icon: '🌊', lat: 35.1796, lng: 129.0756, zoom: 11 },
+  { nameKo: '제주', nameEn: 'Jeju', nameJa: '済州', nameZh: '济州', icon: '🌴', lat: 33.4996, lng: 126.5312, zoom: 10 },
+  { nameKo: '경주', nameEn: 'Gyeongju', nameJa: '慶州', nameZh: '庆州', icon: '🏛️', lat: 35.8562, lng: 129.2247, zoom: 12 },
+  { nameKo: '강릉', nameEn: 'Gangneung', nameJa: '江陵', nameZh: '江陵', icon: '☕', lat: 37.7519, lng: 128.8761, zoom: 12 }
 ];
 
 function getDistanceKm(lat1, lng1, lat2, lng2) {
@@ -204,7 +207,7 @@ export default function DesktopMapExplorer({
     }
   }, []);
 
-  // 2. Initialize Leaflet Map Instance
+  // 2. Initialize Leaflet Map Instance with Modern Global CartoDB Voyager Tile
   useEffect(() => {
     if (!isLeafletReady || !window.L || !mapContainerRef.current) return;
 
@@ -217,10 +220,10 @@ export default function DesktopMapExplorer({
         scrollWheelZoom: true
       });
 
-      // 🗺️ 100% Free Official OpenStreetMap Standard Tiles
-      window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      // 🗺️ Global Clean Pastel English/Multilingual Map Tiles (CartoDB Voyager)
+      window.L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
         maxZoom: 19,
-        subdomains: ['a', 'b', 'c']
+        subdomains: 'abcd'
       }).addTo(map);
 
       leafletMapRef.current = map;
@@ -372,7 +375,7 @@ export default function DesktopMapExplorer({
     setSelectedLocation(newLoc);
 
     if (leafletMapRef.current) {
-      leafletMapRef.current.flyTo([city.lat, city.lng], city.zoom || 11, { duration: 0.8 });
+      leafletMapRef.current.flyTo([city.lat, city.lng], city.zoom || 12, { duration: 0.8 });
     }
 
     if (markerRef.current && window.L) {
@@ -386,10 +389,48 @@ export default function DesktopMapExplorer({
     }
   };
 
+  // 🎯 해시태그 클릭 시 해당 관광지 스팟으로 지도 스르륵 이동(Pan & Zoom) 인터랙션!
+  const handleHighlightSpotClick = (highlight) => {
+    if (!highlight || !leafletMapRef.current) return;
+    
+    leafletMapRef.current.flyTo([highlight.lat, highlight.lng], highlight.zoom || 15, { duration: 0.7 });
+
+    if (markerRef.current && window.L) {
+      markerRef.current.setLatLng([highlight.lat, highlight.lng]);
+      const pinHtml = createMarkerPinHtml(highlight.ko, highlight.en, lang);
+      markerRef.current.setIcon(window.L.divIcon({
+        html: pinHtml,
+        className: 'vora-explorer-div-icon',
+        iconSize: [0, 0]
+      }));
+    }
+  };
+
   const handleStartPlan = () => {
     if (onSelectCityPlan) {
       onSelectCityPlan(selectedLocation.nameKo, selectedDays);
     }
+  };
+
+  const getCityDisplayName = (city) => {
+    if (lang === 'en') return city.nameEn;
+    if (lang === 'ja') return city.nameJa || city.nameEn;
+    if (lang === 'zh' || lang === 'zht') return city.nameZh || city.nameEn;
+    return city.nameKo;
+  };
+
+  const getHighlightLabel = (hl) => {
+    if (lang === 'en') return hl.en;
+    if (lang === 'ja') return hl.ja || hl.en;
+    if (lang === 'zh' || lang === 'zht') return hl.zh || hl.en;
+    return hl.ko;
+  };
+
+  const getSelectedDesc = () => {
+    if (lang === 'en') return selectedLocation.descEn || selectedLocation.descKo;
+    if (lang === 'ja') return selectedLocation.descJa || selectedLocation.descKo;
+    if (lang === 'zh' || lang === 'zht') return selectedLocation.descZh || selectedLocation.descKo;
+    return selectedLocation.descKo;
   };
 
   return (
@@ -453,7 +494,7 @@ export default function DesktopMapExplorer({
               justifyContent: 'center',
               cursor: 'pointer'
             }}
-            title="확대"
+            title={lang === 'en' ? 'Zoom In' : '확대'}
           >
             <ZoomIn size={12} color="#0f172a" />
           </button>
@@ -470,7 +511,7 @@ export default function DesktopMapExplorer({
               justifyContent: 'center',
               cursor: 'pointer'
             }}
-            title="축소"
+            title={lang === 'en' ? 'Zoom Out' : '축소'}
           >
             <ZoomOut size={12} color="#0f172a" />
           </button>
@@ -489,10 +530,10 @@ export default function DesktopMapExplorer({
               color: '#475569',
               cursor: 'pointer'
             }}
-            title="전국 전도 리셋"
+            title={lang === 'en' ? 'View Whole Country' : '전국 전도 리셋'}
           >
             <RefreshCw size={10} />
-            <span>전국 보기</span>
+            <span>{lang === 'en' ? 'All Korea' : lang === 'ja' ? '全国表示' : (lang === 'zh' || lang === 'zht') ? '全国地图' : '전국 보기'}</span>
           </button>
         </div>
 
@@ -508,7 +549,12 @@ export default function DesktopMapExplorer({
             alignItems: 'center',
             gap: '0.35rem'
           }}>
-            <span>{lang === 'en' ? 'Explore Korea by Map' : '대한민국 어디든 지도를 콕 찍어보세요!'}</span>
+            <span>
+              {lang === 'en' ? 'Click anywhere on map to explore Korea!' : 
+               lang === 'ja' ? '地図の行きたい場所を自由にクリック！' : 
+               (lang === 'zh' || lang === 'zht') ? '点击地图任意位置，开启韩国之旅！' : 
+               '대한민국 어디든 지도를 콕 찍어보세요!'}
+            </span>
           </h2>
         </div>
 
@@ -547,7 +593,7 @@ export default function DesktopMapExplorer({
                 }}
               >
                 <span>{city.icon}</span>
-                <span>{lang === 'en' ? city.nameEn : city.nameKo}</span>
+                <span>{getCityDisplayName(city)}</span>
                 {isSelected && <span style={{ fontSize: '0.65rem' }}>★</span>}
               </button>
             );
@@ -711,7 +757,7 @@ export default function DesktopMapExplorer({
           </div>
         </div>
 
-        {/* [2. 중앙 리얼 OpenStreetMap 지도 영역 (50% ↔ 100% 가변)] */}
+        {/* [2. 중앙 리얼 OpenStreetMap & CartoDB 파스텔 지도 영역 (50% ↔ 100% 가변)] */}
         <div style={{
           flex: isMapExpandedFull ? '1 1 100%' : '1 1 50%',
           height: '100%',
@@ -753,7 +799,7 @@ export default function DesktopMapExplorer({
             gap: '4px'
           }}>
             <Navigation size={11} />
-            <span>{lang === 'en' ? 'Click anywhere on map' : '지도 위 가고 싶은 곳 어디든 클릭해보세요!'}</span>
+            <span>{lang === 'en' ? 'Click anywhere on map' : lang === 'ja' ? '地図をクリック' : (lang === 'zh' || lang === 'zht') ? '点击地图任意位置' : '지도 위 가고 싶은 곳 어디든 클릭해보세요!'}</span>
           </div>
 
           {/* ◀ / ▶ 네이버 지도 스타일 패널 접기/펼치기 플로팅 토글 버튼 */}
@@ -843,7 +889,7 @@ export default function DesktopMapExplorer({
                 letterSpacing: '0.05em',
                 marginBottom: '2px'
               }}>
-                📍 {lang === 'en' ? 'Selected Destination' : '선택된 여행지'}
+                📍 {lang === 'en' ? 'Selected Destination' : lang === 'ja' ? '選択された目的地' : (lang === 'zh' || lang === 'zht') ? '已选目的地' : '선택된 여행지'}
               </div>
               <div style={{
                 fontSize: '1.25rem',
@@ -851,15 +897,15 @@ export default function DesktopMapExplorer({
                 color: '#ffffff',
                 textShadow: '0 2px 8px rgba(0,0,0,0.6)'
               }}>
-                {selectedLocation.nameKo}
+                {lang === 'ko' ? selectedLocation.nameKo : selectedLocation.nameEn}
                 <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#e2e8f0', marginLeft: '6px' }}>
-                  ({selectedLocation.nameEn})
+                  {lang === 'ko' ? `(${selectedLocation.nameEn})` : `(${selectedLocation.nameKo})`}
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Middle Body: Description & 3 Core Highlights */}
+          {/* Middle Body: Description & 3 Interactive Highlight Spot Chips */}
           <div style={{
             padding: '14px 16px',
             flex: 1,
@@ -876,30 +922,46 @@ export default function DesktopMapExplorer({
                 margin: '0 0 10px',
                 fontWeight: 600
               }}>
-                {selectedLocation.descKo || '아름다운 자연과 다채로운 K-컬처를 체험할 수 있는 대한민국 대표 여행지입니다.'}
+                {getSelectedDesc()}
               </p>
 
-              {/* 3 Core Highlights Chips */}
+              {/* 3 Core Highlights Chips (🎯 Click to FlyTo & Pin on Map!) */}
               <div style={{ marginBottom: '8px' }}>
                 <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#7c3aed', marginBottom: '6px' }}>
-                  ✨ {lang === 'en' ? 'Top 3 Signature Highlights' : 'VORA 추천 3대 핵심 매력'}
+                  ✨ {lang === 'en' ? 'Top Highlights (Click to View on Map)' : lang === 'ja' ? 'おすすめスポット (クリックして地図で確認)' : (lang === 'zh' || lang === 'zht') ? '核心亮点 (点击在地图查看)' : 'VORA 추천 핵심 명소 (클릭 시 지도 이동)'}
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                  {(selectedLocation.highlightsKo || ['대표 랜드마크', '로컬 미식 탐방', '야경 명소']).map((hl, hIdx) => (
-                    <span 
+                  {(selectedLocation.highlights || []).map((hl, hIdx) => (
+                    <button 
                       key={hIdx}
+                      onClick={() => handleHighlightSpotClick(hl)}
+                      title={lang === 'en' ? 'Click to pinpoint on map' : '클릭 시 지도가 이 명소로 이동합니다'}
                       style={{
                         fontSize: '0.74rem',
                         fontWeight: 800,
                         backgroundColor: '#f3e8ff',
                         color: '#7c3aed',
-                        padding: '3px 8px',
+                        padding: '4px 9px',
                         borderRadius: '6px',
-                        border: '1px solid #e9d5ff'
+                        border: '1px solid #e9d5ff',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '3px'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#7c3aed';
+                        e.currentTarget.style.color = '#ffffff';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = '#f3e8ff';
+                        e.currentTarget.style.color = '#7c3aed';
                       }}
                     >
-                      #{hl}
-                    </span>
+                      <span>#</span>
+                      <span>{getHighlightLabel(hl)}</span>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -917,7 +979,7 @@ export default function DesktopMapExplorer({
               {/* Days Selector */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#64748b' }}>
-                  {lang === 'en' ? 'Days:' : '일수:'}
+                  {lang === 'en' ? 'Days:' : lang === 'ja' ? '日程:' : (lang === 'zh' || lang === 'zht') ? '天数:' : '일수:'}
                 </span>
                 <div style={{ display: 'flex', gap: '3px' }}>
                   {[1, 2, 3, 4, 5].map((d) => (
@@ -936,7 +998,7 @@ export default function DesktopMapExplorer({
                         transition: 'all 0.15s ease'
                       }}
                     >
-                      {d}{lang === 'en' ? 'D' : '일'}
+                      {d}{lang === 'en' ? 'D' : lang === 'ja' ? '日' : (lang === 'zh' || lang === 'zht') ? '天' : '일'}
                     </button>
                   ))}
                 </div>
@@ -966,7 +1028,11 @@ export default function DesktopMapExplorer({
                 <Sparkles size={14} />
                 <span>
                   {lang === 'en' 
-                    ? `Create ${selectedLocation.nameEn} Plan 🚀` 
+                    ? `Create ${selectedLocation.nameEn} ${selectedDays}D Plan 🚀` 
+                    : lang === 'ja'
+                    ? `✨ ${selectedLocation.nameJa || selectedLocation.nameEn} ${selectedDays}日コース作成 🚀`
+                    : (lang === 'zh' || lang === 'zht')
+                    ? `✨ 生成 ${selectedLocation.nameZh || selectedLocation.nameEn} ${selectedDays}日行程 🚀`
                     : `✨ ${selectedLocation.nameKo} ${selectedDays}일 코스 만들기 🚀`}
                 </span>
                 <ChevronRight size={14} />
