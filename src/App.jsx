@@ -1343,60 +1343,44 @@ export default function App() {
       {/* Main Container (모바일 5대 탭 전환 & PC 와이드 뷰 최적화) */}
       <main className="app-main-container" style={{ paddingBottom: '4.5rem' }}>
         {/* ==============================================================================
-           TAB 1. 🏠 홈 (Home): 모바일 1-Screen 프리미엄 홈 & PC 3단 네이버 지도형 대시보드
+           TAB 1. 🏠 홈 (Home): 4K 와이드 히어로, 퀵 칩/카드 & 하단 네이버 지도형 탐색관
            ============================================================================== */}
         {activeNavTab === 'home' && (
           <div className="tab-content-fade-in" style={{ width: '100%' }}>
-            {/* 📱 모바일 전용: 100% 무스크롤 1-Screen 프리미엄 홈 */}
-            <div className="hide-desktop">
-              <PortalHomePrototype
-                lang={lang}
-                onSearchSubmit={(promptText) => {
-                  setPlannerInitialMode('chat');
-                  setActiveNavTab('ai');
-                  handleGenerateItinerary(promptText, false, true);
-                }}
-                onSelectTheme={(promptText, city) => {
-                  setPlannerInitialMode('chat');
-                  setActiveNavTab('ai');
-                  handleGenerateItinerary(promptText, false, true);
-                }}
-                onOpenWeather={(city) => {
-                  setWeatherCity(city || itineraryData?.targetCity || '서울');
-                  setIsWeatherOpen(true);
-                }}
-                onOpenEssentials={() => setIsEssentialsOpen(true)}
-                onOpenPlanner={() => {
-                  setPlannerInitialMode('form');
-                  setActiveNavTab('ai');
-                }}
-                targetCity={itineraryData?.targetCity || '서울'}
-              />
-            </div>
+            {/* 👑 상단: 찬란한 4K 와이드 히어로 배너, 검색창, 5개 칩 & 6대 퀵 유틸리티 바 */}
+            <PortalHomePrototype
+              lang={lang}
+              onSearchSubmit={(promptText) => {
+                setPlannerInitialMode('chat');
+                setActiveNavTab('ai');
+                handleGenerateItinerary(promptText, false, true);
+              }}
+              onSelectTheme={(promptText, city) => {
+                setPlannerInitialMode('chat');
+                setActiveNavTab('ai');
+                handleGenerateItinerary(promptText, false, true);
+              }}
+              onOpenWeather={(city) => {
+                setWeatherCity(city || itineraryData?.targetCity || '서울');
+                setIsWeatherOpen(true);
+              }}
+              onOpenEssentials={() => setIsEssentialsOpen(true)}
+              onOpenPlanner={() => {
+                setPlannerInitialMode('form');
+                setActiveNavTab('ai');
+              }}
+              targetCity={itineraryData?.targetCity || '서울'}
+            />
 
-            {/* 🖥️ PC/웹 전용: 네이버 지도 스타일 3단 탄력 대시보드 [슬림바 + 리얼 지도 + AI 일정] */}
-            <div className="hide-mobile">
-              <WebMapDashboard
-                lang={lang}
-                onGenerateItinerary={handleGenerateItinerary}
-                itineraryData={itineraryData}
-                isLoading={isLoading}
-                chatMessages={chatMessages}
-                onSendMessage={(msg) => handleSendMessage(msg)}
-                onOpenWeather={(city) => {
-                  setWeatherCity(city || itineraryData?.targetCity || '서울');
-                  setIsWeatherOpen(true);
-                }}
-                onOpenEssentials={() => setIsEssentialsOpen(true)}
-                onOpenWishlist={() => setIsWishlistOpen(true)}
-                wishlistCount={bookmarks.length}
-                savedTripsCount={savedTrips.length}
-                onNavigateTab={(tab) => setActiveNavTab(tab)}
-                onSelectSpot={(spot) => setSelectedSpot(spot)}
-                onToggleBookmark={(spot) => handleToggleBookmark(spot)}
-                bookmarks={bookmarks}
-              />
-            </div>
+            {/* 🗺️ 하단 (PC/웹 전용): 네이버 지도 스타일 2-Column 인터랙티브 탐색관 [리얼 지도 + AI 코스 프리뷰] */}
+            <DesktopMapExplorer
+              lang={lang}
+              onSelectCityPlan={(cityName, days) => {
+                setPlannerInitialMode('chat');
+                setActiveNavTab('ai');
+                handleGenerateItinerary(`${cityName} ${days}일 여행 코스`, false, true);
+              }}
+            />
           </div>
         )}
 

@@ -1,31 +1,155 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, Compass, MapPin, ChevronRight, RefreshCw, ZoomIn, ZoomOut, Navigation, Clock, Maximize2, Minimize2, Edit3, ArrowLeft } from 'lucide-react';
+import { 
+  Sparkles, 
+  Compass, 
+  MapPin, 
+  ChevronRight, 
+  ChevronLeft,
+  RefreshCw, 
+  ZoomIn, 
+  ZoomOut, 
+  Navigation, 
+  Clock, 
+  Calendar,
+  Layers,
+  Heart,
+  Star,
+  ExternalLink
+} from 'lucide-react';
+import { getLocalizedCityName } from '../i18n/translations';
 
-// 🗺️ 전국 대표 권역 빠른 좌표 오프라인 Fallback 맵
+// 🗺️ 전국 대표 권역 빠른 좌표 오프라인 Fallback 맵 & 대표 4K 사진
 const REGIONAL_FALLBACK_CENTERS = [
-  { nameKo: '서울 경복궁', nameEn: 'Seoul Gyeongbokgung', lat: 37.5796, lng: 126.9770 },
-  { nameKo: '서울', nameEn: 'Seoul', lat: 37.5665, lng: 126.9780 },
-  { nameKo: '수원', nameEn: 'Suwon', lat: 37.2636, lng: 127.0286 },
-  { nameKo: '인천', nameEn: 'Incheon', lat: 37.4563, lng: 126.7052 },
-  { nameKo: '강릉', nameEn: 'Gangneung', lat: 37.7519, lng: 128.8761 },
-  { nameKo: '속초', nameEn: 'Sokcho', lat: 38.2070, lng: 128.5918 },
-  { nameKo: '춘천', nameEn: 'Chuncheon', lat: 37.8813, lng: 127.7298 },
-  { nameKo: '안동', nameEn: 'Andong', lat: 36.5683, lng: 128.7294 },
-  { nameKo: '경주', nameEn: 'Gyeongju', lat: 35.8562, lng: 129.2247 },
-  { nameKo: '포항', nameEn: 'Pohang', lat: 36.0190, lng: 129.3435 },
-  { nameKo: '대구', nameEn: 'Daegu', lat: 35.8714, lng: 128.6014 },
-  { nameKo: '부산', nameEn: 'Busan', lat: 35.1796, lng: 129.0756 },
-  { nameKo: '통영', nameEn: 'Tongyeong', lat: 34.8544, lng: 128.4332 },
-  { nameKo: '거제', nameEn: 'Geoje', lat: 34.8806, lng: 128.6211 },
-  { nameKo: '남해', nameEn: 'Namhae', lat: 34.8377, lng: 127.8924 },
-  { nameKo: '여수', nameEn: 'Yeosu', lat: 34.7604, lng: 127.6622 },
-  { nameKo: '순천', nameEn: 'Suncheon', lat: 34.9506, lng: 127.4872 },
-  { nameKo: '전주', nameEn: 'Jeonju', lat: 35.8242, lng: 127.1480 },
-  { nameKo: '군산', nameEn: 'Gunsan', lat: 35.9676, lng: 126.7366 },
-  { nameKo: '대전', nameEn: 'Daejeon', lat: 36.3504, lng: 127.3845 },
-  { nameKo: '단양', nameEn: 'Danyang', lat: 36.9845, lng: 128.3655 },
-  { nameKo: '제주', nameEn: 'Jeju', lat: 33.4996, lng: 126.5312 },
-  { nameKo: '서귀포', nameEn: 'Seogwipo', lat: 33.2541, lng: 126.5601 }
+  { 
+    nameKo: '서울 경복궁', 
+    nameEn: 'Seoul Gyeongbokgung', 
+    lat: 37.5796, 
+    lng: 126.9770,
+    image: '/images/themes/theme-gyeongbokgung.jpg',
+    highlightsKo: ['경복궁 & 근정전', '북촌 한옥마을', '익선동 감성거리'],
+    highlightsEn: ['Gyeongbokgung Palace', 'Bukchon Hanok Village', 'Ikseon-dong Cafe Alley'],
+    descKo: '600년 조선 왕조의 숨결과 현대적인 K-컬처가 공존하는 한국 여행 1번지'
+  },
+  { 
+    nameKo: '서울', 
+    nameEn: 'Seoul', 
+    lat: 37.5665, 
+    lng: 126.9780,
+    image: '/images/themes/hero-hangang.jpg',
+    highlightsKo: ['성수동 팝업거리', '한강 달빛피크닉', 'N서울타워 야경'],
+    highlightsEn: ['Seongsu Pop-up Street', 'Hangang River Picnic', 'N Seoul Tower Sunset'],
+    descKo: '트렌디한 K-패션 쇼핑부터 한강의 황금빛 노을까지 완벽한 하루'
+  },
+  { 
+    nameKo: '수원', 
+    nameEn: 'Suwon', 
+    lat: 37.2636, 
+    lng: 127.0286,
+    image: '/images/themes/theme-suwon.jpg',
+    highlightsKo: ['수원화성 성곽길', '행궁동 감성카페', '통닭거리 미식'],
+    highlightsEn: ['Suwon Hwaseong Fortress', 'Haenggung-dong Cafes', 'Fried Chicken Street'],
+    descKo: '유네스코 세계문화유산 수원화성과 감성 가득한 행리단길 투어'
+  },
+  { 
+    nameKo: '인천', 
+    nameEn: 'Incheon', 
+    lat: 37.4563, 
+    lng: 126.7052,
+    image: '/images/themes/theme-gyeongbokgung.jpg',
+    highlightsKo: ['송도 센트럴파크', '차이나타운', '월미도 바다열차'],
+    highlightsEn: ['Songdo Central Park', 'Chinatown', 'Wolmido Ocean Train'],
+    descKo: '미래형 국제도시 송도와 근대 역사가 살아 숨 쉬는 해양 도시'
+  },
+  { 
+    nameKo: '강릉', 
+    nameEn: 'Gangneung', 
+    lat: 37.7519, 
+    lng: 128.8761,
+    image: '/images/themes/theme-gangneung.jpg',
+    highlightsKo: ['안목 커피거리', '경포대 에메랄드 해변', 'BTS 버스정류장'],
+    highlightsEn: ['Anmok Coffee Street', 'Gyeongpo Beach', 'BTS Bus Stop'],
+    descKo: '푸른 동해 바다와 짙은 커피 향이 어우러진 낭만적인 힐링 여행지'
+  },
+  { 
+    nameKo: '속초', 
+    nameEn: 'Sokcho', 
+    lat: 38.2070, 
+    lng: 128.5918,
+    image: '/images/themes/theme-gangneung.jpg',
+    highlightsKo: ['설악산 권금성', '속초관광수산시장', '아바이마을'],
+    highlightsEn: ['Seoraksan Cable Car', 'Sokcho Tourist Market', 'Abai Village'],
+    descKo: '웅장한 설악산의 절경과 신선한 동해 해산물 미식 탐방'
+  },
+  { 
+    nameKo: '안동', 
+    nameEn: 'Andong', 
+    lat: 36.5683, 
+    lng: 128.7294,
+    image: '/images/themes/theme-gyeongbokgung.jpg',
+    highlightsKo: ['안동 하회마을', '병산서원 만대루', '월영교 야경'],
+    highlightsEn: ['Andong Hahoe Village', 'Byeongsan Seowon', 'Woryeonggyo Bridge'],
+    descKo: '한국의 전통 유교 문화와 고즈넉한 고택의 정취를 느끼는 헤리티지 여행'
+  },
+  { 
+    nameKo: '경주', 
+    nameEn: 'Gyeongju', 
+    lat: 35.8562, 
+    lng: 129.2247,
+    image: '/images/themes/theme-gyeongju.jpg',
+    highlightsKo: ['불국사 & 석굴암', '동궁과 월지 야경', '황리단길 핫플'],
+    highlightsEn: ['Bulguksa Temple', 'Donggung & Wolji Pond', 'Hwangridan-gil Street'],
+    descKo: '천년 신라의 찬란한 유적과 트렌디한 황리단길이 만나는 지붕 없는 박물관'
+  },
+  { 
+    nameKo: '대구', 
+    nameEn: 'Daegu', 
+    lat: 35.8714, 
+    lng: 128.6014,
+    image: '/images/themes/theme-gyeongbokgung.jpg',
+    highlightsKo: ['김광석 다시그리기길', '서문시장 야시장', '앞산전망대'],
+    highlightsEn: ['Kim Gwangseok Street', 'Seomun Night Market', 'Apsan Observatory'],
+    descKo: '음악과 미식, 야경이 살아있는 활기찬 영남의 중심 도시'
+  },
+  { 
+    nameKo: '부산', 
+    nameEn: 'Busan', 
+    lat: 35.1796, 
+    lng: 129.0756,
+    image: '/images/themes/theme-busan.jpg',
+    highlightsKo: ['해운대 블루라인파크', '광안대교 드론쇼', '감천문화마을'],
+    highlightsEn: ['Haeundae Blueline Park', 'Gwangandaegyo Bridge', 'Gamcheon Village'],
+    descKo: '끝없는 푸른 바다와 다채로운 해양 액티비티, 신선한 미식의 해양 수도'
+  },
+  { 
+    nameKo: '여수', 
+    nameEn: 'Yeosu', 
+    lat: 34.7604, 
+    lng: 127.6622,
+    image: '/images/themes/theme-busan.jpg',
+    highlightsKo: ['여수 해상케이블카', '오동도 동백숲', '낭만포차 밤바다'],
+    highlightsEn: ['Yeosu Cable Car', 'Odongdo Island', 'Romantic Night Pocha'],
+    descKo: '아름다운 남해 밤바다의 낭만과 신선한 해물 삼합의 미식 여행'
+  },
+  { 
+    nameKo: '전주', 
+    nameEn: 'Jeonju', 
+    lat: 35.8242, 
+    lng: 127.1480,
+    image: '/images/themes/theme-jeonju.jpg',
+    highlightsKo: ['전주한옥마을', '경기전 한복체험', '전주비빔밥 & 막걸리골목'],
+    highlightsEn: ['Jeonju Hanok Village', 'Gyeonggijeon Hanbok', 'Jeonju Bibimbap'],
+    descKo: '700여 채 한옥의 고풍스러운 골목길과 유네스코 음식창의도시의 맛'
+  },
+  { 
+    nameKo: '제주', 
+    nameEn: 'Jeju', 
+    lat: 33.4996, 
+    lng: 126.5312,
+    image: '/images/themes/theme-jeju.jpg',
+    highlightsKo: ['성산일출봉', '협재 & 애월 해안도로', '우도 산호해변'],
+    highlightsEn: ['Seongsan Sunrise Peak', 'Hyeopjae Beach', 'Udo Coral Beach'],
+    descKo: '에메랄드빛 청정 바다와 유네스코 세계자연유산이 빚어낸 힐링 아일랜드'
+  }
 ];
 
 function getDistanceKm(lat1, lng1, lat2, lng2) {
@@ -41,34 +165,26 @@ function getDistanceKm(lat1, lng1, lat2, lng2) {
 
 export default function DesktopMapExplorer({ 
   lang = 'ko', 
-  onSelectCityPlan,
-  activeItineraryData = null,
-  isCollapsedToSidebar = false,
-  onToggleExpand
+  onSelectCityPlan
 }) {
-  const [selectedLocation, setSelectedLocation] = useState({
-    nameKo: '서울 경복궁',
-    nameEn: 'Seoul Gyeongbokgung',
-    fullAddress: '서울특별시 종로구 경복궁',
-    lat: 37.5796,
-    lng: 126.9770
-  });
+  const [selectedLocation, setSelectedLocation] = useState(REGIONAL_FALLBACK_CENTERS[0]);
   const [selectedDays, setSelectedDays] = useState(3);
   const [isLeafletReady, setIsLeafletReady] = useState(Boolean(typeof window !== 'undefined' && window.L));
   const [isGeocoding, setIsGeocoding] = useState(false);
+  const [isMapExpandedFull, setIsMapExpandedFull] = useState(false);
 
   const mapContainerRef = useRef(null);
   const leafletMapRef = useRef(null);
   const markerRef = useRef(null);
 
-  // 1. Ensure Leaflet readiness
+  // 1. Leaflet Ready Check
   useEffect(() => {
     if (typeof window !== 'undefined' && window.L) {
       setIsLeafletReady(true);
     }
   }, []);
 
-  // 2. Initialize Leaflet Map Instance with Strict Invalidation
+  // 2. Initialize Leaflet Map Instance
   useEffect(() => {
     if (!isLeafletReady || !window.L || !mapContainerRef.current) return;
 
@@ -78,7 +194,7 @@ export default function DesktopMapExplorer({
         zoom: 7.0,
         zoomControl: false,
         attributionControl: false,
-        scrollWheelZoom: false
+        scrollWheelZoom: true
       });
 
       // 🗺️ 100% Free Official OpenStreetMap Standard Tiles
@@ -95,7 +211,7 @@ export default function DesktopMapExplorer({
         handleMapLocationSelected(lat, lng);
       });
 
-      // Add Default Gyeongbokgung Pin
+      // Add Default Pin
       const initPinHtml = createMarkerPinHtml(selectedLocation.nameKo, selectedLocation.nameEn, lang);
       const customIcon = window.L.divIcon({
         html: initPinHtml,
@@ -105,36 +221,29 @@ export default function DesktopMapExplorer({
 
       markerRef.current = window.L.marker([selectedLocation.lat, selectedLocation.lng], { icon: customIcon }).addTo(map);
 
-      // 🛡️ Zero-Gray Invalidation Sequence
       map.whenReady(() => {
         map.invalidateSize();
       });
 
-      const timer1 = setTimeout(() => { if (leafletMapRef.current) leafletMapRef.current.invalidateSize(); }, 80);
-      const timer2 = setTimeout(() => { if (leafletMapRef.current) leafletMapRef.current.invalidateSize(); }, 250);
-      const timer3 = setTimeout(() => { if (leafletMapRef.current) leafletMapRef.current.invalidateSize(); }, 600);
+      const timer1 = setTimeout(() => { if (leafletMapRef.current) leafletMapRef.current.invalidateSize(); }, 100);
+      const timer2 = setTimeout(() => { if (leafletMapRef.current) leafletMapRef.current.invalidateSize(); }, 300);
 
       return () => {
         clearTimeout(timer1);
         clearTimeout(timer2);
-        clearTimeout(timer3);
       };
     }
   }, [isLeafletReady]);
 
-  // 3. ResizeObserver for 100% full height coverage whenever size or sidebar changes
+  // Handle Resize on Expand/Collapse
   useEffect(() => {
-    if (!mapContainerRef.current) return;
-
-    const resizeObserver = new ResizeObserver(() => {
-      if (leafletMapRef.current) {
+    if (leafletMapRef.current) {
+      const timer = setTimeout(() => {
         leafletMapRef.current.invalidateSize();
-      }
-    });
-
-    resizeObserver.observe(mapContainerRef.current);
-    return () => resizeObserver.disconnect();
-  }, [isCollapsedToSidebar]);
+      }, 250);
+      return () => clearTimeout(timer);
+    }
+  }, [isMapExpandedFull]);
 
   const createMarkerPinHtml = (nameKo, nameEn, currentLang) => {
     const label = currentLang === 'en' ? nameEn : nameKo;
@@ -145,9 +254,9 @@ export default function DesktopMapExplorer({
         gap: 6px;
         background: linear-gradient(135deg, #2563eb, #7c3aed);
         color: #ffffff;
-        padding: 5px 12px;
+        padding: 6px 14px;
         border-radius: 9999px;
-        font-size: 12px;
+        font-size: 13px;
         font-weight: 800;
         white-space: nowrap;
         box-shadow: 0 8px 20px rgba(37,99,235,0.4), 0 0 0 3px rgba(255,255,255,0.95);
@@ -200,11 +309,10 @@ export default function DesktopMapExplorer({
           }
         }
       }
-    } catch {
-      // Fallback
-    }
+    } catch {}
 
     const newLoc = {
+      ...closestCity,
       nameKo: detectedCityNameKo,
       nameEn: detectedCityNameEn,
       fullAddress: detectedFullAddr,
@@ -242,13 +350,13 @@ export default function DesktopMapExplorer({
     <div className="desktop-map-explorer-container hide-mobile" style={{
       width: '100%',
       maxWidth: '1260px',
-      margin: '0.1rem auto 1.4rem',
+      margin: '0 auto 2.5rem',
       backgroundColor: '#ffffff',
-      borderRadius: '22px',
+      borderRadius: '24px',
       border: '1px solid #e2e8f0',
-      boxShadow: '0 16px 36px -10px rgba(15, 23, 42, 0.08)',
+      boxShadow: '0 20px 45px -12px rgba(15, 23, 42, 0.08)',
       overflow: 'hidden',
-      padding: '0.85rem 1.1rem',
+      padding: '1.2rem',
       boxSizing: 'border-box'
     }}>
       {/* 🌟 Header Title Bar */}
@@ -256,262 +364,381 @@ export default function DesktopMapExplorer({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: '0.5rem',
-        paddingBottom: '0.45rem',
+        marginBottom: '0.85rem',
+        paddingBottom: '0.65rem',
         borderBottom: '1px solid #f1f5f9'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
           <div style={{
-            width: '26px',
-            height: '26px',
-            borderRadius: '8px',
+            width: '32px',
+            height: '32px',
+            borderRadius: '10px',
             backgroundColor: 'rgba(37, 99, 235, 0.1)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             color: '#2563eb'
           }}>
-            <Compass size={15} />
+            <Compass size={18} />
           </div>
           <div>
             <h2 style={{
-              fontSize: '0.98rem',
+              fontSize: '1.1rem',
               fontWeight: 900,
               color: '#0f172a',
               margin: 0,
               letterSpacing: '-0.02em'
             }}>
               {lang === 'en' 
-                ? 'Click Anywhere on Korea Map to Plan Your AI Trip!' 
+                ? 'Click Anywhere on Korea Map to Explore & Plan AI Itinerary' 
                 : '지명을 몰라도 괜찮아요! 지도에서 가고 싶은 곳 어디든 콕 찍어보세요'}
             </h2>
+            <p style={{
+              margin: '2px 0 0',
+              fontSize: '0.78rem',
+              color: '#64748b',
+              fontWeight: 600
+            }}>
+              {lang === 'en'
+                ? 'Select any region to preview curated attractions and generate instant customized courses'
+                : '지도 위 어디든 클릭하면 해당 지역의 대표 매력과 AI 맞춤 일정을 즉시 추천해 드립니다'}
+            </p>
           </div>
         </div>
 
         {/* Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
           <button
             onClick={() => leafletMapRef.current && leafletMapRef.current.zoomIn()}
             style={{
-              width: '24px',
-              height: '24px',
+              width: '28px',
+              height: '28px',
               backgroundColor: '#ffffff',
               border: '1px solid #cbd5e1',
-              borderRadius: '5px',
+              borderRadius: '7px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.04)'
             }}
             title="확대"
           >
-            <ZoomIn size={12} color="#0f172a" />
+            <ZoomIn size={14} color="#0f172a" />
           </button>
           <button
             onClick={() => leafletMapRef.current && leafletMapRef.current.zoomOut()}
             style={{
-              width: '24px',
-              height: '24px',
+              width: '28px',
+              height: '28px',
               backgroundColor: '#ffffff',
               border: '1px solid #cbd5e1',
-              borderRadius: '5px',
+              borderRadius: '7px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.04)'
             }}
             title="축소"
           >
-            <ZoomOut size={12} color="#0f172a" />
+            <ZoomOut size={14} color="#0f172a" />
           </button>
           <button
             onClick={handleResetMap}
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '0.2rem',
+              gap: '0.3rem',
               backgroundColor: '#f8fafc',
               border: '1px solid #cbd5e1',
-              borderRadius: '5px',
-              padding: '0.18rem 0.45rem',
-              fontSize: '0.68rem',
-              fontWeight: 700,
+              borderRadius: '7px',
+              padding: '0.28rem 0.6rem',
+              fontSize: '0.74rem',
+              fontWeight: 800,
               color: '#475569',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.04)'
             }}
             title="전국 전도 리셋"
           >
-            <RefreshCw size={10} />
+            <RefreshCw size={12} />
             <span>전국 보기</span>
           </button>
         </div>
       </div>
 
-      {/* 🗺️ Real Leaflet Wide Map Canvas with Strict Inlined Full Height */}
+      {/* =========================================================================
+          🗺️ 네이버 지도 스타일 2-Column 인터랙티브 영역 [좌: 리얼 지도 + 우: AI 프리뷰 카드]
+          ========================================================================= */}
       <div style={{
-        position: 'relative',
-        width: '100%',
-        height: '380px',
-        minHeight: '380px',
-        maxHeight: '380px',
-        backgroundColor: '#e2e8f0',
-        borderRadius: '16px',
-        overflow: 'hidden',
-        border: '1px solid #cbd5e1',
-        boxSizing: 'border-box'
+        display: 'flex',
+        gap: '1.2rem',
+        height: '420px',
+        position: 'relative'
       }}>
-        {/* Leaflet Mount Node - Strict 100% Height */}
-        <div 
-          ref={mapContainerRef} 
-          style={{ 
-            width: '100%', 
-            height: '380px', 
-            minHeight: '380px',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0
-          }} 
-        />
-
-        {/* 🌟 [선배님 직관 디자인] 지도 하단 플로팅 선택 바 */}
+        {/* [좌측] 리얼 OpenStreetMap 지도 영역 (50% ↔ 100% 가변) */}
         <div style={{
-          position: 'absolute',
-          bottom: '10px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: 'calc(100% - 24px)',
-          maxWidth: '920px',
-          backgroundColor: 'rgba(255, 255, 255, 0.96)',
-          backdropFilter: 'blur(16px)',
-          borderRadius: '14px',
-          border: '1.5px solid rgba(37, 99, 235, 0.3)',
-          boxShadow: '0 10px 28px rgba(15, 23, 42, 0.2)',
-          padding: '0.5rem 0.85rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          zIndex: 500,
-          gap: '0.8rem',
-          boxSizing: 'border-box'
+          flex: isMapExpandedFull ? '1 1 100%' : '1 1 52%',
+          height: '100%',
+          backgroundColor: '#e2e8f0',
+          borderRadius: '18px',
+          overflow: 'hidden',
+          position: 'relative',
+          border: '1px solid #cbd5e1',
+          transition: 'flex 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
         }}>
-          {/* Left: Selected Region Info */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', minWidth: 0 }}>
-            <div style={{
-              width: '30px',
-              height: '30px',
-              borderRadius: '50%',
-              backgroundColor: '#2563eb',
-              color: '#ffffff',
+          {/* Leaflet Mount Node */}
+          <div 
+            ref={mapContainerRef} 
+            style={{ 
+              width: '100%', 
+              height: '100%', 
+              position: 'absolute',
+              top: 0,
+              left: 0
+            }} 
+          />
+
+          {/* Map Top Guide Chip */}
+          <div style={{
+            position: 'absolute',
+            top: '12px',
+            left: '12px',
+            backgroundColor: 'rgba(255, 255, 255, 0.94)',
+            backdropFilter: 'blur(8px)',
+            padding: '5px 12px',
+            borderRadius: '9999px',
+            fontSize: '11px',
+            fontWeight: 800,
+            color: '#2563eb',
+            zIndex: 400,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '5px'
+          }}>
+            <Navigation size={12} />
+            <span>{lang === 'en' ? 'Click anywhere on map' : '지도 위 가고 싶은 곳 어디든 클릭해보세요!'}</span>
+          </div>
+
+          {/* ◀ / ▶ 네이버 지도 스타일 패널 접기/펼치기 플로팅 토글 버튼 */}
+          <button
+            onClick={() => setIsMapExpandedFull(!isMapExpandedFull)}
+            title={isMapExpandedFull ? '우측 프리뷰 카드 보기' : '지도를 넓게 전체화면으로 보기'}
+            style={{
+              position: 'absolute',
+              top: '50%',
+              right: 0,
+              transform: 'translateY(-50%)',
+              zIndex: 450,
+              width: '24px',
+              height: '52px',
+              backgroundColor: '#ffffff',
+              border: '1px solid #cbd5e1',
+              borderRight: 'none',
+              borderRadius: '8px 0 0 8px',
+              boxShadow: '-3px 0 10px rgba(0,0,0,0.1)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              flexShrink: 0,
-              boxShadow: '0 4px 10px rgba(37, 99, 235, 0.35)'
+              cursor: 'pointer',
+              color: '#475569'
+            }}
+          >
+            {isMapExpandedFull ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
+          </button>
+        </div>
+
+        {/* [우측] VORA AI 선택 지역 4K 포토 & 3대 핵심 매력 & AI 코스 생성 프리뷰 카드 (48% ↔ 0%) */}
+        <div style={{
+          flex: isMapExpandedFull ? '0 0 0px' : '1 1 48%',
+          width: isMapExpandedFull ? 0 : 'auto',
+          height: '100%',
+          backgroundColor: '#ffffff',
+          borderRadius: '18px',
+          border: isMapExpandedFull ? 'none' : '1px solid #e2e8f0',
+          boxShadow: '0 8px 24px rgba(15, 23, 42, 0.05)',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          opacity: isMapExpandedFull ? 0 : 1,
+          visibility: isMapExpandedFull ? 'hidden' : 'visible'
+        }}>
+          {/* Top 4K Photo Banner with Gradient Overlay */}
+          <div style={{
+            position: 'relative',
+            height: '160px',
+            width: '100%',
+            overflow: 'hidden',
+            backgroundColor: '#0f172a'
+          }}>
+            <img 
+              src={selectedLocation.image || '/images/themes/theme-gyeongbokgung.jpg'} 
+              alt={selectedLocation.nameKo}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                transition: 'transform 0.4s ease'
+              }}
+            />
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(15, 23, 42, 0.85) 100%)'
+            }} />
+
+            {/* Photo Overlay Title */}
+            <div style={{
+              position: 'absolute',
+              bottom: '12px',
+              left: '16px',
+              right: '16px',
+              color: '#ffffff'
             }}>
-              <MapPin size={15} />
-            </div>
-            <div style={{ minWidth: 0 }}>
-              <div style={{ fontSize: '0.66rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>
-                {lang === 'en' ? 'Selected Location' : '지도에서 선택한 지역'}
+              <div style={{
+                fontSize: '11px',
+                fontWeight: 800,
+                color: '#38bdf8',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                marginBottom: '2px'
+              }}>
+                📍 {lang === 'en' ? 'Selected Destination' : '선택된 여행지'}
               </div>
               <div style={{
-                fontSize: '0.94rem',
+                fontSize: '1.25rem',
                 fontWeight: 900,
-                color: '#0f172a',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis'
+                color: '#ffffff',
+                textShadow: '0 2px 8px rgba(0,0,0,0.6)'
               }}>
-                {selectedLocation.fullAddress || selectedLocation.nameKo}
-                <span style={{ fontSize: '0.75rem', color: '#2563eb', marginLeft: '0.3rem', fontWeight: 800 }}>
+                {selectedLocation.nameKo}
+                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#e2e8f0', marginLeft: '6px' }}>
                   ({selectedLocation.nameEn})
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Center: Trip Days Pill Picker */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexShrink: 0 }}>
-            <span style={{ fontSize: '0.70rem', fontWeight: 800, color: '#64748b' }}>
-              {lang === 'en' ? 'Duration:' : '여행 기간:'}
-            </span>
-            <div style={{ display: 'flex', gap: '0.2rem' }}>
-              {[1, 2, 3, 4, 5].map((d) => (
-                <button
-                  key={d}
-                  onClick={() => setSelectedDays(d)}
-                  style={{
-                    border: selectedDays === d ? '1.5px solid #2563eb' : '1px solid #cbd5e1',
-                    backgroundColor: selectedDays === d ? '#2563eb' : '#ffffff',
-                    color: selectedDays === d ? '#ffffff' : '#475569',
-                    borderRadius: '5px',
-                    padding: '0.15rem 0.42rem',
-                    fontSize: '0.70rem',
-                    fontWeight: 800,
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease'
-                  }}
-                >
-                  {lang === 'en' ? `${d}D` : `${d}일`}
-                </button>
-              ))}
-            </div>
-          </div>
+          {/* Middle Body: Description & 3 Core Highlights */}
+          <div style={{
+            padding: '14px 16px',
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            backgroundColor: '#faf5ff08'
+          }}>
+            <div>
+              <p style={{
+                fontSize: '0.82rem',
+                color: '#475569',
+                lineHeight: '1.45',
+                margin: '0 0 10px',
+                fontWeight: 600
+              }}>
+                {selectedLocation.descKo || '아름다운 자연과 다채로운 K-컬처를 체험할 수 있는 대한민국 대표 여행지입니다.'}
+              </p>
 
-          {/* Right: Direct Plan CTA Button */}
-          <button
-            onClick={handleStartPlan}
-            style={{
-              background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '9999px',
-              padding: '0.5rem 0.95rem',
-              fontSize: '0.82rem',
-              fontWeight: 800,
-              cursor: 'pointer',
+              {/* 3 Core Highlights Chips */}
+              <div style={{ marginBottom: '8px' }}>
+                <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#7c3aed', marginBottom: '6px' }}>
+                  ✨ {lang === 'en' ? 'Top 3 Signature Highlights' : 'VORA 추천 3대 핵심 매력'}
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                  {(selectedLocation.highlightsKo || ['대표 랜드마크', '로컬 미식 탐방', '야경 명소']).map((hl, hIdx) => (
+                    <span 
+                      key={hIdx}
+                      style={{
+                        fontSize: '0.74rem',
+                        fontWeight: 800,
+                        backgroundColor: '#f3e8ff',
+                        color: '#7c3aed',
+                        padding: '3px 8px',
+                        borderRadius: '6px',
+                        border: '1px solid #e9d5ff'
+                      }}
+                    >
+                      #{hl}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Action Area: Days Selector & Start Button */}
+            <div style={{
+              borderTop: '1px solid #f1f5f9',
+              paddingTop: '10px',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.3rem',
-              boxShadow: '0 6px 16px rgba(37, 99, 235, 0.3)',
-              transition: 'all 0.2s ease',
-              flexShrink: 0
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-1px)'}
-            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-          >
-            <Sparkles size={13} />
-            <span>
-              {lang === 'en' 
-                ? `Create ${selectedLocation.nameEn} Plan 🚀` 
-                : `✨ ${selectedLocation.nameKo} AI 코스 플랜 만들기 🚀`}
-            </span>
-            <ChevronRight size={13} />
-          </button>
-        </div>
+              justifyContent: 'space-between',
+              gap: '10px'
+            }}>
+              {/* Days Selector */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#64748b' }}>
+                  {lang === 'en' ? 'Days:' : '일수:'}
+                </span>
+                <div style={{ display: 'flex', gap: '3px' }}>
+                  {[1, 2, 3, 4, 5].map((d) => (
+                    <button
+                      key={d}
+                      onClick={() => setSelectedDays(d)}
+                      style={{
+                        border: selectedDays === d ? '1.5px solid #2563eb' : '1px solid #cbd5e1',
+                        backgroundColor: selectedDays === d ? '#2563eb' : '#ffffff',
+                        color: selectedDays === d ? '#ffffff' : '#475569',
+                        borderRadius: '6px',
+                        padding: '3px 7px',
+                        fontSize: '0.74rem',
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease'
+                      }}
+                    >
+                      {d}{lang === 'en' ? 'D' : '일'}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-        {/* Map Watermark Helper */}
-        <div style={{
-          position: 'absolute',
-          top: '10px',
-          left: '10px',
-          backgroundColor: 'rgba(255, 255, 255, 0.92)',
-          backdropFilter: 'blur(8px)',
-          padding: '3px 8px',
-          borderRadius: '6px',
-          fontSize: '10px',
-          fontWeight: 800,
-          color: '#2563eb',
-          zIndex: 400,
-          boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '4px'
-        }}>
-          <Navigation size={11} />
-          <span>{lang === 'en' ? 'Click anywhere on Korea map' : '지도 위 가고 싶은 곳 어디든 클릭해보세요!'}</span>
+              {/* Start Button */}
+              <button
+                onClick={handleStartPlan}
+                style={{
+                  background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '9999px',
+                  padding: '8px 16px',
+                  fontSize: '0.84rem',
+                  fontWeight: 900,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  boxShadow: '0 6px 16px rgba(37, 99, 235, 0.3)',
+                  transition: 'transform 0.15s ease'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-1px)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+              >
+                <Sparkles size={14} />
+                <span>
+                  {lang === 'en' 
+                    ? `Create ${selectedLocation.nameEn} Plan 🚀` 
+                    : `✨ ${selectedLocation.nameKo} ${selectedDays}일 코스 만들기 🚀`}
+                </span>
+                <ChevronRight size={14} />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

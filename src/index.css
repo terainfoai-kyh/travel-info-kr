@@ -1527,19 +1527,6 @@ button, a, input, select, textarea {
   .hide-desktop {
     display: none !important;
   }
-  
-  /* Desktop Dashboard Full-Height Zero-Scroll Layout */
-  .app-main-container {
-    padding-bottom: 0 !important;
-    max-width: 100vw !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-    overflow: hidden !important;
-  }
-
-  .web-map-dashboard-container {
-    height: calc(100vh - 64px) !important;
-  }
 }
 
 /* Leaflet Desktop Map Tile Full-Coverage Enforcement */
