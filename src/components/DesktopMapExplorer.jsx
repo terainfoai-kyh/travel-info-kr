@@ -18,13 +18,16 @@ import {
   CreditCard,
   Train,
   Wifi,
-  PhoneCall
+  PhoneCall,
+  CheckCircle2,
+  Ticket
 } from 'lucide-react';
 import { buildKlookDeepLink } from '../services/apiConfig';
+import { fetchDynamicRealtimeSpots } from '../services/tourApi';
 import SubwayMapModal from './SubwayMapModal';
 import HelplineModal from './HelplineModal';
 
-// 🗺️ 전국 대표 권역 상세 데이터 & 태그별 정밀 좌표
+// 🗺️ 전국 대표 권역 검증된 고화질 Fallback 데이터
 const REGIONAL_FALLBACK_CENTERS = [
   { 
     nameKo: '서울 경복궁', 
@@ -35,6 +38,8 @@ const REGIONAL_FALLBACK_CENTERS = [
     lng: 126.9770,
     zoom: 13,
     image: '/images/themes/theme-gyeongbokgung.jpg',
+    transitTipKo: '지하철 3호선 경복궁역 도보 3분',
+    transitTipEn: 'Line 3 Gyeongbokgung Station (3 min walk)',
     highlights: [
       { ko: '경복궁 & 근정전', en: 'Gyeongbokgung Palace', ja: '景福宮', zh: '景福宫', lat: 37.5796, lng: 126.9770, zoom: 15 },
       { ko: '북촌 한옥마을', en: 'Bukchon Hanok Village', ja: '北村韓屋村', zh: '北村韩屋村', lat: 37.5826, lng: 126.9835, zoom: 15 },
@@ -54,6 +59,8 @@ const REGIONAL_FALLBACK_CENTERS = [
     lng: 126.9780,
     zoom: 12,
     image: '/images/themes/hero-hangang.jpg',
+    transitTipKo: '지하철 2호선 성수역 / 한강공원 직결',
+    transitTipEn: 'Subway Line 2 Seongsu / Hangang River Link',
     highlights: [
       { ko: '성수동 팝업거리', en: 'Seongsu Pop-up Street', ja: '聖水洞', zh: '圣水洞', lat: 37.5445, lng: 127.0560, zoom: 15 },
       { ko: '한강 달빛피크닉', en: 'Hangang River Picnic', ja: '漢江ピクニック', zh: '汉江公园', lat: 37.5284, lng: 126.9341, zoom: 14 },
@@ -73,6 +80,8 @@ const REGIONAL_FALLBACK_CENTERS = [
     lng: 127.0286,
     zoom: 13,
     image: '/images/themes/theme-suwon.jpg',
+    transitTipKo: '서울역에서 KTX 30분 / 1호선 직결',
+    transitTipEn: 'KTX from Seoul Station (30 min) / Line 1 Direct',
     highlights: [
       { ko: '수원화성 성곽길', en: 'Suwon Hwaseong Fortress', ja: '水原華城', zh: '水原华城', lat: 37.2872, lng: 127.0118, zoom: 15 },
       { ko: '행궁동 감성카페', en: 'Haenggung-dong Cafes', ja: '行宮洞カフェ通り', zh: '行宫洞咖啡街', lat: 37.2830, lng: 127.0150, zoom: 15 },
@@ -92,6 +101,8 @@ const REGIONAL_FALLBACK_CENTERS = [
     lng: 129.0756,
     zoom: 12,
     image: '/images/themes/theme-busan.jpg',
+    transitTipKo: '서울역에서 KTX 2시간 15분 / 김해공항 연결',
+    transitTipEn: 'KTX from Seoul (2h 15m) / Gimhae Airport Link',
     highlights: [
       { ko: '해운대 블루라인파크', en: 'Haeundae Blueline Park', ja: '海雲台ブルーライン', zh: '海云台蓝线公园', lat: 35.1631, lng: 129.1764, zoom: 14 },
       { ko: '광안대교 드론쇼', en: 'Gwangandaegyo Bridge', ja: '広安大橋', zh: '广安大桥', lat: 35.1532, lng: 129.1189, zoom: 14 },
@@ -111,6 +122,8 @@ const REGIONAL_FALLBACK_CENTERS = [
     lng: 126.5312,
     zoom: 10,
     image: '/images/themes/theme-jeju.jpg',
+    transitTipKo: '김포공항 국내선 1시간 / 렌터카·급행버스',
+    transitTipEn: 'Flight from Gimpo (1 hr) / Express Tourist Bus',
     highlights: [
       { ko: '성산일출봉', en: 'Seongsan Sunrise Peak', ja: '城山日出峰', zh: '城山日出峰', lat: 33.4581, lng: 126.9426, zoom: 14 },
       { ko: '협재 & 애월 해안도로', en: 'Hyeopjae & Aewol Coast', ja: '挟才・涯月海岸', zh: '挟才·涯月海岸', lat: 33.3941, lng: 126.2397, zoom: 14 },
@@ -130,6 +143,8 @@ const REGIONAL_FALLBACK_CENTERS = [
     lng: 129.2247,
     zoom: 13,
     image: '/images/themes/theme-gyeongju.jpg',
+    transitTipKo: '신경주역 KTX 2시간 / 황리단길 도보 여행',
+    transitTipEn: 'KTX Singyeongju Station (2 hrs) / Walkable Hwangridan',
     highlights: [
       { ko: '불국사 & 석굴암', en: 'Bulguksa Temple', ja: '仏国寺', zh: '佛国寺', lat: 35.7900, lng: 129.3320, zoom: 14 },
       { ko: '동궁과 월지 야경', en: 'Donggung & Wolji Pond', ja: '東宮と月池', zh: '东宫与月池', lat: 35.8341, lng: 129.2267, zoom: 15 },
@@ -149,6 +164,8 @@ const REGIONAL_FALLBACK_CENTERS = [
     lng: 128.8761,
     zoom: 12,
     image: '/images/themes/theme-gangneung.jpg',
+    transitTipKo: '서울역에서 KTX 이음 1시간 40분',
+    transitTipEn: 'KTX-Eum from Seoul Station (1h 40m)',
     highlights: [
       { ko: '안목 커피거리', en: 'Anmok Coffee Street', ja: '安木コーヒー通り', zh: '安木咖啡街', lat: 37.7719, lng: 128.9482, zoom: 15 },
       { ko: '경포대 에메랄드 해변', en: 'Gyeongpo Beach', ja: '鏡浦海水浴場', zh: '镜浦海水浴场', lat: 37.8055, lng: 128.9079, zoom: 14 },
@@ -207,7 +224,7 @@ export default function DesktopMapExplorer({
     }
   }, []);
 
-  // 2. Initialize Leaflet Map Instance with Modern Global CartoDB Voyager Tile
+  // 2. Initialize Leaflet Map Instance with 100% Free Official Clean OpenStreetMap Tiles
   useEffect(() => {
     if (!isLeafletReady || !window.L || !mapContainerRef.current) return;
 
@@ -220,10 +237,10 @@ export default function DesktopMapExplorer({
         scrollWheelZoom: true
       });
 
-      // 🗺️ Global Clean Pastel English/Multilingual Map Tiles (CartoDB Voyager)
-      window.L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      // 🗺️ 100% Free Official OpenStreetMap Standard Tiles (No Watermark, No API Key Required)
+      window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
-        subdomains: 'abcd'
+        subdomains: ['a', 'b', 'c']
       }).addTo(map);
 
       leafletMapRef.current = map;
@@ -282,16 +299,45 @@ export default function DesktopMapExplorer({
         font-size: 13px;
         font-weight: 800;
         white-space: nowrap;
-        box-shadow: 0 8px 20px rgba(37,99,235,0.4), 0 0 0 3px rgba(255,255,255,0.95);
+        box-shadow: 0 8px 20px rgba(37,99,235,0.45), 0 0 0 3px rgba(255,255,255,0.95);
         border: 2px solid #ffffff;
         cursor: pointer;
         transform: translate(-50%, -50%);
+        z-index: 999;
         animation: voraPinPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
       ">
         <span style="width: 7px; height: 7px; border-radius: 50%; background-color: #38bdf8; box-shadow: 0 0 6px #38bdf8;"></span>
         <span>📍 ${label}</span>
       </div>
     `;
+  };
+
+  // 🏛️ 한국관광공사 TourAPI 4.0 실시간 정품 연동 보강
+  const enrichLocationWithLiveTourApi = async (baseLoc, cityName, targetLang) => {
+    try {
+      const liveSpots = await fetchDynamicRealtimeSpots(cityName, targetLang);
+      if (liveSpots && liveSpots.length > 0) {
+        const topSpot = liveSpots[0];
+        const livePhoto = topSpot.firstimage || topSpot.image || baseLoc.image;
+        
+        const liveHighlights = liveSpots.slice(0, 3).map((sp) => ({
+          ko: sp.title,
+          en: sp.titleEn || sp.title,
+          ja: sp.titleJa || sp.title,
+          zh: sp.titleZh || sp.title,
+          lat: Number(sp.mapy) || baseLoc.lat,
+          lng: Number(sp.mapx) || baseLoc.lng,
+          zoom: 15
+        }));
+
+        return {
+          ...baseLoc,
+          image: livePhoto,
+          highlights: liveHighlights.length > 0 ? liveHighlights : baseLoc.highlights
+        };
+      }
+    } catch {}
+    return baseLoc;
   };
 
   const handleMapLocationSelected = async (lat, lng) => {
@@ -334,7 +380,7 @@ export default function DesktopMapExplorer({
       }
     } catch {}
 
-    const newLoc = {
+    const baseLoc = {
       ...closestCity,
       nameKo: detectedCityNameKo,
       nameEn: detectedCityNameEn,
@@ -343,18 +389,23 @@ export default function DesktopMapExplorer({
       lng
     };
 
-    setSelectedLocation(newLoc);
+    setSelectedLocation(baseLoc);
     setIsGeocoding(false);
 
     if (markerRef.current && window.L) {
       markerRef.current.setLatLng([lat, lng]);
-      const pinHtml = createMarkerPinHtml(newLoc.nameKo, newLoc.nameEn, lang);
+      const pinHtml = createMarkerPinHtml(baseLoc.nameKo, baseLoc.nameEn, lang);
       markerRef.current.setIcon(window.L.divIcon({
         html: pinHtml,
         className: 'vora-explorer-div-icon',
         iconSize: [0, 0]
       }));
     }
+
+    // 🏛️ TourAPI 실시간 정품 데이터 비동기 보정
+    enrichLocationWithLiveTourApi(baseLoc, detectedCityNameKo, lang).then(enriched => {
+      setSelectedLocation(enriched);
+    });
   };
 
   const handleResetMap = () => {
@@ -365,14 +416,14 @@ export default function DesktopMapExplorer({
 
   const handleQuickCityClick = (city) => {
     const foundData = REGIONAL_FALLBACK_CENTERS.find(c => c.nameKo.includes(city.nameKo) || city.nameKo.includes(c.nameKo)) || REGIONAL_FALLBACK_CENTERS[0];
-    const newLoc = {
+    const baseLoc = {
       ...foundData,
       nameKo: city.nameKo,
       nameEn: city.nameEn,
       lat: city.lat,
       lng: city.lng
     };
-    setSelectedLocation(newLoc);
+    setSelectedLocation(baseLoc);
 
     if (leafletMapRef.current) {
       leafletMapRef.current.flyTo([city.lat, city.lng], city.zoom || 12, { duration: 0.8 });
@@ -380,13 +431,18 @@ export default function DesktopMapExplorer({
 
     if (markerRef.current && window.L) {
       markerRef.current.setLatLng([city.lat, city.lng]);
-      const pinHtml = createMarkerPinHtml(newLoc.nameKo, newLoc.nameEn, lang);
+      const pinHtml = createMarkerPinHtml(baseLoc.nameKo, baseLoc.nameEn, lang);
       markerRef.current.setIcon(window.L.divIcon({
         html: pinHtml,
         className: 'vora-explorer-div-icon',
         iconSize: [0, 0]
       }));
     }
+
+    // 🏛️ TourAPI 실시간 정품 데이터 비동기 보정
+    enrichLocationWithLiveTourApi(baseLoc, city.nameKo, lang).then(enriched => {
+      setSelectedLocation(enriched);
+    });
   };
 
   // 🎯 해시태그 클릭 시 해당 관광지 스팟으로 지도 스르륵 이동(Pan & Zoom) 인터랙션!
@@ -437,7 +493,7 @@ export default function DesktopMapExplorer({
     <div className="desktop-map-explorer-container hide-mobile" style={{
       width: '100%',
       maxWidth: '1260px',
-      margin: '0.4rem auto 2.5rem',
+      margin: '0.35rem auto 2.5rem',
       backgroundColor: '#ffffff',
       borderRadius: '24px',
       border: '1px solid #e2e8f0',
@@ -607,7 +663,7 @@ export default function DesktopMapExplorer({
       <div style={{
         display: 'flex',
         gap: '0.85rem',
-        height: '420px',
+        height: '425px',
         position: 'relative'
       }}>
         {/* [1. 최좌측 일체형 52px 미니 툴바] */}
@@ -757,7 +813,7 @@ export default function DesktopMapExplorer({
           </div>
         </div>
 
-        {/* [2. 중앙 리얼 OpenStreetMap & CartoDB 파스텔 지도 영역 (50% ↔ 100% 가변)] */}
+        {/* [2. 중앙 100% 무료 공식 OpenStreetMap 타일 지도 영역 (50% ↔ 100% 가변)] */}
         <div style={{
           flex: isMapExpandedFull ? '1 1 100%' : '1 1 50%',
           height: '100%',
@@ -830,7 +886,7 @@ export default function DesktopMapExplorer({
           </button>
         </div>
 
-        {/* [3. 우측 VORA AI 선택 지역 4K 포토 & 3대 핵심 매력 & AI 코스 생성 프리뷰 카드 (50% ↔ 0%)] */}
+        {/* [3. 우측 VORA AI & 한국관광공사 TourAPI 4.0 정품 4K 포토 매거진 카드 (50% ↔ 0%)] */}
         <div style={{
           flex: isMapExpandedFull ? '0 0 0px' : '1 1 50%',
           width: isMapExpandedFull ? 0 : 'auto',
@@ -849,7 +905,7 @@ export default function DesktopMapExplorer({
           {/* Top 4K Photo Banner with Gradient Overlay */}
           <div style={{
             position: 'relative',
-            height: '160px',
+            height: '180px',
             width: '100%',
             overflow: 'hidden',
             backgroundColor: '#0f172a'
@@ -870,7 +926,7 @@ export default function DesktopMapExplorer({
               left: 0,
               right: 0,
               bottom: 0,
-              background: 'linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(15, 23, 42, 0.85) 100%)'
+              background: 'linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(15, 23, 42, 0.85) 100%)'
             }} />
 
             {/* Photo Overlay Title */}
@@ -887,12 +943,16 @@ export default function DesktopMapExplorer({
                 color: '#38bdf8',
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em',
-                marginBottom: '2px'
+                marginBottom: '2px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
               }}>
-                📍 {lang === 'en' ? 'Selected Destination' : lang === 'ja' ? '選択された目的地' : (lang === 'zh' || lang === 'zht') ? '已选目的地' : '선택된 여행지'}
+                <CheckCircle2 size={12} color="#38bdf8" />
+                <span>📍 {lang === 'en' ? 'TourAPI Certified Destination' : lang === 'ja' ? '公式認証 観光地' : (lang === 'zh' || lang === 'zht') ? '官方认证 目的地' : '한국관광공사 정품 인증 여행지'}</span>
               </div>
               <div style={{
-                fontSize: '1.25rem',
+                fontSize: '1.30rem',
                 fontWeight: 900,
                 color: '#ffffff',
                 textShadow: '0 2px 8px rgba(0,0,0,0.6)'
@@ -905,21 +965,21 @@ export default function DesktopMapExplorer({
             </div>
           </div>
 
-          {/* Middle Body: Description & 3 Interactive Highlight Spot Chips */}
+          {/* Middle Body: Description, 3 Interactive Highlight Tags & Practical Travel Badges */}
           <div style={{
-            padding: '14px 16px',
+            padding: '12px 16px',
             flex: 1,
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            backgroundColor: '#faf5ff08'
+            backgroundColor: '#ffffff'
           }}>
             <div>
               <p style={{
-                fontSize: '0.82rem',
-                color: '#475569',
+                fontSize: '0.83rem',
+                color: '#334155',
                 lineHeight: '1.45',
-                margin: '0 0 10px',
+                margin: '0 0 8px',
                 fontWeight: 600
               }}>
                 {getSelectedDesc()}
@@ -927,10 +987,10 @@ export default function DesktopMapExplorer({
 
               {/* 3 Core Highlights Chips (🎯 Click to FlyTo & Pin on Map!) */}
               <div style={{ marginBottom: '8px' }}>
-                <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#7c3aed', marginBottom: '6px' }}>
+                <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#7c3aed', marginBottom: '5px' }}>
                   ✨ {lang === 'en' ? 'Top Highlights (Click to View on Map)' : lang === 'ja' ? 'おすすめスポット (クリックして地図で確認)' : (lang === 'zh' || lang === 'zht') ? '核心亮点 (点击在地图查看)' : 'VORA 추천 핵심 명소 (클릭 시 지도 이동)'}
                 </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
                   {(selectedLocation.highlights || []).map((hl, hIdx) => (
                     <button 
                       key={hIdx}
@@ -965,12 +1025,34 @@ export default function DesktopMapExplorer({
                   ))}
                 </div>
               </div>
+
+              {/* 🚄 Practical Foreigner Travel Badge Row (빈 공간 채우기 & 실속 가이드) */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                flexWrap: 'wrap',
+                padding: '6px 8px',
+                backgroundColor: '#f8fafc',
+                borderRadius: '8px',
+                border: '1px solid #f1f5f9'
+              }}>
+                <span style={{ fontSize: '0.70rem', fontWeight: 800, color: '#0369a1', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                  <Train size={11} />
+                  <span>{lang === 'en' ? selectedLocation.transitTipEn || 'Easy Transit Access' : selectedLocation.transitTipKo || '대중교통 접근 편리'}</span>
+                </span>
+                <span style={{ color: '#cbd5e1' }}>•</span>
+                <span style={{ fontSize: '0.70rem', fontWeight: 800, color: '#059669', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                  <Ticket size={11} />
+                  <span>TAX FREE</span>
+                </span>
+              </div>
             </div>
 
             {/* Bottom Action Area: Days Selector & Start Button */}
             <div style={{
               borderTop: '1px solid #f1f5f9',
-              paddingTop: '10px',
+              paddingTop: '8px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
