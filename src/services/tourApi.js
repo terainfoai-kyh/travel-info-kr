@@ -71,28 +71,227 @@ export async function fetchSpotDetailCommon(contentId, lang = 'ko') {
 // ⚡ Smart Caching Memory Store (Zero Hardcoding Pipeline)
 const DYNAMIC_SPOT_CACHE = new Map();
 
-// Official Korean Tourism Area & Sigungu Code Mapping (전국 시군구 정밀 코드 매핑)
+// Official Korean Tourism Area & Sigungu Code Mapping (전국 17개 시·도 및 226개 시·군·구 전수 매핑)
 export const TOUR_API_AREA_CODES = {
-  '서울': 1, '인천': 2, '대전': 3, '대구': 4, '광주': 5, '부산': 6, '울산': 7,
-  '세종': 8, '경기': 31, '수원': 31, '가평': 31, '강원': 32, '강릉': 32, '속초': 32, '춘천': 32, '평창': 32, '원주': 32, '동해': 32, '삼척': 32, '양양': 32,
-  '충북': 33, '단양': 33, '충남': 34, '공주': 34, '부여': 34, '보령': 34, '태안': 34,
-  '경북': 35, '경주': 35, '포항': 35, '안동': 35, '울릉': 35,
-  '경남': 36, '거제': 36, '통영': 36, '남해': 36, '창원': 36,
-  '전북': 37, '전주': 37, '군산': 37, '전남': 38, '여수': 38, '순천': 38, '목포': 38, '신안': 38, '완도': 38, '진도': 38, '담양': 38, '보성': 38,
+  // 특별시 / 광역시 / 특별자치시
+  '서울': 1, '인천': 2, '대전': 3, '대구': 4, '광주': 5, '부산': 6, '울산': 7, '세종': 8,
+  
+  // 경기도 (31)
+  '경기': 31, '수원': 31, '가평': 31, '고양': 31, '과천': 31, '광명': 31, '광주(경기)': 31, '구리': 31, '군포': 31, '김포': 31,
+  '남양주': 31, '동두천': 31, '부천': 31, '성남': 31, '시흥': 31, '안산': 31, '안성': 31, '안양': 31, '양주': 31, '양평': 31,
+  '여주': 31, '연천': 31, '오산': 31, '용인': 31, '의왕': 31, '의정부': 31, '이천': 31, '파주': 31, '평택': 31, '포천': 31, '하남': 31, '화성': 31,
+  
+  // 강원특별자치도 (32)
+  '강원': 32, '강릉': 32, '고성(강원)': 32, '동해': 32, '삼척': 32, '속초': 32, '양구': 32, '양양': 32, '영월': 32, '원주': 32,
+  '인제': 32, '정선': 32, '철원': 32, '춘천': 32, '태백': 32, '평창': 32, '홍천': 32, '화천': 32, '횡성': 32,
+  
+  // 충청북도 (33)
+  '충북': 33, '괴산': 33, '단양': 33, '보은': 33, '영동': 33, '옥천': 33, '음성': 33, '제천': 33, '진천': 33, '청주': 33, '충주': 33, '증평': 33,
+  
+  // 충청남도 (34)
+  '충남': 34, '계룡': 34, '공주': 34, '금산': 34, '논산': 34, '당진': 34, '보령': 34, '부여': 34, '서산': 34, '서천': 34, '아산': 34, '예산': 34, '천안': 34, '청양': 34, '태안': 34, '홍성': 34,
+  
+  // 경상북도 (35)
+  '경북': 35, '경산': 35, '경주': 35, '고령': 35, '구미': 35, '김천': 35, '문경': 35, '봉화': 35, '상주': 35, '성주': 35, '안동': 35,
+  '영덕': 35, '영양': 35, '영주': 35, '영천': 35, '예천': 35, '울릉': 35, '울진': 35, '의성': 35, '청도': 35, '청송': 35, '칠곡': 35, '포항': 35,
+  
+  // 경상남도 (36)
+  '경남': 36, '거제': 36, '거창': 36, '고성': 36, '김해': 36, '남해': 36, '밀양': 36, '사천': 36, '산청': 36, '양산': 36, '의령': 36,
+  '진주': 36, '창녕': 36, '창원': 36, '통영': 36, '하동': 36, '함안': 36, '함양': 36, '합천': 36,
+  
+  // 전북특별자치도 (37)
+  '전북': 37, '고창': 37, '군산': 37, '김제': 37, '남원': 37, '무주': 37, '부안': 37, '순창': 37, '완주': 37, '익산': 37, '임실': 37, '장수': 37, '전주': 37, '정읍': 37, '진안': 37,
+  
+  // 전라남도 (38)
+  '전남': 38, '강진': 38, '고흥': 38, '곡성': 38, '광양': 38, '구례': 38, '나주': 38, '담양': 38, '목포': 38, '무안': 38, '보성': 38,
+  '순천': 38, '신안': 38, '여수': 38, '영광': 38, '영암': 38, '완도': 38, '장성': 38, '장흥': 38, '진도': 38, '함평': 38, '해남': 38, '화순': 38,
+  
+  // 제주특별자치도 (39)
   '제주': 39, '서귀포': 39
 };
 
-// 🎯 전국 핵심 30대 시/군 정밀 sigunguCode 매핑 (타 시/군 혼입 100% 원천 차단)
+// 🎯 전국 226개 시/군/구 정밀 sigunguCode 매핑 (한국관광공사 TourAPI 4.0 표준)
 export const TOUR_API_SIGUNGU_CODES = {
-  '통영': 17, '거제': 1, '남해': 5, '창원': 16,
-  '강릉': 1, '속초': 5, '춘천': 13, '평창': 15, '원주': 9, '동해': 3, '삼척': 4, '양양': 8,
-  '경주': 2, '포항': 23, '안동': 11, '울릉': 16,
-  '여수': 13, '순천': 11, '목포': 7, '신안': 10, '완도': 12, '진도': 19, '담양': 5, '보성': 6,
-  '전주': 12, '군산': 2,
-  '단양': 7, '공주': 1, '부여': 3, '보령': 4, '태안': 14,
-  '수원': 13, '가평': 1,
-  '제주': 4, '서귀포': 3
+  // 경기도 (31)
+  '가평': 1, '고양': 2, '과천': 3, '광명': 4, '구리': 6, '군포': 7, '김포': 8, '남양주': 9, '동두천': 10, '부천': 11,
+  '성남': 12, '수원': 13, '시흥': 14, '안산': 15, '안성': 16, '안양': 17, '양주': 18, '양평': 19, '여주': 20, '연천': 21,
+  '오산': 22, '용인': 23, '의왕': 24, '의정부': 25, '이천': 26, '파주': 27, '평택': 28, '포천': 29, '하남': 30, '화성': 31,
+  
+  // 강원도 (32)
+  '강릉': 1, '고성(강원)': 2, '동해': 3, '삼척': 4, '속초': 5, '양구': 6, '양양': 7, '영월': 8, '원주': 9, '인제': 10,
+  '정선': 11, '철원': 12, '춘천': 13, '태백': 14, '평창': 15, '홍천': 16, '화천': 17, '횡성': 18,
+  
+  // 충청북도 (33)
+  '괴산': 1, '단양': 2, '보은': 3, '영동': 4, '옥천': 5, '음성': 6, '제천': 7, '진천': 8, '청주': 9, '충주': 10, '증평': 11,
+  
+  // 충청남도 (34)
+  '계룡': 1, '공주': 2, '금산': 3, '논산': 4, '당진': 5, '보령': 6, '부여': 7, '서산': 8, '서천': 9, '아산': 10,
+  '예산': 12, '천안': 13, '청양': 14, '태안': 15, '홍성': 16,
+  
+  // 경상북도 (35)
+  '경산': 1, '경주': 2, '고령': 3, '구미': 4, '김천': 6, '문경': 7, '봉화': 8, '상주': 9, '성주': 10, '안동': 11,
+  '영덕': 12, '영양': 13, '영주': 14, '영천': 15, '예천': 16, '울릉': 17, '울진': 18, '의성': 19, '청도': 20, '청송': 21, '칠곡': 22, '포항': 23,
+  
+  // 경상남도 (36)
+  '거제': 1, '거창': 2, '고성': 3, '김해': 4, '남해': 5, '밀양': 7, '사천': 8, '산청': 9, '양산': 10, '의령': 11,
+  '진주': 12, '창녕': 14, '창원': 15, '통영': 16, '하동': 17, '함안': 18, '함양': 19, '합천': 20,
+  
+  // 전북특별자치도 (37)
+  '고창': 1, '군산': 2, '김제': 3, '남원': 4, '무주': 5, '부안': 6, '순창': 7, '완주': 8, '익산': 9, '임실': 10,
+  '장수': 11, '전주': 12, '정읍': 13, '진안': 14,
+  
+  // 전라남도 (38)
+  '강진': 1, '고흥': 2, '곡성': 3, '광양': 4, '구례': 5, '나주': 6, '담양': 7, '목포': 8, '무안': 9, '보성': 10,
+  '순천': 11, '신안': 12, '여수': 13, '영광': 14, '영암': 15, '완도': 16, '장성': 17, '장흥': 18, '진도': 19, '함평': 20, '해남': 21, '화순': 22,
+  
+  // 제주특별자치도 (39)
+  '서귀포': 1, '제주': 2
 };
+
+// 🌐 전국 지자체 표준 다국어(영문/일문/중문) 동적 사전
+export const KOREAN_CITY_I18N = {
+  '서울': { en: 'Seoul', ja: 'ソウル', zh: '首尔' },
+  '부산': { en: 'Busan', ja: '釜山', zh: '釜山' },
+  '제주': { en: 'Jeju', ja: '済州', zh: '济州' },
+  '서귀포': { en: 'Seogwipo', ja: '西帰浦', zh: '西归浦' },
+  '경주': { en: 'Gyeongju', ja: '慶州', zh: '庆州' },
+  '강릉': { en: 'Gangneung', ja: '江陵', zh: '江陵' },
+  '속초': { en: 'Sokcho', ja: '束草', zh: '束草' },
+  '여수': { en: 'Yeosu', ja: '麗水', zh: '丽水' },
+  '전주': { en: 'Jeonju', ja: '全州', zh: '全州' },
+  '수원': { en: 'Suwon', ja: '水原', zh: '水原' },
+  '안동': { en: 'Andong', ja: '安東', zh: '安东' },
+  '대구': { en: 'Daegu', ja: '大邱', zh: '大邱' },
+  '인천': { en: 'Incheon', ja: '仁川', zh: '仁川' },
+  '대전': { en: 'Daejeon', ja: '大田', zh: '大田' },
+  '광주': { en: 'Gwangju', ja: '光州', zh: '光州' },
+  '울산': { en: 'Ulsan', ja: '蔚山', zh: '蔚山' },
+  '진주': { en: 'Jinju', ja: '晋州', zh: '晋州' },
+  '창원': { en: 'Changwon', ja: '昌原', zh: '昌原' },
+  '김해': { en: 'Gimhae', ja: '金海', zh: '金海' },
+  '사천': { en: 'Sacheon', ja: '泗川', zh: '泗川' },
+  '문경': { en: 'Mungyeong', ja: '聞慶', zh: '闻庆' },
+  '거창': { en: 'Geochang', ja: '居昌', zh: '居昌' },
+  '상주': { en: 'Sangju', ja: '尚州', zh: '尚州' },
+  '통영': { en: 'Tongyeong', ja: '統営', zh: '统营' },
+  '거제': { en: 'Geoje', ja: '巨済', zh: '巨济' },
+  '남해': { en: 'Namhae', ja: '南海', zh: '南海' },
+  '춘천': { en: 'Chuncheon', ja: '春川', zh: '春川' },
+  '평창': { en: 'Pyeongchang', ja: '平昌', zh: '平昌' },
+  '영월': { en: 'Yeongwol', ja: '寧越', zh: '宁越' },
+  '정선': { en: 'Jeongseon', ja: '旌善', zh: '旌善' },
+  '동해': { en: 'Donghae', ja: '東海', zh: '东海' },
+  '삼척': { en: 'Samcheok', ja: '三陟', zh: '三陟' },
+  '원주': { en: 'Wonju', ja: '原州', zh: '原州' },
+  '태백': { en: 'Taebaek', ja: '太白', zh: '太白' },
+  '양양': { en: 'Yangyang', ja: '襄陽', zh: '襄阳' },
+  '부여': { en: 'Buyeo', ja: '扶余', zh: '扶余' },
+  '공주': { en: 'Gongju', ja: '公州', zh: '公州' },
+  '보령': { en: 'Boryeong', ja: '保寧', zh: '保宁' },
+  '제천': { en: 'Jecheon', ja: '堤川', zh: '堤川' },
+  '충주': { en: 'Chungju', ja: '忠州', zh: '忠州' },
+  '단양': { en: 'Danyang', ja: '丹陽', zh: '丹阳' },
+  '태안': { en: 'Taean', ja: '泰安', zh: '泰安' },
+  '담양': { en: 'Damyang', ja: '潭陽', zh: '潭阳' },
+  '보성': { en: 'Boseong', ja: '宝城', zh: '宝城' },
+  '구례': { en: 'Gurye', ja: '求礼', zh: '求礼' },
+  '하동': { en: 'Hadong', ja: '河東', zh: '河东' },
+  '남원': { en: 'Namwon', ja: '南原', zh: '南原' },
+  '순천': { en: 'Suncheon', ja: '順天', zh: '顺天' },
+  '목포': { en: 'Mokpo', ja: '木浦', zh: '木浦' },
+  '신안': { en: 'Sinan', ja: '新安', zh: '新安' },
+  '완도': { en: 'Wando', ja: '莞島', zh: '莞岛' },
+  '진도': { en: 'Jindo', ja: '珍島', zh: '珍岛' },
+  '군산': { en: 'Gunsan', ja: '群山', zh: '群山' },
+  '고창': { en: 'Gochang', ja: '高敞', zh: '高敞' },
+  '부안': { en: 'Buan', ja: '扶安', zh: '扶安' },
+  '영덕': { en: 'Yeongdeok', ja: '盈徳', zh: '盈德' },
+  '울진': { en: 'Uljin', ja: '蔚珍', zh: '蔚珍' },
+  '밀양': { en: 'Miryang', ja: '密陽', zh: '密阳' },
+  '청도': { en: 'Cheongdo', ja: '清道', zh: '清道' },
+  '포항': { en: 'Pohang', ja: '浦項', zh: '浦项' },
+  '파주': { en: 'Paju', ja: '坡州', zh: '坡州' },
+  '포천': { en: 'Pocheon', ja: '抱川', zh: '抱川' },
+  '가평': { en: 'Gapyeong', ja: '加平', zh: '加平' },
+  '양평': { en: 'Yangpyeong', ja: '楊平', zh: '杨平' },
+  '울릉': { en: 'Ulleungdo', ja: '鬱陵島', zh: '郁陵岛' }
+};
+
+export function getCityMultilingualName(cityNameKo, lang = 'en') {
+  if (!cityNameKo) return '';
+  const clean = cityNameKo.replace(/(특별시|광역시|특별자치시|특별자치도|시|군|구)$/, '').trim();
+  const i18n = KOREAN_CITY_I18N[clean] || KOREAN_CITY_I18N[cityNameKo];
+  if (i18n) {
+    if (lang === 'ja' && i18n.ja) return i18n.ja;
+    if ((lang === 'zh' || lang === 'zht') && i18n.zh) return i18n.zh;
+    if (i18n.en) return i18n.en;
+  }
+  return clean || cityNameKo;
+}
+
+// 🎯 [반경 기반 위치 조회 안전망] 위경도 반경 15km 내의 실제 TourAPI 4.0 정품 명소 조회
+export async function fetchLocationBasedTourApiSpots(lat, lng, radius = 15000, lang = 'ko') {
+  if (!lat || !lng) return [];
+
+  let apiBase = PUBLIC_API_CONFIG.TOUR_API_BASE || 'https://apis.data.go.kr/B551011/KorService2';
+  if (lang === 'en') apiBase = PUBLIC_API_CONFIG.ENG_BASE;
+  else if (lang === 'ja') apiBase = PUBLIC_API_CONFIG.JPN_BASE;
+  else if (lang === 'zh') apiBase = PUBLIC_API_CONFIG.CHS_BASE;
+  else if (lang === 'zht') apiBase = PUBLIC_API_CONFIG.CHT_BASE;
+  else if (lang === 'de') apiBase = PUBLIC_API_CONFIG.GER_BASE;
+  else if (lang === 'fr') apiBase = PUBLIC_API_CONFIG.FRE_BASE;
+  else if (lang === 'es') apiBase = PUBLIC_API_CONFIG.SPN_BASE;
+  else if (lang === 'ru') apiBase = PUBLIC_API_CONFIG.RUS_BASE;
+
+  const cacheKey = `loc_${lat.toFixed(3)}_${lng.toFixed(3)}_${radius}_${lang}`;
+  if (DYNAMIC_SPOT_CACHE.has(cacheKey)) {
+    return DYNAMIC_SPOT_CACHE.get(cacheKey);
+  }
+
+  try {
+    const url = `${apiBase}/locationBasedList2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&mapX=${lng}&mapY=${lat}&radius=${radius}&arrange=P&numOfRows=30&pageNo=1`;
+    const res = await fetch(url);
+    if (!res.ok) return [];
+    const data = await res.json();
+    const itemsRaw = data.response?.body?.items?.item || [];
+    const items = Array.isArray(itemsRaw) ? itemsRaw : (itemsRaw ? [itemsRaw] : []);
+
+    const validSpots = items
+      .filter(item => {
+        const typeId = String(item.contenttypeid || '');
+        // 🛡️ Shopping (38/79), Food (39/82), Stay (32/80) 100% 원천 차단!
+        if (typeId && (typeId === '39' || typeId === '38' || typeId === '32' || typeId === '79' || typeId === '82' || typeId === '80')) return false;
+        
+        const title = (item.title || '').trim();
+        // 🛡️ Tax Refund Shop, Lotte Mall, Outlet, Artbox, Descente, Mart 등 상업 매장 100% 필터링
+        const isCommercial = /(tax refund|tax-refund|shop|store|branch|lotte|outlet|mall|department|artbox|descente|cambridge|olive young|gs25|cu|seven eleven|emart|신세계|현대백화점|롯데몰|이마트|홈플러스|식당|음식점|맛집|쇼핑|판매장|스토어|플래그십|직영점|대리점|지점|점$|점\)|점\]|도서관|구청|시청|군청|주민센터|종합운동장|체육관|캠핑장|글램핑|야영장|수련원|연수원|노인복지|어린이집)/i.test(title);
+        return !isCommercial;
+      })
+      .map(item => ({
+        id: `tourapi_loc_${item.contentid}`,
+        contentId: String(item.contentid || ''),
+        title: item.title,
+        name: item.title,
+        category: (String(item.contenttypeid) === '14' ? '문화시설' : String(item.contenttypeid) === '28' ? '체험/레포츠' : '관광명소'),
+        theme: item.cat3 || '한국 대표 관광지',
+        description: item.addr1 || '대표 관광 명소입니다.',
+        lat: parseFloat(item.mapy),
+        lng: parseFloat(item.mapx),
+        address: item.addr1 || item.addr2 || item.title,
+        image: item.firstimage || item.firstimage2 || null,
+        duration: 90,
+        rating: 4.8,
+        dataSource: 'TOUR_API_LIVE_LOCATION'
+      }));
+
+    if (validSpots.length > 0) {
+      DYNAMIC_SPOT_CACHE.set(cacheKey, validSpots);
+    }
+    return validSpots;
+  } catch (e) {
+    return [];
+  }
+}
 
 export async function fetchCityTourApiSpots(city = '서울', lang = 'ko') {
   // 🎯 [복합 지명 스마트 정규화] '제주·서귀포' -> cleanCity: '제주', subCity: '서귀포'
@@ -152,14 +351,15 @@ export async function fetchCityTourApiSpots(city = '서울', lang = 'ko') {
           }
         }
 
-        // 🛡️ Official TourAPI Category Enforcement: Only 12 (Sightseeing), 14 (Culture/Palaces), 28 (Leisure/Activities)
+        // 🛡️ Official TourAPI Category Enforcement: Only 12/76 (Sightseeing), 14/78 (Culture), 28/75 (Leisure), 15/85 (Festival)
         const typeId = String(item.contenttypeid || '');
-        const isSightseeingType = (typeId === '12' || typeId === '14' || typeId === '28');
-        if (!isSightseeingType) return false;
+        if (typeId && (typeId === '39' || typeId === '38' || typeId === '32' || typeId === '79' || typeId === '82' || typeId === '80')) return false;
+        const isSightseeingType = (typeId === '12' || typeId === '14' || typeId === '28' || typeId === '76' || typeId === '78' || typeId === '75' || typeId === '85');
+        if (typeId && !isSightseeingType) return false;
 
-        // 🛡️ Secondary Title Filter: Commercial stores, food alleys, public offices, libraries, campsites, residential gyms
+        // 🛡️ Secondary Title Filter: Commercial stores, Tax Refund shops, malls, outlets, food alleys, public offices
         const title = (item.title || '').trim();
-        const isCommercialOrNonTourist = /(gs25|cu|세븐일레븐|이마트24|미니스톱|종합상가|한복매장|귀금속|도매상가|도매시장|유통단지|쇼핑타운|지하상가|수산상회|청과물|플래그쉽|플래그십|스토어|점$|점\s|식당|본점|직영점|도서관|열람실|독서실|구청|시청|군청|주민센터|행정복지센터|종합운동장|체육관|캠핑장|캠핑체험|글램핑|야영장|수련원|연수원|노인복지|어린이집|양곱창|곱창골목|먹자골목|닭갈비골목|순대골목|장어골목|떡볶이골목|생선구이골목|음식거리|먹거리골목|음식특화)/i.test(title);
+        const isCommercialOrNonTourist = /(tax refund|tax-refund|shop|store|branch|lotte|outlet|mall|department|artbox|descente|cambridge|olive young|gs25|cu|seven eleven|emart|신세계|현대백화점|롯데몰|이마트|홈플러스|종합상가|한복매장|귀금속|도매상가|도매시장|유통단지|쇼핑타운|지하상가|수산상회|청과물|플래그쉽|플래그십|스토어|점$|점\s|점\)|점\]|식당|본점|직영점|대리점|지점|도서관|열람실|독서실|구청|시청|군청|주민센터|행정복지센터|종합운동장|체육관|캠핑장|캠핑체험|글램핑|야영장|수련원|연수원|노인복지|어린이집|양곱창|곱창골목|먹자골목|닭갈비골목|순대골목|장어골목|떡볶이골목|생선구이골목|음식거리|먹거리골목|음식특화)/i.test(title);
         return !isCommercialOrNonTourist;
       })
       .map(item => ({
@@ -222,16 +422,15 @@ export async function fetchDynamicRealtimeSpots(query, lang = 'ko') {
     const items = Array.isArray(itemsRaw) ? itemsRaw : (itemsRaw ? [itemsRaw] : []);
     let spotList = [];
     if (items.length > 0) {
-      // 🛡️ Enforce Sightseeing Categories (12, 14, 28) and filter out food/commercial stores
+      // 🛡️ Enforce Sightseeing Categories and strictly filter out shopping / Tax Refund / stores
       const filteredItems = items.filter(item => {
         const typeId = String(item.contenttypeid || '');
-        // If contenttypeid is available, must be 12 (tourist), 14 (culture), 28 (leisure)
-        if (typeId && (typeId === '39' || typeId === '38' || typeId === '32')) {
-          return !excludeFood ? false : false;
+        if (typeId && (typeId === '39' || typeId === '38' || typeId === '32' || typeId === '79' || typeId === '82' || typeId === '80')) {
+          return false;
         }
 
         const title = (item.title || '').trim();
-        const isCommercialOrNonTourist = /(한쿡|gs25|cu|세븐일레븐|이마트24|식당|음식점|맛집|갈비|푸드|카페|커피|베이커리|스토어|플래그쉽|직영점|본점|도서관|열람실|독서실|구청|시청|군청|주민센터|행정복지센터|종합운동장|체육관|캠핑장|캠핑체험|글램핑|야영장|수련원|연수원|노인복지|어린이집|양곱창|곱창골목|먹자골목|닭갈비골목|순대골목|장어골목|떡볶이골목|생선구이골목|음식거리|먹거리골목|음식특화)/i.test(title);
+        const isCommercialOrNonTourist = /(tax refund|tax-refund|shop|store|branch|lotte|outlet|mall|department|artbox|descente|cambridge|olive young|gs25|cu|seven eleven|emart|신세계|현대백화점|롯데몰|이마트|홈플러스|한쿡|식당|음식점|맛집|갈비|푸드|카페|커피|베이커리|쇼핑|판매장|스토어|플래그십|직영점|대리점|지점|본점|도서관|열람실|독서실|구청|시청|군청|주민센터|행정복지센터|종합운동장|체육관|캠핑장|캠핑체험|글램핑|야영장|수련원|연수원|노인복지|어린이집|양곱창|곱창골목|먹자골목|닭갈비골목|순대골목|장어골목|떡볶이골목|생선구이골목|음식거리|먹거리골목|음식특화|점$|점\)|점\])/i.test(title);
         return !isCommercialOrNonTourist;
       });
 

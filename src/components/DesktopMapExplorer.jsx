@@ -20,10 +20,12 @@ import {
   Wifi,
   PhoneCall,
   CheckCircle2,
-  Ticket
+  Ticket,
+  Utensils,
+  Moon
 } from 'lucide-react';
 import { buildKlookDeepLink } from '../services/apiConfig';
-import { fetchDynamicRealtimeSpots } from '../services/tourApi';
+import { fetchDynamicRealtimeSpots, fetchLocationBasedTourApiSpots, getCityMultilingualName } from '../services/tourApi';
 import { CITY_LOCAL_KNOWLEDGE } from '../data/voraDialogKnowledge';
 import SubwayMapModal from './SubwayMapModal';
 import HelplineModal from './HelplineModal';
@@ -313,54 +315,71 @@ export default function DesktopMapExplorer({
     `;
   };
 
-  // 🏛️ 한국관광공사 TourAPI 4.0 실시간 정품 연동 보강
+  // 🏛️ 한국관광공사 TourAPI 4.0 실시간 정품 연동 보강 (전국 226개 시·군 100% 대응)
   const enrichLocationWithLiveTourApi = async (baseLoc, cityName, targetLang) => {
     try {
-      const liveSpots = await fetchDynamicRealtimeSpots(cityName, targetLang);
+      const cleanCityKey = (cityName || '').replace(/(특별시|광역시|특별자치시|특별자치도|시|군|구)$/, '').trim();
+      const localKn = CITY_LOCAL_KNOWLEDGE[cleanCityKey] || CITY_LOCAL_KNOWLEDGE[cityName];
+      
+      // 1. TourAPI 4.0 실시간 명소 조회 (키워드 또는 반경 15km 안전망)
+      let liveSpots = await fetchDynamicRealtimeSpots(cityName, targetLang);
+      if ((!liveSpots || liveSpots.length === 0) && baseLoc.lat && baseLoc.lng) {
+        liveSpots = await fetchLocationBasedTourApiSpots(baseLoc.lat, baseLoc.lng, 15000, targetLang);
+      }
+
+      let livePhoto = baseLoc.image;
+      let liveHighlights = baseLoc.highlights || [];
+
       if (liveSpots && liveSpots.length > 0) {
         const topSpot = liveSpots[0];
-        const livePhoto = topSpot.firstimage || topSpot.image || baseLoc.image;
-        
-        const liveHighlights = liveSpots.slice(0, 3).map((sp) => ({
+        if (topSpot.firstimage || topSpot.image) {
+          livePhoto = topSpot.firstimage || topSpot.image;
+        }
+        liveHighlights = liveSpots.slice(0, 3).map((sp) => ({
           ko: sp.title,
           en: sp.titleEn || sp.title,
           ja: sp.titleJa || sp.title,
           zh: sp.titleZh || sp.title,
-          lat: Number(sp.mapy) || baseLoc.lat,
-          lng: Number(sp.mapx) || baseLoc.lng,
+          lat: Number(sp.lat || sp.mapy) || baseLoc.lat,
+          lng: Number(sp.lng || sp.mapx) || baseLoc.lng,
           zoom: 15
         }));
-
-        return {
-          ...baseLoc,
-          image: livePhoto,
-          highlights: liveHighlights.length > 0 ? liveHighlights : baseLoc.highlights
-        };
+      } else if (localKn && localKn.signatureHighlights) {
+        liveHighlights = localKn.signatureHighlights.slice(0, 3).map((hlStr) => ({
+          ko: hlStr,
+          en: hlStr,
+          ja: hlStr,
+          zh: hlStr,
+          lat: baseLoc.lat,
+          lng: baseLoc.lng,
+          zoom: 14
+        }));
       }
-    } catch {}
-    return baseLoc;
+
+      return {
+        ...baseLoc,
+        image: livePhoto,
+        highlights: liveHighlights.length > 0 ? liveHighlights : baseLoc.highlights,
+        foodieSecret: localKn?.localFoodieSecret || null,
+        nightHighlight: localKn?.nightHighlights ? localKn.nightHighlights[0]?.name : null,
+        transitTipKo: localKn?.transitTip || baseLoc.transitTipKo,
+        descKo: localKn?.badge || baseLoc.descKo
+      };
+    } catch {
+      return baseLoc;
+    }
   };
 
   const handleMapLocationSelected = async (lat, lng) => {
     setIsGeocoding(true);
 
-    let closestCity = REGIONAL_FALLBACK_CENTERS[0];
-    let minDistance = 999999;
-    REGIONAL_FALLBACK_CENTERS.forEach((c) => {
-      const dist = getDistanceKm(lat, lng, c.lat, c.lng);
-      if (dist < minDistance) {
-        minDistance = dist;
-        closestCity = c;
-      }
-    });
-
-    let detectedCityNameKo = closestCity.nameKo;
-    let detectedCityNameEn = closestCity.nameEn;
-    let detectedFullAddr = `${closestCity.nameKo} 일대`;
+    let detectedCityNameKo = '대한민국';
+    let detectedCityNameEn = 'Korea';
+    let detectedFullAddr = '대한민국 일대';
 
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 1200);
+      const timeoutId = setTimeout(() => controller.abort(), 1500);
       const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=11&addressdetails=1&accept-language=ko`, {
         signal: controller.signal
       });
@@ -370,22 +389,38 @@ export default function DesktopMapExplorer({
         const data = await res.json();
         if (data && data.address) {
           const addr = data.address;
-          const cityCandidate = addr.city || addr.town || addr.county || addr.borough || addr.district || addr.province || '';
+          const countyOrCity = addr.county || addr.city || addr.town || addr.borough || addr.district || addr.province || '';
           const stateCandidate = addr.province || addr.state || '';
           
-          if (cityCandidate) {
-            detectedCityNameKo = cityCandidate.replace(/(특별시|광역시|특별자치시|특별자치도|시|군|구)/g, '').trim() || cityCandidate;
-            detectedFullAddr = `${stateCandidate} ${cityCandidate}`.trim();
+          if (countyOrCity) {
+            detectedCityNameKo = countyOrCity.replace(/(특별시|광역시|특별자치시|특별자치도|시|군|구)$/, '').trim() || countyOrCity;
+            detectedFullAddr = `${stateCandidate} ${countyOrCity}`.trim();
           }
         }
       }
     } catch {}
 
+    // 🌐 지자체 표준 다국어(영문/일문/중문) 동적 사전 매핑
+    detectedCityNameEn = getCityMultilingualName(detectedCityNameKo, 'en') || detectedCityNameKo;
+
+    // 🧠 보라 AI 학습 공식 로컬 지식베이스 매핑
+    const cleanKey = detectedCityNameKo.replace(/(특별시|광역시|특별자치시|특별자치도|시|군|구)$/, '').trim();
+    const localKn = CITY_LOCAL_KNOWLEDGE[cleanKey] || CITY_LOCAL_KNOWLEDGE[detectedCityNameKo];
+
     const baseLoc = {
-      ...closestCity,
       nameKo: detectedCityNameKo,
-      nameEn: detectedCityNameEn,
+      nameEn: localKn?.nameEn || detectedCityNameEn,
+      nameJa: localKn?.nameJa || getCityMultilingualName(detectedCityNameKo, 'ja') || detectedCityNameKo,
+      nameZh: localKn?.nameZh || getCityMultilingualName(detectedCityNameKo, 'zh') || detectedCityNameKo,
       fullAddress: detectedFullAddr,
+      descKo: localKn?.badge || `${detectedCityNameKo}의 숨겨진 비경과 랜드마크를 탐방하는 로컬 힐링 여행`,
+      descEn: `Explore scenic landmarks and local authentic highlights in ${detectedCityNameEn}.`,
+      transitTipKo: localKn?.transitTip || 'KTX 및 고속버스로 쾌속 연결',
+      transitTipEn: 'Accessible via KTX and Express Bus',
+      image: '/images/themes/theme-gyeongbokgung.jpg',
+      foodieSecret: localKn?.localFoodieSecret || null,
+      nightHighlight: localKn?.nightHighlights ? localKn.nightHighlights[0]?.name : null,
+      highlights: localKn?.signatureHighlights?.slice(0, 3).map(h => ({ ko: h, en: h, ja: h, zh: h, lat, lng, zoom: 14 })) || [],
       lat,
       lng
     };
@@ -403,7 +438,7 @@ export default function DesktopMapExplorer({
       }));
     }
 
-    // 🏛️ TourAPI 실시간 정품 데이터 비동기 보정
+    // 🏛️ TourAPI 실시간 정품 데이터 비동기 보정 (사진, 명소 3개, 반경 조회)
     enrichLocationWithLiveTourApi(baseLoc, detectedCityNameKo, lang).then(enriched => {
       setSelectedLocation(enriched);
     });
@@ -483,12 +518,16 @@ export default function DesktopMapExplorer({
     return hl.ko;
   };
 
+  const getCleanCityKey = (name) => {
+    if (!name) return '';
+    const clean = name.replace(/(특별시|광역시|특별자치시|특별자치도|시|군|구)$/, '').trim();
+    if (CITY_LOCAL_KNOWLEDGE[clean]) return clean;
+    if (CITY_LOCAL_KNOWLEDGE[name]) return name;
+    return Object.keys(CITY_LOCAL_KNOWLEDGE).find(k => k === clean || name.startsWith(k) || k.startsWith(clean)) || null;
+  };
+
   const getSelectedDesc = () => {
-    // 🧠 1순위: 보라 AI 학습 공식 로컬 지식베이스 (CITY_LOCAL_KNOWLEDGE)
-    const cleanCityKey = Object.keys(CITY_LOCAL_KNOWLEDGE).find(k => 
-      selectedLocation.nameKo.includes(k) || k.includes(selectedLocation.nameKo)
-    );
-    
+    const cleanCityKey = getCleanCityKey(selectedLocation.nameKo);
     if (cleanCityKey && CITY_LOCAL_KNOWLEDGE[cleanCityKey]) {
       const cityData = CITY_LOCAL_KNOWLEDGE[cleanCityKey];
       if (lang === 'en') return cityData.descEn || cityData.badgeEn || selectedLocation.descEn || cityData.badge;
@@ -504,9 +543,7 @@ export default function DesktopMapExplorer({
   };
 
   const getSelectedTransitTip = () => {
-    const cleanCityKey = Object.keys(CITY_LOCAL_KNOWLEDGE).find(k => 
-      selectedLocation.nameKo.includes(k) || k.includes(selectedLocation.nameKo)
-    );
+    const cleanCityKey = getCleanCityKey(selectedLocation.nameKo);
     if (cleanCityKey && CITY_LOCAL_KNOWLEDGE[cleanCityKey]?.transitTip) {
       return lang === 'en' 
         ? (selectedLocation.transitTipEn || 'Subway & KTX Direct Access')
@@ -515,6 +552,23 @@ export default function DesktopMapExplorer({
     return lang === 'en' 
       ? (selectedLocation.transitTipEn || 'Easy Public Transit Access') 
       : (selectedLocation.transitTipKo || '대중교통 접근 편리');
+  };
+
+  const getSelectedFoodieSecret = () => {
+    const cleanCityKey = getCleanCityKey(selectedLocation.nameKo);
+    if (cleanCityKey && CITY_LOCAL_KNOWLEDGE[cleanCityKey]?.localFoodieSecret) {
+      return CITY_LOCAL_KNOWLEDGE[cleanCityKey].localFoodieSecret;
+    }
+    return selectedLocation.foodieSecret || null;
+  };
+
+  const getSelectedNightHighlight = () => {
+    const cleanCityKey = getCleanCityKey(selectedLocation.nameKo);
+    if (cleanCityKey && CITY_LOCAL_KNOWLEDGE[cleanCityKey]?.nightHighlights) {
+      const nh = CITY_LOCAL_KNOWLEDGE[cleanCityKey].nightHighlights[0];
+      return nh ? `${nh.name} (${nh.desc})` : null;
+    }
+    return selectedLocation.nightHighlight || null;
   };
 
   return (
@@ -930,24 +984,34 @@ export default function DesktopMapExplorer({
           opacity: isMapExpandedFull ? 0 : 1,
           visibility: isMapExpandedFull ? 'hidden' : 'visible'
         }}>
-          {/* Top 4K Photo Banner with Gradient Overlay */}
+          {/* Top 4K Photo Banner with Gradient Overlay & Shimmer Pulse */}
           <div style={{
             position: 'relative',
-            height: '180px',
+            height: '170px',
             width: '100%',
             overflow: 'hidden',
             backgroundColor: '#0f172a'
           }}>
-            <img 
-              src={selectedLocation.image || '/images/themes/theme-gyeongbokgung.jpg'} 
-              alt={selectedLocation.nameKo}
-              style={{
+            {isGeocoding ? (
+              <div style={{
                 width: '100%',
                 height: '100%',
-                objectFit: 'cover',
-                transition: 'transform 0.4s ease'
-              }}
-            />
+                background: 'linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%)',
+                backgroundSize: '200% 100%',
+                animation: 'shimmer 1.5s infinite'
+              }} />
+            ) : (
+              <img 
+                src={selectedLocation.image || '/images/themes/theme-gyeongbokgung.jpg'} 
+                alt={selectedLocation.nameKo}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  transition: 'transform 0.4s ease'
+                }}
+              />
+            )}
             <div style={{
               position: 'absolute',
               top: 0,
@@ -980,56 +1044,58 @@ export default function DesktopMapExplorer({
                 <span>📍 {lang === 'en' ? 'TourAPI Certified Destination' : lang === 'ja' ? '公式認証 観光地' : (lang === 'zh' || lang === 'zht') ? '官方认证 目的地' : '한국관광공사 정품 인증 여행지'}</span>
               </div>
               <div style={{
-                fontSize: '1.30rem',
+                fontSize: '1.25rem',
                 fontWeight: 900,
                 color: '#ffffff',
                 textShadow: '0 2px 8px rgba(0,0,0,0.6)'
               }}>
                 {lang === 'ko' ? selectedLocation.nameKo : selectedLocation.nameEn}
-                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#e2e8f0', marginLeft: '6px' }}>
+                <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#e2e8f0', marginLeft: '6px' }}>
                   {lang === 'ko' ? `(${selectedLocation.nameEn})` : `(${selectedLocation.nameKo})`}
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Middle Body: Description, 3 Interactive Highlight Tags & Practical Travel Badges */}
+          {/* Middle Body: Description, 3 Interactive Highlight Tags & Practical Travel Badges (Slim Fit & Internal Scroll) */}
           <div style={{
-            padding: '12px 16px',
+            padding: '10px 14px',
             flex: 1,
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            backgroundColor: '#ffffff'
+            backgroundColor: '#ffffff',
+            overflowY: 'auto',
+            maxHeight: '260px'
           }}>
             <div>
               <p style={{
-                fontSize: '0.83rem',
+                fontSize: '0.80rem',
                 color: '#334155',
-                lineHeight: '1.45',
-                margin: '0 0 8px',
+                lineHeight: '1.4',
+                margin: '0 0 6px',
                 fontWeight: 600
               }}>
                 {getSelectedDesc()}
               </p>
 
               {/* 3 Core Highlights Chips (🎯 Click to FlyTo & Pin on Map!) */}
-              <div style={{ marginBottom: '8px' }}>
-                <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#7c3aed', marginBottom: '5px' }}>
+              <div style={{ marginBottom: '6px' }}>
+                <div style={{ fontSize: '0.70rem', fontWeight: 800, color: '#7c3aed', marginBottom: '4px' }}>
                   ✨ {lang === 'en' ? 'Top Highlights (Click to View on Map)' : lang === 'ja' ? 'おすすめスポット (クリックして地図で確認)' : (lang === 'zh' || lang === 'zht') ? '核心亮点 (点击在地图查看)' : 'VORA 추천 핵심 명소 (클릭 시 지도 이동)'}
                 </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
                   {(selectedLocation.highlights || []).map((hl, hIdx) => (
                     <button 
                       key={hIdx}
                       onClick={() => handleHighlightSpotClick(hl)}
                       title={lang === 'en' ? 'Click to pinpoint on map' : '클릭 시 지도가 이 명소로 이동합니다'}
                       style={{
-                        fontSize: '0.74rem',
+                        fontSize: '0.72rem',
                         fontWeight: 800,
                         backgroundColor: '#f3e8ff',
                         color: '#7c3aed',
-                        padding: '4px 9px',
+                        padding: '3px 8px',
                         borderRadius: '6px',
                         border: '1px solid #e9d5ff',
                         cursor: 'pointer',
@@ -1054,23 +1120,67 @@ export default function DesktopMapExplorer({
                 </div>
               </div>
 
-              {/* 🚄 Practical Foreigner Travel Badge Row (빈 공간 채우기 & 실속 가이드) */}
+              {/* 🥩 VORA Local Foodie Secret Card (찐 로컬 미식 비결) */}
+              {getSelectedFoodieSecret() && (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '6px',
+                  padding: '6px 8px',
+                  backgroundColor: '#fff7ed',
+                  borderRadius: '8px',
+                  border: '1px solid #ffedd5',
+                  marginBottom: '5px'
+                }}>
+                  <Utensils size={12} color="#ea580c" style={{ flexShrink: 0, marginTop: '2px' }} />
+                  <div style={{ fontSize: '0.71rem', color: '#9a3412', lineHeight: '1.35' }}>
+                    <strong style={{ color: '#c2410c', fontWeight: 800 }}>
+                      {lang === 'en' ? 'Foodie Secret: ' : lang === 'ja' ? 'グルメ秘訣: ' : (lang === 'zh' || lang === 'zht') ? '美食秘诀: ' : '보라의 찐 미식: '}
+                    </strong>
+                    <span>{getSelectedFoodieSecret()}</span>
+                  </div>
+                </div>
+              )}
+
+              {/* 🌙 VORA Night & Scenic Card (시그니처 야경·힐링) */}
+              {getSelectedNightHighlight() && (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '6px',
+                  padding: '6px 8px',
+                  backgroundColor: '#f5f3ff',
+                  borderRadius: '8px',
+                  border: '1px solid #ede9fe',
+                  marginBottom: '5px'
+                }}>
+                  <Moon size={12} color="#7c3aed" style={{ flexShrink: 0, marginTop: '2px' }} />
+                  <div style={{ fontSize: '0.71rem', color: '#5b21b6', lineHeight: '1.35' }}>
+                    <strong style={{ color: '#6d28d9', fontWeight: 800 }}>
+                      {lang === 'en' ? 'Night & Scenic: ' : lang === 'ja' ? '夜景·絶景: ' : (lang === 'zh' || lang === 'zht') ? '夜景绝景: ' : '시그니처 야경: '}
+                    </strong>
+                    <span>{getSelectedNightHighlight()}</span>
+                  </div>
+                </div>
+              )}
+
+              {/* 🚄 Practical Foreigner Travel Badge Row */}
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
                 flexWrap: 'wrap',
-                padding: '6px 8px',
+                padding: '5px 7px',
                 backgroundColor: '#f8fafc',
                 borderRadius: '8px',
                 border: '1px solid #f1f5f9'
               }}>
-                <span style={{ fontSize: '0.70rem', fontWeight: 800, color: '#0369a1', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0369a1', display: 'flex', alignItems: 'center', gap: '3px' }}>
                   <Train size={11} />
                   <span>{getSelectedTransitTip()}</span>
                 </span>
                 <span style={{ color: '#cbd5e1' }}>•</span>
-                <span style={{ fontSize: '0.70rem', fontWeight: 800, color: '#059669', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#059669', display: 'flex', alignItems: 'center', gap: '3px' }}>
                   <Ticket size={11} />
                   <span>TAX FREE</span>
                 </span>

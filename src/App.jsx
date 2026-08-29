@@ -40,6 +40,7 @@ import MyTripTab from './components/MyTripTab';
 import LiveTripTab from './components/LiveTripTab';
 import DesktopMapExplorer from './components/DesktopMapExplorer';
 import DesktopNavSidebar from './components/DesktopNavSidebar';
+import DockedMapStation from './components/DockedMapStation';
 import SubwayMapModal from './components/SubwayMapModal';
 import HelplineModal from './components/HelplineModal';
 
@@ -269,6 +270,9 @@ export default function App() {
     } catch (e) {}
     return 'home';
   });
+
+  // 🗺️ 좌측 도킹 & 슬라이드 접이식 스마트 지도 스테이션 상태 (AI 대화 / 내 여행 탭 연동)
+  const [isDockedMapOpen, setIsDockedMapOpen] = useState(true);
 
   // Modals & Drawers Open State
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
@@ -1396,35 +1400,57 @@ export default function App() {
            TAB 2. ✨ AI 플래너 (AI Concierge): 1단계 Studio 폼 ➔ 2단계 대화 조율 & 확정
            ============================================================================== */}
         {activeNavTab === 'ai' && (
-          <div className="tab-content-fade-in" style={{ width: '100%', maxWidth: '880px', margin: '0 auto' }}>
-            <AIPlannerTab
+          <div className="tab-content-fade-in" style={{
+            width: '100%',
+            maxWidth: isDockedMapOpen ? '1260px' : '960px',
+            margin: '0 auto',
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'center',
+            transition: 'all 0.25s ease'
+          }}>
+            {/* 🗺️ 좌측 도킹 & 슬라이드 접이식 스마트 지도 스테이션 (PC 전용) */}
+            <DockedMapStation
               lang={lang}
-              onGenerateItinerary={handleGenerateItinerary}
-              onConfirmItinerary={(updatedPlan) => {
-                if (updatedPlan) {
-                  setItineraryData(updatedPlan);
-                  setHasActiveUnsavedDraft(true);
-                  try {
-                    localStorage.setItem('vora_temp_active_draft', JSON.stringify(updatedPlan));
-                  } catch (e) {}
-                }
-                setActiveNavTab('mytrip');
-              }}
-              isLoading={isLoading}
-              questionQuota={questionQuota}
-              onOpenRewardedAd={() => setIsRewardedAdOpen(true)}
-              chatMessages={chatMessages}
+              itineraryData={itineraryData}
               activeDay={activeDay}
               onSelectDay={(day) => setActiveDay(day)}
-              itineraryData={itineraryData}
-              initialMode={plannerInitialMode}
-              onAddPoiToItinerary={handleAddPoiToItinerary}
-              sessionContext={sessionContext}
-              onRemoveContextChip={handleRemoveContextChip}
-              onToggleContextChip={handleToggleContextChip}
-              onResetChat={handleResetChat}
-              onUpdateTimeSlot={handleUpdateTimeSlot}
+              onOpenDetail={(spot) => setSelectedSpot(spot)}
+              isOpen={isDockedMapOpen}
+              onToggleOpen={() => setIsDockedMapOpen(prev => !prev)}
             />
+
+            {/* 우측 메인 AI 플래너/채팅 영역 */}
+            <div style={{ flex: 1, maxWidth: isDockedMapOpen ? '840px' : '880px', width: '100%' }}>
+              <AIPlannerTab
+                lang={lang}
+                onGenerateItinerary={handleGenerateItinerary}
+                onConfirmItinerary={(updatedPlan) => {
+                  if (updatedPlan) {
+                    setItineraryData(updatedPlan);
+                    setHasActiveUnsavedDraft(true);
+                    try {
+                      localStorage.setItem('vora_temp_active_draft', JSON.stringify(updatedPlan));
+                    } catch (e) {}
+                  }
+                  setActiveNavTab('mytrip');
+                }}
+                isLoading={isLoading}
+                questionQuota={questionQuota}
+                onOpenRewardedAd={() => setIsRewardedAdOpen(true)}
+                chatMessages={chatMessages}
+                activeDay={activeDay}
+                onSelectDay={(day) => setActiveDay(day)}
+                itineraryData={itineraryData}
+                initialMode={plannerInitialMode}
+                onAddPoiToItinerary={handleAddPoiToItinerary}
+                sessionContext={sessionContext}
+                onRemoveContextChip={handleRemoveContextChip}
+                onToggleContextChip={handleToggleContextChip}
+                onResetChat={handleResetChat}
+                onUpdateTimeSlot={handleUpdateTimeSlot}
+              />
+            </div>
           </div>
         )}
 
@@ -1432,37 +1458,59 @@ export default function App() {
            TAB 3. 🧳 내 여행 (My Trip): 3단계 확정 타임라인 & 멀티 저장 여행 셀렉터 & 0원 동선 최적화
            ============================================================================== */}
         {activeNavTab === 'mytrip' && (
-          <div className="tab-content-fade-in" style={{ width: '100%', maxWidth: '880px', margin: '0 auto' }}>
-            <MyTripTab
+          <div className="tab-content-fade-in" style={{
+            width: '100%',
+            maxWidth: isDockedMapOpen ? '1260px' : '960px',
+            margin: '0 auto',
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'center',
+            transition: 'all 0.25s ease'
+          }}>
+            {/* 🗺️ 좌측 도킹 & 슬라이드 접이식 스마트 지도 스테이션 (PC 전용) */}
+            <DockedMapStation
               lang={lang}
               itineraryData={itineraryData}
               activeDay={activeDay}
               onSelectDay={(day) => setActiveDay(day)}
               onOpenDetail={(spot) => setSelectedSpot(spot)}
-              onGoToMap={() => setActiveNavTab('map')}
-              onGoToModify={() => {
-                // 🌟 3단계에서 [AI와 대화로 수정하기] 터치 시 ➔ 2단계 대화창으로 자연스러운 복귀!
-                setPlannerInitialMode('chat');
-                setActiveNavTab('ai');
-              }}
-              onOpenRewardedAd={() => setIsRewardedAdOpen(true)}
-              savedTrips={savedTrips}
-              onSelectTrip={(trip) => {
-                setItineraryData(trip);
-                setSelectedTripId(trip.savedId || trip.id || trip.tripTitle);
-                setActiveDay(1);
-              }}
-              onDeleteTrip={handleDeleteSavedTrip}
-              onCreateNewTrip={() => {
-                setPlannerInitialMode('form');
-                setActiveNavTab('ai');
-              }}
-              onSaveCurrentTrip={() => handleSaveCurrentItinerary()}
-              questionQuota={questionQuota}
-              currentUser={currentUser}
-              onOpenGoogleAuth={() => setIsGoogleAuthOpen(true)}
-              onSyncTrips={handleSyncTrips}
+              isOpen={isDockedMapOpen}
+              onToggleOpen={() => setIsDockedMapOpen(prev => !prev)}
             />
+
+            {/* 우측 메인 일정표 영역 */}
+            <div style={{ flex: 1, maxWidth: isDockedMapOpen ? '840px' : '880px', width: '100%' }}>
+              <MyTripTab
+                lang={lang}
+                itineraryData={itineraryData}
+                activeDay={activeDay}
+                onSelectDay={(day) => setActiveDay(day)}
+                onOpenDetail={(spot) => setSelectedSpot(spot)}
+                onGoToMap={() => setActiveNavTab('map')}
+                onGoToModify={() => {
+                  // 🌟 3단계에서 [AI와 대화로 수정하기] 터치 시 ➔ 2단계 대화창으로 자연스러운 복귀!
+                  setPlannerInitialMode('chat');
+                  setActiveNavTab('ai');
+                }}
+                onOpenRewardedAd={() => setIsRewardedAdOpen(true)}
+                savedTrips={savedTrips}
+                onSelectTrip={(trip) => {
+                  setItineraryData(trip);
+                  setSelectedTripId(trip.savedId || trip.id || trip.tripTitle);
+                  setActiveDay(1);
+                }}
+                onDeleteTrip={handleDeleteSavedTrip}
+                onCreateNewTrip={() => {
+                  setPlannerInitialMode('form');
+                  setActiveNavTab('ai');
+                }}
+                onSaveCurrentTrip={() => handleSaveCurrentItinerary()}
+                questionQuota={questionQuota}
+                currentUser={currentUser}
+                onOpenGoogleAuth={() => setIsGoogleAuthOpen(true)}
+                onSyncTrips={handleSyncTrips}
+              />
+            </div>
           </div>
         )}
 
