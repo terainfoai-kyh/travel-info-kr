@@ -57,6 +57,13 @@ function extractCoreLandmarkKey(str = '') {
   if (/(우도)/i.test(norm)) return 'LANDMARK_UDO';
   if (/(협재)/i.test(norm)) return 'LANDMARK_HYEOPJAE';
   if (/(애월|한담)/i.test(norm)) return 'LANDMARK_AEWOL';
+  if (/(간절곶|소망우체통)/i.test(norm)) return 'LANDMARK_GANJEOLGOT';
+  if (/(간월재|영남알프스|신불산|억새평원)/i.test(norm)) return 'LANDMARK_YEONGNAM_ALPS';
+  if (/(반구대|암각화|천전리)/i.test(norm)) return 'LANDMARK_BANGUDAE';
+  if (/(자수정동굴|자수정동굴나라)/i.test(norm)) return 'LANDMARK_JASUJEONG';
+  if (/(대왕암|출렁다리)/i.test(norm)) return 'LANDMARK_DAEWANGAM';
+  if (/(태화강|십리대숲|은하수길)/i.test(norm)) return 'LANDMARK_TAEHWA';
+  if (/(장생포|고래문화|고래박물관)/i.test(norm)) return 'LANDMARK_JANGSAENGPO';
   if (/(불국사|석굴암)/i.test(norm)) return 'LANDMARK_BULGUKSA';
   if (/(황리단|대릉원|천마총|첨성대)/i.test(norm)) return 'LANDMARK_HWANGRIDAN';
   return norm;
@@ -182,7 +189,14 @@ const SYNONYM_MAP = {
   '청산도': ['청산도', '슬로길', '서편제촬영지', 'Cheongsando'],
   '남이섬': ['남이섬', '나미나라공화국', 'Nami Island'],
   '금오도': ['금오도', '비렁길', 'Geumodo'],
-  '퍼플섬': ['퍼플섬', '반월도', '박지도', 'Purple Island']
+  '퍼플섬': ['퍼플섬', '반월도', '박지도', 'Purple Island'],
+  '간절곶': ['간절곶', '소망우체통', '간절곶등대', 'Ganjeolgot'],
+  '영남알프스': ['영남알프스', '간월재', '신불산', '간월재억새평원', 'Yeongnam Alps'],
+  '반구대 암각화': ['반구대암각화', '반구대 암각화', '천전리명문과암각화', 'Bangudae'],
+  '자수정동굴나라': ['자수정동굴나라', '자수정동굴', 'Jasujeong Cave'],
+  '외고산 옹기마을': ['외고산옹기마을', '옹기마을', '울주옹기박물관', 'Oegosan Onggi Village'],
+  '태화강 국가정원': ['태화강국가정원', '태화강', '십리대숲', '은하수길', 'Taehwagang'],
+  '대왕암공원': ['대왕암공원', '대왕암', '대왕암출렁다리', 'Daewangam Park']
 };
 
 /**

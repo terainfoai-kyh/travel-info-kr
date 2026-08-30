@@ -51,7 +51,7 @@ import { sanitizeInput, inspectSecurityGuardrails } from './services/securityGua
 import { findRecommendedPois } from './data/koreaTravelPoiDatabase';
 import { fetchCityTourApiSpots, fetchDynamicRealtimeSpots } from './services/tourApi';
 import { getDynamicGatewayChips, CITY_LOCAL_KNOWLEDGE, resolveTikitakaResponse } from './data/voraDialogKnowledge';
-import { matchVoraQna } from './services/voraQnaMatcher';
+import { matchVoraQna, logUnansweredQuestion } from './services/voraQnaMatcher';
 import { buildTravelContext, generateContextualAdvice, patchTravelState, removeContextChip, toggleContextChip, classifyUserIntent, getActiveContextChips, INITIAL_TRAVEL_STATE } from './services/travelContextEngine';
 import { fetchCloudTrips, pushTripsToCloud, overwriteTripsToCloud, deleteTripFromCloud, parseTripFromUrl } from './services/tripSyncService';
 
@@ -957,6 +957,11 @@ export default function App() {
         // 2. 명시적 전체 일정 빌드 요청 (REGENERATE_ITINERARY or 🚀 확정 버튼 or 자연어 수락/지시어)
         const buildCity = targetCity || '서울';
 
+        // 🌟 [자가 학습 플라이휠 연동] 공식 지식베이스에 아직 미등록된 도시인 경우 관리자 큐로 자동 수집!
+        if (buildCity && !CITY_LOCAL_KNOWLEDGE[buildCity] && buildCity !== '서울') {
+          logUnansweredQuestion(`[신규 지역 지식 필요: ${buildCity}] ${buildCity} ${requestedDays}일 추천 여행 코스 및 맛집`, buildCity);
+        }
+
         // 🌟 현재 세션에 선택/누적된 모든 조건(동행/테마/선호/교통)을 100% 반영하여 조합 프롬프트 생성!
         const mem = updatedState.tripMemory || {};
         const comp = mem.companion || {};
@@ -1000,6 +1005,8 @@ export default function App() {
           '여수': ['오동도', '향일암', '돌산대교', '낭만포차', '해상케이블카', '아쿠아플라넷'],
           '통영': ['동피랑', '사량도', '욕지도', '디피랑', '이순신공원', '케이블카'],
           '대구': ['서문시장', '동성로', '김광석다시그리기길', '앞산전망대', '수성못'],
+          '울산': ['태화강', '십리대숲', '대왕암', '출렁다리', '장생포', '고래문화마을', '슬도'],
+          '울주': ['간절곶', '소망우체통', '영남알프스', '간월재', '신불산', '반구대', '암각화', '자수정동굴나라', '외고산', '옹기마을', '언양불고기'],
           '인천': ['송도센트럴파크', '차이나타운', '월미도', '개항장', '을왕리']
         };
 
