@@ -740,16 +740,8 @@ export default function DesktopMapExplorer({
     }
   };
 
-  // 🌟 Smart Stage Navigation with City Auto-Sync
+  // 🌟 Smart Stage Navigation (화면 전환만 수행하고, 사용자가 명시적으로 요청하지 않은 도시 자동 덮어쓰기 100% 영구 차단!)
   const handleStageNavigation = (targetStage) => {
-    if ((targetStage === 'chat' || targetStage === 'itinerary') && onSelectCityPlan) {
-      const currentCity = itineraryData?.targetCity || '';
-      const selectedCity = selectedLocation.nameKo || '';
-      // If no itinerary exists or if selected city differs from currently loaded itinerary city
-      if (!currentCity || (!currentCity.includes(selectedCity) && !selectedCity.includes(currentCity))) {
-        onSelectCityPlan(selectedLocation.nameKo, selectedDays);
-      }
-    }
     if (onNavigateStage) {
       onNavigateStage(targetStage);
     }

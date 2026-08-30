@@ -61,7 +61,8 @@
      - **울주**: 간절곶(한반도 최동단 일출 & 소망우체통), 영남알프스(간월재 억새평원/신불산), 반구대 암각화(국보), 자수정동굴나라, 외고산 옹기마을, 언양 불고기/봉계 한우 미식 비결 완비.
      - **울산**: 태화강 국가정원 십리대숲, 대왕암공원 출렁다리, 장생포 고래문화마을 등.
      - `SYNONYM_MAP` 및 `extractCoreLandmarkKey`, `CITY_KNOWN_SPOTS`에 울주/울산 랜드마크 전수 등록.
-   - **전국 226개 소도시 0개 추천 코스 원천 차단 4중 안전망 & 거창/김천 시그니처 앵커 직결 완비 (`localItineraryGenerator.js`, `tourApi.js`, `voraDialogKnowledge.js`, `App.jsx`)**:
+   - **전국 226개 소도시 0개 추천 코스 원천 차단 4중 안전망 & 탭 전환 시 강제 도시 변경 버그 영구 척결 (`DesktopMapExplorer.jsx`, `localItineraryGenerator.js`, `tourApi.js`, `voraDialogKnowledge.js`, `App.jsx`)**:
+     - **탭 전환 시 엉뚱한 도시(제주 등) 강제 생성 버그 100% 영구 해결 (`DesktopMapExplorer.jsx`)**: 상단 네비게이션 탭이나 뒤로가기 클릭 시 `handleStageNavigation`에서 이전 선택 도시로 `onSelectCityPlan`을 멋대로 자동 실행하던 결함을 완전히 제거하여, 현재 보고 있는 여행 일정이 절대 엉뚱한 도시로 덮어씌워지지 않도록 완벽 보정.
      - **시그니처 문자열 괄호 분해 버그 완벽 해결 (`decomposeSignatureString`)**: 지식베이스의 부가 설명(예: `거창 수승대 (거북바위·출렁다리·요수정)`) 파싱 시 점(`·`)으로 쪼개져 랜드마크명이 깨지던 현상을 괄호 선제거 정규식으로 완벽히 보정하여 `수승대`, `창포원`, `감악산`, `우두산 Y자형 출렁다리`가 1~3일차 앵커로 100% 매칭되도록 해결.
      - **TourAPI 주소 과도 필터링 완화 & 키워드 2차 자동 병합 (`tourApi.js`)**: 시군구 코드로 조회된 데이터에서 주소 텍스트 불일치로 버려지던 명소를 살려내고, 결과가 적을 시 `searchKeyword2`를 자동 병렬 쿼리하여 최소 15~30개 이상의 유효 관광지를 무조건 확보.
      - **일차별 0개 스팟 긴급 배치 안전망 (`localItineraryGenerator.js`)**: 전국 어떤 소도시라도 `daySpots`가 비어있을 경우 `cityPois`에서 즉시 3개 스팟을 자동 긴급 배치하여 **사용자 화면에 0개 추천 코스가 뜨는 현상을 100% 원천 차단**.
