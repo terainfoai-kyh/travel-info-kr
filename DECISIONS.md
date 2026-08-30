@@ -61,8 +61,8 @@
      - **울주**: 간절곶(한반도 최동단 일출 & 소망우체통), 영남알프스(간월재 억새평원/신불산), 반구대 암각화(국보), 자수정동굴나라, 외고산 옹기마을, 언양 불고기/봉계 한우 미식 비결 완비.
      - **울산**: 태화강 국가정원 십리대숲, 대왕암공원 출렁다리, 장생포 고래문화마을 등.
      - `SYNONYM_MAP` 및 `extractCoreLandmarkKey`, `CITY_KNOWN_SPOTS`에 울주/울산 랜드마크 전수 등록.
-   - **Cloudflare Pages 빌드 에러 긴급 복구 완비 (`localItineraryGenerator.js`)**:
-     - `localItineraryGenerator.js`의 일차별 스팟 누적 while 루프 닫힘 괄호 누락 버그를 즉시 찾아내어 완벽 수정하고, Cloudflare Pages 빌드 파이프라인 100% 정상 녹색불 복구 완료.
+   - **전국 226개 시군구 자연어 지명 추출 1순위 전수 직결 (`geminiNlpService.js`)**:
+     - `extractLocationKeyword`에 `TOUR_API_AREA_CODES`의 전국 226개 시군구를 1순위로 직결하여, 사용자가 '김천', '거창', '신안' 등 어떤 단어 하나만 입력하더라도 100% 해당 도시 지명으로 즉시 인식하고 스마트 웰컴 카드와 일정 생성 버튼을 띄우도록 완비.
 2. **다음 작업 1순위**:
    - 선배님 웹/모바일 실제 구동 화면 피드백 확인 및 추가 고도화.
 

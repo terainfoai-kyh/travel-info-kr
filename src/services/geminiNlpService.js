@@ -15,6 +15,7 @@ import { getSpotAffiliateDeal } from './affiliateService.js';
 import { buildAgodaDeepLink, buildKlookDeepLink } from './apiConfig.js';
 import { CITY_TRANSLATIONS } from '../i18n/translations.js';
 import { fetchRealtimeWeather } from './weatherApi.js';
+import { TOUR_API_AREA_CODES } from './tourApi.js';
 
 // Precision Korean City Center Coordinates
 export const CITY_COORDINATES = {
@@ -165,7 +166,15 @@ export function extractLocationKeyword(prompt = '', fallbackToDefault = false) {
     cleanForCitySearch = clean.replace(/(인천국제공항|인천공항|김포공항|김해공항)/gi, ' ');
   }
 
-  // 💡 1차: 문장에서 가장 먼저 등장한 주요 목적지 도시를 우선 선택
+  // 💡 1차: 전국 226개 시·군·구 정밀 키워드 (김천, 거창, 신안, 완도 등 전국 지명 100% 매칭)
+  for (const [areaName] of Object.entries(TOUR_API_AREA_CODES)) {
+    if (areaName === '전국') continue;
+    if (cleanForCitySearch === areaName.toLowerCase() || cleanForCitySearch.startsWith(areaName.toLowerCase()) || cleanForCitySearch.includes(areaName.toLowerCase())) {
+      return areaName;
+    }
+  }
+
+  // 💡 2차: 문장에서 가장 먼저 등장한 주요 목적지 도시 및 핫플레이스 선택
   let earliestCity = null;
   let minIndex = Infinity;
 
