@@ -655,6 +655,17 @@ export const CITY_LOCAL_KNOWLEDGE = {
     localFoodieSecret: '순천만 짱뚱어탕 & 꼬막정식, 웃장 국밥거리 돼지국밥(수육 서비스), 순천 칠게빵',
     transitTip: '용산역에서 KTX 탑승 시 순천역까지 2시간 30분 직통 연결'
   },
+  '김천': {
+    nameEn: 'Gimcheon',
+    nameJa: '金泉',
+    nameZh: '金泉',
+    badge: '천년고찰 직지사와 사명대사공원 평화의 탑 힐링 명소',
+    signatureHighlights: ['직지사 & 직지문화공원', '사명대사공원 & 평화의 탑 야경', '연화지 벚꽃 산책로 & 김천혁신도시'],
+    rainyHotspots: ['김천시립박물관', '세계도자기박물관', '사명대사공원 한옥체험관', '김천녹색미래과학관'],
+    walkingMinimized: ['사명대사공원 전동관람차 투어', '연화지 평지 둘레길', '직지사 무장애 산책로', '혁신도시 안산공원 쉼터'],
+    localFoodieSecret: '지례 흑돼지 연탄구이, 직지사 산채한정식 & 도토리묵, 배신식당 석쇠불고기, 김천 자두/샤인머스캣 디저트',
+    transitTip: '서울역/수서역에서 KTX/SRT 탑승 시 김천(구미)역까지 1시간 25분 쾌속 직통 연결'
+  },
   '태안': {
     nameEn: 'Taean',
     nameJa: '泰安',

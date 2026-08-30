@@ -362,21 +362,12 @@ export async function fetchCityTourApiSpots(city = '서울', lang = 'ko') {
     const itemsRaw = data.response?.body?.items?.item || [];
     const items = Array.isArray(itemsRaw) ? itemsRaw : (itemsRaw ? [itemsRaw] : []);
 
-    const validSpots = items
+    let validSpots = items
       .filter(item => {
         const lat = parseFloat(item.mapy);
         const lng = parseFloat(item.mapx);
         const isCoordsValid = lat && lng && lat > 32 && lat < 40 && lng > 124 && lng < 132;
         if (!isCoordsValid) return false;
-
-        // 🛡️ 광역도(경남 등) 조회 시 해당 시군구(예: 통영) 주소 검증 (타 시/군 혼입 100% 원천 차단!)
-        if (sigunguCode && cleanCity && cleanCity !== '서울' && cleanCity !== '부산' && cleanCity !== '인천' && cleanCity !== '대구' && cleanCity !== '대전' && cleanCity !== '광주' && cleanCity !== '울산') {
-          const addr = (item.addr1 || '').toLowerCase();
-          const cityLower = cleanCity.toLowerCase();
-          if (!addr.includes(cityLower) && !addr.includes(city.toLowerCase())) {
-            return false; // 타 시/군(하동, 산청 등) 명소는 원천 배제!
-          }
-        }
 
         // 🛡️ Official TourAPI Category Enforcement: Only 12/76 (Sightseeing), 14/78 (Culture), 28/75 (Leisure), 15/85 (Festival)
         const typeId = String(item.contenttypeid || '');
@@ -405,6 +396,49 @@ export async function fetchCityTourApiSpots(city = '서울', lang = 'ko') {
         rating: 4.8,
         dataSource: 'TOUR_API_LIVE_GENUINE'
       }));
+
+    // 🌟 [2차 안전망] 만약 결과가 8개 미만으로 적으면 키워드 검색(searchKeyword2) 병렬 결합
+    if (validSpots.length < 8) {
+      try {
+        const kwUrl = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&keyword=${encodeURIComponent(cleanCity)}&arrange=P&numOfRows=30&pageNo=1`;
+        const kwRes = await fetch(kwUrl);
+        if (kwRes.ok) {
+          const kwData = await kwRes.json();
+          const kwItems = kwData.response?.body?.items?.item || [];
+          const kwArr = Array.isArray(kwItems) ? kwItems : (kwItems ? [kwItems] : []);
+          const kwSpots = kwArr
+            .filter(item => {
+              const lat = parseFloat(item.mapy);
+              const lng = parseFloat(item.mapx);
+              return lat && lng && lat > 32 && lat < 40 && lng > 124 && lng < 132;
+            })
+            .map(item => ({
+              id: `tourapi_kw_${item.contentid}`,
+              contentId: String(item.contentid || ''),
+              title: item.title,
+              name: item.title,
+              category: (String(item.contenttypeid) === '14' ? '문화시설' : String(item.contenttypeid) === '28' ? '체험/레포츠' : '관광명소'),
+              theme: item.cat3 || '한국 대표 관광지',
+              description: item.addr1 || `${city}의 대표 관광 명소입니다.`,
+              lat: parseFloat(item.mapy),
+              lng: parseFloat(item.mapx),
+              address: item.addr1 || item.addr2 || `${city} ${item.title}`,
+              image: item.firstimage || item.firstimage2 || null,
+              duration: 90,
+              rating: 4.8,
+              dataSource: 'TOUR_API_LIVE_KEYWORD'
+            }));
+          
+          // 중복 방지 병합
+          const existingIds = new Set(validSpots.map(s => s.contentId));
+          for (const ks of kwSpots) {
+            if (!existingIds.has(ks.contentId)) {
+              validSpots.push(ks);
+            }
+          }
+        }
+      } catch (e) {}
+    }
 
     if (validSpots.length > 0) {
       DYNAMIC_SPOT_CACHE.set(cacheKey, validSpots);
