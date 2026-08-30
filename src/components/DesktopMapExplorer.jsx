@@ -449,17 +449,29 @@ export default function DesktopMapExplorer({
     }
 
     return () => clearTimeout(timer);
-  }, [activeStage, currentDaySpots, activeDay, isMapExpandedFull]);
+  }, [activeStage, currentDaySpots, activeDay, isMapExpandedFull, isMapExpandedInStage3]);
 
-  // Handle Resize on Expand/Collapse
+  // Handle Resize on Expand/Collapse & Stage transition
   useEffect(() => {
     if (leafletMapRef.current) {
       const timer = setTimeout(() => {
         leafletMapRef.current.invalidateSize();
-      }, 250);
+        if (activeStage === 'itinerary' && currentDaySpots.length > 0) {
+          const validSpots = currentDaySpots.filter(sp => {
+            const lat = Number(sp.lat || sp.mapy || sp.latitude);
+            const lng = Number(sp.lng || sp.mapx || sp.longitude);
+            return lat && lng && lat > 32 && lat < 40 && lng > 124 && lng < 132;
+          });
+          if (validSpots.length > 0) {
+            const latLngs = validSpots.map(sp => [Number(sp.lat || sp.mapy || sp.latitude), Number(sp.lng || sp.mapx || sp.longitude)]);
+            const bounds = window.L.latLngBounds(latLngs);
+            leafletMapRef.current.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
+          }
+        }
+      }, 200);
       return () => clearTimeout(timer);
     }
-  }, [isMapExpandedFull]);
+  }, [isMapExpandedFull, isMapExpandedInStage3, activeStage]);
 
   const createMarkerPinHtml = (nameKo, nameEn, currentLang) => {
     const label = currentLang === 'en' ? nameEn : nameKo;
@@ -1175,15 +1187,20 @@ export default function DesktopMapExplorer({
             </span>
           </div>
 
-          {/* 메인 좌측 인터랙티브 지도 뷰 (Stage 3 접힘 상태가 아닐 때만 렌더링) */}
-          {(activeStage !== 'itinerary' || isMapExpandedInStage3) && (
-            <div style={{ flex: 1, minWidth: 0, height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
-              <div 
-                ref={mapContainerRef} 
-                style={{ width: '100%', flex: 1, minHeight: '100%', zIndex: 1 }}
-              />
-            </div>
-          )}
+          {/* 메인 좌측 인터랙티브 지도 뷰 (항상 DOM에 유지하여 Leaflet 인스턴스 보존) */}
+          <div style={{
+            flex: 1,
+            minWidth: 0,
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            position: 'relative'
+          }}>
+            <div 
+              ref={mapContainerRef} 
+              style={{ width: '100%', flex: 1, minHeight: '100%', zIndex: 1 }}
+            />
+          </div>
 
           {/* ◀ / ▶ 중앙 경계선 슬라이드 토글 알약 버튼 */}
           <button
@@ -1548,7 +1565,7 @@ export default function DesktopMapExplorer({
                 activeDay={activeDay}
                 onSelectDay={onSelectDay}
                 onOpenDetail={onOpenDetail}
-                onGoToMap={() => {}}
+                onGoToMap={() => setIsMapExpandedInStage3(prev => !prev)}
                 onGoToModify={() => onNavigateStage && onNavigateStage('chat')}
                 onOpenWeather={onOpenWeather}
                 onOpenEssentials={onOpenEssentials}
