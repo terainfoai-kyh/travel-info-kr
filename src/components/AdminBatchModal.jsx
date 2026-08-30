@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Sparkles, Database, Play, CheckCircle2, Copy, Download, RefreshCw, Key, ShieldCheck, AlertCircle, Cloud, Smartphone, Search, Lock, Unlock, FileJson, Upload } from 'lucide-react';
 import { getVoraQnaVault } from '../data/voraQnaVault';
+import { CITY_LOCAL_KNOWLEDGE } from '../data/voraDialogKnowledge';
 import { interpolateTemplate } from '../utils/koreanParticles';
 import { 
   fetchQuestionsFromCloud, 
@@ -75,10 +76,45 @@ export default function AdminBatchModal({
       }
     } catch (e) {}
 
-    // 2. 소스코드 기본 마스터 지식 로드
+    // 2. 🏛️ 소스코드 기본 마스터 지식 + 도시별 로컬 지식(CITY_LOCAL_KNOWLEDGE) 100% 통합 로드
     try {
-      const masterVault = getVoraQnaVault() || [];
-      setMasterVaultList(Array.isArray(masterVault) ? masterVault : []);
+      const qnaVault = getVoraQnaVault() || [];
+      
+      // 🌟 [통합 지식 자산 연동] CITY_LOCAL_KNOWLEDGE의 25개 주요 도시 지식을 관리자 카드로 변환
+      const cityKnowledgeList = Object.entries(CITY_LOCAL_KNOWLEDGE || {}).map(([cityName, cityData]) => {
+        const highlights = (cityData.signatureHighlights || []).join(', ');
+        const foodie = cityData.localFoodieSecret || '';
+        const transit = cityData.transitTip || '';
+        const night = (cityData.nightHighlights || []).map(n => `${n.name}(${n.desc})`).join(', ');
+        
+        return {
+          id: `city_knowledge_${cityName}`,
+          category: '지역 핵심 가이드',
+          badge: cityData.badge || `${cityName} 대표 여행 지식`,
+          title: `${cityName} 핵심 여행 가이드 & 대표 명소`,
+          questionVariations: [
+            cityName,
+            `${cityName} 여행`,
+            `${cityName} 3일 코스`,
+            `${cityName} 가볼만한곳`,
+            `${cityName} 맛집`,
+            `${cityName} 명소`
+          ],
+          answers: {
+            ko: `✨ **[ 📍 ${cityName} 맞춤 여행 가이드 ]**\n\n🏛️ **대표 랜드마크**: ${highlights}\n\n🍜 **로컬 미식 비결**: ${foodie}\n\n🌙 **야경 명소**: ${night || '도심 및 야경 명소'}\n\n🚄 **교통 팁**: ${transit || '대중교통 및 KTX 접근 편리'}`,
+            en: `✨ **[ 📍 ${cityName} Travel Guide ]**\n\n🏛️ **Signature Highlights**: ${highlights}\n\n🍜 **Local Delicacy**: ${foodie}\n\n🚄 **Transit Tip**: ${transit || 'Easy access via KTX & transit'}`,
+            ja: `✨ **[ 📍 ${cityName} 旅行ガイド ]**\n\n🏛️ **代表名所**: ${highlights}\n\n🍜 **地元グルメ**: ${foodie}\n\n🚄 **交通の便**: ${transit || 'KTXと公共交通機関で便利'}`,
+            zh: `✨ **[ 📍 ${cityName} 旅游指南 ]**\n\n🏛️ **代表景点**: ${highlights}\n\n🍜 **当地美食**: ${foodie}\n\n🚄 **交通指南**: ${transit || 'KTX和公共交通十分便利'}`
+          },
+          proactiveFollowUps: {
+            ko: [`${cityName} 3일 코스 만들어줘`, `${cityName} 2일차 맛집 추천`, `${cityName} 비오는 날 실내 코스`],
+            en: [`Plan a 3-day ${cityName} trip`, `${cityName} best local food`, `Rainy indoor spots in ${cityName}`]
+          }
+        };
+      });
+
+      const combinedMaster = [...qnaVault, ...cityKnowledgeList];
+      setMasterVaultList(combinedMaster);
     } catch (e) {
       setMasterVaultList([]);
     }
@@ -1117,8 +1153,8 @@ export default function AdminBatchModal({
                     if (city.includes(cleanQuery) || intentKw.some(k => k.includes(cleanQuery))) return true;
                     // 4. 본문 검색 (단, 1글자 잡음 방지를 위해 2글자 이상일 때만 매칭)
                     if (cleanQuery.length >= 2) {
-                      const answerKo = (item.geminiAnswer?.ko || '').toLowerCase();
-                      const answerEn = (item.geminiAnswer?.en || '').toLowerCase();
+                      const answerKo = (item.answers?.ko || item.geminiAnswer?.ko || '').toLowerCase();
+                      const answerEn = (item.answers?.en || item.geminiAnswer?.en || '').toLowerCase();
                       if (answerKo.includes(cleanQuery) || answerEn.includes(cleanQuery)) return true;
                     }
                     return false;
@@ -1268,7 +1304,7 @@ export default function AdminBatchModal({
                             ))}
                           </div>
 
-                          {/* Gemini Answer Full Text Box */}
+                          {/* Gemini Answer / City Knowledge Full Text Box */}
                           <div style={{
                             padding: '0.75rem',
                             backgroundColor: 'var(--bg-card)',
@@ -1281,7 +1317,7 @@ export default function AdminBatchModal({
                             maxHeight: '180px',
                             overflowY: 'auto'
                           }}>
-                            {item.geminiAnswer?.[activeLangTab] || item.geminiAnswer?.ko || '등록된 다국어 답변이 없습니다.'}
+                            {item.answers?.[activeLangTab] || item.answers?.ko || item.geminiAnswer?.[activeLangTab] || item.geminiAnswer?.ko || '등록된 다국어 답변이 없습니다.'}
                           </div>
 
                           {/* Suggested Action Chips */}
