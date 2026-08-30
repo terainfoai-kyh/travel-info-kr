@@ -240,7 +240,7 @@ export function patchTravelState(prevState = INITIAL_TRAVEL_STATE, userPrompt = 
     nextFocusedSpot = null;
   }
 
-  const landmarkSpotMatch = userPrompt.match(/(사량도|욕지도|독도|우도|청산도|남이섬|금오도|퍼플섬|외도|소매물도|비진도|지심도|경복궁|N서울타워|남산타워|북촌한옥마을|동피랑|해운대|광안리|성산일출봉|수원화성|행궁동|불국사|석굴암|첨성대|동궁과\s*월지|황리단길|대릉원)/i);
+  const landmarkSpotMatch = userPrompt.match(/(사량도|욕지도|독도|우도|청산도|남이섬|금오도|퍼플섬|외도|소매물도|비진도|지심도|경복궁|N서울타워|남산타워|북촌한옥마을|동피랑|해운대|광안리|성산일출봉|수원화성|행궁동|불국사|석굴암|첨성대|동궁과\s*월지|황리단길|대릉원|낙안읍성|순천만|국가정원|선암사|병산서원|도산서원|하회마을|월영교|간절곶|간월재|신불산|반구대|암각화|자수정동굴|진주성|촉석루|[가-힣]{2,8}(?:읍성|산성|서원|사찰|궁|타워|마을|해수욕장|해변|전망대|공원|폭포|산|도|길|계곡))/i);
   if (landmarkSpotMatch && landmarkSpotMatch[1]) {
     nextFocusedSpot = landmarkSpotMatch[1].trim();
   }

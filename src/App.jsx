@@ -833,11 +833,14 @@ export default function App() {
         const qnaDirectMatch = matchVoraQna(promptQuery, targetCity, tripContext, lang);
         if (qnaDirectMatch) {
           if (qnaDirectMatch.title) {
-            updatedState.tripMemory.focusedSpot = qnaDirectMatch.title.replace(/\s*\(.*?\)/g, '').trim();
+            const cleanTitle = qnaDirectMatch.title.replace(/\s*\(.*?\)/g, '').trim();
+            updatedState.tripMemory.focusedSpot = cleanTitle;
           }
           if (qnaDirectMatch.targetCity && qnaDirectMatch.targetCity !== 'all') {
             updatedState.tripMemory.destination = qnaDirectMatch.targetCity;
           }
+          // 🌟 [핵심] Q&A 매칭으로 발견된 관심 명소 및 목적지를 sessionContext에 즉시 영구 저장!
+          setSessionContext({ ...updatedState });
         }
         let matchedPois = [];
         if (!qnaDirectMatch && isPlanningMode && userIntent !== 'OFF_TOPIC' && !isGatewaySelectPrompt && !isArrivalTimePrompt) {
@@ -1003,10 +1006,22 @@ export default function App() {
           '수원': ['수원화성', '화성행궁', '행궁동', '방화수류정', '연무대'],
           '전주': ['전주한옥마을', '경기전', '전동성당', '오목대', '자만벽화마을'],
           '여수': ['오동도', '향일암', '돌산대교', '낭만포차', '해상케이블카', '아쿠아플라넷'],
+          '순천': ['순천만', '순천만국가정원', '국가정원', '낙안읍성', '선암사', '드라마촬영장', '와온해변', '조계산'],
           '통영': ['동피랑', '사량도', '욕지도', '디피랑', '이순신공원', '케이블카'],
+          '거제': ['바람의언덕', '매미성', '외도', '지심도', '학동몽돌', '정글돔'],
+          '남해': ['독일마을', '다랭이마을', '보리암', '금산산장', '상주은모래'],
+          '포항': ['스페이스워크', '호미곶', '이가리닻', '구룡포', '영일대'],
+          '단양': ['도담삼봉', '만천하스카이워크', '고수동굴', '카페산'],
+          '부여': ['궁남지', '정림사지', '부소산성', '백제문화단지', '낙화암'],
+          '공주': ['공산성', '무령왕릉', '공주한옥마을'],
+          '군산': ['선유도', '철길마을', '이성당', '초원사진관', '근대역사박물관'],
+          '목포': ['유달산', '해상케이블카', '평화광장', '갓바위', '시화골목'],
           '대구': ['서문시장', '동성로', '김광석다시그리기길', '앞산전망대', '수성못'],
           '울산': ['태화강', '십리대숲', '대왕암', '출렁다리', '장생포', '고래문화마을', '슬도'],
           '울주': ['간절곶', '소망우체통', '영남알프스', '간월재', '신불산', '반구대', '암각화', '자수정동굴나라', '외고산', '옹기마을', '언양불고기'],
+          '진주': ['진주성', '촉석루', '남강유등', '진주냉면'],
+          '춘천': ['남이섬', '소양강스카이워크', '레고랜드', '삼악산'],
+          '가평': ['아침고요수목원', '쁘띠프랑스', '자라섬'],
           '인천': ['송도센트럴파크', '차이나타운', '월미도', '개항장', '을왕리']
         };
 
