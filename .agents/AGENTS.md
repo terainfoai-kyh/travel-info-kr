@@ -116,6 +116,11 @@
     - **로컬 캐시 착시 찌꺼기(Ghost Data) 100% 영구 척결**: 서버에서 이미 삭제/처리되었음에도 로컬 스토리지 잔여물 때문에 과거 질문이 화면에 계속 남아있는 유령 착시 현상을 원천 차단한다.
     - **기기간(모바일 vs PC) 100% 실시간 동일 상태 보장**: 핸드폰에서 질문/배치 학습/삭제를 수행하든 PC에서 수행하든 중앙 서버의 상태와 0.1초 만에 100% 동일하게 일치시킨다.
 
+20. **Mandatory Synchronization of Knowledge Schema, Admin UI & Batch Pipeline (지식 스키마 변경 시 관리자 화면 및 배치 파이프라인 동시 갱신 헌법)**
+    - **지식 구조 및 관리 시스템 100% 일체화 동기화**: `CITY_LOCAL_KNOWLEDGE`(`voraDialogKnowledge.js`) 등 지식 정보 테이블의 필드 구조(예: `localFoodieSecret`, `nightHighlights`, `signatureHighlights`, `rainyHotspots`, `badge` 등)가 신규 추가되거나 변경될 때마다,
+    - **지식 관리자 화면(`AdminBatchModal.jsx` 등)**의 입력 폼, 상세 뷰어 및 **일일 지식 배치 러너(`scripts/runDailyBatch.js` 등)**의 제미나이 프롬프트 파서/저장 로직도 **단 1개의 필드 누락 없이 100% 동시 수정**하여 전체 파이프라인의 정합성을 완벽하게 유지한다.
+
+
 
 
 
