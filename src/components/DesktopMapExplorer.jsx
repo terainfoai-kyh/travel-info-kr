@@ -450,16 +450,6 @@ export default function DesktopMapExplorer({
     return () => clearTimeout(timer);
   }, [activeStage, currentDaySpots, activeDay, isMapExpandedFull]);
 
-      const timer1 = setTimeout(() => { if (leafletMapRef.current) leafletMapRef.current.invalidateSize(); }, 100);
-      const timer2 = setTimeout(() => { if (leafletMapRef.current) leafletMapRef.current.invalidateSize(); }, 300);
-
-      return () => {
-        clearTimeout(timer1);
-        clearTimeout(timer2);
-      };
-    }
-  }, [isLeafletReady]);
-
   // Handle Resize on Expand/Collapse
   useEffect(() => {
     if (leafletMapRef.current) {
