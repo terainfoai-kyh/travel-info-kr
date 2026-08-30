@@ -1350,93 +1350,113 @@ export default function App() {
       {/* Main Container (모바일 5대 탭 전환 & PC 3단계 통합 모핑 워크스페이스) */}
       <main className="app-main-container" style={{ paddingBottom: '4.5rem', width: '100%' }}>
         {/* ==============================================================================
-           💻 [PC / 데스크톱 전용]: 상단 4K 히어로 배너 상시 고정 + 하단 3단계 일체형 모핑 워크스페이스
-           (1단계: 지도 ↔ 매거진 프리뷰 | 2단계: 지도 ↔ AI 대화 조율 | 3단계: 동선지도 ↔ 확정 일정표)
+           💻 [PC / 데스크톱 전용]: 좌측 세로 사이드바(DesktopNavSidebar) + 우측 메인 영역(4K 히어로 + 3단계 모핑 워크스페이스)
+           (선배님 빨간 박스 1, 2, 3, 4 완벽 일체화)
            ============================================================================== */}
-        <div className="hide-mobile tab-content-fade-in" style={{ width: '100%' }}>
-          {/* 👑 상단: 찬란한 4K 와이드 히어로 배너 & 스마트 검색창 & 5개 테마 칩 (상시 유지!) */}
-          <PortalHomePrototype
+        <div className="hide-mobile tab-content-fade-in" style={{ width: '100%', display: 'flex', alignItems: 'stretch' }}>
+          {/* 🌟 1. 맨 좌측 영구 고정 내비게이션 사이드바 (선배님 빨간 박스 1 해결) */}
+          <DesktopNavSidebar
             lang={lang}
-            onSearchSubmit={(promptText) => {
-              setPlannerInitialMode('chat');
-              setActiveNavTab('ai');
-              handleGenerateItinerary(promptText, false, true);
-            }}
-            onSelectTheme={(promptText, city) => {
-              setPlannerInitialMode('chat');
-              setActiveNavTab('ai');
-              handleGenerateItinerary(promptText, false, true);
-            }}
+            activeNavTab={activeNavTab}
+            onNavigateTab={handleTabNavigate}
             onOpenWeather={(city) => {
               setWeatherCity(city || itineraryData?.targetCity || '서울');
               setIsWeatherOpen(true);
             }}
             onOpenEssentials={() => setIsEssentialsOpen(true)}
-            onOpenPlanner={() => {
-              setPlannerInitialMode('chat');
-              setActiveNavTab('ai');
-            }}
+            onOpenSubwayModal={() => setIsSubwayMapOpen(true)}
+            onOpenHelplineModal={() => setIsHelplineModalOpen(true)}
+            onOpenWishlist={() => setIsWishlistOpen(true)}
+            wishlistCount={bookmarks.length}
             targetCity={itineraryData?.targetCity || '서울'}
           />
 
-          {/* 🗺️ 하단 (PC/웹 전용): 네이버 지도 스타일 일체형 2-Column 인터랙티브 3단계 모핑 워크스페이스 */}
-          <DesktopMapExplorer
-            lang={lang}
-            activeStage={activeNavTab === 'home' ? 'explore' : activeNavTab === 'ai' ? 'chat' : activeNavTab === 'mytrip' ? 'itinerary' : 'explore'}
-            onNavigateStage={(stage) => setActiveNavTab(stage === 'explore' ? 'home' : stage === 'chat' ? 'ai' : 'mytrip')}
-            onSelectCityPlan={(cityName, days) => {
-              setPlannerInitialMode('chat');
-              setActiveNavTab('ai');
-              handleGenerateItinerary(`${cityName} ${days}일 여행 코스`, false, true);
-            }}
-            onOpenWeather={(city) => {
-              setWeatherCity(city || itineraryData?.targetCity || '서울');
-              setIsWeatherOpen(true);
-            }}
-            onOpenEssentials={() => setIsEssentialsOpen(true)}
-            // Chat Props (Stage 2)
-            chatMessages={chatMessages}
-            isLoading={isLoading}
-            onSendMessage={(msgText) => handleGenerateItinerary(msgText, false, true)}
-            onConfirmItinerary={(updatedPlan) => {
-              if (updatedPlan) {
-                setItineraryData(updatedPlan);
-                setHasActiveUnsavedDraft(true);
-                try {
-                  localStorage.setItem('vora_temp_active_draft', JSON.stringify(updatedPlan));
-                } catch (e) {}
-              }
-              setActiveNavTab('mytrip');
-            }}
-            onAddPoiToItinerary={handleAddPoiToItinerary}
-            sessionContext={sessionContext}
-            onRemoveContextChip={handleRemoveContextChip}
-            onToggleContextChip={handleToggleContextChip}
-            onResetChat={handleResetChat}
-            onUpdateTimeSlot={handleUpdateTimeSlot}
-            // Itinerary Props (Stage 3)
-            itineraryData={itineraryData}
-            activeDay={activeDay}
-            onSelectDay={(day) => setActiveDay(day)}
-            onOpenDetail={(spot) => setSelectedSpot(spot)}
-            savedTrips={savedTrips}
-            onSelectTrip={(trip) => {
-              setItineraryData(trip);
-              setSelectedTripId(trip.savedId || trip.id || trip.tripTitle);
-              setActiveDay(1);
-            }}
-            onDeleteTrip={handleDeleteSavedTrip}
-            onCreateNewTrip={() => {
-              setPlannerInitialMode('chat');
-              setActiveNavTab('ai');
-            }}
-            onSaveCurrentTrip={() => handleSaveCurrentItinerary()}
-            questionQuota={questionQuota}
-            currentUser={currentUser}
-            onOpenGoogleAuth={() => setIsGoogleAuthOpen(true)}
-            onSyncTrips={handleSyncTrips}
-            onOpenRewardedAd={() => setIsRewardedAdOpen(true)}
-          />
+          {/* 🌟 2. 우측 메인 워크스페이스 (상단 4K 히어로 배너 + 하단 3단계 모핑 워크스페이스) */}
+          <div style={{ flex: 1, minWidth: 0, width: '100%', display: 'flex', flexDirection: 'column' }}>
+            {/* 👑 상단: 찬란한 4K 와이드 히어로 배너 & 스마트 검색창 & 5개 테마 칩 (상시 유지!) */}
+            <PortalHomePrototype
+              lang={lang}
+              onSearchSubmit={(promptText) => {
+                setPlannerInitialMode('chat');
+                setActiveNavTab('ai');
+                handleGenerateItinerary(promptText, false, true);
+              }}
+              onSelectTheme={(promptText, city) => {
+                setPlannerInitialMode('chat');
+                setActiveNavTab('ai');
+                handleGenerateItinerary(promptText, false, true);
+              }}
+              onOpenWeather={(city) => {
+                setWeatherCity(city || itineraryData?.targetCity || '서울');
+                setIsWeatherOpen(true);
+              }}
+              onOpenEssentials={() => setIsEssentialsOpen(true)}
+              onOpenPlanner={() => {
+                setPlannerInitialMode('chat');
+                setActiveNavTab('ai');
+              }}
+              targetCity={itineraryData?.targetCity || '서울'}
+            />
+
+            {/* 🗺️ 하단 (PC/웹 전용): 네이버 지도 스타일 일체형 2-Column 인터랙티브 3단계 모핑 워크스페이스 */}
+            <DesktopMapExplorer
+              lang={lang}
+              activeStage={activeNavTab === 'home' ? 'explore' : activeNavTab === 'ai' ? 'chat' : activeNavTab === 'mytrip' ? 'itinerary' : 'explore'}
+              onNavigateStage={(stage) => setActiveNavTab(stage === 'explore' ? 'home' : stage === 'chat' ? 'ai' : 'mytrip')}
+              onSelectCityPlan={(cityName, days) => {
+                setPlannerInitialMode('chat');
+                setActiveNavTab('ai');
+                handleGenerateItinerary(`${cityName} ${days}일 여행 코스`, false, true);
+              }}
+              onOpenWeather={(city) => {
+                setWeatherCity(city || itineraryData?.targetCity || '서울');
+                setIsWeatherOpen(true);
+              }}
+              onOpenEssentials={() => setIsEssentialsOpen(true)}
+              // Chat Props (Stage 2 & Stage 3 Left)
+              chatMessages={chatMessages}
+              isLoading={isLoading}
+              onSendMessage={(msgText) => handleGenerateItinerary(msgText, false, true)}
+              onConfirmItinerary={(updatedPlan) => {
+                if (updatedPlan) {
+                  setItineraryData(updatedPlan);
+                  setHasActiveUnsavedDraft(true);
+                  try {
+                    localStorage.setItem('vora_temp_active_draft', JSON.stringify(updatedPlan));
+                  } catch (e) {}
+                }
+                setActiveNavTab('mytrip');
+              }}
+              onAddPoiToItinerary={handleAddPoiToItinerary}
+              sessionContext={sessionContext}
+              onRemoveContextChip={handleRemoveContextChip}
+              onToggleContextChip={handleToggleContextChip}
+              onResetChat={handleResetChat}
+              onUpdateTimeSlot={handleUpdateTimeSlot}
+              // Itinerary Props (Stage 3 Right)
+              itineraryData={itineraryData}
+              activeDay={activeDay}
+              onSelectDay={(day) => setActiveDay(day)}
+              onOpenDetail={(spot) => setSelectedSpot(spot)}
+              savedTrips={savedTrips}
+              onSelectTrip={(trip) => {
+                setItineraryData(trip);
+                setSelectedTripId(trip.savedId || trip.id || trip.tripTitle);
+                setActiveDay(1);
+              }}
+              onDeleteTrip={handleDeleteSavedTrip}
+              onCreateNewTrip={() => {
+                setPlannerInitialMode('chat');
+                setActiveNavTab('ai');
+              }}
+              onSaveCurrentTrip={() => handleSaveCurrentItinerary()}
+              questionQuota={questionQuota}
+              currentUser={currentUser}
+              onOpenGoogleAuth={() => setIsGoogleAuthOpen(true)}
+              onSyncTrips={handleSyncTrips}
+              onOpenRewardedAd={() => setIsRewardedAdOpen(true)}
+            />
+          </div>
         </div>
 
         {/* ==============================================================================
