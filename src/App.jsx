@@ -1436,7 +1436,6 @@ export default function App() {
               onSyncTrips={handleSyncTrips}
               onOpenRewardedAd={() => setIsRewardedAdOpen(true)}
             />
-          </div>
         </div>
 
         {/* ==============================================================================
