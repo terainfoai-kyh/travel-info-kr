@@ -127,10 +127,16 @@ export default function DockedMapStation({
       routeLayerRef.current = null;
     }
 
+    const isValidLatLng = (lat, lng) => {
+      const nLat = Number(lat);
+      const nLng = Number(lng);
+      return !isNaN(nLat) && !isNaN(nLng) && isFinite(nLat) && isFinite(nLng) && nLat > 30 && nLat < 45 && nLng > 120 && nLng < 135;
+    };
+
     const validSpots = currentDaySpots.filter(sp => {
       const lat = Number(sp.lat || sp.mapy || sp.latitude);
       const lng = Number(sp.lng || sp.mapx || sp.longitude);
-      return lat && lng && lat > 32 && lat < 40 && lng > 124 && lng < 132;
+      return isValidLatLng(lat, lng);
     });
 
     if (validSpots.length === 0) {
@@ -177,7 +183,11 @@ export default function DockedMapStation({
       const marker = window.L.marker(spotPos, { icon }).addTo(map);
       marker.on('click', () => {
         setSelectedSpotPreview(spot);
-        map.flyTo(spotPos, 15, { duration: 0.5 });
+        if (isValidLatLng(spotPos[0], spotPos[1])) {
+          try {
+            map.flyTo(spotPos, 15, { duration: 0.5 });
+          } catch (e) {}
+        }
       });
 
       markersRef.current.push(marker);
@@ -517,8 +527,12 @@ export default function DockedMapStation({
               key={sIdx}
               onClick={() => {
                 setSelectedSpotPreview(spot);
-                if (leafletMapRef.current && spot.lat && spot.lng) {
-                  leafletMapRef.current.flyTo([Number(spot.lat), Number(spot.lng)], 15, { duration: 0.5 });
+                const sLat = Number(spot.lat || spot.mapy || spot.latitude);
+                const sLng = Number(spot.lng || spot.mapx || spot.longitude);
+                if (leafletMapRef.current && !isNaN(sLat) && !isNaN(sLng) && sLat > 30 && sLat < 45 && sLng > 120 && sLng < 135) {
+                  try {
+                    leafletMapRef.current.flyTo([sLat, sLng], 15, { duration: 0.5 });
+                  } catch (e) {}
                 }
               }}
               style={{

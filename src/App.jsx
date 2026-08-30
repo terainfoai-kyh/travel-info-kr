@@ -611,8 +611,8 @@ export default function App() {
     // 🌟 3. 폼 초기 진입, 추천 칩 진입, 1번 검색창 도시 진입 확인 (isExternalEntry 일 때만 초기화 브리핑 실행!)
     const isQuestionAskingRecommendation = /(어디|뭐|언제|누구|어느|어떤|왜|무슨|몇)\s*(가|이|는|은|에)?\s*(좋아|좋을까|나을까|어때)/i.test(promptQuery);
     const isDayChangeQuery = /(\d+)\s*(일|박)\s*(으로|로)?\s*(바꿔|줄여|늘려|해줘|짜줘|변경|수정|해)/i.test(promptQuery) || /(하루\s*줄여|하루\s*더|이틀\s*더|하루\s*추가|이틀\s*추가)/i.test(promptQuery);
-    const isDirectGenerateAction = isDayChangeQuery || (!isQuestionAskingRecommendation && (
-      /(이대로 바로 일정 만들기|이 조건으로 일정|일정 만들어줘|일정 만들어|일정 생성|일정 짜줘|일정 세워줘|일정표 만들기|업데이트된 일정표 보기|완성해줘|만들어줘|만들어|짜줘|짜주세요|맞춰줘|맞춰주세요|챙겨줘|챙겨주세요|담아줘|담아주세요|조율해줘|조율해주세요|잡아줘|잡아주세요|잡아봐|잡아|설계해줘|설계해주세요|계획해줘|계획해주세요|정해줘|정해주세요|준비해줘|준비해주세요|보여줘|보여주세요|안내해줘|안내해주세요|추천해줘|코스 추천|일정 추천|이걸로 해줘|알아서 해줘|알아서|뽑아줘|부탁해|부탁해요|해봐|가자|가보자|그냥 짜줘|그냥 추천해줘|그냥 추천|이대로|시작해|시작|일정 뽑아줘|코스 짜줘|일정 완성해줘)/i.test(promptQuery) ||
+    const isDirectGenerateAction = isDirectAction || isDayChangeQuery || (!isQuestionAskingRecommendation && (
+      /(이대로 바로 일정 만들기|이 조건으로 일정|일정 만들어줘|일정 만들어|일정 생성|일정 짜줘|일정 세워줘|일정표 만들기|업데이트된 일정표 보기|완성해줘|만들어줘|만들어|짜줘|짜주세요|맞춰줘|맞춰주세요|챙겨줘|챙겨주세요|담아줘|담아주세요|조율해줘|조율해주세요|잡아줘|잡아주세요|잡아봐|잡아|설계해줘|설계해주세요|계획해줘|계획해주세요|정해줘|정해주세요|준비해줘|준비해주세요|보여줘|보여주세요|안내해줘|안내해주세요|추천해줘|코스 추천|일정 추천|이걸로 해줘|알아서 해줘|알아서|뽑아줘|부탁해|부탁해요|해봐|가자|가보자|그냥 짜줘|그냥 추천해줘|그냥 추천|이대로|시작해|시작|일정 뽑아줘|코스 짜줘|일정 완성해줘|코스 만들기|여행 코스|코스|일정)/i.test(promptQuery) ||
       /^(좋아|좋아요|굿|오케이|ok|응|어|네|예|콜|그래|yes|yep|sure|please)($|[!.~])/i.test(promptQuery.trim())
     ));
     const isFormNavigateAction = /(조건 직접 변경하기|조건 변경)/i.test(promptQuery);
@@ -1386,7 +1386,7 @@ export default function App() {
               onSelectCityPlan={(cityName, days) => {
                 setPlannerInitialMode('chat');
                 setActiveNavTab('ai');
-                handleGenerateItinerary(`${cityName} ${days}일 여행 코스`, false, true);
+                handleGenerateItinerary(`${cityName} ${days}일 여행 코스 만들기`, true, false);
               }}
               onOpenWeather={(city) => {
                 setWeatherCity(city || itineraryData?.targetCity || '서울');

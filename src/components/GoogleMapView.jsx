@@ -73,18 +73,35 @@ export default function GoogleMapView({
     return () => clearInterval(checkInterval);
   }, []);
 
+  // 🛡️ Bulletproof LatLng Validator
+  const isValidLatLng = (pos) => {
+    if (!pos) return false;
+    const lat = Array.isArray(pos) ? Number(pos[0]) : Number(pos.lat);
+    const lng = Array.isArray(pos) ? Number(pos[1]) : Number(pos.lng);
+    return !isNaN(lat) && !isNaN(lng) && isFinite(lat) && isFinite(lng) && lat > 30 && lat < 45 && lng > 120 && lng < 135;
+  };
+
   // 🎯 Interactive Smooth FlyTo & Popup Trigger when user clicks spot in timeline list
   useEffect(() => {
     if (!leafletMapRef.current || spotsToDisplay.length === 0) return;
     if (focusedSpotIndex !== null && typeof focusedSpotIndex === 'number' && markersRef.current[focusedSpotIndex]) {
       const marker = markersRef.current[focusedSpotIndex];
-      const latLng = marker.getLatLng();
-      leafletMapRef.current.flyTo(latLng, 16, { duration: 0.8 });
-      marker.openPopup();
+      const latLng = marker?.getLatLng?.();
+      if (latLng && isValidLatLng(latLng)) {
+        try {
+          leafletMapRef.current.flyTo(latLng, 16, { duration: 0.8 });
+          marker.openPopup();
+        } catch (e) {}
+      }
     } else if (focusedSpotIndex === null && leafletMapRef.current && activeBoundsRef.current) {
-      const b = window.L?.latLngBounds(activeBoundsRef.current);
-      if (b && b.isValid()) {
-        leafletMapRef.current.fitBounds(b.pad(0.35), { padding: [40, 40], maxZoom: 14, animate: true });
+      const validCoords = activeBoundsRef.current.filter(isValidLatLng);
+      if (validCoords.length > 0 && window.L) {
+        const b = window.L.latLngBounds(validCoords);
+        if (b && b.isValid()) {
+          try {
+            leafletMapRef.current.fitBounds(b.pad(0.35), { padding: [40, 40], maxZoom: 14, animate: true });
+          } catch (e) {}
+        }
       }
     }
   }, [focusedSpotIndex, spotsToDisplay]);
@@ -113,13 +130,21 @@ export default function GoogleMapView({
         mapContainerRef.current._leaflet_id = null;
       }
 
-      // Extract spot coordinates
-      const baseLat = parseFloat(spotsToDisplay[0]?.lat) || 37.5665;
-      const baseLng = parseFloat(spotsToDisplay[0]?.lng) || 126.9780;
+      // Extract spot coordinates with fallback chain
+      const firstValidSpot = spotsToDisplay.find(s => {
+        const lat = Number(s?.lat || s?.mapy || s?.latitude);
+        const lng = Number(s?.lng || s?.mapx || s?.longitude);
+        return !isNaN(lat) && !isNaN(lng) && lat > 30 && lat < 45 && lng > 120 && lng < 135;
+      });
+
+      const baseLat = firstValidSpot ? Number(firstValidSpot.lat || firstValidSpot.mapy || firstValidSpot.latitude) : 37.5665;
+      const baseLng = firstValidSpot ? Number(firstValidSpot.lng || firstValidSpot.mapx || firstValidSpot.longitude) : 126.9780;
 
       const latLngs = spotsToDisplay.map((s, idx) => {
-        let lat = parseFloat(s.lat) || baseLat;
-        let lng = parseFloat(s.lng) || baseLng;
+        let lat = Number(s?.lat || s?.mapy || s?.latitude);
+        let lng = Number(s?.lng || s?.mapx || s?.longitude);
+        if (isNaN(lat) || !isFinite(lat) || lat < 30 || lat > 45) lat = baseLat;
+        if (isNaN(lng) || !isFinite(lng) || lng < 120 || lng > 135) lng = baseLng;
         // Micro offset if exact same coordinates to prevent total overlap
         if (idx > 0 && Math.abs(lat - baseLat) < 0.0001 && Math.abs(lng - baseLng) < 0.0001) {
           lat += idx * 0.003;
@@ -128,17 +153,19 @@ export default function GoogleMapView({
         return [lat, lng];
       });
 
-      // 🎯 Perfect Course Balance View (2번 사진 황금 비율 뷰)
-      // 경복궁(1번)과 북촌(2번) 사이의 동선 전체를 210px 뷰포트 정중앙에 대칭으로 배치
+      // 🎯 Perfect Course Balance View
       const initialBounds = L.latLngBounds(latLngs);
-      const initialCenter = initialBounds.getCenter();
+      const computedCenter = initialBounds.isValid() ? initialBounds.getCenter() : null;
+      const initialCenter = (computedCenter && isValidLatLng(computedCenter)) ? computedCenter : [baseLat, baseLng];
       activeBoundsRef.current = latLngs;
 
-      // 💡 안전한 뷰포트 자동 피팅 함수: 210px 높이에 맞춰 패딩 30px, maxZoom 14로 고정하여 마커 잘림 100% 방지
+      // 💡 안전한 뷰포트 자동 피팅 함수
       const applySpotFit = (coords) => {
         if (!leafletMapRef.current || !coords || coords.length === 0) return;
         const m = leafletMapRef.current;
-        const b = L.latLngBounds(coords);
+        const validC = coords.filter(isValidLatLng);
+        if (validC.length === 0) return;
+        const b = L.latLngBounds(validC);
         if (b && b.isValid()) {
           try {
             m.invalidateSize({ pan: true });

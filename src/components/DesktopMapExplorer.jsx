@@ -291,6 +291,13 @@ export default function DesktopMapExplorer({
     return daySchedule?.spots || itineraryData.spots || [];
   }, [itineraryData, activeDay]);
 
+  // 🛡️ Bulletproof LatLng Validator
+  const isValidLatLng = (lat, lng) => {
+    const nLat = Number(lat);
+    const nLng = Number(lng);
+    return !isNaN(nLat) && !isNaN(nLng) && isFinite(nLat) && isFinite(nLng) && nLat > 30 && nLat < 45 && nLng > 120 && nLng < 135;
+  };
+
   // 1. Leaflet Ready Check
   useEffect(() => {
     if (typeof window !== 'undefined' && window.L) {
@@ -311,8 +318,10 @@ export default function DesktopMapExplorer({
           ...found,
           nameKo: cityKey
         }));
-        if (leafletMapRef.current && window.L) {
-          leafletMapRef.current.flyTo([found.lat, found.lng], found.zoom || 11, { duration: 0.8 });
+        if (leafletMapRef.current && window.L && isValidLatLng(found.lat, found.lng)) {
+          try {
+            leafletMapRef.current.flyTo([found.lat, found.lng], found.zoom || 11, { duration: 0.8 });
+          } catch (e) {}
         }
       }
     }
@@ -389,7 +398,7 @@ export default function DesktopMapExplorer({
       const validSpots = currentDaySpots.filter(sp => {
         const lat = Number(sp.lat || sp.mapy || sp.latitude);
         const lng = Number(sp.lng || sp.mapx || sp.longitude);
-        return lat && lng && lat > 32 && lat < 40 && lng > 124 && lng < 132;
+        return isValidLatLng(lat, lng);
       });
 
       const latLngs = [];
@@ -430,7 +439,11 @@ export default function DesktopMapExplorer({
         const marker = window.L.marker(spotPos, { icon }).addTo(map);
         marker.on('click', () => {
           if (onOpenDetail) onOpenDetail(spot);
-          map.flyTo(spotPos, 15, { duration: 0.5 });
+          if (isValidLatLng(spotPos[0], spotPos[1])) {
+            try {
+              map.flyTo(spotPos, 15, { duration: 0.5 });
+            } catch (e) {}
+          }
         });
 
         numberedMarkersRef.current.push(marker);
@@ -450,9 +463,16 @@ export default function DesktopMapExplorer({
       }
 
       // Fit Bounds
-      if (latLngs.length > 0) {
-        const bounds = window.L.latLngBounds(latLngs);
-        map.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
+      if (latLngs.length > 0 && window.L) {
+        const validC = latLngs.filter(p => isValidLatLng(p[0], p[1]));
+        if (validC.length > 0) {
+          const bounds = window.L.latLngBounds(validC);
+          if (bounds && bounds.isValid()) {
+            try {
+              map.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
+            } catch (e) {}
+          }
+        }
       }
     } else {
       // Clear route layers in Explore & Chat mode and restore single pin
@@ -462,7 +482,7 @@ export default function DesktopMapExplorer({
         routeLayerRef.current.remove();
         routeLayerRef.current = null;
       }
-      if (markerRef.current && selectedLocation.lat && selectedLocation.lng) {
+      if (markerRef.current && isValidLatLng(selectedLocation.lat, selectedLocation.lng)) {
         markerRef.current.addTo(map);
         markerRef.current.setLatLng([selectedLocation.lat, selectedLocation.lng]);
       }
@@ -666,11 +686,13 @@ export default function DesktopMapExplorer({
     };
     setSelectedLocation(baseLoc);
 
-    if (leafletMapRef.current) {
-      leafletMapRef.current.flyTo([city.lat, city.lng], city.zoom || 12, { duration: 0.8 });
+    if (leafletMapRef.current && isValidLatLng(city.lat, city.lng)) {
+      try {
+        leafletMapRef.current.flyTo([city.lat, city.lng], city.zoom || 12, { duration: 0.8 });
+      } catch (e) {}
     }
 
-    if (markerRef.current && window.L) {
+    if (markerRef.current && window.L && isValidLatLng(city.lat, city.lng)) {
       markerRef.current.setLatLng([city.lat, city.lng]);
       const pinHtml = createMarkerPinHtml(baseLoc.nameKo, baseLoc.nameEn, lang);
       markerRef.current.setIcon(window.L.divIcon({
@@ -695,9 +717,13 @@ export default function DesktopMapExplorer({
   const handleHighlightSpotClick = (highlight) => {
     if (!highlight || !leafletMapRef.current) return;
     
-    leafletMapRef.current.flyTo([highlight.lat, highlight.lng], highlight.zoom || 15, { duration: 0.7 });
+    if (isValidLatLng(highlight.lat, highlight.lng)) {
+      try {
+        leafletMapRef.current.flyTo([highlight.lat, highlight.lng], highlight.zoom || 15, { duration: 0.7 });
+      } catch (e) {}
+    }
 
-    if (markerRef.current && window.L) {
+    if (markerRef.current && window.L && isValidLatLng(highlight.lat, highlight.lng)) {
       markerRef.current.setLatLng([highlight.lat, highlight.lng]);
       const pinHtml = createMarkerPinHtml(highlight.ko, highlight.en, lang);
       markerRef.current.setIcon(window.L.divIcon({
