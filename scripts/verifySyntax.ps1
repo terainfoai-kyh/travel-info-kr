@@ -36,18 +36,31 @@ foreach ($file in $files) {
 # Target file specific check for DesktopMapExplorer.jsx and App.jsx
 $desktopMap = Get-Content -Path "src/components/DesktopMapExplorer.jsx" -Raw
 $app = Get-Content -Path "src/App.jsx" -Raw
+$generator = Get-Content -Path "src/services/localItineraryGenerator.js" -Raw
 
-# Check for duplicate state declarations in DesktopMapExplorer
+# 3. Check for duplicate state declarations in DesktopMapExplorer
 $mapStateCount = ([regex]::Matches($desktopMap, 'isMapExpandedFull,\s*setIsMapExpandedFull')).Count
 if ($mapStateCount -gt 1) {
     Write-Host " [SCOPE ERROR]: isMapExpandedFull declared $mapStateCount times in DesktopMapExplorer.jsx" -ForegroundColor Red
     $errorCount++
 }
 
+# 4. Check for illegal auto city override inside handleStageNavigation
+if ($desktopMap -match 'handleStageNavigation[\s\S]*?onSelectCityPlan\(') {
+    Write-Host " [ARCHITECTURE ERROR]: Illegal onSelectCityPlan found inside handleStageNavigation (Violates Article 22!)" -ForegroundColor Red
+    $errorCount++
+}
+
+# 5. Check for zero-spot emergency safety net in localItineraryGenerator.js
+if (-not ($generator -match 'EMERGENCY_SAFE_GENUINE' -or $generator -match 'daySpots\.length\s*===\s*0')) {
+    Write-Host " [SAFETY ERROR]: Zero-spot emergency fallback missing in localItineraryGenerator.js" -ForegroundColor Red
+    $errorCount++
+}
+
 if ($errorCount -eq 0) {
-    Write-Host " [ZERO DEFECT PASSED]: All modified files are clean, scoped, and defect-free!" -ForegroundColor Green
+    Write-Host " [ZERO DEFECT PASSED]: All modified files are clean, scoped, compliant with Article 22, and defect-free!" -ForegroundColor Green
     exit 0
 } else {
-    Write-Host " [VERIFICATION FAILED]: Found $errorCount critical syntax/scope error(s). PUSH BLOCKED!" -ForegroundColor Red
+    Write-Host " [VERIFICATION FAILED]: Found $errorCount critical syntax/scope/architectural error(s). PUSH BLOCKED!" -ForegroundColor Red
     exit 1
 }

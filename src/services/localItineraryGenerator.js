@@ -611,58 +611,27 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
       if (currentCursorMinutes >= dayEndMinutes) break;
       let anchorSpot = findPoiForLandmark(anchorName);
 
-      // 🌟 [100% 무조건 보장] 사용자가 대화에서 명시적으로 지목한 관심 섬/명소는 무조건 1일차 1번에 장착!
+      // 🌟 [100% 단일 표준 헌법 준수] 사용자가 대화/Q&A에서 명시적으로 지목한 랜드마크는 어떤 전국 명소든 1일차 1번에 100% 완전 제네릭 조립!
       if (!anchorSpot && explicitlyRequestedSpotName === anchorName) {
-        const isSaryang = /사량도/i.test(anchorName);
-        const isYokji = /욕지도/i.test(anchorName);
-        const isByeongsan = /병산서원/i.test(anchorName);
-        const isHahoe = /하회마을/i.test(anchorName);
-        const isDosan = /도산서원/i.test(anchorName);
-        const isWolyeong = /월영교/i.test(anchorName);
-        const isNagan = /낙안읍성/i.test(anchorName);
-        const isSuncheon = /순천만/i.test(anchorName);
-        const isSeonamsa = /선암사/i.test(anchorName);
-        const isGanjeolgot = /간절곶/i.test(anchorName);
-        const isYeongnam = /(간월재|영남알프스|신불산)/i.test(anchorName);
-        const isBangudae = /(반구대|암각화)/i.test(anchorName);
+        const cleanAnchor = anchorName.replace(/\s*\([^)]*\)/g, '').trim();
+        const matchedDb = (KOREA_TRAVEL_POI_DB || []).find(p => {
+          const np = normalizeTargetString(p.title);
+          const na = normalizeTargetString(cleanAnchor);
+          return np.includes(na) || na.includes(np);
+        });
 
         anchorSpot = {
           id: `anchor_${Date.now()}`,
-          title: isNagan ? '순천 낙안읍성 민속마을 (조선시대 원형 보존 읍성)' :
-                 isSuncheon ? '순천만 국가정원 & 순천만 습지 (유네스코 세계자연유산)' :
-                 isSeonamsa ? '선암사 (유네스코 세계문화유산 산사 & 승선교)' :
-                 isGanjeolgot ? '간절곶 (한반도에서 가장 먼저 해가 뜨는 일출 명소)' :
-                 isYeongnam ? '영남알프스 간월재 억새평원' :
-                 isBangudae ? '국보 울주 대곡리 반구대 암각화' :
-                 isByeongsan ? '병산서원 (유네스코 세계유산·만대루)' :
-                 isHahoe ? '안동 하회마을 (유네스코 세계문화유산)' :
-                 isDosan ? '도산서원 (퇴계 이황의 학문 공간)' :
-                 isWolyeong ? '월영교 (국내 최장 목책교 & 분수 야경)' :
-                 (isSaryang ? '사량도 (옥녀봉·출렁다리)' : (isYokji ? '욕지도 (출렁다리·펠리컨바위)' : anchorName)),
-          category: (isNagan || isByeongsan || isDosan || isHahoe || isSeonamsa || isBangudae) ? '문화유적' : '관광명소',
-          theme: (isNagan || isSuncheon || isSeonamsa || isByeongsan || isHahoe || isDosan) ? '유네스코 세계유산' : '핵심명소',
-          addr1: isNagan ? '전라남도 순천시 낙안면 충민길 30' :
-                 isSuncheon ? '전라남도 순천시 국가정원1호길 47' :
-                 isSeonamsa ? '전라남도 순천시 승주읍 선암사길 450' :
-                 isGanjeolgot ? '울산광역시 울주군 서생면 간절곶1길 39-2' :
-                 isYeongnam ? '울산광역시 울주군 상북면 간월산길' :
-                 isBangudae ? '울산광역시 울주군 언양읍 대곡리 991' :
-                 isByeongsan ? '경상북도 안동시 풍천면 병산길 217' :
-                 isHahoe ? '경상북도 안동시 풍천면 하회종가길 2-1' :
-                 isDosan ? '경상북도 안동시 도산면 도산서원길 154' :
-                 isWolyeong ? '경상북도 안동시 상아동 569' :
-                 `${city || '대한민국'} ${anchorName}`,
-          description: isNagan 
-            ? '조선시대 읍성과 초가집 돌담길이 원형 그대로 살아 숨 쉬는 유서 깊은 전통 민속마을. 실제 주민들이 거주하며 정겨운 전통 문화 체험이 가득한 명소.'
-            : (isSuncheon ? '대한민국 제1호 국가정원이자 끝없이 펼쳐진 갈대밭과 흑두루미가 반기는 유네스코 세계자연유산의 보고.' :
-               (isGanjeolgot ? '동해안에서 가장 먼저 떠오르는 일출을 감상할 수 있는 한반도 최동단 해맞이 명소이자 거대한 소망우체통 랜드마크.' :
-                (isByeongsan ? '유네스코 세계문화유산으로 지정된 한국 서원 건축의 백미. 만대루에서 바라보는 낙동강과 기암절벽 병산의 파노라마 뷰가 압권인 고즈넉한 명소.' : `${anchorName} 탐방 및 힐링 코스`))),
-          duration: (isNagan || isSuncheon) ? 120 : (isByeongsan ? 90 : (isHahoe ? 120 : 90)),
-          lat: isNagan ? 34.9071 : (isSuncheon ? 34.9318 : (isSeonamsa ? 34.9967 : (isGanjeolgot ? 35.3610 : (isYeongnam ? 35.5492 : (isBangudae ? 35.6062 : (isByeongsan ? 36.5401 : (isHahoe ? 36.5393 : (cityMeta.lat || 34.9506)))))))),
-          lng: isNagan ? 127.3402 : (isSuncheon ? 127.5098 : (isSeonamsa ? 127.3308 : (isGanjeolgot ? 129.3601 : (isYeongnam ? 129.0435 : (isBangudae ? 129.1783 : (isByeongsan ? 128.5305 : (isHahoe ? 128.5178 : (cityMeta.lng || 127.4872)))))))),
-          image: isNagan 
-            ? 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg' 
-            : (isSuncheon ? 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg' : 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=800&q=80')
+          title: matchedDb?.title || `${cleanAnchor}`,
+          name: matchedDb?.title || `${cleanAnchor}`,
+          category: matchedDb?.category || '관광명소',
+          theme: matchedDb?.theme || '지역 시그니처 랜드마크',
+          addr1: matchedDb?.location || `${city || '대한민국'} ${cleanAnchor}`,
+          description: matchedDb?.summary || `${city}의 유서 깊은 대표 시그니처 랜드마크 탐방 코스.`,
+          duration: matchedDb?.duration || estimateSpotDwellMinutes(cleanAnchor, '관광명소'),
+          lat: matchedDb?.lat || cityMeta.lat,
+          lng: matchedDb?.lng || cityMeta.lng,
+          image: matchedDb?.image || 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg'
         };
       }
 
