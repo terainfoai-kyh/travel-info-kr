@@ -137,7 +137,9 @@ function estimateSpotDwellMinutes(spotTitle = '', category = '') {
  */
 function decomposeSignatureString(rawString = '') {
   if (!rawString) return [];
-  const parts = rawString.split(/[&/+,·]/).map(p => p.trim()).filter(Boolean);
+  // 1. 괄호 안의 부가 설명(예: (거북바위·출렁다리·요수정))을 먼저 깔끔하게 제거!
+  const noParentheses = rawString.replace(/\s*\([^)]*\)/g, '').trim();
+  const parts = noParentheses.split(/[&/+,]/).map(p => p.trim()).filter(Boolean);
   const results = [];
 
   for (const part of parts) {
@@ -149,7 +151,7 @@ function decomposeSignatureString(rawString = '') {
     }
   }
 
-  return results.length > 0 ? results : [rawString.trim()];
+  return results.length > 0 ? results : [noParentheses || rawString.trim()];
 }
 
 // 🌟 Landmark Synonym & Alias Dictionary for 100% TourAPI Matching
@@ -204,7 +206,14 @@ const SYNONYM_MAP = {
   '순천 드라마촬영장': ['순천드라마촬영장', '드라마촬영장', '순천오픈세트장'],
   '직지사': ['직지사', '직지문화공원', 'Jikjisa'],
   '사명대사공원': ['사명대사공원', '평화의탑', '사명대사'],
-  '연화지': ['연화지', '연화지벚꽃', '연화지산책로']
+  '연화지': ['연화지', '연화지벚꽃', '연화지산책로'],
+  '수승대': ['수승대', '거창수승대', '거북바위', '요수정', '수승대출렁다리'],
+  '거창 수승대': ['수승대', '거창수승대', '거북바위', '요수정', '수승대출렁다리'],
+  '창포원': ['창포원', '거창창포원', '거창 창포원', '수변생태공원'],
+  '거창 창포원': ['창포원', '거창창포원', '거창 창포원', '수변생태공원'],
+  '감악산': ['감악산', '감악산풍력발전단지', '아스타국화', '감악산전망대'],
+  '우두산': ['우두산', '우두산출렁다리', 'Y자형출렁다리', '항노화힐링랜드', '거창Y자형출렁다리'],
+  '우두산 Y자형 출렁다리': ['우두산', '우두산출렁다리', 'Y자형출렁다리', '항노화힐링랜드', '거창Y자형출렁다리']
 };
 
 /**
