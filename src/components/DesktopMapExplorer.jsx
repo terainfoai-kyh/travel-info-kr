@@ -743,7 +743,8 @@ export default function DesktopMapExplorer({
     return selectedLocation.nightHighlight || null;
   };
 
-  const [stage3LeftView, setStage3LeftView] = useState('chat'); // 'chat' | 'map' in Stage 3
+  const [isMapExpandedFull, setIsMapExpandedFull] = useState(false);
+  const [isMapExpandedInStage3, setIsMapExpandedInStage3] = useState(false);
 
   return (
     <div className="desktop-map-explorer-container hide-mobile" style={{
@@ -904,7 +905,7 @@ export default function DesktopMapExplorer({
             {activeStage === 'itinerary' && (
               <span style={{ color: '#7c3aed', display: 'flex', alignItems: 'center', gap: '5px' }}>
                 <Calendar size={15} color="#7c3aed" />
-                <span>{itineraryData?.targetCity || selectedLocation.nameKo || '제주'} {itineraryData?.days || 3}일차 확정 타임라인</span>
+                <span>{itineraryData?.targetCity || selectedLocation.nameKo || '제주'} {itineraryData?.days || 3}일차 확정 타임라인 & AI 1:1 조율</span>
               </span>
             )}
           </h2>
@@ -976,14 +977,14 @@ export default function DesktopMapExplorer({
 
           {activeStage === 'itinerary' && (
             <button
-              onClick={() => onNavigateStage && onNavigateStage('chat')}
+              onClick={() => setIsMapExpandedInStage3(prev => !prev)}
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.35rem',
-                backgroundColor: '#f5f3ff',
-                color: '#7c3aed',
-                border: '1px solid #ddd6fe',
+                backgroundColor: isMapExpandedInStage3 ? '#eff6ff' : '#f5f3ff',
+                color: isMapExpandedInStage3 ? '#2563eb' : '#7c3aed',
+                border: isMapExpandedInStage3 ? '1px solid #bfdbfe' : '1px solid #ddd6fe',
                 borderRadius: '9999px',
                 padding: '0.32rem 0.85rem',
                 fontSize: '0.76rem',
@@ -991,15 +992,15 @@ export default function DesktopMapExplorer({
                 cursor: 'pointer'
               }}
             >
-              <MessageSquare size={13} />
-              <span>{lang === 'en' ? '💬 Modify via AI Chat' : '💬 AI 대화로 수정'}</span>
+              <Navigation size={13} />
+              <span>{isMapExpandedInStage3 ? (lang === 'en' ? '💬 Dual Chat & Itinerary' : '💬 대화창+일정표 듀얼') : (lang === 'en' ? '🗺️ View Route Map' : '🗺️ 동선 지도 보기')}</span>
             </button>
           )}
         </div>
       </div>
 
       {/* =========================================================================
-          🌟 2-Column Split Workspace (좌: 지도/AI대화 50% ↔ 우: 매거진/대화/일정표 50%)
+          🌟 2-Column Split Workspace (1·2단계: 지도 50% ↔ 우측 50% | 3단계: 도킹레일 46px ↔ 대화45%+일정표55%)
           ========================================================================= */}
       <div style={{
         display: 'flex',
@@ -1008,10 +1009,14 @@ export default function DesktopMapExplorer({
         width: '100%',
         position: 'relative'
       }}>
-        {/* [1. 좌측 영역 (도킹 툴바 + 인터랙티브 지도/대화)] */}
+        {/* [1. 좌측 영역 (도킹 툴바 + 인터랙티브 지도)] */}
         <div style={{
-          flex: isMapExpandedFull ? '1 1 100%' : '1 1 50%',
-          width: isMapExpandedFull ? '100%' : '50%',
+          flex: activeStage === 'itinerary'
+            ? (isMapExpandedInStage3 ? '1 1 50%' : '0 0 46px')
+            : (isMapExpandedFull ? '1 1 100%' : '1 1 50%'),
+          width: activeStage === 'itinerary'
+            ? (isMapExpandedInStage3 ? '50%' : '46px')
+            : (isMapExpandedFull ? '100%' : '50%'),
           height: '100%',
           borderRadius: '16px',
           overflow: 'hidden',
@@ -1027,7 +1032,7 @@ export default function DesktopMapExplorer({
             width: '46px',
             height: '100%',
             backgroundColor: '#f8fafc',
-            borderRight: '1px solid #e2e8f0',
+            borderRight: (activeStage === 'itinerary' && !isMapExpandedInStage3) ? 'none' : '1px solid #e2e8f0',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -1040,15 +1045,21 @@ export default function DesktopMapExplorer({
             {/* 상단 툴 아이콘 그룹 */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', width: '100%' }}>
               <button
-                onClick={() => onNavigateStage && onNavigateStage('explore')}
+                onClick={() => {
+                  if (activeStage === 'itinerary') {
+                    setIsMapExpandedInStage3(prev => !prev);
+                  } else {
+                    if (onNavigateStage) onNavigateStage('explore');
+                  }
+                }}
                 title={lang === 'en' ? 'Explore Map' : '지도 탐색'}
                 style={{
                   width: '34px',
                   height: '34px',
                   borderRadius: '10px',
-                  border: activeStage === 'explore' ? '1px solid #bfdbfe' : 'none',
-                  backgroundColor: activeStage === 'explore' ? '#eff6ff' : 'transparent',
-                  color: activeStage === 'explore' ? '#2563eb' : '#64748b',
+                  border: (activeStage === 'explore' || (activeStage === 'itinerary' && isMapExpandedInStage3)) ? '1px solid #bfdbfe' : 'none',
+                  backgroundColor: (activeStage === 'explore' || (activeStage === 'itinerary' && isMapExpandedInStage3)) ? '#eff6ff' : 'transparent',
+                  color: (activeStage === 'explore' || (activeStage === 'itinerary' && isMapExpandedInStage3)) ? '#2563eb' : '#64748b',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -1166,98 +1177,28 @@ export default function DesktopMapExplorer({
             </span>
           </div>
 
-          {/* 메인 좌측 인터랙티브 뷰 (지도 ↔ 3단계 AI 대화) */}
-          <div style={{ flex: 1, minWidth: 0, height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
-            {/* 3단계 전용 좌측 미니 스위처 [💬 AI 대화 조율 | 🗺️ 동선 지도] */}
-            {activeStage === 'itinerary' && (
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '6px 12px',
-                backgroundColor: '#f8fafc',
-                borderBottom: '1px solid #e2e8f0',
-                zIndex: 10
-              }}>
-                <div style={{ display: 'flex', gap: '4px' }}>
-                  <button
-                    onClick={() => setStage3LeftView('chat')}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                      padding: '3px 9px',
-                      borderRadius: '6px',
-                      fontSize: '0.74rem',
-                      fontWeight: 800,
-                      cursor: 'pointer',
-                      border: stage3LeftView === 'chat' ? '1px solid #2563eb' : '1px solid #cbd5e1',
-                      backgroundColor: stage3LeftView === 'chat' ? '#2563eb' : '#ffffff',
-                      color: stage3LeftView === 'chat' ? '#ffffff' : '#475569'
-                    }}
-                  >
-                    <MessageSquare size={12} />
-                    <span>💬 AI 대화 조율</span>
-                  </button>
-                  <button
-                    onClick={() => setStage3LeftView('map')}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                      padding: '3px 9px',
-                      borderRadius: '6px',
-                      fontSize: '0.74rem',
-                      fontWeight: 800,
-                      cursor: 'pointer',
-                      border: stage3LeftView === 'map' ? '1px solid #2563eb' : '1px solid #cbd5e1',
-                      backgroundColor: stage3LeftView === 'map' ? '#2563eb' : '#ffffff',
-                      color: stage3LeftView === 'map' ? '#ffffff' : '#475569'
-                    }}
-                  >
-                    <Navigation size={12} />
-                    <span>🗺️ 동선 지도</span>
-                  </button>
-                </div>
-                <span style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 700 }}>
-                  {stage3LeftView === 'chat' ? '대화하며 실시간 코스 조율' : '일차별 추천 동선'}
-                </span>
-              </div>
-            )}
-
-            {/* 좌측 콘텐츠 뷰: 3단계 Chat 모드일 때는 VoraAIChat 렌더링, 그 외는 Leaflet Map 렌더링 */}
-            {activeStage === 'itinerary' && stage3LeftView === 'chat' ? (
-              <div style={{ flex: 1, height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                <VoraAIChat
-                  lang={lang}
-                  chatMessages={chatMessages}
-                  isLoading={isLoading}
-                  onSendMessage={onSendMessage}
-                  activeDay={activeDay}
-                  onSelectDay={onSelectDay}
-                  currentUser={currentUser}
-                  onConfirmItinerary={onConfirmItinerary}
-                  onViewTimeline={() => onNavigateStage && onNavigateStage('itinerary')}
-                  onAddPoiToItinerary={onAddPoiToItinerary}
-                  sessionContext={sessionContext}
-                  onRemoveContextChip={onRemoveContextChip}
-                  onToggleContextChip={onToggleContextChip}
-                  onResetChat={onResetChat}
-                  onUpdateTimeSlot={onUpdateTimeSlot}
-                />
-              </div>
-            ) : (
+          {/* 메인 좌측 인터랙티브 지도 뷰 (Stage 3 접힘 상태가 아닐 때만 렌더링) */}
+          {(activeStage !== 'itinerary' || isMapExpandedInStage3) && (
+            <div style={{ flex: 1, minWidth: 0, height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
               <div 
                 ref={mapContainerRef} 
                 style={{ width: '100%', flex: 1, minHeight: '100%', zIndex: 1 }}
               />
-            )}
-          </div>
+            </div>
+          )}
 
-          {/* ◀ / ▶ 중앙 경계선 슬라이드 토글 알약 버튼 (선배님 빨간 박스 2 해결) */}
+          {/* ◀ / ▶ 중앙 경계선 슬라이드 토글 알약 버튼 */}
           <button
-            onClick={() => setIsMapExpandedFull(prev => !prev)}
-            title={isMapExpandedFull ? '우측 화면 복원' : '좌측 화면 전체확대'}
+            onClick={() => {
+              if (activeStage === 'itinerary') {
+                setIsMapExpandedInStage3(prev => !prev);
+              } else {
+                setIsMapExpandedFull(prev => !prev);
+              }
+            }}
+            title={activeStage === 'itinerary' 
+              ? (isMapExpandedInStage3 ? '대화창+일정표 듀얼 뷰로 복원' : '동선 지도 펼치기')
+              : (isMapExpandedFull ? '우측 화면 복원' : '좌측 화면 전체확대')}
             style={{
               position: 'absolute',
               top: '50%',
@@ -1287,303 +1228,297 @@ export default function DesktopMapExplorer({
               e.currentTarget.style.width = '26px';
             }}
           >
-            {isMapExpandedFull ? <ChevronLeft size={18} strokeWidth={2.5} /> : <ChevronRight size={18} strokeWidth={2.5} />}
+            {activeStage === 'itinerary' 
+              ? (isMapExpandedInStage3 ? <ChevronLeft size={18} strokeWidth={2.5} /> : <ChevronRight size={18} strokeWidth={2.5} />)
+              : (isMapExpandedFull ? <ChevronLeft size={18} strokeWidth={2.5} /> : <ChevronRight size={18} strokeWidth={2.5} />)}
           </button>
         </div>
 
-        {/* [2. 우측 모핑 워크스페이스: 1단계 매거진 ➔ 2단계 AI 대화창 ➔ 3단계 일정표] */}
-        <div style={{
-          flex: isMapExpandedFull ? '0 0 0px' : '1 1 50%',
-          width: isMapExpandedFull ? 0 : '50%',
-          height: '100%',
-          backgroundColor: '#ffffff',
-          borderRadius: '16px',
-          border: isMapExpandedFull ? 'none' : '1px solid #e2e8f0',
-          boxShadow: '0 8px 24px rgba(15, 23, 42, 0.05)',
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          opacity: isMapExpandedFull ? 0 : 1,
-          visibility: isMapExpandedFull ? 'hidden' : 'visible'
-        }}>
-          {/* =========================================================================
-              STAGE 1 (EXPLORE): 4K 포토 매거진 프리뷰 카드
-              ========================================================================= */}
-          {activeStage === 'explore' && (
-            <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-              {/* Top 4K Photo Banner with Gradient Overlay & Shimmer Pulse */}
-              <div style={{
-                position: 'relative',
-                height: '170px',
-                width: '100%',
-                overflow: 'hidden',
-                backgroundColor: '#0f172a'
-              }}>
-                {isGeocoding ? (
-                  <div style={{
-                    width: '100%',
-                    height: '100%',
-                    background: 'linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%)',
-                    backgroundSize: '200% 100%',
-                    animation: 'shimmer 1.5s infinite'
-                  }} />
-                ) : (
-                  <img 
-                    src={selectedLocation.image || '/images/themes/theme-gyeongbokgung.jpg'} 
-                    alt={selectedLocation.nameKo}
-                    style={{
+        {/* [2. 우측 워크스페이스 (1·2단계 또는 3단계 지도 펼침 시 50% 패널)] */}
+        {(activeStage !== 'itinerary' || isMapExpandedInStage3) && (
+          <div style={{
+            flex: isMapExpandedFull ? '0 0 0px' : '1 1 50%',
+            width: isMapExpandedFull ? 0 : '50%',
+            height: '100%',
+            backgroundColor: '#ffffff',
+            borderRadius: '16px',
+            border: isMapExpandedFull ? 'none' : '1px solid #e2e8f0',
+            boxShadow: '0 8px 24px rgba(15, 23, 42, 0.05)',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            opacity: isMapExpandedFull ? 0 : 1,
+            visibility: isMapExpandedFull ? 'hidden' : 'visible'
+          }}>
+            {/* STAGE 1 (EXPLORE): 4K 포토 매거진 프리뷰 카드 */}
+            {activeStage === 'explore' && (
+              <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                {/* Top 4K Photo Banner with Gradient Overlay */}
+                <div style={{
+                  position: 'relative',
+                  height: '170px',
+                  width: '100%',
+                  overflow: 'hidden',
+                  backgroundColor: '#0f172a'
+                }}>
+                  {isGeocoding ? (
+                    <div style={{
                       width: '100%',
                       height: '100%',
-                      objectFit: 'cover',
-                      transition: 'transform 0.4s ease'
-                    }}
-                  />
-                )}
-                <div style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  background: 'linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(15, 23, 42, 0.85) 100%)'
-                }} />
-
-                {/* Photo Overlay Title */}
-                <div style={{
-                  position: 'absolute',
-                  bottom: '12px',
-                  left: '16px',
-                  right: '16px',
-                  color: '#ffffff'
-                }}>
-                  <div style={{
-                    fontSize: '11px',
-                    fontWeight: 800,
-                    color: '#38bdf8',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                    marginBottom: '2px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px'
-                  }}>
-                    <CheckCircle2 size={12} color="#38bdf8" />
-                    <span>📍 {lang === 'en' ? 'TourAPI Certified Destination' : lang === 'ja' ? '公式認証 観光地' : (lang === 'zh' || lang === 'zht') ? '官方认证 目的地' : '한국관광공사 정품 인증 여행지'}</span>
-                  </div>
-                  <div style={{
-                    fontSize: '1.25rem',
-                    fontWeight: 900,
-                    color: '#ffffff',
-                    textShadow: '0 2px 8px rgba(0,0,0,0.6)'
-                  }}>
-                    {lang === 'ko' ? selectedLocation.nameKo : selectedLocation.nameEn}
-                    <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#e2e8f0', marginLeft: '6px' }}>
-                      {lang === 'ko' ? `(${selectedLocation.nameEn})` : `(${selectedLocation.nameKo})`}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Middle Body: Description, 3 Interactive Highlights & Practical Badges */}
-              <div style={{
-                padding: '10px 14px',
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                backgroundColor: '#ffffff',
-                overflowY: 'auto',
-                maxHeight: '260px'
-              }}>
-                <div>
-                  <p style={{
-                    fontSize: '0.80rem',
-                    color: '#334155',
-                    lineHeight: '1.4',
-                    margin: '0 0 6px',
-                    fontWeight: 600
-                  }}>
-                    {getSelectedDesc()}
-                  </p>
-
-                  {/* 3 Core Highlights Chips */}
-                  <div style={{ marginBottom: '6px' }}>
-                    <div style={{ fontSize: '0.70rem', fontWeight: 800, color: '#7c3aed', marginBottom: '4px' }}>
-                      ✨ {lang === 'en' ? 'Top Highlights (Click to View on Map)' : lang === 'ja' ? 'おすすめスポット' : (lang === 'zh' || lang === 'zht') ? '核心亮点' : 'VORA 추천 핵심 명소 (클릭 시 지도 이동)'}
-                    </div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                      {(selectedLocation.highlights || []).map((hl, hIdx) => (
-                        <button 
-                          key={hIdx}
-                          onClick={() => handleHighlightSpotClick(hl)}
-                          title="클릭 시 지도가 이 명소로 이동합니다"
-                          style={{
-                            fontSize: '0.72rem',
-                            fontWeight: 800,
-                            backgroundColor: '#f3e8ff',
-                            color: '#7c3aed',
-                            padding: '3px 8px',
-                            borderRadius: '9999px',
-                            border: '1px solid #ddd6fe',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '3px'
-                          }}
-                        >
-                          <span>📍</span>
-                          <span>{getHighlightName(hl)}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* 🍲 VORA Foodie Secret Card */}
-                  {getSelectedFoodieSecret() && (
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      gap: '6px',
-                      padding: '6px 8px',
-                      backgroundColor: '#fff7ed',
-                      borderRadius: '8px',
-                      border: '1px solid #ffedd5',
-                      marginBottom: '5px'
-                    }}>
-                      <Utensils size={12} color="#ea580c" style={{ flexShrink: 0, marginTop: '2px' }} />
-                      <div style={{ fontSize: '0.71rem', color: '#9a3412', lineHeight: '1.35' }}>
-                        <strong style={{ color: '#c2410c', fontWeight: 800 }}>
-                          {lang === 'en' ? 'Foodie Secret: ' : lang === 'ja' ? 'グルメ秘訣: ' : (lang === 'zh' || lang === 'zht') ? '美食秘诀: ' : '보라의 찐 미식: '}
-                        </strong>
-                        <span>{getSelectedFoodieSecret()}</span>
-                      </div>
-                    </div>
+                      background: 'linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%)',
+                      backgroundSize: '200% 100%',
+                      animation: 'shimmer 1.5s infinite'
+                    }} />
+                  ) : (
+                    <img 
+                      src={selectedLocation.image || '/images/themes/theme-gyeongbokgung.jpg'} 
+                      alt={selectedLocation.nameKo}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        transition: 'transform 0.4s ease'
+                      }}
+                    />
                   )}
-
-                  {/* 🌙 VORA Night & Scenic Card */}
-                  {getSelectedNightHighlight() && (
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      gap: '6px',
-                      padding: '6px 8px',
-                      backgroundColor: '#f5f3ff',
-                      borderRadius: '8px',
-                      border: '1px solid #ede9fe',
-                      marginBottom: '5px'
-                    }}>
-                      <Moon size={12} color="#7c3aed" style={{ flexShrink: 0, marginTop: '2px' }} />
-                      <div style={{ fontSize: '0.71rem', color: '#5b21b6', lineHeight: '1.35' }}>
-                        <strong style={{ color: '#6d28d9', fontWeight: 800 }}>
-                          {lang === 'en' ? 'Night & Scenic: ' : lang === 'ja' ? '夜景·絶景: ' : (lang === 'zh' || lang === 'zht') ? '夜景绝景: ' : '시그니처 야경: '}
-                        </strong>
-                        <span>{getSelectedNightHighlight()}</span>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* 🚄 Practical Foreigner Travel Badge Row */}
                   <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    flexWrap: 'wrap',
-                    padding: '5px 7px',
-                    backgroundColor: '#f8fafc',
-                    borderRadius: '8px',
-                    border: '1px solid #f1f5f9'
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(15, 23, 42, 0.85) 100%)'
+                  }} />
+
+                  {/* Photo Overlay Title */}
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '12px',
+                    left: '16px',
+                    right: '16px',
+                    color: '#ffffff'
                   }}>
-                    <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0369a1', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                      <Train size={11} />
-                      <span>{getSelectedTransitTip()}</span>
-                    </span>
-                    <span style={{ color: '#cbd5e1' }}>•</span>
-                    <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#059669', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                      <Ticket size={11} />
-                      <span>TAX FREE</span>
-                    </span>
-                  </div>
-                </div>
-
-                {/* Bottom Action Area: Days Selector & Start Button */}
-                <div style={{
-                  borderTop: '1px solid #f1f5f9',
-                  paddingTop: '8px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: '10px'
-                }}>
-                  {/* Days Selector */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#64748b' }}>
-                      {lang === 'en' ? 'Days:' : lang === 'ja' ? '日程:' : (lang === 'zh' || lang === 'zht') ? '天数:' : '일수:'}
-                    </span>
-                    <div style={{ display: 'flex', gap: '3px' }}>
-                      {[1, 2, 3, 4, 5].map((d) => (
-                        <button
-                          key={d}
-                          onClick={() => setSelectedDays(d)}
-                          style={{
-                            border: selectedDays === d ? '1.5px solid #2563eb' : '1px solid #cbd5e1',
-                            backgroundColor: selectedDays === d ? '#2563eb' : '#ffffff',
-                            color: selectedDays === d ? '#ffffff' : '#475569',
-                            borderRadius: '6px',
-                            padding: '3px 7px',
-                            fontSize: '0.74rem',
-                            fontWeight: 800,
-                            cursor: 'pointer',
-                            transition: 'all 0.15s ease'
-                          }}
-                        >
-                          {d}{lang === 'en' ? 'D' : lang === 'ja' ? '日' : (lang === 'zh' || lang === 'zht') ? '天' : '일'}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Start Button */}
-                  <button
-                    onClick={handleStartPlan}
-                    style={{
-                      background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
-                      color: '#ffffff',
-                      border: 'none',
-                      borderRadius: '9999px',
-                      padding: '8px 16px',
-                      fontSize: '0.84rem',
-                      fontWeight: 900,
-                      cursor: 'pointer',
+                    <div style={{
+                      fontSize: '11px',
+                      fontWeight: 800,
+                      color: '#38bdf8',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                      marginBottom: '2px',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '6px',
-                      boxShadow: '0 6px 16px rgba(37, 99, 235, 0.3)',
-                      transition: 'transform 0.15s ease'
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-1px)'}
-                    onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-                  >
-                    <Sparkles size={14} />
-                    <span>
-                      {lang === 'en' 
-                        ? `Create ${selectedLocation.nameEn} ${selectedDays}D Plan 🚀` 
-                        : lang === 'ja'
-                        ? `✨ ${selectedLocation.nameJa || selectedLocation.nameEn} ${selectedDays}日コース作成 🚀`
-                        : (lang === 'zh' || lang === 'zht')
-                        ? `✨ 生成 ${selectedLocation.nameZh || selectedLocation.nameEn} ${selectedDays}日行程 🚀`
-                        : `✨ ${selectedLocation.nameKo} ${selectedDays}일 코스 만들기 🚀`}
-                    </span>
-                    <ChevronRight size={14} />
-                  </button>
+                      gap: '4px'
+                    }}>
+                      <CheckCircle2 size={12} color="#38bdf8" />
+                      <span>📍 {lang === 'en' ? 'TourAPI Certified Destination' : lang === 'ja' ? '公式認証 観光地' : (lang === 'zh' || lang === 'zht') ? '官方认证 目的地' : '한국관광공사 정품 인증 여행지'}</span>
+                    </div>
+                    <div style={{
+                      fontSize: '1.25rem',
+                      fontWeight: 900,
+                      color: '#ffffff',
+                      textShadow: '0 2px 8px rgba(0,0,0,0.6)'
+                    }}>
+                      {lang === 'ko' ? selectedLocation.nameKo : selectedLocation.nameEn}
+                      <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#e2e8f0', marginLeft: '6px' }}>
+                        {lang === 'ko' ? `(${selectedLocation.nameEn})` : `(${selectedLocation.nameKo})`}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Middle Body: Description, 3 Highlights & Badges */}
+                <div style={{
+                  padding: '10px 14px',
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  backgroundColor: '#ffffff',
+                  overflowY: 'auto',
+                  maxHeight: '260px'
+                }}>
+                  <div>
+                    <p style={{
+                      fontSize: '0.80rem',
+                      color: '#334155',
+                      lineHeight: '1.4',
+                      margin: '0 0 6px',
+                      fontWeight: 600
+                    }}>
+                      {getSelectedDesc()}
+                    </p>
+
+                    {/* 3 Core Highlights Chips */}
+                    <div style={{ marginBottom: '6px' }}>
+                      <div style={{ fontSize: '0.70rem', fontWeight: 800, color: '#7c3aed', marginBottom: '4px' }}>
+                        ✨ {lang === 'en' ? 'Top Highlights (Click to View on Map)' : lang === 'ja' ? 'おすすめスポット' : (lang === 'zh' || lang === 'zht') ? '核心亮点' : 'VORA 추천 핵심 명소 (클릭 시 지도 이동)'}
+                      </div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                        {(selectedLocation.highlights || []).map((hl, hIdx) => (
+                          <button 
+                            key={hIdx}
+                            onClick={() => handleHighlightSpotClick(hl)}
+                            title="클릭 시 지도가 이 명소로 이동합니다"
+                            style={{
+                              fontSize: '0.72rem',
+                              fontWeight: 800,
+                              backgroundColor: '#f3e8ff',
+                              color: '#7c3aed',
+                              padding: '3px 8px',
+                              borderRadius: '9999px',
+                              border: '1px solid #ddd6fe',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '3px'
+                            }}
+                          >
+                            <span>📍</span>
+                            <span>{getHighlightName(hl)}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* 🍲 VORA Foodie Secret Card */}
+                    {getSelectedFoodieSecret() && (
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '6px',
+                        padding: '6px 8px',
+                        backgroundColor: '#fff7ed',
+                        borderRadius: '8px',
+                        border: '1px solid #ffedd5',
+                        marginBottom: '6px'
+                      }}>
+                        <Utensils size={13} color="#ea580c" style={{ flexShrink: 0, marginTop: '2px' }} />
+                        <div style={{ fontSize: '0.72rem', color: '#9a3412', lineHeight: '1.3' }}>
+                          <span style={{ fontWeight: 900 }}>VORA 찐 미식: </span>
+                          <span>{getSelectedFoodieSecret()}</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 🌙 VORA Signature Night Highlight Card */}
+                    {getSelectedNightHighlight() && (
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '6px',
+                        padding: '6px 8px',
+                        backgroundColor: '#f5f3ff',
+                        borderRadius: '8px',
+                        border: '1px solid #ede9fe',
+                        marginBottom: '6px'
+                      }}>
+                        <Moon size={13} color="#7c3aed" style={{ flexShrink: 0, marginTop: '2px' }} />
+                        <div style={{ fontSize: '0.72rem', color: '#6d28d9', lineHeight: '1.3' }}>
+                          <span style={{ fontWeight: 900 }}>시그니처 야경: </span>
+                          <span>{getSelectedNightHighlight()}</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Practical Information Badges */}
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      flexWrap: 'wrap',
+                      padding: '4px 6px',
+                      backgroundColor: '#f8fafc',
+                      borderRadius: '6px'
+                    }}>
+                      <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#2563eb', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                        <Train size={11} />
+                        <span>{selectedLocation.subwayTip || '대중교통 쾌속 이동'}</span>
+                      </span>
+                      <span style={{ color: '#cbd5e1' }}>•</span>
+                      <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#059669', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                        <Ticket size={11} />
+                        <span>TAX FREE</span>
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Bottom Action Area: Days Selector & Start Button */}
+                  <div style={{
+                    borderTop: '1px solid #f1f5f9',
+                    paddingTop: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '10px'
+                  }}>
+                    {/* Days Selector */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#64748b' }}>
+                        {lang === 'en' ? 'Days:' : lang === 'ja' ? '日程:' : (lang === 'zh' || lang === 'zht') ? '天数:' : '일수:'}
+                      </span>
+                      <div style={{ display: 'flex', gap: '3px' }}>
+                        {[1, 2, 3, 4, 5].map((d) => (
+                          <button
+                            key={d}
+                            onClick={() => setSelectedDays(d)}
+                            style={{
+                              border: selectedDays === d ? '1.5px solid #2563eb' : '1px solid #cbd5e1',
+                              backgroundColor: selectedDays === d ? '#2563eb' : '#ffffff',
+                              color: selectedDays === d ? '#ffffff' : '#475569',
+                              borderRadius: '6px',
+                              padding: '3px 7px',
+                              fontSize: '0.74rem',
+                              fontWeight: 800,
+                              cursor: 'pointer',
+                              transition: 'all 0.15s ease'
+                            }}
+                          >
+                            {d}{lang === 'en' ? 'D' : lang === 'ja' ? '日' : (lang === 'zh' || lang === 'zht') ? '天' : '일'}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Start Button */}
+                    <button
+                      onClick={handleStartPlan}
+                      style={{
+                        background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
+                        color: '#ffffff',
+                        border: 'none',
+                        borderRadius: '9999px',
+                        padding: '8px 16px',
+                        fontSize: '0.84rem',
+                        fontWeight: 900,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        boxShadow: '0 6px 16px rgba(37, 99, 235, 0.3)',
+                        transition: 'transform 0.15s ease'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-1px)'}
+                      onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                    >
+                      <Sparkles size={14} />
+                      <span>
+                        {lang === 'en' 
+                          ? `Create ${selectedLocation.nameEn} ${selectedDays}D Plan 🚀` 
+                          : lang === 'ja'
+                          ? `✨ ${selectedLocation.nameJa || selectedLocation.nameEn} ${selectedDays}日コース作成 🚀`
+                          : (lang === 'zh' || lang === 'zht')
+                          ? `✨ 生成 ${selectedLocation.nameZh || selectedLocation.nameEn} ${selectedDays}日行程 🚀`
+                          : `✨ ${selectedLocation.nameKo} ${selectedDays}일 코스 만들기 🚀`}
+                      </span>
+                      <ChevronRight size={14} />
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* =========================================================================
-              STAGE 2 (CHAT): VORA AI 맞춤 대화 조율창
-              ========================================================================= */}
+          {/* STAGE 2 (CHAT): VORA AI 맞춤 대화 조율창 */}
           {activeStage === 'chat' && (
             <div style={{ height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
               <VoraAIChat
@@ -1606,11 +1541,9 @@ export default function DesktopMapExplorer({
             </div>
           )}
 
-          {/* =========================================================================
-              STAGE 3 (ITINERARY): 확정 타임라인 일정표 (MyTripTab)
-              ========================================================================= */}
-          {activeStage === 'itinerary' && (
-            <div style={{ height: '100%', overflowY: 'auto', padding: '0.5rem' }}>
+          {/* STAGE 3 (ITINERARY - 지도 펼침 50% 상태): 확정 타임라인 일정표 */}
+          {activeStage === 'itinerary' && isMapExpandedInStage3 && (
+            <div style={{ height: '100%', overflowY: 'auto', padding: '0.65rem' }}>
               <MyTripTab
                 lang={lang}
                 itineraryData={itineraryData}
@@ -1634,6 +1567,84 @@ export default function DesktopMapExplorer({
             </div>
           )}
         </div>
+      )}
+
+      {/* 🌟 STAGE 3 전용 메인 듀얼 워크스페이스: [좌측 45% AI 대화창] + [우측 55% 확정 일정표] (지도가 46px로 접혔을 때) */}
+      {activeStage === 'itinerary' && !isMapExpandedInStage3 && (
+        <div style={{
+          flex: '1 1 auto',
+          width: 'calc(100% - 58px)',
+          height: '100%',
+          display: 'flex',
+          gap: '12px'
+        }}>
+          {/* [좌측 45%] VORA AI 대화 조율창 */}
+          <div style={{
+            flex: '0 0 45%',
+            width: '45%',
+            height: '100%',
+            backgroundColor: '#ffffff',
+            borderRadius: '16px',
+            border: '1px solid #e2e8f0',
+            boxShadow: '0 8px 24px rgba(15, 23, 42, 0.05)',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            <VoraAIChat
+              lang={lang}
+              chatMessages={chatMessages}
+              isLoading={isLoading}
+              onSendMessage={onSendMessage}
+              activeDay={activeDay}
+              onSelectDay={onSelectDay}
+              currentUser={currentUser}
+              onConfirmItinerary={onConfirmItinerary}
+              onViewTimeline={() => onNavigateStage && onNavigateStage('itinerary')}
+              onAddPoiToItinerary={onAddPoiToItinerary}
+              sessionContext={sessionContext}
+              onRemoveContextChip={onRemoveContextChip}
+              onToggleContextChip={onToggleContextChip}
+              onResetChat={onResetChat}
+              onUpdateTimeSlot={onUpdateTimeSlot}
+            />
+          </div>
+
+          {/* [우측 55%] 확정 타임라인 일정표 (MyTripTab) */}
+          <div style={{
+            flex: '1 1 55%',
+            width: '55%',
+            height: '100%',
+            backgroundColor: '#ffffff',
+            borderRadius: '16px',
+            border: '1px solid #e2e8f0',
+            boxShadow: '0 8px 24px rgba(15, 23, 42, 0.05)',
+            overflowY: 'auto',
+            padding: '0.65rem'
+          }}>
+            <MyTripTab
+              lang={lang}
+              itineraryData={itineraryData}
+              activeDay={activeDay}
+              onSelectDay={onSelectDay}
+              onOpenDetail={onOpenDetail}
+              onGoToMap={() => setIsMapExpandedInStage3(true)}
+              onGoToModify={() => onNavigateStage && onNavigateStage('chat')}
+              onOpenWeather={onOpenWeather}
+              onOpenEssentials={onOpenEssentials}
+              savedTrips={savedTrips}
+              onSelectTrip={onSelectTrip}
+              onDeleteTrip={onDeleteTrip}
+              onCreateNewTrip={onCreateNewTrip}
+              onSaveCurrentTrip={onSaveCurrentTrip}
+              currentUser={currentUser}
+              onOpenGoogleAuth={onOpenGoogleAuth}
+              onSyncTrips={onSyncTrips}
+              onOpenRewardedAd={onOpenRewardedAd}
+            />
+          </div>
+        </div>
+      )}
       </div>
 
       {/* 🚇 전국 지하철 노선도 모달 */}
