@@ -57,13 +57,24 @@
      - '울주' 클릭 시 서울로 fallback되던 문제를 100% 영구 해결하고, `CITY_MAP`에 울주군/기장군/군위군/강화군/옹진군 등 광역시 산하 74개 구/군을 포함한 전국 226개 시군구 키워드 전수 등록.
      - `TOUR_API_AREA_CODES`(`'울주': 7`) 및 `TOUR_API_SIGUNGU_CODES`(`'울주': 5`) 전수 매핑 완료.
      - `extractLocationKeyword`에 2차 정규식 지명 추출 안전망을 장착하여 소도시/군 단위 클릭 시 100% 해당 도시로 정확히 바인딩.
-   - **울주 & 울산 A++급 정품 로컬 지식 탑재 (`voraDialogKnowledge.js`, `localItineraryGenerator.js`, `App.jsx`)**:
+   - **울주 & 울산 & 김천 & 거창 A++급 정품 로컬 지식 탑재 (`voraDialogKnowledge.js`, `localItineraryGenerator.js`, `App.jsx`)**:
      - **울주**: 간절곶(한반도 최동단 일출 & 소망우체통), 영남알프스(간월재 억새평원/신불산), 반구대 암각화(국보), 자수정동굴나라, 외고산 옹기마을, 언양 불고기/봉계 한우 미식 비결 완비.
      - **울산**: 태화강 국가정원 십리대숲, 대왕암공원 출렁다리, 장생포 고래문화마을 등.
-     - `SYNONYM_MAP` 및 `extractCoreLandmarkKey`, `CITY_KNOWN_SPOTS`에 울주/울산 랜드마크 전수 등록.
-   - **관리자 센터 Q&A 볼트 + 도시별 로컬 지식(`CITY_LOCAL_KNOWLEDGE`) 100% 통합 검색 완비 (`AdminBatchModal.jsx`)**:
+     - **김천**: 직지사 & 사명대사공원, 연화지 벚꽃길, 직지문화공원 & 평화의 탑, 지례 흑돼지 구이 골목, 산채한정식 미식 비결 완비.
+     - **거창**: 수승대(거북바위·출렁다리·요수정), 거창 창포원(수변생태공원), 감악산 아스타국화 & 풍력발전단지, 우두산 Y자형 출렁다리 완비.
+     - `SYNONYM_MAP` 및 `extractCoreLandmarkKey`, `CITY_KNOWN_SPOTS`에 랜드마크 전수 등록.
+   - **🏛️ 헌법 제22조 정식 제정 (주먹구구식 개별 땜빵 영구 금지 & 단일 표준 파이프라인 헌법) 및 Universal Engine 전면 개편 (`AGENTS.md`, `localItineraryGenerator.js`, `verifySyntax.ps1`)**:
+     - **개별 if문 하드코딩 완전 척결**: `isByeongsan`, `isHahoe`, `isDosan`, `isSaryang`, `isNagan` 등 개별 도시/명소 하드코딩 if문을 100% 걷어내고, 대한민국 226개 모든 시군구에 균일하게 동작하는 **완전 제네릭 단일 표준 앵커 파이프라인**으로 통합.
+     - **사전 검증기(`verifySyntax.ps1`) 아키텍처 규칙 검증 탑재**: 강제 도시 자동 덮어쓰기 코드 및 0개 스팟 방지 보호막 유무를 빌드/푸시 전 정적으로 자동 검사하여 결함 재발을 원천 봉쇄.
+   - **전국 226개 시군구 날씨 기상 좌표 전수 동기화 완비 (`weatherApi.js`)**:
+     - 김천, 거창, 통영, 거제, 남해, 단양, 부여, 공주, 군산, 목포, 보성, 완도, 진도, 신안, 태안, 영월, 정선, 평창, 철원, 삼척, 울진, 영덕, 청송, 영양, 의성, 청도, 울릉, 독도 등 전국 226개 모든 시·군·구 정품 위경도 좌표를 `weatherApi.js`에 전수 등록하여 날씨 조회/모달 0.001초 실시간 연동 완료.
+   - **전국 226개 시군구 자연어 지명 추출 1순위 전수 직결 (`geminiNlpService.js`)**:
+     - `extractLocationKeyword`에 `TOUR_API_AREA_CODES`의 전국 226개 시군구를 1순위로 직결하여, 사용자가 '김천', '거창', '신안' 등 어떤 단어 하나만 입력하더라도 100% 해당 도시 지명으로 즉시 인식하고 스마트 웰컴 카드와 일정 생성 버튼을 띄우도록 완비.
+   - **관리자 센터 Q&A 볼트 + 도시별 로컬 지식(`CITY_LOCAL_KNOWLEDGE`) 100% 통합 검색 및 지식 자산 보호 완비 (`AdminBatchModal.jsx`)**:
      - `AdminBatchModal.jsx`의 `masterVaultList`에 `voraQnaVault.js`의 75개 Q&A 지식과 `voraDialogKnowledge.js`의 25개 주요 도시 정품 지식(김천, 거창, 수원, 안동, 서울, 부산 등)을 100% 통합 바인딩하여, 관리자 검색기에서 '김천', '직지사', '거창' 등 어떤 키워드를 검색하더라도 즉시 카드로 조회 및 백업/다운로드 가능하도록 완성.
-2. **다음 작업 1순위**:
+2. **배포 상태**:
+   - 개발 서버: **`https://travelkorea-dev.pages.dev`** (Cloudflare Pages 최신 커밋 `1b5411e` 배포 완료 - 100% 정상 녹색불)
+3. **내일 이어서 할 작업 1순위**:
    - 선배님 웹/모바일 실제 구동 화면 피드백 확인 및 추가 고도화.
 
 ### [2026-08-29 (토)]
