@@ -39,6 +39,8 @@
   - 검증되지 않은 외부 무작위 이미지 사용 엄금. 한국관광공사 TourAPI 4.0 및 Google Places 실시간 4K 사진, 검증된 테마 Fallback만 사용.
 - **지식 스키마 변경 시 관리자 화면 및 배치 파이프라인 동시 갱신 의무화 (헌법 제20조 제정)**:
   - `CITY_LOCAL_KNOWLEDGE` 등 지식 정보 테이블의 필드 구조(`localFoodieSecret`, `nightHighlights` 등)가 변경되면 관리자 화면(`AdminBatchModal.jsx`)과 일일 배치 러너(`scripts/runDailyBatch.js`)도 100% 동시에 동기화 수정.
+- **배포 전 정상 소스 100% 사전 검증 및 빌드 에러 원천 차단 (헌법 제21조 제정)**:
+  - 빌드 에러가 있는 소스는 깃과 배포 서버에 0.1%도 올리지 않으며, 모든 JSX/JS 구문, 괄호/태그 쌍, 모듈 import 정합성을 라인 단위로 철저히 사전 검증 완료한 정상 소스만 커밋/배포.
 
 ### 3. 다음 보라 AI가 바로 이어서 할 작업 1순위 (Next Step #1)
 - **[★ Golden Checkpoint] 선배님 3번 사진 4대 빨간 박스 100% 일체화 정렬 완료**:
