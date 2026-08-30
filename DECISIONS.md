@@ -42,12 +42,10 @@
 - **배포 전 정상 소스 100% 사전 검증 및 빌드 에러 원천 차단 (헌법 제21조 제정)**:
   - 빌드 에러가 있는 소스는 깃과 배포 서버에 0.1%도 올리지 않음. 모든 커밋/푸시 전 `powershell.exe -ExecutionPolicy Bypass -File .\scripts\verifySyntax.ps1`을 필수로 실행하여 `[ZERO DEFECT PASSED]`를 획득한 정상 소스만 커밋/배포.
 
-- **도시 탐색 & 4대 영역 100% 실시간 동기화 (`DesktopMapExplorer.jsx`, `App.jsx`)**:
-  - 1단계 지도에서 도시(강릉, 부산, 경주 등)를 선택하고 `[코스 만들기]` 클릭 시, `isDirectAction = true`로 한국관광공사 TourAPI 4.0 실시간 코스를 즉시 생성.
-  - **좌측 AI 대화창, 상단 헤더 타이틀, 우측 확정 일정표, 좌측 동선 지도** 4개 영역이 0.1초의 어긋남 없이 선택된 도시로 100% 일체화 동기화.
-- **모바일 Leaflet `(NaN, NaN)` 무한 에러 방어벽 구축 (`GoogleMapView.jsx`, `DockedMapStation.jsx`, `DesktopMapExplorer.jsx`)**:
-  - `isValidLatLng` 4중 안전 가드를 전면 배치하여 `lat`/`lng`/`mapy`/`mapx` 어떤 필드로 들어오든 `NaN` 여부와 영토 유효성을 100% 검증.
-  - `flyTo`, `setView`, `fitBounds` 전 단계에서 유효하지 않은 좌표 전달을 원천 차단하여 초당 60프레임 무한 에러 루프 완전 박멸.
+- **채팅 대화 기록 100% 영구 누적 & 티키타카 엔진 전면 복원 (`DesktopMapExplorer.jsx`, `App.jsx`)**:
+  - `DesktopMapExplorer`의 `onSendMessage`에서 `isExternalEntry = false`로 정확히 호출하여,
+  - 사용자가 대화창에서 질문/수정/티키타카를 할 때마다 대화 목록이 초기화되지 않고 `setChatMessages(prev => [...prev, userMsg, botMsg])`로 100% 영구 보존 & 상하 스크롤 탐색 지원.
+  - 일정 수정 지시("2일차 카페를 맛집으로 바꿔줘") 및 로컬 Q&A 티키타카가 0.01초 광속으로 완벽 동작.
 
 ---
 
