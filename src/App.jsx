@@ -1396,7 +1396,7 @@ export default function App() {
               // Chat Props (Stage 2 & Stage 3 Left)
               chatMessages={chatMessages}
               isLoading={isLoading}
-              onSendMessage={(msgText) => handleGenerateItinerary(msgText, false, true)}
+              onSendMessage={(msgText) => handleGenerateItinerary(msgText, false, false)}
               onConfirmItinerary={(updatedPlan) => {
                 if (updatedPlan) {
                   setItineraryData(updatedPlan);
