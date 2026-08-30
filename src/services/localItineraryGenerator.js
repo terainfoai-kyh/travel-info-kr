@@ -875,6 +875,11 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
       };
 
       daySpots.push(spotObj);
+      allGeneratedSpots.push(spotObj);
+      currentCursorMinutes += estimatedDwell;
+      lastSpotLocation = { lat: nextSpot.lat, lng: nextSpot.lng };
+    }
+
     // 🌟 [절대 0개 방지 철통 보호막] 어떤 이유로든 daySpots가 비어있다면 cityPois에서 즉시 2~3개 스팟 긴급 배치!
     if (daySpots.length === 0 && cityPois.length > 0) {
       const emergencySpots = cityPois.slice(0, 3);
