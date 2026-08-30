@@ -272,6 +272,7 @@ export default function DesktopMapExplorer({
   const [isLeafletReady, setIsLeafletReady] = useState(Boolean(typeof window !== 'undefined' && window.L));
   const [isGeocoding, setIsGeocoding] = useState(false);
   const [isMapExpandedFull, setIsMapExpandedFull] = useState(false);
+  const [isMapExpandedInStage3, setIsMapExpandedInStage3] = useState(false);
   const [isSubwayModalOpen, setIsSubwayModalOpen] = useState(false);
   const [isHelplineModalOpen, setIsHelplineModalOpen] = useState(false);
 
@@ -742,9 +743,6 @@ export default function DesktopMapExplorer({
     }
     return selectedLocation.nightHighlight || null;
   };
-
-  const [isMapExpandedFull, setIsMapExpandedFull] = useState(false);
-  const [isMapExpandedInStage3, setIsMapExpandedInStage3] = useState(false);
 
   return (
     <div className="desktop-map-explorer-container hide-mobile" style={{
