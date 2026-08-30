@@ -1591,6 +1591,7 @@ export default function App() {
             />
           </div>
         )}
+        </div>
       </main>
 
       {/* 📱 Mobile Fixed 5-Tab Navigation Bar */}
