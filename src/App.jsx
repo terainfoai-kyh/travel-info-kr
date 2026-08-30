@@ -1347,81 +1347,134 @@ export default function App() {
         savedTripsCount={savedTrips.length}
       />
 
-      {/* Main Container (모바일 5대 탭 전환 & PC 와이드 뷰 최적화) */}
+      {/* Main Container (모바일 5대 탭 전환 & PC 3단계 통합 모핑 워크스페이스) */}
       <main className="app-main-container" style={{ paddingBottom: '4.5rem', width: '100%' }}>
         {/* ==============================================================================
-           TAB 1. 🏠 홈 (Home): 4K 와이드 히어로 & 하단 일체형 네이버 지도 스테이션
+           💻 [PC / 데스크톱 전용]: 상단 4K 히어로 배너 상시 고정 + 하단 3단계 일체형 모핑 워크스페이스
+           (1단계: 지도 ↔ 매거진 프리뷰 | 2단계: 지도 ↔ AI 대화 조율 | 3단계: 동선지도 ↔ 확정 일정표)
            ============================================================================== */}
-        {activeNavTab === 'home' && (
-          <div className="tab-content-fade-in" style={{ width: '100%' }}>
-            {/* 👑 상단: 찬란한 4K 와이드 히어로 배너 & 검색창 & 5개 칩 */}
-            <PortalHomePrototype
-              lang={lang}
-              onSearchSubmit={(promptText) => {
-                setPlannerInitialMode('chat');
-                setActiveNavTab('ai');
-                handleGenerateItinerary(promptText, false, true);
-              }}
-              onSelectTheme={(promptText, city) => {
-                setPlannerInitialMode('chat');
-                setActiveNavTab('ai');
-                handleGenerateItinerary(promptText, false, true);
-              }}
-              onOpenWeather={(city) => {
-                setWeatherCity(city || itineraryData?.targetCity || '서울');
-                setIsWeatherOpen(true);
-              }}
-              onOpenEssentials={() => setIsEssentialsOpen(true)}
-              onOpenPlanner={() => {
-                setPlannerInitialMode('form');
-                setActiveNavTab('ai');
-              }}
-              targetCity={itineraryData?.targetCity || '서울'}
-            />
+        <div className="hide-mobile tab-content-fade-in" style={{ width: '100%' }}>
+          {/* 👑 상단: 찬란한 4K 와이드 히어로 배너 & 스마트 검색창 & 5개 테마 칩 (상시 유지!) */}
+          <PortalHomePrototype
+            lang={lang}
+            onSearchSubmit={(promptText) => {
+              setPlannerInitialMode('chat');
+              setActiveNavTab('ai');
+              handleGenerateItinerary(promptText, false, true);
+            }}
+            onSelectTheme={(promptText, city) => {
+              setPlannerInitialMode('chat');
+              setActiveNavTab('ai');
+              handleGenerateItinerary(promptText, false, true);
+            }}
+            onOpenWeather={(city) => {
+              setWeatherCity(city || itineraryData?.targetCity || '서울');
+              setIsWeatherOpen(true);
+            }}
+            onOpenEssentials={() => setIsEssentialsOpen(true)}
+            onOpenPlanner={() => {
+              setPlannerInitialMode('chat');
+              setActiveNavTab('ai');
+            }}
+            targetCity={itineraryData?.targetCity || '서울'}
+          />
 
-            {/* 🗺️ 하단 (PC/웹 전용): 네이버 지도 스타일 일체형 2-Column 인터랙티브 탐색관 */}
-            <DesktopMapExplorer
-              lang={lang}
-              onSelectCityPlan={(cityName, days) => {
-                setPlannerInitialMode('chat');
-                setActiveNavTab('ai');
-                handleGenerateItinerary(`${cityName} ${days}일 여행 코스`, false, true);
-              }}
-              onOpenWeather={(city) => {
-                setWeatherCity(city || itineraryData?.targetCity || '서울');
-                setIsWeatherOpen(true);
-              }}
-              onOpenEssentials={() => setIsEssentialsOpen(true)}
-            />
-          </div>
-        )}
+          {/* 🗺️ 하단 (PC/웹 전용): 네이버 지도 스타일 일체형 2-Column 인터랙티브 3단계 모핑 워크스페이스 */}
+          <DesktopMapExplorer
+            lang={lang}
+            activeStage={activeNavTab === 'home' ? 'explore' : activeNavTab === 'ai' ? 'chat' : activeNavTab === 'mytrip' ? 'itinerary' : 'explore'}
+            onNavigateStage={(stage) => setActiveNavTab(stage === 'explore' ? 'home' : stage === 'chat' ? 'ai' : 'mytrip')}
+            onSelectCityPlan={(cityName, days) => {
+              setPlannerInitialMode('chat');
+              setActiveNavTab('ai');
+              handleGenerateItinerary(`${cityName} ${days}일 여행 코스`, false, true);
+            }}
+            onOpenWeather={(city) => {
+              setWeatherCity(city || itineraryData?.targetCity || '서울');
+              setIsWeatherOpen(true);
+            }}
+            onOpenEssentials={() => setIsEssentialsOpen(true)}
+            // Chat Props (Stage 2)
+            chatMessages={chatMessages}
+            isLoading={isLoading}
+            onSendMessage={(msgText) => handleGenerateItinerary(msgText, false, true)}
+            onConfirmItinerary={(updatedPlan) => {
+              if (updatedPlan) {
+                setItineraryData(updatedPlan);
+                setHasActiveUnsavedDraft(true);
+                try {
+                  localStorage.setItem('vora_temp_active_draft', JSON.stringify(updatedPlan));
+                } catch (e) {}
+              }
+              setActiveNavTab('mytrip');
+            }}
+            onAddPoiToItinerary={handleAddPoiToItinerary}
+            sessionContext={sessionContext}
+            onRemoveContextChip={handleRemoveContextChip}
+            onToggleContextChip={handleToggleContextChip}
+            onResetChat={handleResetChat}
+            onUpdateTimeSlot={handleUpdateTimeSlot}
+            // Itinerary Props (Stage 3)
+            itineraryData={itineraryData}
+            activeDay={activeDay}
+            onSelectDay={(day) => setActiveDay(day)}
+            onOpenDetail={(spot) => setSelectedSpot(spot)}
+            savedTrips={savedTrips}
+            onSelectTrip={(trip) => {
+              setItineraryData(trip);
+              setSelectedTripId(trip.savedId || trip.id || trip.tripTitle);
+              setActiveDay(1);
+            }}
+            onDeleteTrip={handleDeleteSavedTrip}
+            onCreateNewTrip={() => {
+              setPlannerInitialMode('chat');
+              setActiveNavTab('ai');
+            }}
+            onSaveCurrentTrip={() => handleSaveCurrentItinerary()}
+            questionQuota={questionQuota}
+            currentUser={currentUser}
+            onOpenGoogleAuth={() => setIsGoogleAuthOpen(true)}
+            onSyncTrips={handleSyncTrips}
+            onOpenRewardedAd={() => setIsRewardedAdOpen(true)}
+          />
+        </div>
 
         {/* ==============================================================================
-           TAB 2. ✨ AI 플래너 (AI Concierge): 1단계 Studio 폼 ➔ 2단계 대화 조율 & 확정
+           📱 [모바일 전용]: 5대 바텀 내비게이션 탭 전환 시스템 (모바일 원본 100% 안전 보존)
            ============================================================================== */}
-        {activeNavTab === 'ai' && (
-          <div className="tab-content-fade-in" style={{
-            width: '100%',
-            maxWidth: isDockedMapOpen ? '1260px' : '960px',
-            margin: '0 auto',
-            display: 'flex',
-            alignItems: 'flex-start',
-            justifyContent: 'center',
-            transition: 'all 0.25s ease'
-          }}>
-            {/* 🗺️ 좌측 도킹 & 슬라이드 접이식 스마트 지도 스테이션 (PC 전용) */}
-            <DockedMapStation
-              lang={lang}
-              itineraryData={itineraryData}
-              activeDay={activeDay}
-              onSelectDay={(day) => setActiveDay(day)}
-              onOpenDetail={(spot) => setSelectedSpot(spot)}
-              isOpen={isDockedMapOpen}
-              onToggleOpen={() => setIsDockedMapOpen(prev => !prev)}
-            />
+        <div className="show-mobile-only" style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
+          {/* TAB 1. 🏠 홈 (Home) */}
+          {activeNavTab === 'home' && (
+            <div className="tab-content-fade-in" style={{ width: '100%' }}>
+              <PortalHomePrototype
+                lang={lang}
+                onSearchSubmit={(promptText) => {
+                  setPlannerInitialMode('chat');
+                  setActiveNavTab('ai');
+                  handleGenerateItinerary(promptText, false, true);
+                }}
+                onSelectTheme={(promptText, city) => {
+                  setPlannerInitialMode('chat');
+                  setActiveNavTab('ai');
+                  handleGenerateItinerary(promptText, false, true);
+                }}
+                onOpenWeather={(city) => {
+                  setWeatherCity(city || itineraryData?.targetCity || '서울');
+                  setIsWeatherOpen(true);
+                }}
+                onOpenEssentials={() => setIsEssentialsOpen(true)}
+                onOpenPlanner={() => {
+                  setPlannerInitialMode('form');
+                  setActiveNavTab('ai');
+                }}
+                targetCity={itineraryData?.targetCity || '서울'}
+              />
+            </div>
+          )}
 
-            {/* 우측 메인 AI 플래너/채팅 영역 */}
-            <div style={{ flex: 1, maxWidth: isDockedMapOpen ? '840px' : '880px', width: '100%' }}>
+          {/* TAB 2. ✨ AI 플래너 (AI Concierge) */}
+          {activeNavTab === 'ai' && (
+            <div className="tab-content-fade-in" style={{ width: '100%', maxWidth: '880px', margin: '0 auto' }}>
               <AIPlannerTab
                 lang={lang}
                 onGenerateItinerary={handleGenerateItinerary}
@@ -1451,35 +1504,11 @@ export default function App() {
                 onUpdateTimeSlot={handleUpdateTimeSlot}
               />
             </div>
-          </div>
-        )}
+          )}
 
-        {/* ==============================================================================
-           TAB 3. 🧳 내 여행 (My Trip): 3단계 확정 타임라인 & 멀티 저장 여행 셀렉터 & 0원 동선 최적화
-           ============================================================================== */}
-        {activeNavTab === 'mytrip' && (
-          <div className="tab-content-fade-in" style={{
-            width: '100%',
-            maxWidth: isDockedMapOpen ? '1260px' : '960px',
-            margin: '0 auto',
-            display: 'flex',
-            alignItems: 'flex-start',
-            justifyContent: 'center',
-            transition: 'all 0.25s ease'
-          }}>
-            {/* 🗺️ 좌측 도킹 & 슬라이드 접이식 스마트 지도 스테이션 (PC 전용) */}
-            <DockedMapStation
-              lang={lang}
-              itineraryData={itineraryData}
-              activeDay={activeDay}
-              onSelectDay={(day) => setActiveDay(day)}
-              onOpenDetail={(spot) => setSelectedSpot(spot)}
-              isOpen={isDockedMapOpen}
-              onToggleOpen={() => setIsDockedMapOpen(prev => !prev)}
-            />
-
-            {/* 우측 메인 일정표 영역 */}
-            <div style={{ flex: 1, maxWidth: isDockedMapOpen ? '840px' : '880px', width: '100%' }}>
+          {/* TAB 3. 🧳 내 여행 (My Trip) */}
+          {activeNavTab === 'mytrip' && (
+            <div className="tab-content-fade-in" style={{ width: '100%', maxWidth: '880px', margin: '0 auto' }}>
               <MyTripTab
                 lang={lang}
                 itineraryData={itineraryData}
@@ -1488,7 +1517,6 @@ export default function App() {
                 onOpenDetail={(spot) => setSelectedSpot(spot)}
                 onGoToMap={() => setActiveNavTab('map')}
                 onGoToModify={() => {
-                  // 🌟 3단계에서 [AI와 대화로 수정하기] 터치 시 ➔ 2단계 대화창으로 자연스러운 복귀!
                   setPlannerInitialMode('chat');
                   setActiveNavTab('ai');
                 }}
@@ -1511,8 +1539,7 @@ export default function App() {
                 onSyncTrips={handleSyncTrips}
               />
             </div>
-          </div>
-        )}
+          )}
 
         {/* ==============================================================================
            TAB 4. 🗺️ 지도 (Map): 이동 경로 번호 핀 및 전체화면 스마트 지도

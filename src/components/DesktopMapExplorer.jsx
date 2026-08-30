@@ -4,31 +4,62 @@ import {
   Compass, 
   MapPin, 
   ChevronRight, 
-  ChevronLeft,
+  ChevronLeft, 
   RefreshCw, 
   ZoomIn, 
   ZoomOut, 
   Navigation, 
   Clock, 
-  Calendar,
-  Layers,
-  Heart,
-  Star,
-  CloudSun,
-  CreditCard,
-  Train,
-  Wifi,
-  PhoneCall,
-  CheckCircle2,
-  Ticket,
-  Utensils,
-  Moon
+  Calendar, 
+  Layers, 
+  Heart, 
+  Star, 
+  CloudSun, 
+  CreditCard, 
+  Train, 
+  Wifi, 
+  PhoneCall, 
+  CheckCircle2, 
+  Ticket, 
+  Utensils, 
+  Moon,
+  ArrowLeft,
+  MessageSquare
 } from 'lucide-react';
 import { buildKlookDeepLink } from '../services/apiConfig';
 import { fetchDynamicRealtimeSpots, fetchLocationBasedTourApiSpots, getCityMultilingualName } from '../services/tourApi';
 import { CITY_LOCAL_KNOWLEDGE } from '../data/voraDialogKnowledge';
 import SubwayMapModal from './SubwayMapModal';
 import HelplineModal from './HelplineModal';
+import VoraAIChat from './VoraAIChat';
+import MyTripTab from './MyTripTab';
+import { generateGoogleMapsRouteUrl } from '../services/geminiNlpService';
+
+// 🎯 Organic Curved Route Generator for smooth travel paths in Route Map mode
+function generateSmoothCurvedRoute(points) {
+  if (!points || points.length < 2) return points || [];
+  const curved = [];
+  for (let i = 0; i < points.length - 1; i++) {
+    const p1 = points[i];
+    const p2 = points[i + 1];
+    const midLat = (p1[0] + p2[0]) / 2;
+    const midLng = (p1[1] + p2[1]) / 2;
+    const dLat = p2[0] - p1[0];
+    const dLng = p2[1] - p1[1];
+    const sign = (i % 2 === 0) ? 1 : -1;
+    const curveIntensity = 0.12 * sign;
+    const ctrlLat = midLat - dLng * curveIntensity;
+    const ctrlLng = midLng + dLat * curveIntensity;
+    const steps = 10;
+    for (let step = 0; step < (i === points.length - 2 ? steps + 1 : steps); step++) {
+      const t = step / steps;
+      const lat = (1 - t) * (1 - t) * p1[0] + 2 * (1 - t) * t * ctrlLat + t * t * p2[0];
+      const lng = (1 - t) * (1 - t) * p1[1] + 2 * (1 - t) * t * ctrlLng + t * t * p2[1];
+      curved.push([lat, lng]);
+    }
+  }
+  return curved.length > 1 ? curved : points;
+}
 
 // 🗺️ 전국 대표 권역 검증된 고화질 Fallback 데이터
 const REGIONAL_FALLBACK_CENTERS = [
@@ -204,9 +235,37 @@ function getDistanceKm(lat1, lng1, lat2, lng2) {
 
 export default function DesktopMapExplorer({ 
   lang = 'ko', 
+  activeStage = 'explore', // 'explore' | 'chat' | 'itinerary'
+  onNavigateStage,
   onSelectCityPlan,
   onOpenWeather,
-  onOpenEssentials
+  onOpenEssentials,
+  // Chat Props
+  chatMessages = [],
+  isLoading = false,
+  onSendMessage,
+  onConfirmItinerary,
+  onAddPoiToItinerary,
+  sessionContext = {},
+  onRemoveContextChip,
+  onToggleContextChip,
+  onResetChat,
+  onUpdateTimeSlot,
+  // Itinerary Props
+  itineraryData = null,
+  activeDay = 1,
+  onSelectDay,
+  onOpenDetail,
+  savedTrips = [],
+  onSelectTrip,
+  onDeleteTrip,
+  onCreateNewTrip,
+  onSaveCurrentTrip,
+  questionQuota = { remaining: 3, total: 3 },
+  currentUser = null,
+  onOpenGoogleAuth,
+  onSyncTrips,
+  onOpenRewardedAd
 }) {
   const [selectedLocation, setSelectedLocation] = useState(REGIONAL_FALLBACK_CENTERS[0]);
   const [selectedDays, setSelectedDays] = useState(3);
@@ -219,6 +278,17 @@ export default function DesktopMapExplorer({
   const mapContainerRef = useRef(null);
   const leafletMapRef = useRef(null);
   const markerRef = useRef(null);
+  const routeLayerRef = useRef(null);
+  const numberedMarkersRef = useRef([]);
+
+  // Current day spots for itinerary mode
+  const currentDaySpots = React.useMemo(() => {
+    if (!itineraryData?.dailySchedules) {
+      return itineraryData?.spots || [];
+    }
+    const daySchedule = itineraryData.dailySchedules.find(s => s.day === activeDay);
+    return daySchedule?.spots || itineraryData.spots || [];
+  }, [itineraryData, activeDay]);
 
   // 1. Leaflet Ready Check
   useEffect(() => {
@@ -248,7 +318,7 @@ export default function DesktopMapExplorer({
 
       leafletMapRef.current = map;
 
-      // Click anywhere to select location
+      // Click anywhere to select location (in explore/chat mode)
       map.on('click', (e) => {
         const { lat, lng } = e.latlng;
         handleMapLocationSelected(lat, lng);
@@ -267,6 +337,118 @@ export default function DesktopMapExplorer({
       map.whenReady(() => {
         map.invalidateSize();
       });
+    }
+  }, [isLeafletReady]);
+
+  // 3. Stage 3 (Itinerary Mode): Render Numbered Pins & Curved Routes on Map
+  useEffect(() => {
+    if (!leafletMapRef.current || !window.L) return;
+    const map = leafletMapRef.current;
+
+    // Invalidate size on stage transition or layout toggle
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+    }, 200);
+
+    if (activeStage === 'itinerary' && currentDaySpots.length > 0) {
+      // Hide single explorer marker
+      if (markerRef.current) {
+        markerRef.current.remove();
+      }
+
+      // Clear old route markers
+      numberedMarkersRef.current.forEach(m => m.remove());
+      numberedMarkersRef.current = [];
+
+      if (routeLayerRef.current) {
+        routeLayerRef.current.remove();
+        routeLayerRef.current = null;
+      }
+
+      const validSpots = currentDaySpots.filter(sp => {
+        const lat = Number(sp.lat || sp.mapy || sp.latitude);
+        const lng = Number(sp.lng || sp.mapx || sp.longitude);
+        return lat && lng && lat > 32 && lat < 40 && lng > 124 && lng < 132;
+      });
+
+      const latLngs = [];
+
+      validSpots.forEach((spot, idx) => {
+        const lat = Number(spot.lat || spot.mapy || spot.latitude);
+        const lng = Number(spot.lng || spot.mapx || spot.longitude);
+        const spotPos = [lat, lng];
+        latLngs.push(spotPos);
+
+        const markerHtml = `
+          <div style="
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 13px;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.4);
+            border: 2px solid #ffffff;
+            cursor: pointer;
+          ">
+            ${idx + 1}
+          </div>
+        `;
+
+        const icon = window.L.divIcon({
+          html: markerHtml,
+          className: 'docked-map-pin-icon',
+          iconSize: [28, 28],
+          iconAnchor: [14, 14]
+        });
+
+        const marker = window.L.marker(spotPos, { icon }).addTo(map);
+        marker.on('click', () => {
+          if (onOpenDetail) onOpenDetail(spot);
+          map.flyTo(spotPos, 15, { duration: 0.5 });
+        });
+
+        numberedMarkersRef.current.push(marker);
+      });
+
+      // Draw Smooth Curved Route
+      if (latLngs.length > 1) {
+        const curvedPath = generateSmoothCurvedRoute(latLngs);
+        const polyline = window.L.polyline(curvedPath, {
+          color: '#2563eb',
+          weight: 4,
+          opacity: 0.85,
+          dashArray: '8, 6',
+          lineCap: 'round'
+        }).addTo(map);
+        routeLayerRef.current = polyline;
+      }
+
+      // Fit Bounds
+      if (latLngs.length > 0) {
+        const bounds = window.L.latLngBounds(latLngs);
+        map.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
+      }
+    } else {
+      // Clear route layers in Explore & Chat mode and restore single pin
+      numberedMarkersRef.current.forEach(m => m.remove());
+      numberedMarkersRef.current = [];
+      if (routeLayerRef.current) {
+        routeLayerRef.current.remove();
+        routeLayerRef.current = null;
+      }
+      if (markerRef.current && selectedLocation.lat && selectedLocation.lng) {
+        markerRef.current.addTo(map);
+        markerRef.current.setLatLng([selectedLocation.lat, selectedLocation.lng]);
+      }
+    }
+
+    return () => clearTimeout(timer);
+  }, [activeStage, currentDaySpots, activeDay, isMapExpandedFull]);
 
       const timer1 = setTimeout(() => { if (leafletMapRef.current) leafletMapRef.current.invalidateSize(); }, 100);
       const timer2 = setTimeout(() => { if (leafletMapRef.current) leafletMapRef.current.invalidateSize(); }, 300);
@@ -511,7 +693,7 @@ export default function DesktopMapExplorer({
     return city.nameKo;
   };
 
-  const getHighlightLabel = (hl) => {
+  const getHighlightName = (hl) => {
     if (lang === 'en') return hl.en;
     if (lang === 'ja') return hl.ja || hl.en;
     if (lang === 'zh' || lang === 'zht') return hl.zh || hl.en;
@@ -585,7 +767,7 @@ export default function DesktopMapExplorer({
       boxSizing: 'border-box'
     }}>
       {/* =========================================================================
-          🌟 3-Zone Smart Top Header [좌: 조작 툴킷 + 중: 가이드 타이틀 + 우: 6대 도시 스마트 칩]
+          🌟 3-Zone Smart Top Header (모핑 스테이지 연동 1단계 ↔ 2단계 ↔ 3단계)
           ========================================================================= */}
       <div style={{
         display: 'flex',
@@ -596,7 +778,7 @@ export default function DesktopMapExplorer({
         borderBottom: '1px solid #f1f5f9',
         gap: '0.8rem'
       }}>
-        {/* [Zone 1. 좌측 맵 컨트롤 탭 그룹] */}
+        {/* [Zone 1. 좌측 컨트롤/복귀 탭 그룹] */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
@@ -606,76 +788,102 @@ export default function DesktopMapExplorer({
           borderRadius: '10px',
           border: '1px solid #e2e8f0'
         }}>
-          <div style={{
-            width: '24px',
-            height: '24px',
-            borderRadius: '6px',
-            backgroundColor: 'rgba(37, 99, 235, 0.12)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#2563eb',
-            marginRight: '0.15rem'
-          }}>
-            <Compass size={14} />
-          </div>
-          <button
-            onClick={() => leafletMapRef.current && leafletMapRef.current.zoomIn()}
-            style={{
-              width: '24px',
-              height: '24px',
-              backgroundColor: '#ffffff',
-              border: '1px solid #cbd5e1',
-              borderRadius: '6px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer'
-            }}
-            title={lang === 'en' ? 'Zoom In' : '확대'}
-          >
-            <ZoomIn size={12} color="#0f172a" />
-          </button>
-          <button
-            onClick={() => leafletMapRef.current && leafletMapRef.current.zoomOut()}
-            style={{
-              width: '24px',
-              height: '24px',
-              backgroundColor: '#ffffff',
-              border: '1px solid #cbd5e1',
-              borderRadius: '6px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer'
-            }}
-            title={lang === 'en' ? 'Zoom Out' : '축소'}
-          >
-            <ZoomOut size={12} color="#0f172a" />
-          </button>
-          <button
-            onClick={handleResetMap}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.25rem',
-              backgroundColor: '#ffffff',
-              border: '1px solid #cbd5e1',
-              borderRadius: '6px',
-              padding: '0.2rem 0.5rem',
-              fontSize: '0.70rem',
-              fontWeight: 800,
-              color: '#475569',
-              cursor: 'pointer'
-            }}
-            title={lang === 'en' ? 'View Whole Country' : '전국 전도 리셋'}
-          >
-            <RefreshCw size={10} />
-            <span>{lang === 'en' ? 'All Korea' : lang === 'ja' ? '全国表示' : (lang === 'zh' || lang === 'zht') ? '全国地图' : '전국 보기'}</span>
-          </button>
+          {activeStage === 'explore' ? (
+            <>
+              <div style={{
+                width: '24px',
+                height: '24px',
+                borderRadius: '6px',
+                backgroundColor: 'rgba(37, 99, 235, 0.12)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#2563eb',
+                marginRight: '0.15rem'
+              }}>
+                <Compass size={14} />
+              </div>
+              <button
+                onClick={() => leafletMapRef.current && leafletMapRef.current.zoomIn()}
+                style={{
+                  width: '24px',
+                  height: '24px',
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '6px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer'
+                }}
+                title={lang === 'en' ? 'Zoom In' : '확대'}
+              >
+                <ZoomIn size={12} color="#0f172a" />
+              </button>
+              <button
+                onClick={() => leafletMapRef.current && leafletMapRef.current.zoomOut()}
+                style={{
+                  width: '24px',
+                  height: '24px',
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '6px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer'
+                }}
+                title={lang === 'en' ? 'Zoom Out' : '축소'}
+              >
+                <ZoomOut size={12} color="#0f172a" />
+              </button>
+              <button
+                onClick={handleResetMap}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.25rem',
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '6px',
+                  padding: '0.2rem 0.5rem',
+                  fontSize: '0.70rem',
+                  fontWeight: 800,
+                  color: '#475569',
+                  cursor: 'pointer'
+                }}
+                title={lang === 'en' ? 'View Whole Country' : '전국 전도 리셋'}
+              >
+                <RefreshCw size={10} />
+                <span>{lang === 'en' ? 'All Korea' : lang === 'ja' ? '全国表示' : (lang === 'zh' || lang === 'zht') ? '全国地图' : '전국 보기'}</span>
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => onNavigateStage && onNavigateStage('explore')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                backgroundColor: '#ffffff',
+                border: '1px solid #cbd5e1',
+                borderRadius: '6px',
+                padding: '0.25rem 0.65rem',
+                fontSize: '0.74rem',
+                fontWeight: 800,
+                color: '#2563eb',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease'
+              }}
+              title="1단계 도시 탐색으로 돌아가기"
+            >
+              <ArrowLeft size={13} />
+              <span>{lang === 'en' ? '🔄 Explore Other Cities' : '🔄 다른 도시 탐색'}</span>
+            </button>
+          )}
         </div>
 
-        {/* [Zone 2. 중앙 간결 가이드 문구] */}
+        {/* [Zone 2. 중앙 상태 안내 문구] */}
         <div style={{ flex: 1, textAlign: 'left', paddingLeft: '0.3rem' }}>
           <h2 style={{
             fontSize: '0.96rem',
@@ -687,23 +895,37 @@ export default function DesktopMapExplorer({
             alignItems: 'center',
             gap: '0.35rem'
           }}>
-            <span>
-              {lang === 'en' ? 'Click anywhere on map to explore Korea!' : 
-               lang === 'ja' ? '地図の行きたい場所を自由にクリック！' : 
-               (lang === 'zh' || lang === 'zht') ? '点击地图任意位置，开启韩国之旅！' : 
-               '대한민국 어디든 지도를 콕 찍어보세요!'}
-            </span>
+            {activeStage === 'explore' && (
+              <span>
+                {lang === 'en' ? 'Click anywhere on map to explore Korea!' : 
+                 lang === 'ja' ? '地図の行きたい場所を自由にクリック！' : 
+                 (lang === 'zh' || lang === 'zht') ? '点击地图任意位置，开启韩国之旅！' : 
+                 '대한민국 어디든 지도를 콕 찍어보세요!'}
+              </span>
+            )}
+            {activeStage === 'chat' && (
+              <span style={{ color: '#2563eb', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <Sparkles size={15} color="#2563eb" />
+                <span>{selectedLocation.nameKo || itineraryData?.targetCity || '맞춤 여행'} 1:1 VORA AI 대화 조율</span>
+              </span>
+            )}
+            {activeStage === 'itinerary' && (
+              <span style={{ color: '#7c3aed', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <Calendar size={15} color="#7c3aed" />
+                <span>{itineraryData?.targetCity || selectedLocation.nameKo || '제주'} {itineraryData?.days || 3}일차 확정 타임라인</span>
+              </span>
+            )}
           </h2>
         </div>
 
-        {/* [Zone 3. 우측 6대 인기 거점 스마트 퀵점프 칩 (수원 포함 🏰)] */}
+        {/* [Zone 3. 우측 액션 / 6대 인기 거점 칩] */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
           gap: '0.35rem',
           flexWrap: 'nowrap'
         }}>
-          {POPULAR_QUICK_CITIES.map((city) => {
+          {activeStage === 'explore' && POPULAR_QUICK_CITIES.map((city) => {
             const isSelected = selectedLocation.nameKo.includes(city.nameKo) || city.nameKo.includes(selectedLocation.nameKo);
             return (
               <button
@@ -736,214 +958,85 @@ export default function DesktopMapExplorer({
               </button>
             );
           })}
+
+          {activeStage === 'chat' && (
+            <button
+              onClick={() => onNavigateStage && onNavigateStage('itinerary')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '9999px',
+                padding: '0.32rem 0.85rem',
+                fontSize: '0.76rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.35)'
+              }}
+            >
+              <span>📋 {lang === 'en' ? 'View Itinerary Timeline' : '일정표 보기'}</span>
+              <ChevronRight size={13} />
+            </button>
+          )}
+
+          {activeStage === 'itinerary' && (
+            <button
+              onClick={() => onNavigateStage && onNavigateStage('chat')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                backgroundColor: '#f5f3ff',
+                color: '#7c3aed',
+                border: '1px solid #ddd6fe',
+                borderRadius: '9999px',
+                padding: '0.32rem 0.85rem',
+                fontSize: '0.76rem',
+                fontWeight: 800,
+                cursor: 'pointer'
+              }}
+            >
+              <MessageSquare size={13} />
+              <span>{lang === 'en' ? '💬 Modify via AI Chat' : '💬 AI 대화로 수정'}</span>
+            </button>
+          )}
         </div>
       </div>
 
       {/* =========================================================================
-          🗺️ 일체형 3-Section 지도 스테이션 [좌측 52px 미니 툴바 + 리얼 지도 + AI 프리뷰]
+          🌟 2-Column Split Workspace (좌: 지도 50% ↔ 우: 매거진/대화/일정표 50%)
           ========================================================================= */}
       <div style={{
         display: 'flex',
-        gap: '0.85rem',
-        height: '425px',
+        gap: '12px',
+        height: '520px',
+        width: '100%',
         position: 'relative'
       }}>
-        {/* [1. 최좌측 일체형 52px 미니 툴바] */}
-        <div style={{
-          width: '52px',
-          height: '100%',
-          backgroundColor: '#f8fafc',
-          borderRadius: '14px',
-          border: '1px solid #e2e8f0',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0.6rem 0',
-          boxSizing: 'border-box',
-          flexShrink: 0
-        }}>
-          {/* Top Tools */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.55rem', width: '100%' }}>
-            {/* Map Reset */}
-            <button
-              onClick={handleResetMap}
-              title={lang === 'en' ? 'Reset Map' : '지도 리셋'}
-              style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '10px',
-                backgroundColor: '#eff6ff',
-                color: '#2563eb',
-                border: 'none',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                transition: 'all 0.15s'
-              }}
-            >
-              <Compass size={17} />
-            </button>
-
-            {/* Weather */}
-            <button
-              onClick={() => onOpenWeather && onOpenWeather(selectedLocation.nameKo)}
-              title={lang === 'en' ? 'Weather & Outfit' : '실시간 날씨 & 코디'}
-              style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '10px',
-                backgroundColor: 'transparent',
-                color: '#f59e0b',
-                border: 'none',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer'
-              }}
-            >
-              <CloudSun size={17} />
-            </button>
-
-            {/* Climate Pass */}
-            <button
-              onClick={() => onOpenEssentials && onOpenEssentials()}
-              title={lang === 'en' ? 'Climate Card' : '기후동행카드'}
-              style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '10px',
-                backgroundColor: 'transparent',
-                color: '#059669',
-                border: 'none',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer'
-              }}
-            >
-              <CreditCard size={17} />
-            </button>
-
-            {/* Subway */}
-            <button
-              onClick={() => setIsSubwayModalOpen(true)}
-              title={lang === 'en' ? 'Metro Map' : '지하철 노선도'}
-              style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '10px',
-                backgroundColor: 'transparent',
-                color: '#0284c7',
-                border: 'none',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer'
-              }}
-            >
-              <Train size={17} />
-            </button>
-
-            {/* eSIM */}
-            <button
-              onClick={() => {
-                const esimQuery = lang === 'en' ? 'Korea eSIM Unlimited' : lang === 'ja' ? '韓国 無制限 eSIM' : (lang === 'zh' || lang === 'zht') ? '韩国 无限流量 eSIM' : '한국 무제한 eSIM';
-                window.open(buildKlookDeepLink(esimQuery), '_blank', 'noopener,noreferrer');
-              }}
-              title={lang === 'en' ? 'Korea eSIM' : '무제한 eSIM'}
-              style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '10px',
-                backgroundColor: 'transparent',
-                color: '#8b5cf6',
-                border: 'none',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer'
-              }}
-            >
-              <Wifi size={17} />
-            </button>
-
-            {/* 1330 */}
-            <button
-              onClick={() => setIsHelplineModalOpen(true)}
-              title={lang === 'en' ? '1330 Hotline' : '1330 긴급통역'}
-              style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '10px',
-                backgroundColor: 'transparent',
-                color: '#ef4444',
-                border: 'none',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer'
-              }}
-            >
-              <PhoneCall size={17} />
-            </button>
-          </div>
-
-          <div style={{ fontSize: '9px', fontWeight: 800, color: '#94a3b8' }}>
-            VORA
-          </div>
-        </div>
-
-        {/* [2. 중앙 100% 무료 공식 OpenStreetMap 타일 지도 영역 (50% ↔ 100% 가변)] */}
+        {/* [1. 좌측 인터랙티브 지도 스테이션] */}
         <div style={{
           flex: isMapExpandedFull ? '1 1 100%' : '1 1 50%',
+          width: isMapExpandedFull ? '100%' : '50%',
           height: '100%',
-          backgroundColor: '#e2e8f0',
           borderRadius: '16px',
           overflow: 'hidden',
           position: 'relative',
-          border: '1px solid #cbd5e1',
-          transition: 'flex 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+          border: '1px solid #e2e8f0',
+          boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.04)',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
         }}>
-          {/* Leaflet Mount Node */}
           <div 
             ref={mapContainerRef} 
-            style={{ 
-              width: '100%', 
-              height: '100%', 
-              position: 'absolute',
-              top: 0,
-              left: 0
-            }} 
+            style={{ width: '100%', height: '100%', zIndex: 1 }}
           />
 
-          {/* Map Top Guide Chip */}
-          <div style={{
-            position: 'absolute',
-            top: '10px',
-            left: '10px',
-            backgroundColor: 'rgba(255, 255, 255, 0.94)',
-            backdropFilter: 'blur(8px)',
-            padding: '4px 10px',
-            borderRadius: '9999px',
-            fontSize: '11px',
-            fontWeight: 800,
-            color: '#2563eb',
-            zIndex: 400,
-            boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px'
-          }}>
-            <Navigation size={11} />
-            <span>{lang === 'en' ? 'Click anywhere on map' : lang === 'ja' ? '地図をクリック' : (lang === 'zh' || lang === 'zht') ? '点击地图任意位置' : '지도 위 가고 싶은 곳 어디든 클릭해보세요!'}</span>
-          </div>
-
-          {/* ◀ / ▶ 네이버 지도 스타일 패널 접기/펼치기 플로팅 토글 버튼 */}
+          {/* Map Expand/Collapse Toggle Button on Divider */}
           <button
-            onClick={() => setIsMapExpandedFull(!isMapExpandedFull)}
-            title={isMapExpandedFull ? '우측 프리뷰 카드 보기' : '지도를 넓게 전체화면으로 보기'}
+            onClick={() => setIsMapExpandedFull(prev => !prev)}
+            title={isMapExpandedFull ? '우측 화면 복원' : '지도 전체화면 확대'}
             style={{
               position: 'absolute',
               top: '50%',
@@ -968,10 +1061,10 @@ export default function DesktopMapExplorer({
           </button>
         </div>
 
-        {/* [3. 우측 VORA AI & 한국관광공사 TourAPI 4.0 정품 4K 포토 매거진 카드 (50% ↔ 0%)] */}
+        {/* [2. 우측 모핑 워크스페이스: 1단계 매거진 ➔ 2단계 AI 대화창 ➔ 3단계 일정표] */}
         <div style={{
           flex: isMapExpandedFull ? '0 0 0px' : '1 1 50%',
-          width: isMapExpandedFull ? 0 : 'auto',
+          width: isMapExpandedFull ? 0 : '50%',
           height: '100%',
           backgroundColor: '#ffffff',
           borderRadius: '16px',
@@ -984,281 +1077,332 @@ export default function DesktopMapExplorer({
           opacity: isMapExpandedFull ? 0 : 1,
           visibility: isMapExpandedFull ? 'hidden' : 'visible'
         }}>
-          {/* Top 4K Photo Banner with Gradient Overlay & Shimmer Pulse */}
-          <div style={{
-            position: 'relative',
-            height: '170px',
-            width: '100%',
-            overflow: 'hidden',
-            backgroundColor: '#0f172a'
-          }}>
-            {isGeocoding ? (
+          {/* =========================================================================
+              STAGE 1 (EXPLORE): 4K 포토 매거진 프리뷰 카드
+              ========================================================================= */}
+          {activeStage === 'explore' && (
+            <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+              {/* Top 4K Photo Banner with Gradient Overlay & Shimmer Pulse */}
               <div style={{
+                position: 'relative',
+                height: '170px',
                 width: '100%',
-                height: '100%',
-                background: 'linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%)',
-                backgroundSize: '200% 100%',
-                animation: 'shimmer 1.5s infinite'
-              }} />
-            ) : (
-              <img 
-                src={selectedLocation.image || '/images/themes/theme-gyeongbokgung.jpg'} 
-                alt={selectedLocation.nameKo}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  transition: 'transform 0.4s ease'
-                }}
-              />
-            )}
-            <div style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(15, 23, 42, 0.85) 100%)'
-            }} />
-
-            {/* Photo Overlay Title */}
-            <div style={{
-              position: 'absolute',
-              bottom: '12px',
-              left: '16px',
-              right: '16px',
-              color: '#ffffff'
-            }}>
-              <div style={{
-                fontSize: '11px',
-                fontWeight: 800,
-                color: '#38bdf8',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-                marginBottom: '2px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px'
+                overflow: 'hidden',
+                backgroundColor: '#0f172a'
               }}>
-                <CheckCircle2 size={12} color="#38bdf8" />
-                <span>📍 {lang === 'en' ? 'TourAPI Certified Destination' : lang === 'ja' ? '公式認証 観光地' : (lang === 'zh' || lang === 'zht') ? '官方认证 目的地' : '한국관광공사 정품 인증 여행지'}</span>
-              </div>
-              <div style={{
-                fontSize: '1.25rem',
-                fontWeight: 900,
-                color: '#ffffff',
-                textShadow: '0 2px 8px rgba(0,0,0,0.6)'
-              }}>
-                {lang === 'ko' ? selectedLocation.nameKo : selectedLocation.nameEn}
-                <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#e2e8f0', marginLeft: '6px' }}>
-                  {lang === 'ko' ? `(${selectedLocation.nameEn})` : `(${selectedLocation.nameKo})`}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Middle Body: Description, 3 Interactive Highlight Tags & Practical Travel Badges (Slim Fit & Internal Scroll) */}
-          <div style={{
-            padding: '10px 14px',
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            backgroundColor: '#ffffff',
-            overflowY: 'auto',
-            maxHeight: '260px'
-          }}>
-            <div>
-              <p style={{
-                fontSize: '0.80rem',
-                color: '#334155',
-                lineHeight: '1.4',
-                margin: '0 0 6px',
-                fontWeight: 600
-              }}>
-                {getSelectedDesc()}
-              </p>
-
-              {/* 3 Core Highlights Chips (🎯 Click to FlyTo & Pin on Map!) */}
-              <div style={{ marginBottom: '6px' }}>
-                <div style={{ fontSize: '0.70rem', fontWeight: 800, color: '#7c3aed', marginBottom: '4px' }}>
-                  ✨ {lang === 'en' ? 'Top Highlights (Click to View on Map)' : lang === 'ja' ? 'おすすめスポット (クリックして地図で確認)' : (lang === 'zh' || lang === 'zht') ? '核心亮点 (点击在地图查看)' : 'VORA 추천 핵심 명소 (클릭 시 지도 이동)'}
-                </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                  {(selectedLocation.highlights || []).map((hl, hIdx) => (
-                    <button 
-                      key={hIdx}
-                      onClick={() => handleHighlightSpotClick(hl)}
-                      title={lang === 'en' ? 'Click to pinpoint on map' : '클릭 시 지도가 이 명소로 이동합니다'}
-                      style={{
-                        fontSize: '0.72rem',
-                        fontWeight: 800,
-                        backgroundColor: '#f3e8ff',
-                        color: '#7c3aed',
-                        padding: '3px 8px',
-                        borderRadius: '6px',
-                        border: '1px solid #e9d5ff',
-                        cursor: 'pointer',
-                        transition: 'all 0.15s ease',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '3px'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#7c3aed';
-                        e.currentTarget.style.color = '#ffffff';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = '#f3e8ff';
-                        e.currentTarget.style.color = '#7c3aed';
-                      }}
-                    >
-                      <span>#</span>
-                      <span>{getHighlightLabel(hl)}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* 🥩 VORA Local Foodie Secret Card (찐 로컬 미식 비결) */}
-              {getSelectedFoodieSecret() && (
+                {isGeocoding ? (
+                  <div style={{
+                    width: '100%',
+                    height: '100%',
+                    background: 'linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%)',
+                    backgroundSize: '200% 100%',
+                    animation: 'shimmer 1.5s infinite'
+                  }} />
+                ) : (
+                  <img 
+                    src={selectedLocation.image || '/images/themes/theme-gyeongbokgung.jpg'} 
+                    alt={selectedLocation.nameKo}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      transition: 'transform 0.4s ease'
+                    }}
+                  />
+                )}
                 <div style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '6px',
-                  padding: '6px 8px',
-                  backgroundColor: '#fff7ed',
-                  borderRadius: '8px',
-                  border: '1px solid #ffedd5',
-                  marginBottom: '5px'
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  background: 'linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(15, 23, 42, 0.85) 100%)'
+                }} />
+
+                {/* Photo Overlay Title */}
+                <div style={{
+                  position: 'absolute',
+                  bottom: '12px',
+                  left: '16px',
+                  right: '16px',
+                  color: '#ffffff'
                 }}>
-                  <Utensils size={12} color="#ea580c" style={{ flexShrink: 0, marginTop: '2px' }} />
-                  <div style={{ fontSize: '0.71rem', color: '#9a3412', lineHeight: '1.35' }}>
-                    <strong style={{ color: '#c2410c', fontWeight: 800 }}>
-                      {lang === 'en' ? 'Foodie Secret: ' : lang === 'ja' ? 'グルメ秘訣: ' : (lang === 'zh' || lang === 'zht') ? '美食秘诀: ' : '보라의 찐 미식: '}
-                    </strong>
-                    <span>{getSelectedFoodieSecret()}</span>
+                  <div style={{
+                    fontSize: '11px',
+                    fontWeight: 800,
+                    color: '#38bdf8',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    marginBottom: '2px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}>
+                    <CheckCircle2 size={12} color="#38bdf8" />
+                    <span>📍 {lang === 'en' ? 'TourAPI Certified Destination' : lang === 'ja' ? '公式認証 観光地' : (lang === 'zh' || lang === 'zht') ? '官方认证 目的地' : '한국관광공사 정품 인증 여행지'}</span>
+                  </div>
+                  <div style={{
+                    fontSize: '1.25rem',
+                    fontWeight: 900,
+                    color: '#ffffff',
+                    textShadow: '0 2px 8px rgba(0,0,0,0.6)'
+                  }}>
+                    {lang === 'ko' ? selectedLocation.nameKo : selectedLocation.nameEn}
+                    <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#e2e8f0', marginLeft: '6px' }}>
+                      {lang === 'ko' ? `(${selectedLocation.nameEn})` : `(${selectedLocation.nameKo})`}
+                    </span>
                   </div>
                 </div>
-              )}
+              </div>
 
-              {/* 🌙 VORA Night & Scenic Card (시그니처 야경·힐링) */}
-              {getSelectedNightHighlight() && (
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '6px',
-                  padding: '6px 8px',
-                  backgroundColor: '#f5f3ff',
-                  borderRadius: '8px',
-                  border: '1px solid #ede9fe',
-                  marginBottom: '5px'
-                }}>
-                  <Moon size={12} color="#7c3aed" style={{ flexShrink: 0, marginTop: '2px' }} />
-                  <div style={{ fontSize: '0.71rem', color: '#5b21b6', lineHeight: '1.35' }}>
-                    <strong style={{ color: '#6d28d9', fontWeight: 800 }}>
-                      {lang === 'en' ? 'Night & Scenic: ' : lang === 'ja' ? '夜景·絶景: ' : (lang === 'zh' || lang === 'zht') ? '夜景绝景: ' : '시그니처 야경: '}
-                    </strong>
-                    <span>{getSelectedNightHighlight()}</span>
+              {/* Middle Body: Description, 3 Interactive Highlights & Practical Badges */}
+              <div style={{
+                padding: '10px 14px',
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                backgroundColor: '#ffffff',
+                overflowY: 'auto',
+                maxHeight: '260px'
+              }}>
+                <div>
+                  <p style={{
+                    fontSize: '0.80rem',
+                    color: '#334155',
+                    lineHeight: '1.4',
+                    margin: '0 0 6px',
+                    fontWeight: 600
+                  }}>
+                    {getSelectedDesc()}
+                  </p>
+
+                  {/* 3 Core Highlights Chips */}
+                  <div style={{ marginBottom: '6px' }}>
+                    <div style={{ fontSize: '0.70rem', fontWeight: 800, color: '#7c3aed', marginBottom: '4px' }}>
+                      ✨ {lang === 'en' ? 'Top Highlights (Click to View on Map)' : lang === 'ja' ? 'おすすめスポット' : (lang === 'zh' || lang === 'zht') ? '核心亮点' : 'VORA 추천 핵심 명소 (클릭 시 지도 이동)'}
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                      {(selectedLocation.highlights || []).map((hl, hIdx) => (
+                        <button 
+                          key={hIdx}
+                          onClick={() => handleHighlightSpotClick(hl)}
+                          title="클릭 시 지도가 이 명소로 이동합니다"
+                          style={{
+                            fontSize: '0.72rem',
+                            fontWeight: 800,
+                            backgroundColor: '#f3e8ff',
+                            color: '#7c3aed',
+                            padding: '3px 8px',
+                            borderRadius: '9999px',
+                            border: '1px solid #ddd6fe',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '3px'
+                          }}
+                        >
+                          <span>📍</span>
+                          <span>{getHighlightName(hl)}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 🍲 VORA Foodie Secret Card */}
+                  {getSelectedFoodieSecret() && (
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: '6px',
+                      padding: '6px 8px',
+                      backgroundColor: '#fff7ed',
+                      borderRadius: '8px',
+                      border: '1px solid #ffedd5',
+                      marginBottom: '5px'
+                    }}>
+                      <Utensils size={12} color="#ea580c" style={{ flexShrink: 0, marginTop: '2px' }} />
+                      <div style={{ fontSize: '0.71rem', color: '#9a3412', lineHeight: '1.35' }}>
+                        <strong style={{ color: '#c2410c', fontWeight: 800 }}>
+                          {lang === 'en' ? 'Foodie Secret: ' : lang === 'ja' ? 'グルメ秘訣: ' : (lang === 'zh' || lang === 'zht') ? '美食秘诀: ' : '보라의 찐 미식: '}
+                        </strong>
+                        <span>{getSelectedFoodieSecret()}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 🌙 VORA Night & Scenic Card */}
+                  {getSelectedNightHighlight() && (
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: '6px',
+                      padding: '6px 8px',
+                      backgroundColor: '#f5f3ff',
+                      borderRadius: '8px',
+                      border: '1px solid #ede9fe',
+                      marginBottom: '5px'
+                    }}>
+                      <Moon size={12} color="#7c3aed" style={{ flexShrink: 0, marginTop: '2px' }} />
+                      <div style={{ fontSize: '0.71rem', color: '#5b21b6', lineHeight: '1.35' }}>
+                        <strong style={{ color: '#6d28d9', fontWeight: 800 }}>
+                          {lang === 'en' ? 'Night & Scenic: ' : lang === 'ja' ? '夜景·絶景: ' : (lang === 'zh' || lang === 'zht') ? '夜景绝景: ' : '시그니처 야경: '}
+                        </strong>
+                        <span>{getSelectedNightHighlight()}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 🚄 Practical Foreigner Travel Badge Row */}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    flexWrap: 'wrap',
+                    padding: '5px 7px',
+                    backgroundColor: '#f8fafc',
+                    borderRadius: '8px',
+                    border: '1px solid #f1f5f9'
+                  }}>
+                    <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0369a1', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                      <Train size={11} />
+                      <span>{getSelectedTransitTip()}</span>
+                    </span>
+                    <span style={{ color: '#cbd5e1' }}>•</span>
+                    <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#059669', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                      <Ticket size={11} />
+                      <span>TAX FREE</span>
+                    </span>
                   </div>
                 </div>
-              )}
 
-              {/* 🚄 Practical Foreigner Travel Badge Row */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                flexWrap: 'wrap',
-                padding: '5px 7px',
-                backgroundColor: '#f8fafc',
-                borderRadius: '8px',
-                border: '1px solid #f1f5f9'
-              }}>
-                <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0369a1', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                  <Train size={11} />
-                  <span>{getSelectedTransitTip()}</span>
-                </span>
-                <span style={{ color: '#cbd5e1' }}>•</span>
-                <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#059669', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                  <Ticket size={11} />
-                  <span>TAX FREE</span>
-                </span>
-              </div>
-            </div>
-
-            {/* Bottom Action Area: Days Selector & Start Button */}
-            <div style={{
-              borderTop: '1px solid #f1f5f9',
-              paddingTop: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: '10px'
-            }}>
-              {/* Days Selector */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#64748b' }}>
-                  {lang === 'en' ? 'Days:' : lang === 'ja' ? '日程:' : (lang === 'zh' || lang === 'zht') ? '天数:' : '일수:'}
-                </span>
-                <div style={{ display: 'flex', gap: '3px' }}>
-                  {[1, 2, 3, 4, 5].map((d) => (
-                    <button
-                      key={d}
-                      onClick={() => setSelectedDays(d)}
-                      style={{
-                        border: selectedDays === d ? '1.5px solid #2563eb' : '1px solid #cbd5e1',
-                        backgroundColor: selectedDays === d ? '#2563eb' : '#ffffff',
-                        color: selectedDays === d ? '#ffffff' : '#475569',
-                        borderRadius: '6px',
-                        padding: '3px 7px',
-                        fontSize: '0.74rem',
-                        fontWeight: 800,
-                        cursor: 'pointer',
-                        transition: 'all 0.15s ease'
-                      }}
-                    >
-                      {d}{lang === 'en' ? 'D' : lang === 'ja' ? '日' : (lang === 'zh' || lang === 'zht') ? '天' : '일'}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Start Button */}
-              <button
-                onClick={handleStartPlan}
-                style={{
-                  background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '9999px',
-                  padding: '8px 16px',
-                  fontSize: '0.84rem',
-                  fontWeight: 900,
-                  cursor: 'pointer',
+                {/* Bottom Action Area: Days Selector & Start Button */}
+                <div style={{
+                  borderTop: '1px solid #f1f5f9',
+                  paddingTop: '8px',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px',
-                  boxShadow: '0 6px 16px rgba(37, 99, 235, 0.3)',
-                  transition: 'transform 0.15s ease'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-1px)'}
-                onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-              >
-                <Sparkles size={14} />
-                <span>
-                  {lang === 'en' 
-                    ? `Create ${selectedLocation.nameEn} ${selectedDays}D Plan 🚀` 
-                    : lang === 'ja'
-                    ? `✨ ${selectedLocation.nameJa || selectedLocation.nameEn} ${selectedDays}日コース作成 🚀`
-                    : (lang === 'zh' || lang === 'zht')
-                    ? `✨ 生成 ${selectedLocation.nameZh || selectedLocation.nameEn} ${selectedDays}日行程 🚀`
-                    : `✨ ${selectedLocation.nameKo} ${selectedDays}일 코스 만들기 🚀`}
-                </span>
-                <ChevronRight size={14} />
-              </button>
+                  justifyContent: 'space-between',
+                  gap: '10px'
+                }}>
+                  {/* Days Selector */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#64748b' }}>
+                      {lang === 'en' ? 'Days:' : lang === 'ja' ? '日程:' : (lang === 'zh' || lang === 'zht') ? '天数:' : '일수:'}
+                    </span>
+                    <div style={{ display: 'flex', gap: '3px' }}>
+                      {[1, 2, 3, 4, 5].map((d) => (
+                        <button
+                          key={d}
+                          onClick={() => setSelectedDays(d)}
+                          style={{
+                            border: selectedDays === d ? '1.5px solid #2563eb' : '1px solid #cbd5e1',
+                            backgroundColor: selectedDays === d ? '#2563eb' : '#ffffff',
+                            color: selectedDays === d ? '#ffffff' : '#475569',
+                            borderRadius: '6px',
+                            padding: '3px 7px',
+                            fontSize: '0.74rem',
+                            fontWeight: 800,
+                            cursor: 'pointer',
+                            transition: 'all 0.15s ease'
+                          }}
+                        >
+                          {d}{lang === 'en' ? 'D' : lang === 'ja' ? '日' : (lang === 'zh' || lang === 'zht') ? '天' : '일'}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Start Button */}
+                  <button
+                    onClick={handleStartPlan}
+                    style={{
+                      background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: '9999px',
+                      padding: '8px 16px',
+                      fontSize: '0.84rem',
+                      fontWeight: 900,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      boxShadow: '0 6px 16px rgba(37, 99, 235, 0.3)',
+                      transition: 'transform 0.15s ease'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-1px)'}
+                    onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                  >
+                    <Sparkles size={14} />
+                    <span>
+                      {lang === 'en' 
+                        ? `Create ${selectedLocation.nameEn} ${selectedDays}D Plan 🚀` 
+                        : lang === 'ja'
+                        ? `✨ ${selectedLocation.nameJa || selectedLocation.nameEn} ${selectedDays}日コース作成 🚀`
+                        : (lang === 'zh' || lang === 'zht')
+                        ? `✨ 生成 ${selectedLocation.nameZh || selectedLocation.nameEn} ${selectedDays}日行程 🚀`
+                        : `✨ ${selectedLocation.nameKo} ${selectedDays}일 코스 만들기 🚀`}
+                    </span>
+                    <ChevronRight size={14} />
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* =========================================================================
+              STAGE 2 (CHAT): VORA AI 맞춤 대화 조율창
+              ========================================================================= */}
+          {activeStage === 'chat' && (
+            <div style={{ height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+              <VoraAIChat
+                lang={lang}
+                chatMessages={chatMessages}
+                isLoading={isLoading}
+                onSendMessage={onSendMessage}
+                activeDay={activeDay}
+                onSelectDay={onSelectDay}
+                currentUser={currentUser}
+                onConfirmItinerary={onConfirmItinerary}
+                onViewTimeline={() => onNavigateStage && onNavigateStage('itinerary')}
+                onAddPoiToItinerary={onAddPoiToItinerary}
+                sessionContext={sessionContext}
+                onRemoveContextChip={onRemoveContextChip}
+                onToggleContextChip={onToggleContextChip}
+                onResetChat={onResetChat}
+                onUpdateTimeSlot={onUpdateTimeSlot}
+              />
+            </div>
+          )}
+
+          {/* =========================================================================
+              STAGE 3 (ITINERARY): 확정 타임라인 일정표 (MyTripTab)
+              ========================================================================= */}
+          {activeStage === 'itinerary' && (
+            <div style={{ height: '100%', overflowY: 'auto', padding: '0.5rem' }}>
+              <MyTripTab
+                lang={lang}
+                itineraryData={itineraryData}
+                activeDay={activeDay}
+                onSelectDay={onSelectDay}
+                onOpenDetail={onOpenDetail}
+                onGoToMap={() => {}}
+                onGoToModify={() => onNavigateStage && onNavigateStage('chat')}
+                onOpenWeather={onOpenWeather}
+                onOpenEssentials={onOpenEssentials}
+                savedTrips={savedTrips}
+                onSelectTrip={onSelectTrip}
+                onDeleteTrip={onDeleteTrip}
+                onCreateNewTrip={onCreateNewTrip}
+                onSaveCurrentTrip={onSaveCurrentTrip}
+                currentUser={currentUser}
+                onOpenGoogleAuth={onOpenGoogleAuth}
+                onSyncTrips={onSyncTrips}
+                onOpenRewardedAd={onOpenRewardedAd}
+              />
+            </div>
+          )}
         </div>
       </div>
 
