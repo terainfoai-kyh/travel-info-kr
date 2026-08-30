@@ -122,7 +122,9 @@
 
 21. **Strict Pre-Push Zero Defect & Perfect Syntax Verification Rule (배포 전 정상 소스 100% 사전 검증 및 빌드 에러 원천 차단 헌법)**
     - **에러 소스 푸시 100% 영구 엄금**: 개발자로서의 기본과 자존심을 지켜, 빌드 에러나 문법 결함이 있는 소스를 깃(Git)이나 배포 서버에 올리는 행위를 100% 원천 금지합니다.
-    - **배포 전 라인 단위 정밀 사전 검증 의무화**: 모든 코드 수정 후 깃 푸시나 서버 배포 전, 모든 JSX/JS 구문, 괄호/태그 열림-닫힘 쌍(`<div>`, `<main>`, `{}`, `()`), 모듈 import 및 파싱 정합성을 라인 단위로 철저하게 자체 검증합니다.
+    - **배포 전 자동 검증 스크립트 실행 의무화 (Mandatory Pre-Push Script Execution)**:
+      - 모든 커밋과 푸시 직전, 반드시 `powershell.exe -ExecutionPolicy Bypass -File .\scripts\verifySyntax.ps1`을 실행하여 `[ZERO DEFECT PASSED]` 판정을 받아야만 커밋/푸시를 진행할 수 있습니다.
+      - 스크립트에서 단 1개의 `[DUPLICATE STATE]`, `[SYNTAX ERROR]`, `[TAG MISMATCH]`라도 발견될 시 깃 푸시는 100% 즉시 원천 차단됩니다.
     - **오직 완전무결한 100% 정상 소스만 배포**: 오직 0.1%의 오차도 없는 완벽하고 검증된 정상 소스만을 깃에 커밋하고 서버에 반영하여, 선배님과 사용자에게 단 1초의 빌드 실패나 중단도 유발하지 않습니다.
 
 
