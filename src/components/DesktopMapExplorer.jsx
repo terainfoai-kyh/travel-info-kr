@@ -298,6 +298,26 @@ export default function DesktopMapExplorer({
     }
   }, []);
 
+  // 🌟 Sync selectedLocation with itineraryData.targetCity when updated
+  useEffect(() => {
+    if (itineraryData?.targetCity) {
+      const cityKey = itineraryData.targetCity;
+      const found = REGIONAL_FALLBACK_CENTERS.find(c => 
+        c.nameKo.includes(cityKey) || cityKey.includes(c.nameKo)
+      );
+      if (found && selectedLocation.nameKo !== cityKey) {
+        setSelectedLocation(prev => ({
+          ...prev,
+          ...found,
+          nameKo: cityKey
+        }));
+        if (leafletMapRef.current && window.L) {
+          leafletMapRef.current.flyTo([found.lat, found.lng], found.zoom || 11, { duration: 0.8 });
+        }
+      }
+    }
+  }, [itineraryData?.targetCity]);
+
   // 2. Initialize Leaflet Map Instance with 100% Free Official Clean OpenStreetMap Tiles
   useEffect(() => {
     if (!isLeafletReady || !window.L || !mapContainerRef.current) return;
@@ -664,6 +684,11 @@ export default function DesktopMapExplorer({
     enrichLocationWithLiveTourApi(baseLoc, city.nameKo, lang).then(enriched => {
       setSelectedLocation(enriched);
     });
+
+    // 🌟 If already in Chat or Itinerary stage, automatically regenerate for the clicked city!
+    if ((activeStage === 'chat' || activeStage === 'itinerary') && onSelectCityPlan) {
+      onSelectCityPlan(city.nameKo, selectedDays);
+    }
   };
 
   // 🎯 해시태그 클릭 시 해당 관광지 스팟으로 지도 스르륵 이동(Pan & Zoom) 인터랙션!
@@ -686,6 +711,21 @@ export default function DesktopMapExplorer({
   const handleStartPlan = () => {
     if (onSelectCityPlan) {
       onSelectCityPlan(selectedLocation.nameKo, selectedDays);
+    }
+  };
+
+  // 🌟 Smart Stage Navigation with City Auto-Sync
+  const handleStageNavigation = (targetStage) => {
+    if ((targetStage === 'chat' || targetStage === 'itinerary') && onSelectCityPlan) {
+      const currentCity = itineraryData?.targetCity || '';
+      const selectedCity = selectedLocation.nameKo || '';
+      // If no itinerary exists or if selected city differs from currently loaded itinerary city
+      if (!currentCity || (!currentCity.includes(selectedCity) && !selectedCity.includes(currentCity))) {
+        onSelectCityPlan(selectedLocation.nameKo, selectedDays);
+      }
+    }
+    if (onNavigateStage) {
+      onNavigateStage(targetStage);
     }
   };
 
@@ -863,7 +903,7 @@ export default function DesktopMapExplorer({
             </>
           ) : (
             <button
-              onClick={() => onNavigateStage && onNavigateStage('explore')}
+              onClick={() => handleStageNavigation('explore')}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -964,7 +1004,7 @@ export default function DesktopMapExplorer({
 
           {activeStage === 'chat' && (
             <button
-              onClick={() => onNavigateStage && onNavigateStage('itinerary')}
+              onClick={() => handleStageNavigation('itinerary')}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -1059,7 +1099,7 @@ export default function DesktopMapExplorer({
                   if (activeStage === 'itinerary') {
                     setIsMapExpandedInStage3(prev => !prev);
                   } else {
-                    if (onNavigateStage) onNavigateStage('explore');
+                    handleStageNavigation('explore');
                   }
                 }}
                 title={lang === 'en' ? 'Explore Map' : '지도 탐색'}
@@ -1545,7 +1585,7 @@ export default function DesktopMapExplorer({
                 onSelectDay={onSelectDay}
                 currentUser={currentUser}
                 onConfirmItinerary={onConfirmItinerary}
-                onViewTimeline={() => onNavigateStage && onNavigateStage('itinerary')}
+                onViewTimeline={() => handleStageNavigation('itinerary')}
                 onAddPoiToItinerary={onAddPoiToItinerary}
                 sessionContext={sessionContext}
                 onRemoveContextChip={onRemoveContextChip}
@@ -1566,7 +1606,7 @@ export default function DesktopMapExplorer({
                 onSelectDay={onSelectDay}
                 onOpenDetail={onOpenDetail}
                 onGoToMap={() => setIsMapExpandedInStage3(prev => !prev)}
-                onGoToModify={() => onNavigateStage && onNavigateStage('chat')}
+                onGoToModify={() => handleStageNavigation('chat')}
                 onOpenWeather={onOpenWeather}
                 onOpenEssentials={onOpenEssentials}
                 savedTrips={savedTrips}
@@ -1615,7 +1655,7 @@ export default function DesktopMapExplorer({
               onSelectDay={onSelectDay}
               currentUser={currentUser}
               onConfirmItinerary={onConfirmItinerary}
-              onViewTimeline={() => onNavigateStage && onNavigateStage('itinerary')}
+              onViewTimeline={() => handleStageNavigation('itinerary')}
               onAddPoiToItinerary={onAddPoiToItinerary}
               sessionContext={sessionContext}
               onRemoveContextChip={onRemoveContextChip}
@@ -1644,7 +1684,7 @@ export default function DesktopMapExplorer({
               onSelectDay={onSelectDay}
               onOpenDetail={onOpenDetail}
               onGoToMap={() => setIsMapExpandedInStage3(true)}
-              onGoToModify={() => onNavigateStage && onNavigateStage('chat')}
+              onGoToModify={() => handleStageNavigation('chat')}
               onOpenWeather={onOpenWeather}
               onOpenEssentials={onOpenEssentials}
               savedTrips={savedTrips}
