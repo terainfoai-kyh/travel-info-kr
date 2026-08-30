@@ -1350,53 +1350,33 @@ export default function App() {
       {/* Main Container (모바일 5대 탭 전환 & PC 3단계 통합 모핑 워크스페이스) */}
       <main className="app-main-container" style={{ paddingBottom: '4.5rem', width: '100%' }}>
         {/* ==============================================================================
-           💻 [PC / 데스크톱 전용]: 좌측 세로 사이드바(DesktopNavSidebar) + 우측 메인 영역(4K 히어로 + 3단계 모핑 워크스페이스)
-           (선배님 빨간 박스 1, 2, 3, 4 완벽 일체화)
+           💻 [PC / 데스크톱 전용]: 상단 4K 와이드 히어로 배너 (풀스크린 100% 정중앙) + 하단 3단계 일체형 워크스페이스
            ============================================================================== */}
-        <div className="hide-mobile tab-content-fade-in" style={{ width: '100%', display: 'flex', alignItems: 'stretch' }}>
-          {/* 🌟 1. 맨 좌측 영구 고정 내비게이션 사이드바 (선배님 빨간 박스 1 해결) */}
-          <DesktopNavSidebar
+        <div className="hide-mobile tab-content-fade-in" style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
+          {/* 👑 상단: 찬란한 4K 와이드 히어로 배너 & 스마트 검색창 & 5개 테마 칩 (상시 유지!) */}
+          <PortalHomePrototype
             lang={lang}
-            activeNavTab={activeNavTab}
-            onNavigateTab={handleTabNavigate}
+            onSearchSubmit={(promptText) => {
+              setPlannerInitialMode('chat');
+              setActiveNavTab('ai');
+              handleGenerateItinerary(promptText, false, true);
+            }}
+            onSelectTheme={(promptText, city) => {
+              setPlannerInitialMode('chat');
+              setActiveNavTab('ai');
+              handleGenerateItinerary(promptText, false, true);
+            }}
             onOpenWeather={(city) => {
               setWeatherCity(city || itineraryData?.targetCity || '서울');
               setIsWeatherOpen(true);
             }}
             onOpenEssentials={() => setIsEssentialsOpen(true)}
-            onOpenSubwayModal={() => setIsSubwayMapOpen(true)}
-            onOpenHelplineModal={() => setIsHelplineModalOpen(true)}
-            onOpenWishlist={() => setIsWishlistOpen(true)}
-            wishlistCount={bookmarks.length}
+            onOpenPlanner={() => {
+              setPlannerInitialMode('chat');
+              setActiveNavTab('ai');
+            }}
             targetCity={itineraryData?.targetCity || '서울'}
           />
-
-          {/* 🌟 2. 우측 메인 워크스페이스 (상단 4K 히어로 배너 + 하단 3단계 모핑 워크스페이스) */}
-          <div style={{ flex: 1, minWidth: 0, width: '100%', display: 'flex', flexDirection: 'column' }}>
-            {/* 👑 상단: 찬란한 4K 와이드 히어로 배너 & 스마트 검색창 & 5개 테마 칩 (상시 유지!) */}
-            <PortalHomePrototype
-              lang={lang}
-              onSearchSubmit={(promptText) => {
-                setPlannerInitialMode('chat');
-                setActiveNavTab('ai');
-                handleGenerateItinerary(promptText, false, true);
-              }}
-              onSelectTheme={(promptText, city) => {
-                setPlannerInitialMode('chat');
-                setActiveNavTab('ai');
-                handleGenerateItinerary(promptText, false, true);
-              }}
-              onOpenWeather={(city) => {
-                setWeatherCity(city || itineraryData?.targetCity || '서울');
-                setIsWeatherOpen(true);
-              }}
-              onOpenEssentials={() => setIsEssentialsOpen(true)}
-              onOpenPlanner={() => {
-                setPlannerInitialMode('chat');
-                setActiveNavTab('ai');
-              }}
-              targetCity={itineraryData?.targetCity || '서울'}
-            />
 
             {/* 🗺️ 하단 (PC/웹 전용): 네이버 지도 스타일 일체형 2-Column 인터랙티브 3단계 모핑 워크스페이스 */}
             <DesktopMapExplorer

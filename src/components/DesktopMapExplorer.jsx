@@ -1008,7 +1008,7 @@ export default function DesktopMapExplorer({
         width: '100%',
         position: 'relative'
       }}>
-        {/* [1. 좌측 인터랙티브 패널: 1·2단계 지도 vs 3단계 대화/지도 듀얼 스위처] */}
+        {/* [1. 좌측 영역 (도킹 툴바 + 인터랙티브 지도/대화)] */}
         <div style={{
           flex: isMapExpandedFull ? '1 1 100%' : '1 1 50%',
           width: isMapExpandedFull ? '100%' : '50%',
@@ -1017,96 +1017,242 @@ export default function DesktopMapExplorer({
           overflow: 'hidden',
           position: 'relative',
           border: '1px solid #e2e8f0',
-          boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.04)',
+          boxShadow: '0 4px 12px rgba(15, 23, 42, 0.04)',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           display: 'flex',
-          flexDirection: 'column',
           backgroundColor: '#ffffff'
         }}>
-          {/* 3단계 전용 좌측 미니 스위처 [💬 AI 대화 조율 | 🗺️ 동선 지도] */}
-          {activeStage === 'itinerary' && (
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '6px 12px',
-              backgroundColor: '#f8fafc',
-              borderBottom: '1px solid #e2e8f0',
-              zIndex: 10
-            }}>
-              <div style={{ display: 'flex', gap: '4px' }}>
-                <button
-                  onClick={() => setStage3LeftView('chat')}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    padding: '3px 9px',
-                    borderRadius: '6px',
-                    fontSize: '0.74rem',
-                    fontWeight: 800,
-                    cursor: 'pointer',
-                    border: stage3LeftView === 'chat' ? '1px solid #2563eb' : '1px solid #cbd5e1',
-                    backgroundColor: stage3LeftView === 'chat' ? '#2563eb' : '#ffffff',
-                    color: stage3LeftView === 'chat' ? '#ffffff' : '#475569'
-                  }}
-                >
-                  <MessageSquare size={12} />
-                  <span>💬 AI 대화 조율</span>
-                </button>
-                <button
-                  onClick={() => setStage3LeftView('map')}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    padding: '3px 9px',
-                    borderRadius: '6px',
-                    fontSize: '0.74rem',
-                    fontWeight: 800,
-                    cursor: 'pointer',
-                    border: stage3LeftView === 'map' ? '1px solid #2563eb' : '1px solid #cbd5e1',
-                    backgroundColor: stage3LeftView === 'map' ? '#2563eb' : '#ffffff',
-                    color: stage3LeftView === 'map' ? '#ffffff' : '#475569'
-                  }}
-                >
-                  <Navigation size={12} />
-                  <span>🗺️ 동선 지도</span>
-                </button>
-              </div>
-              <span style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 700 }}>
-                {stage3LeftView === 'chat' ? '대화하며 실시간 코스 조율' : '일차별 추천 동선'}
-              </span>
-            </div>
-          )}
+          {/* 🌟 좌측 일체형 도킹 툴바 (선배님 캡처 100% 일치) */}
+          <div style={{
+            width: '46px',
+            height: '100%',
+            backgroundColor: '#f8fafc',
+            borderRight: '1px solid #e2e8f0',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '10px 0 8px 0',
+            boxSizing: 'border-box',
+            zIndex: 10,
+            flexShrink: 0
+          }}>
+            {/* 상단 툴 아이콘 그룹 */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', width: '100%' }}>
+              <button
+                onClick={() => onNavigateStage && onNavigateStage('explore')}
+                title={lang === 'en' ? 'Explore Map' : '지도 탐색'}
+                style={{
+                  width: '34px',
+                  height: '34px',
+                  borderRadius: '10px',
+                  border: activeStage === 'explore' ? '1px solid #bfdbfe' : 'none',
+                  backgroundColor: activeStage === 'explore' ? '#eff6ff' : 'transparent',
+                  color: activeStage === 'explore' ? '#2563eb' : '#64748b',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <Compass size={17} />
+              </button>
 
-          {/* 좌측 콘텐츠 뷰: 3단계 Chat 모드일 때는 VoraAIChat 렌더링, 그 외는 Leaflet Map 렌더링 */}
-          {activeStage === 'itinerary' && stage3LeftView === 'chat' ? (
-            <div style={{ flex: 1, height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-              <VoraAIChat
-                lang={lang}
-                chatMessages={chatMessages}
-                isLoading={isLoading}
-                onSendMessage={onSendMessage}
-                activeDay={activeDay}
-                onSelectDay={onSelectDay}
-                currentUser={currentUser}
-                onConfirmItinerary={onConfirmItinerary}
-                onViewTimeline={() => onNavigateStage && onNavigateStage('itinerary')}
-                onAddPoiToItinerary={onAddPoiToItinerary}
-                sessionContext={sessionContext}
-                onRemoveContextChip={onRemoveContextChip}
-                onToggleContextChip={onToggleContextChip}
-                onResetChat={onResetChat}
-                onUpdateTimeSlot={onUpdateTimeSlot}
-              />
+              <button
+                onClick={() => onOpenWeather && onOpenWeather(selectedLocation.nameKo || '서울')}
+                title={lang === 'en' ? 'Weather & Temperature' : '실시간 날씨 & 체감온도'}
+                style={{
+                  width: '34px',
+                  height: '34px',
+                  borderRadius: '10px',
+                  border: 'none',
+                  backgroundColor: 'transparent',
+                  color: '#f59e0b',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <CloudSun size={17} />
+              </button>
+
+              <button
+                onClick={() => onOpenEssentials && onOpenEssentials()}
+                title={lang === 'en' ? 'Transit Pass (Climate Card/T-money)' : '교통 패스 (기후동행카드/T-money)'}
+                style={{
+                  width: '34px',
+                  height: '34px',
+                  borderRadius: '10px',
+                  border: 'none',
+                  backgroundColor: 'transparent',
+                  color: '#10b981',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <CreditCard size={17} />
+              </button>
+
+              <button
+                onClick={() => setIsSubwayModalOpen(true)}
+                title={lang === 'en' ? 'Subway Route Map' : '전국 지하철 노선도'}
+                style={{
+                  width: '34px',
+                  height: '34px',
+                  borderRadius: '10px',
+                  border: 'none',
+                  backgroundColor: 'transparent',
+                  color: '#0284c7',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <Train size={17} />
+              </button>
+
+              <button
+                onClick={() => onOpenEssentials && onOpenEssentials()}
+                title={lang === 'en' ? 'Korea eSIM / SIM' : '한국 eSIM / 유심 안내'}
+                style={{
+                  width: '34px',
+                  height: '34px',
+                  borderRadius: '10px',
+                  border: 'none',
+                  backgroundColor: 'transparent',
+                  color: '#8b5cf6',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <Wifi size={17} />
+              </button>
+
+              <button
+                onClick={() => setIsHelplineModalOpen(true)}
+                title={lang === 'en' ? '1330 Korea Travel Helpline' : '1330 관광 통역 안내'}
+                style={{
+                  width: '34px',
+                  height: '34px',
+                  borderRadius: '10px',
+                  border: 'none',
+                  backgroundColor: 'transparent',
+                  color: '#ef4444',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <PhoneCall size={17} />
+              </button>
             </div>
-          ) : (
-            <div 
-              ref={mapContainerRef} 
-              style={{ width: '100%', flex: 1, minHeight: '100%', zIndex: 1 }}
-            />
-          )}
+
+            {/* 하단 VORA 심볼 */}
+            <span style={{ fontSize: '0.58rem', fontWeight: 900, color: '#94a3b8', letterSpacing: '0.02em' }}>
+              VORA
+            </span>
+          </div>
+
+          {/* 메인 좌측 인터랙티브 뷰 (지도 ↔ 3단계 AI 대화) */}
+          <div style={{ flex: 1, minWidth: 0, height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+            {/* 3단계 전용 좌측 미니 스위처 [💬 AI 대화 조율 | 🗺️ 동선 지도] */}
+            {activeStage === 'itinerary' && (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '6px 12px',
+                backgroundColor: '#f8fafc',
+                borderBottom: '1px solid #e2e8f0',
+                zIndex: 10
+              }}>
+                <div style={{ display: 'flex', gap: '4px' }}>
+                  <button
+                    onClick={() => setStage3LeftView('chat')}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      padding: '3px 9px',
+                      borderRadius: '6px',
+                      fontSize: '0.74rem',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      border: stage3LeftView === 'chat' ? '1px solid #2563eb' : '1px solid #cbd5e1',
+                      backgroundColor: stage3LeftView === 'chat' ? '#2563eb' : '#ffffff',
+                      color: stage3LeftView === 'chat' ? '#ffffff' : '#475569'
+                    }}
+                  >
+                    <MessageSquare size={12} />
+                    <span>💬 AI 대화 조율</span>
+                  </button>
+                  <button
+                    onClick={() => setStage3LeftView('map')}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      padding: '3px 9px',
+                      borderRadius: '6px',
+                      fontSize: '0.74rem',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      border: stage3LeftView === 'map' ? '1px solid #2563eb' : '1px solid #cbd5e1',
+                      backgroundColor: stage3LeftView === 'map' ? '#2563eb' : '#ffffff',
+                      color: stage3LeftView === 'map' ? '#ffffff' : '#475569'
+                    }}
+                  >
+                    <Navigation size={12} />
+                    <span>🗺️ 동선 지도</span>
+                  </button>
+                </div>
+                <span style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 700 }}>
+                  {stage3LeftView === 'chat' ? '대화하며 실시간 코스 조율' : '일차별 추천 동선'}
+                </span>
+              </div>
+            )}
+
+            {/* 좌측 콘텐츠 뷰: 3단계 Chat 모드일 때는 VoraAIChat 렌더링, 그 외는 Leaflet Map 렌더링 */}
+            {activeStage === 'itinerary' && stage3LeftView === 'chat' ? (
+              <div style={{ flex: 1, height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                <VoraAIChat
+                  lang={lang}
+                  chatMessages={chatMessages}
+                  isLoading={isLoading}
+                  onSendMessage={onSendMessage}
+                  activeDay={activeDay}
+                  onSelectDay={onSelectDay}
+                  currentUser={currentUser}
+                  onConfirmItinerary={onConfirmItinerary}
+                  onViewTimeline={() => onNavigateStage && onNavigateStage('itinerary')}
+                  onAddPoiToItinerary={onAddPoiToItinerary}
+                  sessionContext={sessionContext}
+                  onRemoveContextChip={onRemoveContextChip}
+                  onToggleContextChip={onToggleContextChip}
+                  onResetChat={onResetChat}
+                  onUpdateTimeSlot={onUpdateTimeSlot}
+                />
+              </div>
+            ) : (
+              <div 
+                ref={mapContainerRef} 
+                style={{ width: '100%', flex: 1, minHeight: '100%', zIndex: 1 }}
+              />
+            )}
+          </div>
 
           {/* ◀ / ▶ 중앙 경계선 슬라이드 토글 알약 버튼 (선배님 빨간 박스 2 해결) */}
           <button
