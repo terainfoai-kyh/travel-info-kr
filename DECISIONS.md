@@ -69,6 +69,7 @@
      - **UI 제미나이 배치 모델 스위칭 및 다국어 스키마 완비 (`AdminBatchModal.jsx`)**: 구글 AI 탐색 모델(`activeModelPath`)을 1순위로 직결하고 검증된 모델 폴백 체인(`gemini-2.0-flash`, `gemini-1.5-flash`, `gemini-1.5-flash-8b`, `gemini-2.5-flash` 등)을 장착하여 배치 실행 시 404/트래픽 에러를 원천 차단.
 2. **배포 및 시스템 상태**:
    - `scripts/verifySyntax.ps1` 검증 결과: `[ZERO DEFECT PASSED]` 100% 무결점 판정 통과.
+   - 개발 서버 배포 완료: **`https://travelkorea-dev.pages.dev`** (Cloudflare Pages 최신 커밋 `20dbf6b` 푸시 완료)
 
 ### [2026-08-30 (일)]
 1. **완료된 작업**:
