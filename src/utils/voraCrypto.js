@@ -11,9 +11,58 @@
  */
 
 const SALT_VECTORS = [0x5A, 0xA5, 0x3C, 0xC3, 0x69, 0x96, 0x7E, 0xE7];
+const VORA_MASTER_VAULT_KEY = 'VORA_AI_MASTER_KEY_2026_SECRET';
 
 /**
- * 🔒 데이터를 난독화/암호화된 문자열로 인코딩
+ * 🔓 마스터 지식 볼트 복호화 (문자열 반환)
+ */
+export function decryptVoraPayload(cipher) {
+  if (!cipher || typeof cipher !== 'string') return '';
+  try {
+    const binary = atob(cipher);
+    const len = binary.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    const keyBytes = new TextEncoder().encode(VORA_MASTER_VAULT_KEY);
+    const unshifted = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      unshifted[i] = bytes[i] ^ 0x5A ^ keyBytes[i % keyBytes.length];
+    }
+    return new TextDecoder().decode(unshifted);
+  } catch (e) {
+    console.error('Failed to decrypt VORA payload:', e);
+    return '';
+  }
+}
+
+/**
+ * 🔒 마스터 지식 볼트 암호화 (Base64 반환)
+ */
+export function encryptVoraPayload(plain) {
+  if (!plain || typeof plain !== 'string') return '';
+  try {
+    const bytes = new TextEncoder().encode(plain);
+    const len = bytes.length;
+    const shifted = new Uint8Array(len);
+    const keyBytes = new TextEncoder().encode(VORA_MASTER_VAULT_KEY);
+    for (let i = 0; i < len; i++) {
+      shifted[i] = bytes[i] ^ keyBytes[i % keyBytes.length] ^ 0x5A;
+    }
+    let binary = '';
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(shifted[i]);
+    }
+    return btoa(binary);
+  } catch (e) {
+    console.error('Failed to encrypt VORA payload:', e);
+    return '';
+  }
+}
+
+/**
+ * 🔒 범용 데이터 암호화 (객체/배열 지원)
  */
 export function encryptData(data, secretKey = 'vora_secure_vault_2026') {
   try {
@@ -28,7 +77,6 @@ export function encryptData(data, secretKey = 'vora_secure_vault_2026') {
       cipherBytes[i] = utf8Bytes[i] ^ k ^ s;
     }
 
-    // Base64 encoding from Uint8Array
     let binary = '';
     const len = cipherBytes.byteLength;
     for (let i = 0; i < len; i++) {
@@ -42,7 +90,7 @@ export function encryptData(data, secretKey = 'vora_secure_vault_2026') {
 }
 
 /**
- * 🔓 암호화된 문자열을 메모리 상에서 실시간 복호화 (0.003초)
+ * 🔓 범용 데이터 복호화 (객체/배열 지원)
  */
 export function decryptData(cipherText, secretKey = 'vora_secure_vault_2026') {
   if (!cipherText || typeof cipherText !== 'string') return null;

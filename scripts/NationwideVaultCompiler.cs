@@ -184,7 +184,7 @@ public class NationwideVaultCompiler
         sbJs.AppendLine(" * Total Q&A Items: " + allQna.Count);
         sbJs.AppendLine(" */");
         sbJs.AppendLine();
-        sbJs.AppendLine("import { decryptVoraPayload, encryptVoraPayload } from './voraCrypto.js';");
+        sbJs.AppendLine("import { decryptVoraPayload, encryptVoraPayload } from '../utils/voraCrypto.js';");
         sbJs.AppendLine();
         sbJs.AppendLine("export const VORA_ENCRYPTED_VAULT_PAYLOAD = \"" + encrypted + "\";");
         sbJs.AppendLine();
