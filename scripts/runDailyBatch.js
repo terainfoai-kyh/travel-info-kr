@@ -21,7 +21,7 @@ function encryptData(data, secretKey = 'vora_secure_vault_2026') {
     const jsonStr = typeof data === 'string' ? data : JSON.stringify(data);
     const utf8Bytes = Buffer.from(jsonStr, 'utf8');
     const keyBytes = Buffer.from(secretKey, 'utf8');
-    const cipherBytes = new Uint8Array(utf8Bytes.length);
+    const cipherBytes = Buffer.alloc(utf8Bytes.length);
 
     for (let i = 0; i < utf8Bytes.length; i++) {
       const k = keyBytes[i % keyBytes.length];
@@ -29,7 +29,7 @@ function encryptData(data, secretKey = 'vora_secure_vault_2026') {
       cipherBytes[i] = utf8Bytes[i] ^ k ^ s;
     }
 
-    return Buffer.from(cipherBytes).toString('base64');
+    return cipherBytes.toString('base64');
   } catch (e) {
     console.error('Encryption failed:', e);
     return '';
@@ -39,19 +39,15 @@ function encryptData(data, secretKey = 'vora_secure_vault_2026') {
 function decryptData(cipherText, secretKey = 'vora_secure_vault_2026') {
   if (!cipherText || typeof cipherText !== 'string') return null;
   try {
-    const binary = Buffer.from(cipherText, 'base64').toString('binary');
-    const cipherBytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) {
-      cipherBytes[i] = binary.charCodeAt(i);
-    }
+    const cipherBytes = Buffer.from(cipherText, 'base64');
     const keyBytes = Buffer.from(secretKey, 'utf8');
-    const plainBytes = new Uint8Array(cipherBytes.length);
+    const plainBytes = Buffer.alloc(cipherBytes.length);
     for (let i = 0; i < cipherBytes.length; i++) {
       const k = keyBytes[i % keyBytes.length];
       const s = SALT_VECTORS[i % SALT_VECTORS.length];
       plainBytes[i] = cipherBytes[i] ^ k ^ s;
     }
-    const jsonStr = Buffer.from(plainBytes).toString('utf8');
+    const jsonStr = plainBytes.toString('utf8');
     return JSON.parse(jsonStr);
   } catch (e) {
     console.error('Decryption failed:', e);
@@ -211,17 +207,31 @@ async function runBatch() {
     try {
       let fileContent = fs.readFileSync(vaultFilePath, 'utf8');
 
-      // Match Encrypted Payload
-      const payloadMatch = fileContent.match(/VORA_ENCRYPTED_VAULT_PAYLOAD = "([^"]+)";/);
-      let currentVault = [];
-      if (payloadMatch) {
-        currentVault = decryptData(payloadMatch[1]) || [];
+      // Extract existing Encrypted Payload safely
+      const prefix = 'export const VORA_ENCRYPTED_VAULT_PAYLOAD = "';
+      const startIdx = fileContent.indexOf(prefix);
+      let currentQnaVault = [];
+      let currentCityKnowledge = {};
+
+      if (startIdx !== -1) {
+        const payloadStart = startIdx + prefix.length;
+        const endIdx = fileContent.indexOf('";', payloadStart);
+        if (endIdx !== -1) {
+          const rawCipher = fileContent.slice(payloadStart, endIdx);
+          const decrypted = decryptData(rawCipher);
+          if (decrypted && decrypted.qnaVault) {
+            currentQnaVault = Array.isArray(decrypted.qnaVault) ? decrypted.qnaVault : [];
+            currentCityKnowledge = decrypted.cityKnowledge || {};
+          } else if (Array.isArray(decrypted)) {
+            currentQnaVault = decrypted;
+          }
+        }
       }
 
       const norm = (s) => (s || '').trim().toLowerCase().replace(/[\s\-_?!.~,()[\]]/g, '');
       const map = new Map();
 
-      currentVault.forEach(item => {
+      currentQnaVault.forEach(item => {
         const key = norm(item.title || item.questionVariations?.[0] || item.id);
         if (key) map.set(key, item);
       });
@@ -231,18 +241,22 @@ async function runBatch() {
         if (key) map.set(key, item);
       });
 
-      const mergedList = Array.from(map.values());
-      const encryptedPayload = encryptData(mergedList);
+      const mergedQnaList = Array.from(map.values());
+      const masterPayload = {
+        qnaVault: mergedQnaList,
+        cityKnowledge: currentCityKnowledge
+      };
 
-      if (encryptedPayload) {
-        const updatedContent = fileContent.replace(
-          /VORA_ENCRYPTED_VAULT_PAYLOAD = "[^"]+";/,
-          `VORA_ENCRYPTED_VAULT_PAYLOAD = "${encryptedPayload}";`
-        );
+      const encryptedPayload = encryptData(masterPayload);
+
+      if (encryptedPayload && startIdx !== -1) {
+        const payloadStart = startIdx + prefix.length;
+        const endIdx = fileContent.indexOf('";', payloadStart);
+        const updatedContent = fileContent.slice(0, payloadStart) + encryptedPayload + fileContent.slice(endIdx);
         fs.writeFileSync(vaultFilePath, updatedContent, 'utf8');
-        console.log(`🎉 voraQnaVault.js 업데이트 완료 (총 ${mergedList.length}개 암호화 지식 보유)`);
+        console.log(`🎉 voraQnaVault.js 업데이트 완료 (총 ${mergedQnaList.length}개 Q&A + ${Object.keys(currentCityKnowledge).length}개 도시 지식 단일 암호화 보유)`);
       } else {
-        console.error(`❌ 볼트 암호화 실패`);
+        console.error(`❌ 볼트 암호화 또는 위치 파싱 실패`);
       }
     } catch (fsErr) {
       console.error(`❌ 파일 저장 오류: ${fsErr.message}`);

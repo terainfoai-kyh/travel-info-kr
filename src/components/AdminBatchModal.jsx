@@ -76,45 +76,10 @@ export default function AdminBatchModal({
       }
     } catch (e) {}
 
-    // 2. 🏛️ 소스코드 기본 마스터 지식 + 도시별 로컬 지식(CITY_LOCAL_KNOWLEDGE) 100% 통합 로드
+    // 2. 🏛️ 소스코드 기본 마스터 암호화 볼트 지식 로드 (Q&A + 전국 59개 도시 로컬 지식 100% 통합 단일 원천)
     try {
       const qnaVault = getVoraQnaVault() || [];
-      
-      // 🌟 [통합 지식 자산 연동] CITY_LOCAL_KNOWLEDGE의 25개 주요 도시 지식을 관리자 카드로 변환
-      const cityKnowledgeList = Object.entries(CITY_LOCAL_KNOWLEDGE || {}).map(([cityName, cityData]) => {
-        const highlights = (cityData.signatureHighlights || []).join(', ');
-        const foodie = cityData.localFoodieSecret || '';
-        const transit = cityData.transitTip || '';
-        const night = (cityData.nightHighlights || []).map(n => `${n.name}(${n.desc})`).join(', ');
-        
-        return {
-          id: `city_knowledge_${cityName}`,
-          category: '지역 핵심 가이드',
-          badge: cityData.badge || `${cityName} 대표 여행 지식`,
-          title: `${cityName} 핵심 여행 가이드 & 대표 명소`,
-          questionVariations: [
-            cityName,
-            `${cityName} 여행`,
-            `${cityName} 3일 코스`,
-            `${cityName} 가볼만한곳`,
-            `${cityName} 맛집`,
-            `${cityName} 명소`
-          ],
-          answers: {
-            ko: `✨ **[ 📍 ${cityName} 맞춤 여행 가이드 ]**\n\n🏛️ **대표 랜드마크**: ${highlights}\n\n🍜 **로컬 미식 비결**: ${foodie}\n\n🌙 **야경 명소**: ${night || '도심 및 야경 명소'}\n\n🚄 **교통 팁**: ${transit || '대중교통 및 KTX 접근 편리'}`,
-            en: `✨ **[ 📍 ${cityName} Travel Guide ]**\n\n🏛️ **Signature Highlights**: ${highlights}\n\n🍜 **Local Delicacy**: ${foodie}\n\n🚄 **Transit Tip**: ${transit || 'Easy access via KTX & transit'}`,
-            ja: `✨ **[ 📍 ${cityName} 旅行ガイド ]**\n\n🏛️ **代表名所**: ${highlights}\n\n🍜 **地元グルメ**: ${foodie}\n\n🚄 **交通の便**: ${transit || 'KTXと公共交通機関で便利'}`,
-            zh: `✨ **[ 📍 ${cityName} 旅游指南 ]**\n\n🏛️ **代表景点**: ${highlights}\n\n🍜 **当地美食**: ${foodie}\n\n🚄 **交通指南**: ${transit || 'KTX和公共交通十分便利'}`
-          },
-          proactiveFollowUps: {
-            ko: [`${cityName} 3일 코스 만들어줘`, `${cityName} 2일차 맛집 추천`, `${cityName} 비오는 날 실내 코스`],
-            en: [`Plan a 3-day ${cityName} trip`, `${cityName} best local food`, `Rainy indoor spots in ${cityName}`]
-          }
-        };
-      });
-
-      const combinedMaster = [...qnaVault, ...cityKnowledgeList];
-      setMasterVaultList(combinedMaster);
+      setMasterVaultList(qnaVault);
     } catch (e) {
       setMasterVaultList([]);
     }
@@ -268,12 +233,16 @@ export default function AdminBatchModal({
       setBatchLogs(prev => [...prev, `⚠️ 모델 탐색 스킵: ${le.message}`]);
     }
 
-    const fallbackModelNames = [
-      'models/gemini-3.1-flash-lite',
-      'models/gemini-flash-lite-latest',
-      'models/gemini-3.7-flash',
+    // Build prioritized model list starting with the discovered active model
+    const modelsToTry = Array.from(new Set([
+      activeModelPath,
+      'models/gemini-2.0-flash',
+      'models/gemini-1.5-flash',
+      'models/gemini-1.5-flash-8b',
+      'models/gemini-2.5-flash',
+      'models/gemini-1.5-pro',
       'models/gemini-flash-latest'
-    ];
+    ].filter(Boolean)));
 
     for (let i = 0; i < unansweredList.length; i++) {
       const q = unansweredList[i];
@@ -307,10 +276,16 @@ export default function AdminBatchModal({
   "id": "qna_auto_${Date.now()}_${i}",
   "title": "${q.rawQuery}",
   "category": "DYNAMIC_KNOWLEDGE",
-  "targetCity": "${q.targetCity || ctx.city || '경주'}",
+  "targetCity": "${q.targetCity || ctx.city || 'all'}",
   "season": "all",
   "questionVariations": ["${q.rawQuery}", "도시명 결합 유사질문1", "도시명 결합 유사질문2", "동의어 질문3"],
   "intentKeywords": ["키워드1", "키워드2"],
+  "answers": {
+    "ko": "친절하고 정확한 2~3문장 한국어 핵심 맞춤 답변",
+    "en": "Concise 2~3 sentence English travel concierge answer",
+    "ja": "2〜3文の親切な日本語の旅行案内",
+    "zh": "亲切准确的2~3句中文旅游向导回答"
+  },
   "geminiAnswer": {
     "ko": "친절하고 정확한 2~3문장 한국어 핵심 맞춤 답변",
     "en": "Concise 2~3 sentence English travel concierge answer",
@@ -324,12 +299,13 @@ export default function AdminBatchModal({
       let rawOutput = '';
       let success = false;
 
-      for (const mName of fallbackModelNames) {
+      for (const mName of modelsToTry) {
         try {
+          const cleanMName = mName.startsWith('models/') ? mName : `models/${mName}`;
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 4000); // 4초 초과 시 즉시 다음 쾌속 모델로 스위칭!
+          const timeoutId = setTimeout(() => controller.abort(), 6000);
 
-          const targetUrl = `https://generativelanguage.googleapis.com/v1beta/${mName}:generateContent?key=${encodeURIComponent(cleanKey)}`;
+          const targetUrl = `https://generativelanguage.googleapis.com/v1beta/${cleanMName}:generateContent?key=${encodeURIComponent(cleanKey)}`;
           const response = await fetch(targetUrl, {
             method: 'POST',
             signal: controller.signal,
@@ -341,7 +317,8 @@ export default function AdminBatchModal({
               contents: [{ parts: [{ text: promptText }] }],
               generationConfig: {
                 temperature: 0.2,
-                maxOutputTokens: 600
+                maxOutputTokens: 800,
+                responseMimeType: 'application/json'
               }
             })
           });
@@ -351,11 +328,13 @@ export default function AdminBatchModal({
           if (response.ok) {
             const responseData = await response.json();
             rawOutput = responseData.candidates?.[0]?.content?.parts?.[0]?.text || '';
-            success = true;
-            break;
+            if (rawOutput) {
+              success = true;
+              break;
+            }
           }
         } catch (e) {
-          // Timeout or Network issue -> immediately fallback
+          // Timeout or Network issue -> immediately fallback to next model
         }
       }
 
@@ -366,13 +345,18 @@ export default function AdminBatchModal({
           parsed.id = parsed.id || `custom_${Date.now()}_${i}`;
           parsed.title = parsed.title || parsed.questionVariations?.[0] || q.rawQuery;
           parsed.targetCity = parsed.targetCity || q.targetCity || 'all';
+          if (parsed.geminiAnswer && !parsed.answers) {
+            parsed.answers = { ...parsed.geminiAnswer };
+          } else if (parsed.answers && !parsed.geminiAnswer) {
+            parsed.geminiAnswer = { ...parsed.answers };
+          }
           newDistilled.push(parsed);
           setBatchLogs(prev => [...prev, `✅ "${q.rawQuery}" ➔ 황금 Q&A 지식 생성 완료!`]);
         } catch (pe) {
           setBatchLogs(prev => [...prev, `⚠️ "${q.rawQuery}" JSON 파싱 오류: ${pe.message}`]);
         }
       } else {
-        setBatchLogs(prev => [...prev, `⚠️ "${q.rawQuery}" 일시적 구글 트래픽 초과 (다음 턴에 재시도)`]);
+        setBatchLogs(prev => [...prev, `⚠️ "${q.rawQuery}" 일시적 구글 트래픽 초과 또는 모델 응답 지연`]);
       }
 
       // ⏱️ [1.2초 지능형 안전 텀] 구글 API 429 속도 초과 및 503 에러 100% 방지!
