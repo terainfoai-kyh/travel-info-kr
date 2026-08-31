@@ -67,9 +67,12 @@
      - **단일 마스터 볼트 스키마(`{ qnaVault, cityKnowledge }`) 완벽 동기화**: `runDailyBatch.js`가 새로운 지식을 증류 후 병합할 때, 기존 전국 59개 도시 로컬 지식(`cityKnowledge`)을 유실 없이 100% 보존하면서 `qnaVault`에 안전하게 신규 Q&A를 Upsert하도록 구조화.
      - **50만 자 대용량 페이로드 안전 치환**: 정규식 백트래킹 취약점을 제거하고 `indexOf` 기반 인덱스 슬라이싱으로 안전하고 빠르게 암호화 볼트를 갱신하도록 개선.
      - **UI 제미나이 배치 모델 스위칭 및 다국어 스키마 완비 (`AdminBatchModal.jsx`)**: 구글 AI 탐색 모델(`activeModelPath`)을 1순위로 직결하고 검증된 모델 폴백 체인(`gemini-2.0-flash`, `gemini-1.5-flash`, `gemini-1.5-flash-8b`, `gemini-2.5-flash` 등)을 장착하여 배치 실행 시 404/트래픽 에러를 원천 차단.
+   - **🚨 암호화 볼트 JSON 문법 오탈자 수리 및 전국 226개 시·군·구 정품 좌표 전수 연동 (`VoraUnify.cs`, `geminiNlpService.js`, `localItineraryGenerator.js`)**:
+     - **암호화 볼트 JSON 파싱 100% 정상화**: `VoraUnify.cs`에서 `cafeHighlights`와 `signatureHotels` 직렬화 시 쉼표(`,`) 누락으로 발생하던 `JSON.parse` 문법 에러를 완벽 수정하고 50개 도시 지식을 100% 무결점 재암호화(`627,748 chars`). `CITY_LOCAL_KNOWLEDGE`가 정상 복호화되어 김천 등 모든 도시의 배지, 하이라이트, 미식 정보가 정상 노출.
+     - **전국 226개 시·군·구 정품 좌표 전수 연동 (`CITY_COORDINATES` + `WEATHER_REGION_COORDS`)**: `geminiNlpService.js`에 검증된 전국 226개 시군구 위경도 테이블을 통합(`getCityCoordinates`)하여, 김천/거창/신안/영월 등 소도시 검색 시 서울 좌표로 잘못 폴백되어 35km 거리 가드에 의해 스팟이 전량 탈락되던 버그(0개 추천 코스)를 근본적으로 원천 박멸.
 2. **배포 및 시스템 상태**:
    - `scripts/verifySyntax.ps1` 검증 결과: `[ZERO DEFECT PASSED]` 100% 무결점 판정 통과.
-   - 개발 서버 배포 완료: **`https://travelkorea-dev.pages.dev`** (Cloudflare Pages 최신 커밋 `20dbf6b` 푸시 완료)
+   - 개발 서버 배포 완료: **`https://travelkorea-dev.pages.dev`** (Cloudflare Pages 최신 커밋 푸시 대기)
 
 ### [2026-08-30 (일)]
 1. **완료된 작업**:

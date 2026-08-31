@@ -17,8 +17,10 @@ import { CITY_TRANSLATIONS } from '../i18n/translations.js';
 import { fetchRealtimeWeather } from './weatherApi.js';
 import { TOUR_API_AREA_CODES } from './tourApi.js';
 
-// Precision Korean City Center Coordinates
-export const CITY_COORDINATES = {
+import { WEATHER_REGION_COORDS } from './weatherApi.js';
+
+// Precision Korean City Center Coordinates (Integrated with all 226 Nationwide Cities)
+const BASE_CITY_COORDINATES = {
   '수원': { lat: 37.2842, lng: 127.0142, nameEn: 'Suwon' },
   '서울': { lat: 37.5665, lng: 126.9780, nameEn: 'Seoul' },
   '부산': { lat: 35.1796, lng: 129.0756, nameEn: 'Busan' },
@@ -66,6 +68,37 @@ export const CITY_COORDINATES = {
   '공주': { lat: 36.4465, lng: 127.1190, nameEn: 'Gongju' },
   '창원': { lat: 35.2289, lng: 128.6812, nameEn: 'Changwon' }
 };
+
+// 🏛️ [전국 226개 시·군·구 100% 정품 좌표 자동 통합]
+export const CITY_COORDINATES = { ...BASE_CITY_COORDINATES };
+try {
+  if (typeof WEATHER_REGION_COORDS === 'object' && WEATHER_REGION_COORDS) {
+    Object.entries(WEATHER_REGION_COORDS).forEach(([cityName, coords]) => {
+      if (coords && coords.lat && coords.lng) {
+        if (!CITY_COORDINATES[cityName]) {
+          CITY_COORDINATES[cityName] = { lat: coords.lat, lng: coords.lng, nameEn: cityName };
+        }
+        const cleanName = cityName.replace(/(시|군|구|도)$/, '').trim();
+        if (cleanName && !CITY_COORDINATES[cleanName]) {
+          CITY_COORDINATES[cleanName] = { lat: coords.lat, lng: coords.lng, nameEn: cleanName };
+        }
+      }
+    });
+  }
+} catch (e) {}
+
+export function getCityCoordinates(city = '') {
+  const clean = (city || '').replace(/(시|군|구|도)$/, '').trim();
+  if (CITY_COORDINATES[city]) return CITY_COORDINATES[city];
+  if (CITY_COORDINATES[clean]) return CITY_COORDINATES[clean];
+  if (WEATHER_REGION_COORDS && WEATHER_REGION_COORDS[city]) {
+    return { lat: WEATHER_REGION_COORDS[city].lat, lng: WEATHER_REGION_COORDS[city].lng, nameEn: city };
+  }
+  if (WEATHER_REGION_COORDS && WEATHER_REGION_COORDS[clean]) {
+    return { lat: WEATHER_REGION_COORDS[clean].lat, lng: WEATHER_REGION_COORDS[clean].lng, nameEn: clean };
+  }
+  return { lat: 37.5665, lng: 126.9780, nameEn: city || 'Seoul' };
+}
 
 const DEFAULT_GEMINI_FALLBACK = typeof atob !== 'undefined' 
   ? atob('QVEuQWI4Uk42S3dLSWRKbVo4eDhPZ0p0WGNkQ0ZKbnd3Nmx1c2kzWml1V0F3RkxkcXNleGc=') 

@@ -4,5 +4,5 @@ Write-Host "Compiling scripts/VoraUnify.cs..."
 Add-Type -Path "scripts/VoraUnify.cs"
 
 Write-Host "Running VoraMasterCrypto::ProcessUnification..."
-$res = [VoraMasterCrypto]::ProcessUnification("src/data/voraDialogKnowledge.js", "src/data/voraQnaVault.js")
+$res = [VoraMasterCrypto]::ProcessUnification("scripts/original_voraDialogKnowledge.js", "src/data/voraQnaVault.js")
 Write-Host $res

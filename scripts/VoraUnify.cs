@@ -165,8 +165,8 @@ public class VoraMasterCrypto
             sbQna.AppendFormat("\"transitTip\":\"{0}\",", EscapeJson(transitTip));
             sbQna.AppendFormat("\"hotelType\":\"{0}\",", EscapeJson(hotelType));
             if (nightHighlights.Count > 0) sbQna.AppendFormat("\"nightHighlights\":[{0}],", string.Join(",", nightHighlights));
-            if (cafeHighlights.Count > 0) sbQna.AppendFormat("\"cafeHighlights\":[{0}]", string.Join(",", cafeHighlights));
-            if (signatureHotels.Count > 0) sbQna.AppendFormat("\"signatureHotels\":[{0}]", string.Join(",", signatureHotels));
+            if (cafeHighlights.Count > 0) sbQna.AppendFormat("\"cafeHighlights\":[{0}],", string.Join(",", cafeHighlights));
+            if (signatureHotels.Count > 0) sbQna.AppendFormat("\"signatureHotels\":[{0}],", string.Join(",", signatureHotels));
 
             sbQna.AppendFormat("\"geminiAnswer\":{{\"ko\":\"{0}\",\"en\":\"{1}\",\"ja\":\"{2}\",\"zh-CN\":\"{3}\"}}", koAnswer, enAnswer, jaAnswer, zhAnswer);
             sbQna.Append("}");

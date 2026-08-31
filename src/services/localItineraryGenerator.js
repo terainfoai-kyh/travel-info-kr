@@ -21,7 +21,7 @@
 
 import { fetchCityTourApiSpots, fetchDynamicRealtimeSpots } from './tourApi.js';
 import { getDynamicRegionMeta } from './apiConfig.js';
-import { CITY_COORDINATES } from './geminiNlpService.js';
+import { CITY_COORDINATES, getCityCoordinates } from './geminiNlpService.js';
 import { CITY_LOCAL_KNOWLEDGE } from '../data/voraDialogKnowledge.js';
 import { KOREA_TRAVEL_POI_DB } from '../data/koreaTravelPoiDatabase.js';
 
@@ -225,7 +225,10 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
   const cityParts = rawCityStr.split(/[·/,\-+\s]/).map(p => p.replace(/(시|군|구|도)$/, '').trim()).filter(Boolean);
   const city = cityParts[0] || '서울';
   const dynMeta = getDynamicRegionMeta(rawCityStr) || getDynamicRegionMeta(city);
-  const cityMeta = CITY_COORDINATES[rawCityStr] || CITY_COORDINATES[city] || (dynMeta?.lat ? { lat: dynMeta.lat, lng: dynMeta.lng, nameEn: city } : { lat: 37.5665, lng: 126.9780, nameEn: city });
+  const cityCoords = getCityCoordinates(rawCityStr) || getCityCoordinates(city);
+  const cityMeta = (cityCoords?.lat && cityCoords.lat !== 37.5665) 
+    ? cityCoords 
+    : (dynMeta?.lat ? { lat: dynMeta.lat, lng: dynMeta.lng, nameEn: city } : (cityCoords || { lat: 37.5665, lng: 126.9780, nameEn: city }));
   const cityKnowledge = CITY_LOCAL_KNOWLEDGE[rawCityStr] || CITY_LOCAL_KNOWLEDGE[city] || null; // 🛡️ 서울로 강제 대체 금지!
 
   // Parse User Preferences & Constraints from prompt
