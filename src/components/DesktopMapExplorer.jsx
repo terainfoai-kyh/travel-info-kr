@@ -614,13 +614,22 @@ export default function DesktopMapExplorer({
         const data = await res.json();
         if (data && data.address) {
           const addr = data.address;
-          const countyOrCity = addr.county || addr.city || addr.town || addr.borough || addr.district || addr.province || '';
           const stateCandidate = addr.province || addr.state || '';
           
-          if (countyOrCity) {
-            detectedCityNameKo = countyOrCity.replace(/(특별시|광역시|특별자치시|특별자치도|시|군|구)$/, '').trim() || countyOrCity;
-            detectedFullAddr = `${stateCandidate} ${countyOrCity}`.trim();
+          // Smart priority: city -> county -> town -> borough -> district
+          const candList = [addr.city, addr.county, addr.town, addr.borough, addr.district, addr.province].filter(Boolean);
+          let matchedKey = '';
+          for (const cand of candList) {
+            const cClean = cand.replace(/(특별시|광역시|특별자치시|특별자치도|시|군|구)$/, '').trim();
+            if (CITY_LOCAL_KNOWLEDGE[cClean] || CITY_LOCAL_KNOWLEDGE[cand]) {
+              matchedKey = cClean || cand;
+              break;
+            }
           }
+
+          const primaryName = matchedKey || addr.city || addr.county || addr.town || addr.borough || addr.district || addr.province || '대한민국';
+          detectedCityNameKo = primaryName.replace(/(특별시|광역시|특별자치시|특별자치도|시|군|구)$/, '').trim() || primaryName;
+          detectedFullAddr = `${stateCandidate} ${primaryName}`.trim();
         }
       }
     } catch {}
@@ -638,8 +647,10 @@ export default function DesktopMapExplorer({
       nameJa: localKn?.nameJa || getCityMultilingualName(detectedCityNameKo, 'ja') || detectedCityNameKo,
       nameZh: localKn?.nameZh || getCityMultilingualName(detectedCityNameKo, 'zh') || detectedCityNameKo,
       fullAddress: detectedFullAddr,
-      descKo: localKn?.badge || `${detectedCityNameKo}의 숨겨진 비경과 랜드마크를 탐방하는 로컬 힐링 여행`,
-      descEn: `Explore scenic landmarks and local authentic highlights in ${detectedCityNameEn}.`,
+      descKo: localKn?.badge || `${detectedCityNameKo} 대표 명소와 문화를 만끽하는 힐링 여행`,
+      descEn: localKn?.badgeEn || `Discover iconic sights and cultural treasures in ${detectedCityNameEn}.`,
+      descJa: localKn?.badgeJa || `${getCityMultilingualName(detectedCityNameKo, 'ja') || detectedCityNameKo}の美しい名所と文化を満喫するヒーリング旅`,
+      descZh: localKn?.badgeZh || `探寻${getCityMultilingualName(detectedCityNameKo, 'zh') || detectedCityNameKo}代表性名胜与历史文化的治愈之旅`,
       transitTipKo: localKn?.transitTip || 'KTX 및 고속버스로 쾌속 연결',
       transitTipEn: 'Accessible via KTX and Express Bus',
       image: '/images/themes/theme-gyeongbokgung.jpg',
@@ -771,18 +782,18 @@ export default function DesktopMapExplorer({
 
   const getSelectedDesc = () => {
     const cleanCityKey = getCleanCityKey(selectedLocation.nameKo);
-    if (cleanCityKey && CITY_LOCAL_KNOWLEDGE[cleanCityKey]) {
-      const cityData = CITY_LOCAL_KNOWLEDGE[cleanCityKey];
-      if (lang === 'en') return cityData.descEn || cityData.badgeEn || selectedLocation.descEn || cityData.badge;
-      if (lang === 'ja') return cityData.descJa || cityData.badgeJa || selectedLocation.descJa || cityData.badge;
-      if (lang === 'zh' || lang === 'zht') return cityData.descZh || cityData.badgeZh || selectedLocation.descZh || cityData.badge;
+    const cityData = (cleanCityKey && CITY_LOCAL_KNOWLEDGE[cleanCityKey]) || CITY_LOCAL_KNOWLEDGE[selectedLocation.nameKo] || null;
+    if (cityData) {
+      if (lang === 'en') return cityData.badgeEn || cityData.descEn || selectedLocation.descEn || cityData.badge;
+      if (lang === 'ja') return cityData.badgeJa || cityData.descJa || selectedLocation.descJa || cityData.badge;
+      if (lang === 'zh' || lang === 'zht') return cityData.badgeZh || cityData.descZh || selectedLocation.descZh || cityData.badge;
       return cityData.badge || selectedLocation.descKo;
     }
 
-    if (lang === 'en') return selectedLocation.descEn || selectedLocation.descKo;
-    if (lang === 'ja') return selectedLocation.descJa || selectedLocation.descKo;
-    if (lang === 'zh' || lang === 'zht') return selectedLocation.descZh || selectedLocation.descKo;
-    return selectedLocation.descKo;
+    if (lang === 'en') return selectedLocation.descEn || `Discover iconic sights and cultural treasures in ${selectedLocation.nameEn || selectedLocation.nameKo}.`;
+    if (lang === 'ja') return selectedLocation.descJa || `${selectedLocation.nameJa || selectedLocation.nameKo}の美しい名所と文化を満喫するヒーリング旅`;
+    if (lang === 'zh' || lang === 'zht') return selectedLocation.descZh || `探寻${selectedLocation.nameZh || selectedLocation.nameKo}代表性名胜与历史文化的治愈之旅`;
+    return selectedLocation.descKo || `${selectedLocation.nameKo} 대표 명소와 문화를 만끽하는 힐링 여행`;
   };
 
   const getSelectedTransitTip = () => {
