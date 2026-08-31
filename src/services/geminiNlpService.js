@@ -14,10 +14,8 @@ import { resolveSpotPhotoDynamic, resolveSpotPhotoSync } from './photoPipeline.j
 import { getSpotAffiliateDeal } from './affiliateService.js';
 import { buildAgodaDeepLink, buildKlookDeepLink } from './apiConfig.js';
 import { CITY_TRANSLATIONS } from '../i18n/translations.js';
-import { fetchRealtimeWeather } from './weatherApi.js';
+import { fetchRealtimeWeather, WEATHER_REGION_COORDS } from './weatherApi.js';
 import { TOUR_API_AREA_CODES } from './tourApi.js';
-
-import { WEATHER_REGION_COORDS } from './weatherApi.js';
 
 // Precision Korean City Center Coordinates (Integrated with all 226 Nationwide Cities)
 const BASE_CITY_COORDINATES = {

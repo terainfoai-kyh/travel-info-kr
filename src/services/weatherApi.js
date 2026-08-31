@@ -1,4 +1,4 @@
-import { PUBLIC_API_CONFIG, REGION_META } from './apiConfig';
+import { PUBLIC_API_CONFIG, REGION_META } from './apiConfig.js';
 
 // Comprehensive Korean tourist cities, districts & hot neighborhoods coordinate dictionary
 export const CITY_COORDINATES = {
@@ -157,6 +157,8 @@ export const CITY_COORDINATES = {
   '구좌': { lat: 33.5234, lng: 126.8530 },
   '조천': { lat: 33.5350, lng: 126.6340 }
 };
+
+export const WEATHER_REGION_COORDS = CITY_COORDINATES;
 
 // Realtime Geocoding Resolver for Any Dong/Gu/Gun/City in Korea
 export async function getLiveCoordinatesForLocation(query = '') {
