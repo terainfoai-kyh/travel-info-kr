@@ -34,7 +34,9 @@ export default function MyTripTab({
   questionQuota = null,
   currentUser = null,
   onOpenGoogleAuth = null,
-  onSyncTrips = null
+  onSyncTrips = null,
+  isDesktop = false,
+  isMapOpen = false
 }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
   const [copied, setCopied] = useState(false);
@@ -900,61 +902,94 @@ export default function MyTripTab({
           })}
         </div>
 
-        {/* 5. Bottom Dual Actions: [🗺️ 지도 보기] & [💬 AI 대화로 수정] */}
+        {/* 5. Bottom Actions: [🗺️ 지도 보기/닫기 토글 (데스크톱)] vs [듀얼 액션 바 (모바일 유지)] */}
         <div className="no-print" style={{
           padding: '0.75rem 1rem',
           borderTop: '1px solid var(--border-color)',
           backgroundColor: 'var(--bg-glass)',
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
+          display: isDesktop ? 'block' : 'grid',
+          gridTemplateColumns: isDesktop ? 'none' : '1fr 1fr',
           gap: '0.5rem'
         }}>
-          <button
-            type="button"
-            onClick={onGoToMap}
-            style={{
-              padding: '0.65rem 0.4rem',
-              borderRadius: '12px',
-              border: '1.5px solid #2563eb',
-              backgroundColor: 'rgba(37, 99, 235, 0.06)',
-              color: '#2563eb',
-              fontSize: '0.82rem',
-              fontWeight: 800,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.3rem',
-              transition: 'all 0.15s ease'
-            }}
-          >
-            <MapPin size={14} />
-            <span>{lang === 'en' ? 'View on Map' : lang === 'ja' ? '地図で確認' : (lang === 'zh' || lang === 'zht') ? '在地图中查看' : '🗺️ 지도 보기'}</span>
-          </button>
+          {isDesktop ? (
+            <button
+              type="button"
+              onClick={onGoToMap}
+              style={{
+                width: '100%',
+                padding: '0.72rem 1rem',
+                borderRadius: '12px',
+                border: isMapOpen ? '1.5px solid #7c3aed' : '1.5px solid #2563eb',
+                backgroundColor: isMapOpen ? 'rgba(124, 58, 237, 0.08)' : 'rgba(37, 99, 235, 0.06)',
+                color: isMapOpen ? '#7c3aed' : '#2563eb',
+                fontSize: '0.86rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.4rem',
+                transition: 'all 0.2s ease',
+                boxShadow: isMapOpen ? '0 2px 8px rgba(124, 58, 237, 0.12)' : '0 2px 8px rgba(37, 99, 235, 0.08)'
+              }}
+            >
+              <MapPin size={16} />
+              <span>
+                {isMapOpen
+                  ? (lang === 'en' ? '🗺️ Close Map' : lang === 'ja' ? '🗺️ 地図を閉じる' : (lang === 'zh' || lang === 'zht') ? '🗺️ 关闭地图' : '🗺️ 지도 닫기')
+                  : (lang === 'en' ? '🗺️ View on Map' : lang === 'ja' ? '🗺️ 地図で確認' : (lang === 'zh' || lang === 'zht') ? '🗺️ 在地图中查看' : '🗺️ 지도 보기')}
+              </span>
+            </button>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={onGoToMap}
+                style={{
+                  padding: '0.65rem 0.4rem',
+                  borderRadius: '12px',
+                  border: '1.5px solid #2563eb',
+                  backgroundColor: 'rgba(37, 99, 235, 0.06)',
+                  color: '#2563eb',
+                  fontSize: '0.82rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.3rem',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <MapPin size={14} />
+                <span>{lang === 'en' ? 'View on Map' : lang === 'ja' ? '地図で確認' : (lang === 'zh' || lang === 'zht') ? '在地图中查看' : '🗺️ 지도 보기'}</span>
+              </button>
 
-          <button
-            type="button"
-            onClick={onGoToModify}
-            style={{
-              padding: '0.65rem 0.4rem',
-              borderRadius: '12px',
-              border: '1px solid var(--border-color)',
-              backgroundColor: 'var(--bg-card)',
-              color: 'var(--text-main)',
-              fontSize: '0.82rem',
-              fontWeight: 800,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.3rem',
-              boxShadow: '0 2px 5px rgba(0, 0, 0, 0.03)',
-              transition: 'all 0.15s ease'
-            }}
-          >
-            <Sparkles size={14} style={{ color: 'var(--accent-primary)' }} />
-            <span>{lang === 'en' ? 'Modify via AI Chat' : lang === 'ja' ? 'AIチャットで修正' : (lang === 'zh' || lang === 'zht') ? 'AI对话微调' : '💬 AI 대화로 수정'}</span>
-          </button>
+              <button
+                type="button"
+                onClick={onGoToModify}
+                style={{
+                  padding: '0.65rem 0.4rem',
+                  borderRadius: '12px',
+                  border: '1px solid var(--border-color)',
+                  backgroundColor: 'var(--bg-card)',
+                  color: 'var(--text-main)',
+                  fontSize: '0.82rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.3rem',
+                  boxShadow: '0 2px 5px rgba(0, 0, 0, 0.03)',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <Sparkles size={14} style={{ color: 'var(--accent-primary)' }} />
+                <span>{lang === 'en' ? 'Modify via AI Chat' : lang === 'ja' ? 'AIチャットで修正' : (lang === 'zh' || lang === 'zht') ? 'AI对话微调' : '💬 AI 대화로 수정'}</span>
+              </button>
+            </>
+          )}
         </div>
       </div>
 

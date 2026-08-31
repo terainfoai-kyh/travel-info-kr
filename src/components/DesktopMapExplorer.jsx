@@ -1647,6 +1647,8 @@ export default function DesktopMapExplorer({
                 onOpenGoogleAuth={onOpenGoogleAuth}
                 onSyncTrips={onSyncTrips}
                 onOpenRewardedAd={onOpenRewardedAd}
+                isDesktop={true}
+                isMapOpen={true}
               />
             </div>
           )}
@@ -1712,7 +1714,7 @@ export default function DesktopMapExplorer({
               activeDay={activeDay}
               onSelectDay={onSelectDay}
               onOpenDetail={onOpenDetail}
-              onGoToMap={() => setIsMapExpandedInStage3(true)}
+              onGoToMap={() => setIsMapExpandedInStage3(prev => !prev)}
               onGoToModify={() => handleStageNavigation('chat')}
               onOpenWeather={onOpenWeather}
               onOpenEssentials={onOpenEssentials}
@@ -1725,6 +1727,8 @@ export default function DesktopMapExplorer({
               onOpenGoogleAuth={onOpenGoogleAuth}
               onSyncTrips={onSyncTrips}
               onOpenRewardedAd={onOpenRewardedAd}
+              isDesktop={true}
+              isMapOpen={false}
             />
           </div>
         </div>
