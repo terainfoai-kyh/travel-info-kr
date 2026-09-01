@@ -6,8 +6,12 @@
  * 2. Manual Trigger: Runs on-demand via GitHub Actions 'Run workflow' button or local Node.js.
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const CLOUD_API_URL = process.env.VORA_CLOUD_API_URL || 'https://travelkorea-dev.pages.dev/api/qna';
 const GEMINI_API_KEY = (process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '').trim();
@@ -94,6 +98,7 @@ async function runBatch() {
 
     console.log(`⚡ [${i + 1}/${unansweredList.length}] "${rawQuery}" 증류 중...`);
 
+    const ctx = q.context || {};
     const themesSummary = Array.isArray(ctx.themes) && ctx.themes.length
       ? `테마: ${ctx.themes.join(', ')}`
       : (typeof ctx.themes === 'string' && ctx.themes.trim() ? `테마: ${ctx.themes.trim()}` : null);
