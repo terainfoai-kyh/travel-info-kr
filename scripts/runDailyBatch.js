@@ -10,7 +10,7 @@ const fs = require('fs');
 const path = require('path');
 
 const CLOUD_API_URL = process.env.VORA_CLOUD_API_URL || 'https://travelkorea-dev.pages.dev/api/qna';
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || '';
+const GEMINI_API_KEY = (process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '').trim();
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -74,7 +74,7 @@ async function runBatch() {
     const res = await fetch(CLOUD_API_URL);
     if (res.ok) {
       const data = await res.json();
-      unansweredList = Array.isArray(data) ? data : (data.questions || []);
+      unansweredList = Array.isArray(data) ? data : (data.list || data.questions || []);
       console.log(`📋 수신 완료: 총 ${unansweredList.length}건의 미답변 질문 대기 중`);
     } else {
       console.warn(`⚠️ 클라우드 큐 응답 실패: ${res.status}`);

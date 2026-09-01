@@ -74,11 +74,10 @@
        - 사진 상단 75% 영역의 검은 막을 완전히 걷어내고, 하단 텍스트 영역에만 얇고 부드러운 소프트 섀도우를 부여하여 **사진 본연의 색감(맑은 하늘, 청량한 바다 등)을 100% 쨍하게 보존**.
        - 명소 타이틀 및 배지에 텍스트 자체 섀도우(`textShadow`)를 장착하여 사진 감상과 글자 가독성 동시 만족.
        - 모달 너비 `780px` 와이드 확장 & 4K 메인 사진 높이 `370px` 웅장화 유지.
-   - **일일 무인 배치 및 하베스터 스크립트 404 모델 박멸 & 고속 Flash 5-Tier 폴백 구축 (`runDailyBatch.js`, `syncGeminiKnowledge.js`)**:
-     - `runDailyBatch.js`: `gemini-1.5-pro` 404 모델 완전 제거 및 최신 `gemini-2.5-flash` 1순위 + Flash 패밀리 5단계 안전망 구축.
+   - **일일 무인 배치 및 하베스터 스크립트 404 모델 박멸 & 고속 Flash 5-Tier 폴백 & 클라우드 큐 파싱 완비 (`runDailyBatch.js`, `syncGeminiKnowledge.js`, `.github/workflows/daily-batch.yml`)**:
+     - `runDailyBatch.js`: Cloudflare 중앙 큐 API 응답 키(`data.list`) 정합성 수리(`Array.isArray(data) ? data : (data.list || data.questions || [])`), 404 위험 모델 제거, 최신 `gemini-2.5-flash` 1순위 + Flash 패밀리 5단계 안전망 구축, `GOOGLE_API_KEY` 포함 3중 시크릿 fallback 및 `trim()` 정제.
+     - `.github/workflows/daily-batch.yml`: `ref: main`, `fetch-depth: 0` 체크아웃 명시, `git pull origin main --rebase` 무인 동기화 후 푸시로 충돌/Non-fast-forward 거절 원천 방지, Node.js 22 LTS 환경 최신화.
      - `syncGeminiKnowledge.js`: 단일 1.5-flash 의존성 탈피, `gemini-2.5-flash` ➔ `2.0-flash` ➔ `1.5-flash` 다중 복원력 탑재.
-   - **GitHub Actions 러너 Node.js 22 LTS 최신화 (`.github/workflows/daily-batch.yml`)**:
-     - Node.js 20 Deprecation 경고를 해소하고 최신 Node.js 22 LTS 환경으로 업그레이드 완료.
    - **제미나이 관리자 배치 지식 증류 엔진 404 에러 원천 차단 & 25초 안전 타임아웃/고속 플래시 모델 1순위 완전 수리 (`AdminBatchModal.jsx`)**:
      - **원인 분석**: 구글 AI Studio 모델 목록 조회 시 404/미지원인 `gemini-1.5-pro`가 모델 폴백 리스트에 포함되어 에러(`models/gemini-1.5-pro is not found for API version v1beta`)가 발생하고 배치 중단이 일어남.
      - **해결 및 개선**:

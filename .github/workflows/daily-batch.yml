@@ -17,6 +17,10 @@ jobs:
     steps:
       - name: 📥 레포지토리 체크아웃
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: main
+          fetch-depth: 0
 
       - name: 🟢 Node.js 환경 세팅
         uses: actions/setup-node@v4
@@ -25,7 +29,7 @@ jobs:
 
       - name: 🚀 VORA 일일 무인 지식 증류 배치 실행
         env:
-          GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY || secrets.GEMINI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY || secrets.GEMINI_API_KEY || secrets.GOOGLE_API_KEY }}
           VORA_CLOUD_API_URL: 'https://travelkorea-dev.pages.dev/api/qna'
         run: |
           node scripts/runDailyBatch.js
@@ -38,6 +42,7 @@ jobs:
           if [[ -n $(git status -s src/data/voraQnaVault.js) ]]; then
             git add src/data/voraQnaVault.js
             git commit -m "chore(auto-batch): nightly knowledge distillation and vault merge [skip ci]"
+            git pull origin main --rebase
             git push origin main
             echo "🎉 새로운 지식이 소스코드에 성공적으로 커밋 및 배포되었습니다!"
           else
