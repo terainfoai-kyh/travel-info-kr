@@ -302,14 +302,14 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
       style={{
         position: 'fixed',
         inset: 0,
-        backgroundColor: 'rgba(15, 23, 42, 0.4)',
+        backgroundColor: 'rgba(15, 23, 42, 0.5)',
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
         zIndex: 99999,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '0.75rem 0.75rem 4rem 0.75rem' // 하단 탭 바 60px 안전 여백
+        padding: '1rem 1rem 4.5rem 1rem' // 하단 탭 바 안전 여백
       }}
     >
       <div 
@@ -318,18 +318,18 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
           backgroundColor: 'var(--bg-card)',
           color: 'var(--text-main)',
           border: '1px solid var(--border-color)',
-          borderRadius: '20px',
-          maxWidth: '500px',
+          borderRadius: '24px',
+          maxWidth: '780px',
           width: '100%',
-          maxHeight: '84vh',
+          maxHeight: '88vh',
           display: 'flex',
           flexDirection: 'column',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+          boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.6)',
           overflow: 'hidden',
           position: 'relative'
         }}
       >
-        {/* ⚠️ 교체 확인 모달 다이얼로그 (선배님 요청 흐름 완벽 구현) */}
+        {/* ⚠️ 교체 확인 모달 다이얼로그 */}
         {confirmTargetSpot && (
           <div style={{
             position: 'absolute',
@@ -345,44 +345,44 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
             <div style={{
               backgroundColor: 'var(--bg-card)',
               border: '1px solid var(--border-color)',
-              borderRadius: '16px',
-              padding: '1.25rem',
-              maxWidth: '340px',
+              borderRadius: '18px',
+              padding: '1.5rem',
+              maxWidth: '380px',
               width: '100%',
               textAlign: 'center',
               display: 'flex',
               flexDirection: 'column',
-              gap: '0.85rem',
+              gap: '1rem',
               boxShadow: '0 20px 40px rgba(0,0,0,0.4)'
             }}>
               <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <AlertCircle size={32} style={{ color: '#2563eb' }} />
+                <AlertCircle size={36} style={{ color: '#2563eb' }} />
               </div>
               <div>
-                <h4 style={{ margin: '0 0 0.35rem 0', fontSize: '1rem', fontWeight: 900, color: 'var(--text-main)' }}>
+                <h4 style={{ margin: '0 0 0.4rem 0', fontSize: '1.1rem', fontWeight: 900, color: 'var(--text-main)' }}>
                   {lang === 'en' ? 'Change Itinerary?' : '일정을 변경하시겠습니까?'}
                 </h4>
-                <p style={{ margin: 0, fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+                <p style={{ margin: 0, fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: 1.55 }}>
                   <strong style={{ color: 'var(--text-main)' }}>'{cleanTitle}'</strong>
-                  <span style={{ margin: '0 0.3rem' }}>➔</span>
+                  <span style={{ margin: '0 0.4rem' }}>➔</span>
                   <strong style={{ color: '#2563eb' }}>'{confirmTargetSpot.title}'</strong>
                   <br />
                   {lang === 'en' ? 'Update your trip & map route now.' : '내 일정과 지도 경로가 즉시 업데이트됩니다.'}
                 </p>
               </div>
 
-              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.2rem' }}>
+              <div style={{ display: 'flex', gap: '0.6rem', marginTop: '0.2rem' }}>
                 <button
                   type="button"
                   onClick={() => setConfirmTargetSpot(null)}
                   style={{
                     flex: 1,
-                    padding: '0.55rem',
-                    borderRadius: '8px',
+                    padding: '0.65rem',
+                    borderRadius: '10px',
                     border: '1px solid var(--border-color)',
                     backgroundColor: 'var(--bg-primary)',
                     color: 'var(--text-main)',
-                    fontSize: '0.8rem',
+                    fontSize: '0.85rem',
                     fontWeight: 800,
                     cursor: 'pointer'
                   }}
@@ -394,12 +394,12 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                   onClick={handleConfirmReplace}
                   style={{
                     flex: 1,
-                    padding: '0.55rem',
-                    borderRadius: '8px',
+                    padding: '0.65rem',
+                    borderRadius: '10px',
                     border: 'none',
                     backgroundColor: '#1e293b',
                     color: '#ffffff',
-                    fontSize: '0.8rem',
+                    fontSize: '0.85rem',
                     fontWeight: 900,
                     cursor: 'pointer',
                     boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
@@ -412,15 +412,15 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
           </div>
         )}
 
-        {/* 1. 4K High-Res Hero Photo (200px 슬림 뷰 + 모바일 터치 스와이프 지원) */}
+        {/* 1. 4K High-Res Hero Photo (시원하고 웅장한 와이드 뷰 + 모바일 터치 스와이프 지원) */}
         <div 
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
           style={{ 
             position: 'relative', 
             width: '100%', 
-            height: '200px', 
-            minHeight: '200px', 
+            height: 'clamp(240px, 40vh, 370px)', 
+            minHeight: '240px', 
             flexShrink: 0, 
             backgroundColor: '#0f172a', 
             overflow: 'hidden',
@@ -446,21 +446,21 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
           <div style={{
             position: 'absolute',
             inset: 0,
-            background: 'linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.15) 45%, transparent 70%)'
+            background: 'linear-gradient(to top, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.2) 50%, transparent 75%)'
           }} />
 
           {/* Top Left: Photo Counter Badge */}
           {photoList.length > 1 && (
             <div style={{
               position: 'absolute',
-              top: '10px',
-              left: '10px',
-              backgroundColor: 'rgba(0, 0, 0, 0.6)',
-              backdropFilter: 'blur(4px)',
+              top: '14px',
+              left: '14px',
+              backgroundColor: 'rgba(0, 0, 0, 0.65)',
+              backdropFilter: 'blur(6px)',
               color: '#ffffff',
-              padding: '0.15rem 0.45rem',
-              borderRadius: '12px',
-              fontSize: '0.68rem',
+              padding: '0.25rem 0.6rem',
+              borderRadius: '14px',
+              fontSize: '0.76rem',
               fontWeight: 800
             }}>
               📷 {activePhotoIdx + 1}/{photoList.length}
@@ -472,23 +472,24 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
             onClick={onClose}
             style={{
               position: 'absolute',
-              top: '10px',
-              right: '10px',
-              backgroundColor: 'rgba(0, 0, 0, 0.6)',
+              top: '14px',
+              right: '14px',
+              backgroundColor: 'rgba(0, 0, 0, 0.65)',
               color: '#ffffff',
               border: 'none',
               borderRadius: '50%',
-              width: '30px',
-              height: '30px',
+              width: '36px',
+              height: '36px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
-              backdropFilter: 'blur(4px)',
-              zIndex: 10
+              backdropFilter: 'blur(6px)',
+              zIndex: 10,
+              transition: 'transform 0.15s ease'
             }}
           >
-            <X size={16} />
+            <X size={18} />
           </button>
 
           {/* Photo Navigation Arrows */}
@@ -498,46 +499,50 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                 onClick={handlePrevPhoto}
                 style={{
                   position: 'absolute',
-                  left: '8px',
-                  top: '45%',
+                  left: '12px',
+                  top: '50%',
                   transform: 'translateY(-50%)',
-                  backgroundColor: 'rgba(0, 0, 0, 0.45)',
+                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
                   color: '#ffffff',
                   border: 'none',
                   borderRadius: '50%',
-                  width: '28px',
-                  height: '28px',
+                  width: '36px',
+                  height: '36px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
-                  zIndex: 10
+                  zIndex: 10,
+                  backdropFilter: 'blur(4px)',
+                  transition: 'background 0.15s ease'
                 }}
               >
-                <ChevronLeft size={16} />
+                <ChevronLeft size={20} />
               </button>
 
               <button
                 onClick={handleNextPhoto}
                 style={{
                   position: 'absolute',
-                  right: '8px',
-                  top: '45%',
+                  right: '12px',
+                  top: '50%',
                   transform: 'translateY(-50%)',
-                  backgroundColor: 'rgba(0, 0, 0, 0.45)',
+                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
                   color: '#ffffff',
                   border: 'none',
                   borderRadius: '50%',
-                  width: '28px',
-                  height: '28px',
+                  width: '36px',
+                  height: '36px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
-                  zIndex: 10
+                  zIndex: 10,
+                  backdropFilter: 'blur(4px)',
+                  transition: 'background 0.15s ease'
                 }}
               >
-                <ChevronRight size={16} />
+                <ChevronRight size={20} />
               </button>
             </>
           )}
@@ -545,173 +550,173 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
           {/* Bottom Title & Star Overlay */}
           <div style={{
             position: 'absolute',
-            bottom: '10px',
-            left: '14px',
-            right: '14px',
+            bottom: '14px',
+            left: '18px',
+            right: '18px',
             color: '#ffffff'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.2rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', marginBottom: '0.3rem' }}>
               <span style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                backdropFilter: 'blur(4px)',
-                padding: '0.12rem 0.4rem',
-                borderRadius: '4px',
-                fontSize: '0.66rem',
+                backgroundColor: 'rgba(255, 255, 255, 0.22)',
+                backdropFilter: 'blur(6px)',
+                padding: '0.15rem 0.55rem',
+                borderRadius: '6px',
+                fontSize: '0.75rem',
                 fontWeight: 800
               }}>
                 {spot.category || spot.theme || '추천명소'}
               </span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.15rem', color: '#f59e0b', fontSize: '0.74rem', fontWeight: 900 }}>
-                <Star size={12} fill="#f59e0b" />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', color: '#f59e0b', fontSize: '0.82rem', fontWeight: 900 }}>
+                <Star size={14} fill="#f59e0b" />
                 <span>{rating}</span>
               </div>
             </div>
             <h2 style={{
               margin: 0,
-              fontSize: '1.2rem',
+              fontSize: 'clamp(1.25rem, 2.2vw, 1.65rem)',
               fontWeight: 900,
               color: '#ffffff',
-              textShadow: '0 2px 6px rgba(0, 0, 0, 0.8)'
+              textShadow: '0 2px 8px rgba(0, 0, 0, 0.85)'
             }}>
               {cleanTitle}
             </h2>
           </div>
         </div>
 
-        {/* 2. Modal Body (차분한 모노톤 & 안전 여백) */}
+        {/* 2. Modal Body (차분한 모노톤 & 넉넉한 럭셔리 여백) */}
         <div 
           style={{
             flex: 1,
             minHeight: 0,
             overflowY: 'auto',
             WebkitOverflowScrolling: 'touch',
-            padding: '0.85rem 1.1rem 2rem 1.1rem',
+            padding: '1.1rem 1.4rem 2.2rem 1.4rem',
             display: 'flex',
             flexDirection: 'column',
-            gap: '0.65rem'
+            gap: '0.85rem'
           }}
         >
           {/* 1문장 스토리 소개 */}
           <p style={{
             margin: 0,
-            fontSize: '0.82rem',
-            lineHeight: 1.55,
+            fontSize: '0.9rem',
+            lineHeight: 1.65,
             color: 'var(--text-main)',
-            opacity: 0.9
+            opacity: 0.95
           }}>
             {description}
           </p>
 
-          {/* 차분한 모노톤 1줄 플랫 정보 리스트 (모바일 최적화 풀 팩) */}
+          {/* 차분한 모노톤 1줄 플랫 정보 리스트 (와이드 최적화 풀 팩) */}
           <div style={{
             display: 'flex',
             flexDirection: 'column',
-            gap: '0.35rem',
-            padding: '0.55rem 0',
+            gap: '0.55rem',
+            padding: '0.85rem 0',
             borderTop: '1px solid var(--border-color)',
             borderBottom: '1px solid var(--border-color)',
-            fontSize: '0.78rem'
+            fontSize: '0.88rem'
           }}>
             {/* 1. 도로명 주소 */}
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
-              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem' }}>
+              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '75px', fontWeight: 700 }}>
                 • 위치
               </span>
-              <span style={{ color: 'var(--text-main)', fontWeight: 600, wordBreak: 'keep-all' }}>: {location}</span>
+              <span style={{ color: 'var(--text-main)', fontWeight: 600, wordBreak: 'keep-all', lineHeight: 1.5 }}>: {location}</span>
             </div>
 
             {/* 2. 대중교통 & 배편 */}
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
-              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem' }}>
+              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '75px', fontWeight: 700 }}>
                 • 교통
               </span>
-              <span style={{ color: '#2563eb', fontWeight: 700 }}>: {subwayTransit}</span>
+              <span style={{ color: '#2563eb', fontWeight: 700, lineHeight: 1.5 }}>: {subwayTransit}</span>
             </div>
 
             {/* 3. 관람 시간 */}
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
-              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem' }}>
+              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '75px', fontWeight: 700 }}>
                 • 시간
               </span>
-              <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>
-                : {operatingHours} <span style={{ color: '#ef4444', marginLeft: '0.2rem', fontWeight: 700 }}>({closedDays})</span>
+              <span style={{ color: 'var(--text-main)', fontWeight: 600, lineHeight: 1.5 }}>
+                : {operatingHours} <span style={{ color: '#ef4444', marginLeft: '0.25rem', fontWeight: 700 }}>({closedDays})</span>
               </span>
             </div>
 
             {/* 4. 추천 소요시간 */}
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
-              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem' }}>
+              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '75px', fontWeight: 700 }}>
                 • 소요
               </span>
-              <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>: {duration}</span>
+              <span style={{ color: 'var(--text-main)', fontWeight: 600, lineHeight: 1.5 }}>: {duration}</span>
             </div>
 
             {/* 5. 입장 요금 */}
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
-              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem' }}>
+              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '75px', fontWeight: 700 }}>
                 • 요금
               </span>
-              <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>: {admissionFee}</span>
+              <span style={{ color: 'var(--text-main)', fontWeight: 600, lineHeight: 1.5 }}>: {admissionFee}</span>
             </div>
 
             {/* 6. 🚗 주차 시설 */}
             {liveIntroDetails?.parking && (
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
-                <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem' }}>
+                <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '75px', fontWeight: 700 }}>
                   • 주차
                 </span>
-                <span style={{ color: 'var(--text-main)', fontWeight: 600, wordBreak: 'keep-all' }}>: {liveIntroDetails.parking}</span>
+                <span style={{ color: 'var(--text-main)', fontWeight: 600, wordBreak: 'keep-all', lineHeight: 1.5 }}>: {liveIntroDetails.parking}</span>
               </div>
             )}
 
             {/* 7. 📞 문의 및 안내 */}
             {(liveIntroDetails?.infocenter || liveCommonDetails?.tel) && (
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
-                <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem' }}>
+                <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '75px', fontWeight: 700 }}>
                   • 문의
                 </span>
-                <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>
+                <span style={{ color: 'var(--text-main)', fontWeight: 600, lineHeight: 1.5 }}>
                   : {liveIntroDetails?.infocenter || liveCommonDetails?.tel}
                 </span>
               </div>
             )}
 
             {/* 8. 💳 신용카드 결제 */}
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
-              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem' }}>
+              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '75px', fontWeight: 700 }}>
                 • 결제수단
               </span>
-              <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>
+              <span style={{ color: 'var(--text-main)', fontWeight: 600, lineHeight: 1.5 }}>
                 : {liveIntroDetails?.chkcreditcard || '신용카드 결제 가능'}
               </span>
             </div>
 
             {/* 9. 🐶 반려동물 동반 */}
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
-              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem' }}>
+              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '75px', fontWeight: 700 }}>
                 • 반려동물
               </span>
-              <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>
+              <span style={{ color: 'var(--text-main)', fontWeight: 600, lineHeight: 1.5 }}>
                 : {liveIntroDetails?.chkpet || '동반 가능 (목줄 및 배변봉투 지참 권장)'}
               </span>
             </div>
 
             {/* 10. 👶 ♿ 유모차 / 편의시설 */}
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
-              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem' }}>
+              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '75px', fontWeight: 700 }}>
                 • 편의시설
               </span>
-              <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>
+              <span style={{ color: 'var(--text-main)', fontWeight: 600, lineHeight: 1.5 }}>
                 : {liveIntroDetails?.chkbabycarriage || '유모차/휠체어 이동로 구비 (현장 확인 권장)'}
               </span>
             </div>
 
             {/* 11. 🌐 공식 홈페이지 링크 */}
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem' }}>
-              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem' }}>
+              <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '75px', fontWeight: 700 }}>
                 • 홈페이지
               </span>
-              <span style={{ color: '#2563eb', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <span style={{ color: '#2563eb', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: 1.5 }}>
                 : {liveCommonDetails?.homepage ? (
                   <span dangerouslySetInnerHTML={{ __html: liveCommonDetails.homepage }} />
                 ) : (
@@ -722,20 +727,20 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
 
             {/* 12. 테마 태그 */}
             {matchedPoi?.tags && matchedPoi.tags.length > 0 && (
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem', marginTop: '0.2rem' }}>
-                <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '60px', fontWeight: 700 }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem', marginTop: '0.3rem' }}>
+                <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '75px', fontWeight: 700 }}>
                   • 테마
                 </span>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
-                  {matchedPoi.tags.slice(0, 4).map((tag, tIdx) => (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
+                  {matchedPoi.tags.slice(0, 5).map((tag, tIdx) => (
                     <span 
                       key={`tag-${tIdx}`}
                       style={{
-                        padding: '0.1rem 0.4rem',
+                        padding: '0.18rem 0.55rem',
                         backgroundColor: 'var(--bg-primary)',
                         border: '1px solid var(--border-color)',
-                        borderRadius: '4px',
-                        fontSize: '0.68rem',
+                        borderRadius: '6px',
+                        fontSize: '0.75rem',
                         color: 'var(--accent-primary)',
                         fontWeight: 700
                       }}
@@ -751,18 +756,18 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
           {/* 📖 관광공사 정품 상세 스토리 (overview) */}
           <div style={{
             backgroundColor: 'var(--bg-primary)',
-            borderRadius: '8px',
-            padding: '0.75rem 0.85rem',
+            borderRadius: '12px',
+            padding: '0.95rem 1.15rem',
             border: '1px solid var(--border-color)',
-            marginTop: '0.3rem'
+            marginTop: '0.2rem'
           }}>
-            <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--accent-primary)', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+            <div style={{ fontSize: '0.84rem', fontWeight: 800, color: 'var(--accent-primary)', marginBottom: '0.45rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
               🏛️ 한국관광공사 정품 상세 스토리
             </div>
             <p style={{
               margin: 0,
-              fontSize: '0.78rem',
-              lineHeight: 1.65,
+              fontSize: '0.86rem',
+              lineHeight: 1.7,
               color: 'var(--text-main)',
               opacity: 0.95
             }}>
@@ -771,29 +776,29 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
           </div>
 
           {/* ⚡ 3. 실시간 모바일 현장 액션 탭 (둘러보기 모드일 땐 교체 버튼 숨김!) */}
-          <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.1rem' }}>
+          <div style={{ display: 'flex', gap: '0.6rem', marginTop: '0.2rem' }}>
             {!spot.isExploreOnly && (
               <button
                 type="button"
                 onClick={() => setActivePanel(activePanel === 'replace' ? null : 'replace')}
                 style={{
                   flex: 1,
-                  padding: '0.45rem 0.5rem',
-                  borderRadius: '10px',
+                  padding: '0.65rem 0.85rem',
+                  borderRadius: '12px',
                   border: activePanel === 'replace' ? '1.5px solid var(--accent-primary)' : '1px solid var(--border-color)',
                   backgroundColor: activePanel === 'replace' ? 'rgba(37, 99, 235, 0.1)' : 'var(--bg-card)',
                   color: activePanel === 'replace' ? 'var(--accent-primary)' : 'var(--text-main)',
-                  fontSize: '0.76rem',
+                  fontSize: '0.84rem',
                   fontWeight: 800,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.3rem',
+                  gap: '0.4rem',
                   cursor: 'pointer',
                   transition: 'all 0.15s ease'
                 }}
               >
-                <RefreshCw size={12} />
+                <RefreshCw size={14} />
                 <span>{lang === 'en' ? 'Swap Place' : '다른 장소로 교체'}</span>
               </button>
             )}
@@ -803,22 +808,22 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
               onClick={() => setActivePanel(activePanel === 'nearby' ? null : 'nearby')}
               style={{
                 flex: 1,
-                padding: '0.45rem 0.5rem',
-                borderRadius: '10px',
+                padding: '0.65rem 0.85rem',
+                borderRadius: '12px',
                 border: activePanel === 'nearby' ? '1.5px solid var(--accent-primary)' : '1px solid var(--border-color)',
                 backgroundColor: activePanel === 'nearby' ? 'rgba(37, 99, 235, 0.1)' : 'var(--bg-card)',
                 color: activePanel === 'nearby' ? 'var(--accent-primary)' : 'var(--text-main)',
-                fontSize: '0.76rem',
+                fontSize: '0.84rem',
                 fontWeight: 800,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '0.3rem',
+                gap: '0.4rem',
                 cursor: 'pointer',
                 transition: 'all 0.15s ease'
               }}
             >
-              <Coffee size={12} />
+              <Coffee size={14} />
               <span>{lang === 'en' ? 'Nearby Food/Cafe' : '주변 맛집/카페'}</span>
             </button>
           </div>
@@ -828,13 +833,13 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
             <div style={{
               backgroundColor: 'var(--bg-primary)',
               border: '1px solid var(--border-color)',
-              borderRadius: '12px',
-              padding: '0.6rem 0.75rem',
+              borderRadius: '14px',
+              padding: '0.85rem 1rem',
               display: 'flex',
               flexDirection: 'column',
-              gap: '0.45rem'
+              gap: '0.55rem'
             }}>
-              <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-muted)' }}>
+              <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)' }}>
                 {lang === 'en' ? '📍 Tap [Swap] to substitute spot:' : '📍 [교체] 클릭 시 확인 후 즉시 일정이 변경됩니다:'}
               </div>
               {getAlternativeSpots().map((alt) => (
@@ -844,18 +849,18 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    padding: '0.45rem 0.55rem',
+                    padding: '0.65rem 0.85rem',
                     backgroundColor: 'var(--bg-card)',
-                    borderRadius: '8px',
+                    borderRadius: '10px',
                     border: '1px solid var(--border-color)',
-                    gap: '0.5rem'
+                    gap: '0.6rem'
                   }}
                 >
                   <div style={{ minWidth: 0 }}>
-                    <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                    <div style={{ fontSize: '0.86rem', fontWeight: 800, color: 'var(--text-main)' }}>
                       {alt.title}
                     </div>
-                    <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
+                    <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginTop: '0.1rem' }}>
                       {alt.category} · {alt.subway}
                     </div>
                   </div>
@@ -863,12 +868,12 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                     type="button"
                     onClick={() => handleRequestReplace(alt)}
                     style={{
-                      padding: '0.3rem 0.6rem',
+                      padding: '0.4rem 0.75rem',
                       backgroundColor: 'var(--accent-primary)',
                       color: '#ffffff',
                       border: 'none',
-                      borderRadius: '6px',
-                      fontSize: '0.72rem',
+                      borderRadius: '8px',
+                      fontSize: '0.78rem',
                       fontWeight: 800,
                       cursor: 'pointer',
                       flexShrink: 0
@@ -886,13 +891,13 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
             <div style={{
               backgroundColor: 'var(--bg-primary)',
               border: '1px solid var(--border-color)',
-              borderRadius: '12px',
-              padding: '0.6rem 0.75rem',
+              borderRadius: '14px',
+              padding: '0.85rem 1rem',
               display: 'flex',
               flexDirection: 'column',
-              gap: '0.45rem'
+              gap: '0.55rem'
             }}>
-              <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-muted)' }}>
+              <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)' }}>
                 {lang === 'en' ? '☕ Hand-picked spots within 5 mins walk (Tap map to navigate):' : '☕ 도보 5분 내 엄선 로컬 맛집 (길찾기 클릭 시 구글맵 연결):'}
               </div>
               {getNearbyFoodCafes().map((food, idx) => {
@@ -901,26 +906,26 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                   <div 
                     key={`nearby-food-${idx}`}
                     style={{
-                      padding: '0.45rem 0.55rem',
+                      padding: '0.65rem 0.85rem',
                       backgroundColor: 'var(--bg-card)',
-                      borderRadius: '8px',
+                      borderRadius: '10px',
                       border: '1px solid var(--border-color)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
-                      gap: '0.45rem'
+                      gap: '0.6rem'
                     }}
                   >
                     <div style={{ minWidth: 0 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                        <span style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                        <span style={{ fontSize: '0.86rem', fontWeight: 800, color: 'var(--text-main)' }}>
                           {food.name}
                         </span>
-                        <span style={{ fontSize: '0.66rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                        <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)', fontWeight: 600 }}>
                           ({food.distance})
                         </span>
                       </div>
-                      <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      <div style={{ fontSize: '0.76rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: '0.1rem' }}>
                         {food.desc}
                       </div>
                     </div>
@@ -931,22 +936,22 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{
-                        padding: '0.25rem 0.5rem',
+                        padding: '0.35rem 0.65rem',
                         backgroundColor: 'var(--bg-primary)',
                         border: '1px solid var(--border-color)',
                         color: 'var(--accent-primary)',
-                        borderRadius: '6px',
-                        fontSize: '0.7rem',
+                        borderRadius: '8px',
+                        fontSize: '0.76rem',
                         fontWeight: 800,
                         textDecoration: 'none',
                         display: 'inline-flex',
                         alignItems: 'center',
-                        gap: '0.2rem',
+                        gap: '0.3rem',
                         flexShrink: 0
                       }}
                     >
                       <span>{lang === 'en' ? 'Map' : '길찾기'}</span>
-                      <ExternalLink size={10} />
+                      <ExternalLink size={12} />
                     </a>
                   </div>
                 );
@@ -956,10 +961,10 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
 
           {/* 4. 하단 클린 모던 블루 액션 버튼 (잘림 0% 완전 노출) */}
           <div style={{
-            marginTop: '0.35rem',
+            marginTop: '0.4rem',
             display: 'grid',
             gridTemplateColumns: affiliateDeal ? '1.4fr 1fr' : '1fr',
-            gap: '0.45rem'
+            gap: '0.6rem'
           }}>
             {/* 1. 구글맵 길찾기 */}
             <a
@@ -970,15 +975,15 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                 backgroundColor: 'var(--accent-primary)',
                 color: '#ffffff',
                 textDecoration: 'none',
-                borderRadius: '10px',
-                padding: '0.65rem 0.75rem',
-                fontSize: '0.82rem',
+                borderRadius: '12px',
+                padding: '0.8rem 1rem',
+                fontSize: '0.92rem',
                 fontWeight: 900,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '0.35rem',
-                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)'
+                gap: '0.45rem',
+                boxShadow: '0 4px 14px rgba(37, 99, 235, 0.28)'
               }}
             >
               <span>
@@ -990,7 +995,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                   ? '🗺️ 在Google地图中导航 ↗' 
                   : '🗺️ 구글맵에서 길찾기 ↗'}
               </span>
-              <ExternalLink size={13} />
+              <ExternalLink size={15} />
             </a>
 
             {/* 2. 티켓/한복 예약 */}
@@ -1004,14 +1009,14 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                   border: '1px solid var(--border-color)',
                   color: 'var(--text-main)',
                   textDecoration: 'none',
-                  borderRadius: '10px',
-                  padding: '0.6rem 0.65rem',
-                  fontSize: '0.8rem',
+                  borderRadius: '12px',
+                  padding: '0.75rem 0.85rem',
+                  fontSize: '0.88rem',
                   fontWeight: 900,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.3rem'
+                  gap: '0.35rem'
                 }}
               >
                 <span>{lang === 'en' ? 'Deals ↗' : '특가 예약 ↗'}</span>
