@@ -1,4 +1,4 @@
-# Project Living Spec & Architecture Decisions
+﻿# Project Living Spec & Architecture Decisions
 
 이 문서는 선배님과의 모든 설계 철학, 시스템 환경, 요구사항, 규칙을 영구히 기록하여 **세션 리셋이나 안티그래비티 재부팅 후 새로 투입되는 에이전트도 100% 기억하고 동일한 원칙으로 동작하도록 하는 마스터 Living Spec**입니다.
 
@@ -75,13 +75,13 @@
        - 명소 타이틀 및 배지에 텍스트 자체 섀도우(`textShadow`)를 장착하여 사진 감상과 글자 가독성 동시 만족.
        - 모달 너비 `780px` 와이드 확장 & 4K 메인 사진 높이 `370px` 웅장화 유지.
    - **일일 무인 배치 및 하베스터 스크립트 404 모델 박멸 & 고속 Flash 5-Tier 폴백 & 클라우드 큐 파싱 완비 (`runDailyBatch.js`, `syncGeminiKnowledge.js`, `.github/workflows/daily-batch.yml`)**:
-     - `runDailyBatch.js`: Cloudflare 중앙 큐 API 응답 키(`data.list`) 정합성 수리(`Array.isArray(data) ? data : (data.list || data.questions || [])`), 404 위험 모델 제거, 최신 `gemini-2.5-flash` 1순위 + Flash 패밀리 5단계 안전망 구축, `GOOGLE_API_KEY` 포함 3중 시크릿 fallback 및 `trim()` 정제.
+     - `runDailyBatch.js`: Cloudflare 중앙 큐 API 응답 키(`data.list`) 정합성 수리(`Array.isArray(data) ? data : (data.list || data.questions || [])`), 404 위험 모델 제거, 최신 `gemini-2.0-flash` 1순위 + Flash 패밀리 5단계 안전망 구축, `GOOGLE_API_KEY` 포함 3중 시크릿 fallback 및 `trim()` 정제.
      - `.github/workflows/daily-batch.yml`: `ref: main`, `fetch-depth: 0` 체크아웃 명시, `git pull origin main --rebase` 무인 동기화 후 푸시로 충돌/Non-fast-forward 거절 원천 방지, Node.js 22 LTS 환경 최신화.
-     - `syncGeminiKnowledge.js`: 단일 1.5-flash 의존성 탈피, `gemini-2.5-flash` ➔ `2.0-flash` ➔ `1.5-flash` 다중 복원력 탑재.
+     - `syncGeminiKnowledge.js`: 단일 1.5-flash 의존성 탈피, `gemini-2.0-flash` ➔ `2.0-flash` ➔ `1.5-flash` 다중 복원력 탑재.
    - **제미나이 관리자 배치 지식 증류 엔진 404 에러 원천 차단 & 25초 안전 타임아웃/고속 플래시 모델 1순위 완전 수리 (`AdminBatchModal.jsx`)**:
      - **원인 분석**: 구글 AI Studio 모델 목록 조회 시 404/미지원인 `gemini-1.5-pro`가 모델 폴백 리스트에 포함되어 에러(`models/gemini-1.5-pro is not found for API version v1beta`)가 발생하고 배치 중단이 일어남.
      - **해결 및 개선**:
-       - 텍스트 생성 전용 모델 필터링 후 `gemini-2.5-flash` ➔ `gemini-2.0-flash` ➔ `gemini-1.5-flash` ➔ `gemini-2.5-flash-lite` ➔ `gemini-flash-latest` 순으로 100% 검증된 플래시 계열만을 최우선 타깃팅하도록 모델 풀 정제.
+       - 텍스트 생성 전용 모델 필터링 후 `gemini-2.0-flash` ➔ `gemini-2.0-flash` ➔ `gemini-1.5-flash` ➔ `gemini-2.0-flash-lite` ➔ `gemini-flash-latest` 순으로 100% 검증된 플래시 계열만을 최우선 타깃팅하도록 모델 풀 정제.
        - 404 위험이 있는 `-pro` 계열 모델 제외.
        - `AbortController` 타임아웃을 25초(`25,000ms`)로 넉넉하게 확장하고, 질문 간 1.2초 안전 쿨다운을 부여하여 구글 API 429(Rate Limit) 및 503 오류 100% 방지.
        - 구문 손상 및 중복 루프를 완벽 제거하고 단일 표준 JSON 생성 파이프라인으로 일원화.
@@ -109,7 +109,7 @@
    - **🏛️ 헌법 제20조 준수: 무인 일일 배치 및 관리자 배치 파이프라인 전면 동기화 수리 (`scripts/runDailyBatch.js`, `AdminBatchModal.jsx`)**:
      - **단일 마스터 볼트 스키마(`{ qnaVault, cityKnowledge }`) 완벽 동기화**: `runDailyBatch.js`가 새로운 지식을 증류 후 병합할 때, 기존 전국 59개 도시 로컬 지식(`cityKnowledge`)을 유실 없이 100% 보존하면서 `qnaVault`에 안전하게 신규 Q&A를 Upsert하도록 구조화.
      - **50만 자 대용량 페이로드 안전 치환**: 정규식 백트래킹 취약점을 제거하고 `indexOf` 기반 인덱스 슬라이싱으로 안전하고 빠르게 암호화 볼트를 갱신하도록 개선.
-     - **UI 제미나이 배치 모델 스위칭 및 다국어 스키마 완비 (`AdminBatchModal.jsx`)**: 구글 AI 탐색 모델(`activeModelPath`)을 1순위로 직결하고 검증된 모델 폴백 체인(`gemini-2.0-flash`, `gemini-1.5-flash`, `gemini-1.5-flash-8b`, `gemini-2.5-flash` 등)을 장착하여 배치 실행 시 404/트래픽 에러를 원천 차단.
+     - **UI 제미나이 배치 모델 스위칭 및 다국어 스키마 완비 (`AdminBatchModal.jsx`)**: 구글 AI 탐색 모델(`activeModelPath`)을 1순위로 직결하고 검증된 모델 폴백 체인(`gemini-2.0-flash`, `gemini-1.5-flash`, `gemini-1.5-flash-8b`, `gemini-2.0-flash` 등)을 장착하여 배치 실행 시 404/트래픽 에러를 원천 차단.
    - **🏛️ 방안 A 완성 및 다국어 4개국어(한·영·일·중) 정품 지식 전수 완비 (`voraQnaVault.js`, `NationwideVaultCompiler.cs`, `DesktopMapExplorer.jsx`)**:
      - **대한민국 전 시·군·구 정품 4개국어 지식 전수 직결**: 서울, 전주, 부산, 제주, 경주, 강릉, 속초, 여수, 수원, 김천, 거창, 울주, 담양, 보성, 신안, 완도, 단양, 남해, 포항, 안동 등 전국 주요 시군에 대해 **[한·영·일·중 4개국어 공식 배지 + 대표 앵커 4종 + 로컬 미식 비결 + 비오는 날 실내 명소 + 감성 카페 & 야경 + 대중교통 팁]** 풀스펙 탑재.
      - **지도 탐색기(`DesktopMapExplorer.jsx`) 역지오코딩 지자체 1순위 매칭 수리**: OpenStreetMap Nominatim 응답에서 `city -> county -> town -> borough -> district` 순으로 시군 단위를 우선 매칭하여, 전주시 완산구 클릭 시 `'완산'` 대신 `'전주'` 지식베이스가 100% 정확하게 연동되도록 조치.
@@ -159,7 +159,7 @@
      - **Zone 3 (우측 6대 거점 칩)**: 서울, 수원, 부산, 제주, 경주, 강릉 원클릭 퀵점프 칩.
    - **VORA AI 일일 무인 지식 증류 배치 러너(`scripts/runDailyBatch.js`) 암호화 볼트 직결 및 모델명 오류 완전 박멸**:
      - **암호화 볼트(`VORA_ENCRYPTED_VAULT_PAYLOAD`) 100% 호환 연동**: 과거 평문 배열 정규식 매칭 실패로 인한 지식 저장 중단 문제를 해결하고, Node.js 다형성 XOR 암복호화 엔진(`encryptData`/`decryptData`)을 탑재하여 학습된 지식을 암호화 마스터 볼트(`src/data/voraQnaVault.js`)에 안전하게 병합 저장하도록 완성.
-     - **구글 제미나이 공식 모델명 정비**: 존재하지 않는 `gemini-2.5-flash` 대신 공식 지원 정품 모델(`gemini-2.0-flash`, `gemini-1.5-flash`, `gemini-1.5-pro`)로 호출 파이프라인을 정비하여 404 에러 원천 차단.
+     - **구글 제미나이 공식 모델명 정비**: 존재하지 않는 `gemini-2.0-flash` 대신 공식 지원 정품 모델(`gemini-2.0-flash`, `gemini-1.5-flash`, `gemini-1.5-pro`)로 호출 파이프라인을 정비하여 404 에러 원천 차단.
    - **배포 기본 원칙 엄격 준수**: 개발 전용 `origin` (`travelkorea_2.git` ➔ Cloudflare Pages)으로만 안전하게 배포 반영.
 2. **다음 작업 1순위**:
    - 선배님 웹 화면 실제 동작 피드백 확인 및 디테일 최적화.

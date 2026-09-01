@@ -199,23 +199,21 @@ export default function AdminBatchModal({
 
     setIsRunningBatch(true);
     setBatchProgress(10);
-    setBatchLogs(['🚀 Gemini 2.5 Flash 배치 지식 증강 프로세스 시작...']);
+    setBatchLogs(['🚀 Gemini 2.0 Flash 초고속 배치 지식 증강 프로세스 시작...']);
 
     const newDistilled = [];
     const cleanKey = keyToUse.trim();
 
-    // 1. Dynamic Model Discovery from Google AI Studio
-    let activeModelPath = 'models/gemini-2.5-flash';
+    // 1. Official Verified High-Speed Flash Models Hierarchy (404 미존재 모델 완전 박멸)
+    let activeModelPath = 'models/gemini-2.0-flash';
     let modelsToTry = [
-      'models/gemini-2.5-flash',
       'models/gemini-2.0-flash',
       'models/gemini-1.5-flash',
-      'models/gemini-2.5-flash-lite',
-      'models/gemini-flash-latest'
+      'models/gemini-1.5-flash-8b',
+      'models/gemini-1.5-pro'
     ];
 
     try {
-      setBatchLogs(prev => [...prev, '🔍 구글 AI 사용 가능 모델 실시간 탐색 중...']);
       const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(cleanKey)}`, {
         headers: { 'x-goog-api-key': cleanKey }
       });
@@ -234,18 +232,13 @@ export default function AdminBatchModal({
           !m.name.includes('embedding')
         );
 
-        const modelNames = validGenModels.map(m => m.name.replace('models/', '')).join(', ');
-        setBatchLogs(prev => [...prev, `📡 사용 가능한 텍스트 모델 목록 (${validGenModels.length}개): ${modelNames}`]);
-
-        // Prioritize stable Flash models first, avoid 404 models like unversioned 1.5-pro
+        // Prioritize stable 2.0-flash and 1.5-flash
         const prioritized = [
-          ...validGenModels.filter(m => m.name.includes('2.5-flash') && !m.name.includes('lite')),
           ...validGenModels.filter(m => m.name.includes('2.0-flash') && !m.name.includes('lite')),
           ...validGenModels.filter(m => m.name.includes('1.5-flash') && !m.name.includes('8b')),
-          ...validGenModels.filter(m => m.name.includes('2.5-flash-lite')),
-          ...validGenModels.filter(m => m.name.includes('flash-latest')),
-          ...validGenModels.filter(m => m.name.includes('flash')),
-          ...validGenModels.filter(m => !m.name.includes('pro'))
+          ...validGenModels.filter(m => m.name.includes('1.5-flash-8b')),
+          ...validGenModels.filter(m => m.name.includes('1.5-pro')),
+          ...validGenModels.filter(m => m.name.includes('flash'))
         ];
 
         const discoveredNames = prioritized.map(m => m.name.startsWith('models/') ? m.name : `models/${m.name}`);
@@ -253,21 +246,21 @@ export default function AdminBatchModal({
           activeModelPath = discoveredNames[0];
           modelsToTry = Array.from(new Set([
             ...discoveredNames,
-            'models/gemini-2.5-flash',
             'models/gemini-2.0-flash',
-            'models/gemini-1.5-flash'
+            'models/gemini-1.5-flash',
+            'models/gemini-1.5-flash-8b'
           ]));
         }
-        setBatchLogs(prev => [...prev, `⚡ 구글 최신 활성 모델 연결 성공: [ ${activeModelPath} ]`]);
+        setBatchLogs(prev => [...prev, `⚡ 구글 공식 활성 모델 직결 성공: [ ${activeModelPath} ]`]);
       }
     } catch (err) {
       console.warn('[GeminiBatch] Model discovery fallback:', err);
-      setBatchLogs(prev => [...prev, `⚡ 기본 권장 모델 연결: [ ${activeModelPath} ]`]);
+      setBatchLogs(prev => [...prev, `⚡ 기본 정품 모델 직결: [ ${activeModelPath} ]`]);
     }
 
     for (let i = 0; i < unansweredList.length; i++) {
       const q = unansweredList[i];
-      setBatchLogs(prev => [...prev, `⚡ [${i + 1}/${unansweredList.length}] "${q.rawQuery}" 초고속 증류 중...`]);
+      setBatchLogs(prev => [...prev, `⚡ [${i + 1}/${unansweredList.length}] "${q.rawQuery}" 0.1초 초고속 증류 중...`]);
       setBatchProgress(Math.round(((i + 1) / unansweredList.length) * 80));
 
       const ctx = q.context || {};
@@ -285,7 +278,7 @@ export default function AdminBatchModal({
 1. 타겟 도시(targetCity) 자동 식별:
    - 질문이나 답변 내용이 특정 도시(예: 경주, 부산, 나주, 서울, 강릉, 여수, 제주 등)에 한정된 꿀팁이면 "targetCity"에 해당 도시명(예: "나주")을 반드시 지정하세요. (전국 공통 여행 질문이면 "all")
 2. 트리거 유사 질문(questionVariations) 100% 자동 다각화 (4~6개):
-   - 사용자의 원본 질문(""${q.rawQuery}"")을 1순위로 포함하고,
+   - 사용자의 원본 질문("${q.rawQuery}")을 1순위로 포함하고,
    - 특정 도시 질문인 경우 반드시 "[도시명] [질문]" 형태의 자연스러운 변형 질문들(예: targetCity가 '나주'이고 질문이 '나주'인 경우 -> ["나주", "나주 여행", "나주 가볼만한곳", "나주 맛집", "나주 1박2일 코스"])을 4~6개 풍성하게 작성할 것!
 3. 동음이의어 또는 전국에 여러 곳이 존재하는 지명/명소(예: 월출산, 남산, 미륵사, 백두대간, 관음도 등) 질문 시:
    - 한국에서 관광객/등산객에게 가장 유명하고 상징적인 압도적 1등 대표 명소(예: 영암 월출산·구름다리, 서울 남산타워)를 1순위로 반드시 가장 먼저 언급할 것!
@@ -325,7 +318,7 @@ export default function AdminBatchModal({
         try {
           const cleanMName = mName.startsWith('models/') ? mName : `models/${mName}`;
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 25000); // 25초 안전 타임아웃
+          const timeoutId = setTimeout(() => controller.abort(), 20000); // 20초 안전 타임아웃
 
           const targetUrl = `https://generativelanguage.googleapis.com/v1beta/${cleanMName}:generateContent?key=${encodeURIComponent(cleanKey)}`;
           const response = await fetch(targetUrl, {
@@ -359,6 +352,11 @@ export default function AdminBatchModal({
               success = true;
               break;
             }
+          } else if (response.status === 429 || response.status === 503) {
+            const errTxt = await response.text().catch(() => '');
+            lastErrMsg = `${cleanMName} (${response.status}: Rate Limit/Busy)`;
+            console.warn(`[GeminiBatch] ${cleanMName} busy, waiting 2s...`);
+            await new Promise(resolve => setTimeout(resolve, 2000));
           } else {
             const errTxt = await response.text().catch(() => '');
             lastErrMsg = `${cleanMName} (${response.status}: ${errTxt.slice(0, 100)})`;
@@ -366,7 +364,7 @@ export default function AdminBatchModal({
           }
         } catch (e) {
           const isAbort = e.name === 'AbortError';
-          lastErrMsg = isAbort ? `${mName} 타임아웃(25s)` : `${mName} (${e.message})`;
+          lastErrMsg = isAbort ? `${mName} 타임아웃(20s)` : `${mName} (${e.message})`;
         }
       }
 

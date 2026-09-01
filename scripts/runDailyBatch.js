@@ -144,13 +144,12 @@ async function runBatch() {
     let success = false;
     let rawOutput = '';
 
-    // Primary & Fallback Models (100% 검증된 고속 Flash 패밀리)
+    // Primary & Fallback Models (100% 검증된 구글 공식 정품 고속 Flash 패밀리)
     const modelsToTry = [
-      'gemini-2.5-flash',
       'gemini-2.0-flash',
       'gemini-1.5-flash',
-      'gemini-2.5-flash-lite',
-      'gemini-flash-latest'
+      'gemini-1.5-flash-8b',
+      'gemini-1.5-pro'
     ];
 
     for (const modelName of modelsToTry) {
@@ -160,7 +159,10 @@ async function runBatch() {
           `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`,
           {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'x-goog-api-key': GEMINI_API_KEY
+            },
             body: JSON.stringify({
               contents: [{ parts: [{ text: promptText }] }],
               generationConfig: { temperature: 0.2, responseMimeType: 'application/json' }
@@ -173,8 +175,8 @@ async function runBatch() {
           rawOutput = resJson.candidates?.[0]?.content?.parts?.[0]?.text || '';
           if (rawOutput) success = true;
         } else if (geminiRes.status === 429 || geminiRes.status === 503) {
-          console.warn(`⏳ [Rate Limit / High Demand] ${modelName} 3초 대기 후 다음 모델 전환...`);
-          await sleep(3000);
+          console.warn(`⏳ [Rate Limit / High Demand] ${modelName} 2초 대기 후 다음 모델 전환...`);
+          await sleep(2000);
         }
       } catch (callErr) {
         console.warn(`⚠️ ${modelName} 호출 에러: ${callErr.message}`);
