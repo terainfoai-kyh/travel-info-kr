@@ -435,18 +435,21 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
               width: '100%', 
               height: '100%', 
               objectFit: 'cover',
-              imageRendering: 'high-quality',
-              filter: 'contrast(1.03) saturate(1.04)',
+              imageRendering: 'crisp-edges',
               transition: 'opacity 0.25s ease'
             }}
             onError={(e) => { e.currentTarget.src = 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg'; }}
           />
 
-          {/* Dark Gradient Overlay */}
+          {/* Soft Bottom-Only Gradient for Text Readability (상단 80%는 100% 맑고 쨍한 원본 노출) */}
           <div style={{
             position: 'absolute',
-            inset: 0,
-            background: 'linear-gradient(to top, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.2) 50%, transparent 75%)'
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: '45%',
+            background: 'linear-gradient(to top, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.2) 60%, transparent 100%)',
+            pointerEvents: 'none'
           }} />
 
           {/* Top Left: Photo Counter Badge */}
@@ -557,16 +560,17 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', marginBottom: '0.3rem' }}>
               <span style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.22)',
+                backgroundColor: 'rgba(255, 255, 255, 0.25)',
                 backdropFilter: 'blur(6px)',
                 padding: '0.15rem 0.55rem',
                 borderRadius: '6px',
                 fontSize: '0.75rem',
-                fontWeight: 800
+                fontWeight: 800,
+                textShadow: '0 1px 4px rgba(0, 0, 0, 0.8)'
               }}>
                 {spot.category || spot.theme || '추천명소'}
               </span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', color: '#f59e0b', fontSize: '0.82rem', fontWeight: 900 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', color: '#f59e0b', fontSize: '0.82rem', fontWeight: 900, textShadow: '0 1px 4px rgba(0, 0, 0, 0.8)' }}>
                 <Star size={14} fill="#f59e0b" />
                 <span>{rating}</span>
               </div>
@@ -576,7 +580,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
               fontSize: 'clamp(1.25rem, 2.2vw, 1.65rem)',
               fontWeight: 900,
               color: '#ffffff',
-              textShadow: '0 2px 8px rgba(0, 0, 0, 0.85)'
+              textShadow: '0 2px 10px rgba(0, 0, 0, 0.95), 0 1px 3px rgba(0, 0, 0, 0.9)'
             }}>
               {cleanTitle}
             </h2>

@@ -67,9 +67,25 @@
        - `voraQnaMatcher.js` (`logUnansweredQuestion`): 볼트 미매칭 시 단순 코스 생성 및 액션 지시어는 미답변 큐 저장에서 100% 원천 제외.
        - `voraCloudQnaService.js` (`pushQuestionToCloud`, `fetchQuestionsFromCloud`): 클라우드 전송 및 로컬 스토리지 적재/동기화 시 액션 지시어 자동 필터링.
        - `functions/api/qna.js` (Cloudflare Pages Functions): 백엔드 API 레벨(`onRequestGet`, `onRequestPost`)에서도 액션 지시어 적재 100% 차단 및 기존 레거시 찌꺼기 자동 정제 응답.
-   - **제미나이 관리자 배치 지식 증류 엔진 20초 안전 타임아웃 & 고속 정품 모델 1순위 타깃 수리 (`AdminBatchModal.jsx`)**:
-     - **타임아웃 확장**: 4개국어 대용량 JSON 증류 시 6초 조기 중단되던 `AbortController` 타임아웃을 25초(`25,000ms`)로 여유 있게 확장하여 조기 단절 문제 100% 해결.
-     - **고속 정품 모델 1순위 지정**: 가변 별칭 대신 `gemini-2.0-flash`, `gemini-1.5-flash`, `gemini-2.5-flash`를 최우선 타깃팅하도록 모델 선택 로직 고도화.
+   - **관광지 상세 모달 780px 럭셔리 와이드 뷰 & 100% 퓨어 고화질 사진 노출 완비 (`TravelDetailModal.jsx`)**:
+     - **원인 분석**: 텍스트 가독성을 위해 사진 높이의 50%까지 짙은 검은색 그라데이션 오버레이(`rgba(0,0,0, 0.88 ➔ 0.2)`) 및 인위적 CSS 채도/대비 필터가 적용되어 있어, 원본 사진이 틴팅 선글라스를 낀 것처럼 어둡고 칙칙해 보이던 문제 발생.
+     - **해결 및 개선**:
+       - 인위적 CSS 필터 제거 및 `imageRendering: 'crisp-edges'` 순수 원본 100% 렌더링.
+       - 사진 상단 75% 영역의 검은 막을 완전히 걷어내고, 하단 텍스트 영역에만 얇고 부드러운 소프트 섀도우를 부여하여 **사진 본연의 색감(맑은 하늘, 청량한 바다 등)을 100% 쨍하게 보존**.
+       - 명소 타이틀 및 배지에 텍스트 자체 섀도우(`textShadow`)를 장착하여 사진 감상과 글자 가독성 동시 만족.
+       - 모달 너비 `780px` 와이드 확장 & 4K 메인 사진 높이 `370px` 웅장화 유지.
+   - **일일 무인 배치 및 하베스터 스크립트 404 모델 박멸 & 고속 Flash 5-Tier 폴백 구축 (`runDailyBatch.js`, `syncGeminiKnowledge.js`)**:
+     - `runDailyBatch.js`: `gemini-1.5-pro` 404 모델 완전 제거 및 최신 `gemini-2.5-flash` 1순위 + Flash 패밀리 5단계 안전망 구축.
+     - `syncGeminiKnowledge.js`: 단일 1.5-flash 의존성 탈피, `gemini-2.5-flash` ➔ `2.0-flash` ➔ `1.5-flash` 다중 복원력 탑재.
+   - **GitHub Actions 러너 Node.js 22 LTS 최신화 (`.github/workflows/daily-batch.yml`)**:
+     - Node.js 20 Deprecation 경고를 해소하고 최신 Node.js 22 LTS 환경으로 업그레이드 완료.
+   - **제미나이 관리자 배치 지식 증류 엔진 404 에러 원천 차단 & 25초 안전 타임아웃/고속 플래시 모델 1순위 완전 수리 (`AdminBatchModal.jsx`)**:
+     - **원인 분석**: 구글 AI Studio 모델 목록 조회 시 404/미지원인 `gemini-1.5-pro`가 모델 폴백 리스트에 포함되어 에러(`models/gemini-1.5-pro is not found for API version v1beta`)가 발생하고 배치 중단이 일어남.
+     - **해결 및 개선**:
+       - 텍스트 생성 전용 모델 필터링 후 `gemini-2.5-flash` ➔ `gemini-2.0-flash` ➔ `gemini-1.5-flash` ➔ `gemini-2.5-flash-lite` ➔ `gemini-flash-latest` 순으로 100% 검증된 플래시 계열만을 최우선 타깃팅하도록 모델 풀 정제.
+       - 404 위험이 있는 `-pro` 계열 모델 제외.
+       - `AbortController` 타임아웃을 25초(`25,000ms`)로 넉넉하게 확장하고, 질문 간 1.2초 안전 쿨다운을 부여하여 구글 API 429(Rate Limit) 및 503 오류 100% 방지.
+       - 구문 손상 및 중복 루프를 완벽 제거하고 단일 표준 JSON 생성 파이프라인으로 일원화.
    - **대한민국 대표 명품 관광도시 12개 권역 A++급 정품 지식 마스터 볼트 편입 및 기상/NLP 엔진 연동 완비 (`NationwideVaultCompiler.cs`, `compileNationwideVault.js`, `voraQnaVault.js`, `weatherApi.js`, `geminiNlpService.js`)**:
      - **나주 (Naju) 전수 등록**: 금성관, 나주목사내아 금학헌, 빛가람 호수공원 & 빛가람 전망대, 국립나주박물관 & 반남고분군, 100년 전통 나주곰탕(하얀집·노안집), 영산포 홍어의 거리, 39-17마중 카페, 정품 기상 좌표(`35.0158, 126.7108`), NLP 좌표 매핑 완료.
      - **전남/강원/전북/충청/경남 핵심 명품도시 풀스펙 탑재**: 여수, 순천, 담양, 목포, 강릉, 속초, 춘천, 전주, 군산, 단양, 통영 12개 도시의 4개국어(한·영·일·중) 시그니처 랜드마크, 로컬 미식 비결, 빗길/실내 명소, 무장애 산책로, 야경, 감성 카페, 프리미엄 숙소 데이터를 단일 암호화 볼트에 일괄 편입 컴파일 완료.
