@@ -62,6 +62,7 @@ export default function DockedMapStation({
   const leafletMapRef = useRef(null);
   const routeLayerRef = useRef(null);
   const markersRef = useRef([]);
+  const activeBoundsRef = useRef([]);
 
   const targetCity = itineraryData?.targetCity || '서울';
   const totalDays = itineraryData?.days || itineraryData?.dailySchedules?.length || 3;
@@ -82,7 +83,7 @@ export default function DockedMapStation({
     }
   }, []);
 
-  // 2. Map Instance Initialization
+  // 2. Map Instance Initialization & Native ResizeObserver
   useEffect(() => {
     if (!isOpen || !isLeafletReady || !window.L || !mapContainerRef.current) return;
 
@@ -103,14 +104,51 @@ export default function DockedMapStation({
       leafletMapRef.current = map;
     }
 
-    // Invalidate size on open or resize
-    const timer = setTimeout(() => {
-      if (leafletMapRef.current) {
-        leafletMapRef.current.invalidateSize();
-      }
-    }, 250);
+    // 🎯 ResizeObserver: 사이드바 레이아웃 확정 시 코스 마커 100% 정중앙 자동 핏팅
+    let ro = null;
+    if (typeof ResizeObserver !== 'undefined' && mapContainerRef.current) {
+      ro = new ResizeObserver((entries) => {
+        for (let entry of entries) {
+          if (entry.contentRect.width > 50 && entry.contentRect.height > 50 && leafletMapRef.current) {
+            if (activeBoundsRef.current && activeBoundsRef.current.length > 0 && window.L) {
+              const b = window.L.latLngBounds(activeBoundsRef.current);
+              if (b && b.isValid()) {
+                try {
+                  leafletMapRef.current.invalidateSize({ pan: false });
+                  leafletMapRef.current.fitBounds(b.pad(0.14), { padding: [25, 25], maxZoom: 14.5, animate: false });
+                } catch (e) {}
+              }
+            }
+          }
+        }
+      });
+      ro.observe(mapContainerRef.current);
+    }
 
-    return () => clearTimeout(timer);
+    const forceResize = () => {
+      if (leafletMapRef.current) {
+        try {
+          leafletMapRef.current.invalidateSize({ pan: false });
+          if (activeBoundsRef.current && activeBoundsRef.current.length > 0 && window.L) {
+            const b = window.L.latLngBounds(activeBoundsRef.current);
+            if (b && b.isValid()) {
+              leafletMapRef.current.fitBounds(b.pad(0.14), { padding: [25, 25], maxZoom: 14.5, animate: false });
+            }
+          }
+        } catch (e) {}
+      }
+    };
+
+    const t1 = setTimeout(forceResize, 50);
+    const t2 = setTimeout(forceResize, 180);
+    const t3 = setTimeout(forceResize, 400);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      if (ro) ro.disconnect();
+    };
   }, [isOpen, isLeafletReady]);
 
   // 3. Render Spots & Routes on Map
@@ -206,11 +244,23 @@ export default function DockedMapStation({
       routeLayerRef.current = polyline;
     }
 
-    // Fit Bounds
-    if (latLngs.length > 0) {
-      const bounds = window.L.latLngBounds(latLngs);
-      map.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
-    }
+    activeBoundsRef.current = latLngs;
+
+    // 🎯 1번~마지막 마커 100% 정중앙 핏팅 함수
+    const applySpotFit = (coords) => {
+      if (!coords || coords.length === 0 || !window.L || !leafletMapRef.current) return;
+      const b = window.L.latLngBounds(coords);
+      if (b && b.isValid()) {
+        try {
+          leafletMapRef.current.invalidateSize({ pan: false });
+          leafletMapRef.current.fitBounds(b.pad(0.14), { padding: [25, 25], maxZoom: 14.5, animate: false });
+        } catch (e) {}
+      }
+    };
+
+    applySpotFit(latLngs);
+    setTimeout(() => applySpotFit(latLngs), 80);
+    setTimeout(() => applySpotFit(latLngs), 250);
   }, [isOpen, currentDaySpots, activeDay]);
 
   // If collapsed: show slim vertical docking pill
