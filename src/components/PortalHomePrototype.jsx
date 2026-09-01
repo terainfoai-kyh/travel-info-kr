@@ -431,14 +431,14 @@ export default function PortalHomePrototype({
           />
         ))}
 
-        {/* Ambient Subtle Light Scrim (사진의 맑고 찬란한 자연 색감 100% 유지) */}
+        {/* Ambient Subtle Light Scrim (사진 본연의 맑고 찬란한 100% 퓨어 자연 색감 노출) */}
         <div style={{
           position: 'absolute',
           top: 0,
           left: 0,
           width: '100%',
           height: '100%',
-          background: 'linear-gradient(180deg, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.0) 30%, rgba(0, 0, 0, 0.0) 50%, rgba(15, 23, 42, 0.55) 80%, rgba(15, 23, 42, 0.75) 100%)',
+          background: 'linear-gradient(180deg, rgba(0, 0, 0, 0.0) 0%, rgba(0, 0, 0, 0.0) 65%, rgba(15, 23, 42, 0.38) 100%)',
           zIndex: 2
         }} />
 

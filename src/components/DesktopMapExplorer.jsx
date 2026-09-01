@@ -1362,17 +1362,19 @@ export default function DesktopMapExplorer({
                         width: '100%',
                         height: '100%',
                         objectFit: 'cover',
+                        imageRendering: 'crisp-edges',
                         transition: 'transform 0.4s ease'
                       }}
                     />
                   )}
+                  {/* Ultra-Light Soft Scrim (사진 상단 70%는 100% 퓨어 원본, 하단 텍스트 영역만 은은한 그림자) */}
                   <div style={{
                     position: 'absolute',
                     top: 0,
                     left: 0,
                     right: 0,
                     bottom: 0,
-                    background: 'linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(15, 23, 42, 0.85) 100%)'
+                    background: 'linear-gradient(180deg, rgba(0,0,0,0.0) 0%, rgba(0,0,0,0.0) 55%, rgba(15, 23, 42, 0.42) 85%, rgba(15, 23, 42, 0.68) 100%)'
                   }} />
 
                   {/* Photo Overlay Title */}
@@ -1392,7 +1394,8 @@ export default function DesktopMapExplorer({
                       marginBottom: '2px',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '4px'
+                      gap: '4px',
+                      textShadow: '0 1px 4px rgba(0,0,0,0.8)'
                     }}>
                       <CheckCircle2 size={12} color="#38bdf8" />
                       <span>📍 {lang === 'en' ? 'TourAPI Certified Destination' : lang === 'ja' ? '公式認証 観光地' : (lang === 'zh' || lang === 'zht') ? '官方认证 目的地' : '한국관광공사 정품 인증 여행지'}</span>
@@ -1401,10 +1404,10 @@ export default function DesktopMapExplorer({
                       fontSize: '1.25rem',
                       fontWeight: 900,
                       color: '#ffffff',
-                      textShadow: '0 2px 8px rgba(0,0,0,0.6)'
+                      textShadow: '0 2px 10px rgba(0,0,0,0.9), 0 1px 4px rgba(0,0,0,0.95)'
                     }}>
                       {lang === 'ko' ? selectedLocation.nameKo : selectedLocation.nameEn}
-                      <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#e2e8f0', marginLeft: '6px' }}>
+                      <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#e2e8f0', marginLeft: '6px', textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>
                         {lang === 'ko' ? `(${selectedLocation.nameEn})` : `(${selectedLocation.nameKo})`}
                       </span>
                     </div>
