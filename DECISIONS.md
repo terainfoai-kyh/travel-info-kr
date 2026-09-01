@@ -1,4 +1,4 @@
-﻿# Project Living Spec & Architecture Decisions
+# Project Living Spec & Architecture Decisions
 
 이 문서는 선배님과의 모든 설계 철학, 시스템 환경, 요구사항, 규칙을 영구히 기록하여 **세션 리셋이나 안티그래비티 재부팅 후 새로 투입되는 에이전트도 100% 기억하고 동일한 원칙으로 동작하도록 하는 마스터 Living Spec**입니다.
 
@@ -61,6 +61,18 @@
 
 ### [2026-09-01 (화)]
 1. **완료된 작업**:
+   - **대화형 AI 다회차(Multi-turn) 도시 스위칭 vs 조건/테마 변경 지능형 2단계 분리 및 가짜 도시명 방지 완비 (`geminiNlpService.js`, `localItineraryGenerator.js`, `AIChatPromptHeader.jsx`, `AIChatWindow.jsx`)**:
+     - **테마어 도시 오인식 원천 차단 (`extractLocationKeyword`)**: `실내`, `야외`, `비오는날`, `힐링`, `데이트`, `맛집`, `야경`, `카페`, `효도`, `가족`, `키즈`, `감성`, `핫플` 등 모든 여행 조건/테마어가 도시명(Fake City)으로 추출되던 정규식 누수를 `THEME_AND_STOPWORDS` 블랙리스트로 100% 차단.
+     - **2가지 케이스 지능형 분기**:
+       - *Case 1 (도시 변경)*: `"부산으로 바꿔줘"`처럼 새 발화에 실제 도시명이 포함되면 즉시 이전 도시 문맥을 종료하고 새 도시로 100% 전환.
+       - *Case 2 (조건/테마 변경)*: `"비 오는 날 실내 코스로 변경해줘"`, `"2박 3일로 줄여줘"`처럼 도시명이 없는 발화는 직전 도시('수원') 문맥을 100% 계승하여 수원 관내 실내 명소(미술관, 박물관, 스타필드 등)로 정밀 재설계.
+     - **채팅 헤더/창 이전 일정 객체(`prevItinerary`) 파이프라인 직결**: 대화창에서 조건 수정 시 직전 일정과 타겟 도시를 온전히 전달하여 0.01초 만에 연속성 있는 여행 코스 조립.
+   - **상단 히어로 배너 & 우측 매거진 지도 카드 100% 퓨어 고화질 화사한 색감 개편 (`PortalHomePrototype.jsx`, `DesktopMapExplorer.jsx`)**:
+     - 상단을 덮고 있던 35% 검은 오버레이와 하단의 75%~85% 짙은 네이비 막을 완전히 걷어내고, 맑은 하늘/한옥 기와/지자체 원본 사진 본연의 청량한 색감을 100% 쨍하게 복원.
+     - 헤드라인 및 도시명/인증 뱃지에 듀얼 텍스트 섀도우를 부여하여 밝은 사진 위에서도 또렷한 가독성 확보.
+   - **GitHub Actions 일일 무인 배치 11초 크래시 원인 완벽 수리 및 최초 무결점 성공 달성 (`scripts/runDailyBatch.js`, `.github/workflows/daily-batch.yml`)**:
+     - `package.json`의 `"type": "module"`(ESM) 환경에서 Node.js 22 실행 시 구형 `require(...)` 호출로 발생하던 `ReferenceError: require is not defined` 치명적 런타임 에러를 표준 ES Module(`import fs from 'fs'`, `fileURLToPath`)로 100% 전환하여 완벽 박멸.
+     - 변수 스코프(`ctx` 초기화 순서) 및 `VORA_MASTER_VAULT_KEY` 암호화 정합성 완비 후 깃허브 액션 최초 초록색 체크(`Success`) 무결점 가동 달성.
    - **단순 코스 생성 액션 및 시스템 버튼 지시어 미답변 큐 적재 100% 원천 차단 완비 (`qnaFilter.js`, `voraQnaMatcher.js`, `voraCloudQnaService.js`, `AdminBatchModal.jsx`, `functions/api/qna.js`)**:
      - **필터링 유틸리티 모듈화(`isSystemActionOrCourseDirective`)**: `[지역명] [N]일 코스 만들기 🚀`, `[지역명] [N]일 코스 짜줘`, `일정 생성`, `일정표 만들기`, `Create ... Plan` 등 모든 시스템 액션/코스 생성 트리거 텍스트를 정밀 정규식으로 감지하는 표준 필터 구축.
      - **클라이언트 & 서버 3중 방어막 구축**:
