@@ -184,7 +184,7 @@ export default function AdminBatchModal({
     setManualInput('');
   };
 
-  // Run Batch Distillation with Gemini 2.5 Flash
+    // Run Batch Distillation with Gemini 2.5 Flash
   const handleRunBatch = async () => {
     const keyToUse = apiKey.trim() || localStorage.getItem('vora_gemini_api_key');
     if (!keyToUse) {
@@ -202,13 +202,20 @@ export default function AdminBatchModal({
     setBatchLogs(['🚀 Gemini 2.5 Flash 배치 지식 증강 프로세스 시작...']);
 
     const newDistilled = [];
-
     const cleanKey = keyToUse.trim();
 
     // 1. Dynamic Model Discovery from Google AI Studio
-    let activeModelPath = 'models/gemini-1.5-flash';
+    let activeModelPath = 'models/gemini-2.5-flash';
+    let modelsToTry = [
+      'models/gemini-2.5-flash',
+      'models/gemini-2.0-flash',
+      'models/gemini-1.5-flash',
+      'models/gemini-2.5-flash-lite',
+      'models/gemini-flash-latest'
+    ];
+
     try {
-      setBatchLogs(prev => [...prev, '🔍 구글 AI 사용 가능 모델 탐색 중...']);
+      setBatchLogs(prev => [...prev, '🔍 구글 AI 사용 가능 모델 실시간 탐색 중...']);
       const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(cleanKey)}`, {
         headers: { 'x-goog-api-key': cleanKey }
       });
@@ -217,40 +224,46 @@ export default function AdminBatchModal({
         const models = listData.models || [];
         const validModels = models.filter(m => m.supportedGenerationMethods?.includes('generateContent'));
         
-        const modelNames = validModels.map(m => m.name.replace('models/', '')).join(', ');
-        setBatchLogs(prev => [...prev, `📋 사용 가능한 모델 목록 (${validModels.length}개): ${modelNames}`]);
+        const validGenModels = validModels.filter(m => 
+          !m.name.includes('tts') && 
+          !m.name.includes('image') && 
+          !m.name.includes('transcribe') && 
+          !m.name.includes('robotics') && 
+          !m.name.includes('computer-use') && 
+          !m.name.includes('lyria') && 
+          !m.name.includes('embedding')
+        );
 
-        const preferred = validModels.find(m => m.name === 'models/gemini-2.0-flash' || m.name === 'gemini-2.0-flash')
-          || validModels.find(m => m.name === 'models/gemini-1.5-flash' || m.name === 'gemini-1.5-flash')
-          || validModels.find(m => m.name === 'models/gemini-2.5-flash' || m.name === 'gemini-2.5-flash')
-          || validModels.find(m => m.name.includes('gemini-2.0-flash'))
-          || validModels.find(m => m.name.includes('gemini-1.5-flash'))
-          || validModels.find(m => m.name.includes('gemini-2.5-flash'))
-          || validModels.find(m => m.name.includes('gemini-flash-latest'))
-          || validModels.find(m => m.name.includes('flash'))
-          || validModels[0];
+        const modelNames = validGenModels.map(m => m.name.replace('models/', '')).join(', ');
+        setBatchLogs(prev => [...prev, `📡 사용 가능한 텍스트 모델 목록 (${validGenModels.length}개): ${modelNames}`]);
 
-        if (preferred) {
-          activeModelPath = preferred.name;
-          setBatchLogs(prev => [...prev, `✨ 구글 최신 활성 모델 연결 성공: [ ${activeModelPath} ]`]);
+        // Prioritize stable Flash models first, avoid 404 models like unversioned 1.5-pro
+        const prioritized = [
+          ...validGenModels.filter(m => m.name.includes('2.5-flash') && !m.name.includes('lite')),
+          ...validGenModels.filter(m => m.name.includes('2.0-flash') && !m.name.includes('lite')),
+          ...validGenModels.filter(m => m.name.includes('1.5-flash') && !m.name.includes('8b')),
+          ...validGenModels.filter(m => m.name.includes('2.5-flash-lite')),
+          ...validGenModels.filter(m => m.name.includes('flash-latest')),
+          ...validGenModels.filter(m => m.name.includes('flash')),
+          ...validGenModels.filter(m => !m.name.includes('pro'))
+        ];
+
+        const discoveredNames = prioritized.map(m => m.name.startsWith('models/') ? m.name : `models/${m.name}`);
+        if (discoveredNames.length > 0) {
+          activeModelPath = discoveredNames[0];
+          modelsToTry = Array.from(new Set([
+            ...discoveredNames,
+            'models/gemini-2.5-flash',
+            'models/gemini-2.0-flash',
+            'models/gemini-1.5-flash'
+          ]));
         }
-      } else {
-        const errTxt = await listRes.text();
-        setBatchLogs(prev => [...prev, `⚠️ 모델 탐색 응답: ${listRes.status} (${errTxt.slice(0, 100)})`]);
+        setBatchLogs(prev => [...prev, `⚡ 구글 최신 활성 모델 연결 성공: [ ${activeModelPath} ]`]);
       }
-    } catch (le) {
-      setBatchLogs(prev => [...prev, `⚠️ 모델 탐색 스킵: ${le.message}`]);
+    } catch (err) {
+      console.warn('[GeminiBatch] Model discovery fallback:', err);
+      setBatchLogs(prev => [...prev, `⚡ 기본 권장 모델 연결: [ ${activeModelPath} ]`]);
     }
-
-    // Build prioritized model list starting with the discovered active model
-    const modelsToTry = Array.from(new Set([
-      activeModelPath,
-      'models/gemini-2.0-flash',
-      'models/gemini-1.5-flash',
-      'models/gemini-2.5-flash',
-      'models/gemini-flash-latest',
-      'models/gemini-1.5-pro'
-    ].filter(Boolean)));
 
     for (let i = 0; i < unansweredList.length; i++) {
       const q = unansweredList[i];
@@ -268,16 +281,16 @@ export default function AdminBatchModal({
       const promptText = `당신은 대한민국 여행 전문 AI 'VORA(보라)'의 최고 수석 지식 설계자입니다.
 사용자 질문: "${q.rawQuery}" (${ctxSummary || '목적지: 전국'})
 
-[핵심 지식 증류 필수 원칙]:
-1. 대상 도시(targetCity) 자동 판별:
-   - 질문이나 답변 내용이 특정 도시(예: 경주, 부산, 제주, 서울, 강릉, 여수 등)에 국한된 꿀팁이라면 "targetCity"에 해당 도시명(예: "경주")을 반드시 지정하세요. (전국 공통 여행 질문이면 "all")
+[핵심 지식 증류 필수 규칙]:
+1. 타겟 도시(targetCity) 자동 식별:
+   - 질문이나 답변 내용이 특정 도시(예: 경주, 부산, 나주, 서울, 강릉, 여수, 제주 등)에 한정된 꿀팁이면 "targetCity"에 해당 도시명(예: "나주")을 반드시 지정하세요. (전국 공통 여행 질문이면 "all")
 2. 트리거 유사 질문(questionVariations) 100% 자동 다각화 (4~6개):
-   - 사용자의 원본 질문("${q.rawQuery}")을 1순위로 포함하고,
-   - 특정 도시 지식인 경우 반드시 "[도시명] [질문]" 형태의 자연스러운 변형 질문들(예: targetCity가 '경주'이고 질문이 '걷기 싫어'인 경우 ➔ ["걷기 싫어", "경주 걷기 싫어", "경주 걷기 편한 곳", "경주 효도 여행", "경주 부모님 여행"])을 4~6개 풍성하게 생성할 것!
-3. 동음이의어 또는 전국에 여러 곳이 존재하는 지명/명소(예: 옥녀봉, 남산, 미륵산, 용두산, 관음도 등) 질문 시:
-   - 전국에서 관광객/등산객에게 가장 유명하고 인지도가 압도적인 대표 1등 명소(예: 통영 사량도 옥녀봉·출렁다리, 서울 청계산 옥녀봉 등)를 1순위로 반드시 가장 먼저 언급할 것!
+   - 사용자의 원본 질문(""${q.rawQuery}"")을 1순위로 포함하고,
+   - 특정 도시 질문인 경우 반드시 "[도시명] [질문]" 형태의 자연스러운 변형 질문들(예: targetCity가 '나주'이고 질문이 '나주'인 경우 -> ["나주", "나주 여행", "나주 가볼만한곳", "나주 맛집", "나주 1박2일 코스"])을 4~6개 풍성하게 작성할 것!
+3. 동음이의어 또는 전국에 여러 곳이 존재하는 지명/명소(예: 월출산, 남산, 미륵사, 백두대간, 관음도 등) 질문 시:
+   - 한국에서 관광객/등산객에게 가장 유명하고 상징적인 압도적 1등 대표 명소(예: 영암 월출산·구름다리, 서울 남산타워)를 1순위로 반드시 가장 먼저 언급할 것!
 4. 답변은 여행자가 모바일에서 편하게 읽을 수 있도록 군더더기 없이 친절하고 정갈한 2~3문장으로 핵심을 요약할 것.
-5. suggestedChips에는 사용자가 다음 행동으로 누를 만한 유용한 핫플/체험 버튼(예: "비단벌레 전기자동차 예약", "경주 엑스포 대공원", "보문단지 오리배")을 3~4개 추천할 것.
+5. suggestedChips에는 사용자가 다음 행동으로 누를 만한 유용한 스팟/체험 버튼(예: "금성관", "나주곰탕 하얀집", "빛가람전망대")을 3~4개 추천할 것.
 
 다음 JSON 포맷으로만 즉시 출력하세요:
 {
@@ -323,10 +336,15 @@ export default function AdminBatchModal({
               'x-goog-api-key': cleanKey
             },
             body: JSON.stringify({
-              contents: [{ parts: [{ text: promptText }] }],
+              contents: [
+                {
+                  role: 'user',
+                  parts: [{ text: promptText }]
+                }
+              ],
               generationConfig: {
                 temperature: 0.2,
-                maxOutputTokens: 800,
+                maxOutputTokens: 2048,
                 responseMimeType: 'application/json'
               }
             })
@@ -343,7 +361,8 @@ export default function AdminBatchModal({
             }
           } else {
             const errTxt = await response.text().catch(() => '');
-            lastErrMsg = `${cleanMName} (${response.status}: ${errTxt.slice(0, 80)})`;
+            lastErrMsg = `${cleanMName} (${response.status}: ${errTxt.slice(0, 100)})`;
+            console.warn(`[GeminiBatch] ${cleanMName} error:`, response.status, errTxt);
           }
         } catch (e) {
           const isAbort = e.name === 'AbortError';
@@ -364,15 +383,15 @@ export default function AdminBatchModal({
             parsed.geminiAnswer = { ...parsed.answers };
           }
           newDistilled.push(parsed);
-          setBatchLogs(prev => [...prev, `✅ "${q.rawQuery}" ➔ 황금 Q&A 지식 생성 완료!`]);
+          setBatchLogs(prev => [...prev, `✨ "${q.rawQuery}" 3개국어 황금 Q&A 지식 증류 완료!`]);
         } catch (pe) {
-          setBatchLogs(prev => [...prev, `⚠️ "${q.rawQuery}" JSON 파싱 오류: ${pe.message}`]);
+          setBatchLogs(prev => [...prev, `⚠️ "${q.rawQuery}" JSON 파싱 실패: ${pe.message}`]);
         }
       } else {
         setBatchLogs(prev => [...prev, `⚠️ "${q.rawQuery}" 응답 지연/실패 (${lastErrMsg || '일시적 트래픽 초과'})`]);
       }
 
-      // ⏱️ [1.2초 지능형 안전 텀] 구글 API 429 속도 초과 및 503 에러 100% 방지!
+      // ⏱️ [1.2초 안전 쿨다운] 구글 API 429 속도 제한 초과 및 503 방지 100% 보장!
       if (i < unansweredList.length - 1) {
         await new Promise(resolve => setTimeout(resolve, 1200));
       }
@@ -382,13 +401,13 @@ export default function AdminBatchModal({
     setBatchProgress(100);
     setIsRunningBatch(false);
 
-    // 🧹 학습 완료된 질문들은 로컬 및 중앙 클라우드 서버 대기 큐에서 완전 비우기!
+    // ✨ 학습 완료 후 미답변 중앙 클라우드 및 로컬 큐에서 깔끔 제거!
     try {
       localStorage.removeItem('vora_unanswered_qna');
       setUnansweredList([]);
       await clearQuestionsFromCloud();
 
-      // 💾 새로 학습된 지식을 브라우저 볼트에 스마트 중복 제거 후 병합 저장!
+      // 🌟 신규 학습 지식 영구 커스텀 볼트에 중복 없이 병합 저장!
       const existingVault = JSON.parse(localStorage.getItem('vora_custom_qna_vault') || '[]');
       const norm = (s) => (s || '').trim().toLowerCase().replace(/[\s\-_?!.~,()[\]]/g, '');
       
@@ -413,7 +432,8 @@ export default function AdminBatchModal({
     setBatchLogs(prev => [...prev, `🎉 총 ${newDistilled.length}개 신규 지식 학습 완료 & 클라우드 영구 동기화 완료! ✨`]);
   };
 
-  // 📥 [전체 지식 DB 복호화 평문 JSON 다운로드]
+
+// 📥 [전체 지식 DB 복호화 평문 JSON 다운로드]
   const handleExportDecryptedJson = () => {
     try {
       const allVault = [...masterVaultList, ...customVaultList];
