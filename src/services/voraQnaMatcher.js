@@ -13,9 +13,15 @@ import { CITY_LOCAL_KNOWLEDGE } from '../data/voraDialogKnowledge.js';
 import { KOREA_TRAVEL_POI_DB } from '../data/koreaTravelPoiDatabase.js';
 import { interpolateTemplate } from '../utils/koreanParticles.js';
 import { pushQuestionToCloud } from './voraCloudQnaService.js';
+import { isSystemActionOrCourseDirective } from '../utils/qnaFilter.js';
+
+export { isSystemActionOrCourseDirective };
 
 // Local In-Memory Unanswered Queue
 let unansweredQueueCache = [];
+
+  return isCourseAction || isCityDaysPattern || isButtonChip || isSimpleCityOnly || isSimpleDuration || isSimpleCompanion || isSimpleActionOrAccept || isSimpleThemeOnly || isArrivalTimeDirective || isExclusionDirective;
+}
 
 /**
  * Log unseen questions to local queue for next batch Gemini distillation
@@ -25,14 +31,10 @@ export function logUnansweredQuestion(rawQuery, targetCity = null, tripContext =
   const clean = rawQuery.trim();
   if (clean.length < 3) return;
 
-  // 🛡️ 1. 단순 단편어 & 키워드 & 수락어 & 버튼 칩 텍스트는 질문 큐 저장에서 100% 필터링!
-  const isSimpleCityOnly = /^(서울|부산|제주|경주|강릉|수원|인천|전주|여수|대구|대전|광주|포항|통영|거제|춘천|속초|안동|한국|korea|seoul|busan|jeju)(\s*로|\s*에|\s*가자|\s*갈래|\s*여행)?$/i.test(clean);
-  const isSimpleDuration = /^(\d+\s*일|\d+\s*박\s*\d+\s*일|\d+\s*박|당일치기|하루|이틀|사흘|\d+\s*days?)$/i.test(clean);
-  const isSimpleCompanion = /^(혼자|커플|가족|친구|아이|부모님|아이\s*동반|부모님\s*동반|아이랑|부모님이랑|친구랑|연인이랑)$/i.test(clean);
-  const isSimpleActionOrAccept = /^(짜줘|맞춰줘|해줘|잡아줘|추천해줘|추천|만들어줘|일정\s*생성|생성해줘|설계해줘|준비해줘|정해줘|응|어|네|예|좋아|좋아요|오케이|ok|콜|그래|부탁해|이대로|시작|가자|가보자|바로\s*일정\s*만들기|바로\s*짜줘|일정표\s*만들기)$/i.test(clean);
-  const isSimpleThemeOnly = /^(맛집|카페|관광지|쇼핑|자연|야경|힐링|인생샷|핫플레이스|핫플|덜\s*걷기|걷기\s*적게|비\/실내|실내|비오는날|아이\s*동반|로컬\s*맛집|야경\s*맛집(\s*추천)?|감성\s*카페(\s*투어)?|인생샷\s*핫플레이스|대표\s*맛집\s*&\s*카페|인기\s*호텔\/숙소|전통\s*한옥\s*스테이|가성비\s*인기\s*호텔|오션뷰\s*감성\s*펜션)$/i.test(clean);
-  const isArrivalTimeDirective = /(\d{1,2}:\d{2}|오전\s*도착|오후\s*도착|도착\s*\()/i.test(clean);
-  const isButtonChipPrefix = /^(📷|📍|✨|🚀|🍴|☔|🚶|👨‍👩‍👧|☕|🌅|🏙️|🏮|🏨|🌊|🏖️|🏢)/.test(clean);
+  // 🛡️ 1. 단순 단편어 & 키워드 & 수락어 & 버튼 칩 텍스트 & 코스 생성 지시어는 질문 큐 저장에서 100% 필터링!
+  if (isSystemActionOrCourseDirective(clean)) {
+    return;
+  }
 
   // 🛡️ 2. POI 명소명 단독 입력 필터링 (e.g. 남산 서울타워, 경복궁, DDP 등은 질문이 아니라 명소 탐색임!)
   const cleanNorm = clean.replace(/[\s\-\_\.]/g, '').toLowerCase();
@@ -41,11 +43,8 @@ export function logUnansweredQuestion(rawQuery, targetCity = null, tripContext =
     return cleanNorm.includes(poiNorm) || poiNorm.includes(cleanNorm);
   });
 
-  // 🛡️ 3. 일정 편집/제외 명령어는 질문 큐 저장에서 100% 원천 차단!
-  const isExclusionDirective = /(빼줘|빼주세요|제외해줘|제외|없애줘|삭제해줘|빼|지워줘)/i.test(clean);
-
-  if (isSimpleCityOnly || isSimpleDuration || isSimpleCompanion || isSimpleActionOrAccept || isSimpleThemeOnly || isArrivalTimeDirective || isButtonChipPrefix || isPoiName || isExclusionDirective) {
-    return; // 단순 상태 조건, 버튼 클릭 칩, 명소명은 큐에 절대 저장하지 않음!
+  if (isPoiName) {
+    return; // 명소명 단독 입력은 큐에 저장하지 않음
   }
 
   try {

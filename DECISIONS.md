@@ -59,6 +59,18 @@
 
 ## 📅 Daily Continuity History (일일 작업 연속성 & 자동 선 브리핑 장부)
 
+### [2026-09-01 (화)]
+1. **완료된 작업**:
+   - **단순 코스 생성 액션 및 시스템 버튼 지시어 미답변 큐 적재 100% 원천 차단 완비 (`qnaFilter.js`, `voraQnaMatcher.js`, `voraCloudQnaService.js`, `AdminBatchModal.jsx`, `functions/api/qna.js`)**:
+     - **필터링 유틸리티 모듈화(`isSystemActionOrCourseDirective`)**: `[지역명] [N]일 코스 만들기 🚀`, `[지역명] [N]일 코스 짜줘`, `일정 생성`, `일정표 만들기`, `Create ... Plan` 등 모든 시스템 액션/코스 생성 트리거 텍스트를 정밀 정규식으로 감지하는 표준 필터 구축.
+     - **클라이언트 & 서버 3중 방어막 구축**:
+       - `voraQnaMatcher.js` (`logUnansweredQuestion`): 볼트 미매칭 시 단순 코스 생성 및 액션 지시어는 미답변 큐 저장에서 100% 원천 제외.
+       - `voraCloudQnaService.js` (`pushQuestionToCloud`, `fetchQuestionsFromCloud`): 클라우드 전송 및 로컬 스토리지 적재/동기화 시 액션 지시어 자동 필터링.
+       - `functions/api/qna.js` (Cloudflare Pages Functions): 백엔드 API 레벨(`onRequestGet`, `onRequestPost`)에서도 액션 지시어 적재 100% 차단 및 기존 레거시 찌꺼기 자동 정제 응답.
+       - `AdminBatchModal.jsx`: 관리자 화면 질문 큐 렌더링 시 코스 생성 찌꺼기를 자동 배제하여 순수 관광 Q&A만 선별 노출.
+2. **배포 및 시스템 상태**:
+   - `scripts/verifySyntax.ps1` 검증 결과: `[ZERO DEFECT PASSED]` 100% 무결점 판정 통과.
+
 ### [2026-08-31 (월)]
 1. **완료된 작업**:
    - **지식 정보 2개 파일 100% 완전 물리적 단일 볼트 통합 및 암호화 완비 (`voraQnaVault.js`, `voraDialogKnowledge.js`, `AdminBatchModal.jsx`, `scripts/VoraUnify.cs`)**:

@@ -11,6 +11,7 @@ import {
   pushCustomVaultToCloud,
   deleteCustomKnowledgeFromCloud
 } from '../services/voraCloudQnaService';
+import { isSystemActionOrCourseDirective } from '../utils/qnaFilter';
 import { encryptVaultData, decryptVaultData } from '../utils/vaultCrypto';
 
 export default function AdminBatchModal({
@@ -99,7 +100,10 @@ export default function AdminBatchModal({
         if (Array.isArray(cloudItems)) {
           const dedupedMap = new Map();
           cloudItems.forEach(item => {
-            const k = normKey(item.rawQuery || item.question);
+            const rawQ = item.rawQuery || item.question || '';
+            if (isSystemActionOrCourseDirective(rawQ)) return; // 🛡️ 단순 코스/일정 생성 액션 지시어 100% 필터링
+
+            const k = normKey(rawQ);
             if (k) {
               if (dedupedMap.has(k)) {
                 const prev = dedupedMap.get(k);
@@ -118,7 +122,11 @@ export default function AdminBatchModal({
 
       // 오프라인 fallback
       const stored = JSON.parse(localStorage.getItem('vora_unanswered_qna') || '[]');
-      setUnansweredList(Array.isArray(stored) ? stored : []);
+      const filteredStored = (Array.isArray(stored) ? stored : []).filter(item => {
+        const rawQ = item.rawQuery || item.question || '';
+        return !isSystemActionOrCourseDirective(rawQ);
+      });
+      setUnansweredList(filteredStored);
     } catch (e) {
       setUnansweredList([]);
     }

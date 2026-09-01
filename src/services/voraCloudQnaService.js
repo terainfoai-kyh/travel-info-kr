@@ -7,6 +7,8 @@
  * 3. Graceful offline fallback to LocalStorage for zero-failure resilience.
  */
 
+import { isSystemActionOrCourseDirective } from '../utils/qnaFilter.js';
+
 const CLOUD_API_ENDPOINT = '/api/qna';
 
 function normKey(str) {
@@ -30,10 +32,11 @@ export async function fetchQuestionsFromCloud() {
     if (res.ok) {
       const data = await res.json();
       if (data && Array.isArray(data.list)) {
+        const filteredList = data.list.filter(item => !isSystemActionOrCourseDirective(item.rawQuery || item.question));
         try {
-          localStorage.setItem('vora_unanswered_qna', JSON.stringify(data.list));
+          localStorage.setItem('vora_unanswered_qna', JSON.stringify(filteredList));
         } catch (e) {}
-        return data.list;
+        return filteredList;
       }
     }
   } catch (err) {
@@ -42,7 +45,9 @@ export async function fetchQuestionsFromCloud() {
 
   try {
     const local = JSON.parse(localStorage.getItem('vora_unanswered_qna') || '[]');
-    return Array.isArray(local) ? local : [];
+    return Array.isArray(local) 
+      ? local.filter(item => !isSystemActionOrCourseDirective(item.rawQuery || item.question)) 
+      : [];
   } catch (e) {
     return [];
   }
@@ -103,7 +108,7 @@ export async function pushCustomVaultToCloud(vaultList) {
 export async function pushQuestionToCloud(entry) {
   if (!entry || !entry.rawQuery) return;
   const rawQuery = entry.rawQuery.trim();
-  if (rawQuery.length < 2) return;
+  if (rawQuery.length < 2 || isSystemActionOrCourseDirective(rawQuery)) return;
 
   const payload = {
     id: entry.id || `q_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
