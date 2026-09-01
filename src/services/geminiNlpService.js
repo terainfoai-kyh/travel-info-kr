@@ -64,7 +64,9 @@ const BASE_CITY_COORDINATES = {
   '보성': { lat: 34.7714, lng: 127.0799, nameEn: 'Boseong' },
   '군산': { lat: 35.9676, lng: 126.7366, nameEn: 'Gunsan' },
   '공주': { lat: 36.4465, lng: 127.1190, nameEn: 'Gongju' },
-  '창원': { lat: 35.2289, lng: 128.6812, nameEn: 'Changwon' }
+  '창원': { lat: 35.2289, lng: 128.6812, nameEn: 'Changwon' },
+  '나주': { lat: 35.0158, lng: 126.7108, nameEn: 'Naju' },
+  '담양': { lat: 35.3212, lng: 126.9882, nameEn: 'Damyang' }
 };
 
 // 🏛️ [전국 226개 시·군·구 100% 정품 좌표 자동 통합]
