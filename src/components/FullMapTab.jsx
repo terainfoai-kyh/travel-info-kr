@@ -277,11 +277,12 @@ export default function FullMapTab({
         </div>
       </div>
 
-      {/* 2. Map Container: 155px 슬림 높이 & 여백 0% 완전 밀착 */}
+      {/* 2. Map Container: 230px 시원하고 안정적인 황금 비율 높이 (마커 1~6번 정중앙 핏) */}
       <div style={{
         position: 'relative',
         width: '100%',
-        height: '155px',
+        height: '230px',
+        minHeight: '230px',
         backgroundColor: '#e2e8f0',
         overflow: 'hidden',
         margin: 0,
@@ -292,7 +293,7 @@ export default function FullMapTab({
           city={targetCity}
           activeDay={activeDay}
           focusedSpotIndex={focusedSpotIndex}
-          mapHeight="155px"
+          mapHeight="230px"
           hideHeader={true}
           onMarkerClick={(spot, idx) => {
             setFocusedSpotIndex(idx);

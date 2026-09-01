@@ -43,7 +43,7 @@ export default function GoogleMapView({
   focusedSpotIndex = null,
   onSelectSpotIndex = null,
   hideHeader = false,
-  mapHeight = '155px'
+  mapHeight = '230px'
 }) {
 
 
@@ -99,7 +99,7 @@ export default function GoogleMapView({
         const b = window.L.latLngBounds(validCoords);
         if (b && b.isValid()) {
           try {
-            leafletMapRef.current.fitBounds(b.pad(0.35), { padding: [40, 40], maxZoom: 14, animate: true });
+            leafletMapRef.current.fitBounds(b.pad(0.08), { padding: [15, 15], maxZoom: 15, animate: true });
           } catch (e) {}
         }
       }
@@ -159,7 +159,7 @@ export default function GoogleMapView({
       const initialCenter = (computedCenter && isValidLatLng(computedCenter)) ? computedCenter : [baseLat, baseLng];
       activeBoundsRef.current = latLngs;
 
-      // 💡 안전한 뷰포트 자동 피팅 함수
+      // 💡 안전한 뷰포트 자동 피팅 함수 (마커 1~6번 100% 정중앙 핏)
       const applySpotFit = (coords) => {
         if (!leafletMapRef.current || !coords || coords.length === 0) return;
         const m = leafletMapRef.current;
@@ -168,8 +168,8 @@ export default function GoogleMapView({
         const b = L.latLngBounds(validC);
         if (b && b.isValid()) {
           try {
-            m.invalidateSize({ pan: true });
-            m.fitBounds(b.pad(0.35), { padding: [30, 30], maxZoom: 14, animate: false });
+            m.invalidateSize({ pan: false });
+            m.fitBounds(b.pad(0.08), { padding: [15, 15], maxZoom: 15, animate: false });
           } catch (e) {}
         }
       };
@@ -323,17 +323,12 @@ export default function GoogleMapView({
         map.setView(latLngs[0], 14, { animate: false });
       }
 
-      // Ensure map dimensions & Spot fit are applied cleanly on ready
-      map.whenReady(() => {
-        applySpotFit(activeBoundsRef.current);
-      });
-
-      // 🎯 Native ResizeObserver: The exact millisecond browser paints 260px, auto-apply the perfect balanced view
+      // 🎯 Native ResizeObserver: 컨테이너 크기 감지 시 마커 100% 정중앙 자동 핏팅
       let ro = null;
       if (typeof ResizeObserver !== 'undefined' && mapContainerRef.current) {
         ro = new ResizeObserver((entries) => {
           for (let entry of entries) {
-            if (entry.contentRect.height >= 200 && leafletMapRef.current) {
+            if (entry.contentRect.height > 50 && leafletMapRef.current) {
               applySpotFit(activeBoundsRef.current);
             }
           }
@@ -345,43 +340,32 @@ export default function GoogleMapView({
         if (!isMounted) return;
         if (leafletMapRef.current) {
           try {
-            leafletMapRef.current.invalidateSize({ pan: true, debounceMoveend: false });
+            leafletMapRef.current.invalidateSize({ pan: false });
             applySpotFit(activeBoundsRef.current);
-          } catch (e) {}
-        }
-        if (mapContainerRef.current) {
-          try {
-            const rect = mapContainerRef.current.getBoundingClientRect();
-            const clickEvt = new MouseEvent('click', {
-              bubbles: true,
-              cancelable: true,
-              clientX: rect.left + rect.width / 2,
-              clientY: rect.top + rect.height / 2
-            });
-            mapContainerRef.current.dispatchEvent(clickEvt);
           } catch (e) {}
         }
         window.dispatchEvent(new Event('resize'));
       };
 
-    setTimeout(forceResize, 50);
-    setTimeout(forceResize, 150);
-    setTimeout(forceResize, 400);
-  };
+      setTimeout(forceResize, 50);
+      setTimeout(forceResize, 150);
+      setTimeout(forceResize, 350);
+      setTimeout(forceResize, 600);
+    };
 
-  // Frame-aligned initialization with height guard
-  let animId = null;
-  const checkAndInit = () => {
-    if (!isMounted || !mapContainerRef.current) return;
-    const rect = mapContainerRef.current.getBoundingClientRect();
-    if (rect.height < 120) {
-      animId = requestAnimationFrame(checkAndInit);
-      return;
-    }
-    initMap();
-  };
+    // Frame-aligned initialization with height guard
+    let animId = null;
+    const checkAndInit = () => {
+      if (!isMounted || !mapContainerRef.current) return;
+      const rect = mapContainerRef.current.getBoundingClientRect();
+      if (rect.height < 50) {
+        animId = requestAnimationFrame(checkAndInit);
+        return;
+      }
+      initMap();
+    };
 
-  animId = requestAnimationFrame(checkAndInit);
+    animId = requestAnimationFrame(checkAndInit);
 
   return () => {
     isMounted = false;
