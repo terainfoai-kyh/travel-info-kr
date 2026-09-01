@@ -83,71 +83,94 @@ export default function DockedMapStation({
     }
   }, []);
 
-  // 2. Map Instance Initialization & Native ResizeObserver
+  // 2. Map Instance Clean Lifecycle & Resize Observer
   useEffect(() => {
-    if (!isOpen || !isLeafletReady || !window.L || !mapContainerRef.current) return;
-
-    if (!leafletMapRef.current) {
-      const map = window.L.map(mapContainerRef.current, {
-        center: [37.5665, 126.9780],
-        zoom: 12,
-        zoomControl: false,
-        attributionControl: false
-      });
-
-      // 🗺️ Free OpenStreetMap Standard Tiles
-      window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        subdomains: ['a', 'b', 'c']
-      }).addTo(map);
-
-      leafletMapRef.current = map;
+    if (!isOpen) {
+      // 🛡️ 지도가 접힐 때 기존 지도 인스턴스 100% 완전 파기 (메모리 릭 및 줌 누적 원천 차단)
+      if (leafletMapRef.current) {
+        try {
+          leafletMapRef.current.remove();
+        } catch (e) {}
+        leafletMapRef.current = null;
+      }
+      markersRef.current = [];
+      routeLayerRef.current = null;
+      return;
     }
 
-    // 🎯 ResizeObserver: 사이드바 레이아웃 확정 시 코스 마커 100% 정중앙 자동 핏팅
+    if (!isLeafletReady || !window.L || !mapContainerRef.current) return;
+
+    // Clean up stale instance before initializing fresh
+    if (leafletMapRef.current) {
+      try {
+        leafletMapRef.current.remove();
+      } catch (e) {}
+      leafletMapRef.current = null;
+    }
+
+    const map = window.L.map(mapContainerRef.current, {
+      center: [37.5665, 126.9780],
+      zoom: 12,
+      zoomControl: false,
+      attributionControl: false
+    });
+
+    // 🗺️ Free OpenStreetMap Standard Tiles
+    window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      subdomains: ['a', 'b', 'c']
+    }).addTo(map);
+
+    leafletMapRef.current = map;
+
+    // 🎯 ResizeObserver: 사이드바가 320px 이상으로 완전히 펼쳐졌을 때만 단 1회 정밀 핏팅
     let ro = null;
+    let debounceTimer = null;
     if (typeof ResizeObserver !== 'undefined' && mapContainerRef.current) {
       ro = new ResizeObserver((entries) => {
         for (let entry of entries) {
-          if (entry.contentRect.width > 50 && entry.contentRect.height > 50 && leafletMapRef.current) {
-            if (activeBoundsRef.current && activeBoundsRef.current.length > 0 && window.L) {
-              const b = window.L.latLngBounds(activeBoundsRef.current);
-              if (b && b.isValid()) {
-                try {
-                  leafletMapRef.current.invalidateSize({ pan: false });
-                  leafletMapRef.current.fitBounds(b.pad(0.14), { padding: [25, 25], maxZoom: 14.5, animate: false });
-                } catch (e) {}
+          // 펼쳐지는 중간 너비(50px~200px)에서의 조기 피팅 간섭 원천 차단
+          if (entry.contentRect.width >= 300 && entry.contentRect.height > 100 && leafletMapRef.current) {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+              if (activeBoundsRef.current && activeBoundsRef.current.length > 0 && window.L && leafletMapRef.current) {
+                const b = window.L.latLngBounds(activeBoundsRef.current);
+                if (b && b.isValid()) {
+                  try {
+                    leafletMapRef.current.invalidateSize({ pan: false });
+                    leafletMapRef.current.fitBounds(b.pad(0.14), { padding: [25, 25], maxZoom: 14.5, animate: false });
+                  } catch (e) {}
+                }
               }
-            }
+            }, 100);
           }
         }
       });
       ro.observe(mapContainerRef.current);
     }
 
-    const forceResize = () => {
-      if (leafletMapRef.current) {
+    const initialTimer = setTimeout(() => {
+      if (leafletMapRef.current && activeBoundsRef.current && activeBoundsRef.current.length > 0 && window.L) {
         try {
           leafletMapRef.current.invalidateSize({ pan: false });
-          if (activeBoundsRef.current && activeBoundsRef.current.length > 0 && window.L) {
-            const b = window.L.latLngBounds(activeBoundsRef.current);
-            if (b && b.isValid()) {
-              leafletMapRef.current.fitBounds(b.pad(0.14), { padding: [25, 25], maxZoom: 14.5, animate: false });
-            }
+          const b = window.L.latLngBounds(activeBoundsRef.current);
+          if (b && b.isValid()) {
+            leafletMapRef.current.fitBounds(b.pad(0.14), { padding: [25, 25], maxZoom: 14.5, animate: false });
           }
         } catch (e) {}
       }
-    };
-
-    const t1 = setTimeout(forceResize, 50);
-    const t2 = setTimeout(forceResize, 180);
-    const t3 = setTimeout(forceResize, 400);
+    }, 200);
 
     return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      clearTimeout(t3);
+      clearTimeout(initialTimer);
+      clearTimeout(debounceTimer);
       if (ro) ro.disconnect();
+      if (leafletMapRef.current) {
+        try {
+          leafletMapRef.current.remove();
+        } catch (e) {}
+        leafletMapRef.current = null;
+      }
     };
   }, [isOpen, isLeafletReady]);
 
