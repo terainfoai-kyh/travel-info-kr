@@ -144,11 +144,13 @@ async function runBatch() {
     let success = false;
     let rawOutput = '';
 
-    // Primary & Fallback Models (공식 지원 모델)
+    // Primary & Fallback Models (100% 검증된 고속 Flash 패밀리)
     const modelsToTry = [
+      'gemini-2.5-flash',
       'gemini-2.0-flash',
       'gemini-1.5-flash',
-      'gemini-1.5-pro'
+      'gemini-2.5-flash-lite',
+      'gemini-flash-latest'
     ];
 
     for (const modelName of modelsToTry) {

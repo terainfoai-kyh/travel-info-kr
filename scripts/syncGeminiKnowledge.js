@@ -60,35 +60,42 @@ async function harvestCityKnowledge(cityName, apiKey) {
   "transitTip": "..."
 }`;
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+  const modelsToTry = [
+    'gemini-2.5-flash',
+    'gemini-2.0-flash',
+    'gemini-1.5-flash',
+    'gemini-2.5-flash-lite',
+    'gemini-flash-latest'
+  ];
 
-  try {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: 0.2,
-          responseMimeType: "application/json"
-        }
-      })
-    });
+  for (const modelName of modelsToTry) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.2,
+            responseMimeType: "application/json"
+          }
+        })
+      });
 
-    if (!res.ok) {
-      const errBody = await res.text();
-      throw new Error(`Gemini API Error (HTTP ${res.status}): ${errBody}`);
+      if (res.ok) {
+        const data = await res.json();
+        const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        const parsed = JSON.parse(rawText);
+        console.log(`✅ [VORA Harvester] Successfully acquired knowledge for ${cityName} via ${modelName}:`, parsed);
+        return parsed;
+      }
+    } catch (err) {
+      console.warn(`⚠️ [VORA Harvester] ${modelName} failed: ${err.message}`);
     }
-
-    const data = await res.json();
-    const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-    const parsed = JSON.parse(rawText);
-    console.log(`✅ [VORA Harvester] Successfully acquired knowledge for ${cityName}:`, parsed);
-    return parsed;
-  } catch (err) {
-    console.error(`❌ [VORA Harvester] Failed for ${cityName}:`, err.message);
-    return null;
   }
+  console.error(`❌ [VORA Harvester] All models failed for ${cityName}`);
+  return null;
 }
 
 async function harvestTikitakaBanter(apiKey) {
@@ -111,30 +118,41 @@ JSON 형식으로 반환:
   "replace": { "reply": "...", "hook": "..." }
 }`;
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+  const modelsToTry = [
+    'gemini-2.5-flash',
+    'gemini-2.0-flash',
+    'gemini-1.5-flash',
+    'gemini-2.5-flash-lite',
+    'gemini-flash-latest'
+  ];
 
-  try {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: 0.3,
-          responseMimeType: "application/json"
-        }
-      })
-    });
+  for (const modelName of modelsToTry) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.3,
+            responseMimeType: "application/json"
+          }
+        })
+      });
 
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    const parsed = JSON.parse(data?.candidates?.[0]?.content?.parts?.[0]?.text);
-    console.log(`✅ [VORA Harvester] Tikitaka knowledge acquired:`, parsed);
-    return parsed;
-  } catch (err) {
-    console.error(`❌ [VORA Harvester] Tikitaka harvest failed:`, err.message);
-    return null;
+      if (res.ok) {
+        const data = await res.json();
+        const parsed = JSON.parse(data?.candidates?.[0]?.content?.parts?.[0]?.text);
+        console.log(`✅ [VORA Harvester] Tikitaka knowledge acquired via ${modelName}:`, parsed);
+        return parsed;
+      }
+    } catch (err) {
+      console.warn(`⚠️ [VORA Harvester] Tikitaka ${modelName} failed: ${err.message}`);
+    }
   }
+  console.error(`❌ [VORA Harvester] Tikitaka harvest failed for all models`);
+  return null;
 }
 
 async function main() {
