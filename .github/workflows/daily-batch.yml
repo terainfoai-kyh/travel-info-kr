@@ -29,7 +29,9 @@ jobs:
 
       - name: 🚀 VORA 일일 무인 지식 증류 배치 실행
         env:
-          GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY || secrets.GEMINI_API_KEY || secrets.GOOGLE_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           VORA_CLOUD_API_URL: 'https://travelkorea-dev.pages.dev/api/qna'
         run: |
           node scripts/runDailyBatch.js

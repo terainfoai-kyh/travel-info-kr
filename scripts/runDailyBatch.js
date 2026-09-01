@@ -14,43 +14,37 @@ const GEMINI_API_KEY = (process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_AP
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const SALT_VECTORS = [0x5A, 0xA5, 0x3C, 0xC3, 0x69, 0x96, 0x7E, 0xE7];
+const VORA_MASTER_VAULT_KEY = 'VORA_AI_MASTER_KEY_2026_SECRET';
 
-function encryptData(data, secretKey = 'vora_secure_vault_2026') {
+function encryptVoraPayload(plain) {
   try {
-    const jsonStr = typeof data === 'string' ? data : JSON.stringify(data);
-    const utf8Bytes = Buffer.from(jsonStr, 'utf8');
-    const keyBytes = Buffer.from(secretKey, 'utf8');
-    const cipherBytes = Buffer.alloc(utf8Bytes.length);
-
-    for (let i = 0; i < utf8Bytes.length; i++) {
-      const k = keyBytes[i % keyBytes.length];
-      const s = SALT_VECTORS[i % SALT_VECTORS.length];
-      cipherBytes[i] = utf8Bytes[i] ^ k ^ s;
+    const jsonStr = typeof plain === 'string' ? plain : JSON.stringify(plain);
+    const buf = Buffer.from(jsonStr, 'utf-8');
+    const key = Buffer.from(VORA_MASTER_VAULT_KEY, 'utf-8');
+    const shifted = Buffer.alloc(buf.length);
+    for (let i = 0; i < buf.length; i++) {
+      shifted[i] = buf[i] ^ key[i % key.length] ^ 0x5A;
     }
-
-    return cipherBytes.toString('base64');
+    return shifted.toString('base64');
   } catch (e) {
-    console.error('Encryption failed:', e);
+    console.error('Encryption failed:', e.message);
     return '';
   }
 }
 
-function decryptData(cipherText, secretKey = 'vora_secure_vault_2026') {
-  if (!cipherText || typeof cipherText !== 'string') return null;
+function decryptVoraPayload(cipher) {
+  if (!cipher || typeof cipher !== 'string') return null;
   try {
-    const cipherBytes = Buffer.from(cipherText, 'base64');
-    const keyBytes = Buffer.from(secretKey, 'utf8');
-    const plainBytes = Buffer.alloc(cipherBytes.length);
-    for (let i = 0; i < cipherBytes.length; i++) {
-      const k = keyBytes[i % keyBytes.length];
-      const s = SALT_VECTORS[i % SALT_VECTORS.length];
-      plainBytes[i] = cipherBytes[i] ^ k ^ s;
+    const buf = Buffer.from(cipher, 'base64');
+    const key = Buffer.from(VORA_MASTER_VAULT_KEY, 'utf-8');
+    const unshifted = Buffer.alloc(buf.length);
+    for (let i = 0; i < buf.length; i++) {
+      unshifted[i] = buf[i] ^ 0x5A ^ key[i % key.length];
     }
-    const jsonStr = plainBytes.toString('utf8');
-    return JSON.parse(jsonStr);
+    const plainStr = unshifted.toString('utf-8');
+    return JSON.parse(plainStr);
   } catch (e) {
-    console.error('Decryption failed:', e);
+    console.error('Decryption failed:', e.message);
     return null;
   }
 }
@@ -100,12 +94,15 @@ async function runBatch() {
 
     console.log(`⚡ [${i + 1}/${unansweredList.length}] "${rawQuery}" 증류 중...`);
 
-    const ctx = q.context || {};
+    const themesSummary = Array.isArray(ctx.themes) && ctx.themes.length
+      ? `테마: ${ctx.themes.join(', ')}`
+      : (typeof ctx.themes === 'string' && ctx.themes.trim() ? `테마: ${ctx.themes.trim()}` : null);
+
     const ctxSummary = [
       q.targetCity || ctx.city ? `목적지: ${q.targetCity || ctx.city}` : null,
       ctx.days ? `여행일수: ${ctx.days}일` : null,
       ctx.companion ? `동행: ${ctx.companion}` : null,
-      ctx.themes?.length ? `테마: ${ctx.themes.join(', ')}` : null
+      themesSummary
     ].filter(Boolean).join(' | ');
 
     const promptText = `당신은 대한민국 여행 전문 AI 'VORA(보라)'의 최고 수석 지식 설계자입니다.
@@ -222,7 +219,7 @@ async function runBatch() {
         const endIdx = fileContent.indexOf('";', payloadStart);
         if (endIdx !== -1) {
           const rawCipher = fileContent.slice(payloadStart, endIdx);
-          const decrypted = decryptData(rawCipher);
+          const decrypted = decryptVoraPayload(rawCipher);
           if (decrypted && decrypted.qnaVault) {
             currentQnaVault = Array.isArray(decrypted.qnaVault) ? decrypted.qnaVault : [];
             currentCityKnowledge = decrypted.cityKnowledge || {};
@@ -251,7 +248,7 @@ async function runBatch() {
         cityKnowledge: currentCityKnowledge
       };
 
-      const encryptedPayload = encryptData(masterPayload);
+      const encryptedPayload = encryptVoraPayload(masterPayload);
 
       if (encryptedPayload && startIdx !== -1) {
         const payloadStart = startIdx + prefix.length;
