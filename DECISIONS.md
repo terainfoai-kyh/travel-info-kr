@@ -113,14 +113,17 @@
      - **전남/강원/전북/충청/경남 핵심 명품도시 풀스펙 탑재**: 여수, 순천, 담양, 목포, 강릉, 속초, 춘천, 전주, 군산, 단양, 통영 12개 도시의 4개국어(한·영·일·중) 시그니처 랜드마크, 로컬 미식 비결, 빗길/실내 명소, 무장애 산책로, 야경, 감성 카페, 프리미엄 숙소 데이터를 단일 암호화 볼트에 일괄 편입 컴파일 완료.
 2. **배포 및 시스템 상태**:
    - `scripts/verifySyntax.ps1` 검증 결과: `[ZERO DEFECT PASSED]` 100% 무결점 판정 통과.
-   - 개발 서버 배포 완료: **`https://travelkorea-dev.pages.dev`** (커밋 `905889f` 반영 완료)
-3. **[★ Next Agent Handoff: 후속 에이전트 무조건 필독 인수인계]**:
-   - **GitHub Actions 일일 무인 배치(`daily-batch.yml`, `scripts/runDailyBatch.js`) 2차 점검 과제**:
-     - **원인 파악 요망 사항**:
-       1) **GitHub Repository Secrets 설정 확인**: 레포지토리 Settings ➔ Secrets and variables ➔ Actions에 `VITE_GEMINI_API_KEY` 또는 `GEMINI_API_KEY` 또는 `GOOGLE_API_KEY`가 올바른 구글 AI 스튜디오 API 키 값으로 등록되어 있는지 점검.
-       2) **Workflow Permissions 점검**: Settings ➔ Actions ➔ General ➔ Workflow permissions가 **"Read and write permissions"**로 체크되어 있는지 확인 (`GITHUB_TOKEN` 푸시 권한).
-       3) **안전 실행**: 필요 시 GitHub Actions 로그 상세를 확인하여 에러 스텝(Step 26 지식 증류 vs Step 33 깃 커밋/푸시)을 1초 만에 특정하고 100% 깔끔하게 마감할 것.
-   - **UI 및 데이터 상태**: 관광지 상세 모달 780px 와이드 뷰 & 100% 퓨어 고화질 사진 노출 및 전국 226개 시군구 공공 TourAPI 직결 엔진은 100% 완전무결 정상 동작 중.
+   - Cloudflare Pages Vite 빌드 에러 100% 해결 및 정상 배포 완료: **`https://travelkorea-dev.pages.dev`** (커밋 `489706a` 반영 완료)
+   - 6대 대표 거점(서울, 수원, 부산, 제주, 경주, 강릉) 4K 사진 영구 고정 및 지도 직접 클릭 시 TourAPI 4.0 실시간 연동 정상 가동 중.
+
+3. **[★ Next Agent Handoff: 다음 작업 1순위 골든 체크포인트]**:
+   - **지도 클릭 시 우측 4K 매거진 프리뷰 화면의 인사동/경복궁 사진 순간 플리커(Flicker) 현상 개선**:
+     - **현상**: 지도 위 임의의 위치를 클릭했을 때, 우측 프리뷰 영역에 기본 이미지(경복궁/인사동)가 0.1~0.3초간 먼저 깜빡 노출되었다가 TourAPI 실시간 정품 사진으로 교체되는 현상 발생.
+     - **개선 방향**:
+       1. `handleMapLocationSelected` 실행 시 기본 하드코딩 사진(`theme-gyeongbokgung.jpg`)이 즉각 노출되지 않도록 처리.
+       2. TourAPI 실시간 사진을 불러오는 동안 매끄러운 스켈레톤 로더(`isGeocoding` / `isLoadingPhoto`) 또는 직전 사진 유지 후 크로스페이드(Fade-in)로 교체되도록 UX 고도화.
+   - **GitHub Actions 일일 무인 배치(`daily-batch.yml`, `scripts/runDailyBatch.js`) 모니터링**:
+     - Secrets 및 권한 점검 완료 상태 유지.
 
 ### [2026-08-31 (월)]
 1. **완료된 작업**:
