@@ -464,7 +464,12 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
         .join('\n');
       const contextualPrompt = historyContext ? `${historyContext}\nUser: ${query}` : query;
 
-      const fullAiResult = await geminiGenerateFullItinerary(contextualPrompt, lang).catch(() => generateLocalFallbackItinerary(query, lang));
+      const lastAiMsg = chatMessages.findLast(m => m.sender === 'ai' && m.fullAiResult);
+      const prevItinerary = lastAiMsg ? lastAiMsg.fullAiResult : null;
+      const fullAiResult = await geminiGenerateFullItinerary(contextualPrompt, lang, prevItinerary).catch(() => {
+        const detectedCity = extractLocationKeyword(query, false) || prevItinerary?.targetCity || '수원';
+        return generateLocalFallbackItinerary(query, detectedCity, prevItinerary?.days || 3, lang, prevItinerary, !!prevItinerary);
+      });
       const locationName = fullAiResult?.targetCity || (isCasualChatQuery(query) ? query : (extractLocationKeyword(query) || query));
       const aiBubbleText = fullAiResult?.aiRecommendationSummary || 
         `'${locationName}' 맞춤 ${fullAiResult?.days || 3}일치 코스를 100% 정품 명소와 실시간 날씨/미식 데이터로 정성껏 준비했습니다! 📍`;

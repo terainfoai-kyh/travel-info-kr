@@ -258,12 +258,12 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
     const t = (spot.title || '').toLowerCase();
     const c = (spot.category || '').toLowerCase();
 
-    // 1. 비/실내 선호: 실내 명소 극대화 (+100), 야외 등산/해변 감점 (-80)
+    // 1. 비/실내 선호: 실내 명소 극대화 (+120), 야외 등산/해변/야외성곽 감점 (-90)
     if (preferences.isRainPreference) {
-      if (/(박물관|미술관|아쿠아리움|온천|식물원|전시|기념관|실내|동굴|문학관|체험관|아트센터)/.test(t) || c === '문화시설') {
-        score += 100;
-      } else if (/(산|봉|등산|해수욕장|해변|암릉|출렁다리|스카이워크|일주)/.test(t)) {
-        score -= 80;
+      if (/(박물관|미술관|아쿠아리움|온천|식물원|전시|기념관|실내|동굴|문학관|체험관|아트센터|도서관|스타필드|별마당|과학관|천문대|공방|쇼핑|몰|갤러리|행궁)/.test(t) || c === '문화시설') {
+        score += 120;
+      } else if (/(산|봉|등산|해수욕장|해변|암릉|출렁다리|스카이워크|일주|성곽길|야외|트레킹|둘레길)/.test(t)) {
+        score -= 90;
       }
     }
 

@@ -101,13 +101,15 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
     setMessages(prev => [...prev, userBubble]);
     setIsGenerating(true);
 
-    try {
-      const rawResult = await geminiGenerateFullItinerary(query, lang);
-      const fullAiResult = rawResult || generateLocalFallbackItinerary(query, lang);
-      const locationName = extractLocationKeyword(query) || query;
+      const lastAiMsg = messages.findLast(m => m.sender === 'ai' && m.fullAiResult);
+      const prevItinerary = lastAiMsg ? lastAiMsg.fullAiResult : null;
+      const rawResult = await geminiGenerateFullItinerary(query, lang, prevItinerary);
+      const detectedCity = extractLocationKeyword(query, false) || prevItinerary?.targetCity || '서울';
+      const fullAiResult = rawResult || generateLocalFallbackItinerary(query, detectedCity, prevItinerary?.days || 3, lang, prevItinerary, !!prevItinerary);
+      const locationName = fullAiResult?.targetCity || detectedCity;
 
-      const aiBubbleText = fullAiResult.aiRecommendationSummary || 
-        `'${locationName}' 맞춤 ${fullAiResult.days || 3}일치 코스를 100% 정품 명소 좌표와 날씨/미식/코디 정보로 설계했습니다! 📍`;
+      const aiBubbleText = fullAiResult?.aiRecommendationSummary || 
+        `'${locationName}' 맞춤 ${fullAiResult?.days || 3}일치 코스를 100% 정품 명소 좌표와 날씨/미식/코디 정보로 설계했습니다! 📍`;
 
       const aiBubble = {
         id: `ai-${Date.now()}`,

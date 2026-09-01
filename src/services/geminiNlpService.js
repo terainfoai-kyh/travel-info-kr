@@ -227,8 +227,9 @@ export function extractLocationKeyword(prompt = '', fallbackToDefault = false) {
   const regexMatch = cleanForCitySearch.match(/([가-힣a-zA-Z]{2,6})(?:시|군|구)?\s*(?:\d+\s*일|\d+\s*박|여행|코스|가볼|가자|일정|투어|나들이|드라이브)/i);
   if (regexMatch && regexMatch[1]) {
     const rawDetected = regexMatch[1].trim();
-    // 의미 없는 조동사/명사 배제
-    if (!/^(오늘|내일|이번|주말|당일|하루|이틀|추천|어디|여기|저기|그냥|이대로|바로)$/.test(rawDetected)) {
+    // 🛡️ 의미 없는 조동사/명사 및 여행 테마/조건 키워드 완전 배제 (가짜 도시명 방지)
+    const THEME_AND_STOPWORDS = /^(오늘|내일|이번|주말|당일|하루|이틀|사흘|나흘|추천|어디|여기|저기|그냥|이대로|바로|실내|야외|우천|비오는|비오는날|폭우|눈오는|힐링|데이트|맛집|미식|야경|카페|효도|가족|키즈|아이|동반|감성|핫플|쇼핑|문화|역사|바다|자연|해변|산책|등산|포토|인생샷|혼자|커플|우정|뚜벅이|부모님|어르신|친구|연인|전체|국내|한국|전국|맞춤|변경|수정|추가|제외|완벽|최고|인기|대표|랜드마크)$/i;
+    if (!THEME_AND_STOPWORDS.test(rawDetected)) {
       return rawDetected;
     }
   }
@@ -352,11 +353,17 @@ const SESSION_ITINERARY_CACHE = new Map();
 export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko', previousItinerary = null) {
   const startTime = Date.now();
   const cleanPrompt = (rawPrompt || '').trim();
-  const explicitCity = extractLocationKeyword(cleanPrompt, false);
-  const mentionsExplicitCity = !!explicitCity;
+  const latestQuery = (cleanPrompt.includes('\n')
+    ? cleanPrompt.split('\n').filter(l => l.trim()).pop()?.replace(/^User:\s*/i, '').trim()
+    : cleanPrompt) || cleanPrompt;
+
+  const explicitCityInCurrentTurn = extractLocationKeyword(latestQuery, false);
+  const explicitCityInFullPrompt = extractLocationKeyword(cleanPrompt, false);
+  const explicitCity = explicitCityInCurrentTurn || (previousItinerary ? null : explicitCityInFullPrompt);
+  const mentionsExplicitCity = !!explicitCityInCurrentTurn;
 
   // AI 응답 속도 최적화: 동일 질의 세션 인메모리 초고속 0.05초 즉시 반환
-  const cacheKey = `${cleanPrompt.toLowerCase()}_${lang}_${explicitCity || previousItinerary?.targetCity || 'none'}`;
+  const cacheKey = `${latestQuery.toLowerCase()}_${lang}_${explicitCity || previousItinerary?.targetCity || 'none'}`;
   if (!previousItinerary && SESSION_ITINERARY_CACHE.has(cacheKey)) {
     const cached = SESSION_ITINERARY_CACHE.get(cacheKey);
     if (cached) {
@@ -368,14 +375,14 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko', previo
   }
 
   // Fast check: Is it purely ambiguous/typo/greetings/short syllables?
-  const isHangulJamoOnly = /^[ㄱ-ㅎㅏ-ㅣ\s]+$/.test(cleanPrompt);
+  const isHangulJamoOnly = /^[ㄱ-ㅎㅏ-ㅣ\s]+$/.test(latestQuery);
   const isShortOrGreeting = !explicitCity && (
-    cleanPrompt.length <= 2 ||
+    latestQuery.length <= 2 ||
     isHangulJamoOnly ||
-    /^(안녕|하이|반가워|뭐해|누구|고마워|감사|ㅋㅋ|ㅎㅎ|ㅇㅇ|ㄴㄴ|ㄷㄷ|ㅠㅠ|test|테스트|\?+|\!+)$/i.test(cleanPrompt)
+    /^(안녕|하이|반가워|뭐해|누구|고마워|감사|ㅋㅋ|ㅎㅎ|ㅇㅇ|ㄴㄴ|ㄷㄷ|ㅠㅠ|test|테스트|\?+|\!+)$/i.test(latestQuery)
   );
 
-  const parsedDays = extractDaysFromPrompt(cleanPrompt);
+  const parsedDays = extractDaysFromPrompt(latestQuery) || extractDaysFromPrompt(cleanPrompt);
 
   const isModificationRequest = Boolean(
     previousItinerary &&
@@ -383,10 +390,10 @@ export async function geminiGenerateFullItinerary(rawPrompt, lang = 'ko', previo
     previousItinerary.dailySchedules.length > 0 &&
     !mentionsExplicitCity &&
     !isShortOrGreeting &&
-    !/(새로운\s*여행|다른\s*도시|처음으로|초기화|리셋)/i.test(cleanPrompt)
+    !/(새로운\s*여행|다른\s*도시|처음으로|초기화|리셋)/i.test(latestQuery)
   );
 
-  let targetCity = explicitCity || previousItinerary?.targetCity || '서울';
+  let targetCity = explicitCity || previousItinerary?.targetCity || '수원';
   let days = 3;
 
   // 💡 스마트 일수 할당 (새로운 일수 요청이 있으면 이전 일수를 덮어쓰고 최우선 반영)
@@ -575,7 +582,7 @@ ALL output text (tripTitle, summary, theme, transitTip, dishName, description, n
     : `User Request: "${cleanPrompt}". Duration: ${days} days, language: ${lang}. Process appropriately as chat clarification or full itinerary strictly in ${lang}.`;
 
   // 100% 로컬 자립 지능 엔진: 외부 API 호출 없이 0.01초 만에 TourAPI 정품 데이터로 초고속 반환
-  return generateLocalFallbackItinerary(cleanPrompt, targetCity, days, lang, previousItinerary, isModificationRequest);
+  return generateLocalFallbackItinerary(latestQuery || cleanPrompt, targetCity, days, lang, previousItinerary, isModificationRequest);
 }
 
 export { generateLocalFallbackItinerary };
