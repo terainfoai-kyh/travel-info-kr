@@ -220,13 +220,14 @@ export default function AdminBatchModal({
         const modelNames = validModels.map(m => m.name.replace('models/', '')).join(', ');
         setBatchLogs(prev => [...prev, `📋 사용 가능한 모델 목록 (${validModels.length}개): ${modelNames}`]);
 
-        const preferred = validModels.find(m => m.name.includes('gemini-flash-latest'))
-          || validModels.find(m => m.name.includes('gemini-2.5-flash-lite'))
-          || validModels.find(m => m.name.includes('gemini-3.7-flash'))
-          || validModels.find(m => m.name.includes('gemini-3.5-flash'))
-          || validModels.find(m => m.name.includes('gemini-flash-lite-latest'))
-          || validModels.find(m => m.name.includes('gemini-pro-latest'))
-          || validModels.find(m => !m.name.endsWith('gemini-2.5-flash') && m.name.includes('flash'))
+        const preferred = validModels.find(m => m.name === 'models/gemini-2.0-flash' || m.name === 'gemini-2.0-flash')
+          || validModels.find(m => m.name === 'models/gemini-1.5-flash' || m.name === 'gemini-1.5-flash')
+          || validModels.find(m => m.name === 'models/gemini-2.5-flash' || m.name === 'gemini-2.5-flash')
+          || validModels.find(m => m.name.includes('gemini-2.0-flash'))
+          || validModels.find(m => m.name.includes('gemini-1.5-flash'))
+          || validModels.find(m => m.name.includes('gemini-2.5-flash'))
+          || validModels.find(m => m.name.includes('gemini-flash-latest'))
+          || validModels.find(m => m.name.includes('flash'))
           || validModels[0];
 
         if (preferred) {
@@ -246,10 +247,9 @@ export default function AdminBatchModal({
       activeModelPath,
       'models/gemini-2.0-flash',
       'models/gemini-1.5-flash',
-      'models/gemini-1.5-flash-8b',
       'models/gemini-2.5-flash',
-      'models/gemini-1.5-pro',
-      'models/gemini-flash-latest'
+      'models/gemini-flash-latest',
+      'models/gemini-1.5-pro'
     ].filter(Boolean)));
 
     for (let i = 0; i < unansweredList.length; i++) {
@@ -306,12 +306,13 @@ export default function AdminBatchModal({
 
       let rawOutput = '';
       let success = false;
+      let lastErrMsg = '';
 
       for (const mName of modelsToTry) {
         try {
           const cleanMName = mName.startsWith('models/') ? mName : `models/${mName}`;
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 6000);
+          const timeoutId = setTimeout(() => controller.abort(), 25000); // 25초 안전 타임아웃
 
           const targetUrl = `https://generativelanguage.googleapis.com/v1beta/${cleanMName}:generateContent?key=${encodeURIComponent(cleanKey)}`;
           const response = await fetch(targetUrl, {
@@ -340,9 +341,13 @@ export default function AdminBatchModal({
               success = true;
               break;
             }
+          } else {
+            const errTxt = await response.text().catch(() => '');
+            lastErrMsg = `${cleanMName} (${response.status}: ${errTxt.slice(0, 80)})`;
           }
         } catch (e) {
-          // Timeout or Network issue -> immediately fallback to next model
+          const isAbort = e.name === 'AbortError';
+          lastErrMsg = isAbort ? `${mName} 타임아웃(25s)` : `${mName} (${e.message})`;
         }
       }
 
@@ -364,7 +369,7 @@ export default function AdminBatchModal({
           setBatchLogs(prev => [...prev, `⚠️ "${q.rawQuery}" JSON 파싱 오류: ${pe.message}`]);
         }
       } else {
-        setBatchLogs(prev => [...prev, `⚠️ "${q.rawQuery}" 일시적 구글 트래픽 초과 또는 모델 응답 지연`]);
+        setBatchLogs(prev => [...prev, `⚠️ "${q.rawQuery}" 응답 지연/실패 (${lastErrMsg || '일시적 트래픽 초과'})`]);
       }
 
       // ⏱️ [1.2초 지능형 안전 텀] 구글 API 429 속도 초과 및 503 에러 100% 방지!

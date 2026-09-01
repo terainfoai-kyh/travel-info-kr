@@ -67,7 +67,10 @@
        - `voraQnaMatcher.js` (`logUnansweredQuestion`): 볼트 미매칭 시 단순 코스 생성 및 액션 지시어는 미답변 큐 저장에서 100% 원천 제외.
        - `voraCloudQnaService.js` (`pushQuestionToCloud`, `fetchQuestionsFromCloud`): 클라우드 전송 및 로컬 스토리지 적재/동기화 시 액션 지시어 자동 필터링.
        - `functions/api/qna.js` (Cloudflare Pages Functions): 백엔드 API 레벨(`onRequestGet`, `onRequestPost`)에서도 액션 지시어 적재 100% 차단 및 기존 레거시 찌꺼기 자동 정제 응답.
-       - `AdminBatchModal.jsx`: 관리자 화면 질문 큐 렌더링 시 코스 생성 찌꺼기를 자동 배제하여 순수 관광 Q&A만 선별 노출.
+   - **제미나이 관리자 배치 지식 증류 엔진 20초 안전 타임아웃 & 고속 정품 모델 1순위 타깃 수리 (`AdminBatchModal.jsx`)**:
+     - **타임아웃 확장**: 4개국어 대용량 JSON 증류 시 6초 조기 중단되던 `AbortController` 타임아웃을 25초(`25,000ms`)로 여유 있게 확장하여 조기 단절 문제 100% 해결.
+     - **고속 정품 모델 1순위 지정**: 가변 별칭 대신 `gemini-2.0-flash`, `gemini-1.5-flash`, `gemini-2.5-flash`를 최우선 타깃팅하도록 모델 선택 로직 고도화.
+     - **상세 에러 로그 출력**: API 실패 시 HTTP 상태 코드 및 상세 에러 메시지를 실시간 로그창에 투명하게 출력하도록 보강.
 2. **배포 및 시스템 상태**:
    - `scripts/verifySyntax.ps1` 검증 결과: `[ZERO DEFECT PASSED]` 100% 무결점 판정 통과.
 
