@@ -43,7 +43,7 @@ export default function GoogleMapView({
   focusedSpotIndex = null,
   onSelectSpotIndex = null,
   hideHeader = false,
-  mapHeight = '230px'
+  mapHeight = '260px'
 }) {
 
 
@@ -99,7 +99,7 @@ export default function GoogleMapView({
         const b = window.L.latLngBounds(validCoords);
         if (b && b.isValid()) {
           try {
-            leafletMapRef.current.fitBounds(b.pad(0.08), { padding: [15, 15], maxZoom: 15, animate: true });
+            leafletMapRef.current.fitBounds(b.pad(0.18), { padding: [28, 28], maxZoom: 14.5, animate: true });
           } catch (e) {}
         }
       }
@@ -159,7 +159,7 @@ export default function GoogleMapView({
       const initialCenter = (computedCenter && isValidLatLng(computedCenter)) ? computedCenter : [baseLat, baseLng];
       activeBoundsRef.current = latLngs;
 
-      // 💡 안전한 뷰포트 자동 피팅 함수 (마커 1~6번 100% 정중앙 핏)
+      // 💡 안전한 뷰포트 자동 피팅 함수 (1번~마지막 마커 100% 안착)
       const applySpotFit = (coords) => {
         if (!leafletMapRef.current || !coords || coords.length === 0) return;
         const m = leafletMapRef.current;
@@ -169,7 +169,7 @@ export default function GoogleMapView({
         if (b && b.isValid()) {
           try {
             m.invalidateSize({ pan: false });
-            m.fitBounds(b.pad(0.08), { padding: [15, 15], maxZoom: 15, animate: false });
+            m.fitBounds(b.pad(0.18), { padding: [28, 28], maxZoom: 14.5, animate: false });
           } catch (e) {}
         }
       };
@@ -524,7 +524,7 @@ export default function GoogleMapView({
               if (leafletMapRef.current && activeBoundsRef.current) {
                 const b = window.L?.latLngBounds(activeBoundsRef.current);
                 if (b && b.isValid()) {
-                  leafletMapRef.current.fitBounds(b.pad(0.35), { padding: [30, 30], maxZoom: 14, animate: true });
+                  leafletMapRef.current.fitBounds(b.pad(0.18), { padding: [28, 28], maxZoom: 14.5, animate: true });
                 }
               }
             }}
