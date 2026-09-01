@@ -20,9 +20,6 @@ export { isSystemActionOrCourseDirective };
 // Local In-Memory Unanswered Queue
 let unansweredQueueCache = [];
 
-  return isCourseAction || isCityDaysPattern || isButtonChip || isSimpleCityOnly || isSimpleDuration || isSimpleCompanion || isSimpleActionOrAccept || isSimpleThemeOnly || isArrivalTimeDirective || isExclusionDirective;
-}
-
 /**
  * Log unseen questions to local queue for next batch Gemini distillation
  */
