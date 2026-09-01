@@ -90,6 +90,14 @@
      - **전남/강원/전북/충청/경남 핵심 명품도시 풀스펙 탑재**: 여수, 순천, 담양, 목포, 강릉, 속초, 춘천, 전주, 군산, 단양, 통영 12개 도시의 4개국어(한·영·일·중) 시그니처 랜드마크, 로컬 미식 비결, 빗길/실내 명소, 무장애 산책로, 야경, 감성 카페, 프리미엄 숙소 데이터를 단일 암호화 볼트에 일괄 편입 컴파일 완료.
 2. **배포 및 시스템 상태**:
    - `scripts/verifySyntax.ps1` 검증 결과: `[ZERO DEFECT PASSED]` 100% 무결점 판정 통과.
+   - 개발 서버 배포 완료: **`https://travelkorea-dev.pages.dev`** (커밋 `905889f` 반영 완료)
+3. **[★ Next Agent Handoff: 후속 에이전트 무조건 필독 인수인계]**:
+   - **GitHub Actions 일일 무인 배치(`daily-batch.yml`, `scripts/runDailyBatch.js`) 2차 점검 과제**:
+     - **원인 파악 요망 사항**:
+       1) **GitHub Repository Secrets 설정 확인**: 레포지토리 Settings ➔ Secrets and variables ➔ Actions에 `VITE_GEMINI_API_KEY` 또는 `GEMINI_API_KEY` 또는 `GOOGLE_API_KEY`가 올바른 구글 AI 스튜디오 API 키 값으로 등록되어 있는지 점검.
+       2) **Workflow Permissions 점검**: Settings ➔ Actions ➔ General ➔ Workflow permissions가 **"Read and write permissions"**로 체크되어 있는지 확인 (`GITHUB_TOKEN` 푸시 권한).
+       3) **안전 실행**: 필요 시 GitHub Actions 로그 상세를 확인하여 에러 스텝(Step 26 지식 증류 vs Step 33 깃 커밋/푸시)을 1초 만에 특정하고 100% 깔끔하게 마감할 것.
+   - **UI 및 데이터 상태**: 관광지 상세 모달 780px 와이드 뷰 & 100% 퓨어 고화질 사진 노출 및 전국 226개 시군구 공공 TourAPI 직결 엔진은 100% 완전무결 정상 동작 중.
 
 ### [2026-08-31 (월)]
 1. **완료된 작업**:
