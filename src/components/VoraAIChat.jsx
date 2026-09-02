@@ -191,7 +191,7 @@ export default function VoraAIChat({
             <button
               type="button"
               onClick={onResetChat}
-              title={lang === 'en' ? 'Reset Conversation' : '대화 초기화 및 새 대화 시작'}
+              title={t.newChatDesc || (lang === 'en' ? 'Reset Conversation' : lang === 'ja' ? '会話を初期化して新しく始める' : (lang === 'zh' || lang === 'zht') ? '重置对话并开启新对话' : '대화 초기화 및 새 대화 시작')}
               style={{
                 fontSize: '0.62rem',
                 fontWeight: 700,
@@ -210,7 +210,7 @@ export default function VoraAIChat({
               onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(241, 245, 249, 0.95)'; e.currentTarget.style.color = '#64748b'; }}
             >
               <span>🔄</span>
-              <span>{lang === 'en' ? 'Reset' : '새 대화'}</span>
+              <span>{t.newChat || (lang === 'en' ? 'Reset' : lang === 'ja' ? '新規チャット' : (lang === 'zh' || lang === 'zht') ? '新对话' : '새 대화')}</span>
             </button>
           )}
         </div>

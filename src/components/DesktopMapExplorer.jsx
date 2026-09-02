@@ -75,6 +75,16 @@ const REGIONAL_FALLBACK_CENTERS = [
     image: '/images/themes/theme-gyeongbokgung.jpg',
     transitTipKo: '지하철 3호선 경복궁역 도보 3분',
     transitTipEn: 'Line 3 Gyeongbokgung Station (3 min walk)',
+    transitTipJa: '地下鉄3号線 景福宮駅 徒歩3分',
+    transitTipZh: '地铁3号线 景福宫站 步行3分钟',
+    foodieSecretKo: '광장시장 마약김밥, 육회, 빈대떡, 성수동 스페셜티 브루잉 카페, 종로 생선구이 백반',
+    foodieSecretEn: 'Gwangjang Market Kimbap, Yukhoe (Beef Tartare), Mung Bean Pancake, Seongsu Specialty Brew Cafe, Jongno Grilled Fish',
+    foodieSecretJa: '広蔵市場 麻薬キンパ, ユッケ, ピンデトック, 聖水洞スペシャルティカフェ, 鍾路 焼き魚定食',
+    foodieSecretZh: '广藏市场 紫菜包饭, 生牛肉, 绿豆煎饼, 圣水洞精品咖啡, 钟路 烤鱼套餐',
+    nightHighlightKo: 'N서울타워 & 남산 파노라마 (서울 도심 360도 파노라마 야경과 사랑의 자물쇠 명소)',
+    nightHighlightEn: 'N Seoul Tower & Namsan Panorama (360° Seoul City Night Skyline & Love Padlocks)',
+    nightHighlightJa: 'Nソウルタワー＆南山パノラマ（ソウル都心360度パノラマ夜景＆愛の南京錠）',
+    nightHighlightZh: 'N首尔塔与南山全景（首尔市中心360度全景夜景与爱情锁名所）',
     highlights: [
       { ko: '경복궁 & 근정전', en: 'Gyeongbokgung Palace', ja: '景福宮', zh: '景福宫', lat: 37.5796, lng: 126.9770, zoom: 15 },
       { ko: '북촌 한옥마을', en: 'Bukchon Hanok Village', ja: '北村韓屋村', zh: '北村韩屋村', lat: 37.5826, lng: 126.9835, zoom: 15 },
@@ -96,6 +106,16 @@ const REGIONAL_FALLBACK_CENTERS = [
     image: '/images/themes/hero-hangang.jpg',
     transitTipKo: '지하철 2호선 성수역 / 한강공원 직결',
     transitTipEn: 'Subway Line 2 Seongsu / Hangang River Link',
+    transitTipJa: '地下鉄2号線 聖水駅／漢江公園直結',
+    transitTipZh: '地铁2号线 圣水站/汉江公园直达',
+    foodieSecretKo: '성수동 감성 브런치, 익선동 한옥 베이커리, 광장시장 빈대떡, 마포 돼지갈비',
+    foodieSecretEn: 'Seongsu Hip Brunch, Ikseon Hanok Bakery, Gwangjang Market Pancake, Mapo Pork Ribs',
+    foodieSecretJa: '聖水洞ブランチ, 益善洞韓屋ベーカリー, 広蔵市場ピンデトック, 麻浦豚カルビ',
+    foodieSecretZh: '圣水洞早午餐, 益善洞韩屋烘焙, 广藏市场煎饼, 麻浦烤猪排骨',
+    nightHighlightKo: 'DDP 동대문 디자인플라자 LED 미디어파사드 & 한강 달빛 피크닉',
+    nightHighlightEn: 'DDP Dongdaemun LED Media Facade & Hangang Moonlight Picnic',
+    nightHighlightJa: 'DDP東大門メディアファサード＆漢江ムーンライトピクニック',
+    nightHighlightZh: 'DDP东大门设计广场LED媒体灯光秀与汉江月色野餐',
     highlights: [
       { ko: '성수동 팝업거리', en: 'Seongsu Pop-up Street', ja: '聖水洞', zh: '圣水洞', lat: 37.5445, lng: 127.0560, zoom: 15 },
       { ko: '한강 달빛피크닉', en: 'Hangang River Picnic', ja: '漢江ピクニック', zh: '汉江公园', lat: 37.5284, lng: 126.9341, zoom: 14 },
@@ -117,6 +137,16 @@ const REGIONAL_FALLBACK_CENTERS = [
     image: '/images/themes/theme-suwon.jpg',
     transitTipKo: '서울역에서 KTX 30분 / 1호선 직결',
     transitTipEn: 'KTX from Seoul Station (30 min) / Line 1 Direct',
+    transitTipJa: 'ソウル駅からKTXで30分／地下鉄1号線直結',
+    transitTipZh: '首尔站乘坐KTX约30分钟/地铁1号线直达',
+    foodieSecretKo: '수원 전통 왕갈비, 행리단길 감성 카페, 통닭거리 가마솥 치킨',
+    foodieSecretEn: 'Suwon Traditional Wang-galbi (King Ribs), Haengridan Hanok Cafes, Cauldron Fried Chicken Street',
+    foodieSecretJa: '水原伝統王カルビ, 行理団通り韓屋カフェ, 水原チキン通り',
+    foodieSecretZh: '水原传统王牛排骨, 行理团路韩屋咖啡街, 炸鸡一条街',
+    nightHighlightKo: '수원화성 방화수류정 야경 (연못에 비치는 성곽 달빛 야경)',
+    nightHighlightEn: 'Suwon Hwaseong & Banghwasuryujeong Pavilion Moonlit Night View',
+    nightHighlightJa: '水原華城・訪花随柳亭の月夜散歩（池に映る城郭ライトアップ）',
+    nightHighlightZh: '水原华城与访花随柳亭月色夜景（倒映于池塘的城郭灯光）',
     highlights: [
       { ko: '수원화성 성곽길', en: 'Suwon Hwaseong Fortress', ja: '水原華城', zh: '水原华城', lat: 37.2872, lng: 127.0118, zoom: 15 },
       { ko: '행궁동 감성카페', en: 'Haenggung-dong Cafes', ja: '行宮洞カフェ通り', zh: '行宫洞咖啡街', lat: 37.2830, lng: 127.0150, zoom: 15 },
@@ -138,6 +168,16 @@ const REGIONAL_FALLBACK_CENTERS = [
     image: '/images/themes/theme-busan.jpg',
     transitTipKo: '서울역에서 KTX 2시간 15분 / 김해공항 연결',
     transitTipEn: 'KTX from Seoul (2h 15m) / Gimhae Airport Link',
+    transitTipJa: 'ソウル駅からKTXで2時間15分／金海空港直結',
+    transitTipZh: '首尔站乘坐KTX约2小时15分/金海机场直通',
+    foodieSecretKo: '자갈치시장 신선 활어회, 해운대 암소갈비, 부산 돼지국밥, 남포동 씨앗호떡',
+    foodieSecretEn: 'Jagalchi Fresh Sashimi, Haeundae Beef Ribs, Busan Dwaeji Gukbap (Pork Soup), Nampo Ssiat Hotteok',
+    foodieSecretJa: 'チャガルチ新鮮刺身, 海雲台韓牛カルビ, 釜山テジクッパ, 南浦洞シアホットク',
+    foodieSecretZh: '札嘎其生鱼片, 海云台韩牛排骨, 釜山猪肉汤饭, 南浦洞坚果糖饼',
+    nightHighlightKo: '광안대교 오션 드론 레이저쇼 & 해운대 더베이101 마천루 야경',
+    nightHighlightEn: 'Gwangandaegyo Bridge Ocean Laser & Drone Show, The Bay 101 Skyline',
+    nightHighlightJa: '広安大橋ドローンショー＆海雲台ザ・ベイ101夜景',
+    nightHighlightZh: '广安大桥海上无人机秀与海云台The Bay 101夜景',
     highlights: [
       { ko: '해운대 블루라인파크', en: 'Haeundae Blueline Park', ja: '海雲台ブルーライン', zh: '海云台蓝线公园', lat: 35.1631, lng: 129.1764, zoom: 14 },
       { ko: '광안대교 드론쇼', en: 'Gwangandaegyo Bridge', ja: '広安大橋', zh: '广安大桥', lat: 35.1532, lng: 129.1189, zoom: 14 },
@@ -159,6 +199,16 @@ const REGIONAL_FALLBACK_CENTERS = [
     image: '/images/themes/theme-jeju.jpg',
     transitTipKo: '김포공항 국내선 1시간 / 렌터카·급행버스',
     transitTipEn: 'Flight from Gimpo (1 hr) / Express Tourist Bus',
+    transitTipJa: '金浦空港から国内線1時間／レンタカー・急行バス',
+    transitTipZh: '金浦机场国内线约1小时/租车或观光快线大巴',
+    foodieSecretKo: '제주 흑돼지 근고기, 고기국수, 갈치조림 & 해물라면, 우도 땅콩 아이스크림',
+    foodieSecretEn: 'Jeju Black Pork BBQ, Pork Noodle Soup (Gogi Guksu), Braised Cutlassfish & Seafood Ramen, Udo Peanut Ice Cream',
+    foodieSecretJa: '済州黒豚焼肉, 肉うどん（コギククス）, 太刀魚の煮付け＆海鮮ラーメン, 牛島ピーナッツアイス',
+    foodieSecretZh: '济州黑猪肉烤肉, 猪肉汤面, 辣炖带鱼与海鲜拉面, 牛岛花生冰淇淋',
+    nightHighlightKo: '용두암 해안도로 야간 드라이브 & 새연교 미디어 조명 야경',
+    nightHighlightEn: 'Yongduam Coastal Night Drive & Saeyeongyo Bridge Illuminations',
+    nightHighlightJa: '竜頭岩海岸ナイトドライブ＆鳥島連結橋ライトアップ',
+    nightHighlightZh: '龙头岩海岸公路夜间兜风与新缘桥梦幻夜景',
     highlights: [
       { ko: '성산일출봉', en: 'Seongsan Sunrise Peak', ja: '城山日出峰', zh: '城山日出峰', lat: 33.4581, lng: 126.9426, zoom: 14 },
       { ko: '협재 & 애월 해안도로', en: 'Hyeopjae & Aewol Coast', ja: '挟才・涯月海岸', zh: '挟才·涯月海岸', lat: 33.3941, lng: 126.2397, zoom: 14 },
@@ -180,6 +230,16 @@ const REGIONAL_FALLBACK_CENTERS = [
     image: '/images/themes/theme-gyeongju.jpg',
     transitTipKo: '신경주역 KTX 2시간 / 황리단길 도보 여행',
     transitTipEn: 'KTX Singyeongju Station (2 hrs) / Walkable Hwangridan',
+    transitTipJa: '新慶州駅KTXで2時間／皇理団通り徒歩観光',
+    transitTipZh: '新庆州站乘坐KTX约2小时/皇理团路步行游览',
+    foodieSecretKo: '경주 황남빵, 십원빵, 교리김밥, 떡갈비 쌈밥 정식',
+    foodieSecretEn: 'Gyeongju Hwangnam Bread, 10-Won Cheese Bread, Gyori Kimbap, Tteokgalbi (Grilled Short Rib Patties)',
+    foodieSecretJa: '慶州 皇南パン, 10ウォンパン, 校里キンパ, トッカルビ定食',
+    foodieSecretZh: '庆州 皇南饼, 十元奶酪饼, 校里紫菜包饭, 牛肉饼定食',
+    nightHighlightKo: '동궁과 월지(안압지) & 첨성대 야경 (달빛에 빛나는 신라 궁궐터)',
+    nightHighlightEn: 'Donggung Palace & Wolji Pond, Cheomseongdae Moonlit Ancient Night View',
+    nightHighlightJa: '東宮と月池（雁鴨池）＆瞻星台の夜景（ライトアップされた古都遺跡）',
+    nightHighlightZh: '东宫与月池（雁鸭池）及瞻星台梦幻夜景',
     highlights: [
       { ko: '불국사 & 석굴암', en: 'Bulguksa Temple', ja: '仏国寺', zh: '佛国寺', lat: 35.7900, lng: 129.3320, zoom: 14 },
       { ko: '동궁과 월지 야경', en: 'Donggung & Wolji Pond', ja: '東宮と月池', zh: '东宫与月池', lat: 35.8341, lng: 129.2267, zoom: 15 },
@@ -201,6 +261,16 @@ const REGIONAL_FALLBACK_CENTERS = [
     image: '/images/themes/theme-gangneung.jpg',
     transitTipKo: '서울역에서 KTX 이음 1시간 40분',
     transitTipEn: 'KTX-Eum from Seoul Station (1h 40m)',
+    transitTipJa: 'ソウル駅からKTXイウムで1時間40分',
+    transitTipZh: '首尔站乘坐KTX-Eum约1小时40分钟',
+    foodieSecretKo: '초당 순두부마을, 안목해변 핸드드립 스페셜티 커피, 중앙시장 닭강정',
+    foodieSecretEn: 'Chodang Soft Tofu Village, Anmok Beach Specialty Hand-Drip Coffee, Central Market Dakgangjeong',
+    foodieSecretJa: '草堂スンドゥブ村, 安木海岸ハンドドリップコーヒー, 中央市場タッカンジョン',
+    foodieSecretZh: '草堂嫩豆腐村, 安木海滩手冲精品咖啡, 中央市场炸鸡块',
+    nightHighlightKo: '경포호수 야간 달빛산책로 & 안목해변 오션뷰 카페거리 조명',
+    nightHighlightEn: 'Gyeongpo Lake Moonlit Boardwalk & Anmok Beach Ocean View Cafe Lights',
+    nightHighlightJa: '鏡浦湖ナイトウォーク＆安木海岸カフェ通り夜景',
+    nightHighlightZh: '镜浦湖月色步道与安木海滩海景咖啡街夜景',
     highlights: [
       { ko: '안목 커피거리', en: 'Anmok Coffee Street', ja: '安木コーヒー通り', zh: '安木咖啡街', lat: 37.7719, lng: 128.9482, zoom: 15 },
       { ko: '경포대 에메랄드 해변', en: 'Gyeongpo Beach', ja: '鏡浦海水浴場', zh: '镜浦海水浴场', lat: 37.8055, lng: 128.9079, zoom: 14 },
@@ -847,6 +917,106 @@ export default function DesktopMapExplorer({
     return Object.keys(CITY_LOCAL_KNOWLEDGE).find(k => k === clean || name.startsWith(k) || k.startsWith(clean)) || null;
   };
 
+// 🍲 Smart Multilingual Foodie & Nightview Translators
+const COMMON_FOOD_TRANSLATIONS = {
+  '광장시장 마약김밥': { en: 'Gwangjang Market Kimbap', ja: '広蔵市場 麻薬キンパ', zh: '广藏市场 紫菜包饭' },
+  '육회': { en: 'Yukhoe (Beef Tartare)', ja: 'ユッケ', zh: '生牛肉' },
+  '빈대떡': { en: 'Mung Bean Pancake', ja: 'ピンデトック', zh: '绿豆煎饼' },
+  '성수동 스페셜티 브루잉 카페': { en: 'Seongsu Specialty Brew Cafe', ja: '聖水洞スペシャルティカフェ', zh: '圣水洞精品咖啡' },
+  '종로 생선구이 백반': { en: 'Jongno Grilled Fish Set', ja: '鍾路 焼き魚定食', zh: '钟路 烤鱼套餐' },
+  '성수동 감성 브런치': { en: 'Seongsu Hip Brunch', ja: '聖水洞ブランチ', zh: '圣水洞早午餐' },
+  '익선동 한옥 베이커리': { en: 'Ikseon Hanok Bakery', ja: '益善洞韓屋ベーカリー', zh: '益善洞韩屋烘焙' },
+  '광장시장 빈대떡': { en: 'Gwangjang Market Pancake', ja: '広蔵市場ピンデトック', zh: '广藏市场煎饼' },
+  '마포 돼지갈비': { en: 'Mapo Pork Ribs', ja: '麻浦豚カルビ', zh: '麻浦烤猪排骨' },
+  '수원 전통 왕갈비': { en: 'Suwon Wang-galbi (King Ribs)', ja: '水原王カルビ', zh: '水原王牛排骨' },
+  '행리단길 감성 카페': { en: 'Haengridan Hanok Cafes', ja: '行理団通り韓屋カフェ', zh: '行理团路韩屋咖啡街' },
+  '통닭거리 가마솥 치킨': { en: 'Cauldron Fried Chicken Street', ja: '水原チキン通り', zh: '炸鸡一条街' },
+  '자갈치시장 신선 활어회': { en: 'Jagalchi Fresh Sashimi', ja: 'チャガルチ新鮮刺身', zh: '札嘎其生鱼片' },
+  '해운대 암소갈비': { en: 'Haeundae Beef Ribs', ja: '海雲台韓牛カルビ', zh: '海云台韩牛排骨' },
+  '부산 돼지국밥': { en: 'Busan Pork Soup (Dwaeji Gukbap)', ja: '釜山テジクッパ', zh: '釜山猪肉汤饭' },
+  '남포동 씨앗호떡': { en: 'Nampo Ssiat Hotteok', ja: '南浦洞シアホットク', zh: '南浦洞坚果糖饼' },
+  '제주 흑돼지 근고기': { en: 'Jeju Black Pork BBQ', ja: '済州黒豚焼肉', zh: '济州黑猪肉烤肉' },
+  '고기국수': { en: 'Pork Noodle Soup (Gogi Guksu)', ja: '肉うどん（コギククス）', zh: '猪肉汤面' },
+  '갈치조림 & 해물라면': { en: 'Braised Cutlassfish & Seafood Ramen', ja: '太刀魚の煮付け＆海鮮ラーメン', zh: '辣炖带鱼与海鲜拉面' },
+  '우도 땅콩 아이스크림': { en: 'Udo Peanut Ice Cream', ja: '牛島ピーナッツアイス', zh: '牛岛花生冰淇淋' },
+  '경주 황남빵': { en: 'Gyeongju Hwangnam Bread', ja: '慶州 皇南パン', zh: '庆州 皇南饼' },
+  '십원빵': { en: '10-Won Cheese Bread', ja: '10ウォンパン', zh: '十元奶酪饼' },
+  '교리김밥': { en: 'Gyori Kimbap', ja: '校里キンパ', zh: '校里紫菜包饭' },
+  '떡갈비 쌈밥 정식': { en: 'Tteokgalbi (Grilled Short Rib Patties)', ja: 'トッカルビ定食', zh: '牛肉饼定食' },
+  '초당 순두부마을': { en: 'Chodang Soft Tofu Village', ja: '草堂スンドゥブ村', zh: '草堂嫩豆腐村' },
+  '안목해변 핸드드립 스페셜티 커피': { en: 'Anmok Beach Specialty Hand-Drip Coffee', ja: '安木海岸ハンドドリップコーヒー', zh: '安木海滩手冲精品咖啡' },
+  '중앙시장 닭강정': { en: 'Central Market Dakgangjeong', ja: '中央市場タッカンジョン', zh: '中央市场炸鸡块' },
+  '전주 비빔밥': { en: 'Jeonju Bibimbap', ja: '全州ビビンバ', zh: '全州石锅拌饭' },
+  '전주 콩나물국밥': { en: 'Jeonju Bean Sprout Soup', ja: '全州もやしクッパ', zh: '全州豆芽汤饭' },
+  '춘천 닭갈비': { en: 'Chuncheon Dakgalbi (Spicy Chicken)', ja: '春川タッカルビ', zh: '春川炒鸡排' },
+  '막국수': { en: 'Buckwheat Makguksu', ja: 'マッククス', zh: '荞麦凉面' },
+  '안동 찜닭': { en: 'Andong Jjimdak (Braised Chicken)', ja: '安東チムタク', zh: '安东炖鸡' },
+  '간고등어': { en: 'Salted Mackerel', ja: '塩サバ', zh: '盐渍青花鱼' },
+  '포항 물회': { en: 'Pohang Mulhoe (Cold Raw Fish Soup)', ja: '浦項ムルフェ', zh: '浦项水拌生鱼片' },
+  '여수 돌게장': { en: 'Yeosu Soy Crab', ja: '麗水カニ醤油漬け', zh: '丽水酱蟹' },
+  '돌산 갓김치': { en: 'Dolsan Mustard Kimchi', ja: '突山からし菜キムチ', zh: '突山芥菜辛奇' },
+  '통영 충무김밥': { en: 'Tongyeong Chungmu Kimbap', ja: '統営忠武キンパ', zh: '统营忠武紫菜包饭' },
+  '꿀빵': { en: 'Honey Bread', ja: 'クルパン', zh: '蜂蜜面包' }
+};
+
+function translateFoodieSecret(foodStr, lang) {
+  if (!foodStr || lang === 'ko') return foodStr;
+  const items = foodStr.split(/[,•|·]/).map(s => s.trim()).filter(Boolean);
+  const translated = items.map(item => {
+    if (COMMON_FOOD_TRANSLATIONS[item]) {
+      const entry = COMMON_FOOD_TRANSLATIONS[item];
+      return entry[lang] || (lang === 'zht' ? entry.zh : null) || entry.en || item;
+    }
+    for (const [k, v] of Object.entries(COMMON_FOOD_TRANSLATIONS)) {
+      if (item.includes(k) || k.includes(item)) {
+        return v[lang] || (lang === 'zht' ? v.zh : null) || v.en || item;
+      }
+    }
+    return item;
+  });
+  return translated.join(', ');
+}
+
+function translateNightHighlight(nightStr, lang) {
+  if (!nightStr || lang === 'ko') return nightStr;
+  if (nightStr.includes('N서울타워') || nightStr.includes('남산')) {
+    if (lang === 'en') return 'N Seoul Tower & Namsan Panorama (360° City Night View & Love Padlocks)';
+    if (lang === 'ja') return 'Nソウルタワー＆南山パノラマ（都心360度夜景＆愛の南京錠）';
+    if (lang === 'zh' || lang === 'zht') return 'N首尔塔与南山全景（首尔360度全景夜景与爱情锁名所）';
+  }
+  if (nightStr.includes('수원화성') || nightStr.includes('방화수류정')) {
+    if (lang === 'en') return 'Suwon Hwaseong Fortress & Banghwasuryujeong Moonlit Night View';
+    if (lang === 'ja') return '水原華城・訪花随柳亭の月夜散歩';
+    if (lang === 'zh' || lang === 'zht') return '水原华城与访花随柳亭月色夜景';
+  }
+  if (nightStr.includes('광안대교') || nightStr.includes('더베이')) {
+    if (lang === 'en') return 'Gwangandaegyo Bridge Ocean Laser & Drone Show, The Bay 101 Skyline';
+    if (lang === 'ja') return '広安大橋ドローンレーザーショー＆ザ・ベイ101夜景';
+    if (lang === 'zh' || lang === 'zht') return '广安大桥海上无人机秀与The Bay 101夜景';
+  }
+  if (nightStr.includes('동궁과 월지') || nightStr.includes('안압지') || nightStr.includes('첨성대')) {
+    if (lang === 'en') return 'Donggung Palace & Wolji Pond Moonlit Ancient Night View';
+    if (lang === 'ja') return '東宮と月池（雁鴨池）＆瞻星台の古都夜景';
+    if (lang === 'zh' || lang === 'zht') return '东宫与月池及瞻星台梦幻夜景';
+  }
+  if (nightStr.includes('경포') || nightStr.includes('안목')) {
+    if (lang === 'en') return 'Gyeongpo Lake Moonlit Boardwalk & Anmok Ocean Cafe Lights';
+    if (lang === 'ja') return '鏡浦湖ナイトウォーク＆安木海岸カフェ通り夜景';
+    if (lang === 'zh' || lang === 'zht') return '镜浦湖月色步道与安木海滩海景咖啡街夜景';
+  }
+  if (nightStr.includes('DDP') || nightStr.includes('동대문')) {
+    if (lang === 'en') return 'DDP Dongdaemun LED Media Facade & Moonlight Picnic';
+    if (lang === 'ja') return 'DDP東大門メディアファサード＆ムーンライトピクニック';
+    if (lang === 'zh' || lang === 'zht') return 'DDP东大门设计广场LED媒体灯光秀与月色野餐';
+  }
+  if (nightStr.includes('용두암') || nightStr.includes('새연교')) {
+    if (lang === 'en') return 'Yongduam Coastal Night Drive & Saeyeongyo Bridge Illuminations';
+    if (lang === 'ja') return '竜頭岩海岸ナイトドライブ＆鳥島連結橋ライトアップ';
+    if (lang === 'zh' || lang === 'zht') return '龙头岩海岸公路夜间兜风与新缘桥梦幻夜景';
+  }
+  return nightStr;
+}
+
   const getSelectedDesc = () => {
     const cleanCityKey = getCleanCityKey(selectedLocation.nameKo);
     const cityData = (cleanCityKey && CITY_LOCAL_KNOWLEDGE[cleanCityKey]) || CITY_LOCAL_KNOWLEDGE[selectedLocation.nameKo] || null;
@@ -865,31 +1035,52 @@ export default function DesktopMapExplorer({
 
   const getSelectedTransitTip = () => {
     const cleanCityKey = getCleanCityKey(selectedLocation.nameKo);
-    if (cleanCityKey && CITY_LOCAL_KNOWLEDGE[cleanCityKey]?.transitTip) {
-      return lang === 'en' 
-        ? (selectedLocation.transitTipEn || 'Subway & KTX Direct Access')
-        : CITY_LOCAL_KNOWLEDGE[cleanCityKey].transitTip;
+    const cityData = (cleanCityKey && CITY_LOCAL_KNOWLEDGE[cleanCityKey]) || CITY_LOCAL_KNOWLEDGE[selectedLocation.nameKo] || null;
+    if (cityData?.transitTip) {
+      if (lang === 'en') return cityData.transitTipEn || selectedLocation.transitTipEn || 'Accessible via Subway & KTX';
+      if (lang === 'ja') return cityData.transitTipJa || selectedLocation.transitTipJa || '地下鉄・KTXで快適アクセス';
+      if (lang === 'zh' || lang === 'zht') return cityData.transitTipZh || selectedLocation.transitTipZh || '地铁与KTX快速直达';
+      return cityData.transitTip;
     }
-    return lang === 'en' 
-      ? (selectedLocation.transitTipEn || 'Easy Public Transit Access') 
-      : (selectedLocation.transitTipKo || '대중교통 접근 편리');
+    if (lang === 'en') return selectedLocation.transitTipEn || 'Fast Public Transit Access';
+    if (lang === 'ja') return selectedLocation.transitTipJa || '公共交通で快速移動';
+    if (lang === 'zh' || lang === 'zht') return selectedLocation.transitTipZh || '便捷公共交通直达';
+    return selectedLocation.transitTipKo || t.publicTransitFast || '대중교통 쾌속 이동';
   };
 
   const getSelectedFoodieSecret = () => {
+    if (lang === 'en' && selectedLocation.foodieSecretEn) return selectedLocation.foodieSecretEn;
+    if (lang === 'ja' && selectedLocation.foodieSecretJa) return selectedLocation.foodieSecretJa;
+    if ((lang === 'zh' || lang === 'zht') && selectedLocation.foodieSecretZh) return selectedLocation.foodieSecretZh;
+
     const cleanCityKey = getCleanCityKey(selectedLocation.nameKo);
-    if (cleanCityKey && CITY_LOCAL_KNOWLEDGE[cleanCityKey]?.localFoodieSecret) {
-      return CITY_LOCAL_KNOWLEDGE[cleanCityKey].localFoodieSecret;
+    const cityData = (cleanCityKey && CITY_LOCAL_KNOWLEDGE[cleanCityKey]) || CITY_LOCAL_KNOWLEDGE[selectedLocation.nameKo] || null;
+    if (cityData) {
+      if (lang === 'en' && cityData.localFoodieSecretEn) return cityData.localFoodieSecretEn;
+      if (lang === 'ja' && cityData.localFoodieSecretJa) return cityData.localFoodieSecretJa;
+      if ((lang === 'zh' || lang === 'zht') && cityData.localFoodieSecretZh) return cityData.localFoodieSecretZh;
+      if (cityData.localFoodieSecret) return translateFoodieSecret(cityData.localFoodieSecret, lang);
     }
-    return selectedLocation.foodieSecret || null;
+    if (selectedLocation.foodieSecret) return translateFoodieSecret(selectedLocation.foodieSecret, lang);
+    return null;
   };
 
   const getSelectedNightHighlight = () => {
+    if (lang === 'en' && selectedLocation.nightHighlightEn) return selectedLocation.nightHighlightEn;
+    if (lang === 'ja' && selectedLocation.nightHighlightJa) return selectedLocation.nightHighlightJa;
+    if ((lang === 'zh' || lang === 'zht') && selectedLocation.nightHighlightZh) return selectedLocation.nightHighlightZh;
+
     const cleanCityKey = getCleanCityKey(selectedLocation.nameKo);
-    if (cleanCityKey && CITY_LOCAL_KNOWLEDGE[cleanCityKey]?.nightHighlights) {
-      const nh = CITY_LOCAL_KNOWLEDGE[cleanCityKey].nightHighlights[0];
-      return nh ? `${nh.name} (${nh.desc})` : null;
+    const cityData = (cleanCityKey && CITY_LOCAL_KNOWLEDGE[cleanCityKey]) || CITY_LOCAL_KNOWLEDGE[selectedLocation.nameKo] || null;
+    if (cityData?.nightHighlights && cityData.nightHighlights.length > 0) {
+      const nh = cityData.nightHighlights[0];
+      if (lang === 'en') return (nh.nameEn && nh.descEn) ? `${nh.nameEn} (${nh.descEn})` : nh.nameEn || translateNightHighlight(`${nh.name} (${nh.desc})`, lang);
+      if (lang === 'ja') return (nh.nameJa && nh.descJa) ? `${nh.nameJa} (${nh.descJa})` : nh.nameJa || translateNightHighlight(`${nh.name} (${nh.desc})`, lang);
+      if (lang === 'zh' || lang === 'zht') return (nh.nameZh && nh.descZh) ? `${nh.nameZh} (${nh.descZh})` : nh.nameZh || translateNightHighlight(`${nh.name} (${nh.desc})`, lang);
+      return `${nh.name} (${nh.desc})`;
     }
-    return selectedLocation.nightHighlight || null;
+    if (selectedLocation.nightHighlight) return translateNightHighlight(selectedLocation.nightHighlight, lang);
+    return null;
   };
 
   return (
@@ -1660,7 +1851,7 @@ export default function DesktopMapExplorer({
                     }}>
                       <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#2563eb', display: 'flex', alignItems: 'center', gap: '3px' }}>
                         <Train size={11} />
-                        <span>{selectedLocation.subwayTip || '대중교통 쾌속 이동'}</span>
+                        <span>{getSelectedTransitTip()}</span>
                       </span>
                       <span style={{ color: '#cbd5e1' }}>•</span>
                       <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#059669', display: 'flex', alignItems: 'center', gap: '3px' }}>
