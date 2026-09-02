@@ -320,6 +320,61 @@ export async function fetchLocationBasedTourApiSpots(lat, lng, radius = 15000, l
   }
 }
 
+// 🍽️ [실시간 주변 맛집/카페 조회] 위경도 반경 내 실제 한국관광공사 등록 음식점(39) 및 카페 실시간 수신
+export async function fetchNearbyRestaurantsAndCafes(lat, lng, radius = 3000, lang = 'ko') {
+  if (!lat || !lng) return [];
+
+  let apiBase = PUBLIC_API_CONFIG.TOUR_API_BASE || 'https://apis.data.go.kr/B551011/KorService2';
+  let foodTypeId = '39';
+  if (lang === 'en') { apiBase = PUBLIC_API_CONFIG.ENG_BASE; foodTypeId = '82'; }
+  else if (lang === 'ja') { apiBase = PUBLIC_API_CONFIG.JPN_BASE; foodTypeId = '82'; }
+  else if (lang === 'zh') { apiBase = PUBLIC_API_CONFIG.CHS_BASE; foodTypeId = '82'; }
+  else if (lang === 'zht') { apiBase = PUBLIC_API_CONFIG.CHT_BASE; foodTypeId = '82'; }
+  else if (lang === 'de') { apiBase = PUBLIC_API_CONFIG.GER_BASE; foodTypeId = '82'; }
+  else if (lang === 'fr') { apiBase = PUBLIC_API_CONFIG.FRE_BASE; foodTypeId = '82'; }
+  else if (lang === 'es') { apiBase = PUBLIC_API_CONFIG.SPN_BASE; foodTypeId = '82'; }
+  else if (lang === 'ru') { apiBase = PUBLIC_API_CONFIG.RUS_BASE; foodTypeId = '82'; }
+
+  const cacheKey = `food_${lat.toFixed(3)}_${lng.toFixed(3)}_${radius}_${lang}`;
+  if (DYNAMIC_SPOT_CACHE.has(cacheKey)) {
+    return DYNAMIC_SPOT_CACHE.get(cacheKey);
+  }
+
+  try {
+    const url = `${apiBase}/locationBasedList2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&mapX=${lng}&mapY=${lat}&radius=${radius}&contentTypeId=${foodTypeId}&arrange=P&numOfRows=15&pageNo=1`;
+    const res = await fetch(url);
+    if (!res.ok) return [];
+    const data = await res.json();
+    const itemsRaw = data.response?.body?.items?.item || [];
+    const items = Array.isArray(itemsRaw) ? itemsRaw : (itemsRaw ? [itemsRaw] : []);
+
+    const validFoods = items
+      .filter(item => item.title && !/(편의점|gs25|cu|세븐일레븐|이마트24|마트|슈퍼|상회)/i.test(item.title))
+      .slice(0, 5)
+      .map(item => {
+        const isCafe = /(카페|커피|베이커리|디저트|cafe|coffee|bakery|찻집)/i.test(item.title) || /(카페|커피|음료)/i.test(item.cat3 || '');
+        return {
+          id: `food_${item.contentid}`,
+          name: item.title,
+          type: isCafe ? (lang === 'en' ? 'Cafe ☕' : '감성카페 ☕') : (lang === 'en' ? 'Local Food 🍲' : '로컬미식 🍲'),
+          category: isCafe ? '카페/디저트' : '향토음식점',
+          distance: item.dist ? `약 ${Math.round(item.dist)}m` : '도보 권역',
+          desc: item.addr1 || (isCafe ? '여유로운 분위기의 로컬 카페' : '현지 식재료를 살린 추천 식당'),
+          image: item.firstimage || item.firstimage2 || null,
+          lat: parseFloat(item.mapy),
+          lng: parseFloat(item.mapx)
+        };
+      });
+
+    if (validFoods.length > 0) {
+      DYNAMIC_SPOT_CACHE.set(cacheKey, validFoods);
+    }
+    return validFoods;
+  } catch (e) {
+    return [];
+  }
+}
+
 export async function fetchCityTourApiSpots(city = '서울', lang = 'ko') {
   // 🎯 [복합 지명 스마트 정규화] '제주·서귀포' -> cleanCity: '제주', subCity: '서귀포'
   const rawCityStr = (city || '서울').trim();

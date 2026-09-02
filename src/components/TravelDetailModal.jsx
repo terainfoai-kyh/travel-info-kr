@@ -16,7 +16,13 @@ import {
 import { getGooglePlaceSearchUrl } from '../services/geminiNlpService';
 import { TRANSLATIONS } from '../i18n/translations';
 import { getSpotAffiliateDeal } from '../services/affiliateService';
-import { fetchSpotDetailImages, fetchSpotDetailIntro, fetchSpotDetailCommon } from '../services/tourApi';
+import { 
+  fetchSpotDetailImages, 
+  fetchSpotDetailIntro, 
+  fetchSpotDetailCommon,
+  fetchNearbyRestaurantsAndCafes,
+  fetchLocationBasedTourApiSpots
+} from '../services/tourApi';
 import { KOREA_TRAVEL_POI_DB } from '../data/koreaTravelPoiDatabase';
 
 // ⏰ 운영시간 줄바꿈 및 서식 정돈 헬퍼
@@ -98,8 +104,11 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
   const [liveGalleryImages, setLiveGalleryImages] = useState(spot.images || []);
   const [liveIntroDetails, setLiveIntroDetails] = useState(null);
   const [liveCommonDetails, setLiveCommonDetails] = useState(null);
+  const [liveNearbyFoods, setLiveNearbyFoods] = useState([]);
+  const [liveNearbyAlternatives, setLiveNearbyAlternatives] = useState([]);
+  const [isLoadingNearby, setIsLoadingNearby] = useState(false);
 
-  // 🌟 한국관광공사 TourAPI 4.0 공식 갤러리(detailImage2) 및 이용정보(detailIntro2), 공통개요(detailCommon2) 실시간 로딩
+  // 🌟 한국관광공사 TourAPI 4.0 공식 갤러리(detailImage2), 이용정보(detailIntro2), 실시간 주변 맛집/명소 로딩
   useEffect(() => {
     let isMounted = true;
     const contentId = spot.contentId || (spot.id ? String(spot.id).replace('tourapi_', '') : null);
@@ -127,11 +136,42 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
       }).catch(() => {});
     }
 
-    return () => { isMounted = false; };
-  }, [spot.contentId, spot.id, spot.contentTypeId, lang]);
+    // 4. 🍽️ 실시간 실제 반경 3km 내 맛집/카페 및 8km 내 대체 관광지 수신 (위경도 기반)
+    const spotLat = spot.lat;
+    const spotLng = spot.lng;
+    if (spotLat && spotLng && !isNaN(spotLat) && !isNaN(spotLng)) {
+      setIsLoadingNearby(true);
+      Promise.all([
+        fetchNearbyRestaurantsAndCafes(spotLat, spotLng, 3000, lang).catch(() => []),
+        fetchLocationBasedTourApiSpots(spotLat, spotLng, 8000, lang).catch(() => [])
+      ]).then(([foods, alts]) => {
+        if (isMounted) {
+          if (foods && foods.length > 0) {
+            setLiveNearbyFoods(foods);
+          }
+          if (alts && alts.length > 0) {
+            const cleanCurTitle = cleanTitle.replace(/\s+/g, '').toLowerCase();
+            const filteredAlts = alts.filter(a => {
+              const aTitle = (a.title || a.name || '').replace(/\s+/g, '').toLowerCase();
+              return aTitle !== cleanCurTitle && !cleanCurTitle.includes(aTitle) && !aTitle.includes(cleanCurTitle);
+            }).slice(0, 4);
+            setLiveNearbyAlternatives(filteredAlts);
+          }
+          setIsLoadingNearby(false);
+        }
+      }).catch(() => {
+        if (isMounted) setIsLoadingNearby(false);
+      });
+    }
 
-  // 명소별 스마트 인근 대안 명소 목록
+    return () => { isMounted = false; };
+  }, [spot.contentId, spot.id, spot.contentTypeId, spot.lat, spot.lng, lang, cleanTitle]);
+
+  // 명소별 스마트 인근 대안 명소 목록 (가짜 더미 100% 척결)
   const getAlternativeSpots = () => {
+    if (liveNearbyAlternatives && liveNearbyAlternatives.length > 0) {
+      return liveNearbyAlternatives;
+    }
     if (cleanTitle.includes('경복궁')) {
       return [
         { id: 'alt-1', title: '창덕궁 & 후원', category: '역사문화', rating: 4.8, location: '서울특별시 종로구 율곡로 99', subway: '3호선 안국역 3번 출구 (도보 5분)', image: 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg', description: '자연과 궁궐의 완벽한 조화를 이룬 유네스코 세계문화유산입니다.' },
@@ -146,14 +186,14 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
         { id: 'alt-h3', title: '부산 엑스더스카이', category: '전망대', rating: 4.8, location: '부산광역시 해운대구 달맞이길 30', subway: '중동역 7번 출구 (도보 10분)', image: 'https://tong.visitkorea.or.kr/cms/resource/74/2613174_image2_1.jpg', description: '100층 높이에서 부산의 스카이라인과 바다를 360도로 조망하는 전망대입니다.' }
       ];
     }
-    return [
-      { id: 'alt-g1', title: `${cleanTitle} 인근 힐링 명소`, category: '추천명소', rating: 4.7, location: spot.addr1 || spot.location || '인근 권역', subway: '도보 또는 시내버스 10분', image: 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg', description: '인근에서 가장 평점이 높고 산책하기 좋은 대표 연계 명소입니다.' },
-      { id: 'alt-g2', title: `${cleanTitle} 전망 명소`, category: '전망대·공원', rating: 4.6, location: spot.addr1 || spot.location || '인근 권역', subway: '차량 5분', image: 'https://tong.visitkorea.or.kr/cms/resource/46/2645646_image2_1.jpg', description: '탁 트인 파노라마 전경을 감상할 수 있는 감성 포토존입니다.' }
-    ];
+    return [];
   };
 
-  // 명소별 도보 5분 내 로컬 맛집 & 감성 카페 목록
+  // 명소별 도보 권역 로컬 맛집 & 감성 카페 목록 (가짜 더미 100% 척결)
   const getNearbyFoodCafes = () => {
+    if (liveNearbyFoods && liveNearbyFoods.length > 0) {
+      return liveNearbyFoods;
+    }
     if (cleanTitle.includes('경복궁') || cleanTitle.includes('인사동') || cleanTitle.includes('북촌')) {
       return [
         { name: '토속촌 삼계탕', type: '미식 🍲', distance: '도보 5분', desc: '진한 국물의 서울 대표 전통 삼계탕' },
@@ -168,10 +208,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
         { name: '금수복국 본점', type: '로컬맛집 🍲', distance: '도보 5분', desc: '시원한 국물로 속을 풀어주는 50년 전통 복국' }
       ];
     }
-    return [
-      { name: '로컬 시그니처 대표 맛집', type: '미식 🍲', distance: '도보 3분', desc: '현지인들이 즐겨 찾는 대표 로컬 식당' },
-      { name: '감성 베이커리 카페', type: '카페 ☕', distance: '도보 5분', desc: '아늑한 분위기에서 즐기는 스페셜티 커피와 디저트' }
-    ];
+    return [];
   };
 
   // 정확한 위치 및 대중교통
@@ -896,50 +933,105 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
               flexDirection: 'column',
               gap: '0.55rem'
             }}>
-              <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)' }}>
-                {lang === 'en' ? '📍 Tap [Swap] to substitute spot:' : '📍 [교체] 클릭 시 확인 후 즉시 일정이 변경됩니다:'}
-              </div>
-              {getAlternativeSpots().map((alt) => (
-                <div 
-                  key={alt.id}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '0.55rem 0.65rem',
-                    backgroundColor: 'var(--bg-card)',
-                    borderRadius: '10px',
-                    border: '1px solid var(--border-color)',
-                    gap: '0.6rem'
-                  }}
-                >
-                  <div style={{ minWidth: 0 }}>
-                    <div style={{ fontSize: '0.86rem', fontWeight: 800, color: 'var(--text-main)' }}>
-                      {alt.title}
+              {(() => {
+                const altList = getAlternativeSpots();
+                if (isLoadingNearby) {
+                  return (
+                    <div style={{ padding: '0.8rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+                      <RefreshCw size={14} className="spin-slow" style={{ display: 'inline', marginRight: '5px' }} />
+                      <span>{lang === 'en' ? 'Searching nearby alternative spots...' : '인근 대체 명소를 실시간 탐색 중입니다...'}</span>
                     </div>
-                    <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginTop: '0.1rem' }}>
-                      {alt.category} · {alt.subway}
+                  );
+                }
+                if (altList.length === 0) {
+                  const searchUrl = getGooglePlaceSearchUrl(`${spot.city || spot.region || location || ''} ${cleanTitle} 인근 관광지 명소`, location);
+                  return (
+                    <div style={{
+                      padding: '1rem 0.8rem',
+                      backgroundColor: 'var(--bg-card)',
+                      borderRadius: '10px',
+                      border: '1px dashed var(--border-color)',
+                      textAlign: 'center'
+                    }}>
+                      <div style={{ fontSize: '0.84rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.25rem' }}>
+                        📍 {lang === 'en' ? 'No additional alternative spots registered nearby.' : '현재 일정 외 교체 가능한 인근 등록 명소가 없습니다.'}
+                      </div>
+                      <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginBottom: '0.65rem' }}>
+                        {lang === 'en' ? 'Explore more tourist spots directly on Google Maps.' : '구글 지도에서 해당 권역의 숨은 명소들을 실시간으로 확인해 보세요.'}
+                      </div>
+                      <a
+                        href={searchUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.3rem',
+                          padding: '0.4rem 0.75rem',
+                          backgroundColor: 'var(--bg-primary)',
+                          border: '1px solid var(--border-color)',
+                          borderRadius: '8px',
+                          color: 'var(--accent-primary)',
+                          fontSize: '0.76rem',
+                          fontWeight: 800,
+                          textDecoration: 'none'
+                        }}
+                      >
+                        <span>{lang === 'en' ? 'Search Spots on Google Maps' : '구글맵에서 인근 명소 더 찾아보기'}</span>
+                        <ExternalLink size={12} />
+                      </a>
                     </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => handleRequestReplace(alt)}
-                    style={{
-                      padding: '0.4rem 0.75rem',
-                      backgroundColor: 'var(--accent-primary)',
-                      color: '#ffffff',
-                      border: 'none',
-                      borderRadius: '8px',
-                      fontSize: '0.78rem',
-                      fontWeight: 800,
-                      cursor: 'pointer',
-                      flexShrink: 0
-                    }}
-                  >
-                    {lang === 'en' ? 'Swap' : '교체'}
-                  </button>
-                </div>
-              ))}
+                  );
+                }
+                return (
+                  <>
+                    <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)' }}>
+                      {lang === 'en' ? '📍 Tap [Swap] to substitute spot:' : '📍 [교체] 클릭 시 확인 후 즉시 일정이 변경됩니다:'}
+                    </div>
+                    {altList.map((alt) => (
+                      <div 
+                        key={alt.id}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '0.55rem 0.65rem',
+                          backgroundColor: 'var(--bg-card)',
+                          borderRadius: '10px',
+                          border: '1px solid var(--border-color)',
+                          gap: '0.6rem'
+                        }}
+                      >
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ fontSize: '0.86rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                            {alt.title || alt.name}
+                          </div>
+                          <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginTop: '0.1rem' }}>
+                            {alt.category || '관광명소'} {alt.subway ? `· ${alt.subway}` : alt.address ? `· ${alt.address}` : ''}
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleRequestReplace(alt)}
+                          style={{
+                            padding: '0.4rem 0.75rem',
+                            backgroundColor: 'var(--accent-primary)',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: '8px',
+                            fontSize: '0.78rem',
+                            fontWeight: 800,
+                            cursor: 'pointer',
+                            flexShrink: 0
+                          }}
+                        >
+                          {lang === 'en' ? 'Swap' : '교체'}
+                        </button>
+                      </div>
+                    ))}
+                  </>
+                );
+              })()}
             </div>
           )}
 
@@ -954,65 +1046,122 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
               flexDirection: 'column',
               gap: '0.55rem'
             }}>
-              <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)' }}>
-                {lang === 'en' ? '☕ Hand-picked spots within 5 mins walk (Tap map to navigate):' : '☕ 도보 5분 내 엄선 로컬 맛집 (길찾기 클릭 시 구글맵 연결):'}
-              </div>
-              {getNearbyFoodCafes().map((food, idx) => {
-                const foodMapUrl = getGooglePlaceSearchUrl(food.name, location);
-                return (
-                  <div 
-                    key={`nearby-food-${idx}`}
-                    style={{
-                      padding: '0.65rem 0.85rem',
+              {(() => {
+                const foodList = getNearbyFoodCafes();
+                if (isLoadingNearby) {
+                  return (
+                    <div style={{ padding: '0.8rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+                      <RefreshCw size={14} className="spin-slow" style={{ display: 'inline', marginRight: '5px' }} />
+                      <span>{lang === 'en' ? 'Searching nearby food & cafes...' : '주변 맛집 및 카페를 실시간 탐색 중입니다...'}</span>
+                    </div>
+                  );
+                }
+                if (foodList.length === 0) {
+                  const foodSearchUrl = getGooglePlaceSearchUrl(`${spot.city || spot.region || location || ''} ${cleanTitle} 맛집 카페`, location);
+                  return (
+                    <div style={{
+                      padding: '1rem 0.8rem',
                       backgroundColor: 'var(--bg-card)',
                       borderRadius: '10px',
-                      border: '1px solid var(--border-color)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      gap: '0.6rem'
-                    }}
-                  >
-                    <div style={{ minWidth: 0 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                        <span style={{ fontSize: '0.86rem', fontWeight: 800, color: 'var(--text-main)' }}>
-                          {food.name}
-                        </span>
-                        <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-                          ({food.distance})
-                        </span>
+                      border: '1px dashed var(--border-color)',
+                      textAlign: 'center'
+                    }}>
+                      <div style={{ fontSize: '0.84rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.25rem' }}>
+                        🍽️ {lang === 'en' ? 'No registered restaurants/cafes found nearby.' : '해당 장소 인근에 한국관광공사 등록 추천 맛집이 없습니다.'}
                       </div>
-                      <div style={{ fontSize: '0.76rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: '0.1rem' }}>
-                        {food.desc}
+                      <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginBottom: '0.65rem' }}>
+                        {lang === 'en' ? 'Search live restaurants and cafes directly on Google Maps.' : '구글 지도에서 현지 실시간 맛집과 카페를 확인해 보세요.'}
                       </div>
+                      <a
+                        href={foodSearchUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.3rem',
+                          padding: '0.4rem 0.75rem',
+                          backgroundColor: 'var(--bg-primary)',
+                          border: '1px solid var(--border-color)',
+                          borderRadius: '8px',
+                          color: 'var(--accent-primary)',
+                          fontSize: '0.76rem',
+                          fontWeight: 800,
+                          textDecoration: 'none'
+                        }}
+                      >
+                        <span>{lang === 'en' ? 'Search Food on Google Maps' : '구글맵에서 주변 맛집 실시간 검색'}</span>
+                        <ExternalLink size={12} />
+                      </a>
                     </div>
+                  );
+                }
+                return (
+                  <>
+                    <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)' }}>
+                      {lang === 'en' ? '☕ Hand-picked spots nearby (Tap map to navigate):' : '☕ 인근 엄선 로컬 맛집·카페 (길찾기 클릭 시 구글맵 연결):'}
+                    </div>
+                    {foodList.map((food, idx) => {
+                      const foodMapUrl = getGooglePlaceSearchUrl(`${food.name} ${food.desc || ''}`, location);
+                      return (
+                        <div 
+                          key={`nearby-food-${idx}`}
+                          style={{
+                            padding: '0.65rem 0.85rem',
+                            backgroundColor: 'var(--bg-card)',
+                            borderRadius: '10px',
+                            border: '1px solid var(--border-color)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            gap: '0.6rem'
+                          }}
+                        >
+                          <div style={{ minWidth: 0 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                              <span style={{ fontSize: '0.86rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                                {food.name}
+                              </span>
+                              {food.distance && (
+                                <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                                  ({food.distance})
+                                </span>
+                              )}
+                            </div>
+                            <div style={{ fontSize: '0.76rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: '0.1rem' }}>
+                              {food.desc || food.type || '로컬 미식/카페'}
+                            </div>
+                          </div>
 
-                    {/* 🗺️ 맛집으로 바로 가는 구글맵 원클릭 길찾기 링크 */}
-                    <a
-                      href={foodMapUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        padding: '0.35rem 0.65rem',
-                        backgroundColor: 'var(--bg-primary)',
-                        border: '1px solid var(--border-color)',
-                        color: 'var(--accent-primary)',
-                        borderRadius: '8px',
-                        fontSize: '0.76rem',
-                        fontWeight: 800,
-                        textDecoration: 'none',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '0.3rem',
-                        flexShrink: 0
-                      }}
-                    >
-                      <span>{lang === 'en' ? 'Map' : '길찾기'}</span>
-                      <ExternalLink size={12} />
-                    </a>
-                  </div>
+                          {/* 🗺️ 맛집으로 바로 가는 구글맵 원클릭 길찾기 링크 */}
+                          <a
+                            href={foodMapUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              padding: '0.35rem 0.65rem',
+                              backgroundColor: 'var(--bg-primary)',
+                              border: '1px solid var(--border-color)',
+                              color: 'var(--accent-primary)',
+                              borderRadius: '8px',
+                              fontSize: '0.76rem',
+                              fontWeight: 800,
+                              textDecoration: 'none',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '0.3rem',
+                              flexShrink: 0
+                            }}
+                          >
+                            <span>{lang === 'en' ? 'Map' : '길찾기'}</span>
+                            <ExternalLink size={12} />
+                          </a>
+                        </div>
+                      );
+                    })}
+                  </>
                 );
-              })}
+              })()}
             </div>
           )}
 

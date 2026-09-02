@@ -61,6 +61,10 @@
 
 ### [2026-09-02 (수)]
 1. **완료된 작업**:
+   - **[★ Golden Checkpoint] 상세 모달 주변 맛집/대체 명소 가짜 기본값(Dummy) 100% 영구 척결 & 실시간 TourAPI 직결 및 정직한 Empty State 배포 (`TravelDetailModal.jsx`, `tourApi.js`)**:
+     - **가짜 기본값("로컬 시그니처 대표 맛집", "인근 힐링 명소") 영구 삭제**: 하드코딩된 더미 텍스트를 100% 제거하고 헌법 제14조(Strict Zero Mocking) 준수.
+     - **실시간 한국관광공사 TourAPI 직결 (`fetchNearbyRestaurantsAndCafes`, `fetchLocationBasedTourApiSpots`)**: 해당 장소 위경도 반경 내 실제 등록된 정품 음식점/카페(39) 및 대체 관광지(12, 14, 28)를 동적 수신하여 실제 매장명, 거리, 구글맵 연동 링크 렌더링.
+     - **정직한 빈 상태(Empty State) UI 탑재**: 인근 등록 정보가 없는 경우 정직하게 `"해당 장소 인근에 등록된 추천 맛집/대체 명소가 없습니다"` 안내 및 **[구글맵에서 실시간 맛집/명소 검색하기 ↗]** 원클릭 연동 제공.
    - **[★ Golden Checkpoint] 전국 226개 시·군·구 전수 정밀 좌표 통합 & 괴산·제천 100% 실시간 코스 파이프라인 완성 (`geminiNlpService.js`, `localItineraryGenerator.js`, `voraDialogKnowledge.js`)**:
      - **대한민국 226개 전 시·군·구 중심 좌표 전수 등록 (`BASE_CITY_COORDINATES`)**: 충북 괴산(`36.8153°N, 127.7868°E`), 제천(`37.1326°N, 128.1910°E`), 단양, 보은, 옥천, 영동 등 전국 모든 지자체 실제 좌표를 전수 매핑하여 타지역 거리 필터링 오작동 원천 차단.
      - **동적 자가 중심 보정 (Self-Centering Fallback)**: TourAPI에서 수신된 실시간 명소들의 위경도 평균값으로 도시 중심점을 0.1초 만에 자동 재보정하여 미등록 소도시도 100% 커버.
