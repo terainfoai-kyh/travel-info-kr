@@ -1506,14 +1506,14 @@ export default function DesktopMapExplorer({
 
                 {/* Middle Body: Description, 3 Highlights & Badges */}
                 <div style={{
-                  padding: '10px 14px',
+                  padding: '12px 14px 14px 14px',
                   flex: 1,
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
                   backgroundColor: '#ffffff',
-                  overflowY: 'auto',
-                  maxHeight: '260px'
+                  boxSizing: 'border-box',
+                  overflowY: 'auto'
                 }}>
                   <div>
                     <p style={{
@@ -1629,8 +1629,9 @@ export default function DesktopMapExplorer({
                   {/* Bottom Action Area: Days Selector & Start Button */}
                   <div style={{
                     borderTop: '1px solid #f1f5f9',
-                    paddingTop: '6px',
-                    marginTop: '4px',
+                    paddingTop: '8px',
+                    marginTop: '8px',
+                    paddingBottom: '2px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
@@ -1670,18 +1671,18 @@ export default function DesktopMapExplorer({
                     <button
                       onClick={handleStartPlan}
                       style={{
-                        background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
+                        background: 'linear-gradient(135deg, #f43f5e 0%, #7c3aed 100%)',
                         color: '#ffffff',
                         border: 'none',
                         borderRadius: '9999px',
-                        padding: '6px 11px',
+                        padding: '6px 12px',
                         fontSize: '0.76rem',
                         fontWeight: 900,
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
                         gap: '4px',
-                        boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)',
+                        boxShadow: '0 4px 12px rgba(124, 58, 237, 0.25)',
                         transition: 'transform 0.15s ease',
                         flexShrink: 0,
                         whiteSpace: 'nowrap'
