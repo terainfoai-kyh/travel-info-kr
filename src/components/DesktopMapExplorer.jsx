@@ -271,6 +271,7 @@ export default function DesktopMapExplorer({
   const [selectedDays, setSelectedDays] = useState(3);
   const [isLeafletReady, setIsLeafletReady] = useState(Boolean(typeof window !== 'undefined' && window.L));
   const [isGeocoding, setIsGeocoding] = useState(false);
+  const [isPhotoLoading, setIsPhotoLoading] = useState(false);
   const [isMapExpandedFull, setIsMapExpandedFull] = useState(false);
   const [isMapExpandedInStage3, setIsMapExpandedInStage3] = useState(false);
   const [isSubwayModalOpen, setIsSubwayModalOpen] = useState(false);
@@ -638,6 +639,7 @@ export default function DesktopMapExplorer({
 
   const handleMapLocationSelected = async (lat, lng) => {
     setIsGeocoding(true);
+    setIsPhotoLoading(true);
 
     // 🎯 0.001초 즉시 가장 가까운 대한민국 도시 감지 (지연/타임아웃 100% 방지)
     const closest = findClosestCityFromCoords(lat, lng);
@@ -720,9 +722,14 @@ export default function DesktopMapExplorer({
     }
 
     // 🏛️ TourAPI 실시간 정품 데이터 비동기 보정 (사진, 명소 3개, 반경 조회)
-    enrichLocationWithLiveTourApi(baseLoc, detectedCityNameKo, lang).then(enriched => {
-      setSelectedLocation(enriched);
-    });
+    enrichLocationWithLiveTourApi(baseLoc, detectedCityNameKo, lang)
+      .then(enriched => {
+        setSelectedLocation(enriched);
+        setIsPhotoLoading(false);
+      })
+      .catch(() => {
+        setIsPhotoLoading(false);
+      });
   };
 
   const handleResetMap = () => {
@@ -732,6 +739,7 @@ export default function DesktopMapExplorer({
   };
 
   const handleQuickCityClick = (city) => {
+    setIsPhotoLoading(false);
     const cleanK = city.nameKo.replace(/(특별시|광역시|특별자치시|특별자치도|시|군|구)$/, '').trim();
     const foundData = REGIONAL_FALLBACK_CENTERS.find(c => c.nameKo === cleanK || c.nameKo === city.nameKo || c.nameKo.includes(cleanK) || cleanK.includes(c.nameKo)) || REGIONAL_FALLBACK_CENTERS[0];
     const localKn = CITY_LOCAL_KNOWLEDGE[cleanK] || CITY_LOCAL_KNOWLEDGE[city.nameKo];
@@ -1403,7 +1411,7 @@ export default function DesktopMapExplorer({
                   overflow: 'hidden',
                   backgroundColor: '#0f172a'
                 }}>
-                  {isGeocoding ? (
+                  {(isGeocoding || isPhotoLoading || !selectedLocation.image) ? (
                     <div style={{
                       width: '100%',
                       height: '100%',
@@ -1413,7 +1421,7 @@ export default function DesktopMapExplorer({
                     }} />
                   ) : (
                     <img 
-                      src={selectedLocation.image || '/images/themes/theme-gyeongbokgung.jpg'} 
+                      src={selectedLocation.image} 
                       alt={selectedLocation.nameKo}
                       onError={(e) => {
                         e.currentTarget.onerror = null;
@@ -1424,7 +1432,7 @@ export default function DesktopMapExplorer({
                         height: '100%',
                         objectFit: 'cover',
                         imageRendering: 'crisp-edges',
-                        transition: 'transform 0.4s ease'
+                        transition: 'opacity 0.25s ease'
                       }}
                     />
                   )}
