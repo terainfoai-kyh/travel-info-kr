@@ -2,60 +2,60 @@
   --font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
   --font-heading: 'Outfit', 'Pretendard', sans-serif;
 
-  /* Design Guide Color Palette - Clean White & Modern Blue (ChatGPT Style) */
-  --bg-primary: #f8fafc;
+  /* Design Guide Master Palette - Option B: Warm Linen & Sunset Coral / VORA Violet */
+  --bg-primary: #faf8f5;
   --bg-secondary: #ffffff;
   --bg-card: #ffffff;
   --bg-glass: rgba(255, 255, 255, 0.94);
 
-  --accent-primary: #2563eb;
-  --accent-hover: #1d4ed8;
-  --accent-ai: #6366f1;
-  --accent-gradient: linear-gradient(135deg, #2563eb 0%, #6366f1 100%);
-  --accent-glow: radial-gradient(circle, rgba(37, 99, 235, 0.08) 0%, transparent 70%);
+  --accent-primary: #f43f5e;
+  --accent-hover: #e11d48;
+  --accent-ai: #7c3aed;
+  --accent-gradient: linear-gradient(135deg, #f43f5e 0%, #7c3aed 100%);
+  --accent-glow: radial-gradient(circle, rgba(244, 63, 94, 0.12) 0%, transparent 70%);
 
-  --text-main: #1f2937;
-  --text-muted: #64748b;
-  --text-dim: #94a3b8;
+  --text-main: #292524;
+  --text-muted: #78716c;
+  --text-dim: #a8a29e;
 
-  --border-color: #e2e8f0;
-  --border-highlight: rgba(37, 99, 235, 0.25);
+  --border-color: #f0ebe1;
+  --border-highlight: rgba(244, 63, 94, 0.25);
 
   --radius-sm: 10px;
   --radius-md: 16px;
   --radius-lg: 24px;
   --radius-full: 9999px;
 
-  --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.04);
-  --shadow-md: 0 10px 30px rgba(15, 23, 42, 0.06);
-  --shadow-glow: 0 0 25px rgba(37, 99, 235, 0.12);
+  --shadow-sm: 0 2px 8px rgba(41, 37, 36, 0.04);
+  --shadow-md: 0 10px 30px rgba(41, 37, 36, 0.06);
+  --shadow-glow: 0 0 25px rgba(244, 63, 94, 0.15);
 
   --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 [data-theme="light"] {
-  --bg-primary: #f8fafc;
+  --bg-primary: #faf8f5;
   --bg-secondary: #ffffff;
   --bg-card: #ffffff;
   --bg-glass: rgba(255, 255, 255, 0.94);
 
-  --accent-primary: #2563eb;
-  --accent-hover: #1d4ed8;
-  --accent-ai: #6366f1;
-  --accent-gradient: linear-gradient(135deg, #2563eb 0%, #6366f1 100%);
-  --accent-glow: radial-gradient(circle, rgba(37, 99, 235, 0.08) 0%, transparent 70%);
+  --accent-primary: #f43f5e;
+  --accent-hover: #e11d48;
+  --accent-ai: #7c3aed;
+  --accent-gradient: linear-gradient(135deg, #f43f5e 0%, #7c3aed 100%);
+  --accent-glow: radial-gradient(circle, rgba(244, 63, 94, 0.12) 0%, transparent 70%);
 
-  --text-main: #1f2937;
-  --text-muted: #64748b;
-  --text-dim: #94a3b8;
+  --text-main: #292524;
+  --text-muted: #78716c;
+  --text-dim: #a8a29e;
 
-  --border-color: #e2e8f0;
-  --border-highlight: rgba(37, 99, 235, 0.25);
+  --border-color: #f0ebe1;
+  --border-highlight: rgba(244, 63, 94, 0.25);
 
-  --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.04);
-  --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.06);
-  --shadow-glow: 0 0 20px rgba(37, 99, 235, 0.12);
+  --shadow-sm: 0 2px 8px rgba(41, 37, 36, 0.04);
+  --shadow-md: 0 8px 24px rgba(41, 37, 36, 0.06);
+  --shadow-glow: 0 0 20px rgba(244, 63, 94, 0.15);
 }
 
 [data-theme="dark"] {
