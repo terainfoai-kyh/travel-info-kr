@@ -16,7 +16,11 @@ import {
   Flame, 
   CreditCard, 
   Shirt, 
-  X 
+  X,
+  Laptop,
+  Smartphone,
+  Share2,
+  Check
 } from 'lucide-react';
 import { getLocalizedCityName, TRANSLATIONS } from '../i18n/translations';
 import { buildKlookDeepLink } from '../services/apiConfig';
@@ -293,6 +297,7 @@ export default function PortalHomePrototype({
   const [selectedCityTab, setSelectedCityTab] = useState('all');
   const [isSubwayModalOpen, setIsSubwayModalOpen] = useState(false);
   const [isHelplineModalOpen, setIsHelplineModalOpen] = useState(false);
+  const [isLinkCopied, setIsLinkCopied] = useState(false);
 
   // Auto-advance cinematic hero slides every 5.5 seconds unless user hovers
   useEffect(() => {
@@ -751,6 +756,113 @@ export default function PortalHomePrototype({
           <span>{lang === 'en' ? 'Ask' : lang === 'ja' ? '作成' : (lang === 'zh' || lang === 'zht') ? '提问' : '질문'}</span>
           <Sparkles size={10} />
         </span>
+      </div>
+
+      {/* 📱 4. Cross-Platform Synergistic Banner (Mobile Only) */}
+      <div 
+        className="hide-desktop"
+        style={{
+          marginTop: '0.45rem',
+          marginBottom: '0.2rem',
+          padding: '0.75rem 0.95rem',
+          background: 'linear-gradient(135deg, rgba(248, 250, 252, 0.98) 0%, rgba(241, 245, 249, 0.98) 100%)',
+          border: '1px solid rgba(226, 232, 240, 0.95)',
+          borderRadius: '16px',
+          boxShadow: '0 4px 16px rgba(100, 116, 139, 0.06)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '6px'
+        }}
+      >
+        {/* Top Header Badge & Share Button */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            padding: '2px 8px',
+            backgroundColor: 'rgba(124, 58, 237, 0.08)',
+            borderRadius: '9999px',
+            border: '1px solid rgba(124, 58, 237, 0.18)'
+          }}>
+            <Laptop size={11} color="#7c3aed" />
+            <span style={{ fontSize: '10px', color: '#7c3aed' }}>➔</span>
+            <Smartphone size={11} color="#7c3aed" />
+            <span style={{ fontSize: '10px', fontWeight: 800, color: '#7c3aed', marginLeft: '2px' }}>
+              {lang === 'en' ? 'Cloud Sync' : lang === 'ja' ? 'リアルタイム連動' : (lang === 'zh' || lang === 'zht') ? '实时同步' : '실시간 연동'}
+            </span>
+          </div>
+
+          {/* Copy Link / Share Button */}
+          <button
+            onClick={() => {
+              if (navigator.clipboard) {
+                navigator.clipboard.writeText(window.location.origin);
+                setIsLinkCopied(true);
+                setTimeout(() => setIsLinkCopied(false), 2500);
+              }
+            }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              border: 'none',
+              backgroundColor: isLinkCopied ? '#10b981' : 'rgba(15, 23, 42, 0.06)',
+              color: isLinkCopied ? '#ffffff' : '#475569',
+              padding: '3px 9px',
+              borderRadius: '9999px',
+              fontSize: '10.5px',
+              fontWeight: 800,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            {isLinkCopied ? (
+              <>
+                <Check size={11} color="#ffffff" />
+                <span>{lang === 'en' ? 'Link Copied!' : lang === 'ja' ? 'コピー完了!' : (lang === 'zh' || lang === 'zht') ? '已复制!' : '복사 완료!'}</span>
+              </>
+            ) : (
+              <>
+                <Share2 size={11} />
+                <span>{lang === 'en' ? 'Copy PC Link' : lang === 'ja' ? 'PCリンク共有' : (lang === 'zh' || lang === 'zht') ? '分享PC链接' : 'PC 링크 복사'}</span>
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* Main Title Phrase */}
+        <div style={{
+          fontSize: '0.86rem',
+          fontWeight: 900,
+          color: '#1e293b',
+          lineHeight: '1.35',
+          letterSpacing: '-0.02em'
+        }}>
+          {lang === 'en' 
+            ? 'Plan on Desktop, Travel on Mobile ✈️' 
+            : lang === 'ja' 
+            ? '計画は大画面PCで、旅行はスマートなスマホで ✈️' 
+            : (lang === 'zh' || lang === 'zht') 
+            ? '在电脑端定制行程，在手机端轻松畅游 ✈️' 
+            : '계획은 시원한 PC에서, 여행은 내 손안의 모바일에서 ✈️'}
+        </div>
+
+        {/* Sub Guide Text */}
+        <div style={{
+          fontSize: '0.72rem',
+          fontWeight: 700,
+          color: '#64748b',
+          lineHeight: '1.4'
+        }}>
+          {lang === 'en'
+            ? '👉 Experience full 3D interactive maps & AI itinerary builder on PC!'
+            : lang === 'ja'
+            ? '👉 226市・郡のインタラクティブマップとAI旅程作成をPCで体験！'
+            : (lang === 'zh' || lang === 'zht')
+            ? '👉 体验226个市郡全景交互地图与AI行程生成！'
+            : '👉 226개 시·군 4K 대형 지도 탐색 & AI 일정표를 PC에서 편리하게 즐겨보세요!'}
+        </div>
       </div>
 
       {/* 🚇 전국 지하철 노선도 모달 */}
