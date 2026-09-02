@@ -1558,7 +1558,7 @@ export default function DesktopMapExplorer({
                               <span>{getHighlightName(hl)}</span>
                             </button>
                             {hIdx < (selectedLocation.highlights || []).length - 1 && (
-                              <span style={{ color: '#a78bfa', fontSize: '0.70rem', fontWeight: 900 }}>➔</span>
+                              <span style={{ color: '#94a3b8', fontSize: '0.70rem', fontWeight: 900 }}>➔</span>
                             )}
                           </React.Fragment>
                         ))}
@@ -1703,6 +1703,7 @@ export default function DesktopMapExplorer({
                         padding: '6px 12px',
                         fontSize: '0.76rem',
                         fontWeight: 900,
+                        textShadow: '0 1px 3px rgba(0, 0, 0, 0.35)',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
