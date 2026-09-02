@@ -136,14 +136,14 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
       }).catch(() => {});
     }
 
-    // 4. 🍽️ 실시간 실제 반경 800m 내 맛집/카페(도보 10분) 및 1.8km 내 대체 관광지(동일 권역) 수신
+    // 4. 🍽️ 실시간 실제 도보 권역(800m, 최대 900m) 내 맛집/카페 및 초근접 대체 관광지 수신 (방안 A: 슬롯 보존)
     const spotLat = spot.lat;
     const spotLng = spot.lng;
     if (spotLat && spotLng && !isNaN(spotLat) && !isNaN(spotLng)) {
       setIsLoadingNearby(true);
       Promise.all([
         fetchNearbyRestaurantsAndCafes(spotLat, spotLng, 800, lang).catch(() => []),
-        fetchLocationBasedTourApiSpots(spotLat, spotLng, 1800, lang).catch(() => [])
+        fetchLocationBasedTourApiSpots(spotLat, spotLng, 1000, lang).catch(() => [])
       ]).then(([foods, alts]) => {
         if (isMounted) {
           if (foods && foods.length > 0) {
@@ -151,26 +151,32 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
           }
           if (alts && alts.length > 0) {
             const cleanCurTitle = cleanTitle.replace(/\s+/g, '').toLowerCase();
-            const filteredAlts = alts.filter(a => {
-              const aTitle = (a.title || a.name || '').replace(/\s+/g, '').toLowerCase();
-              if (aTitle === cleanCurTitle || cleanCurTitle.includes(aTitle) || aTitle.includes(cleanCurTitle)) return false;
-              
-              const aLat = parseFloat(a.lat);
-              const aLng = parseFloat(a.lng);
-              if (aLat && aLng) {
-                const dLat = (aLat - spotLat) * 111.32;
-                const dLng = (aLng - spotLng) * 88.8;
-                const distM = Math.round(Math.sqrt(dLat * dLat + dLng * dLng) * 1000);
-                if (distM > 1800) return false; // 🛡️ 1.8km 초과 원천 제외 (일정 권역 보존)
-                
-                a.distM = distM;
-                const walkMins = Math.round(distM / 70);
-                a.distanceLabel = distM <= 800 
-                  ? (lang === 'en' ? `Walk ${Math.max(1, walkMins)}m (${distM}m)` : `도보 ${Math.max(1, walkMins)}분 (${distM}m)`)
-                  : (lang === 'en' ? `Car 3~5m (${(distM / 1000).toFixed(1)}km)` : `차량 3~5분 (${(distM / 1000).toFixed(1)}km)`);
-              }
-              return true;
-            }).slice(0, 4);
+            const filteredAlts = alts
+              .map(a => {
+                const aLat = parseFloat(a.lat);
+                const aLng = parseFloat(a.lng);
+                let distM = 0;
+                if (aLat && aLng) {
+                  const dLat = (aLat - spotLat) * 111.32;
+                  const dLng = (aLng - spotLng) * 88.8;
+                  distM = Math.round(Math.sqrt(dLat * dLat + dLng * dLng) * 1000);
+                }
+                const walkMins = Math.max(1, Math.round(distM / 70));
+                return {
+                  ...a,
+                  distM,
+                  distanceLabel: lang === 'en' ? `Walk ${walkMins}m (${distM}m)` : `도보 ${walkMins}분 (${distM}m)`
+                };
+              })
+              .filter(a => {
+                const aTitle = (a.title || a.name || '').replace(/\s+/g, '').toLowerCase();
+                if (aTitle === cleanCurTitle || cleanCurTitle.includes(aTitle) || aTitle.includes(cleanCurTitle)) return false;
+                // 🛡️ 방안 A: 도보 12분(최대 900m) 초과 스팟 원천 제외 -> 기존 앞뒤 코스 완벽 보존
+                return a.distM > 0 && a.distM <= 900;
+              })
+              .sort((a, b) => a.distM - b.distM)
+              .slice(0, 3);
+
             setLiveNearbyAlternatives(filteredAlts);
           }
           setIsLoadingNearby(false);
@@ -970,7 +976,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                       textAlign: 'center'
                     }}>
                       <div style={{ fontSize: '0.84rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.25rem' }}>
-                        📍 {lang === 'en' ? 'No additional alternative spots registered nearby.' : '현재 일정 외 교체 가능한 인근 등록 명소가 없습니다.'}
+                        📍 {lang === 'en' ? 'No additional alternative spots registered within walking distance (800m).' : '해당 장소 도보 10분(800m) 내에 교체 가능한 인근 등록 명소가 없습니다.'}
                       </div>
                       <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginBottom: '0.65rem' }}>
                         {lang === 'en' ? 'Explore more tourist spots directly on Google Maps.' : '구글 지도에서 해당 권역의 숨은 명소들을 실시간으로 확인해 보세요.'}
