@@ -458,15 +458,25 @@ export default function PortalHomePrototype({
           paddingTop: '0.4rem'
         }}>
           <div style={{
-            fontSize: '0.74rem',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '5px',
+            backgroundColor: 'rgba(15, 23, 42, 0.65)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            border: '1px solid rgba(255, 255, 255, 0.28)',
+            borderRadius: '9999px',
+            padding: '3px 12px',
+            fontSize: '0.72rem',
             fontWeight: 800,
-            letterSpacing: '0.14em',
-            color: '#38bdf8',
+            letterSpacing: '0.12em',
+            color: '#ffffff',
             textTransform: 'uppercase',
-            marginBottom: '0.2rem',
-            textShadow: '0 2px 8px rgba(0, 0, 0, 0.8)'
+            marginBottom: '0.35rem',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)'
           }}>
-            PLAN YOUR KOREA TRIP
+            <span style={{ color: '#38bdf8' }}>✦</span>
+            <span>PLAN YOUR KOREA TRIP</span>
           </div>
           <h1 style={{
             fontSize: 'clamp(1.25rem, 3.8vw, 1.95rem)',

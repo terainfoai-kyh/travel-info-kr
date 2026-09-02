@@ -1629,18 +1629,21 @@ export default function DesktopMapExplorer({
                   {/* Bottom Action Area: Days Selector & Start Button */}
                   <div style={{
                     borderTop: '1px solid #f1f5f9',
-                    paddingTop: '8px',
+                    paddingTop: '6px',
+                    marginTop: '4px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    gap: '10px'
+                    gap: '6px',
+                    width: '100%',
+                    boxSizing: 'border-box'
                   }}>
                     {/* Days Selector */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#64748b' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '3px', flexShrink: 0 }}>
+                      <span style={{ fontSize: '0.70rem', fontWeight: 800, color: '#64748b' }}>
                         {lang === 'en' ? 'Days:' : lang === 'ja' ? '日程:' : (lang === 'zh' || lang === 'zht') ? '天数:' : '일수:'}
                       </span>
-                      <div style={{ display: 'flex', gap: '3px' }}>
+                      <div style={{ display: 'flex', gap: '2px' }}>
                         {[1, 2, 3, 4, 5].map((d) => (
                           <button
                             key={d}
@@ -1649,9 +1652,9 @@ export default function DesktopMapExplorer({
                               border: selectedDays === d ? '1.5px solid #2563eb' : '1px solid #cbd5e1',
                               backgroundColor: selectedDays === d ? '#2563eb' : '#ffffff',
                               color: selectedDays === d ? '#ffffff' : '#475569',
-                              borderRadius: '6px',
-                              padding: '3px 7px',
-                              fontSize: '0.74rem',
+                              borderRadius: '5px',
+                              padding: '2px 5px',
+                              fontSize: '0.70rem',
                               fontWeight: 800,
                               cursor: 'pointer',
                               transition: 'all 0.15s ease'
@@ -1663,7 +1666,7 @@ export default function DesktopMapExplorer({
                       </div>
                     </div>
 
-                    {/* Start Button */}
+                    {/* Start Button (No clipping, 100% safe fit) */}
                     <button
                       onClick={handleStartPlan}
                       style={{
@@ -1671,30 +1674,32 @@ export default function DesktopMapExplorer({
                         color: '#ffffff',
                         border: 'none',
                         borderRadius: '9999px',
-                        padding: '8px 16px',
-                        fontSize: '0.84rem',
+                        padding: '6px 11px',
+                        fontSize: '0.76rem',
                         fontWeight: 900,
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '6px',
-                        boxShadow: '0 6px 16px rgba(37, 99, 235, 0.3)',
-                        transition: 'transform 0.15s ease'
+                        gap: '4px',
+                        boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)',
+                        transition: 'transform 0.15s ease',
+                        flexShrink: 0,
+                        whiteSpace: 'nowrap'
                       }}
                       onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-1px)'}
                       onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                     >
-                      <Sparkles size={14} />
+                      <Sparkles size={12} />
                       <span>
                         {lang === 'en' 
-                          ? `Create ${selectedLocation.nameEn} ${selectedDays}D Plan 🚀` 
+                          ? `${selectedLocation.nameEn} ${selectedDays}D Plan 🚀` 
                           : lang === 'ja'
-                          ? `✨ ${selectedLocation.nameJa || selectedLocation.nameEn} ${selectedDays}日コース作成 🚀`
+                          ? `${selectedLocation.nameJa || selectedLocation.nameEn} ${selectedDays}日コース 🚀`
                           : (lang === 'zh' || lang === 'zht')
-                          ? `✨ 生成 ${selectedLocation.nameZh || selectedLocation.nameEn} ${selectedDays}日行程 🚀`
-                          : `✨ ${selectedLocation.nameKo} ${selectedDays}일 코스 만들기 🚀`}
+                          ? `${selectedLocation.nameZh || selectedLocation.nameEn} ${selectedDays}日行程 🚀`
+                          : `${selectedLocation.nameKo} ${selectedDays}일 코스 🚀`}
                       </span>
-                      <ChevronRight size={14} />
+                      <ChevronRight size={12} />
                     </button>
                   </div>
                 </div>
