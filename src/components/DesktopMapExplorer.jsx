@@ -1021,7 +1021,7 @@ export default function DesktopMapExplorer({
         </div>
 
         {/* [Zone 2. 중앙 상태 안내 문구] */}
-        <div style={{ flex: 1, textAlign: 'left', paddingLeft: '0.3rem' }}>
+        <div style={{ flex: 1, minWidth: 0, textAlign: 'left', paddingLeft: '0.3rem', paddingRight: '0.6rem' }}>
           <h2 style={{
             fontSize: '0.96rem',
             fontWeight: 900,
@@ -1030,7 +1030,10 @@ export default function DesktopMapExplorer({
             letterSpacing: '-0.02em',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.35rem'
+            gap: '0.35rem',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
           }}>
             {activeStage === 'explore' && (
               <span>
@@ -1065,6 +1068,7 @@ export default function DesktopMapExplorer({
           whiteSpace: 'nowrap',
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
+          flexShrink: 0,
           maxWidth: '100%',
           paddingBottom: '2px'
         }}>
@@ -1534,14 +1538,14 @@ export default function DesktopMapExplorer({
                       fontSize: '0.80rem',
                       color: '#334155',
                       lineHeight: '1.4',
-                      margin: '0 0 6px',
+                      margin: '0 0 8px',
                       fontWeight: 600
                     }}>
                       {getSelectedDesc()}
                     </p>
 
                     {/* Tier 2: ✦ VORA AI Recommended Spot Flow */}
-                    <div style={{ marginBottom: '8px' }}>
+                    <div style={{ marginBottom: '10px' }}>
                       <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#7c3aed', marginBottom: '5px', display: 'flex', alignItems: 'center', gap: '4px' }}>
                         <Sparkles size={12} color="#7c3aed" />
                         <span>{lang === 'en' ? 'VORA AI Recommended Route' : lang === 'ja' ? 'VORA AI おすすめ連動コース' : (lang === 'zh' || lang === 'zht') ? 'VORA AI 推荐连游路线' : '✦ VORA AI 추천 연계 코스'}</span>
@@ -1585,7 +1589,7 @@ export default function DesktopMapExplorer({
                         backgroundColor: '#fff7ed',
                         borderRadius: '8px',
                         border: '1px solid #fed7aa',
-                        marginBottom: '6px'
+                        marginBottom: '8px'
                       }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>
                           <Utensils size={12} color="#ea580c" />
@@ -1630,7 +1634,7 @@ export default function DesktopMapExplorer({
                         backgroundColor: '#f5f3ff',
                         borderRadius: '8px',
                         border: '1px solid #ddd6fe',
-                        marginBottom: '6px'
+                        marginBottom: '8px'
                       }}>
                         <Moon size={12} color="#7c3aed" style={{ flexShrink: 0, marginTop: '2px' }} />
                         <div style={{ fontSize: '0.70rem', color: '#6d28d9', lineHeight: '1.35' }}>
