@@ -1409,16 +1409,37 @@ export default function DesktopMapExplorer({
                   height: '170px',
                   width: '100%',
                   overflow: 'hidden',
-                  backgroundColor: '#0f172a'
+                  backgroundColor: '#f1f5f9'
                 }}>
                   {(isGeocoding || isPhotoLoading || !selectedLocation.image) ? (
                     <div style={{
                       width: '100%',
                       height: '100%',
-                      background: 'linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%)',
+                      background: 'linear-gradient(90deg, #e2e8f0 25%, #f8fafc 50%, #e2e8f0 75%)',
                       backgroundSize: '200% 100%',
-                      animation: 'shimmer 1.5s infinite'
-                    }} />
+                      animation: 'voraShimmer 1.5s infinite',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      position: 'relative',
+                      zIndex: 2
+                    }}>
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '7px',
+                        backgroundColor: 'rgba(255, 255, 255, 0.96)',
+                        padding: '7px 15px',
+                        borderRadius: '9999px',
+                        boxShadow: '0 4px 14px rgba(100, 116, 139, 0.15)',
+                        border: '1px solid #e2e8f0'
+                      }}>
+                        <RefreshCw size={13} color="#7c3aed" style={{ animation: 'voraSpin 1.4s linear infinite' }} />
+                        <span style={{ fontSize: '11px', fontWeight: 800, color: '#334155', letterSpacing: '-0.01em' }}>
+                          {lang === 'en' ? 'Connecting Live TourAPI 4.0...' : lang === 'ja' ? '韓国観光公社 4K 接続中...' : (lang === 'zh' || lang === 'zht') ? '正在连接韩国旅游发展局 4K 数据...' : '한국관광공사 TourAPI 4.0 실시간 연결 중...'}
+                        </span>
+                      </div>
+                    </div>
                   ) : (
                     <img 
                       src={selectedLocation.image} 
@@ -1820,6 +1841,22 @@ export default function DesktopMapExplorer({
         onClose={() => setIsHelplineModalOpen(false)}
         lang={lang}
       />
+
+      {/* 🌟 VORA Explorer Keyframes */}
+      <style>{`
+        @keyframes voraShimmer {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+        @keyframes voraSpin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes voraPinPop {
+          0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0; }
+          100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+      `}</style>
     </div>
   );
 }
