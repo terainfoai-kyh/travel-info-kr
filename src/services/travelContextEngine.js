@@ -463,16 +463,74 @@ export function getActiveContextChips(travelState = INITIAL_TRAVEL_STATE, lang =
   const comp = trip.companion || {};
   const prefs = trip.preferences || {};
 
-  if (comp.isKids) chips.push({ id: 'kids', label: lang === 'en' ? '👨‍👩‍👧 With Kids' : '👨‍👩‍👧 아이 동반', color: '#ec4899' });
-  if (comp.isElder) chips.push({ id: 'elder', label: lang === 'en' ? '🌿 With Parents' : '🌿 부모님 동반', color: '#10b981' });
-  if (comp.isCouple) chips.push({ id: 'couple', label: lang === 'en' ? '💖 Couple' : '💖 커플/데이트', color: '#f43f5e' });
-  if (comp.isSolo) chips.push({ id: 'solo', label: lang === 'en' ? '🍃 Solo Trip' : '🍃 나홀로 여행', color: '#06b6d4' });
+  const isEn = lang === 'en';
+  const isJa = lang === 'ja';
+  const isZh = lang === 'zh' || lang === 'zht';
 
-  if (trip.isRainPreferred || travelState.isRainQuery) chips.push({ id: 'rain', label: lang === 'en' ? '☔ Rainy/Indoor' : '☔ 비/실내 선호', color: '#3b82f6' });
-  if (prefs.isMinimalWalking) chips.push({ id: 'minimal_walking', label: lang === 'en' ? '🚶 Minimal Walking' : '🚶 걷기 적게', color: '#8b5cf6' });
-  if (prefs.isCafe) chips.push({ id: 'cafe', label: lang === 'en' ? '☕ Cafe Tour' : '☕ 감성 카페', color: '#f59e0b' });
-  if (prefs.isFoodie) chips.push({ id: 'foodie', label: lang === 'en' ? '🍴 Gourmet Food' : '🍴 로컬 맛집', color: '#ef4444' });
-  if (prefs.isPhoto) chips.push({ id: 'photo', label: lang === 'en' ? '📸 Photo Spots' : '📸 인생샷/뷰', color: '#14b8a6' });
+  if (comp.isKids) {
+    chips.push({
+      id: 'kids',
+      label: isEn ? '👨‍👩‍👧 With Kids' : isJa ? '👨‍👩‍👧 子連れ' : isZh ? '👨‍👩‍👧 亲子同行' : '👨‍👩‍👧 아이 동반',
+      color: '#ec4899'
+    });
+  }
+  if (comp.isElder) {
+    chips.push({
+      id: 'elder',
+      label: isEn ? '🌿 With Parents' : isJa ? '🌿 ご両親同伴' : isZh ? '🌿 长辈同行' : '🌿 부모님 동반',
+      color: '#10b981'
+    });
+  }
+  if (comp.isCouple) {
+    chips.push({
+      id: 'couple',
+      label: isEn ? '💖 Couple' : isJa ? '💖 カップル' : isZh ? '💖 情侣约会' : '💖 커플/데이트',
+      color: '#f43f5e'
+    });
+  }
+  if (comp.isSolo) {
+    chips.push({
+      id: 'solo',
+      label: isEn ? '🍃 Solo Trip' : isJa ? '🍃 一人旅' : isZh ? '🍃 独自旅行' : '🍃 나홀로 여행',
+      color: '#06b6d4'
+    });
+  }
+
+  if (trip.isRainPreferred || travelState.isRainQuery) {
+    chips.push({
+      id: 'rain',
+      label: isEn ? '☔ Rainy/Indoor' : isJa ? '☔ 雨天・屋内' : isZh ? '☔ 雨天室内' : '☔ 비/실내 선호',
+      color: '#3b82f6'
+    });
+  }
+  if (prefs.isMinimalWalking) {
+    chips.push({
+      id: 'minimal_walking',
+      label: isEn ? '🚶 Minimal Walking' : isJa ? '🚶 歩き控えめ' : isZh ? '🚶 少走轻松' : '🚶 걷기 적게',
+      color: '#8b5cf6'
+    });
+  }
+  if (prefs.isCafe) {
+    chips.push({
+      id: 'cafe',
+      label: isEn ? '☕ Cafe Tour' : isJa ? '☕ トレンドカフェ' : isZh ? '☕ 人气咖啡' : '☕ 감성 카페',
+      color: '#f59e0b'
+    });
+  }
+  if (prefs.isFoodie) {
+    chips.push({
+      id: 'foodie',
+      label: isEn ? '🍴 Gourmet Food' : isJa ? '🍴 グルメ' : isZh ? '🍴 地道美食' : '🍴 로컬 맛집',
+      color: '#ef4444'
+    });
+  }
+  if (prefs.isPhoto) {
+    chips.push({
+      id: 'photo',
+      label: isEn ? '📸 Photo Spots' : isJa ? '📸 映えスポット' : isZh ? '📸 绝美拍照' : '📸 인생샷/뷰',
+      color: '#14b8a6'
+    });
+  }
 
   return chips;
 }

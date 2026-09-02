@@ -220,13 +220,13 @@ export default function VoraAIChat({
       {(() => {
         const activeChips = getActiveContextChips(sessionContext, lang);
         const allToggleOptions = [
-          { id: 'kids', label: lang === 'en' ? '👨‍👩‍👧 Kids' : '👨‍👩‍👧 아이 동반' },
-          { id: 'elder', label: lang === 'en' ? '🌿 Parents' : '🌿 부모님' },
-          { id: 'rain', label: lang === 'en' ? '☔ Rain/Indoor' : '☔ 비/실내' },
-          { id: 'minimal_walking', label: lang === 'en' ? '🚶 Minimal Walking' : '🚶 걷기 적게' },
-          { id: 'cafe', label: lang === 'en' ? '☕ Cafe' : '☕ 감성 카페' },
-          { id: 'foodie', label: lang === 'en' ? '🍴 Foodie' : '🍴 로컬 맛집' },
-          { id: 'photo', label: lang === 'en' ? '📸 Photo' : '📸 인생샷' }
+          { id: 'kids', label: t.filterKids || '👨‍👩‍👧 아이 동반' },
+          { id: 'elder', label: t.filterElder || '🌿 부모님' },
+          { id: 'rain', label: t.filterRain || '☔ 비/실내' },
+          { id: 'minimal_walking', label: t.filterMinimalWalking || '🚶 걷기 적게' },
+          { id: 'cafe', label: t.filterCafe || '☕ 감성 카페' },
+          { id: 'foodie', label: t.filterFoodie || '🍴 로컬 맛집' },
+          { id: 'photo', label: t.filterPhoto || '📸 인생샷' }
         ];
 
         return (
@@ -256,12 +256,12 @@ export default function VoraAIChat({
                   gap: '0.2rem',
                   flexShrink: 0
                 }}>
-                  📍 {lang === 'en' ? 'Trip Filters:' : '현재 여행 조건:'}
+                  📍 {t.currentFilters || '현재 여행 조건:'}
                 </span>
 
                 {activeChips.length === 0 ? (
                   <span style={{ fontSize: '0.66rem', color: '#94a3b8', fontStyle: 'italic' }}>
-                    {lang === 'en' ? 'None (General Tour)' : '기본 (일반 관광)'}
+                    {t.generalTour || '기본 (일반 관광)'}
                   </span>
                 ) : (
                   activeChips.map(chip => (
@@ -285,7 +285,7 @@ export default function VoraAIChat({
                       {onRemoveContextChip && (
                         <button
                           onClick={() => onRemoveContextChip(chip.id)}
-                          title={lang === 'en' ? 'Remove filter' : '조건 해제'}
+                          title="조건 해제"
                           style={{
                             background: 'none',
                             border: 'none',
@@ -324,7 +324,7 @@ export default function VoraAIChat({
                   gap: '0.2rem'
                 }}
               >
-                <span>＋ {lang === 'en' ? 'Add' : '조건 추가'}</span>
+                <span>＋ {t.addCondition || '조건 추가'}</span>
               </button>
             </div>
 
@@ -340,7 +340,7 @@ export default function VoraAIChat({
                 gap: '0.35rem'
               }}>
                 <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748b', marginRight: '0.2rem' }}>
-                  {lang === 'en' ? 'Quick Toggle:' : '원터치 추가:'}
+                  {t.addCondition || '원터치 추가:'}
                 </span>
                 {allToggleOptions.map(opt => {
                   const isChecked = activeChips.some(c => c.id === opt.id);

@@ -962,11 +962,24 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
     }
 
     // Day Theme & Dining Tip (Separated food recommendation)
-    const rawPrimaryAnchor = daySpots.length > 0 ? daySpots[0].title : (isEnglish ? 'Highlights' : '핵심 랜드마크');
+    const rawPrimaryAnchor = daySpots.length > 0 ? daySpots[0].title : (lang === 'en' ? 'Highlights' : lang === 'ja' ? 'ハイライト' : (lang === 'zh' || lang === 'zht') ? '经典地标' : '핵심 랜드마크');
     const cleanPrimaryAnchor = rawPrimaryAnchor.replace(new RegExp(`^${city}\\s*`, 'i'), '').trim();
-    const dayThemeTitle = isEnglish ? `Day ${d}: ${city} ${cleanPrimaryAnchor} Corridor` : `${d}일차: ${city} ${cleanPrimaryAnchor} & 권역 코스`;
-    const transitTip = isEnglish
+    const locCity = getLocalizedCityName(city, lang);
+
+    const dayThemeTitle = lang === 'en'
+      ? `Day ${d}: ${locCity} ${cleanPrimaryAnchor} Corridor`
+      : lang === 'ja'
+      ? `${d}日目: ${locCity} ${cleanPrimaryAnchor} 周辺コース`
+      : (lang === 'zh' || lang === 'zht')
+      ? `第${d}天: ${locCity} ${cleanPrimaryAnchor} 核心路线`
+      : `${d}일차: ${city} ${cleanPrimaryAnchor} & 권역 코스`;
+
+    const transitTip = lang === 'en'
       ? `Within 10-25 mins transit between nearby cluster spots`
+      : lang === 'ja'
+      ? `エリア内移動: スポット間 公共交通/徒歩 10〜25分`
+      : (lang === 'zh' || lang === 'zht')
+      ? `区域内移动: 景点间 公共交通/步行 10~25分钟`
       : `권역 내 이동: 스팟 간 대중교통/도보 10~25분 소요`;
 
     dailySchedules.push({
@@ -974,9 +987,19 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
       theme: dayThemeTitle,
       transitTip: transitTip,
       foodRecommendation: {
-        dishName: isEnglish ? `${city} Day ${d} Signature Gastronomy` : `${city} ${d}일차 시그니처 로컬 미식`,
-        description: isEnglish
+        dishName: lang === 'en'
+          ? `${locCity} Day ${d} Signature Gastronomy`
+          : lang === 'ja'
+          ? `${locCity} ${d}日目 名物ご当地グルメ`
+          : (lang === 'zh' || lang === 'zht')
+          ? `${locCity} 第${d}天 招牌地道美食`
+          : `${city} ${d}일차 시그니처 로컬 미식`,
+        description: lang === 'en'
           ? `Authentic regional delicacy perfectly paired with Day ${d} schedule.`
+          : lang === 'ja'
+          ? `${d}日目の移動ルート周辺で楽しむ ${locCity} の名物料理とデザート。`
+          : (lang === 'zh' || lang === 'zht')
+          ? `在第${d}天行程周边轻松品尝 ${locCity} 代表性特色美食与甜品。`
           : `${d}일차 동선 인근에서 편안하게 즐기는 ${city} 대표 향토 음식과 디저트.`
       },
       spots: daySpots
@@ -985,19 +1008,36 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
 
   // 🌟 선택된 조건 칩에 따라 맞춤형 테마 태그 생성 (비/실내, 걷기적게, 아이동반, 카페/맛집, 인생샷)
   let conditionTag = '';
-  if (preferences.isRainPreference) conditionTag = isEnglish ? '[☂️ Rainy & Indoor]' : '[☂️ 비·실내 힐링]';
-  else if (preferences.isMinimalWalking) conditionTag = isEnglish ? '[🚶‍♂️ Easy Walk & Senior]' : '[🚶‍♂️ 걷기 편한 효도]';
-  else if (preferences.isKidsCompanion) conditionTag = isEnglish ? '[👨‍👩‍👧 Family & Kids]' : '[👨‍👩‍👧 아이 동반 체험]';
-  else if (preferences.isCafeLover || preferences.isFoodie) conditionTag = isEnglish ? '[☕ Cafe & Gourmet]' : '[☕ 감성 카페·미식]';
-  else if (preferences.isPhotoSpot) conditionTag = isEnglish ? '[📸 Photo & Nightview]' : '[📸 인생샷 명소]';
-  else conditionTag = isEnglish ? '[✨ Core Highlights]' : '[✨ 핵심 랜드마크]';
+  if (preferences.isRainPreference) {
+    conditionTag = lang === 'en' ? '[☂️ Rainy & Indoor]' : lang === 'ja' ? '[☂️ 雨・屋内癒やし]' : (lang === 'zh' || lang === 'zht') ? '[☂️ 雨天·室内优选]' : '[☂️ 비·실내 힐링]';
+  } else if (preferences.isMinimalWalking) {
+    conditionTag = lang === 'en' ? '[🚶‍♂️ Easy Walk & Senior]' : lang === 'ja' ? '[🚶‍♂️ 歩きやすい孝道]' : (lang === 'zh' || lang === 'zht') ? '[🚶‍♂️ 轻松少走·长辈]' : '[🚶‍♂️ 걷기 편한 효도]';
+  } else if (preferences.isKidsCompanion) {
+    conditionTag = lang === 'en' ? '[👨‍👩‍👧 Family & Kids]' : lang === 'ja' ? '[👨‍👩‍👧 子連れ体験]' : (lang === 'zh' || lang === 'zht') ? '[👨‍👩‍👧 亲子游·体验]' : '[👨‍👩‍👧 아이 동반 체험]';
+  } else if (preferences.isCafeLover || preferences.isFoodie) {
+    conditionTag = lang === 'en' ? '[☕ Cafe & Gourmet]' : lang === 'ja' ? '[☕ カフェ＆グルメ]' : (lang === 'zh' || lang === 'zht') ? '[☕ 咖啡甜品·美食]' : '[☕ 감성 카페·미식]';
+  } else if (preferences.isPhotoSpot) {
+    conditionTag = lang === 'en' ? '[📸 Photo & Nightview]' : lang === 'ja' ? '[📸 映えスポット]' : (lang === 'zh' || lang === 'zht') ? '[📸 绝美拍照·夜景]' : '[📸 인생샷 명소]';
+  } else {
+    conditionTag = lang === 'en' ? '[✨ Core Highlights]' : lang === 'ja' ? '[✨ 定番ハイライト]' : (lang === 'zh' || lang === 'zht') ? '[✨ 核心经典地标]' : '[✨ 핵심 랜드마크]';
+  }
 
-  const tripTitle = isEnglish
-    ? `✨ ${cityMeta.nameEn || city} ${requestedDays}D ${conditionTag} Route`
+  const localizedCity = getLocalizedCityName(city, lang);
+
+  const tripTitle = lang === 'en'
+    ? `✨ ${localizedCity} ${requestedDays}D ${conditionTag} Route`
+    : lang === 'ja'
+    ? `✨ ${localizedCity} ${requestedDays}日間 ${conditionTag} リアルタイムコース`
+    : (lang === 'zh' || lang === 'zht')
+    ? `✨ ${localizedCity} ${requestedDays}日 ${conditionTag} 实时定制路线`
     : `✨ ${city} ${requestedDays}일 ${conditionTag} 실시간 코스`;
 
-  const summary = isEnglish
-    ? `🌟 Live generated ${requestedDays}-day itinerary for ${cityMeta.nameEn || city} (${conditionTag}), constructed with authentic Korea Tourism Organization TourAPI 4.0 data and intelligent spatial proximity clustering.`
+  const summary = lang === 'en'
+    ? `🌟 Live generated ${requestedDays}-day itinerary for ${localizedCity} (${conditionTag}), constructed with authentic Korea Tourism Organization TourAPI 4.0 data and intelligent spatial proximity clustering.`
+    : lang === 'ja'
+    ? `🌟 韓国観光公社 TourAPI 4.0 リアルタイム公式データと空間クラスタリングで生成された ${localizedCity} ${requestedDays}日間 ${conditionTag} 本格旅行コースです。`
+    : (lang === 'zh' || lang === 'zht')
+    ? `🌟 基于韩国旅游发展局 TourAPI 4.0 实时官方数据与空间聚合算法生成的 ${localizedCity} ${requestedDays}日 ${conditionTag} 正品旅游路线。`
     : `🌟 한국관광공사 TourAPI 4.0 실시간 공공데이터와 공간 클러스터링으로 동적 조립된 ${city} ${requestedDays}일 ${conditionTag} 정품 여행 코스입니다.`;
 
   return {

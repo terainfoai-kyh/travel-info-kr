@@ -468,14 +468,14 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
               </div>
               <div>
                 <h4 style={{ margin: '0 0 0.4rem 0', fontSize: '1.1rem', fontWeight: 900, color: 'var(--text-main)' }}>
-                  {lang === 'en' ? 'Change Itinerary?' : '일정을 변경하시겠습니까?'}
+                  {t.confirmChangeTitle || '일정을 변경하시겠습니까?'}
                 </h4>
                 <p style={{ margin: 0, fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: 1.55 }}>
                   <strong style={{ color: 'var(--text-main)' }}>'{cleanTitle}'</strong>
                   <span style={{ margin: '0 0.4rem' }}>➔</span>
                   <strong style={{ color: '#2563eb' }}>'{confirmTargetSpot.title}'</strong>
                   <br />
-                  {lang === 'en' ? 'Update your trip & map route now.' : '내 일정과 지도 경로가 즉시 업데이트됩니다.'}
+                  {t.confirmChangeDesc || '내 일정과 지도 경로가 즉시 업데이트됩니다.'}
                 </p>
               </div>
 
@@ -495,7 +495,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                     cursor: 'pointer'
                   }}
                 >
-                  {lang === 'en' ? 'Cancel' : '취소'}
+                  {t.cancel || '취소'}
                 </button>
                 <button
                   type="button"
@@ -513,7 +513,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                     boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
                   }}
                 >
-                  {lang === 'en' ? 'Confirm' : '변경하기'}
+                  {t.confirm || '변경하기'}
                 </button>
               </div>
             </div>
@@ -915,7 +915,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                 }}
               >
                 <RefreshCw size={14} />
-                <span>{lang === 'en' ? 'Swap Place' : '다른 장소로 교체'}</span>
+                <span>{t.swapPlace || '다른 장소로 교체'}</span>
               </button>
             )}
 
@@ -940,7 +940,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
               }}
             >
               <Coffee size={14} />
-              <span>{lang === 'en' ? 'Nearby Food/Cafe' : '주변 맛집/카페'}</span>
+              <span>{t.nearbyFoodCafe || '주변 맛집/카페'}</span>
             </button>
           </div>
 
@@ -961,7 +961,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                   return (
                     <div style={{ padding: '0.8rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
                       <RefreshCw size={14} className="spin-slow" style={{ display: 'inline', marginRight: '5px' }} />
-                      <span>{lang === 'en' ? 'Searching nearby alternative spots...' : '인근 대체 명소를 실시간 탐색 중입니다...'}</span>
+                      <span>{t.searchingNearbySpots || '인근 대체 명소를 실시간 탐색 중입니다...'}</span>
                     </div>
                   );
                 }
@@ -976,10 +976,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                       textAlign: 'center'
                     }}>
                       <div style={{ fontSize: '0.84rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.25rem' }}>
-                        📍 {lang === 'en' ? 'No additional alternative spots registered within walking distance (800m).' : '해당 장소 도보 10분(800m) 내에 교체 가능한 인근 등록 명소가 없습니다.'}
-                      </div>
-                      <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginBottom: '0.65rem' }}>
-                        {lang === 'en' ? 'Explore more tourist spots directly on Google Maps.' : '구글 지도에서 해당 권역의 숨은 명소들을 실시간으로 확인해 보세요.'}
+                        📍 {t.noNearbySpots || '해당 장소 도보 10분(800m) 내에 교체 가능한 인근 등록 명소가 없습니다.'}
                       </div>
                       <a
                         href={searchUrl}
@@ -999,7 +996,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                           textDecoration: 'none'
                         }}
                       >
-                        <span>{lang === 'en' ? 'Search Spots on Google Maps' : '구글맵에서 인근 명소 더 찾아보기'}</span>
+                        <span>{t.searchSpotsGoogle || '구글맵에서 인근 명소 더 찾아보기'}</span>
                         <ExternalLink size={12} />
                       </a>
                     </div>
@@ -1008,7 +1005,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                 return (
                   <>
                     <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)' }}>
-                      {lang === 'en' ? '📍 Tap [Swap] to substitute spot:' : '📍 [교체] 클릭 시 확인 후 즉시 일정이 변경됩니다:'}
+                      {t.tapSwapGuide || '📍 [교체] 클릭 시 확인 후 즉시 일정이 변경됩니다:'}
                     </div>
                     {altList.map((alt) => (
                       <div 
@@ -1054,7 +1051,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                             flexShrink: 0
                           }}
                         >
-                          {lang === 'en' ? 'Swap' : '교체'}
+                          {t.swapBtn || '교체'}
                         </button>
                       </div>
                     ))}
@@ -1081,7 +1078,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                   return (
                     <div style={{ padding: '0.8rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
                       <RefreshCw size={14} className="spin-slow" style={{ display: 'inline', marginRight: '5px' }} />
-                      <span>{lang === 'en' ? 'Searching nearby food & cafes...' : '주변 맛집 및 카페를 실시간 탐색 중입니다...'}</span>
+                      <span>{t.searchingNearbyFoods || '주변 맛집 및 카페를 실시간 탐색 중입니다...'}</span>
                     </div>
                   );
                 }
@@ -1096,10 +1093,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                       textAlign: 'center'
                     }}>
                       <div style={{ fontSize: '0.84rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.25rem' }}>
-                        🍽️ {lang === 'en' ? 'No registered restaurants/cafes found within walking distance (800m).' : '해당 장소 도보 10분(800m) 내에 한국관광공사 등록 맛집이 없습니다.'}
-                      </div>
-                      <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginBottom: '0.65rem' }}>
-                        {lang === 'en' ? 'Search live restaurants and cafes directly on Google Maps.' : '구글 지도에서 현지 실시간 맛집과 카페를 확인해 보세요.'}
+                        🍽️ {t.noNearbyFoods || '해당 장소 도보 10분(800m) 내에 한국관광공사 등록 맛집이 없습니다.'}
                       </div>
                       <a
                         href={foodSearchUrl}
@@ -1119,7 +1113,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                           textDecoration: 'none'
                         }}
                       >
-                        <span>{lang === 'en' ? 'Search Food on Google Maps' : '구글맵에서 주변 맛집 실시간 검색'}</span>
+                        <span>{t.searchFoodGoogle || '구글맵에서 주변 맛집 실시간 검색'}</span>
                         <ExternalLink size={12} />
                       </a>
                     </div>
@@ -1128,7 +1122,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                 return (
                   <>
                     <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)' }}>
-                      {lang === 'en' ? '☕ Hand-picked spots nearby (Tap map to navigate):' : '☕ 인근 엄선 로컬 맛집·카페 (길찾기 클릭 시 구글맵 연결):'}
+                      {t.handpickedNearbyFood || '☕ 인근 엄선 로컬 맛집·카페 (길찾기 클릭 시 구글맵 연결):'}
                     </div>
                     {foodList.map((food, idx) => {
                       const foodMapUrl = getGooglePlaceSearchUrl(`${food.name} ${food.desc || ''}`, location);
@@ -1182,7 +1176,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                               flexShrink: 0
                             }}
                           >
-                            <span>{lang === 'en' ? 'Map' : '길찾기'}</span>
+                            <span>{t.mapDirections || '길찾기'}</span>
                             <ExternalLink size={12} />
                           </a>
                         </div>

@@ -61,6 +61,16 @@
 
 ### [2026-09-02 (수)]
 1. **완료된 작업**:
+   - **[★ Golden Checkpoint] 전국 다국어(한국어/영어/일본어/중국어 간체·번체) 전수 누락 검증 & 중앙 사전 일괄 연결 배포 (`translations.js`, `localItineraryGenerator.js`, `TravelDetailModal.jsx`, `DesktopMapExplorer.jsx`, `VoraAIChat.jsx`, `MyTripTab.jsx`, `travelContextEngine.js`)**:
+     - **중앙 다국어 사전 대폭 확장 (`translations.js`)**:
+       - 전국 시·군 지명 번역(`CITY_TRANSLATIONS`) 전수 확장 (괴산, 제천, 단양, 보은, 옥천, 영동, 진천, 음성, 증평, 포항, 안동, 순천, 통영, 남해, 춘천, 양양, 평창, 군산, 익산, 울릉도 등).
+       - 장소 교체, 주변 맛집, 코스 조건 뱃지, 빈 상태 안내, 확인 다이얼로그 등 누락되었던 전역 UI 번역 키 5개 국어(`ko`, `en`, `ja`, `zh`, `zht`) 완벽 탑재.
+     - **AI 여행 일정 엔진 5개국어 동적 빌더 완성 (`localItineraryGenerator.js`)**:
+       - 이동 수단 안내(`getTransitInfo`), 일자별 테마 타이틀(`dayThemeTitle`), 로컬 미식 해설(`foodRecommendation`), 이동 꿀팁(`transitTip`), 여행 요약(`summary`)을 5개 국어로 완벽 분기 생성.
+     - **장소 상세 모달 1:1 교체 & 주변 맛집 100% 다국어화 (`TravelDetailModal.jsx`)**:
+       - 교체 확인 다이얼로그, 검색 중/결과 없음 안내, 구글맵 외부 연동 버튼 문구를 중앙 사전 `t.xxx`로 일체화.
+     - **데스크톱 지도/대화/일정 탐색기 & AI 채팅 필터 캡슐 다국어화 (`DesktopMapExplorer.jsx`, `VoraAIChat.jsx`, `MyTripTab.jsx`, `travelContextEngine.js`)**:
+       - 상단 스테이지 헤더(`t.dialogTuningHeader`, `t.timelineTuningHeader`), 툴바 버튼, 여행 조건 캡슐 및 원터치 추가 드롭다운, 일정표 저장 버튼을 4/5개 국어로 완벽 연결.
    - **[★ Golden Checkpoint] 상세 모달 주변 맛집/대체 명소 가짜 기본값(Dummy) 100% 영구 척결 & 방안 A(초안전 슬롯 1:1 교체) 및 도보 800m 엄격 제한 배포 (`TravelDetailModal.jsx`, `tourApi.js`)**:
      - **가짜 기본값("로컬 시그니처 대표 맛집", "인근 힐링 명소") 영구 삭제**: 하드코딩된 더미 텍스트를 100% 제거하고 헌법 제14조(Strict Zero Mocking) 준수.
      - **주변 맛집 도보 800m(최대 950m) 엄격 제한 (`fetchNearbyRestaurantsAndCafes`)**: 3km 과다 반경을 도보 10분(800m) 내로 대폭 축소하고, 실제 거리 기반 `도보 4분(280m)`, `도보 7분(500m)` 정밀 환산 표기.

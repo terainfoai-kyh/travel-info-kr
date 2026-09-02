@@ -34,6 +34,7 @@ import HelplineModal from './HelplineModal';
 import VoraAIChat from './VoraAIChat';
 import MyTripTab from './MyTripTab';
 import { generateGoogleMapsRouteUrl } from '../services/geminiNlpService';
+import { TRANSLATIONS, getLocalizedCityName } from '../i18n/translations';
 
 // 🎯 Organic Curved Route Generator for smooth travel paths in Route Map mode
 function generateSmoothCurvedRoute(points) {
@@ -267,6 +268,7 @@ export default function DesktopMapExplorer({
   onSyncTrips,
   onOpenRewardedAd
 }) {
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
   const [selectedLocation, setSelectedLocation] = useState(REGIONAL_FALLBACK_CENTERS[0]);
   const [selectedDays, setSelectedDays] = useState(3);
   const [isLeafletReady, setIsLeafletReady] = useState(Boolean(typeof window !== 'undefined' && window.L));
@@ -1046,13 +1048,13 @@ export default function DesktopMapExplorer({
             {activeStage === 'chat' && (
               <span style={{ color: '#2563eb', display: 'flex', alignItems: 'center', gap: '5px' }}>
                 <Sparkles size={15} color="#2563eb" />
-                <span>{selectedLocation.nameKo || itineraryData?.targetCity || '맞춤 여행'} 1:1 VORA AI 대화 조율</span>
+                <span>{t.dialogTuningHeader ? t.dialogTuningHeader(getLocalizedCityName(selectedLocation.nameKo || itineraryData?.targetCity || '', lang)) : `${selectedLocation.nameKo || itineraryData?.targetCity || '맞춤 여행'} 1:1 VORA AI`}</span>
               </span>
             )}
             {activeStage === 'itinerary' && (
               <span style={{ color: '#7c3aed', display: 'flex', alignItems: 'center', gap: '5px' }}>
                 <Calendar size={15} color="#7c3aed" />
-                <span>{itineraryData?.targetCity || selectedLocation.nameKo || '제주'} {itineraryData?.days || 3}일차 확정 타임라인 & AI 1:1 조율</span>
+                <span>{t.timelineTuningHeader ? t.timelineTuningHeader(getLocalizedCityName(itineraryData?.targetCity || selectedLocation.nameKo || '', lang), itineraryData?.days) : `${itineraryData?.targetCity || selectedLocation.nameKo || '추천'} ${itineraryData?.days || 3}일차`}</span>
               </span>
             )}
           </h2>
@@ -1125,7 +1127,7 @@ export default function DesktopMapExplorer({
                 boxShadow: '0 4px 12px rgba(37, 99, 235, 0.35)'
               }}
             >
-              <span>📋 {lang === 'en' ? 'View Itinerary Timeline' : '일정표 보기'}</span>
+              <span>{t.viewTimeline || '📋 일정표 보기'}</span>
               <ChevronRight size={13} />
             </button>
           )}
@@ -1148,7 +1150,7 @@ export default function DesktopMapExplorer({
               }}
             >
               <Navigation size={13} />
-              <span>{isMapExpandedInStage3 ? (lang === 'en' ? '💬 Dual Chat & Itinerary' : '💬 대화창+일정표 듀얼') : (lang === 'en' ? '🗺️ View Route Map' : '🗺️ 동선 지도 보기')}</span>
+              <span>{isMapExpandedInStage3 ? (t.dualChatTimeline || '💬 대화창+일정표 듀얼') : (t.viewRouteMap || '🗺️ 동선 지도 보기')}</span>
             </button>
           )}
         </div>

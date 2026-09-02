@@ -799,7 +799,7 @@ export default function MyTripTab({
                 }}
               >
                 <Bookmark size={13} />
-                <span>{lang === 'en' ? `💾 Save Trip (${remainingQuota} Left)` : `💾 이 일정 저장하기 (1회 차감)`}</span>
+                <span>{typeof t.saveTripBtn === 'function' ? t.saveTripBtn(remainingQuota) : (lang === 'en' ? `💾 Save Trip (${remainingQuota} Left)` : `💾 이 일정 저장하기 (1회 차감)`)}</span>
               </button>
             )}
           </div>
