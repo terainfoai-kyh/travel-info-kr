@@ -60,8 +60,8 @@
 ## 📅 Daily Continuity History (일일 작업 연속성 & 자동 선 브리핑 장부)
 
 ### [2026-09-02] 🌐 전역 다국어(영·일·중 간체/번체) 100% 완전 동기화 및 렌더링 결함 전수 해결 [★ Golden Checkpoint]
-- **1. AI 일정 생성기 `undefined` 크래시 근본 원인 해결 (`localItineraryGenerator.js`, `App.jsx`)**:
-  - `localItineraryGenerator.js`에서 `getLocalizedCityName` import 누락으로 발생하던 `ReferenceError` 즉시 수정.
+- **1. AI 일정 생성기 `undefined` 및 `onSelectCityPlan` 크래시 근본 원인 해결 (`localItineraryGenerator.js`, `App.jsx`)**:
+  - `localItineraryGenerator.js` 및 `App.jsx`에서 `getLocalizedCityName` import 누락으로 발생하던 `ReferenceError` 즉시 수정.
   - `App.jsx` catch 블록의 `generateLocalFallbackItinerary` 비동기 `await` 누락을 수정하여 `✨ undefined \n undefined` 렌더링 결함 100% 영구 해결.
 - **2. 웹(PC) & 모바일 전역 다국어 누락 전수 완비**:
   - **AI 스튜디오 폼 (`AIPlannerTab.jsx`)**: 목적지 플레이스홀더, 도시/기간/테마/동행/요구사항 라벨, 뱃지, 생성 버튼 문구를 4개 국어(KO, EN, JA, ZH/ZHT)로 완전 전환.
