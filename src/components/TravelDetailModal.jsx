@@ -909,6 +909,9 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                     padding: '0.55rem 0.65rem',
                     backgroundColor: 'var(--bg-card)',
                     borderRadius: '10px',
+                    border: '1px solid var(--border-color)',
+                    gap: '0.6rem'
+                  }}
                 >
                   <div style={{ minWidth: 0 }}>
                     <div style={{ fontSize: '0.86rem', fontWeight: 800, color: 'var(--text-main)' }}>
