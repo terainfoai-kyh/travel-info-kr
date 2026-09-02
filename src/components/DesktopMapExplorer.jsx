@@ -699,7 +699,7 @@ export default function DesktopMapExplorer({
       descZh: localKn?.badgeZh || `探寻${getCityMultilingualName(detectedCityNameKo, 'zh') || detectedCityNameKo}代表性名胜与历史文化的治愈之旅`,
       transitTipKo: localKn?.transitTip || 'KTX 및 고속버스로 쾌속 연결',
       transitTipEn: 'Accessible via KTX and Express Bus',
-      image: null, // 🛡️ 지도 클릭 시에는 하드코딩 사진을 비워두어 TourAPI 정품 실시간 사진을 100% 동적 로드!
+      image: selectedLocation?.image || '/images/themes/hero-hangang.jpg', // 🛡️ 직전 사진을 안정적으로 유지하여 바탕 깜빡임/드롭아웃 100% 방지!
       foodieSecret: localKn?.localFoodieSecret || null,
       nightHighlight: localKn?.nightHighlights ? localKn.nightHighlights[0]?.name : null,
       highlights: localKn?.signatureHighlights?.slice(0, 3).map(h => ({ ko: h, en: h, ja: h, zh: h, lat, lng, zoom: 14 })) || [],
@@ -1409,53 +1409,49 @@ export default function DesktopMapExplorer({
                   height: '170px',
                   width: '100%',
                   overflow: 'hidden',
-                  backgroundColor: '#f1f5f9'
+                  backgroundColor: '#0f172a'
                 }}>
-                  {(isGeocoding || isPhotoLoading || !selectedLocation.image) ? (
-                    <div style={{
+                  {/* 🖼️ 배경 사진은 100% 고정 유지 (바탕 깜빡임/번쩍임 완전 제거) */}
+                  <img 
+                    src={selectedLocation.image || '/images/themes/hero-hangang.jpg'} 
+                    alt={selectedLocation.nameKo}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = '/images/themes/hero-hangang.jpg';
+                    }}
+                    style={{
                       width: '100%',
                       height: '100%',
-                      background: 'linear-gradient(90deg, #e2e8f0 25%, #f8fafc 50%, #e2e8f0 75%)',
-                      backgroundSize: '200% 100%',
-                      animation: 'voraShimmer 1.5s infinite',
+                      objectFit: 'cover',
+                      imageRendering: 'crisp-edges',
+                      transition: 'opacity 0.3s ease'
+                    }}
+                  />
+
+                  {/* 📡 TourAPI 실시간 연결 미니 플로팅 배지 (바탕은 가만히 있고 뱃지만 우측 상단에 얌전하게 표시) */}
+                  {(isGeocoding || isPhotoLoading) && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '12px',
+                      right: '12px',
+                      zIndex: 10,
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center',
-                      position: 'relative',
-                      zIndex: 2
+                      gap: '6px',
+                      backgroundColor: 'rgba(15, 23, 42, 0.82)',
+                      backdropFilter: 'blur(8px)',
+                      WebkitBackdropFilter: 'blur(8px)',
+                      padding: '5px 12px',
+                      borderRadius: '9999px',
+                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+                      border: '1px solid rgba(255, 255, 255, 0.22)',
+                      animation: 'voraPinPop 0.2s ease'
                     }}>
-                      <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '7px',
-                        backgroundColor: 'rgba(255, 255, 255, 0.96)',
-                        padding: '7px 15px',
-                        borderRadius: '9999px',
-                        boxShadow: '0 4px 14px rgba(100, 116, 139, 0.15)',
-                        border: '1px solid #e2e8f0'
-                      }}>
-                        <RefreshCw size={13} color="#7c3aed" style={{ animation: 'voraSpin 1.4s linear infinite' }} />
-                        <span style={{ fontSize: '11px', fontWeight: 800, color: '#334155', letterSpacing: '-0.01em' }}>
-                          {lang === 'en' ? 'Connecting Live TourAPI 4.0...' : lang === 'ja' ? '韓国観光公社 4K 接続中...' : (lang === 'zh' || lang === 'zht') ? '正在连接韩国旅游发展局 4K 数据...' : '한국관광공사 TourAPI 4.0 실시간 연결 중...'}
-                        </span>
-                      </div>
+                      <RefreshCw size={12} color="#38bdf8" style={{ animation: 'voraSpin 1.2s linear infinite' }} />
+                      <span style={{ fontSize: '11px', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.01em' }}>
+                        {lang === 'en' ? 'Live TourAPI 4.0...' : lang === 'ja' ? '韓国観光公社 4K...' : (lang === 'zh' || lang === 'zht') ? '韩国旅游局 4K...' : 'TourAPI 4.0 실시간 연결...'}
+                      </span>
                     </div>
-                  ) : (
-                    <img 
-                      src={selectedLocation.image} 
-                      alt={selectedLocation.nameKo}
-                      onError={(e) => {
-                        e.currentTarget.onerror = null;
-                        e.currentTarget.src = '/images/themes/theme-gyeongbokgung.jpg';
-                      }}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        imageRendering: 'crisp-edges',
-                        transition: 'opacity 0.25s ease'
-                      }}
-                    />
                   )}
                   {/* Ultra-Light Soft Scrim (사진 상단 70%는 100% 퓨어 원본, 하단 텍스트 영역만 은은한 그림자) */}
                   <div style={{
