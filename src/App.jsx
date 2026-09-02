@@ -45,7 +45,7 @@ import SubwayMapModal from './components/SubwayMapModal';
 import HelplineModal from './components/HelplineModal';
 import Footer from './components/Footer';
 
-import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
+import { detectBrowserLanguage, TRANSLATIONS, getLocalizedCityName } from './i18n/translations';
 import { geminiGenerateFullItinerary, generateLocalFallbackItinerary, enrichItineraryPhotosAsync, extractLocationKeyword, extractDaysFromPrompt } from './services/geminiNlpService';
 import { recalculateItineraryTimeSlots } from './services/localItineraryGenerator';
 import { sanitizeInput, inspectSecurityGuardrails } from './services/securityGuardService';
