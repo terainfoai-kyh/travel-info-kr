@@ -894,7 +894,7 @@ export default function DesktopMapExplorer({
     <div className="desktop-map-explorer-container hide-mobile" style={{
       width: '100%',
       maxWidth: '1260px',
-      margin: '0.35rem auto 2.5rem',
+      margin: '0.35rem auto 0.5rem',
       backgroundColor: '#ffffff',
       borderRadius: '24px',
       border: '1px solid #e2e8f0',

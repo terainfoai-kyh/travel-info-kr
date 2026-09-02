@@ -1373,7 +1373,7 @@ export default function App() {
       />
 
       {/* Main Container (모바일 5대 탭 전환 & PC 3단계 통합 모핑 워크스페이스) */}
-      <main className="app-main-container" style={{ paddingBottom: '4.5rem', width: '100%' }}>
+      <main className="app-main-container" style={{ width: '100%' }}>
         {/* ==============================================================================
            💻 [PC / 데스크톱 전용]: 상단 4K 와이드 히어로 배너 (풀스크린 100% 정중앙) + 하단 3단계 일체형 워크스페이스
            ============================================================================== */}
