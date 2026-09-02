@@ -51,7 +51,7 @@ export default function LiveTripTab({
   const NEARBY_ACTIONS = [
     {
       id: 'cafe',
-      label: lang === 'en' ? 'Trendy Local Cafes' : '주변 감성 카페',
+      label: lang === 'en' ? 'Trendy Local Cafes' : lang === 'ja' ? '周辺のおしゃれカフェ' : (lang === 'zh' || lang === 'zht') ? '周边人气咖啡馆' : '주변 감성 카페',
       icon: Coffee,
       color: '#d97706',
       items: [
@@ -63,7 +63,7 @@ export default function LiveTripTab({
     },
     {
       id: 'food',
-      label: lang === 'en' ? 'Authentic Local Food' : '현지인 인기 맛집',
+      label: lang === 'en' ? 'Authentic Local Food' : lang === 'ja' ? '地元で人気の名店' : (lang === 'zh' || lang === 'zht') ? '当地人追捧的地道美食' : '현지인 인기 맛집',
       icon: UtensilsCrossed,
       color: '#ef4444',
       items: [
@@ -75,7 +75,7 @@ export default function LiveTripTab({
     },
     {
       id: 'rain',
-      label: lang === 'en' ? 'Rainy Day Indoor Spots' : '비 올 때 실내 핫플',
+      label: lang === 'en' ? 'Rainy Day Indoor Spots' : lang === 'ja' ? '雨の日の屋内スポット' : (lang === 'zh' || lang === 'zht') ? '雨天精选室内热门地标' : '비 올 때 실내 핫플',
       icon: CloudRain,
       color: '#3b82f6',
       items: [
@@ -87,7 +87,7 @@ export default function LiveTripTab({
     },
     {
       id: 'photo',
-      label: lang === 'en' ? 'Best Photo Spots' : '인생샷 포토존',
+      label: lang === 'en' ? 'Best Photo Spots' : lang === 'ja' ? '映え写真フォトスポット' : (lang === 'zh' || lang === 'zht') ? '绝美拍照打卡点' : '인생샷 포토존',
       icon: Camera,
       color: '#ec4899',
       items: [
@@ -143,13 +143,13 @@ export default function LiveTripTab({
             display: 'inline-block',
             marginBottom: '0.35rem'
           }}>
-            📍 {targetCity} • Live Concierge (탭하여 날씨/코디 보기)
+            📍 {targetCity} • {lang === 'en' ? 'Live Concierge (Tap for Weather & Outfit)' : lang === 'ja' ? 'Live Concierge (タップして天気・服装を確認)' : (lang === 'zh' || lang === 'zht') ? 'Live Concierge (点击查看天气与穿搭)' : 'Live Concierge (탭하여 날씨/코디 보기)'}
           </span>
           <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, color: '#ffffff' }}>
-            {lang === 'en' ? 'Enjoying Your Trip?' : '즐거운 한국 여행 중이신가요? 😊'}
+            {lang === 'en' ? 'Enjoying Your Trip?' : lang === 'ja' ? '韓国旅行をお楽しみ中ですか？😊' : (lang === 'zh' || lang === 'zht') ? '正在享受愉快的韩国之旅吗？😊' : '즐거운 한국 여행 중이신가요? 😊'}
           </h3>
           <p style={{ margin: '0.2rem 0 0', fontSize: '0.8rem', opacity: 0.9 }}>
-            맑음 24°C • 나들이하기 아주 좋은 날씨 ➔
+            {lang === 'en' ? 'Sunny 24°C • Perfect weather for travel ➔' : lang === 'ja' ? '快晴 24°C • お出かけに絶好の天気 ➔' : (lang === 'zh' || lang === 'zht') ? '晴朗 24°C • 非常适合外出游玩 ➔' : '맑음 24°C • 나들이하기 아주 좋은 날씨 ➔'}
           </p>
         </div>
 
@@ -188,10 +188,10 @@ export default function LiveTripTab({
             gap: '0.25rem'
           }}>
             <Navigation size={12} />
-            <span>{lang === 'en' ? 'Next Destination' : '다음 일정'}</span>
+            <span>{lang === 'en' ? 'Next Destination' : lang === 'ja' ? '次の目的地' : (lang === 'zh' || lang === 'zht') ? '下一站行程' : '다음 일정'}</span>
           </span>
           <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)' }}>
-            🕒 {activeNext.transitTime || '지하철 또는 도보로 이동'}
+            🕒 {activeNext.transitTime || (lang === 'en' ? 'Transit via Subway or Walk' : lang === 'ja' ? '地下鉄または徒歩で移動' : (lang === 'zh' || lang === 'zht') ? '乘坐地铁或步行前往' : '지하철 또는 도보로 이동')}
           </span>
         </div>
 
@@ -224,7 +224,7 @@ export default function LiveTripTab({
             }}
           >
             <Navigation size={13} />
-            <span>{lang === 'en' ? 'Google Maps ↗' : '길찾기 ↗'}</span>
+            <span>{lang === 'en' ? 'Google Maps ↗' : lang === 'ja' ? 'ルート案内 ↗' : (lang === 'zh' || lang === 'zht') ? '地图导航 ↗' : '길찾기 ↗'}</span>
           </a>
 
           <button
@@ -245,7 +245,7 @@ export default function LiveTripTab({
             }}
           >
             <Info size={13} style={{ color: '#2563eb' }} />
-            <span>{lang === 'en' ? 'Details' : '상세보기'}</span>
+            <span>{lang === 'en' ? 'Details' : lang === 'ja' ? '詳細を見る' : (lang === 'zh' || lang === 'zht') ? '查看详情' : '상세보기'}</span>
           </button>
         </div>
       </div>
@@ -261,7 +261,7 @@ export default function LiveTripTab({
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.85rem' }}>
           <Sparkles size={16} style={{ color: '#2563eb' }} />
           <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 900, color: 'var(--text-main)' }}>
-            {lang === 'en' ? 'What to do right now?' : '지금 뭐하지? (주변 실시간 탐색)'}
+            {lang === 'en' ? 'What to do right now?' : lang === 'ja' ? '今、何する？ (周辺リアルタイム探索)' : (lang === 'zh' || lang === 'zht') ? '现在去哪？(周边实时探索)' : '지금 뭐하지? (주변 실시간 탐색)'}
           </h4>
         </div>
 
@@ -441,7 +441,7 @@ export default function LiveTripTab({
                             boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)'
                           }}
                         >
-                          <span>{lang === 'en' ? 'Map ↗' : '구글맵 ↗'}</span>
+                          <span>{lang === 'en' ? 'Map ↗' : lang === 'ja' ? 'マップ ↗' : (lang === 'zh' || lang === 'zht') ? '地图 ↗' : '구글맵 ↗'}</span>
                           <ExternalLink size={10} />
                         </a>
                       </div>

@@ -732,7 +732,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
             {/* 1. 도로명 주소 */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem' }}>
               <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '75px', fontWeight: 700 }}>
-                • 위치
+                {lang === 'en' ? '• Location' : lang === 'ja' ? '• 位置' : (lang === 'zh' || lang === 'zht') ? '• 位置' : '• 위치'}
               </span>
               <span style={{ color: 'var(--text-main)', fontWeight: 600, wordBreak: 'keep-all', lineHeight: 1.5 }}>: {location}</span>
             </div>
@@ -740,7 +740,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
             {/* 2. 대중교통 & 배편 */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem' }}>
               <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '75px', fontWeight: 700 }}>
-                • 교통
+                {lang === 'en' ? '• Transit' : lang === 'ja' ? '• 交通' : (lang === 'zh' || lang === 'zht') ? '• 交通' : '• 교통'}
               </span>
               <span style={{ color: '#2563eb', fontWeight: 700, lineHeight: 1.5 }}>: {subwayTransit}</span>
             </div>
@@ -748,7 +748,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
             {/* 3. 관람 시간 */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem' }}>
               <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '75px', fontWeight: 700 }}>
-                • 시간
+                {lang === 'en' ? '• Hours' : lang === 'ja' ? '• 営業時間' : (lang === 'zh' || lang === 'zht') ? '• 营业时间' : '• 시간'}
               </span>
               <div style={{ color: 'var(--text-main)', fontWeight: 600, lineHeight: 1.5, flex: 1 }}>
                 : {formatOperatingHours(operatingHours, closedDays)}
@@ -758,7 +758,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
             {/* 4. 추천 소요시간 */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem' }}>
               <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '75px', fontWeight: 700 }}>
-                • 소요
+                {lang === 'en' ? '• Duration' : lang === 'ja' ? '• 所要時間' : (lang === 'zh' || lang === 'zht') ? '• 建议用时' : '• 소요'}
               </span>
               <span style={{ color: 'var(--text-main)', fontWeight: 600, lineHeight: 1.5 }}>: {duration}</span>
             </div>
@@ -766,7 +766,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
             {/* 5. 입장 요금 */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem' }}>
               <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '75px', fontWeight: 700 }}>
-                • 요금
+                {lang === 'en' ? '• Fee' : lang === 'ja' ? '• 料金' : (lang === 'zh' || lang === 'zht') ? '• 门票费用' : '• 요금'}
               </span>
               <span style={{ color: 'var(--text-main)', fontWeight: 600, lineHeight: 1.5 }}>: {admissionFee}</span>
             </div>
@@ -775,7 +775,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
             {liveIntroDetails?.parking && (
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem' }}>
                 <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '75px', fontWeight: 700 }}>
-                  • 주차
+                  {lang === 'en' ? '• Parking' : lang === 'ja' ? '• 駐車場' : (lang === 'zh' || lang === 'zht') ? '• 停车场' : '• 주차'}
                 </span>
                 <span style={{ color: 'var(--text-main)', fontWeight: 600, wordBreak: 'keep-all', lineHeight: 1.5 }}>: {liveIntroDetails.parking}</span>
               </div>
@@ -785,7 +785,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
             {(liveIntroDetails?.infocenter || liveCommonDetails?.tel) && (
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem' }}>
                 <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '75px', fontWeight: 700 }}>
-                  • 문의
+                  {lang === 'en' ? '• Contact' : lang === 'ja' ? '• お問合せ' : (lang === 'zh' || lang === 'zht') ? '• 咨询电话' : '• 문의'}
                 </span>
                 <span style={{ color: 'var(--text-main)', fontWeight: 600, lineHeight: 1.5 }}>
                   : {renderContactWithTel(liveIntroDetails?.infocenter || liveCommonDetails?.tel)}
@@ -796,43 +796,43 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
             {/* 8. 💳 신용카드 결제 */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem' }}>
               <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '75px', fontWeight: 700 }}>
-                • 결제수단
+                {lang === 'en' ? '• Payment' : lang === 'ja' ? '• 決済方法' : (lang === 'zh' || lang === 'zht') ? '• 支付方式' : '• 결제수단'}
               </span>
               <span style={{ color: 'var(--text-main)', fontWeight: 600, lineHeight: 1.5 }}>
-                : {liveIntroDetails?.chkcreditcard || '신용카드 결제 가능'}
+                : {liveIntroDetails?.chkcreditcard || (lang === 'en' ? 'Credit cards accepted' : lang === 'ja' ? 'クレジットカード利用可' : (lang === 'zh' || lang === 'zht') ? '支持信用卡支付' : '신용카드 결제 가능')}
               </span>
             </div>
 
             {/* 9. 🐶 반려동물 동반 */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem' }}>
               <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '75px', fontWeight: 700 }}>
-                • 반려동물
+                {lang === 'en' ? '• Pets' : lang === 'ja' ? '• ペット' : (lang === 'zh' || lang === 'zht') ? '• 宠物同行' : '• 반려동물'}
               </span>
               <span style={{ color: 'var(--text-main)', fontWeight: 600, lineHeight: 1.5 }}>
-                : {liveIntroDetails?.chkpet || '동반 가능 (목줄 및 배변봉투 지참 권장)'}
+                : {liveIntroDetails?.chkpet || (lang === 'en' ? 'Pets allowed (Leash required)' : lang === 'ja' ? 'ペット同伴可（リード推奨）' : (lang === 'zh' || lang === 'zht') ? '可携带宠物（需系牵引绳）' : '동반 가능 (목줄 및 배변봉투 지참 권장)')}
               </span>
             </div>
 
             {/* 10. 👶 ♿ 유모차 / 편의시설 */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem' }}>
               <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '75px', fontWeight: 700 }}>
-                • 편의시설
+                {lang === 'en' ? '• Facilities' : lang === 'ja' ? '• 施設' : (lang === 'zh' || lang === 'zht') ? '• 无障碍设施' : '• 편의시설'}
               </span>
               <span style={{ color: 'var(--text-main)', fontWeight: 600, lineHeight: 1.5 }}>
-                : {liveIntroDetails?.chkbabycarriage || '유모차/휠체어 이동로 구비 (현장 확인 권장)'}
+                : {liveIntroDetails?.chkbabycarriage || (lang === 'en' ? 'Stroller / Wheelchair accessible' : lang === 'ja' ? 'ベビーカー・車椅子対応' : (lang === 'zh' || lang === 'zht') ? '配备婴儿车/轮椅坡道' : '유모차/휠체어 이동로 구비 (현장 확인 권장)')}
               </span>
             </div>
 
             {/* 11. 🌐 공식 홈페이지 링크 */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem' }}>
               <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '75px', fontWeight: 700 }}>
-                • 홈페이지
+                {lang === 'en' ? '• Website' : lang === 'ja' ? '• 公式HP' : (lang === 'zh' || lang === 'zht') ? '• 官方网站' : '• 홈페이지'}
               </span>
               <span style={{ color: '#2563eb', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: 1.5 }}>
                 : {liveCommonDetails?.homepage ? (
                   <span dangerouslySetInnerHTML={{ __html: liveCommonDetails.homepage }} />
                 ) : (
-                  <span>지자체 문화관광 공식 포털</span>
+                  <span>{lang === 'en' ? 'Official Tourism Portal' : lang === 'ja' ? '自治体公式観光ポータル' : (lang === 'zh' || lang === 'zht') ? '官方文化旅游门户' : '지자체 문화관광 공식 포털'}</span>
                 )}
               </span>
             </div>
@@ -841,7 +841,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
             {matchedPoi?.tags && matchedPoi.tags.length > 0 && (
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem', marginTop: '0.3rem' }}>
                 <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '75px', fontWeight: 700 }}>
-                  • 테마
+                  {lang === 'en' ? '• Themes' : lang === 'ja' ? '• テーマ' : (lang === 'zh' || lang === 'zht') ? '• 主题标签' : '• 테마'}
                 </span>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
                   {matchedPoi.tags.slice(0, 5).map((tag, tIdx) => (
@@ -874,7 +874,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
             marginTop: '0.2rem'
           }}>
             <div style={{ fontSize: '0.84rem', fontWeight: 800, color: 'var(--accent-primary)', marginBottom: '0.45rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-              🏛️ 한국관광공사 정품 상세 스토리
+              {lang === 'en' ? '🏛️ Official Story' : lang === 'ja' ? '🏛️ 公式ストーリー' : (lang === 'zh' || lang === 'zht') ? '🏛️ 官方详细介绍' : '🏛️ 한국관광공사 정품 상세 스토리'}
             </div>
             <p style={{
               margin: 0,
@@ -1248,7 +1248,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                   gap: '0.35rem'
                 }}
               >
-                <span>{lang === 'en' ? 'Deals ↗' : '특가 예약 ↗'}</span>
+                <span>{lang === 'en' ? 'Deals ↗' : lang === 'ja' ? '特別割引 ↗' : (lang === 'zh' || lang === 'zht') ? '特惠预订 ↗' : '특가 예약 ↗'}</span>
               </a>
             )}
           </div>

@@ -136,7 +136,7 @@ export default function MyTripTab({
               }}
             >
               <RotateCw size={15} style={{ transform: isSyncing ? 'rotate(360deg)' : 'none', transition: isSyncing ? 'transform 0.6s linear' : 'none' }} />
-              <span>{isSyncing ? (lang === 'en' ? 'Syncing...' : '동기화 중...') : (syncFeedback || (lang === 'en' ? '🔄 Sync Cloud Trips from PC' : '🔄 클라우드 일정 불러오기 (동기화)'))}</span>
+              <span>{isSyncing ? (lang === 'en' ? 'Syncing...' : lang === 'ja' ? '同期中...' : (lang === 'zh' || lang === 'zht') ? '同步中...' : '동기화 중...') : (syncFeedback || (lang === 'en' ? '🔄 Sync Cloud Trips from PC' : lang === 'ja' ? '🔄 クラウド旅程の読み込み (同期)' : (lang === 'zh' || lang === 'zht') ? '🔄 云端行程同步与读取' : '🔄 클라우드 일정 불러오기 (동기화)'))}</span>
             </button>
           ) : (
             /* 2. 미로그인 상태인 경우: 구글 로그인 동기화 버튼 */
@@ -166,7 +166,7 @@ export default function MyTripTab({
                   <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
                 </svg>
-                <span>{lang === 'en' ? 'Sign in with Google to Sync' : '구글 로그인하고 PC 일정 동기화'}</span>
+                <span>{lang === 'en' ? 'Sign in with Google to Sync' : lang === 'ja' ? 'Googleログインして旅程を同期' : (lang === 'zh' || lang === 'zht') ? '登录Google同步行程' : '구글 로그인하고 PC 일정 동기화'}</span>
               </button>
             )
           )}
@@ -192,7 +192,7 @@ export default function MyTripTab({
             }}
           >
             <Sparkles size={16} />
-            <span>{lang === 'en' ? 'Create First Trip Plan' : 'AI 플래너로 첫 여행 코스 만들기'}</span>
+            <span>{lang === 'en' ? 'Create First Trip Plan' : lang === 'ja' ? 'AIプランナーで最初の旅程を作成' : (lang === 'zh' || lang === 'zht') ? '使用AI规划首条旅游路线' : 'AI 플래너로 첫 여행 코스 만들기'}</span>
           </button>
         </div>
       </div>

@@ -175,6 +175,7 @@ export const TRANSLATIONS = {
     questionsExhausted: '오늘의 무료 질문(5회)을 모두 사용하셨습니다. 내일 00시에 자동 충전됩니다 ✨',
 
     // Travel Essentials
+    travelEssentialsTitle: '대한민국 여행 필수 안내 & 스마트 팁',
     essentialsTitle: '외국인 관광객 필수 툴킷',
     essentialsSubtitle: '안전하고 편리한 한국 여행을 위한 핵심 서비스',
     weatherOutfitTitle: '실시간 날씨 & 여행 코디 가이드',
@@ -353,6 +354,7 @@ export const TRANSLATIONS = {
     questionsExhausted: 'You have used all 5 free daily queries. Resets at midnight ✨',
 
     // Travel Essentials
+    travelEssentialsTitle: 'Korea Travel Essentials & Smart Tips',
     essentialsTitle: 'Foreign Traveler Essentials',
     essentialsSubtitle: 'Must-have tools and tips for a smooth trip to Korea',
     weatherOutfitTitle: 'Live Weather & Travel Outfit Guide',
@@ -543,6 +545,7 @@ export const TRANSLATIONS = {
     questionsExhausted: '本日の無料質問枠(5回)をすべて利用しました。深夜0時に自動リセットされます ✨',
 
     // Travel Essentials
+    travelEssentialsTitle: '韓国旅行 必須ガイド＆スマート情報',
     essentialsTitle: '外国人旅行者 必須ツールキット',
     essentialsSubtitle: '快適で安全な韓国旅行のための必須サービス',
     weatherOutfitTitle: 'リアルタイム天気＆旅行コーデガイド',
@@ -735,6 +738,7 @@ export const TRANSLATIONS = {
     questionsExhausted: '今日5次免费提问额度已用完，将于次日0点自动刷新 ✨',
 
     // Travel Essentials
+    travelEssentialsTitle: '韩国旅游 必备指南与实用贴士',
     essentialsTitle: '国际游客必备旅行工具包',
     essentialsSubtitle: '助您畅游韩国的实用指南与官方服务',
     weatherOutfitTitle: '实时天气与旅行穿搭指南',
@@ -927,6 +931,7 @@ export const TRANSLATIONS = {
     questionsExhausted: '今日5次免費提问額度已用完，將於次日0點自動刷新 ✨',
 
     // Travel Essentials
+    travelEssentialsTitle: '韓國旅遊 必備指南與實用貼士',
     essentialsTitle: '國際旅客必備旅行工具包',
     essentialsSubtitle: '助您暢遊韓國的實用指南與官方服務',
     weatherOutfitTitle: '即時天氣與旅行穿搭指南',

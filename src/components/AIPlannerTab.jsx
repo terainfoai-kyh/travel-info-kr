@@ -107,9 +107,17 @@ export default function AIPlannerTab({
     if (isLoading) return;
 
     // 자연어 프롬프트 조합 생성
-    const destPrefix = destination.trim() ? `${destination.trim()} ` : '';
-    const daysText = selectedDays === 1 ? '당일치기' : `${selectedDays - 1}박 ${selectedDays}일`;
-    const combinedQuery = `${destPrefix}${daysText} ${selectedCompanion} 여행, 테마: ${selectedThemes.join(', ')}${customNote.trim() ? `, 요구사항: ${customNote.trim()}` : ''}`.trim();
+    const companionLabel = COMPANION_OPTIONS.find(c => c.val === selectedCompanion)?.label || selectedCompanion;
+    const themeLabels = selectedThemes.map(tVal => THEME_OPTIONS.find(t => t.val === tVal)?.label || tVal).join(', ');
+    const daysLabel = selectedDays === 1 
+      ? (lang === 'en' ? 'Day Trip' : lang === 'ja' ? '日帰り' : (lang === 'zh' || lang === 'zht') ? '1日游' : '당일치기')
+      : (lang === 'en' ? `${selectedDays} Days` : lang === 'ja' ? `${selectedDays - 1}泊${selectedDays}日` : (lang === 'zh' || lang === 'zht') ? `${selectedDays}日` : `${selectedDays - 1}박 ${selectedDays}일`);
+
+    const locDest = destination.trim() ? `${destination.trim()} ` : '';
+    const themePrefix = lang === 'en' ? 'Theme: ' : lang === 'ja' ? 'テーマ: ' : (lang === 'zh' || lang === 'zht') ? '主题: ' : '테마: ';
+    const reqPrefix = lang === 'en' ? ', Note: ' : lang === 'ja' ? ', ご要望: ' : (lang === 'zh' || lang === 'zht') ? ', 特别需求: ' : ', 요구사항: ';
+
+    const combinedQuery = `${locDest}${daysLabel} ${companionLabel} ${lang === 'en' ? 'Trip' : lang === 'ja' ? '旅行' : (lang === 'zh' || lang === 'zht') ? '旅游' : '여행'}, ${themePrefix}${themeLabels}${customNote.trim() ? `${reqPrefix}${customNote.trim()}` : ''}`.trim();
     
     // 2단계 대화 모드로 전환하고 일정 생성 요청
     setPlannerMode('chat');
@@ -261,7 +269,7 @@ export default function AIPlannerTab({
         <div>
           <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.3rem' }}>
             <MapPin size={15} style={{ color: '#d97706' }} />
-            <span>{lang === 'en' ? 'Destination' : '여행지'}</span>
+            <span>{lang === 'en' ? 'Destination' : lang === 'ja' ? '目的地' : (lang === 'zh' || lang === 'zht') ? '目的地' : '여행지'}</span>
           </label>
           <div style={{
             display: 'flex',
@@ -280,7 +288,7 @@ export default function AIPlannerTab({
               type="text"
               value={destination}
               onChange={(e) => setDestination(e.target.value)}
-              placeholder={lang === 'en' ? 'Where to go? (e.g. Seoul, Jeju)' : '어디로 떠나시나요? (예: 제주, 서울, 부산...)'}
+              placeholder={lang === 'en' ? 'Where to go? (e.g. Seoul, Jeju, Busan)' : lang === 'ja' ? 'どこへ行きますか？ (例: ソウル、済州、釜山)' : (lang === 'zh' || lang === 'zht') ? '您想去哪里？(例如：首尔、济州、釜山)' : '어디로 떠나시나요? (예: 제주, 서울, 부산...)'}
               style={{
                 flex: 1,
                 border: 'none',
@@ -307,7 +315,7 @@ export default function AIPlannerTab({
               boxShadow: '0 2px 6px rgba(245, 158, 11, 0.3)'
             }}>
               <MapPin size={11} />
-              <span>{lang === 'en' ? 'City' : '도시'}</span>
+              <span>{lang === 'en' ? 'City' : lang === 'ja' ? '都市' : (lang === 'zh' || lang === 'zht') ? '城市' : '도시'}</span>
             </div>
           </div>
           <div style={{ display: 'flex', gap: '0.25rem', overflowX: 'auto', scrollbarWidth: 'none' }}>
@@ -338,7 +346,7 @@ export default function AIPlannerTab({
         <div>
           <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.25rem' }}>
             <Calendar size={14} style={{ color: 'var(--accent-primary)' }} />
-            <span>{lang === 'en' ? 'Duration' : '여행 기간'}</span>
+            <span>{lang === 'en' ? 'Duration' : lang === 'ja' ? '旅行期間' : (lang === 'zh' || lang === 'zht') ? '行程天数' : '여행 기간'}</span>
           </label>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '0.3rem' }}>
             {DAYS_OPTIONS.map((opt) => (
@@ -369,7 +377,7 @@ export default function AIPlannerTab({
         <div>
           <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.25rem' }}>
             <Compass size={14} style={{ color: 'var(--accent-primary)' }} />
-            <span>{lang === 'en' ? 'Themes' : '여행 테마'}</span>
+            <span>{lang === 'en' ? 'Themes' : lang === 'ja' ? 'テーマ' : (lang === 'zh' || lang === 'zht') ? '主题偏好' : '여행 테마'}</span>
           </label>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
             {THEME_OPTIONS.map((theme) => {
@@ -381,20 +389,21 @@ export default function AIPlannerTab({
                   type="button"
                   onClick={() => handleToggleTheme(theme.val)}
                   style={{
-                    padding: '0.28rem 0.55rem',
+                    padding: '0.32rem 0.55rem',
                     borderRadius: '8px',
                     border: isSelected ? '1.5px solid #2563eb' : '1px solid var(--border-color)',
-                    backgroundColor: isSelected ? 'rgba(37, 99, 235, 0.12)' : 'var(--bg-glass)',
-                    color: isSelected ? '#2563eb' : 'var(--text-main)',
+                    backgroundColor: isSelected ? '#2563eb' : 'var(--bg-glass)',
+                    color: isSelected ? '#ffffff' : 'var(--text-main)',
+                    fontSize: '0.74rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '0.2rem',
-                    fontSize: '0.75rem',
-                    fontWeight: isSelected ? 800 : 600,
-                    cursor: 'pointer'
+                    gap: '0.25rem',
+                    boxShadow: isSelected ? '0 2px 6px rgba(37, 99, 235, 0.25)' : 'none'
                   }}
                 >
-                  <Icon size={11} />
+                  <Icon size={12} />
                   <span>{theme.label}</span>
                 </button>
               );
@@ -406,7 +415,7 @@ export default function AIPlannerTab({
         <div>
           <label style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.25rem' }}>
             <Users size={14} style={{ color: 'var(--accent-primary)' }} />
-            <span>{lang === 'en' ? 'Companions' : lang === 'ja' ? '同行者' : (lang === 'zh' || lang === 'zht') ? '同伴' : '동행자'}</span>
+            <span>{lang === 'en' ? 'Companions' : lang === 'ja' ? '同行者' : (lang === 'zh' || lang === 'zht') ? '同行同伴' : '동행자'}</span>
           </label>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.3rem' }}>
             {COMPANION_OPTIONS.map((comp) => {
@@ -438,7 +447,7 @@ export default function AIPlannerTab({
         {/* Step 5: 자유 요청사항 (시인성 300% 웜 앰버 골드 일체형 캡슐 바) */}
         <div>
           <label style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.3rem', display: 'block' }}>
-            {lang === 'en' ? 'Special Requests (Optional)' : '추가 요청 (선택): 예: 비 올 때 실내 위주, 핫플 카페 꼭 포함'}
+            {lang === 'en' ? 'Special Requests (Optional)' : lang === 'ja' ? '追加のご要望 (任意)' : (lang === 'zh' || lang === 'zht') ? '附加特别要求 (选填)' : '추가 요청 (선택): 예: 비 올 때 실내 위주, 핫플 카페 꼭 포함'}
           </label>
           <div style={{
             display: 'flex',
@@ -456,7 +465,7 @@ export default function AIPlannerTab({
               type="text"
               value={customNote}
               onChange={(e) => setCustomNote(e.target.value)}
-              placeholder={lang === 'en' ? 'e.g. Indoor spots on rainy day, romantic sunset dinner' : '원하는 조건을 편하게 적어주세요'}
+              placeholder={lang === 'en' ? 'e.g. Indoor spots on rainy day, romantic sunset dinner' : lang === 'ja' ? 'ご希望の条件を自由にご入力ください' : (lang === 'zh' || lang === 'zht') ? '请随意填写您的个性化出游需求' : '원하는 조건을 편하게 적어주세요'}
               style={{
                 flex: 1,
                 border: 'none',
@@ -483,7 +492,7 @@ export default function AIPlannerTab({
               boxShadow: '0 2px 6px rgba(245, 158, 11, 0.3)'
             }}>
               <Sparkles size={11} />
-              <span>{lang === 'en' ? 'Request' : '요청'}</span>
+              <span>{lang === 'en' ? 'Request' : lang === 'ja' ? 'ご要望' : (lang === 'zh' || lang === 'zht') ? '需求' : '요청'}</span>
             </div>
           </div>
         </div>

@@ -24,6 +24,7 @@ import { getDynamicRegionMeta } from './apiConfig.js';
 import { CITY_COORDINATES, getCityCoordinates } from './geminiNlpService.js';
 import { CITY_LOCAL_KNOWLEDGE } from '../data/voraDialogKnowledge.js';
 import { KOREA_TRAVEL_POI_DB } from '../data/koreaTravelPoiDatabase.js';
+import { getLocalizedCityName } from '../i18n/translations.js';
 
 // 🧹 Helper: Case-Insensitive & Special Character Compressed Normalizer
 export function normalizeTargetString(str = '') {

@@ -687,15 +687,18 @@ export default function App() {
         quickSuggestions = [];
       } else {
         // 💡 도시 지정 시: 해당 도시 맞춤 브리핑 & 관문 칩 제공
-        const companionMatch = promptQuery.match(/(커플|혼자|가족|친구|아이와 함께|아이|부모님|어르신|시니어)/);
+        const localizedDest = getLocalizedCityName(targetCity, lang);
+        const companionMatch = promptQuery.match(/(커플|혼자|가족|친구|아이와 함께|아이|부모님|어르신|시니어|Couple|Solo|Family|Friends|カップル|一人旅|家族|友達|情侣|独自一人|家庭|朋友)/i);
         const companionText = companionMatch ? companionMatch[1] : '';
         const themeMatch = promptQuery.match(/테마:\s*([^,]+(?:,\s*[^,]+)*?)(?=, 요구사항:|$)/);
         const themeText = themeMatch ? themeMatch[1].trim() : '';
         const reqMatch = promptQuery.match(/요구사항:\s*(.+)$/);
         const reqText = reqMatch ? reqMatch[1].trim() : '';
 
-        const daysLabel = rawDays ? `${rawDays}일` : (lang === 'en' ? 'Custom Trip' : '맞춤 여행');
-        let tagLabel = `📍 ${targetCity} ${daysLabel}`;
+        const daysLabel = rawDays 
+          ? (lang === 'en' ? `${rawDays} Days` : lang === 'ja' ? `${rawDays}日間` : (lang === 'zh' || lang === 'zht') ? `${rawDays}日游` : `${rawDays}일`)
+          : (lang === 'en' ? 'Custom Trip' : lang === 'ja' ? 'オーダーメイド旅' : (lang === 'zh' || lang === 'zht') ? '定制旅行' : '맞춤 여행');
+        let tagLabel = `📍 ${localizedDest} ${daysLabel}`;
         if (companionText) tagLabel += ` • 👫 ${companionText}`;
         if (themeText) tagLabel += ` • 🍴 ${themeText}`;
         if (reqText) tagLabel += ` • ✍️ ${reqText}`;
@@ -706,34 +709,42 @@ export default function App() {
         if (specificSpotMatch && specificSpotMatch[1]) {
           const mentioned = specificSpotMatch[1];
           const otherHighlight = cityKnowledge?.signatureHighlights?.find(h => !h.includes(mentioned));
-          highlightText = otherHighlight ? `${mentioned}, ${otherHighlight} 등 ` : `${mentioned} 등 `;
+          highlightText = otherHighlight ? `${mentioned}, ${otherHighlight} ` : `${mentioned} `;
         } else if (cityKnowledge?.signatureHighlights) {
-          highlightText = `${cityKnowledge.signatureHighlights.slice(0, 2).join(', ')} 등 `;
+          highlightText = `${cityKnowledge.signatureHighlights.slice(0, 2).join(', ')} `;
         }
 
         const durationChips = [
-          (lang === 'en' ? '🗓️ 1 Day (Day Trip)' : '🗓️ 당일치기'),
-          (lang === 'en' ? '🗓️ 2 Days (1N2D)' : '🗓️ 1박 2일'),
-          (lang === 'en' ? '🗓️ 3 Days (2N3D)' : '🗓️ 2박 3일'),
-          (lang === 'en' ? '🗓️ 4 Days (3N4D)' : '🗓️ 3박 4일')
+          (lang === 'en' ? '🗓️ 1 Day (Day Trip)' : lang === 'ja' ? '🗓️ 日帰り' : (lang === 'zh' || lang === 'zht') ? '🗓️ 1日游 (当天往返)' : '🗓️ 당일치기'),
+          (lang === 'en' ? '🗓️ 2 Days (1N2D)' : lang === 'ja' ? '🗓️ 1泊2日' : (lang === 'zh' || lang === 'zht') ? '🗓️ 2天1晚' : '🗓️ 1박 2일'),
+          (lang === 'en' ? '🗓️ 3 Days (2N3D)' : lang === 'ja' ? '🗓️ 2泊3日' : (lang === 'zh' || lang === 'zht') ? '🗓️ 3天2晚' : '🗓️ 2박 3일'),
+          (lang === 'en' ? '🗓️ 4 Days (3N4D)' : lang === 'ja' ? '🗓️ 3泊4日' : (lang === 'zh' || lang === 'zht') ? '🗓️ 4天3晚' : '🗓️ 3박 4일')
         ];
 
         if (!rawDays) {
           briefingText = (lang === 'en')
-            ? `**[ ${tagLabel} ]**\n${highlightText ? `Featuring iconic spots like ${highlightText}, ` : ''}${targetCity} is best experienced with a **3-Day (2N3D) Highlight Course**! ✨ (Default: 09:00~18:00)\n\n💡 **Tap your desired trip duration below:**\n*(You can easily customize companions and themes in **[ + Add Conditions ]** at the top! 😊)*`
+            ? `**[ ${tagLabel} ]**\n${highlightText ? `Featuring iconic spots like ${highlightText}, ` : ''}${localizedDest} is best experienced with a **3-Day (2N3D) Highlight Course**! ✨ (Default: 09:00~18:00)\n\n💡 **Tap your desired trip duration below:**\n*(You can easily customize companions and themes in **[ + Add Conditions ]** at the top! 😊)*`
+            : (lang === 'ja')
+            ? `**[ ${tagLabel} ]**\n${highlightText ? `${highlightText}などの人気スポットを中心に ` : ''}**[ 3日間 (2泊3日) おすすめコース ]**を準備しましょうか？✨ (基本 09:00〜18:00)\n\n💡 **ご希望の旅行期間を下記から選択してください:**\n*(同行者やテーマは上部の **\`[ + 条件追加 ]\`** からいつでも自由に変更できます！😊)*`
+            : (lang === 'zh' || lang === 'zht')
+            ? `**[ ${tagLabel} ]**\n${highlightText ? `包含 ${highlightText}等核心名胜，` : ''}为您准备 **[ 3天2晚 精选推荐行程 ]** 如何？✨ (默认时间 09:00~18:00)\n\n💡 **请在下方选择您计划出游的天数：**\n*(同行同伴或旅行主题可在顶部 **\`[ + 添加条件 ]\`** 随时灵活修改！😊)*`
             : `**[ ${tagLabel} ]**\n${highlightText ? `${highlightText}대표 명소를 알차게 담아 ` : ''}**[ 3일(2박 3일) 추천 코스 ]**로 준비해 드릴까요? ✨ (기본 09:00~18:00)\n\n💡 **원하시는 여행 기간을 아래에서 톡 눌러주세요:**\n*(동행이나 테마 같은 다른 조건은 상단 **\`[ + 조건 추가 ]\`**에서 언제든 편하게 바꾸실 수 있어요! 😊)*`;
         } else {
           briefingText = (lang === 'en')
-            ? `**[ ${tagLabel} ]**\n${highlightText ? `Featuring iconic spots like ${highlightText}, ` : ''}Shall I prepare your tailored **[ ${targetCity} ${rawDays}-Day Course ]** right away? ✨ (Default: 09:00~18:00)\n\n*(You can easily customize companions and themes in **[ + Add Conditions ]** at the top! 😊)*`
+            ? `**[ ${tagLabel} ]**\n${highlightText ? `Featuring iconic spots like ${highlightText}, ` : ''}Shall I prepare your tailored **[ ${localizedDest} ${rawDays}-Day Course ]** right away? ✨ (Default: 09:00~18:00)\n\n*(You can easily customize companions and themes in **[ + Add Conditions ]** at the top! 😊)*`
+            : (lang === 'ja')
+            ? `**[ ${tagLabel} ]**\n${highlightText ? `${highlightText}などの代表スポットを含め、` : ''}ご指定の条件に合わせて **[ ${localizedDest} ${rawDays}日間 カスタムコース ]** をすぐに作成しましょうか？✨ (基本 09:00〜18:00)\n\n*(同行者やテーマは上部の **\`[ + 条件追加 ]\`** からいつでも自由に変更できます！😊)*`
+            : (lang === 'zh' || lang === 'zht')
+            ? `**[ ${tagLabel} ]**\n${highlightText ? `精选 ${highlightText}等代表性名所，` : ''}是否立即为您生成专属定制的 **[ ${localizedDest} ${rawDays}日游路线 ]**？✨ (默认时间 09:00~18:00)\n\n*(同行同伴或旅行主题可在顶部 **\`[ + 添加条件 ]\`** 随时灵活修改！😊)*`
             : `**[ ${tagLabel} ]**\n${highlightText ? `${highlightText}대표 명소를 담아 ` : ''}선택하신 조건에 맞춰 **[ ${targetCity} ${rawDays}일 맞춤 코스 ]**로 바로 잡아드릴까요? ✨ (기본 09:00~18:00)\n\n*(동행이나 테마 같은 다른 조건은 상단 **\`[ + 조건 추가 ]\`**에서 언제든 편하게 바꾸실 수 있어요! 😊)*`;
         }
 
         quickSuggestions = [
-          (lang === 'en' ? `🚀 Create ${targetCity} ${rawDays || 3}D Plan` : `🚀 추천 ${targetCity} ${rawDays || 3}일 코스 만들기`),
+          (lang === 'en' ? `🚀 Create ${localizedDest} ${rawDays || 3}D Plan` : lang === 'ja' ? `🚀 ${localizedDest} ${rawDays || 3}日コースを作成` : (lang === 'zh' || lang === 'zht') ? `🚀 制作${localizedDest} ${rawDays || 3}日行程` : `🚀 추천 ${targetCity} ${rawDays || 3}일 코스 만들기`),
           ...durationChips,
-          (lang === 'en' ? `🍴 ${targetCity} Foodies` : `🍴 ${targetCity} 대표 맛집 & 카페`),
-          (lang === 'en' ? `📸 ${targetCity} Photo Spots` : `📸 ${targetCity} 인생샷 명소`),
-          (lang === 'en' ? `🏨 ${targetCity} Top Hotels` : `🏨 ${targetCity} 인기 숙소 추천`)
+          (lang === 'en' ? `🍴 ${localizedDest} Foodies` : lang === 'ja' ? `🍴 ${localizedDest} ご当地グルメ` : (lang === 'zh' || lang === 'zht') ? `🍴 ${localizedDest} 必吃美食` : `🍴 ${targetCity} 대표 맛집 & 카페`),
+          (lang === 'en' ? `📸 ${localizedDest} Photo Spots` : lang === 'ja' ? `📸 ${localizedDest} 映えスポット` : (lang === 'zh' || lang === 'zht') ? `📸 ${localizedDest} 拍照打卡` : `📸 ${targetCity} 인생샷 명소`),
+          (lang === 'en' ? `🏨 ${localizedDest} Top Hotels` : lang === 'ja' ? `🏨 ${localizedDest} おすすめ宿泊` : (lang === 'zh' || lang === 'zht') ? `🏨 ${localizedDest} 热门酒店` : `🏨 ${targetCity} 인기 숙소 추천`)
         ];
       }
 
@@ -1110,8 +1121,9 @@ export default function App() {
       const replyTime = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
       const requestedDays = extractDaysFromPrompt(promptQuery) || 3;
       const targetCity = extractLocationKeyword(promptQuery, false) || '서울';
+      const rawFallback = await generateLocalFallbackItinerary(promptQuery, targetCity, requestedDays, lang);
       const fallback = {
-        ...generateLocalFallbackItinerary(promptQuery, targetCity, requestedDays, lang),
+        ...rawFallback,
         targetCity,
         generationTime: elapsedSeconds,
         draftId: `draft-${Date.now()}`
@@ -1121,7 +1133,7 @@ export default function App() {
       const botMsg = {
         id: `bot-${Date.now()}`,
         role: 'assistant',
-        text: `✨ **${fallback.tripTitle}**\n${fallback.summary}`,
+        text: `✨ **${fallback.tripTitle || `${targetCity} ${requestedDays}일 여행 코스`}**\n${fallback.summary || '한국관광공사 정품 실시간 코스입니다.'}`,
         itinerary: fallback,
         generationTime: elapsedSeconds,
         queryTime,
@@ -1411,7 +1423,15 @@ export default function App() {
               onSelectCityPlan={(cityName, days) => {
                 setPlannerInitialMode('chat');
                 setActiveNavTab('ai');
-                handleGenerateItinerary(`${cityName} ${days}일 여행 코스 만들기`, true, false);
+                const locCity = getLocalizedCityName(cityName, lang);
+                const promptText = lang === 'en'
+                  ? `Create ${locCity} ${days}-Day Travel Itinerary`
+                  : lang === 'ja'
+                  ? `${locCity} ${days}日間の旅行コースを作成`
+                  : (lang === 'zh' || lang === 'zht')
+                  ? `制作${locCity} ${days}日游旅行路线`
+                  : `${cityName} ${days}일 여행 코스 만들기`;
+                handleGenerateItinerary(promptText, true, false);
               }}
               onOpenWeather={(city) => {
                 setWeatherCity(city || itineraryData?.targetCity || '서울');
