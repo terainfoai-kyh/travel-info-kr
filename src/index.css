@@ -940,9 +940,8 @@ button, a, input, select, textarea {
   max-width: 1320px;
   width: 100%;
   margin: 0 auto;
-  padding: 0 0.85rem 1.5rem 0.85rem;
+  padding: 0 0.85rem 0.25rem 0.85rem;
   box-sizing: border-box;
-  flex: 1;
 }
 
 /* Portal Quick Hub 6-Icon Grid & Theme Magazine Grid */

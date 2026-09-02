@@ -894,7 +894,7 @@ export default function DesktopMapExplorer({
     <div className="desktop-map-explorer-container hide-mobile" style={{
       width: '100%',
       maxWidth: '1260px',
-      margin: '0.35rem auto 0.5rem',
+      margin: '0.35rem auto 0.25rem',
       backgroundColor: '#ffffff',
       borderRadius: '24px',
       border: '1px solid #e2e8f0',
@@ -1149,7 +1149,7 @@ export default function DesktopMapExplorer({
       <div style={{
         display: 'flex',
         gap: '12px',
-        height: '520px',
+        height: '580px',
         width: '100%',
         position: 'relative'
       }}>
@@ -1406,7 +1406,7 @@ export default function DesktopMapExplorer({
                 {/* Top 4K Photo Banner with Gradient Overlay */}
                 <div style={{
                   position: 'relative',
-                  height: '170px',
+                  height: '185px',
                   width: '100%',
                   overflow: 'hidden',
                   backgroundColor: '#f8fafc'

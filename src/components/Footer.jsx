@@ -26,12 +26,12 @@ export default function Footer({
     <footer 
       className="vora-global-footer"
       style={{
-        marginTop: '0.75rem',
+        marginTop: '0.25rem',
         borderTop: '1px solid rgba(226, 232, 240, 0.85)',
         background: 'linear-gradient(180deg, rgba(248, 250, 252, 0.95) 0%, #f1f5f9 100%)',
         backdropFilter: 'blur(10px)',
         WebkitBackdropFilter: 'blur(10px)',
-        padding: '1.5rem 1.5rem 4.5rem 1.5rem',
+        padding: '1.2rem 1.5rem 4.5rem 1.5rem',
         color: '#475569',
         fontSize: '0.84rem',
         position: 'relative',
