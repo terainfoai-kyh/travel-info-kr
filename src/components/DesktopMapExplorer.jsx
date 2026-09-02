@@ -1564,22 +1564,44 @@ export default function DesktopMapExplorer({
                       </div>
                     </div>
 
-                    {/* 🍲 VORA Foodie Secret Card */}
+                    {/* 🍲 VORA Foodie Secret Pill Tags */}
                     {getSelectedFoodieSecret() && (
                       <div style={{
-                        display: 'flex',
-                        alignItems: 'flex-start',
-                        gap: '6px',
                         padding: '6px 8px',
                         backgroundColor: '#fff7ed',
                         borderRadius: '8px',
-                        border: '1px solid #ffedd5',
+                        border: '1px solid #fed7aa',
                         marginBottom: '6px'
                       }}>
-                        <Utensils size={13} color="#ea580c" style={{ flexShrink: 0, marginTop: '2px' }} />
-                        <div style={{ fontSize: '0.72rem', color: '#9a3412', lineHeight: '1.3' }}>
-                          <span style={{ fontWeight: 900 }}>VORA 찐 미식: </span>
-                          <span>{getSelectedFoodieSecret()}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>
+                          <Utensils size={12} color="#ea580c" />
+                          <span style={{ fontSize: '0.70rem', fontWeight: 900, color: '#9a3412' }}>
+                            {lang === 'en' ? 'Local Foodie Picks' : lang === 'ja' ? 'ローカル美食' : (lang === 'zh' || lang === 'zht') ? '地道美食' : 'VORA 찐 미식'}
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                          {getSelectedFoodieSecret().split(/[,•|·]/).map((item, iIdx) => {
+                            const cleanItem = item.trim();
+                            if (!cleanItem) return null;
+                            return (
+                              <span
+                                key={iIdx}
+                                style={{
+                                  fontSize: '0.68rem',
+                                  fontWeight: 700,
+                                  color: '#c2410c',
+                                  backgroundColor: '#ffffff',
+                                  border: '1px solid #fed7aa',
+                                  padding: '2px 7px',
+                                  borderRadius: '9999px',
+                                  display: 'inline-flex',
+                                  alignItems: 'center'
+                                }}
+                              >
+                                {cleanItem}
+                              </span>
+                            );
+                          })}
                         </div>
                       </div>
                     )}
@@ -1593,12 +1615,14 @@ export default function DesktopMapExplorer({
                         padding: '6px 8px',
                         backgroundColor: '#f5f3ff',
                         borderRadius: '8px',
-                        border: '1px solid #ede9fe',
+                        border: '1px solid #ddd6fe',
                         marginBottom: '6px'
                       }}>
-                        <Moon size={13} color="#7c3aed" style={{ flexShrink: 0, marginTop: '2px' }} />
-                        <div style={{ fontSize: '0.72rem', color: '#6d28d9', lineHeight: '1.3' }}>
-                          <span style={{ fontWeight: 900 }}>시그니처 야경: </span>
+                        <Moon size={12} color="#7c3aed" style={{ flexShrink: 0, marginTop: '2px' }} />
+                        <div style={{ fontSize: '0.70rem', color: '#6d28d9', lineHeight: '1.35' }}>
+                          <span style={{ fontWeight: 900 }}>
+                            {lang === 'en' ? 'Night View: ' : lang === 'ja' ? '夜景名所: ' : (lang === 'zh' || lang === 'zht') ? '夜景打卡: ' : '시그니처 야경: '}
+                          </span>
                           <span>{getSelectedNightHighlight()}</span>
                         </div>
                       </div>
