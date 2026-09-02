@@ -437,42 +437,54 @@ export default function PortalHomePrototype({
         ))}
 
         {/* Ambient Subtle Light Scrim (사진 본연의 맑고 찬란한 100% 퓨어 자연 색감 노출) */}
+        {/* Ambient Contrast Scrim (글자가 선명하게 돋보이면서도 4K 정품 사진의 웅장함을 완벽 보존) */}
         <div style={{
           position: 'absolute',
           top: 0,
           left: 0,
           width: '100%',
           height: '100%',
-          background: 'linear-gradient(180deg, rgba(0, 0, 0, 0.0) 0%, rgba(0, 0, 0, 0.0) 65%, rgba(15, 23, 42, 0.38) 100%)',
+          background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.25) 0%, rgba(15, 23, 42, 0.05) 45%, rgba(15, 23, 42, 0.55) 100%)',
           zIndex: 2
         }} />
 
-        {/* [TOP] Clean 1-Line Headline (상단 맑은 하늘/지붕 영역에 당당하게 띄움) */}
+        {/* [TOP] Master Hero Headline with English Subtitle */}
         <div style={{
           position: 'relative',
           zIndex: 3,
           textAlign: 'center',
           width: '100%',
           maxWidth: '860px',
-          paddingTop: '0.2rem'
+          paddingTop: '0.4rem'
         }}>
+          <div style={{
+            fontSize: '0.74rem',
+            fontWeight: 800,
+            letterSpacing: '0.14em',
+            color: '#38bdf8',
+            textTransform: 'uppercase',
+            marginBottom: '0.2rem',
+            textShadow: '0 2px 8px rgba(0, 0, 0, 0.8)'
+          }}>
+            PLAN YOUR KOREA TRIP
+          </div>
           <h1 style={{
-            fontSize: 'clamp(1.2rem, 3.8vw, 1.85rem)',
+            fontSize: 'clamp(1.25rem, 3.8vw, 1.95rem)',
             fontWeight: 900,
             lineHeight: 1.25,
             color: '#ffffff',
             margin: 0,
-            textShadow: '0 2px 14px rgba(0, 0, 0, 0.9), 0 1px 4px rgba(0, 0, 0, 0.95)',
+            textShadow: '0 2px 14px rgba(0, 0, 0, 0.85), 0 1px 4px rgba(0, 0, 0, 0.95)',
             letterSpacing: '-0.02em'
           }}>
-            {lang === 'en' ? 'Smart AI Trip to Korea' :
-             lang === 'ja' ? 'AIと旅するスマートな韓国旅行' :
-             (lang === 'zh' || lang === 'zht') ? 'AI智能定制专属完美韩国旅行' :
-             '나만의 완벽한 한국 여행, AI와 함께'}
+            {lang === 'en' ? 'Custom Korea Trip, Powered by AI' :
+             lang === 'ja' ? 'あなただけの韓国旅行、AIと一緒に始めましょう' :
+             (lang === 'zh' || lang === 'zht') ? '定制专属韩国之旅，与AI一同开启' :
+             '나만의 한국 여행, AI와 함께 시작하세요'}
           </h1>
         </div>
 
-        {/* [BOTTOM] Hero Search Container */}
+        {/* [BOTTOM] Master AI Search Box */}
         <div style={{
           position: 'relative',
           zIndex: 3,
@@ -485,12 +497,12 @@ export default function PortalHomePrototype({
           paddingBottom: '1.25rem'
         }}>
 
-          {/* 🔍 HanaTour / Airbnb Style Slim Pure White Smart Search Box */}
+          {/* 🔍 Elevated Pure White AI Search Box */}
           <form 
             onSubmit={handleSearch}
             style={{
               width: '100%',
-              maxWidth: '480px',
+              maxWidth: '520px',
               position: 'relative'
             }}
           >
@@ -499,8 +511,8 @@ export default function PortalHomePrototype({
               alignItems: 'center',
               backgroundColor: '#ffffff',
               borderRadius: '9999px',
-              padding: '0.15rem 0.2rem 0.15rem 0.75rem',
-              boxShadow: '0 12px 28px rgba(0, 0, 0, 0.2)',
+              padding: '0.2rem 0.25rem 0.2rem 0.85rem',
+              boxShadow: '0 12px 32px rgba(15, 23, 42, 0.25), 0 2px 6px rgba(0, 0, 0, 0.08)',
               border: '2px solid rgba(255, 255, 255, 0.95)',
               transition: 'all 0.3s ease'
             }}>
@@ -510,10 +522,10 @@ export default function PortalHomePrototype({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={
-                  lang === 'en' ? 'Search destination (e.g. Jeju, Hongdae, Suwon Fortress)' :
-                  lang === 'ja' ? '都市・名所を入力 (例: 済州, 弘大, 水原華城)' :
-                  (lang === 'zh' || lang === 'zht') ? '输入城市或景点 (例如: 济州, 弘大, 水原华城)' :
-                  '도시·명소 입력 (예: 제주, 성수, 수원화성)'
+                  lang === 'en' ? 'Where are you traveling? (e.g. Jeju 4-day foodie tour)' :
+                  lang === 'ja' ? 'どこへ旅行しますか？ (例: 済州島 3泊4日 グルメ旅)' :
+                  (lang === 'zh' || lang === 'zht') ? '想去哪里旅行？ (例如: 济州岛 4天3晚 美食之旅)' :
+                  '어디로 여행하시나요? (예: 제주 3박 4일 맛집 여행)'
                 }
                 style={{
                   flex: 1,
@@ -521,7 +533,7 @@ export default function PortalHomePrototype({
                   border: 'none',
                   outline: 'none',
                   color: '#0f172a',
-                  fontSize: '0.80rem',
+                  fontSize: '0.82rem',
                   fontWeight: 700,
                   padding: '0.35rem 0.5rem',
                   minWidth: 0
@@ -534,20 +546,20 @@ export default function PortalHomePrototype({
                   color: '#ffffff',
                   border: 'none',
                   borderRadius: '9999px',
-                  padding: '0.35rem 0.8rem',
-                  fontSize: '0.76rem',
+                  padding: '0.38rem 0.95rem',
+                  fontSize: '0.78rem',
                   fontWeight: 800,
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.25rem',
-                  boxShadow: '0 4px 12px rgba(37, 99, 235, 0.35)',
+                  gap: '0.3rem',
+                  boxShadow: '0 4px 14px rgba(37, 99, 235, 0.4)',
                   transition: 'all 0.2s ease',
                   flexShrink: 0
                 }}
               >
-                <Sparkles size={12} />
-                <span>{lang === 'en' ? 'Plan' : lang === 'ja' ? '作成' : (lang === 'zh' || lang === 'zht') ? '生成' : 'AI 생성'}</span>
+                <Sparkles size={13} />
+                <span>{lang === 'en' ? 'AI Plan' : lang === 'ja' ? 'AI 作成' : (lang === 'zh' || lang === 'zht') ? 'AI 生成' : '✦ AI 생성'}</span>
               </button>
             </div>
           </form>

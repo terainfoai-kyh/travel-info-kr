@@ -113,7 +113,7 @@ export default function Header({
   const currentTemp = liveTemp || CITY_TEMPS[targetCity] || '25°C';
   const currentFeelsLike = liveFeelsLike || `${(parseInt(currentTemp) || 25) + 3}°C`;
   const feelsLabel = lang === 'en' ? 'Feels' : lang === 'ja' ? '体感' : (lang === 'zh' || lang === 'zht') ? '体感' : '체감';
-  const styleLabel = lang === 'en' ? 'Style 👗' : lang === 'ja' ? 'コーデ 👗' : (lang === 'zh' || lang === 'zht') ? '穿搭 👗' : '코디 👗';
+  const styleLabel = lang === 'en' ? 'Weather & Outfit' : lang === 'ja' ? '天気・コーデ' : (lang === 'zh' || lang === 'zht') ? '天气·穿搭' : '날씨·코디';
 
   // Close menus on outside click
   useEffect(() => {
@@ -238,14 +238,14 @@ export default function Header({
               {tickerStep === 0 ? (
                 <>
                   <CloudSun size={14} style={{ color: 'var(--accent-primary)', flexShrink: 0 }} />
-                  <span className="hide-mobile" style={{ whiteSpace: 'nowrap' }}>{getLocalizedCityName(targetCity, lang)} {currentTemp} · {styleLabel}</span>
-                  <span className="show-mobile-only" style={{ whiteSpace: 'nowrap', fontWeight: 800 }}>{currentTemp} 👗</span>
+                  <span className="hide-mobile" style={{ whiteSpace: 'nowrap' }}>{getLocalizedCityName(targetCity, lang)} {currentTemp} · {styleLabel} ›</span>
+                  <span className="show-mobile-only" style={{ whiteSpace: 'nowrap', fontWeight: 800 }}>{currentTemp} ›</span>
                 </>
               ) : (
                 <>
                   <Thermometer size={14} style={{ color: '#ef4444', flexShrink: 0 }} />
-                  <span className="hide-mobile" style={{ whiteSpace: 'nowrap' }}>{getLocalizedCityName(targetCity, lang)} {feelsLabel} {currentFeelsLike} · {styleLabel}</span>
-                  <span className="show-mobile-only" style={{ whiteSpace: 'nowrap', fontWeight: 800, color: 'var(--accent-primary)' }}>{feelsLabel} {currentFeelsLike} 👗</span>
+                  <span className="hide-mobile" style={{ whiteSpace: 'nowrap' }}>{getLocalizedCityName(targetCity, lang)} {feelsLabel} {currentFeelsLike} · {styleLabel} ›</span>
+                  <span className="show-mobile-only" style={{ whiteSpace: 'nowrap', fontWeight: 800, color: 'var(--accent-primary)' }}>{feelsLabel} {currentFeelsLike} ›</span>
                 </>
               )}
             </div>

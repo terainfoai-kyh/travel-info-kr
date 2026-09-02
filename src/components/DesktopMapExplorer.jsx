@@ -1034,10 +1034,10 @@ export default function DesktopMapExplorer({
           }}>
             {activeStage === 'explore' && (
               <span>
-                {lang === 'en' ? 'Click anywhere on map to explore Korea!' : 
-                 lang === 'ja' ? '地図の行きたい場所を自由にクリック！' : 
-                 (lang === 'zh' || lang === 'zht') ? '点击地图任意位置，开启韩国之旅！' : 
-                 '대한민국 어디든 지도를 콕 찍어보세요!'}
+                {lang === 'en' ? '🧭 Anywhere in Korea, Your Journey Begins Here' : 
+                 lang === 'ja' ? '🧭 韓国のどこへでも、旅はここから始まります' : 
+                 (lang === 'zh' || lang === 'zht') ? '🧭 韩国全域，专属旅程由此启程' : 
+                 '🧭 대한민국 어디든, 여행은 여기서 시작됩니다.'}
               </span>
             )}
             {activeStage === 'chat' && (
@@ -1157,10 +1157,10 @@ export default function DesktopMapExplorer({
         <div style={{
           flex: activeStage === 'itinerary'
             ? (isMapExpandedInStage3 ? '1 1 50%' : '0 0 46px')
-            : (isMapExpandedFull ? '1 1 100%' : '1 1 50%'),
+            : (isMapExpandedFull ? '1 1 100%' : '1 1 54%'),
           width: activeStage === 'itinerary'
             ? (isMapExpandedInStage3 ? '50%' : '46px')
-            : (isMapExpandedFull ? '100%' : '50%'),
+            : (isMapExpandedFull ? '100%' : '54%'),
           height: '100%',
           borderRadius: '16px',
           overflow: 'hidden',
@@ -1383,11 +1383,11 @@ export default function DesktopMapExplorer({
           </button>
         </div>
 
-        {/* [2. 우측 워크스페이스 (1·2단계 또는 3단계 지도 펼침 시 50% 패널)] */}
+        {/* [2. 우측 워크스페이스 (1·2단계 또는 3단계 지도 펼침 시 46% 패널)] */}
         {(activeStage !== 'itinerary' || isMapExpandedInStage3) && (
           <div style={{
-            flex: isMapExpandedFull ? '0 0 0px' : '1 1 50%',
-            width: isMapExpandedFull ? 0 : '50%',
+            flex: isMapExpandedFull ? '0 0 0px' : '1 1 46%',
+            width: isMapExpandedFull ? 0 : '46%',
             height: '100%',
             backgroundColor: '#ffffff',
             borderRadius: '16px',
@@ -1526,34 +1526,40 @@ export default function DesktopMapExplorer({
                       {getSelectedDesc()}
                     </p>
 
-                    {/* 3 Core Highlights Chips */}
-                    <div style={{ marginBottom: '6px' }}>
-                      <div style={{ fontSize: '0.70rem', fontWeight: 800, color: '#7c3aed', marginBottom: '4px' }}>
-                        ✨ {lang === 'en' ? 'Top Highlights (Click to View on Map)' : lang === 'ja' ? 'おすすめスポット' : (lang === 'zh' || lang === 'zht') ? '核心亮点' : 'VORA 추천 핵심 명소 (클릭 시 지도 이동)'}
+                    {/* Tier 2: ✦ VORA AI Recommended Spot Flow */}
+                    <div style={{ marginBottom: '8px' }}>
+                      <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#7c3aed', marginBottom: '5px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <Sparkles size={12} color="#7c3aed" />
+                        <span>{lang === 'en' ? 'VORA AI Recommended Route' : lang === 'ja' ? 'VORA AI おすすめ連動コース' : (lang === 'zh' || lang === 'zht') ? 'VORA AI 推荐连游路线' : '✦ VORA AI 추천 연계 코스'}</span>
                       </div>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '5px' }}>
                         {(selectedLocation.highlights || []).map((hl, hIdx) => (
-                          <button 
-                            key={hIdx}
-                            onClick={() => handleHighlightSpotClick(hl)}
-                            title="클릭 시 지도가 이 명소로 이동합니다"
-                            style={{
-                              fontSize: '0.72rem',
-                              fontWeight: 800,
-                              backgroundColor: '#f3e8ff',
-                              color: '#7c3aed',
-                              padding: '3px 8px',
-                              borderRadius: '9999px',
-                              border: '1px solid #ddd6fe',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '3px'
-                            }}
-                          >
-                            <span>📍</span>
-                            <span>{getHighlightName(hl)}</span>
-                          </button>
+                          <React.Fragment key={hIdx}>
+                            <button 
+                              onClick={() => handleHighlightSpotClick(hl)}
+                              title="클릭 시 지도가 이 명소로 이동합니다"
+                              style={{
+                                fontSize: '0.74rem',
+                                fontWeight: 800,
+                                backgroundColor: '#f5f3ff',
+                                color: '#6d28d9',
+                                padding: '3px 9px',
+                                borderRadius: '9999px',
+                                border: '1px solid #ddd6fe',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '3px',
+                                transition: 'all 0.15s ease'
+                              }}
+                            >
+                              <span>📍</span>
+                              <span>{getHighlightName(hl)}</span>
+                            </button>
+                            {hIdx < (selectedLocation.highlights || []).length - 1 && (
+                              <span style={{ color: '#a78bfa', fontSize: '0.70rem', fontWeight: 900 }}>➔</span>
+                            )}
+                          </React.Fragment>
                         ))}
                       </div>
                     </div>
