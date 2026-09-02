@@ -43,6 +43,7 @@ import DesktopNavSidebar from './components/DesktopNavSidebar';
 import DockedMapStation from './components/DockedMapStation';
 import SubwayMapModal from './components/SubwayMapModal';
 import HelplineModal from './components/HelplineModal';
+import Footer from './components/Footer';
 
 import { detectBrowserLanguage, TRANSLATIONS } from './i18n/translations';
 import { geminiGenerateFullItinerary, generateLocalFallbackItinerary, enrichItineraryPhotosAsync, extractLocationKeyword, extractDaysFromPrompt } from './services/geminiNlpService';
@@ -1626,56 +1627,18 @@ export default function App() {
         lang={lang}
       />
 
-      {/* Footer with Google AdSense Required Policy Links (Visible on More tab & Desktop) */}
-      {activeNavTab === 'more' && (
-        <footer style={{
-          marginTop: 'auto',
-          borderTop: '1px solid var(--border-color)',
-          padding: '1.75rem 1rem 5.5rem 1rem',
-          textAlign: 'center',
-          fontSize: '0.84rem',
-          color: 'var(--text-muted)',
-          backgroundColor: 'var(--bg-glass)'
-        }}>
-          <div style={{ maxWidth: '800px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '1rem', fontWeight: 600 }}>
-              <button
-                onClick={() => setIsPrivacyOpen(true)}
-                style={{ background: 'none', border: 'none', color: 'var(--text-main)', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 700 }}
-              >
-                {t.privacyPolicy || '개인정보처리방침'}
-              </button>
-              <span>•</span>
-              <button
-                onClick={() => setIsTermsOpen(true)}
-                style={{ background: 'none', border: 'none', color: 'var(--text-main)', cursor: 'pointer', fontSize: '0.84rem' }}
-              >
-                {t.termsOfService || '이용약관'}
-              </button>
-              <span>•</span>
-              <button
-                onClick={() => setIsAboutOpen(true)}
-                style={{ background: 'none', border: 'none', color: 'var(--text-main)', cursor: 'pointer', fontSize: '0.84rem' }}
-              >
-                {t.aboutUs || '서비스 소개'}
-              </button>
-              <span>•</span>
-              <button
-                onClick={() => setIsContactOpen(true)}
-                style={{ background: 'none', border: 'none', color: 'var(--text-main)', cursor: 'pointer', fontSize: '0.84rem' }}
-              >
-                {t.contactUs || '제휴 및 문의'}
-              </button>
-            </div>
-
-            <p style={{ margin: '0 0 0.5rem 0', fontWeight: 600 }}>
-              {t.footerCopyright || '© 2026 VORA AI — Korea Smart Travel Concierge. All Rights Reserved.'}
-            </p>
-            <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-dim)' }}>
-              {t.footerTourApiNotice || 'Google Gemini 3.0 AI & Google Maps Platform 연동'} | Official Contact: terainfoai@gmail.com
-            </p>
-          </div>
-        </footer>
+      {/* 🏛️ Global Modern Slim Footer (Desktop & Home/More tabs) */}
+      {(activeNavTab === 'home' || activeNavTab === 'more') && (
+        <Footer
+          lang={lang}
+          onOpenPrivacy={() => setIsPrivacyOpen(true)}
+          onOpenTerms={() => setIsTermsOpen(true)}
+          onOpenAbout={() => setIsAboutOpen(true)}
+          onOpenContact={() => setIsContactOpen(true)}
+          onOpenSubway={() => setIsSubwayMapOpen(true)}
+          onOpenHelpline={() => setIsHelplineModalOpen(true)}
+          onOpenEssentials={() => setIsEssentialsOpen(true)}
+        />
       )}
 
 
