@@ -1060,7 +1060,13 @@ export default function DesktopMapExplorer({
           display: 'flex',
           alignItems: 'center',
           gap: '0.35rem',
-          flexWrap: 'nowrap'
+          flexWrap: 'nowrap',
+          overflowX: 'auto',
+          whiteSpace: 'nowrap',
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+          maxWidth: '100%',
+          paddingBottom: '2px'
         }}>
           {activeStage === 'explore' && POPULAR_QUICK_CITIES.map((city) => {
             const isSelected = selectedLocation.nameKo.includes(city.nameKo) || city.nameKo.includes(selectedLocation.nameKo);
@@ -1077,15 +1083,16 @@ export default function DesktopMapExplorer({
                   fontSize: '0.72rem',
                   fontWeight: 800,
                   cursor: 'pointer',
+                  flexShrink: 0,
                   transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                   border: isSelected 
-                    ? '1px solid #2563eb' 
-                    : '1px solid #e2e8f0',
+                    ? '1px solid #f43f5e' 
+                    : '1px solid #f0ebe1',
                   background: isSelected 
-                    ? 'linear-gradient(135deg, #2563eb, #7c3aed)' 
-                    : '#f8fafc',
-                  color: isSelected ? '#ffffff' : '#475569',
-                  boxShadow: isSelected ? '0 3px 10px rgba(37, 99, 235, 0.35)' : 'none',
+                    ? 'linear-gradient(135deg, #f43f5e 0%, #7c3aed 100%)' 
+                    : '#ffffff',
+                  color: isSelected ? '#ffffff' : '#57534e',
+                  boxShadow: isSelected ? '0 3px 10px rgba(124, 58, 237, 0.35)' : 'none',
                   transform: isSelected ? 'scale(1.04)' : 'scale(1)'
                 }}
               >
@@ -1456,14 +1463,14 @@ export default function DesktopMapExplorer({
                           transition: 'opacity 0.25s ease'
                         }}
                       />
-                      {/* Ultra-Light Soft Scrim (사진 상단 70%는 100% 퓨어 원본, 하단 텍스트 영역만 은은한 그림자) */}
+                      {/* Ultra-Clear Soft Scrim (하단 텍스트 영역의 시인성을 완벽 보장하는 다크 그라데이션) */}
                       <div style={{
                         position: 'absolute',
                         top: 0,
                         left: 0,
                         right: 0,
                         bottom: 0,
-                        background: 'linear-gradient(180deg, rgba(0,0,0,0.0) 0%, rgba(0,0,0,0.0) 55%, rgba(15, 23, 42, 0.42) 85%, rgba(15, 23, 42, 0.68) 100%)'
+                        background: 'linear-gradient(180deg, rgba(0,0,0,0.0) 0%, rgba(15, 23, 42, 0.20) 45%, rgba(15, 23, 42, 0.65) 75%, rgba(15, 23, 42, 0.90) 100%)'
                       }} />
 
                       {/* Photo Overlay Title */}
@@ -1475,25 +1482,31 @@ export default function DesktopMapExplorer({
                         color: '#ffffff'
                       }}>
                         <div style={{
-                          fontSize: '11px',
-                          fontWeight: 800,
-                          color: '#38bdf8',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.05em',
-                          marginBottom: '2px',
-                          display: 'flex',
+                          display: 'inline-flex',
                           alignItems: 'center',
                           gap: '4px',
-                          textShadow: '0 1px 4px rgba(0,0,0,0.8)'
+                          backgroundColor: 'rgba(15, 23, 42, 0.78)',
+                          backdropFilter: 'blur(6px)',
+                          WebkitBackdropFilter: 'blur(6px)',
+                          border: '1px solid rgba(255, 255, 255, 0.35)',
+                          borderRadius: '9999px',
+                          padding: '2px 9px',
+                          fontSize: '10.5px',
+                          fontWeight: 800,
+                          color: '#ffffff',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.03em',
+                          marginBottom: '4px',
+                          boxShadow: '0 2px 6px rgba(0, 0, 0, 0.35)'
                         }}>
-                          <CheckCircle2 size={12} color="#38bdf8" />
+                          <CheckCircle2 size={11} color="#38bdf8" />
                           <span>📍 {lang === 'en' ? 'TourAPI Certified Destination' : lang === 'ja' ? '公式認証 観光地' : (lang === 'zh' || lang === 'zht') ? '官方认证 目的地' : '한국관광공사 정품 인증 여행지'}</span>
                         </div>
                         <div style={{
                           fontSize: '1.25rem',
                           fontWeight: 900,
                           color: '#ffffff',
-                          textShadow: '0 2px 10px rgba(0,0,0,0.9), 0 1px 4px rgba(0,0,0,0.95)'
+                          textShadow: '0 2px 10px rgba(0,0,0,0.95), 0 1px 4px rgba(0,0,0,0.95)'
                         }}>
                           {lang === 'ko' ? selectedLocation.nameKo : selectedLocation.nameEn}
                           <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#e2e8f0', marginLeft: '6px', textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>
