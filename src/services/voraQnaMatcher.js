@@ -239,8 +239,8 @@ export function matchVoraQna(query = '', targetCity = null, context = {}, lang =
     const templateVars = {
       city: displayCity,
       season: activeSeason,
-      hotel: context.tripMemory?.hotelArea || (lang === 'en' ? 'Hotel' : '숙소'),
-      gateway: context.tripMemory?.gateway || (lang === 'en' ? 'Airport' : '공항/역')
+      hotel: context.tripMemory?.hotelArea || (lang === 'en' ? 'Hotel' : lang === 'ja' ? 'ホテル' : (lang === 'zh' || lang === 'zht') ? '酒店' : '숙소'),
+      gateway: context.tripMemory?.gateway || (lang === 'en' ? 'Airport' : lang === 'ja' ? '空港・駅' : (lang === 'zh' || lang === 'zht') ? '机场/车站' : '공항/역')
     };
 
     let reply = interpolateTemplate(rawAnswer, templateVars);
@@ -258,29 +258,37 @@ export function matchVoraQna(query = '', targetCity = null, context = {}, lang =
         const hotelLines = hotelList.map((h, i) => `${i + 1}. **${h.name}** (${h.type})\n   - ${h.desc}`).join('\n');
         reply = (lang === 'en')
           ? `Here are top curated hotel picks for **${displayCity}**! 🏨✨\n\n${hotelLines}\n\n💡 *Let me know your preferred area or style (luxury, budget, ocean view, hanok stay)!* 😊`
+          : (lang === 'ja')
+          ? `**${displayCity}**で評価と立地が抜群のおすすめ宿泊施設です！🏨✨\n\n${hotelLines}\n\n💡 *ご希望のエリアやスタイル（コスパ、ラグジュアリーホテル、韓屋ステイ）をお知らせください！😊*`
+          : (lang === 'zh' || lang === 'zht')
+          ? `为您精选 **${displayCity}** 口碑与地理位置绝佳的优质酒店与住宿！🏨✨\n\n${hotelLines}\n\n💡 *如您有偏好的区域或住宿风格（高性价比、海景轻奢、传统韩屋），随时告诉我！😊*`
           : `**${displayCity}**에서 평점과 접근성이 가장 뛰어난 추천 숙소 큐레이션이에요! 🏨✨\n\n${hotelLines}\n\n💡 *원하시는 권역이나 스타일(가성비, 럭셔리 호캉스, 감성 한옥)을 말씀해 주시면 딱 맞춰 드릴게요! 😊*`;
         
         followUp = (lang === 'en')
           ? `Shall I include this accommodation into your ${displayCity} itinerary?`
+          : (lang === 'ja')
+          ? `この宿泊先を拠点に${displayCity}の旅程を作成しましょうか？🚀`
+          : (lang === 'zh' || lang === 'zht')
+          ? `是否将此住宿设为据点为您规划${displayCity}专属行程？🚀`
           : `이 숙소를 거점으로 ${displayCity} 일정을 바로 잡아드릴까요? 🚀`;
 
         if (hotelType === 'coastal') {
           baseChips = [
-            (lang === 'en' ? '🌊 Ocean View Luxury' : '🌊 오션뷰 럭셔리 호텔'),
-            (lang === 'en' ? '🏖️ Ocean View Pool Villa' : '🏖️ 오션뷰 감성 풀빌라'),
-            (lang === 'en' ? '🏨 Value Top Hotel' : '🏨 가성비 인기 호텔')
+            (lang === 'en' ? '🌊 Ocean View Luxury' : lang === 'ja' ? '🌊 オーシャンビュー 高級ホテル' : (lang === 'zh' || lang === 'zht') ? '🌊 海景轻奢酒店' : '🌊 오션뷰 럭셔리 호텔'),
+            (lang === 'en' ? '🏖️ Ocean View Pool Villa' : lang === 'ja' ? '🏖️ オーシャンビュー プールヴィラ' : (lang === 'zh' || lang === 'zht') ? '🏖️ 海景独栋泳池别墅' : '🏖️ 오션뷰 감성 풀빌라'),
+            (lang === 'en' ? '🏨 Value Top Hotel' : lang === 'ja' ? '🏨 コスパ人気ホテル' : (lang === 'zh' || lang === 'zht') ? '🏨 高性价比人气酒店' : '🏨 가성비 인기 호텔')
           ];
         } else if (hotelType === 'heritage') {
           baseChips = [
-            (lang === 'en' ? '🏮 Traditional Hanok Stay' : '🏮 전통 한옥 스테이'),
-            (lang === 'en' ? '🏨 Lake View Resort' : '🏨 호수/전경 뷰 리조트'),
-            (lang === 'en' ? '🏢 Downtown Hotel' : '🏢 도심 가성비 호텔')
+            (lang === 'en' ? '🏮 Traditional Hanok Stay' : lang === 'ja' ? '🏮 伝統韓屋ステイ' : (lang === 'zh' || lang === 'zht') ? '🏮 传统韩屋特色住宿' : '🏮 전통 한옥 스테이'),
+            (lang === 'en' ? '🏨 Lake View Resort' : lang === 'ja' ? '🏨 レイクビュー リゾート' : (lang === 'zh' || lang === 'zht') ? '🏨 湖景度假村' : '🏨 호수/전경 뷰 리조트'),
+            (lang === 'en' ? '🏢 Downtown Hotel' : lang === 'ja' ? '🏢 市内中心部ホテル' : (lang === 'zh' || lang === 'zht') ? '🏢 市中心便利酒店' : '🏢 도심 가성비 호텔')
           ];
         } else {
           baseChips = [
-            (lang === 'en' ? '🏙️ Luxury City Staycation' : '🏙️ 럭셔리 호캉스 & 전망'),
-            (lang === 'en' ? '🏮 Private Hanok Stay' : '🏮 북촌/감성 한옥 스테이'),
-            (lang === 'en' ? '🏨 Shopping & Transit Hotel' : '🏨 쇼핑 & 역세권 호텔')
+            (lang === 'en' ? '🏙️ Luxury City Staycation' : lang === 'ja' ? '🏙️ シティホカンス＆夜景' : (lang === 'zh' || lang === 'zht') ? '🏙️ 城市景观奢华度假' : '🏙️ 럭셔리 호캉스 & 전망'),
+            (lang === 'en' ? '🏮 Private Hanok Stay' : lang === 'ja' ? '🏮 北村・韓屋ステイ' : (lang === 'zh' || lang === 'zht') ? '🏮 北村特色韩屋' : '🏮 북촌/감성 한옥 스테이'),
+            (lang === 'en' ? '🏨 Shopping & Transit Hotel' : lang === 'ja' ? '🏨 ショッピング・駅近ホテル' : (lang === 'zh' || lang === 'zht') ? '🏨 购物地段近地铁酒店' : '🏨 쇼핑 & 역세권 호텔')
           ];
         }
       }
@@ -295,14 +303,22 @@ export function matchVoraQna(query = '', targetCity = null, context = {}, lang =
         const nightLines = nightList.map((n, i) => `${i + 1}. **${n.name}**\n   - ${n.desc}`).join('\n');
         reply = (lang === 'en')
           ? `Here are the most breathtaking night view spots in **${displayCity}**! 🌃✨\n\n${nightLines}\n\n💡 *Would you like me to add these night spots to your evening schedule (after 17:00)?* 😊`
+          : (lang === 'ja')
+          ? `**${displayCity}**で最もロマンチックな代表的夜景スポットです！🌃✨\n\n${nightLines}\n\n💡 *夕方以降（17:00〜）の日程に夜景コースを組み込みましょうか？🚀*`
+          : (lang === 'zh' || lang === 'zht')
+          ? `为您呈现 **${displayCity}** 最具魅力的绝美夜景观赏胜地！🌃✨\n\n${nightLines}\n\n💡 *是否将心仪的夜景名胜直接加入今晚的行程（17:00以后）？🚀*`
           : `**${displayCity}**에서 가장 아름다운 대표 야경 & 나이트 명소 큐레이션이에요! 🌃✨\n\n${nightLines}\n\n💡 *이 중 마음에 드는 야경 명소를 오늘 저녁 코스(17:00 이후)에 바로 쏙 넣어드릴까요? 🚀*`;
         
         followUp = (lang === 'en')
           ? `Shall I add this night view into your ${displayCity} evening course?`
+          : (lang === 'ja')
+          ? `この夜景スポットを夕方の日程に反映させましょうか？🚀`
+          : (lang === 'zh' || lang === 'zht')
+          ? `是否将此夜景名胜加入${displayCity}晚间行程？🚀`
           : `이 야경 명소를 저녁 일정에 바로 반영해 드릴까요? 🚀`;
 
         baseChips = [
-          (lang === 'en' ? '🚀 Add to Evening Plan' : '🚀 저녁 야경 코스에 추가'),
+          (lang === 'en' ? '🚀 Add to Evening Plan' : lang === 'ja' ? '🚀 夜景コースに追加' : (lang === 'zh' || lang === 'zht') ? '🚀 加入晚间夜景' : '🚀 저녁 야경 코스에 추가'),
           nightList[0]?.name ? `🗼 ${nightList[0].name.split('&')[0].trim()}` : '🗼 대표 야경 스팟',
           nightList[1]?.name ? `🌌 ${nightList[1].name.split('&')[0].trim()}` : '🌌 감성 성곽/해변'
         ];
@@ -318,23 +334,31 @@ export function matchVoraQna(query = '', targetCity = null, context = {}, lang =
         const cafeLines = cafeList.map((c, i) => `${i + 1}. **${c.name}**\n   - ${c.desc}`).join('\n');
         reply = (lang === 'en')
           ? `Here are top curated aesthetic cafe trails in **${displayCity}**! ☕🍰\n\n${cafeLines}\n\n💡 *Shall I weave a relaxing cafe break into your afternoon itinerary?* 😊`
+          : (lang === 'ja')
+          ? `**${displayCity}**で雰囲気も味も大人気のおすすめカフェ通りです！☕🍰\n\n${cafeLines}\n\n💡 *午後のひと休み（14:00〜16:00）にカフェ時間を追加しましょうか？😊*`
+          : (lang === 'zh' || lang === 'zht')
+          ? `精选 **${displayCity}** 环境绝美且咖啡醇香的人气咖啡街区！☕🍰\n\n${cafeLines}\n\n💡 *是否在午后行程（14:00~16:00）中加入惬意的咖啡时光？😊*`
           : `**${displayCity}**에서 분위기와 커피 맛이 검증된 대표 감성 카페거리 큐레이션이에요! ☕🍰\n\n${cafeLines}\n\n💡 *나른한 오후 일정(14:00~16:00)에 감성 카페 쉼표를 쏙 넣어드릴까요? 😊*`;
 
         followUp = (lang === 'en')
           ? `Shall I include this cafe into your afternoon itinerary?`
+          : (lang === 'ja')
+          ? `このカフェを午後の行程に追加しましょうか？🚀`
+          : (lang === 'zh' || lang === 'zht')
+          ? `是否将该咖啡馆加入您的午后行程？🚀`
           : `이 감성 카페를 오후 일정에 바로 넣어드릴까요? 🚀`;
 
         baseChips = [
-          (lang === 'en' ? '🚀 Add Cafe to Itinerary' : '🚀 오후 카페 일정에 추가'),
+          (lang === 'en' ? '🚀 Add Cafe to Itinerary' : lang === 'ja' ? '🚀 午後カフェを追加' : (lang === 'zh' || lang === 'zht') ? '🚀 加入午后咖啡' : '🚀 오후 카페 일정에 추가'),
           cafeList[0]?.name ? `☕ ${cafeList[0].name.split('/')[0].trim()}` : '☕ 핫플 카페거리',
           cafeList[1]?.name ? `🍰 ${cafeList[1].name.split('/')[0].trim()}` : '🍰 감성 디저트'
         ];
       }
     }
 
-    const actionChip = (lang === 'en' ? '🚀 Build Itinerary Now' : '🚀 바로 일정 만들기');
+    const actionChip = (lang === 'en' ? '🚀 Build Itinerary Now' : lang === 'ja' ? '🚀 今すぐ日程を作成' : (lang === 'zh' || lang === 'zht') ? '🚀 立即生成行程' : '🚀 바로 일정 만들기');
     // 중복 제거 및 [바로 일정 만들기] 0번 배치
-    const cleanChips = baseChips.filter(c => !c.includes('일정 생성') && !c.includes('바로 일정') && !c.includes('일정 짜줘') && !c.includes('Build Itinerary'));
+    const cleanChips = baseChips.filter(c => !c.includes('일정 생성') && !c.includes('바로 일정') && !c.includes('일정 짜줘') && !c.includes('Build Itinerary') && !c.includes('日程を作成') && !c.includes('生成行程'));
     const chipsWithAction = [actionChip, ...cleanChips];
 
     return {

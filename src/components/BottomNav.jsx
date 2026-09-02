@@ -43,6 +43,13 @@ export default function BottomNav({ activeTab, onTabChange, lang = 'ko', unreadC
       mytrip: '我的行程',
       map: '地图',
       more: '更多'
+    },
+    zht: {
+      home: '首頁',
+      ai: 'AI規劃',
+      mytrip: '我的行程',
+      map: '地圖',
+      more: '更多'
     }
   };
 

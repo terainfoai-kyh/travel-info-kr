@@ -722,31 +722,55 @@ export function generateContextualAdvice(context, lang = 'ko') {
   if (multiCity && multiCity.isMultiCity) {
     return (lang === 'en')
       ? `Shall I craft a seamless multi-city itinerary for **[${multiCity.combinedLabel}] ${multiCity.totalDays} Days**? 🚅✨`
+      : (lang === 'ja')
+      ? `**[${multiCity.combinedLabel}] ${multiCity.totalDays}日間 連動コース**を交通アクセス最適化ルートで作成しましょうか？🚅✨`
+      : (lang === 'zh' || lang === 'zht')
+      ? `是否为您规划交通高效衔接的 **[${multiCity.combinedLabel}] ${multiCity.totalDays}日连游路线**？🚅✨`
       : `**[${multiCity.combinedLabel}] ${multiCity.totalDays}일 연계 코스**를 광역 교통 최적 동선으로 시원하게 잡아드릴까요? 🚅✨`;
   }
   if (isPromptKids) {
     return (lang === 'en')
       ? `Shall I tailor a stroller-friendly itinerary featuring hands-on interactive experiences, aquariums & spacious parks for kids? 👨‍👩‍👧‍👦🎈`
+      : (lang === 'ja')
+      ? `お子様と安心して楽しめる**体験型アクティビティ・水族館・広々とした公園**中心のコースを作成しましょうか？👨‍👩‍👧‍👦🎈`
+      : (lang === 'zh' || lang === 'zht')
+      ? `是否为您定制适合带娃推车的**亲子互动体验·水族馆·宽阔绿地公园**安心行程？👨‍👩‍👧‍👦🎈`
       : `아이와 함께 편하게 이동할 수 있는 **오감 체험·아쿠아리움·넓은 잔디마당** 중심의 안심 코스로 잡아드릴까요? 👨‍👩‍👧‍👦🎈`;
   }
   if (isPromptElder || isPromptWalking) {
     return (lang === 'en')
       ? `Shall I prepare a gentle, step-free itinerary focusing on scenic cable cars, flat walking trails & panoramic cafes? 😊🌿`
+      : (lang === 'ja')
+      ? `ご両親と無理なく回れる**ロープウェイ・平坦な散策路・絶景カフェ**中心のゆったり安心コースを作成しましょうか？😊🌿`
+      : (lang === 'zh' || lang === 'zht')
+      ? `是否为您规划少走台阶且舒适惬意的**观景缆车·平坦步道·全景咖啡厅**尊享长辈友好行程？😊🌿`
       : `부모님과 함께 계단 없이 편안한 **케이블카·평지 산책로·전망 카페** 위주 안심 코스로 잡아드릴까요? 😊🌿`;
   }
   if (isPromptRain) {
     return (lang === 'en')
       ? `Shall I craft an indoor itinerary with mesmerizing media art, indoor aquariums & ocean-view cafes? ☔☕✨`
+      : (lang === 'ja')
+      ? `雨に濡れずに楽しめる**没入型メディアアート＆屋内水族館・オーシャンビューカフェ**コースを作成しましょうか？☔☕✨`
+      : (lang === 'zh' || lang === 'zht')
+      ? `是否为您设计全程免受雨淋的**沉浸式数字光影艺术馆·室内水族馆·海景咖啡厅**专属雨天行程？☔☕✨`
       : `비 한 방울 안 맞는 **환상적인 몰입형 미디어아트 & 실내 수족관·오션뷰 카페** 코스로 잡아드릴까요? ☔☕✨`;
   }
   if (isPromptSolo) {
     return (lang === 'en')
       ? `Shall I design a peaceful solo journey with tranquil walking paths, indie bookstores & cozy cafes? 🎧🌿`
+      : (lang === 'ja')
+      ? `一人旅でゆったり思索にふける**静かな散策路＆感性あふれる書店・癒やしカフェ**コースを作成しましょうか？🎧🌿`
+      : (lang === 'zh' || lang === 'zht')
+      ? `是否为您打造适合独处的**清幽漫步小道·特色独立书店·治愈系咖啡厅**轻旅行程？🎧🌿`
       : `혼자만의 여유로운 사색을 위한 **고즈넉한 산책길 & 감성 독립서점·힐링 카페** 코스로 잡아드릴까요? 🎧🌿`;
   }
   if (isPromptFoodie) {
     return (lang === 'en')
       ? `Shall I tailor a delicious local foodie trail with authentic, highly-rated local restaurants? 🍴🤤`
+      : (lang === 'ja')
+      ? `地元の人々が行列を作る**本場の絶品グルメ＆ローカル食べ歩き**コースを作成しましょうか？🍴🤤`
+      : (lang === 'zh' || lang === 'zht')
+      ? `是否为您量身定制当地人排队追捧的**地道名店与特色美食巡礼**行程？🍴🤤`
       : `현지인들이 줄 서는 **착한 가격의 찐 맛집 & 로컬 미식 투어** 코스로 맞춰드릴까요? 🍴🤤`;
   }
 
@@ -754,10 +778,18 @@ export function generateContextualAdvice(context, lang = 'ko') {
   if (targetCity) {
     return (lang === 'en')
       ? `Could you tell me a little more detail so I can tailor your **${targetCity}** itinerary perfectly? 😊 (e.g. cafe tour, local foodie, relaxing course)`
+      : (lang === 'ja')
+      ? `ご希望をもう少し詳しくお聞かせいただければ、**${targetCity}**の日程にぴったり反映いたします！😊 (例: カフェ巡り、地元の名物グルメ、ゆったり癒やしコースなど)`
+      : (lang === 'zh' || lang === 'zht')
+      ? `请告诉我更多关于您的偏好细节，我将为您完美定制 **${targetCity}** 行程！😊 (例如：探店咖啡、地道特色小吃、少走轻松休闲等)`
       : `말씀해 주신 내용을 조금만 더 자세히 알려주시면 **${targetCity}** 일정에 쏙 반영해 드릴게요! 😊 (예: 2일차 맛집, 감성 카페, 덜 걷는 힐링 코스 등)`;
   }
 
   return (lang === 'en')
     ? `I didn't quite catch that 🥺 Please tell me a bit more about the city (Seoul, Busan, Jeju, Geoje, Changwon, etc.), local foodie spots, or travel theme you are looking for! 🌸✨`
+    : (lang === 'ja')
+    ? `お探しの都市（ソウル、釜山、済州、統営など）やグルメ、旅行テーマについてもう少し詳しく教えていただければ、最適にご案内いたします！🌸✨`
+    : (lang === 'zh' || lang === 'zht')
+    ? `请告诉我您想前往的城市（首尔、釜山、济州、统营等）、美食偏好或旅行主题，我将为您量身定制推荐！🌸✨`
     : `말씀해 주신 내용을 완벽하게 이해하지 못했어요 🥺 가고 싶으신 지역(서울, 부산, 제주, 창원, 거제 등)이나 맛집, 여행 일정에 대해 조금만 더 자세히 알려주시면 딱 맞춰 안내해 드릴게요! 🌸✨`;
 }

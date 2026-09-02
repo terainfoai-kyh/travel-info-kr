@@ -79,8 +79,8 @@ export function inspectSecurityGuardrails(rawQuery, lang = 'ko') {
         isBlocked: true,
         replyText: reply,
         quickSuggestions: [
-          (lang === 'en' ? '👑 Seoul Hotspots' : '👑 서울 인기 코스'),
-          (lang === 'en' ? '🌊 Busan Ocean View' : '🌊 부산 오션뷰 코스')
+          (lang === 'en' ? '👑 Seoul Hotspots' : lang === 'ja' ? '👑 ソウル人気コース' : (lang === 'zh' || lang === 'zht') ? '👑 首尔热门路线' : '👑 서울 인기 코스'),
+          (lang === 'en' ? '🌊 Busan Ocean View' : lang === 'ja' ? '🌊 釜山オーシャンビュー' : (lang === 'zh' || lang === 'zht') ? '🌊 釜山海景路线' : '🌊 부산 오션뷰 코스')
         ]
       };
     }
@@ -101,8 +101,8 @@ export function inspectSecurityGuardrails(rawQuery, lang = 'ko') {
         isBlocked: true,
         replyText: reply,
         quickSuggestions: [
-          (lang === 'en' ? '👑 Seoul Highlights' : '👑 서울 힐링 코스'),
-          (lang === 'en' ? '🍊 Jeju Island Tour' : '🍊 제주 자연 코스')
+          (lang === 'en' ? '👑 Seoul Highlights' : lang === 'ja' ? '👑 ソウル ヒーリング' : (lang === 'zh' || lang === 'zht') ? '👑 首尔 治愈之旅' : '👑 서울 힐링 코스'),
+          (lang === 'en' ? '🍊 Jeju Island Tour' : lang === 'ja' ? '🍊 済州 ネイチャーツアー' : (lang === 'zh' || lang === 'zht') ? '🍊 济州 自然探索' : '🍊 제주 자연 코스')
         ]
       };
     }
@@ -123,9 +123,9 @@ export function inspectSecurityGuardrails(rawQuery, lang = 'ko') {
         isBlocked: true,
         replyText: reply,
         quickSuggestions: [
-          (lang === 'en' ? '👑 Seoul Palace & Bukchon' : '👑 서울 경복궁 & 북촌'),
-          (lang === 'en' ? '🌊 Busan Ocean & Sky Capsule' : '🌊 부산 오션 스카이캡슐'),
-          (lang === 'en' ? '🍊 Jeju Aewol Coast' : '🍊 제주 애월 해안 드라이브')
+          (lang === 'en' ? '👑 Seoul Palace & Bukchon' : lang === 'ja' ? '👑 ソウル 景福宮＆北村' : (lang === 'zh' || lang === 'zht') ? '👑 首尔 景福宫与北村' : '👑 서울 경복궁 & 북촌'),
+          (lang === 'en' ? '🌊 Busan Ocean & Sky Capsule' : lang === 'ja' ? '🌊 釜山 スカイカプセル' : (lang === 'zh' || lang === 'zht') ? '🌊 釜山 海云台胶囊列车' : '🌊 부산 오션 스카이캡슐'),
+          (lang === 'en' ? '🍊 Jeju Aewol Coast' : lang === 'ja' ? '🍊 済州 涯月海岸ドライブ' : (lang === 'zh' || lang === 'zht') ? '🍊 济州 涯月海岸公路' : '🍊 제주 애월 해안 드라이브')
         ]
       };
     }

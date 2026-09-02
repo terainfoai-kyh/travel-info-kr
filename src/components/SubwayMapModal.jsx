@@ -248,7 +248,7 @@ export default function SubwayMapModal({ isOpen, onClose, lang = 'ko' }) {
                   fontSize: '0.78rem',
                   fontWeight: 800
                 }}>
-                  <span>노선도 ↗</span>
+                  <span>{lang === 'en' ? 'Map ↗' : lang === 'ja' ? '路線図 ↗' : (lang === 'zh' || lang === 'zht') ? '路线图 ↗' : '노선도 ↗'}</span>
                 </div>
               </button>
             );

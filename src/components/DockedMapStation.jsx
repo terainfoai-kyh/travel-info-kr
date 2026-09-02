@@ -419,7 +419,7 @@ export default function DockedMapStation({
               {targetCity}
             </div>
             <div style={{ fontSize: '0.65rem', fontWeight: 700, color: '#64748b' }}>
-              {lang === 'en' ? 'Live Route Radar' : '실시간 스마트 동선 레이더'}
+              {lang === 'en' ? 'Live Route Radar' : lang === 'ja' ? 'リアルタイム動線レーダー' : (lang === 'zh' || lang === 'zht') ? '实时路线雷达' : '실시간 스마트 동선 레이더'}
             </div>
           </div>
         </div>
@@ -429,7 +429,7 @@ export default function DockedMapStation({
           <button
             type="button"
             onClick={onToggleOpen}
-            title="좌측으로 지도 접기"
+            title={lang === 'en' ? 'Fold map to left' : lang === 'ja' ? '地図を折りたたむ' : (lang === 'zh' || lang === 'zht') ? '折叠地图' : '좌측으로 지도 접기'}
             style={{
               padding: '0.3rem 0.55rem',
               borderRadius: '8px',
@@ -448,7 +448,7 @@ export default function DockedMapStation({
             onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#ffffff'; e.currentTarget.style.color = '#64748b'; }}
           >
             <ChevronLeft size={14} />
-            <span>{lang === 'en' ? 'Fold' : '접기'}</span>
+            <span>{lang === 'en' ? 'Fold' : lang === 'ja' ? '閉じる' : (lang === 'zh' || lang === 'zht') ? '折叠' : '접기'}</span>
           </button>
         </div>
       </div>
@@ -538,7 +538,7 @@ export default function DockedMapStation({
                     cursor: 'pointer'
                   }}
                 >
-                  {lang === 'en' ? 'Details' : '상세'}
+                  {lang === 'en' ? 'Details' : lang === 'ja' ? '詳細' : (lang === 'zh' || lang === 'zht') ? '详情' : '상세'}
                 </button>
               )}
               <button
@@ -570,7 +570,7 @@ export default function DockedMapStation({
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
           <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#334155' }}>
-            Day {activeDay} {lang === 'en' ? 'Spots' : '방문 코스'} ({currentDaySpots.length})
+            {lang === 'en' ? `Day ${activeDay} Spots` : lang === 'ja' ? `${activeDay}日目 コース` : (lang === 'zh' || lang === 'zht') ? `第${activeDay}天 景点` : `${activeDay}일차 방문 코스`} ({currentDaySpots.length})
           </span>
           {currentDaySpots.length > 1 && (
             <a

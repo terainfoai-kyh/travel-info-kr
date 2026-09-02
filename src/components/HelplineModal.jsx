@@ -176,7 +176,7 @@ export default function HelplineModal({ isOpen, onClose, lang = 'ko' }) {
               </div>
             </div>
             <span style={{ fontSize: '0.82rem', fontWeight: 900, color: '#ef4444' }}>
-              통화 📞
+              {lang === 'en' ? 'Call 📞' : lang === 'ja' ? '発信 📞' : (lang === 'zh' || lang === 'zht') ? '呼叫 📞' : '통화 📞'}
             </span>
           </a>
 
@@ -228,7 +228,7 @@ export default function HelplineModal({ isOpen, onClose, lang = 'ko' }) {
               </div>
             </div>
             <span style={{ fontSize: '0.82rem', fontWeight: 900, color: 'var(--accent-primary)' }}>
-              채팅 💬
+              {lang === 'en' ? 'Chat 💬' : lang === 'ja' ? 'チャット 💬' : (lang === 'zh' || lang === 'zht') ? '咨询 💬' : '채팅 💬'}
             </span>
           </a>
 
@@ -279,7 +279,7 @@ export default function HelplineModal({ isOpen, onClose, lang = 'ko' }) {
               </div>
             </div>
             <span style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)' }}>
-              안내 ↗
+              {lang === 'en' ? 'Guide ↗' : lang === 'ja' ? '案内 ↗' : (lang === 'zh' || lang === 'zht') ? '指南 ↗' : '안내 ↗'}
             </span>
           </a>
         </div>
