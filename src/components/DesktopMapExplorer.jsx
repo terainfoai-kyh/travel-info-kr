@@ -586,8 +586,33 @@ export default function DesktopMapExplorer({
     }
   }, [isMapExpandedFull, isMapExpandedInStage3, activeStage]);
 
+  // 🌐 언어(lang) 변경 시 현재 선택된 도시의 실시간 명소 및 마커 라벨 즉시 동기화
+  useEffect(() => {
+    if (selectedLocation?.nameKo) {
+      if (markerRef.current && window.L && isValidLatLng(selectedLocation.lat, selectedLocation.lng)) {
+        const pinHtml = createMarkerPinHtml(selectedLocation.nameKo, selectedLocation.nameEn, lang);
+        markerRef.current.setIcon(window.L.divIcon({
+          html: pinHtml,
+          className: 'vora-explorer-div-icon',
+          iconSize: [0, 0]
+        }));
+      }
+      if (!selectedLocation.isPredefinedHub) {
+        enrichLocationWithLiveTourApi(selectedLocation, selectedLocation.nameKo, lang).then(enriched => {
+          setSelectedLocation(prev => ({
+            ...prev,
+            ...enriched,
+            nameEn: getLocalizedCityName(prev.nameKo, 'en'),
+            nameJa: getLocalizedCityName(prev.nameKo, 'ja'),
+            nameZh: getLocalizedCityName(prev.nameKo, 'zh')
+          }));
+        });
+      }
+    }
+  }, [lang]);
+
   const createMarkerPinHtml = (nameKo, nameEn, currentLang) => {
-    const label = currentLang === 'en' ? nameEn : nameKo;
+    const label = getLocalizedCityName(nameKo, currentLang);
     return `
       <div style="
         display: flex;
@@ -674,15 +699,18 @@ export default function DesktopMapExplorer({
         if (spotWithImg?.firstimage || spotWithImg?.image) {
           livePhoto = spotWithImg.firstimage || spotWithImg.image;
         }
-        liveHighlights = liveSpots.slice(0, 3).map((sp) => ({
-          ko: sp.title,
-          en: sp.titleEn || sp.title,
-          ja: sp.titleJa || sp.title,
-          zh: sp.titleZh || sp.title,
-          lat: Number(sp.lat || sp.mapy) || baseLoc.lat,
-          lng: Number(sp.lng || sp.mapx) || baseLoc.lng,
-          zoom: 15
-        }));
+        liveHighlights = liveSpots.slice(0, 3).map((sp) => {
+          const title = sp.title || '';
+          return {
+            ko: targetLang === 'ko' ? title : (sp.titleKo || title),
+            en: targetLang === 'en' ? title : (sp.titleEn || title),
+            ja: targetLang === 'ja' ? title : (sp.titleJa || title),
+            zh: (targetLang === 'zh' || targetLang === 'zht') ? title : (sp.titleZh || title),
+            lat: Number(sp.lat || sp.mapy) || baseLoc.lat,
+            lng: Number(sp.lng || sp.mapx) || baseLoc.lng,
+            zoom: 15
+          };
+        });
       } else if (localKn && localKn.signatureHighlights) {
         liveHighlights = localKn.signatureHighlights.slice(0, 3).map((hlStr) => ({
           ko: hlStr,
@@ -700,7 +728,7 @@ export default function DesktopMapExplorer({
         image: livePhoto || baseLoc.image || localKn?.image || '/images/themes/hero-hangang.jpg',
         highlights: liveHighlights.length > 0 ? liveHighlights : (baseLoc.highlights || []),
         foodieSecret: localKn?.localFoodieSecret || baseLoc.foodieSecret || null,
-        nightHighlight: localKn?.nightHighlights ? localKn.nightHighlights[0]?.name : (baseLoc.nightHighlight || null),
+        nightHighlight: localKn?.nightHighlights ? (typeof localKn.nightHighlights[0] === 'string' ? localKn.nightHighlights[0] : localKn.nightHighlights[0]?.name) : (baseLoc.nightHighlight || null),
         transitTipKo: localKn?.transitTip || baseLoc.transitTipKo,
         descKo: localKn?.badge || baseLoc.descKo
       };
@@ -962,8 +990,16 @@ const COMMON_FOOD_TRANSLATIONS = {
   '꿀빵': { en: 'Honey Bread', ja: 'クルパン', zh: '蜂蜜面包' }
 };
 
-function translateFoodieSecret(foodStr, lang) {
+function translateFoodieSecret(foodStr, lang, cityName = '') {
   if (!foodStr || lang === 'ko') return foodStr;
+  const localCity = cityName ? getLocalizedCityName(cityName, lang) : '';
+
+  if (foodStr.includes('로컬 대표 향토음식') || foodStr.includes('전통시장 시그니처 먹거리') || foodStr.includes('향토음식')) {
+    if (lang === 'en') return `${localCity || 'Local'} Signature Specialties & Traditional Market Foodie Gems`;
+    if (lang === 'ja') return `${localCity || '地域'}の郷土料理＆伝統市場名物グルメ`;
+    if (lang === 'zh' || lang === 'zht') return `${localCity || '当地'}地道特色美食与传统市场小吃`;
+  }
+
   const items = foodStr.split(/[,•|·]/).map(s => s.trim()).filter(Boolean);
   const translated = items.map(item => {
     if (COMMON_FOOD_TRANSLATIONS[item]) {
@@ -980,8 +1016,20 @@ function translateFoodieSecret(foodStr, lang) {
   return translated.join(', ');
 }
 
-function translateNightHighlight(nightStr, lang) {
+function translateNightHighlight(nightStr, lang, cityName = '') {
   if (!nightStr || lang === 'ko') return nightStr;
+  const localCity = cityName ? getLocalizedCityName(cityName, lang) : '';
+
+  if (nightStr.includes('도심 야경 산책로') || nightStr.includes('밤마실') || nightStr.includes('야경 산책로')) {
+    if (lang === 'en') return `${localCity || 'City'} Scenic Night Walk (Romantic promenade under cozy street lights)`;
+    if (lang === 'ja') return `${localCity || '市内'}の夜景散歩道（ライトアップされた夜の散策路）`;
+    if (lang === 'zh' || lang === 'zht') return `${localCity || '城市'}夜景漫步道（灯光璀璨的夜间漫步好去处）`;
+  }
+  if (nightStr.includes('수변산책로') || nightStr.includes('달빛')) {
+    if (lang === 'en') return `${localCity || 'Riverside'} Moonlit Boardwalk & Sparkling Night Lights`;
+    if (lang === 'ja') return `${localCity || '水辺'}の月夜のウォーターフロント散歩道`;
+    if (lang === 'zh' || lang === 'zht') return `${localCity || '水滨'}月色水滨步道与夜间灯光`;
+  }
   if (nightStr.includes('N서울타워') || nightStr.includes('남산')) {
     if (lang === 'en') return 'N Seoul Tower & Namsan Panorama (360° City Night View & Love Padlocks)';
     if (lang === 'ja') return 'Nソウルタワー＆南山パノラマ（都心360度夜景＆愛の南京錠）';
@@ -990,7 +1038,7 @@ function translateNightHighlight(nightStr, lang) {
   if (nightStr.includes('수원화성') || nightStr.includes('방화수류정')) {
     if (lang === 'en') return 'Suwon Hwaseong Fortress & Banghwasuryujeong Moonlit Night View';
     if (lang === 'ja') return '水原華城・訪花随柳亭の月夜散歩';
-    if (lang === 'zh' || lang === 'zht') return '水原华城与访花随柳亭月色夜景';
+    if (lang === 'zh' || lang === 'zht') return '수원 화성 방화수류정 야경';
   }
   if (nightStr.includes('광안대교') || nightStr.includes('더베이')) {
     if (lang === 'en') return 'Gwangandaegyo Bridge Ocean Laser & Drone Show, The Bay 101 Skyline';
@@ -1053,37 +1101,40 @@ function translateNightHighlight(nightStr, lang) {
   };
 
   const getSelectedFoodieSecret = () => {
+    const cityName = selectedLocation.nameKo || '';
     if (lang === 'en' && selectedLocation.foodieSecretEn) return selectedLocation.foodieSecretEn;
     if (lang === 'ja' && selectedLocation.foodieSecretJa) return selectedLocation.foodieSecretJa;
     if ((lang === 'zh' || lang === 'zht') && selectedLocation.foodieSecretZh) return selectedLocation.foodieSecretZh;
 
-    const cleanCityKey = getCleanCityKey(selectedLocation.nameKo);
-    const cityData = (cleanCityKey && CITY_LOCAL_KNOWLEDGE[cleanCityKey]) || CITY_LOCAL_KNOWLEDGE[selectedLocation.nameKo] || null;
+    const cleanCityKey = getCleanCityKey(cityName);
+    const cityData = (cleanCityKey && CITY_LOCAL_KNOWLEDGE[cleanCityKey]) || CITY_LOCAL_KNOWLEDGE[cityName] || null;
     if (cityData) {
       if (lang === 'en' && cityData.localFoodieSecretEn) return cityData.localFoodieSecretEn;
       if (lang === 'ja' && cityData.localFoodieSecretJa) return cityData.localFoodieSecretJa;
       if ((lang === 'zh' || lang === 'zht') && cityData.localFoodieSecretZh) return cityData.localFoodieSecretZh;
-      if (cityData.localFoodieSecret) return translateFoodieSecret(cityData.localFoodieSecret, lang);
+      if (cityData.localFoodieSecret) return translateFoodieSecret(cityData.localFoodieSecret, lang, cityName);
     }
-    if (selectedLocation.foodieSecret) return translateFoodieSecret(selectedLocation.foodieSecret, lang);
+    if (selectedLocation.foodieSecret) return translateFoodieSecret(selectedLocation.foodieSecret, lang, cityName);
     return null;
   };
 
   const getSelectedNightHighlight = () => {
+    const cityName = selectedLocation.nameKo || '';
     if (lang === 'en' && selectedLocation.nightHighlightEn) return selectedLocation.nightHighlightEn;
     if (lang === 'ja' && selectedLocation.nightHighlightJa) return selectedLocation.nightHighlightJa;
     if ((lang === 'zh' || lang === 'zht') && selectedLocation.nightHighlightZh) return selectedLocation.nightHighlightZh;
 
-    const cleanCityKey = getCleanCityKey(selectedLocation.nameKo);
-    const cityData = (cleanCityKey && CITY_LOCAL_KNOWLEDGE[cleanCityKey]) || CITY_LOCAL_KNOWLEDGE[selectedLocation.nameKo] || null;
+    const cleanCityKey = getCleanCityKey(cityName);
+    const cityData = (cleanCityKey && CITY_LOCAL_KNOWLEDGE[cleanCityKey]) || CITY_LOCAL_KNOWLEDGE[cityName] || null;
     if (cityData?.nightHighlights && cityData.nightHighlights.length > 0) {
       const nh = cityData.nightHighlights[0];
-      if (lang === 'en') return (nh.nameEn && nh.descEn) ? `${nh.nameEn} (${nh.descEn})` : nh.nameEn || translateNightHighlight(`${nh.name} (${nh.desc})`, lang);
-      if (lang === 'ja') return (nh.nameJa && nh.descJa) ? `${nh.nameJa} (${nh.descJa})` : nh.nameJa || translateNightHighlight(`${nh.name} (${nh.desc})`, lang);
-      if (lang === 'zh' || lang === 'zht') return (nh.nameZh && nh.descZh) ? `${nh.nameZh} (${nh.descZh})` : nh.nameZh || translateNightHighlight(`${nh.name} (${nh.desc})`, lang);
-      return `${nh.name} (${nh.desc})`;
+      const nhRawStr = typeof nh === 'string' ? nh : (nh.name && nh.desc ? `${nh.name} (${nh.desc})` : nh.name || '');
+      if (lang === 'en') return (nh.nameEn && nh.descEn) ? `${nh.nameEn} (${nh.descEn})` : nh.nameEn || translateNightHighlight(nhRawStr, lang, cityName);
+      if (lang === 'ja') return (nh.nameJa && nh.descJa) ? `${nh.nameJa} (${nh.descJa})` : nh.nameJa || translateNightHighlight(nhRawStr, lang, cityName);
+      if (lang === 'zh' || lang === 'zht') return (nh.nameZh && nh.descZh) ? `${nh.nameZh} (${nh.descZh})` : nh.nameZh || translateNightHighlight(nhRawStr, lang, cityName);
+      return nhRawStr;
     }
-    if (selectedLocation.nightHighlight) return translateNightHighlight(selectedLocation.nightHighlight, lang);
+    if (selectedLocation.nightHighlight) return translateNightHighlight(selectedLocation.nightHighlight, lang, cityName);
     return null;
   };
 
