@@ -444,7 +444,7 @@ export default function PortalHomePrototype({
           left: 0,
           width: '100%',
           height: '100%',
-          background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.25) 0%, rgba(15, 23, 42, 0.05) 45%, rgba(15, 23, 42, 0.55) 100%)',
+          background: 'linear-gradient(180deg, rgba(0, 0, 0, 0.42) 0%, rgba(0, 0, 0, 0.18) 45%, rgba(0, 0, 0, 0.58) 100%)',
           zIndex: 2
         }} />
 
@@ -461,10 +461,10 @@ export default function PortalHomePrototype({
             display: 'inline-flex',
             alignItems: 'center',
             gap: '5px',
-            backgroundColor: 'rgba(15, 23, 42, 0.65)',
+            backgroundColor: 'rgba(15, 23, 42, 0.70)',
             backdropFilter: 'blur(8px)',
             WebkitBackdropFilter: 'blur(8px)',
-            border: '1px solid rgba(255, 255, 255, 0.28)',
+            border: '1px solid rgba(255, 255, 255, 0.32)',
             borderRadius: '9999px',
             padding: '3px 12px',
             fontSize: '0.72rem',
@@ -473,9 +473,9 @@ export default function PortalHomePrototype({
             color: '#ffffff',
             textTransform: 'uppercase',
             marginBottom: '0.35rem',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)'
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
           }}>
-            <span style={{ color: '#38bdf8' }}>✦</span>
+            <span style={{ color: '#f43f5e' }}>✦</span>
             <span>PLAN YOUR KOREA TRIP</span>
           </div>
           <h1 style={{
@@ -484,7 +484,7 @@ export default function PortalHomePrototype({
             lineHeight: 1.25,
             color: '#ffffff',
             margin: 0,
-            textShadow: '0 2px 14px rgba(0, 0, 0, 0.85), 0 1px 4px rgba(0, 0, 0, 0.95)',
+            textShadow: '0 2px 14px rgba(0, 0, 0, 0.95), 0 1px 4px rgba(0, 0, 0, 0.95)',
             letterSpacing: '-0.02em'
           }}>
             {lang === 'en' ? 'Custom Korea Trip, Powered by AI' :

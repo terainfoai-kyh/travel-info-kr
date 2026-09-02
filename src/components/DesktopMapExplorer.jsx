@@ -1391,18 +1391,19 @@ export default function DesktopMapExplorer({
             height: '100%',
             backgroundColor: '#ffffff',
             borderRadius: '16px',
-            border: isMapExpandedFull ? 'none' : '1px solid #e2e8f0',
-            boxShadow: '0 8px 24px rgba(15, 23, 42, 0.05)',
+            border: isMapExpandedFull ? 'none' : '1px solid #f0ebe1',
+            boxShadow: '0 8px 24px rgba(41, 37, 36, 0.05)',
             overflow: 'hidden',
             display: 'flex',
             flexDirection: 'column',
+            boxSizing: 'border-box',
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             opacity: isMapExpandedFull ? 0 : 1,
             visibility: isMapExpandedFull ? 'hidden' : 'visible'
           }}>
             {/* STAGE 1 (EXPLORE): 4K 포토 매거진 프리뷰 카드 */}
             {activeStage === 'explore' && (
-              <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', height: '100%', boxSizing: 'border-box' }}>
                 {/* Top 4K Photo Banner with Gradient Overlay */}
                 <div style={{
                   position: 'relative',
