@@ -63,7 +63,9 @@
 - **1. AI 일정 생성기 `undefined` 및 `onSelectCityPlan` 크래시 근본 원인 해결 (`localItineraryGenerator.js`, `App.jsx`)**:
   - `localItineraryGenerator.js` 및 `App.jsx`에서 `getLocalizedCityName` import 누락으로 발생하던 `ReferenceError` 즉시 수정.
   - `App.jsx` catch 블록의 `generateLocalFallbackItinerary` 비동기 `await` 누락을 수정하여 `✨ undefined \n undefined` 렌더링 결함 100% 영구 해결.
-- **2. 웹(PC) & 모바일 전역 다국어 누락 전수 완비**:
+- **2. 웹(PC) & 모바일 전역 다국어 누락 및 지식베이스 100% 다국어화 완비**:
+  - **대화창 (`VoraAIChat.jsx`)**: 상단 `새 대화` 버튼을 중앙 사전 `t.newChat` / `t.newChatDesc`로 100% 단일 진실 원천 직결 (일문: `新規チャット`, 영문: `New Chat`, 중문: `新对话`).
+  - **지도 탐색 매거진 카드 (`DesktopMapExplorer.jsx`)**: 6대 거점 및 전국 226개 시·군 대상 `foodieSecret`(현지인 찐 미식), `nightHighlight`(시그니처 야경), `transitTip`(대중교통 안내)을 영문·일문·중문으로 100% 자동 번역 및 연동하는 스마트 다국어 엔진 탑재.
   - **AI 스튜디오 폼 (`AIPlannerTab.jsx`)**: 목적지 플레이스홀더, 도시/기간/테마/동행/요구사항 라벨, 뱃지, 생성 버튼 문구를 4개 국어(KO, EN, JA, ZH/ZHT)로 완전 전환.
   - **내 여행 탭 (`MyTripTab.jsx`)**: 빈 화면(Empty State)의 `클라우드 동기화`, `구글 로그인 동기화`, `AI로 첫 여행 만들기` 버튼 4개 국어 완비.
   - **실시간 라이브 탭 (`LiveTripTab.jsx`)**: `Live Concierge` 배너, 날씨 팁, 다음 일정, 길찾기/상세보기, `지금 뭐하지?` 4대 카테고리(카페, 맛집, 실내, 포토존) 4개 국어 완비.
