@@ -19,18 +19,67 @@ import { getSpotAffiliateDeal } from '../services/affiliateService';
 import { fetchSpotDetailImages, fetchSpotDetailIntro, fetchSpotDetailCommon } from '../services/tourApi';
 import { KOREA_TRAVEL_POI_DB } from '../data/koreaTravelPoiDatabase';
 
-/**
- * ==============================================================================
- * TravelDetailModal.jsx - 관광지 상세 정보 및 고화질 정품 갤러리 모달
- * 
- * 🛡️ CONSTITUTIONAL ARCHITECTURE:
- * 1. Live Korea Tourism Organization (TourAPI 4.0) Official CDN Direct Sourcing
- * 2. detailImage2 Multi-angle High-Resolution Genuine Photo Pipeline
- * 3. detailIntro2 Realtime Operating Hours, Parking, Pet & Barrier-Free Facilities
- * 4. detailCommon2 Genuine Overview & Official Homepage
- * 5. Intelligent Multi-modal Transit Routing (Islands / Inland / Subway)
- * ==============================================================================
- */
+// ⏰ 운영시간 줄바꿈 및 서식 정돈 헬퍼
+function formatOperatingHours(hoursStr = '', closedDays = '') {
+  if (!hoursStr) return <span>24시간 상시 개방 (자유 관람)</span>;
+  const clean = hoursStr.replace(/<[^>]+>/g, ' ').trim();
+  
+  // 하절기, 동절기, 평일, 주말 등 주요 구분 키워드 앞 줄바꿈 분리
+  const lines = clean.split(/(?=[-\s]*(?:하절기|동절기|평일|주말|매일|하계|동계|운영시간|관람시간))/g)
+    .map(l => l.replace(/^[-–\s]+/, '').trim())
+    .filter(Boolean);
+
+  if (lines.length <= 1) {
+    return (
+      <span>
+        {clean}
+        {closedDays && <span style={{ color: '#ef4444', marginLeft: '0.35rem', fontWeight: 700 }}>({closedDays})</span>}
+      </span>
+    );
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+      {lines.map((l, lIdx) => (
+        <div key={lIdx} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <span>• {l}</span>
+          {lIdx === lines.length - 1 && closedDays && (
+            <span style={{ color: '#ef4444', marginLeft: '0.35rem', fontWeight: 700 }}>({closedDays})</span>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// 📞 전화번호(031-xxx, 02-xxx 등)를 파싱하여 원클릭 tel: 링크로 렌더링
+function renderContactWithTel(text = '') {
+  if (!text) return '정보 없음';
+  const phoneRegex = /(\d{2,4}-\d{3,4}-\d{4}|\d{4}-\d{4}|1330)/g;
+  const parts = text.split(phoneRegex);
+  return parts.map((part, pIdx) => {
+    if (phoneRegex.test(part)) {
+      const cleanPhone = part.replace(/[^\d]/g, '');
+      return (
+        <a
+          key={pIdx}
+          href={`tel:${cleanPhone}`}
+          style={{
+            color: '#2563eb',
+            fontWeight: 800,
+            textDecoration: 'underline',
+            textUnderlineOffset: '2px',
+            margin: '0 3px'
+          }}
+          title={`${part}로 바로 통화 연결`}
+        >
+          {part}
+        </a>
+      );
+    }
+    return <span key={pIdx}>{part}</span>;
+  });
+}
 
 export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang = 'ko' }) {
   if (!spot) return null;
@@ -642,9 +691,9 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
               <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '75px', fontWeight: 700 }}>
                 • 시간
               </span>
-              <span style={{ color: 'var(--text-main)', fontWeight: 600, lineHeight: 1.5 }}>
-                : {operatingHours} <span style={{ color: '#ef4444', marginLeft: '0.25rem', fontWeight: 700 }}>({closedDays})</span>
-              </span>
+              <div style={{ color: 'var(--text-main)', fontWeight: 600, lineHeight: 1.5, flex: 1 }}>
+                : {formatOperatingHours(operatingHours, closedDays)}
+              </div>
             </div>
 
             {/* 4. 추천 소요시간 */}
@@ -680,7 +729,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                   • 문의
                 </span>
                 <span style={{ color: 'var(--text-main)', fontWeight: 600, lineHeight: 1.5 }}>
-                  : {liveIntroDetails?.infocenter || liveCommonDetails?.tel}
+                  : {renderContactWithTel(liveIntroDetails?.infocenter || liveCommonDetails?.tel)}
                 </span>
               </div>
             )}
@@ -775,7 +824,11 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
               color: 'var(--text-main)',
               opacity: 0.95
             }}>
-              {liveCommonDetails?.overview || spot.description || matchedPoi?.summary || '한국관광공사에 정품 등록된 대한민국 대표 힐링 관광 명소입니다. 아름다운 자연 경관과 유서 깊은 문화유산을 직접 체험할 수 있으며, 사계절 내내 여행자들의 발길이 끊이지 않는 핫플레이스입니다.'}
+              {liveCommonDetails?.overview || (cleanTitle.includes('화성행궁')
+                ? '조선 제22대 정조대왕이 아버지 사도세자의 현륭원을 참배할 때 머물기 위해 건립한 유서 깊은 임시 궁궐입니다. 어머니 혜경궁 홍씨의 회갑연이 성대하게 열렸던 봉수당과 아름다운 낙남헌을 품고 있으며, 야간 개장 시 달빛 아래 펼쳐지는 고즈넉한 성곽과 행궁의 야경이 일품인 수원의 대표 명소입니다.'
+                : cleanTitle.includes('장안문')
+                ? '수원화성의 북쪽 정문이자 대한민국 성곽 건축물 중 가장 웅장하고 당당한 규모를 자랑하는 문루입니다. 적을 효과적으로 방어하기 위해 바깥쪽에 옹성을 둘렀으며, 야간 조명이 켜지면 묵직한 석축과 처마의 곡선미가 어우러져 장관을 이룹니다.'
+                : (matchedPoi?.overview || spot.description || '한국관광공사에 정품 등록된 대한민국 대표 힐링 관광 명소입니다. 아름다운 자연 경관과 유서 깊은 문화유산을 직접 체험할 수 있으며, 사계절 내내 여행자들의 발길이 끊이지 않는 핫플레이스입니다.'))}
             </p>
           </div>
 
@@ -853,12 +906,9 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    padding: '0.65rem 0.85rem',
+                    padding: '0.55rem 0.65rem',
                     backgroundColor: 'var(--bg-card)',
                     borderRadius: '10px',
-                    border: '1px solid var(--border-color)',
-                    gap: '0.6rem'
-                  }}
                 >
                   <div style={{ minWidth: 0 }}>
                     <div style={{ fontSize: '0.86rem', fontWeight: 800, color: 'var(--text-main)' }}>
@@ -976,7 +1026,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
               target="_blank"
               rel="noopener noreferrer"
               style={{
-                backgroundColor: 'var(--accent-primary)',
+                background: 'linear-gradient(135deg, #f43f5e 0%, #7c3aed 100%)',
                 color: '#ffffff',
                 textDecoration: 'none',
                 borderRadius: '12px',
@@ -987,7 +1037,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '0.45rem',
-                boxShadow: '0 4px 14px rgba(37, 99, 235, 0.28)'
+                boxShadow: '0 4px 14px rgba(124, 58, 237, 0.35)'
               }}
             >
               <span>
