@@ -3,6 +3,33 @@ import { Send, Sparkles, Copy, Check, Share2, CornerDownRight, Utensils, Navigat
 import { TRANSLATIONS } from '../i18n/translations';
 import { getActiveContextChips } from '../services/travelContextEngine';
 
+// 🌟 마크다운 볼드(**굵게**), 줄바꿈, 이모지를 미려하게 파싱하는 헬퍼
+function renderFormattedMessage(text = '') {
+  if (!text) return null;
+  const lines = text.split('\n');
+  return lines.map((line, lineIdx) => {
+    const parts = line.split(/(\*\*[^*]+\*\*)/g);
+    const renderedLine = parts.map((part, partIdx) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        const boldContent = part.slice(2, -2);
+        return (
+          <strong key={partIdx} style={{ fontWeight: 800, color: 'var(--text-main, #0f172a)' }}>
+            {boldContent}
+          </strong>
+        );
+      }
+      return <span key={partIdx}>{part}</span>;
+    });
+
+    return (
+      <React.Fragment key={lineIdx}>
+        {lineIdx > 0 && <br />}
+        {renderedLine}
+      </React.Fragment>
+    );
+  });
+}
+
 export default function VoraAIChat({
   lang = 'ko',
   chatMessages = [],
@@ -454,7 +481,9 @@ export default function VoraAIChat({
                     </div>
                   )}
 
-                  <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'break-word', fontSize: '0.86rem' }}>{msg.text}</div>
+                  <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'break-word', fontSize: '0.86rem' }}>
+                    {renderFormattedMessage(msg.text)}
+                  </div>
 
                   {/* Quota Exhausted Call to Action Cards (Rewarded Ad & Google Login) */}
                   {(msg.isQuotaExhausted || (msg.text && (msg.text.includes('무료 AI 질문') || msg.text.includes('free AI questions')))) && (

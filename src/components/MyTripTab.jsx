@@ -319,18 +319,18 @@ export default function MyTripTab({
     <div style={{
       width: '100%',
       maxWidth: '680px',
-      margin: '0 auto 4.5rem auto',
+      margin: isDesktop ? '0 auto' : '0 auto 4.5rem auto',
       display: 'flex',
       flexDirection: 'column',
-      gap: '0.85rem'
+      gap: isDesktop ? '0.45rem' : '0.85rem'
     }}>
       {/* 🚀 0. 잠재 고객 확보용 구글 로그인 스마트 넛지 (Nudge) 배너 (비로그인 사용자 전용) */}
       {!currentUser?.isGoogleLoggedIn && !isNudgeDismissed && onOpenGoogleAuth && (
         <div style={{
           background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, rgba(124, 58, 237, 0.08) 100%)',
           border: '1px solid rgba(37, 99, 235, 0.25)',
-          borderRadius: '16px',
-          padding: '0.75rem 1rem',
+          borderRadius: isDesktop ? '14px' : '16px',
+          padding: isDesktop ? '0.45rem 0.85rem' : '0.75rem 1rem',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -339,9 +339,9 @@ export default function MyTripTab({
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
             <div style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '10px',
+              width: '30px',
+              height: '30px',
+              borderRadius: '9px',
               backgroundColor: '#ffffff',
               display: 'flex',
               alignItems: 'center',
@@ -349,7 +349,7 @@ export default function MyTripTab({
               flexShrink: 0,
               boxShadow: '0 2px 6px rgba(0, 0, 0, 0.06)'
             }}>
-              <svg width="18" height="18" viewBox="0 0 24 24">
+              <svg width="17" height="17" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
@@ -357,10 +357,10 @@ export default function MyTripTab({
               </svg>
             </div>
             <div>
-              <div style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--text-main)' }}>
+              <div style={{ fontSize: '0.80rem', fontWeight: 800, color: 'var(--text-main)' }}>
                 {lang === 'en' ? 'Sync & Save with Google Account' : '구글 로그인하고 전 기기 평생 보관'}
               </div>
-              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+              <div style={{ fontSize: '0.70rem', color: 'var(--text-muted)' }}>
                 {lang === 'en' ? 'Get 15 daily AI prompts + automatic cloud sync' : '매일 AI 15회 무료 + PC-모바일 실시간 동기화'}
               </div>
             </div>
@@ -371,12 +371,12 @@ export default function MyTripTab({
               type="button"
               onClick={onOpenGoogleAuth}
               style={{
-                padding: '0.4rem 0.8rem',
+                padding: '0.35rem 0.75rem',
                 borderRadius: '8px',
                 border: 'none',
                 backgroundColor: 'var(--accent-primary)',
                 color: '#ffffff',
-                fontSize: '0.75rem',
+                fontSize: '0.74rem',
                 fontWeight: 800,
                 cursor: 'pointer',
                 whiteSpace: 'nowrap',
@@ -409,13 +409,13 @@ export default function MyTripTab({
       {/* 🌟 1. 상단 멀티 저장 여행 셀렉터 & 잔여 저장 횟수 뱃지 & 원터치 동기화 */}
       <div style={{
         backgroundColor: 'var(--bg-card)',
-        borderRadius: '20px',
-        padding: '0.75rem 1rem',
+        borderRadius: isDesktop ? '16px' : '20px',
+        padding: isDesktop ? '0.55rem 0.85rem' : '0.75rem 1rem',
         border: '1px solid var(--border-color)',
         boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
         display: 'flex',
         flexDirection: 'column',
-        gap: '0.55rem'
+        gap: isDesktop ? '0.35rem' : '0.55rem'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.4rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
