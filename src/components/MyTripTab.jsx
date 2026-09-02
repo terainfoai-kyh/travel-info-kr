@@ -312,6 +312,76 @@ export default function MyTripTab({
     return rawTheme.replace(/^\d+일차[:\s—-]*/, '').trim() || `${targetCity}의 하루`;
   };
 
+  // 🌟 명소별 지능형 카테고리 태그 및 맞춤 스타일링 함수
+  const getSpotCategoryBadge = (spot = {}, lang = 'ko') => {
+    const title = (spot.title || spot.name || '').toLowerCase();
+    const cType = String(spot.contentTypeId || '');
+    const cat = (spot.category || spot.cat1 || spot.cat2 || spot.cat3 || '').toLowerCase();
+
+    // 1. 미식 / 맛집 / 먹거리 / 시장
+    if (
+      cType === '39' || 
+      title.includes('통닭') || title.includes('식당') || (title.includes('거리') && (title.includes('먹자') || title.includes('음식') || title.includes('갈비') || title.includes('닭'))) ||
+      title.includes('시장') || title.includes('카페') || title.includes('베이커리') || title.includes('맛집') ||
+      cat.includes('food') || cat.includes('음식')
+    ) {
+      return {
+        label: lang === 'en' ? '🍜 Food & Dining' : lang === 'ja' ? '🍜 グルメ・名物' : (lang === 'zh' || lang === 'zht') ? '🍜 美食街区' : '🍜 미식·맛집',
+        color: '#c2410c',
+        bg: '#fff7ed',
+        border: '#fed7aa'
+      };
+    }
+
+    // 2. 축제 / 행사 / 미디어아트 / 야간체험
+    if (
+      cType === '15' || 
+      title.includes('미디어아트') || title.includes('문화제') || title.includes('축제') || title.includes('페스티벌') ||
+      title.includes('야경') || title.includes('빛') || title.includes('행사') || title.includes('전시') ||
+      cat.includes('festival') || cat.includes('축제') || cat.includes('행사')
+    ) {
+      return {
+        label: lang === 'en' ? '🎆 Festival & Art' : lang === 'ja' ? '🎆 祭り・アート' : (lang === 'zh' || lang === 'zht') ? '🎆 庆典·艺术' : '🎆 축제·행사',
+        color: '#7c3aed',
+        bg: '#f5f3ff',
+        border: '#ddd6fe'
+      };
+    }
+
+    // 3. 힐링 / 공원 / 자연 / 한강 / 숲 / 해변
+    if (
+      (cType === '12' && (title.includes('공원') || title.includes('숲') || title.includes('호수') || title.includes('해수욕장') || title.includes('해변') || title.includes('산책') || title.includes('정원') || title.includes('강변') || title.includes('자연'))) ||
+      cat.includes('nature') || cat.includes('공원')
+    ) {
+      return {
+        label: lang === 'en' ? '🌿 Nature & Park' : lang === 'ja' ? '🌿 自然・公園' : (lang === 'zh' || lang === 'zht') ? '🌿 自然公园' : '🌿 힐링·공원',
+        color: '#047857',
+        bg: '#ecfdf5',
+        border: '#a7f3d0'
+      };
+    }
+
+    // 4. 문화시설 / 역사 / 궁궐 / 박물관 / 행궁
+    if (
+      cType === '14' || title.includes('행궁') || title.includes('궁') || title.includes('문') || title.includes('박물관') || title.includes('미술관') || title.includes('사찰') || title.includes('절') || title.includes('성곽') || title.includes('성')
+    ) {
+      return {
+        label: lang === 'en' ? '🏛️ Heritage' : lang === 'ja' ? '🏛️ 歴史・文化' : (lang === 'zh' || lang === 'zht') ? '🏛️ 历史古迹' : '🏛️ 역사·문화',
+        color: '#2563eb',
+        bg: '#eff6ff',
+        border: '#bfdbfe'
+      };
+    }
+
+    // 5. 기본 대표 관광명소
+    return {
+      label: lang === 'en' ? '📍 Landmark' : lang === 'ja' ? '📍 名所' : (lang === 'zh' || lang === 'zht') ? '📍 景点' : '📍 관광명소',
+      color: '#475569',
+      bg: '#f8fafc',
+      border: '#e2e8f0'
+    };
+  };
+
   const remainingQuota = questionQuota?.remaining ?? 3;
   const totalQuota = questionQuota?.total ?? 3;
 
@@ -870,19 +940,26 @@ export default function MyTripTab({
                     </div>
                   </div>
 
-                  {/* 카테고리 칩 */}
-                  <div style={{
-                    fontSize: '0.68rem',
-                    fontWeight: 700,
-                    color: 'var(--text-muted)',
-                    backgroundColor: 'var(--bg-glass)',
-                    padding: '0.15rem 0.45rem',
-                    borderRadius: '6px',
-                    border: '1px solid var(--border-color)',
-                    flexShrink: 0
-                  }}>
-                    {spot.category || spot.theme || '명소'}
-                  </div>
+                  {/* 🌟 다채로운 스마트 카테고리 칩 */}
+                  {(() => {
+                    const badge = getSpotCategoryBadge(spot, lang);
+                    return (
+                      <div style={{
+                        fontSize: '0.68rem',
+                        fontWeight: 700,
+                        color: badge.color,
+                        backgroundColor: badge.bg,
+                        padding: '0.15rem 0.5rem',
+                        borderRadius: '6px',
+                        border: `1px solid ${badge.border}`,
+                        flexShrink: 0,
+                        display: 'inline-flex',
+                        alignItems: 'center'
+                      }}>
+                        {badge.label}
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {/* 연결 점선 (마지막 요소 제외) */}
