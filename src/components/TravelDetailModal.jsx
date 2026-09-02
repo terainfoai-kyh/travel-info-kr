@@ -136,14 +136,14 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
       }).catch(() => {});
     }
 
-    // 4. 🍽️ 실시간 실제 반경 3km 내 맛집/카페 및 8km 내 대체 관광지 수신 (위경도 기반)
+    // 4. 🍽️ 실시간 실제 반경 800m 내 맛집/카페(도보 10분) 및 1.8km 내 대체 관광지(동일 권역) 수신
     const spotLat = spot.lat;
     const spotLng = spot.lng;
     if (spotLat && spotLng && !isNaN(spotLat) && !isNaN(spotLng)) {
       setIsLoadingNearby(true);
       Promise.all([
-        fetchNearbyRestaurantsAndCafes(spotLat, spotLng, 3000, lang).catch(() => []),
-        fetchLocationBasedTourApiSpots(spotLat, spotLng, 8000, lang).catch(() => [])
+        fetchNearbyRestaurantsAndCafes(spotLat, spotLng, 800, lang).catch(() => []),
+        fetchLocationBasedTourApiSpots(spotLat, spotLng, 1800, lang).catch(() => [])
       ]).then(([foods, alts]) => {
         if (isMounted) {
           if (foods && foods.length > 0) {
@@ -153,7 +153,23 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
             const cleanCurTitle = cleanTitle.replace(/\s+/g, '').toLowerCase();
             const filteredAlts = alts.filter(a => {
               const aTitle = (a.title || a.name || '').replace(/\s+/g, '').toLowerCase();
-              return aTitle !== cleanCurTitle && !cleanCurTitle.includes(aTitle) && !aTitle.includes(cleanCurTitle);
+              if (aTitle === cleanCurTitle || cleanCurTitle.includes(aTitle) || aTitle.includes(cleanCurTitle)) return false;
+              
+              const aLat = parseFloat(a.lat);
+              const aLng = parseFloat(a.lng);
+              if (aLat && aLng) {
+                const dLat = (aLat - spotLat) * 111.32;
+                const dLng = (aLng - spotLng) * 88.8;
+                const distM = Math.round(Math.sqrt(dLat * dLat + dLng * dLng) * 1000);
+                if (distM > 1800) return false; // 🛡️ 1.8km 초과 원천 제외 (일정 권역 보존)
+                
+                a.distM = distM;
+                const walkMins = Math.round(distM / 70);
+                a.distanceLabel = distM <= 800 
+                  ? (lang === 'en' ? `Walk ${Math.max(1, walkMins)}m (${distM}m)` : `도보 ${Math.max(1, walkMins)}분 (${distM}m)`)
+                  : (lang === 'en' ? `Car 3~5m (${(distM / 1000).toFixed(1)}km)` : `차량 3~5분 (${(distM / 1000).toFixed(1)}km)`);
+              }
+              return true;
             }).slice(0, 4);
             setLiveNearbyAlternatives(filteredAlts);
           }
@@ -1003,8 +1019,15 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                         }}
                       >
                         <div style={{ minWidth: 0 }}>
-                          <div style={{ fontSize: '0.86rem', fontWeight: 800, color: 'var(--text-main)' }}>
-                            {alt.title || alt.name}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                            <span style={{ fontSize: '0.86rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                              {alt.title || alt.name}
+                            </span>
+                            {alt.distanceLabel && (
+                              <span style={{ fontSize: '0.72rem', color: 'var(--accent-primary)', fontWeight: 700 }}>
+                                ({alt.distanceLabel})
+                              </span>
+                            )}
                           </div>
                           <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginTop: '0.1rem' }}>
                             {alt.category || '관광명소'} {alt.subway ? `· ${alt.subway}` : alt.address ? `· ${alt.address}` : ''}
@@ -1067,7 +1090,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                       textAlign: 'center'
                     }}>
                       <div style={{ fontSize: '0.84rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '0.25rem' }}>
-                        🍽️ {lang === 'en' ? 'No registered restaurants/cafes found nearby.' : '해당 장소 인근에 한국관광공사 등록 추천 맛집이 없습니다.'}
+                        🍽️ {lang === 'en' ? 'No registered restaurants/cafes found within walking distance (800m).' : '해당 장소 도보 10분(800m) 내에 한국관광공사 등록 맛집이 없습니다.'}
                       </div>
                       <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginBottom: '0.65rem' }}>
                         {lang === 'en' ? 'Search live restaurants and cafes directly on Google Maps.' : '구글 지도에서 현지 실시간 맛집과 카페를 확인해 보세요.'}
