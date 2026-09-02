@@ -213,7 +213,19 @@ const SYNONYM_MAP = {
   '거창 창포원': ['창포원', '거창창포원', '거창 창포원', '수변생태공원'],
   '감악산': ['감악산', '감악산풍력발전단지', '아스타국화', '감악산전망대'],
   '우두산': ['우두산', '우두산출렁다리', 'Y자형출렁다리', '항노화힐링랜드', '거창Y자형출렁다리'],
-  '우두산 Y자형 출렁다리': ['우두산', '우두산출렁다리', 'Y자형출렁다리', '항노화힐링랜드', '거창Y자형출렁다리']
+  '우두산 Y자형 출렁다리': ['우두산', '우두산출렁다리', 'Y자형출렁다리', '항노화힐링랜드', '거창Y자형출렁다리'],
+  // 충북 괴산 & 제천 랜드마크 동의어 매핑
+  '산막이옛길': ['산막이옛길', '산막이 옛길', '괴산산막이옛길', 'Sanmaki'],
+  '화양구곡': ['화양구곡', '화양동계곡', '화양계곡', 'Hwayang'],
+  '괴산자연드림파크': ['괴산자연드림파크', '자연드림파크', '괴산극장'],
+  '쌍곡계곡': ['쌍곡계곡', '쌍곡구곡', 'Ssanggok'],
+  '각연사': ['각연사', '보물비로자나불좌상'],
+  '청풍호반케이블카': ['청풍호반케이블카', '청풍케이블카', '비봉산케이블카', 'Cheongpung Cable Car'],
+  '의림지': ['의림지', '의림지파크랜드', '의림지솔밭공원', 'Uirimji'],
+  '옥순봉출렁다리': ['옥순봉출렁다리', '옥순봉 출렁다리', '옥순대교'],
+  '청풍문화재단지': ['청풍문화재단지', '청풍문화마을', '청풍호반'],
+  '비봉산전망대': ['비봉산전망대', '비봉산', '비봉산하늘전망대'],
+  '박달재': ['박달재', '울고넘는박달재', '박달재목각공원']
 };
 
 /**
@@ -226,9 +238,9 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
   const city = cityParts[0] || '서울';
   const dynMeta = getDynamicRegionMeta(rawCityStr) || getDynamicRegionMeta(city);
   const cityCoords = getCityCoordinates(rawCityStr) || getCityCoordinates(city);
-  const cityMeta = (cityCoords?.lat && cityCoords.lat !== 37.5665) 
-    ? cityCoords 
-    : (dynMeta?.lat ? { lat: dynMeta.lat, lng: dynMeta.lng, nameEn: city } : (cityCoords || { lat: 37.5665, lng: 126.9780, nameEn: city }));
+  const cityMeta = (cityCoords?.lat && (city === '서울' || cityCoords.lat !== 37.5665)) 
+    ? { ...cityCoords } 
+    : (dynMeta?.lat ? { lat: dynMeta.lat, lng: dynMeta.lng, nameEn: city } : { lat: 37.5665, lng: 126.9780, nameEn: city });
   const cityKnowledge = CITY_LOCAL_KNOWLEDGE[rawCityStr] || CITY_LOCAL_KNOWLEDGE[city] || null; // 🛡️ 서울로 강제 대체 금지!
 
   // Parse User Preferences & Constraints from prompt
@@ -324,6 +336,20 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
     }
   }
   let cityPois = Array.from(uniqueMap.values());
+
+  // 🎯 [동적 자가 중심 보정 (Self-Centering)] 서울이 아닌 지자체인데 좌표가 서울이거나 없을 때, 수신된 TourAPI 명소 평균 좌표로 중심 보정!
+  if (city !== '서울' && cityPois.length > 0) {
+    const validCoordSpots = cityPois.filter(s => s.lat && s.lng && !isNaN(s.lat) && !isNaN(s.lng) && s.lat > 33 && s.lat < 39);
+    if (validCoordSpots.length > 0) {
+      const avgLat = validCoordSpots.reduce((acc, s) => acc + s.lat, 0) / validCoordSpots.length;
+      const avgLng = validCoordSpots.reduce((acc, s) => acc + s.lng, 0) / validCoordSpots.length;
+      const distFromSeoul = calculateDistanceKm(cityMeta.lat, cityMeta.lng, avgLat, avgLng);
+      if (distFromSeoul > 40 || (cityMeta.lat === 37.5665 && cityMeta.lng === 126.9780)) {
+        cityMeta.lat = avgLat;
+        cityMeta.lng = avgLng;
+      }
+    }
+  }
 
   // 🌟 [최후의 제로 디펙트 안전망] 만약 전국 어떤 소도시라도 TourAPI가 일시 장애이거나 0개인 경우, 기본 거점 랜드마크 3종 자동 생성!
   if (cityPois.length === 0) {
@@ -452,6 +478,18 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
     const cleanTitleKey = normalizeTargetString(spot.title);
     if (cleanTitleKey && !filteredUniqueMap.has(cleanTitleKey)) {
       filteredUniqueMap.set(cleanTitleKey, spot);
+    }
+  }
+
+  // 🛡️ [0개 방어 안전망 (Zero-Drop Post-Filter Guard)] 만약 거리/주소 필터링 후 0개가 되었는데 원본 cityPois가 있었다면 원본 복구!
+  if (filteredUniqueMap.size === 0 && cityPois.length > 0) {
+    for (const spot of cityPois) {
+      if (spot.lat && spot.lng) {
+        const cleanTitleKey = normalizeTargetString(spot.title);
+        if (cleanTitleKey && !filteredUniqueMap.has(cleanTitleKey)) {
+          filteredUniqueMap.set(cleanTitleKey, spot);
+        }
+      }
     }
   }
 

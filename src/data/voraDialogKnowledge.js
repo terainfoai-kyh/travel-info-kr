@@ -13,12 +13,65 @@
  * 6. PROACTIVE_CONVERSATION_HOOKS (Engaging follow-up questions)
  */
 
-import { getCityLocalKnowledge, CITY_LOCAL_KNOWLEDGE } from './voraQnaVault.js';
+import { getCityLocalKnowledge as getVaultCityLocalKnowledge, CITY_LOCAL_KNOWLEDGE as VAULT_CITY_LOCAL_KNOWLEDGE } from './voraQnaVault.js';
 
 // ==============================================================================
-// 1. CITY_LOCAL_KNOWLEDGE (전국 59개 주요 도시 마스터 암호화 볼트 연동)
+// 1. SUPPLEMENTAL_CITY_LOCAL_KNOWLEDGE (괴산, 제천 등 지자체 지식 확장 등록)
 // ==============================================================================
-export { CITY_LOCAL_KNOWLEDGE, getCityLocalKnowledge };
+export const SUPPLEMENTAL_CITY_LOCAL_KNOWLEDGE = {
+  '괴산': {
+    nameKo: '괴산',
+    nameEn: 'Goesan',
+    badge: '청정 힐링 숲·계곡',
+    description: '수려한 괴산호 풍경을 따라 걷는 산막이옛길과 화양구곡, 맑은 속리산 푸른 숲을 품은 충북 대표 자연 힐링 도시',
+    signatureHighlights: ['산막이옛길', '화양구곡', '괴산자연드림파크', '쌍곡계곡', '각연사'],
+    rainyHotspots: ['괴산자연드림파크', '괴산한지체험박물관', '괴산농업역사박물관'],
+    walkingMinimized: ['괴산호 유람선', '산막이옛길 연리지쉼터', '괴산자연드림파크 힐링센터'],
+    localFoodieSecret: '괴산 올갱이해장국(다슬기국), 쫀득한 고추순대, 버섯전골과 괴산 대학찰옥수수',
+    nightHighlights: ['괴산호 수변산책로 야경', '산막이옛길 달빛 쉼터', '괴산읍 수변공원'],
+    transitTip: '괴산시외버스터미널에서 산막이옛길 및 화양동 방면 군내버스 운행 (자차/렌터카 드라이브 권장)'
+  },
+  '제천': {
+    nameKo: '제천',
+    nameEn: 'Jecheon',
+    badge: '비단 호수 & 한방 힐링',
+    description: '청풍호반의 비경을 내려다보는 케이블카와 삼한시대 수리시설 의림지, 옥순봉 출렁다리가 어우러진 내륙의 바다 휴양지',
+    signatureHighlights: ['청풍호반케이블카', '의림지', '옥순봉출렁다리', '청풍문화재단지', '비봉산전망대', '박달재'],
+    rainyHotspots: ['제천한방엑스포공원', '의림지역사박물관', '청풍호반케이블카 실내전망대'],
+    walkingMinimized: ['청풍호반케이블카(비봉산 정상)', '청풍호 유람선', '의림지 수변 데크길'],
+    localFoodieSecret: '제천 명물 빨간오뎅, 건강한 약채락 비빔밥, 곤드레밥과 의림지 막국수',
+    nightHighlights: ['의림지 인공폭포 미디어파사드 야경', '청풍호반 야간 조명산책로', '비봉산 일몰 조망'],
+    transitTip: 'KTX-이음 제천역에서 청풍호 방면 시내버스 탑승 또는 청풍호 시티투어 버스 활용 추천'
+  }
+};
+
+export function getCityLocalKnowledge() {
+  const vaultKnowledge = getVaultCityLocalKnowledge() || {};
+  return { ...vaultKnowledge, ...SUPPLEMENTAL_CITY_LOCAL_KNOWLEDGE };
+}
+
+export const CITY_LOCAL_KNOWLEDGE = new Proxy({}, {
+  get(target, prop) {
+    const allKnowledge = getCityLocalKnowledge();
+    if (prop === 'keys' || prop === Symbol.iterator) return Object.keys(allKnowledge);
+    return allKnowledge[prop];
+  },
+  has(target, prop) {
+    const allKnowledge = getCityLocalKnowledge();
+    return prop in allKnowledge;
+  },
+  ownKeys(target) {
+    const allKnowledge = getCityLocalKnowledge();
+    return Object.keys(allKnowledge);
+  },
+  getOwnPropertyDescriptor(target, prop) {
+    const allKnowledge = getCityLocalKnowledge();
+    if (prop in allKnowledge) {
+      return { enumerable: true, configurable: true, value: allKnowledge[prop] };
+    }
+    return undefined;
+  }
+});
 
 // ==============================================================================
 // 2. TIKITAKA_CHITCHAT_MATRIX (감정, 피드백, 돌발 상황 위트 티키타카)
@@ -103,7 +156,9 @@ export const K_FOOD_PAIRING_KNOWLEDGE = {
   '강릉': { signature: '초당 순두부마을 짬뽕순두부 & 몽글순두부 백반', tip: '안목 커피거리에서 즐기는 에스프레소 & 순두부 젤라또' },
   '속초': { signature: '아바이마을 모둠순대(오징어순대) & 청초호 시원한 활어 물회', tip: '속초관광수산시장 만석닭강정 & 팡파미유 마늘바게트' },
   '여수': { signature: '돌산 갓김치 곁들인 간장게장 백반 & 여수 밤바다 해물삼합', tip: '이순신광장 명물 쑥 아이스크림 & 딸기모찌 디저트' },
-  '전주': { signature: '전주 콩나물국밥(수란 세트) & 전주 전통비빔밥', tip: '한옥마을 전주비빔빵 & 달콤 쌉싸름한 모주 한잔' }
+  '전주': { signature: '전주 콩나물국밥(수란 세트) & 전주 전통비빔밥', tip: '한옥마을 전주비빔빵 & 달콤 쌉싸름한 모주 한잔' },
+  '괴산': { signature: '괴산 올갱이해장국(다슬기국) & 쫀득한 고추순대 + 버섯전골', tip: '산막이옛길 트레킹 후 올갱이국 한 그릇과 대학찰옥수수 간식 페어링' },
+  '제천': { signature: '제천 명물 매콤 빨간오뎅 & 약채락 약선비빔밥 + 곤드레나물밥', tip: '청풍호반케이블카 관람 후 의림지 막국수와 빨간오뎅 분식 페어링' }
 };
 
 // ==============================================================================
