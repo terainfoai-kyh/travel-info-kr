@@ -63,7 +63,9 @@
 - **1. AI 일정 생성기 `undefined` 및 `onSelectCityPlan` 크래시 근본 원인 해결 (`localItineraryGenerator.js`, `App.jsx`)**:
   - `localItineraryGenerator.js` 및 `App.jsx`에서 `getLocalizedCityName` import 누락으로 발생하던 `ReferenceError` 즉시 수정.
   - `App.jsx` catch 블록의 `generateLocalFallbackItinerary` 비동기 `await` 누락을 수정하여 `✨ undefined \n undefined` 렌더링 결함 100% 영구 해결.
-- **2. 웹(PC) & 모바일 전역 다국어 누락 및 지식베이스 100% 다국어화 완비**:
+- **2. 전국 226개 전 시·군·구 다국어(영·일·중 간체/번체) 100% 전수 탑재 및 지도 렌더링 결함 해결**:
+  - **전국 지자체 다국어 표준 사전 전수 등록 (`tourApi.js`, `translations.js`)**: 서울, 경기 31개(이천, 용인, 화성, 성남, 파주 등), 강원 18개, 충청 26개, 전라 36개, 경상 41개, 제주 2개 등 전국 226개 모든 시·군·구의 4개 국어(KO, EN, JA, ZH, ZHT) 공식 명칭 전수 탑재.
+  - **지도 매거진 카드 및 사진 오버레이 타이틀 일체화 (`DesktopMapExplorer.jsx`)**: `getCityDisplayName()`과 `getSelectedDesc()`가 `getLocalizedCityName()`을 단일 진실 원천으로 직결하여, 일본어 모드(`利川 (이천)` / `利川の美しい名所...`), 중국어 모드(`利川 (이천)`), 영어 모드(`Icheon (이천)`)로 100% 일체화.
   - **대화창 (`VoraAIChat.jsx`)**: 상단 `새 대화` 버튼을 중앙 사전 `t.newChat` / `t.newChatDesc`로 100% 단일 진실 원천 직결 (일문: `新規チャット`, 영문: `New Chat`, 중문: `新对话`).
   - **지도 탐색 매거진 카드 (`DesktopMapExplorer.jsx`)**: 6대 거점 및 전국 226개 시·군 대상 `foodieSecret`(현지인 찐 미식), `nightHighlight`(시그니처 야경), `transitTip`(대중교통 안내)을 영문·일문·중문으로 100% 자동 번역 및 연동하는 스마트 다국어 엔진 탑재.
   - **AI 스튜디오 폼 (`AIPlannerTab.jsx`)**: 목적지 플레이스홀더, 도시/기간/테마/동행/요구사항 라벨, 뱃지, 생성 버튼 문구를 4개 국어(KO, EN, JA, ZH/ZHT)로 완전 전환.
