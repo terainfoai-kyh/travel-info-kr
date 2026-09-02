@@ -69,6 +69,7 @@
        - TourAPI 4.0 정품 사진 로드 완료 즉시 어떠한 CSS 필터 왜곡도 없는 100% 순수 원본(`objectFit: 'cover'`, `imageRendering: 'crisp-edges'`)으로 깨끗하게 렌더링되도록 UX 고도화 완성.
 2. **배포 및 시스템 상태**:
    - `scripts/verifySyntax.ps1` 검증 결과: `[ZERO DEFECT PASSED]` 100% 무결점 통과.
+   - 개발 서버 배포 완료: **`https://travelkorea-dev.pages.dev`** (커밋 `1fce049` 푸시 완료)
    - 전국 226개 시·군 지도 클릭 시 깜빡임 없이 매끄럽고 쨍한 4K 매거진 뷰 연동 완료.
 
 ### [2026-09-01 (화)]
