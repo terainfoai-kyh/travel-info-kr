@@ -896,10 +896,13 @@ export default function DesktopMapExplorer({
   };
 
   const getCityDisplayName = (city) => {
-    if (lang === 'en') return city.nameEn;
-    if (lang === 'ja') return city.nameJa || city.nameEn;
-    if (lang === 'zh' || lang === 'zht') return city.nameZh || city.nameEn;
-    return city.nameKo;
+    if (!city) return '';
+    const ko = city.nameKo || city.name || '';
+    if (ko) return getLocalizedCityName(ko, lang);
+    if (lang === 'en') return city.nameEn || ko;
+    if (lang === 'ja') return city.nameJa || city.nameEn || ko;
+    if (lang === 'zh' || lang === 'zht') return city.nameZh || city.nameEn || ko;
+    return ko;
   };
 
   const getHighlightName = (hl) => {
@@ -1020,6 +1023,7 @@ function translateNightHighlight(nightStr, lang) {
   const getSelectedDesc = () => {
     const cleanCityKey = getCleanCityKey(selectedLocation.nameKo);
     const cityData = (cleanCityKey && CITY_LOCAL_KNOWLEDGE[cleanCityKey]) || CITY_LOCAL_KNOWLEDGE[selectedLocation.nameKo] || null;
+    const localizedCity = getLocalizedCityName(selectedLocation.nameKo, lang);
     if (cityData) {
       if (lang === 'en') return cityData.badgeEn || cityData.descEn || selectedLocation.descEn || cityData.badge;
       if (lang === 'ja') return cityData.badgeJa || cityData.descJa || selectedLocation.descJa || cityData.badge;
@@ -1027,9 +1031,9 @@ function translateNightHighlight(nightStr, lang) {
       return cityData.badge || selectedLocation.descKo;
     }
 
-    if (lang === 'en') return selectedLocation.descEn || `Discover iconic sights and cultural treasures in ${selectedLocation.nameEn || selectedLocation.nameKo}.`;
-    if (lang === 'ja') return selectedLocation.descJa || `${selectedLocation.nameJa || selectedLocation.nameKo}の美しい名所と文化を満喫するヒーリング旅`;
-    if (lang === 'zh' || lang === 'zht') return selectedLocation.descZh || `探寻${selectedLocation.nameZh || selectedLocation.nameKo}代表性名胜与历史文化的治愈之旅`;
+    if (lang === 'en') return selectedLocation.descEn || `Discover iconic sights and cultural treasures in ${localizedCity}.`;
+    if (lang === 'ja') return selectedLocation.descJa || `${localizedCity}の美しい名所と文化を満喫するヒーリング旅`;
+    if (lang === 'zh' || lang === 'zht') return selectedLocation.descZh || `探寻${localizedCity}代表性名胜与历史文化的治愈之旅`;
     return selectedLocation.descKo || `${selectedLocation.nameKo} 대표 명소와 문화를 만끽하는 힐링 여행`;
   };
 
@@ -1705,9 +1709,9 @@ function translateNightHighlight(nightStr, lang) {
                           color: '#ffffff',
                           textShadow: '0 2px 10px rgba(0,0,0,0.95), 0 1px 4px rgba(0,0,0,0.95)'
                         }}>
-                          {lang === 'ko' ? selectedLocation.nameKo : selectedLocation.nameEn}
+                          {getCityDisplayName(selectedLocation)}
                           <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#e2e8f0', marginLeft: '6px', textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>
-                            {lang === 'ko' ? `(${selectedLocation.nameEn})` : `(${selectedLocation.nameKo})`}
+                            {lang === 'ko' ? `(${getLocalizedCityName(selectedLocation.nameKo, 'en')})` : `(${selectedLocation.nameKo})`}
                           </span>
                         </div>
                       </div>
