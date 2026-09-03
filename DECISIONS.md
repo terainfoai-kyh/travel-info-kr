@@ -20,11 +20,19 @@
   - `[꿀팁] 2026 전국 226개 시·군 여행 코스 & 실시간 날씨 코디 3초 만에 짜주는 무료 AI 플래너` 고품질 실사 캡처 포함 공식 포스팅 완료.
 - **🚀 검색엔진(Google & Naver) 공식 등록 및 소유권 인증 완료**:
   - 구글 서치 콘솔(Google Search Console) 소유권 인증 및 `sitemap.xml` 제출 완료.
-  - 네이버 서치어드바이저(Naver Search Advisor) `naver-site-verification` 메타태그(`b1d5124a9cf3448781d69e66cf543b16be69064f`) 탑재.
+  - 네이버 서치어드바이저(Naver Search Advisor) `naver-site-verification` 메타태그(`b1d5124a9cf3448781d69e66cf543b16be69064f`) 탑재 및 `/sitemap.xml` 수집 요청 완료.
 - **운영 및 개발 배포 전수 완료**:
   - `verifySyntax.ps1` 무결점 검증 통과(`[ZERO DEFECT PASSED]`).
   - 개발 깃 (`origin main`: `travelkorea_2.git`) 배포 완료.
   - 운영 깃 (`prod main`: `travel-info-kr.git`) 배포 완료.
+
+### 2. 다음 세션 이어받을 작업 (Next Priorities)
+1. **아고다(Agoda) & 구글 애드센스 심사 결과 모니터링**:
+   - 아고다 계정 활성화 완료 메일 수신 시 바로 확인.
+   - 구글 애드센스 검토 통과 여부 모니터링 및 실시간 광고 활성화 점검.
+2. **글로벌 유입 트래픽 모니터링 & 바이럴 후속 대응**:
+   - 레딧(`r/koreatravel`) 게시물 댓글 피드백 지속 확인 및 추가 팁 제공.
+   - 슈퍼 어드민 대시보드(`AdminBatchModal`)에서 국가별/도시별 유입 통계 실시간 분석.
 
 ---
 
