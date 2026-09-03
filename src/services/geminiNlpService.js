@@ -341,6 +341,22 @@ export function extractLocationKeyword(prompt = '', fallbackToDefault = false) {
     cleanForCitySearch = clean.replace(/(인천국제공항|인천공항|김포공항|김해공항)/gi, ' ');
   }
 
+  // 💡 0차: 다국어(EN, JA, ZH) 및 한글 지명 전국 226개 시·군 100% 매칭
+  if (CITY_TRANSLATIONS) {
+    for (const l of ['ja', 'zh', 'zht', 'en', 'ko']) {
+      const dict = CITY_TRANSLATIONS[l];
+      if (dict) {
+        for (const [koKey, trans] of Object.entries(dict)) {
+          if (!trans || trans.length < 2) continue;
+          const lowTrans = trans.toLowerCase();
+          if (cleanForCitySearch.includes(lowTrans)) {
+            return koKey;
+          }
+        }
+      }
+    }
+  }
+
   // 💡 1차: 전국 226개 시·군·구 정밀 키워드 (김천, 거창, 신안, 완도 등 전국 지명 100% 매칭)
   for (const [areaName] of Object.entries(TOUR_API_AREA_CODES)) {
     if (areaName === '전국') continue;

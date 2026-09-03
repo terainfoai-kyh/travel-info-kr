@@ -55,9 +55,12 @@ export const INITIAL_TRAVEL_STATE = {
 export function classifyUserIntent(userPrompt = '', currentState = INITIAL_TRAVEL_STATE) {
   const clean = (userPrompt || '').trim().toLowerCase();
 
-  // 1. Explicit Full Itinerary Build or Affirmative Agreement Intent (좋아, 굿, 응, 일정 짜줘 등 - 단어 경계 철저)
-  const isExplicitBuild = /(전체\s*일정\s*(만들|줘|생성|보기)|일정\s*(확정|생성|생성해줘|만들어줘|짜줘|세워줘|짜봐)|일정을\s*(보여줘|만들어줘|짜줘|세워줘)|이\s*조건으로\s*전체\s*일정|바로\s*일정|일정표\s*(만들|줘|보여|생성)|완성해줘|만들어|짜줘)/i.test(clean) ||
-    /(^|\s)(좋아|좋아요|굿|오케이|ok|응|네|그래|가자|콜)($|\s|[!?.~])/i.test(clean);
+  // 1. Explicit Full Itinerary Build or Affirmative Agreement Intent (KO, EN, JA, ZH 다국어 일정 생성/확정 지시어 전수 지원)
+  const isExplicitBuild = /(전체\s*일정\s*(만들|줘|생성|보기)|일정\s*(확정|생성|생성해줘|만들어줘|짜줘|세워줘|짜봐)|일정을\s*(보여줘|만들어줘|짜줘|세워줘)|이\s*조건으로\s*전체\s*일정|바로\s*일정|일정표\s*(만들|줘|보여|생성)|완성해줘|만들어|짜줘|코스\s*만들|코스\s*생성)/i.test(clean) ||
+    /(日程生成|日程作成|コース作成|プラン作成|旅程作成|旅程生成|コース生成|プラン生成|作成して|作って|日程を決める)/i.test(clean) ||
+    /(create\s*(?:plan|itinerary|course)|generate\s*(?:plan|itinerary|course)|build\s*(?:plan|itinerary|course)|make\s*(?:plan|itinerary|course)|plan\s*my\s*trip)/i.test(clean) ||
+    /(生成行程|制作行程|定制路线|创建行程|生成路线|制作路线|确认行程)/i.test(clean) ||
+    /(^|\s)(좋아|좋아요|굿|오케이|ok|응|네|그래|가자|콜|はい|いいよ|いいね|お願い|おねがい|yes|sure|great|good|yep|yeah|好的|可以|确定|行)($|\s|[!?.~])/i.test(clean);
   if (isExplicitBuild) {
     return 'REGENERATE_ITINERARY';
   }
@@ -69,19 +72,19 @@ export function classifyUserIntent(userPrompt = '', currentState = INITIAL_TRAVE
   }
 
   // 3. Days / Duration Change Intent ("4일로 변경해줘", "2박으로 바꿔줘")
-  const isDaysChange = /(\d+일|\d+박|하루|이틀|사흘|나흘).*(바꿔|변경|늘려|수정|할래|해줘)/.test(clean);
+  const isDaysChange = /(\d+일|\d+박|하루|이틀|사흘|나흘|\d+日|\d+泊|\d+\s*days?).*(바꿔|변경|늘려|수정|할래|해줘|変更|変えて|change|modify|修改)/i.test(clean);
   if (isDaysChange) {
     return 'ADD_OR_PATCH_CONDITION';
   }
 
   // 4. Destination Switch Intent ("서울로 갈래", "부산으로 바꿔줘")
-  const isDestChange = /(으?로\s*(바꿔|변경|갈래|가자|수정|할래)|가자\s*)/.test(clean) && !/(일정|코스|날짜|기간)/.test(clean);
+  const isDestChange = /(으?로\s*(바꿔|변경|갈래|가자|수정|할래)|가자\s*|に行きたい|に行こう|to\s*go\s*to|改成)/.test(clean) && !/(일정|코스|날짜|기간|日程|プラン|itinerary|行程)/.test(clean);
   if (isDestChange) {
     return 'UPDATE_DESTINATION';
   }
 
   // 5. Off-Topic Query
-  const isOffTopic = /(주식|비트코인|코인|부동산|로또|정치|축구|야구|게임|영화|음악\s*추천)/.test(clean);
+  const isOffTopic = /(주식|비트코인|코인|부동산|로또|정치|축구|야구|게임|영화|음악\s*추천|株|ビットコイン|不動産|stock|bitcoin)/.test(clean);
   if (isOffTopic) {
     return 'OFF_TOPIC';
   }
@@ -701,7 +704,7 @@ export function generateContextualAdvice(context, lang = 'ko') {
   }
 
   // 1-1. Secondary Legacy Tiki-Taka Matrix Matcher (Fallback)
-  const tikitaka = resolveTikitakaResponse(cleanPrompt, displayCity, season);
+  const tikitaka = resolveTikitakaResponse(cleanPrompt, displayCity, season, lang);
   if (tikitaka) {
     return `${tikitaka.reply}\n\n👉 **${tikitaka.followUp}**`;
   }

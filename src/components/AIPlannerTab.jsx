@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles, MapPin, Calendar, Compass, Users, Heart, Coffee, Utensils, ShoppingBag, Trees, PartyPopper, ArrowRight, ArrowLeft, CheckCircle2, Search, PenLine } from 'lucide-react';
-import { TRANSLATIONS } from '../i18n/translations';
+import { TRANSLATIONS, getLocalizedCityName } from '../i18n/translations';
 import VoraAIChat from './VoraAIChat';
 
 /**
@@ -44,6 +44,16 @@ export default function AIPlannerTab({
 
   // 1. 여행지 State (기본값 빈 문자열로 두어 자율 선택 및 질문 유도)
   const [destination, setDestination] = useState('');
+
+  // 🌐 언어 전환 시 기존에 입력/선택된 도시명을 해당 언어로 자동 동기화
+  useEffect(() => {
+    if (destination) {
+      const localized = getLocalizedCityName(destination, lang);
+      if (localized && localized !== destination) {
+        setDestination(localized);
+      }
+    }
+  }, [lang]);
 
   // 2. 여행 기간 State (기본 3일)
   const [selectedDays, setSelectedDays] = useState(3);
@@ -319,26 +329,29 @@ export default function AIPlannerTab({
             </div>
           </div>
           <div style={{ display: 'flex', gap: '0.25rem', overflowX: 'auto', scrollbarWidth: 'none' }}>
-            {CITIES.map((city) => (
-              <button
-                key={city.id}
-                type="button"
-                onClick={() => setDestination(city.val)}
-                style={{
-                  padding: '0.2rem 0.55rem',
-                  borderRadius: '99px',
-                  border: destination.includes(city.val) ? '1.5px solid #d97706' : '1px solid var(--border-color)',
-                  backgroundColor: destination.includes(city.val) ? 'rgba(245, 158, 11, 0.12)' : 'var(--bg-glass)',
-                  color: destination.includes(city.val) ? '#b45309' : 'var(--text-main)',
-                  fontSize: '0.74rem',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  flexShrink: 0
-                }}
-              >
-                {city.name}
-              </button>
-            ))}
+            {CITIES.map((city) => {
+              const isSelected = destination === city.name || destination === city.val || destination.toLowerCase() === city.name.toLowerCase() || destination.toLowerCase() === city.val.toLowerCase();
+              return (
+                <button
+                  key={city.id}
+                  type="button"
+                  onClick={() => setDestination(city.name)}
+                  style={{
+                    padding: '0.2rem 0.55rem',
+                    borderRadius: '99px',
+                    border: isSelected ? '1.5px solid #d97706' : '1px solid var(--border-color)',
+                    backgroundColor: isSelected ? 'rgba(245, 158, 11, 0.12)' : 'var(--bg-glass)',
+                    color: isSelected ? '#b45309' : 'var(--text-main)',
+                    fontSize: '0.74rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    flexShrink: 0
+                  }}
+                >
+                  {city.name}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -523,8 +536,8 @@ export default function AIPlannerTab({
           <Sparkles size={15} />
           <span>
             {isLoading
-              ? (lang === 'en' ? 'Designing Itinerary...' : 'AI 맞춤 일정 생성 중...')
-              : (lang === 'en' ? '✨ Generate AI Travel Itinerary' : '✨ AI 여행 일정 만들기')}
+              ? (lang === 'en' ? 'Designing Itinerary...' : lang === 'ja' ? 'AI旅程を設計中...' : (lang === 'zh' || lang === 'zht') ? 'AI行程设计中...' : 'AI 맞춤 일정 생성 중...')
+              : (lang === 'en' ? '✨ Generate AI Travel Itinerary' : lang === 'ja' ? '✨ AI旅行プランを作成' : (lang === 'zh' || lang === 'zht') ? '✨ 立即生成AI旅行行程' : '✨ AI 여행 일정 만들기')}
           </span>
           {!isLoading && <ArrowRight size={15} />}
         </button>

@@ -858,14 +858,15 @@ export default function App() {
 
       // 🌟 [핵심 티키타카 & Intent 라우팅]
       // 1. 명시적 전체 일정 생성 요청(REGENERATE_ITINERARY or 🚀 확정 버튼 or ~추가해줘)이 아닌 경우 ➔ 0.01초 광속 컨시어지 답변 & POI 추천
-      const shouldRegenerateDirectly = isDirectGenerateAction || userIntent === 'REGENERATE_ITINERARY' || (isAddOrModifyQuery && Boolean(updatedState.tripMemory.focusedSpot));
+      const isExplicitBuildQuery = /(일정\s*생성|코스\s*생성|일정\s*만들|코스\s*만들|일정\s*확정|바로\s*일정|create\s*(?:plan|itinerary|course)|generate\s*(?:plan|itinerary|course)|build\s*(?:plan|itinerary|course)|日程生成|日程作成|コース作成|プラン作成|旅程作成|生成行程|制作行程|创建行程)/i.test(promptQuery);
+      const shouldRegenerateDirectly = isDirectGenerateAction || userIntent === 'REGENERATE_ITINERARY' || isExplicitBuildQuery || (isAddOrModifyQuery && Boolean(updatedState.tripMemory.focusedSpot));
       if (!shouldRegenerateDirectly) {
         const isAddDayQuery = /(하루 더|1일 더|1일 추가|늘려|연장|하루 추가|이틀 더|2일 더|더 있을래)/i.test(promptQuery);
         let dynamicSuggestDays = requestedDays;
         const currentDays = itineraryData?.days || requestedDays || 1;
 
         // 🎯 2단계 모드 판별: 순수 일상 대화(1단계) vs 본격 일정 기획/장소 탐색(2단계)
-        const hasExplicitLocation = Boolean(detectedCity) || /(경복궁|성수|해운대|광안리|애월|한담|초당|황리단|남포동|동성로|오션|바다|산책|카페|맛집|코스|일정|여행|호텔|숙소|투어|박|일차)/i.test(promptQuery);
+        const hasExplicitLocation = Boolean(detectedCity) || /(경복궁|성수|해운대|광안리|애월|한담|초당|황리단|남포동|동성로|오션|바다|산책|카페|맛집|코스|일정|여행|호텔|숙소|투어|박|일차|ソウル|釜山|済州|首尔|seoul|busan|jeju)/i.test(promptQuery);
         const hasActiveItinerary = Boolean(itineraryData && itineraryData.dailySchedules && itineraryData.dailySchedules.length > 0);
         const isPlanningMode = hasExplicitLocation || hasActiveItinerary || userIntent === 'ADD_OR_PATCH_CONDITION' || userIntent === 'UPDATE_DESTINATION' || userIntent === 'MULTI_CITY_PLAN';
 
@@ -922,24 +923,25 @@ export default function App() {
           ? (qnaDirectMatch.followUp ? `${qnaDirectMatch.reply}\n\n👉 **${qnaDirectMatch.followUp}**` : qnaDirectMatch.reply)
           : contextualIntro;
 
-        const defaultActionChip = (lang === 'en' ? `🚀 Build ${displayCity} Plan Now` : `🚀 바로 일정 만들기`);
+        const locDisplayCity = getLocalizedCityName(displayCity, lang);
+        const defaultActionChip = (lang === 'en' ? `🚀 Build ${locDisplayCity} Plan Now` : lang === 'ja' ? `🚀 ${locDisplayCity} 日程作成` : (lang === 'zh' || lang === 'zht') ? `🚀 制作 ${locDisplayCity} 行程` : `🚀 바로 일정 만들기`);
         let rawButtons = [];
 
         if (qnaDirectMatch && qnaDirectMatch.suggestedChips && qnaDirectMatch.suggestedChips.length > 0) {
           rawButtons = [defaultActionChip, ...qnaDirectMatch.suggestedChips.filter(c => c !== defaultActionChip)];
         } else if (!isPlanningMode) {
           rawButtons = [
-            (lang === 'en' ? '👑 Seoul Tour' : '👑 서울 투어'),
-            (lang === 'en' ? '🌊 Busan Ocean' : '🌊 부산 바다'),
-            (lang === 'en' ? '🌴 Jeju Healing' : '🌴 제주 힐링'),
-            (lang === 'en' ? '🏖️ Gangneung / Sokcho' : '🏖️ 강릉/속초')
+            (lang === 'en' ? '👑 Seoul Tour' : lang === 'ja' ? '👑 ソウルツアー' : (lang === 'zh' || lang === 'zht') ? '👑 首尔之旅' : '👑 서울 투어'),
+            (lang === 'en' ? '🌊 Busan Ocean' : lang === 'ja' ? '🌊 釜山の海' : (lang === 'zh' || lang === 'zht') ? '🌊 釜山海景' : '🌊 부산 바다'),
+            (lang === 'en' ? '🌴 Jeju Healing' : lang === 'ja' ? '🌴 済州ヒーリング' : (lang === 'zh' || lang === 'zht') ? '🌴 济州治愈' : '🌴 제주 힐링'),
+            (lang === 'en' ? '🏖️ Gangneung / Sokcho' : lang === 'ja' ? '🏖️ 江陵・束草' : (lang === 'zh' || lang === 'zht') ? '🏖️ 江陵·束草' : '🏖️ 강릉/속초')
           ];
         } else {
           rawButtons = [
             defaultActionChip,
-            (lang === 'en' ? `🍴 ${displayCity} Foodies` : `🍴 ${displayCity} 대표 맛집`),
-            (lang === 'en' ? `🌃 ${displayCity} Night Views` : `🌃 ${displayCity} 낭만 야경`),
-            (lang === 'en' ? `🏨 ${displayCity} Top Hotels` : `🏨 ${displayCity} 인기 숙소`)
+            (lang === 'en' ? `🍴 ${locDisplayCity} Foodies` : lang === 'ja' ? `🍴 ${locDisplayCity} グルメ` : (lang === 'zh' || lang === 'zht') ? `🍴 ${locDisplayCity} 美食` : `🍴 ${displayCity} 대표 맛집`),
+            (lang === 'en' ? `🌃 ${locDisplayCity} Night Views` : lang === 'ja' ? `🌃 ${locDisplayCity} 絶景夜景` : (lang === 'zh' || lang === 'zht') ? `🌃 ${locDisplayCity} 浪漫夜景` : `🌃 ${displayCity} 낭만 야경`),
+            (lang === 'en' ? `🏨 ${locDisplayCity} Top Hotels` : lang === 'ja' ? `🏨 ${locDisplayCity} おすすめ宿泊` : (lang === 'zh' || lang === 'zht') ? `🏨 ${locDisplayCity} 热门住宿` : `🏨 ${displayCity} 인기 숙소`)
           ];
         }
 
@@ -957,42 +959,62 @@ export default function App() {
           }
 
           const dayLabel = currentDays === 1 
-            ? (lang === 'en' ? 'Day Trip' : '당일치기 코스')
-            : (lang === 'en' ? `${currentDays}-Day Trip` : `${currentDays}일 알찬 핵심 코스`);
+            ? (lang === 'en' ? 'Day Trip' : lang === 'ja' ? '日帰りコース' : (lang === 'zh' || lang === 'zht') ? '一日游路线' : '당일치기 코스')
+            : (lang === 'en' ? `${currentDays}-Day Trip` : lang === 'ja' ? `${currentDays}日間おすすめコース` : (lang === 'zh' || lang === 'zht') ? `${currentDays}日精选路线` : `${currentDays}일 알찬 핵심 코스`);
 
           chatText = (lang === 'en')
-            ? `✨ Got it! I have excluded **[${exItem}]** and optimized your **【 ${displayCity} ${dayLabel} 】**! 👉 **Shall we generate the updated plan? 🚀**`
+            ? `✨ Got it! I have excluded **[${exItem}]** and optimized your **【 ${locDisplayCity} ${dayLabel} 】**! 👉 **Shall we generate the updated plan? 🚀**`
+            : (lang === 'ja')
+            ? `✨ かしこまりました！ご要望の **[${exItem}]** を除外して **【 ${locDisplayCity} ${dayLabel} 】** を最適化しました！👉 **この条件で日程を作成しましょうか？ 🚀**`
+            : (lang === 'zh' || lang === 'zht')
+            ? `✨ 好的！已为您剔除 **[${exItem}]** 并为您重新优化 **【 ${locDisplayCity} ${dayLabel} 】**！👉 **是否立即为您生成该行程？ 🚀**`
             : `✨ 알겠습니다! 요청하신 **[${exItem}]** 항목을 깔끔하게 제외하고 **【 ${displayCity} ${dayLabel} 】**로 스마트하게 재조율해 드릴게요! 👉 **이 조건으로 일정을 바로 뽑아드릴까요? 🚀**`;
           quickButtons = [
-            (lang === 'en' ? '🚀 일정 생성' : '🚀 일정 생성'),
-            (lang === 'en' ? '🍴 Local Food Trails' : '🍴 현지인 맛집 코스'),
-            (lang === 'en' ? '🌊 Scenic View Spots' : '🌊 오션뷰/전망 명소')
+            defaultActionChip,
+            (lang === 'en' ? '🍴 Local Food Trails' : lang === 'ja' ? '🍴 グルメコース' : (lang === 'zh' || lang === 'zht') ? '🍴 美食路线' : '🍴 현지인 맛집 코스'),
+            (lang === 'en' ? '🌊 Scenic View Spots' : lang === 'ja' ? '🌊 絶景ビュー' : (lang === 'zh' || lang === 'zht') ? '🌊 绝美景观' : '🌊 오션뷰/전망 명소')
           ];
         }
 
         if (userIntent === 'OFF_TOPIC') {
           chatText = lang === 'en'
             ? `I am VORA, your dedicated AI Travel Concierge for South Korea! 🇰🇷✨ Please ask me about travel destinations, itineraries, delicious local food, or stays!`
+            : lang === 'ja'
+            ? `韓国旅行専門AIコンシェルジュのVORAです！🇰🇷✨ 旅行先やおすすめ日程、絶品グルメ、宿泊についてお気軽にご相談ください！😊`
+            : (lang === 'zh' || lang === 'zht')
+            ? `我是韩国旅游专业AI向导 VORA！🇰🇷✨ 欢迎咨询任何关于韩国旅行目的地、行程规划、特色美食或住宿推荐！😊`
             : `저는 대한민국 여행 전문 AI 컨시어지 Vora예요! 🇰🇷✨ 가고 싶으신 지역이나 여행 일정, 맛집, 숙소에 대해 물어봐 주시면 가장 멋진 맞춤 코스로 안내해 드릴게요! 😊`;
         } else if (!qnaDirectMatch && !hasExplicitLocation && !hasActiveItinerary) {
           // 🌟 대안 A: 대답을 못 찾거나 모호한 경우 뜬금없는 서울 3일 강제 생성 중단 & 정중한 지능형 재질문
           chatText = lang === 'en'
             ? `I didn't quite catch that 🥺 Please tell me a bit more about the city (Seoul, Busan, Jeju, Geoje, Changwon, etc.), local foodie spots, or travel theme you are looking for! 🌸✨`
+            : lang === 'ja'
+            ? `お探しの都市（ソウル、釜山、済州、統営など）やグルメ、旅行テーマについてもう少し詳しく教えていただければ、最適にご案内いたします！🌸✨`
+            : (lang === 'zh' || lang === 'zht')
+            ? `请告诉我您想前往的城市（首尔、釜山、济州、统营等）、美食偏好或旅行主题，我将为您量身定制推荐！🌸✨`
             : `말씀해 주신 내용을 완벽하게 이해하지 못했어요 🥺 가고 싶으신 지역(서울, 부산, 제주, 창원, 거제 등)이나 맛집, 여행 일정에 대해 조금만 더 자세히 알려주시면 딱 맞춰 안내해 드릴게요! 🌸✨`;
         } else if (isAddDayQuery) {
-          const addedDays = /(이틀|2일)/.test(promptQuery) ? 2 : 1;
+          const addedDays = /(이틀|2일|2\s*days?|2日)/.test(promptQuery) ? 2 : 1;
           dynamicSuggestDays = Math.min(5, currentDays + addedDays);
-          const city = displayCity;
+          const city = locDisplayCity;
           chatText = (lang === 'en')
             ? `Of course! Shall I extend your ${city} itinerary from ${currentDays} days to **${dynamicSuggestDays} days** for a more relaxed trip? 😊\n\nI will add scenic local gems and must-visit spots for the extra day!`
-            : `물론이죠! 기존 ${currentDays}일 코스에서 하루를 더해 **【 ${city} ${dynamicSuggestDays}일 알찬 코스 】**로 여유롭게 확장해 드릴까요? 😊\n\n추가된 하루에는 감성 오션뷰 핫플과 여유로운 로컬 명소를 더해 알차게 조율해 드릴게요! ✨`;
+            : (lang === 'ja')
+            ? `もちろんです！従来の${currentDays}日間コースに1日追加して **【 ${city} ${dynamicSuggestDays}日間 ゆったりコース 】** に拡張しましょうか？😊\n\n追加された日程には絶景スポットと隠れた名所を組み込みます！✨`
+            : (lang === 'zh' || lang === 'zht')
+            ? `当然可以！是否在原 ${currentDays} 日行程基础上增加一天，升级为 **【 ${city} ${dynamicSuggestDays}日深度游 】**？😊\n\n新增的一天将为您精选绝美景观与小众宝藏打卡地！✨`
+            : `물론이죠! 기존 ${currentDays}일 코스에서 하루를 더해 **【 ${displayCity} ${dynamicSuggestDays}일 알찬 코스 】**로 여유롭게 확장해 드릴까요? 😊\n\n추가된 하루에는 감성 오션뷰 핫플과 여유로운 로컬 명소를 더해 알차게 조율해 드릴게요! ✨`;
           quickButtons = [
-            (lang === 'en' ? `🚀 Extend to ${dynamicSuggestDays}-Day Itinerary` : `🚀 ${dynamicSuggestDays}일 일정으로 확장하기`),
-            (lang === 'en' ? '⚙️ Change Conditions (Form)' : '⚙️ 조건 직접 변경하기 (폼)')
+            (lang === 'en' ? `🚀 Extend to ${dynamicSuggestDays}-Day Itinerary` : lang === 'ja' ? `🚀 ${dynamicSuggestDays}日間コースに拡張` : (lang === 'zh' || lang === 'zht') ? `🚀 扩展为${dynamicSuggestDays}日行程` : `🚀 ${dynamicSuggestDays}일 일정으로 확장하기`),
+            (lang === 'en' ? '⚙️ Change Conditions (Form)' : lang === 'ja' ? '⚙️ 条件を変更する' : (lang === 'zh' || lang === 'zht') ? '⚙️ 修改条件' : '⚙️ 조건 직접 변경하기 (폼)')
           ];
         } else if (userIntent === 'UPDATE_DESTINATION') {
           chatText = lang === 'en'
-            ? `Switched destination to **${displayCity}**! ✨ Here are the best spots for Day ${activeDay}.`
+            ? `Switched destination to **${locDisplayCity}**! ✨ Here are the best spots for Day ${activeDay}.`
+            : lang === 'ja'
+            ? `目的地を **${locDisplayCity}** に変更しました！✨ ${activeDay}日目にぴったりの名所をご用意しました。`
+            : (lang === 'zh' || lang === 'zht')
+            ? `已将目的地切换为 **${locDisplayCity}**！✨ 为您推荐第 ${activeDay} 天的精选景点。`
             : `여행지를 **${displayCity}**로 변경했어요! ✨ 말씀해 주신 조건에 맞춰 ${displayCity} ${activeDay}일차에 어울리는 추천 명소를 준비했습니다.`;
         }
 
