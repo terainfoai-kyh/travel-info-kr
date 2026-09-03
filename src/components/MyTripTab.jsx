@@ -514,8 +514,14 @@ export default function MyTripTab({
               <Zap size={11} />
               <span>
                 {remainingQuota > totalQuota
-                  ? (lang === 'en' ? `Saves: ${remainingQuota} Left` : `잔여 저장: ${remainingQuota}회 (충전됨)`)
-                  : (lang === 'en' ? `Saves: ${remainingQuota}/${totalQuota}` : `잔여 저장: ${remainingQuota}/${totalQuota}회`)}
+                  ? (lang === 'en' ? `Saves: ${remainingQuota} Left` :
+                     lang === 'ja' ? `残り保存: ${remainingQuota}回 (チャージ済)` :
+                     (lang === 'zh' || lang === 'zht') ? `剩余保存: ${remainingQuota}次 (已充值)` :
+                     `잔여 저장: ${remainingQuota}회 (충전됨)`)
+                  : (lang === 'en' ? `Saves: ${remainingQuota}/${totalQuota}` :
+                     lang === 'ja' ? `残り保存: ${remainingQuota}/${totalQuota}回` :
+                     (lang === 'zh' || lang === 'zht') ? `剩余保存: ${remainingQuota}/${totalQuota}次` :
+                     `잔여 저장: ${remainingQuota}/${totalQuota}회`)}
               </span>
             </div>
           </div>
@@ -525,7 +531,7 @@ export default function MyTripTab({
             <button
               type="button"
               onClick={handleTriggerSync}
-              title="클라우드 최신 일정 동기화"
+              title={lang === 'en' ? 'Sync Cloud Trips' : lang === 'ja' ? 'クラウドプランを同期' : (lang === 'zh' || lang === 'zht') ? '同步云端行程' : '클라우드 최신 일정 동기화'}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -540,7 +546,7 @@ export default function MyTripTab({
               }}
             >
               <RotateCw size={13} style={{ transform: isSyncing ? 'rotate(360deg)' : 'none', transition: isSyncing ? 'transform 0.6s linear' : 'none' }} />
-              <span>{syncFeedback || (lang === 'en' ? 'Sync' : '동기화')}</span>
+              <span>{syncFeedback || (lang === 'en' ? 'Sync' : lang === 'ja' ? '同期' : (lang === 'zh' || lang === 'zht') ? '同步' : '동기화')}</span>
             </button>
 
             <button
@@ -568,9 +574,10 @@ export default function MyTripTab({
         {savedTrips && savedTrips.length > 0 && (
           <div style={{
             display: 'flex',
-            gap: '0.5rem',
+            alignItems: 'center',
+            gap: '0.45rem',
             overflowX: 'auto',
-            paddingBottom: '0.2rem',
+            padding: '0.2rem 0',
             scrollbarWidth: 'none',
             WebkitOverflowScrolling: 'touch'
           }}>
@@ -596,7 +603,7 @@ export default function MyTripTab({
                   <MapPin size={13} style={{ color: isSelected ? '#2563eb' : 'var(--text-muted)' }} />
                   <div style={{ display: 'flex', flexDirection: 'column' }}>
                     <span style={{ fontSize: '0.78rem', fontWeight: isSelected ? 800 : 600, color: isSelected ? '#2563eb' : 'var(--text-main)', whiteSpace: 'nowrap' }}>
-                      {trip.targetCity || '서울'} {trip.days || 3}일 {isSelected && '👑'}
+                      {getLocalizedCityName(trip.targetCity || '서울', lang)} {trip.days || 3}{lang === 'en' ? 'D' : lang === 'ja' ? '日' : (lang === 'zh' || lang === 'zht') ? '日' : '일'} {isSelected && '👑'}
                     </span>
                   </div>
                   {onDeleteTrip && (
@@ -709,7 +716,7 @@ export default function MyTripTab({
                   fontWeight: 800
                 }}>
                   <CheckCircle2 size={12} />
-                  <span>{lang === 'en' ? 'Saved' : '저장됨'}</span>
+                  <span>{lang === 'en' ? 'Saved' : lang === 'ja' ? '保存済み' : (lang === 'zh' || lang === 'zht') ? '已保存' : '저장됨'}</span>
                 </span>
 
                 <button
@@ -729,10 +736,10 @@ export default function MyTripTab({
                     cursor: 'pointer',
                     boxShadow: '0 2px 6px rgba(37, 99, 235, 0.12)'
                   }}
-                  title={lang === 'en' ? 'Open on Mobile with QR' : '스마트폰으로 1초 만에 보기'}
+                  title={lang === 'en' ? 'Open on Mobile with QR' : lang === 'ja' ? 'スマホでQRコード読み取り' : (lang === 'zh' || lang === 'zht') ? '手机扫码即刻查看' : '스마트폰으로 1초 만에 보기'}
                 >
                   <Smartphone size={13} />
-                  <span>{lang === 'en' ? '📱 Mobile' : '📱 폰으로 보기'}</span>
+                  <span>{lang === 'en' ? '📱 Mobile' : lang === 'ja' ? '📱 スマホで見る' : (lang === 'zh' || lang === 'zht') ? '📱 手机端查看' : '📱 폰으로 보기'}</span>
                 </button>
 
                 <button
@@ -753,7 +760,7 @@ export default function MyTripTab({
                   }}
                 >
                   <Share2 size={12} />
-                  <span>{copied ? (lang === 'en' ? 'Copied!' : '복사됨!') : (lang === 'en' ? 'Share' : '공유')}</span>
+                  <span>{copied ? (lang === 'en' ? 'Copied!' : lang === 'ja' ? 'コピー完了!' : (lang === 'zh' || lang === 'zht') ? '已复制!' : '복사됨!') : (lang === 'en' ? 'Share' : lang === 'ja' ? '共有' : (lang === 'zh' || lang === 'zht') ? '分享' : '공유')}</span>
                 </button>
 
                 <button
@@ -838,7 +845,12 @@ export default function MyTripTab({
                   boxShadow: isSelected ? '0 2px 8px rgba(37, 99, 235, 0.3)' : 'none'
                 }}
               >
-                <span>{lang === 'en' ? `Day ${sch.day}` : `${sch.day}일차`}</span>
+                <span>
+                  {lang === 'en' ? `Day ${sch.day}` :
+                   lang === 'ja' ? `${sch.day}日目` :
+                   (lang === 'zh' || lang === 'zht') ? `第${sch.day}天` :
+                   `${sch.day}일차`}
+                </span>
               </button>
             );
           })}
@@ -866,7 +878,10 @@ export default function MyTripTab({
           </div>
 
           <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-            {activeSpots.length}개 추천 코스
+            {lang === 'en' ? `${activeSpots.length} Recommended Spots` :
+             lang === 'ja' ? `${activeSpots.length}ヶ所のおすすめコース` :
+             (lang === 'zh' || lang === 'zht') ? `${activeSpots.length}处推荐景点` :
+             `${activeSpots.length}개 추천 코스`}
           </span>
         </div>
 

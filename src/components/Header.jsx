@@ -258,7 +258,7 @@ export default function Header({
           <button
             type="button"
             onClick={() => onNavigateTab && onNavigateTab('mytrip')}
-            title="저장된 내 여행 일정 보기"
+            title={lang === 'en' ? 'View Saved Trips' : lang === 'ja' ? '保存済みプランを見る' : (lang === 'zh' || lang === 'zht') ? '查看已保存行程' : '저장된 내 여행 일정 보기'}
             className="hide-mobile"
             style={{
               display: 'flex',
@@ -279,7 +279,12 @@ export default function Header({
             }}
           >
             <Calendar size={14} style={{ flexShrink: 0, color: activeNavTab === 'mytrip' ? 'var(--accent-primary)' : '#8b5cf6' }} />
-            <span style={{ whiteSpace: 'nowrap' }}>{lang === 'en' ? 'My Trips' : '내 여행'}</span>
+            <span style={{ whiteSpace: 'nowrap' }}>
+              {lang === 'en' ? 'My Trips' :
+               lang === 'ja' ? 'マイ旅行' :
+               (lang === 'zh' || lang === 'zht') ? '我的行程' :
+               '내 여행'}
+            </span>
             {savedTripsCount > 0 && (
               <span style={{
                 fontSize: '0.65rem',

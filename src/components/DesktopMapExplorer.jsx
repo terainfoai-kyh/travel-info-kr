@@ -1274,7 +1274,12 @@ function translateNightHighlight(nightStr, lang, cityName = '') {
               title="1단계 도시 탐색으로 돌아가기"
             >
               <ArrowLeft size={13} />
-              <span>{lang === 'en' ? '🔄 Explore Other Cities' : '🔄 다른 도시 탐색'}</span>
+              <span>
+                {lang === 'en' ? '🔄 Explore Other Cities' :
+                 lang === 'ja' ? '🔄 他の都市を探索' :
+                 (lang === 'zh' || lang === 'zht') ? '🔄 探索其他城市' :
+                 '🔄 다른 도시 탐색'}
+              </span>
             </button>
           )}
         </div>
