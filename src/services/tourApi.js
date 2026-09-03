@@ -649,7 +649,16 @@ export async function fetchDynamicRealtimeSpots(query, lang = 'ko') {
     .trim();
   if (!cleanQ) return [];
 
-  const cacheKey = `${cleanQ}_${excludeFood ? 'nofood' : 'all'}_${lang}`;
+  // 🌐 다국어 TourAPI 서비스(EngService2/JpnService2/ChsService2 등) 연동 시 해당 언어 전용 키워드 동적 변환
+  let searchKw = cleanQ;
+  if (lang !== 'ko') {
+    const localizedCity = getCityMultilingualName(cleanQ, lang);
+    if (localizedCity && localizedCity !== cleanQ) {
+      searchKw = localizedCity;
+    }
+  }
+
+  const cacheKey = `${cleanQ}_${searchKw}_${excludeFood ? 'nofood' : 'all'}_${lang}`;
   if (DYNAMIC_SPOT_CACHE.has(cacheKey)) {
     return DYNAMIC_SPOT_CACHE.get(cacheKey);
   }
@@ -665,11 +674,20 @@ export async function fetchDynamicRealtimeSpots(query, lang = 'ko') {
   else if (lang === 'ru') apiBase = PUBLIC_API_CONFIG.RUS_BASE;
 
   try {
-    const searchUrl = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&keyword=${encodeURIComponent(cleanQ)}&numOfRows=30&pageNo=1`;
-    const res = await fetch(searchUrl);
-    if (!res.ok) return [];
-    const data = await res.json();
-    const itemsRaw = data.response?.body?.items?.item || [];
+    const searchUrl = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&keyword=${encodeURIComponent(searchKw)}&numOfRows=30&pageNo=1`;
+    let res = await fetch(searchUrl);
+    let data = res.ok ? await res.json() : null;
+    let itemsRaw = data?.response?.body?.items?.item || [];
+
+    // 만약 번역 키워드로 0건이면 원본 키워드로 2차 재시도
+    if ((!itemsRaw || (Array.isArray(itemsRaw) && itemsRaw.length === 0)) && searchKw !== cleanQ) {
+      const fallbackUrl = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&keyword=${encodeURIComponent(cleanQ)}&numOfRows=30&pageNo=1`;
+      const fallbackRes = await fetch(fallbackUrl);
+      if (fallbackRes.ok) {
+        const fallbackData = await fallbackRes.json();
+        itemsRaw = fallbackData?.response?.body?.items?.item || [];
+      }
+    }
 
     const items = Array.isArray(itemsRaw) ? itemsRaw : (itemsRaw ? [itemsRaw] : []);
     let spotList = [];

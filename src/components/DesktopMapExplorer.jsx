@@ -597,17 +597,15 @@ export default function DesktopMapExplorer({
           iconSize: [0, 0]
         }));
       }
-      if (!selectedLocation.isPredefinedHub) {
-        enrichLocationWithLiveTourApi(selectedLocation, selectedLocation.nameKo, lang).then(enriched => {
-          setSelectedLocation(prev => ({
-            ...prev,
-            ...enriched,
-            nameEn: getLocalizedCityName(prev.nameKo, 'en'),
-            nameJa: getLocalizedCityName(prev.nameKo, 'ja'),
-            nameZh: getLocalizedCityName(prev.nameKo, 'zh')
-          }));
-        });
-      }
+      enrichLocationWithLiveTourApi(selectedLocation, selectedLocation.nameKo, lang).then(enriched => {
+        setSelectedLocation(prev => ({
+          ...prev,
+          ...enriched,
+          nameEn: getLocalizedCityName(prev.nameKo, 'en'),
+          nameJa: getLocalizedCityName(prev.nameKo, 'ja'),
+          nameZh: getLocalizedCityName(prev.nameKo, 'zh')
+        }));
+      });
     }
   }, [lang]);
 
@@ -700,12 +698,14 @@ export default function DesktopMapExplorer({
           livePhoto = spotWithImg.firstimage || spotWithImg.image;
         }
         liveHighlights = liveSpots.slice(0, 3).map((sp) => {
-          const title = sp.title || '';
+          const rawTitle = (sp.title || sp.name || '').trim();
           return {
-            ko: targetLang === 'ko' ? title : (sp.titleKo || title),
-            en: targetLang === 'en' ? title : (sp.titleEn || title),
-            ja: targetLang === 'ja' ? title : (sp.titleJa || title),
-            zh: (targetLang === 'zh' || targetLang === 'zht') ? title : (sp.titleZh || title),
+            title: rawTitle,
+            name: rawTitle,
+            ko: targetLang === 'ko' ? rawTitle : (sp.titleKo || ''),
+            en: targetLang === 'en' ? rawTitle : (sp.titleEn || ''),
+            ja: targetLang === 'ja' ? rawTitle : (sp.titleJa || ''),
+            zh: (targetLang === 'zh' || targetLang === 'zht') ? rawTitle : (sp.titleZh || ''),
             lat: Number(sp.lat || sp.mapy) || baseLoc.lat,
             lng: Number(sp.lng || sp.mapx) || baseLoc.lng,
             zoom: 15
@@ -934,10 +934,21 @@ export default function DesktopMapExplorer({
   };
 
   const getHighlightName = (hl) => {
-    if (lang === 'en') return hl.en;
-    if (lang === 'ja') return hl.ja || hl.en;
-    if (lang === 'zh' || lang === 'zht') return hl.zh || hl.en;
-    return hl.ko;
+    if (!hl) return '';
+    if (typeof hl === 'string') return hl;
+    let name = '';
+    if (lang === 'en') name = hl.en || hl.nameEn || hl.titleEn;
+    else if (lang === 'ja') name = hl.ja || hl.nameJa || hl.titleJa;
+    else if (lang === 'zh' || lang === 'zht') name = hl.zh || hl.nameZh || hl.titleZh;
+    else name = hl.ko || hl.nameKo || hl.titleKo;
+
+    if (!name) name = hl.title || hl.name || hl.ko || hl.en || '';
+    
+    // 외국어 모드일 때 괄호 안 한국어 표기 정리 (예: "尚州银沙滩海边(상주은모래비치)" -> "尚州银沙滩海边")
+    if (lang !== 'ko' && name && /[\u4e00-\u9fa5\u3040-\u30ffA-Za-z]/.test(name)) {
+      name = name.replace(/\([가-힣\s]+\)$/, '').trim();
+    }
+    return name;
   };
 
   const getCleanCityKey = (name) => {

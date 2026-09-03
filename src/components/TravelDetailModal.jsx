@@ -25,13 +25,259 @@ import {
 } from '../services/tourApi';
 import { KOREA_TRAVEL_POI_DB } from '../data/koreaTravelPoiDatabase';
 
+// 🌐 지능형 실시간 관광 실용 정보 다국어 표준 토큰 치환기 (Universal Tokenizer)
+export function translatePracticalInfo(text = '', lang = 'ko') {
+  if (!text || typeof text !== 'string' || lang === 'ko') return text;
+  let str = text;
+
+  // 1. 대중교통 & 출구 & 소요시간
+  if (lang === 'en') {
+    str = str
+      .replace(/(\d+)\s*호선/g, 'Line $1')
+      .replace(/(\d+)\s*번\s*출구/g, 'Exit $1')
+      .replace(/도보\s*(\d+)\s*분/g, '$1 min walk')
+      .replace(/버스\s*(\d+)\s*분/g, '$1 min by bus')
+      .replace(/도보/g, 'walk')
+      .replace(/직결/g, 'Direct access')
+      .replace(/남산\s*케이블카/g, 'Namsan Cable Car')
+      .replace(/코엑스몰\s*연결/g, 'Connected to COEX Mall')
+      .replace(/인근\s*여객선터미널에서\s*여객선\/도항선\(배편\)\s*이용/g, 'Passenger ferry available at nearby terminal')
+      .replace(/시내버스\s*및\s*택시\s*이용\s*\(자가용\/렌터카\s*권장\)/g, 'Accessible via local bus, taxi or rental car')
+      .replace(/인근\s*지하철역\s*및\s*시내버스\s*이용/g, 'Accessible via nearby subway station and local bus')
+      .replace(/여객선\(배편\s*약\s*(\d+)\s*분\)/g, 'Ferry (approx. $1 mins)')
+      .replace(/여객선\(배편\s*약\s*(\d+)\s*시간\s*(\d+)\s*분\)/g, 'Ferry (approx. $1h $2m)')
+      .replace(/도항선\(배편\s*약\s*(\d+)\s*분\)/g, 'Ferry (approx. $1 mins)');
+  } else if (lang === 'ja') {
+    str = str
+      .replace(/(\d+)\s*호선/g, '地下鉄$1号線')
+      .replace(/(\d+)\s*번\s*출구/g, '$1番出口')
+      .replace(/도보\s*(\d+)\s*분/g, '徒歩$1分')
+      .replace(/버스\s*(\d+)\s*분/g, 'バス$1分')
+      .replace(/도보/g, '徒歩')
+      .replace(/직결/g, '直結')
+      .replace(/남산\s*케이블카/g, '南山ケーブルカー')
+      .replace(/코엑스몰\s*연결/g, 'COEXモール直結')
+      .replace(/인근\s*여객선터미널에서\s*여객선\/도항선\(배편\)\s*이용/g, '近隣の旅客ターミナルからフェリー利用')
+      .replace(/시내버스\s*및\s*택시\s*이용\s*\(자가용\/렌터카\s*권장\)/g, '市内バス・タクシー利用推奨（レンタカー可）')
+      .replace(/인근\s*지하철역\s*및\s*시내버스\s*이용/g, '最寄りの地下鉄駅または市内バス利用')
+      .replace(/여객선\(배편\s*약\s*(\d+)\s*분\)/g, 'フェリー (約$1分)')
+      .replace(/여객선\(배편\s*약\s*(\d+)\s*시간\s*(\d+)\s*분\)/g, 'フェリー (約$1時間$2分)')
+      .replace(/도항선\(배편\s*약\s*(\d+)\s*분\)/g, 'フェリー (約$1分)');
+  } else if (lang === 'zh' || lang === 'zht') {
+    str = str
+      .replace(/(\d+)\s*호선/g, '地铁$1号线')
+      .replace(/(\d+)\s*번\s*출구/g, '$1号出口')
+      .replace(/도보\s*(\d+)\s*분/g, '步行$1分钟')
+      .replace(/버스\s*(\d+)\s*분/g, '公交$1分钟')
+      .replace(/도보/g, '步行')
+      .replace(/직결/g, '直通')
+      .replace(/남산\s*케이블카/g, '南山缆车')
+      .replace(/코엑스몰\s*연결/g, '直通COEX商场')
+      .replace(/인근\s*여객선터미널에서\s*여객선\/도항선\(배편\)\s*이용/g, '在附近客运码头乘坐轮渡')
+      .replace(/시내버스\s*및\s*택시\s*이용\s*\(자가용\/렌터카\s*권장\)/g, '乘坐市内公交或出租车（建议自驾/租车）')
+      .replace(/인근\s*지하철역\s*및\s*시내버스\s*이용/g, '乘坐附近地铁站或市内公交')
+      .replace(/여객선\(배편\s*약\s*(\d+)\s*분\)/g, '轮渡 (约$1分钟)')
+      .replace(/여객선\(배편\s*약\s*(\d+)\s*시간\s*(\d+)\s*분\)/g, '轮渡 (约$1小时$2分钟)')
+      .replace(/도항선\(배편\s*약\s*(\d+)\s*분\)/g, '轮渡 (约$1分钟)');
+  }
+
+  // 2. 입장 요금 및 혜택
+  if (lang === 'en') {
+    str = str
+      .replace(/(성인|대인)/g, 'Adult')
+      .replace(/(소인|어린이)/g, 'Child')
+      .replace(/청소년/g, 'Youth')
+      .replace(/무료\s*개방\s*\(자유\s*관람\)/g, 'Free Admission (Open Entry)')
+      .replace(/무료\s*관람\s*\(자유\s*열람\)/g, 'Free Admission (Open Access)')
+      .replace(/무료\s*관람/g, 'Free Admission')
+      .replace(/무료/g, 'Free')
+      .replace(/유료\s*관람\s*\(현장\s*및\s*공식\/네이버\s*예매\)/g, 'Paid Admission (On-site / Online Booking)')
+      .replace(/유료\s*관람/g, 'Paid Admission')
+      .replace(/성인\s*1,000원~3,000원\s*내외/g, 'Approx. ₩1,000 ~ ₩3,000 for Adults')
+      .replace(/야외\/디자인랩\s*무료\s*\(기획전시별\s*상이\)/g, 'Outdoor/Design Lab Free (Special exhibits vary)')
+      .replace(/전망대\s*대인\s*([\d,]+)원\s*\/\s*소인\s*([\d,]+)원/g, 'Observatory: Adult ₩$1 / Child ₩$2')
+      .replace(/\(한복\s*착용\s*시\s*무료\)/g, '(Free with Hanbok)')
+      .replace(/\(후원\s*별도\s*([\d,]+)원\)/g, '(Secret Garden +₩$1)')
+      .replace(/([\d,]+)원/g, '₩$1');
+  } else if (lang === 'ja') {
+    str = str
+      .replace(/(성인|대인)/g, '大人')
+      .replace(/(소인|어린이)/g, '子供')
+      .replace(/청소년/g, '青少年')
+      .replace(/무료\s*개방\s*\(자유\s*관람\)/g, '無料開放 (自由観覧)')
+      .replace(/무료\s*관람\s*\(자유\s*열람\)/g, '無料観覧 (自由閲覧)')
+      .replace(/무료\s*관람/g, '入場無料')
+      .replace(/무료/g, '無料')
+      .replace(/유료\s*관람\s*\(현장\s*및\s*공식\/네이버\s*예매\)/g, '有料観覧 (現地・事前予約)')
+      .replace(/유료\s*관람/g, '有料観覧')
+      .replace(/성인\s*1,000원~3,000원\s*내외/g, '大人 約1,000〜3,000ウォン')
+      .replace(/야외\/디자인랩\s*무료\s*\(기획전시별\s*상이\)/g, '屋外・デザインラボ無料 (企画展により異なる)')
+      .replace(/전망대\s*대인\s*([\d,]+)원\s*\/\s*소인\s*([\d,]+)원/g, '展望台: 大人 $1ウォン / 子供 $2ウォン')
+      .replace(/\(한복\s*착용\s*시\s*무료\)/g, '(韓服着用時無料)')
+      .replace(/\(후원\s*별도\s*([\d,]+)원\)/g, '(後苑別途 $1ウォン)')
+      .replace(/([\d,]+)원/g, '$1ウォン');
+  } else if (lang === 'zh' || lang === 'zht') {
+    str = str
+      .replace(/(성인|대인)/g, '成人')
+      .replace(/(소인|어린이)/g, '儿童')
+      .replace(/청소년/g, '青少年')
+      .replace(/무료\s*개방\s*\(자유\s*관람\)/g, '免费开放 (自由参观)')
+      .replace(/무료\s*관람\s*\(자유\s*열람\)/g, '免费观览 (自由阅览)')
+      .replace(/무료\s*관람/g, '免费参观')
+      .replace(/무료/g, '免费')
+      .replace(/유료\s*관람\s*\(현장\s*및\s*공식\/네이버\s*예매\)/g, '付费参观 (现场购票或在线预约)')
+      .replace(/유료\s*관람/g, '付费参观')
+      .replace(/성인\s*1,000원~3,000원\s*내외/g, '成人 约1,000~3,000韩元')
+      .replace(/야외\/디자인랩\s*무료\s*\(기획전시별\s*상이\)/g, '室外/设计实验室免费 (特展费用另计)')
+      .replace(/전망대\s*대인\s*([\d,]+)원\s*\/\s*소인\s*([\d,]+)원/g, '观景台: 成人 $1韩元 / 儿童 $2韩元')
+      .replace(/\(한복\s*착용\s*시\s*무료\)/g, '(穿韩服免费)')
+      .replace(/\(후원\s*별도\s*([\d,]+)원\)/g, '(后苑另付 $1韩元)')
+      .replace(/([\d,]+)원/g, '$1韩元');
+  }
+
+  // 3. 운영시간 & 정기휴무
+  if (lang === 'en') {
+    str = str
+      .replace(/24시간\s*상시\s*개방\s*\(자유\s*관람\)/g, 'Open 24/7 (Free Admission)')
+      .replace(/24시간\s*상시\s*개방\s*\(연중무휴\)/g, 'Open 24/7 (Open 365 Days)')
+      .replace(/24시간\s*상시\s*개방/g, 'Open 24 Hours')
+      .replace(/연중무휴/g, 'Open all year round')
+      .replace(/입장마감\s*(\d{1,2}:\d{2})/g, 'Last Entry $1')
+      .replace(/입장마감/g, 'Last Entry')
+      .replace(/야경\s*관람\s*가능/g, 'Night view available')
+      .replace(/점포별\s*상이/g, 'Varies by store')
+      .replace(/매주\s*화요일\s*정기\s*휴궁/g, 'Closed every Tuesday')
+      .replace(/매주\s*월요일\s*휴관\s*\(공휴일\s*익일\)/g, 'Closed Mondays (or next day if holiday)')
+      .replace(/매주\s*월요일\s*정기\s*휴관/g, 'Closed every Monday')
+      .replace(/매주\s*([월화수목금토일])요일\s*(정기\s*)?(휴무|휴관|휴궁)?/g, (m, day) => {
+        const days = { '월': 'Mondays', '화': 'Tuesdays', '수': 'Wednesdays', '목': 'Thursdays', '금': 'Fridays', '토': 'Saturdays', '일': 'Sundays' };
+        return `Closed ${days[day] || ''}`;
+      });
+  } else if (lang === 'ja') {
+    str = str
+      .replace(/24시간\s*상시\s*개방\s*\(자유\s*관람\)/g, '24時間常時開放 (自由観覧)')
+      .replace(/24시간\s*상시\s*개방\s*\(연중무휴\)/g, '24時間常時開放 (年中無休)')
+      .replace(/24시간\s*상시\s*개방/g, '24時間常時開放')
+      .replace(/연중무휴/g, '年中無休')
+      .replace(/입장마감\s*(\d{1,2}:\d{2})/g, '最終入場 $1')
+      .replace(/입장마감/g, '最終入場')
+      .replace(/야경\s*관람\s*가능/g, '夜景鑑賞可能')
+      .replace(/점포별\s*상이/g, '店舗により異なる')
+      .replace(/매주\s*화요일\s*정기\s*휴궁/g, '毎週火曜日定休')
+      .replace(/매주\s*월요일\s*휴관\s*\(공휴일\s*익일\)/g, '毎週月曜日休館 (祝日の翌日)')
+      .replace(/매주\s*월요일\s*정기\s*휴관/g, '毎週月曜日定休')
+      .replace(/매주\s*([월화수목금토일])요일\s*(정기\s*)?(휴무|휴관|휴궁)?/g, (m, day) => {
+        const days = { '월': '月', '화': '火', '수': '水', '목': '木', '금': '金', '토': '土', '일': '日' };
+        return `毎週${days[day] || ''}曜日休館`;
+      });
+  } else if (lang === 'zh' || lang === 'zht') {
+    str = str
+      .replace(/24시간\s*상시\s*개방\s*\(자유\s*관람\)/g, '24小时全天开放 (自由参观)')
+      .replace(/24시간\s*상시\s*개방\s*\(연중무휴\)/g, '24小时全天开放 (全年无休)')
+      .replace(/24시간\s*상시\s*개방/g, '24小时全天开放')
+      .replace(/연중무휴/g, '全年无休')
+      .replace(/입장마감\s*(\d{1,2}:\d{2})/g, '最终入场 $1')
+      .replace(/입장마감/g, '最终入场')
+      .replace(/야경\s*관람\s*가능/g, '可观赏夜景')
+      .replace(/점포별\s*상이/g, '各店铺营业时间不同')
+      .replace(/매주\s*화요일\s*정기\s*휴궁/g, '每周二定期休馆')
+      .replace(/매주\s*월요일\s*휴관\s*\(공휴일\s*익일\)/g, '每周一休馆 (节假日次日)')
+      .replace(/매주\s*월요일\s*정기\s*휴관/g, '每周一定期休馆')
+      .replace(/매주\s*([월화수목금토일])요일\s*(정기\s*)?(휴무|휴관|휴궁)?/g, (m, day) => {
+        const days = { '월': '一', '화': '二', '수': '三', '목': '四', '금': '五', '토': '六', '일': '日' };
+        return `每周${days[day] || ''}休馆`;
+      });
+  }
+
+  // 4. 추천 소요시간
+  if (lang === 'en') {
+    str = str
+      .replace(/약\s*(\d+)\s*분/g, 'Approx. $1 mins')
+      .replace(/약\s*1\s*~\s*1\.5시간/g, 'Approx. 1 - 1.5 hrs');
+  } else if (lang === 'ja') {
+    str = str
+      .replace(/약\s*(\d+)\s*분/g, '約$1分')
+      .replace(/약\s*1\s*~\s*1\.5시간/g, '約1〜1.5時間');
+  } else if (lang === 'zh' || lang === 'zht') {
+    str = str
+      .replace(/약\s*(\d+)\s*분/g, '约$1分钟')
+      .replace(/약\s*1\s*~\s*1\.5시간/g, '约1~1.5小时');
+  }
+
+  return str;
+}
+
+export function getLocalizedCategory(category = '', lang = 'ko') {
+  if (!category) return lang === 'en' ? 'Attraction' : lang === 'ja' ? '観光名所' : (lang === 'zh' || lang === 'zht') ? '热门景点' : '관광명소';
+  if (lang === 'ko') return category;
+  
+  const mapEn = {
+    '관광명소': 'Attraction', '관광지': 'Attraction', '추천명소': 'Attraction',
+    '문화시설': 'Culture & Arts', '역사문화': 'Heritage & History', '궁궐': 'Royal Palace',
+    '체험/레포츠': 'Activity / Sports', '레포츠': 'Activity / Sports',
+    '전시·미술': 'Art & Exhibition', '미술관': 'Art Museum', '박물관': 'Museum',
+    '감성골목': 'Charming Street', '전망대': 'Observatory', '사찰·바다': 'Temple & Sea',
+    '자연명소': 'Nature Sight', '공원': 'Park & Nature', '쇼핑': 'Shopping'
+  };
+  const mapJa = {
+    '관광명소': '観光名所', '관광지': '観光名所', '추천명소': 'おすすめ名所',
+    '문화시설': '文化施設', '역사문화': '歴史文化', '궁궐': '王宮',
+    '체험/레포츠': 'アクティビティ', '레포츠': 'レジャースポーツ',
+    '전시·미술': '美術・展示', '미술관': '美術館', '박물관': '博物館',
+    '감성골목': 'ストリート', '전망대': '展望台', '사찰·바다': '寺院・海',
+    '자연명소': '自然名所', '공원': '公園・自然', '쇼핑': 'ショッピング'
+  };
+  const mapZh = {
+    '관광명소': '热门景点', '관광지': '旅游名胜', '추천명소': '精选名胜',
+    '문화시설': '文化设施', '역사문화': '历史文化', '궁궐': '古宫',
+    '체험/레포츠': '体验/休闲', '레포츠': '休闲运动',
+    '전시·미술': '艺术展览', '미술관': '美术馆', '박물관': '博物馆',
+    '감성골목': '特色街区', '전망대': '观景台', '사찰·바다': '寺庙/海景',
+    '자연명소': '自然风光', '공원': '公园/自然', '쇼핑': '购物商圈'
+  };
+
+  if (lang === 'en') return mapEn[category] || category;
+  if (lang === 'ja') return mapJa[category] || category;
+  if (lang === 'zh' || lang === 'zht') return mapZh[category] || category;
+  return category;
+}
+
+export function getLocalizedTag(tag = '', lang = 'ko') {
+  if (!tag || lang === 'ko') return tag;
+  const clean = tag.replace(/^#/, '').trim();
+  const mapEn = {
+    '역사': 'History', '한복': 'Hanbok', '궁궐': 'Palace', '사진명소': 'PhotoSpot', '가족': 'Family',
+    '자연': 'Nature', '힐링': 'Healing', '바다': 'Ocean', '야경': 'NightView', '감성': 'Atmosphere',
+    '쇼핑': 'Shopping', '미식': 'Foodie', '전망': 'ScenicView', '데이트': 'DateCourse', '산책': 'Stroll',
+    '문화': 'Culture', '전통': 'Heritage', '핫플': 'HotSpot', '바다전망': 'OceanView', '일몰': 'Sunset'
+  };
+  const mapJa = {
+    '역사': '歴史', '한복': '韓服', '궁궐': '王宮', '사진명소': '映えスポット', '가족': '家族旅行',
+    '자연': '自然', '힐링': 'ヒーリング', '바다': '海', '야경': '夜景', '감성': 'エモい',
+    '쇼핑': 'ショッピング', '미식': 'グルメ', '전망': '絶景', '데이트': 'デート', '산책': '散歩',
+    '문화': '文化', '전통': '伝統', '핫플': '話題のスポット', '바다전망': 'オーシャンビュー', '일몰': '夕日'
+  };
+  const mapZh = {
+    '역사': '历史', '한복': '韩服', '궁궐': '古宫', '사진명소': '拍照圣地', '가족': '家庭游',
+    '자연': '自然风光', '힐링': '治愈系', '바다': '海景', '야경': '夜景', '감성': '网红感',
+    '쇼핑': '购物', '미식': '美食', '전망': '全景', '데이트': '约会胜地', '산책': '散步',
+    '문화': '文化', '전통': '传统', '핫플': '人气热点', '바다전망': '海景视野', '일몰': '日落'
+  };
+
+  if (lang === 'en') return mapEn[clean] || clean;
+  if (lang === 'ja') return mapJa[clean] || clean;
+  if (lang === 'zh' || lang === 'zht') return mapZh[clean] || clean;
+  return clean;
+}
+
 // ⏰ 운영시간 줄바꿈 및 서식 정돈 헬퍼
-function formatOperatingHours(hoursStr = '', closedDays = '') {
-  if (!hoursStr) return <span>24시간 상시 개방 (자유 관람)</span>;
-  const clean = hoursStr.replace(/<[^>]+>/g, ' ').trim();
+function formatOperatingHours(hoursStr = '', closedDays = '', lang = 'ko') {
+  if (!hoursStr) return <span>{translatePracticalInfo('24시간 상시 개방 (자유 관람)', lang)}</span>;
+  const clean = translatePracticalInfo(hoursStr.replace(/<[^>]+>/g, ' ').trim(), lang);
+  const transClosed = translatePracticalInfo(closedDays, lang);
   
   // 하절기, 동절기, 평일, 주말 등 주요 구분 키워드 앞 줄바꿈 분리
-  const lines = clean.split(/(?=[-\s]*(?:하절기|동절기|평일|주말|매일|하계|동계|운영시간|관람시간))/g)
+  const lines = clean.split(/(?=[-\s]*(?:하절기|동절기|평일|주말|매일|하계|동계|운영시간|관람시간|Summer|Winter|Weekday|Weekend))/gi)
     .map(l => l.replace(/^[-–\s]+/, '').trim())
     .filter(Boolean);
 
@@ -39,7 +285,7 @@ function formatOperatingHours(hoursStr = '', closedDays = '') {
     return (
       <span>
         {clean}
-        {closedDays && <span style={{ color: '#ef4444', marginLeft: '0.35rem', fontWeight: 700 }}>({closedDays})</span>}
+        {transClosed && <span style={{ color: '#ef4444', marginLeft: '0.35rem', fontWeight: 700 }}>({transClosed})</span>}
       </span>
     );
   }
@@ -49,8 +295,8 @@ function formatOperatingHours(hoursStr = '', closedDays = '') {
       {lines.map((l, lIdx) => (
         <div key={lIdx} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           <span>• {l}</span>
-          {lIdx === lines.length - 1 && closedDays && (
-            <span style={{ color: '#ef4444', marginLeft: '0.35rem', fontWeight: 700 }}>({closedDays})</span>
+          {lIdx === lines.length - 1 && transClosed && (
+            <span style={{ color: '#ef4444', marginLeft: '0.35rem', fontWeight: 700 }}>({transClosed})</span>
           )}
         </div>
       ))}
@@ -676,7 +922,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                 fontWeight: 800,
                 textShadow: '0 1px 4px rgba(0, 0, 0, 0.8)'
               }}>
-                {spot.category || spot.theme || '추천명소'}
+                {getLocalizedCategory(spot.category || spot.theme || '추천명소', lang)}
               </span>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', color: '#f59e0b', fontSize: '0.82rem', fontWeight: 900, textShadow: '0 1px 4px rgba(0, 0, 0, 0.8)' }}>
                 <Star size={14} fill="#f59e0b" />
@@ -742,7 +988,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
               <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '75px', fontWeight: 700 }}>
                 {lang === 'en' ? '• Transit' : lang === 'ja' ? '• 交通' : (lang === 'zh' || lang === 'zht') ? '• 交通' : '• 교통'}
               </span>
-              <span style={{ color: '#2563eb', fontWeight: 700, lineHeight: 1.5 }}>: {subwayTransit}</span>
+              <span style={{ color: '#2563eb', fontWeight: 700, lineHeight: 1.5 }}>: {translatePracticalInfo(subwayTransit, lang)}</span>
             </div>
 
             {/* 3. 관람 시간 */}
@@ -751,7 +997,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                 {lang === 'en' ? '• Hours' : lang === 'ja' ? '• 営業時間' : (lang === 'zh' || lang === 'zht') ? '• 营业时间' : '• 시간'}
               </span>
               <div style={{ color: 'var(--text-main)', fontWeight: 600, lineHeight: 1.5, flex: 1 }}>
-                : {formatOperatingHours(operatingHours, closedDays)}
+                : {formatOperatingHours(operatingHours, closedDays, lang)}
               </div>
             </div>
 
@@ -760,7 +1006,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
               <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '75px', fontWeight: 700 }}>
                 {lang === 'en' ? '• Duration' : lang === 'ja' ? '• 所要時間' : (lang === 'zh' || lang === 'zht') ? '• 建议用时' : '• 소요'}
               </span>
-              <span style={{ color: 'var(--text-main)', fontWeight: 600, lineHeight: 1.5 }}>: {duration}</span>
+              <span style={{ color: 'var(--text-main)', fontWeight: 600, lineHeight: 1.5 }}>: {translatePracticalInfo(duration, lang)}</span>
             </div>
 
             {/* 5. 입장 요금 */}
@@ -768,7 +1014,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
               <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '75px', fontWeight: 700 }}>
                 {lang === 'en' ? '• Fee' : lang === 'ja' ? '• 料金' : (lang === 'zh' || lang === 'zht') ? '• 门票费用' : '• 요금'}
               </span>
-              <span style={{ color: 'var(--text-main)', fontWeight: 600, lineHeight: 1.5 }}>: {admissionFee}</span>
+              <span style={{ color: 'var(--text-main)', fontWeight: 600, lineHeight: 1.5 }}>: {translatePracticalInfo(admissionFee, lang)}</span>
             </div>
 
             {/* 6. 🚗 주차 시설 */}
@@ -777,7 +1023,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                 <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '75px', fontWeight: 700 }}>
                   {lang === 'en' ? '• Parking' : lang === 'ja' ? '• 駐車場' : (lang === 'zh' || lang === 'zht') ? '• 停车场' : '• 주차'}
                 </span>
-                <span style={{ color: 'var(--text-main)', fontWeight: 600, wordBreak: 'keep-all', lineHeight: 1.5 }}>: {liveIntroDetails.parking}</span>
+                <span style={{ color: 'var(--text-main)', fontWeight: 600, wordBreak: 'keep-all', lineHeight: 1.5 }}>: {translatePracticalInfo(liveIntroDetails.parking, lang)}</span>
               </div>
             )}
 
@@ -857,7 +1103,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                         fontWeight: 700
                       }}
                     >
-                      #{tag}
+                      #{getLocalizedTag(tag, lang)}
                     </span>
                   ))}
                 </div>

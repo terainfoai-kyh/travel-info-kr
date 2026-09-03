@@ -59,6 +59,23 @@
 
 ## 📅 Daily Continuity History (일일 작업 연속성 & 자동 선 브리핑 장부)
 
+### [2026-09-03] 🌐 추천 코스 뱃지 언어 동기화 & 상세 모달 3중 표준 토큰 다국어화 완성 [★ Golden Checkpoint]
+- **1. 다국어 TourAPI 실시간 검색어 자동 변환기 탑재 (`tourApi.js`)**:
+  - `fetchDynamicRealtimeSpots` 호출 시, 현재 언어(`lang`)에 맞춰 한국어 도시명을 해당 국가 표준 지명(`Sangju`, `尚州` 등)으로 자동 변환하여 공공 API에 전송하도록 개선.
+  - 번역 키워드 실패 시 2차 폴백 체인 탑재.
+- **2. 지도 추천 코스 뱃지(`liveHighlights`) 실시간 언어 동기화 쇄신 (`DesktopMapExplorer.jsx`)**:
+  - 타 언어 캐시 오염을 원천 차단하고, 헤더에서 언어 변경 시 즉시 새 언어의 TourAPI 정품 명소명으로 재호출·재렌더링되도록 수정.
+  - 외국어 모드에서 괄호 안 한국어 텍스트 제거 정제.
+- **3. 상세 모달 실용 정보(교통/운영시간/입장료/태그/카테고리) 3중 안전망 표준 토큰 치환기 탑재 (`TravelDetailModal.jsx`)**:
+  - 공공데이터의 한국어 텍스트(`usetime`, `usefee`) 및 템플릿 안내문구(`3호선 경복궁역 5번 출구`, `성인 3,000원`, `입장마감 17:00`, `관광명소`, `#역사`)를 15개 표준 정규식 토큰 맵으로 자동 변환.
+  - 상단 뱃지: `관광명소` ➔ `Attraction` (EN) / `観光名所` (JA) / `热门景点` (ZH)
+  - 대중교통: `3호선 경복궁역 5번 출구 (도보 3분)` ➔ `Line 3 Gyeongbokgung Station Exit 5 (3 min walk)` / `地铁3号线 景福宫站 5号出口 (步行3分钟)`
+  - 운영시간/휴무일: `입장마감 17:00` ➔ `Last Entry 17:00` / `最终入场 17:00`, `매주 화요일 정기 휴궁` ➔ `Closed every Tuesday` / `每周二定期休馆`
+  - 입장료: `성인 3,000원 (한복 착용 시 무료)` ➔ `Adult ₩3,000 (Free with Hanbok)` / `成人 3,000韩元 (穿韩服免费)`
+  - 테마 태그: `#역사 #한복 #궁궐` ➔ `#History #Hanbok #Palace` / `#历史 #韩服 #古宫`
+- **4. 빌드 무결성 검증 통과 (`[ZERO DEFECT PASSED]`) 및 배포**:
+  - `powershell.exe -ExecutionPolicy Bypass -File .\scripts\verifySyntax.ps1` 검증 통과.
+
 ### [2026-09-03] 🌐 전국 지식베이스(56개 지자체) 4개 국어(KO, EN, JA, ZH) 일괄 정품 탑재 완성 [★ Golden Checkpoint]
 - **1. 지식베이스 스키마 및 암호화 볼트 전수 다국어화 (`NationwideVaultCompiler.cs`, `voraQnaVault.js`)**:
   - 기존 한국어 단일 템플릿으로 저장되어 있던 56개 전 지자체의 미식(Local Foodie Picks), 야경(Night View), 대중교통(Transit Tip), 감성 카페, 추천 숙소, 챗봇 답변(QnA Answers)을 **영문·일문·중문 정품 고품질 번역으로 100% 일괄 컴파일하여 암호화 볼트에 영구 박제**.
