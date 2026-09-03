@@ -5,7 +5,9 @@
  * Dispatches lightweight usage signals to /api/analytics and local storage cache.
  */
 
-const ANALYTICS_API_BASE = '/api/analytics';
+const ANALYTICS_API_BASE = (typeof window !== 'undefined' && (window.location.hostname.includes('koreatravel.cc') || window.location.hostname.includes('github.io')))
+  ? 'https://travelkorea-dev.pages.dev/api/analytics'
+  : '/api/analytics';
 
 // Local Memory / Storage Fallback Cache (ensures local dev also has rich statistics)
 const LOCAL_ANALYTICS_KEY = 'vora_local_analytics_summary';
@@ -146,29 +148,37 @@ export function trackTripSaved(city, days = 3, lang = 'ko') {
  * 📈 Fetch Summary for Super Admin Dashboard
  */
 export async function fetchAnalyticsSummary() {
+  const local = getLocalSummary();
   try {
     const res = await fetch(ANALYTICS_API_BASE, { method: 'GET' });
     if (res.ok) {
       const json = await res.json();
       if (json && json.data) {
-        const local = getLocalSummary();
-        return {
-          ...local,
-          ...json.data,
-          dailyHistory: (json.data.dailyHistory && Object.keys(json.data.dailyHistory).length > 0) 
-            ? json.data.dailyHistory 
-            : local.dailyHistory,
-          topCities: json.data.topCities || Object.entries(local.cities || {})
-            .map(([name, count]) => ({ name, count }))
-            .sort((a, b) => b.count - a.count)
-            .slice(0, 10)
+        const s = json.data;
+        const merged = {
+          totalPageViews: Math.max(local.totalPageViews || 0, s.totalPageViews || 0),
+          todayPageViews: Math.max(local.todayPageViews || 0, s.todayPageViews || 0),
+          totalItineraries: Math.max(local.totalItineraries || 0, s.totalItineraries || 0),
+          todayItineraries: Math.max(local.todayItineraries || 0, s.todayItineraries || 0),
+          totalChatQueries: Math.max(local.totalChatQueries || 0, s.totalChatQueries || 0),
+          totalTripsSaved: Math.max(local.totalTripsSaved || 0, s.totalTripsSaved || 0),
+          cities: { ...(local.cities || {}), ...(s.cities || {}) },
+          languages: { ...(local.languages || {}), ...(s.languages || {}) },
+          daysDistribution: { ...(local.daysDistribution || {}), ...(s.daysDistribution || {}) },
+          dailyHistory: { ...(local.dailyHistory || {}), ...(s.dailyHistory || {}) },
+          recentEvents: (s.recentEvents && s.recentEvents.length > 0) ? s.recentEvents : (local.recentEvents || [])
         };
+        saveLocalSummary(merged);
+        const topCities = Object.entries(merged.cities || {})
+          .map(([name, count]) => ({ name, count }))
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 10);
+        return { ...merged, topCities };
       }
     }
   } catch (e) {}
 
   // Fallback to local summary
-  const local = getLocalSummary();
   const topCities = Object.entries(local.cities || {})
     .map(([name, count]) => ({ name, count }))
     .sort((a, b) => b.count - a.count)
