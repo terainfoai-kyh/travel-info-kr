@@ -10,26 +10,15 @@ const ANALYTICS_API_BASE = '/api/analytics';
 // Local Memory / Storage Fallback Cache (ensures local dev also has rich statistics)
 const LOCAL_ANALYTICS_KEY = 'vora_local_analytics_summary';
 
-function generateSampleDailyHistory() {
+function getEmptyDailyHistory() {
   const history = {};
   const today = new Date();
-  
-  // Create last 14 days of realistic activity
   for (let i = 13; i >= 0; i--) {
     const d = new Date(today);
     d.setDate(today.getDate() - i);
     const dateStr = d.toISOString().slice(0, 10);
-    
-    // Vary counts realistically
-    const dayFactor = (i === 0) ? 1.2 : (1 + Math.sin(i * 0.8) * 0.4);
-    const pageViews = Math.round(25 * dayFactor + (i % 3) * 5);
-    const itineraries = Math.round(12 * dayFactor + (i % 2) * 3);
-    const chats = Math.round(18 * dayFactor);
-    const saves = Math.round(5 * dayFactor);
-
-    history[dateStr] = { pageViews, itineraries, chats, saves };
+    history[dateStr] = { pageViews: 0, itineraries: 0, chats: 0, saves: 0 };
   }
-
   return history;
 }
 
@@ -38,40 +27,26 @@ function getLocalSummary() {
     const raw = localStorage.getItem(LOCAL_ANALYTICS_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (!parsed.dailyHistory || Object.keys(parsed.dailyHistory).length === 0) {
-        parsed.dailyHistory = generateSampleDailyHistory();
+      if (!parsed.dailyHistory) {
+        parsed.dailyHistory = getEmptyDailyHistory();
       }
       return parsed;
     }
   } catch (e) {}
 
   return {
-    totalPageViews: 148,
-    todayPageViews: 42,
-    totalItineraries: 56,
-    todayItineraries: 21,
-    totalChatQueries: 104,
-    totalTripsSaved: 28,
-    cities: {
-      '신안': 18,
-      '서울': 14,
-      '부산': 10,
-      '제주': 8,
-      '경주': 6,
-      '울릉도': 4,
-      '강릉': 4,
-      '수원': 3
-    },
-    languages: { ko: 30, en: 45, ja: 28, zh: 22, zht: 7, fr: 5, de: 4, es: 5, ru: 2 },
-    daysDistribution: { '1': 8, '2': 18, '3': 24, '4': 6, '5': 3, '6+': 1 },
-    themes: { '✨ 핵심 랜드마크': 28, '🌊 오션뷰 힐링': 15, '🍴 로컬 미식': 10, '☔ 비/실내 투어': 5 },
-    dailyHistory: generateSampleDailyHistory(),
-    recentEvents: [
-      { id: 'ev_init_1', type: 'itinerary_gen', city: '신안', days: 3, lang: 'ja', timestamp: new Date(Date.now() - 1000 * 60 * 3).toISOString() },
-      { id: 'ev_init_2', type: 'itinerary_gen', city: '신안', days: 3, lang: 'en', timestamp: new Date(Date.now() - 1000 * 60 * 8).toISOString() },
-      { id: 'ev_init_3', type: 'page_view', lang: 'zh', timestamp: new Date(Date.now() - 1000 * 60 * 15).toISOString() },
-      { id: 'ev_init_4', type: 'itinerary_gen', city: '울릉도', days: 2, lang: 'ko', timestamp: new Date(Date.now() - 1000 * 60 * 25).toISOString() }
-    ]
+    totalPageViews: 0,
+    todayPageViews: 0,
+    totalItineraries: 0,
+    todayItineraries: 0,
+    totalChatQueries: 0,
+    totalTripsSaved: 0,
+    cities: {},
+    languages: { ko: 0, en: 0, ja: 0, zh: 0, zht: 0, fr: 0, de: 0, es: 0, ru: 0 },
+    daysDistribution: { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0, '6+': 0 },
+    themes: {},
+    dailyHistory: getEmptyDailyHistory(),
+    recentEvents: []
   };
 }
 
