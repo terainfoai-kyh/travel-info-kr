@@ -114,10 +114,10 @@ export default function AboutUsModal({ isOpen, onClose, lang = 'ko' }) {
                   <span>Core Technologies & Partnerships</span>
                 </h4>
                 <p style={{ margin: 0 }}>
-                  • <strong>Korea Tourism Organization (KTO) TourAPI 4.0</strong>: Official South Korea tourism data & verified HD CDN images<br />
-                  • <strong>Google Gemini 3.0 AI</strong>: Advanced natural language itinerary orchestration<br />
-                  • <strong>Google Places & Maps Platform</strong>: Official global places, verified ratings & transit navigation<br />
-                  • Complete 4-language support: Korean, English, Japanese, and Chinese
+                  • <strong>Korea Tourism Organization (KTO) TourAPI 4.0</strong>: Official South Korea live tourism database & verified HD CDN images<br />
+                  • <strong>Google DeepMind Gemini 3.5 Flash</strong>: Next-gen conversational AI itinerary & knowledge orchestration<br />
+                  • <strong>CartoDB Global Maps & Spatial Clustering</strong>: Multilingual interactive map tiles, island clusters & GPS navigation<br />
+                  • <strong>4 Core Languages</strong>: Seamless support for Korean, English, Japanese, and Chinese
                 </p>
               </div>
             </>
@@ -153,10 +153,10 @@ export default function AboutUsModal({ isOpen, onClose, lang = 'ko' }) {
                   <span>コア技術と提携</span>
                 </h4>
                 <p style={{ margin: 0 }}>
-                  • <strong>Google Gemini 3.0 AI</strong>: 高度な自然言語旅行設計インテリジェンス<br />
-                  • <strong>Google Places Platform</strong>: 公式スポットデータ、口コミ評価、高画質写真<br />
-                  • <strong>Google Maps Platform</strong>: グローバル標準ルート案内とディープリンク<br />
-                  • 韓国語・英語・日本語・中国語の4言語完全対応
+                  • <strong>韓国観光公社(KTO) TourAPI 4.0</strong>: 韓国公式リアルタイム観光公的データ直結<br />
+                  • <strong>Google DeepMind Gemini 3.5 Flash</strong>: 高度な自然言語旅行設計インテリジェンス<br />
+                  • <strong>CartoDB グローバル多言語マップ</strong>: 英語/現地語対応の精密地図と離島空間クラスタリング<br />
+                  • 韓国語・英語・日本語・中国語の4大言語完全対応
                 </p>
               </div>
             </>
@@ -192,10 +192,10 @@ export default function AboutUsModal({ isOpen, onClose, lang = 'ko' }) {
                   <span>核心技术与生态合作伙伴</span>
                 </h4>
                 <p style={{ margin: 0 }}>
-                  • <strong>Google Gemini 3.0 AI</strong>：前沿自然语言旅行规划智能引擎<br />
-                  • <strong>Google Places Platform</strong>：官方权威认证地点、高清实景与真实评分<br />
-                  • <strong>Google Maps Platform</strong>：全球标准地图导航与无缝路线直达<br />
-                  • 完美支持中、英、日、韩四国语言
+                  • <strong>韩国旅游发展局(KTO) TourAPI 4.0</strong>：官方实时公共旅游大数据直连<br />
+                  • <strong>Google DeepMind Gemini 3.5 Flash</strong>：前沿自然语言旅行规划智能引擎<br />
+                  • <strong>CartoDB 全球多语言互动地图</strong>：精准路线可视化与全韩国海岛空间聚类<br />
+                  • 完美深度支持中（简/繁）、英、日、韩 4大核心语言
                 </p>
               </div>
             </>
@@ -231,10 +231,10 @@ export default function AboutUsModal({ isOpen, onClose, lang = 'ko' }) {
                   <span>핵심 기술 및 공식 데이터 연동 (Core Technologies)</span>
                 </h4>
                 <p style={{ margin: 0 }}>
-                  • <strong>한국관광공사(KTO) TourAPI 4.0</strong>: 대한민국 공식 관광지 및 정품 CDN 데이터 정식 연동<br />
-                  • <strong>Google Gemini 3.0 AI</strong>: 초개인화 자연어 일정 설계 및 티키타카 조율 엔진<br />
-                  • <strong>Google Places & Maps Platform</strong>: 글로벌 공식 명소 데이터, 3D 지도 & 대중교통 길찾기<br />
-                  • 한국어·영어·일본어·중국어 4개 국어 완벽 다국어 지원
+                  • <strong>한국관광공사(KTO) TourAPI 4.0</strong>: 대한민국 226개 시·군 공식 관광지 및 정품 CDN 실시간 직결<br />
+                  • <strong>Google DeepMind Gemini 3.5 Flash</strong>: 초개인화 자연어 여행 코디 및 5-Lane 자가학습 플라이휠<br />
+                  • <strong>CartoDB 글로벌 다국어 지도</strong>: 전 세계 외국인을 위한 다국어 맵 타일 & 도서/섬 공간 클러스터링<br />
+                  • 한국어·영어·일본어·중국어 4대 핵심 언어 완벽 지원
                 </p>
               </div>
             </>
