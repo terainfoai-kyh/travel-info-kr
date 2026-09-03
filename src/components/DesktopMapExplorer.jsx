@@ -697,7 +697,6 @@ export default function DesktopMapExplorer({
 
   // 🎯 위경도 좌표에서 가장 가까운 대한민국 도시/섬을 0.001초 만에 감지하는 공간 매퍼
   const findClosestCityFromCoords = (targetLat, targetLng) => {
-    // 0. 도서/섬 클러스터 최우선 검색 (울릉도, 독도, 신안, 백령도 등)
     for (const isl of KOREA_ISLAND_CLUSTERS) {
       const d = getDistanceKm(targetLat, targetLng, isl.lat, isl.lng);
       if (d <= (isl.radiusKm || 30)) {
@@ -708,7 +707,6 @@ export default function DesktopMapExplorer({
     let minD = Infinity;
     let bestCity = '서울';
     
-    // 1. 6대 거점 및 폴백 센터 검색
     for (const fc of REGIONAL_FALLBACK_CENTERS) {
       if (fc.lat && fc.lng) {
         const d = getDistanceKm(targetLat, targetLng, fc.lat, fc.lng);
@@ -718,7 +716,6 @@ export default function DesktopMapExplorer({
         }
       }
     }
-    // 2. 59개 로컬 지식베이스 도시 검색
     for (const [cName, cData] of Object.entries(CITY_LOCAL_KNOWLEDGE)) {
       if (cData.lat && cData.lng) {
         const d = getDistanceKm(targetLat, targetLng, cData.lat, cData.lng);
@@ -736,115 +733,88 @@ export default function DesktopMapExplorer({
     try {
       const cleanCityKey = (cityName || '').replace(/(특별시|광역시|특별자치시|특별자치도|시|군|구)$/, '').trim();
       const localKn = CITY_LOCAL_KNOWLEDGE[cleanCityKey] || CITY_LOCAL_KNOWLEDGE[cityName];
-      
-      /**
-       * 🏛️ [VORA Multilingual Pipeline - Data Enrichment Rationale]
-       * 
-       * 1. 6대 대표 거점 (서울, 부산, 제주, 수원, 경주, 강릉 등 사전 정의 허브):
-       *    - isPredefinedHub가 true일 때는 기검증된 4K 이미지와 랜드마크를 보존함.
-       * 2. 다국어 지식베이스(CITY_LOCAL_KNOWLEDGE) 데이터 우선권:
-       *    - 4개 국어(KO, EN, JA, ZH)로 구성된 찐 미식(foodieSecretEn/Ja/Zh), 
-       *      야경 랜드마크(nightHighlightEn/Ja/Zh), 교통 팁(transitTipEn/Ja/Zh), 
-       *      도시 슬로건(descEn/Ja/Zh)을 baseLoc에 보존하여 언어 전환 시에도 텍스트가 유실되지 않도록 보장함.
-       * 3. TourAPI 실시간 공공데이터 연동:
-       *    - 공공데이터 TourAPI 4.0(fetchDynamicRealtimeSpots / fetchLocationBasedTourApiSpots)을 호출하여
-       *      위치 기반 실시간 사진 및 등록 명소를 수신함.
-       */
-      const cleanCity = cityName.replace(/(특별시|광역시|특별자치시|특별자치도|시|군|구)$/, '').trim();
-      const foundHub = REGIONAL_FALLBACK_CENTERS.find(c => c.nameKo === cleanCity || c.nameKo === cityName || c.nameKo.includes(cleanCity) || cleanCity.includes(c.nameKo));
+      const foundHub = REGIONAL_FALLBACK_CENTERS.find(c => c.nameKo === cleanCityKey || c.nameKo === cityName || c.nameKo.includes(cleanCityKey) || cleanCityKey.includes(c.nameKo));
 
-      // 🌟 1. [Architecture Rule] 정품 4개국어 지식베이스(CITY_LOCAL_KNOWLEDGE) 데이터 우선 탑재
+      // 🌟 1. [Architecture Rule] 지식베이스 하이라이트 및 실시간 공공데이터 연쇄 획득 (Waterfall Resolution)
+      let verifiedImage = foundHub?.image || baseLoc.image || localKn?.image || null;
+      let liveHighlights = [];
+      let isAbstractHighlights = false;
+
       if (localKn && localKn.signatureHighlights && localKn.signatureHighlights.length > 0) {
         const sigKo = localKn.signatureHighlights || [];
         const sigEn = localKn.signatureHighlightsEn || sigKo;
         const sigJa = localKn.signatureHighlightsJa || sigKo;
         const sigZh = localKn.signatureHighlightsZh || sigKo;
 
-        const liveHighlights = sigKo.slice(0, 4).map((koName, idx) => ({
-          ko: koName,
-          en: sigEn[idx] || koName,
-          ja: sigJa[idx] || koName,
-          zh: sigZh[idx] || koName,
-          title: targetLang === 'ja' ? (sigJa[idx] || koName) : targetLang === 'en' ? (sigEn[idx] || koName) : (targetLang === 'zh' || targetLang === 'zht') ? (sigZh[idx] || koName) : koName,
-          name: targetLang === 'ja' ? (sigJa[idx] || koName) : targetLang === 'en' ? (sigEn[idx] || koName) : (targetLang === 'zh' || targetLang === 'zht') ? (sigZh[idx] || koName) : koName,
-          lat: baseLoc.lat,
-          lng: baseLoc.lng,
-          zoom: 14
-        }));
+        // 추상적인 문구('대표 랜드마크', '수변 생태공원', '역사 문화거리', '로컬 전통시장', '힐링 명소' 등)인지 검사
+        isAbstractHighlights = sigKo.some(h => /(대표 랜드마크|수변 생태공원|역사 문화거리|로컬 전통시장|힐링 명소|핫플레이스|생태공원 & 숲길)/i.test(h));
 
-        let verifiedImage = foundHub?.image || baseLoc.image || localKn.image;
+        if (!isAbstractHighlights) {
+          liveHighlights = sigKo.slice(0, 4).map((koName, idx) => ({
+            ko: koName,
+            en: sigEn[idx] || koName,
+            ja: sigJa[idx] || koName,
+            zh: sigZh[idx] || koName,
+            title: targetLang === 'ja' ? (sigJa[idx] || koName) : targetLang === 'en' ? (sigEn[idx] || koName) : (targetLang === 'zh' || targetLang === 'zht') ? (sigZh[idx] || koName) : koName,
+            name: targetLang === 'ja' ? (sigJa[idx] || koName) : targetLang === 'en' ? (sigEn[idx] || koName) : (targetLang === 'zh' || targetLang === 'zht') ? (sigZh[idx] || koName) : koName,
+            lat: baseLoc.lat,
+            lng: baseLoc.lng,
+            zoom: 14
+          }));
 
-        // 🎯 1순위 대표 랜드마크(예: 경복궁, 해운대, 성산일출봉, 불국사)를 핀포인트로 실시간 TourAPI 조회하여 4K 정품 사진 획득
-        try {
-          const primaryLm = sigKo[0];
-          const landmarkSpots = await fetchPinpointLandmarkSpots([primaryLm], targetLang, cityName);
-          if (landmarkSpots && landmarkSpots.length > 0 && landmarkSpots[0]?.image && !landmarkSpots[0].image.includes('default-spot')) {
-            verifiedImage = landmarkSpots[0].image;
+          // 구체적 랜드마크인 경우 실시간 TourAPI 핀포인트 사진 시도
+          try {
+            const landmarkSpots = await fetchPinpointLandmarkSpots(sigKo.slice(0, 2), targetLang, cityName);
+            const foundPhotoSpot = landmarkSpots?.find(s => s.image && !s.image.includes('default-spot'));
+            if (foundPhotoSpot?.image) {
+              verifiedImage = foundPhotoSpot.image;
+            }
+          } catch {}
+        }
+      }
+
+      // 🛡️ 2. 지식베이스에서 사진을 못 구했거나(추상 문구 등) 미등록 226개 소도시:
+      // TourAPI 인기순(arrange=P) 실시간 공공데이터를 호출하여 해당 도시의 실제 1등 관광지 사진 및 명소 수신
+      if (!verifiedImage || isAbstractHighlights || liveHighlights.length === 0) {
+        let liveSpots = await fetchDynamicRealtimeSpots(cityName, targetLang);
+        if ((!liveSpots || liveSpots.length === 0) && baseLoc.lat && baseLoc.lng) {
+          liveSpots = await fetchLocationBasedTourApiSpots(baseLoc.lat, baseLoc.lng, 15000, targetLang);
+        }
+
+        if (liveSpots && liveSpots.length > 0) {
+          // 비관광 시설(분관, 관리소, 주차장 등)을 제외한 최상위 인기 관광지의 정품 사진 선별
+          const spotWithImg = liveSpots.find(s => (s.firstimage || s.image) && !/(분관|관리소|교육관|예절교육관|주차장|공영주차장|현판|표지석)/i.test(s.title)) || liveSpots.find(s => s.firstimage || s.image);
+          if (spotWithImg?.firstimage || spotWithImg?.image) {
+            verifiedImage = spotWithImg.firstimage || spotWithImg.image;
           }
-        } catch {}
 
-        if (!verifiedImage) {
-          verifiedImage = '/images/themes/hero-hangang.jpg';
+          // 추상적 문구이거나 비어있던 하이라이트를 실제 TourAPI 실시간 정품 명소로 즉시 업그레이드!
+          if (isAbstractHighlights || liveHighlights.length === 0) {
+            liveHighlights = liveSpots.slice(0, 4).map((sp) => {
+              const rawTitle = (sp.title || sp.name || '').trim();
+              return {
+                title: rawTitle,
+                name: rawTitle,
+                ko: targetLang === 'ko' ? rawTitle : (sp.titleKo || rawTitle),
+                en: targetLang === 'en' ? rawTitle : (sp.titleEn || rawTitle),
+                ja: targetLang === 'ja' ? rawTitle : (sp.titleJa || rawTitle),
+                zh: (targetLang === 'zh' || targetLang === 'zht') ? rawTitle : (sp.titleZh || rawTitle),
+                lat: Number(sp.lat || sp.mapy) || baseLoc.lat,
+                lng: Number(sp.lng || sp.mapx) || baseLoc.lng,
+                zoom: 15
+              };
+            });
+          }
         }
-
-        return {
-          ...baseLoc,
-          image: verifiedImage,
-          highlights: liveHighlights,
-          foodieSecret: localKn?.localFoodieSecret || baseLoc.foodieSecret || null,
-          foodieSecretEn: localKn?.localFoodieSecretEn || baseLoc.foodieSecretEn || null,
-          foodieSecretJa: localKn?.localFoodieSecretJa || baseLoc.foodieSecretJa || null,
-          foodieSecretZh: localKn?.localFoodieSecretZh || baseLoc.foodieSecretZh || null,
-          nightHighlight: localKn?.nightHighlights ? (typeof localKn.nightHighlights[0] === 'string' ? localKn.nightHighlights[0] : localKn.nightHighlights[0]?.name) : (baseLoc.nightHighlight || null),
-          nightHighlightEn: localKn?.nightHighlightsEn ? localKn.nightHighlightsEn[0] : (localKn?.nightHighlights?.[0]?.nameEn || baseLoc.nightHighlightEn || null),
-          nightHighlightJa: localKn?.nightHighlightsJa ? localKn.nightHighlightsJa[0] : (localKn?.nightHighlights?.[0]?.nameJa || baseLoc.nightHighlightJa || null),
-          nightHighlightZh: localKn?.nightHighlightsZh ? localKn.nightHighlightsZh[0] : (localKn?.nightHighlights?.[0]?.nameZh || baseLoc.nightHighlightZh || null),
-          transitTipKo: localKn?.transitTip || baseLoc.transitTipKo,
-          transitTipEn: localKn?.transitTipEn || baseLoc.transitTipEn,
-          transitTipJa: localKn?.transitTipJa || baseLoc.transitTipJa,
-          transitTipZh: localKn?.transitTipZh || baseLoc.transitTipZh,
-          descKo: localKn?.badge || baseLoc.descKo,
-          descEn: localKn?.badgeEn || localKn?.descEn || baseLoc.descEn,
-          descJa: localKn?.badgeJa || localKn?.descJa || baseLoc.descJa,
-          descZh: localKn?.badgeZh || localKn?.descZh || baseLoc.descZh
-        };
       }
 
-      // 🛡️ 2. 미등록 전국 226개 소도시/군 단위 클릭 시: TourAPI 4.0 인기순(arrange=P) 실시간 정품 사진 & 명소 100% 동적 로드
-      let liveSpots = await fetchDynamicRealtimeSpots(cityName, targetLang);
-      if ((!liveSpots || liveSpots.length === 0) && baseLoc.lat && baseLoc.lng) {
-        liveSpots = await fetchLocationBasedTourApiSpots(baseLoc.lat, baseLoc.lng, 15000, targetLang);
-      }
-
-      let livePhoto = null;
-      let liveHighlights = [];
-
-      if (liveSpots && liveSpots.length > 0) {
-        // 비관광 시설을 제외한 최상위 인기 관광지의 정품 사진 선별
-        const spotWithImg = liveSpots.find(s => (s.firstimage || s.image) && !/(분관|관리소|교육관|주차장|현판)/i.test(s.title)) || liveSpots.find(s => s.firstimage || s.image) || liveSpots[0];
-        if (spotWithImg?.firstimage || spotWithImg?.image) {
-          livePhoto = spotWithImg.firstimage || spotWithImg.image;
-        }
-
-        liveHighlights = liveSpots.slice(0, 3).map((sp) => {
-          const rawTitle = (sp.title || sp.name || '').trim();
-          return {
-            title: rawTitle,
-            name: rawTitle,
-            ko: targetLang === 'ko' ? rawTitle : (sp.titleKo || rawTitle),
-            en: targetLang === 'en' ? rawTitle : (sp.titleEn || rawTitle),
-            ja: targetLang === 'ja' ? rawTitle : (sp.titleJa || rawTitle),
-            zh: (targetLang === 'zh' || targetLang === 'zht') ? rawTitle : (sp.titleZh || rawTitle),
-            lat: Number(sp.lat || sp.mapy) || baseLoc.lat,
-            lng: Number(sp.lng || sp.mapx) || baseLoc.lng,
-            zoom: 15
-          };
-        });
+      if (!verifiedImage) {
+        verifiedImage = foundHub?.image || baseLoc.image || '/images/themes/theme-jeju.jpg';
       }
 
       return {
         ...baseLoc,
-        image: livePhoto || baseLoc.image || localKn?.image || '/images/themes/hero-hangang.jpg',
+        image: verifiedImage,
         highlights: liveHighlights.length > 0 ? liveHighlights : (baseLoc.highlights || []),
         foodieSecret: localKn?.localFoodieSecret || baseLoc.foodieSecret || null,
         foodieSecretEn: localKn?.localFoodieSecretEn || baseLoc.foodieSecretEn || null,
