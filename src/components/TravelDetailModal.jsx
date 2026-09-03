@@ -30,6 +30,78 @@ export function translatePracticalInfo(text = '', lang = 'ko') {
   if (!text || typeof text !== 'string' || lang === 'ko') return text;
   let str = text;
 
+  // 0. 대한민국 주요 지하철 역명 치환
+  if (lang === 'en') {
+    str = str
+      .replace(/해운대역/g, 'Haeundae Station')
+      .replace(/광안역/g, 'Gwangan Station')
+      .replace(/서면역/g, 'Seomyeon Station')
+      .replace(/남포역/g, 'Nampo Station')
+      .replace(/자갈치역/g, 'Jagalchi Station')
+      .replace(/부산역/g, 'Busan Station')
+      .replace(/광화문역/g, 'Gwanghwamun Station')
+      .replace(/경복궁역/g, 'Gyeongbokgung Station')
+      .replace(/안국역/g, 'Anguk Station')
+      .replace(/명동역/g, 'Myeongdong Station')
+      .replace(/동대문역/g, 'Dongdaemun Station')
+      .replace(/홍대입구역/g, 'Hongik Univ. Station')
+      .replace(/강남역/g, 'Gangnam Station')
+      .replace(/잠실역/g, 'Jamsil Station')
+      .replace(/여의도역/g, 'Yeouido Station')
+      .replace(/수원역/g, 'Suwon Station')
+      .replace(/신경주역/g, 'Singyeongju Station')
+      .replace(/경주역/g, 'Gyeongju Station')
+      .replace(/강릉역/g, 'Gangneung Station')
+      .replace(/춘천역/g, 'Chuncheon Station')
+      .replace(/전주역/g, 'Jeonju Station');
+  } else if (lang === 'ja') {
+    str = str
+      .replace(/해운대역/g, '海雲台駅')
+      .replace(/광안역/g, '広安駅')
+      .replace(/서면역/g, '西面駅')
+      .replace(/남포역/g, '南浦駅')
+      .replace(/자갈치역/g, 'チャガルチ駅')
+      .replace(/부산역/g, '釜山駅')
+      .replace(/광화문역/g, '光化門駅')
+      .replace(/경복궁역/g, '景福宮駅')
+      .replace(/안국역/g, '安国駅')
+      .replace(/명동역/g, '明洞駅')
+      .replace(/동대문역/g, '東大門駅')
+      .replace(/홍대입구역/g, '弘大入口駅')
+      .replace(/강남역/g, '江南駅')
+      .replace(/잠실역/g, '蚕室駅')
+      .replace(/여의도역/g, '汝矣島駅')
+      .replace(/수원역/g, '水原駅')
+      .replace(/신경주역/g, '新慶州駅')
+      .replace(/경주역/g, '慶州駅')
+      .replace(/강릉역/g, '江陵駅')
+      .replace(/춘천역/g, '春川駅')
+      .replace(/전주역/g, '全州駅');
+  } else if (lang === 'zh' || lang === 'zht') {
+    str = str
+      .replace(/해운대역/g, '海云台站')
+      .replace(/광안역/g, '广安站')
+      .replace(/서면역/g, '西面站')
+      .replace(/남포역/g, '南浦站')
+      .replace(/자갈치역/g, '札嘎其站')
+      .replace(/부산역/g, '釜山站')
+      .replace(/광화문역/g, '光化门站')
+      .replace(/경복궁역/g, '景福宫站')
+      .replace(/안국역/g, '安国站')
+      .replace(/명동역/g, '明洞站')
+      .replace(/동대문역/g, '东大门站')
+      .replace(/홍대입구역/g, '弘大入口站')
+      .replace(/강남역/g, '江南站')
+      .replace(/잠실역/g, '蚕室站')
+      .replace(/여의도역/g, '汝矣岛站')
+      .replace(/수원역/g, '水原站')
+      .replace(/신경주역/g, '新庆州站')
+      .replace(/경주역/g, '庆州站')
+      .replace(/강릉역/g, '江陵站')
+      .replace(/춘천역/g, '春川站')
+      .replace(/전주역/g, '全州站');
+  }
+
   // 1. 대중교통 & 출구 & 소요시간
   if (lang === 'en') {
     str = str
@@ -204,6 +276,63 @@ export function translatePracticalInfo(text = '', lang = 'ko') {
       .replace(/약\s*1\s*~\s*1\.5시간/g, '约1~1.5小时');
   }
 
+  // 5. 위치/지명 및 ~일대 치환
+  if (lang === 'en') {
+    str = str
+      .replace(/부산\s*일대/g, 'Busan Area')
+      .replace(/서울\s*일대/g, 'Seoul Area')
+      .replace(/제주\s*일대/g, 'Jeju Area')
+      .replace(/경주\s*일대/g, 'Gyeongju Area')
+      .replace(/강릉\s*일대/g, 'Gangneung Area')
+      .replace(/수원\s*일대/g, 'Suwon Area')
+      .replace(/인천\s*일대/g, 'Incheon Area')
+      .replace(/전주\s*일대/g, 'Jeonju Area')
+      .replace(/여수\s*일대/g, 'Yeosu Area')
+      .replace(/통영\s*일대/g, 'Tongyeong Area')
+      .replace(/거제\s*일대/g, 'Geoje Area')
+      .replace(/안동\s*일대/g, 'Andong Area')
+      .replace(/포항\s*일대/g, 'Pohang Area')
+      .replace(/속초\s*일대/g, 'Sokcho Area')
+      .replace(/춘천\s*일대/g, 'Chuncheon Area')
+      .replace(/([가-힣]+)\s*일대/g, '$1 Area');
+  } else if (lang === 'ja') {
+    str = str
+      .replace(/부산\s*일대/g, '釜山エリア')
+      .replace(/서울\s*일대/g, 'ソウルエリア')
+      .replace(/제주\s*일대/g, '済州エリア')
+      .replace(/경주\s*일대/g, '慶州エリア')
+      .replace(/강릉\s*일대/g, '江陵エリア')
+      .replace(/수원\s*일대/g, '水原エリア')
+      .replace(/인천\s*일대/g, '仁川エリア')
+      .replace(/전주\s*일대/g, '全州エリア')
+      .replace(/여수\s*일대/g, '麗水エリア')
+      .replace(/통영\s*일대/g, '統営エリア')
+      .replace(/거제\s*일대/g, '巨済エリア')
+      .replace(/안동\s*일대/g, '安東エリア')
+      .replace(/포항\s*일대/g, '浦項エリア')
+      .replace(/속초\s*일대/g, '束草エリア')
+      .replace(/춘천\s*일대/g, '春川エリア')
+      .replace(/([가-힣]+)\s*일대/g, '$1エリア');
+  } else if (lang === 'zh' || lang === 'zht') {
+    str = str
+      .replace(/부산\s*일대/g, '釜山一带')
+      .replace(/서울\s*일대/g, '首尔一带')
+      .replace(/제주\s*일대/g, '济州一带')
+      .replace(/경주\s*일대/g, '庆州一带')
+      .replace(/강릉\s*일대/g, '江陵一带')
+      .replace(/수원\s*일대/g, '水原一带')
+      .replace(/인천\s*일대/g, '仁川一带')
+      .replace(/전주\s*일대/g, '全州一带')
+      .replace(/여수\s*일대/g, '丽水一带')
+      .replace(/통영\s*일대/g, '统营一带')
+      .replace(/거제\s*일대/g, '巨济一带')
+      .replace(/안동\s*일대/g, '安东一带')
+      .replace(/포항\s*일대/g, '浦项一带')
+      .replace(/속초\s*일대/g, '束草一带')
+      .replace(/춘천\s*일대/g, '春川一带')
+      .replace(/([가-힣]+)\s*일대/g, '$1一带');
+  }
+
   return str;
 }
 
@@ -249,19 +378,40 @@ export function getLocalizedTag(tag = '', lang = 'ko') {
     '역사': 'History', '한복': 'Hanbok', '궁궐': 'Palace', '사진명소': 'PhotoSpot', '가족': 'Family',
     '자연': 'Nature', '힐링': 'Healing', '바다': 'Ocean', '야경': 'NightView', '감성': 'Atmosphere',
     '쇼핑': 'Shopping', '미식': 'Foodie', '전망': 'ScenicView', '데이트': 'DateCourse', '산책': 'Stroll',
-    '문화': 'Culture', '전통': 'Heritage', '핫플': 'HotSpot', '바다전망': 'OceanView', '일몰': 'Sunset'
+    '문화': 'Culture', '전통': 'Heritage', '핫플': 'HotSpot', '바다전망': 'OceanView', '일몰': 'Sunset',
+    '스카이캡슐': 'SkyCapsule', '오션뷰열차': 'OceanViewTrain', '인생샷': 'PhotoSpot', '해안절벽': 'CoastalCliff', '아이동반': 'KidsFriendly',
+    '어린왕자': 'LittlePrince', '골목투어': 'AlleyTour', '전망대': 'Observatory', '실내': 'Indoor', '비오는날': 'RainyDay',
+    '수족관': 'Aquarium', '키즈': 'Kids', '무료입장': 'FreeAdmission', '순두부': 'SoftTofu', '짬뽕순두부': 'SpicyTofuSoup',
+    '젤라또': 'Gelato', '로컬음식': 'LocalFood', '커피거리': 'CoffeeStreet', '핸드드립': 'HandDripCoffee', '해변': 'Beach',
+    '한옥': 'Hanok', '야시장': 'NightMarket', '케이블카': 'CableCar', '테마파크': 'ThemePark', '유적지': 'HistoricSite',
+    '풍차': 'Windmill', '포토존': 'PhotoZone', '도보산책': 'WalkingStroll', '광안대교야경': 'GwanganNightView', '드론쇼': 'DroneShow',
+    '오션뷰카페': 'OceanViewCafe', '대표명소': 'TopLandmark', '먹거리': 'FoodTrail', '파스텔골목': 'PastelAlley'
   };
   const mapJa = {
     '역사': '歴史', '한복': '韓服', '궁궐': '王宮', '사진명소': '映えスポット', '가족': '家族旅行',
     '자연': '自然', '힐링': 'ヒーリング', '바다': '海', '야경': '夜景', '감성': 'エモい',
     '쇼핑': 'ショッピング', '미식': 'グルメ', '전망': '絶景', '데이트': 'デート', '산책': '散歩',
-    '문화': '文化', '전통': '伝統', '핫플': '話題のスポット', '바다전망': 'オーシャンビュー', '일몰': '夕日'
+    '문화': '文化', '전통': '伝統', '핫플': '話題のスポット', '바다전망': 'オーシャンビュー', '일몰': '夕日',
+    '스카이캡슐': 'スカイカプセル', '오션뷰열차': 'オーシャンビュー列車', '인생샷': '映えスポット', '해안절벽': '海岸断崖', '아이동반': '子連れ',
+    '어린왕자': '星の王子さま', '골목투어': '路地巡り', '전망대': '展望台', '실내': '屋内スポット', '비오는날': '雨の日',
+    '수족관': '水族館', '키즈': 'キッズ', '무료입장': '入場無料', '순두부': 'スンドゥブ', '짬뽕순두부': 'チャンポンスンドゥブ',
+    '젤라또': 'ジェラート', '로컬음식': 'ローカルフード', '커피거리': 'カフェ通り', '핸드드립': 'ハンドドリップ', '해변': 'ビーチ',
+    '한옥': '韓屋', '야시장': '夜市', '케이블카': 'ロープウェイ', '테마파크': 'テーマパーク', '유적지': '遺跡',
+    '풍차': '風車', '포토존': 'フォトゾーン', '도보산책': '散策', '광안대교야경': '広安大橋夜景', '드론쇼': 'ドローンショー',
+    '오션뷰카페': 'オーシャンビューカフェ', '대표명소': '代表名所', '먹거리': 'グルメ巡り', '파스텔골목': 'パステル路地'
   };
   const mapZh = {
     '역사': '历史', '한복': '韩服', '궁궐': '古宫', '사진명소': '拍照圣地', '가족': '家庭游',
     '자연': '自然风光', '힐링': '治愈系', '바다': '海景', '야경': '夜景', '감성': '网红感',
     '쇼핑': '购物', '미식': '美食', '전망': '全景', '데이트': '约会胜地', '산책': '散步',
-    '문화': '文化', '전통': '传统', '핫플': '人气热点', '바다전망': '海景视野', '일몰': '日落'
+    '문화': '文化', '전통': '传统', '핫플': '人气热点', '바다전망': '海景视野', '일몰': '日落',
+    '스카이캡슐': '天空胶囊', '오션뷰열차': '海景列车', '인생샷': '网红打卡', '해안절벽': '海岸悬崖', '아이동반': '适合亲子',
+    '어린왕자': '小王子', '골목투어': '胡同游览', '전망대': '观景台', '실내': '室内景点', '비오는날': '雨天推荐',
+    '수족관': '水族馆', '키즈': '儿童乐园', '무료입장': '免费入场', '순두부': '嫩豆腐', '짬뽕순두부': '海鲜嫩豆腐汤',
+    '젤라또': '手工冰淇淋', '로컬음식': '地道美食', '커피거리': '咖啡一条街', '핸드드립': '手冲咖啡', '해변': '海滩',
+    '한옥': '韩屋', '야시장': '夜市', '케이블카': '缆车', '테마파크': '主题公园', '유적지': '历史遗迹',
+    '풍차': '风车', '포토존': '拍照打卡点', '도보산책': '漫步游', '광안대교야경': '广安大桥夜景', '드론쇼': '无人机秀',
+    '오션뷰카페': '海景咖啡馆', '대표명소': '代表名胜', '먹거리': '特色小吃', '파스텔골목': '彩色街区'
   };
 
   if (lang === 'en') return mapEn[clean] || clean;
@@ -1130,10 +1280,9 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
               opacity: 0.95
             }}>
               {liveCommonDetails?.overview || (cleanTitle.includes('화성행궁')
-                ? '조선 제22대 정조대왕이 아버지 사도세자의 현륭원을 참배할 때 머물기 위해 건립한 유서 깊은 임시 궁궐입니다. 어머니 혜경궁 홍씨의 회갑연이 성대하게 열렸던 봉수당과 아름다운 낙남헌을 품고 있으며, 야간 개장 시 달빛 아래 펼쳐지는 고즈넉한 성곽과 행궁의 야경이 일품인 수원의 대표 명소입니다.'
-                : cleanTitle.includes('장안문')
-                ? '수원화성의 북쪽 정문이자 대한민국 성곽 건축물 중 가장 웅장하고 당당한 규모를 자랑하는 문루입니다. 적을 효과적으로 방어하기 위해 바깥쪽에 옹성을 둘렀으며, 야간 조명이 켜지면 묵직한 석축과 처마의 곡선미가 어우러져 장관을 이룹니다.'
-                : (matchedPoi?.overview || spot.description || '한국관광공사에 정품 등록된 대한민국 대표 힐링 관광 명소입니다. 아름다운 자연 경관과 유서 깊은 문화유산을 직접 체험할 수 있으며, 사계절 내내 여행자들의 발길이 끊이지 않는 핫플레이스입니다.'))}
+                ? (lang === 'en' ? 'Historic temporary royal palace built by King Jeongjo of Joseon. Features majestic fortress walls and night openings.' : lang === 'ja' ? '朝鮮第22代正祖大王が建立した由緒ある臨時王宮です。美しい城郭と行宮の夜景が水原の代表名所です。' : (lang === 'zh' || lang === 'zht') ? '朝鲜第22代正祖大王建立的临时行宫，漫步在月光下的古老城郭是水原的代表性名胜。' : '조선 제22대 정조대왕이 아버지 사도세자의 현륭원을 참배할 때 머물기 위해 건립한 유서 깊은 임시 궁궐입니다.')
+                : (lang === 'en' ? (matchedPoi?.summaryEn || spot.summaryEn || spot.descriptionEn) : lang === 'ja' ? (matchedPoi?.summaryJa || spot.summaryJa || spot.descriptionJa) : (lang === 'zh' || lang === 'zht') ? (matchedPoi?.summaryZh || spot.summaryZh || spot.descriptionZh) : null)
+                || matchedPoi?.overview || spot.description || (lang === 'en' ? 'A representative landmark of Korea registered with the Korea Tourism Organization.' : lang === 'ja' ? '韓国観光公社に登録された韓国の代表的な癒しの観光名所です。' : (lang === 'zh' || lang === 'zht') ? '韩国观光公社官方正品认证的代表性疗愈观光名胜。' : '한국관광공사에 정품 등록된 대한민국 대표 힐링 관광 명소입니다.'))}
             </p>
           </div>
 

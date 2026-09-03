@@ -277,7 +277,10 @@ export const KOREA_TRAVEL_POI_DB = [
     lat: 35.0970,
     lng: 129.0305,
     tags: ['맛집', '미식', '먹거리', '시장', '생선구이', '씨앗호떡', '돼지국밥', '해산물'],
-    summary: '싱싱한 활어회와 노릇한 생선구이 백반, 부산 원조 씨앗호떡을 바로 맛보는 활기찬 부산의 대표 어시장'
+    summary: '싱싱한 활어회와 노릇한 생선구이 백반, 부산 원조 씨앗호떡을 바로 맛보는 활기찬 부산의 대표 어시장',
+    summaryEn: 'Vibrant landmark seafood market to taste fresh sashimi, grilled fish sets, and original Busan Seed Hotteok.',
+    summaryJa: '新鮮な刺身、香ばしい焼き魚定食、釜山名物の種ホットクを堪能できる活気あふれる海鮮市場',
+    summaryZh: '品尝新鲜活鱼刺身、香煎鱼套餐以及釜山正宗坚果糖饼的代表性热闹海鲜水产市场'
   },
   {
     id: 'kt_bs_gwangan',
@@ -292,7 +295,10 @@ export const KOREA_TRAVEL_POI_DB = [
     lat: 35.1532,
     lng: 129.1186,
     tags: ['바다', '광안대교야경', '드론쇼', '오션뷰카페', '데이트'],
-    summary: '광안대교의 찬란한 LED 라이트와 드론 라이트쇼, 트렌디한 복합문화마켓의 오션뷰'
+    summary: '광안대교의 찬란한 LED 라이트와 드론 라이트쇼, 트렌디한 복합문화마켓의 오션뷰',
+    summaryEn: 'Stunning ocean beach featuring Gwangandaegyo Bridge LED illuminations, drone light shows, and trendy cafes.',
+    summaryJa: '広安大橋のLEDライトアップとドローンショー、オーシャンビューカフェが広がるロマンチックな海辺',
+    summaryZh: '拥有璀璨广安大桥LED夜景与无人机秀、潮流海景咖啡馆林立的浪漫海滨沙滩'
   },
   {
     id: 'kt_bs_skycapsule',
@@ -307,7 +313,10 @@ export const KOREA_TRAVEL_POI_DB = [
     lat: 35.1587,
     lng: 129.1724,
     tags: ['스카이캡슐', '오션뷰열차', '인생샷', '해안절벽', '아이동반'],
-    summary: '동해남부선 폐선 부지 해안 절벽 위를 달리는 알록달록 공중 캡슐 열차'
+    summary: '동해남부선 폐선 부지 해안 절벽 위를 달리는 알록달록 공중 캡슐 열차',
+    summaryEn: 'Colorful aerial capsule train running along coastal cliffs on the historic Donghae Nambu Line.',
+    summaryJa: '東海南部線の廃線跡、海岸断崖の上を走るカラフルな空中カプセル列車',
+    summaryZh: '行驶在东海南部线废弃铁道海岸悬崖之上的色彩缤纷高空胶囊列车'
   },
   {
     id: 'kt_bs_gamcheon',
@@ -322,7 +331,10 @@ export const KOREA_TRAVEL_POI_DB = [
     lat: 35.0975,
     lng: 129.0106,
     tags: ['어린왕자', '인생샷', '골목투어', '전망대', '데이트'],
-    summary: '계단식 파스텔톤 집들과 아기자기한 골목 조형물, 어린왕자 포토존이 반겨주는 문화예술마을'
+    summary: '계단식 파스텔톤 집들과 아기자기한 골목 조형물, 어린왕자 포토존이 반겨주는 문화예술마을',
+    summaryEn: 'Art village with terraced pastel houses, playful alley murals, and the iconic Little Prince photo spot.',
+    summaryJa: '階段状に連なるパステルカラーの家々と星の王子さまフォトゾーンが迎える文化芸術村',
+    summaryZh: '依山而建的阶梯式马卡龙色房屋、特色艺术雕塑与小王子拍照打卡点文化艺术村'
   },
   {
     id: 'kt_bs_maritime',
@@ -337,7 +349,10 @@ export const KOREA_TRAVEL_POI_DB = [
     lat: 35.0780,
     lng: 129.0800,
     tags: ['실내', '비오는날', '수족관', '아이동반', '키즈', '무료입장'],
-    summary: '웅장한 원통형 수족관과 다채로운 해양 미디어 체험관을 무료로 즐기는 실내 랜드마크'
+    summary: '웅장한 원통형 수족관과 다채로운 해양 미디어 체험관을 무료로 즐기는 실내 랜드마크',
+    summaryEn: 'Free indoor landmark with a grand cylindrical aquarium and interactive ocean media experience.',
+    summaryJa: '巨大な円筒形水族館と多彩な海洋メディア体験を無料で楽しめる屋内ランドマーク',
+    summaryZh: '拥有壮观圆柱形巨型水族馆与丰富海洋互动媒体体验的免费室内地标'
   },
 
   // ==============================================================================
