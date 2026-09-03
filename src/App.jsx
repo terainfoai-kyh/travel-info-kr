@@ -1553,6 +1553,9 @@ export default function App() {
               onSyncTrips={handleSyncTrips}
               onOpenRewardedAd={() => setIsRewardedAdOpen(true)}
             />
+
+            {/* 🏨 4-Language Curated Hotel & Travel Magazine Section (Desktop/PC View) */}
+            <CuratedTravelGuides lang={lang} />
         </div>
 
         {/* ==============================================================================
