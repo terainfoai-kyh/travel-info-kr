@@ -52,6 +52,10 @@ public class NationwideVaultCompiler
             sb.AppendFormat("\"badgeJa\":\"{0}\",", EscapeJson(c.BadgeJa));
             sb.AppendFormat("\"badgeZh\":\"{0}\",", EscapeJson(c.BadgeZh));
             sb.AppendFormat("\"signatureHighlights\":[{0}],", FormatStringArray(c.SignatureHighlights));
+            sb.AppendFormat("\"signatureHighlightsKo\":[{0}],", FormatStringArray(c.SignatureHighlights));
+            sb.AppendFormat("\"signatureHighlightsEn\":[{0}],", FormatStringArray(c.SignatureHighlightsEn.Count > 0 ? c.SignatureHighlightsEn : c.SignatureHighlights));
+            sb.AppendFormat("\"signatureHighlightsJa\":[{0}],", FormatStringArray(c.SignatureHighlightsJa.Count > 0 ? c.SignatureHighlightsJa : c.SignatureHighlights));
+            sb.AppendFormat("\"signatureHighlightsZh\":[{0}],", FormatStringArray(c.SignatureHighlightsZh.Count > 0 ? c.SignatureHighlightsZh : c.SignatureHighlights));
             sb.AppendFormat("\"rainyHotspots\":[{0}],", FormatStringArray(c.RainyHotspots));
             sb.AppendFormat("\"walkingMinimized\":[{0}],", FormatStringArray(c.WalkingMinimized));
             sb.AppendFormat("\"localFoodieSecret\":\"{0}\",", EscapeJson(c.LocalFoodieSecret));
@@ -306,6 +310,9 @@ public class NationwideVaultCompiler
         public string TransitTipZh { get; set; }
         public string HotelType { get; set; }
         public List<string> SignatureHighlights { get; set; }
+        public List<string> SignatureHighlightsEn { get; set; }
+        public List<string> SignatureHighlightsJa { get; set; }
+        public List<string> SignatureHighlightsZh { get; set; }
         public List<string> RainyHotspots { get; set; }
         public List<string> WalkingMinimized { get; set; }
         public List<string> NightHighlights { get; set; }
@@ -315,6 +322,9 @@ public class NationwideVaultCompiler
         public CityInfo()
         {
             SignatureHighlights = new List<string>();
+            SignatureHighlightsEn = new List<string>();
+            SignatureHighlightsJa = new List<string>();
+            SignatureHighlightsZh = new List<string>();
             RainyHotspots = new List<string>();
             WalkingMinimized = new List<string>();
             NightHighlights = new List<string>();

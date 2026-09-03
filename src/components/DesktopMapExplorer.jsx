@@ -609,8 +609,8 @@ export default function DesktopMapExplorer({
     }
   }, [lang]);
 
-  const createMarkerPinHtml = (nameKo, nameEn, currentLang) => {
-    const label = getLocalizedCityName(nameKo, currentLang);
+  const createMarkerPinHtml = (nameKo, nameEn, currentLang, customLabel = null) => {
+    const label = customLabel || getLocalizedCityName(nameKo, currentLang);
     return `
       <div style="
         display: flex;
@@ -684,10 +684,25 @@ export default function DesktopMapExplorer({
        *      위치 기반 실시간 사진 및 등록 명소를 수신함.
        */
       if (baseLoc.isPredefinedHub && baseLoc.image) {
+        const sigKo = (baseLoc.highlights && baseLoc.highlights.length > 0) ? baseLoc.highlights.map(h => h.ko || h) : (localKn?.signatureHighlights || []);
+        const sigEn = (baseLoc.highlights && baseLoc.highlights.length > 0) ? baseLoc.highlights.map(h => h.en || h) : (localKn?.signatureHighlightsEn || sigKo);
+        const sigJa = (baseLoc.highlights && baseLoc.highlights.length > 0) ? baseLoc.highlights.map(h => h.ja || h) : (localKn?.signatureHighlightsJa || sigKo);
+        const sigZh = (baseLoc.highlights && baseLoc.highlights.length > 0) ? baseLoc.highlights.map(h => h.zh || h) : (localKn?.signatureHighlightsZh || sigKo);
+
         return {
           ...baseLoc,
           image: baseLoc.image,
-          highlights: (baseLoc.highlights && baseLoc.highlights.length > 0) ? baseLoc.highlights : (localKn?.signatureHighlights?.slice(0, 3).map(h => ({ ko: h, en: h, ja: h, zh: h, lat: baseLoc.lat, lng: baseLoc.lng, zoom: 14 })) || []),
+          highlights: sigKo.slice(0, 4).map((koName, idx) => ({
+            ko: koName,
+            en: sigEn[idx] || koName,
+            ja: sigJa[idx] || koName,
+            zh: sigZh[idx] || koName,
+            title: targetLang === 'ja' ? (sigJa[idx] || koName) : targetLang === 'en' ? (sigEn[idx] || koName) : (targetLang === 'zh' || targetLang === 'zht') ? (sigZh[idx] || koName) : koName,
+            name: targetLang === 'ja' ? (sigJa[idx] || koName) : targetLang === 'en' ? (sigEn[idx] || koName) : (targetLang === 'zh' || targetLang === 'zht') ? (sigZh[idx] || koName) : koName,
+            lat: baseLoc.lat,
+            lng: baseLoc.lng,
+            zoom: 14
+          })),
           foodieSecret: localKn?.localFoodieSecret || baseLoc.foodieSecret || null,
           foodieSecretEn: localKn?.localFoodieSecretEn || baseLoc.foodieSecretEn || null,
           foodieSecretJa: localKn?.localFoodieSecretJa || baseLoc.foodieSecretJa || null,
@@ -721,30 +736,41 @@ export default function DesktopMapExplorer({
         if (spotWithImg?.firstimage || spotWithImg?.image) {
           livePhoto = spotWithImg.firstimage || spotWithImg.image;
         }
+      }
+
+      // 🌟 [Architecture Rule] 정품 4개국어 지식베이스(CITY_LOCAL_KNOWLEDGE) 데이터 우선 탑재
+      if (localKn && localKn.signatureHighlights && localKn.signatureHighlights.length > 0) {
+        const sigKo = localKn.signatureHighlights || [];
+        const sigEn = localKn.signatureHighlightsEn || sigKo;
+        const sigJa = localKn.signatureHighlightsJa || sigKo;
+        const sigZh = localKn.signatureHighlightsZh || sigKo;
+
+        liveHighlights = sigKo.slice(0, 4).map((koName, idx) => ({
+          ko: koName,
+          en: sigEn[idx] || koName,
+          ja: sigJa[idx] || koName,
+          zh: sigZh[idx] || koName,
+          title: targetLang === 'ja' ? (sigJa[idx] || koName) : targetLang === 'en' ? (sigEn[idx] || koName) : (targetLang === 'zh' || targetLang === 'zht') ? (sigZh[idx] || koName) : koName,
+          name: targetLang === 'ja' ? (sigJa[idx] || koName) : targetLang === 'en' ? (sigEn[idx] || koName) : (targetLang === 'zh' || targetLang === 'zht') ? (sigZh[idx] || koName) : koName,
+          lat: baseLoc.lat,
+          lng: baseLoc.lng,
+          zoom: 14
+        }));
+      } else if (liveSpots && liveSpots.length > 0) {
         liveHighlights = liveSpots.slice(0, 3).map((sp) => {
           const rawTitle = (sp.title || sp.name || '').trim();
           return {
             title: rawTitle,
             name: rawTitle,
-            ko: targetLang === 'ko' ? rawTitle : (sp.titleKo || ''),
-            en: targetLang === 'en' ? rawTitle : (sp.titleEn || ''),
-            ja: targetLang === 'ja' ? rawTitle : (sp.titleJa || ''),
-            zh: (targetLang === 'zh' || targetLang === 'zht') ? rawTitle : (sp.titleZh || ''),
+            ko: targetLang === 'ko' ? rawTitle : (sp.titleKo || rawTitle),
+            en: targetLang === 'en' ? rawTitle : (sp.titleEn || rawTitle),
+            ja: targetLang === 'ja' ? rawTitle : (sp.titleJa || rawTitle),
+            zh: (targetLang === 'zh' || targetLang === 'zht') ? rawTitle : (sp.titleZh || rawTitle),
             lat: Number(sp.lat || sp.mapy) || baseLoc.lat,
             lng: Number(sp.lng || sp.mapx) || baseLoc.lng,
             zoom: 15
           };
         });
-      } else if (localKn && localKn.signatureHighlights) {
-        liveHighlights = localKn.signatureHighlights.slice(0, 3).map((hlStr) => ({
-          ko: hlStr,
-          en: hlStr,
-          ja: hlStr,
-          zh: hlStr,
-          lat: baseLoc.lat,
-          lng: baseLoc.lng,
-          zoom: 14
-        }));
       }
 
       return {
@@ -941,7 +967,8 @@ export default function DesktopMapExplorer({
 
     if (markerRef.current && window.L && isValidLatLng(highlight.lat, highlight.lng)) {
       markerRef.current.setLatLng([highlight.lat, highlight.lng]);
-      const pinHtml = createMarkerPinHtml(highlight.ko, highlight.en, lang);
+      const spotLabel = getHighlightName(highlight);
+      const pinHtml = createMarkerPinHtml(highlight.ko, highlight.en, lang, spotLabel);
       markerRef.current.setIcon(window.L.divIcon({
         html: pinHtml,
         className: 'vora-explorer-div-icon',
@@ -1902,7 +1929,7 @@ function translateNightHighlight(nightStr, lang, cityName = '') {
                           </span>
                         </div>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                          {getSelectedFoodieSecret().split(/[,•|·]/).map((item, iIdx) => {
+                          {getSelectedFoodieSecret().split(/[,•|·/、，]/).map((item, iIdx) => {
                             const cleanItem = item.trim();
                             if (!cleanItem) return null;
                             return (
