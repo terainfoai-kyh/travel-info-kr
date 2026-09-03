@@ -1687,8 +1687,8 @@ export default function App() {
         lang={lang}
       />
 
-      {/* 🏛️ Global Modern Slim Footer (Desktop & Home/More tabs) */}
-      {(activeNavTab === 'home' || activeNavTab === 'more') && (
+      {/* 🏛️ Global Modern Slim Footer (Option A: Desktop 100% Always-On + Mobile Home/MyTrip/More Smart Placement) */}
+      <div className={`vora-footer-container ${!(activeNavTab === 'home' || activeNavTab === 'mytrip' || activeNavTab === 'more') ? 'hide-mobile' : ''}`}>
         <Footer
           lang={lang}
           onOpenPrivacy={() => setIsPrivacyOpen(true)}
@@ -1699,7 +1699,7 @@ export default function App() {
           onOpenHelpline={() => setIsHelplineModalOpen(true)}
           onOpenEssentials={() => setIsEssentialsOpen(true)}
         />
-      )}
+      </div>
 
 
       {/* Modals & Drawers */}

@@ -1557,3 +1557,14 @@ button, a, input, select, textarea {
   background: #94a3b8;
 }
 
+/* Global Responsive Footer */
+.vora-global-footer {
+  padding: 1.25rem 1.5rem 1.5rem 1.5rem !important;
+}
+
+@media (max-width: 640px) {
+  .vora-global-footer {
+    padding: 1rem 1rem 5.2rem 1rem !important;
+  }
+}
+

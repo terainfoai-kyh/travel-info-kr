@@ -59,6 +59,16 @@
 
 ## 📅 Daily Continuity History (일일 작업 연속성 & 자동 선 브리핑 장부)
 
+### [2026-09-03] 🏛️ 글로벌 푸터(Footer) 반응형 아키텍처 (방안 A: 데스크톱 상시 + 모바일 지능형) 완성 [★ Golden Checkpoint]
+- **1. 데스크톱 100% 상시 노출 체계 구축 (`App.jsx`)**:
+  - 어떤 탭(지도 탐색, AI 생성, 내 여행 등)에 머물러도 데스크톱에서는 최하단에 항상 정갈하게 푸터가 상시 노출되어 법적 고지, 공공데이터 출처, 1330 헬프라인을 상시 제공.
+- **2. 모바일 지능형 선택 노출 (`App.jsx`)**:
+  - 스크롤 콘텐츠가 있는 `홈(탐색)`, `내 여행(일정표)`, `더보기` 탭에서는 푸터가 노출되고,
+  - 바닥에 고정 입력창/전체화면 캔버스가 필요한 `AI 대화`, `지도`, `라이브` 탭에서는 깔끔하게 숨겨져 사용자 조작을 방해하지 않음.
+- **3. 데스크톱 & 모바일 반응형 패딩 최적화 (`Footer.jsx`, `index.css`)**:
+  - 데스크톱: 과도한 하단 여백 없는 슬림 럭셔리 핏 (`1.25rem 1.5rem 1.5rem 1.5rem`).
+  - 모바일: 하단 고정 BottomNav와 겹치지 않는 안전 여백 (`padding-bottom: 5.2rem`).
+
 ### [2026-09-03] 🌐 보라 AI 통합 지식정보(`voraDialogKnowledge.js`) 7대 지식 영역 4개 국어 정품화 완성 [★ Golden Checkpoint]
 - **1. 소도시 확장 지식 4개 국어 정품화 (`SUPPLEMENTAL_CITY_LOCAL_KNOWLEDGE`)**:
   - `괴산`, `제천`의 `localFoodieSecretEn/Ja/Zh`, `nightHighlightsEn/Ja/Zh`, `badgeEn/Ja/Zh`, `descEn/Ja/Zh`, `transitTipEn/Ja/Zh` 완비.

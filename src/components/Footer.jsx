@@ -29,7 +29,6 @@ export default function Footer({
         background: 'linear-gradient(180deg, rgba(250, 248, 245, 0.96) 0%, #f4eee4 100%)',
         backdropFilter: 'blur(8px)',
         WebkitBackdropFilter: 'blur(8px)',
-        padding: '0.85rem 1.25rem 4.8rem 1.25rem',
         color: '#78716c',
         fontSize: '0.82rem',
         position: 'relative',
