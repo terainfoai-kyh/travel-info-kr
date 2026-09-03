@@ -4,6 +4,29 @@
 
 ---
 
+## 🏛️ [★ Golden Checkpoint] 2026-09-03 도시 파싱 영문 단어경계(\b) 오인식(광교산->오산) 100% 척결 & 4개국어(KO/EN/JA/ZH) 전수 트리거 구축
+
+### 1. 금일 완성된 핵심 업적 (Accomplished)
+- **🏔️ `Gwanggyosan` ➔ `Osan(오산)` 오인식 버그 100% 원천 박멸 (`geminiNlpService.js`)**:
+  - `Gwanggyosan` 속 `osan` 철자 부분 일치로 발생하던 오인식을 방지하기 위해, 영문 도시명 매칭 시 **단어 경계(`\b${city}\b` 정규식 또는 완전 일치)**를 엄격 적용.
+  - `Bukhansan`, `Hallasan`, `Seoraksan` 등 전국 명산 이름이 `오산(Osan)`, `아산(Asan)` 등 유사 영문 도시명으로 튀는 현상 영구 차단.
+- **🗺️ 전국 주요 명산 ➔ 소속 도시 정밀 매핑 (`CITY_MAP`)**:
+  - `광교산/gwanggyosan/光教山` ➔ `수원(Suwon)`
+  - `북한산/관악산/인왕산/청계산` ➔ `서울(Seoul)`
+  - `금정산/황령산` ➔ `부산(Busan)`
+  - `팔공산/비슬산` ➔ `대구(Daegu)`
+  - `무등산` ➔ `광주(Gwangju)`
+  - `소백산` ➔ `단양(Danyang)`
+  - `치악산` ➔ `원주(Wonju)` 등 주요 명산의 도시 매핑을 완비.
+- **🌐 4개국어(KO, EN, JA, ZH) 지능형 지식 매칭 및 트리거 자동 다각화 (`voraQnaMatcher.js`, `AdminBatchModal.jsx`, `runDailyBatch.js`)**:
+  - 런타임 지식 매칭 엔진(`voraQnaMatcher.js`)에서 영문/일문/중문 지식 타이틀 및 답변 키워드 교차 매칭 탑재.
+  - 제미나이 배치 학습 프롬프트에서 한국어뿐만 아니라 영문(`Gwanggyosan`), 일문(`光教山`), 중문(`光教山`) 트리거 질문을 6~8개 필수 생성하도록 전면 개편.
+- **배포 전 정상 소스 100% 사전 검증 및 푸시 완료**:
+  - `verifySyntax.ps1` 무결점 검증 통과(`[ZERO DEFECT PASSED]`).
+  - 개발 깃 레포 `origin main` (`travelkorea_2.git`) 배포 완료.
+
+---
+
 ## 🏛️ [★ Golden Checkpoint] 2026-09-03 대한민국 영토 경계 엄격 봉인(북한/해외 100% 차단) & CartoDB 다국어 영문 지도 타일 동적 스위칭 구축
 
 ### 1. 금일 완성된 핵심 업적 (Accomplished)

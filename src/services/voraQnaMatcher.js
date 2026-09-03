@@ -182,8 +182,9 @@ export function matchVoraQna(query = '', targetCity = null, context = {}, lang =
     let score = 0;
 
     // 1. Exact, Substring & Fuzzy Variation Match (Level 1 - Score: 75~100)
-    for (const variation of item.questionVariations) {
-      const normVar = variation.toLowerCase().replace(/[\s\-_?!.~,]/g, '');
+    for (const variation of (item.questionVariations || [])) {
+      const normVar = (variation || '').toLowerCase().replace(/[\s\-_?!.~,]/g, '');
+      if (!normVar) continue;
       if (normalizedQuery === normVar) {
         score = Math.max(score, 100);
         break;
@@ -196,6 +197,23 @@ export function matchVoraQna(query = '', targetCity = null, context = {}, lang =
         if (dist === 1) {
           score = Math.max(score, 80);
         }
+      }
+    }
+
+    // 🌟 1-2. Title & Multilingual Alias Match (e.g. 'gwanggyosan' <-> '광교산', '光教山')
+    const itemTitle = (item.title || item.questionVariations?.[0] || '').trim();
+    if (score < 85 && itemTitle) {
+      const normTitle = itemTitle.toLowerCase().replace(/[\s\-_?!.~,]/g, '');
+      if (normalizedQuery === normTitle) {
+        score = Math.max(score, 100);
+      } else if (normalizedQuery.includes(normTitle) || (normTitle.length >= 3 && normTitle.includes(normalizedQuery))) {
+        score = Math.max(score, 85);
+      }
+      
+      // Check answers text in target language for title keyword mentions
+      const enAnswer = (item.answers?.en || item.geminiAnswer?.en || '').toLowerCase();
+      if (enAnswer && enAnswer.includes(normalizedQuery) && normalizedQuery.length >= 4) {
+        score = Math.max(score, 85);
       }
     }
 
@@ -232,8 +250,11 @@ export function matchVoraQna(query = '', targetCity = null, context = {}, lang =
 
   // If match found with confidence threshold >= 50
   if (bestMatch && highestScore >= 50) {
-    const rawAnswer = (bestMatch.geminiAnswer && bestMatch.geminiAnswer[lang]) 
+    const rawAnswer = (bestMatch.answers && (bestMatch.answers[lang] || (lang === 'zht' && bestMatch.answers.zh)))
+      || (bestMatch.geminiAnswer && (bestMatch.geminiAnswer[lang] || (lang === 'zht' && bestMatch.geminiAnswer.zh)))
+      || bestMatch.answers?.ko 
       || bestMatch.geminiAnswer?.ko 
+      || bestMatch.answers?.en 
       || bestMatch.geminiAnswer?.en || '';
 
     const templateVars = {

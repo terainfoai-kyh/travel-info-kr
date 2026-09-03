@@ -277,9 +277,11 @@ export default function AdminBatchModal({
 [핵심 지식 증류 필수 규칙]:
 1. 타겟 도시(targetCity) 자동 식별:
    - 질문이나 답변 내용이 특정 도시(예: 경주, 부산, 나주, 서울, 강릉, 여수, 제주 등)에 한정된 꿀팁이면 "targetCity"에 해당 도시명(예: "나주")을 반드시 지정하세요. (전국 공통 여행 질문이면 "all")
-2. 트리거 유사 질문(questionVariations) 100% 자동 다각화 (4~6개):
-   - 사용자의 원본 질문("${q.rawQuery}")을 1순위로 포함하고,
-   - 특정 도시 질문인 경우 반드시 "[도시명] [질문]" 형태의 자연스러운 변형 질문들(예: targetCity가 '나주'이고 질문이 '나주'인 경우 -> ["나주", "나주 여행", "나주 가볼만한곳", "나주 맛집", "나주 1박2일 코스"])을 4~6개 풍성하게 작성할 것!
+2. 트리거 유사 질문(questionVariations) 4개국어(KO, EN, JA, ZH) 100% 자동 다각화 (6~8개 필수):
+   - 한국어: 원본 질문("${q.rawQuery}") 및 한국어 동의어/연관 질문 3~4개 포함 (예: "광교산", "광교산 등산코스", "수원 광교산 가볼만한곳", "광교산 맛집")
+   - 영어 (EN): 영문 명칭 및 영문 질문 2개 이상 필수 포함! (예: "Gwanggyosan", "Gwanggyo Mountain", "Gwanggyosan Hiking Trail")
+   - 일본어 (JA): 일문 명칭 및 일문 질문 1~2개 필수 포함! (예: "光教山", "クァンギョサン 登山コース")
+   - 중국어 (ZH): 중문 명칭 및 중문 질문 1~2개 필수 포함! (예: "光教山", "光教山 登山路线")
 3. 동음이의어 또는 전국에 여러 곳이 존재하는 지명/명소(예: 월출산, 남산, 미륵사, 백두대간, 관음도 등) 질문 시:
    - 한국에서 관광객/등산객에게 가장 유명하고 상징적인 압도적 1등 대표 명소(예: 영암 월출산·구름다리, 서울 남산타워)를 1순위로 반드시 가장 먼저 언급할 것!
 4. 답변은 여행자가 모바일에서 편하게 읽을 수 있도록 군더더기 없이 친절하고 정갈한 2~3문장으로 핵심을 요약할 것.
@@ -292,7 +294,7 @@ export default function AdminBatchModal({
   "category": "DYNAMIC_KNOWLEDGE",
   "targetCity": "${q.targetCity || ctx.city || 'all'}",
   "season": "all",
-  "questionVariations": ["${q.rawQuery}", "도시명 결합 유사질문1", "도시명 결합 유사질문2", "동의어 질문3"],
+  "questionVariations": ["${q.rawQuery}", "한국어 유사질문1", "English Title/Question", "Japanese Title/Question", "Chinese Title/Question"],
   "intentKeywords": ["키워드1", "키워드2"],
   "answers": {
     "ko": "친절하고 정확한 2~3문장 한국어 핵심 맞춤 답변",
