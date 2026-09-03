@@ -49,7 +49,7 @@ export const CURATED_ARTICLES = [
       zh: '奔赴釜山碧海：海云台蓝线公园海岸列车与广安大桥璀璨夜景'
     },
     readTime: '3 min',
-    image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=700&auto=format&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=700&auto=format&fit=crop&q=80',
     summary: {
       ko: '동해 남부선 옛 철길을 따라 해변 열차와 스카이캡슐을 타고 달리는 해안 절경, 그리고 광안리 해변에서 펼쳐지는 주말 드론 라이트쇼의 감동을 소개합니다.',
       en: 'Ride colorful Sky Capsules along the cliffside coastline of Haeundae and enjoy the dazzling weekend Drone Light Show over the sparkling waters of Gwangalli Beach.',

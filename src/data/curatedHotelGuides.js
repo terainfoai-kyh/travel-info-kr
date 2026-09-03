@@ -110,7 +110,7 @@ export const CURATED_HOTELS = [
       ja: '🌊 全室パノラマオーシャンビュー',
       zh: '🌊 全客房均配备全景海景阳台'
     },
-    image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600&auto=format&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=600&auto=format&fit=crop&q=80',
     descriptions: {
       ko: '해운대 엘시티 랜드마크 타워에 위치하여 푸른 동해 바다를 한눈에 조망할 수 있는 인피니티 풀과 최고급 스파를 갖춘 럭셔리 호텔.',
       en: 'Situated in the iconic LCT Tower, offering breathtaking ocean views from private balconies and an ultra-modern outdoor infinity pool.',
