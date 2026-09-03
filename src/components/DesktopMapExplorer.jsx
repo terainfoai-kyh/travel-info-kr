@@ -103,7 +103,7 @@ const REGIONAL_FALLBACK_CENTERS = [
     lat: 37.5665, 
     lng: 126.9780,
     zoom: 12,
-    image: '/images/themes/hero-hangang.jpg',
+    image: '/images/themes/theme-gyeongbokgung.jpg',
     transitTipKo: '지하철 2호선 성수역 / 한강공원 직결',
     transitTipEn: 'Subway Line 2 Seongsu / Hangang River Link',
     transitTipJa: '地下鉄2号線 聖水駅／漢江公園直結',
@@ -750,7 +750,11 @@ export default function DesktopMapExplorer({
        *    - 공공데이터 TourAPI 4.0(fetchDynamicRealtimeSpots / fetchLocationBasedTourApiSpots)을 호출하여
        *      위치 기반 실시간 사진 및 등록 명소를 수신함.
        */
-      if (baseLoc.isPredefinedHub && baseLoc.image) {
+      const cleanCity = cityName.replace(/(특별시|광역시|특별자치시|특별자치도|시|군|구)$/, '').trim();
+      const foundHub = REGIONAL_FALLBACK_CENTERS.find(c => c.nameKo === cleanCity || c.nameKo === cityName || c.nameKo.includes(cleanCity) || cleanCity.includes(c.nameKo));
+
+      if ((baseLoc.isPredefinedHub || foundHub) && (foundHub?.image || baseLoc.image)) {
+        const verifiedImage = foundHub?.image || baseLoc.image;
         const sigKo = (baseLoc.highlights && baseLoc.highlights.length > 0) ? baseLoc.highlights.map(h => h.ko || h) : (localKn?.signatureHighlights || []);
         const sigEn = (baseLoc.highlights && baseLoc.highlights.length > 0) ? baseLoc.highlights.map(h => h.en || h) : (localKn?.signatureHighlightsEn || sigKo);
         const sigJa = (baseLoc.highlights && baseLoc.highlights.length > 0) ? baseLoc.highlights.map(h => h.ja || h) : (localKn?.signatureHighlightsJa || sigKo);
@@ -758,7 +762,7 @@ export default function DesktopMapExplorer({
 
         return {
           ...baseLoc,
-          image: baseLoc.image,
+          image: verifiedImage,
           highlights: sigKo.slice(0, 4).map((koName, idx) => ({
             ko: koName,
             en: sigEn[idx] || koName,
@@ -938,6 +942,7 @@ export default function DesktopMapExplorer({
     // 🧠 보라 AI 학습 공식 로컬 지식베이스 매핑
     const cleanKey = detectedCityNameKo.replace(/(특별시|광역시|특별자치시|특별자치도|시|군|구)$/, '').trim();
     const localKn = CITY_LOCAL_KNOWLEDGE[cleanKey] || CITY_LOCAL_KNOWLEDGE[detectedCityNameKo];
+    const foundHub = REGIONAL_FALLBACK_CENTERS.find(c => c.nameKo === cleanKey || c.nameKo === detectedCityNameKo || c.nameKo.includes(cleanKey) || cleanKey.includes(c.nameKo));
 
     const baseLoc = {
       nameKo: detectedCityNameKo,
@@ -951,7 +956,7 @@ export default function DesktopMapExplorer({
       descZh: localKn?.badgeZh || `探寻${getCityMultilingualName(detectedCityNameKo, 'zh') || detectedCityNameKo}代表性名胜与历史文化的治愈之旅`,
       transitTipKo: localKn?.transitTip || 'KTX 및 고속버스로 쾌속 연결',
       transitTipEn: 'Accessible via KTX and Express Bus',
-      image: null, // 🛡️ 지도 클릭 시 실시간 TourAPI 사진 도착 전까지 클린 화이트 로딩 상태 유지
+      image: foundHub?.image || null,
       foodieSecret: localKn?.localFoodieSecret || null,
       nightHighlight: localKn?.nightHighlights ? localKn.nightHighlights[0]?.name : null,
       highlights: localKn?.signatureHighlights?.slice(0, 4).map((h, idx) => ({ 
@@ -963,7 +968,7 @@ export default function DesktopMapExplorer({
       })) || [],
       lat,
       lng,
-      isPredefinedHub: false
+      isPredefinedHub: Boolean(foundHub?.image)
     };
 
     setSelectedLocation(baseLoc);
