@@ -14,6 +14,7 @@ import {
   MapPin,
   Star
 } from 'lucide-react';
+import { getGooglePlaceSearchUrl } from '../services/geminiNlpService';
 import { CITY_LOCAL_KNOWLEDGE } from '../data/voraDialogKnowledge';
 import { getLocalizedCityName } from '../i18n/translations';
 
