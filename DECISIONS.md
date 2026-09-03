@@ -59,6 +59,22 @@
 
 ## 📅 Daily Continuity History (일일 작업 연속성 & 자동 선 브리핑 장부)
 
+### [2026-09-03] 🌐 전국 도시 추천 연계 코스 뱃지(Pill) 4개 국어(KO, EN, JA, ZH) 완벽 동기화 및 마스터 볼트 재컴파일 완료 [★ Golden Checkpoint]
+- **1. 현상 분석 및 원인 규명**:
+  - 단양 등 지도 탐색기에서 영어/외국어 모드 선택 시 타이틀, 슬로건, 찐 미식, 시그니처 야경은 모두 영어로 잘 번역되었으나, 추천 연계 코스 뱃지(Pill) 4개가 한국어 폴백 템플릿(`단양 대표 랜드마크 & 힐링 명소` 등)으로 노출되던 현상 발생.
+  - 근본 원인 ①: C# 암호화 컴파일러 `NationwideVaultCompiler.cs`의 `AddCityMultilingual`이 단일 `sigs` 배열만 받아 `SignatureHighlightsEn/Ja/Zh`가 비어 있었음 (JSON 직렬화 시 비어있으면 `SignatureHighlights` 한국어로 폴백).
+  - 근본 원인 ②: `baseNationwide` 매트릭스에서 단양 등 일부 도시가 한국어 단일 템플릿으로 등록되어 있었음.
+  - 근본 원인 ③: `DesktopMapExplorer.jsx`의 초기 `baseLoc.highlights` 생성 시 `signatureHighlightsEn/Ja/Zh` 대신 한국어 배열만 복제하던 초기화 로직 존재.
+- **2. C# 마스터 컴파일러 4개 국어 확장 및 전국 시·군 전수 정품 명소화 (`NationwideVaultCompiler.cs`)**:
+  - `AddCityMultilingual` 오버로드를 확장하여 `sigsKo, sigsEn, sigsJa, sigsZh` 4개 국어 배열을 필수 매개변수로 수신.
+  - 단양(`Dodamsambong & Stone Gate`, `Mancheonha Skywalk & Zipwire`, `Danuri Aquarium` 등), 남해, 포항, 안동, 순천, 목포, 군산, 통영, 춘천, 가평, 거제, 부여, 공주, 보령, 태안, 원주, 평창, 정선, 동해, 삼척, 인천, 대구, 대전, 광주, 울산, 세종 등 핵심 도시 전역에 4개 국어 정품 명소 배열 구축 및 전 시·군 정품 다국어 템플릿 안전망 완비.
+  - C# 스크립트 실행으로 600KB 단일 마스터 암호화 볼트(`src/data/voraQnaVault.js`) 재컴파일 및 100% 암호화 동기화 완료.
+- **3. 데스크톱 지도 탐색기 초기 렌더링 다국어 바인딩 보강 (`DesktopMapExplorer.jsx`)**:
+  - `baseLoc` 초기화 및 `handleQuickCityClick`의 `highlights` 매핑 시 `localKn.signatureHighlightsEn/Ja/Zh`를 즉시 1순위로 바인딩하여 비동기 TourAPI 도착 전에도 영문/일문/중문 뱃지 100% 즉시 표출.
+- **4. 무결점 검증 및 개발 레포 배포 (`c1fbf1c`)**:
+  - `powershell.exe -ExecutionPolicy Bypass -File .\scripts\verifySyntax.ps1` 검증 결과 `[ZERO DEFECT PASSED]` 완벽 통과.
+  - `origin main` (`travelkorea_2.git`) ➔ Cloudflare Pages 즉시 배포 완료.
+
 ### [2026-09-03] 🛡️ 전국 도시 지식베이스 6대 핵심 영역 4개 국어 전수 정비 및 지도 연동 완료 [★ Golden Checkpoint]
 - **1. 현상 분석 및 원인 규명**:
   - 한국어 중심으로 초기 구축된 `compileNationwideVault.js`의 `registerCity` 스키마로 인해 `signatureHighlights`, `localFoodieSecret`, `badge`, `transitTip`의 `En/Ja/Zh` 필드가 누락되어 외국어 모드에서 한글이 노출되던 근본 원인 규명.
