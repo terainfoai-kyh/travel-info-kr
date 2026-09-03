@@ -864,7 +864,13 @@ export default function DesktopMapExplorer({
       image: null, // 🛡️ 지도 클릭 시 실시간 TourAPI 사진 도착 전까지 클린 화이트 로딩 상태 유지
       foodieSecret: localKn?.localFoodieSecret || null,
       nightHighlight: localKn?.nightHighlights ? localKn.nightHighlights[0]?.name : null,
-      highlights: localKn?.signatureHighlights?.slice(0, 3).map(h => ({ ko: h, en: h, ja: h, zh: h, lat, lng, zoom: 14 })) || [],
+      highlights: localKn?.signatureHighlights?.slice(0, 4).map((h, idx) => ({ 
+        ko: h, 
+        en: localKn?.signatureHighlightsEn?.[idx] || h, 
+        ja: localKn?.signatureHighlightsJa?.[idx] || h, 
+        zh: localKn?.signatureHighlightsZh?.[idx] || h, 
+        lat, lng, zoom: 14 
+      })) || [],
       lat,
       lng,
       isPredefinedHub: false
@@ -915,7 +921,13 @@ export default function DesktopMapExplorer({
       image: foundData.image || localKn?.image || '/images/themes/hero-hangang.jpg',
       highlights: (foundData.highlights && foundData.highlights.length > 0)
         ? foundData.highlights
-        : (localKn?.signatureHighlights ? localKn.signatureHighlights.slice(0, 3).map(h => ({ ko: h, en: h, ja: h, zh: h, lat: city.lat, lng: city.lng, zoom: 14 })) : []),
+        : (localKn?.signatureHighlights ? localKn.signatureHighlights.slice(0, 4).map((h, idx) => ({ 
+            ko: h, 
+            en: localKn?.signatureHighlightsEn?.[idx] || h, 
+            ja: localKn?.signatureHighlightsJa?.[idx] || h, 
+            zh: localKn?.signatureHighlightsZh?.[idx] || h, 
+            lat: city.lat, lng: city.lng, zoom: 14 
+          })) : []),
       foodieSecret: localKn?.localFoodieSecret || foundData.foodieSecret || null,
       nightHighlight: localKn?.nightHighlights ? localKn.nightHighlights[0]?.name : (foundData.nightHighlight || null),
       transitTipKo: localKn?.transitTip || foundData.transitTipKo,

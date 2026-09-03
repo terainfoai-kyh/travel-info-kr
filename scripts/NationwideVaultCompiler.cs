@@ -337,7 +337,8 @@ public class NationwideVaultCompiler
         List<CityInfo> list,
         string name, string nameEn, string nameJa, string nameZh,
         string badgeKo, string badgeEn, string badgeJa, string badgeZh,
-        string[] sigs, string[] rainys, string[] walks,
+        string[] sigsKo, string[] sigsEn, string[] sigsJa, string[] sigsZh,
+        string[] rainys, string[] walks,
         string foodKo, string foodEn, string foodJa, string foodZh,
         string transitKo, string transitEn, string transitJa, string transitZh,
         string nightNameKo, string nightNameEn, string nightNameJa, string nightNameZh,
@@ -354,7 +355,10 @@ public class NationwideVaultCompiler
         info.BadgeEn = badgeEn;
         info.BadgeJa = badgeJa;
         info.BadgeZh = badgeZh;
-        info.SignatureHighlights = new List<string>(sigs);
+        info.SignatureHighlights = new List<string>(sigsKo);
+        info.SignatureHighlightsEn = new List<string>(sigsEn != null && sigsEn.Length > 0 ? sigsEn : sigsKo);
+        info.SignatureHighlightsJa = new List<string>(sigsJa != null && sigsJa.Length > 0 ? sigsJa : sigsKo);
+        info.SignatureHighlightsZh = new List<string>(sigsZh != null && sigsZh.Length > 0 ? sigsZh : sigsKo);
         info.RainyHotspots = new List<string>(rainys);
         info.WalkingMinimized = new List<string>(walks);
         info.LocalFoodieSecret = foodKo;
@@ -365,7 +369,7 @@ public class NationwideVaultCompiler
         info.TransitTipEn = transitEn;
         info.TransitTipJa = transitJa;
         info.TransitTipZh = transitZh;
-        info.HotelType = (sigs.Length > 0 && (sigs[0].Contains("해변") || sigs[0].Contains("바다") || sigs[0].Contains("항") || sigs[0].Contains("섬") || sigs[0].Contains("해수욕장"))) ? "coastal" : "inland";
+        info.HotelType = (sigsKo.Length > 0 && (sigsKo[0].Contains("해변") || sigsKo[0].Contains("바다") || sigsKo[0].Contains("항") || sigsKo[0].Contains("섬") || sigsKo[0].Contains("해수욕장"))) ? "coastal" : "inland";
 
         if (!string.IsNullOrEmpty(nightNameKo))
         {
@@ -388,17 +392,40 @@ public class NationwideVaultCompiler
         list.Add(info);
     }
 
+    private static void AddCityMultilingual(
+        List<CityInfo> list,
+        string name, string nameEn, string nameJa, string nameZh,
+        string badgeKo, string badgeEn, string badgeJa, string badgeZh,
+        string[] sigs, string[] rainys, string[] walks,
+        string foodKo, string foodEn, string foodJa, string foodZh,
+        string transitKo, string transitEn, string transitJa, string transitZh,
+        string nightNameKo, string nightNameEn, string nightNameJa, string nightNameZh,
+        string nightDescKo, string nightDescEn, string nightDescJa, string nightDescZh,
+        string cafeNameKo, string cafeNameEn, string cafeNameJa, string cafeNameZh,
+        string cafeDescKo, string cafeDescEn, string cafeDescJa, string cafeDescZh)
+    {
+        AddCityMultilingual(list, name, nameEn, nameJa, nameZh, badgeKo, badgeEn, badgeJa, badgeZh,
+            sigs, sigs, sigs, sigs, rainys, walks,
+            foodKo, foodEn, foodJa, foodZh,
+            transitKo, transitEn, transitJa, transitZh,
+            nightNameKo, nightNameEn, nightNameJa, nightNameZh,
+            nightDescKo, nightDescEn, nightDescJa, nightDescZh,
+            cafeNameKo, cafeNameEn, cafeNameJa, cafeNameZh,
+            cafeDescKo, cafeDescEn, cafeDescJa, cafeDescZh);
+    }
+
     private static List<CityInfo> GetMaster226RegionProfiles()
     {
         var list = new List<CityInfo>();
-
-        // 1. 서울 (Seoul)
         AddCityMultilingual(list, "서울", "Seoul", "ソウル", "首尔",
             "K-컬처와 600년 역사가 공존하는 글로벌 트렌드 수도",
             "Dynamic Global Capital Blending 600-Year Heritage and Modern K-Culture",
             "伝統と最先端トレンドが融合するダイナミックな首都ソウル",
             "融合600年历史与现代K-Culture潮流的活力之都",
             new string[] { "경복궁 & 북촌한옥마을", "N서울타워 & 남산 파노라마", "DDP & 성수동 감성 거리", "더현대 서울 & 여의도 한강공원" },
+            new string[] { "Gyeongbokgung Palace & Bukchon", "N Seoul Tower & Namsan Panorama", "DDP & Seongsu Trendy Street", "The Hyundai Seoul & Hangang Park" },
+            new string[] { "景福宮＆北村韓屋村", "Nソウルタワー＆南山パノラマ", "DDP＆聖水洞カフェ通り", "ザ・現代ソウル＆漢江公園" },
+            new string[] { "景福宫与北村韩屋村", "N首尔塔与南山全景", "DDP与圣水洞潮流街区", "首尔现代百货与汉江公园" },
             new string[] { "코엑스 별마당도서관 & 아쿠아리움", "더현대 서울 사운즈포레스트", "국립중앙박물관 사유의 방", "DDP 디자인랩 & 갤러리" },
             new string[] { "N서울타워 케이블카 직통 코스", "청와대 본관 평지 관람로", "한강 유람선 선상 로맨스", "인사동 쌈지길 & 전통 찻집" },
             "광장시장 마약김밥·육회·빈대떡, 성수동 스페셜티 브루잉 카페, 종로 생선구이 백반",
@@ -421,6 +448,9 @@ public class NationwideVaultCompiler
             "700余棟の伝統韓屋とユネスコ美食文化が息づく風情ある都",
             "拥有700余座传统韩屋与联合国教科文组织美食认证的文化之都",
             new string[] { "전주한옥마을 & 오목대 전망대", "경기전 & 어진박물관", "전동성당 & 풍남문", "자만벽화마을 & 향교" },
+            new string[] { "Jeonju Hanok Village & Omokdae", "Gyeonggijeon Shrine & Museum", "Jeondong Cathedral & Pungnammun", "Jaman Mural Village & Hyanggyo" },
+            new string[] { "全州韓屋村＆梧木台展望台", "慶基殿＆御真博物館", "殿洞聖堂＆豊南門", "滋満壁画村＆郷校" },
+            new string[] { "全州韩屋村与梧木台观景台", "庆基殿与御真博物馆", "殿洞圣堂与丰南门", "滋满壁画村与乡校" },
             new string[] { "국립무형유산원", "전주역사박물관", "어진박물관", "전주공예품전시관" },
             new string[] { "전주한옥마을 골목길 평지 산책", "경기전 대숲길 평지 코스", "오목대 둘레길", "남부시장 야시장" },
             "전주 전통육회비빔밥, 남부시장 콩나물국밥, 조점례 피순대, 베테랑 칼국수 & 초코파이",
@@ -443,6 +473,9 @@ public class NationwideVaultCompiler
             "青い海と煌めく摩天楼の夜景が織りなす情熱の港町・釜山",
             "碧海蓝天与璀璨摩天大楼交相辉映的韩国最大海港都市",
             new string[] { "해운대 블루라인파크 스카이캡슐", "광안리 해수욕장 & 광안대교", "감천문화마을 & 흰여울문화마을", "자갈치시장 & 남포동 비프광장" },
+            new string[] { "Haeundae Blueline Sky Capsule", "Gwangalli Beach & Bridge", "Gamcheon & Huinnyeoul Village", "Jagalchi Market & BIFF Square" },
+            new string[] { "海雲台ブルーラインスカイカプセル", "広安里ビーチ＆広安大橋", "甘川文化村＆ヒンヨウル文化村", "チャガルチ市場＆南浦洞BIFF広場" },
+            new string[] { "海云台蓝线公园天空胶囊列车", "广安里海水浴场与广安大桥", "甘川文化村与白滩文化村", "札嘎其市场与南浦洞BIFF广场" },
             new string[] { "씨라이프 부산아쿠아리움", "센텀시티 스파랜드 & 신세계몰", "뮤지엄원 미디어아트", "F1963 복합문화공간" },
             new string[] { "해운대 송림공원 무장애 데크로드", "광안리 해변 평지 산책로", "동백섬 순환 둘레길", "자갈치 유람선" },
             "부산 원조 돼지국밥, 자갈치 생선회·구이 백반, 남포동 씨앗호떡, 기장 짚불장어",
@@ -465,6 +498,9 @@ public class NationwideVaultCompiler
             "エメラルドグリーンの海と雄大な自然が広がる癒しの島・済州",
             "联合国教科文组织世界自然遗产、拥有翡翠海岸的梦幻治愈海岛",
             new string[] { "성산일출봉 & 광치기해변", "협재·금능 에메랄드 해수욕장", "함덕해수욕장 & 서우봉 둘레길", "비자림 & 사려니숲길" },
+            new string[] { "Seongsan Ilchulbong & Gwangchigi", "Hyeopjae & Geumneung Beach", "Hamdeok Beach & Seoubong Peak", "Bijarim & Saryeoni Forest" },
+            new string[] { "城山日出峰＆広チギ海岸", "挟才・金陵エメラルドビーチ", "咸徳海水浴場＆ソウボン", "榧子林＆サリョニの森" },
+            new string[] { "城山日出峰与广峙其海滩", "挟才与金陵翡翠海滩", "咸德海水浴场与犀牛峰", "榧子林与思连伊森林步道" },
             new string[] { "아르떼뮤지엄 제주", "빛의 벙커", "제주도립미술관", "국립제주박물관" },
             new string[] { "비자림 평지 화산송이 산책로", "협재 해변 무장애 데크", "사려니숲 무장애 나눔길", "함덕 서우봉 완만 코스" },
             "제주 흑돼지 근고기 구이, 은갈치조림, 보말칼국수 & 고기국수, 우도 땅콩아이스크림",
@@ -487,6 +523,9 @@ public class NationwideVaultCompiler
             "千年の古都・新羅の歴史遺産とトレンディなカフェ通りが共存する慶州",
             "千年新罗灿烂历史遗址与年轻潮流皇理团路共存的文化之都",
             new string[] { "불국사 & 석굴암", "대릉원 천마총 & 첨성대", "동궁과 월지(안압지)", "황리단길 감성 한옥거리" },
+            new string[] { "Bulguksa Temple & Seokguram", "Daereungwon & Cheomseongdae", "Donggung Palace & Wolji Pond", "Hwangridan-gil Hanok Street" },
+            new string[] { "仏国寺＆石窟庵", "大陵苑＆瞻星台", "東宮と月池（雁鴨池）", "皇理団通り韓屋ストリート" },
+            new string[] { "佛国寺与石窟庵", "大陵苑天马冢与瞻星台", "东宫与月池（雁鸭池）", "皇理团路传统韩屋街" },
             new string[] { "국립경주박물관 & 신라미술관", "경주세계문화엑스포대공원", "경주우양미술관", "추억의달동네" },
             new string[] { "대릉원 돌담길 무장애 평지 코스", "첨성대 꽃단지 평지 둘레길", "보문호수 순환 데크로드", "동궁과 월지 관람로" },
             "황리단길 십원빵, 교리김밥, 떡갈비 쌈밥 정식, 황남빵(경주빵)",
@@ -509,6 +548,9 @@ public class NationwideVaultCompiler
             "青い東海岸と安木コーヒー通り、芳醇な海の幸が魅力の江陵",
             "拥有蔚蓝东海岸、安木海边咖啡街与草堂嫩豆腐的浪漫海岸都市",
             new string[] { "안목해변 커피거리 & 해송숲", "경포대 & 경포호 둘레길", "아르떼뮤지엄 강릉", "오죽헌 & 강릉선교장" },
+            new string[] { "Anmok Beach Coffee Street", "Gyeongpodae Pavilion & Lake", "Arte Museum Gangneung", "Ojukheon & Seongyojang House" },
+            new string[] { "安木海岸コーヒー通り", "鏡浦台＆鏡浦湖", "アルテミュージアム江陵", "烏竹軒＆船橋荘" },
+            new string[] { "安木海滩咖啡街与海松林", "镜浦台与镜浦湖环湖路", "Arte Museum江陵", "乌竹轩与江陵船桥庄" },
             new string[] { "아르떼뮤지엄 강릉", "하슬라아트월드", "오죽헌 시립박물관", "참소리축음기 에디슨과학박물관" },
             new string[] { "안목해변 솔숲 무장애 데크길", "경포호 평지 자전거길", "오죽헌 평지 산책로", "정동진 바다부채길 완만 구간" },
             "초당 순두부 짬뽕(순두부젤라또), 강릉 장칼국수, 중앙시장 닭강정 & 팡파미유 마늘빵",
@@ -531,6 +573,9 @@ public class NationwideVaultCompiler
             "雪岳山の雄大な自然とアバイ村のグルメが魅力の港町・束草",
             "背靠雄伟雪岳山、坐拥青草湖与阿爸村丰富海鲜美食的旅游胜地",
             new string[] { "설악산국립공원 권금성 케이블카", "속초아이 대관람차 & 속초해수욕장", "아바이마을 갯배체험", "속초관광수산시장(중앙시장)" },
+            new string[] { "Mt. Seorak Gwongeumseong Cable Car", "Sokcho Eye Ferris Wheel & Beach", "Abai Village Gaetbae Boat", "Sokcho Tourist & Fishery Market" },
+            new string[] { "雪岳山権金城ロープウェイ", "束草アイ大観覧車＆束草ビーチ", "アバイ村ケッペ渡し舟", "束草観光水産市場（中央市場）" },
+            new string[] { "雪岳山权金城缆车", "束草之眼摩天轮与束草海水浴场", "阿爸村人力渡船体验", "束草观光水产市场（中央市场）" },
             new string[] { "속초시립박물관 & 실향민문화촌", "바우지움 조각미술관", "국립산악박물관", "얼라이브하트" },
             new string[] { "속초해변 송림 무장애 데크로드", "영랑호 평지 수변데크", "청초호 호수공원 쉼터", "설악산 케이블카" },
             "속초 오징어순대 & 아바이순대, 속초 중앙시장 만석닭강정, 물회 & 홍게찜",
@@ -553,6 +598,9 @@ public class NationwideVaultCompiler
             "ロマンチックな夜の海と海上ケーブルカー、絶景が広がる麗水",
             "以浪漫夜海、海上缆车与梧桐岛山茶花闻名的南海代表性治愈胜地",
             new string[] { "여수 해상케이블카 & 자산공원", "오동도 동백나무숲 & 등대", "향일암 일출 명소", "여수 낭만포차거리 & 이순신광장" },
+            new string[] { "Yeosu Maritime Cable Car", "Odongdo Island Camellia Forest", "Hyangiram Hermitage Sunrise", "Romantic Pocha Street & Plaza" },
+            new string[] { "麗水海上ロープウェイ＆紫山公園", "梧桐島ツバキの森＆灯台", "向日庵日の出名所", "浪漫屋台通り＆李舜臣広場" },
+            new string[] { "丽水海上缆车与紫山公园", "梧桐岛山茶花森林与灯塔", "向日庵绝美日出胜地", "丽水浪漫布帐马车街与李舜臣广场" },
             new string[] { "아쿠아플라넷 여수", "녹테마레 미디어아트", "여수시립박물관", "엑스포 해양공원" },
             new string[] { "오동도 무장애 동백숲길 & 동백열차", "이순신광장 평지 산책로", "해양공원 해안데크", "해상케이블카 캐빈" },
             "여수 10미 돌산갓김치, 돌게장 백반 정식, 서대회무침, 낭만포차 해물삼합",
@@ -575,6 +623,9 @@ public class NationwideVaultCompiler
             "世界遺産・水原華城とレトロな行宮洞カフェ通りが調和する水原",
             "联合国教科文组织世界文化遗产水原华城与复古行宫洞特色街区的完美融合",
             new string[] { "수원화성 & 장안문", "화성행궁 & 행리단길", "방화수류정 & 용연", "플라잉수원 열기구" },
+            new string[] { "Suwon Hwaseong Fortress & Janganmun", "Hwaseong Haenggung Palace", "Banghwasuryujeong & Yongyeon", "Flying Suwon Hot Air Balloon" },
+            new string[] { "水原華城＆長安門", "華城行宮＆行理団通り", "訪花随柳亭＆竜淵", "フライング水原熱気球" },
+            new string[] { "水原华城与长安门", "华城行宫与行理团路", "访花随柳亭与龙渊", "水原飞行热气球" },
             new string[] { "수원시립아이파크미술관", "국립농업박물관", "수원화성박물관", "경기아트센터" },
             new string[] { "화성어차 순환 투어", "화성행궁 내부 평지 코스", "용연 수변 쉼터", "행궁동 카페골목" },
             "수원 왕갈비 숯불구이, 통닭거리 가마솥 통닭, 행궁동 감성 브런치 & 행궁빙수",
@@ -597,6 +648,9 @@ public class NationwideVaultCompiler
             "千年の古刹・直指寺と蓮花池、平和の塔が輝く心安らぐ癒しの都市・金泉",
             "拥有千年古刹直指寺、莲花池与和平之塔的宁静文化生态治愈之城",
             new string[] { "직지사 & 사명대사공원", "연화지 둘레길 & 벚꽃명소", "직지문화공원 & 평화의 탑", "지례 흑돼지 골목" },
+            new string[] { "Jikjisa Temple & Peace Park", "Yeonhwaji Pond Cherry Blossoms", "Jikji Cultural Park & Pagoda", "Jirye Black Pork Alley" },
+            new string[] { "直指寺＆泗溟大師公園", "蓮花池＆桜の名所", "直指文化公園＆平和の塔", "知礼黒豚通り" },
+            new string[] { "直指寺与四溟大师公园", "莲花池环湖步道与赏樱胜地", "直指文化公园与和平之塔", "知礼黑猪肉特色街" },
             new string[] { "김천시립박물관", "세계도자기박물관", "녹색미래과학관", "사명대사공원 건강문화원" },
             new string[] { "사명대사공원 전동셔틀 투어", "연화지 평지 데크로드", "직지문화공원 음악분수 쉼터", "직지사 무장애 탐방로" },
             "지례 흑돼지 연탄구이, 직지사 산채한정식 30찬상, 연화지 감성 디저트 & 김천 자두빵",
@@ -619,6 +673,9 @@ public class NationwideVaultCompiler
             "牛頭山Y字型吊り橋と名勝・捜勝台が織りなす清らかな癒しの郷・居昌",
             "坐拥牛头山Y型吊桥与名胜搜胜台的清净山水生态疗愈胜地",
             new string[] { "우두산 Y자형 출렁다리", "수승대 & 거북바위", "거창 창포원 생태공원", "월성계곡 선녀탕" },
+            new string[] { "Mt. Udu Y-Shaped Suspension Bridge", "Suseungdae & Turtle Rock", "Geochang Changpowon Botanical Park", "Wolseong Valley Seonnyeo Pool" },
+            new string[] { "牛頭山Y字型吊り橋", "捜勝台＆亀岩", "居昌菖蒲園生態公園", "月星渓谷仙女の滝つぼ" },
+            new string[] { "牛头山Y型悬索吊桥", "搜胜台与巨龟岩", "居昌菖蒲园生态公园", "月星溪谷仙女潭" },
             new string[] { "거창박물관", "거창창포원 열대온실 식물원", "사과테마파크", "수승대 목재문화체험장" },
             new string[] { "우두산 항노화힐링타운 셔틀버스", "창포원 무장애 평지 산책로", "수승대 구연서원 평지 쉼터", "월성계곡 드라이브 코스" },
             "거창 쑥먹인 한우(애우) 숯불구이, 수승대 어탕국수 & 도리뱅뱅이, 거창 꿀사과파이",
@@ -641,6 +698,9 @@ public class NationwideVaultCompiler
             "朝鮮半島地形と清冷浦、星の天文台が輝くロマンチックな寧越",
             "坐拥半岛地形奇景、清冷浦历史名胜与星摩罗天文台的星空之城",
             new string[] { "한반도지형 전망대", "청령포 단종 유배지", "별마로천문대", "영월 섶다리 마을", "선돌 기암절벽" },
+            new string[] { "Korean Peninsula Cliffs View", "Cheongnyeongpo Royal Exile Site", "Byeolmaro Astronomical Observatory", "Yeongwol Seopdari Bridge", "Seondol Standing Rock Cliff" },
+            new string[] { "朝鮮半島地形展望台", "清冷浦端宗配流地", "ピョルマロ天文台", "寧越ソプタリ伝統橋", "立石（ソンドル）絶壁" },
+            new string[] { "半岛地形观景台", "清冷浦端宗流放遗址", "星摩罗天文台", "宁越涉桥村", "立石奇岩绝壁" },
             new string[] { "영월 아프리카미술박물관", "동강사진박물관", "조선민화박물관", "영월곤충박물관" },
             new string[] { "한반도지형 무장애 데크길", "청령포 평지 소나무숲", "동강 래프팅 & 유람", "서부시장 평지 골목" },
             "영월 곤드레나물밥 & 메밀전병, 다슬기해장국, 서부시장 닭강정 & 숯불 도토리묵",
@@ -663,6 +723,9 @@ public class NationwideVaultCompiler
             "伝統陶芸の里と王室献上米の韓定食、温泉保養が息づく利川",
             "以皇家贡米石锅宴、传统陶艺文化村与天然温泉闻名的名品治愈都市",
             new string[] { "이천 도예촌 & 예스파크(艺's Park)", "설봉공원 & 설봉호수", "테르메덴 온천 스파", "이천 롯데프리미엄아울렛" },
+            new string[] { "Icheon Ceramics Village & Ye's Park", "Seolbong Park & Lake Promenade", "Termeden Hot Spring Resort", "Lotte Premium Outlets Icheon" },
+            new string[] { "利川陶芸村＆イエス・パーク", "雪峰公園＆雪峰湖", "テルメデン温泉スパ", "ロッテプレミアムアウトレット利川" },
+            new string[] { "利川陶艺村与艺斯公园", "雪峰公园与雪峰湖", "Termeden天然温泉水疗", "利川乐天名品奥特莱斯" },
             new string[] { "이천시립월전미술관", "한국도자재단 세라피아", "이천농업테마공원", "시립박물관" },
             new string[] { "설봉호수 평지 순환데크", "예스파크 무장애 공방거리", "테르메덴 실내 바데풀", "도자예술마을 산책로" },
             "이천 임금님표 쌀밥 정식(20찬 돌솥 한상), 도지모아 전통 도자기 찻집, 관고전통시장 닭발 & 모듬튀김",
@@ -685,6 +748,9 @@ public class NationwideVaultCompiler
             "エバーランドと韓国民俗村が輝くアクティブ＆歴史のテーマパーク都市・龍仁",
             "拥有爱宝乐园与韩国民俗村、传统与现代娱乐完美交融的旅游名城",
             new string[] { "에버랜드 & 캐리비안베이", "한국민속촌 전통체험", "용인 대장금파크", "호암미술관 & 전통정원 희원" },
+            new string[] { "Everland Resort & Caribbean Bay", "Korean Folk Village Heritage", "Yongin Dae Jang Geum Park", "Ho-Am Art Museum & Hee Won" },
+            new string[] { "エバーランド＆カリビアンベイ", "韓国民俗村伝統体験", "龍仁大長今パーク", "湖巌美術館＆伝統庭園熙園" },
+            new string[] { "爱宝乐园与加勒比海湾", "韩国民俗村传统体验", "龙仁大长今影视城", "湖岩美术馆与传统庭园熙园" },
             new string[] { "백남준아트센터", "경기도어린이박물관", "경기도박물관", "용인자연휴양림 목재체험관" },
             new string[] { "한국민속촌 평지 흙길 관람로", "에버랜드 스카이크루즈 & 리프트", "호암미술관 희원 평지 정원", "동백호수공원 데크" },
             "백암 순대국밥 & 모듬순대, 에버랜드 로컬 바비큐, 처인구 오리구이 & 산채비빔밥",
@@ -766,10 +832,168 @@ public class NationwideVaultCompiler
             string transitJa = string.Format("{0}バスターミナルおよびKTX・公共交通で快速アクセス", ja);
             string transitZh = string.Format("搭乘长途客运、KTX及市内公共交通快速通达{0}", zh);
 
+            string[] sigsKo = new string[] { nm + " 대표 랜드마크 & 힐링 명소", nm + " 수변 생태공원 & 숲길", nm + " 전통 역사 문화거리", nm + " 로컬 전통시장 & 핫플레이스" };
+            string[] sigsEn = new string[] { en + " Iconic Landmark & Sights", en + " Waterfront Eco Park & Trail", en + " Historic Culture Street", en + " Traditional Market & Hotspots" };
+            string[] sigsJa = new string[] { ja + "代表的なランドマーク＆名所", ja + "水辺の生態公園＆森の小道", ja + "歴史文化通り", ja + "伝統市場＆名物通り" };
+            string[] sigsZh = new string[] { zh + "代表性地标与名胜", zh + "水滨生态公园与步道", zh + "传统历史文化街区", zh + "特色传统市场与热门打卡地" };
+
+            // Special overrides for core nationwide cities
+            if (nm == "단양") {
+                sigsKo = new string[] { "도담삼봉 & 석문", "만천하스카이워크 & 짚와이어", "단양 다누리아쿠아리움", "고수동굴 천연기념물", "패러글라이딩 활공장 (카페산)" };
+                sigsEn = new string[] { "Dodamsambong & Stone Gate", "Mancheonha Skywalk & Zipwire", "Danuri Aquarium", "Gosu Cave Natural Monument", "Paragliding (Cafe SANN)" };
+                sigsJa = new string[] { "島潭三峰＆石門", "満天下スカイウォーク＆ジップライン", "ダヌリアクアリウム", "古藪洞窟天然記念物", "パラグライダー滑空場（カフェSANN）" };
+                sigsZh = new string[] { "岛潭三峰与石门", "万天下天空步道与高空滑索", "丹阳Danuri水族馆", "古薮洞窟天然纪念物", "滑翔伞跳伞场（山顶咖啡馆）" };
+            } else if (nm == "남해") {
+                sigsKo = new string[] { "보리암 & 금산 산장", "남해 독일마을 & 원예예술촌", "가천 다랭이마을", "상주은모래비치" };
+                sigsEn = new string[] { "Boriam Hermitage & Geumsan Hut", "German Village & House N Garden", "Gacheon Daraengi Village", "Sangju Silver Sand Beach" };
+                sigsJa = new string[] { "菩提庵＆錦山山荘", "南海ドイツ村＆園芸芸術村", "加川タレンイ村", "尚州銀砂ビーチ" };
+                sigsZh = new string[] { "菩提庵与锦山山庄", "南海德国村与园艺艺术村", "加川梯田村", "尚州银沙海滩" };
+            } else if (nm == "포항") {
+                sigsKo = new string[] { "환호공원 스페이스워크", "호미곶 상생의 손 & 해맞이광장", "영일대해수욕장 & 영일교", "구룡포 근대문화역사거리" };
+                sigsEn = new string[] { "Hwanho Park Space Walk", "Homigot Sunrise Square & Giant Hand", "Yeongildae Beach & Pavilion", "Guryongpo Modern History Street" };
+                sigsJa = new string[] { "歓呼公園スペースウォーク", "虎尾串日の出広場＆共生の手", "迎日台ビーチ＆迎日橋", "九竜浦近代文化歴史通り" };
+                sigsZh = new string[] { "欢呼公园太空步道", "虎尾岬迎日广场与相生之手", "迎日台海滩与迎日阁", "九龙浦近代历史文化街" };
+            } else if (nm == "안동") {
+                sigsKo = new string[] { "하회마을 & 부용대", "월영교 목책인도교 & 문보트", "도산서원 & 병산서원", "만휴정 숲속 외나무다리" };
+                sigsEn = new string[] { "Hahoe Folk Village & Buyongdae", "Woryeonggyo Wooden Bridge & Moon Boat", "Dosan & Byeongsan Seowon", "Manhyujeong Forest Bridge" };
+                sigsJa = new string[] { "河回村＆芙蓉台", "月映橋木造歩道橋＆ムーンボート", "陶山書院＆屛山書院", "晩休亭森の丸木橋" };
+                sigsZh = new string[] { "河回民俗村与芙蓉台", "月映桥木质步桥与月亮船", "陶山书院与屏山书院", "晚休亭森林独木桥" };
+            } else if (nm == "순천") {
+                sigsKo = new string[] { "순천만국가정원", "순천만습지 갈대밭 & 용산전망대", "낙안읍성 민속마을", "조계산 선암사 & 승선교", "순천 드라마촬영장" };
+                sigsEn = new string[] { "Suncheonman National Garden", "Suncheon Bay Wetland & Yongsan Viewpoint", "Naganeupseong Folk Village", "Seonamsa Temple & Seungseongyo", "Suncheon Drama Filming Set" };
+                sigsJa = new string[] { "順天湾国家庭園", "順天湾湿地ヨシ原＆龍山展望台", "楽安邑城民俗村", "曹渓山仙岩寺＆昇仙橋", "順天オープンセット場" };
+                sigsZh = new string[] { "顺天湾国家庭园", "顺天湾湿地芦苇地与龙山观景台", "乐安邑城民俗村", "曹溪山仙岩寺与升仙桥", "顺天电视剧拍摄场" };
+            } else if (nm == "목포") {
+                sigsKo = new string[] { "목포 해상케이블카 (국내 최장 3.23km)", "유달산 노적봉 & 마당바위", "근대역사관 1관·2관", "갓바위 해상보도교", "평화광장 춤추는 바다분수" };
+                sigsEn = new string[] { "Mokpo Maritime Cable Car (3.23km)", "Yudalsan Nojeokbong Peak", "Modern History Museum 1 & 2", "Gatbawi Rock Boardwalk", "Peace Square Dancing Sea Fountain" };
+                sigsJa = new string[] { "木浦海上ロープウェイ（国内最長3.23km）", "儒達山露積峰＆マダン岩", "近代歴史館1館・2館", "笠岩海上歩道橋", "平和広場踊る海の噴水" };
+                sigsZh = new string[] { "木浦海上缆车（韩国最长3.23km）", "儒达山露积峰与平岩", "近代历史馆1馆及2馆", "笠岩海上步桥", "和平广场跳舞海上音乐喷泉" };
+            } else if (nm == "통영") {
+                sigsKo = new string[] { "통영 케이블카 & 미륵산 전망대", "디피랑(DPIRANG) 야간 디지털파크", "동피랑 & 서피랑 벽화마을", "이순신공원 바다산책로", "통영 루지(Skyline Luge)" };
+                sigsEn = new string[] { "Tongyeong Cable Car & Mireuksan", "DPIRANG Night Media Art Park", "Dongpirang & Seopirang Mural Village", "Yi Sun-sin Ocean Park", "Skyline Luge Tongyeong" };
+                sigsJa = new string[] { "統営ロープウェイ＆弥勒山展望台", "ディピラン（DPIRANG）夜間デジタルパーク", "東ピラン＆西ピラン壁画村", "李舜臣公園海の散歩道", "スカイラインリュージュ統営" };
+                sigsZh = new string[] { "统营缆车与弥勒山观景台", "DPIRANG夜间多媒体数字森林", "东崖与西崖壁画村", "李舜臣公园海滨步道", "统营天际线斜坡滑车" };
+            } else if (nm == "춘천") {
+                sigsKo = new string[] { "남이섬 메타세쿼이아길 & 짚와이어", "소양강 스카이워크 & 소양강처녀상", "삼악산 호수케이블카", "레고랜드 코리아 리조트", "의암호 물레길 카누" };
+                sigsEn = new string[] { "Nami Island Metasequoia & Zipwire", "Soyanggang Skywalk & Maiden Statue", "Samaksan Lake Cable Car", "LEGOLAND Korea Resort", "Uiamho Lake Canoe Tour" };
+                sigsJa = new string[] { "南怡島メタセコイア並木＆ジップライン", "昭陽江スカイウォーク＆乙女像", "三岳山湖水ロープウェイ", "レゴランド・コリア", "衣岩湖カヌーツアー" };
+                sigsZh = new string[] { "南怡岛水杉林荫大道与高空飞索", "昭阳江天空步道与昭阳江少女雕像", "三岳山湖水缆车", "乐高乐园韩国度假区", "衣岩湖皮划艇" };
+            } else if (nm == "가평") {
+                sigsKo = new string[] { "아침고요수목원", "자라섬 & 남도 꽃정원", "쁘띠프랑스 & 이탈리아마을", "청평호반 & 북한강 드라이브", "에델바이스 스위스테마파크" };
+                sigsEn = new string[] { "Garden of Morning Calm", "Jara Island Flower Gardens", "Petite France & Italian Village", "Cheongpyeong Lake Drive", "Edelweiss Swiss Theme Park" };
+                sigsJa = new string[] { "朝の静けさ樹木園", "チャラ島フラワーガーデン", "プチフランス＆イタリア村", "清平湖畔ドライブ", "エーデルワイス・スイス村" };
+                sigsZh = new string[] { "晨静树木园", "鳖岛鲜花花园", "小法兰西与意大利村", "清平湖畔自驾公路", "雪绒花瑞士主题公园" };
+            } else if (nm == "거제") {
+                sigsKo = new string[] { "바람의 언덕 & 신선대", "외도 보타니아 해상식물원", "거제 파노라마 케이블카", "학동 흑진주 몽돌해변" };
+                sigsEn = new string[] { "Windy Hill & Sinseondae Cliff", "Oedo Botania Marine Botanical Garden", "Geoje Panorama Cable Car", "Hakdong Black Pearl Pebble Beach" };
+                sigsJa = new string[] { "風の丘＆神仙台", "外島ボタニア海上植物園", "巨済パノラマロープウェイ", "鶴洞黒真珠モンドルビーチ" };
+                sigsZh = new string[] { "风之丘与神仙台", "外岛Botania海上植物园", "巨济全景缆车", "鹤洞黑珍珠鹅卵石海滩" };
+            } else if (nm == "울주") {
+                sigsKo = new string[] { "간절곶 등대 & 소망우체통", "영남알프스 간월재 억새평원", "국보 반구대 암각화 & 천전리 명문", "자수정동굴나라 & 외고산 옹기마을" };
+                sigsEn = new string[] { "Ganjeolgot Lighthouse & Wish Mailbox", "Yeongnam Alps Ganwoljae Reed Plain", "Bangudae Petroglyphs", "Amethyst Cavern & Onggi Village" };
+                sigsJa = new string[] { "艮絶串灯台＆願いの郵便ポスト", "嶺南アルプス肝月嶺ススキ原", "国宝盤亀台岩刻画", "紫水晶洞窟の国＆外高山オンギ村" };
+                sigsZh = new string[] { "艮绝岬灯塔与希望邮筒", "岭南阿尔卑斯肝月岭芦苇平原", "国宝盘龟台岩刻画", "紫水晶洞窟王国与外高山陶器村" };
+            } else if (nm == "담양") {
+                sigsKo = new string[] { "죽녹원 대나무숲", "메타세쿼이아 가로수길", "관방제림 플라타너스숲", "소쇄원 한국 전통원림" };
+                sigsEn = new string[] { "Jungnokwon Bamboo Forest", "Metasequoia Tree-Lined Road", "Gwanbangjerim Ancient Forest", "Soswaewon Garden Heritage" };
+                sigsJa = new string[] { "竹緑苑の竹林", "メタセコイア並木道", "官防堤林の古木林", "瀟灑園伝統庭園" };
+                sigsZh = new string[] { "竹绿苑竹林", "水杉林荫大道", "官防堤林古树林", "潇洒园传统园林" };
+            } else if (nm == "보성") {
+                sigsKo = new string[] { "대한다원 녹차밭", "율포솔밭해변 & 해수녹차탕", "한국차박물관", "득량역 추억의 거리" };
+                sigsEn = new string[] { "Daehandawon Tea Plantation", "Yulpo Pine Beach & Green Tea Spa", "Korea Tea Museum", "Deungnyang Station Retro Street" };
+                sigsJa = new string[] { "大韓茶園緑茶畑", "律浦松林ビーチ＆緑茶温泉", "韓国茶博物館", "得糧駅レトロ通り" };
+                sigsZh = new string[] { "大韩茶园绿茶梯田", "律浦松林海滩与海水绿茶汤", "韩国茶博物馆", "得粮站复古记忆街" };
+            } else if (nm == "신안") {
+                sigsKo = new string[] { "퍼플섬 (반월도·박지도)", "천사대교 전망대", "증도 태평염전 & 소금박물관", "1004섬 수선화 축제장" };
+                sigsEn = new string[] { "Purple Island (Banwol & Bakji)", "Angel Bridge Marine Panorama", "Taepyeong Salt Farm & Museum", "1004 Islands Daffodil Park" };
+                sigsJa = new string[] { "パープル島（半月島・朴只島）", "天使大橋展望台", "太平塩田＆塩博物館", "1004島スイセン公園" };
+                sigsZh = new string[] { "紫色岛（半月岛与朴只岛）", "千使大桥全景观景台", "太平盐田与盐博物馆", "1004岛水仙花公园" };
+            } else if (nm == "완도") {
+                sigsKo = new string[] { "청산도 슬로길 & 서편제 촬영지", "명사십리 해수욕장", "완도타워 & 모노레일", "완도수목원 난대림" };
+                sigsEn = new string[] { "Cheongsando Slow Road", "Myeongsasimni Beach", "Wando Tower & Monorail", "Wando Warm-Temperate Arboretum" };
+                sigsJa = new string[] { "青山島スローロード", "鳴砂十里海水浴場", "莞島タワー＆モノレール", "莞島樹木園暖帯林" };
+                sigsZh = new string[] { "青山岛慢行之路", "鸣沙十里海水浴场", "莞岛塔与单轨电车", "莞岛暖温带树木园" };
+            } else if (nm == "부여") {
+                sigsKo = new string[] { "부소산성 & 낙화암", "궁남지 백제 연꽃연못", "백제문화단지 & 백제역사유적", "국립부여박물관 (금동대향로)" };
+                sigsEn = new string[] { "Busosanseong Fortress & Nakhwaam", "Gungnamji Royal Lotus Pond", "Baekje Cultural Complex", "Buyeo National Museum" };
+                sigsJa = new string[] { "扶蘇山城＆落花岩", "宮南池百済ハス池", "百済文化団地", "国立扶余博物館（百済金銅大香炉）" };
+                sigsZh = new string[] { "扶苏山城与落花岩", "宫南池皇家莲池", "百济文化园区", "国立扶余博物馆（金铜大香炉）" };
+            } else if (nm == "공주") {
+                sigsKo = new string[] { "공산성 백제산성", "무령왕릉과 왕릉원", "국립공주박물관", "마곡사 천년고찰" };
+                sigsEn = new string[] { "Gongsanseong Fortress", "King Muryeong's Tomb", "Gongju National Museum", "Magoksa Millennium Temple" };
+                sigsJa = new string[] { "公山城百済山城", "武寧王陵と王陵園", "国立公州博物館", "麻谷寺千年の古刹" };
+                sigsZh = new string[] { "公山城百济古城", "武宁王陵与王陵园", "国立公州博物馆", "麻谷寺千年古刹" };
+            } else if (nm == "보령") {
+                sigsKo = new string[] { "대천해수욕장 & 머드광장", "대천스카이바이크 & 짚트랙", "죽도 상화원 한국식 정원", "보령 개화예술공원" };
+                sigsEn = new string[] { "Daecheon Beach & Mud Square", "Daecheon Sky Bike & Zip Track", "Jukdo Sanghwawon Garden", "Gaehwa Art Park" };
+                sigsJa = new string[] { "大川海水浴場＆マッド広場", "大川スカイバイク＆ジップライン", "竹島尚和園韓国式庭園", "開花芸術公園" };
+                sigsZh = new string[] { "大川海水浴场与泥浆广场", "大川空中自行车与滑索", "竹岛尚和园韩式传统庭园", "开花艺术公园" };
+            } else if (nm == "태안") {
+                sigsKo = new string[] { "꽃지해수욕장 & 할미할아비바위", "신두리 해안사구", "천리포수목원", "안면도 자연휴양림" };
+                sigsEn = new string[] { "Kkotji Beach & Sunset Rocks", "Sinduri Coastal Sand Dunes", "Cheollipo Arboretum", "Anmyeondo Natural Forest" };
+                sigsJa = new string[] { "花地海水浴場＆爺婆岩", "新斗里海岸砂丘", "千里浦樹木園", "安眠島自然休養林" };
+                sigsZh = new string[] { "花地海滩与爷爷奶奶岩", "新斗里海岸沙丘", "千里浦树木园", "安眠岛自然休养林" };
+            } else if (nm == "원주") {
+                sigsKo = new string[] { "소금산 그랜드밸리 출렁다리", "뮤지엄 산 (Museum SAN)", "치악산 구룡사", "원주 중앙시장 미로예술시장" };
+                sigsEn = new string[] { "Sogeumsan Grand Valley Suspension Bridge", "Museum SAN Art Gallery", "Chiaksan Guryongsa Temple", "Miro Art Market" };
+                sigsJa = new string[] { "小金山グランドバレー吊り橋", "ミュージアムSAN", "雉岳山亀竜寺", "原州迷路芸術市場" };
+                sigsZh = new string[] { "小金山大峡谷悬索吊桥", "Museum SAN艺术博物馆", "雉岳山龟龙寺", "原州迷宫艺术市场" };
+            } else if (nm == "평창") {
+                sigsKo = new string[] { "대관령 양떼목장 & 삼양목장", "오대산 월정사 전나무숲길", "발왕산 기 스카이워크 & 케이블카", "이효석 문학관 & 메밀꽃마을" };
+                sigsEn = new string[] { "Daegwallyeong Sheep Farm", "Woljeongsa Fir Forest Trail", "Balwangsan Peak Skywalk", "Lee Hyo-seok Village" };
+                sigsJa = new string[] { "大関嶺羊牧場＆三養牧場", "五台山月精寺モミ林道", "発旺山スカイウォーク＆ロープウェイ", "李孝石文学館" };
+                sigsZh = new string[] { "大关岭绵羊牧场与三养牧场", "五台山月精寺冷杉林荫道", "发旺山巅峰天空步道与缆车", "李孝石文学馆与荞麦花村" };
+            } else if (nm == "정선") {
+                sigsKo = new string[] { "정선아리랑시장 5일장", "하이원 리조트 & 워터월드", "병방치 스카이워크 & 짚와이어", "화암동굴 천연종유석" };
+                sigsEn = new string[] { "Jeongseon Arirang Traditional Market", "High1 Resort & Mountain Gondola", "Byeongbangchi Skywalk", "Hwaam Cave Stalactites" };
+                sigsJa = new string[] { "旌善アリラン伝統市場", "ハイワンリゾート＆ゴンドラ", "丙方峙スカイウォーク", "画岩洞窟天然鍾乳洞" };
+                sigsZh = new string[] { "旌善阿里郎传统集市", "High1度假村与高山缆车", "丙方峙天空步道与飞索", "画岩洞窟天然钟乳石" };
+            } else if (nm == "동해") {
+                sigsKo = new string[] { "추암 촛대바위 & 출렁다리", "도째비골 스카이밸리 & 해랑전망대", "묵호등대 & 논골담길 벽화마을", "무릉계곡 & 베틀바위" };
+                sigsEn = new string[] { "Chuam Chotdaebawi & Bridge", "Dojjaebigol Sky Valley", "Mukho Lighthouse & Mural Village", "Mureung Valley & Beteulbawi" };
+                sigsJa = new string[] { "湫岩燭台岩＆吊り橋", "トチェビ谷スカイバレー", "墨湖灯台＆ノンコルダムキル", "武陵渓谷＆ベトル岩" };
+                sigsZh = new string[] { "湫岩烛台岩与悬索桥", "鬼怪谷天空之谷与海浪观景台", "墨湖灯塔与论谷垣壁画村", "武陵溪谷与织机岩" };
+            } else if (nm == "삼척") {
+                sigsKo = new string[] { "장호항 한국의 나폴리 & 투명카누", "삼척 해상케이블카 & 해양레일바이크", "환선굴 & 대금굴 천연동굴", "맹방해수욕장 BTS 촬영지" };
+                sigsEn = new string[] { "Jangho Port Emerald Bay", "Samcheok Marine Cable Car & Rail Bike", "Hwanseongul Cave", "Maengbang Beach BTS Site" };
+                sigsJa = new string[] { "荘湖港エメラルドベイ", "三陟海上ロープウェイ＆レールバイク", "幻仙窟天然洞窟", "孟芳ビーチBTSロケ地" };
+                sigsZh = new string[] { "庄湖港翡翠海湾与透明皮划艇", "三陟海上跨海缆车与海洋铁轨自行车", "幻仙窟天然溶洞", "孟芳海滩BTS拍摄地" };
+            } else if (nm == "인천") {
+                sigsKo = new string[] { "송도 센트럴파크 & 수상택시", "차이나타운 & 개항장 역사거리", "월미도 테마파크 & 바다열차", "영종도 마시안해변 & 씨사이드파크" };
+                sigsEn = new string[] { "Songdo Central Park & Water Taxi", "Chinatown & Open Port Historic Area", "Wolmido Island Theme Park", "Yeongjongdo Seaside Park" };
+                sigsJa = new string[] { "松島セントラルパーク＆水上タクシー", "チャイナタウン＆開港場歴史通り", "月尾島テーマパーク＆海列車", "永宗島シーサイドパーク" };
+                sigsZh = new string[] { "松岛中央公园与水上出租车", "中华街与开港场历史文化街区", "月尾岛主题乐园与海洋列车", "永宗岛海滨公园" };
+            } else if (nm == "대구") {
+                sigsKo = new string[] { "김광석 다시그리기길", "서문시장 야시장 & 동산의료원", "앞산전망대 & 케이블카", "이월드 & 83타워" };
+                sigsEn = new string[] { "Kim Gwang-seok Memorial Street", "Seomun Night Market", "Apsan Observatory & Cable Car", "E-World & 83 Tower" };
+                sigsJa = new string[] { "金光石通り", "西門市場夜市場", "アプサン展望台＆ロープウェイ", "イーワールド＆83タワー" };
+                sigsZh = new string[] { "金光石路音乐街区", "西门市场夜市", "前山观景台与缆车", "E-World与83塔" };
+            } else if (nm == "대전") {
+                sigsKo = new string[] { "성심당 본점 & 은행동 문화의거리", "엑스포과학공원 한빛탑 & 음악분수", "유성온천 야외 족욕체험장", "국립중앙과학관 & 카이스트" };
+                sigsEn = new string[] { "Sungsimdang Bakery & Culture Street", "Expo Science Park & Hanbit Tower", "Yuseong Hot Springs Foot Bath", "National Science Museum" };
+                sigsJa = new string[] { "聖心堂本店＆銀杏洞文化通り", "エキスポ科学公園ハンビッ塔", "儒城温泉足湯体験場", "国立中央科学館" };
+                sigsZh = new string[] { "圣心堂总店与银杏洞文化街", "世博科学公园韩光塔音乐喷泉", "儒城温泉露天足浴体验场", "国立中央科学馆与KAIST" };
+            } else if (nm == "광주") {
+                sigsKo = new string[] { "국립아시아문화전당 (ACC)", "양림동 펭귄마을 역사문화마을", "무등산 국립공원 & 지산유원지 모노레일", "1913송정역시장" };
+                sigsEn = new string[] { "Asia Culture Center (ACC)", "Yangnim-dong Penguin Village", "Mt. Mudeungsan & Monorail", "1913 Songjeong Station Market" };
+                sigsJa = new string[] { "国立アジア文化殿堂（ACC）", "楊林洞ペンギン村", "無等山国立公園＆モノレール", "1913松汀駅市場" };
+                sigsZh = new string[] { "国立亚洲文化殿堂（ACC）", "杨林洞企鹅村历史文化街区", "无等山国家公园与单轨列车", "1913松汀站集市" };
+            } else if (nm == "울산") {
+                sigsKo = new string[] { "태화강 국가정원 십리대숲", "대왕암공원 & 출렁다리", "장생포 고래문화마을", "간절곶 일출명소" };
+                sigsEn = new string[] { "Taehwagang Bamboo Forest", "Daewangam Park & Suspension Bridge", "Jangsaengpo Whale Village", "Ganjeolgot Sunrise Cape" };
+                sigsJa = new string[] { "太和江国家庭園十里竹林", "大王岩公園＆吊り橋", "長生浦クジラ文化村", "艮絶串日の出名所" };
+                sigsZh = new string[] { "太和江国家庭园十里竹林", "大王岩公园与跨海吊桥", "长生浦鲸鱼文化村", "艮绝岬日出名胜" };
+            } else if (nm == "세종") {
+                sigsKo = new string[] { "국립세종수목원", "금강보행교 (이응다리)", "세종호수공원 & 국립세종도서관", "베어트리파크" };
+                sigsEn = new string[] { "Sejong National Arboretum", "Geumgang Pedestrian Circle Bridge", "Sejong Lake Park & National Library", "Bear Tree Park" };
+                sigsJa = new string[] { "国立世宗樹木園", "錦江歩行橋（イウンドダリ）", "世宗湖水公園＆国立世宗図書館", "ベアーツリーパーク" };
+                sigsZh = new string[] { "国立世宗树木园", "锦江步行桥（圆环大桥）", "世宗湖水公园与国家图书馆", "熊树公园" };
+            }
+
             if (!list.Exists(x => x.Name == nm))
             {
                 AddCityMultilingual(list, nm, en, ja, zh, badgeKo, badgeEn, badgeJa, badgeZh,
-                    new string[] { nm + " 대표 랜드마크 & 힐링 명소", nm + " 수변 생태공원 & 숲길", nm + " 전통 역사 문화거리", nm + " 로컬 전통시장 & 핫플레이스" },
+                    sigsKo, sigsEn, sigsJa, sigsZh,
                     new string[] { nm + " 시립박물관", nm + " 문화예술회관", nm + " 실내생태체험관" },
                     new string[] { nm + " 도심 평지 산책로", nm + " 수변 데크로드", nm + " 무장애 관람 코스" },
                     foodKo, foodEn, foodJa, foodZh,
