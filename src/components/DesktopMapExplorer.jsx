@@ -677,9 +677,21 @@ export default function DesktopMapExplorer({
           image: baseLoc.image,
           highlights: (baseLoc.highlights && baseLoc.highlights.length > 0) ? baseLoc.highlights : (localKn?.signatureHighlights?.slice(0, 3).map(h => ({ ko: h, en: h, ja: h, zh: h, lat: baseLoc.lat, lng: baseLoc.lng, zoom: 14 })) || []),
           foodieSecret: localKn?.localFoodieSecret || baseLoc.foodieSecret || null,
-          nightHighlight: localKn?.nightHighlights ? localKn.nightHighlights[0]?.name : (baseLoc.nightHighlight || null),
+          foodieSecretEn: localKn?.localFoodieSecretEn || baseLoc.foodieSecretEn || null,
+          foodieSecretJa: localKn?.localFoodieSecretJa || baseLoc.foodieSecretJa || null,
+          foodieSecretZh: localKn?.localFoodieSecretZh || baseLoc.foodieSecretZh || null,
+          nightHighlight: localKn?.nightHighlights ? (typeof localKn.nightHighlights[0] === 'string' ? localKn.nightHighlights[0] : localKn.nightHighlights[0]?.name) : (baseLoc.nightHighlight || null),
+          nightHighlightEn: localKn?.nightHighlightsEn ? localKn.nightHighlightsEn[0] : (localKn?.nightHighlights?.[0]?.nameEn || baseLoc.nightHighlightEn || null),
+          nightHighlightJa: localKn?.nightHighlightsJa ? localKn.nightHighlightsJa[0] : (localKn?.nightHighlights?.[0]?.nameJa || baseLoc.nightHighlightJa || null),
+          nightHighlightZh: localKn?.nightHighlightsZh ? localKn.nightHighlightsZh[0] : (localKn?.nightHighlights?.[0]?.nameZh || baseLoc.nightHighlightZh || null),
           transitTipKo: localKn?.transitTip || baseLoc.transitTipKo,
-          descKo: localKn?.badge || baseLoc.descKo
+          transitTipEn: localKn?.transitTipEn || baseLoc.transitTipEn,
+          transitTipJa: localKn?.transitTipJa || baseLoc.transitTipJa,
+          transitTipZh: localKn?.transitTipZh || baseLoc.transitTipZh,
+          descKo: localKn?.badge || baseLoc.descKo,
+          descEn: localKn?.badgeEn || localKn?.descEn || baseLoc.descEn,
+          descJa: localKn?.badgeJa || localKn?.descJa || baseLoc.descJa,
+          descZh: localKn?.badgeZh || localKn?.descZh || baseLoc.descZh
         };
       }
 
@@ -728,9 +740,21 @@ export default function DesktopMapExplorer({
         image: livePhoto || baseLoc.image || localKn?.image || '/images/themes/hero-hangang.jpg',
         highlights: liveHighlights.length > 0 ? liveHighlights : (baseLoc.highlights || []),
         foodieSecret: localKn?.localFoodieSecret || baseLoc.foodieSecret || null,
+        foodieSecretEn: localKn?.localFoodieSecretEn || baseLoc.foodieSecretEn || null,
+        foodieSecretJa: localKn?.localFoodieSecretJa || baseLoc.foodieSecretJa || null,
+        foodieSecretZh: localKn?.localFoodieSecretZh || baseLoc.foodieSecretZh || null,
         nightHighlight: localKn?.nightHighlights ? (typeof localKn.nightHighlights[0] === 'string' ? localKn.nightHighlights[0] : localKn.nightHighlights[0]?.name) : (baseLoc.nightHighlight || null),
+        nightHighlightEn: localKn?.nightHighlightsEn ? localKn.nightHighlightsEn[0] : (localKn?.nightHighlights?.[0]?.nameEn || baseLoc.nightHighlightEn || null),
+        nightHighlightJa: localKn?.nightHighlightsJa ? localKn.nightHighlightsJa[0] : (localKn?.nightHighlights?.[0]?.nameJa || baseLoc.nightHighlightJa || null),
+        nightHighlightZh: localKn?.nightHighlightsZh ? localKn.nightHighlightsZh[0] : (localKn?.nightHighlights?.[0]?.nameZh || baseLoc.nightHighlightZh || null),
         transitTipKo: localKn?.transitTip || baseLoc.transitTipKo,
-        descKo: localKn?.badge || baseLoc.descKo
+        transitTipEn: localKn?.transitTipEn || baseLoc.transitTipEn,
+        transitTipJa: localKn?.transitTipJa || baseLoc.transitTipJa,
+        transitTipZh: localKn?.transitTipZh || baseLoc.transitTipZh,
+        descKo: localKn?.badge || baseLoc.descKo,
+        descEn: localKn?.badgeEn || localKn?.descEn || baseLoc.descEn,
+        descJa: localKn?.badgeJa || localKn?.descJa || baseLoc.descJa,
+        descZh: localKn?.badgeZh || localKn?.descZh || baseLoc.descZh
       };
     } catch {
       return baseLoc;

@@ -59,6 +59,23 @@
 
 ## 📅 Daily Continuity History (일일 작업 연속성 & 자동 선 브리핑 장부)
 
+### [2026-09-03] 🌐 보라 AI 통합 지식정보(`voraDialogKnowledge.js`) 7대 지식 영역 4개 국어 정품화 완성 [★ Golden Checkpoint]
+- **1. 소도시 확장 지식 4개 국어 정품화 (`SUPPLEMENTAL_CITY_LOCAL_KNOWLEDGE`)**:
+  - `괴산`, `제천`의 `localFoodieSecretEn/Ja/Zh`, `nightHighlightsEn/Ja/Zh`, `badgeEn/Ja/Zh`, `descEn/Ja/Zh`, `transitTipEn/Ja/Zh` 완비.
+  - 올갱이국/고추순대/버섯전골/대학찰옥수수, 빨간오뎅/약채락비빔밥/곤드레밥 등 특산 미식과 산막이옛길/의림지 야경 4개 국어 정품 번역 탑재.
+- **2. K-푸드 페어링 지식 4개 국어 전수 탑재 (`K_FOOD_PAIRING_KNOWLEDGE`)**:
+  - 전국 10개 도시(서울, 부산, 제주, 경주, 강릉, 속초, 여수, 전주, 괴산, 제천)의 대표 미식 조합(`signatureEn/Ja/Zh`) 및 현지인 웨이팅/디저트 꿀팁(`tipEn/Ja/Zh`) 100% 탑재.
+- **3. 날씨·기온별 옷차림 가이드 4개 국어화 (`K_FASHION_WEATHER_GUIDE`)**:
+  - 4개 계절/기온(`HOT_SUMMER`, `MILD_SPRING_AUTUMN`, `COLD_WINTER`, `RAINY_DAY`)의 코디 조언(`adviceEn/Ja/Zh`)과 추천 아이템(`itemsEn/Ja/Zh`) 탑재.
+- **4. AI 티키타카 대화 매트릭스 4개 국어 지능 탑재 (`TIKITAKA_CHITCHAT_MATRIX`)**:
+  - `GREETING`, `WHO_ARE_YOU`, `HUNGRY`, `TIRED_LEGS` 등 상황별 위트 응답과 핑퐁 질문에 `lang` 파라미터 연동하여 영어, 일어, 중국어로 자연스러운 대화 구현.
+- **5. 선제적 질문 훅 4개 국어 지원 (`PROACTIVE_CONVERSATION_HOOKS_MULTILINGUAL`)**:
+  - 감성 카페, 길거리 간식, 일몰 뷰포인트, 쇼핑 투어 4대 질문 훅 KO, EN, JA, ZH 탑재.
+- **6. 10대 교통 관문 & 온보딩 칩 4개 국어 체계 완비 (`CITY_GATEWAY_HUBS`, `getDynamicGatewayChips`)**:
+  - 서울, 부산, 제주, 강릉, 경주, 여수, 거제, 인천, 수원, 전주 등 10개 주요 도시 온보딩 칩 다국어 지원.
+- **7. 지도 위치 클릭 연동 다국어 필드 보존 (`DesktopMapExplorer.jsx`)**:
+  - `enrichLocationWithLiveTourApi`에서 `foodieSecretEn/Ja/Zh`, `nightHighlightEn/Ja/Zh`, `transitTipEn/Ja/Zh`, `descEn/Ja/Zh`를 누락 없이 복사하여 지도 핀 클릭 시에도 영·일·중 정품 텍스트 100% 표출.
+
 ### [2026-09-03] 🌐 추천 코스 뱃지 언어 동기화 & 상세 모달 3중 표준 토큰 다국어화 완성 [★ Golden Checkpoint]
 - **1. 다국어 TourAPI 실시간 검색어 자동 변환기 탑재 (`tourApi.js`)**:
   - `fetchDynamicRealtimeSpots` 호출 시, 현재 언어(`lang`)에 맞춰 한국어 도시명을 해당 국가 표준 지명(`Sangju`, `尚州` 등)으로 자동 변환하여 공공 API에 전송하도록 개선.
