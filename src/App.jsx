@@ -676,13 +676,19 @@ export default function App() {
 
       const seasonalChips = (lang === 'en')
         ? ['☀️ Departing This Week', '🍁 Oct Autumn Foliage', '❄️ Dec Winter Trip']
+        : (lang === 'ja')
+        ? ['☀️ 今週出発', '🍁 10月の紅葉', '❄️ 12月の冬旅']
+        : (lang === 'zh' || lang === 'zht')
+        ? ['☀️ 本周出发', '🍁 10月金秋赏枫', '❄️ 12月冬季之旅']
         : ['☀️ 이번 주 출발', '🍁 10월 가을 단풍', '❄️ 12월 겨울 여행'];
 
       let briefingText = '';
       let quickSuggestions = [];
 
       // 🌟 1. Check if external query matches Signature Course or Tiki-Taka Knowledge first (e.g. "부산 3일", "제주 3일", "넌 누구니?")
-      const tikitakaMatch = resolveTikitakaResponse(promptQuery, targetCity);
+      const locTargetCity = getLocalizedCityName(targetCity || '서울', lang);
+      const currentSeason = updatedState?.tripMemory?.season || null;
+      const tikitakaMatch = resolveTikitakaResponse(promptQuery, targetCity || '서울', currentSeason, lang);
       const externalQnaMatch = matchVoraQna(promptQuery, targetCity, { tripMemory: updatedState.tripMemory }, lang);
 
       if (tikitakaMatch) {
@@ -690,9 +696,9 @@ export default function App() {
           ? `${tikitakaMatch.reply}\n\n👉 **${tikitakaMatch.followUp}**`
           : tikitakaMatch.reply;
         quickSuggestions = [
-          (lang === 'en' ? '🚀 Create Itinerary Now' : '🚀 바로 일정 만들기'),
-          (lang === 'en' ? `🍴 ${targetCity || 'Local'} Foodies` : `🍴 ${targetCity || '현지'} 대표 맛집`),
-          (lang === 'en' ? `📸 ${targetCity || 'Best'} Photo Spots` : `📸 ${targetCity || '인생샷'} 핫플`)
+          (lang === 'en' ? '🚀 Create Itinerary Now' : lang === 'ja' ? '🚀 日程作成' : (lang === 'zh' || lang === 'zht') ? '🚀 制作行程' : '🚀 바로 일정 만들기'),
+          (lang === 'en' ? `🍴 ${locTargetCity} Foodies` : lang === 'ja' ? `🍴 ${locTargetCity} グルメ` : (lang === 'zh' || lang === 'zht') ? `🍴 ${locTargetCity} 美食` : `🍴 ${targetCity || '현지'} 대표 맛집`),
+          (lang === 'en' ? `📸 ${locTargetCity} Photo Spots` : lang === 'ja' ? `📸 ${locTargetCity} フォトスポット` : (lang === 'zh' || lang === 'zht') ? `📸 ${locTargetCity} 拍照打卡` : `📸 ${targetCity || '인생샷'} 핫플`)
         ];
       } else if (externalQnaMatch) {
         briefingText = externalQnaMatch.followUp 
