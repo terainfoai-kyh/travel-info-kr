@@ -140,11 +140,6 @@ export default function App() {
     setSelectedSpot(null);
   };
 
-  const handleResetChat = () => {
-    setChatMessages(getInitialWelcomeMessages(lang, null));
-    setSessionContext(INITIAL_TRAVEL_STATE);
-  };
-
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
 
   // Dark / Light Theme Mode

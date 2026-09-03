@@ -25,7 +25,20 @@ foreach ($file in $files) {
         }
     }
 
-    # 2. Check top-level syntax issues (unclosed template literals, obvious double const)
+    # 2. Check duplicate handler declarations (const handleXxx =)
+    $handlerMatches = [regex]::Matches($content, 'const\s+(handle\w+)\s*=\s*(?:async\s*)?\(')
+    $declaredHandlers = @{}
+    foreach ($m in $handlerMatches) {
+        $hName = $m.Groups[1].Value
+        if ($declaredHandlers.ContainsKey($hName)) {
+            Write-Host " [DUPLICATE HANDLER ERROR]: '$hName' declared multiple times in $relPath" -ForegroundColor Red
+            $errorCount++
+        } else {
+            $declaredHandlers[$hName] = $true
+        }
+    }
+
+    # 3. Check top-level syntax issues (unclosed template literals, obvious double const)
     $doubleConstMatches = [regex]::Matches($content, 'const\s+const\s+')
     if ($doubleConstMatches.Count -gt 0) {
         Write-Host " [SYNTAX ERROR]: 'const const' typo found in $relPath" -ForegroundColor Red
