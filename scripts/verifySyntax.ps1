@@ -44,6 +44,22 @@ foreach ($file in $files) {
         Write-Host " [SYNTAX ERROR]: 'const const' typo found in $relPath" -ForegroundColor Red
         $errorCount++
     }
+
+    # 4. Check for unimported custom JSX components (<MyTripTab, <VoraAIChat, etc.)
+    if ($file.Extension -eq ".jsx") {
+        $jsxTagMatches = [regex]::Matches($content, '<([A-Z]\w+)\b')
+        $seenTags = @{}
+        foreach ($m in $jsxTagMatches) {
+            $tag = $m.Groups[1].Value
+            if ($seenTags.ContainsKey($tag)) { continue }
+            $seenTags[$tag] = $true
+            if ($tag -in @('React', 'Fragment', 'Suspense', 'StrictMode', 'Provider', 'HTML', 'SVG', 'Path')) { continue }
+            if (-not ($content -match "(?m)^import\s+[\s\S]*?\b$tag\b" -or $content -match "\bfunction\s+$tag\b" -or $content -match "\bconst\s+$tag\s*=")) {
+                Write-Host " [UNDEFINED COMPONENT ERROR]: '<$tag>' used without import/declaration in $relPath" -ForegroundColor Red
+                $errorCount++
+            }
+        }
+    }
 }
 
 # Target file specific check for DesktopMapExplorer.jsx and App.jsx

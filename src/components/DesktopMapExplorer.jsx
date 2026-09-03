@@ -34,6 +34,7 @@ import HelplineModal from './HelplineModal';
 import VoraAIChat from './VoraAIChat';
 import { TRANSLATIONS, getLocalizedCityName } from '../i18n/translations';
 import { SOUTH_KOREA_MAP_BOUNDS, isInSouthKorea, updateMapTileLayer } from '../utils/mapTileUtils';
+import MyTripTab from './MyTripTab';
 
 // 🎯 Organic Curved Route Generator for smooth travel paths in Route Map mode
 function generateSmoothCurvedRoute(points) {
