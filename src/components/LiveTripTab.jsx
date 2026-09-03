@@ -12,7 +12,10 @@ import {
   Info,
   X,
   MapPin,
-  Star
+  Star,
+  ChevronLeft,
+  ChevronRight,
+  ArrowRight
 } from 'lucide-react';
 import { getGooglePlaceSearchUrl } from '../services/geminiNlpService';
 import { CITY_LOCAL_KNOWLEDGE } from '../data/voraDialogKnowledge';
@@ -963,6 +966,7 @@ function getNearbyActionsForCity(targetCity = '서울', lang = 'ko') {
 export default function LiveTripTab({
   lang = 'ko',
   targetCity = '서울',
+  itineraryData = null,
   nextSpot = null,
   onOpenDetail,
   onOpenWeather
@@ -970,8 +974,51 @@ export default function LiveTripTab({
   // '지금 뭐하지?' 선택된 카테고리 모달 상태
   const [selectedQuickCategory, setSelectedQuickCategory] = useState(null);
 
-  // 🌟 도시별 맞춤형 기본 다음 목적지 및 핫플 리스트
-  const activeNext = nextSpot || getDefaultNextSpotForCity(targetCity, lang);
+  // 🌟 [Smart Live Itinerary Progression]
+  // 1일차 일정 스팟 목록 추출
+  const day1Spots = React.useMemo(() => {
+    const fromSchedule = itineraryData?.dailySchedules?.[0]?.spots;
+    if (fromSchedule && Array.isArray(fromSchedule) && fromSchedule.length > 0) {
+      return fromSchedule;
+    }
+    const fromSpots = (itineraryData?.spots || []).filter(s => !s.assignedDay || Number(s.assignedDay) === 1);
+    if (fromSpots.length > 0) return fromSpots;
+    return itineraryData?.spots || [];
+  }, [itineraryData]);
+
+  // 현재 소화 중인 스팟 인덱스 (기본값: 1, 즉 2번째 스팟을 소화 중이므로 다음 목적지는 3번째 스팟(인덱스 2))
+  const defaultVisitingIndex = day1Spots.length >= 3 ? 1 : 0;
+  const [currentVisitingIndex, setCurrentVisitingIndex] = useState(defaultVisitingIndex);
+
+  // 스팟 목록이 바뀔 때 인덱스 보정
+  React.useEffect(() => {
+    if (day1Spots.length >= 3) {
+      setCurrentVisitingIndex(1);
+    } else {
+      setCurrentVisitingIndex(0);
+    }
+  }, [day1Spots.length]);
+
+  // 현재 방문 중인 스팟 & 그다음 목적지 스팟 계산
+  let currentVisitingSpot = null;
+  let activeNext = null;
+  let hasNextSpot = false;
+  let hasPrevSpot = false;
+
+  if (day1Spots.length >= 2) {
+    const safeVisitingIdx = Math.min(currentVisitingIndex, day1Spots.length - 2);
+    currentVisitingSpot = day1Spots[safeVisitingIdx];
+    activeNext = day1Spots[safeVisitingIdx + 1];
+    hasPrevSpot = safeVisitingIdx > 0;
+    hasNextSpot = safeVisitingIdx + 2 < day1Spots.length;
+  } else if (day1Spots.length === 1) {
+    currentVisitingSpot = null;
+    activeNext = day1Spots[0];
+  } else {
+    currentVisitingSpot = null;
+    activeNext = nextSpot || getDefaultNextSpotForCity(targetCity, lang);
+  }
+
   const NEARBY_ACTIONS = getNearbyActionsForCity(targetCity, lang);
 
   return (
@@ -1050,37 +1097,121 @@ export default function LiveTripTab({
         padding: '1.15rem',
         boxShadow: '0 4px 16px rgba(0, 0, 0, 0.05)'
       }}>
+        {/* Progress Step Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.65rem' }}>
-          <span style={{
-            fontSize: '0.75rem',
-            fontWeight: 900,
-            color: '#2563eb',
-            backgroundColor: 'rgba(37, 99, 235, 0.1)',
-            padding: '0.2rem 0.6rem',
-            borderRadius: '6px',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.25rem'
-          }}>
-            <Navigation size={12} />
-            <span>{lang === 'en' ? 'Next Destination' : lang === 'ja' ? '次の目的地' : (lang === 'zh' || lang === 'zht') ? '下一站行程' : '다음 일정'}</span>
-          </span>
-          <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)' }}>
-            🕒 {activeNext.transitTime || (lang === 'en' ? 'Transit via Subway or Walk' : lang === 'ja' ? '地下鉄または徒歩で移動' : (lang === 'zh' || lang === 'zht') ? '乘坐地铁或步行前往' : '지하철 또는 도보로 이동')}
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <span style={{
+              fontSize: '0.75rem',
+              fontWeight: 900,
+              color: '#2563eb',
+              backgroundColor: 'rgba(37, 99, 235, 0.1)',
+              padding: '0.2rem 0.6rem',
+              borderRadius: '6px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.25rem'
+            }}>
+              <Navigation size={12} />
+              <span>{lang === 'en' ? 'Next Destination' : lang === 'ja' ? '次の目的地' : (lang === 'zh' || lang === 'zht') ? '下一站行程' : '다음 목적지'}</span>
+            </span>
+            {day1Spots.length > 0 && (
+              <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-muted)' }}>
+                ({lang === 'en' ? `Course ${Math.min(currentVisitingIndex + 2, day1Spots.length)} of ${day1Spots.length}` : lang === 'ja' ? `コース ${Math.min(currentVisitingIndex + 2, day1Spots.length)}/${day1Spots.length}` : (lang === 'zh' || lang === 'zht') ? `第${Math.min(currentVisitingIndex + 2, day1Spots.length)}站/共${day1Spots.length}站` : `코스 ${Math.min(currentVisitingIndex + 2, day1Spots.length)}/${day1Spots.length}`})
+              </span>
+            )}
+          </div>
+
+          {/* Stepper Buttons (◀ / ▶) */}
+          {day1Spots.length > 2 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              <button
+                type="button"
+                disabled={!hasPrevSpot}
+                onClick={() => setCurrentVisitingIndex(prev => Math.max(0, prev - 1))}
+                style={{
+                  padding: '0.2rem 0.45rem',
+                  fontSize: '0.72rem',
+                  fontWeight: 800,
+                  borderRadius: '6px',
+                  backgroundColor: 'var(--bg-glass)',
+                  border: '1px solid var(--border-color)',
+                  color: hasPrevSpot ? 'var(--text-main)' : 'var(--text-muted)',
+                  cursor: hasPrevSpot ? 'pointer' : 'not-allowed',
+                  opacity: hasPrevSpot ? 1 : 0.4,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.15rem'
+                }}
+              >
+                <ChevronLeft size={12} />
+                <span>{lang === 'en' ? 'Prev' : lang === 'ja' ? '前' : (lang === 'zh' || lang === 'zht') ? '上站' : '이전'}</span>
+              </button>
+              <button
+                type="button"
+                disabled={!hasNextSpot}
+                onClick={() => setCurrentVisitingIndex(prev => Math.min(day1Spots.length - 2, prev + 1))}
+                style={{
+                  padding: '0.2rem 0.45rem',
+                  fontSize: '0.72rem',
+                  fontWeight: 800,
+                  borderRadius: '6px',
+                  backgroundColor: hasNextSpot ? 'rgba(37, 99, 235, 0.1)' : 'var(--bg-glass)',
+                  border: '1px solid var(--border-color)',
+                  color: hasNextSpot ? '#2563eb' : 'var(--text-muted)',
+                  cursor: hasNextSpot ? 'pointer' : 'not-allowed',
+                  opacity: hasNextSpot ? 1 : 0.4,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.15rem'
+                }}
+              >
+                <span>{lang === 'en' ? 'Next' : lang === 'ja' ? '次へ' : (lang === 'zh' || lang === 'zht') ? '下站' : '다음'}</span>
+                <ChevronRight size={12} />
+              </button>
+            </div>
+          )}
         </div>
 
+        {/* Current Visiting Context Breadcrumb */}
+        {day1Spots.length >= 2 && currentVisitingSpot && (
+          <div style={{
+            fontSize: '0.75rem',
+            color: 'var(--text-muted)',
+            marginBottom: '0.65rem',
+            padding: '0.35rem 0.6rem',
+            borderRadius: '8px',
+            backgroundColor: 'var(--bg-primary)',
+            border: '1px solid var(--border-color)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '0.35rem'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', flexWrap: 'wrap' }}>
+              <span>📍 {lang === 'en' ? 'Currently at' : lang === 'ja' ? '現在地' : (lang === 'zh' || lang === 'zht') ? '当前打卡' : '현재 진행'}: </span>
+              <strong style={{ color: 'var(--text-main)' }}>{currentVisitingSpot.title || currentVisitingSpot.name}</strong>
+              <ArrowRight size={11} style={{ color: '#2563eb' }} />
+              <span>{lang === 'en' ? 'Next' : lang === 'ja' ? '次' : (lang === 'zh' || lang === 'zht') ? '下站' : '그다음'}: </span>
+              <strong style={{ color: '#2563eb' }}>{activeNext?.title || activeNext?.name}</strong>
+            </div>
+            <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-muted)' }}>
+              🕒 {activeNext?.transitTime || (lang === 'en' ? 'Transit via Subway/Walk' : lang === 'ja' ? '地下鉄・徒歩移動' : (lang === 'zh' || lang === 'zht') ? '地铁/步行前往' : '지하철/도보 이동')}
+            </span>
+          </div>
+        )}
+
         <h4 style={{ margin: '0 0 0.35rem', fontSize: '1.05rem', fontWeight: 900, color: 'var(--text-main)' }}>
-          {activeNext.title}
+          {activeNext?.title || activeNext?.name}
         </h4>
         <p style={{ margin: '0 0 0.85rem', fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: 1.4 }}>
-          {activeNext.description || activeNext.addr1}
+          {activeNext?.description || activeNext?.addr1 || activeNext?.overview}
         </p>
 
         {/* Dual Actions: [🗺️ 길찾기] & [ℹ️ 상세보기] */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem' }}>
           <a
-            href={getGooglePlaceSearchUrl(activeNext.title, targetCity)}
+            href={getGooglePlaceSearchUrl(activeNext?.title || activeNext?.name || '', targetCity)}
             target="_blank"
             rel="noopener noreferrer"
             style={{
@@ -1103,6 +1234,7 @@ export default function LiveTripTab({
           </a>
 
           <button
+            type="button"
             onClick={() => onOpenDetail && onOpenDetail({ ...activeNext, isExploreOnly: true })}
             style={{
               padding: '0.55rem',
