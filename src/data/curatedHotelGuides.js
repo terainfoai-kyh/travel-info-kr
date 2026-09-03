@@ -74,7 +74,7 @@ export const CURATED_HOTELS = [
       ja: '🏆 COEXモール＆地下鉄駅直結',
       zh: '🏆 直通COEX购物中心及地铁'
     },
-    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&auto=format&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=600&auto=format&fit=crop&q=80',
     descriptions: {
       ko: '삼성역 및 코엑스몰과 바로 연결되는 5성급 럭셔리 호텔로, 최고급 다이닝과 넓고 우아한 객실을 제공합니다.',
       en: 'Premier 5-star luxury directly connected to COEX Mall and Samseong Station, offering world-class dining and spacious guestrooms.',
