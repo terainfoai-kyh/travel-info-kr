@@ -43,6 +43,7 @@ import DesktopNavSidebar from './components/DesktopNavSidebar';
 import DockedMapStation from './components/DockedMapStation';
 import SubwayMapModal from './components/SubwayMapModal';
 import HelplineModal from './components/HelplineModal';
+import CuratedTravelGuides from './components/CuratedTravelGuides';
 import Footer from './components/Footer';
 
 import { detectBrowserLanguage, TRANSLATIONS, getLocalizedCityName } from './i18n/translations';
@@ -1584,6 +1585,9 @@ export default function App() {
                 }}
                 targetCity={itineraryData?.targetCity || '서울'}
               />
+
+              {/* 🏨 4-Language Curated Hotel & Travel Magazine Section (Agoda Partner & Rich SEO Content) */}
+              <CuratedTravelGuides lang={lang} />
             </div>
           )}
 
