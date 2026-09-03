@@ -1,5 +1,36 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Sparkles, Database, Play, CheckCircle2, Copy, Download, RefreshCw, Key, ShieldCheck, AlertCircle, Cloud, Smartphone, Search, Lock, Unlock, FileJson, Upload } from 'lucide-react';
+import { 
+  X, 
+  Sparkles, 
+  Database, 
+  Play, 
+  CheckCircle2, 
+  Copy, 
+  Download, 
+  RefreshCw, 
+  Key, 
+  ShieldCheck, 
+  AlertCircle, 
+  Cloud, 
+  Smartphone, 
+  Search, 
+  Lock, 
+  Unlock, 
+  FileJson, 
+  Upload,
+  BarChart3,
+  TrendingUp,
+  Users,
+  MapPin,
+  Globe,
+  Activity,
+  Compass,
+  Trash2,
+  Clock,
+  Calendar,
+  Layers,
+  MessageSquare
+} from 'lucide-react';
 import { getVoraQnaVault } from '../data/voraQnaVault';
 import { CITY_LOCAL_KNOWLEDGE } from '../data/voraDialogKnowledge';
 import { interpolateTemplate } from '../utils/koreanParticles';
@@ -13,6 +44,7 @@ import {
 } from '../services/voraCloudQnaService';
 import { isSystemActionOrCourseDirective } from '../utils/qnaFilter';
 import { encryptVaultData, decryptVaultData } from '../utils/vaultCrypto';
+import { fetchAnalyticsSummary, resetAnalyticsData } from '../services/analyticsService';
 
 export default function AdminBatchModal({
   isOpen,
@@ -20,6 +52,9 @@ export default function AdminBatchModal({
   currentUser,
   lang = 'ko'
 }) {
+  const [activeAdminTab, setActiveAdminTab] = useState('analytics'); // 'analytics' | 'knowledge'
+  const [analyticsData, setAnalyticsData] = useState(null);
+  const [isLoadingAnalytics, setIsLoadingAnalytics] = useState(false);
   const [apiKey, setApiKey] = useState('');
   const [isKeySaved, setIsKeySaved] = useState(false);
   const [unansweredList, setUnansweredList] = useState([]);
@@ -38,6 +73,25 @@ export default function AdminBatchModal({
   const [activeLangTab, setActiveLangTab] = useState('ko');
   const [masterVaultList, setMasterVaultList] = useState([]);
   const fileInputRef = useRef(null);
+
+  // 📊 실시간 모니터링 통계 로드
+  const loadAnalytics = async () => {
+    setIsLoadingAnalytics(true);
+    try {
+      const data = await fetchAnalyticsSummary();
+      setAnalyticsData(data);
+    } catch (e) {
+      console.warn('Failed to load analytics:', e);
+    } finally {
+      setIsLoadingAnalytics(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      loadAnalytics();
+    }
+  }, [isOpen]);
 
   // 🌐 [안정성 보장] 커스텀 지식 손실 없는 방탄 양방향 동기화
   const loadCustomVaultFromStorage = async () => {
@@ -626,7 +680,430 @@ export default function AdminBatchModal({
           </button>
         </div>
 
-        {/* 2-Column Wide Grid Content */}
+        {/* Super Admin Navigation Tabs */}
+        <div style={{
+          display: 'flex',
+          gap: '0.5rem',
+          padding: '0.75rem 1.5rem',
+          borderBottom: '1px solid var(--border-color)',
+          backgroundColor: 'var(--bg-primary)'
+        }}>
+          <button
+            onClick={() => setActiveAdminTab('analytics')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+              padding: '0.55rem 1.1rem',
+              borderRadius: '12px',
+              border: 'none',
+              backgroundColor: activeAdminTab === 'analytics' ? '#8b5cf6' : 'transparent',
+              color: activeAdminTab === 'analytics' ? '#ffffff' : 'var(--text-muted)',
+              fontWeight: 800,
+              fontSize: '0.85rem',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+          >
+            <BarChart3 size={16} />
+            <span>📊 서비스 실시간 모니터링</span>
+          </button>
+          <button
+            onClick={() => setActiveAdminTab('knowledge')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+              padding: '0.55rem 1.1rem',
+              borderRadius: '12px',
+              border: 'none',
+              backgroundColor: activeAdminTab === 'knowledge' ? '#8b5cf6' : 'transparent',
+              color: activeAdminTab === 'knowledge' ? '#ffffff' : 'var(--text-muted)',
+              fontWeight: 800,
+              fontSize: '0.85rem',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+          >
+            <Database size={16} />
+            <span>🧠 보라 AI 지식 관리 & 배치 학습 ({unansweredList.length})</span>
+          </button>
+        </div>
+
+        {/* ========================================================================= */}
+        {/* TAB 1: REAL-TIME SERVICE MONITORING & TELEMETRY DASHBOARD                 */}
+        {/* ========================================================================= */}
+        {activeAdminTab === 'analytics' && (
+          <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            {/* Top Toolbar */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: '0.75rem'
+            }}>
+              <div>
+                <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <TrendingUp size={18} color="#8b5cf6" />
+                  실시간 트래픽 & 여행 일정 생성 통계
+                </h4>
+                <p style={{ margin: '0.2rem 0 0', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                  전 세계 접속 현황, 국가별 언어 점유율, 인기 여행 도시 랭킹 및 실시간 활동 피드
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <button
+                  onClick={loadAnalytics}
+                  disabled={isLoadingAnalytics}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
+                    padding: '0.45rem 0.85rem',
+                    borderRadius: '10px',
+                    border: '1px solid var(--border-color)',
+                    backgroundColor: 'var(--bg-card)',
+                    color: 'var(--text-main)',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    cursor: 'pointer'
+                  }}
+                >
+                  <RefreshCw size={14} className={isLoadingAnalytics ? 'animate-spin' : ''} />
+                  <span>새로고침</span>
+                </button>
+
+                <button
+                  onClick={async () => {
+                    if (window.confirm('⚠️ 통계 데이터를 초기화하시겠습니까?')) {
+                      const res = await resetAnalyticsData();
+                      setAnalyticsData(res);
+                    }
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
+                    padding: '0.45rem 0.85rem',
+                    borderRadius: '10px',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    backgroundColor: 'rgba(239, 68, 68, 0.08)',
+                    color: '#ef4444',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    cursor: 'pointer'
+                  }}
+                >
+                  <Trash2 size={14} />
+                  <span>데이터 리셋</span>
+                </button>
+              </div>
+            </div>
+
+            {/* 4 KPI Summary Cards */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gap: '0.85rem'
+            }}>
+              {/* KPI 1: Visitors */}
+              <div style={{
+                padding: '1rem',
+                borderRadius: '18px',
+                background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(139, 92, 246, 0.08))',
+                border: '1px solid rgba(59, 130, 246, 0.25)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.4rem'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)' }}>방문자 수 (DAU)</span>
+                  <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+                    <Users size={15} />
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+                  <span style={{ fontSize: '1.6rem', fontWeight: 900, color: '#3b82f6' }}>
+                    {analyticsData?.todayPageViews || 0}
+                  </span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                    / 누적 {(analyticsData?.totalPageViews || 0).toLocaleString()}명
+                  </span>
+                </div>
+              </div>
+
+              {/* KPI 2: Itineraries Generated */}
+              <div style={{
+                padding: '1rem',
+                borderRadius: '18px',
+                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(59, 130, 246, 0.08))',
+                border: '1px solid rgba(16, 185, 129, 0.25)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.4rem'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)' }}>여행 일정 생성</span>
+                  <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+                    <Compass size={15} />
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+                  <span style={{ fontSize: '1.6rem', fontWeight: 900, color: '#10b981' }}>
+                    {analyticsData?.todayItineraries || 0}
+                  </span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                    / 누적 {(analyticsData?.totalItineraries || 0).toLocaleString()}건
+                  </span>
+                </div>
+              </div>
+
+              {/* KPI 3: AI Chat Queries */}
+              <div style={{
+                padding: '1rem',
+                borderRadius: '18px',
+                background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(236, 72, 153, 0.08))',
+                border: '1px solid rgba(139, 92, 246, 0.25)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.4rem'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)' }}>보라 AI 대화량</span>
+                  <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: '#8b5cf6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+                    <MessageSquare size={15} />
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+                  <span style={{ fontSize: '1.6rem', fontWeight: 900, color: '#8b5cf6' }}>
+                    {(analyticsData?.totalChatQueries || 0).toLocaleString()}
+                  </span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>회 대화</span>
+                </div>
+              </div>
+
+              {/* KPI 4: Saved Trips */}
+              <div style={{
+                padding: '1rem',
+                borderRadius: '18px',
+                background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(239, 68, 68, 0.08))',
+                border: '1px solid rgba(245, 158, 11, 0.25)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.4rem'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)' }}>내 여행 저장 건수</span>
+                  <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+                    <Database size={15} />
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+                  <span style={{ fontSize: '1.6rem', fontWeight: 900, color: '#f59e0b' }}>
+                    {(analyticsData?.totalTripsSaved || 0).toLocaleString()}
+                  </span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>개 보관</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 2-Column Analytics Breakdown */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
+              gap: '1.25rem'
+            }}>
+              {/* Left Panel: Top 10 Cities */}
+              <div style={{
+                backgroundColor: 'var(--bg-primary)',
+                padding: '1.1rem',
+                borderRadius: '20px',
+                border: '1px solid var(--border-color)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.85rem'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <h5 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <MapPin size={16} color="#8b5cf6" />
+                    가장 인기 있는 여행 도시 Top 10
+                  </h5>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>생성 빈도 기준</span>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+                  {(analyticsData?.topCities && analyticsData.topCities.length > 0) ? (
+                    analyticsData.topCities.map((item, idx) => {
+                      const totalC = analyticsData.totalItineraries || 1;
+                      const pct = Math.min(100, Math.round((item.count / totalC) * 100)) || 10;
+                      return (
+                        <div key={item.name} style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', fontWeight: 700 }}>
+                            <span>
+                              <strong style={{ color: idx < 3 ? '#8b5cf6' : 'var(--text-muted)', marginRight: '0.4rem' }}>
+                                #{idx + 1}
+                              </strong>
+                              {item.name}
+                            </span>
+                            <span style={{ color: 'var(--text-muted)' }}>{item.count}회 ({pct}%)</span>
+                          </div>
+                          <div style={{ width: '100%', height: '8px', borderRadius: '100px', backgroundColor: 'var(--bg-card)', overflow: 'hidden' }}>
+                            <div style={{
+                              width: `${pct}%`,
+                              height: '100%',
+                              borderRadius: '100px',
+                              background: idx === 0 
+                                ? 'linear-gradient(90deg, #8b5cf6, #ec4899)' 
+                                : idx === 1 
+                                  ? 'linear-gradient(90deg, #3b82f6, #8b5cf6)' 
+                                  : 'linear-gradient(90deg, #10b981, #3b82f6)'
+                            }} />
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: '1.5rem', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+                      아직 수집된 도시 통계가 없습니다.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Right Panel: Global Languages & Live Event Feed */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {/* Languages Breakdown */}
+                <div style={{
+                  backgroundColor: 'var(--bg-primary)',
+                  padding: '1.1rem',
+                  borderRadius: '20px',
+                  border: '1px solid var(--border-color)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.75rem'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <h5 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <Globe size={16} color="#3b82f6" />
+                      글로벌 접속 언어 / 국가 비중
+                    </h5>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>국가별 선호도</span>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
+                    {Object.entries(analyticsData?.languages || {}).map(([langKey, count]) => {
+                      const totalLang = Object.values(analyticsData?.languages || {}).reduce((a, b) => a + b, 0) || 1;
+                      const pct = Math.round((count / totalLang) * 100);
+                      const langLabels = {
+                        ko: '🇰🇷 한국어',
+                        en: '🇺🇸 English',
+                        ja: '🇯🇵 日本語',
+                        zh: '🇨🇳 简体中文',
+                        zht: '🇹🇼 繁體中文',
+                        fr: '🇫🇷 Français',
+                        de: '🇩🇪 Deutsch',
+                        es: '🇪🇸 Español',
+                        ru: '🇷🇺 Русский'
+                      };
+                      return (
+                        <div key={langKey} style={{
+                          padding: '0.5rem 0.6rem',
+                          borderRadius: '12px',
+                          backgroundColor: 'var(--bg-card)',
+                          border: '1px solid var(--border-color)',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '0.15rem'
+                        }}>
+                          <span style={{ fontSize: '0.72rem', fontWeight: 700 }}>{langLabels[langKey] || langKey}</span>
+                          <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#3b82f6' }}>{count}회 <small style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>({pct}%)</small></span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Live Activity Feed */}
+                <div style={{
+                  backgroundColor: 'var(--bg-primary)',
+                  padding: '1.1rem',
+                  borderRadius: '20px',
+                  border: '1px solid var(--border-color)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.65rem'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <h5 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <Activity size={16} color="#10b981" />
+                      실시간 라이브 활동 피드 (Live Feed)
+                    </h5>
+                    <span style={{
+                      fontSize: '0.65rem',
+                      backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                      color: '#10b981',
+                      padding: '0.1rem 0.4rem',
+                      borderRadius: '100px',
+                      fontWeight: 800
+                    }}>
+                      LIVE ON
+                    </span>
+                  </div>
+
+                  <div style={{
+                    maxHeight: '220px',
+                    overflowY: 'auto',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.45rem'
+                  }}>
+                    {(analyticsData?.recentEvents && analyticsData.recentEvents.length > 0) ? (
+                      analyticsData.recentEvents.slice(0, 15).map((evt) => {
+                        const timeStr = new Date(evt.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                        let desc = '';
+                        if (evt.type === 'itinerary_gen') {
+                          desc = `🗺️ [${evt.city || '대한민국'} ${evt.days || 3}일] 코스 생성 (${evt.lang?.toUpperCase()})`;
+                        } else if (evt.type === 'page_view') {
+                          desc = `🌐 새로운 방문자 접속 (${evt.lang?.toUpperCase()})`;
+                        } else if (evt.type === 'chat_query') {
+                          desc = `💬 보라 AI 질문: "${evt.query || '여행 질문'}"`;
+                        } else if (evt.type === 'trip_save') {
+                          desc = `💾 [${evt.city || '여행'}] 일정 저장 완료`;
+                        }
+                        return (
+                          <div key={evt.id} style={{
+                            padding: '0.45rem 0.65rem',
+                            borderRadius: '10px',
+                            backgroundColor: 'var(--bg-card)',
+                            border: '1px solid var(--border-color)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            fontSize: '0.75rem'
+                          }}>
+                            <span style={{ fontWeight: 600 }}>{desc}</span>
+                            <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>{timeStr}</span>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div style={{ textAlign: 'center', padding: '1rem', color: 'var(--text-muted)', fontSize: '0.78rem' }}>
+                        기록된 활동이 없습니다.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================================= */}
+        {/* TAB 2: VORA AI BATCH KNOWLEDGE CENTER (ORIGINAL)                          */}
+        {/* ========================================================================= */}
+        {activeAdminTab === 'knowledge' && (
         <div style={{
           padding: '1.25rem',
           display: 'grid',
@@ -1365,6 +1842,7 @@ export default function AdminBatchModal({
           </div>
 
         </div>
+        )}
       </div>
     </div>
   );

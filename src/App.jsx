@@ -55,6 +55,7 @@ import { getDynamicGatewayChips, CITY_LOCAL_KNOWLEDGE, resolveTikitakaResponse }
 import { matchVoraQna, logUnansweredQuestion } from './services/voraQnaMatcher';
 import { buildTravelContext, generateContextualAdvice, patchTravelState, removeContextChip, toggleContextChip, classifyUserIntent, getActiveContextChips, INITIAL_TRAVEL_STATE } from './services/travelContextEngine';
 import { fetchCloudTrips, pushTripsToCloud, overwriteTripsToCloud, deleteTripFromCloud, parseTripFromUrl } from './services/tripSyncService';
+import { trackPageView, trackItineraryGenerated, trackTripSaved } from './services/analyticsService';
 
 export default function App() {
   // 4-Language State (ko, en, ja, zh) with 3-Tier Intelligent Auto-Detection
@@ -164,6 +165,7 @@ export default function App() {
   useEffect(() => {
     const langMap = { ko: 'ko-KR', en: 'en-US', ja: 'ja-JP', zh: 'zh-CN', zht: 'zh-TW' };
     document.documentElement.lang = langMap[lang] || 'ko-KR';
+    trackPageView(lang);
   }, [lang]);
 
   // 저장된 여행 목록 (내 여행 탭 연동 & URL 즉시 복원)
@@ -1150,6 +1152,7 @@ export default function App() {
         setItineraryData(finalResult);
         setHasActiveUnsavedDraft(true);
         setActiveDay(1);
+        trackItineraryGenerated(buildCity, requestedDays, lang, finalResult.theme || '✨ 핵심 랜드마크');
         try {
           localStorage.setItem('vora_temp_active_draft', JSON.stringify(finalResult));
         } catch (e) {}
