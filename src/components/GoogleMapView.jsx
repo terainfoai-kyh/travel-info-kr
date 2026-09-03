@@ -89,7 +89,13 @@ export default function GoogleMapView({
       const latLng = marker?.getLatLng?.();
       if (latLng && isValidLatLng(latLng)) {
         try {
-          leafletMapRef.current.flyTo(latLng, 16, { duration: 0.8 });
+          const map = leafletMapRef.current;
+          const size = map?.getSize?.();
+          if (size && size.x > 0 && size.y > 0) {
+            map.flyTo(latLng, 16, { duration: 0.8 });
+          } else {
+            map.setView(latLng, 16, { animate: false });
+          }
           marker.openPopup();
         } catch (e) {}
       }

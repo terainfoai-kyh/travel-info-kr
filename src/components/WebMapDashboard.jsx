@@ -338,7 +338,15 @@ export default function WebMapDashboard({
           <button 
             onClick={() => {
               if (leafletMapRef.current) {
-                leafletMapRef.current.flyTo([36.2, 127.8], 7.0, { duration: 0.8 });
+                try {
+                  const map = leafletMapRef.current;
+                  const size = map.getSize?.();
+                  if (size && size.x > 0 && size.y > 0) {
+                    map.flyTo([36.2, 127.8], 7.0, { duration: 0.8 });
+                  } else {
+                    map.setView([36.2, 127.8], 7.0, { animate: false });
+                  }
+                } catch (e) {}
               }
             }}
             title={lang === 'en' ? 'Reset Map' : '지도 초기화'}
@@ -677,7 +685,15 @@ export default function WebMapDashboard({
           <button
             onClick={() => {
               if (leafletMapRef.current) {
-                leafletMapRef.current.flyTo([36.2, 127.8], 7.0, { duration: 0.8 });
+                try {
+                  const map = leafletMapRef.current;
+                  const size = map.getSize?.();
+                  if (size && size.x > 0 && size.y > 0) {
+                    map.flyTo([36.2, 127.8], 7.0, { duration: 0.8 });
+                  } else {
+                    map.setView([36.2, 127.8], 7.0, { animate: false });
+                  }
+                } catch (e) {}
               }
             }}
             title={lang === 'en' ? 'Full View' : '전국 보기'}

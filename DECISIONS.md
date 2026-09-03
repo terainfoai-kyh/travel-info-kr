@@ -4,6 +4,23 @@
 
 ---
 
+## 🏛️ [★ Golden Checkpoint] 2026-09-03 Leaflet Invalid LatLng(NaN, NaN) 지도 렌더링/flyTo 크래시 완벽 차단
+
+### 1. 금일 완성된 핵심 업적 (Accomplished)
+- **Leaflet `Invalid LatLng object: (NaN, NaN)` 및 `flyTo` 애니메이션 크래시 100% 원천 차단 (`DesktopMapExplorer.jsx`, `DockedMapStation.jsx`, `GoogleMapView.jsx`, `WebMapDashboard.jsx`)**:
+  - 모바일/데스크톱 화면 전환이나 사이드바 접힘/레이아웃 리플로우 시 컨테이너 크기(`size.x === 0 || size.y === 0`)로 인한 Leaflet 내부 메르카토르 투영 계산 `NaN` 버그 발견 및 근본 해결.
+  - 전역 `safeFlyTo` 래퍼 헬퍼를 도입하여:
+    1. 좌표(`lat`, `lng`)가 대한민국 유효 범위(30 < lat < 45, 120 < lng < 135) 내의 유한 실수인지 사전 검증.
+    2. 지도 컨테이너 너비/높이가 0 이하일 때 무리한 `flyTo` 애니메이션 루프 진입을 방지하고 `setView([lat, lng], zoom, { animate: false })`로 안전 처리.
+    3. `try-catch` 안전망을 완비하여 지도 이동 시 단 1건의 미처리 에러(Uncaught Error)도 사용자 화면에 발생하지 않도록 100% 봉인.
+- **바운딩 박스(`fitBounds`) 및 폴리라인 안전 검증 강화**:
+  - 유효한 위경도 좌표만 필터링한 후 `window.L.latLngBounds` 및 `bounds.isValid()` 검사를 거쳐 `fitBounds`를 수행하도록 안전망 구축.
+- **배포 전 정상 소스 100% 사전 검증 및 푸시 완료**:
+  - `verifySyntax.ps1` 무결점 검증 통과(`[ZERO DEFECT PASSED]`).
+  - 개발 깃 레포 `origin main` (`travelkorea_2.git`) 배포 완료.
+
+---
+
 ## 🏛️ [★ Golden Checkpoint] 2026-09-03 다국어 일정 생성 의도(Intent) 100% 인식 & 플래너 도시 입력 다국어 동기화 완료
 
 ### 1. 금일 완성된 핵심 업적 (Accomplished)

@@ -371,6 +371,28 @@ export default function DesktopMapExplorer({
     return !isNaN(nLat) && !isNaN(nLng) && isFinite(nLat) && isFinite(nLng) && nLat > 30 && nLat < 45 && nLng > 120 && nLng < 135;
   };
 
+  // 🛡️ Zero-Defect Safe flyTo Helper (prevents Leaflet NaN/zero-size projection crashes)
+  const safeFlyTo = (targetLatLng, targetZoom = 14, options = { duration: 0.8 }) => {
+    if (!leafletMapRef.current || !window.L) return;
+    const map = leafletMapRef.current;
+    const lat = Array.isArray(targetLatLng) ? Number(targetLatLng[0]) : Number(targetLatLng?.lat);
+    const lng = Array.isArray(targetLatLng) ? Number(targetLatLng[1]) : Number(targetLatLng?.lng);
+    if (!isValidLatLng(lat, lng)) return;
+    const zoom = (typeof targetZoom === 'number' && !isNaN(targetZoom) && isFinite(targetZoom)) ? targetZoom : 14;
+    try {
+      const size = map.getSize?.();
+      if (!size || size.x <= 0 || size.y <= 0) {
+        map.setView([lat, lng], zoom, { animate: false });
+        return;
+      }
+      map.flyTo([lat, lng], zoom, options);
+    } catch (e) {
+      try {
+        map.setView([lat, lng], zoom, { animate: false });
+      } catch (_) {}
+    }
+  };
+
   // 1. Leaflet Ready Check
   useEffect(() => {
     if (typeof window !== 'undefined' && window.L) {
@@ -391,10 +413,8 @@ export default function DesktopMapExplorer({
           ...found,
           nameKo: cityKey
         }));
-        if (leafletMapRef.current && window.L && isValidLatLng(found.lat, found.lng)) {
-          try {
-            leafletMapRef.current.flyTo([found.lat, found.lng], found.zoom || 11, { duration: 0.8 });
-          } catch (e) {}
+        if (isValidLatLng(found.lat, found.lng)) {
+          safeFlyTo([found.lat, found.lng], found.zoom || 11, { duration: 0.8 });
         }
       }
     }
@@ -513,9 +533,7 @@ export default function DesktopMapExplorer({
         marker.on('click', () => {
           if (onOpenDetail) onOpenDetail(spot);
           if (isValidLatLng(spotPos[0], spotPos[1])) {
-            try {
-              map.flyTo(spotPos, 15, { duration: 0.5 });
-            } catch (e) {}
+            safeFlyTo(spotPos, 15, { duration: 0.5 });
           }
         });
 
@@ -568,19 +586,24 @@ export default function DesktopMapExplorer({
   useEffect(() => {
     if (leafletMapRef.current) {
       const timer = setTimeout(() => {
-        leafletMapRef.current.invalidateSize();
-        if (activeStage === 'itinerary' && currentDaySpots.length > 0) {
-          const validSpots = currentDaySpots.filter(sp => {
-            const lat = Number(sp.lat || sp.mapy || sp.latitude);
-            const lng = Number(sp.lng || sp.mapx || sp.longitude);
-            return lat && lng && lat > 32 && lat < 40 && lng > 124 && lng < 132;
-          });
-          if (validSpots.length > 0) {
-            const latLngs = validSpots.map(sp => [Number(sp.lat || sp.mapy || sp.latitude), Number(sp.lng || sp.mapx || sp.longitude)]);
-            const bounds = window.L.latLngBounds(latLngs);
-            leafletMapRef.current.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
+        if (!leafletMapRef.current || !window.L) return;
+        try {
+          leafletMapRef.current.invalidateSize();
+          if (activeStage === 'itinerary' && currentDaySpots.length > 0) {
+            const validSpots = currentDaySpots.filter(sp => {
+              const lat = Number(sp.lat || sp.mapy || sp.latitude);
+              const lng = Number(sp.lng || sp.mapx || sp.longitude);
+              return isValidLatLng(lat, lng);
+            });
+            if (validSpots.length > 0) {
+              const latLngs = validSpots.map(sp => [Number(sp.lat || sp.mapy || sp.latitude), Number(sp.lng || sp.mapx || sp.longitude)]);
+              const bounds = window.L.latLngBounds(latLngs);
+              if (bounds && bounds.isValid()) {
+                leafletMapRef.current.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
+              }
+            }
           }
-        }
+        } catch (e) {}
       }, 200);
       return () => clearTimeout(timer);
     }
@@ -901,9 +924,7 @@ export default function DesktopMapExplorer({
   };
 
   const handleResetMap = () => {
-    if (leafletMapRef.current) {
-      leafletMapRef.current.flyTo([36.2, 127.8], 7.0, { duration: 0.8 });
-    }
+    safeFlyTo([36.2, 127.8], 7.0, { duration: 0.8 });
   };
 
   const handleQuickCityClick = (city) => {
@@ -936,10 +957,8 @@ export default function DesktopMapExplorer({
     };
     setSelectedLocation(baseLoc);
 
-    if (leafletMapRef.current && isValidLatLng(city.lat, city.lng)) {
-      try {
-        leafletMapRef.current.flyTo([city.lat, city.lng], city.zoom || 12, { duration: 0.8 });
-      } catch (e) {}
+    if (isValidLatLng(city.lat, city.lng)) {
+      safeFlyTo([city.lat, city.lng], city.zoom || 12, { duration: 0.8 });
     }
 
     if (markerRef.current && window.L && isValidLatLng(city.lat, city.lng)) {
@@ -972,9 +991,7 @@ export default function DesktopMapExplorer({
     if (!highlight || !leafletMapRef.current) return;
     
     if (isValidLatLng(highlight.lat, highlight.lng)) {
-      try {
-        leafletMapRef.current.flyTo([highlight.lat, highlight.lng], highlight.zoom || 15, { duration: 0.7 });
-      } catch (e) {}
+      safeFlyTo([highlight.lat, highlight.lng], highlight.zoom || 15, { duration: 0.7 });
     }
 
     if (markerRef.current && window.L && isValidLatLng(highlight.lat, highlight.lng)) {

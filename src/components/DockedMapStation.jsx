@@ -194,6 +194,27 @@ export default function DockedMapStation({
       return !isNaN(nLat) && !isNaN(nLng) && isFinite(nLat) && isFinite(nLng) && nLat > 30 && nLat < 45 && nLng > 120 && nLng < 135;
     };
 
+    const safeFlyTo = (targetLatLng, targetZoom = 15, options = { duration: 0.5 }) => {
+      if (!leafletMapRef.current || !window.L) return;
+      const map = leafletMapRef.current;
+      const lat = Array.isArray(targetLatLng) ? Number(targetLatLng[0]) : Number(targetLatLng?.lat);
+      const lng = Array.isArray(targetLatLng) ? Number(targetLatLng[1]) : Number(targetLatLng?.lng);
+      if (!isValidLatLng(lat, lng)) return;
+      const zoom = (typeof targetZoom === 'number' && !isNaN(targetZoom) && isFinite(targetZoom)) ? targetZoom : 15;
+      try {
+        const size = map.getSize?.();
+        if (!size || size.x <= 0 || size.y <= 0) {
+          map.setView([lat, lng], zoom, { animate: false });
+          return;
+        }
+        map.flyTo([lat, lng], zoom, options);
+      } catch (e) {
+        try {
+          map.setView([lat, lng], zoom, { animate: false });
+        } catch (_) {}
+      }
+    };
+
     const validSpots = currentDaySpots.filter(sp => {
       const lat = Number(sp.lat || sp.mapy || sp.latitude);
       const lng = Number(sp.lng || sp.mapx || sp.longitude);
@@ -245,9 +266,7 @@ export default function DockedMapStation({
       marker.on('click', () => {
         setSelectedSpotPreview(spot);
         if (isValidLatLng(spotPos[0], spotPos[1])) {
-          try {
-            map.flyTo(spotPos, 15, { duration: 0.5 });
-          } catch (e) {}
+          safeFlyTo(spotPos, 15, { duration: 0.5 });
         }
       });
 
@@ -604,7 +623,13 @@ export default function DockedMapStation({
                 const sLng = Number(spot.lng || spot.mapx || spot.longitude);
                 if (leafletMapRef.current && !isNaN(sLat) && !isNaN(sLng) && sLat > 30 && sLat < 45 && sLng > 120 && sLng < 135) {
                   try {
-                    leafletMapRef.current.flyTo([sLat, sLng], 15, { duration: 0.5 });
+                    const map = leafletMapRef.current;
+                    const size = map?.getSize?.();
+                    if (size && size.x > 0 && size.y > 0) {
+                      map.flyTo([sLat, sLng], 15, { duration: 0.5 });
+                    } else {
+                      map.setView([sLat, sLng], 15, { animate: false });
+                    }
                   } catch (e) {}
                 }
               }}
