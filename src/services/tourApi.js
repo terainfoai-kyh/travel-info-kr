@@ -674,14 +674,14 @@ export async function fetchDynamicRealtimeSpots(query, lang = 'ko') {
   else if (lang === 'ru') apiBase = PUBLIC_API_CONFIG.RUS_BASE;
 
   try {
-    const searchUrl = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&keyword=${encodeURIComponent(searchKw)}&numOfRows=30&pageNo=1`;
+    const searchUrl = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&keyword=${encodeURIComponent(searchKw)}&numOfRows=30&pageNo=1&arrange=P`;
     let res = await fetch(searchUrl);
     let data = res.ok ? await res.json() : null;
     let itemsRaw = data?.response?.body?.items?.item || [];
 
     // 만약 번역 키워드로 0건이면 원본 키워드로 2차 재시도
     if ((!itemsRaw || (Array.isArray(itemsRaw) && itemsRaw.length === 0)) && searchKw !== cleanQ) {
-      const fallbackUrl = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&keyword=${encodeURIComponent(cleanQ)}&numOfRows=30&pageNo=1`;
+      const fallbackUrl = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&keyword=${encodeURIComponent(cleanQ)}&numOfRows=30&pageNo=1&arrange=P`;
       const fallbackRes = await fetch(fallbackUrl);
       if (fallbackRes.ok) {
         const fallbackData = await fallbackRes.json();
@@ -692,7 +692,7 @@ export async function fetchDynamicRealtimeSpots(query, lang = 'ko') {
     const items = Array.isArray(itemsRaw) ? itemsRaw : (itemsRaw ? [itemsRaw] : []);
     let spotList = [];
     if (items.length > 0) {
-      // 🛡️ Enforce Sightseeing Categories and strictly filter out shopping / Tax Refund / stores
+      // 🛡️ Enforce Sightseeing Categories and strictly filter out shopping / Tax Refund / stores / administrative sub-facilities
       const filteredItems = items.filter(item => {
         const typeId = String(item.contenttypeid || '');
         if (typeId && (typeId === '39' || typeId === '38' || typeId === '32' || typeId === '79' || typeId === '82' || typeId === '80')) {
@@ -700,7 +700,7 @@ export async function fetchDynamicRealtimeSpots(query, lang = 'ko') {
         }
 
         const title = (item.title || '').trim();
-        const isCommercialOrNonTourist = /(tax refund|tax-refund|shop|store|branch|lotte|outlet|mall|department|artbox|descente|cambridge|olive young|gs25|cu|seven eleven|emart|신세계|현대백화점|롯데몰|이마트|홈플러스|한쿡|식당|음식점|맛집|갈비|푸드|카페|커피|베이커리|쇼핑|판매장|스토어|플래그십|직영점|대리점|지점|본점|도서관|열람실|독서실|구청|시청|군청|주민센터|행정복지센터|종합운동장|체육관|캠핑장|캠핑체험|글램핑|야영장|수련원|연수원|노인복지|어린이집|양곱창|곱창골목|먹자골목|닭갈비골목|순대골목|장어골목|떡볶이골목|생선구이골목|음식거리|먹거리골목|음식특화|점$|점\)|점\])/i.test(title);
+        const isCommercialOrNonTourist = /(tax refund|tax-refund|shop|store|branch|lotte|outlet|mall|department|artbox|descente|cambridge|olive young|gs25|cu|seven eleven|emart|신세계|현대백화점|롯데몰|이마트|홈플러스|한쿡|식당|음식점|맛집|갈비|푸드|카페|커피|베이커리|쇼핑|판매장|스토어|플래그십|직영점|대리점|지점|본점|도서관|열람실|독서실|구청|시청|군청|주민센터|행정복지센터|종합운동장|체육관|캠핑장|캠핑체험|글램핑|야영장|수련원|연수원|노인복지|어린이집|양곱창|곱창골목|먹자골목|닭갈비골목|순대골목|장어골목|떡볶이골목|생선구이골목|음식거리|먹거리골목|음식특화|분관|관리소|관리사무소|교육관|예절교육관|주차장|공영주차장|현판|표지석|출장소|사업소|복지회관|점$|점\)|점\])/i.test(title);
         return !isCommercialOrNonTourist;
       });
 

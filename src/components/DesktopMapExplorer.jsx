@@ -27,7 +27,7 @@ import {
   MessageSquare
 } from 'lucide-react';
 import { buildKlookDeepLink } from '../services/apiConfig';
-import { fetchDynamicRealtimeSpots, fetchLocationBasedTourApiSpots, getCityMultilingualName } from '../services/tourApi';
+import { fetchDynamicRealtimeSpots, fetchLocationBasedTourApiSpots, fetchPinpointLandmarkSpots, getCityMultilingualName } from '../services/tourApi';
 import { CITY_LOCAL_KNOWLEDGE } from '../data/voraDialogKnowledge';
 import SubwayMapModal from './SubwayMapModal';
 import HelplineModal from './HelplineModal';
@@ -72,7 +72,7 @@ const REGIONAL_FALLBACK_CENTERS = [
     lat: 37.5796, 
     lng: 126.9770,
     zoom: 13,
-    image: '/images/themes/theme-gyeongbokgung.jpg',
+    image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?w=1200&auto=format&fit=crop&q=80',
     transitTipKo: '지하철 3호선 경복궁역 도보 3분',
     transitTipEn: 'Line 3 Gyeongbokgung Station (3 min walk)',
     transitTipJa: '地下鉄3号線 景福宮駅 徒歩3分',
@@ -103,7 +103,7 @@ const REGIONAL_FALLBACK_CENTERS = [
     lat: 37.5665, 
     lng: 126.9780,
     zoom: 12,
-    image: '/images/themes/theme-gyeongbokgung.jpg',
+    image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?w=1200&auto=format&fit=crop&q=80',
     transitTipKo: '지하철 2호선 성수역 / 한강공원 직결',
     transitTipEn: 'Subway Line 2 Seongsu / Hangang River Link',
     transitTipJa: '地下鉄2号線 聖水駅／漢江公園直結',
@@ -753,27 +753,44 @@ export default function DesktopMapExplorer({
       const cleanCity = cityName.replace(/(특별시|광역시|특별자치시|특별자치도|시|군|구)$/, '').trim();
       const foundHub = REGIONAL_FALLBACK_CENTERS.find(c => c.nameKo === cleanCity || c.nameKo === cityName || c.nameKo.includes(cleanCity) || cleanCity.includes(c.nameKo));
 
-      if ((baseLoc.isPredefinedHub || foundHub) && (foundHub?.image || baseLoc.image)) {
-        const verifiedImage = foundHub?.image || baseLoc.image;
-        const sigKo = (baseLoc.highlights && baseLoc.highlights.length > 0) ? baseLoc.highlights.map(h => h.ko || h) : (localKn?.signatureHighlights || []);
-        const sigEn = (baseLoc.highlights && baseLoc.highlights.length > 0) ? baseLoc.highlights.map(h => h.en || h) : (localKn?.signatureHighlightsEn || sigKo);
-        const sigJa = (baseLoc.highlights && baseLoc.highlights.length > 0) ? baseLoc.highlights.map(h => h.ja || h) : (localKn?.signatureHighlightsJa || sigKo);
-        const sigZh = (baseLoc.highlights && baseLoc.highlights.length > 0) ? baseLoc.highlights.map(h => h.zh || h) : (localKn?.signatureHighlightsZh || sigKo);
+      // 🌟 1. [Architecture Rule] 정품 4개국어 지식베이스(CITY_LOCAL_KNOWLEDGE) 데이터 우선 탑재
+      if (localKn && localKn.signatureHighlights && localKn.signatureHighlights.length > 0) {
+        const sigKo = localKn.signatureHighlights || [];
+        const sigEn = localKn.signatureHighlightsEn || sigKo;
+        const sigJa = localKn.signatureHighlightsJa || sigKo;
+        const sigZh = localKn.signatureHighlightsZh || sigKo;
+
+        const liveHighlights = sigKo.slice(0, 4).map((koName, idx) => ({
+          ko: koName,
+          en: sigEn[idx] || koName,
+          ja: sigJa[idx] || koName,
+          zh: sigZh[idx] || koName,
+          title: targetLang === 'ja' ? (sigJa[idx] || koName) : targetLang === 'en' ? (sigEn[idx] || koName) : (targetLang === 'zh' || targetLang === 'zht') ? (sigZh[idx] || koName) : koName,
+          name: targetLang === 'ja' ? (sigJa[idx] || koName) : targetLang === 'en' ? (sigEn[idx] || koName) : (targetLang === 'zh' || targetLang === 'zht') ? (sigZh[idx] || koName) : koName,
+          lat: baseLoc.lat,
+          lng: baseLoc.lng,
+          zoom: 14
+        }));
+
+        let verifiedImage = foundHub?.image || baseLoc.image || localKn.image;
+
+        // 🎯 1순위 대표 랜드마크(예: 경복궁, 해운대, 성산일출봉, 불국사)를 핀포인트로 실시간 TourAPI 조회하여 4K 정품 사진 획득
+        try {
+          const primaryLm = sigKo[0];
+          const landmarkSpots = await fetchPinpointLandmarkSpots([primaryLm], targetLang, cityName);
+          if (landmarkSpots && landmarkSpots.length > 0 && landmarkSpots[0]?.image && !landmarkSpots[0].image.includes('default-spot')) {
+            verifiedImage = landmarkSpots[0].image;
+          }
+        } catch {}
+
+        if (!verifiedImage) {
+          verifiedImage = '/images/themes/hero-hangang.jpg';
+        }
 
         return {
           ...baseLoc,
           image: verifiedImage,
-          highlights: sigKo.slice(0, 4).map((koName, idx) => ({
-            ko: koName,
-            en: sigEn[idx] || koName,
-            ja: sigJa[idx] || koName,
-            zh: sigZh[idx] || koName,
-            title: targetLang === 'ja' ? (sigJa[idx] || koName) : targetLang === 'en' ? (sigEn[idx] || koName) : (targetLang === 'zh' || targetLang === 'zht') ? (sigZh[idx] || koName) : koName,
-            name: targetLang === 'ja' ? (sigJa[idx] || koName) : targetLang === 'en' ? (sigEn[idx] || koName) : (targetLang === 'zh' || targetLang === 'zht') ? (sigZh[idx] || koName) : koName,
-            lat: baseLoc.lat,
-            lng: baseLoc.lng,
-            zoom: 14
-          })),
+          highlights: liveHighlights,
           foodieSecret: localKn?.localFoodieSecret || baseLoc.foodieSecret || null,
           foodieSecretEn: localKn?.localFoodieSecretEn || baseLoc.foodieSecretEn || null,
           foodieSecretJa: localKn?.localFoodieSecretJa || baseLoc.foodieSecretJa || null,
@@ -793,7 +810,7 @@ export default function DesktopMapExplorer({
         };
       }
 
-      // 🛡️ 2. 지도 위 임의의 위치(포항/안동/여수 등 226개 시·군) 클릭 시: TourAPI 4.0 실시간 정품 사진 & 명소 100% 동적 로드
+      // 🛡️ 2. 미등록 전국 226개 소도시/군 단위 클릭 시: TourAPI 4.0 인기순(arrange=P) 실시간 정품 사진 & 명소 100% 동적 로드
       let liveSpots = await fetchDynamicRealtimeSpots(cityName, targetLang);
       if ((!liveSpots || liveSpots.length === 0) && baseLoc.lat && baseLoc.lng) {
         liveSpots = await fetchLocationBasedTourApiSpots(baseLoc.lat, baseLoc.lng, 15000, targetLang);
@@ -803,31 +820,12 @@ export default function DesktopMapExplorer({
       let liveHighlights = [];
 
       if (liveSpots && liveSpots.length > 0) {
-        const spotWithImg = liveSpots.find(s => s.firstimage || s.image) || liveSpots[0];
+        // 비관광 시설을 제외한 최상위 인기 관광지의 정품 사진 선별
+        const spotWithImg = liveSpots.find(s => (s.firstimage || s.image) && !/(분관|관리소|교육관|주차장|현판)/i.test(s.title)) || liveSpots.find(s => s.firstimage || s.image) || liveSpots[0];
         if (spotWithImg?.firstimage || spotWithImg?.image) {
           livePhoto = spotWithImg.firstimage || spotWithImg.image;
         }
-      }
 
-      // 🌟 [Architecture Rule] 정품 4개국어 지식베이스(CITY_LOCAL_KNOWLEDGE) 데이터 우선 탑재
-      if (localKn && localKn.signatureHighlights && localKn.signatureHighlights.length > 0) {
-        const sigKo = localKn.signatureHighlights || [];
-        const sigEn = localKn.signatureHighlightsEn || sigKo;
-        const sigJa = localKn.signatureHighlightsJa || sigKo;
-        const sigZh = localKn.signatureHighlightsZh || sigKo;
-
-        liveHighlights = sigKo.slice(0, 4).map((koName, idx) => ({
-          ko: koName,
-          en: sigEn[idx] || koName,
-          ja: sigJa[idx] || koName,
-          zh: sigZh[idx] || koName,
-          title: targetLang === 'ja' ? (sigJa[idx] || koName) : targetLang === 'en' ? (sigEn[idx] || koName) : (targetLang === 'zh' || targetLang === 'zht') ? (sigZh[idx] || koName) : koName,
-          name: targetLang === 'ja' ? (sigJa[idx] || koName) : targetLang === 'en' ? (sigEn[idx] || koName) : (targetLang === 'zh' || targetLang === 'zht') ? (sigZh[idx] || koName) : koName,
-          lat: baseLoc.lat,
-          lng: baseLoc.lng,
-          zoom: 14
-        }));
-      } else if (liveSpots && liveSpots.length > 0) {
         liveHighlights = liveSpots.slice(0, 3).map((sp) => {
           const rawTitle = (sp.title || sp.name || '').trim();
           return {
@@ -1889,7 +1887,7 @@ function translateNightHighlight(nightStr, lang, cityName = '') {
                         alt={selectedLocation.nameKo}
                         onError={(e) => {
                           e.currentTarget.onerror = null;
-                          e.currentTarget.src = '/images/themes/theme-gyeongbokgung.jpg';
+                          e.currentTarget.src = 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?w=1200&auto=format&fit=crop&q=80';
                         }}
                         style={{
                           width: '100%',
