@@ -69,7 +69,7 @@ async function sendEvent(eventData) {
 
   // 1. Update Local Fallback Storage
   const local = getLocalSummary();
-  if (!local.dailyHistory) local.dailyHistory = generateSampleDailyHistory();
+  if (!local.dailyHistory) local.dailyHistory = getEmptyDailyHistory();
   if (!local.dailyHistory[currentDate]) {
     local.dailyHistory[currentDate] = { pageViews: 0, itineraries: 0, chats: 0, saves: 0 };
   }
