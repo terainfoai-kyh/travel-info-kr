@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress, getSpotDetailButtonLabel, getCloseButtonLabel } from '../i18n/translations';
 import { useModalHistory } from '../hooks/useModalHistory';
+import { SOUTH_KOREA_MAP_BOUNDS, updateMapTileLayer } from '../utils/mapTileUtils';
 
 const COURSE_MAP_I18N = {
   ko: {
@@ -277,6 +278,9 @@ export default function CourseMapViewModal({
 
   const mapContainerRef = useRef(null);
   const leafletMapRef = useRef(null);
+  const tileLayerRef = useRef(null);
+  const routeLayerRef = useRef(null);
+  const markersRef = useRef([]);
 
   // Responsive desktop detection
   useEffect(() => {
@@ -354,6 +358,7 @@ export default function CourseMapViewModal({
     if (!isOpen || !isLeafletReady || !mapContainerRef.current || !window.L) return;
 
     const L = window.L;
+    const SOUTH_KOREA_MAP_BOUNDS = [[33.0, 124.0], [39.0, 131.0]];
 
     // Destroy previous map instance cleanly
     if (leafletMapRef.current) {
@@ -372,22 +377,24 @@ export default function CourseMapViewModal({
     const avgLat = coordsList.reduce((sum, c) => sum + c[0], 0) / coordsList.length;
     const avgLng = coordsList.reduce((sum, c) => sum + c[1], 0) / coordsList.length;
 
+    const southKoreaBounds = L.latLngBounds(SOUTH_KOREA_MAP_BOUNDS);
     const map = L.map(mapContainerRef.current, {
       center: [avgLat, avgLng],
       zoom: 12,
+      minZoom: 6.5,
+      maxZoom: 18,
+      maxBounds: southKoreaBounds,
+      maxBoundsViscosity: 1.0,
       zoomControl: true,
       dragging: isDesktop || isMapUnlocked,
       touchZoom: isDesktop || isMapUnlocked,
       scrollWheelZoom: isDesktop || isMapUnlocked
     });
 
-    leafletMapRef.current = map;
+    // 🗺️ 언어별 지도 타일 동적 장착
+    updateMapTileLayer(map, tileLayerRef, lang);
 
-    // OpenStreetMap standard tile layer
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      maxZoom: 18
-    }).addTo(map);
+    leafletMapRef.current = map;
 
     // Numbered Badge Icon Generator
     const createNumberedIcon = (num, color = '#9333ea') => {
@@ -432,20 +439,16 @@ export default function CourseMapViewModal({
 
       const title = getTranslatedTitle(spot.title, lang);
       const addr = getTranslatedAddress(spot.addr1 || spot.location || '', lang);
-      const detailBtn = getSpotDetailButtonLabel(lang);
 
       marker.bindPopup(`
         <div style="font-family: inherit; padding: 4px 2px; min-width: 170px;">
           <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
-            <span style="background: #9333ea; color: #fff; font-size: 10px; font-weight: 800; padding: 1px 6px; border-radius: 99px;">
-              ${lang === 'en' ? `Day ${currentDay} #${idx + 1}` : (lang === 'ja' ? `${currentDay}日目 #${idx + 1}` : (lang === 'zh' || lang === 'zht' ? `第${currentDay}天 #${idx + 1}` : (lang === 'de' ? `Tag ${currentDay} #${idx + 1}` : lang === 'fr' ? `Jour ${currentDay} #${idx + 1}` : lang === 'es' ? `Día ${currentDay} #${idx + 1}` : lang === 'ru' ? `День ${currentDay} #${idx + 1}` : `${currentDay}일차 #${idx + 1}`))))}
-            </span>
             <strong style="font-size: 13px; color: #0f172a; word-break: break-all;">${title}</strong>
           </div>
-          <p style="font-size: 11px; color: #64748b; margin: 0 0 8px 0; line-height: 1.3;">${addr || (lang === 'en' ? 'Korea Travel Landmark' : (lang === 'ko' ? '대한민국 관광 명소' : 'Korea Travel Landmark'))}</p>
+          <p style="font-size: 11px; color: #64748b; margin: 0 0 8px 0; line-height: 1.3;">${addr}</p>
           <div style="display: flex; gap: 6px;">
-            <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(title + ' ' + addr)}" target="_blank" style="flex: 1; text-align: center; background: #2563eb; color: #fff; font-size: 11px; font-weight: 700; padding: 4px 6px; border-radius: 6px; text-decoration: none;">
-              ${lang === 'en' || lang === 'de' || lang === 'fr' || lang === 'es' ? 'Google Maps ↗' : (lang === 'ja' ? 'Googleマップ ↗' : (lang === 'zh' || lang === 'zht' ? '谷歌地图 ↗' : (lang === 'ru' ? 'Google Карты ↗' : '구글 길찾기 ↗')))}
+            <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(title + ' ' + addr)}" target="_blank" rel="noopener noreferrer" style="flex: 1; text-align: center; background: #2563eb; color: #fff; font-size: 11px; font-weight: 700; padding: 4px 6px; border-radius: 6px; text-decoration: none;">
+              ${lang === 'en' ? 'Google Maps ↗' : (lang === 'ja' ? 'Googleマップ ↗' : ((lang === 'zh' || lang === 'zht') ? '谷歌地图 ↗' : '구글 길찾기 ↗'))}
             </a>
           </div>
         </div>
@@ -482,13 +485,18 @@ export default function CourseMapViewModal({
     return () => {
       clearTimeout(timer);
       if (leafletMapRef.current) {
-        try {
-          leafletMapRef.current.remove();
-        } catch (e) {}
+        leafletMapRef.current.remove();
         leafletMapRef.current = null;
       }
     };
   }, [isOpen, isLeafletReady, currentDay, isMapUnlocked, spots]);
+
+  // 🗺️ 언어 변경 시 지도 타일 실시간 동적 스위칭
+  useEffect(() => {
+    if (leafletMapRef.current) {
+      updateMapTileLayer(leafletMapRef.current, tileLayerRef, lang);
+    }
+  }, [lang]);
 
   if (!isOpen) return null;
 

@@ -32,9 +32,8 @@ import { CITY_LOCAL_KNOWLEDGE } from '../data/voraDialogKnowledge';
 import SubwayMapModal from './SubwayMapModal';
 import HelplineModal from './HelplineModal';
 import VoraAIChat from './VoraAIChat';
-import MyTripTab from './MyTripTab';
-import { generateGoogleMapsRouteUrl } from '../services/geminiNlpService';
 import { TRANSLATIONS, getLocalizedCityName } from '../i18n/translations';
+import { SOUTH_KOREA_MAP_BOUNDS, isInSouthKorea, updateMapTileLayer } from '../utils/mapTileUtils';
 
 // 🎯 Organic Curved Route Generator for smooth travel paths in Route Map mode
 function generateSmoothCurvedRoute(points) {
@@ -351,6 +350,7 @@ export default function DesktopMapExplorer({
 
   const mapContainerRef = useRef(null);
   const leafletMapRef = useRef(null);
+  const tileLayerRef = useRef(null);
   const markerRef = useRef(null);
   const routeLayerRef = useRef(null);
   const numberedMarkersRef = useRef([]);
@@ -425,19 +425,21 @@ export default function DesktopMapExplorer({
     if (!isLeafletReady || !window.L || !mapContainerRef.current) return;
 
     if (!leafletMapRef.current) {
+      const southKoreaBounds = window.L.latLngBounds(SOUTH_KOREA_MAP_BOUNDS);
       const map = window.L.map(mapContainerRef.current, {
         center: [36.2, 127.8],
         zoom: 7.0,
+        minZoom: 6.5,
+        maxZoom: 18,
+        maxBounds: southKoreaBounds,
+        maxBoundsViscosity: 1.0,
         zoomControl: false,
         attributionControl: false,
         scrollWheelZoom: true
       });
 
-      // 🗺️ 100% Free Official OpenStreetMap Standard Tiles (No Watermark, No API Key Required)
-      window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        subdomains: ['a', 'b', 'c']
-      }).addTo(map);
+      // 🗺️ 언어별 지도 타일 동적 장착 (KO: OSM 국문, EN/JA/ZH: CartoDB Voyager 글로벌 영문)
+      updateMapTileLayer(map, tileLayerRef, lang);
 
       leafletMapRef.current = map;
 
@@ -462,6 +464,13 @@ export default function DesktopMapExplorer({
       });
     }
   }, [isLeafletReady]);
+
+  // 🗺️ 언어 변경 시 지도 타일 실시간 동적 스위칭 (KO: OSM 국문, EN/JA/ZH: CartoDB Voyager 글로벌 영문)
+  useEffect(() => {
+    if (leafletMapRef.current) {
+      updateMapTileLayer(leafletMapRef.current, tileLayerRef, lang);
+    }
+  }, [lang]);
 
   // 3. Stage 3 (Itinerary Mode): Render Numbered Pins & Curved Routes on Map
   useEffect(() => {
@@ -826,44 +835,54 @@ export default function DesktopMapExplorer({
     setIsGeocoding(true);
     setIsPhotoLoading(true);
 
+    // 🇰🇷 대한민국 관할 영토(위도 33.0 ~ 38.6, 경도 124.5 ~ 132.0) 외 클릭 시 안전 보정
+    const isInsideKorea = isInSouthKorea(lat, lng);
+
     // 🎯 0.001초 즉시 가장 가까운 대한민국 도시 감지 (지연/타임아웃 100% 방지)
     const closest = findClosestCityFromCoords(lat, lng);
     let detectedCityNameKo = closest.distance <= 45 ? closest.city : '대한민국';
     let detectedCityNameEn = getCityMultilingualName(detectedCityNameKo, 'en') || 'Korea';
     let detectedFullAddr = `${detectedCityNameKo} 일대`;
 
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 1200);
-      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=11&addressdetails=1&accept-language=ko`, {
-        signal: controller.signal
-      });
-      clearTimeout(timeoutId);
+    // 대한민국 영토 내부일 때만 Nominatim 역지오코딩 시도
+    if (isInsideKorea) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 1200);
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=11&addressdetails=1&accept-language=ko`, {
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
 
-      if (res.ok) {
-        const data = await res.json();
-        if (data && data.address) {
-          const addr = data.address;
-          const stateCandidate = addr.province || addr.state || '';
-          
-          const candList = [addr.city, addr.county, addr.town, addr.borough, addr.district, addr.province].filter(Boolean);
-          let matchedKey = '';
-          for (const cand of candList) {
-            const cClean = cand.replace(/(특별시|광역시|특별자치시|특별자치도|시|군|구)$/, '').trim();
-            if (CITY_LOCAL_KNOWLEDGE[cClean] || CITY_LOCAL_KNOWLEDGE[cand]) {
-              matchedKey = cClean || cand;
-              break;
+        if (res.ok) {
+          const data = await res.json();
+          // 대한민국 국가 코드(kr)인 경우에만 지명 채택 (북한 kp, 중국 cn 등 원천 차단)
+          if (data && data.address && (data.address.country_code === 'kr' || !data.address.country_code)) {
+            const addr = data.address;
+            const stateCandidate = addr.province || addr.state || '';
+            
+            const candList = [addr.city, addr.county, addr.town, addr.borough, addr.district, addr.province].filter(Boolean);
+            let matchedKey = '';
+            for (const cand of candList) {
+              const cClean = cand.replace(/(특별시|광역시|특별자치시|특별자치도|시|군|구)$/, '').trim();
+              if (CITY_LOCAL_KNOWLEDGE[cClean] || CITY_LOCAL_KNOWLEDGE[cand]) {
+                matchedKey = cClean || cand;
+                break;
+              }
+            }
+
+            const primaryName = matchedKey || addr.city || addr.county || addr.town || addr.borough || addr.district || '';
+            if (primaryName && primaryName !== '대한민국') {
+              const cleanPrimary = primaryName.replace(/(특별시|광역시|특별자치시|특별자치도|시|군|구)$/, '').trim() || primaryName;
+              if (CITY_LOCAL_KNOWLEDGE[cleanPrimary] || closest.distance <= 50) {
+                detectedCityNameKo = cleanPrimary;
+                detectedFullAddr = `${stateCandidate} ${primaryName}`.trim();
+              }
             }
           }
-
-          const primaryName = matchedKey || addr.city || addr.county || addr.town || addr.borough || addr.district || '';
-          if (primaryName && primaryName !== '대한민국') {
-            detectedCityNameKo = primaryName.replace(/(특별시|광역시|특별자치시|특별자치도|시|군|구)$/, '').trim() || primaryName;
-            detectedFullAddr = `${stateCandidate} ${primaryName}`.trim();
-          }
         }
-      }
-    } catch {}
+      } catch {}
+    }
 
     // 🌐 지자체 표준 다국어(영문/일문/중문) 동적 사전 매핑
     detectedCityNameEn = getCityMultilingualName(detectedCityNameKo, 'en') || detectedCityNameKo;

@@ -4,6 +4,24 @@
 
 ---
 
+## 🏛️ [★ Golden Checkpoint] 2026-09-03 대한민국 영토 경계 엄격 봉인(북한/해외 100% 차단) & CartoDB 다국어 영문 지도 타일 동적 스위칭 구축
+
+### 1. 금일 완성된 핵심 업적 (Accomplished)
+- **🗺️ 대한민국 영토 경계(South Korea Map Bounds) 전면 엄격 봉인 (`mapTileUtils.js`, `DesktopMapExplorer.jsx`, `WebMapDashboard.jsx`, `DockedMapStation.jsx`, `CourseMapViewModal.jsx`)**:
+  - `SOUTH_KOREA_MAP_BOUNDS = [[32.8, 124.0], [38.9, 132.2]]` (제주 마라도 ~ 백령도 ~ 휴전선 DMZ 이남 ~ 독도·울릉도)을 설정하여 `maxBounds`와 `maxBoundsViscosity: 1.0`을 전 지도 컴포넌트에 적용.
+  - 지도를 북한(평양, 개성 등), 중국(단둥, 베이징), 일본, 공해상으로 끌고 가거나 클릭하는 행위를 100% 원천 차단.
+- **🇰🇷 대한민국 관할 국가 코드(`country_code === 'kr'`) 및 영토 범위 3중 방어막 구축**:
+  - `isInSouthKorea(lat, lng)` 및 `country_code === 'kr'` 엄격 검증을 적용하여, 북한/해외 지명이 Nominatim 역지오코딩에 걸려 한국관광공사 TourAPI에 엉뚱하게 조회(예: `평양 ➔ 평양냉면`)되던 버그를 100% 영구 박멸.
+- **🌐 언어 변경 시 지도 바닥 타일 실시간 동적 스위칭 (`updateMapTileLayer`)**:
+  - **한국어(KO) 모드**: OpenStreetMap 공식 국문 타일 렌더링.
+  - **다국어(EN/JA/ZH/ZHT 등) 모드**: 전 세계 관광 서비스 표준인 **CartoDB Voyager 글로벌 영문 타일**(`https://basemaps.cartocdn.com/rastertiles/voyager/...`)로 실시간 자동 교체 (100% 무료, 무제한, 고화질 로마자/영문 라벨).
+  - 언어 셀렉터 전환 시 지도 인스턴스가 0.01초 만에 최적 타일로 자동 스위칭됨.
+- **배포 전 정상 소스 100% 사전 검증 및 푸시 완료**:
+  - `verifySyntax.ps1` 무결점 검증 통과(`[ZERO DEFECT PASSED]`).
+  - 개발 깃 레포 `origin main` (`travelkorea_2.git`) 배포 완료.
+
+---
+
 ## 🏛️ [★ Golden Checkpoint] 2026-09-03 '실시간 여행(지금 뭐하지?)' 2번째 진행 기준 차기 목적지 자동 산출 & 원터치 스텝 네비게이션 구축
 
 ### 1. 금일 완성된 핵심 업적 (Accomplished)

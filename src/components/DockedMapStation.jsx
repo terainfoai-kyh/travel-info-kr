@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { TRANSLATIONS } from '../i18n/translations';
 import { generateGoogleMapsRouteUrl, getGooglePlaceSearchUrl } from '../services/geminiNlpService';
+import { SOUTH_KOREA_MAP_BOUNDS, updateMapTileLayer } from '../utils/mapTileUtils';
 
 // 🎯 Organic Curved Route Generator for smooth travel paths
 function generateSmoothCurvedRoute(points) {
@@ -60,6 +61,7 @@ export default function DockedMapStation({
 
   const mapContainerRef = useRef(null);
   const leafletMapRef = useRef(null);
+  const tileLayerRef = useRef(null);
   const routeLayerRef = useRef(null);
   const markersRef = useRef([]);
   const activeBoundsRef = useRef([]);
@@ -108,18 +110,20 @@ export default function DockedMapStation({
       leafletMapRef.current = null;
     }
 
+    const southKoreaBounds = window.L.latLngBounds(SOUTH_KOREA_MAP_BOUNDS);
     const map = window.L.map(mapContainerRef.current, {
       center: [37.5665, 126.9780],
       zoom: 12,
+      minZoom: 6.5,
+      maxZoom: 18,
+      maxBounds: southKoreaBounds,
+      maxBoundsViscosity: 1.0,
       zoomControl: false,
       attributionControl: false
     });
 
-    // 🗺️ Free OpenStreetMap Standard Tiles
-    window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      subdomains: ['a', 'b', 'c']
-    }).addTo(map);
+    // 🗺️ 언어별 지도 타일 동적 장착 (KO: OSM 국문, EN/JA/ZH: CartoDB Voyager 글로벌 영문)
+    updateMapTileLayer(map, tileLayerRef, lang);
 
     leafletMapRef.current = map;
 
