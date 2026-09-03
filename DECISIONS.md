@@ -14,6 +14,8 @@
 - **구글 애드센스 & 아고다 파트너 승인 패키지 최종 반영**:
   - `index.html` 내부에 구글 심사 봇 전용 시맨틱/`<noscript>` 정품 여행 매거진 텍스트 프리렌더링 탑재.
   - 아고다 파트너팀(`partners@agoda.com`) 계정 활성화 및 재검토 요청 이메일 발송 완료.
+- **🚀 레딧(Reddit) 글로벌 마케팅 1호 론칭 완료**:
+  - `r/koreatravel` (15만+ 외국인 회원)에 `u/KoreaTravelInsider` 명의로 `Interactive 4K Landmark Map & Route Planner` 공식 홍보 게시물 등록 및 라이브 게시 성공.
 - **운영 및 개발 배포 전수 완료**:
   - `verifySyntax.ps1` 무결점 검증 통과(`[ZERO DEFECT PASSED]`).
   - 개발 깃 (`origin main`: `travelkorea_2.git`) 배포 완료.
