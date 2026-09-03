@@ -4,12 +4,16 @@
 
 ---
 
-## 🏛️ [★ Golden Checkpoint] 2026-09-03 초경량 실시간 관리자 모니터링 대시보드 & 서버리스 텔레메트리 파이프라인 전수 구축
+## 🏛️ [★ Golden Checkpoint] 2026-09-03 실시간 관리자 모니터링 대시보드 & 일자별 기간 조회(최근 7일/14일/30일) 추이 차트 전수 구축
 
 ### 1. 금일 완성된 핵심 업적 (Accomplished)
+- **📅 일자별 기간 조회 추이 차트 (Daily Trend Chart) 탑재 (`AdminBatchModal.jsx`, `functions/api/analytics.js`)**:
+  - `[ 최근 7일 ]` | `[ 최근 14일 ]` | `[ 최근 30일 ]` 기간 필터 원클릭 전환 버튼 장착.
+  - 일자별 **방문자 수 (파란색 바)**와 **일정 생성 수 (초록색 바)**를 날짜별(예: 8/28, 8/29 ... 9/3)로 듀얼 막대 그래프로 시각화.
+  - 서버리스 백엔드(`dailyHistory`) 및 클라이언트 서비스에서 일자별 데이터를 자동 누적 및 제공.
 - **📊 Cloudflare Pages Functions 서버리스 애널리틱스 백엔드 구축 (`functions/api/analytics.js`)**:
   - `POST /api/analytics`: 방문자 수(DAU/Total), 여행 일정 생성 건수(도시별/일수별/테마별), AI 대화량, 일정 저장 이벤트를 비동기 비간섭으로 집계.
-  - `GET /api/analytics`: 최고 관리자 전용 실시간 KPI 지표, Top 10 인기 여행 도시 랭킹, 글로벌 9개 언어 점유율, 최근 40개 실시간 활동 피드를 단 0.01초 만에 제공.
+  - `GET /api/analytics`: 최고 관리자 전용 실시간 KPI 지표, 일자별 추이 히스토리, Top 10 인기 여행 도시 랭킹, 글로벌 9개 언어 점유율, 최근 40개 실시간 활동 피드를 단 0.01초 만에 제공.
   - `DELETE /api/analytics`: 관리자 데이터 리셋 기능 지원.
 - **⚡ 비동기 프라이버시 친화 텔레메트리 클라이언트 (`src/services/analyticsService.js`)**:
   - `trackPageView`, `trackItineraryGenerated`, `trackChatQuery`, `trackTripSaved` 함수 완비.

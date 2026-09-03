@@ -4,7 +4,7 @@
  * Lightweight, privacy-friendly telemetry & activity aggregator for Super Admin.
  * Supports:
  * 1. POST /api/analytics - Record page views, itinerary creations, chat queries, and trip saves
- * 2. GET /api/analytics  - Fetch aggregated KPI metrics, top city rankings, language share, and live event feed
+ * 2. GET /api/analytics  - Fetch aggregated KPI metrics, daily trend history, top city rankings, language share, and live event feed
  * 3. DELETE /api/analytics - Reset stats (Super Admin only)
  */
 
@@ -21,6 +21,7 @@ let analyticsState = {
   languages: { ko: 0, en: 0, ja: 0, zh: 0, zht: 0, de: 0, fr: 0, es: 0, ru: 0 },
   daysDistribution: { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0, '6+': 0 },
   themes: {},
+  dailyHistory: {}, // { 'YYYY-MM-DD': { pageViews, itineraries, chats, saves } }
   recentEvents: []
 };
 
@@ -36,7 +37,6 @@ export async function onRequestOptions() {
 }
 
 export async function onRequestGet({ request, env }) {
-  // Check if date rolled over for today's counters
   const currentDate = new Date().toISOString().slice(0, 10);
   if (analyticsState.lastResetDate !== currentDate) {
     analyticsState.todayPageViews = 0;
@@ -52,6 +52,12 @@ export async function onRequestGet({ request, env }) {
         analyticsState = { ...analyticsState, ...kvData };
       }
     } catch (e) {}
+  }
+
+  // Ensure current date exists in dailyHistory
+  if (!analyticsState.dailyHistory) analyticsState.dailyHistory = {};
+  if (!analyticsState.dailyHistory[currentDate]) {
+    analyticsState.dailyHistory[currentDate] = { pageViews: analyticsState.todayPageViews || 0, itineraries: analyticsState.todayItineraries || 0, chats: 0, saves: 0 };
   }
 
   // Sort top cities
@@ -88,10 +94,17 @@ export async function onRequestPost({ request, env }) {
       analyticsState.lastResetDate = currentDate;
     }
 
+    if (!analyticsState.dailyHistory) analyticsState.dailyHistory = {};
+    if (!analyticsState.dailyHistory[currentDate]) {
+      analyticsState.dailyHistory[currentDate] = { pageViews: 0, itineraries: 0, chats: 0, saves: 0 };
+    }
+    const dayStats = analyticsState.dailyHistory[currentDate];
+
     // 1. Page View Event
     if (type === 'page_view') {
       analyticsState.totalPageViews += 1;
       analyticsState.todayPageViews += 1;
+      dayStats.pageViews += 1;
       if (lang) {
         analyticsState.languages[lang] = (analyticsState.languages[lang] || 0) + 1;
       }
@@ -101,6 +114,7 @@ export async function onRequestPost({ request, env }) {
     if (type === 'itinerary_gen') {
       analyticsState.totalItineraries += 1;
       analyticsState.todayItineraries += 1;
+      dayStats.itineraries += 1;
       
       if (city) {
         const cleanCity = city.replace(/(시|군|구|도)$/, '').trim() || city;
@@ -124,11 +138,13 @@ export async function onRequestPost({ request, env }) {
     // 3. Chat Query Event
     if (type === 'chat_query') {
       analyticsState.totalChatQueries += 1;
+      dayStats.chats += 1;
     }
 
     // 4. Trip Save Event
     if (type === 'trip_save') {
       analyticsState.totalTripsSaved += 1;
+      dayStats.saves += 1;
     }
 
     // Record in Recent Events Log (Keep last 40)
@@ -172,6 +188,7 @@ export async function onRequestDelete({ request, env }) {
     languages: { ko: 0, en: 0, ja: 0, zh: 0, zht: 0, de: 0, fr: 0, es: 0, ru: 0 },
     daysDistribution: { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0, '6+': 0 },
     themes: {},
+    dailyHistory: {},
     recentEvents: []
   };
 

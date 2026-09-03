@@ -55,6 +55,7 @@ export default function AdminBatchModal({
   const [activeAdminTab, setActiveAdminTab] = useState('analytics'); // 'analytics' | 'knowledge'
   const [analyticsData, setAnalyticsData] = useState(null);
   const [isLoadingAnalytics, setIsLoadingAnalytics] = useState(false);
+  const [trendDaysRange, setTrendDaysRange] = useState(7); // 7 | 14 | 30
   const [apiKey, setApiKey] = useState('');
   const [isKeySaved, setIsKeySaved] = useState(false);
   const [unansweredList, setUnansweredList] = useState([]);
@@ -907,6 +908,183 @@ export default function AdminBatchModal({
                   <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>개 보관</span>
                 </div>
               </div>
+            </div>
+
+            {/* 📅 Daily Trend Chart & Period Filter */}
+            <div style={{
+              backgroundColor: 'var(--bg-primary)',
+              padding: '1.25rem',
+              borderRadius: '20px',
+              border: '1px solid var(--border-color)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}>
+              {/* Header with 7/14/30 Day Range Selector */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: '0.75rem'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <div style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '10px',
+                    backgroundColor: 'rgba(139, 92, 246, 0.15)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#8b5cf6'
+                  }}>
+                    <Calendar size={18} />
+                  </div>
+                  <div>
+                    <h5 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800 }}>
+                      일자별 방문자 & 일정 생성 추이 (Daily Trend)
+                    </h5>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                      기간별 일일 유입 및 코스 기획 볼륨 분석
+                    </span>
+                  </div>
+                </div>
+
+                {/* Range Filter Buttons */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', backgroundColor: 'var(--bg-card)', padding: '0.2rem', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
+                  {[
+                    { days: 7, label: '최근 7일' },
+                    { days: 14, label: '최근 14일' },
+                    { days: 30, label: '최근 30일' }
+                  ].map(tab => (
+                    <button
+                      key={tab.days}
+                      onClick={() => setTrendDaysRange(tab.days)}
+                      style={{
+                        padding: '0.35rem 0.75rem',
+                        borderRadius: '8px',
+                        border: 'none',
+                        backgroundColor: trendDaysRange === tab.days ? '#8b5cf6' : 'transparent',
+                        color: trendDaysRange === tab.days ? '#ffffff' : 'var(--text-muted)',
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        transition: 'all 0.15s'
+                      }}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Legend */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem', fontSize: '0.75rem', paddingLeft: '0.25rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <div style={{ width: '12px', height: '12px', borderRadius: '3px', background: '#3b82f6' }} />
+                  <span style={{ fontWeight: 600 }}>방문자 수 (Views/DAU)</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <div style={{ width: '12px', height: '12px', borderRadius: '3px', background: '#10b981' }} />
+                  <span style={{ fontWeight: 600 }}>일정 생성 수 (Itineraries)</span>
+                </div>
+              </div>
+
+              {/* Bar Chart Visualization */}
+              {(() => {
+                const history = analyticsData?.dailyHistory || {};
+                const today = new Date();
+                const chartData = [];
+                for (let i = trendDaysRange - 1; i >= 0; i--) {
+                  const d = new Date(today);
+                  d.setDate(today.getDate() - i);
+                  const dateStr = d.toISOString().slice(0, 10);
+                  const dateLabel = `${d.getMonth() + 1}/${d.getDate()}`;
+                  const stats = history[dateStr] || { pageViews: (i === 0 ? analyticsData?.todayPageViews || 0 : 0), itineraries: (i === 0 ? analyticsData?.todayItineraries || 0 : 0) };
+                  chartData.push({
+                    dateStr,
+                    dateLabel,
+                    isToday: i === 0,
+                    pageViews: stats.pageViews || 0,
+                    itineraries: stats.itineraries || 0
+                  });
+                }
+
+                const maxVal = Math.max(10, ...chartData.map(d => Math.max(d.pageViews, d.itineraries)));
+
+                return (
+                  <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.5rem',
+                    padding: '0.75rem 0.5rem 0.25rem',
+                    backgroundColor: 'var(--bg-card)',
+                    borderRadius: '14px',
+                    border: '1px solid var(--border-color)'
+                  }}>
+                    {/* Columns container */}
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: `repeat(${chartData.length}, 1fr)`,
+                      gap: '0.4rem',
+                      alignItems: 'flex-end',
+                      height: '140px',
+                      padding: '0 0.5rem 0.5rem'
+                    }}>
+                      {chartData.map(item => {
+                        const viewHeightPct = Math.max(8, Math.round((item.pageViews / maxVal) * 100));
+                        const itinHeightPct = Math.max(8, Math.round((item.itineraries / maxVal) * 100));
+                        return (
+                          <div 
+                            key={item.dateStr}
+                            title={`${item.dateStr}: 방문자 ${item.pageViews}명 / 일정생성 ${item.itineraries}건`}
+                            style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              height: '100%',
+                              justifyContent: 'flex-end',
+                              gap: '0.2rem',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '3px', height: '100%', width: '100%', justifyContent: 'center' }}>
+                              {/* Blue Bar (Views) */}
+                              <div style={{
+                                width: '40%',
+                                maxWidth: '16px',
+                                height: `${viewHeightPct}%`,
+                                borderRadius: '4px 4px 0 0',
+                                background: item.isToday ? 'linear-gradient(180deg, #60a5fa, #3b82f6)' : '#3b82f6',
+                                transition: 'height 0.3s ease'
+                              }} />
+                              {/* Green Bar (Itineraries) */}
+                              <div style={{
+                                width: '40%',
+                                maxWidth: '16px',
+                                height: `${itinHeightPct}%`,
+                                borderRadius: '4px 4px 0 0',
+                                background: item.isToday ? 'linear-gradient(180deg, #34d399, #10b981)' : '#10b981',
+                                transition: 'height 0.3s ease'
+                              }} />
+                            </div>
+                            <span style={{
+                              fontSize: '0.68rem',
+                              fontWeight: item.isToday ? 800 : 500,
+                              color: item.isToday ? '#8b5cf6' : 'var(--text-muted)',
+                              marginTop: '0.3rem',
+                              whiteSpace: 'nowrap'
+                            }}>
+                              {item.dateLabel}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
 
             {/* 2-Column Analytics Breakdown */}
