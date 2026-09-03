@@ -670,7 +670,19 @@ export default function DesktopMapExplorer({
       const cleanCityKey = (cityName || '').replace(/(특별시|광역시|특별자치시|특별자치도|시|군|구)$/, '').trim();
       const localKn = CITY_LOCAL_KNOWLEDGE[cleanCityKey] || CITY_LOCAL_KNOWLEDGE[cityName];
       
-      // 🛡️ 1. 6대 대표 거점(서울/부산/제주/수원/경주/강릉) 클릭 시: 검증된 대표 4K 사진 & 3대 랜드마크 100% 영구 보존!
+      /**
+       * 🏛️ [VORA Multilingual Pipeline - Data Enrichment Rationale]
+       * 
+       * 1. 6대 대표 거점 (서울, 부산, 제주, 수원, 경주, 강릉 등 사전 정의 허브):
+       *    - isPredefinedHub가 true일 때는 기검증된 4K 이미지와 랜드마크를 보존함.
+       * 2. 다국어 지식베이스(CITY_LOCAL_KNOWLEDGE) 데이터 우선권:
+       *    - 4개 국어(KO, EN, JA, ZH)로 구성된 찐 미식(foodieSecretEn/Ja/Zh), 
+       *      야경 랜드마크(nightHighlightEn/Ja/Zh), 교통 팁(transitTipEn/Ja/Zh), 
+       *      도시 슬로건(descEn/Ja/Zh)을 baseLoc에 보존하여 언어 전환 시에도 텍스트가 유실되지 않도록 보장함.
+       * 3. TourAPI 실시간 공공데이터 연동:
+       *    - 공공데이터 TourAPI 4.0(fetchDynamicRealtimeSpots / fetchLocationBasedTourApiSpots)을 호출하여
+       *      위치 기반 실시간 사진 및 등록 명소를 수신함.
+       */
       if (baseLoc.isPredefinedHub && baseLoc.image) {
         return {
           ...baseLoc,
@@ -913,7 +925,11 @@ export default function DesktopMapExplorer({
     }
   };
 
-  // 🎯 해시태그 클릭 시 해당 관광지 스팟으로 지도 스르륵 이동(Pan & Zoom) 인터랙션!
+  /**
+   * 🎯 [Highlight Pill Click Handler & Map Pan/Zoom Interaction]
+   * - 연계 코스 뱃지(Pill) 클릭 시 해당 명소 위경도 좌표로 부드럽게 Pan & Zoom(0.7s) 수행
+   * - 마커 핀 라벨을 해당 명소 명칭으로 갱신하여 직관적인 위치 확인 제공
+   */
   const handleHighlightSpotClick = (highlight) => {
     if (!highlight || !leafletMapRef.current) return;
     
