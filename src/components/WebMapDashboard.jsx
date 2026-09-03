@@ -58,7 +58,23 @@ const REGIONAL_FALLBACK_CENTERS = [
   { nameKo: '대전', nameEn: 'Daejeon', lat: 36.3504, lng: 127.3845 },
   { nameKo: '단양', nameEn: 'Danyang', lat: 36.9845, lng: 128.3655 },
   { nameKo: '제주', nameEn: 'Jeju', lat: 33.4996, lng: 126.5312 },
-  { nameKo: '서귀포', nameEn: 'Seogwipo', lat: 33.2541, lng: 126.5601 }
+  { nameKo: '서귀포', nameEn: 'Seogwipo', lat: 33.2541, lng: 126.5601 },
+  { nameKo: '울릉도', nameEn: 'Ulleungdo', lat: 37.4843, lng: 130.9056 },
+  { nameKo: '독도', nameEn: 'Dokdo Island', lat: 37.2427, lng: 131.8686 },
+  { nameKo: '신안', nameEn: 'Sinan', lat: 34.8290, lng: 126.1080 },
+  { nameKo: '완도', nameEn: 'Wando', lat: 34.3110, lng: 126.7550 },
+  { nameKo: '진도', nameEn: 'Jindo', lat: 34.4860, lng: 126.2630 },
+  { nameKo: '백령도', nameEn: 'Baengnyeongdo', lat: 37.9620, lng: 124.6730 }
+];
+
+// 🏝️ 도서/섬 공간 클러스터
+const KOREA_ISLAND_CLUSTERS = [
+  { nameKo: '울릉도', nameEn: 'Ulleungdo Island', lat: 37.4843, lng: 130.9056, radiusKm: 45, city: '울릉도' },
+  { nameKo: '독도', nameEn: 'Dokdo Island', lat: 37.2427, lng: 131.8686, radiusKm: 30, city: '독도' },
+  { nameKo: '신안', nameEn: 'Sinan (Purple Island)', lat: 34.8290, lng: 126.1080, radiusKm: 55, city: '신안' },
+  { nameKo: '완도', nameEn: 'Wando Island', lat: 34.3110, lng: 126.7550, radiusKm: 45, city: '완도' },
+  { nameKo: '진도', nameEn: 'Jindo Island', lat: 34.4860, lng: 126.2630, radiusKm: 40, city: '진도' },
+  { nameKo: '백령도', nameEn: 'Baengnyeongdo Island', lat: 37.9620, lng: 124.6730, radiusKm: 35, city: '백령도' }
 ];
 
 function getDistanceKm(lat1, lng1, lat2, lng2) {
@@ -237,15 +253,28 @@ export default function WebMapDashboard({
 
     const isInsideKorea = isInSouthKorea(lat, lng);
 
-    let closestCity = REGIONAL_FALLBACK_CENTERS[0];
-    let minDistance = 999999;
-    REGIONAL_FALLBACK_CENTERS.forEach((c) => {
-      const dist = getDistanceKm(lat, lng, c.lat, c.lng);
-      if (dist < minDistance) {
-        minDistance = dist;
-        closestCity = c;
+    // 0. 도서/섬 클러스터 최우선 검색
+    let matchedIsland = null;
+    for (const isl of KOREA_ISLAND_CLUSTERS) {
+      const d = getDistanceKm(lat, lng, isl.lat, isl.lng);
+      if (d <= (isl.radiusKm || 30)) {
+        matchedIsland = isl;
+        break;
       }
-    });
+    }
+
+    let closestCity = matchedIsland ? { nameKo: matchedIsland.city || matchedIsland.nameKo, nameEn: matchedIsland.nameEn } : REGIONAL_FALLBACK_CENTERS[0];
+    let minDistance = matchedIsland ? 10 : 999999;
+    
+    if (!matchedIsland) {
+      REGIONAL_FALLBACK_CENTERS.forEach((c) => {
+        const dist = getDistanceKm(lat, lng, c.lat, c.lng);
+        if (dist < minDistance) {
+          minDistance = dist;
+          closestCity = c;
+        }
+      });
+    }
 
     let detectedCityNameKo = closestCity.nameKo;
     let detectedCityNameEn = closestCity.nameEn;
@@ -264,12 +293,12 @@ export default function WebMapDashboard({
           const data = await res.json();
           if (data && data.address && (data.address.country_code === 'kr' || !data.address.country_code)) {
             const addr = data.address;
-            const cityCandidate = addr.city || addr.town || addr.county || addr.borough || addr.district || addr.province || '';
+            const cityCandidate = addr.island || addr.municipality || addr.village || addr.city || addr.town || addr.county || addr.borough || addr.district || addr.province || '';
             const stateCandidate = addr.province || addr.state || '';
             
             if (cityCandidate) {
-              const cleanCand = cityCandidate.replace(/(특별시|광역시|특별자치시|특별자치도|시|군|구)/g, '').trim() || cityCandidate;
-              if (minDistance <= 50 || cleanCand !== '대한민국') {
+              const cleanCand = cityCandidate.replace(/(특별시|광역시|특별자치시|특별자치도|시|군|구|면|읍)$/g, '').trim() || cityCandidate;
+              if (matchedIsland || minDistance <= 150 || cleanCand !== '대한민국') {
                 detectedCityNameKo = cleanCand;
                 detectedFullAddr = `${stateCandidate} ${cityCandidate}`.trim();
               }

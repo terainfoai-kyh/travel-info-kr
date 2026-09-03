@@ -668,8 +668,42 @@ export default function DesktopMapExplorer({
     `;
   };
 
-  // 🎯 위경도 좌표에서 가장 가까운 대한민국 도시를 0.001초 만에 감지하는 공간 매퍼
+  // 🏝️ 대한민국 주요 도서/섬 공간 클러스터 (울릉도, 독도, 백령도, 신안, 완도, 진도 등)
+  const KOREA_ISLAND_CLUSTERS = [
+    { nameKo: '울릉도', nameEn: 'Ulleungdo Island', nameJa: '鬱陵島', nameZh: '郁陵岛', lat: 37.4843, lng: 130.9056, radiusKm: 45, city: '울릉' },
+    { nameKo: '독도', nameEn: 'Dokdo Island', nameJa: '独島', nameZh: '独岛', lat: 37.2427, lng: 131.8686, radiusKm: 30, city: '독도' },
+    { nameKo: '신안', nameEn: 'Sinan (Purple Island)', nameJa: '新安（パープル島）', nameZh: '新安（紫色岛）', lat: 34.8290, lng: 126.1080, radiusKm: 55, city: '신안' },
+    { nameKo: '흑산도', nameEn: 'Heuksando Island', nameJa: '黒山島', nameZh: '黑山岛', lat: 34.6811, lng: 125.4414, radiusKm: 40, city: '신안' },
+    { nameKo: '홍도', nameEn: 'Hongdo Island', nameJa: '紅島', nameZh: '红岛', lat: 34.6931, lng: 125.1953, radiusKm: 30, city: '신안' },
+    { nameKo: '완도', nameEn: 'Wando Island', nameJa: '莞島', nameZh: '莞岛', lat: 34.3110, lng: 126.7550, radiusKm: 45, city: '완도' },
+    { nameKo: '청산도', nameEn: 'Cheongsando Island', nameJa: '青山島', nameZh: '青山岛', lat: 34.1780, lng: 126.8790, radiusKm: 30, city: '완도' },
+    { nameKo: '보길도', nameEn: 'Bogildo Island', nameJa: '甫吉島', nameZh: '甫吉岛', lat: 34.1530, lng: 126.5510, radiusKm: 30, city: '완도' },
+    { nameKo: '백령도', nameEn: 'Baengnyeongdo Island', nameJa: '白翎島', nameZh: '白翎岛', lat: 37.9620, lng: 124.6730, radiusKm: 35, city: '백령도' },
+    { nameKo: '대청도', nameEn: 'Daecheongdo Island', nameJa: '大青島', nameZh: '大青岛', lat: 37.8280, lng: 124.7100, radiusKm: 25, city: '백령도' },
+    { nameKo: '연평도', nameEn: 'Yeonpyeongdo Island', nameJa: '延坪島', nameZh: '延坪岛', lat: 37.6690, lng: 125.6980, radiusKm: 30, city: '인천' },
+    { nameKo: '강화도', nameEn: 'Ganghwado Island', nameJa: '江華島', nameZh: '江华岛', lat: 37.7460, lng: 126.4880, radiusKm: 35, city: '인천' },
+    { nameKo: '우도', nameEn: 'Udo Island', nameJa: '牛島', nameZh: '牛岛', lat: 33.5042, lng: 126.9545, radiusKm: 20, city: '제주' },
+    { nameKo: '가파도', nameEn: 'Gapado Island', nameJa: '加波島', nameZh: '加波岛', lat: 33.1690, lng: 126.2730, radiusKm: 20, city: '제주' },
+    { nameKo: '마라도', nameEn: 'Marado Island', nameJa: '馬羅島', nameZh: '马罗岛', lat: 33.1180, lng: 126.2690, radiusKm: 20, city: '제주' },
+    { nameKo: '추자도', nameEn: 'Chujado Island', nameJa: '楸子島', nameZh: '楸子岛', lat: 33.9570, lng: 126.2970, radiusKm: 30, city: '제주' },
+    { nameKo: '거문도', nameEn: 'Geomundo Island', nameJa: '巨文島', nameZh: '巨文岛', lat: 34.0280, lng: 127.3100, radiusKm: 30, city: '여수' },
+    { nameKo: '욕지도', nameEn: 'Yokjido Island', nameJa: '欲知島', nameZh: '欲知岛', lat: 34.6970, lng: 128.2580, radiusKm: 25, city: '통영' },
+    { nameKo: '사량도', nameEn: 'Saryangdo Island', nameJa: '蛇梁島', nameZh: '蛇梁岛', lat: 34.8450, lng: 128.1970, radiusKm: 25, city: '통영' },
+    { nameKo: '선유도', nameEn: 'Seonyudo Island', nameJa: '仙遊島', nameZh: '仙游岛', lat: 35.8110, lng: 126.4170, radiusKm: 30, city: '군산' },
+    { nameKo: '안면도', nameEn: 'Anmyeondo Island', nameJa: '安眠島', nameZh: '安眠岛', lat: 36.5290, lng: 126.3680, radiusKm: 35, city: '태안' },
+    { nameKo: '진도', nameEn: 'Jindo Island', nameJa: '珍島', nameZh: '珍岛', lat: 34.4860, lng: 126.2630, radiusKm: 40, city: '진도' }
+  ];
+
+  // 🎯 위경도 좌표에서 가장 가까운 대한민국 도시/섬을 0.001초 만에 감지하는 공간 매퍼
   const findClosestCityFromCoords = (targetLat, targetLng) => {
+    // 0. 도서/섬 클러스터 최우선 검색 (울릉도, 독도, 신안, 백령도 등)
+    for (const isl of KOREA_ISLAND_CLUSTERS) {
+      const d = getDistanceKm(targetLat, targetLng, isl.lat, isl.lng);
+      if (d <= (isl.radiusKm || 30)) {
+        return { city: isl.city || isl.nameKo, distance: d, isIsland: true, nameKo: isl.nameKo };
+      }
+    }
+
     let minD = Infinity;
     let bestCity = '서울';
     
@@ -838,9 +872,9 @@ export default function DesktopMapExplorer({
     // 🇰🇷 대한민국 관할 영토(위도 33.0 ~ 38.6, 경도 124.5 ~ 132.0) 외 클릭 시 안전 보정
     const isInsideKorea = isInSouthKorea(lat, lng);
 
-    // 🎯 0.001초 즉시 가장 가까운 대한민국 도시 감지 (지연/타임아웃 100% 방지)
+    // 🎯 0.001초 즉시 가장 가까운 대한민국 도시/섬 감지 (지연/타임아웃 100% 방지)
     const closest = findClosestCityFromCoords(lat, lng);
-    let detectedCityNameKo = closest.distance <= 45 ? closest.city : '대한민국';
+    let detectedCityNameKo = (closest.isIsland || closest.distance <= 120) ? closest.city : '대한민국';
     let detectedCityNameEn = getCityMultilingualName(detectedCityNameKo, 'en') || 'Korea';
     let detectedFullAddr = `${detectedCityNameKo} 일대`;
 
@@ -861,20 +895,33 @@ export default function DesktopMapExplorer({
             const addr = data.address;
             const stateCandidate = addr.province || addr.state || '';
             
-            const candList = [addr.city, addr.county, addr.town, addr.borough, addr.district, addr.province].filter(Boolean);
+            const candList = [
+              addr.island,
+              addr.municipality,
+              addr.village,
+              addr.hamlet,
+              addr.town,
+              addr.city,
+              addr.county,
+              addr.borough,
+              addr.district,
+              addr.suburb,
+              addr.province
+            ].filter(Boolean);
+
             let matchedKey = '';
             for (const cand of candList) {
-              const cClean = cand.replace(/(특별시|광역시|특별자치시|특별자치도|시|군|구)$/, '').trim();
-              if (CITY_LOCAL_KNOWLEDGE[cClean] || CITY_LOCAL_KNOWLEDGE[cand]) {
+              const cClean = cand.replace(/(특별시|광역시|특별자치시|특별자치도|시|군|구|면|읍|도)$/, '').trim();
+              if (CITY_LOCAL_KNOWLEDGE[cClean] || CITY_LOCAL_KNOWLEDGE[cand] || CITY_LOCAL_KNOWLEDGE[`${cClean}도`]) {
                 matchedKey = cClean || cand;
                 break;
               }
             }
 
-            const primaryName = matchedKey || addr.city || addr.county || addr.town || addr.borough || addr.district || '';
+            const primaryName = matchedKey || addr.island || addr.city || addr.county || addr.town || addr.borough || addr.district || '';
             if (primaryName && primaryName !== '대한민국') {
               const cleanPrimary = primaryName.replace(/(특별시|광역시|특별자치시|특별자치도|시|군|구)$/, '').trim() || primaryName;
-              if (CITY_LOCAL_KNOWLEDGE[cleanPrimary] || closest.distance <= 50) {
+              if (CITY_LOCAL_KNOWLEDGE[cleanPrimary] || closest.isIsland || closest.distance <= 150) {
                 detectedCityNameKo = cleanPrimary;
                 detectedFullAddr = `${stateCandidate} ${primaryName}`.trim();
               }
