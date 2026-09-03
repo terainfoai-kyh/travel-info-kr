@@ -21,7 +21,7 @@ export const CURATED_ARTICLES = [
       zh: '首尔时空漫游：五大古宫与北村韩屋村深度探秘指南'
     },
     readTime: '4 min',
-    image: 'https://images.unsplash.com/photo-1546874177-9e664107314e?w=700&auto=format&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?w=700&auto=format&fit=crop&q=80',
     summary: {
       ko: '조선 왕조의 웅장한 정궁 경복궁부터 유네스코 세계유산 창덕궁 후원(비원), 그리고 돌담길 감성이 살아있는 북촌 한옥마을의 전통 찻집 팁을 만나보세요.',
       en: 'Discover Gyeongbokgung, the grand main palace of the Joseon Dynasty, the UNESCO Secret Garden of Changdeokgung, and authentic teahouses along the alleys of Bukchon Hanok Village.',
@@ -49,7 +49,7 @@ export const CURATED_ARTICLES = [
       zh: '奔赴釜山碧海：海云台蓝线公园海岸列车与广安大桥璀璨夜景'
     },
     readTime: '3 min',
-    image: 'https://images.unsplash.com/photo-1578637387939-43c525550085?w=700&auto=format&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1535189043414-47a3c49a0bed?w=700&auto=format&fit=crop&q=80',
     summary: {
       ko: '동해 남부선 옛 철길을 따라 해변 열차와 스카이캡슐을 타고 달리는 해안 절경, 그리고 광안리 해변에서 펼쳐지는 주말 드론 라이트쇼의 감동을 소개합니다.',
       en: 'Ride colorful Sky Capsules along the cliffside coastline of Haeundae and enjoy the dazzling weekend Drone Light Show over the sparkling waters of Gwangalli Beach.',
