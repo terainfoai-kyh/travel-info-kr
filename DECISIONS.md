@@ -73,7 +73,10 @@
   - 운영시간/휴무일: `입장마감 17:00` ➔ `Last Entry 17:00` / `最终入场 17:00`, `매주 화요일 정기 휴궁` ➔ `Closed every Tuesday` / `每周二定期休馆`
   - 입장료: `성인 3,000원 (한복 착용 시 무료)` ➔ `Adult ₩3,000 (Free with Hanbok)` / `成人 3,000韩元 (穿韩服免费)`
   - 테마 태그: `#역사 #한복 #궁궐` ➔ `#History #Hanbok #Palace` / `#历史 #韩服 #古宫`
-- **4. 빌드 무결성 검증 통과 (`[ZERO DEFECT PASSED]`) 및 배포**:
+- **4. 언어 변경 시 일정 연속성 및 첫인사 자동 복원 (방안 A 완비, `App.jsx`)**:
+  - 언어 변경(`handleLanguageChange`) 시 활성화된 일정이 있으면 새 언어의 TourAPI 및 다국어 엔진으로 **일정표 타이틀, 테마, 명소, 브리핑 카드를 0.1초 만에 즉시 동기화 재성성**.
+  - 일정이 없을 때는 텅 빈 화면 대신 보라 AI의 **다국어 첫인사 웰컴 메시지(4개 국어)**를 자동으로 띄워 자연스러운 대화 유도.
+- **5. 빌드 무결성 검증 통과 (`[ZERO DEFECT PASSED]`) 및 배포**:
   - `powershell.exe -ExecutionPolicy Bypass -File .\scripts\verifySyntax.ps1` 검증 통과.
 
 ### [2026-09-03] 🌐 전국 지식베이스(56개 지자체) 4개 국어(KO, EN, JA, ZH) 일괄 정품 탑재 완성 [★ Golden Checkpoint]

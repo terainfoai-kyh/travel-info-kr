@@ -78,26 +78,71 @@ export default function App() {
 
     if (currentItinerary) {
       messages.push({
-        id: 'featured-1',
+        id: `featured-${Date.now()}`,
         role: 'assistant',
         text: `✨ **${currentItinerary.tripTitle || currentItinerary.title}**\n${currentItinerary.summary || ''}`,
-        itinerary: currentItinerary
+        itinerary: currentItinerary,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        generationTime: currentItinerary.generationTime || '0.9'
       });
+      return messages;
     }
+
+    // 🌟 일정이 없을 때 보라 AI의 정품 첫인사 웰컴 메시지 100% 표출!
+    const greetings = {
+      ko: '👋 안녕하세요! 대한민국 AI 여행 컨시어지 **보라(VORA)**입니다.\n어디로 떠나고 싶으신가요? 가고 싶은 도시나 여행 테마를 말씀해 주시면 맞춤형 3D 코스를 바로 만들어 드릴게요! ✨',
+      en: '👋 Hello! I am **Vora**, your AI travel concierge for South Korea.\nWhere would you like to travel? Tell me your destination or preferred theme, and I will craft an optimized itinerary for you! ✨',
+      ja: '👋 こんにちは！韓国旅行AIコンシェルジュの**ボラ(VORA)**です。\nどちらへ旅行したいですか？希望の都市やテーマをお知らせいただければ、最適な旅行コースをすぐにご提案します！✨',
+      zh: '👋 您好！我是您的韩国旅行AI专属向导 **宝拉(VORA)**。\n您想去哪里旅行呢？告诉我您心仪的城市或旅行主题，我将为您即时定制专属行程！✨'
+    };
+
+    messages.push({
+      id: `welcome-${Date.now()}`,
+      role: 'assistant',
+      text: greetings[currentLang] || greetings.ko,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    });
 
     return messages;
   };
 
-  const handleLanguageChange = (newLang) => {
+  const handleLanguageChange = async (newLang) => {
     setLang(newLang);
     try {
       localStorage.setItem('vora_lang', newLang);
     } catch (e) {}
 
-    // Clean reset welcome messages in target language
+    // 🌟 [방안 A] 만약 현재 활성화된 일정이 있다면, 새 언어로 즉시 동기화 재구성!
+    if (itineraryData) {
+      const targetCity = itineraryData.targetCity || extractLocationKeyword(itineraryData.tripTitle || '') || '서울';
+      const days = itineraryData.days || itineraryData.dailySchedules?.length || 3;
+
+      try {
+        const localizedPlan = await generateLocalFallbackItinerary(
+          `${targetCity} ${days}일 여행`,
+          targetCity,
+          days,
+          newLang
+        );
+        if (localizedPlan) {
+          setItineraryData(localizedPlan);
+          setChatMessages(getInitialWelcomeMessages(newLang, localizedPlan));
+          return;
+        }
+      } catch (err) {
+        console.warn('Failed to re-localize itinerary on language change:', err);
+      }
+    }
+
+    // 일정이 없는 경우: 정품 다국어 첫인사 웰컴 메시지로 세팅
     setChatMessages(getInitialWelcomeMessages(newLang, null));
     setActiveDay(1);
     setSelectedSpot(null);
+  };
+
+  const handleResetChat = () => {
+    setChatMessages(getInitialWelcomeMessages(lang, null));
+    setSessionContext(INITIAL_TRAVEL_STATE);
   };
 
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
