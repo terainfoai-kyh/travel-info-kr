@@ -40,13 +40,12 @@ export function getMapTileConfig(lang = 'ko') {
     };
   }
 
-  // 🌐 글로벌 영문/다국어 모드: 워터마크 없는 100% 클린 정품 오픈스트리트맵 타일
+  // 🌐 글로벌 영문/다국어(EN/JA/ZH 등) 모드: 워터마크 없는 100% 글로벌 Esri World Street Map 영문 타일
   return {
-    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
     options: {
-      maxZoom: 19,
-      subdomains: ['a', 'b', 'c'],
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      maxZoom: 18,
+      attribution: '&copy; <a href="https://www.esri.com">Esri</a> &copy; OpenStreetMap contributors'
     }
   };
 }

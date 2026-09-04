@@ -281,10 +281,7 @@ export default function Header({
           >
             <Sparkles size={14} style={{ color: '#ea580c' }} />
             <span style={{ whiteSpace: 'nowrap' }}>
-              {lang === 'en' ? 'Quick Tour' :
-               lang === 'ja' ? '使い方' :
-               (lang === 'zh' || lang === 'zht') ? '使用指南' :
-               '30초 사용법'}
+              Quick Tour
             </span>
           </button>
 

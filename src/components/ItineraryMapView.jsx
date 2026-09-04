@@ -241,14 +241,14 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
 
     leafletMapRef.current = map;
 
-    // Select tile layer based on language (OpenStreetMap Standard for 100% Korean place names, CartoDB Voyager for International languages)
+    // Select tile layer based on language (OpenStreetMap Standard for Korean, Esri World Street Map for International)
     const tileUrl = (lang === 'ko')
       ? 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+      : 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}';
 
     L.tileLayer(tileUrl, {
-      maxZoom: 19,
-      subdomains: (lang === 'ko') ? 'abc' : 'abcd'
+      maxZoom: 18,
+      attribution: '&copy; OpenStreetMap'
     }).addTo(map);
 
     // Add Custom Zoom Control to top right

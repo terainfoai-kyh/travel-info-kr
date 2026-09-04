@@ -200,14 +200,14 @@ export default function GoogleMapView({
       const routeGroup = L.featureGroup().addTo(map);
       routeLayerRef.current = routeGroup;
 
-      // High quality Voyager / OSM tile layer
+      // High quality Esri World Street Map / OSM tile layer
       const tileUrl = (lang === 'ko')
         ? 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-        : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+        : 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}';
 
       L.tileLayer(tileUrl, {
-        maxZoom: 19,
-        subdomains: (lang === 'ko') ? 'abc' : 'abcd'
+        maxZoom: 18,
+        attribution: '&copy; OpenStreetMap'
       }).addTo(map);
 
       // Zoom control at top-right for easy user zoom adjustment

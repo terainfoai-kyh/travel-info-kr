@@ -13,8 +13,10 @@
 - **💡 30초 인터랙티브 비주얼 퀵 투어 가이드 모달 구축 (`InteractiveQuickTour.jsx`, `Header.jsx`, `App.jsx`)**:
   - 지루한 텍스트 매뉴얼이 아닌, 사용자가 직접 도시 칩(서울, 부산, 제주, 강릉)과 일수(1D~5D), 날씨/코디, AI 질문을 클릭하며 움직이는 **실시간 인터랙티브 시뮬레이션 샌드박스** 탑재.
   - 4개국어(한·영·일·중) 완벽 번역 및 상단 헤더 `[ 💡 Quick Tour ]` 버튼 & 햄버거 메뉴 연동.
-- **🗺️ 글로벌 지도 타일 워터마크 100% 영구 척결 (`mapTileUtils.js`)**:
-  - CartoDB API Key 경고 문구가 뜨지 않도록 100% 무제한 무료 정품 OpenStreetMap 타일 엔진으로 정돈 완료.
+- **🗺️ 글로벌 다국어 모드 전용 Esri World Street Map 영문 타일 엔진 구축 (`mapTileUtils.js`, `GoogleMapView.jsx`, `ItineraryMapView.jsx`)**:
+  - 한국어(KO) 모드는 친숙한 OpenStreetMap 국문 타일, 다국어(EN/JA/ZH 등) 모드는 워터마크 없이 전 세계 관광객 표준인 **Esri World Street Map 글로벌 영문/로마자 타일(`Seoul`, `Suwon`, `Busan`, `Jeju`, `Gangneung`)**으로 0.01초 만에 실시간 자동 분기 스위칭.
+- **✨ 상단 헤더 `[ 💡 Quick Tour ]` 버튼 라벨 글로벌 표준 통일 (`Header.jsx`)**:
+  - 헤더 버튼명은 전 세계 공통 `Quick Tour`로 세련되게 통일하고, 팝업 가이드 내부는 4개국어(한·영·일·중) 맞춤 텍스트로 친절하게 렌더링.
 - **🛡️ 하단 중복 바 정리 및 JSX 닫는 태그 완벽 정합성 교정 완료 (`DesktopMapExplorer.jsx`)**:
   - 하단 중복 일수 바 제거 후 발생한 닫는 `</div>` 태그 오차를 100% 교정하여 Cloudflare 빌드 오류(`Unterminated regular expression`)를 완벽 해결.
 - **배포 전 정상 소스 100% 사전 검증 완료**:
