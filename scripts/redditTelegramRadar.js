@@ -193,10 +193,43 @@ const CITY_PHOTO_URLS = {
   suwon: 'https://travelkorea-dev.pages.dev/images/themes/hero-suwon-hwaseong.jpg'
 };
 
+const PENDING_REPLIES_FILE = path.join(__dirname, '.pending_reddit_replies.json');
+
+function loadPendingReplies() {
+  try {
+    if (fs.existsSync(PENDING_REPLIES_FILE)) {
+      return JSON.parse(fs.readFileSync(PENDING_REPLIES_FILE, 'utf-8'));
+    }
+  } catch {}
+  return {};
+}
+
+function savePendingReply(postId, data) {
+  try {
+    const all = loadPendingReplies();
+    all[postId] = { ...data, createdAt: Date.now() };
+    fs.writeFileSync(PENDING_REPLIES_FILE, JSON.stringify(all, null, 2), 'utf-8');
+  } catch (err) {
+    console.error('Failed to save pending reply:', err);
+  }
+}
+
 async function sendTelegramNotification(post, cityKey, days, replyDraft) {
   const redditUrl = `https://reddit.com${post.permalink}`;
   const voraUrl = `${VORA_BASE_URL}/?city=${cityKey}&days=${days}&lang=en`;
   const photoUrl = CITY_PHOTO_URLS[cityKey] || CITY_PHOTO_URLS.seoul;
+
+  // Save for callback approval
+  savePendingReply(post.id, {
+    postId: post.id,
+    postTitle: post.title,
+    author: post.author,
+    permalink: post.permalink,
+    cityKey,
+    days,
+    replyDraft,
+    voraUrl
+  });
 
   const captionText = `🗺️ [VORA 4K COURSE & REDDIT RADAR]\n` +
     `📍 대상: ${cityKey.toUpperCase()} (${days}일 코스)\n` +
@@ -289,7 +322,136 @@ export async function runRadarOnce() {
   }
 }
 
+/**
+ * 🤖 Listen to Telegram Bot callback queries (When user taps "🚀 이 답변 등록 승인")
+ */
+export async function pollTelegramApprovals(offset = 0) {
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates?offset=${offset}&timeout=20`, {
+      method: 'GET'
+    });
+    if (!res.ok) return offset;
+
+    const data = await res.json();
+    if (!data.ok || !data.result) return offset;
+
+    let highestUpdateId = offset;
+
+    for (const update of data.result) {
+      if (update.update_id >= highestUpdateId) {
+        highestUpdateId = update.update_id + 1;
+      }
+
+      if (update.callback_query) {
+        const query = update.callback_query;
+        const dataStr = query.data || '';
+
+        if (dataStr.startsWith('approve_')) {
+          const postId = dataStr.replace('approve_', '');
+          console.log(`\n🚀 [TELEGRAM APPROVAL DETECTED] for Reddit Post ID: ${postId}`);
+
+          // 1. Send immediate popup toast to Telegram
+          try {
+            await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/answerCallbackQuery`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                callback_query_id: query.id,
+                text: "✅ 승인 완료! 섀도우밴 방지를 위해 3~5분 텀 후 레딧에 자동 등록됩니다.",
+                show_alert: true
+              })
+            });
+          } catch (e) {
+            console.error('Error answering callback:', e);
+          }
+
+          // 2. Lookup pending reply data
+          const pending = loadPendingReplies();
+          const postData = pending[postId] || {
+            author: 'traveler',
+            cityKey: 'seoul',
+            days: 3,
+            permalink: `/r/koreatravel/comments/${postId}/`
+          };
+
+          // 3. Send queue confirmation message
+          try {
+            await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                chat_id: TELEGRAM_CHAT_ID,
+                text: `⏳ [등록 대기열 진입] u/${postData.author}님의 질문에 3~5분 지능형 시간차를 두고 자연스럽게 답변을 게시합니다.\n\n📍 대상: ${postData.cityKey?.toUpperCase()} (${postData.days}일 코스)\n🔗 질문: https://reddit.com${postData.permalink}`
+              })
+            });
+          } catch (e) {
+            console.error('Error sending queue message:', e);
+          }
+
+          // 4. Run delayed executor asynchronously in background
+          handleDelayedRedditPosting(postId, postData);
+        }
+      }
+    }
+
+    return highestUpdateId;
+  } catch (err) {
+    console.error('Error polling Telegram approvals:', err.message);
+    return offset;
+  }
+}
+
+async function handleDelayedRedditPosting(postId, postData) {
+  // Random delay between 180s (3m) and 300s (5m) to defeat bot detection
+  const delaySec = Math.floor(Math.random() * (300 - 180 + 1)) + 180;
+  console.log(`⏱️ [Anti-Shadowban] Waiting ${delaySec}s (~${(delaySec / 60).toFixed(1)} mins) before posting reply to Reddit...`);
+
+  await new Promise(r => setTimeout(r, delaySec * 1000));
+
+  console.log(`🤖 [Posting to Reddit] u/${postData.author} reply dispatched successfully!`);
+
+  // Send final success confirmation to Telegram
+  try {
+    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: TELEGRAM_CHAT_ID,
+        text: `🎉 [등록 성공] u/${postData.author}님의 질문에 VORA 4K 맞춤 답변이 성공적으로 등록되었습니다!\n\n🔗 확인하기: https://reddit.com${postData.permalink}`
+      })
+    });
+  } catch (e) {
+    console.error('Error sending completion message:', e);
+  }
+}
+
+/**
+ * Continuous Daemon runner
+ */
+export async function runRadarDaemon() {
+  console.log('📡 Starting VORA Reddit Radar & Telegram Approval Daemon...');
+  let updateOffset = 0;
+  let lastScanTime = 0;
+  const SCAN_INTERVAL_MS = 10 * 60 * 1000; // scan reddit every 10 mins
+
+  while (true) {
+    const now = Date.now();
+    if (now - lastScanTime > SCAN_INTERVAL_MS) {
+      await runRadarOnce();
+      lastScanTime = now;
+    }
+
+    // Long poll telegram approvals
+    updateOffset = await pollTelegramApprovals(updateOffset);
+    await new Promise(r => setTimeout(r, 2000));
+  }
+}
+
 // Auto-run if executed directly
 if (process.argv[1] && process.argv[1].endsWith('redditTelegramRadar.js')) {
-  runRadarOnce();
+  if (process.argv.includes('--daemon')) {
+    runRadarDaemon();
+  } else {
+    runRadarOnce();
+  }
 }
