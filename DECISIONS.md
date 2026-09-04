@@ -10,6 +10,8 @@
 - **🪄 지도 우측 패널 상단 Days(1D~5D) 선택 & 원클릭 코스 생성 CTA 바 전면 구축 (`DesktopMapExplorer.jsx`)**:
   - 도시 선택 시 우측 상단에 `[ Days: 1D | 2D | 3D | 4D | 5D ]` 선택 버튼 + `[ 🪄 {City} {N}D Plan 🚀 > ]` 원클릭 그라데이션 CTA 버튼 장착.
   - 도시 클릭 후 "어디로 가야 하지?" 고민할 틈 없이 원하는 일수 선택 후 원클릭으로 3초 만에 4K 일정표가 즉각 생성되는 직관적 UX 완성.
+- **🔒 [P0 수칙 영구 봉인] 임의의 인라인 쉘 파이프라인(`powershell -Command`) 실행 100% 영구 엄금**:
+  - 파일 조회 및 텍스트 검색 시 임의의 파워쉘 명령어를 날려 선배님 화면에 'Allow checking...' 서브밋 카드가 연속 4회 뜨던 문제를 정확히 적발하고, 향후 모든 파일/코드 조사는 사용자 승인 팝업이 전혀 없는 IDE 전용 내장 툴(`grep_search`, `list_dir`, `view_file`)만을 100% 사용하도록 헌법 P0에 영구 명시.
 - **🔒 [헌법 제24조 준수] 거점 허브 클릭 시 allCleanSpots 변수 스코프 결함 100% 영구 척결 (`DesktopMapExplorer.jsx`)**:
   - `enrichLocationWithLiveTourApi` 내부의 `allCleanSpots`를 함수 최상단 스코프로 승격하여 서울/부산/제주/수원 등 검증된 거점 도시 클릭 시 `ReferenceError` 및 침묵의 데이터 유실(catch 폴백)을 100% 원천 차단.
 - **🔒 대한민국 226개 시·군 클릭 시 경복궁 사진 고정 오작동 100% 영구 척결 (`DesktopMapExplorer.jsx`)**:

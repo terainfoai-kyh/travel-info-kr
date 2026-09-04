@@ -2,9 +2,13 @@
 
 ## P0 TOP PRIORITY RULE #1 (최우선 가치 수칙)
 
-0. **Strict User Popup Suppression & Stress-Free Execution (서브밋/Proceed 팝업 100% 완전 봉인)**
+0. **Strict User Popup Suppression & Stress-Free Execution (서브밋/Proceed/Allow 팝업 100% 완전 봉인)**
    - **본 프로젝트의 최우선 가치 수칙(Top Priority #1)입니다.**
-   - 선배님의 작업 화면을 방해하거나 자리를 비우지 못하게 만드는 서브밋 팝업 카드(`RequestFeedback: true`) 및 `ask_question` 팝업을 **단 1초도 100% 절대로 유발하지 않습니다.**
+   - 선배님의 작업 화면을 방해하거나 자리를 비우지 못하게 만드는 서브밋 팝업 카드(`RequestFeedback: true`), 질의 팝업(`ask_question`), 그리고 **터미널 보안 승인 창('Allow command execution' 카드)을 단 1초도 100% 절대로 유발하지 않습니다.**
+   - **임의의 인라인 쉘 파이프라인(`powershell.exe -Command "..."`) 실행 100% 영구 엄금**:
+     - 파일 탐색, 텍스트 검색, 디렉토리 조사는 반드시 **IDE 내장 툴(`grep_search`, `list_dir`, `view_file`)만을 100% 사용**합니다. (내장 툴은 사용자 승인 창이 전혀 뜨지 않고 조용히 실행됨).
+     - `powershell.exe -Command "Get-ChildItem..."`, `Select-String` 등 임의의 파워쉘 인라인 명령어를 실행하면 IDE 보안 가드레일이 선배님 화면에 'Allow checking...' 서브밋 카드를 강제로 띄워 작업과 휴식을 심각하게 방해하므로 **100% 원천 금지**합니다.
+     - 터미널 명령어(`run_command`)는 오직 사전 승인된 고정 검증 스크립트(`powershell.exe -ExecutionPolicy Bypass -File .\scripts\verifySyntax.ps1`) 및 표준 깃 명령어(`git status`, `git commit`, `git push origin main`) 외에는 절대로 임의 실행하지 않습니다.
    - 모든 아티팩트 및 작업 진행 시 `RequestFeedback: false`로 고정하여 화면에 거치적거리는 팝업 카드가 전혀 뜨지 않도록 철저히 차단합니다.
    - 선배님이 편안하게 휴식을 취하실 수 있도록 뒷단에서 100% 안전하고 조용하게 자율적으로 완성합니다.
 
