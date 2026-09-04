@@ -759,7 +759,6 @@ export default function InteractiveQuickTour({
                          (lang === 'zh' || lang === 'zht') ? '海云台蓝线公园（空中胶囊列车）' :
                          '해운대 블루라인파크 (스카이캡슐)'}
                       </span>
-                      <span style={{ color: '#94a3b8', fontSize: '0.70rem' }}>➔ 12m</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.76rem', color: '#334155' }}>
                       <span style={{ width: '20px', height: '20px', borderRadius: '50%', backgroundColor: '#eff6ff', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '0.70rem' }}>2</span>
@@ -769,7 +768,6 @@ export default function InteractiveQuickTour({
                          (lang === 'zh' || lang === 'zht') ? '青沙浦踏石观景台与海景咖啡街' :
                          '청사포 다릿돌전망대 & 오션뷰 카페'}
                       </span>
-                      <span style={{ color: '#94a3b8', fontSize: '0.70rem' }}>➔ 25m</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.76rem', color: '#334155' }}>
                       <span style={{ width: '20px', height: '20px', borderRadius: '50%', backgroundColor: '#eff6ff', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '0.70rem' }}>3</span>

@@ -2266,9 +2266,8 @@ function translateNightHighlight(nightStr, lang, cityName = '') {
                                       <span>{spotName}</span>
                                     </button>
                                     {sIdx < dayData.spots.length - 1 && (
-                                      <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '1px' }}>
-                                        <span>➔</span>
-                                        <span style={{ fontSize: '0.58rem', color: '#64748b' }}>~15m</span>
+                                      <span style={{ fontSize: '0.66rem', fontWeight: 900, color: '#94a3b8', margin: '0 2px' }}>
+                                        ➔
                                       </span>
                                     )}
                                   </React.Fragment>
