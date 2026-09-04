@@ -16,6 +16,7 @@ const __dirname = path.dirname(__filename);
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '8862336937:AAGjolvwXh3BEBrLa1PMWFHLDu2ipcf90D0';
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || '8955008233';
+const VORA_BASE_URL = process.env.VORA_BASE_URL || 'https://travelkorea-dev.pages.dev';
 const SEEN_POSTS_FILE = path.join(__dirname, '.seen_reddit_posts.json');
 
 // Localized sample itineraries for instant fallback generation
@@ -120,7 +121,7 @@ function generateFallbackReply(cityKey, days, postTitle) {
   reply += `\n💡 **Transit Tip**: ${cityInfo.transitTip}\n`;
   reply += `🍲 **Foodie Secret**: ${cityInfo.foodTip}\n\n`;
   reply += `I've put together a full interactive 4K route map with live weather & outfit suggestions here:\n`;
-  reply += `👉 https://koreatravel.cc/?city=${cityKey}&days=${days}\n\n`;
+  reply += `👉 ${VORA_BASE_URL}/?city=${cityKey}&days=${days}\n\n`;
   reply += `Have a wonderful adventure in Korea! Let me know if you need any neighborhood recommendations.`;
 
   return reply;
@@ -149,7 +150,7 @@ Duration: ${days} days
 4. Give 1 essential insider transit tip (e.g., Climate Card or T-money, Naver Map / KakaoMap tip since Google Maps walking directions are limited in Korea).
 5. Give 1 authentic local foodie secret for ${cityInfo.name}.
 6. Naturally close by inviting them to explore the full interactive 4K route map with live weather & outfit suggestions here:
-👉 https://koreatravel.cc/?city=${cityKey}&days=${days}
+👉 ${VORA_BASE_URL}/?city=${cityKey}&days=${days}
 7. Keep the tone natural, helpful, and native for Reddit (clean markdown, no robotic corporate buzzwords, max 300 words).`;
 
   const modelsToTry = ['gemini-2.0-flash', 'gemini-1.5-flash'];
@@ -194,7 +195,7 @@ const CITY_PHOTO_URLS = {
 
 async function sendTelegramNotification(post, cityKey, days, replyDraft) {
   const redditUrl = `https://reddit.com${post.permalink}`;
-  const voraUrl = `https://koreatravel.cc/?city=${cityKey}&days=${days}`;
+  const voraUrl = `${VORA_BASE_URL}/?city=${cityKey}&days=${days}`;
   const photoUrl = CITY_PHOTO_URLS[cityKey] || CITY_PHOTO_URLS.seoul;
 
   const captionText = `🗺️ [VORA 4K COURSE & REDDIT RADAR]\n` +
