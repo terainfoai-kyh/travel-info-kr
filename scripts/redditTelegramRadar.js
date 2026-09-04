@@ -325,9 +325,13 @@ export async function runRadarOnce() {
   const seenPosts = loadSeenPosts();
 
   try {
-    const res = await fetch('https://www.reddit.com/r/koreatravel/new.json?limit=15', {
+    const res = await fetch('https://www.reddit.com/r/koreatravel/new.rss', {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 VoraBot/1.0'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
       }
     });
 
@@ -336,12 +340,34 @@ export async function runRadarOnce() {
       return;
     }
 
-    const data = await res.json();
-    const children = data?.data?.children || [];
+    const xml = await res.text();
+    const entryRegex = /<entry>([\s\S]*?)<\/entry>/g;
+    const items = [];
+    let match;
+    while ((match = entryRegex.exec(xml)) !== null) {
+      const block = match[1];
+      const idMatch = block.match(/<id>(?:t3_)?([^<]+)<\/id>/);
+      const titleMatch = block.match(/<title>([^<]+)<\/title>/);
+      const authorMatch = block.match(/<author><name>\/u\/([^<]+)<\/name>/);
+      const linkMatch = block.match(/<link href="([^"]+)"/);
+      const contentMatch = block.match(/<content type="html">([\s\S]*?)<\/content>/);
+
+      const id = idMatch ? idMatch[1] : null;
+      const title = titleMatch ? titleMatch[1] : '';
+      const author = authorMatch ? authorMatch[1] : 'traveler';
+      const link = linkMatch ? linkMatch[1] : '';
+      const permalink = link.replace('https://www.reddit.com', '');
+      let selftext = contentMatch ? contentMatch[1] : '';
+      selftext = selftext.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/<[^>]+>/g, ' ').trim();
+
+      if (id && title) {
+        items.push({ id, title, author, permalink, selftext });
+      }
+    }
+
     let dispatchedCount = 0;
 
-    for (const item of children) {
-      const post = item.data;
+    for (const post of items) {
       if (!post || seenPosts.has(post.id)) continue;
 
       const combinedText = `${post.title} ${post.selftext || ''}`;
