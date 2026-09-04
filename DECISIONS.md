@@ -15,6 +15,8 @@
   - 4개국어(한·영·일·중) 완벽 번역 및 상단 헤더 `[ 💡 Quick Tour ]` 버튼 & 햄버거 메뉴 연동.
 - **🗺️ 글로벌 지도 타일 워터마크 100% 영구 척결 (`mapTileUtils.js`)**:
   - CartoDB API Key 경고 문구가 뜨지 않도록 100% 무제한 무료 정품 OpenStreetMap 타일 엔진으로 정돈 완료.
+- **🛡️ 하단 중복 바 정리 및 JSX 닫는 태그 완벽 정합성 교정 완료 (`DesktopMapExplorer.jsx`)**:
+  - 하단 중복 일수 바 제거 후 발생한 닫는 `</div>` 태그 오차를 100% 교정하여 Cloudflare 빌드 오류(`Unterminated regular expression`)를 완벽 해결.
 - **배포 전 정상 소스 100% 사전 검증 완료**:
   - `verifySyntax.ps1` 무결점 검증 통과(`[ZERO DEFECT PASSED]`).
 
