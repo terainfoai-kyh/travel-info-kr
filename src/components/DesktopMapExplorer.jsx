@@ -1123,148 +1123,6 @@ export default function DesktopMapExplorer({
     return Object.keys(CITY_LOCAL_KNOWLEDGE).find(k => k === clean || name.startsWith(k) || k.startsWith(clean)) || null;
   };
 
-  // 🗺️ 선택된 도시와 일수(1D~5D)에 맞춘 권역별 최적 동선 실시간 조립기 (중복 0% 완벽 보장)
-  const getMultiDayCoursePreview = (location, days, currentLang) => {
-    if (!location) return [];
-    const cleanCityKey = (location.nameKo || '').replace(/(특별시|광역시|특별자치시|특별자치도|시|군|구)$/, '').trim();
-    const localKn = CITY_LOCAL_KNOWLEDGE[cleanCityKey] || CITY_LOCAL_KNOWLEDGE[location.nameKo];
-    const foundHub = REGIONAL_FALLBACK_CENTERS.find(c => c.nameKo === cleanCityKey || c.nameKo === location.nameKo || c.nameKo.includes(cleanCityKey) || cleanCityKey.includes(c.nameKo));
-    
-    // Master Candidate Pool: Gather all genuine spots
-    const rawCandidates = [];
-
-    // 1. Curated Hub highlights
-    if (foundHub?.highlights && foundHub.highlights.length > 0) {
-      rawCandidates.push(...foundHub.highlights);
-    }
-    // 2. Location allSpots (from live TourAPI)
-    if (location.allSpots && location.allSpots.length > 0) {
-      rawCandidates.push(...location.allSpots);
-    }
-    // 3. Location current highlights
-    if (location.highlights && location.highlights.length > 0) {
-      rawCandidates.push(...location.highlights);
-    }
-    // 4. Knowledge base signatureHighlights
-    if (localKn?.signatureHighlights && localKn.signatureHighlights.length > 0) {
-      localKn.signatureHighlights.forEach((sigName, idx) => {
-        rawCandidates.push({
-          ko: sigName,
-          en: localKn.signatureHighlightsEn?.[idx] || sigName,
-          ja: localKn.signatureHighlightsJa?.[idx] || sigName,
-          zh: localKn.signatureHighlightsZh?.[idx] || sigName,
-          lat: location.lat,
-          lng: location.lng
-        });
-      });
-    }
-    // 5. Knowledge base rainyHotspots
-    if (localKn?.rainyHotspots && localKn.rainyHotspots.length > 0) {
-      localKn.rainyHotspots.forEach((rName) => {
-        rawCandidates.push({
-          ko: rName,
-          en: rName,
-          ja: rName,
-          zh: rName,
-          lat: location.lat,
-          lng: location.lng
-        });
-      });
-    }
-    // 6. Knowledge base nightHighlights
-    if (localKn?.nightHighlights && localKn.nightHighlights.length > 0) {
-      localKn.nightHighlights.forEach((nh, idx) => {
-        const nhName = typeof nh === 'string' ? nh : (nh.name || nh.ko || '');
-        if (nhName) {
-          rawCandidates.push({
-            ko: nhName,
-            en: localKn.nightHighlightsEn?.[idx] || nhName,
-            ja: localKn.nightHighlightsJa?.[idx] || nhName,
-            zh: localKn.nightHighlightsZh?.[idx] || nhName,
-            lat: location.lat,
-            lng: location.lng,
-            isNight: true
-          });
-        }
-      });
-    }
-
-    // 🛡️ Deduplicate candidates by normalized title (100% Zero Duplication)
-    const masterPool = [];
-    const seenTitles = new Set();
-
-    for (const cand of rawCandidates) {
-      const rawTitle = (cand.ko || cand.title || cand.name || cand.en || '').trim();
-      if (!rawTitle) continue;
-      // Filter out non-sightseeing keywords
-      if (/(소공원|어린이공원|마을쉼터|쌈지공원|노인정|놀이터|분관|관리소|교육관|주차장|공영주차장|현판|표지석|주민센터|배수지)/i.test(rawTitle)) continue;
-
-      const norm = normalizeTargetString(rawTitle);
-      if (!seenTitles.has(norm)) {
-        seenTitles.add(norm);
-        masterPool.push(cand);
-      }
-    }
-
-    // If masterPool is empty, provide clean regional landmarks
-    if (masterPool.length === 0) {
-      masterPool.push(
-        { ko: `${location.nameKo} 중심 랜드마크`, en: `${getLocalizedCityName(location.nameKo, 'en')} Central Landmark`, ja: `${getLocalizedCityName(location.nameKo, 'ja')} 中心名所`, zh: `${getLocalizedCityName(location.nameKo, 'zh')} 核心景点`, lat: location.lat, lng: location.lng },
-        { ko: `${location.nameKo} 역사 문화거리`, en: `${getLocalizedCityName(location.nameKo, 'en')} Historic Street`, ja: `${getLocalizedCityName(location.nameKo, 'ja')} 歴史文化通り`, zh: `${getLocalizedCityName(location.nameKo, 'zh')} 历史文化街区`, lat: location.lat, lng: location.lng },
-        { ko: `${location.nameKo} 힐링 수변공원`, en: `${getLocalizedCityName(location.nameKo, 'en')} Scenic Waterfront Park`, ja: `${getLocalizedCityName(location.nameKo, 'ja')} ヒーリング水辺公園`, zh: `${getLocalizedCityName(location.nameKo, 'zh')} 治愈水滨公园`, lat: location.lat, lng: location.lng }
-      );
-    }
-
-    const dayColors = [
-      { border: '#3b82f6', bg: '#eff6ff', badge: 'linear-gradient(135deg, #2563eb, #3b82f6)', text: '#1d4ed8' },
-      { border: '#8b5cf6', bg: '#f5f3ff', badge: 'linear-gradient(135deg, #7c3aed, #8b5cf6)', text: '#6d28d9' },
-      { border: '#10b981', bg: '#ecfdf5', badge: 'linear-gradient(135deg, #059669, #10b981)', text: '#047857' },
-      { border: '#f59e0b', bg: '#fffbeb', badge: 'linear-gradient(135deg, #d97706, #f59e0b)', text: '#b45309' },
-      { border: '#ec4899', bg: '#fdf2f8', badge: 'linear-gradient(135deg, #db2777, #ec4899)', text: '#be185d' }
-    ];
-
-    const numDays = Math.max(1, Math.min(Number(days) || 3, 5));
-    const resultDays = [];
-
-    // Monotonic linear allocation: Each day consumes up to 3 UNIQUE spots from masterPool
-    let cursor = 0;
-    for (let d = 1; d <= numDays; d++) {
-      const daySpots = [];
-      const remainingDays = numDays - d + 1;
-      const remainingSpots = masterPool.length - cursor;
-      
-      let countForDay = 3;
-      if (remainingSpots < remainingDays * 3) {
-        countForDay = Math.max(1, Math.min(3, Math.floor(remainingSpots / remainingDays)));
-      }
-
-      for (let s = 0; s < countForDay && cursor < masterPool.length; s++) {
-        daySpots.push(masterPool[cursor]);
-        cursor++;
-      }
-
-      if (daySpots.length === 0) {
-        daySpots.push({
-          ko: `${location.nameKo} ${d}일차 힐링 코스`,
-          en: `${getLocalizedCityName(location.nameKo, 'en')} Day ${d} Highlights`,
-          ja: `${getLocalizedCityName(location.nameKo, 'ja')} ${d}日目おすすめ`,
-          zh: `${getLocalizedCityName(location.nameKo, 'zh')} 第${d}天推荐`,
-          lat: location.lat,
-          lng: location.lng
-        });
-      }
-
-      const colorMeta = dayColors[(d - 1) % dayColors.length];
-      resultDays.push({
-        dayNum: d,
-        colorMeta,
-        spots: daySpots
-      });
-    }
-
-    return resultDays;
-  };
-
 // 🍲 Smart Multilingual Foodie & Nightview Translators
 const COMMON_FOOD_TRANSLATIONS = {
   '광장시장 마약김밥': { en: 'Gwangjang Market Kimbap', ja: '広蔵市場 麻薬キンパ', zh: '广藏市场 紫菜包饭' },
@@ -2195,145 +2053,102 @@ function translateNightHighlight(nightStr, lang, cityName = '') {
                       {getSelectedDesc()}
                     </p>
 
-                    {/* 📅 Multi-Day Dynamic Route Timeline (선택된 일수 1D~5D에 맞춰 일자별 동선이 쫘악 펼쳐지는 킬러 프리뷰) */}
-                    <div style={{
-                      marginBottom: '10px',
-                      backgroundColor: '#f8fafc',
-                      borderRadius: '10px',
-                      padding: '9px 10px',
-                      border: '1px solid #e2e8f0',
-                      boxShadow: '0 1px 4px rgba(0,0,0,0.03)'
-                    }}>
+                    {/* ✦ VORA AI Recommended Course Flow (선택된 도시의 핵심 대표 동선) */}
+                    {selectedLocation.highlights && selectedLocation.highlights.length > 0 && (
                       <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        marginBottom: '7px'
+                        marginBottom: '8px',
+                        backgroundColor: '#f8fafc',
+                        borderRadius: '8px',
+                        padding: '6px 8px',
+                        border: '1px solid #e2e8f0'
                       }}>
                         <div style={{
                           display: 'flex',
                           alignItems: 'center',
-                          gap: '5px',
-                          fontSize: '0.74rem',
-                          fontWeight: 900,
-                          color: '#1e293b'
+                          justifyContent: 'space-between',
+                          marginBottom: '5px'
                         }}>
-                          <Calendar size={13} color="#2563eb" />
-                          <span>
-                            {lang === 'en' ? `📅 ${selectedDays}-Day Optimized Route Flow` :
-                             lang === 'ja' ? `📅 ${selectedDays}日間 最適連動コース` :
-                             (lang === 'zh' || lang === 'zht') ? `📅 ${selectedDays}日 区域优化路线` :
-                             `📅 ${selectedDays}일 권역별 최적 동선 (자동 조립)`}
+                          <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            fontSize: '0.70rem',
+                            fontWeight: 900,
+                            color: '#1e293b'
+                          }}>
+                            <Sparkles size={11} color="#2563eb" />
+                            <span>
+                              {lang === 'en' ? '✦ VORA Recommended Route Flow' :
+                               lang === 'ja' ? '✦ VORA おすすめ連携コース' :
+                               (lang === 'zh' || lang === 'zht') ? '✦ VORA 推荐连游路线' :
+                               '✦ VORA AI 추천 연계 코스'}
+                            </span>
+                          </div>
+                          <span style={{ fontSize: '0.62rem', fontWeight: 700, color: '#64748b' }}>
+                            {lang === 'en' ? 'Click spot to fly on map 📍' : lang === 'ja' ? 'スポットをクリックして位置確認 📍' : (lang === 'zh' || lang === 'zht') ? '点击景点定位地图 📍' : '클릭 시 지도 이동 📍'}
                           </span>
                         </div>
-                        <span style={{
-                          fontSize: '0.65rem',
-                          fontWeight: 800,
-                          color: '#059669',
-                          backgroundColor: '#ecfdf5',
-                          padding: '1px 6px',
-                          borderRadius: '4px',
-                          border: '1px solid #a7f3d0'
-                        }}>
-                          {lang === 'en' ? '⚡ 0% Transit Waste' : lang === 'ja' ? '⚡ 移動ロス0%' : (lang === 'zh' || lang === 'zht') ? '⚡ 0% 浪费' : '⚡ 이동낭비 0%'}
-                        </span>
+                        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '4px' }}>
+                          {selectedLocation.highlights.map((hl, hIdx) => {
+                            const hlName = getHighlightName(hl);
+                            return (
+                              <React.Fragment key={hIdx}>
+                                <button
+                                  onClick={() => handleHighlightSpotClick(hl)}
+                                  title="클릭 시 지도가 이 명소로 이동합니다"
+                                  style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '3px',
+                                    fontSize: '0.70rem',
+                                    fontWeight: 800,
+                                    color: '#1e293b',
+                                    backgroundColor: '#ffffff',
+                                    border: '1px solid #cbd5e1',
+                                    padding: '2px 7px',
+                                    borderRadius: '6px',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.15s ease'
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    e.currentTarget.style.borderColor = '#2563eb';
+                                    e.currentTarget.style.color = '#2563eb';
+                                    e.currentTarget.style.backgroundColor = '#eff6ff';
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.borderColor = '#cbd5e1';
+                                    e.currentTarget.style.color = '#1e293b';
+                                    e.currentTarget.style.backgroundColor = '#ffffff';
+                                  }}
+                                >
+                                  <span style={{
+                                    width: '13px',
+                                    height: '13px',
+                                    borderRadius: '50%',
+                                    backgroundColor: '#2563eb',
+                                    color: '#ffffff',
+                                    fontSize: '8px',
+                                    fontWeight: 900,
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    lineHeight: 1
+                                  }}>
+                                    {hIdx + 1}
+                                  </span>
+                                  <span>{hlName}</span>
+                                </button>
+                                {hIdx < selectedLocation.highlights.length - 1 && (
+                                  <span style={{ fontSize: '0.66rem', fontWeight: 900, color: '#94a3b8', margin: '0 1px' }}>
+                                    ➔
+                                  </span>
+                                )}
+                              </React.Fragment>
+                            );
+                          })}
+                        </div>
                       </div>
-
-                      {/* Day Rows */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                        {getMultiDayCoursePreview(selectedLocation, selectedDays, lang).map((dayData) => (
-                          <div 
-                            key={dayData.dayNum}
-                            style={{
-                              backgroundColor: '#ffffff',
-                              borderRadius: '8px',
-                              padding: '6px 8px',
-                              border: '1px solid #e2e8f0',
-                              borderLeft: `3.5px solid ${dayData.colorMeta.border}`,
-                              display: 'flex',
-                              flexDirection: 'column',
-                              gap: '4px'
-                            }}
-                          >
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                              <span style={{
-                                fontSize: '0.68rem',
-                                fontWeight: 900,
-                                color: '#ffffff',
-                                background: dayData.colorMeta.badge,
-                                padding: '1px 7px',
-                                borderRadius: '4px',
-                                letterSpacing: '0.02em'
-                              }}>
-                                Day {dayData.dayNum}
-                              </span>
-                              <span style={{ fontSize: '0.62rem', fontWeight: 700, color: '#64748b' }}>
-                                {lang === 'en' ? 'Click spot to fly on map 📍' : lang === 'ja' ? 'スポットをクリックして位置確認 📍' : (lang === 'zh' || lang === 'zht') ? '点击景点定位地图 📍' : '클릭 시 지도 이동 📍'}
-                              </span>
-                            </div>
-
-                            {/* Spots in this Day */}
-                            <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '4px' }}>
-                              {dayData.spots.map((sp, sIdx) => {
-                                const spotName = getHighlightName(sp);
-                                return (
-                                  <React.Fragment key={sIdx}>
-                                    <button
-                                      onClick={() => handleHighlightSpotClick(sp)}
-                                      title="클릭 시 지도가 이 명소로 이동합니다"
-                                      style={{
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        gap: '4px',
-                                        fontSize: '0.72rem',
-                                        fontWeight: 800,
-                                        color: '#1e293b',
-                                        backgroundColor: dayData.colorMeta.bg,
-                                        border: `1px solid ${dayData.colorMeta.border}50`,
-                                        padding: '2px 7px',
-                                        borderRadius: '6px',
-                                        cursor: 'pointer',
-                                        transition: 'all 0.15s ease'
-                                      }}
-                                      onMouseEnter={(e) => {
-                                        e.currentTarget.style.transform = 'translateY(-1px)';
-                                        e.currentTarget.style.borderColor = dayData.colorMeta.border;
-                                      }}
-                                      onMouseLeave={(e) => {
-                                        e.currentTarget.style.transform = 'translateY(0)';
-                                        e.currentTarget.style.borderColor = `${dayData.colorMeta.border}50`;
-                                      }}
-                                    >
-                                      <span style={{
-                                        width: '14px',
-                                        height: '14px',
-                                        borderRadius: '50%',
-                                        backgroundColor: dayData.colorMeta.border,
-                                        color: '#ffffff',
-                                        fontSize: '9px',
-                                        fontWeight: 900,
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        lineHeight: 1
-                                      }}>
-                                        {sIdx + 1}
-                                      </span>
-                                      <span>{spotName}</span>
-                                    </button>
-                                    {sIdx < dayData.spots.length - 1 && (
-                                      <span style={{ fontSize: '0.66rem', fontWeight: 900, color: '#94a3b8', margin: '0 2px' }}>
-                                        ➔
-                                      </span>
-                                    )}
-                                  </React.Fragment>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                    )}
 
                     {/* 🍲 VORA Foodie Secret Pill Tags */}
                     {getSelectedFoodieSecret() && (
