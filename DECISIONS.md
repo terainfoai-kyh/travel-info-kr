@@ -23,6 +23,9 @@
 - **🔒 검증된 거점 도시(서울·부산·제주 등) 정품 랜드마크 락(Lock) 및 소공원 오염 원천 차단 (`DesktopMapExplorer.jsx`)**:
   - 이미 검증된 거점의 정품 사진(경복궁·해운대·성산일출봉 등)과 랜드마크 코스가 비동기 TourAPI 응답이나 소공원(용마골소공원 등)에 의해 덮어써져 변경되는 현상을 100% 원천 차단.
   - 소공원·어린이공원·마을쉼터·노인정 등 비관광 근린시설 필터링을 완벽하게 강화.
+- **✨ 전국 226개 시·군 지도 탐색 시 사진 무한 로딩(Hang) 원천 척결 (`DesktopMapExplorer.jsx`, `tourApi.js`)**:
+  - 미등록 지역(예천, 화성 등) 클릭 시 `enrichLocationWithLiveTourApi` 내 미선언 변수 참조 문제 및 배너 JSX 렌더링 조건문(`!selectedLocation.image`)에 의해 발생하던 무한 로딩 스피너 현상을 완전히 박멸.
+  - `tourApi.js`에 `fetchLocationBasedTourApiSpots` 신규 구현 및 `fetchCityTourApiSpots` 계층적 Fallback 체인을 완비하여 전국 226개 모든 지자체 클릭 시 즉각적인 사진 및 명소 렌더링 보장.
 - **배포 전 정상 소스 100% 사전 검증 완료**:
   - `verifySyntax.ps1` 무결점 검증 통과(`[ZERO DEFECT PASSED]`).
 

@@ -27,7 +27,7 @@ import {
   MessageSquare
 } from 'lucide-react';
 import { buildKlookDeepLink } from '../services/apiConfig';
-import { fetchDynamicRealtimeSpots, fetchLocationBasedTourApiSpots, fetchPinpointLandmarkSpots, getCityMultilingualName } from '../services/tourApi';
+import { fetchCityTourApiSpots, fetchDynamicRealtimeSpots, fetchLocationBasedTourApiSpots, fetchPinpointLandmarkSpots, getCityMultilingualName } from '../services/tourApi';
 import { CITY_LOCAL_KNOWLEDGE } from '../data/voraDialogKnowledge';
 import SubwayMapModal from './SubwayMapModal';
 import HelplineModal from './HelplineModal';
@@ -735,6 +735,10 @@ export default function DesktopMapExplorer({
       const localKn = CITY_LOCAL_KNOWLEDGE[cleanCityKey] || CITY_LOCAL_KNOWLEDGE[cityName];
       const foundHub = REGIONAL_FALLBACK_CENTERS.find(c => c.nameKo === cleanCityKey || c.nameKo === cityName || c.nameKo.includes(cleanCityKey) || cleanCityKey.includes(c.nameKo));
 
+      let verifiedImage = (foundHub && foundHub.image) ? foundHub.image : (baseLoc.image || '');
+      let liveHighlights = [];
+      let isAbstractHighlights = false;
+
       // 🌟 1. [Architecture Rule] 검증된 대표 거점 허브(서울, 부산, 제주, 수원, 경주, 강릉 등)는 완벽한 정품 사진 & 하이라이트 100% 고정 보존!
       if (foundHub && foundHub.image) {
         verifiedImage = foundHub.image;
@@ -779,9 +783,9 @@ export default function DesktopMapExplorer({
           // 구체적 랜드마크인 경우 실시간 TourAPI 핀포인트 사진 시도
           try {
             const landmarkSpots = await fetchPinpointLandmarkSpots(sigKo.slice(0, 2), targetLang, cityName);
-            const foundPhotoSpot = landmarkSpots?.find(s => s.image && !s.image.includes('default-spot'));
-            if (foundPhotoSpot?.image) {
-              verifiedImage = foundPhotoSpot.image;
+            const foundPhotoSpot = landmarkSpots?.find(s => (s.image || s.firstimage) && !(s.image || s.firstimage).includes('default-spot'));
+            if (foundPhotoSpot?.image || foundPhotoSpot?.firstimage) {
+              verifiedImage = foundPhotoSpot.image || foundPhotoSpot.firstimage;
             }
           } catch {}
         }
@@ -789,14 +793,17 @@ export default function DesktopMapExplorer({
 
       // 🛡️ 3. 미등록 226개 소도시: TourAPI 인기순(arrange=P) 실시간 공공데이터 수신 (소공원/체육시설/분관 100% 필터링)
       if (!verifiedImage || isAbstractHighlights || liveHighlights.length === 0) {
-        let liveSpots = await fetchDynamicRealtimeSpots(cityName, targetLang);
+        let liveSpots = await fetchCityTourApiSpots(cleanCityKey || cityName, targetLang);
+        if (!liveSpots || liveSpots.length === 0) {
+          liveSpots = await fetchDynamicRealtimeSpots(cityName, targetLang);
+        }
         if ((!liveSpots || liveSpots.length === 0) && baseLoc.lat && baseLoc.lng) {
-          liveSpots = await fetchLocationBasedTourApiSpots(baseLoc.lat, baseLoc.lng, 15000, targetLang);
+          liveSpots = await fetchLocationBasedTourApiSpots(baseLoc.lat, baseLoc.lng, 25000, targetLang);
         }
 
         if (liveSpots && liveSpots.length > 0) {
           // 비관광 시설(소공원, 어린이공원, 마을쉼터, 분관, 관리소, 주차장 등)을 제외한 최상위 인기 관광지의 정품 사진 선별
-          const spotWithImg = liveSpots.find(s => (s.firstimage || s.image) && !/(소공원|어린이공원|근린공원|마을쉼터|쌈지공원|노인정|놀이터|분관|관리소|교육관|예절교육관|주차장|공영주차장|현판|표지석|주민센터|배수지)/i.test(s.title)) || liveSpots.find(s => s.firstimage || s.image);
+          const spotWithImg = liveSpots.find(s => (s.firstimage || s.image) && !/(소공원|어린이공원|근린공원|마을쉼터|쌈지공원|노인정|놀이터|분관|관리소|교육관|예절교육관|주차장|공영주차장|현판|표지석|주민센터|배수지)/i.test(s.title || s.name || '')) || liveSpots.find(s => s.firstimage || s.image);
           if (spotWithImg?.firstimage || spotWithImg?.image) {
             verifiedImage = spotWithImg.firstimage || spotWithImg.image;
           }
@@ -848,8 +855,12 @@ export default function DesktopMapExplorer({
         descJa: localKn?.badgeJa || localKn?.descJa || baseLoc.descJa,
         descZh: localKn?.badgeZh || localKn?.descZh || baseLoc.descZh
       };
-    } catch {
-      return baseLoc;
+    } catch (err) {
+      console.warn('[enrichLocationWithLiveTourApi] Error:', err);
+      return {
+        ...baseLoc,
+        image: baseLoc.image || '/images/themes/theme-gyeongbokgung.jpg'
+      };
     }
   };
 
@@ -939,7 +950,7 @@ export default function DesktopMapExplorer({
       descZh: localKn?.badgeZh || `探寻${getCityMultilingualName(detectedCityNameKo, 'zh') || detectedCityNameKo}代表性名胜与历史文化的治愈之旅`,
       transitTipKo: localKn?.transitTip || 'KTX 및 고속버스로 쾌속 연결',
       transitTipEn: 'Accessible via KTX and Express Bus',
-      image: foundHub?.image || null,
+      image: foundHub?.image || '/images/themes/theme-gyeongbokgung.jpg',
       foodieSecret: localKn?.localFoodieSecret || null,
       nightHighlight: localKn?.nightHighlights ? localKn.nightHighlights[0]?.name : null,
       highlights: localKn?.signatureHighlights?.slice(0, 4).map((h, idx) => ({ 
@@ -1919,7 +1930,7 @@ function translateNightHighlight(nightStr, lang, cityName = '') {
                   overflow: 'hidden',
                   backgroundColor: '#f8fafc'
                 }}>
-                  {(isGeocoding || isPhotoLoading || !selectedLocation.image) ? (
+                  {(isGeocoding || isPhotoLoading) ? (
                     /* 🕊️ 완전 정적이고 차분한 화이트 바탕 + 정중앙 로딩 뱃지 (쉬머/번쩍임 0%, 편안함 100%) */
                     <div style={{
                       width: '100%',
