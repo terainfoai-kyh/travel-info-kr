@@ -801,31 +801,32 @@ export default function DesktopMapExplorer({
           liveSpots = await fetchLocationBasedTourApiSpots(baseLoc.lat, baseLoc.lng, 25000, targetLang);
         }
 
+        let allCleanSpots = [];
         if (liveSpots && liveSpots.length > 0) {
-          // 비관광 시설(소공원, 어린이공원, 마을쉼터, 분관, 관리소, 주차장 등)을 제외한 최상위 인기 관광지의 정품 사진 선별
-          const spotWithImg = liveSpots.find(s => (s.firstimage || s.image) && !/(소공원|어린이공원|근린공원|마을쉼터|쌈지공원|노인정|놀이터|분관|관리소|교육관|예절교육관|주차장|공영주차장|현판|표지석|주민센터|배수지)/i.test(s.title || s.name || '')) || liveSpots.find(s => s.firstimage || s.image);
+          const cleanSpots = liveSpots.filter(sp => !/(소공원|어린이공원|마을쉼터|쌈지공원|노인정|놀이터|분관|관리소|교육관|주차장|공영주차장|현판|표지석|주민센터|배수지)/i.test(sp.title || sp.name || ''));
+          const spotsToUse = cleanSpots.length > 0 ? cleanSpots : liveSpots;
+          allCleanSpots = spotsToUse.map((sp) => {
+            const rawTitle = (sp.title || sp.name || '').trim();
+            return {
+              title: rawTitle,
+              name: rawTitle,
+              ko: targetLang === 'ko' ? rawTitle : (sp.titleKo || rawTitle),
+              en: targetLang === 'en' ? rawTitle : (sp.titleEn || rawTitle),
+              ja: targetLang === 'ja' ? rawTitle : (sp.titleJa || rawTitle),
+              zh: (targetLang === 'zh' || targetLang === 'zht') ? rawTitle : (sp.titleZh || rawTitle),
+              lat: Number(sp.lat || sp.mapy) || baseLoc.lat,
+              lng: Number(sp.lng || sp.mapx) || baseLoc.lng,
+              zoom: 15
+            };
+          });
+
+          const spotWithImg = spotsToUse.find(s => (s.firstimage || s.image)) || liveSpots.find(s => s.firstimage || s.image);
           if (spotWithImg?.firstimage || spotWithImg?.image) {
             verifiedImage = spotWithImg.firstimage || spotWithImg.image;
           }
 
-          // 추상적 문구이거나 비어있던 하이라이트를 실제 TourAPI 실시간 정품 명소로 업그레이드!
           if (isAbstractHighlights || liveHighlights.length === 0) {
-            const cleanSpots = liveSpots.filter(sp => !/(소공원|어린이공원|마을쉼터|쌈지공원|노인정|놀이터|분관|관리소|교육관|주차장|공영주차장|현판|표지석|주민센터|배수지)/i.test(sp.title || sp.name || ''));
-            const spotsToUse = cleanSpots.length > 0 ? cleanSpots : liveSpots;
-            liveHighlights = spotsToUse.slice(0, 4).map((sp) => {
-              const rawTitle = (sp.title || sp.name || '').trim();
-              return {
-                title: rawTitle,
-                name: rawTitle,
-                ko: targetLang === 'ko' ? rawTitle : (sp.titleKo || rawTitle),
-                en: targetLang === 'en' ? rawTitle : (sp.titleEn || rawTitle),
-                ja: targetLang === 'ja' ? rawTitle : (sp.titleJa || rawTitle),
-                zh: (targetLang === 'zh' || targetLang === 'zht') ? rawTitle : (sp.titleZh || rawTitle),
-                lat: Number(sp.lat || sp.mapy) || baseLoc.lat,
-                lng: Number(sp.lng || sp.mapx) || baseLoc.lng,
-                zoom: 15
-              };
-            });
+            liveHighlights = allCleanSpots.slice(0, 4);
           }
         }
       }
@@ -837,6 +838,7 @@ export default function DesktopMapExplorer({
       return {
         ...baseLoc,
         image: verifiedImage,
+        allSpots: allCleanSpots.length > 0 ? allCleanSpots : (baseLoc.allSpots || []),
         highlights: liveHighlights.length > 0 ? liveHighlights : (baseLoc.highlights || []),
         foodieSecret: localKn?.localFoodieSecret || baseLoc.foodieSecret || null,
         foodieSecretEn: localKn?.localFoodieSecretEn || baseLoc.foodieSecretEn || null,
@@ -1121,44 +1123,60 @@ export default function DesktopMapExplorer({
     return Object.keys(CITY_LOCAL_KNOWLEDGE).find(k => k === clean || name.startsWith(k) || k.startsWith(clean)) || null;
   };
 
-  // 🗺️ 선택된 도시와 일수(1D~5D)에 맞춘 권역별 최적 동선 실시간 조립기
+  // 🗺️ 선택된 도시와 일수(1D~5D)에 맞춘 권역별 최적 동선 실시간 조립기 (중복 0% 완벽 보장)
   const getMultiDayCoursePreview = (location, days, currentLang) => {
     if (!location) return [];
     const cleanCityKey = (location.nameKo || '').replace(/(특별시|광역시|특별자치시|특별자치도|시|군|구)$/, '').trim();
     const localKn = CITY_LOCAL_KNOWLEDGE[cleanCityKey] || CITY_LOCAL_KNOWLEDGE[location.nameKo];
     const foundHub = REGIONAL_FALLBACK_CENTERS.find(c => c.nameKo === cleanCityKey || c.nameKo === location.nameKo || c.nameKo.includes(cleanCityKey) || cleanCityKey.includes(c.nameKo));
     
-    // Pool of spots: combine highlights + localKn.signatureHighlights + rainyHotspots + nightHighlights
-    const pool = [];
+    // Master Candidate Pool: Gather all genuine spots
+    const rawCandidates = [];
+
+    // 1. Curated Hub highlights
     if (foundHub?.highlights && foundHub.highlights.length > 0) {
-      pool.push(...foundHub.highlights);
+      rawCandidates.push(...foundHub.highlights);
     }
+    // 2. Location allSpots (from live TourAPI)
+    if (location.allSpots && location.allSpots.length > 0) {
+      rawCandidates.push(...location.allSpots);
+    }
+    // 3. Location current highlights
     if (location.highlights && location.highlights.length > 0) {
-      location.highlights.forEach(h => {
-        if (!pool.some(p => (p.ko || p.title || p.name) === (h.ko || h.title || h.name))) {
-          pool.push(h);
-        }
-      });
+      rawCandidates.push(...location.highlights);
     }
+    // 4. Knowledge base signatureHighlights
     if (localKn?.signatureHighlights && localKn.signatureHighlights.length > 0) {
       localKn.signatureHighlights.forEach((sigName, idx) => {
-        if (!pool.some(p => (p.ko || p.title || p.name) === sigName)) {
-          pool.push({
-            ko: sigName,
-            en: localKn.signatureHighlightsEn?.[idx] || sigName,
-            ja: localKn.signatureHighlightsJa?.[idx] || sigName,
-            zh: localKn.signatureHighlightsZh?.[idx] || sigName,
-            lat: location.lat,
-            lng: location.lng
-          });
-        }
+        rawCandidates.push({
+          ko: sigName,
+          en: localKn.signatureHighlightsEn?.[idx] || sigName,
+          ja: localKn.signatureHighlightsJa?.[idx] || sigName,
+          zh: localKn.signatureHighlightsZh?.[idx] || sigName,
+          lat: location.lat,
+          lng: location.lng
+        });
       });
     }
+    // 5. Knowledge base rainyHotspots
+    if (localKn?.rainyHotspots && localKn.rainyHotspots.length > 0) {
+      localKn.rainyHotspots.forEach((rName) => {
+        rawCandidates.push({
+          ko: rName,
+          en: rName,
+          ja: rName,
+          zh: rName,
+          lat: location.lat,
+          lng: location.lng
+        });
+      });
+    }
+    // 6. Knowledge base nightHighlights
     if (localKn?.nightHighlights && localKn.nightHighlights.length > 0) {
       localKn.nightHighlights.forEach((nh, idx) => {
         const nhName = typeof nh === 'string' ? nh : (nh.name || nh.ko || '');
-        if (nhName && !pool.some(p => (p.ko || p.title || p.name) === nhName)) {
-          pool.push({
+        if (nhName) {
+          rawCandidates.push({
             ko: nhName,
             en: localKn.nightHighlightsEn?.[idx] || nhName,
             ja: localKn.nightHighlightsJa?.[idx] || nhName,
@@ -1171,10 +1189,29 @@ export default function DesktopMapExplorer({
       });
     }
 
-    if (pool.length === 0) {
-      pool.push(
-        { ko: `${location.nameKo} 중심 명소`, en: `${getLocalizedCityName(location.nameKo, 'en')} Central Landmark`, ja: `${getLocalizedCityName(location.nameKo, 'ja')} 中心名所`, zh: `${getLocalizedCityName(location.nameKo, 'zh')} 中心名胜`, lat: location.lat, lng: location.lng },
-        { ko: `${location.nameKo} 힐링 수변길`, en: `${getLocalizedCityName(location.nameKo, 'en')} Scenic Waterfront`, ja: `${getLocalizedCityName(location.nameKo, 'ja')} ヒーリング水辺`, zh: `${getLocalizedCityName(location.nameKo, 'zh')} 治愈水滨`, lat: location.lat, lng: location.lng }
+    // 🛡️ Deduplicate candidates by normalized title (100% Zero Duplication)
+    const masterPool = [];
+    const seenTitles = new Set();
+
+    for (const cand of rawCandidates) {
+      const rawTitle = (cand.ko || cand.title || cand.name || cand.en || '').trim();
+      if (!rawTitle) continue;
+      // Filter out non-sightseeing keywords
+      if (/(소공원|어린이공원|마을쉼터|쌈지공원|노인정|놀이터|분관|관리소|교육관|주차장|공영주차장|현판|표지석|주민센터|배수지)/i.test(rawTitle)) continue;
+
+      const norm = normalizeTargetString(rawTitle);
+      if (!seenTitles.has(norm)) {
+        seenTitles.add(norm);
+        masterPool.push(cand);
+      }
+    }
+
+    // If masterPool is empty, provide clean regional landmarks
+    if (masterPool.length === 0) {
+      masterPool.push(
+        { ko: `${location.nameKo} 중심 랜드마크`, en: `${getLocalizedCityName(location.nameKo, 'en')} Central Landmark`, ja: `${getLocalizedCityName(location.nameKo, 'ja')} 中心名所`, zh: `${getLocalizedCityName(location.nameKo, 'zh')} 核心景点`, lat: location.lat, lng: location.lng },
+        { ko: `${location.nameKo} 역사 문화거리`, en: `${getLocalizedCityName(location.nameKo, 'en')} Historic Street`, ja: `${getLocalizedCityName(location.nameKo, 'ja')} 歴史文化通り`, zh: `${getLocalizedCityName(location.nameKo, 'zh')} 历史文化街区`, lat: location.lat, lng: location.lng },
+        { ko: `${location.nameKo} 힐링 수변공원`, en: `${getLocalizedCityName(location.nameKo, 'en')} Scenic Waterfront Park`, ja: `${getLocalizedCityName(location.nameKo, 'ja')} ヒーリング水辺公園`, zh: `${getLocalizedCityName(location.nameKo, 'zh')} 治愈水滨公园`, lat: location.lat, lng: location.lng }
       );
     }
 
@@ -1186,16 +1223,35 @@ export default function DesktopMapExplorer({
       { border: '#ec4899', bg: '#fdf2f8', badge: 'linear-gradient(135deg, #db2777, #ec4899)', text: '#be185d' }
     ];
 
-    const resultDays = [];
     const numDays = Math.max(1, Math.min(Number(days) || 3, 5));
-    const spotsPerDay = numDays === 1 ? Math.min(pool.length, 3) : 2;
+    const resultDays = [];
 
+    // Monotonic linear allocation: Each day consumes up to 3 UNIQUE spots from masterPool
+    let cursor = 0;
     for (let d = 1; d <= numDays; d++) {
-      const startIdx = ((d - 1) * 2) % pool.length;
       const daySpots = [];
-      for (let s = 0; s < spotsPerDay; s++) {
-        const spotIdx = (startIdx + s) % pool.length;
-        daySpots.push(pool[spotIdx]);
+      const remainingDays = numDays - d + 1;
+      const remainingSpots = masterPool.length - cursor;
+      
+      let countForDay = 3;
+      if (remainingSpots < remainingDays * 3) {
+        countForDay = Math.max(1, Math.min(3, Math.floor(remainingSpots / remainingDays)));
+      }
+
+      for (let s = 0; s < countForDay && cursor < masterPool.length; s++) {
+        daySpots.push(masterPool[cursor]);
+        cursor++;
+      }
+
+      if (daySpots.length === 0) {
+        daySpots.push({
+          ko: `${location.nameKo} ${d}일차 힐링 코스`,
+          en: `${getLocalizedCityName(location.nameKo, 'en')} Day ${d} Highlights`,
+          ja: `${getLocalizedCityName(location.nameKo, 'ja')} ${d}日目おすすめ`,
+          zh: `${getLocalizedCityName(location.nameKo, 'zh')} 第${d}天推荐`,
+          lat: location.lat,
+          lng: location.lng
+        });
       }
 
       const colorMeta = dayColors[(d - 1) % dayColors.length];
@@ -2277,46 +2333,6 @@ function translateNightHighlight(nightStr, lang, cityName = '') {
                           </div>
                         ))}
                       </div>
-
-                      {/* Bottom Direct CTA Button */}
-                      <button
-                        onClick={handleStartPlan}
-                        style={{
-                          width: '100%',
-                          marginTop: '8px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '6px',
-                          padding: '7px 12px',
-                          borderRadius: '8px',
-                          fontSize: '0.78rem',
-                          fontWeight: 900,
-                          cursor: 'pointer',
-                          border: 'none',
-                          background: 'linear-gradient(135deg, #e11d48 0%, #7c3aed 100%)',
-                          color: '#ffffff',
-                          boxShadow: '0 3px 10px rgba(225, 29, 72, 0.3)',
-                          transition: 'all 0.2s ease'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.transform = 'translateY(-1px)';
-                          e.currentTarget.style.boxShadow = '0 5px 14px rgba(225, 29, 72, 0.4)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.transform = 'translateY(0)';
-                          e.currentTarget.style.boxShadow = '0 3px 10px rgba(225, 29, 72, 0.3)';
-                        }}
-                      >
-                        <Sparkles size={13} color="#ffffff" />
-                        <span>
-                          {lang === 'en' ? `🪄 Generate ${getCityDisplayName(selectedLocation)} ${selectedDays}D Plan 🚀` :
-                           lang === 'ja' ? `🪄 ${getCityDisplayName(selectedLocation)} ${selectedDays}日コース生成 🚀` :
-                           (lang === 'zh' || lang === 'zht') ? `🪄 生成${getCityDisplayName(selectedLocation)} ${selectedDays}日行程 🚀` :
-                           `🪄 ${getCityDisplayName(selectedLocation)} ${selectedDays}일 코스 전체 생성 🚀`}
-                        </span>
-                        <ChevronRight size={13} color="#ffffff" />
-                      </button>
                     </div>
 
                     {/* 🍲 VORA Foodie Secret Pill Tags */}
