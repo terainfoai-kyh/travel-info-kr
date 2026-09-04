@@ -663,56 +663,56 @@ export default function InteractiveQuickTour({
               </div>
             )}
 
-            {/* ── STEP 2 INTERACTIVE DEMO: 1-Click Plan Generation (마스터 일정표 축소판 완벽 시뮬레이션) ── */}
+            {/* ── STEP 2 INTERACTIVE DEMO: Authentic 2-Column Split View (좌: 경로선 코스 지도 + 우: 마스터 일정표) ── */}
             {currentStep === 1 && (() => {
               const activeDayNum = Math.min(demoActiveDay, demoDays);
               const BUSAN_DAYS_PREVIEW = {
                 1: {
                   title: { ko: '부산 해운대 & 센텀 권역 코스', en: 'Busan Haeundae & Centum Route', ja: '釜山 海雲台・センタム コース', zh: '釜山 海云台与Centum区域路线' },
                   spots: [
-                    { time: '09:00', name: { ko: '해운대 블루라인파크 (스카이캡슐)', en: 'Haeundae Blueline Park (Sky Capsule)', ja: '海雲台ブルーラインパーク', zh: '海云台蓝线公园（胶囊列车）' }, cat: { ko: '관광명소', en: 'Attraction', ja: '観光名所', zh: '观光景点' }, color: '#2563eb' },
-                    { time: '11:30', name: { ko: '청사포 다릿돌전망대 & 오션뷰 카페', en: 'Cheongsapo Skywalk & Ocean Cafe', ja: '青沙浦展望台＆カフェ', zh: '青沙浦观景台与海景咖啡' }, cat: { ko: '카페·힐링', en: 'Cafe & View', ja: 'カフェ・展望', zh: '海景咖啡' }, color: '#059669' },
-                    { time: '14:00', name: { ko: '동백섬 & 누리마루 APEC하우스', en: 'Dongbaekseom Island & Nurimaru', ja: '冬柏島＆ヌリマルAPECハウス', zh: '冬柏岛与APEC世峰楼' }, cat: { ko: '역사·문화', en: 'History', ja: '歴史・文化', zh: '历史文化' }, color: '#7c3aed' },
-                    { time: '16:30', name: { ko: '더베이101 요트투어 & 일몰', en: 'The Bay 101 Yacht Sunset Tour', ja: 'ザ・ベイ101 ヨット日没ツアー', zh: 'The Bay 101日落游艇' }, cat: { ko: '체험·레포츠', en: 'Activity', ja: '体験・レジャー', zh: '休闲体验' }, color: '#ea580c' },
-                    { time: '19:00', name: { ko: '광안리 해변 드론쇼 & 광안대교 야경', en: 'Gwangalli Beach Drone Show & Night View', ja: '広安里ドローンショー＆夜景', zh: '广安里无人机秀与大桥夜景' }, cat: { ko: '야경명소', en: 'Night View', ja: '夜景名所', zh: '夜景地标' }, color: '#db2777' }
+                    { time: '09:00', name: { ko: '해운대 블루라인파크 (스카이캡슐)', en: 'Haeundae Blueline Park (Sky Capsule)', ja: '海雲台ブルーラインパーク', zh: '海云台蓝线公园（胶囊列车）' }, cat: { ko: '관광명소', en: 'Attraction', ja: '観光名所', zh: '观光景点' }, color: '#2563eb', x: 80, y: 32 },
+                    { time: '11:30', name: { ko: '청사포 다릿돌전망대 & 오션뷰 카페', en: 'Cheongsapo Skywalk & Ocean Cafe', ja: '青沙浦展望台＆カフェ', zh: '青沙浦观景台与海景咖啡' }, cat: { ko: '카페·힐링', en: 'Cafe & View', ja: 'カフェ・展望', zh: '海景咖啡' }, color: '#059669', x: 68, y: 48 },
+                    { time: '14:00', name: { ko: '동백섬 & 누리마루 APEC하우스', en: 'Dongbaekseom Island & Nurimaru', ja: '冬柏島＆ヌリマルAPECハウス', zh: '冬柏岛与APEC世峰楼' }, cat: { ko: '역사·문화', en: 'History', ja: '歴史・文化', zh: '历史文化' }, color: '#7c3aed', x: 50, y: 62 },
+                    { time: '16:30', name: { ko: '더베이101 요트투어 & 일몰', en: 'The Bay 101 Yacht Sunset Tour', ja: 'ザ・ベイ101 ヨット日没ツアー', zh: 'The Bay 101日落游艇' }, cat: { ko: '체험·레포츠', en: 'Activity', ja: '体験・レジャー', zh: '休闲体验' }, color: '#ea580c', x: 38, y: 52 },
+                    { time: '19:00', name: { ko: '광안리 해변 드론쇼 & 광안대교 야경', en: 'Gwangalli Beach Drone Show & Night View', ja: '広安里ドローンショー＆夜景', zh: '广安里无人机秀与大桥夜景' }, cat: { ko: '야경명소', en: 'Night View', ja: '夜景名所', zh: '夜景地标' }, color: '#db2777', x: 18, y: 72 }
                   ]
                 },
                 2: {
                   title: { ko: '부산 영도 & 남포동 로컬 미식 코스', en: 'Busan Yeongdo & Nampo Foodie Route', ja: '釜山 影島・南浦洞ローカルグルメ', zh: '釜山 影岛与南浦洞地道美食路线' },
                   spots: [
-                    { time: '09:30', name: { ko: '흰여울문화마을 해안절벽길', en: 'Huinnyeoul Culture Village Coastal Path', ja: '白瀬文化村 海岸散策路', zh: '白浅滩文化村海岸悬崖步道' }, cat: { ko: '문화거리', en: 'Culture Street', ja: '文化通り', zh: '文化街区' }, color: '#2563eb' },
-                    { time: '12:00', name: { ko: '자갈치시장 활어회 & 남포동 비프광장', en: 'Jagalchi Fish Market & BIFF Square', ja: 'チャガルチ市場＆BIFF広場', zh: '札嘎其水产市场与BIFF广场' }, cat: { ko: '로컬미식', en: 'Local Food', ja: 'ローカルグルメ', zh: '地道美食' }, color: '#ea580c' },
-                    { time: '14:30', name: { ko: '용두산공원 & 부산타워 전망대', en: 'Yongdusan Park & Busan Tower', ja: '竜頭山公園＆釜山タワー', zh: '龙头山公园与釜山塔展望台' }, cat: { ko: '랜드마크', en: 'Landmark', ja: '名所展望', zh: '地标全景' }, color: '#7c3aed' },
-                    { time: '17:00', name: { ko: '영도 피아크(P.ARK) 복합문화공간', en: 'Yeongdo P.ARK Ocean Cultural Space', ja: '影島 P.ARK 複合文化空間', zh: '影岛P.ARK海景复合文化空间' }, cat: { ko: '복합문화', en: 'Complex Art', ja: 'アート空間', zh: '艺术空间' }, color: '#059669' },
-                    { time: '19:30', name: { ko: '부평 깡통야시장 먹거리투어', en: 'Bupyeong Kkangtong Night Market', ja: '富平カントン夜市 グルメ巡り', zh: '富平罐头夜市特色小吃街' }, cat: { ko: '야시장', en: 'Night Market', ja: '夜市', zh: '夜市美食' }, color: '#db2777' }
+                    { time: '09:30', name: { ko: '흰여울문화마을 해안절벽길', en: 'Huinnyeoul Culture Village Coastal Path', ja: '白瀬文化村 海岸散策路', zh: '白浅滩文化村海岸悬崖步道' }, cat: { ko: '문화거리', en: 'Culture Street', ja: '文化通り', zh: '文化街区' }, color: '#2563eb', x: 75, y: 75 },
+                    { time: '12:00', name: { ko: '자갈치시장 활어회 & 남포동 비프광장', en: 'Jagalchi Fish Market & BIFF Square', ja: 'チャガルチ市場＆BIFF広場', zh: '札嘎其水产市场与BIFF广场' }, cat: { ko: '로컬미식', en: 'Local Food', ja: 'ローカルグルメ', zh: '地道美食' }, color: '#ea580c', x: 52, y: 55 },
+                    { time: '14:30', name: { ko: '용두산공원 & 부산타워 전망대', en: 'Yongdusan Park & Busan Tower', ja: '竜頭山公園＆釜山タワー', zh: '龙头山公园与釜山塔展望台' }, cat: { ko: '랜드마크', en: 'Landmark', ja: '名所展望', zh: '地标全景' }, color: '#7c3aed', x: 45, y: 38 },
+                    { time: '17:00', name: { ko: '영도 피아크(P.ARK) 복합문화공간', en: 'Yeongdo P.ARK Ocean Cultural Space', ja: '影島 P.ARK 複合文化空間', zh: '影岛P.ARK海景复合文化空间' }, cat: { ko: '복합문화', en: 'Complex Art', ja: 'アート空間', zh: '艺术空间' }, color: '#059669', x: 62, y: 68 },
+                    { time: '19:30', name: { ko: '부평 깡통야시장 먹거리투어', en: 'Bupyeong Kkangtong Night Market', ja: '富平カントン夜市 グルメ巡り', zh: '富平罐头夜市特色小吃街' }, cat: { ko: '야시장', en: 'Night Market', ja: '夜市', zh: '夜市美食' }, color: '#db2777', x: 30, y: 45 }
                   ]
                 },
                 3: {
                   title: { ko: '부산 기장 & 오시리아 힐링 코스', en: 'Busan Gijang & Osiria Healing Route', ja: '釜山 機張・オシリア癒やしコース', zh: '釜山 机张与Osiria治愈路线' },
                   spots: [
-                    { time: '10:00', name: { ko: '해동용궁사 바다 사찰', en: 'Haedong Yonggungsa Seaside Temple', ja: '海東勇宮寺 海沿いの名刹', zh: '海东龙宫寺绝美海边古刹' }, cat: { ko: '역사·사찰', en: 'Historic Temple', ja: '歴史寺院', zh: '历史寺庙' }, color: '#7c3aed' },
-                    { time: '12:30', name: { ko: '기장 연화리 해녀촌 전복죽', en: 'Gijang Yeonhwa-ri Haenyeo Abalone Porridge', ja: '機張 アワビ粥 海女村', zh: '机张莲花里海女村鲜美鲍鱼粥' }, cat: { ko: '로컬미식', en: 'Local Food', ja: '絶品グルメ', zh: '特色美食' }, color: '#ea580c' },
-                    { time: '14:30', name: { ko: '롯데월드 어드벤처 부산', en: 'Lotte World Adventure Busan', ja: 'ロッテワールド アドベンチャー釜山', zh: '乐天世界冒险釜山主题乐园' }, cat: { ko: '테마파크', en: 'Theme Park', ja: 'テーマパーク', zh: '主题乐园' }, color: '#2563eb' },
-                    { time: '17:00', name: { ko: '오시리아 해안산책로 & 아난티코브', en: 'Osiria Coastal Trail & Ananti Cove', ja: 'オシリア海岸散歩道', zh: 'Osiria海滨步道与Ananti Cove' }, cat: { ko: '자연·산책', en: 'Nature Trail', ja: '自然散策', zh: '自然休闲' }, color: '#059669' },
-                    { time: '19:00', name: { ko: '송정해수욕장 야간 서핑 거리', en: 'Songjeong Beach Night Surfing Street', ja: '松亭海水浴場 ナイトサーフ通り', zh: '松亭海水浴场夜间冲浪海滩' }, cat: { ko: '해변야경', en: 'Beach Night', ja: 'ビーチ夜景', zh: '海滩夜景' }, color: '#db2777' }
+                    { time: '10:00', name: { ko: '해동용궁사 바다 사찰', en: 'Haedong Yonggungsa Seaside Temple', ja: '海東勇宮寺 海沿いの名刹', zh: '海东龙宫寺绝美海边古刹' }, cat: { ko: '역사·사찰', en: 'Historic Temple', ja: '歴史寺院', zh: '历史寺庙' }, color: '#7c3aed', x: 82, y: 25 },
+                    { time: '12:30', name: { ko: '기장 연화리 해녀촌 전복죽', en: 'Gijang Yeonhwa-ri Haenyeo Abalone Porridge', ja: '機張 アワビ粥 海女村', zh: '机张莲花里海女村鲜美鲍鱼粥' }, cat: { ko: '로컬미식', en: 'Local Food', ja: '絶品グルメ', zh: '特色美食' }, color: '#ea580c', x: 74, y: 40 },
+                    { time: '14:30', name: { ko: '롯데월드 어드벤처 부산', en: 'Lotte World Adventure Busan', ja: 'ロッテワールド アドベンチャー釜山', zh: '乐天世界冒险釜山主题乐园' }, cat: { ko: '테마파크', en: 'Theme Park', ja: 'テーマパーク', zh: '主题乐园' }, color: '#2563eb', x: 60, y: 55 },
+                    { time: '17:00', name: { ko: '오시리아 해안산책로 & 아난티코브', en: 'Osiria Coastal Trail & Ananti Cove', ja: 'オシリア海岸散歩道', zh: 'Osiria海滨步道与Ananti Cove' }, cat: { ko: '자연·산책', en: 'Nature Trail', ja: '自然散策', zh: '自然休闲' }, color: '#059669', x: 45, y: 65 },
+                    { time: '19:00', name: { ko: '송정해수욕장 야간 서핑 거리', en: 'Songjeong Beach Night Surfing Street', ja: '松亭海水浴場 ナイトサーフ通り', zh: '松亭海水浴场夜间冲浪海滩' }, cat: { ko: '해변야경', en: 'Beach Night', ja: 'ビーチ夜景', zh: '海滩夜景' }, color: '#db2777', x: 25, y: 80 }
                   ]
                 },
                 4: {
                   title: { ko: '부산 서면 & 전포 감성거리 코스', en: 'Busan Seomyeon & Jeonpo Hipster Route', ja: '釜山 西面・田浦カフェ通り', zh: '釜山 西面与田浦潮玩街区路线' },
                   spots: [
-                    { time: '10:30', name: { ko: '전포 카페거리 & 소품샵 투어', en: 'Jeonpo Cafe Street & Vintage Shops', ja: '田浦カフェ通り＆雑貨巡り', zh: '田浦咖啡街与文创买手店' }, cat: { ko: '감성거리', en: 'Trendy Street', ja: 'カフェ通り', zh: '文艺街区' }, color: '#059669' },
-                    { time: '13:00', name: { ko: '서면 돼지국밥 골목 맛집', en: 'Seomyeon Pork Soup Alley Authentic Taste', ja: '西面 デジクッパ通り 老舗', zh: '西面猪肉汤饭胡同正宗老店' }, cat: { ko: '로컬미식', en: 'Local Food', ja: '名物グルメ', zh: '地道美食' }, color: '#ea580c' },
-                    { time: '15:00', name: { ko: '부산시민공원 잔디광장 피크닉', en: 'Busan Citizens Park Picnic', ja: '釜山市民公園 ピクニック', zh: '釜山市民公园大草坪野餐' }, cat: { ko: '도심힐링', en: 'Urban Park', ja: '公園散策', zh: '城市公园' }, color: '#2563eb' },
-                    { time: '18:00', name: { ko: '황령산 봉수대 파노라마 야경', en: 'Hwangnyeongsan Mountain Sunset & Night Panoramic', ja: '荒嶺山 烽火台 パノラマ夜景', zh: '荒岭山烽燧台全景日落与璀璨夜景' }, cat: { ko: '야경명소', en: 'Night View', ja: '夜景名所', zh: '全景夜景' }, color: '#db2777' }
+                    { time: '10:30', name: { ko: '전포 카페거리 & 소품샵 투어', en: 'Jeonpo Cafe Street & Vintage Shops', ja: '田浦カフェ通り＆雑貨巡り', zh: '田浦咖啡街与文创买手店' }, cat: { ko: '감성거리', en: 'Trendy Street', ja: 'カフェ通り', zh: '文艺街区' }, color: '#059669', x: 70, y: 35 },
+                    { time: '13:00', name: { ko: '서면 돼지국밥 골목 맛집', en: 'Seomyeon Pork Soup Alley Authentic Taste', ja: '西面 デジクッパ通り 老舗', zh: '西面猪肉汤饭胡同正宗老店' }, cat: { ko: '로컬미식', en: 'Local Food', ja: '名物グルメ', zh: '地道美食' }, color: '#ea580c', x: 55, y: 48 },
+                    { time: '15:00', name: { ko: '부산시민공원 잔디광장 피크닉', en: 'Busan Citizens Park Picnic', ja: '釜山市民公園 ピクニック', zh: '釜山市民公园大草坪野餐' }, cat: { ko: '도심힐링', en: 'Urban Park', ja: '公園散策', zh: '城市公园' }, color: '#2563eb', x: 40, y: 30 },
+                    { time: '18:00', name: { ko: '황령산 봉수대 파노라마 야경', en: 'Hwangnyeongsan Mountain Sunset & Night Panoramic', ja: '荒嶺山 烽火台 パノラマ夜景', zh: '荒岭山烽燧台全景日落与璀璨夜景' }, cat: { ko: '야경명소', en: 'Night View', ja: '夜景名所', zh: '全景夜景' }, color: '#db2777', x: 25, y: 70 }
                   ]
                 },
                 5: {
                   title: { ko: '부산 다대포 & 서부산 힐링 코스', en: 'Busan Dadaepo & West Busan Route', ja: '釜山 多大浦・西釜山 癒やしコース', zh: '釜山 多大浦与西釜山生态漫游路线' },
                   spots: [
-                    { time: '10:30', name: { ko: '감천문화마을 어린왕자 포토존', en: 'Gamcheon Culture Village Little Prince', ja: '甘川文化村 星の王子さまフォト', zh: '甘川文化村小王子打卡胜地' }, cat: { ko: '문화예술', en: 'Art Village', ja: 'アート村', zh: '文化艺术' }, color: '#7c3aed' },
-                    { time: '13:00', name: { ko: '송도 해상케이블카 & 용궁구름다리', en: 'Songdo Marine Cable Car & Cloud Bridge', ja: '松島海上ケーブルカー＆雲の橋', zh: '松岛海上缆车与龙宫空中栈道' }, cat: { ko: '체험·레포츠', en: 'Activity', ja: '海上体験', zh: '海上缆车' }, color: '#ea580c' },
-                    { time: '15:30', name: { ko: '을숙도 생태공원 & 낙동강에코센터', en: 'Eulsukdo Ecological Park', ja: '乙淑島 生態公園', zh: '乙淑岛生态公园与落东江环保中心' }, cat: { ko: '생태자연', en: 'Eco Park', ja: '自然公園', zh: '生态自然' }, color: '#059669' },
-                    { time: '18:00', name: { ko: '다대포 꿈의 낙조분수 & 일몰', en: 'Dadaepo Sunset Fountain of Dreams', ja: '多大浦 夢の夕焼け噴水＆夕日', zh: '多大浦梦幻夕阳喷泉与绝美落日' }, cat: { ko: '일몰명소', en: 'Sunset View', ja: '夕日名所', zh: '绝美落日' }, color: '#db2777' }
+                    { time: '10:30', name: { ko: '감천문화마을 어린왕자 포토존', en: 'Gamcheon Culture Village Little Prince', ja: '甘川文化村 星の王子さまフォト', zh: '甘川文化村小王子打卡胜地' }, cat: { ko: '문화예술', en: 'Art Village', ja: 'アート村', zh: '文化艺术' }, color: '#7c3aed', x: 75, y: 35 },
+                    { time: '13:00', name: { ko: '송도 해상케이블카 & 용궁구름다리', en: 'Songdo Marine Cable Car & Cloud Bridge', ja: '松島海上ケーブルカー＆雲の橋', zh: '松岛海上缆车与龙宫空中栈道' }, cat: { ko: '체험·레포츠', en: 'Activity', ja: '海上体験', zh: '海上缆车' }, color: '#ea580c', x: 60, y: 55 },
+                    { time: '15:30', name: { ko: '을숙도 생태공원 & 낙동강에코센터', en: 'Eulsukdo Ecological Park', ja: '乙淑島 生態公園', zh: '乙淑岛生态公园与落东江环保中心' }, cat: { ko: '생태자연', en: 'Eco Park', ja: '自然公園', zh: '生态自然' }, color: '#059669', x: 40, y: 65 },
+                    { time: '18:00', name: { ko: '다대포 꿈의 낙조분수 & 일몰', en: 'Dadaepo Sunset Fountain of Dreams', ja: '多大浦 夢の夕焼け噴水＆夕日', zh: '多大浦梦幻夕阳喷泉与绝美落日' }, cat: { ko: '일몰명소', en: 'Sunset View', ja: '夕日名所', zh: '绝美落日' }, color: '#db2777', x: 20, y: 80 }
                   ]
                 }
               };
@@ -720,7 +720,7 @@ export default function InteractiveQuickTour({
               const currentDayData = BUSAN_DAYS_PREVIEW[activeDayNum] || BUSAN_DAYS_PREVIEW[1];
 
               return (
-                <div style={{ padding: '14px 16px' }}>
+                <div style={{ padding: '12px 14px' }}>
                   {/* Top: 1-Click Generator Control Bar */}
                   <div style={{
                     display: 'flex',
@@ -791,194 +791,352 @@ export default function InteractiveQuickTour({
                     </button>
                   </div>
 
-                  {/* 🌟 Authentic Mini Itinerary Master View (실제 일정표 완벽 판박이 프리뷰) */}
+                  {/* 🌟 Authentic 2-Column Split: [Left: Route Polyline Map] + [Right: Master Timeline] 🌟 */}
                   <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1.15fr',
+                    gap: '10px',
                     backgroundColor: '#ffffff',
-                    borderRadius: '12px',
-                    padding: '12px',
+                    borderRadius: '14px',
+                    padding: '10px',
                     border: '1.5px solid #e2e8f0',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
+                    boxShadow: '0 4px 14px rgba(0,0,0,0.04)'
                   }}>
-                    {/* Master Top Bar (AI 수정 버튼 + 타이틀 + 저장 버튼) */}
+                    {/* 🗺️ LEFT: Simulated Interactive Route Polyline Map */}
                     <div style={{
+                      position: 'relative',
+                      backgroundColor: '#f1f5f9',
+                      borderRadius: '10px',
+                      overflow: 'hidden',
+                      border: '1px solid #cbd5e1',
+                      minHeight: '230px',
                       display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      marginBottom: '8px',
-                      paddingBottom: '8px',
-                      borderBottom: '1px solid #f1f5f9',
-                      flexWrap: 'wrap',
-                      gap: '6px'
+                      flexDirection: 'column'
                     }}>
-                      <div style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                        padding: '3px 8px',
-                        backgroundColor: '#eff6ff',
-                        color: '#1d4ed8',
-                        borderRadius: '6px',
-                        fontSize: '0.68rem',
-                        fontWeight: 800,
-                        border: '1px solid #bfdbfe'
-                      }}>
-                        <Sparkles size={11} color="#2563eb" />
-                        <span>
-                          {lang === 'en' ? '← Edit with AI' :
-                           lang === 'ja' ? '← AI対話で修正' :
-                           (lang === 'zh' || lang === 'zht') ? '← AI对话微调' :
-                           '← AI 대화로 수정'}
-                        </span>
-                      </div>
+                      {/* Realistic Map Canvas (OpenStreetMap style base) */}
+                      <svg
+                        viewBox="0 0 100 100"
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          position: 'absolute',
+                          inset: 0,
+                          backgroundColor: '#f8fafc'
+                        }}
+                      >
+                        {/* Map Grid / Land Contour */}
+                        <defs>
+                          <pattern id="quickMapGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+                            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e2e8f0" strokeWidth="0.5" />
+                          </pattern>
+                        </defs>
+                        <rect width="100" height="100" fill="url(#quickMapGrid)" />
+                        
+                        {/* Coastline Silhouette */}
+                        <path
+                          d="M -10 30 Q 30 20 50 45 T 110 80 L 110 110 L -10 110 Z"
+                          fill="#e0f2fe"
+                          opacity="0.7"
+                        />
 
-                      <span style={{ fontSize: '0.74rem', fontWeight: 900, color: '#0f172a' }}>
-                        {lang === 'en' ? `✨ Busan ${demoDays}D [Top Highlights]` :
-                         lang === 'ja' ? `✨ 釜山 ${demoDays}日間 [厳選名所]` :
-                         (lang === 'zh' || lang === 'zht') ? `✨ 釜山 ${demoDays}日 [核心经典]` :
-                         `✨ 부산 ${demoDays}일 [✦ 핵심 랜드마크]`}
-                      </span>
+                        {/* Road Network Lines */}
+                        <path d="M 10 10 Q 50 40 90 20" fill="none" stroke="#fed7aa" strokeWidth="1.2" />
+                        <path d="M 15 90 Q 45 50 85 85" fill="none" stroke="#fed7aa" strokeWidth="1.2" />
+                        <path d="M 30 10 Q 50 60 70 95" fill="none" stroke="#ffffff" strokeWidth="1.8" />
 
-                      <div style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '3px',
-                        padding: '3px 8px',
-                        backgroundColor: '#3b82f6',
-                        color: '#ffffff',
-                        borderRadius: '6px',
-                        fontSize: '0.65rem',
-                        fontWeight: 800
-                      }}>
-                        <span>💾</span>
-                        <span>{lang === 'en' ? 'Save Trip' : lang === 'ja' ? '旅程保存' : (lang === 'zh' || lang === 'zht') ? '保存行程' : '일정 저장'}</span>
-                      </div>
-                    </div>
+                        {/* 🚀 Blue Polyline Connecting All Spots in Order (1 -> 2 -> 3 -> 4 -> 5) */}
+                        <polyline
+                          points={currentDayData.spots.map(s => `${s.x},${s.y}`).join(' ')}
+                          fill="none"
+                          stroke="#2563eb"
+                          strokeWidth="2.2"
+                          strokeDasharray="3,2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
 
-                    {/* Day Tabs (1일차 | 2일차 | 3일차 ...) */}
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                      marginBottom: '8px'
-                    }}>
-                      {Array.from({ length: demoDays }, (_, i) => i + 1).map((dNum) => (
-                        <button
-                          key={dNum}
-                          onClick={() => setDemoActiveDay(dNum)}
-                          style={{
-                            padding: '3px 10px',
-                            borderRadius: '9999px',
-                            fontSize: '0.70rem',
-                            fontWeight: 800,
-                            cursor: 'pointer',
-                            border: activeDayNum === dNum ? '1px solid #2563eb' : '1px solid #e2e8f0',
-                            backgroundColor: activeDayNum === dNum ? '#2563eb' : '#f8fafc',
-                            color: activeDayNum === dNum ? '#ffffff' : '#64748b',
-                            boxShadow: activeDayNum === dNum ? '0 2px 6px rgba(37,99,235,0.3)' : 'none',
-                            transition: 'all 0.15s ease'
-                          }}
-                        >
-                          {lang === 'en' ? `Day ${dNum}` :
-                           lang === 'ja' ? `${dNum}日目` :
-                           (lang === 'zh' || lang === 'zht') ? `第${dNum}天` :
-                           `${dNum}일차`}
-                        </button>
-                      ))}
-                    </div>
+                        {/* Connecting Arrow Highlights */}
+                        {currentDayData.spots.map((s, idx) => {
+                          if (idx === currentDayData.spots.length - 1) return null;
+                          const nextS = currentDayData.spots[idx + 1];
+                          const midX = (s.x + nextS.x) / 2;
+                          const midY = (s.y + nextS.y) / 2;
+                          return (
+                            <circle
+                              key={`mid-${idx}`}
+                              cx={midX}
+                              cy={midY}
+                              r="1.2"
+                              fill="#2563eb"
+                            />
+                          );
+                        })}
+                      </svg>
 
-                    {/* Day Route Header */}
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      padding: '4px 6px',
-                      backgroundColor: '#f8fafc',
-                      borderRadius: '6px',
-                      marginBottom: '6px'
-                    }}>
-                      <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                        fontSize: '0.72rem',
-                        fontWeight: 900,
-                        color: '#1e293b'
-                      }}>
-                        <Calendar size={12} color="#2563eb" />
-                        <span>DAY {activeDayNum} — {currentDayData.title[lang] || currentDayData.title.ko}</span>
-                      </div>
-                      <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#059669' }}>
-                        {currentDayData.spots.length} {lang === 'en' ? 'Spots' : lang === 'ja' ? 'スポット' : (lang === 'zh' || lang === 'zht') ? '景点' : '개 추천 코스'}
-                      </span>
-                    </div>
-
-                    {/* Timeline List (시간표 + 번호 + 스팟명 + 카테고리 뱃지) */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                      {/* Map Pins on SVG Coordinates */}
                       {currentDayData.spots.map((sp, sIdx) => (
                         <div
                           key={sIdx}
                           style={{
+                            position: 'absolute',
+                            top: `${sp.y}%`,
+                            left: `${sp.x}%`,
+                            transform: 'translate(-50%, -50%)',
                             display: 'flex',
+                            flexDirection: 'column',
                             alignItems: 'center',
-                            justifyContent: 'space-between',
-                            padding: '4px 6px',
-                            backgroundColor: '#ffffff',
-                            borderRadius: '6px',
-                            border: '1px solid #f1f5f9'
+                            zIndex: 4,
+                            cursor: 'pointer'
                           }}
                         >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflow: 'hidden' }}>
-                            <span style={{
-                              fontSize: '0.68rem',
-                              fontWeight: 800,
-                              color: '#64748b',
-                              fontVariantNumeric: 'tabular-nums',
-                              minWidth: '34px'
-                            }}>
-                              {sp.time}
-                            </span>
-                            <span style={{
-                              width: '16px',
-                              height: '16px',
-                              borderRadius: '50%',
-                              backgroundColor: '#2563eb',
-                              color: '#ffffff',
-                              fontSize: '0.62rem',
-                              fontWeight: 900,
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              flexShrink: 0
-                            }}>
-                              {sIdx + 1}
-                            </span>
-                            <span style={{
-                              fontSize: '0.72rem',
-                              fontWeight: 800,
-                              color: '#1e293b',
-                              whiteSpace: 'nowrap',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis'
-                            }}>
-                              {sp.name[lang] || sp.name.ko}
-                            </span>
-                          </div>
-
-                          <span style={{
-                            fontSize: '0.60rem',
-                            fontWeight: 800,
-                            color: sp.color,
-                            backgroundColor: `${sp.color}15`,
-                            border: `1px solid ${sp.color}35`,
-                            padding: '1px 6px',
-                            borderRadius: '4px',
-                            whiteSpace: 'nowrap',
-                            flexShrink: 0
+                          <div style={{
+                            width: '18px',
+                            height: '18px',
+                            borderRadius: '50%',
+                            backgroundColor: '#2563eb',
+                            color: '#ffffff',
+                            fontSize: '0.62rem',
+                            fontWeight: 900,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            boxShadow: '0 2px 6px rgba(37,99,235,0.6), 0 0 0 2px #ffffff',
+                            lineHeight: 1
                           }}>
-                            {sp.cat[lang] || sp.cat.ko}
+                            {sIdx + 1}
+                          </div>
+                          <span style={{
+                            fontSize: '0.55rem',
+                            fontWeight: 800,
+                            color: '#1e293b',
+                            backgroundColor: 'rgba(255,255,255,0.92)',
+                            padding: '1px 4px',
+                            borderRadius: '3px',
+                            whiteSpace: 'nowrap',
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
+                            marginTop: '1px',
+                            maxWidth: '75px',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            border: '0.5px solid #cbd5e1'
+                          }}>
+                            {sp.name[lang] || sp.name.ko}
                           </span>
                         </div>
                       ))}
+
+                      {/* Map Bottom Tag */}
+                      <div style={{
+                        position: 'absolute',
+                        bottom: '5px',
+                        left: '6px',
+                        right: '6px',
+                        fontSize: '0.58rem',
+                        fontWeight: 800,
+                        color: '#1d4ed8',
+                        backgroundColor: 'rgba(255,255,255,0.92)',
+                        padding: '2px 6px',
+                        borderRadius: '4px',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        border: '1px solid #bfdbfe',
+                        zIndex: 5
+                      }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                          <Navigation size={10} color="#2563eb" />
+                          <span>Day {activeDayNum} {lang === 'en' ? 'Spatial Route' : '실측 동선'}</span>
+                        </span>
+                        <span style={{ color: '#059669' }}>
+                          {lang === 'en' ? '0% Transit Waste ⚡' : '이동낭비 0% ⚡'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* 📋 RIGHT: Master Timeline & Day Tabs */}
+                    <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                      {/* Top Bar (AI 수정 버튼 + 타이틀 + 저장 버튼) */}
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        marginBottom: '6px',
+                        paddingBottom: '6px',
+                        borderBottom: '1px solid #f1f5f9',
+                        flexWrap: 'wrap',
+                        gap: '4px'
+                      }}>
+                        <div style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '3px',
+                          padding: '2px 6px',
+                          backgroundColor: '#eff6ff',
+                          color: '#1d4ed8',
+                          borderRadius: '5px',
+                          fontSize: '0.64rem',
+                          fontWeight: 800,
+                          border: '1px solid #bfdbfe'
+                        }}>
+                          <Sparkles size={10} color="#2563eb" />
+                          <span>
+                            {lang === 'en' ? '← Edit with AI' :
+                             lang === 'ja' ? '← AI対話で修正' :
+                             (lang === 'zh' || lang === 'zht') ? '← AI对话微调' :
+                             '← AI 대화로 수정'}
+                          </span>
+                        </div>
+
+                        <div style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '2px',
+                          padding: '2px 6px',
+                          backgroundColor: '#3b82f6',
+                          color: '#ffffff',
+                          borderRadius: '5px',
+                          fontSize: '0.62rem',
+                          fontWeight: 800
+                        }}>
+                          <span>💾</span>
+                          <span>{lang === 'en' ? 'Save' : '저장'}</span>
+                        </div>
+                      </div>
+
+                      {/* Day Tabs (1일차 | 2일차 | 3일차 ...) */}
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '3px',
+                        marginBottom: '6px',
+                        overflowX: 'auto'
+                      }}>
+                        {Array.from({ length: demoDays }, (_, i) => i + 1).map((dNum) => (
+                          <button
+                            key={dNum}
+                            onClick={() => setDemoActiveDay(dNum)}
+                            style={{
+                              padding: '2px 8px',
+                              borderRadius: '9999px',
+                              fontSize: '0.66rem',
+                              fontWeight: 800,
+                              cursor: 'pointer',
+                              border: activeDayNum === dNum ? '1px solid #2563eb' : '1px solid #e2e8f0',
+                              backgroundColor: activeDayNum === dNum ? '#2563eb' : '#f8fafc',
+                              color: activeDayNum === dNum ? '#ffffff' : '#64748b',
+                              boxShadow: activeDayNum === dNum ? '0 2px 4px rgba(37,99,235,0.3)' : 'none',
+                              transition: 'all 0.15s ease',
+                              whiteSpace: 'nowrap'
+                            }}
+                          >
+                            {lang === 'en' ? `Day ${dNum}` :
+                             lang === 'ja' ? `${dNum}日目` :
+                             (lang === 'zh' || lang === 'zht') ? `第${dNum}天` :
+                             `${dNum}일차`}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Day Route Header */}
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '3px 5px',
+                        backgroundColor: '#f8fafc',
+                        borderRadius: '5px',
+                        marginBottom: '5px'
+                      }}>
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '3px',
+                          fontSize: '0.68rem',
+                          fontWeight: 900,
+                          color: '#1e293b',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
+                        }}>
+                          <Calendar size={11} color="#2563eb" style={{ flexShrink: 0 }} />
+                          <span>DAY {activeDayNum} — {currentDayData.title[lang] || currentDayData.title.ko}</span>
+                        </div>
+                        <span style={{ fontSize: '0.58rem', fontWeight: 800, color: '#059669', flexShrink: 0 }}>
+                          {currentDayData.spots.length} {lang === 'en' ? 'Spots' : '코스'}
+                        </span>
+                      </div>
+
+                      {/* Timeline List (시간표 + 번호 + 스팟명 + 카테고리 뱃지) */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', overflowY: 'auto', maxHeight: '155px' }}>
+                        {currentDayData.spots.map((sp, sIdx) => (
+                          <div
+                            key={sIdx}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              padding: '3px 5px',
+                              backgroundColor: '#ffffff',
+                              borderRadius: '5px',
+                              border: '1px solid #f1f5f9',
+                              gap: '4px'
+                            }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', overflow: 'hidden' }}>
+                              <span style={{
+                                fontSize: '0.62rem',
+                                fontWeight: 800,
+                                color: '#64748b',
+                                fontVariantNumeric: 'tabular-nums',
+                                minWidth: '28px',
+                                flexShrink: 0
+                              }}>
+                                {sp.time}
+                              </span>
+                              <span style={{
+                                width: '14px',
+                                height: '14px',
+                                borderRadius: '50%',
+                                backgroundColor: '#2563eb',
+                                color: '#ffffff',
+                                fontSize: '0.58rem',
+                                fontWeight: 900,
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                flexShrink: 0
+                              }}>
+                                {sIdx + 1}
+                              </span>
+                              <span style={{
+                                fontSize: '0.68rem',
+                                fontWeight: 800,
+                                color: '#1e293b',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis'
+                              }}>
+                                {sp.name[lang] || sp.name.ko}
+                              </span>
+                            </div>
+
+                            <span style={{
+                              fontSize: '0.56rem',
+                              fontWeight: 800,
+                              color: sp.color,
+                              backgroundColor: `${sp.color}15`,
+                              border: `1px solid ${sp.color}35`,
+                              padding: '1px 4px',
+                              borderRadius: '3px',
+                              whiteSpace: 'nowrap',
+                              flexShrink: 0
+                            }}>
+                              {sp.cat[lang] || sp.cat.ko}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
