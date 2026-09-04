@@ -44,25 +44,49 @@ export default function InteractiveQuickTour({
       name: { ko: '서울', en: 'Seoul', ja: 'ソウル', zh: '首尔' },
       photo: '/images/themes/theme-gyeongbokgung.jpg',
       tag: { ko: '경복궁 & 성수동 카페거리', en: 'Gyeongbokgung & Seongsu Cafes', ja: '景福宮＆聖水洞カフェ', zh: '景福宫与圣水洞咖啡街' },
-      food: { ko: '광장시장 마약김밥 & 빈대떡', en: 'Gwangjang Market Kimbap & Bindaetteok', ja: '広蔵市場キンパ＆チヂミ', zh: '广藏市场紫菜包饭与绿豆煎饼' }
-    },
-    busan: {
-      name: { ko: '부산', en: 'Busan', ja: '釜山', zh: '釜山' },
-      photo: '/images/themes/theme-busan.jpg',
-      tag: { ko: '해운대 블루라인파크 & 광안대교', en: 'Haeundae Blueline & Gwangandaegyo', ja: '海雲台ブルーライン＆広安大橋', zh: '海云台蓝线公园与广安大桥' },
-      food: { ko: '자갈치시장 활어회 & 돼지국밥', en: 'Jagalchi Sashimi & Pork Soup', ja: 'チャガルチ刺身＆テジクッパ', zh: '札嘎其生鱼片与猪肉汤饭' }
-    },
-    jeju: {
-      name: { ko: '제주', en: 'Jeju', ja: '済州', zh: '济州' },
-      photo: '/images/themes/theme-jeju.jpg',
-      tag: { ko: '성산일출봉 & 애월 한담해변', en: 'Seongsan Peak & Aewol Coast', ja: '城山日出峰＆涯月海岸', zh: '城山日出峰与涯月海岸' },
-      food: { ko: '제주 흑돼지 & 고기국수', en: 'Black Pork BBQ & Gogi Guksu', ja: '済州黒豚焼肉＆肉うどん', zh: '济州黑猪肉与猪肉汤面' }
+      food: { ko: '광장시장 마약김밥 & 빈대떡', en: 'Gwangjang Market Kimbap & Bindaetteok', ja: '広蔵市場キンパ＆チヂミ', zh: '广藏市场紫菜包饭与绿豆煎饼' },
+      mapPos: { top: '24%', left: '38%' },
+      route: [
+        { ko: '경복궁 & 근정전', en: 'Gyeongbokgung Palace', ja: '景福宮', zh: '景福宫' },
+        { ko: '북촌 한옥마을', en: 'Bukchon Hanok', ja: '北村韓屋村', zh: '北村韩屋村' },
+        { ko: '성수동 카페거리', en: 'Seongsu Cafes', ja: '聖水洞カフェ', zh: '圣水洞咖啡街' }
+      ]
     },
     gangneung: {
       name: { ko: '강릉', en: 'Gangneung', ja: '江陵', zh: '江陵' },
       photo: '/images/themes/theme-gangneung.jpg',
       tag: { ko: '안목해변 커피거리 & BTS 정류장', en: 'Anmok Coffee Street & BTS Stop', ja: '安木カフェ通り＆BTSバス停', zh: '安木咖啡街与BTS车站' },
-      food: { ko: '초당 순두부 & 닭강정', en: 'Chodang Soft Tofu & Dakgangjeong', ja: '草堂スンドゥブ＆チキン', zh: '草堂嫩豆腐与炸鸡块' }
+      food: { ko: '초당 순두부 & 닭강정', en: 'Chodang Soft Tofu & Dakgangjeong', ja: '草堂スンドゥブ＆チキン', zh: '草堂嫩豆腐与炸鸡块' },
+      mapPos: { top: '26%', left: '72%' },
+      route: [
+        { ko: '안목 커피거리', en: 'Anmok Coffee Street', ja: '安木カフェ通り', zh: '安木咖啡街' },
+        { ko: '경포대 해변', en: 'Gyeongpo Beach', ja: '鏡浦海水浴場', zh: '镜浦海水浴场' },
+        { ko: 'BTS 정류장', en: 'BTS Bus Stop', ja: 'BTSバス停', zh: 'BTS车站' }
+      ]
+    },
+    busan: {
+      name: { ko: '부산', en: 'Busan', ja: '釜山', zh: '釜山' },
+      photo: '/images/themes/theme-busan.jpg',
+      tag: { ko: '해운대 블루라인파크 & 광안대교', en: 'Haeundae Blueline & Gwangandaegyo', ja: '海雲台ブルーライン＆広安大橋', zh: '海云台蓝线公园与广安大桥' },
+      food: { ko: '자갈치시장 활어회 & 돼지국밥', en: 'Jagalchi Sashimi & Pork Soup', ja: 'チャガルチ刺身＆テジクッパ', zh: '札嘎其生鱼片与猪肉汤饭' },
+      mapPos: { top: '68%', left: '74%' },
+      route: [
+        { ko: '해운대 블루라인', en: 'Haeundae Blueline', ja: '海雲台ブルーライン', zh: '海云台蓝线' },
+        { ko: '청사포 스카이워크', en: 'Cheongsapo Skywalk', ja: '青沙浦スカイウォーク', zh: '青沙浦步道' },
+        { ko: '광안리 드론쇼', en: 'Gwangalli Drone Show', ja: '広安里ドローンショー', zh: '广安里无人机秀' }
+      ]
+    },
+    jeju: {
+      name: { ko: '제주', en: 'Jeju', ja: '済州', zh: '济州' },
+      photo: '/images/themes/theme-jeju.jpg',
+      tag: { ko: '성산일출봉 & 애월 한담해변', en: 'Seongsan Peak & Aewol Coast', ja: '城山日出峰＆涯月海岸', zh: '城山日出峰与涯月海岸' },
+      food: { ko: '제주 흑돼지 & 고기국수', en: 'Black Pork BBQ & Gogi Guksu', ja: '済州黒豚焼肉＆肉うどん', zh: '济州黑猪肉与猪肉汤面' },
+      mapPos: { top: '88%', left: '32%' },
+      route: [
+        { ko: '성산일출봉', en: 'Seongsan Peak', ja: '城山日出峰', zh: '城山日出峰' },
+        { ko: '섭지코지', en: 'Seopjikoji', ja: 'ソプチコジ', zh: '涉地可支' },
+        { ko: '애월 한담해변', en: 'Aewol Coast', ja: '涯月海岸', zh: '涯月海岸' }
+      ]
     }
   };
 
@@ -394,67 +418,104 @@ export default function InteractiveQuickTour({
                 {/* Split Mockup: Left Mini Interactive Map + Right 4K TourAPI Photo Banner */}
                 <div style={{
                   display: 'grid',
-                  gridTemplateColumns: '1fr 1.3fr',
-                  minHeight: '170px',
+                  gridTemplateColumns: '1.05fr 1.25fr',
+                  minHeight: '190px',
                   backgroundColor: '#f1f5f9'
                 }}>
-                  {/* Left: Mini Map Canvas Mockup */}
+                  {/* Left: Realistic Korean Peninsula Map Canvas Mockup */}
                   <div style={{
                     position: 'relative',
                     backgroundColor: '#e0f2fe',
-                    background: 'radial-gradient(circle at 50% 50%, #bae6fd 0%, #7dd3fc 100%)',
+                    background: 'radial-gradient(circle at 60% 40%, #bae6fd 0%, #7dd3fc 100%)',
                     display: 'flex',
-                    flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    padding: '12px',
+                    padding: '8px',
                     borderRight: '1px solid #e2e8f0',
                     overflow: 'hidden'
                   }}>
-                    {/* Simulated Map Contour Roads */}
+                    {/* Authentic Korea Peninsula Silhouette (SVG) */}
+                    <svg
+                      viewBox="0 0 100 120"
+                      style={{
+                        position: 'absolute',
+                        width: '85%',
+                        height: '90%',
+                        opacity: 0.9,
+                        filter: 'drop-shadow(0 2px 8px rgba(3, 105, 161, 0.25))'
+                      }}
+                    >
+                      {/* Main Peninsula Landmass */}
+                      <path
+                        d="M 32 10 
+                           C 45 10, 60 14, 68 22 
+                           C 75 30, 82 45, 78 58 
+                           C 74 70, 78 82, 72 90 
+                           C 65 96, 52 94, 44 92 
+                           C 35 90, 26 82, 28 72 
+                           C 30 65, 34 58, 28 50 
+                           C 22 42, 25 30, 28 22 
+                           Z"
+                        fill="#f0fdf4"
+                        stroke="#86efac"
+                        strokeWidth="1.5"
+                      />
+                      {/* Jeju Island */}
+                      <ellipse cx="32" cy="106" rx="9" ry="4.5" fill="#f0fdf4" stroke="#86efac" strokeWidth="1.2" />
+                      {/* Ulleungdo & Dokdo */}
+                      <circle cx="86" cy="38" r="2.2" fill="#f0fdf4" stroke="#86efac" strokeWidth="1" />
+                      <circle cx="94" cy="42" r="1.4" fill="#f0fdf4" stroke="#86efac" strokeWidth="0.8" />
+
+                      {/* City Anchor Dots on Map */}
+                      <circle cx="38" cy="28" r="1.8" fill="#94a3b8" /> {/* Seoul */}
+                      <circle cx="72" cy="32" r="1.8" fill="#94a3b8" /> {/* Gangneung */}
+                      <circle cx="74" cy="80" r="1.8" fill="#94a3b8" /> {/* Busan */}
+                      <circle cx="32" cy="106" r="1.8" fill="#94a3b8" /> {/* Jeju */}
+                      <circle cx="50" cy="55" r="1.5" fill="#cbd5e1" /> {/* Daejeon */}
+                      <circle cx="42" cy="68" r="1.5" fill="#cbd5e1" /> {/* Jeonju */}
+                      <circle cx="70" cy="66" r="1.5" fill="#cbd5e1" /> {/* Gyeongju */}
+                    </svg>
+
+                    {/* Animated Pulsing Location Pin (Dynamic Geo-Positioning) */}
                     <div style={{
                       position: 'absolute',
-                      width: '120px',
-                      height: '140px',
-                      border: '2px dashed rgba(37,99,235,0.3)',
-                      borderRadius: '40% 60% 70% 30% / 40% 50% 60% 50%',
-                      pointerEvents: 'none'
-                    }} />
-
-                    {/* Animated Pulsing Location Pin */}
-                    <div style={{
+                      top: currentCityData.mapPos?.top || '30%',
+                      left: currentCityData.mapPos?.left || '40%',
+                      transform: 'translate(-50%, -50%)',
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
-                      animation: 'bounce 1.5s infinite',
-                      zIndex: 2
+                      transition: 'top 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), left 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                      zIndex: 3
                     }}>
                       <div style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '4px',
+                        gap: '3px',
                         backgroundColor: '#2563eb',
                         color: '#ffffff',
-                        padding: '4px 10px',
+                        padding: '3px 8px',
                         borderRadius: '9999px',
-                        fontSize: '0.70rem',
+                        fontSize: '0.68rem',
                         fontWeight: 900,
-                        boxShadow: '0 4px 12px rgba(37, 99, 235, 0.45)',
-                        border: '1.5px solid #ffffff'
+                        boxShadow: '0 4px 12px rgba(37, 99, 235, 0.5), 0 0 0 2px #ffffff',
+                        whiteSpace: 'nowrap',
+                        animation: 'voraPinPop 0.25s ease'
                       }}>
-                        <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#38bdf8' }} />
+                        <span style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: '#38bdf8' }} />
                         <span>{currentCityData.name[lang] || currentCityData.name.ko}</span>
                       </div>
                       <div style={{
-                        width: '8px',
-                        height: '8px',
-                        backgroundColor: 'rgba(37,99,235,0.4)',
+                        width: '6px',
+                        height: '6px',
+                        backgroundColor: 'rgba(37,99,235,0.6)',
                         borderRadius: '50%',
-                        marginTop: '4px',
-                        boxShadow: '0 0 10px #2563eb'
+                        marginTop: '2px',
+                        boxShadow: '0 0 8px #2563eb'
                       }} />
                     </div>
 
+                    {/* Map Badge */}
                     <div style={{
                       position: 'absolute',
                       bottom: '6px',
@@ -462,16 +523,21 @@ export default function InteractiveQuickTour({
                       fontSize: '0.62rem',
                       fontWeight: 800,
                       color: '#0369a1',
-                      backgroundColor: 'rgba(255,255,255,0.85)',
-                      padding: '2px 6px',
-                      borderRadius: '4px'
+                      backgroundColor: 'rgba(255,255,255,0.92)',
+                      padding: '2px 7px',
+                      borderRadius: '4px',
+                      boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+                      border: '1px solid #bae6fd'
                     }}>
-                      🗺️ {lang === 'en' ? 'Live GPS Map' : '실시간 위경도 지도'}
+                      {lang === 'en' ? '🗺️ 226 Korea Regions Map' :
+                       lang === 'ja' ? '🗺️ 全国226都市 リアルタイム地図' :
+                       (lang === 'zh' || lang === 'zht') ? '🗺️ 全韩226市郡 实时地图' :
+                       '🗺️ 전국 226개 시·군 실시간 지도'}
                     </div>
                   </div>
 
                   {/* Right: Simulated 4K Photo & Info Banner */}
-                  <div style={{ position: 'relative', width: '100%', height: '100%', minHeight: '170px', overflow: 'hidden' }}>
+                  <div style={{ position: 'relative', width: '100%', height: '100%', minHeight: '190px', overflow: 'hidden' }}>
                     <img
                       src={currentCityData.photo}
                       alt="city demo"
@@ -480,7 +546,7 @@ export default function InteractiveQuickTour({
                     <div style={{
                       position: 'absolute',
                       inset: 0,
-                      background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(15,23,42,0.88) 100%)'
+                      background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(15,23,42,0.90) 100%)'
                     }} />
                     <div style={{ position: 'absolute', bottom: '10px', left: '12px', right: '12px', color: '#ffffff' }}>
                       <div style={{
@@ -490,7 +556,7 @@ export default function InteractiveQuickTour({
                         backgroundColor: 'rgba(15, 23, 42, 0.75)',
                         padding: '1px 6px',
                         borderRadius: '9999px',
-                        fontSize: '0.62rem',
+                        fontSize: '0.60rem',
                         fontWeight: 800,
                         color: '#38bdf8',
                         marginBottom: '3px',
@@ -510,10 +576,53 @@ export default function InteractiveQuickTour({
                   </div>
                 </div>
 
+                {/* 🌟 1-Day Sample Route Flow Bar (도시별 1일 대표 추천 동선 흐름선) */}
+                <div style={{
+                  padding: '7px 12px',
+                  backgroundColor: '#f0fdf4',
+                  borderTop: '1px solid #dcfce7',
+                  borderBottom: '1px solid #dcfce7',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  flexWrap: 'wrap'
+                }}>
+                  <span style={{ fontSize: '0.70rem', fontWeight: 900, color: '#15803d', display: 'flex', alignItems: 'center', gap: '3px', flexShrink: 0 }}>
+                    <Sparkles size={11} color="#16a34a" />
+                    <span>
+                      {lang === 'en' ? 'Sample Route:' :
+                       lang === 'ja' ? '1日モデルコース:' :
+                       (lang === 'zh' || lang === 'zht') ? '1日推荐动线:' :
+                       '1일 대표 코스:'}
+                    </span>
+                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
+                    {currentCityData.route?.map((rSpot, rIdx) => (
+                      <React.Fragment key={rIdx}>
+                        <span style={{
+                          fontSize: '0.68rem',
+                          fontWeight: 800,
+                          color: '#166534',
+                          backgroundColor: '#ffffff',
+                          padding: '2px 8px',
+                          borderRadius: '9999px',
+                          border: '1px solid #bbf7d0',
+                          boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
+                        }}>
+                          {rIdx + 1}. {rSpot[lang] || rSpot.ko}
+                        </span>
+                        {rIdx < currentCityData.route.length - 1 && (
+                          <span style={{ color: '#86efac', fontSize: '0.65rem' }}>➔</span>
+                        )}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                </div>
+
                 {/* Secret Foodie Tip */}
-                <div style={{ padding: '8px 12px', backgroundColor: '#fff7ed', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Utensils size={13} color="#ea580c" />
-                  <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#9a3412' }}>
+                <div style={{ padding: '7px 12px', backgroundColor: '#fff7ed', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Utensils size={12} color="#ea580c" />
+                  <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#9a3412' }}>
                     {currentCityData.food[lang] || currentCityData.food.ko}
                   </span>
                 </div>
