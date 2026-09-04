@@ -19,6 +19,8 @@
   - 헤더 버튼명은 전 세계 공통 `Quick Tour`로 세련되게 통일하고, 팝업 가이드 내부는 4개국어(한·영·일·중) 맞춤 텍스트로 친절하게 렌더링.
 - **🛡️ 하단 중복 바 정리 및 JSX 닫는 태그 완벽 정합성 교정 완료 (`DesktopMapExplorer.jsx`)**:
   - 하단 중복 일수 바 제거 후 발생한 닫는 `</div>` 태그 오차를 100% 교정하여 Cloudflare 빌드 오류(`Unterminated regular expression`)를 완벽 해결.
+- **📸 서울·경복궁 대표 사진 한국관광공사 정품 경회루 고화질 이미지 전면 교체 (`DesktopMapExplorer.jsx`, `InteractiveQuickTour.jsx`, `curatedTravelArticles.js`)**:
+  - 초기 개발 시 임시로 걸려있던 외부 Unsplash 단풍나무 사진 링크(`photo-1548115184`)를 100% 제거하고, 한국관광공사 정품 경회루·경복궁 고화질 이미지(`/images/themes/theme-gyeongbokgung.jpg`)로 일괄 교체 완료.
 - **배포 전 정상 소스 100% 사전 검증 완료**:
   - `verifySyntax.ps1` 무결점 검증 통과(`[ZERO DEFECT PASSED]`).
 

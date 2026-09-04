@@ -72,7 +72,7 @@ const REGIONAL_FALLBACK_CENTERS = [
     lat: 37.5796, 
     lng: 126.9770,
     zoom: 13,
-    image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?w=1200&auto=format&fit=crop&q=80',
+    image: '/images/themes/theme-gyeongbokgung.jpg',
     transitTipKo: '지하철 3호선 경복궁역 도보 3분',
     transitTipEn: 'Line 3 Gyeongbokgung Station (3 min walk)',
     transitTipJa: '地下鉄3号線 景福宮駅 徒歩3分',
@@ -103,7 +103,7 @@ const REGIONAL_FALLBACK_CENTERS = [
     lat: 37.5665, 
     lng: 126.9780,
     zoom: 12,
-    image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?w=1200&auto=format&fit=crop&q=80',
+    image: '/images/themes/theme-gyeongbokgung.jpg',
     transitTipKo: '지하철 2호선 성수역 / 한강공원 직결',
     transitTipEn: 'Subway Line 2 Seongsu / Hangang River Link',
     transitTipJa: '地下鉄2号線 聖水駅／漢江公園直結',
@@ -1938,7 +1938,7 @@ function translateNightHighlight(nightStr, lang, cityName = '') {
                         alt={selectedLocation.nameKo}
                         onError={(e) => {
                           e.currentTarget.onerror = null;
-                          e.currentTarget.src = 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?w=1200&auto=format&fit=crop&q=80';
+                          e.currentTarget.src = '/images/themes/theme-gyeongbokgung.jpg';
                         }}
                         style={{
                           width: '100%',
