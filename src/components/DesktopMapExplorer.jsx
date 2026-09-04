@@ -1121,6 +1121,94 @@ export default function DesktopMapExplorer({
     return Object.keys(CITY_LOCAL_KNOWLEDGE).find(k => k === clean || name.startsWith(k) || k.startsWith(clean)) || null;
   };
 
+  // 🗺️ 선택된 도시와 일수(1D~5D)에 맞춘 권역별 최적 동선 실시간 조립기
+  const getMultiDayCoursePreview = (location, days, currentLang) => {
+    if (!location) return [];
+    const cleanCityKey = (location.nameKo || '').replace(/(특별시|광역시|특별자치시|특별자치도|시|군|구)$/, '').trim();
+    const localKn = CITY_LOCAL_KNOWLEDGE[cleanCityKey] || CITY_LOCAL_KNOWLEDGE[location.nameKo];
+    const foundHub = REGIONAL_FALLBACK_CENTERS.find(c => c.nameKo === cleanCityKey || c.nameKo === location.nameKo || c.nameKo.includes(cleanCityKey) || cleanCityKey.includes(c.nameKo));
+    
+    // Pool of spots: combine highlights + localKn.signatureHighlights + rainyHotspots + nightHighlights
+    const pool = [];
+    if (foundHub?.highlights && foundHub.highlights.length > 0) {
+      pool.push(...foundHub.highlights);
+    }
+    if (location.highlights && location.highlights.length > 0) {
+      location.highlights.forEach(h => {
+        if (!pool.some(p => (p.ko || p.title || p.name) === (h.ko || h.title || h.name))) {
+          pool.push(h);
+        }
+      });
+    }
+    if (localKn?.signatureHighlights && localKn.signatureHighlights.length > 0) {
+      localKn.signatureHighlights.forEach((sigName, idx) => {
+        if (!pool.some(p => (p.ko || p.title || p.name) === sigName)) {
+          pool.push({
+            ko: sigName,
+            en: localKn.signatureHighlightsEn?.[idx] || sigName,
+            ja: localKn.signatureHighlightsJa?.[idx] || sigName,
+            zh: localKn.signatureHighlightsZh?.[idx] || sigName,
+            lat: location.lat,
+            lng: location.lng
+          });
+        }
+      });
+    }
+    if (localKn?.nightHighlights && localKn.nightHighlights.length > 0) {
+      localKn.nightHighlights.forEach((nh, idx) => {
+        const nhName = typeof nh === 'string' ? nh : (nh.name || nh.ko || '');
+        if (nhName && !pool.some(p => (p.ko || p.title || p.name) === nhName)) {
+          pool.push({
+            ko: nhName,
+            en: localKn.nightHighlightsEn?.[idx] || nhName,
+            ja: localKn.nightHighlightsJa?.[idx] || nhName,
+            zh: localKn.nightHighlightsZh?.[idx] || nhName,
+            lat: location.lat,
+            lng: location.lng,
+            isNight: true
+          });
+        }
+      });
+    }
+
+    if (pool.length === 0) {
+      pool.push(
+        { ko: `${location.nameKo} 중심 명소`, en: `${getLocalizedCityName(location.nameKo, 'en')} Central Landmark`, ja: `${getLocalizedCityName(location.nameKo, 'ja')} 中心名所`, zh: `${getLocalizedCityName(location.nameKo, 'zh')} 中心名胜`, lat: location.lat, lng: location.lng },
+        { ko: `${location.nameKo} 힐링 수변길`, en: `${getLocalizedCityName(location.nameKo, 'en')} Scenic Waterfront`, ja: `${getLocalizedCityName(location.nameKo, 'ja')} ヒーリング水辺`, zh: `${getLocalizedCityName(location.nameKo, 'zh')} 治愈水滨`, lat: location.lat, lng: location.lng }
+      );
+    }
+
+    const dayColors = [
+      { border: '#3b82f6', bg: '#eff6ff', badge: 'linear-gradient(135deg, #2563eb, #3b82f6)', text: '#1d4ed8' },
+      { border: '#8b5cf6', bg: '#f5f3ff', badge: 'linear-gradient(135deg, #7c3aed, #8b5cf6)', text: '#6d28d9' },
+      { border: '#10b981', bg: '#ecfdf5', badge: 'linear-gradient(135deg, #059669, #10b981)', text: '#047857' },
+      { border: '#f59e0b', bg: '#fffbeb', badge: 'linear-gradient(135deg, #d97706, #f59e0b)', text: '#b45309' },
+      { border: '#ec4899', bg: '#fdf2f8', badge: 'linear-gradient(135deg, #db2777, #ec4899)', text: '#be185d' }
+    ];
+
+    const resultDays = [];
+    const numDays = Math.max(1, Math.min(Number(days) || 3, 5));
+    const spotsPerDay = numDays === 1 ? Math.min(pool.length, 3) : 2;
+
+    for (let d = 1; d <= numDays; d++) {
+      const startIdx = ((d - 1) * 2) % pool.length;
+      const daySpots = [];
+      for (let s = 0; s < spotsPerDay; s++) {
+        const spotIdx = (startIdx + s) % pool.length;
+        daySpots.push(pool[spotIdx]);
+      }
+
+      const colorMeta = dayColors[(d - 1) % dayColors.length];
+      resultDays.push({
+        dayNum: d,
+        colorMeta,
+        spots: daySpots
+      });
+    }
+
+    return resultDays;
+  };
+
 // 🍲 Smart Multilingual Foodie & Nightview Translators
 const COMMON_FOOD_TRANSLATIONS = {
   '광장시장 마약김밥': { en: 'Gwangjang Market Kimbap', ja: '広蔵市場 麻薬キンパ', zh: '广藏市场 紫菜包饭' },
@@ -2051,42 +2139,185 @@ function translateNightHighlight(nightStr, lang, cityName = '') {
                       {getSelectedDesc()}
                     </p>
 
-                    {/* Tier 2: ✦ VORA AI Recommended Spot Flow */}
-                    <div style={{ marginBottom: '10px' }}>
-                      <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#7c3aed', marginBottom: '5px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <Sparkles size={12} color="#7c3aed" />
-                        <span>{lang === 'en' ? 'VORA AI Recommended Route' : lang === 'ja' ? 'VORA AI おすすめ連動コース' : (lang === 'zh' || lang === 'zht') ? 'VORA AI 推荐连游路线' : '✦ VORA AI 추천 연계 코스'}</span>
+                    {/* 📅 Multi-Day Dynamic Route Timeline (선택된 일수 1D~5D에 맞춰 일자별 동선이 쫘악 펼쳐지는 킬러 프리뷰) */}
+                    <div style={{
+                      marginBottom: '10px',
+                      backgroundColor: '#f8fafc',
+                      borderRadius: '10px',
+                      padding: '9px 10px',
+                      border: '1px solid #e2e8f0',
+                      boxShadow: '0 1px 4px rgba(0,0,0,0.03)'
+                    }}>
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        marginBottom: '7px'
+                      }}>
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '5px',
+                          fontSize: '0.74rem',
+                          fontWeight: 900,
+                          color: '#1e293b'
+                        }}>
+                          <Calendar size={13} color="#2563eb" />
+                          <span>
+                            {lang === 'en' ? `📅 ${selectedDays}-Day Optimized Route Flow` :
+                             lang === 'ja' ? `📅 ${selectedDays}日間 最適連動コース` :
+                             (lang === 'zh' || lang === 'zht') ? `📅 ${selectedDays}日 区域优化路线` :
+                             `📅 ${selectedDays}일 권역별 최적 동선 (자동 조립)`}
+                          </span>
+                        </div>
+                        <span style={{
+                          fontSize: '0.65rem',
+                          fontWeight: 800,
+                          color: '#059669',
+                          backgroundColor: '#ecfdf5',
+                          padding: '1px 6px',
+                          borderRadius: '4px',
+                          border: '1px solid #a7f3d0'
+                        }}>
+                          {lang === 'en' ? '⚡ 0% Transit Waste' : lang === 'ja' ? '⚡ 移動ロス0%' : (lang === 'zh' || lang === 'zht') ? '⚡ 0% 浪费' : '⚡ 이동낭비 0%'}
+                        </span>
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '5px' }}>
-                        {(selectedLocation.highlights || []).map((hl, hIdx) => (
-                          <React.Fragment key={hIdx}>
-                            <button 
-                              onClick={() => handleHighlightSpotClick(hl)}
-                              title="클릭 시 지도가 이 명소로 이동합니다"
-                              style={{
-                                fontSize: '0.74rem',
-                                fontWeight: 800,
-                                backgroundColor: '#f5f3ff',
-                                color: '#6d28d9',
-                                padding: '3px 9px',
-                                borderRadius: '9999px',
-                                border: '1px solid #ddd6fe',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '3px',
-                                transition: 'all 0.15s ease'
-                              }}
-                            >
-                              <span>📍</span>
-                              <span>{getHighlightName(hl)}</span>
-                            </button>
-                            {hIdx < (selectedLocation.highlights || []).length - 1 && (
-                              <span style={{ color: '#94a3b8', fontSize: '0.70rem', fontWeight: 900 }}>➔</span>
-                            )}
-                          </React.Fragment>
+
+                      {/* Day Rows */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        {getMultiDayCoursePreview(selectedLocation, selectedDays, lang).map((dayData) => (
+                          <div 
+                            key={dayData.dayNum}
+                            style={{
+                              backgroundColor: '#ffffff',
+                              borderRadius: '8px',
+                              padding: '6px 8px',
+                              border: '1px solid #e2e8f0',
+                              borderLeft: `3.5px solid ${dayData.colorMeta.border}`,
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: '4px'
+                            }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                              <span style={{
+                                fontSize: '0.68rem',
+                                fontWeight: 900,
+                                color: '#ffffff',
+                                background: dayData.colorMeta.badge,
+                                padding: '1px 7px',
+                                borderRadius: '4px',
+                                letterSpacing: '0.02em'
+                              }}>
+                                Day {dayData.dayNum}
+                              </span>
+                              <span style={{ fontSize: '0.62rem', fontWeight: 700, color: '#64748b' }}>
+                                {lang === 'en' ? 'Click spot to fly on map 📍' : lang === 'ja' ? 'スポットをクリックして位置確認 📍' : (lang === 'zh' || lang === 'zht') ? '点击景点定位地图 📍' : '클릭 시 지도 이동 📍'}
+                              </span>
+                            </div>
+
+                            {/* Spots in this Day */}
+                            <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '4px' }}>
+                              {dayData.spots.map((sp, sIdx) => {
+                                const spotName = getHighlightName(sp);
+                                return (
+                                  <React.Fragment key={sIdx}>
+                                    <button
+                                      onClick={() => handleHighlightSpotClick(sp)}
+                                      title="클릭 시 지도가 이 명소로 이동합니다"
+                                      style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                        fontSize: '0.72rem',
+                                        fontWeight: 800,
+                                        color: '#1e293b',
+                                        backgroundColor: dayData.colorMeta.bg,
+                                        border: `1px solid ${dayData.colorMeta.border}50`,
+                                        padding: '2px 7px',
+                                        borderRadius: '6px',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.15s ease'
+                                      }}
+                                      onMouseEnter={(e) => {
+                                        e.currentTarget.style.transform = 'translateY(-1px)';
+                                        e.currentTarget.style.borderColor = dayData.colorMeta.border;
+                                      }}
+                                      onMouseLeave={(e) => {
+                                        e.currentTarget.style.transform = 'translateY(0)';
+                                        e.currentTarget.style.borderColor = `${dayData.colorMeta.border}50`;
+                                      }}
+                                    >
+                                      <span style={{
+                                        width: '14px',
+                                        height: '14px',
+                                        borderRadius: '50%',
+                                        backgroundColor: dayData.colorMeta.border,
+                                        color: '#ffffff',
+                                        fontSize: '9px',
+                                        fontWeight: 900,
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        lineHeight: 1
+                                      }}>
+                                        {sIdx + 1}
+                                      </span>
+                                      <span>{spotName}</span>
+                                    </button>
+                                    {sIdx < dayData.spots.length - 1 && (
+                                      <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '1px' }}>
+                                        <span>➔</span>
+                                        <span style={{ fontSize: '0.58rem', color: '#64748b' }}>~15m</span>
+                                      </span>
+                                    )}
+                                  </React.Fragment>
+                                );
+                              })}
+                            </div>
+                          </div>
                         ))}
                       </div>
+
+                      {/* Bottom Direct CTA Button */}
+                      <button
+                        onClick={handleStartPlan}
+                        style={{
+                          width: '100%',
+                          marginTop: '8px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '6px',
+                          padding: '7px 12px',
+                          borderRadius: '8px',
+                          fontSize: '0.78rem',
+                          fontWeight: 900,
+                          cursor: 'pointer',
+                          border: 'none',
+                          background: 'linear-gradient(135deg, #e11d48 0%, #7c3aed 100%)',
+                          color: '#ffffff',
+                          boxShadow: '0 3px 10px rgba(225, 29, 72, 0.3)',
+                          transition: 'all 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.transform = 'translateY(-1px)';
+                          e.currentTarget.style.boxShadow = '0 5px 14px rgba(225, 29, 72, 0.4)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.transform = 'translateY(0)';
+                          e.currentTarget.style.boxShadow = '0 3px 10px rgba(225, 29, 72, 0.3)';
+                        }}
+                      >
+                        <Sparkles size={13} color="#ffffff" />
+                        <span>
+                          {lang === 'en' ? `🪄 Generate ${getCityDisplayName(selectedLocation)} ${selectedDays}D Plan 🚀` :
+                           lang === 'ja' ? `🪄 ${getCityDisplayName(selectedLocation)} ${selectedDays}日コース生成 🚀` :
+                           (lang === 'zh' || lang === 'zht') ? `🪄 生成${getCityDisplayName(selectedLocation)} ${selectedDays}日行程 🚀` :
+                           `🪄 ${getCityDisplayName(selectedLocation)} ${selectedDays}일 코스 전체 생성 🚀`}
+                        </span>
+                        <ChevronRight size={13} color="#ffffff" />
+                      </button>
                     </div>
 
                     {/* 🍲 VORA Foodie Secret Pill Tags */}

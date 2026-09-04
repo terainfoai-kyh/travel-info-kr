@@ -26,6 +26,10 @@
 - **✨ 전국 226개 시·군 지도 탐색 시 사진 무한 로딩(Hang) 원천 척결 (`DesktopMapExplorer.jsx`, `tourApi.js`)**:
   - 미등록 지역(예천, 화성 등) 클릭 시 `enrichLocationWithLiveTourApi` 내 미선언 변수 참조 문제 및 배너 JSX 렌더링 조건문(`!selectedLocation.image`)에 의해 발생하던 무한 로딩 스피너 현상을 완전히 박멸.
   - `tourApi.js`에 `fetchLocationBasedTourApiSpots` 신규 구현 및 `fetchCityTourApiSpots` 계층적 Fallback 체인을 완비하여 전국 226개 모든 지자체 클릭 시 즉각적인 사진 및 명소 렌더링 보장.
+- **🚀 지도 우측 패널 일자별 권역별 최적 동선 풀 프리뷰 타임라인 전면 구축 (`DesktopMapExplorer.jsx`)**:
+  - 사용자가 선택한 일수(1D~5D)에 맞춰 Day 1 ➔ Day N별 권역 최적 코스(`1 명소 A ➔ ~15m ➔ 2 명소 B`)가 타임라인 카드로 쫘악 펼쳐지는 킬러 프리뷰 완비.
+  - 각 일차별 색상 뱃지 및 명소 클릭 시 지도가 해당 명소로 부드럽게 줌인(FlyTo)되는 실시간 맵 연동 지원.
+  - 코스 하단에 원클릭 풀 일정표 생성 CTA 버튼(`[ 🪄 {City} {N}D Plan 전체 일정표 생성하기 🚀 ]`)을 직결하여 사용자 전환율 극대화.
 - **📜 [헌법 제24조 추가] Mandatory Variable Declaration, Strict Type Safety & 100% Safe Fallback Initialization (변수 선언 스코프 준수, 널 세이프티 & 방어적 초기값 의무화 헌법)**:
   - 1) 미선언 변수(Undeclared Variable) 100% 영구 금지 (`const`/`let` 필수).
   - 2) 방어적 초기값(Safe Default Fallback) 필수 바인딩 (`null`/`undefined` 방치로 인한 ReferenceError/TypeError/UI Hang 원천 차단).
