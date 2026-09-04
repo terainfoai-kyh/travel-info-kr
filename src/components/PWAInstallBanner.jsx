@@ -247,21 +247,27 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
     setIsKakaoInApp(kakao);
     setIsDesktop(!isMobileDevice);
 
-    // 2. Check dismissal with 24-hour expiration check (Supports ?pwa=reset to force reset)
+    // 2. Check dismissal or previous installation (Supports ?pwa=reset to force reset)
     if (window.location.search.includes('pwa=reset')) {
-      localStorage.removeItem('ktravel_pwa_banner_dismissed_at');
+      try {
+        localStorage.removeItem('ktravel_pwa_banner_dismissed_at');
+        localStorage.removeItem('ktravel_pwa_dismissed');
+        localStorage.removeItem('ktravel_pwa_installed');
+      } catch (e) {}
+      setShowBanner(true);
     } else {
-      const dismissedTimestamp = localStorage.getItem('ktravel_pwa_banner_dismissed_at');
-      if (dismissedTimestamp) {
-        const pastHours = (Date.now() - parseInt(dismissedTimestamp, 10)) / (1000 * 60 * 60);
-        if (pastHours < 24 && !window.location.search.includes('pwa=')) {
-          // Banner auto-popup disabled if dismissed within 24h, but Header click still opens modal!
+      try {
+        const isDismissed = localStorage.getItem('ktravel_pwa_dismissed') === 'true';
+        const isInstalled = localStorage.getItem('ktravel_pwa_installed') === 'true';
+        const dismissedTimestamp = localStorage.getItem('ktravel_pwa_banner_dismissed_at');
+        
+        if (isDismissed || isInstalled || dismissedTimestamp) {
           setShowBanner(false);
         } else {
           setShowBanner(true);
         }
-      } else {
-        setShowBanner(true);
+      } catch (e) {
+        setShowBanner(false);
       }
     }
 
@@ -271,17 +277,29 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
       deferredPromptRef.current = e;
       window.__ktravel_deferred_prompt = e;
       setDeferredPrompt(e);
-      setShowBanner(true);
+      
+      try {
+        const isDismissed = localStorage.getItem('ktravel_pwa_dismissed') === 'true';
+        const isInstalled = localStorage.getItem('ktravel_pwa_installed') === 'true';
+        const dismissedTimestamp = localStorage.getItem('ktravel_pwa_banner_dismissed_at');
+        if (!isDismissed && !isInstalled && !dismissedTimestamp && !isStandalone) {
+          setShowBanner(true);
+        }
+      } catch (err) {}
     };
 
-    // 4. Listen for appinstalled event (Hide banner immediately when install completes)
+    // 4. Listen for appinstalled event (Hide banner immediately and permanently when install completes)
     const handleAppInstalled = () => {
       setShowBanner(false);
       setShowGuideModal(false);
       deferredPromptRef.current = null;
       window.__ktravel_deferred_prompt = null;
       setDeferredPrompt(null);
-      localStorage.setItem('ktravel_pwa_banner_dismissed_at', String(Date.now()));
+      try {
+        localStorage.setItem('ktravel_pwa_installed', 'true');
+        localStorage.setItem('ktravel_pwa_dismissed', 'true');
+        localStorage.setItem('ktravel_pwa_banner_dismissed_at', String(Date.now()));
+      } catch (e) {}
     };
 
     // 5. Listen for custom header button click event (Prioritize 1-click Chrome native prompt)
@@ -297,6 +315,10 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
             deferredPromptRef.current = null;
             window.__ktravel_deferred_prompt = null;
             setDeferredPrompt(null);
+            try {
+              localStorage.setItem('ktravel_pwa_installed', 'true');
+              localStorage.setItem('ktravel_pwa_dismissed', 'true');
+            } catch (e) {}
             return;
           }
         } catch (err) {
@@ -340,6 +362,10 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
         if (outcome === 'accepted') {
           setShowBanner(false);
           setShowGuideModal(false);
+          try {
+            localStorage.setItem('ktravel_pwa_installed', 'true');
+            localStorage.setItem('ktravel_pwa_dismissed', 'true');
+          } catch (e) {}
         }
         deferredPromptRef.current = null;
         window.__ktravel_deferred_prompt = null;
@@ -354,7 +380,10 @@ export default function PWAInstallBanner({ lang = 'ko' }) {
 
   const handleDismiss = () => {
     setShowBanner(false);
-    localStorage.setItem('ktravel_pwa_banner_dismissed_at', String(Date.now()));
+    try {
+      localStorage.setItem('ktravel_pwa_dismissed', 'true');
+      localStorage.setItem('ktravel_pwa_banner_dismissed_at', String(Date.now()));
+    } catch (e) {}
   };
 
   // If neither banner nor guide modal is active, return null
