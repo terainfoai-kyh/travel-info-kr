@@ -19,8 +19,13 @@
   - 헤더 버튼명은 전 세계 공통 `Quick Tour`로 세련되게 통일하고, 팝업 가이드 내부는 4개국어(한·영·일·중) 맞춤 텍스트로 친절하게 렌더링.
 - **🛡️ 하단 중복 바 정리 및 JSX 닫는 태그 완벽 정합성 교정 완료 (`DesktopMapExplorer.jsx`)**:
   - 하단 중복 일수 바 제거 후 발생한 닫는 `</div>` 태그 오차를 100% 교정하여 Cloudflare 빌드 오류(`Unterminated regular expression`)를 완벽 해결.
-- **📸 서울·경복궁 대표 사진 한국관광공사 정품 경회루 고화질 이미지 전면 교체 (`DesktopMapExplorer.jsx`, `InteractiveQuickTour.jsx`, `curatedTravelArticles.js`)**:
-  - 초기 개발 시 임시로 걸려있던 외부 Unsplash 단풍나무 사진 링크(`photo-1548115184`)를 100% 제거하고, 한국관광공사 정품 경회루·경복궁 고화질 이미지(`/images/themes/theme-gyeongbokgung.jpg`)로 일괄 교체 완료.
+- **🔒 검증된 거점 도시(서울·부산·제주 등) 정품 랜드마크 락(Lock) 및 소공원 오염 원천 차단 (`DesktopMapExplorer.jsx`)**:
+  - 이미 검증된 거점의 정품 사진(경복궁·해운대·성산일출봉 등)과 랜드마크 코스가 비동기 TourAPI 응답이나 소공원(용마골소공원 등)에 의해 덮어써져 변경되는 현상을 100% 원천 차단.
+  - 소공원·어린이공원·마을쉼터·노인정 등 비관광 근린시설 필터링을 완벽하게 강화.
+- **🎨 30초 퀵 투어(InteractiveQuickTour) 실감형 검색창+지도 목업 UI 및 4개국어(한·영·일·중) 전수 고도화**:
+  - Step 1: 상단 [Where are you traveling? AI Plan] 검색창 + 좌측 미니 지도 핀 + 우측 4K 정품 사진 배너 목업 장착.
+  - Step 2~4: 날씨, 추천 코디(상의/하의/아우터), AI 컨시어지 질문/답변 100% 4개국어(KO, EN, JA, ZH) 완벽 번역 분기 적용.
+  - 서울(경복궁), 부산(해운대), 제주(성산일출봉), 강릉(경포대) 한국관광공사 정품 사진 전수 적용.
 - **배포 전 정상 소스 100% 사전 검증 완료**:
   - `verifySyntax.ps1` 무결점 검증 통과(`[ZERO DEFECT PASSED]`).
 

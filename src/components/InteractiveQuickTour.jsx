@@ -60,7 +60,7 @@ export default function InteractiveQuickTour({
     },
     gangneung: {
       name: { ko: '강릉', en: 'Gangneung', ja: '江陵', zh: '江陵' },
-      photo: 'https://images.unsplash.com/photo-1509233725247-49e657c54213?w=800&auto=format&fit=crop&q=80',
+      photo: '/images/themes/theme-gangneung.jpg',
       tag: { ko: '안목해변 커피거리 & BTS 정류장', en: 'Anmok Coffee Street & BTS Stop', ja: '安木カフェ通り＆BTSバス停', zh: '安木咖啡街与BTS车站' },
       food: { ko: '초당 순두부 & 닭강정', en: 'Chodang Soft Tofu & Dakgangjeong', ja: '草堂スンドゥブ＆チキン', zh: '草堂嫩豆腐与炸鸡块' }
     }
@@ -295,21 +295,71 @@ export default function InteractiveQuickTour({
             overflow: 'hidden',
             boxShadow: '0 4px 14px rgba(15, 23, 42, 0.05)'
           }}>
-            {/* ── STEP 1 INTERACTIVE DEMO: Map & City Photo Preview ── */}
+            {/* ── STEP 1 INTERACTIVE DEMO: Realistic Search Bar + Interactive Map + 4K Photo Mockup ── */}
             {currentStep === 0 && (
               <div>
+                {/* 🔍 Top Search Bar Mockup (실제 메인화면 상단 검색창 완벽 미러링) */}
+                <div style={{
+                  padding: '10px 14px',
+                  backgroundColor: '#0f172a',
+                  background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderBottom: '1px solid #334155'
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    width: '100%',
+                    maxWidth: '480px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    backdropFilter: 'blur(8px)',
+                    borderRadius: '9999px',
+                    padding: '4px 6px 4px 14px',
+                    boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
+                    border: '1.5px solid rgba(255, 255, 255, 0.6)'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden' }}>
+                      <Compass size={15} color="#2563eb" style={{ flexShrink: 0 }} />
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#475569', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {lang === 'en' ? 'Where are you traveling? (e.g. Jeju 4-day foodie)' :
+                         lang === 'ja' ? '韓国のどこへ旅行しますか？（例：済州島 4日間）' :
+                         (lang === 'zh' || lang === 'zht') ? '想去韩国哪里旅行？（例：济州岛 4日美食游）' :
+                         '어디로 여행을 떠나시나요? (예: 제주 4일 미식 코스)'}
+                      </span>
+                    </div>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      padding: '4px 10px',
+                      borderRadius: '9999px',
+                      background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
+                      color: '#ffffff',
+                      fontSize: '0.70rem',
+                      fontWeight: 900,
+                      flexShrink: 0
+                    }}>
+                      <Sparkles size={11} />
+                      <span>{lang === 'en' ? 'AI Plan' : 'AI 플랜'}</span>
+                    </div>
+                  </div>
+                </div>
+
                 {/* City Picker Bar */}
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: '6px',
-                  padding: '10px 14px',
+                  padding: '8px 12px',
                   backgroundColor: '#ffffff',
                   borderBottom: '1px solid #e2e8f0',
                   overflowX: 'auto'
                 }}>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748b', whiteSpace: 'nowrap' }}>
-                    {lang === 'en' ? '👉 Click City:' : lang === 'ja' ? '👉 都市を選択:' : (lang === 'zh' || lang === 'zht') ? '👉 点击选择城市:' : '👉 도시를 클릭해 보세요:'}
+                  <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#64748b', whiteSpace: 'nowrap' }}>
+                    {lang === 'en' ? '👉 Select City:' : lang === 'ja' ? '👉 都市を選択:' : (lang === 'zh' || lang === 'zht') ? '👉 点击城市:' : '👉 도시를 클릭해 보세요:'}
                   </span>
                   {Object.keys(CITIES_DATA).map((cKey) => {
                     const cInfo = CITIES_DATA[cKey];
@@ -319,51 +369,151 @@ export default function InteractiveQuickTour({
                         key={cKey}
                         onClick={() => setDemoCity(cKey)}
                         style={{
-                          padding: '4px 12px',
+                          padding: '3px 10px',
                           borderRadius: '9999px',
-                          fontSize: '0.78rem',
+                          fontSize: '0.74rem',
                           fontWeight: 800,
                           cursor: 'pointer',
-                          border: isSelected ? '1px solid #2563eb' : '1px solid #e2e8f0',
+                          border: isSelected ? '1.5px solid #2563eb' : '1px solid #e2e8f0',
                           backgroundColor: isSelected ? '#2563eb' : '#ffffff',
                           color: isSelected ? '#ffffff' : '#334155',
                           boxShadow: isSelected ? '0 2px 8px rgba(37, 99, 235, 0.35)' : 'none',
-                          transition: 'all 0.15s ease'
+                          transition: 'all 0.15s ease',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '3px'
                         }}
                       >
-                        📍 {cInfo.name[lang] || cInfo.name.ko}
+                        <span>{cKey === 'seoul' ? '📍' : cKey === 'busan' ? '🌊' : cKey === 'jeju' ? '🌴' : '☕'}</span>
+                        <span>{cInfo.name[lang] || cInfo.name.ko}</span>
                       </button>
                     );
                   })}
                 </div>
 
-                {/* Simulated Photo & Info Banner */}
-                <div style={{ position: 'relative', height: '180px', width: '100%', overflow: 'hidden' }}>
-                  <img
-                    src={currentCityData.photo}
-                    alt="city demo"
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
+                {/* Split Mockup: Left Mini Interactive Map + Right 4K TourAPI Photo Banner */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1.3fr',
+                  minHeight: '170px',
+                  backgroundColor: '#f1f5f9'
+                }}>
+                  {/* Left: Mini Map Canvas Mockup */}
                   <div style={{
-                    position: 'absolute',
-                    inset: 0,
-                    background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(15,23,42,0.85) 100%)'
-                  }} />
-                  <div style={{ position: 'absolute', bottom: '12px', left: '16px', right: '16px', color: '#ffffff' }}>
-                    <div style={{ fontSize: '1.25rem', fontWeight: 900, textShadow: '0 2px 4px rgba(0,0,0,0.8)' }}>
-                      {currentCityData.name[lang] || currentCityData.name.ko}
+                    position: 'relative',
+                    backgroundColor: '#e0f2fe',
+                    background: 'radial-gradient(circle at 50% 50%, #bae6fd 0%, #7dd3fc 100%)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '12px',
+                    borderRight: '1px solid #e2e8f0',
+                    overflow: 'hidden'
+                  }}>
+                    {/* Simulated Map Contour Roads */}
+                    <div style={{
+                      position: 'absolute',
+                      width: '120px',
+                      height: '140px',
+                      border: '2px dashed rgba(37,99,235,0.3)',
+                      borderRadius: '40% 60% 70% 30% / 40% 50% 60% 50%',
+                      pointerEvents: 'none'
+                    }} />
+
+                    {/* Animated Pulsing Location Pin */}
+                    <div style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      animation: 'bounce 1.5s infinite',
+                      zIndex: 2
+                    }}>
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        backgroundColor: '#2563eb',
+                        color: '#ffffff',
+                        padding: '4px 10px',
+                        borderRadius: '9999px',
+                        fontSize: '0.70rem',
+                        fontWeight: 900,
+                        boxShadow: '0 4px 12px rgba(37, 99, 235, 0.45)',
+                        border: '1.5px solid #ffffff'
+                      }}>
+                        <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#38bdf8' }} />
+                        <span>{currentCityData.name[lang] || currentCityData.name.ko}</span>
+                      </div>
+                      <div style={{
+                        width: '8px',
+                        height: '8px',
+                        backgroundColor: 'rgba(37,99,235,0.4)',
+                        borderRadius: '50%',
+                        marginTop: '4px',
+                        boxShadow: '0 0 10px #2563eb'
+                      }} />
                     </div>
-                    <div style={{ fontSize: '0.78rem', opacity: 0.95, marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <Sparkles size={12} color="#38bdf8" />
-                      <span>{currentCityData.tag[lang] || currentCityData.tag.ko}</span>
+
+                    <div style={{
+                      position: 'absolute',
+                      bottom: '6px',
+                      left: '8px',
+                      fontSize: '0.62rem',
+                      fontWeight: 800,
+                      color: '#0369a1',
+                      backgroundColor: 'rgba(255,255,255,0.85)',
+                      padding: '2px 6px',
+                      borderRadius: '4px'
+                    }}>
+                      🗺️ {lang === 'en' ? 'Live GPS Map' : '실시간 위경도 지도'}
+                    </div>
+                  </div>
+
+                  {/* Right: Simulated 4K Photo & Info Banner */}
+                  <div style={{ position: 'relative', width: '100%', height: '100%', minHeight: '170px', overflow: 'hidden' }}>
+                    <img
+                      src={currentCityData.photo}
+                      alt="city demo"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                    <div style={{
+                      position: 'absolute',
+                      inset: 0,
+                      background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(15,23,42,0.88) 100%)'
+                    }} />
+                    <div style={{ position: 'absolute', bottom: '10px', left: '12px', right: '12px', color: '#ffffff' }}>
+                      <div style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '3px',
+                        backgroundColor: 'rgba(15, 23, 42, 0.75)',
+                        padding: '1px 6px',
+                        borderRadius: '9999px',
+                        fontSize: '0.62rem',
+                        fontWeight: 800,
+                        color: '#38bdf8',
+                        marginBottom: '3px',
+                        border: '1px solid rgba(56, 189, 248, 0.4)'
+                      }}>
+                        <CheckCircle2 size={9} />
+                        <span>TourAPI 4.0 Certified</span>
+                      </div>
+                      <div style={{ fontSize: '1.10rem', fontWeight: 900, textShadow: '0 2px 4px rgba(0,0,0,0.8)' }}>
+                        {currentCityData.name[lang] || currentCityData.name.ko}
+                      </div>
+                      <div style={{ fontSize: '0.72rem', opacity: 0.95, marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <Sparkles size={11} color="#38bdf8" />
+                        <span>{currentCityData.tag[lang] || currentCityData.tag.ko}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Secret Foodie Tip */}
-                <div style={{ padding: '10px 14px', backgroundColor: '#fff7ed', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Utensils size={14} color="#ea580c" />
-                  <span style={{ fontSize: '0.76rem', fontWeight: 800, color: '#9a3412' }}>
+                <div style={{ padding: '8px 12px', backgroundColor: '#fff7ed', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Utensils size={13} color="#ea580c" />
+                  <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#9a3412' }}>
                     {currentCityData.food[lang] || currentCityData.food.ko}
                   </span>
                 </div>
@@ -373,7 +523,7 @@ export default function InteractiveQuickTour({
             {/* ── STEP 2 INTERACTIVE DEMO: 1-Click Plan Generation ── */}
             {currentStep === 1 && (
               <div style={{ padding: '16px' }}>
-                {/* Simulated Generator Bar (선배님 제안 인터페이스 100% 미러링) */}
+                {/* Simulated Generator Bar */}
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -461,17 +611,32 @@ export default function InteractiveQuickTour({
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.76rem', color: '#334155' }}>
                       <span style={{ width: '20px', height: '20px', borderRadius: '50%', backgroundColor: '#eff6ff', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '0.70rem' }}>1</span>
-                      <span style={{ fontWeight: 800 }}>해운대 블루라인파크 (스카이캡슐)</span>
-                      <span style={{ color: '#94a3b8', fontSize: '0.70rem' }}>➔ 12분</span>
+                      <span style={{ fontWeight: 800 }}>
+                        {lang === 'en' ? 'Haeundae Blueline Park (Sky Capsule)' :
+                         lang === 'ja' ? '海雲台ブルーラインパーク（スカイカプセル）' :
+                         (lang === 'zh' || lang === 'zht') ? '海云台蓝线公园（空中胶囊列车）' :
+                         '해운대 블루라인파크 (스카이캡슐)'}
+                      </span>
+                      <span style={{ color: '#94a3b8', fontSize: '0.70rem' }}>➔ 12m</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.76rem', color: '#334155' }}>
                       <span style={{ width: '20px', height: '20px', borderRadius: '50%', backgroundColor: '#eff6ff', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '0.70rem' }}>2</span>
-                      <span style={{ fontWeight: 800 }}>청사포 다릿돌전망대 & 오션뷰 카페</span>
-                      <span style={{ color: '#94a3b8', fontSize: '0.70rem' }}>➔ 25분</span>
+                      <span style={{ fontWeight: 800 }}>
+                        {lang === 'en' ? 'Cheongsapo Daritdol Skywalk & Ocean Cafe' :
+                         lang === 'ja' ? '青沙浦タリットル展望台＆オーシャンビューカフェ' :
+                         (lang === 'zh' || lang === 'zht') ? '青沙浦踏石观景台与海景咖啡街' :
+                         '청사포 다릿돌전망대 & 오션뷰 카페'}
+                      </span>
+                      <span style={{ color: '#94a3b8', fontSize: '0.70rem' }}>➔ 25m</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.76rem', color: '#334155' }}>
                       <span style={{ width: '20px', height: '20px', borderRadius: '50%', backgroundColor: '#eff6ff', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '0.70rem' }}>3</span>
-                      <span style={{ fontWeight: 800 }}>광안리 해변 드론쇼 & 해변 산책로</span>
+                      <span style={{ fontWeight: 800 }}>
+                        {lang === 'en' ? 'Gwangalli Beach Drone Show & Promenade' :
+                         lang === 'ja' ? '広安里ビーチ ドローンショー＆散策路' :
+                         (lang === 'zh' || lang === 'zht') ? '广安里海水浴场无人机秀与海滨步道' :
+                         '광안리 해변 드론쇼 & 해변 산책로'}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -493,7 +658,9 @@ export default function InteractiveQuickTour({
                       {lang === 'en' ? 'Live Temp / Feels' : lang === 'ja' ? '現在気温 / 体感' : (lang === 'zh' || lang === 'zht') ? '当前气温 / 体感' : '현재 기온 / 체감'}
                     </div>
                     <div style={{ fontSize: '1.3rem', fontWeight: 900, color: '#c2410c', marginTop: '2px' }}>
-                      23°C <span style={{ fontSize: '0.85rem', color: '#ea580c' }}>(체감 25°C)</span>
+                      23°C <span style={{ fontSize: '0.82rem', color: '#ea580c' }}>
+                        {lang === 'en' ? '(Feels 25°C)' : lang === 'ja' ? '(体感 25°C)' : (lang === 'zh' || lang === 'zht') ? '(体感 25°C)' : '(체감 25°C)'}
+                      </span>
                     </div>
                   </div>
 
@@ -502,8 +669,11 @@ export default function InteractiveQuickTour({
                     <div style={{ fontSize: '0.70rem', color: '#2563eb', fontWeight: 800 }}>
                       {lang === 'en' ? 'Air Quality / UV' : lang === 'ja' ? '大気質 / 紫外線' : (lang === 'zh' || lang === 'zht') ? '空气质量 / 紫外线' : '미세먼지 / 자외선'}
                     </div>
-                    <div style={{ fontSize: '1.0rem', fontWeight: 900, color: '#1d4ed8', marginTop: '4px' }}>
-                      🌿 좋음 · 자외선 보통
+                    <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#1d4ed8', marginTop: '4px' }}>
+                      {lang === 'en' ? '🌿 Good · Moderate UV' :
+                       lang === 'ja' ? '🌿 良好・紫外線 普通' :
+                       (lang === 'zh' || lang === 'zht') ? '🌿 优·紫外线 中等' :
+                       '🌿 좋음 · 자외선 보통'}
                     </div>
                   </div>
                 </div>
@@ -517,17 +687,31 @@ export default function InteractiveQuickTour({
                 }}>
                   <div style={{ fontSize: '0.76rem', fontWeight: 900, color: '#7c3aed', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '5px' }}>
                     <Shirt size={14} />
-                    <span>{lang === 'en' ? 'Recommended K-Style Outfit:' : '오늘의 추천 K-패션 코디:'}</span>
+                    <span>
+                      {lang === 'en' ? 'Recommended K-Style Outfit:' :
+                       lang === 'ja' ? '本日のおすすめ韓国コーデ:' :
+                       (lang === 'zh' || lang === 'zht') ? '今日推荐韩系穿搭指南:' :
+                       '오늘의 추천 K-패션 코디:'}
+                    </span>
                   </div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', fontSize: '0.76rem', fontWeight: 700, color: '#334155' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', fontSize: '0.74rem', fontWeight: 700, color: '#334155' }}>
                     <span style={{ backgroundColor: '#f5f3ff', padding: '3px 9px', borderRadius: '9999px', border: '1px solid #ddd6fe' }}>
-                      👕 린넨 셔츠 / 얇은 반팔
+                      {lang === 'en' ? '👕 Linen Shirt / Short Sleeve' :
+                       lang === 'ja' ? '👕 リネンシャツ／薄手の半袖' :
+                       (lang === 'zh' || lang === 'zht') ? '👕 亚麻衬衫/轻薄短袖' :
+                       '👕 린넨 셔츠 / 얇은 반팔'}
                     </span>
                     <span style={{ backgroundColor: '#f5f3ff', padding: '3px 9px', borderRadius: '9999px', border: '1px solid #ddd6fe' }}>
-                      👖 코튼 팬츠 / 와이드 슬랙스
+                      {lang === 'en' ? '👖 Cotton Pants / Wide Slacks' :
+                       lang === 'ja' ? '👖 コットンパンツ／ワイドスラックス' :
+                       (lang === 'zh' || lang === 'zht') ? '👖 纯棉长裤/宽松阔腿裤' :
+                       '👖 코튼 팬츠 / 와이드 슬랙스'}
                     </span>
                     <span style={{ backgroundColor: '#f5f3ff', padding: '3px 9px', borderRadius: '9999px', border: '1px solid #ddd6fe' }}>
-                      🧥 얇은 가디건 (에어컨/저녁 대비)
+                      {lang === 'en' ? '🧥 Light Cardigan (For AC/Night)' :
+                       lang === 'ja' ? '🧥 薄手カーディガン（冷房・夜間対策）' :
+                       (lang === 'zh' || lang === 'zht') ? '🧥 轻薄开衫（应对空调/早晚温差）' :
+                       '🧥 얇은 가디건 (에어컨/저녁 대비)'}
                     </span>
                   </div>
                 </div>
@@ -547,12 +731,15 @@ export default function InteractiveQuickTour({
                       fontSize: '0.74rem',
                       fontWeight: 800,
                       cursor: 'pointer',
-                      border: demoChatOption === 'cafe' ? '1px solid #2563eb' : '1px solid #e2e8f0',
+                      border: demoChatOption === 'cafe' ? '1.5px solid #2563eb' : '1px solid #e2e8f0',
                       backgroundColor: demoChatOption === 'cafe' ? '#eff6ff' : '#ffffff',
                       color: demoChatOption === 'cafe' ? '#2563eb' : '#475569'
                     }}
                   >
-                    ☕ {lang === 'en' ? 'Best Hanok Cafes?' : '북촌 한옥카페 추천'}
+                    ☕ {lang === 'en' ? 'Best Hanok Cafes?' :
+                        lang === 'ja' ? '北村の韓屋カフェ推薦' :
+                        (lang === 'zh' || lang === 'zht') ? '北村韩屋咖啡厅推荐' :
+                        '북촌 한옥카페 추천'}
                   </button>
                   <button
                     onClick={() => setDemoChatOption('transit')}
@@ -562,12 +749,15 @@ export default function InteractiveQuickTour({
                       fontSize: '0.74rem',
                       fontWeight: 800,
                       cursor: 'pointer',
-                      border: demoChatOption === 'transit' ? '1px solid #2563eb' : '1px solid #e2e8f0',
+                      border: demoChatOption === 'transit' ? '1.5px solid #2563eb' : '1px solid #e2e8f0',
                       backgroundColor: demoChatOption === 'transit' ? '#eff6ff' : '#ffffff',
                       color: demoChatOption === 'transit' ? '#2563eb' : '#475569'
                     }}
                   >
-                    🚆 {lang === 'en' ? 'Climate Card vs T-Money?' : '기후동행카드 vs T-money'}
+                    🚆 {lang === 'en' ? 'Climate Card vs T-Money?' :
+                        lang === 'ja' ? '気候同行カード vs T-money' :
+                        (lang === 'zh' || lang === 'zht') ? '气候同行卡 vs T-money' :
+                        '기후동행카드 vs T-money'}
                   </button>
                 </div>
 
@@ -583,7 +773,15 @@ export default function InteractiveQuickTour({
                 }}>
                   {/* User Bubble */}
                   <div style={{ alignSelf: 'flex-end', backgroundColor: '#2563eb', color: '#ffffff', padding: '6px 12px', borderRadius: '12px 12px 2px 12px', fontSize: '0.76rem', fontWeight: 700 }}>
-                    {demoChatOption === 'cafe' ? '북촌에서 고즈넉하고 사진 잘 나오는 한옥 카페 알려줘!' : '외국인 관광객인데 기후동행카드 사는 게 이득이야?'}
+                    {demoChatOption === 'cafe'
+                      ? (lang === 'en' ? 'Where are the most aesthetic Hanok cafes in Bukchon?' :
+                         lang === 'ja' ? '北村で静かで写真映えするおすすめの韓屋カフェを教えて！' :
+                         (lang === 'zh' || lang === 'zht') ? '请推荐北村安静又有氛围、拍照出片的韩屋咖啡厅！' :
+                         '북촌에서 고즈넉하고 사진 잘 나오는 한옥 카페 알려줘!')
+                      : (lang === 'en' ? 'Is it worth buying the Seoul Climate Card for international travelers?' :
+                         lang === 'ja' ? '外国人観光客ですが、気候同行カードを買った方がお得ですか？' :
+                         (lang === 'zh' || lang === 'zht') ? '外国游客购买首尔“气候同行卡”划算吗？' :
+                         '외국인 관광객인데 기후동행카드 사는 게 이득이야?')}
                   </div>
 
                   {/* AI Bubble */}
@@ -593,8 +791,14 @@ export default function InteractiveQuickTour({
                       <span>VORA AI</span>
                     </div>
                     {demoChatOption === 'cafe' 
-                      ? '✨ 안국역 인근 **어니언 안국(Onion Anguk)**과 **그린마일커피 북촌점**을 추천해요! 통창 너머 한옥 기와 뷰가 환상적입니다.'
-                      : '💡 서울 시내 지하철과 버스를 하루 4회 이상 탑승하신다면 **기후동행카드 관광권(3일권 10,000원)**이 훨씬 경제적입니다!'}
+                      ? (lang === 'en' ? '✨ I recommend **Onion Anguk** and **Green Mile Coffee Bukchon** near Anguk Station! The panoramic tiled Hanok roof views are breathtaking.' :
+                         lang === 'ja' ? '✨ 安国駅近くの**Onion 安国（オニオン）**と**グリーンマイルコーヒー北村店**がおすすめ！伝統的な瓦屋根の絶景が楽しめます。' :
+                         (lang === 'zh' || lang === 'zht') ? '✨ 强烈推荐安国站附近的 **Onion Anguk（洋葱咖啡）** 与 **Green Mile Coffee 北村店**！透过落地窗欣赏传统韩屋瓦顶全景非常惊艳。' :
+                         '✨ 안국역 인근 **어니언 안국(Onion Anguk)**과 **그린마일커피 북촌점**을 추천해요! 통창 너머 한옥 기와 뷰가 환상적입니다.')
+                      : (lang === 'en' ? '💡 If you take Seoul subways and buses 4+ times a day, the **Climate Card Tourist Pass (3-Day ₩10,000)** is much more economical!' :
+                         lang === 'ja' ? '💡 ソウル市内の地下鉄やバスを1日4回以上利用するなら、**気候同行カード観光パス（3日券 10,000ウォン）**が断然お得です！' :
+                         (lang === 'zh' || lang === 'zht') ? '💡 如果您一天乘坐首尔地铁和巴士4次以上，购买**气候同行卡短期旅游券（3日券 10,000韩元）**会划算很多！' :
+                         '💡 서울 시내 지하철과 버스를 하루 4회 이상 탑승하신다면 **기후동행카드 관광권(3일권 10,000원)**이 훨씬 경제적입니다!')}
                   </div>
                 </div>
               </div>

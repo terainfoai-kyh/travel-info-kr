@@ -735,12 +735,26 @@ export default function DesktopMapExplorer({
       const localKn = CITY_LOCAL_KNOWLEDGE[cleanCityKey] || CITY_LOCAL_KNOWLEDGE[cityName];
       const foundHub = REGIONAL_FALLBACK_CENTERS.find(c => c.nameKo === cleanCityKey || c.nameKo === cityName || c.nameKo.includes(cleanCityKey) || cleanCityKey.includes(c.nameKo));
 
-      // 🌟 1. [Architecture Rule] 지식베이스 하이라이트 및 실시간 공공데이터 연쇄 획득 (Waterfall Resolution)
-      let verifiedImage = foundHub?.image || baseLoc.image || localKn?.image || null;
-      let liveHighlights = [];
-      let isAbstractHighlights = false;
+      // 🌟 1. [Architecture Rule] 검증된 대표 거점 허브(서울, 부산, 제주, 수원, 경주, 강릉 등)는 완벽한 정품 사진 & 하이라이트 100% 고정 보존!
+      if (foundHub && foundHub.image) {
+        verifiedImage = foundHub.image;
+        if (foundHub.highlights && foundHub.highlights.length > 0) {
+          liveHighlights = foundHub.highlights.map(h => ({
+            ko: h.ko,
+            en: h.en || h.ko,
+            ja: h.ja || h.ko,
+            zh: h.zh || h.ko,
+            title: targetLang === 'ja' ? (h.ja || h.ko) : targetLang === 'en' ? (h.en || h.ko) : (targetLang === 'zh' || targetLang === 'zht') ? (h.zh || h.ko) : h.ko,
+            name: targetLang === 'ja' ? (h.ja || h.ko) : targetLang === 'en' ? (h.en || h.ko) : (targetLang === 'zh' || targetLang === 'zht') ? (h.zh || h.ko) : h.ko,
+            lat: h.lat || baseLoc.lat,
+            lng: h.lng || baseLoc.lng,
+            zoom: h.zoom || 14
+          }));
+        }
+      }
 
-      if (localKn && localKn.signatureHighlights && localKn.signatureHighlights.length > 0) {
+      // 🛡️ 2. 거점 허브가 아닌 미등록 226개 시·군 또는 지식베이스 데이터 보강
+      if (!foundHub && localKn && localKn.signatureHighlights && localKn.signatureHighlights.length > 0) {
         const sigKo = localKn.signatureHighlights || [];
         const sigEn = localKn.signatureHighlightsEn || sigKo;
         const sigJa = localKn.signatureHighlightsJa || sigKo;
@@ -773,8 +787,7 @@ export default function DesktopMapExplorer({
         }
       }
 
-      // 🛡️ 2. 지식베이스에서 사진을 못 구했거나(추상 문구 등) 미등록 226개 소도시:
-      // TourAPI 인기순(arrange=P) 실시간 공공데이터를 호출하여 해당 도시의 실제 1등 관광지 사진 및 명소 수신
+      // 🛡️ 3. 미등록 226개 소도시: TourAPI 인기순(arrange=P) 실시간 공공데이터 수신 (소공원/체육시설/분관 100% 필터링)
       if (!verifiedImage || isAbstractHighlights || liveHighlights.length === 0) {
         let liveSpots = await fetchDynamicRealtimeSpots(cityName, targetLang);
         if ((!liveSpots || liveSpots.length === 0) && baseLoc.lat && baseLoc.lng) {
@@ -782,15 +795,17 @@ export default function DesktopMapExplorer({
         }
 
         if (liveSpots && liveSpots.length > 0) {
-          // 비관광 시설(분관, 관리소, 주차장 등)을 제외한 최상위 인기 관광지의 정품 사진 선별
-          const spotWithImg = liveSpots.find(s => (s.firstimage || s.image) && !/(분관|관리소|교육관|예절교육관|주차장|공영주차장|현판|표지석)/i.test(s.title)) || liveSpots.find(s => s.firstimage || s.image);
+          // 비관광 시설(소공원, 어린이공원, 마을쉼터, 분관, 관리소, 주차장 등)을 제외한 최상위 인기 관광지의 정품 사진 선별
+          const spotWithImg = liveSpots.find(s => (s.firstimage || s.image) && !/(소공원|어린이공원|근린공원|마을쉼터|쌈지공원|노인정|놀이터|분관|관리소|교육관|예절교육관|주차장|공영주차장|현판|표지석|주민센터|배수지)/i.test(s.title)) || liveSpots.find(s => s.firstimage || s.image);
           if (spotWithImg?.firstimage || spotWithImg?.image) {
             verifiedImage = spotWithImg.firstimage || spotWithImg.image;
           }
 
-          // 추상적 문구이거나 비어있던 하이라이트를 실제 TourAPI 실시간 정품 명소로 즉시 업그레이드!
+          // 추상적 문구이거나 비어있던 하이라이트를 실제 TourAPI 실시간 정품 명소로 업그레이드!
           if (isAbstractHighlights || liveHighlights.length === 0) {
-            liveHighlights = liveSpots.slice(0, 4).map((sp) => {
+            const cleanSpots = liveSpots.filter(sp => !/(소공원|어린이공원|마을쉼터|쌈지공원|노인정|놀이터|분관|관리소|교육관|주차장|공영주차장|현판|표지석|주민센터|배수지)/i.test(sp.title || sp.name || ''));
+            const spotsToUse = cleanSpots.length > 0 ? cleanSpots : liveSpots;
+            liveHighlights = spotsToUse.slice(0, 4).map((sp) => {
               const rawTitle = (sp.title || sp.name || '').trim();
               return {
                 title: rawTitle,
