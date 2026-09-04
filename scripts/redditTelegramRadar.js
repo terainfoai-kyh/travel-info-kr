@@ -124,36 +124,46 @@ function generateReplyDraft(cityKey, days, postTitle) {
   return reply;
 }
 
+const CITY_PHOTO_URLS = {
+  seoul: 'https://travelkorea-dev.pages.dev/images/themes/theme-gyeongbokgung.jpg',
+  busan: 'https://travelkorea-dev.pages.dev/images/themes/theme-busan.jpg',
+  jeju: 'https://travelkorea-dev.pages.dev/images/themes/theme-jeju.jpg',
+  gyeongju: 'https://travelkorea-dev.pages.dev/images/themes/theme-gyeongju.jpg',
+  gangneung: 'https://travelkorea-dev.pages.dev/images/themes/theme-gangneung.jpg',
+  suwon: 'https://travelkorea-dev.pages.dev/images/themes/hero-suwon-hwaseong.jpg'
+};
+
 async function sendTelegramNotification(post, cityKey, days, replyDraft) {
   const redditUrl = `https://reddit.com${post.permalink}`;
   const voraUrl = `https://koreatravel.cc/?city=${cityKey}&days=${days}`;
+  const photoUrl = CITY_PHOTO_URLS[cityKey] || CITY_PHOTO_URLS.seoul;
 
-  const messageText = `📢 [r/koreatravel 새 여행 질문 감지!]\n\n` +
-    `📍 대상 도시: ${cityKey.toUpperCase()} (${days}일 코스)\n` +
-    `📌 제목: ${post.title}\n` +
+  const captionText = `🗺️ [VORA 4K COURSE MAP & ITINERARY]\n` +
+    `📍 대상: ${cityKey.toUpperCase()} (${days}일 코스)\n` +
+    `📌 질문: ${post.title.slice(0, 60)}${post.title.length > 60 ? '...' : ''}\n` +
     `👤 작성자: u/${post.author}\n\n` +
-    `💬 [추천 답변 초안 (복사하여 댓글에 붙여넣기)]:\n\n` +
-    `${replyDraft}\n\n` +
-    `👇 아래 버튼을 누르면 레딧 질문 글로 바로 이동합니다!`;
+    `💬 [추천 답변 초안 (복사하여 댓글에 붙여넣기)]:\n` +
+    `${replyDraft.slice(0, 650)}\n\n` +
+    `👇 아래 버튼을 누르면 레딧 질문 글이나 VORA 4K 코스로 즉시 이동합니다!`;
 
   const inlineKeyboard = {
     inline_keyboard: [
       [
         { text: '🚀 레딧 질문글 열고 댓글 달기', url: redditUrl },
-        { text: '🗺️ VORA 4K 코스 열기', url: voraUrl }
+        { text: '🗺️ VORA 4K 코스 보기', url: voraUrl }
       ]
     ]
   };
 
   const payload = {
     chat_id: TELEGRAM_CHAT_ID,
-    text: messageText,
-    reply_markup: inlineKeyboard,
-    disable_web_page_preview: true
+    photo: photoUrl,
+    caption: captionText.slice(0, 1020),
+    reply_markup: inlineKeyboard
   };
 
   try {
-    const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+    const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
