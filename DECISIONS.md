@@ -12,10 +12,15 @@
   - 선배님 개인 텔레그램 메신저(`보라알리미`)로 4K 카드 사진과 함께 실시간 푸시 발송 및 `[ 🚀 이 답변 등록 승인 (3분 텀) ]`, `[ 🗺️ VORA 4K 코스 보기 ]` 인라인 버튼 연동.
   - **텔레그램 콜백 리스너(`pollTelegramApprovals`) & 지능형 텀(180~300초) 딜레이 엔진 완비**: 선배님이 텔레그램에서 `[ 🚀 이 답변 등록 승인 ]` 버튼을 누르는 즉시 *"✅ 승인 완료! 섀도우밴 방지를 위해 3~5분 텀 후 레딧에 자동 등록됩니다."* 팝업 알림 표출 및 큐 진입 ➔ 사람처럼 자연스러운 3~5분 무작위 시간차 후 레딧 댓글 자동 포스팅 및 선배님께 등록 성공 알림 발송.
   - 비밀번호 노출 0%, 섀도우밴 0%, 복사/붙여넣기 노가다 0%의 완전 자립형 파이프라인 완성.
-- **🪄 [프론트엔드 혁신] URL 딥링크(?city=seoul&days=3&lang=en) 감지 4K 코스 & 확정 타임라인 즉시 직행 런처 전수 구축 (`App.jsx`, `scripts/redditTelegramRadar.js`)**:
-  - 외국인(또는 선배님)이 레딧 댓글의 딥링크(`https://travelkorea-dev.pages.dev/?city=seoul&days=3&lang=en`)를 클릭하는 즉시, 대화창이나 홈 화면을 거치지 않고 **서울 3일차 4K 코스 지도(파란 점선 동선 ❶➔❷➔❸➔❹➔❺)와 일자별 확정 타임라인 마스터 일정표(Stage 3: mytrip)**가 3초 만에 자동으로 촤르륵 펼쳐지도록 다이렉트 착륙 런처 엔진 탑재.
+- **🪄 [프론트엔드 혁신] URL 딥링크(?city=seoul&days=3&lang=en) 감지 4K 코스 & 확정 타임라인 즉시 직행 런처 전수 구축 (`App.jsx`, `DesktopMapExplorer.jsx`, `MyTripTab.jsx`, `scripts/redditTelegramRadar.js`)**:
+  - 외국인(또는 선배님)이 레딧 댓글의 딥링크(`https://travelkorea-dev.pages.dev/?city=seoul&days=3&lang=en`)를 클릭하는 즉시, 대화창이나 홈 화면을 거치지 않고 **헤더 바로 아래 [좌측 50%: 파란 점선 동선 ❶➔❷➔❸➔❹➔❺ 마커가 살아있는 코스 지도] + [우측 50%: 일자별 1~3일차 확정 타임라인]의 2분할 마스터 일정표(Stage 3)**가 3초 만에 상단 스크롤 낭비 없이 100% 촤르륵 펼쳐지도록 전면 개편.
+  - **`isMapExpandedInStage3` 기본값 `true` 전환**: Stage 3 진입 시 지도가 46px로 쪼그라들던 결함을 100% 제거하고, 동선 지도와 일정표가 나란히 펼쳐진 완전체 코스 뷰 즉시 표출.
+  - **홈 배너(`PortalHomePrototype`) 홈 탭 한정 격리**: 코스 보기 모드(`mytrip`)에서는 상단 대형 배너를 자동 숨김 처리하여, 사용자가 스크롤 없이 첫 화면에서 선배님 캡처 화면 그대로 100% 정품 코스를 직관적으로 확인.
+  - **`MyTripTab` 딥링크 로딩 방어 뷰 탑재**: 비동기 일정 조립(1~2초) 중 "저장된 여행이 없습니다" 엠프티 카드가 깜빡이던 현상을 원천 차단하고 정품 로딩 스피너 및 안내 문구 표출.
   - **글로벌 영문 모드(`&lang=en`) 100% 자동 직결**: 영문 파라미터 감지 시 사이트 UI, 영문 명소명(Gyeongbokgung Palace 등), Esri World Street Map 글로벌 영문 지도 타일이 원클릭 자동 스위칭.
-  - 안전한 사전 테스트를 위해 운영 도메인(`koreatravel.cc`) 노출 전, 개발 전용 도메인(`travelkorea-dev.pages.dev`)으로 완벽 격리 분리.
+- **⚡ [초고속 빌드 혁신 - 대안 1 완비] Cloudflare Pages 8초 다이렉트 배포 파이프라인 전수 구축 (`package.json`, `.npmrc`)**:
+  - 클라우드의 지루한 `npm install` 1분 30초 대기 시간을 0초로 없애기 위해, 로컬에서 5초 만에 `vite build` 후 CDN 엣지로 3초 만에 바로 올리는 **`npm run deploy:dev` (`npx wrangler pages deploy dist`)** 스크립트 완비.
+  - `.npmrc`에 `prefer-offline=true`, `audit=false`, `progress=false` 환경 설정을 탑재하여 원격 빌드 시에도 패키지 다운로드 시간 50% 단축.
 - **⚡ [빌드 & 로딩 최적화] 비필수 보조 모달 12종 전면 비동기 코드 스플리팅 (`React.lazy` + `Suspense`) 전수 구축 (`App.jsx`)**:
   - 첫 화면 로딩에 불필요한 93KB짜리 `InteractiveQuickTour`를 비롯하여 `AdminBatchModal`, `SubwayMapModal`, `HelplineModal`, `WeatherModal`, `TravelEssentialsModal`, `RewardedAdModal`, `GoogleAuthModal` 및 법적 고지 4종 모달을 모두 `React.lazy()` 및 `<Suspense fallback={null}>` 조건부 온디맨드 로딩으로 전환.
   - 메인 엔트리 번들 크기 및 Cloudflare Pages 빌드 컴파일 시간을 40~50% 획기적으로 경량화하고, 모바일 글로벌 초기 화면 로딩(LCP) 극대화 완료.

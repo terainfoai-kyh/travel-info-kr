@@ -345,7 +345,7 @@ export default function DesktopMapExplorer({
   const [isGeocoding, setIsGeocoding] = useState(false);
   const [isPhotoLoading, setIsPhotoLoading] = useState(false);
   const [isMapExpandedFull, setIsMapExpandedFull] = useState(false);
-  const [isMapExpandedInStage3, setIsMapExpandedInStage3] = useState(false);
+  const [isMapExpandedInStage3, setIsMapExpandedInStage3] = useState(true);
   const [isSubwayModalOpen, setIsSubwayModalOpen] = useState(false);
   const [isHelplineModalOpen, setIsHelplineModalOpen] = useState(false);
 

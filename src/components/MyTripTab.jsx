@@ -66,6 +66,36 @@ export default function MyTripTab({
     }
   };
 
+  // 딥링크 또는 비동기 생성 대기 중인 경우 로딩 표시 (엠프티 뷰 깜빡임 100% 방지)
+  const isDeepLinkLoading = typeof window !== 'undefined' && window.location.search.includes('city=') && !itineraryData;
+  if (isDeepLinkLoading) {
+    return (
+      <div style={{
+        width: '100%',
+        maxWidth: '680px',
+        margin: '0 auto 4.5rem auto',
+        padding: '3.5rem 1.5rem',
+        textAlign: 'center',
+        backgroundColor: 'var(--bg-card)',
+        borderRadius: '24px',
+        border: '1px solid var(--border-color)',
+        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.04)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '1rem'
+      }}>
+        <RotateCw size={36} color="#2563eb" style={{ animation: 'voraSpin 1.2s linear infinite' }} />
+        <h3 style={{ margin: '0 0 0.4rem 0', fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-main)' }}>
+          {lang === 'en' ? 'Generating 4K Interactive Course...' : '4K 코스 및 동선 지도 조립 중...'}
+        </h3>
+        <p style={{ margin: 0, fontSize: '0.86rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+          {lang === 'en' ? 'Connecting authentic TourAPI spots & spatial polyline routes...' : '한국관광공사 정품 명소와 최적 동선을 연결하고 있습니다.'}
+        </p>
+      </div>
+    );
+  }
+
   // 저장된 여행도 없고 현재 활성 일정도 없을 때의 엠프티 뷰
   if (!itineraryData && (!savedTrips || savedTrips.length === 0)) {
     return (
