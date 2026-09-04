@@ -152,10 +152,6 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
 
   const NUMBER_ICONS = ['❶', '❷', '❸', '❹', '❺'];
 
-  // Select tile layer based on language (OpenStreetMap Standard for Korean, Esri World Street Map for Multilingual)
-  const tileUrl = (lang === 'ko')
-    ? 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-    : 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}';
 
 
   // Dynamically load Leaflet CSS & JS
@@ -241,15 +237,9 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
 
     leafletMapRef.current = map;
 
-    // Select tile layer based on language (OpenStreetMap Standard for Korean, Esri World Street Map for International)
-    const tileUrl = (lang === 'ko')
-      ? 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-      : 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}';
-
-    L.tileLayer(tileUrl, {
-      maxZoom: 18,
-      attribution: '&copy; OpenStreetMap'
-    }).addTo(map);
+    // Select tile layer based on language (CartoDB Voyager for Multilingual, OpenStreetMap for Korean)
+    const { url: tileUrl, options: tileOptions } = getMapTileConfig(lang);
+    L.tileLayer(tileUrl, tileOptions).addTo(map);
 
     // Add Custom Zoom Control to top right
     L.control.zoom({ position: 'topright' }).addTo(map);

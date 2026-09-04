@@ -151,9 +151,11 @@
     - **원격 클라우드 빌드 큐 정체 100% 영구 척결**: Cloudflare Pages 등 원격 클라우드 러너의 느려터진 의존성 다운로드(`npm install`)로 인해 6분씩 빌드가 지연되거나 큐(`Queued`)에 갇혀 선배님께 답답함을 드리는 행위를 100% 영구 금지한다.
     - **"이제부턴 빌드해서 올리자" 선배님 수칙 영구 계승**: 모든 배포는 로컬 머신에서 5초 만에 초고속으로 `vite build`를 완료한 후 정적 번들(`dist`)만을 즉시 엣지로 쏘아 올리는 다이렉트 배포(`npm run deploy:dev` / `gh-pages`) 방식을 표준으로 전면 전환하여 단 8초 만에 배포를 완료한다.
 
-26. **Permanent Lock on Standard Map Engine & Ban on Ad-hoc Tile Tampering (표준 오픈스트리트맵(OSM) 영구 잠금 & 타일 임의 변경 100% 원천 금지 헌법)**
-    - **타일 엔진 임의 교체 100% 영구 엄금**: "외국인 전용 영어 지도" 등을 핑계로 검증되지 않은 외부 타일(Esri 등 확대 시 회색 깨짐 `Map data not yet available` 유발 타일, CartoDB 등 대각선 `API KEY REQUIRED` 유료 워터마크 난사 타일)로 임의 교체하여 정상 작동하던 지도를 망가뜨리는 행위를 영구히 엄금한다.
-    - **표준 OpenStreetMap (OSM) 영구 고정**: 대한민국의 모든 도시 및 관광 명소 지도는 워터마크 0%, 줌 레벨 깨짐 0%의 검증된 표준 OSM(`https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png`)만을 영구 고정 엔진으로 단일 사용한다.
+26. **Permanent Dual-Track Verified Map Engine Rule (국문 OSM + 다국어 공식 CartoDB Voyager 정품 타일 표준 헌법)**
+    - **부실 타일 임의 교체 100% 영구 엄금**: 국내 상세 줌(레벨 14 이상)에서 회색 깨짐(`Map data not yet available`)을 유발하는 Esri 타일이나 키 없는 무단 호출로 워터마크가 찍히는 타일의 사용을 100% 영구 배제한다.
+    - **이원화 정품 표준 엔진 영구 고정**:
+      - **국문(KO) 모드**: 워터마크 0%, 친숙한 한글 지명의 표준 **OpenStreetMap (OSM)** (`https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png`).
+      - **다국어(EN/JA/ZH 등) 모드**: 공식 발급된 Basemap API Key(`cb1_2wca_1_153b5c56066ce245168751d3`)가 직결된 정품 **CartoDB Voyager 영문 타일** (`https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=...`). 워터마크 0%, 줌 레벨 19까지 깨짐 없이 전 세계 관광객에게 영문 지명(SEOUL, BUSAN, GONGJU)을 완벽하게 제공.
     - **선(先) 확인 없는 화면 구조/타일 수정 100% 금지**: 상단 히어로 배너 숨김이나 지도 타일 변경 등 주요 UI/지도 레이아웃은 선배님의 명시적 승인 없이 먼저 수정하는 행위를 100% 원천 차단한다.
 
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { MapPin, Navigation, ExternalLink } from 'lucide-react';
 import { generateGoogleMapsRouteUrl, getGooglePlaceSearchUrl } from '../services/geminiNlpService';
 import { TRANSLATIONS } from '../i18n/translations';
+import { getMapTileConfig } from '../utils/mapTileUtils';
 
 // 🎯 Smart Organic Curved Route Generator (Guarantees zero straight lines even during network outages)
 function generateSmoothCurvedRoute(points) {
@@ -200,15 +201,9 @@ export default function GoogleMapView({
       const routeGroup = L.featureGroup().addTo(map);
       routeLayerRef.current = routeGroup;
 
-      // High quality Esri World Street Map / OSM tile layer
-      const tileUrl = (lang === 'ko')
-        ? 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-        : 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}';
-
-      L.tileLayer(tileUrl, {
-        maxZoom: 18,
-        attribution: '&copy; OpenStreetMap'
-      }).addTo(map);
+      // High quality CartoDB Voyager (Multilingual) / OSM (Korean) tile layer
+      const { url: tileUrl, options: tileOptions } = getMapTileConfig(lang);
+      L.tileLayer(tileUrl, tileOptions).addTo(map);
 
       // Zoom control at top-right for easy user zoom adjustment
       L.control.zoom({ position: 'topright' }).addTo(map);

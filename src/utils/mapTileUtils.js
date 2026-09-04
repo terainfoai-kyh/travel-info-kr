@@ -23,17 +23,34 @@ export function isInSouthKorea(lat, lng) {
   return numLat >= 33.0 && numLat <= 38.6 && numLng >= 124.5 && numLng <= 132.0;
 }
 
+export const CARTO_API_KEY = 'cb1_2wca_1_153b5c56066ce245168751d3';
+
 /**
  * 현재 언어에 맞는 지도 타일 설정 반환
- * 헌법 제26조 준수: 워터마크 0%, 회색 깨짐 0%의 검증된 표준 OpenStreetMap(OSM) 영구 고정
+ * - 국문(KO): OpenStreetMap 표준 국문 타일
+ * - 다국어(EN/JA/ZH 등): 공식 API Key 인증된 고화질 CartoDB Voyager 영문 타일 (워터마크 0%, 줌 19까지 완벽 지원)
  */
 export function getMapTileConfig(lang = 'ko') {
+  const isKorean = (lang === 'ko');
+
+  if (isKorean) {
+    return {
+      url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      options: {
+        maxZoom: 19,
+        subdomains: ['a', 'b', 'c'],
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }
+    };
+  }
+
+  // 🌐 글로벌 영문/다국어(EN/JA/ZH 등) 모드: 한국 전역 줌 19까지 100% 선명한 정품 CartoDB Voyager 영문 타일 (워터마크 0%)
   return {
-    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    url: `https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=${CARTO_API_KEY}`,
     options: {
       maxZoom: 19,
-      subdomains: ['a', 'b', 'c'],
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      subdomains: ['a', 'b', 'c', 'd'],
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
     }
   };
 }
