@@ -103,7 +103,9 @@ function extractDays(text = '') {
   return 3;
 }
 
-function generateReplyDraft(cityKey, days, postTitle) {
+const GEMINI_API_KEY = (process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '').trim();
+
+function generateFallbackReply(cityKey, days, postTitle) {
   const cityInfo = CITY_SAMPLE_ROUTES[cityKey] || CITY_SAMPLE_ROUTES.seoul;
   const daysToUse = Math.min(days, cityInfo.routes.length);
   const selectedRoutes = cityInfo.routes.slice(0, daysToUse);
@@ -124,6 +126,63 @@ function generateReplyDraft(cityKey, days, postTitle) {
   return reply;
 }
 
+async function generateGeminiReply(post, cityKey, days) {
+  const cityInfo = CITY_SAMPLE_ROUTES[cityKey] || CITY_SAMPLE_ROUTES.seoul;
+
+  if (!GEMINI_API_KEY) {
+    return generateFallbackReply(cityKey, days, post.title);
+  }
+
+  const prompt = `You are VORA, a warm, genuine, and knowledgeable local Korean travel concierge replying to a traveler's post on Reddit (r/koreatravel).
+Post Title: "${post.title}"
+Post Content: "${(post.selftext || '').slice(0, 1000)}"
+Target Destination: ${cityInfo.name} (${cityKey})
+Duration: ${days} days
+
+[Your Mission]:
+1. Be warm, welcoming, and genuinely encouraging. Greet them like a friendly local living in Korea.
+2. Directly acknowledge and empathize with their specific question/concern (e.g. first-time solo travel, rainy weather, transit confusion, foodie hunting, cafes, walking vs metro, budget, etc.).
+3. Provide a realistic, spatial-optimized ${days}-day itinerary summary (${days} days) where nearby spots are clustered together to prevent subway exhaustion.
+   Format with clear bullet points:
+   • Day 1: Spot ➔ Spot ➔ Spot
+   • Day 2: Spot ➔ Spot ➔ Spot (up to ${days} days)
+4. Give 1 essential insider transit tip (e.g., Climate Card or T-money, Naver Map / KakaoMap tip since Google Maps walking directions are limited in Korea).
+5. Give 1 authentic local foodie secret for ${cityInfo.name}.
+6. Naturally close by inviting them to explore the full interactive 4K route map with live weather & outfit suggestions here:
+👉 https://koreatravel.cc/?city=${cityKey}&days=${days}
+7. Keep the tone natural, helpful, and native for Reddit (clean markdown, no robotic corporate buzzwords, max 300 words).`;
+
+  const modelsToTry = ['gemini-2.0-flash', 'gemini-1.5-flash'];
+  for (const model of modelsToTry) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 800
+          }
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (text && text.trim().length > 60) {
+          return text.trim();
+        }
+      }
+    } catch (err) {
+      console.warn(`[Gemini Radar] Model ${model} failed, trying next:`, err.message);
+    }
+  }
+
+  return generateFallbackReply(cityKey, days, post.title);
+}
+
 const CITY_PHOTO_URLS = {
   seoul: 'https://travelkorea-dev.pages.dev/images/themes/theme-gyeongbokgung.jpg',
   busan: 'https://travelkorea-dev.pages.dev/images/themes/theme-busan.jpg',
@@ -138,18 +197,18 @@ async function sendTelegramNotification(post, cityKey, days, replyDraft) {
   const voraUrl = `https://koreatravel.cc/?city=${cityKey}&days=${days}`;
   const photoUrl = CITY_PHOTO_URLS[cityKey] || CITY_PHOTO_URLS.seoul;
 
-  const captionText = `🗺️ [VORA 4K COURSE MAP & ITINERARY]\n` +
+  const captionText = `🗺️ [VORA 4K COURSE & REDDIT RADAR]\n` +
     `📍 대상: ${cityKey.toUpperCase()} (${days}일 코스)\n` +
     `📌 질문: ${post.title.slice(0, 60)}${post.title.length > 60 ? '...' : ''}\n` +
     `👤 작성자: u/${post.author}\n\n` +
-    `💬 [추천 답변 초안 (복사하여 댓글에 붙여넣기)]:\n` +
+    `💬 [Gemini 2.0 정감 맞춤 답변 초안]:\n` +
     `${replyDraft.slice(0, 650)}\n\n` +
-    `👇 아래 버튼을 누르면 레딧 질문 글이나 VORA 4K 코스로 즉시 이동합니다!`;
+    `👇 [등록 승인]을 누르시면 3~5분 텀 후 레딧에 자동 게시됩니다!`;
 
   const inlineKeyboard = {
     inline_keyboard: [
       [
-        { text: '🚀 레딧 질문글 열고 댓글 달기', url: redditUrl },
+        { text: '🚀 이 답변 등록 승인 (3분 텀)', callback_data: `approve_${post.id}` },
         { text: '🗺️ VORA 4K 코스 보기', url: voraUrl }
       ]
     ]
@@ -206,7 +265,8 @@ export async function runRadarOnce() {
       if (isQuestion) {
         const cityKey = extractCity(combinedText);
         const days = extractDays(combinedText);
-        const replyDraft = generateReplyDraft(cityKey, days, post.title);
+        console.log(`🤖 Synthesizing Gemini warm reply for: [${post.title}]`);
+        const replyDraft = await generateGeminiReply(post, cityKey, days);
 
         console.log(`🎯 Found matching query: [${post.title}] by u/${post.author}`);
         const success = await sendTelegramNotification(post, cityKey, days, replyDraft);

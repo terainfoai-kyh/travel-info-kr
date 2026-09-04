@@ -311,8 +311,9 @@ export default function App() {
   // 5-Tab Screen Navigation State ('home' | 'ai' | 'mytrip' | 'map' | 'more')
   const [activeNavTab, setActiveNavTab] = useState(() => {
     try {
-      if (typeof window !== 'undefined' && window.location.search.includes('tripData')) {
-        return 'mytrip';
+      if (typeof window !== 'undefined') {
+        if (window.location.search.includes('tripData')) return 'mytrip';
+        if (window.location.search.includes('city=')) return 'ai';
       }
     } catch (e) {}
     return 'home';
@@ -1221,6 +1222,57 @@ export default function App() {
       setIsLoading(false);
     }
   };
+
+  // 🌐 [레딧/글로벌 딥링크 자동 런처] ?city=seoul&days=3 파라미터 감지 시 4K 코스 자동 생성 & 화면 즉시 직행!
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const cityParam = urlParams.get('city');
+      const daysParam = urlParams.get('days') || '3';
+      if (cityParam && !urlParams.get('tripData')) {
+        const daysNum = Math.min(5, Math.max(1, parseInt(daysParam, 10) || 3));
+        const cityMap = {
+          seoul: '서울',
+          busan: '부산',
+          jeju: '제주',
+          gyeongju: '경주',
+          gangneung: '강릉',
+          suwon: '수원',
+          incheon: '인천',
+          daegu: '대구',
+          daejeon: '대전',
+          gwangju: '광주',
+          ulsan: '울산',
+          sokcho: '속초',
+          yeosu: '여수',
+          jeonju: '전주',
+          andong: '안동',
+          chuncheon: '춘천'
+        };
+        const rawCity = cityMap[cityParam.toLowerCase()] || cityParam;
+        const locCity = getLocalizedCityName(rawCity, lang);
+
+        setPlannerInitialMode('chat');
+        setActiveNavTab('ai');
+
+        const promptText = lang === 'en'
+          ? `Create ${locCity} ${daysNum}-Day Travel Itinerary`
+          : lang === 'ja'
+          ? `${locCity} ${daysNum}日間の旅行コースを作成`
+          : (lang === 'zh' || lang === 'zht')
+          ? `制作${locCity} ${daysNum}日游旅行路线`
+          : `${rawCity} ${daysNum}일 여행 코스 만들기`;
+
+        const timer = setTimeout(() => {
+          handleGenerateItinerary(promptText, true, false);
+        }, 150);
+        return () => clearTimeout(timer);
+      }
+    } catch (err) {
+      console.warn('[DeepLink Launcher Error]', err);
+    }
+  }, []);
 
   // ⏰ 일차별 시간 변경 즉시 실시간 동기화 및 타임라인 물리 시뮬레이션 재계산 핸들러
   const handleUpdateTimeSlot = (day, newTimeSlot, currentMsgPlan) => {
