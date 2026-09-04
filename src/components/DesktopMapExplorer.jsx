@@ -2147,7 +2147,6 @@ function translateNightHighlight(nightStr, lang, cityName = '') {
                         <span>TAX FREE</span>
                       </span>
                     </div>
-                    </div>
                   </div>
                 </div>
               </div>
