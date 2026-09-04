@@ -11,7 +11,7 @@
  * ==============================================================================
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense, lazy } from 'react';
 import Header from './components/Header';
 import HeroSection from './components/HeroSection';
 import PortalHomePrototype from './components/PortalHomePrototype';
@@ -22,16 +22,7 @@ import AdSenseArticlesSection from './components/AdSenseArticlesSection';
 import AdSenseBanner from './components/AdSenseBanner';
 import TravelDetailModal from './components/TravelDetailModal';
 import WishlistDrawer from './components/WishlistDrawer';
-import WeatherModal from './components/WeatherModal';
-import TravelEssentialsModal from './components/TravelEssentialsModal';
-import PrivacyPolicyModal from './components/PrivacyPolicyModal';
-import TermsModal from './components/TermsModal';
-import AboutUsModal from './components/AboutUsModal';
-import ContactUsModal from './components/ContactUsModal';
 import PWAInstallBanner from './components/PWAInstallBanner';
-import RewardedAdModal from './components/RewardedAdModal';
-import GoogleAuthModal from './components/GoogleAuthModal';
-import AdminBatchModal from './components/AdminBatchModal';
 import BottomNav from './components/BottomNav';
 import FullMapTab from './components/FullMapTab';
 import MoreTabSection from './components/MoreTabSection';
@@ -41,11 +32,22 @@ import LiveTripTab from './components/LiveTripTab';
 import DesktopMapExplorer from './components/DesktopMapExplorer';
 import DesktopNavSidebar from './components/DesktopNavSidebar';
 import DockedMapStation from './components/DockedMapStation';
-import SubwayMapModal from './components/SubwayMapModal';
-import HelplineModal from './components/HelplineModal';
 import CuratedTravelGuides from './components/CuratedTravelGuides';
-import InteractiveQuickTour from './components/InteractiveQuickTour';
 import Footer from './components/Footer';
+
+// ⚡ High-Performance Code Splitting for Non-Critical Auxiliary Modals (Cloudflare Pages Build & LCP Acceleration)
+const WeatherModal = lazy(() => import('./components/WeatherModal'));
+const TravelEssentialsModal = lazy(() => import('./components/TravelEssentialsModal'));
+const PrivacyPolicyModal = lazy(() => import('./components/PrivacyPolicyModal'));
+const TermsModal = lazy(() => import('./components/TermsModal'));
+const AboutUsModal = lazy(() => import('./components/AboutUsModal'));
+const ContactUsModal = lazy(() => import('./components/ContactUsModal'));
+const RewardedAdModal = lazy(() => import('./components/RewardedAdModal'));
+const GoogleAuthModal = lazy(() => import('./components/GoogleAuthModal'));
+const AdminBatchModal = lazy(() => import('./components/AdminBatchModal'));
+const SubwayMapModal = lazy(() => import('./components/SubwayMapModal'));
+const HelplineModal = lazy(() => import('./components/HelplineModal'));
+const InteractiveQuickTour = lazy(() => import('./components/InteractiveQuickTour'));
 
 import { detectBrowserLanguage, TRANSLATIONS, getLocalizedCityName } from './i18n/translations';
 import { geminiGenerateFullItinerary, generateLocalFallbackItinerary, enrichItineraryPhotosAsync, extractLocationKeyword, extractDaysFromPrompt } from './services/geminiNlpService';
@@ -1811,104 +1813,119 @@ export default function App() {
         />
       )}
 
-      {isWeatherOpen && (
-        <WeatherModal
-          isOpen={isWeatherOpen}
-          onClose={() => setIsWeatherOpen(false)}
-          lang={lang}
-          initialRegion={weatherCity || itineraryData?.targetCity || '서울'}
-        />
-      )}
+      {/* ⚡ Code-Split Auxiliary Modals (Loaded on-demand via Suspense) */}
+      <Suspense fallback={null}>
+        {isWeatherOpen && (
+          <WeatherModal
+            isOpen={isWeatherOpen}
+            onClose={() => setIsWeatherOpen(false)}
+            lang={lang}
+            initialRegion={weatherCity || itineraryData?.targetCity || '서울'}
+          />
+        )}
 
-      {isEssentialsOpen && (
-        <TravelEssentialsModal
-          isOpen={isEssentialsOpen}
-          onClose={() => setIsEssentialsOpen(false)}
-          lang={lang}
-        />
-      )}
+        {isEssentialsOpen && (
+          <TravelEssentialsModal
+            isOpen={isEssentialsOpen}
+            onClose={() => setIsEssentialsOpen(false)}
+            lang={lang}
+          />
+        )}
 
-      {isPrivacyOpen && (
-        <PrivacyPolicyModal
-          isOpen={isPrivacyOpen}
-          onClose={() => setIsPrivacyOpen(false)}
-          lang={lang}
-        />
-      )}
+        {isPrivacyOpen && (
+          <PrivacyPolicyModal
+            isOpen={isPrivacyOpen}
+            onClose={() => setIsPrivacyOpen(false)}
+            lang={lang}
+          />
+        )}
 
-      {isTermsOpen && (
-        <TermsModal
-          isOpen={isTermsOpen}
-          onClose={() => setIsTermsOpen(false)}
-          lang={lang}
-        />
-      )}
+        {isTermsOpen && (
+          <TermsModal
+            isOpen={isTermsOpen}
+            onClose={() => setIsTermsOpen(false)}
+            lang={lang}
+          />
+        )}
 
-      {isAboutOpen && (
-        <AboutUsModal
-          isOpen={isAboutOpen}
-          onClose={() => setIsAboutOpen(false)}
-          lang={lang}
-        />
-      )}
+        {isAboutOpen && (
+          <AboutUsModal
+            isOpen={isAboutOpen}
+            onClose={() => setIsAboutOpen(false)}
+            lang={lang}
+          />
+        )}
 
-      {isContactOpen && (
-        <ContactUsModal
-          isOpen={isContactOpen}
-          onClose={() => setIsContactOpen(false)}
-          lang={lang}
-        />
-      )}
+        {isContactOpen && (
+          <ContactUsModal
+            isOpen={isContactOpen}
+            onClose={() => setIsContactOpen(false)}
+            lang={lang}
+          />
+        )}
 
-      {/* Rewarded Ad Modal (15-second sponsor ad for +3 questions) */}
-      <RewardedAdModal
-        isOpen={isRewardedAdOpen}
-        onClose={() => setIsRewardedAdOpen(false)}
-        onRewardGranted={handleRewardGranted}
-        lang={lang}
-      />
+        {/* Rewarded Ad Modal (15-second sponsor ad for +3 questions) */}
+        {isRewardedAdOpen && (
+          <RewardedAdModal
+            isOpen={isRewardedAdOpen}
+            onClose={() => setIsRewardedAdOpen(false)}
+            onRewardGranted={handleRewardGranted}
+            lang={lang}
+          />
+        )}
 
-      {/* Google Sign-in Auth Modal (15 questions per day + cloud storage) */}
-      <GoogleAuthModal
-        isOpen={isGoogleAuthOpen}
-        onClose={() => setIsGoogleAuthOpen(false)}
-        onLoginSuccess={handleLoginSuccess}
-        currentUser={currentUser}
-        lang={lang}
-      />
+        {/* Google Sign-in Auth Modal (15 questions per day + cloud storage) */}
+        {isGoogleAuthOpen && (
+          <GoogleAuthModal
+            isOpen={isGoogleAuthOpen}
+            onClose={() => setIsGoogleAuthOpen(false)}
+            onLoginSuccess={handleLoginSuccess}
+            currentUser={currentUser}
+            lang={lang}
+          />
+        )}
 
-      {/* 🔒 Super Admin Batch Knowledge Center Modal */}
-      <AdminBatchModal
-        isOpen={isAdminBatchOpen}
-        onClose={() => setIsAdminBatchOpen(false)}
-        currentUser={currentUser}
-        lang={lang}
-      />
+        {/* 🔒 Super Admin Batch Knowledge Center Modal */}
+        {isAdminBatchOpen && (
+          <AdminBatchModal
+            isOpen={isAdminBatchOpen}
+            onClose={() => setIsAdminBatchOpen(false)}
+            currentUser={currentUser}
+            lang={lang}
+          />
+        )}
 
-      {/* 🚇 전국 지하철 노선도 모달 */}
-      <SubwayMapModal
-        isOpen={isSubwayMapOpen}
-        onClose={() => setIsSubwayMapOpen(false)}
-        lang={lang}
-      />
+        {/* 🚇 전국 지하철 노선도 모달 */}
+        {isSubwayMapOpen && (
+          <SubwayMapModal
+            isOpen={isSubwayMapOpen}
+            onClose={() => setIsSubwayMapOpen(false)}
+            lang={lang}
+          />
+        )}
 
-      {/* 📞 1330 스마트 헬프라인 모달 */}
-      <HelplineModal
-        isOpen={isHelplineModalOpen}
-        onClose={() => setIsHelplineModalOpen(false)}
-        lang={lang}
-      />
+        {/* 📞 1330 스마트 헬프라인 모달 */}
+        {isHelplineModalOpen && (
+          <HelplineModal
+            isOpen={isHelplineModalOpen}
+            onClose={() => setIsHelplineModalOpen(false)}
+            lang={lang}
+          />
+        )}
 
-      {/* 💡 30초 인터랙티브 비주얼 퀵 투어 모달 */}
-      <InteractiveQuickTour
-        isOpen={isQuickTourOpen}
-        onClose={() => setIsQuickTourOpen(false)}
-        lang={lang}
-        onStartExploring={() => {
-          setIsQuickTourOpen(false);
-          setActiveNavTab('home');
-        }}
-      />
+        {/* 💡 30초 인터랙티브 비주얼 퀵 투어 모달 */}
+        {isQuickTourOpen && (
+          <InteractiveQuickTour
+            isOpen={isQuickTourOpen}
+            onClose={() => setIsQuickTourOpen(false)}
+            lang={lang}
+            onStartExploring={() => {
+              setIsQuickTourOpen(false);
+              setActiveNavTab('home');
+            }}
+          />
+        )}
+      </Suspense>
     </div>
   );
 }
