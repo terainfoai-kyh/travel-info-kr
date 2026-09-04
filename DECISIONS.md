@@ -10,6 +10,8 @@
 - **🪄 지도 우측 패널 상단 Days(1D~5D) 선택 & 원클릭 코스 생성 CTA 바 전면 구축 (`DesktopMapExplorer.jsx`)**:
   - 도시 선택 시 우측 상단에 `[ Days: 1D | 2D | 3D | 4D | 5D ]` 선택 버튼 + `[ 🪄 {City} {N}D Plan 🚀 > ]` 원클릭 그라데이션 CTA 버튼 장착.
   - 도시 클릭 후 "어디로 가야 하지?" 고민할 틈 없이 원하는 일수 선택 후 원클릭으로 3초 만에 4K 일정표가 즉각 생성되는 직관적 UX 완성.
+- **🔒 [헌법 제24조 준수] 거점 허브 클릭 시 allCleanSpots 변수 스코프 결함 100% 영구 척결 (`DesktopMapExplorer.jsx`)**:
+  - `enrichLocationWithLiveTourApi` 내부의 `allCleanSpots`를 함수 최상단 스코프로 승격하여 서울/부산/제주/수원 등 검증된 거점 도시 클릭 시 `ReferenceError` 및 침묵의 데이터 유실(catch 폴백)을 100% 원천 차단.
 - **🔒 대한민국 226개 시·군 클릭 시 경복궁 사진 고정 오작동 100% 영구 척결 (`DesktopMapExplorer.jsx`)**:
   - `handleMapLocationSelected` 및 `enrichLocationWithLiveTourApi`에서 거점 허브(`REGIONAL_FALLBACK_CENTERS`) 매칭을 `c.nameKo.includes(cleanKey)` 식의 느슨한 부분 매칭 대신 **정확한 일치(Exact Match: `c.nameKo === cleanKey`)로 엄격화**.
   - `baseLoc` 초기화 시 하드코딩되었던 경복궁 기본 이미지(`theme-gyeongbokgung.jpg`)를 제거하여, 서울이 아닌 전국 226개 시·군(부산, 제주, 강릉, 안동, 여수, 전주, 거창 등) 클릭 시 해당 지역의 TourAPI 실시간 정품 랜드마크 사진이 100% 정상 수신 및 표출되도록 완전 정상화.

@@ -739,6 +739,7 @@ export default function DesktopMapExplorer({
       let verifiedImage = (foundHub && foundHub.image) ? foundHub.image : (localKn?.image || '');
       let liveHighlights = [];
       let isAbstractHighlights = false;
+      let allCleanSpots = [];
 
       // 🌟 1. [Architecture Rule] 검증된 대표 거점 허브(서울, 부산, 제주, 수원, 경주, 강릉 등)는 완벽한 정품 사진 & 하이라이트 100% 고정 보존!
       if (foundHub && foundHub.image) {
@@ -802,7 +803,7 @@ export default function DesktopMapExplorer({
           liveSpots = await fetchLocationBasedTourApiSpots(baseLoc.lat, baseLoc.lng, 25000, targetLang);
         }
 
-        let allCleanSpots = [];
+        allCleanSpots = [];
         if (liveSpots && liveSpots.length > 0) {
           const cleanSpots = liveSpots.filter(sp => !/(소공원|어린이공원|마을쉼터|쌈지공원|노인정|놀이터|분관|관리소|교육관|주차장|공영주차장|현판|표지석|주민센터|배수지)/i.test(sp.title || sp.name || ''));
           const spotsToUse = cleanSpots.length > 0 ? cleanSpots : liveSpots;
