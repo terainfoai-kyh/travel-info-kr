@@ -16,7 +16,12 @@ import {
   Utensils,
   Moon,
   Clock,
-  Play
+  Play,
+  Smartphone,
+  Monitor,
+  Share2,
+  Copy,
+  Check
 } from 'lucide-react';
 
 export default function InteractiveQuickTour({ 
@@ -37,6 +42,10 @@ export default function InteractiveQuickTour({
   // Interactive Demo States for Step 4 (Chat Simulation)
   const [demoChatOption, setDemoChatOption] = useState('cafe');
 
+  // Interactive Demo States for Step 5 (Cross-Device Simulation)
+  const [demoDeviceView, setDemoDeviceView] = useState('mobile'); // 'mobile' | 'pc'
+  const [copiedLink, setCopiedLink] = useState(false);
+
   if (!isOpen) return null;
 
   const CITIES_DATA = {
@@ -45,7 +54,7 @@ export default function InteractiveQuickTour({
       photo: '/images/themes/theme-gyeongbokgung.jpg',
       tag: { ko: '경복궁 & 성수동 카페거리', en: 'Gyeongbokgung & Seongsu Cafes', ja: '景福宮＆聖水洞カフェ', zh: '景福宫与圣水洞咖啡街' },
       food: { ko: '광장시장 마약김밥 & 빈대떡', en: 'Gwangjang Market Kimbap & Bindaetteok', ja: '広蔵市場キンパ＆チヂミ', zh: '广藏市场紫菜包饭与绿豆煎饼' },
-      mapPos: { top: '24%', left: '38%' },
+      mapPos: { top: '27%', left: '38%' },
       route: [
         { ko: '경복궁 & 근정전', en: 'Gyeongbokgung Palace', ja: '景福宮', zh: '景福宫' },
         { ko: '북촌 한옥마을', en: 'Bukchon Hanok', ja: '北村韓屋村', zh: '北村韩屋村' },
@@ -57,7 +66,7 @@ export default function InteractiveQuickTour({
       photo: '/images/themes/theme-gangneung.jpg',
       tag: { ko: '안목해변 커피거리 & BTS 정류장', en: 'Anmok Coffee Street & BTS Stop', ja: '安木カフェ通り＆BTSバス停', zh: '安木咖啡街与BTS车站' },
       food: { ko: '초당 순두부 & 닭강정', en: 'Chodang Soft Tofu & Dakgangjeong', ja: '草堂スンドゥブ＆チキン', zh: '草堂嫩豆腐与炸鸡块' },
-      mapPos: { top: '26%', left: '72%' },
+      mapPos: { top: '26%', left: '68%' },
       route: [
         { ko: '안목 커피거리', en: 'Anmok Coffee Street', ja: '安木カフェ通り', zh: '安木咖啡街' },
         { ko: '경포대 해변', en: 'Gyeongpo Beach', ja: '鏡浦海水浴場', zh: '镜浦海水浴场' },
@@ -69,7 +78,7 @@ export default function InteractiveQuickTour({
       photo: '/images/themes/theme-busan.jpg',
       tag: { ko: '해운대 블루라인파크 & 광안대교', en: 'Haeundae Blueline & Gwangandaegyo', ja: '海雲台ブルーライン＆広安大橋', zh: '海云台蓝线公园与广安大桥' },
       food: { ko: '자갈치시장 활어회 & 돼지국밥', en: 'Jagalchi Sashimi & Pork Soup', ja: 'チャガルチ刺身＆テジクッパ', zh: '札嘎其生鱼片与猪肉汤饭' },
-      mapPos: { top: '68%', left: '74%' },
+      mapPos: { top: '65%', left: '70%' },
       route: [
         { ko: '해운대 블루라인', en: 'Haeundae Blueline', ja: '海雲台ブルーライン', zh: '海云台蓝线' },
         { ko: '청사포 스카이워크', en: 'Cheongsapo Skywalk', ja: '青沙浦スカイウォーク', zh: '青沙浦步道' },
@@ -81,7 +90,7 @@ export default function InteractiveQuickTour({
       photo: '/images/themes/theme-jeju.jpg',
       tag: { ko: '성산일출봉 & 애월 한담해변', en: 'Seongsan Peak & Aewol Coast', ja: '城山日出峰＆涯月海岸', zh: '城山日出峰与涯月海岸' },
       food: { ko: '제주 흑돼지 & 고기국수', en: 'Black Pork BBQ & Gogi Guksu', ja: '済州黒豚焼肉＆肉うどん', zh: '济州黑猪肉与猪肉汤面' },
-      mapPos: { top: '88%', left: '32%' },
+      mapPos: { top: '84%', left: '34%' },
       route: [
         { ko: '성산일출봉', en: 'Seongsan Peak', ja: '城山日出峰', zh: '城山日出峰' },
         { ko: '섭지코지', en: 'Seopjikoji', ja: 'ソプチコジ', zh: '涉地可支' },
@@ -156,6 +165,22 @@ export default function InteractiveQuickTour({
         ja: '「雨の日の観光スポットは？」「KTXの予約方法は？」など、旅行中の疑問をリアルタイムで1:1サポートします。',
         zh: '随时提问“下雨天去哪里好？”、“如何乘坐KTX？”等旅行疑问，获得实时智能解答。'
       }
+    },
+    {
+      stepNumber: 5,
+      badge: { ko: '5단계 · PC ⇋ 모바일 연동', en: 'Step 5 · PC ⇋ Mobile Sync', ja: 'ステップ5 · PC・スマホ連動', zh: '第5步 · 电脑/手机无缝同步' },
+      title: { 
+        ko: '계획은 시원한 PC에서, 여행은 내 손안의 모바일에서 ✈️', 
+        en: 'Plan on Wide PC Screen, Travel with Mobile in Hand ✈️', 
+        ja: '計画は快適なPC大画面で、旅行は手元のスマホで ✈️', 
+        zh: '大屏电脑做攻略，随身手机畅游韩国 ✈️' 
+      },
+      desc: {
+        ko: '226개 시·군 4K 대형 지도 탐색 & AI 일정표를 PC에서 쾌적하게 짠 뒤, 여행지에서는 스마트폰 PWA 앱으로 실시간 동기화하여 들고 다닐 수 있습니다.',
+        en: 'Craft rich 4K itineraries on your wide PC screen, then seamlessly open and follow your trip on your smartphone PWA app with zero hassle.',
+        ja: '大画面PCで226都市の4K地図とAI旅程を快適に作成し、現地ではスマホのPWAアプリでリアルタイムに確認・持ち歩きできます。',
+        zh: '在电脑大屏幕上轻松探索226个市郡的4K地图并制定行程，出行时即可通过手机PWA应用实时同步，随时随地随身查阅。'
+      }
     }
   ];
 
@@ -174,6 +199,14 @@ export default function InteractiveQuickTour({
     if (currentStep > 0) {
       setCurrentStep(prev => prev - 1);
     }
+  };
+
+  const handleCopyShareLink = () => {
+    try {
+      navigator.clipboard.writeText(window.location.origin || 'https://travelkorea-dev.pages.dev');
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2000);
+    } catch {}
   };
 
   return (
@@ -909,6 +942,284 @@ export default function InteractiveQuickTour({
                          (lang === 'zh' || lang === 'zht') ? '💡 如果您一天乘坐首尔地铁和巴士4次以上，购买**气候同行卡短期旅游券（3日券 10,000韩元）**会划算很多！' :
                          '💡 서울 시내 지하철과 버스를 하루 4회 이상 탑승하신다면 **기후동행카드 관광권(3일권 10,000원)**이 훨씬 경제적입니다!')}
                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* ── STEP 5 INTERACTIVE DEMO: PC ⇋ Mobile Cross-Device Simulator ── */}
+            {currentStep === 4 && (
+              <div style={{ padding: '16px' }}>
+                {/* Device View Toggle Tabs */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  marginBottom: '14px'
+                }}>
+                  <button
+                    onClick={() => setDemoDeviceView('mobile')}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                      padding: '6px 14px',
+                      borderRadius: '9999px',
+                      fontSize: '0.78rem',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      border: demoDeviceView === 'mobile' ? '1.5px solid #2563eb' : '1px solid #cbd5e1',
+                      backgroundColor: demoDeviceView === 'mobile' ? '#eff6ff' : '#ffffff',
+                      color: demoDeviceView === 'mobile' ? '#2563eb' : '#64748b',
+                      boxShadow: demoDeviceView === 'mobile' ? '0 2px 8px rgba(37, 99, 235, 0.25)' : 'none',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    <Smartphone size={15} />
+                    <span>{lang === 'en' ? '📱 Mobile Smartphone View' : lang === 'ja' ? '📱 スマホ画面（手元で確認）' : (lang === 'zh' || lang === 'zht') ? '📱 手机端视角（出行随身）' : '📱 모바일 화면 (스마트폰)'}</span>
+                  </button>
+
+                  <button
+                    onClick={() => setDemoDeviceView('pc')}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                      padding: '6px 14px',
+                      borderRadius: '9999px',
+                      fontSize: '0.78rem',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      border: demoDeviceView === 'pc' ? '1.5px solid #7c3aed' : '1px solid #cbd5e1',
+                      backgroundColor: demoDeviceView === 'pc' ? '#f5f3ff' : '#ffffff',
+                      color: demoDeviceView === 'pc' ? '#7c3aed' : '#64748b',
+                      boxShadow: demoDeviceView === 'pc' ? '0 2px 8px rgba(124, 58, 237, 0.25)' : 'none',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    <Monitor size={15} />
+                    <span>{lang === 'en' ? '💻 PC Wide Monitor View' : lang === 'ja' ? '💻 PC大画面（快適に計画）' : (lang === 'zh' || lang === 'zht') ? '💻 电脑大屏（深度规划）' : '💻 PC 대화면 (모니터)'}</span>
+                  </button>
+                </div>
+
+                {/* Simulated Screen Container */}
+                {demoDeviceView === 'mobile' ? (
+                  /* 📱 Mobile Phone Mockup */
+                  <div style={{
+                    width: '100%',
+                    maxWidth: '300px',
+                    margin: '0 auto',
+                    backgroundColor: '#0f172a',
+                    borderRadius: '24px',
+                    padding: '8px',
+                    boxShadow: '0 12px 30px -8px rgba(15, 23, 42, 0.35)',
+                    border: '2px solid #334155'
+                  }}>
+                    {/* Phone Notch & Speaker */}
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '6px' }}>
+                      <div style={{ width: '45px', height: '4px', backgroundColor: '#334155', borderRadius: '9999px' }} />
+                    </div>
+
+                    {/* Inside Phone Screen */}
+                    <div style={{
+                      backgroundColor: '#ffffff',
+                      borderRadius: '16px',
+                      padding: '12px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '8px'
+                    }}>
+                      {/* Mobile Top Header */}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '6px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <Sparkles size={12} color="#7c3aed" />
+                          <span style={{ fontSize: '0.74rem', fontWeight: 900, color: '#0f172a' }}>VORA AI Mobile</span>
+                        </div>
+                        <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#ea580c', backgroundColor: '#fff7ed', padding: '1px 6px', borderRadius: '9999px' }}>
+                          23°C ☀️
+                        </span>
+                      </div>
+
+                      {/* Active Day Route Card */}
+                      <div style={{
+                        backgroundColor: '#eff6ff',
+                        borderRadius: '10px',
+                        padding: '8px 10px',
+                        border: '1px solid #bfdbfe'
+                      }}>
+                        <div style={{ fontSize: '0.68rem', fontWeight: 900, color: '#1d4ed8', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                          <Navigation size={10} />
+                          <span>
+                            {lang === 'en' ? 'Day 1 Route (In your hand)' :
+                             lang === 'ja' ? '1日目ルート（リアルタイム同期）' :
+                             (lang === 'zh' || lang === 'zht') ? '第1日动线（随身即查）' :
+                             '1일차 동선 (내 손안에 실시간 연동)'}
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', fontSize: '0.66rem', fontWeight: 800, color: '#1e293b' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <span style={{ width: '14px', height: '14px', borderRadius: '50%', backgroundColor: '#2563eb', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.55rem' }}>1</span>
+                            <span>{lang === 'en' ? 'Haeundae Blueline Park' : lang === 'ja' ? '海雲台ブルーライン' : (lang === 'zh' || lang === 'zht') ? '海云台蓝线公园' : '해운대 블루라인파크'}</span>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <span style={{ width: '14px', height: '14px', borderRadius: '50%', backgroundColor: '#2563eb', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.55rem' }}>2</span>
+                            <span>{lang === 'en' ? 'Cheongsapo Skywalk' : lang === 'ja' ? '青沙浦スカイウォーク' : (lang === 'zh' || lang === 'zht') ? '青沙浦步道' : '청사포 다릿돌전망대'}</span>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <span style={{ width: '14px', height: '14px', borderRadius: '50%', backgroundColor: '#2563eb', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.55rem' }}>3</span>
+                            <span>{lang === 'en' ? 'Gwangalli Drone Show' : lang === 'ja' ? '広安里ドローンショー' : (lang === 'zh' || lang === 'zht') ? '广安里无人机秀' : '광안리 드론쇼'}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Map Directions & PWA Badge */}
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '6px 8px',
+                        borderRadius: '8px',
+                        backgroundColor: '#f8fafc',
+                        border: '1px solid #e2e8f0',
+                        fontSize: '0.62rem',
+                        fontWeight: 800,
+                        color: '#475569'
+                      }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                          <Compass size={11} color="#2563eb" />
+                          <span>{lang === 'en' ? 'Kakao/Naver Map Transit' : lang === 'ja' ? '地図アプリ1秒乗換案内' : (lang === 'zh' || lang === 'zht') ? '高德/Naver地图一键导航' : '카카오/네이버 길찾기 연동'}</span>
+                        </span>
+                        <span style={{ color: '#16a34a', fontWeight: 900 }}>LIVE ⚡</span>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  /* 💻 PC Monitor Mockup */
+                  <div style={{
+                    width: '100%',
+                    backgroundColor: '#1e293b',
+                    borderRadius: '12px',
+                    padding: '6px',
+                    boxShadow: '0 12px 30px -8px rgba(15, 23, 42, 0.35)',
+                    border: '1.5px solid #475569'
+                  }}>
+                    {/* Browser Window Bar */}
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                      padding: '4px 8px',
+                      borderBottom: '1px solid #334155',
+                      marginBottom: '6px'
+                    }}>
+                      <div style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#ef4444' }} />
+                      <div style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#eab308' }} />
+                      <div style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#22c55e' }} />
+                      <div style={{
+                        flex: 1,
+                        backgroundColor: '#0f172a',
+                        borderRadius: '4px',
+                        padding: '1px 8px',
+                        fontSize: '0.60rem',
+                        color: '#94a3b8',
+                        textAlign: 'center',
+                        marginLeft: '8px'
+                      }}>
+                        travelkorea-dev.pages.dev
+                      </div>
+                    </div>
+
+                    {/* Inside PC Browser Content */}
+                    <div style={{
+                      backgroundColor: '#ffffff',
+                      borderRadius: '8px',
+                      padding: '8px',
+                      display: 'grid',
+                      gridTemplateColumns: '1fr 1.3fr',
+                      gap: '8px'
+                    }}>
+                      {/* Left: 226 Map Thumbnail */}
+                      <div style={{
+                        backgroundColor: '#e0f2fe',
+                        borderRadius: '6px',
+                        padding: '6px',
+                        textAlign: 'center',
+                        border: '1px solid #bae6fd'
+                      }}>
+                        <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#0369a1', marginBottom: '2px' }}>
+                          🗺️ {lang === 'en' ? '226 City Map' : lang === 'ja' ? '226都市 大画面地図' : (lang === 'zh' || lang === 'zht') ? '226市郡 大屏地图' : '전국 226개 시·군 지도'}
+                        </div>
+                        <div style={{ fontSize: '0.58rem', color: '#0284c7' }}>
+                          {lang === 'en' ? 'Click any region in 4K' : lang === 'ja' ? 'ワンクリックで名所表示' : (lang === 'zh' || lang === 'zht') ? '点击任意市郡查看4K' : '원하는 도시 콕 찍기'}
+                        </div>
+                      </div>
+
+                      {/* Right: AI Plan Generator Thumbnail */}
+                      <div style={{
+                        backgroundColor: '#f5f3ff',
+                        borderRadius: '6px',
+                        padding: '6px',
+                        border: '1px solid #ddd6fe'
+                      }}>
+                        <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#6d28d9', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                          <Sparkles size={10} />
+                          <span>{lang === 'en' ? '1-Click Multi-Day Route' : lang === 'ja' ? '秒速AIコース生成' : (lang === 'zh' || lang === 'zht') ? '一键生成多日行程' : '원클릭 1~5일 코스 완성'}</span>
+                        </div>
+                        <div style={{ fontSize: '0.58rem', color: '#7c3aed' }}>
+                          {lang === 'en' ? 'Optimized spatial routing' : lang === 'ja' ? '移動時間を最小化' : (lang === 'zh' || lang === 'zht') ? '最优化空间动线' : '동선 낭비 0% 자동 최적화'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Quick Share / Link Action Bar */}
+                <div style={{
+                  marginTop: '12px',
+                  padding: '10px 14px',
+                  backgroundColor: '#ffffff',
+                  borderRadius: '12px',
+                  border: '1px solid #e2e8f0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '8px',
+                  flexWrap: 'wrap'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Share2 size={15} color="#2563eb" />
+                    <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#334155' }}>
+                      {lang === 'en' ? 'Sync or Share with your phone:' :
+                       lang === 'ja' ? 'スマホへ共有・同期:' :
+                       (lang === 'zh' || lang === 'zht') ? '同步或分享到手机:' :
+                       '스마트폰으로 공유 & 바로 열기:'}
+                    </span>
+                  </div>
+
+                  <button
+                    onClick={handleCopyShareLink}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      padding: '5px 12px',
+                      borderRadius: '8px',
+                      border: copiedLink ? '1px solid #16a34a' : '1px solid #2563eb',
+                      backgroundColor: copiedLink ? '#f0fdf4' : '#eff6ff',
+                      color: copiedLink ? '#16a34a' : '#2563eb',
+                      fontSize: '0.72rem',
+                      fontWeight: 900,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    {copiedLink ? <Check size={12} /> : <Copy size={12} />}
+                    <span>
+                      {copiedLink
+                        ? (lang === 'en' ? '✓ Link Copied!' : lang === 'ja' ? '✓ コピー完了！' : (lang === 'zh' || lang === 'zht') ? '✓ 链接已复制！' : '✓ 링크 복사 완료!')
+                        : (lang === 'en' ? 'Copy Link' : lang === 'ja' ? 'URLをコピー' : (lang === 'zh' || lang === 'zht') ? '复制链接' : '현재 주소 복사')}
+                    </span>
+                  </button>
                 </div>
               </div>
             )}
