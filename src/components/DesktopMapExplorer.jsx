@@ -733,9 +733,10 @@ export default function DesktopMapExplorer({
     try {
       const cleanCityKey = (cityName || '').replace(/(특별시|광역시|특별자치시|특별자치도|시|군|구)$/, '').trim();
       const localKn = CITY_LOCAL_KNOWLEDGE[cleanCityKey] || CITY_LOCAL_KNOWLEDGE[cityName];
-      const foundHub = REGIONAL_FALLBACK_CENTERS.find(c => c.nameKo === cleanCityKey || c.nameKo === cityName || c.nameKo.includes(cleanCityKey) || cleanCityKey.includes(c.nameKo));
+      // 🛡️ 거점 허브는 정확한 일치(Exact Match)로만 엄격 매칭 (엉뚱한 서울 매칭 100% 방지)
+      const foundHub = cleanCityKey ? REGIONAL_FALLBACK_CENTERS.find(c => c.nameKo === cleanCityKey || c.nameKo === cityName) : null;
 
-      let verifiedImage = (foundHub && foundHub.image) ? foundHub.image : (baseLoc.image || '');
+      let verifiedImage = (foundHub && foundHub.image) ? foundHub.image : (localKn?.image || '');
       let liveHighlights = [];
       let isAbstractHighlights = false;
 
@@ -757,7 +758,7 @@ export default function DesktopMapExplorer({
         }
       }
 
-      // 🛡️ 2. 거점 허브가 아닌 미등록 226개 시·군 또는 지식베이스 데이터 보강
+      // 🛡️ 2. 거점 허브가 아닌 지식베이스 등록 도시 데이터 보강
       if (!foundHub && localKn && localKn.signatureHighlights && localKn.signatureHighlights.length > 0) {
         const sigKo = localKn.signatureHighlights || [];
         const sigEn = localKn.signatureHighlightsEn || sigKo;
@@ -780,7 +781,7 @@ export default function DesktopMapExplorer({
             zoom: 14
           }));
 
-          // 구체적 랜드마크인 경우 실시간 TourAPI 핀포인트 사진 시도
+          // 구체적 랜드마크인 경우 실시간 TourAPI 핀포인트 사진 최우선 수신
           try {
             const landmarkSpots = await fetchPinpointLandmarkSpots(sigKo.slice(0, 2), targetLang, cityName);
             const foundPhotoSpot = landmarkSpots?.find(s => (s.image || s.firstimage) && !(s.image || s.firstimage).includes('default-spot'));
@@ -791,8 +792,8 @@ export default function DesktopMapExplorer({
         }
       }
 
-      // 🛡️ 3. 미등록 226개 소도시: TourAPI 인기순(arrange=P) 실시간 공공데이터 수신 (소공원/체육시설/분관 100% 필터링)
-      if (!verifiedImage || isAbstractHighlights || liveHighlights.length === 0) {
+      // 🛡️ 3. 미등록 226개 소도시 및 사진 미확보 지역: TourAPI 인기순(arrange=P) 실시간 공공데이터 수신
+      if (!foundHub && (!verifiedImage || isAbstractHighlights || liveHighlights.length === 0)) {
         let liveSpots = await fetchCityTourApiSpots(cleanCityKey || cityName, targetLang);
         if (!liveSpots || liveSpots.length === 0) {
           liveSpots = await fetchDynamicRealtimeSpots(cityName, targetLang);
@@ -832,7 +833,7 @@ export default function DesktopMapExplorer({
       }
 
       if (!verifiedImage) {
-        verifiedImage = foundHub?.image || baseLoc.image || '/images/themes/theme-jeju.jpg';
+        verifiedImage = localKn?.image || foundHub?.image || '';
       }
 
       return {
@@ -861,7 +862,7 @@ export default function DesktopMapExplorer({
       console.warn('[enrichLocationWithLiveTourApi] Error:', err);
       return {
         ...baseLoc,
-        image: baseLoc.image || '/images/themes/theme-gyeongbokgung.jpg'
+        image: baseLoc.image || '/images/themes/theme-jeju.jpg'
       };
     }
   };
@@ -938,7 +939,7 @@ export default function DesktopMapExplorer({
     // 🧠 보라 AI 학습 공식 로컬 지식베이스 매핑
     const cleanKey = detectedCityNameKo.replace(/(특별시|광역시|특별자치시|특별자치도|시|군|구)$/, '').trim();
     const localKn = CITY_LOCAL_KNOWLEDGE[cleanKey] || CITY_LOCAL_KNOWLEDGE[detectedCityNameKo];
-    const foundHub = REGIONAL_FALLBACK_CENTERS.find(c => c.nameKo === cleanKey || c.nameKo === detectedCityNameKo || c.nameKo.includes(cleanKey) || cleanKey.includes(c.nameKo));
+    const foundHub = cleanKey ? REGIONAL_FALLBACK_CENTERS.find(c => c.nameKo === cleanKey || c.nameKo === detectedCityNameKo) : null;
 
     const baseLoc = {
       nameKo: detectedCityNameKo,
@@ -952,19 +953,19 @@ export default function DesktopMapExplorer({
       descZh: localKn?.badgeZh || `探寻${getCityMultilingualName(detectedCityNameKo, 'zh') || detectedCityNameKo}代表性名胜与历史文化的治愈之旅`,
       transitTipKo: localKn?.transitTip || 'KTX 및 고속버스로 쾌속 연결',
       transitTipEn: 'Accessible via KTX and Express Bus',
-      image: foundHub?.image || '/images/themes/theme-gyeongbokgung.jpg',
+      image: (foundHub && foundHub.image) ? foundHub.image : (localKn?.image || ''),
       foodieSecret: localKn?.localFoodieSecret || null,
-      nightHighlight: localKn?.nightHighlights ? localKn.nightHighlights[0]?.name : null,
-      highlights: localKn?.signatureHighlights?.slice(0, 4).map((h, idx) => ({ 
+      nightHighlight: localKn?.nightHighlights ? (typeof localKn.nightHighlights[0] === 'string' ? localKn.nightHighlights[0] : localKn.nightHighlights[0]?.name) : null,
+      highlights: (foundHub && foundHub.highlights) ? foundHub.highlights : (localKn?.signatureHighlights?.slice(0, 4).map((h, idx) => ({ 
         ko: h, 
         en: localKn?.signatureHighlightsEn?.[idx] || h, 
         ja: localKn?.signatureHighlightsJa?.[idx] || h, 
         zh: localKn?.signatureHighlightsZh?.[idx] || h, 
         lat, lng, zoom: 14 
-      })) || [],
+      })) || []),
       lat,
       lng,
-      isPredefinedHub: Boolean(foundHub?.image)
+      isPredefinedHub: Boolean(foundHub && foundHub.image)
     };
 
     setSelectedLocation(baseLoc);
@@ -997,18 +998,20 @@ export default function DesktopMapExplorer({
 
   const handleQuickCityClick = (city) => {
     setIsPhotoLoading(false);
-    const cleanK = city.nameKo.replace(/(특별시|광역시|특별자치시|특별자치도|시|군|구)$/, '').trim();
-    const foundData = REGIONAL_FALLBACK_CENTERS.find(c => c.nameKo === cleanK || c.nameKo === city.nameKo || c.nameKo.includes(cleanK) || cleanK.includes(c.nameKo)) || REGIONAL_FALLBACK_CENTERS[0];
+    const cleanK = (city.nameKo || '').replace(/(특별시|광역시|특별자치시|특별자치도|시|군|구)$/, '').trim();
+    const foundData = cleanK ? REGIONAL_FALLBACK_CENTERS.find(c => c.nameKo === cleanK || c.nameKo === city.nameKo) : null;
     const localKn = CITY_LOCAL_KNOWLEDGE[cleanK] || CITY_LOCAL_KNOWLEDGE[city.nameKo];
 
     const baseLoc = {
-      ...foundData,
+      ...(foundData || {}),
       nameKo: city.nameKo,
       nameEn: city.nameEn,
+      nameJa: city.nameJa || localKn?.nameJa || city.nameKo,
+      nameZh: city.nameZh || localKn?.nameZh || city.nameKo,
       lat: city.lat,
       lng: city.lng,
-      image: foundData.image || localKn?.image || '/images/themes/hero-hangang.jpg',
-      highlights: (foundData.highlights && foundData.highlights.length > 0)
+      image: foundData?.image || localKn?.image || '/images/themes/theme-jeju.jpg',
+      highlights: (foundData?.highlights && foundData.highlights.length > 0)
         ? foundData.highlights
         : (localKn?.signatureHighlights ? localKn.signatureHighlights.slice(0, 4).map((h, idx) => ({ 
             ko: h, 
@@ -1017,11 +1020,11 @@ export default function DesktopMapExplorer({
             zh: localKn?.signatureHighlightsZh?.[idx] || h, 
             lat: city.lat, lng: city.lng, zoom: 14 
           })) : []),
-      foodieSecret: localKn?.localFoodieSecret || foundData.foodieSecret || null,
-      nightHighlight: localKn?.nightHighlights ? localKn.nightHighlights[0]?.name : (foundData.nightHighlight || null),
-      transitTipKo: localKn?.transitTip || foundData.transitTipKo,
-      descKo: localKn?.badge || foundData.descKo,
-      isPredefinedHub: true // 🛡️ 6대 대표 거점 고정 플래그
+      foodieSecret: localKn?.localFoodieSecret || foundData?.foodieSecret || null,
+      nightHighlight: localKn?.nightHighlights ? (typeof localKn.nightHighlights[0] === 'string' ? localKn.nightHighlights[0] : localKn.nightHighlights[0]?.name) : (foundData?.nightHighlight || null),
+      transitTipKo: localKn?.transitTip || foundData?.transitTipKo || '대중교통으로 편리하게 이동',
+      descKo: localKn?.badge || foundData?.descKo || `${city.nameKo} 대표 명소 여행`,
+      isPredefinedHub: Boolean(foundData?.image)
     };
     setSelectedLocation(baseLoc);
 

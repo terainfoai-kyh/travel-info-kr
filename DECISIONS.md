@@ -10,6 +10,9 @@
 - **🪄 지도 우측 패널 상단 Days(1D~5D) 선택 & 원클릭 코스 생성 CTA 바 전면 구축 (`DesktopMapExplorer.jsx`)**:
   - 도시 선택 시 우측 상단에 `[ Days: 1D | 2D | 3D | 4D | 5D ]` 선택 버튼 + `[ 🪄 {City} {N}D Plan 🚀 > ]` 원클릭 그라데이션 CTA 버튼 장착.
   - 도시 클릭 후 "어디로 가야 하지?" 고민할 틈 없이 원하는 일수 선택 후 원클릭으로 3초 만에 4K 일정표가 즉각 생성되는 직관적 UX 완성.
+- **🔒 대한민국 226개 시·군 클릭 시 경복궁 사진 고정 오작동 100% 영구 척결 (`DesktopMapExplorer.jsx`)**:
+  - `handleMapLocationSelected` 및 `enrichLocationWithLiveTourApi`에서 거점 허브(`REGIONAL_FALLBACK_CENTERS`) 매칭을 `c.nameKo.includes(cleanKey)` 식의 느슨한 부분 매칭 대신 **정확한 일치(Exact Match: `c.nameKo === cleanKey`)로 엄격화**.
+  - `baseLoc` 초기화 시 하드코딩되었던 경복궁 기본 이미지(`theme-gyeongbokgung.jpg`)를 제거하여, 서울이 아닌 전국 226개 시·군(부산, 제주, 강릉, 안동, 여수, 전주, 거창 등) 클릭 시 해당 지역의 TourAPI 실시간 정품 랜드마크 사진이 100% 정상 수신 및 표출되도록 완전 정상화.
 - **💡 30초 인터랙티브 비주얼 퀵 투어 5단계 풀패키지 가이드 모달 구축 (`InteractiveQuickTour.jsx`, `Header.jsx`, `App.jsx`)**:
   - 지루한 텍스트 매뉴얼이 아닌, 사용자가 직접 도시 칩(서울, 부산, 제주, 강릉)과 일수(1D~5D), 날씨/코디, AI 질문, PC ⇋ 모바일 연동을 클릭하며 체험하는 **실시간 인터랙티브 시뮬레이션 샌드박스** 완비.
   - **Step 1 (지도 탐색 & 1일 대표 코스)**: 실제 한반도 지형 실루엣(SVG) + 지리적 좌표 정밀 보정(서울 27%/38%, 강릉 26%/68%, 부산 65%/70%, 제주 84%/34%)으로 핀이 육지에 정확히 안착. 도시 클릭 시 4K 정품 사진과 함께 하단에 `[ ✨ 1일 대표 코스: 1 ➔ 2 ➔ 3 ]` 연계 동선 칩 4개국어 실시간 렌더링.
