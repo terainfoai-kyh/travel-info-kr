@@ -10,6 +10,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { generateLocalFallbackItinerary } from '../src/services/localItineraryGenerator.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -24,43 +25,60 @@ const CITY_SAMPLE_ROUTES = {
   seoul: {
     name: 'Seoul',
     routes: [
-      'Day 1: Gyeongbokgung Palace ➔ Bukchon Hanok Village ➔ Insadong Art Street',
-      'Day 2: Seongsu-dong Cafe Street ➔ Seoul Forest ➔ Dongdaemun Design Plaza (DDP)',
-      'Day 3: Gwangjang Market (K-Street Food) ➔ N-Seoul Tower Sunset & Night View',
-      'Day 4: Hongdae Youth Street ➔ Yeouido Hangang Park (Ramen & Sunset River Walk)',
-      'Day 5: Gangnam Starfield COEX Library ➔ Bongeunsa Temple ➔ Lotte World Tower'
+      'Day 1: Gyeongbokgung Palace ➔ Bukchon Hanok Village ➔ Insadong Art Street ➔ Ikseon-dong Hanok Alley ➔ Cheonggyecheon Stream',
+      'Day 2: Seongsu-dong Cafe Street ➔ Seoul Forest Park ➔ Dongdaemun Design Plaza (DDP) ➔ Gwangjang Market (Night Street Food)',
+      'Day 3: Namsan Cable Car ➔ N-Seoul Tower Observatory ➔ Myeongdong K-Beauty Street ➔ Yeouido Hangang Park (Sunset River Walk)',
+      'Day 4: Hongdae Youth Street ➔ Yeonnam-dong Central Park ➔ Mangwon Traditional Market ➔ Mapo Pork BBQ Street',
+      'Day 5: Gangnam Starfield COEX Library ➔ Bongeunsa Ancient Temple ➔ K-Star Road ➔ Lotte World Tower Seoul Sky 123F'
     ],
     transitTip: 'Grab a Climate Card (기후동행카드) or T-money card at any convenience store for unlimited subway & bus rides.',
-    foodTip: 'Do not miss warm Bindaetteok & Kimbap at Gwangjang Market or authentic Hanok brunch near Anguk station.'
+    foodTip: 'Do not miss warm Bindaetteok (Mung Bean Pancake) & Mayak Kimbap at Gwangjang Market or authentic Hanok brunch near Anguk station.'
   },
   busan: {
     name: 'Busan',
     routes: [
-      'Day 1: Haeundae Blueline Park Sky Capsule ➔ Cheongsapo Skywalk ➔ Gwangalli Beach Drone Show',
-      'Day 2: Huinnyeoul Culture Village ➔ Jagalchi Fish Market ➔ Busan Tower & Nampo BIFF Square',
-      'Day 3: Haedong Yonggungsa Seaside Temple ➔ Gijang Crab Market ➔ Osiria Coastal Walk'
+      'Day 1: Haeundae Blueline Park Sky Capsule ➔ Cheongsapo Skywalk ➔ Dongbaekseom Island ➔ Gwangalli Beach Drone Show',
+      'Day 2: Gamcheon Culture Village ➔ Huinnyeoul Culture Coastal Walk ➔ Jagalchi Fish Market ➔ BIFF Square & Nampo Night Market',
+      'Day 3: Haedong Yonggungsa Seaside Temple ➔ Gijang Crab Market ➔ Osiria Coastal Walk ➔ The Bay 101 Marine Skyline'
     ],
     transitTip: 'Take Metro Line 2 for Haeundae and Gwangalli, or taxi along the Gwangan Bridge for panoramic ocean views.',
-    foodTip: 'Try authentic Pork Soup (Dwaeji Gukbap) near Seomyeon and fresh sashimi at Jagalchi Market.'
+    foodTip: 'Try authentic Pork Soup (Dwaeji Gukbap) near Seomyeon and fresh sashimi directly prepared at Jagalchi Market.'
   },
   jeju: {
     name: 'Jeju Island',
     routes: [
-      'Day 1: Seongsan Ilchulbong (Sunrise Peak) ➔ Seopjikoji Coast ➔ Hamdeok Beach',
-      'Day 2: Hallasan Eoseungsaengak Trail ➔ Jeongbang Waterfall ➔ Seogwipo Olle Market',
-      'Day 3: Aewol Handam Coastal Trail ➔ Hyeopjae Beach ➔ Osulloc Green Tea Plantation'
+      'Day 1: Seongsan Ilchulbong (Sunrise Peak) ➔ Seopjikoji Scenic Coast ➔ Snoopy Garden ➔ Hamdeok Emerald Beach',
+      'Day 2: Hallasan Eoseungsaengak Nature Trail ➔ Jeongbang Coastal Waterfall ➔ Seogwipo Maeil Olle Market ➔ Saeyeongyo Bridge Night Lights',
+      'Day 3: Aewol Handam Coastal Walk ➔ Hyeopjae Beach ➔ Hallim Park ➔ Osulloc Green Tea Plantation'
     ],
     transitTip: 'Renting a car or hiring an English-speaking taxi tour is the most convenient way to explore eastern & western coasts.',
-    foodTip: 'Black Pork BBQ (Heukdwaeji) and fresh Abalone Porridge are absolute must-tries in Jeju.'
+    foodTip: 'Black Pork BBQ (Heukdwaeji) grilled over charcoal and fresh Abalone Porridge are absolute must-tries in Jeju.'
   },
   gyeongju: {
     name: 'Gyeongju',
     routes: [
-      'Day 1: Bulguksa Temple ➔ Seokguram Grotto ➔ Daereungwon Ancient Tombs Complex',
-      'Day 2: Cheomseongdae Observatory ➔ Hwangridan-gil Trendy Cafes ➔ Donggung Palace & Wolji Pond (Night View)'
+      'Day 1: Bulguksa UNESCO Temple ➔ Seokguram Grotto ➔ Daereungwon Ancient Tombs Complex ➔ Cheomseongdae Observatory',
+      'Day 2: Hwangridan-gil Trendy Cafes ➔ National Museum of Gyeongju ➔ Donggung Palace & Wolji Pond (Golden Moonlit Reflection)'
     ],
     transitTip: 'Take KTX to Singyeongju Station, then express bus 700 directly into the historic city center.',
-    foodTip: 'Stroll Hwangridan-gil for modern K-pastries and try historic 10-Won Coin Cheese bread.'
+    foodTip: 'Stroll Hwangridan-gil for modern Hanok bakeries and try warm historic 10-Won Coin Cheese bread.'
+  },
+  gangneung: {
+    name: 'Gangneung',
+    routes: [
+      'Day 1: KTX Gangneung Station ➔ Anmok Beach Coffee Street ➔ Gyeongpo Lake Moonlit Boardwalk ➔ Gangneung Central Market (Dakgangjeong)',
+      'Day 2: BTS Seaside Bus Stop (Hyangho Beach) ➔ Chodang Soft Tofu Village ➔ Ojukheon Historic Hanok House ➔ Gangmun Emerald Beach'
+    ],
+    transitTip: 'Take the KTX-Eum from Seoul Station (1h 40m). Local buses connect Gangneung Station to Anmok and Gyeongpo easily.',
+    foodTip: 'Savor savory Chodang Handmade Soft Tofu (Sundubu) and fresh Gangneung specialty hand-drip brew by the ocean.'
+  },
+  suwon: {
+    name: 'Suwon',
+    routes: [
+      'Day 1: KTX Suwon Station ➔ Suwon Hwaseong UNESCO Fortress Walk ➔ Hwaseong Haenggung Temporary Palace ➔ Haenggung-dong Retro Hanok Cafes ➔ Cauldron Fried Chicken Street'
+    ],
+    transitTip: 'Just 30 minutes from Seoul Station via KTX, or 45 minutes on Subway Line 1 directly.',
+    foodTip: 'Try legendary Suwon Traditional King Beef Ribs (Wang-galbi) and crispy whole fried chicken from the historic chicken alley.'
   }
 };
 
@@ -106,15 +124,41 @@ function extractDays(text = '') {
 
 const GEMINI_API_KEY = (process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '').trim();
 
-function generateFallbackReply(cityKey, days, postTitle) {
+async function getRealAppRoutes(cityKey, days) {
+  const cityNamesMap = {
+    seoul: '서울',
+    busan: '부산',
+    jeju: '제주',
+    gyeongju: '경주',
+    gangneung: '강릉',
+    suwon: '수원'
+  };
+  const targetCityKo = cityNamesMap[cityKey] || '서울';
+
+  try {
+    const rawResult = await generateLocalFallbackItinerary(`Create ${targetCityKo} ${days}-day plan`, targetCityKo, days, 'en');
+    if (rawResult && rawResult.dailySchedules && rawResult.dailySchedules.length > 0) {
+      return rawResult.dailySchedules.map(ds => {
+        const spotNames = (ds.spots || []).map(s => (s.title || s.name || '').trim()).filter(Boolean);
+        return `Day ${ds.day}: ${spotNames.join(' ➔ ')}`;
+      });
+    }
+  } catch (err) {
+    console.warn('[Reddit Radar] Failed to fetch live local itinerary, using base anchors:', err.message);
+  }
+
   const cityInfo = CITY_SAMPLE_ROUTES[cityKey] || CITY_SAMPLE_ROUTES.seoul;
-  const daysToUse = Math.min(days, cityInfo.routes.length);
-  const selectedRoutes = cityInfo.routes.slice(0, daysToUse);
+  return cityInfo.routes.slice(0, days);
+}
+
+async function generateFallbackReply(cityKey, days, postTitle) {
+  const cityInfo = CITY_SAMPLE_ROUTES[cityKey] || CITY_SAMPLE_ROUTES.seoul;
+  const liveRoutes = await getRealAppRoutes(cityKey, days);
 
   let reply = `Hey there! Welcome to Korea! 🇰🇷✨\n\n`;
-  reply += `For your ${days}-day trip in ${cityInfo.name}, here is a spatial-optimized route with minimal transit waste:\n\n`;
+  reply += `For your ${days}-day trip in ${cityInfo.name}, here is a spatial-optimized route that saves transit time and matches our live 4K itinerary map:\n\n`;
 
-  selectedRoutes.forEach(r => {
+  liveRoutes.forEach(r => {
     reply += `• ${r}\n`;
   });
 
@@ -129,6 +173,8 @@ function generateFallbackReply(cityKey, days, postTitle) {
 
 async function generateGeminiReply(post, cityKey, days) {
   const cityInfo = CITY_SAMPLE_ROUTES[cityKey] || CITY_SAMPLE_ROUTES.seoul;
+  const liveRoutes = await getRealAppRoutes(cityKey, days);
+  const appReferenceRoutes = liveRoutes.join('\n');
 
   if (!GEMINI_API_KEY) {
     return generateFallbackReply(cityKey, days, post.title);
@@ -140,18 +186,21 @@ Post Content: "${(post.selftext || '').slice(0, 1000)}"
 Target Destination: ${cityInfo.name} (${cityKey})
 Duration: ${days} days
 
+[Official Live VORA 4K App Route generated for ${cityInfo.name}]:
+${appReferenceRoutes}
+
 [Your Mission]:
 1. Be warm, welcoming, and genuinely encouraging. Greet them like a friendly local living in Korea.
 2. Directly acknowledge and empathize with their specific question/concern (e.g. first-time solo travel, rainy weather, transit confusion, foodie hunting, cafes, walking vs metro, budget, etc.).
-3. Provide a realistic, spatial-optimized ${days}-day itinerary summary (${days} days) where nearby spots are clustered together to prevent subway exhaustion.
-   Format with clear bullet points:
-   • Day 1: Spot ➔ Spot ➔ Spot
-   • Day 2: Spot ➔ Spot ➔ Spot (up to ${days} days)
+3. Provide the EXACT ${days}-day itinerary summary (${days} days) generated above.
+   CRITICAL CONSTITUTIONAL RULE: You MUST copy and use the EXACT spot names and sequence from the [Official Live VORA 4K App Route] above word-for-word! Do NOT replace or fabricate different spots so that when the traveler clicks the map link, they see the EXACT identical spots and timeline on the web map!
+   Format:
+${liveRoutes.map(r => `   • ${r}`).join('\n')}
 4. Give 1 essential insider transit tip (e.g., Climate Card or T-money, Naver Map / KakaoMap tip since Google Maps walking directions are limited in Korea).
 5. Give 1 authentic local foodie secret for ${cityInfo.name}.
 6. Naturally close by inviting them to explore the full interactive 4K route map with live weather & outfit suggestions here:
 👉 ${VORA_BASE_URL}/?city=${cityKey}&days=${days}&lang=en
-7. Keep the tone natural, helpful, and native for Reddit (clean markdown, no robotic corporate buzzwords, max 300 words).`;
+7. Keep the tone natural, helpful, and native for Reddit (clean markdown, no robotic corporate buzzwords, max 350 words).`;
 
   const modelsToTry = ['gemini-2.0-flash', 'gemini-1.5-flash'];
   for (const model of modelsToTry) {
@@ -163,7 +212,7 @@ Duration: ${days} days
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
           generationConfig: {
-            temperature: 0.7,
+            temperature: 0.3,
             maxOutputTokens: 800
           }
         })
@@ -217,7 +266,6 @@ function savePendingReply(postId, data) {
 async function sendTelegramNotification(post, cityKey, days, replyDraft) {
   const redditUrl = `https://reddit.com${post.permalink}`;
   const voraUrl = `${VORA_BASE_URL}/?city=${cityKey}&days=${days}&lang=en`;
-  const photoUrl = CITY_PHOTO_URLS[cityKey] || CITY_PHOTO_URLS.seoul;
 
   // Save for callback approval
   savePendingReply(post.id, {
@@ -231,12 +279,15 @@ async function sendTelegramNotification(post, cityKey, days, replyDraft) {
     voraUrl
   });
 
-  const captionText = `🗺️ [VORA 4K COURSE & REDDIT RADAR]\n` +
+  const messageText = `🗺️ [VORA 4K COURSE & REDDIT RADAR]\n\n` +
     `📍 대상: ${cityKey.toUpperCase()} (${days}일 코스)\n` +
-    `📌 질문: ${post.title.slice(0, 60)}${post.title.length > 60 ? '...' : ''}\n` +
-    `👤 작성자: u/${post.author}\n\n` +
-    `💬 [Gemini 2.0 정감 맞춤 답변 초안]:\n` +
-    `${replyDraft.slice(0, 650)}\n\n` +
+    `📌 질문: ${post.title}\n` +
+    `👤 작성자: u/${post.author}\n` +
+    `🔗 원문: https://reddit.com${post.permalink}\n\n` +
+    `━━━━━━━━━━━━━━━━━━━\n` +
+    `💬 [Gemini 2.0 정감 맞춤 답변 초안]:\n\n` +
+    `${replyDraft}\n\n` +
+    `━━━━━━━━━━━━━━━━━━━\n` +
     `👇 [등록 승인]을 누르시면 3~5분 텀 후 레딧에 자동 게시됩니다!`;
 
   const inlineKeyboard = {
@@ -250,13 +301,13 @@ async function sendTelegramNotification(post, cityKey, days, replyDraft) {
 
   const payload = {
     chat_id: TELEGRAM_CHAT_ID,
-    photo: photoUrl,
-    caption: captionText.slice(0, 1020),
-    reply_markup: inlineKeyboard
+    text: messageText,
+    reply_markup: inlineKeyboard,
+    disable_web_page_preview: true
   };
 
   try {
-    const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`, {
+    const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)

@@ -1,5 +1,5 @@
-import { PUBLIC_API_CONFIG, REGION_META, THEME_META, getDynamicRegionMeta } from './apiConfig';
-import { TRAVEL_SPOTS } from '../data/travelData';
+import { PUBLIC_API_CONFIG, REGION_META, THEME_META, getDynamicRegionMeta } from './apiConfig.js';
+import { TRAVEL_SPOTS } from '../data/travelData.js';
 
 // 한국관광공사 TourAPI 4.0 - 공통정보조회 (/detailCommon2)
 export async function fetchSpotDetailCommon(contentId, lang = 'ko') {

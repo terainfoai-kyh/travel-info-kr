@@ -246,12 +246,14 @@ const DEFAULT_GEMINI_FALLBACK = typeof atob !== 'undefined'
   ? atob('QVEuQWI4Uk42S3dLSWRKbVo4eDhPZ0p0WGNkQ0ZKbnd3Nmx1c2kzWml1V0F3RkxkcXNleGc=') 
   : '';
 
+const metaEnv = (typeof import.meta !== 'undefined' && import.meta.env) ? import.meta.env : (typeof process !== 'undefined' && process.env ? process.env : {});
+
 // Verified Gemini API Key Pool (Prioritize Environment Variable)
 export const GEMINI_KEY_POOL = [
-  import.meta.env.VITE_GEMINI_API_KEY,
-  import.meta.env.VITE_GEMINI_FREE_KEY,
-  import.meta.env.VITE_GEMINI_PAID_KEY,
-  import.meta.env.VITE_GEMINI_KEY,
+  metaEnv.VITE_GEMINI_API_KEY,
+  metaEnv.VITE_GEMINI_FREE_KEY,
+  metaEnv.VITE_GEMINI_PAID_KEY,
+  metaEnv.VITE_GEMINI_KEY,
   DEFAULT_GEMINI_FALLBACK
 ].filter(k => k && typeof k === 'string' && k.trim().length > 5);
 
