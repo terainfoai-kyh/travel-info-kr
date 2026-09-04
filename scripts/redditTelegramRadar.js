@@ -108,6 +108,13 @@ function extractCity(text = '') {
   if (t.includes('gyeongju')) return 'gyeongju';
   if (t.includes('gangneung')) return 'gangneung';
   if (t.includes('suwon')) return 'suwon';
+  if (t.includes('incheon')) return 'incheon';
+  if (t.includes('andong')) return 'andong';
+  if (t.includes('jeonju')) return 'jeonju';
+  if (t.includes('sokcho')) return 'sokcho';
+  if (t.includes('yeosu')) return 'yeosu';
+  if (t.includes('pohang')) return 'pohang';
+  if (t.includes('daegu')) return 'daegu';
   return 'seoul';
 }
 
@@ -131,7 +138,14 @@ async function getRealAppRoutes(cityKey, days) {
     jeju: '제주',
     gyeongju: '경주',
     gangneung: '강릉',
-    suwon: '수원'
+    suwon: '수원',
+    incheon: '인천',
+    andong: '안동',
+    jeonju: '전주',
+    sokcho: '속초',
+    yeosu: '여수',
+    pohang: '포항',
+    daegu: '대구'
   };
   const targetCityKo = cityNamesMap[cityKey] || '서울';
 
@@ -156,7 +170,7 @@ async function generateFallbackReply(cityKey, days, postTitle) {
   const liveRoutes = await getRealAppRoutes(cityKey, days);
 
   let reply = `Hey there! Welcome to Korea! 🇰🇷✨\n\n`;
-  reply += `For your ${days}-day trip in ${cityInfo.name}, here is a spatial-optimized route that saves transit time and matches our live 4K itinerary map:\n\n`;
+  reply += `For your trip in ${cityInfo.name}, here is a spatial-optimized route that saves transit time and matches our live 4K itinerary map:\n\n`;
 
   liveRoutes.forEach(r => {
     reply += `• ${r}\n`;
@@ -180,27 +194,41 @@ async function generateGeminiReply(post, cityKey, days) {
     return generateFallbackReply(cityKey, days, post.title);
   }
 
-  const prompt = `You are VORA, a warm, genuine, and knowledgeable local Korean travel concierge replying to a traveler's post on Reddit (r/koreatravel).
-Post Title: "${post.title}"
-Post Content: "${(post.selftext || '').slice(0, 1000)}"
-Target Destination: ${cityInfo.name} (${cityKey})
-Duration: ${days} days
+  const prompt = `You are VORA, a warm, genuine, and deeply knowledgeable local Korean travel insider replying to a traveler's post on Reddit (r/koreatravel).
 
-[Official Live VORA 4K App Route generated for ${cityInfo.name}]:
+Post Title: "${post.title}"
+Post Content: "${(post.selftext || '').slice(0, 1200)}"
+Detected Focus: ${cityInfo.name} (${cityKey})
+
+[Official Live VORA 4K Reference Route for ${cityInfo.name}]:
 ${appReferenceRoutes}
 
-[Your Mission]:
-1. Be warm, welcoming, and genuinely encouraging. Greet them like a friendly local living in Korea.
-2. Directly acknowledge and empathize with their specific question/concern (e.g. first-time solo travel, rainy weather, transit confusion, foodie hunting, cafes, walking vs metro, budget, etc.).
-3. Provide the EXACT ${days}-day itinerary summary (${days} days) generated above.
-   CRITICAL CONSTITUTIONAL RULE: You MUST copy and use the EXACT spot names and sequence from the [Official Live VORA 4K App Route] above word-for-word! Do NOT replace or fabricate different spots so that when the traveler clicks the map link, they see the EXACT identical spots and timeline on the web map!
-   Format:
-${liveRoutes.map(r => `   • ${r}`).join('\n')}
-4. Give 1 essential insider transit tip (e.g., Climate Card or T-money, Naver Map / KakaoMap tip since Google Maps walking directions are limited in Korea).
-5. Give 1 authentic local foodie secret for ${cityInfo.name}.
-6. Naturally close by inviting them to explore the full interactive 4K route map with live weather & outfit suggestions here:
+[Your Smart Dual-Intent Mission]:
+Determine the core nature of the traveler's question:
+
+---
+CASE 1: If this is a SPECIFIC QUESTION or PRACTICAL ISSUE (e.g. eSIM/SIM card activation, pop-up store phone verification/Kakao reservations, ATM 6-digit PINs, Cashbee vs T-money, luggage delivery/transport, solo dining at markets, baseball tickets, taxis, shipping):
+1. Greet them warmly and give a DIRECT, CONCRETE, EXPERT solution to their exact dilemma in 2-3 concise bullet points.
+2. Share practical local insights (e.g., how foreign tourists can bypass Korean phone verification, using physical kiosks at popup venues, global ATMs with EXK/Plus/Cirrus signs, subway luggage services, etc.).
+3. Naturally mention: "If you're also exploring ${cityInfo.name} during your stay, you can check our interactive 4K walking route map & live weather guide here:"
 👉 ${VORA_BASE_URL}/?city=${cityKey}&days=${days}&lang=en
-7. Keep the tone natural, helpful, and native for Reddit (clean markdown, no robotic corporate buzzwords, max 350 words).`;
+4. Keep it friendly, empathetic, and ultra-practical for Reddit (no forced multi-day itinerary where it doesn't belong!).
+
+---
+CASE 2: If this is an ITINERARY / TRIP PLANNING / ROUTE RECOMMENDATION QUESTION (e.g. "Visiting Seoul for 3 days", "Help with my Jeju route", "Recommend spots for 2 days"):
+1. Greet them warmly and directly address their personal vibe (solo, couple, foodie, culture, shopping).
+2. Present the EXACT ${days}-day route generated from our live system:
+${liveRoutes.map(r => `   • ${r}`).join('\n')}
+(CRITICAL: Use the EXACT spot names and sequence from the live route above word-for-word so the web link matches 100%).
+3. Add 1 handy transit tip and 1 foodie secret for ${cityInfo.name}.
+4. Close with the interactive 4K map link:
+👉 ${VORA_BASE_URL}/?city=${cityKey}&days=${days}&lang=en
+
+---
+Formatting Rules:
+- Clean, natural Reddit markdown.
+- Sound like a helpful local Korean friend, not a bot or marketing robot.
+- Max 300 words.`;
 
   const modelsToTry = ['gemini-2.0-flash', 'gemini-1.5-flash'];
   for (const model of modelsToTry) {
