@@ -40,6 +40,23 @@
 - **배포 전 정상 소스 100% 사전 검증 완료**:
   - `verifySyntax.ps1` 무결점 검증 통과(`[ZERO DEFECT PASSED]`).
 
+### 2. [★ 특급 인수인계] 레딧(Reddit) 자동 응답 봇 & 글로벌 마케팅 파이프라인 다음 할 일 (Next Priorities)
+
+1. **🤖 레딧 글로벌 타깃 서브레딧 모니터링 체계 가동**:
+   - **타깃 커뮤니티**: `r/koreatravel` (15만+ 회원), `r/korea` (50만+ 회원), `r/solotravel`, `r/travel`
+   - **실시간 탐지 키워드**: `"Korea itinerary"`, `"Seoul 3 days"`, `"Busan trip"`, `"Jeju route"`, `"Climate Card"`, `"rainy day Seoul"`, `"luggage storage"` 등 한국 여행 코스/동선 질문 글 실시간 감지.
+
+2. **🪄 자동 응답(Auto-Response) 답변 템플릿 & VORA AI 딥링크 조립 파이프라인**:
+   - 질문자가 요구한 도시/일수(예: *"3 days in Busan"* 또는 *"Seoul 4-day foodie"*)를 Gemini가 자연어로 분석하여 **실제 정품 동선 요약(Day 1~3 핵심 타임라인)을 정성스럽게 답변으로 생성**.
+   - 답변 하단에 **"Interactive 4K Route & Weather Lookbook: `https://travelkorea-dev.pages.dev/?city=busan&days=3`"** 형태의 파라미터 직결 딥링크를 장착하여 자연스러운 유입(Organic Traffic) 유도.
+
+3. **🛡️ 레딧 봇 섀도우밴(Shadowban) 방지 및 안전 수칙**:
+   - 기계적 단순 복붙 스팸 금지: 매 응답마다 질문자의 구체적 요구(비건, 비 오는 날, 짐 보관, 대중교통 등)에 맞춘 100% 맞춤형 정성 코멘트 생성.
+   - 응답 주기 딜레이(랜덤 5~15분) 및 계정 카르마(Karma) 보호 안전 로직 적용.
+
+4. **🔄 운영(Production) 저장소 동기화 배포 대기**:
+   - 개발 서버(`dev-remote`)에서 안정성이 입증된 최신 정상 소스(퀵투어 2분할 뷰, 랜드마크 락, 226개 시·군 실시간 사진)를 선배님 승인 시 운영 서버(`prod`: `travel-info-kr.git`)로 원클릭 배포할 준비 완료.
+
 ---
 
 ## 🏛️ [★ Golden Checkpoint] 2026-09-03 대한민국 226개 시·군 대표 랜드마크 포토 표준 파이프라인(Universal Landmark Photo Pipeline) 전수 구축
