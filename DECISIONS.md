@@ -26,6 +26,10 @@
 - **✨ 전국 226개 시·군 지도 탐색 시 사진 무한 로딩(Hang) 원천 척결 (`DesktopMapExplorer.jsx`, `tourApi.js`)**:
   - 미등록 지역(예천, 화성 등) 클릭 시 `enrichLocationWithLiveTourApi` 내 미선언 변수 참조 문제 및 배너 JSX 렌더링 조건문(`!selectedLocation.image`)에 의해 발생하던 무한 로딩 스피너 현상을 완전히 박멸.
   - `tourApi.js`에 `fetchLocationBasedTourApiSpots` 신규 구현 및 `fetchCityTourApiSpots` 계층적 Fallback 체인을 완비하여 전국 226개 모든 지자체 클릭 시 즉각적인 사진 및 명소 렌더링 보장.
+- **📜 [헌법 제24조 추가] Mandatory Variable Declaration, Strict Type Safety & 100% Safe Fallback Initialization (변수 선언 스코프 준수, 널 세이프티 & 방어적 초기값 의무화 헌법)**:
+  - 1) 미선언 변수(Undeclared Variable) 100% 영구 금지 (`const`/`let` 필수).
+  - 2) 방어적 초기값(Safe Default Fallback) 필수 바인딩 (`null`/`undefined` 방치로 인한 ReferenceError/TypeError/UI Hang 원천 차단).
+  - 3) UI 렌더링 조건문 널 세이프 가드 (명시적 Boolean `isLoading` 및 에러 바운더리만으로 화면 전환 제어).
 - **배포 전 정상 소스 100% 사전 검증 완료**:
   - `verifySyntax.ps1` 무결점 검증 통과(`[ZERO DEFECT PASSED]`).
 

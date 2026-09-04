@@ -138,6 +138,12 @@
     - **원자적(Atomic) 수정 및 작업 완료 즉시 문법 검증 의무화**: 모든 코드 수정은 단 1초의 틈도 없이 원자적으로 완료되어야 하며, 인수인계나 세션 리셋 전 반드시 `verifySyntax.ps1`을 거쳐 완전무결한 상태(`[ZERO DEFECT PASSED]`)를 확인하고 마감합니다.
     - **선배님 피드백 및 불편사항 100% 영구 박제**: 선배님께서 지적하신 모든 불편사항과 불만은 `DECISIONS.md` 및 `AGENTS.md`에 영구 기록되어 후속 에이전트들이 100% 계승하고 단 1번도 반복하지 않습니다.
 
+24. **Mandatory Variable Declaration, Strict Type Safety & 100% Safe Fallback Initialization (변수 선언 스코프 준수, 널 세이프티 & 방어적 초기값 의무화 헌법)**
+    - **미선언 변수(Undeclared Variable) 100% 영구 엄금**: 함수, 컴포넌트, 비동기 파이프라인 블록 내에서 `const`, `let` 키워드 선언 없는 암묵적 전역/참조 변수 할당 행위를 100% 원천 금지합니다.
+    - **방어적 초기값(Safe Default Fallback) 필수 바인딩**: 상태(`useState`), 객체 프로퍼티, 파라미터, 반환값 등을 `null`이나 `undefined`로 방치하여 런타임 `ReferenceError`, `TypeError`, 혹은 UI 무한 로딩 스피너(Hang) 갇힘을 유발하는 행위를 엄격히 금지합니다. 비동기 데이터 수신 전이라도 항상 완전한 형태의 기본 템플릿/문자열/배열(`[]`, `{}`, `''`, 기본 fallback 이미지)을 즉시 바인딩하여 렌더링을 100% 보호합니다.
+    - **UI 렌더링 조건문 널 세이프 가드**: UI 조건문에서 `!data.property` 같은 취약한 조건으로 인해 비동기 완료 후에도 영구 로딩에 갇히는 상태(Hang state) 설계를 원천 배제하고, 명시적인 Boolean 로딩 상태(`isLoading`)와 에러 바운더리로만 화면 전환을 제어합니다.
+
+
 
 
 
