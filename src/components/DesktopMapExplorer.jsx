@@ -1815,10 +1815,91 @@ function translateNightHighlight(nightStr, lang, cityName = '') {
             {/* STAGE 1 (EXPLORE): 4K 포토 매거진 프리뷰 카드 */}
             {activeStage === 'explore' && (
               <div style={{ display: 'flex', flexDirection: 'column', height: '100%', boxSizing: 'border-box' }}>
+                {/* 🌟 1-Click Itinerary Generator Bar (선배님 피드백 반영: Days 1D~5D 선택 + 즉시 코스 생성 CTA) */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '7px 12px',
+                  backgroundColor: '#f8fafc',
+                  borderBottom: '1px solid #e2e8f0',
+                  flexShrink: 0
+                }}>
+                  {/* Days Selector */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#64748b' }}>
+                      {lang === 'en' ? 'Days:' : lang === 'ja' ? '日程:' : (lang === 'zh' || lang === 'zht') ? '天数:' : '일정:'}
+                    </span>
+                    <div style={{ display: 'flex', gap: '3px' }}>
+                      {[1, 2, 3, 4, 5].map((d) => {
+                        const isSelected = selectedDays === d;
+                        return (
+                          <button
+                            key={d}
+                            onClick={() => setSelectedDays(d)}
+                            style={{
+                              padding: '2px 7px',
+                              borderRadius: '6px',
+                              fontSize: '0.72rem',
+                              fontWeight: 800,
+                              cursor: 'pointer',
+                              border: isSelected ? '1px solid #2563eb' : '1px solid #e2e8f0',
+                              backgroundColor: isSelected ? '#2563eb' : '#ffffff',
+                              color: isSelected ? '#ffffff' : '#475569',
+                              boxShadow: isSelected ? '0 2px 6px rgba(37, 99, 235, 0.25)' : 'none',
+                              transition: 'all 0.15s ease'
+                            }}
+                          >
+                            {d}D
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* One-Click Plan Generation Button with Gradient & Sparkle */}
+                  <button
+                    onClick={handleStartPlan}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                      padding: '4px 12px',
+                      borderRadius: '9999px',
+                      fontSize: '0.76rem',
+                      fontWeight: 900,
+                      cursor: 'pointer',
+                      border: 'none',
+                      background: 'linear-gradient(135deg, #e11d48 0%, #7c3aed 100%)',
+                      color: '#ffffff',
+                      boxShadow: '0 3px 12px rgba(225, 29, 72, 0.35)',
+                      transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                      letterSpacing: '-0.01em'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-1px) scale(1.02)';
+                      e.currentTarget.style.boxShadow = '0 5px 16px rgba(225, 29, 72, 0.45)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                      e.currentTarget.style.boxShadow = '0 3px 12px rgba(225, 29, 72, 0.35)';
+                    }}
+                  >
+                    <Sparkles size={12} color="#ffffff" />
+                    <span>
+                      {lang === 'en' ? `🪄 ${getCityDisplayName(selectedLocation)} ${selectedDays}D Plan 🚀` :
+                       lang === 'ja' ? `🪄 ${getCityDisplayName(selectedLocation)} ${selectedDays}日コース作成 🚀` :
+                       (lang === 'zh' || lang === 'zht') ? `🪄 ${getCityDisplayName(selectedLocation)} ${selectedDays}日路线生成 🚀` :
+                       `🪄 ${getCityDisplayName(selectedLocation)} ${selectedDays}일 코스 생성 🚀`}
+                    </span>
+                    <ChevronRight size={13} color="#ffffff" />
+                  </button>
+                </div>
+
                 {/* Top 4K Photo Banner with Gradient Overlay */}
                 <div style={{
                   position: 'relative',
-                  height: '185px',
+                  height: '165px',
                   width: '100%',
                   overflow: 'hidden',
                   backgroundColor: '#f8fafc'

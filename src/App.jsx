@@ -44,6 +44,7 @@ import DockedMapStation from './components/DockedMapStation';
 import SubwayMapModal from './components/SubwayMapModal';
 import HelplineModal from './components/HelplineModal';
 import CuratedTravelGuides from './components/CuratedTravelGuides';
+import InteractiveQuickTour from './components/InteractiveQuickTour';
 import Footer from './components/Footer';
 
 import { detectBrowserLanguage, TRANSLATIONS, getLocalizedCityName } from './i18n/translations';
@@ -331,6 +332,7 @@ export default function App() {
   const [isRewardedAdOpen, setIsRewardedAdOpen] = useState(false);
   const [isGoogleAuthOpen, setIsGoogleAuthOpen] = useState(false);
   const [isAdminBatchOpen, setIsAdminBatchOpen] = useState(false);
+  const [isQuickTourOpen, setIsQuickTourOpen] = useState(false);
   const [weatherCity, setWeatherCity] = useState('서울');
 
   // User Profile State (Google Logged In vs Guest)
@@ -1443,6 +1445,7 @@ export default function App() {
           setIsWeatherOpen(true);
         }}
         onOpenEssentials={() => setIsEssentialsOpen(true)}
+        onOpenQuickTour={() => setIsQuickTourOpen(true)}
         currentUser={currentUser}
         onOpenGoogleAuth={() => setIsGoogleAuthOpen(true)}
         onLogout={handleLogout}
@@ -1894,6 +1897,17 @@ export default function App() {
         isOpen={isHelplineModalOpen}
         onClose={() => setIsHelplineModalOpen(false)}
         lang={lang}
+      />
+
+      {/* 💡 30초 인터랙티브 비주얼 퀵 투어 모달 */}
+      <InteractiveQuickTour
+        isOpen={isQuickTourOpen}
+        onClose={() => setIsQuickTourOpen(false)}
+        lang={lang}
+        onStartExploring={() => {
+          setIsQuickTourOpen(false);
+          setActiveNavTab('home');
+        }}
       />
     </div>
   );

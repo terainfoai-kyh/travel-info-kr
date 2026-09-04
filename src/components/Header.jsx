@@ -49,6 +49,7 @@ export default function Header({
   onOpenWishlist,
   onOpenWeather,
   onOpenEssentials,
+  onOpenQuickTour,
   currentUser = null,
   onOpenGoogleAuth,
   onLogout,
@@ -254,6 +255,39 @@ export default function Header({
 
         {/* Right: Key Controls & Hamburger Menu */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexShrink: 0 }}>
+          {/* 💡 30s Interactive Quick Tour Button */}
+          <button
+            type="button"
+            onClick={onOpenQuickTour}
+            title={lang === 'en' ? 'How to use VORA (30s Interactive Guide)' : lang === 'ja' ? 'VORAの使い方（30秒ガイド）' : (lang === 'zh' || lang === 'zht') ? 'VORA使用指南（30秒演示）' : 'VORA 30초 사용법 가이드'}
+            className="hide-mobile"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.3rem',
+              padding: '0.4rem 0.75rem',
+              borderRadius: 'var(--radius-full)',
+              border: '1px solid #fed7aa',
+              backgroundColor: '#fff7ed',
+              color: '#ea580c',
+              fontSize: '0.78rem',
+              fontWeight: 800,
+              cursor: 'pointer',
+              position: 'relative',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+              transition: 'all 0.15s ease'
+            }}
+          >
+            <Sparkles size={14} style={{ color: '#ea580c' }} />
+            <span style={{ whiteSpace: 'nowrap' }}>
+              {lang === 'en' ? 'Quick Tour' :
+               lang === 'ja' ? '使い方' :
+               (lang === 'zh' || lang === 'zht') ? '使用指南' :
+               '30초 사용법'}
+            </span>
+          </button>
+
           {/* 🧳 Standalone My Trips Button (찜목록 왼쪽 고정 배치 - 흔들림 0%) */}
           <button
             type="button"
@@ -767,6 +801,37 @@ export default function Header({
                     </span>
                   </button>
                 )}
+
+                {/* 💡 0. 30s Interactive Quick Tour Guide Item */}
+                <button
+                  onClick={() => {
+                    setIsMainMenuOpen(false);
+                    if (onOpenQuickTour) onOpenQuickTour();
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.6rem',
+                    width: '100%',
+                    padding: '0.55rem 0.75rem',
+                    border: '1px solid #fed7aa',
+                    borderRadius: '12px',
+                    backgroundColor: '#fff7ed',
+                    color: '#c2410c',
+                    fontWeight: 800,
+                    fontSize: '0.82rem',
+                    cursor: 'pointer',
+                    textAlign: 'left'
+                  }}
+                >
+                  <Sparkles size={16} style={{ color: '#ea580c' }} />
+                  <span>
+                    {lang === 'en' ? '💡 How to use (30s Interactive Guide)' :
+                     lang === 'ja' ? '💡 VORAの使い方（30秒ガイド）' :
+                     (lang === 'zh' || lang === 'zht') ? '💡 使用指南（30秒交互演示）' :
+                     '💡 30초 사용법 가이드'}
+                  </span>
+                </button>
 
                 {/* 3. Live Weather & Styling Modal */}
                 <button
