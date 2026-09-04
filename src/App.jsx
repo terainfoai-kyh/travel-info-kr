@@ -313,7 +313,7 @@ export default function App() {
     try {
       if (typeof window !== 'undefined') {
         if (window.location.search.includes('tripData')) return 'mytrip';
-        if (window.location.search.includes('city=')) return 'ai';
+        if (window.location.search.includes('city=')) return 'mytrip';
       }
     } catch (e) {}
     return 'home';
@@ -1158,6 +1158,9 @@ export default function App() {
         setItineraryData(finalResult);
         setHasActiveUnsavedDraft(true);
         setActiveDay(1);
+        if (isDirectAction) {
+          setActiveNavTab('mytrip');
+        }
         trackItineraryGenerated(buildCity, requestedDays, lang, finalResult.theme || '✨ 핵심 랜드마크');
         try {
           localStorage.setItem('vora_temp_active_draft', JSON.stringify(finalResult));
@@ -1254,7 +1257,7 @@ export default function App() {
         const locCity = getLocalizedCityName(rawCity, lang);
 
         setPlannerInitialMode('chat');
-        setActiveNavTab('ai');
+        setActiveNavTab('mytrip');
 
         const promptText = lang === 'en'
           ? `Create ${locCity} ${daysNum}-Day Travel Itinerary`
@@ -1265,8 +1268,12 @@ export default function App() {
           : `${rawCity} ${daysNum}일 여행 코스 만들기`;
 
         const timer = setTimeout(() => {
-          handleGenerateItinerary(promptText, true, false);
-        }, 150);
+          handleGenerateItinerary(promptText, true, false).then(() => {
+            setActiveNavTab('mytrip');
+          }).catch(() => {
+            setActiveNavTab('mytrip');
+          });
+        }, 100);
         return () => clearTimeout(timer);
       }
     } catch (err) {
