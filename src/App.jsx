@@ -1535,32 +1535,30 @@ export default function App() {
            💻 [PC / 데스크톱 전용]: 상단 4K 와이드 히어로 배너 (풀스크린 100% 정중앙) + 하단 3단계 일체형 워크스페이스
            ============================================================================== */}
         <div className="hide-mobile tab-content-fade-in" style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
-          {/* 👑 상단: 찬란한 4K 와이드 히어로 배너 & 스마트 검색창 & 5개 테마 칩 (홈 탭일 때만 노출) */}
-          {activeNavTab === 'home' && (
-            <PortalHomePrototype
-              lang={lang}
-              onSearchSubmit={(promptText) => {
-                setPlannerInitialMode('chat');
-                setActiveNavTab('ai');
-                handleGenerateItinerary(promptText, false, true);
-              }}
-              onSelectTheme={(promptText, city) => {
-                setPlannerInitialMode('chat');
-                setActiveNavTab('ai');
-                handleGenerateItinerary(promptText, false, true);
-              }}
-              onOpenWeather={(city) => {
-                setWeatherCity(city || itineraryData?.targetCity || '서울');
-                setIsWeatherOpen(true);
-              }}
-              onOpenEssentials={() => setIsEssentialsOpen(true)}
-              onOpenPlanner={() => {
-                setPlannerInitialMode('chat');
-                setActiveNavTab('ai');
-              }}
-              targetCity={itineraryData?.targetCity || '서울'}
-            />
-          )}
+          {/* 👑 상단: 찬란한 4K 와이드 히어로 배너 & 스마트 검색창 & 5개 테마 칩 (상시 유지!) */}
+          <PortalHomePrototype
+            lang={lang}
+            onSearchSubmit={(promptText) => {
+              setPlannerInitialMode('chat');
+              setActiveNavTab('ai');
+              handleGenerateItinerary(promptText, false, true);
+            }}
+            onSelectTheme={(promptText, city) => {
+              setPlannerInitialMode('chat');
+              setActiveNavTab('ai');
+              handleGenerateItinerary(promptText, false, true);
+            }}
+            onOpenWeather={(city) => {
+              setWeatherCity(city || itineraryData?.targetCity || '서울');
+              setIsWeatherOpen(true);
+            }}
+            onOpenEssentials={() => setIsEssentialsOpen(true)}
+            onOpenPlanner={() => {
+              setPlannerInitialMode('chat');
+              setActiveNavTab('ai');
+            }}
+            targetCity={itineraryData?.targetCity || '서울'}
+          />
 
             {/* 🗺️ 하단 (PC/웹 전용): 네이버 지도 스타일 일체형 2-Column 인터랙티브 3단계 모핑 워크스페이스 */}
             <DesktopMapExplorer

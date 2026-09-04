@@ -40,12 +40,13 @@ export function getMapTileConfig(lang = 'ko') {
     };
   }
 
-  // 🌐 글로벌 영문/다국어(EN/JA/ZH 등) 모드: 워터마크 없는 100% 글로벌 Esri World Street Map 영문 타일
+  // 🌐 글로벌 영문/다국어(EN/JA/ZH 등) 모드: 한국 전역 줌 19까지 100% 선명한 영문 CartoDB Voyager 타일
   return {
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+    url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
     options: {
-      maxZoom: 18,
-      attribution: '&copy; <a href="https://www.esri.com">Esri</a> &copy; OpenStreetMap contributors'
+      maxZoom: 19,
+      subdomains: ['a', 'b', 'c', 'd'],
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
     }
   };
 }
