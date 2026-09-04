@@ -18,6 +18,9 @@
   - **홈 배너(`PortalHomePrototype`) 홈 탭 한정 격리**: 코스 보기 모드(`mytrip`)에서는 상단 대형 배너를 자동 숨김 처리하여, 사용자가 스크롤 없이 첫 화면에서 선배님 캡처 화면 그대로 100% 정품 코스를 직관적으로 확인.
   - **`MyTripTab` 딥링크 로딩 방어 뷰 탑재**: 비동기 일정 조립(1~2초) 중 "저장된 여행이 없습니다" 엠프티 카드가 깜빡이던 현상을 원천 차단하고 정품 로딩 스피너 및 안내 문구 표출.
   - **글로벌 영문 모드(`&lang=en`) 100% 자동 직결**: 영문 파라미터 감지 시 사이트 UI, 영문 명소명(Gyeongbokgung Palace 등), Esri World Street Map 글로벌 영문 지도 타일이 원클릭 자동 스위칭.
+- **⚡ [초고속 빌드 헌법 확립 - 선배님 지시 100% 계승] 이제부턴 100% 로컬 직접 빌드 후 배포 (Zero-Cloud-Build-Lag Rule)**:
+  - Cloudflare Pages의 느려터진 원격 클라우드 빌드(6분 소요, 동시성 1개 큐 정체로 인한 작업 지연)를 영구히 폐지.
+  - **"이제부턴 빌드해서 올리자"**는 선배님 헌법 수칙에 따라, 모든 배포는 로컬 고성능 머신에서 5초 만에 `vite build`를 완료한 후 정적 에셋(`dist`)만을 즉시 CDN 엣지로 쏘아 올리는 **초고속 다이렉트 배포(`npm run deploy:dev`)** 방식을 표준으로 전면 전환.
 - **⚡ [초고속 빌드 혁신 - 대안 1 완비] Cloudflare Pages 8초 다이렉트 배포 파이프라인 전수 구축 (`package.json`, `.npmrc`)**:
   - 클라우드의 지루한 `npm install` 1분 30초 대기 시간을 0초로 없애기 위해, 로컬에서 5초 만에 `vite build` 후 CDN 엣지로 3초 만에 바로 올리는 **`npm run deploy:dev` (`npx wrangler pages deploy dist`)** 스크립트 완비.
   - `.npmrc`에 `prefer-offline=true`, `audit=false`, `progress=false` 환경 설정을 탑재하여 원격 빌드 시에도 패키지 다운로드 시간 50% 단축.
