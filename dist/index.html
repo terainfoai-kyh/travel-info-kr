@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0f172a" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="VORA AI" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
+    
+    <!-- Global Script Chunk Load Error Auto-Reload Handler (Fixes stale CDN cache 500/404 errors) -->
+    <script>
+      window.addEventListener('error', function(e) {
+        if (e && e.target && (e.target.tagName === 'SCRIPT' || e.target.tagName === 'LINK')) {
+          var src = e.target.src || e.target.href || '';
+          if (src.includes('/assets/')) {
+            var hasReloaded = sessionStorage.getItem('__chunk_reload_done');
+            if (!hasReloaded) {
+              sessionStorage.setItem('__chunk_reload_done', '1');
+              window.location.reload(true);
+            }
+          }
+        }
+      }, true);
+    </script>
+
+    <!-- Leaflet Maps CSS & JS Preload (Synchronous layout & instant zero-click rendering) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <!-- Early PWA Native Prompt Catcher -->
+    <script>
+      window.__ktravel_deferred_prompt = null;
+      window.addEventListener('beforeinstallprompt', function(e) {
+        e.preventDefault();
+        window.__ktravel_deferred_prompt = e;
+      });
+    </script>
+
+    <!-- Google AdSense Auto Ads Script -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9181080606912259" crossorigin="anonymous"></script>
+    
+    <!-- Google Analytics 4 (GA4) Global Site Tag -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LJPLDS80CK"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-LJPLDS80CK');
+    </script>
+    
+    <!-- Primary SEO & GEO Meta Tags -->
+    <title>VORA AI | 2026 대한민국 AI 여행 컨시어지 & 실시간 코디 (koreatravel.cc)</title>
+    <meta name="description" content="한국관광공사 TourAPI 4.0 공식 데이터와 Google DeepMind Gemini 3.5 Flash 기반 1:1 맞춤 한국 여행 코스 플래너! 실시간 날씨, 기온별 여행 코디 가이드, 4개국어(한·영·일·중) 지원." />
+    <meta name="keywords" content="VORA AI, AI 여행 코스 추천, AI 한국 여행 플래너, 한국관광공사 TourAPI, 실시간 날씨 여행 코디, 서울 여행 코스, 제주도 여행 코스, 부산 여행 코스, 신안 퍼플섬, 울릉도 여행, Korea AI Travel Concierge, Korea Trip Planner, Korea Outfit Guide, Klook eSIM, Agoda Hotel" />
+    <meta name="author" content="VORA AI" />
+    <meta name="application-name" content="VORA AI (대한민국 스마트 여행 컨시어지)" />
+    
+    <!-- Search Console Ownership Verification Tags (Google & Naver) -->
+    <meta name="google-site-verification" content="google-site-verification-token" />
+    <meta name="naver-site-verification" content="b1d5124a9cf3448781d69e66cf543b16be69064f" />
+
+    <!-- Intellectual Property Protection & Anti-AI Scraping Meta Headers -->
+    <meta name="copyright" content="© 2026 VORA AI (koreatravel.cc). All Rights Reserved." />
+    <meta name="rights" content="Unauthorized AI scraping, automated code replication, or data cloning is strictly prohibited under international copyright laws." />
+    <meta name="ai-scraping-policy" content="Disallow: AI Training, Disallow: Code Replication, Disallow: Site Mirroring" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, noarchive" />
+    <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large" />
+    <meta name="naverbot" content="index, follow" />
+    <meta name="Yeti" content="index, follow" />
+    <meta name="daumoa" content="index, follow" />
+    <meta name="bingbot" content="index, follow" />
+    <link rel="canonical" href="https://koreatravel.cc/" />
+
+    <!-- Hreflang Multi-language Alternate Tags (4 Core Languages) -->
+    <link rel="alternate" hreflang="ko" href="https://koreatravel.cc/?lang=ko" />
+    <link rel="alternate" hreflang="en" href="https://koreatravel.cc/?lang=en" />
+    <link rel="alternate" hreflang="ja" href="https://koreatravel.cc/?lang=ja" />
+    <link rel="alternate" hreflang="zh-Hans" href="https://koreatravel.cc/?lang=zh" />
+    <link rel="alternate" hreflang="zh-Hant" href="https://koreatravel.cc/?lang=zht" />
+    <link rel="alternate" hreflang="x-default" href="https://koreatravel.cc/" />
+
+    <!-- GEO (Generative Engine Optimization) & Geographic Location Tags -->
+    <meta name="geo.region" content="KR" />
+    <meta name="geo.placename" content="Seoul, South Korea" />
+    <meta name="geo.position" content="37.5665;126.9780" />
+    <meta name="ICBM" content="37.5665, 126.9780" />
+
+    <!-- OpenGraph / Social Share Meta Tags (Naver / KakaoTalk / Facebook) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <meta property="og:locale:alternate" content="ja_JP" />
+    <meta property="og:locale:alternate" content="zh_CN" />
+    <meta property="og:title" content="VORA AI | 대한민국 스마트 여행 컨시어지 & 실시간 코디 (koreatravel.cc)" />
+    <meta property="og:description" content="✨ 한국관광공사 TourAPI 4.0과 Google Gemini AI가 3초 만에 설계하는 나만의 맞춤 한국 여행 코스, 실시간 날씨 및 기온별 여행 코디 가이드!" />
+    <meta property="og:site_name" content="VORA AI Concierge" />
+    <meta property="og:url" content="https://koreatravel.cc" />
+    <meta property="og:image" content="https://koreatravel.cc/logo.png" />
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
+    <meta property="og:image:alt" content="VORA AI Logo" />
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="VORA AI | Korea Smart Travel Concierge" />
+    <meta name="twitter:description" content="✨ Personalized Korea travel itineraries, live weather, and outfit styling guide powered by KTO TourAPI 4.0 & Google Gemini AI." />
+    <meta name="twitter:image" content="https://koreatravel.cc/logo.png" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Structured Data (JSON-LD) for Search Engines & AI Search Robots (Perplexity, ChatGPT, Gemini, Google SGE) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "VORA AI Korea Travel Concierge",
+      "applicationCategory": "TravelApplication",
+      "operatingSystem": "All",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "KRW"
+      },
+      "description": "한국관광공사 TourAPI 4.0과 Google DeepMind Gemini 3.5 Flash 기반 초개인화 맞춤 한국 여행 일정 및 실시간 날씨 코디 가이드 (4개국어 지원).",
+      "url": "https://koreatravel.cc"
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "VORA AI - Korea Smart Travel Concierge",
+      "alternateName": "대한민국 스마트 AI 여행 정보",
+      "url": "https://koreatravel.cc",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://koreatravel.cc/?keyword={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TouristInformationCenter",
+      "name": "VORA AI 대한민국 스마트 여행 컨시어지",
+      "url": "https://koreatravel.cc",
+      "logo": "https://koreatravel.cc/logo.png",
+      "description": "실시간 대한민국 날씨, AI 맞춤 여행 코스 추천, 기온별 여행 코디 가이드, 한국관광공사 TourAPI 4.0 공식 명소, Klook eSIM 및 제휴 혜택",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "KR",
+        "addressRegion": "Seoul"
+      }
+    }
+    </script>
+
+    <!-- Organization Schema with Official Contact Email for Business Inquiry -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "VORA AI (Korea Travel Concierge)",
+      "url": "https://koreatravel.cc",
+      "logo": "https://koreatravel.cc/logo.png",
+      "email": "terainfoai@gmail.com",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "terainfoai@gmail.com",
+        "contactType": "business partnership & customer service",
+        "availableLanguage": ["Korean", "English", "Japanese", "Chinese"]
+      }
+    }
+    </script>
+
+    <!-- FAQPage Schema for SERP Expandable Rich Snippets & GEO (AI Search Engine Optimization) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "VORA AI 여행 일정은 어떻게 생성되나요?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "VORA AI는 한국관광공사(KTO) TourAPI 4.0 공식 실시간 공공데이터와 최신 Google DeepMind Gemini 3.5 Flash를 결합하여, 전국 226개 시·군 및 도서(섬) 지역의 정품 관광명소, 실제 위경도 좌표 기반 동선, 로컬 미식 코스를 4개국어(한국어, 영어, 일본어, 중국어)로 실시간 자동 생성합니다."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "실시간 날씨와 여행 코디 가이드는 어떻게 확인하나요?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "상단 날씨 캡슐이나 메뉴의 '실시간 날씨 & 여행 코디 가이드'를 클릭하면, 방문 지역의 실시간 기온, 미세먼지, 자외선 지수와 함께 기온별 맞춤 상하의, 아우터, 필수 여행 소품, Pinterest 감성 룩북을 한눈에 확인할 수 있습니다."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "한국 여행 중 현금 환전이 필수인가요?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "대부분의 상점, 카페, 택시, 대중교통에서 해외 신용카드(Visa, Mastercard 등) 및 애플페이가 널리 통용됩니다. 다만 전통시장 먹거리나 지하철 교통카드 충전을 위해 소액(약 3~5만 원)의 현금을 소지하시는 것을 추천합니다."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "응급 상황 시 외국어 통역 지원을 받을 수 있나요?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "대한민국 관광통역안내 1330 헬프라인(국번 없이 1330)으로 전화하시면 연중무휴 24시간 한국어, 영어, 일본어, 중국어 무료 통역 및 여행 안내, 긴급 구호 연계 서비스를 받으실 수 있습니다."
+          }
+        }
+      ]
+    }
+    </script>
+    <script type="module" crossorigin src="/assets/index-C1leX5SQ.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/vendor-libs-DYLXRpC5.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-react-BXqjxphx.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-BkzDvxW4.css">
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <!-- 🌐 Static Publisher Content for Google AdSense Review Bots, Search Engines & Non-JS Clients -->
+    <noscript>
+      <main style="max-width: 960px; margin: 0 auto; padding: 40px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; line-height: 1.8;">
+        <header style="border-bottom: 2px solid #e2e8f0; padding-bottom: 24px; margin-bottom: 32px;">
+          <h1 style="font-size: 28px; color: #0f172a; margin-bottom: 12px;">VORA AI - 대한민국 2026 스마트 AI 여행 컨시어지 & 큐레이션 매거진</h1>
+          <p style="font-size: 16px; color: #64748b;">한국관광공사 TourAPI 4.0 공식 실시간 공공데이터와 Google DeepMind Gemini 기반의 맞춤형 대한민국 여행 가이드 플랫폼 (koreatravel.cc)</p>
+        </header>
+
+        <section style="margin-bottom: 40px;">
+          <h2 style="font-size: 22px; color: #4338ca; margin-bottom: 16px;">🏛️ 서울 5대 궁궐과 북촌 한옥마을의 전통 미학</h2>
+          <p>조선 왕조 600년 역사가 깃든 경복궁, 창덕궁(유네스코 세계문화유산), 창경궁, 덕수궁, 경희궁은 사계절마다 고즈넉한 한국의 전통미를 선사합니다. 특히 경복궁 근정전과 경회루의 연못 풍경, 창덕궁 후원의 비원은 전 세계 여행객들이 가장 사랑하는 명소입니다. 인근 북촌 한옥마을과 익선동 골목길에서는 전통 한옥과 감성 카페가 어우러진 특별한 산책을 즐기실 수 있습니다.</p>
+        </section>
+
+        <section style="margin-bottom: 40px;">
+          <h2 style="font-size: 22px; color: #4338ca; margin-bottom: 16px;">🌊 부산 해운대 블루라인파크와 광안리 드론 라이트쇼</h2>
+          <p>해운대 미포에서 송정까지 이어지는 해변 열차와 스카이캡슐(블루라인파크)은 동해남부선 폐선 부지를 활용한 바다 전망 코스로 탁 트인 남해 바다의 절경을 감상할 수 있습니다. 매주 토요일 저녁 광안리 해변에서는 광안대교를 배경으로 수백 대의 최첨단 드론이 밤하늘을 수놓는 환상적인 라이트쇼가 펼쳐지며, 자갈치 시장과 영도 흰여울문화마을에서 부산 로컬의 활기를 경험할 수 있습니다.</p>
+        </section>
+
+        <section style="margin-bottom: 40px;">
+          <h2 style="font-size: 22px; color: #4338ca; margin-bottom: 16px;">🌋 유네스코 세계자연유산 제주도 탐방</h2>
+          <p>성산일출봉의 웅장한 분화구와 만장굴 용암동굴, 한라산 국립공원의 사계절 절경은 세계 유일의 유네스코 3관왕에 빛나는 제주의 보물입니다. 애월 한담해변의 에메랄드빛 해안 산책로와 중문관광단지의 주상절리대, 우도의 서빈백사 해변은 휴양과 자연 탐험을 동시에 만족시킵니다.</p>
+        </section>
+
+        <section style="margin-bottom: 40px;">
+          <h2 style="font-size: 22px; color: #4338ca; margin-bottom: 16px;">🍜 K-푸드 미식 탐방: 광장시장 & 성수동 카페거리</h2>
+          <p>100년 전통의 광장시장에서는 빈대떡, 마약김밥, 육회 탕탕이 등 한국 전통 길거리 음식을 생생하게 맛볼 수 있습니다. 붉은 벽돌의 옛 공장 지대를 리모델링한 성수동 카페거리와 복합문화공간은 감각적인 K-패션 팝업스토어와 스페셜티 커피의 성지로 글로벌 MZ 여행객들의 발길이 끊이지 않습니다.</p>
+        </section>
+
+        <section style="margin-bottom: 40px;">
+          <h2 style="font-size: 22px; color: #4338ca; margin-bottom: 16px;">💳 한국 여행 필수 실전 팁 (교통, 통신, 응급 안내)</h2>
+          <ul>
+            <li><strong>대중교통:</strong> 지하철과 버스를 자유롭게 환승할 수 있는 티머니(T-Money) 또는 기후동행카드, 외국인 전용 와우패스(WOWPASS)를 이용하면 편리합니다.</li>
+            <li><strong>인터넷 & 통신:</strong> 인천공항 및 온라인(Klook, 클룩 등)을 통해 무제한 데이터 eSIM이나 유심을 손쉽게 수령하여 전국 어디서나 초고속 5G를 이용할 수 있습니다.</li>
+            <li><strong>24시간 다국어 관광 통역 안내:</strong> 한국관광공사 1330 헬프라인(국번 없이 1330)으로 전화하시면 24시간 연중무휴 4개국어(한국어, 영어, 일본어, 중국어) 무료 통역과 긴급 구조 지원을 받으실 수 있습니다.</li>
+          </ul>
+        </section>
+
+        <footer style="border-top: 1px solid #e2e8f0; padding-top: 20px; font-size: 14px; color: #94a3b8; text-align: center;">
+          <p>© 2026 VORA AI (koreatravel.cc). 한국관광공사 TourAPI 4.0 공식 연동 플랫폼. All Rights Reserved.</p>
+        </footer>
+      </main>
+    </noscript>
+
+  </body>
+</html>
