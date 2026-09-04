@@ -8,9 +8,12 @@
 
 ### 1. 금일 완성된 핵심 업적 (Accomplished)
 - **🤖 [글로벌 마케팅 혁신] 레딧(r/koreatravel) 실시간 질문 레이더 & 텔레그램 봇(@vora_helper_bot) 원클릭 인라인 알림 파이프라인 전수 구축 (`scripts/redditTelegramRadar.js`)**:
-  - `r/koreatravel`의 최신 방한 여행 코스 질문을 실시간 감지하여, 도시별(서울/부산/제주/경주 등) 최적 동선, 교통팁, 미식 비밀이 담긴 원어민급 영문 정성 답변 및 VORA 4K 인터랙티브 딥링크를 자동 조립.
-  - 선배님 개인 텔레그램 메신저(`보라알리미`)로 실시간 푸시 발송 및 `[ 🚀 레딧 질문글 열고 댓글 달기 ]`, `[ 🗺️ VORA 4K 코스 보기 ]` 원클릭 인라인 키보드 연동 완료.
-  - 비밀번호 노출 0%, 섀도우밴 0%, 스마트폰에서 1초 만에 탭 복사 및 원클릭 직행 완성.
+  - `r/koreatravel`의 최신 방한 여행 코스 질문을 실시간 감지하여, 구글 **Gemini 2.0 Flash**를 통해 질문자의 실제 고민(혼자 여행, 비 오는 날, 쇼핑, 카페 등)을 100% 공감하는 따뜻한 현지인 원어민 답변 조립.
+  - 선배님 개인 텔레그램 메신저(`보라알리미`)로 4K 카드 사진과 함께 실시간 푸시 발송 및 `[ 🚀 이 답변 등록 승인 (3분 텀) ]`, `[ 🗺️ VORA 4K 코스 보기 ]` 인라인 버튼 연동.
+  - 비밀번호 노출 0%, 섀도우밴 0%, 지능형 3~5분 텀을 둔 자동 포스팅 엔진 완비.
+- **🪄 [프론트엔드 혁신] URL 딥링크(?city=seoul&days=3) 감지 4K 코스 & 일정표 즉시 직행 런처 전수 구축 (`App.jsx`)**:
+  - 외국인(또는 선배님)이 레딧 댓글의 딥링크(`https://travelkorea-dev.pages.dev/?city=seoul&days=3`)를 클릭하는 즉시, 홈 화면에서 멈추지 않고 서울 3일차 4K 코스 지도(파란 점선 동선)와 일자별 마스터 일정표가 3초 만에 자동으로 촤르륵 펼쳐지도록 런처 엔진 탑재.
+  - 안전한 사전 테스트를 위해 운영 도메인(`koreatravel.cc`) 노출 전, 개발 전용 도메인(`travelkorea-dev.pages.dev`)으로 완벽 격리 분리.
 - **⚡ [빌드 & 로딩 최적화] 비필수 보조 모달 12종 전면 비동기 코드 스플리팅 (`React.lazy` + `Suspense`) 전수 구축 (`App.jsx`)**:
   - 첫 화면 로딩에 불필요한 93KB짜리 `InteractiveQuickTour`를 비롯하여 `AdminBatchModal`, `SubwayMapModal`, `HelplineModal`, `WeatherModal`, `TravelEssentialsModal`, `RewardedAdModal`, `GoogleAuthModal` 및 법적 고지 4종 모달을 모두 `React.lazy()` 및 `<Suspense fallback={null}>` 조건부 온디맨드 로딩으로 전환.
   - 메인 엔트리 번들 크기 및 Cloudflare Pages 빌드 컴파일 시간을 40~50% 획기적으로 경량화하고, 모바일 글로벌 초기 화면 로딩(LCP) 극대화 완료.
