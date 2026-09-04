@@ -38,7 +38,20 @@ foreach ($file in $files) {
         }
     }
 
-    # 3. Check top-level syntax issues (unclosed template literals, obvious double const)
+    # 3. Check duplicate top-level export function declarations (export (async) function funcName)
+    $funcMatches = [regex]::Matches($content, '(?m)^export\s+(?:async\s+)?function\s+(\w+)\s*\(')
+    $declaredFuncs = @{}
+    foreach ($m in $funcMatches) {
+        $fName = $m.Groups[1].Value
+        if ($declaredFuncs.ContainsKey($fName)) {
+            Write-Host " [DUPLICATE EXPORT FUNCTION ERROR]: '$fName' exported multiple times in $relPath" -ForegroundColor Red
+            $errorCount++
+        } else {
+            $declaredFuncs[$fName] = $true
+        }
+    }
+
+    # 4. Check top-level syntax issues (unclosed template literals, obvious double const)
     $doubleConstMatches = [regex]::Matches($content, 'const\s+const\s+')
     if ($doubleConstMatches.Count -gt 0) {
         Write-Host " [SYNTAX ERROR]: 'const const' typo found in $relPath" -ForegroundColor Red
