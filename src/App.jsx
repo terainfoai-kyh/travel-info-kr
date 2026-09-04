@@ -1254,16 +1254,25 @@ export default function App() {
           chuncheon: '춘천'
         };
         const rawCity = cityMap[cityParam.toLowerCase()] || cityParam;
-        const locCity = getLocalizedCityName(rawCity, lang);
+        const urlLangParam = (urlParams.get('lang') || '').toLowerCase();
+        const activeLang = ['ko', 'en', 'ja', 'zh', 'zht'].includes(urlLangParam)
+          ? (urlLangParam === 'zht' ? 'zh' : urlLangParam)
+          : (lang || 'ko');
+        
+        if (urlLangParam && urlLangParam !== lang) {
+          setLang(activeLang);
+        }
+
+        const locCity = getLocalizedCityName(rawCity, activeLang);
 
         setPlannerInitialMode('chat');
         setActiveNavTab('mytrip');
 
-        const promptText = lang === 'en'
+        const promptText = activeLang === 'en'
           ? `Create ${locCity} ${daysNum}-Day Travel Itinerary`
-          : lang === 'ja'
+          : activeLang === 'ja'
           ? `${locCity} ${daysNum}日間の旅行コースを作成`
-          : (lang === 'zh' || lang === 'zht')
+          : (activeLang === 'zh')
           ? `制作${locCity} ${daysNum}日游旅行路线`
           : `${rawCity} ${daysNum}일 여행 코스 만들기`;
 
