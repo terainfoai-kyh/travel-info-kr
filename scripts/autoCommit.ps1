@@ -12,5 +12,7 @@ if (Test-Path ".commit_msg") {
     Remove-Item -Path ".commit_msg" -Force -ErrorAction SilentlyContinue
 }
 
+Remove-Item -Path "scripts\checkBundle.ps1", "scripts\testEnv.ps1" -Force -ErrorAction SilentlyContinue
+
 git add -A
 git commit -m $commitMsg
