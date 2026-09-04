@@ -25,28 +25,15 @@ export function isInSouthKorea(lat, lng) {
 
 /**
  * 현재 언어에 맞는 지도 타일 설정 반환
+ * 헌법 제26조 준수: 워터마크 0%, 회색 깨짐 0%의 검증된 표준 OpenStreetMap(OSM) 영구 고정
  */
 export function getMapTileConfig(lang = 'ko') {
-  const isKorean = (lang === 'ko');
-
-  if (isKorean) {
-    return {
-      url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      options: {
-        maxZoom: 19,
-        subdomains: ['a', 'b', 'c'],
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-      }
-    };
-  }
-
-  // 🌐 글로벌 영문/다국어(EN/JA/ZH 등) 모드: 한국 전역 줌 19까지 100% 선명한 영문 CartoDB Voyager 타일
   return {
-    url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     options: {
       maxZoom: 19,
-      subdomains: ['a', 'b', 'c', 'd'],
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+      subdomains: ['a', 'b', 'c'],
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }
   };
 }

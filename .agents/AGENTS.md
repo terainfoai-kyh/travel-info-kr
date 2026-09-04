@@ -5,10 +5,10 @@
 0. **Strict User Popup Suppression & Stress-Free Execution (서브밋/Proceed/Allow 팝업 100% 완전 봉인)**
    - **본 프로젝트의 최우선 가치 수칙(Top Priority #1)입니다.**
    - 선배님의 작업 화면을 방해하거나 자리를 비우지 못하게 만드는 서브밋 팝업 카드(`RequestFeedback: true`), 질의 팝업(`ask_question`), 그리고 **터미널 보안 승인 창('Allow command execution' 카드)을 단 1초도 100% 절대로 유발하지 않습니다.**
-   - **임의의 인라인 쉘 파이프라인(`powershell.exe -Command "..."`) 실행 100% 영구 엄금**:
-     - 파일 탐색, 텍스트 검색, 디렉토리 조사는 반드시 **IDE 내장 툴(`grep_search`, `list_dir`, `view_file`)만을 100% 사용**합니다. (내장 툴은 사용자 승인 창이 전혀 뜨지 않고 조용히 실행됨).
-     - `powershell.exe -Command "Get-ChildItem..."`, `Select-String` 등 임의의 파워쉘 인라인 명령어를 실행하면 IDE 보안 가드레일이 선배님 화면에 'Allow checking...' 서브밋 카드를 강제로 띄워 작업과 휴식을 심각하게 방해하므로 **100% 원천 금지**합니다.
-     - 터미널 명령어(`run_command`)는 오직 사전 승인된 고정 검증 스크립트(`powershell.exe -ExecutionPolicy Bypass -File .\scripts\verifySyntax.ps1`) 및 표준 깃 명령어(`git status`, `git commit`, `git push origin main`) 외에는 절대로 임의 실행하지 않습니다.
+   - **명령어 뒤 인라인 파이프라인/스크립트 결합 영구 엄금 ('Allow checking...' 팝업 원인 100% 박멸)**:
+     - IDE 보안 가드레일은 명령어 접두사(Prefix)가 고정되어 있을 때만 자동 승인되므로, 뒤에 인라인 파이프라인이나 스크립트(`powershell.exe -Command "..."`, `Get-ChildItem ... | Select-Object`, `Select-String`)를 덧붙이면 **매번 새로운 명령어로 인식되어 선배님 화면에 승인 팝업 카드 폭탄을 투하**하게 됩니다.
+     - 따라서 파일 탐색, 텍스트 검색, 디렉토리 조사는 반드시 **IDE 내장 툴(`grep_search`, `list_dir`, `view_file`)만을 100% 사용**합니다. (내장 툴은 사용자 승인 창이 전혀 뜨지 않고 조용히 실행됨).
+     - 터미널 명령어(`run_command`)는 오직 사전에 승인된 단순 고정 명령어(`npm run build`, `powershell.exe -ExecutionPolicy Bypass -File .\scripts\verifySyntax.ps1`, `git status`, `git commit`, `git push origin main`) 외에는 절대로 임의 인라인 쉘 명령어를 실행하지 않습니다.
    - 모든 아티팩트 및 작업 진행 시 `RequestFeedback: false`로 고정하여 화면에 거치적거리는 팝업 카드가 전혀 뜨지 않도록 철저히 차단합니다.
    - 선배님이 편안하게 휴식을 취하실 수 있도록 뒷단에서 100% 안전하고 조용하게 자율적으로 완성합니다.
 
@@ -150,6 +150,12 @@
 25. **Mandatory Local Build & Fast Direct Deployment Rule (로컬 직접 빌드 & 초고속 다이렉트 배포 의무화 헌법)**
     - **원격 클라우드 빌드 큐 정체 100% 영구 척결**: Cloudflare Pages 등 원격 클라우드 러너의 느려터진 의존성 다운로드(`npm install`)로 인해 6분씩 빌드가 지연되거나 큐(`Queued`)에 갇혀 선배님께 답답함을 드리는 행위를 100% 영구 금지한다.
     - **"이제부턴 빌드해서 올리자" 선배님 수칙 영구 계승**: 모든 배포는 로컬 머신에서 5초 만에 초고속으로 `vite build`를 완료한 후 정적 번들(`dist`)만을 즉시 엣지로 쏘아 올리는 다이렉트 배포(`npm run deploy:dev` / `gh-pages`) 방식을 표준으로 전면 전환하여 단 8초 만에 배포를 완료한다.
+
+26. **Permanent Lock on Standard Map Engine & Ban on Ad-hoc Tile Tampering (표준 오픈스트리트맵(OSM) 영구 잠금 & 타일 임의 변경 100% 원천 금지 헌법)**
+    - **타일 엔진 임의 교체 100% 영구 엄금**: "외국인 전용 영어 지도" 등을 핑계로 검증되지 않은 외부 타일(Esri 등 확대 시 회색 깨짐 `Map data not yet available` 유발 타일, CartoDB 등 대각선 `API KEY REQUIRED` 유료 워터마크 난사 타일)로 임의 교체하여 정상 작동하던 지도를 망가뜨리는 행위를 영구히 엄금한다.
+    - **표준 OpenStreetMap (OSM) 영구 고정**: 대한민국의 모든 도시 및 관광 명소 지도는 워터마크 0%, 줌 레벨 깨짐 0%의 검증된 표준 OSM(`https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png`)만을 영구 고정 엔진으로 단일 사용한다.
+    - **선(先) 확인 없는 화면 구조/타일 수정 100% 금지**: 상단 히어로 배너 숨김이나 지도 타일 변경 등 주요 UI/지도 레이아웃은 선배님의 명시적 승인 없이 먼저 수정하는 행위를 100% 원천 차단한다.
+
 
 
 
