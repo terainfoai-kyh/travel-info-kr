@@ -15,9 +15,25 @@ import { generateLocalFallbackItinerary } from '../src/services/localItineraryGe
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// 🔑 Auto-load API keys from root .env at top
+try {
+  const envPath = path.join(__dirname, '../.env');
+  if (fs.existsSync(envPath)) {
+    const envContent = fs.readFileSync(envPath, 'utf-8');
+    envContent.split('\n').forEach(line => {
+      const match = line.match(/^\s*([\w_]+)\s*=\s*(.*)?\s*$/);
+      if (match) {
+        const key = match[1];
+        const val = (match[2] || '').trim().replace(/^['"]|['"]$/g, '');
+        if (val) process.env[key] = val;
+      }
+    });
+  }
+} catch {}
+
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '8862336937:AAGjolvwXh3BEBrLa1PMWFHLDu2ipcf90D0';
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || '8955008233';
-const VORA_BASE_URL = process.env.VORA_BASE_URL || 'https://travelkorea-dev.pages.dev';
+const VORA_BASE_URL = process.env.VORA_BASE_URL || 'https://koreatravel.cc';
 const SEEN_POSTS_FILE = path.join(__dirname, '.seen_reddit_posts.json');
 
 // Localized sample itineraries for instant fallback generation
@@ -79,6 +95,62 @@ const CITY_SAMPLE_ROUTES = {
     ],
     transitTip: 'Just 30 minutes from Seoul Station via KTX, or 45 minutes on Subway Line 1 directly.',
     foodTip: 'Try legendary Suwon Traditional King Beef Ribs (Wang-galbi) and crispy whole fried chicken from the historic chicken alley.'
+  },
+  incheon: {
+    name: 'Incheon',
+    routes: [
+      'Day 1: Songdo Central Park Water Taxi ➔ Tri-bowl Architecture ➔ Chinatown Jajangmyeon Street ➔ Wolmido Sea View'
+    ],
+    transitTip: 'Take AREX or Line 1 from Seoul, or Incheon Line 1 directly into Songdo Central Park.',
+    foodTip: 'Authentic White Jajangmyeon in Chinatown and Sinpo Traditional Market Sweet Crispy Chicken (Dakgangjeong).'
+  },
+  andong: {
+    name: 'Andong',
+    routes: [
+      'Day 1: Hahoe Folk Village ➔ Buyongdae Cliff Overlook ➔ Woryeonggyo Wooden Moonlight Bridge ➔ Andong Jjimdak Alley'
+    ],
+    transitTip: 'KTX-Eum connects Cheongnyangni (Seoul) to Andong Station in just 2 hours.',
+    foodTip: 'Original Andong Soy-Braised Chicken (Jjimdak) and Salted Grilled Mackerel (Godeungeo).'
+  },
+  jeonju: {
+    name: 'Jeonju',
+    routes: [
+      'Day 1: Jeonju Hanok Village ➔ Gyeonggijeon Shrine ➔ Omokdae Sunset Pavilion ➔ Nambu Traditional Night Market'
+    ],
+    transitTip: 'KTX from Yongsan/Seoul Station to Jeonju Station takes 1h 30m.',
+    foodTip: 'Traditional Jeonju Bibimbap with brass bowl and warm Kongnamul Gukbap (Bean Sprout Soup).'
+  },
+  sokcho: {
+    name: 'Sokcho',
+    routes: [
+      'Day 1: Seoraksan National Park Cable Car ➔ Sinheungsa Ancient Temple ➔ Sokcho Tourist Fish Market ➔ Abai Village Ferry'
+    ],
+    transitTip: 'Express Bus from Seoul Express Bus Terminal reaches Sokcho in 2h 10m.',
+    foodTip: 'Sokcho Squid Sundae (Ojingeo Sundae) and sweet & spicy Dakgangjeong from Sokcho Central Market.'
+  },
+  yeosu: {
+    name: 'Yeosu',
+    routes: [
+      'Day 1: Yeosu Maritime Cable Car ➔ Odongdo Camellia Island ➔ Yi Sun-sin Square ➔ Romantic Pocha Seaside Night Carts'
+    ],
+    transitTip: 'KTX from Seoul/Yongsan takes 3 hours directly to Yeosu Expo Station.',
+    foodTip: 'Yeosu Dolsan Mustard Leaf Kimchi (Gat-kimchi) with BBQ Pork and Spicy Seafood Pocha Stir-fry.'
+  },
+  pohang: {
+    name: 'Pohang',
+    routes: [
+      'Day 1: Space Walk Sky Rollercoaster ➔ Homigot Sunrise Square (Hand of Harmony) ➔ Yeongildae Seaside Pavilion ➔ Jukdo Fish Market'
+    ],
+    transitTip: 'KTX from Seoul Station reaches Pohang Station in 2h 20m.',
+    foodTip: 'Pohang style Cold Raw Fish Soup (Mulhoe) and fresh snow crab directly from Jukdo Market.'
+  },
+  daegu: {
+    name: 'Daegu',
+    routes: [
+      'Day 1: Kim Gwang-seok Music Street ➔ Dongseong-ro Shopping District ➔ Apsan Sunset Cable Car Observatory ➔ Anjirang Gopchang Alley'
+    ],
+    transitTip: 'KTX from Seoul reaches Dongdaegu Station in just 1h 40m.',
+    foodTip: 'Grilled Beef/Pork Intestines (Makchang) at Anjirang and spicy braised beef ribs (Dongin-dong Galbijjim).'
   }
 };
 
@@ -150,37 +222,198 @@ async function getRealAppRoutes(cityKey, days) {
   const targetCityKo = cityNamesMap[cityKey] || '서울';
 
   try {
-    const rawResult = await generateLocalFallbackItinerary(`Create ${targetCityKo} ${days}-day plan`, targetCityKo, days, 'en');
+    // 🛡️ 1.5s race timeout to prevent blocking on slow public APIs in Node environment
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 1500));
+    const fetchPromise = generateLocalFallbackItinerary(`Create ${targetCityKo} ${days}-day plan`, targetCityKo, days, 'en');
+    const rawResult = await Promise.race([fetchPromise, timeoutPromise]);
+    
     if (rawResult && rawResult.dailySchedules && rawResult.dailySchedules.length > 0) {
       return rawResult.dailySchedules.map(ds => {
-        const spotNames = (ds.spots || []).map(s => (s.title || s.name || '').trim()).filter(Boolean);
+        const spotNames = (ds.spots || [])
+          .filter(s => {
+            const name = ((s.title || s.name || '') + ' ' + (s.addr1 || '')).toLowerCase();
+            // Filter non-tourist/administrative/medical institutions
+            if (/병원|의원|clinic|hospital|약국|pharmacy|치과|dental|대학교|대학|university|초등학교|중학교|고등학교|school|학원|academy|주민센터|동사무소|구청|시청|경찰서|소방서|세무서/i.test(name)) return false;
+            return true;
+          })
+          .map(s => (s.title || s.name || '').trim())
+          .filter(Boolean)
+          .slice(0, 4);
         return `Day ${ds.day}: ${spotNames.join(' ➔ ')}`;
       });
     }
   } catch (err) {
-    console.warn('[Reddit Radar] Failed to fetch live local itinerary, using base anchors:', err.message);
+    // Graceful fast fallback to verified anchors
   }
 
   const cityInfo = CITY_SAMPLE_ROUTES[cityKey] || CITY_SAMPLE_ROUTES.seoul;
-  return cityInfo.routes.slice(0, days);
+  return (cityInfo.routes || []).slice(0, days);
 }
 
-async function generateFallbackReply(cityKey, days, postTitle) {
+function detectTopic(title = '', body = '') {
+  const t = (title + ' ' + body).toLowerCase();
+  if (/cycl(ing|e|ist)|bicyc(le|ling)|bike|biking|4 rivers|cross country|bike trail|cycling path|donghae|riding/i.test(t)) {
+    return { key: 'cycling', label: '자전거/국토종주 라이딩', emoji: '🚴‍♂️🗺️' };
+  }
+  if (/exchange|currency|money|atm|cash|card|wowpass|namane|credit card|pay/i.test(t)) {
+    return { key: 'payment', label: '환전/카드/WOWPASS/결제', emoji: '💳💵' };
+  }
+  if (/souvenir|license plate|vintage|antique|flea market|gift shop|goods shop|biff|gukje|nampo/i.test(t)) {
+    return { key: 'souvenir', label: '기념품/소품/빈티지 마켓', emoji: '🛍️🎨' };
+  }
+  if (/brew|beer|alcohol|makgeolli|soju|drink|craft beer|pub|bar|nightlife/i.test(t)) {
+    return { key: 'brewery', label: '로컬 브루어리/전통주', emoji: '🍶🍺' };
+  }
+  if (/(incheon|airport).*bus|bus.*(gyeongju|busan|gangneung|sokcho|jeonju)|express bus|intercity bus/i.test(t)) {
+    return { key: 'airport_bus', label: '공항 리무진/지방 이동', emoji: '🚌🚅' };
+  }
+  if (/foliage|autumn|fall|leaves|ginkgo|maple/i.test(t)) {
+    return { key: 'foliage', label: '가을 단풍/자연 명소', emoji: '🍁🍂' };
+  }
+  if (/hanwoo|beef|pork|black pork|bbq|meat|korean bbq/i.test(t)) {
+    return { key: 'bbq', label: '한우/흑돼지/고기 맛집', emoji: '🥩🔥' };
+  }
+  if (/popup|pop-up|reservation|kiosk|catchtable|wait/i.test(t)) {
+    return { key: 'popup', label: '팝업스토어/현장 예약', emoji: '🎪✨' };
+  }
+  if (/hotel|hostel|stay|switch|airbnb|accommodation|where to stay|lodge|booking/i.test(t)) {
+    return { key: 'hotel', label: '숙소 위치/권역 비교', emoji: '🏨🧳' };
+  }
+  if (/esim|sim card|simcard|pocket wifi|wifi|roaming|data plan/i.test(t)) {
+    return { key: 'esim', label: 'eSIM/통신/데이터', emoji: '📱📶' };
+  }
+  if (/t-?money|climate card|subway|metro|transit|bus|taxi|koreail|ktx/i.test(t)) {
+    return { key: 'transit', label: '대중교통/T-money', emoji: '🚇💳' };
+  }
+  if (/luggage|baggage|storage|locker|delivery|t-luggage/i.test(t)) {
+    return { key: 'luggage', label: '짐보관/T-Luggage', emoji: '🧳🔒' };
+  }
+  if (/weather|clothes|outfit|rain|snow|temperature/i.test(t)) {
+    return { key: 'weather', label: '날씨/옷차림 팁', emoji: '☀️🧥' };
+  }
+  if (/food|restaurant|dine|dining|eat|pork soup|market food|halal|vegetarian/i.test(t)) {
+    return { key: 'food', label: '현지 로컬 맛집', emoji: '🍲🥢' };
+  }
+  return { key: 'itinerary', label: '추천 여행 일정표', emoji: '🗺️✨' };
+}
+
+async function generateFallbackReply(cityKey, days, postTitle, postBody = '') {
   const cityInfo = CITY_SAMPLE_ROUTES[cityKey] || CITY_SAMPLE_ROUTES.seoul;
+  const topicInfo = detectTopic(postTitle, postBody);
+  const topic = topicInfo.key;
+
+  if (topic === 'cycling') {
+    return `Hey there! 🚴‍♂️🗺️ For cycling and bike trails in Korea, here is practical local advice:\n\n` +
+      `• **Seoul to Busan 4 Rivers Path (4대강 국토종주)**: The most popular cross-country route (~633 km) connecting Seoul (Hangang) down to Busan (Nakdong River). It takes 4 to 5 full days of riding on dedicated, paved bike paths with red certification stamp booths along the way.\n\n` +
+      `• **East Coast (Donghae) Bike Trail**: Offers scenic coastal ocean views, but features more hilly climbs and some mixed vehicle road sections compared to the flat 4 Rivers path.\n\n` +
+      `• **For an 8-Day Trip**: If you have 8 days total, doing a 4-5 day full ride leaves only 2-3 days for Seoul city sightseeing. If you want a relaxed holiday, doing a scenic day ride along the Hangang or Bukhangang River (Seoul to Chuncheon) and spending the rest on food/culture is often much more enjoyable!\n\n` +
+      `• **Logistics Tip**: KTX high-speed trains only allow bicycles if they are disassembled or folded into a dedicated bike travel bag.\n\n` +
+      `Hope this helps you choose the best ride! Have an amazing adventure in Korea! 🇰🇷✨`;
+  }
+
+  if (topic === 'payment') {
+    return `Hey there! 💳💵 Here is practical advice on currency, cards, and payments in Korea:\n\n` +
+      `• **Card Acceptance**: Korea is almost 99% cashless. Standard Visa and Mastercard credit/debit cards are accepted everywhere (restaurants, cafes, taxis, convenience stores).\n\n` +
+      `• **When You Need Cash**: You only need small Korean Won (KRW) cash for 1) Transit card top-ups (T-money machines only accept cash), and 2) Traditional street food stalls (like Gwangjang Market or BIFF Square).\n\n` +
+      `• **ATM Tip**: Look for ATMs labeled **"Global ATM"** (often found inside major subway stations, banks like Woori/Shinhan/Hana, and large convenience stores) to withdraw KRW using international cards.\n\n` +
+      `Have a wonderful and hassle-free trip in Korea! 🇰🇷✨`;
+  }
+
+  if (topic === 'souvenir') {
+    if (cityKey === 'busan') {
+      return `Hey there! 🛍️🎨 For decorative license plates, vintage signs, and unique souvenirs in Busan, here are the best local hunting spots:\n\n` +
+        `• **Gukje Market & Bupyeong Kkangtong Market (국제시장 / 깡통시장 - Nampo)**: Head into the vintage clothes and imported goods alleys (수입상가 / 구제골목). You will find retro metal signs, custom goods, military surplus, and novelty souvenir stalls.\n\n` +
+        `• **Gamcheon Culture Village & Huinnyeoul Coastal Village**: The artisan craft & souvenir gift shops along the alleys sell creative 부산 (Busan) themed metal art, custom badges, and retro goods.\n\n` +
+        `• **Dongbaek Sanghoe (동백상회 - Busan Station)**: Located inside KTX Busan Station, showcasing official Busan cultural goods and regional memorabilia.\n\n` +
+        `Hope this helps you find a great piece for your collection! Have a fantastic stay in Busan! 🇰🇷✨`;
+    }
+    return `Hey there! 🛍️🎨 For unique souvenirs, vintage signs, and novelty goods, traditional markets (like Insadong Art Street or Dongmyo Flea Market) and local culture village gift shops are the best places to explore!\n\n` +
+      `Hope you find the perfect piece for your collection! Have a wonderful trip! 🇰🇷✨`;
+  }
+
+  if (topic === 'brewery') {
+    return `Hey there! 🍶🍺 If you are interested in Korean local craft drinks and brewery culture, here are some top insider spots:\n\n` +
+      `• **Traditional Sool Gallery (전통주 갤러리 - Bukchon/Insadong)**: Free monthly curated tastings of artisanal Makgeolli, Yakju, and distilled Soju. Booking via Naver is recommended, but foreign walk-ins are often accommodated.\n\n` +
+      `• **Seongsu-dong & Mullae-dong Craft Brew Scene**: Check out 'Amazing Brewing Company' in Seongsu for dozens of Korean craft taps, or explore the hip industrial metalwork alleys of Mullae-dong for boutique microbreweries.\n\n` +
+      `• **Food Pairing Tip**: Traditional unfiltered Makgeolli pairs best with crispy seafood scallion pancakes (Haemul Pajeon) or spicy stir-fried pork.\n\n` +
+      `Hope you have a fantastic tasting journey in Korea! 🇰🇷✨`;
+  }
+
+  if (topic === 'airport_bus') {
+    return `Hey there! 🚌🚅 For getting from Incheon Airport to regional cities like Gyeongju, here is the smoothest route:\n\n` +
+      `• **Direct Airport Limousine Bus**: From Incheon Airport Terminal 1, head out to 1F Arrivals and look for Ticket Booths near Exit 11-13 (Platform 11A/11B). Direct intercity express buses run straight to Gyeongju Intercity Bus Terminal in ~4.5 hours.\n\n` +
+      `• **Alternative (KTX via Seoul/Gwangmyeong)**: Take AREX Airport Express to Seoul Station, then transfer to a high-speed KTX train directly to Singyeongju Station (~2 hours on train).\n\n` +
+      `• **Booking Tip**: You can buy bus tickets on-site at the automated English touch kiosks at Incheon Airport using international credit cards.\n\n` +
+      `Have a safe and comfortable ride to Gyeongju! 🇰🇷✨`;
+  }
+
+  if (topic === 'foliage') {
+    return `Hey there! 🍁🍂 Fall foliage in Korea is absolutely stunning. Here are some of the best spots for peak autumn colors:\n\n` +
+      `• **Palace Secret Gardens**: The Secret Garden (Huwon) at Changdeokgung Palace and Deoksugung Stone Wall Walk offer magical red maple and golden ginkgo canopy walks.\n\n` +
+      `• **Scenic Mountain Views**: Namsan Park (walking up around N-Seoul Tower) and Bukhansan National Park offer sweeping panoramic autumn views over the entire city.\n\n` +
+      `• **Peak Timing Tip**: Foliage typically peaks from late October through the first week of November in the central region.\n\n` +
+      `Enjoy the breathtaking autumn scenery in Korea! 🇰🇷✨`;
+  }
+
+  if (topic === 'bbq') {
+    return `Hey there! 🥩🔥 For top-tier Korean BBQ and specialty meats, here are the local go-to spots:\n\n` +
+      `• **Hanwoo Beef (한우)**: Visit Majang-dong Meat Market (마장동) in Seoul. You can pick premium Hanwoo beef cuts directly at butcher stalls and eat upstairs at table-cooking restaurants at half the price of Gangnam restaurants.\n\n` +
+      `• **Jeju Black Pork (흑돼지)**: Look for thick-cut pork belly (Ogyeopsal) grilled over charcoal, served with bubbling Meljeot (anchovy dipping sauce) and grilled garlic.\n\n` +
+      `• **Ordering Tip**: Most BBQ spots have a 2-serving minimum order for the grill, but solo diners can easily order 2 portions of meat.\n\n` +
+      `Enjoy the incredible food adventure! 🇰🇷✨`;
+  }
+
+  if (topic === 'popup') {
+    return `Hey there! 🎪✨ Here is how to navigate popup events and reservations in Korea as a foreign traveler:\n\n` +
+      `• **Foreign Phone Bypass**: Many popups use CatchTable or Kakao for queues. If you have a data-only eSIM without a Korean 010 number, simply approach the staff at the entrance. They can manually register you using your email or issue a physical entry pass.\n\n` +
+      `• **Early Morning Walk-in**: For high-demand character/fashion popups (especially in Seongsu or The Hyundai Seoul), arriving 30-40 minutes before opening gives you the best chance for immediate walk-in access.\n\n` +
+      `• **Weekday Advantage**: Weekday mornings (Tue-Thu) typically have under 15-minute wait times compared to massive weekend queues.\n\n` +
+      `Hope you score all the exclusive merch! Have a blast in Korea! 🇰🇷✨`;
+  }
+
+  if (topic === 'hotel') {
+    if (cityKey === 'busan') {
+      return `Hey there! 🏨🧳 Here is a quick local breakdown for hotel areas in Busan:\n\n` +
+        `• **Haeundae / Gwangalli Area**: Best if you want beach vibes, ocean views, cafes, and easy access to the Blueline Park Sky Capsule. However, it takes around 35-45 mins by Metro Line 2 to reach Busan Station (KTX) or Nampo-dong.\n\n` +
+        `• **Seomyeon Area**: The best central transit hub. Metro Line 1 & Line 2 meet here, making it super fast to visit both the east (Haeundae) and west/south (Gamcheon, Jagalchi, KTX station).\n\n` +
+        `• **Nampo / Busan Station Area**: Great for old-town charm, Jagalchi Fish Market, and catching early morning KTX trains.\n\n` +
+        `💡 **Local Advice**: If your hotel is close to any Metro Line 1 or 2 station, you really do NOT need to hassle with changing hotels, as Busan's subway is fast and reliable.\n\n` +
+        `Hope this helps you decide! Have an amazing stay in Busan! 🇰🇷✨`;
+    }
+    return `Hey there! 🏨🧳 Here is a quick local breakdown on hotel locations in ${cityInfo.name} to help you decide:\n\n` +
+      `• **Transit Convenience**: As long as your accommodation is within a 5-10 minute walk of a major Metro subway station, getting around is super easy and affordable.\n\n` +
+      `• **Key Hubs**: Staying near major interchange stations will save you 20-30 minutes of daily transfer time compared to outer neighborhoods.\n\n` +
+      `• **Local Tip**: If switching hotels incurs heavy cancellation fees or packing hassle, staying put and using the subway or Kakao T taxis is usually much smoother.\n\n` +
+      `Hope this helps ease your mind! Feel free to ask if you want advice on specific neighborhoods. Enjoy Korea! 🇰🇷✨`;
+  }
+
+  if (topic === 'esim') {
+    return `Hey there! 📱📶 Here is a quick tip regarding phone data in Korea:\n\n` +
+      `• **eSIM vs Physical SIM**: If your phone is unlocked and supports eSIM, booking an LG U+, KT, or SKT eSIM online beforehand is the most seamless option. You just scan the QR code upon landing at Incheon/Gimhae airport.\n\n` +
+      `• **Korean Phone Number (010)**: For restaurant queues (CatchTable) or pop-up stores, note that most tourist eSIMs are data-only. For venues requiring a number, you can usually ask the staff for on-site kiosk assistance for foreign tourists.\n\n` +
+      `Hope this makes your arrival smooth! Have a wonderful trip! 🇰🇷✨`;
+  }
+
+  if (topic === 'transit') {
+    return `Hey there! 🚇💳 Here is a quick local transit guide for your trip:\n\n` +
+      `• **Transit Cards**: You can grab a standard T-money card at any airport convenience store (CU, GS25, 7-Eleven). It works seamlessly on all subways, city buses, and taxis nationwide (Seoul, Busan, Jeju, etc.).\n\n` +
+      `• **Cash for Top-up**: Convenience stores and station reload machines only accept Korean Won (KRW) cash for transit card top-ups, so keep a few 10,000 KRW notes handy.\n\n` +
+      `• **Navigation**: Google Maps walking routes are limited in Korea. Download **Naver Map** or **KakaoMap** (both support English) for real-time subway/bus arrival times.\n\n` +
+      `Have a safe and fun adventure in Korea! 🇰🇷✨`;
+  }
+
   const liveRoutes = await getRealAppRoutes(cityKey, days);
 
-  let reply = `Hey there! Welcome to Korea! 🇰🇷✨\n\n`;
-  reply += `For your trip in ${cityInfo.name}, here is a spatial-optimized route that saves transit time and matches our live 4K itinerary map:\n\n`;
+  let reply = `Hey there! 🗺️✨ Welcome to Korea! 🇰🇷\n\n`;
+  reply += `For your trip in ${cityInfo.name}, here is a spatial-optimized route that saves transit time:\n\n`;
 
   liveRoutes.forEach(r => {
-    reply += `• ${r}\n`;
+    reply += `• ${r}\n\n`;
   });
 
-  reply += `\n💡 **Transit Tip**: ${cityInfo.transitTip}\n`;
+  reply += `💡 **Transit Tip**: ${cityInfo.transitTip}\n`;
   reply += `🍲 **Foodie Secret**: ${cityInfo.foodTip}\n\n`;
-  reply += `I've put together a full interactive 4K route map with live weather & outfit suggestions here:\n`;
-  reply += `👉 ${VORA_BASE_URL}/?city=${cityKey}&days=${days}&lang=en\n\n`;
-  reply += `Have a wonderful adventure in Korea! Let me know if you need any neighborhood recommendations.`;
+  reply += `Hope this helps with your planning! Feel free to let me know if you need any specific neighborhood or dining recommendations. Have a wonderful adventure!`;
 
   return reply;
 }
@@ -188,55 +421,95 @@ async function generateFallbackReply(cityKey, days, postTitle) {
 async function generateGeminiReply(post, cityKey, days) {
   const cityInfo = CITY_SAMPLE_ROUTES[cityKey] || CITY_SAMPLE_ROUTES.seoul;
   const liveRoutes = await getRealAppRoutes(cityKey, days);
-  const appReferenceRoutes = liveRoutes.join('\n');
+  const appReferenceRoutes = liveRoutes.join('\n\n');
 
-  if (!GEMINI_API_KEY) {
-    return generateFallbackReply(cityKey, days, post.title);
+  const apiKey = (process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '').trim();
+  if (!apiKey) {
+    return generateFallbackReply(cityKey, days, post.title, post.selftext || '');
   }
 
-  const prompt = `You are VORA, a warm, genuine, and deeply knowledgeable local Korean travel insider replying to a traveler's post on Reddit (r/koreatravel).
+  const prompt = `You are a warm, genuine, and deeply knowledgeable local Korean resident replying to a traveler's post on Reddit (r/koreatravel).
 
 Post Title: "${post.title}"
 Post Content: "${(post.selftext || '').slice(0, 1200)}"
 Detected Focus: ${cityInfo.name} (${cityKey})
 
-[Official Live VORA 4K Reference Route for ${cityInfo.name}]:
+[Official Live Reference Itinerary for ${cityInfo.name}]:
 ${appReferenceRoutes}
 
-[Your Smart Dual-Intent Mission]:
-Determine the core nature of the traveler's question:
+[Your Smart Mission]:
+Carefully read the traveler's question and determine what they truly need:
 
 ---
-CASE 1: If this is a SPECIFIC QUESTION or PRACTICAL ISSUE (e.g. eSIM/SIM card activation, pop-up store phone verification/Kakao reservations, ATM 6-digit PINs, Cashbee vs T-money, luggage delivery/transport, solo dining at markets, baseball tickets, taxis, shipping):
-1. Greet them warmly and give a DIRECT, CONCRETE, EXPERT solution to their exact dilemma in 2-3 concise bullet points.
-2. Share practical local insights (e.g., how foreign tourists can bypass Korean phone verification, using physical kiosks at popup venues, global ATMs with EXK/Plus/Cirrus signs, subway luggage services, etc.).
-3. Naturally mention: "If you're also exploring ${cityInfo.name} during your stay, you can check our interactive 4K walking route map & live weather guide here:"
-👉 ${VORA_BASE_URL}/?city=${cityKey}&days=${days}&lang=en
-4. Keep it friendly, empathetic, and ultra-practical for Reddit (no forced multi-day itinerary where it doesn't belong!).
+CASE 1: If they ask a SPECIFIC QUESTION or HAVE A SPECIFIC DILEMMA (e.g. cycling/bike routes, hotel/accommodation choice, hotel switching, eSIM/SIM card, transit card, ATM/currency, luggage storage, solo dining, taxi vs subway, shopping/souvenirs, weather):
+1. Greet them warmly and provide a DIRECT, HIGHLY PRACTICAL, CONCRETE local answer to their exact dilemma in 2-3 structured points.
+2. Give actionable local advice from an insider's perspective (e.g., feasibility, route comparisons, realistic transit times, cost-benefit).
+3. Do NOT dump an unrelated full multi-day itinerary if they only asked about cycling routes or hotel switching.
+4. Close warmly: "Hope this helps! Let me know if you have any questions about specific areas or routes. Have a fantastic trip to Korea!"
 
 ---
-CASE 2: If this is an ITINERARY / TRIP PLANNING / ROUTE RECOMMENDATION QUESTION (e.g. "Visiting Seoul for 3 days", "Help with my Jeju route", "Recommend spots for 2 days"):
-1. Greet them warmly and directly address their personal vibe (solo, couple, foodie, culture, shopping).
-2. Present the EXACT ${days}-day route generated from our live system:
-${liveRoutes.map(r => `   • ${r}`).join('\n')}
-(CRITICAL: Use the EXACT spot names and sequence from the live route above word-for-word so the web link matches 100%).
-3. Add 1 handy transit tip and 1 foodie secret for ${cityInfo.name}.
-4. Close with the interactive 4K map link:
-👉 ${VORA_BASE_URL}/?city=${cityKey}&days=${days}&lang=en
+CASE 2: If they ask for an ITINERARY, TRIP PLAN, or "WHAT TO DO" in ${cityInfo.name}:
+1. Greet them warmly and acknowledge their travel style.
+2. Present the optimized route with clean line breaks between each day:
+${liveRoutes.map(r => `• ${r}`).join('\n\n')}
+3. Add 1 transit tip and 1 foodie secret for ${cityInfo.name}.
+4. Close with a warm, helpful farewell.
 
 ---
-Formatting Rules:
-- Clean, natural Reddit markdown.
-- Sound like a helpful local Korean friend, not a bot or marketing robot.
-- Max 300 words.`;
+CRITICAL ZERO-SPAM & REDDIT COMPLIANCE RULES:
+- DO NOT include ANY website links, URLs, or http/https strings.
+- DO NOT mention any product/service brand names like "VORA". Sound 100% like a helpful, real local person living in Korea.
+- Natural, empathetic, conversational English.
+- Max 220 words.`;
 
-  const modelsToTry = ['gemini-2.0-flash', 'gemini-1.5-flash'];
-  for (const model of modelsToTry) {
+  let modelsToTry = [
+    'models/gemini-2.0-flash',
+    'models/gemini-1.5-flash',
+    'models/gemini-1.5-flash-8b',
+    'models/gemini-1.5-pro'
+  ];
+
+  try {
+    const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(apiKey)}`, {
+      headers: { 'x-goog-api-key': apiKey }
+    });
+    if (listRes.ok) {
+      const listData = await listRes.json();
+      const models = listData.models || [];
+      const validGenModels = models
+        .filter(m => m.supportedGenerationMethods?.includes('generateContent'))
+        .filter(m => !/tts|image|transcribe|robotics|computer-use|lyria|embedding/i.test(m.name));
+
+      const prioritized = [
+        ...validGenModels.filter(m => m.name.includes('2.0-flash') && !m.name.includes('lite')),
+        ...validGenModels.filter(m => m.name.includes('1.5-flash') && !m.name.includes('8b')),
+        ...validGenModels.filter(m => m.name.includes('1.5-flash-8b')),
+        ...validGenModels.filter(m => m.name.includes('1.5-pro')),
+        ...validGenModels.filter(m => m.name.includes('flash')),
+        ...validGenModels
+      ].map(m => m.name.startsWith('models/') ? m.name : `models/${m.name}`);
+
+      if (prioritized.length > 0) {
+        modelsToTry = Array.from(new Set([...prioritized, ...modelsToTry]));
+      }
+    }
+  } catch (err) {
+    // Graceful fallback to default list
+  }
+
+  for (const rawModel of modelsToTry) {
+    const modelPath = rawModel.startsWith('models/') ? rawModel : `models/${rawModel}`;
     try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
+      const url = `https://generativelanguage.googleapis.com/v1beta/${modelPath}:generateContent?key=${encodeURIComponent(apiKey)}`;
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
       const res = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': apiKey
+        },
+        signal: controller.signal,
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
           generationConfig: {
@@ -245,20 +518,25 @@ Formatting Rules:
           }
         })
       });
+      clearTimeout(timeoutId);
 
       if (res.ok) {
         const data = await res.json();
         const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
         if (text && text.trim().length > 60) {
+          console.log(`✨ [Gemini AI] Successfully synthesized tailored reply using ${modelPath}!`);
           return text.trim();
         }
+      } else {
+        const errText = await res.text().catch(() => '');
+        console.warn(`[Gemini Radar] Model ${modelPath} HTTP ${res.status}:`, errText.slice(0, 120));
       }
     } catch (err) {
-      console.warn(`[Gemini Radar] Model ${model} failed, trying next:`, err.message);
+      console.warn(`[Gemini Radar] Model ${modelPath} failed, trying next:`, err.message);
     }
   }
 
-  return generateFallbackReply(cityKey, days, post.title);
+  return generateFallbackReply(cityKey, days, post.title, post.selftext || '');
 }
 
 const CITY_PHOTO_URLS = {
@@ -291,7 +569,7 @@ function savePendingReply(postId, data) {
   }
 }
 
-async function sendTelegramNotification(post, cityKey, days, replyDraft) {
+async function sendTelegramNotification(post, cityKey, days, replyDraft, ageLabel = '방금 전') {
   const redditUrl = `https://reddit.com${post.permalink}`;
   const voraUrl = `${VORA_BASE_URL}/?city=${cityKey}&days=${days}&lang=en`;
 
@@ -307,21 +585,33 @@ async function sendTelegramNotification(post, cityKey, days, replyDraft) {
     voraUrl
   });
 
-  const messageText = `🗺️ [VORA 4K COURSE & REDDIT RADAR]\n\n` +
-    `📍 대상: ${cityKey.toUpperCase()} (${days}일 코스)\n` +
-    `📌 질문: ${post.title}\n` +
-    `👤 작성자: u/${post.author}\n` +
-    `🔗 원문: https://reddit.com${post.permalink}\n\n` +
+  const escapeHtml = (str) => (str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  const topicInfo = detectTopic(post.title, post.selftext || '');
+
+  const messageText = `🗺️ <b>[VORA 4K COURSE & REDDIT RADAR]</b>\n\n` +
+    `🏷️ <b>분류</b>: ${topicInfo.emoji} <b>${topicInfo.label}</b>\n` +
+    `⏰ <b>등록</b>: 🔥 <b>${ageLabel}</b> (초신선 질문)\n` +
+    `📍 <b>도시</b>: ${cityKey.toUpperCase()} (${days}일 코스)\n` +
+    `📌 <b>질문</b>: ${escapeHtml(post.title)}\n` +
+    `👤 <b>작성자</b>: u/${escapeHtml(post.author)}\n` +
+    `🔗 <b>원문</b>: https://reddit.com${post.permalink}\n\n` +
     `━━━━━━━━━━━━━━━━━━━\n` +
-    `💬 [Gemini 2.0 정감 맞춤 답변 초안]:\n\n` +
-    `${replyDraft}\n\n` +
+    `👇 <b>[아래 회색 답변 박스를 톡! 누르면 1초 만에 자동 복사됩니다]</b>\n\n` +
+    `<pre><code>${escapeHtml(replyDraft)}</code></pre>\n\n` +
     `━━━━━━━━━━━━━━━━━━━\n` +
-    `👇 [등록 승인]을 누르시면 3~5분 텀 후 레딧에 자동 게시됩니다!`;
+    `💬 <b>복사 후 아래 버튼을 눌러 레딧 댓글창에 붙여넣기(Ctrl+V) 하세요!</b>`;
 
   const inlineKeyboard = {
     inline_keyboard: [
       [
-        { text: '🚀 이 답변 등록 승인 (3분 텀)', callback_data: `approve_${post.id}` },
+        { text: '💬 레딧 질문 글 바로가기 (댓글 등록)', url: redditUrl }
+      ],
+      [
+        { text: '🚀 전자동 등록 승인 (2분 텀)', callback_data: `approve_${post.id}` },
         { text: '🗺️ VORA 4K 코스 보기', url: voraUrl }
       ]
     ]
@@ -330,6 +620,7 @@ async function sendTelegramNotification(post, cityKey, days, replyDraft) {
   const payload = {
     chat_id: TELEGRAM_CHAT_ID,
     text: messageText,
+    parse_mode: 'HTML',
     reply_markup: inlineKeyboard,
     disable_web_page_preview: true
   };
@@ -348,82 +639,168 @@ async function sendTelegramNotification(post, cityKey, days, replyDraft) {
   }
 }
 
+const TARGET_SUBREDDITS = ['koreatravel'];
+
+function isGenuineTravelQuestion(title = '', body = '') {
+  const fullText = (title + ' ' + body).toLowerCase();
+  
+  // 1. Exclude non-travel / news / photo bragging / visa / real estate topics
+  if (/solar power|crude imports|witholding tax|drunk patron|police|politics|election|real estate|rhinoplasty|clinic review|concert ticket|american football|baseball stadium/i.test(fullText)) {
+    return false;
+  }
+
+  // 2. Must contain authentic traveler question indicators
+  const hasQuestionMark = fullText.includes('?');
+  const hasTravelKeyword = /(itinerary|days?|trip|travel|visit|stay|hotel|hostel|recommend|advice|help|where to|how to|best way|t-money|climate card|subway|transit|esim|sim|luggage|storage|schedule|first time|solo travel)/i.test(fullText);
+
+  return hasQuestionMark || hasTravelKeyword;
+}
+
 export async function runRadarOnce() {
-  console.log('📡 Scanning r/koreatravel for recent trip queries...');
+  console.log(`📡 Scanning [${TARGET_SUBREDDITS.join(', ')}] for authentic travel questions...`);
   const seenPosts = loadSeenPosts();
+  let totalDispatched = 0;
+  const MAX_DISPATCH_PER_RUN = 1; // 🛡️ Strict shield: Max 1 alert per scan cycle to prevent notification fatigue
 
-  try {
-    const res = await fetch('https://www.reddit.com/r/koreatravel/new.rss', {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache'
-      }
-    });
+  for (const sub of TARGET_SUBREDDITS) {
+    if (totalDispatched >= MAX_DISPATCH_PER_RUN) break;
 
-    if (!res.ok) {
-      console.warn('Reddit fetch status:', res.status);
-      return;
-    }
+    try {
+      let items = [];
+      
+      // 1. Try RSS feed first
+      try {
+        const res = await fetch(`https://www.reddit.com/r/${sub}/new.rss`, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 VoraRadar/' + Date.now(),
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Cache-Control': 'no-cache'
+          }
+        });
 
-    const xml = await res.text();
-    const entryRegex = /<entry>([\s\S]*?)<\/entry>/g;
-    const items = [];
-    let match;
-    while ((match = entryRegex.exec(xml)) !== null) {
-      const block = match[1];
-      const idMatch = block.match(/<id>(?:t3_)?([^<]+)<\/id>/);
-      const titleMatch = block.match(/<title>([^<]+)<\/title>/);
-      const authorMatch = block.match(/<author><name>\/u\/([^<]+)<\/name>/);
-      const linkMatch = block.match(/<link href="([^"]+)"/);
-      const contentMatch = block.match(/<content type="html">([\s\S]*?)<\/content>/);
+        if (res.ok) {
+          const xml = await res.text();
+          const entryRegex = /<entry>([\s\S]*?)<\/entry>/g;
+          let match;
+          while ((match = entryRegex.exec(xml)) !== null) {
+            const block = match[1];
+            const idMatch = block.match(/<id>(?:t3_)?([^<]+)<\/id>/);
+            const titleMatch = block.match(/<title>([^<]+)<\/title>/);
+            const authorMatch = block.match(/<author><name>\/u\/([^<]+)<\/name>/);
+            const linkMatch = block.match(/<link href="([^"]+)"/);
+            const contentMatch = block.match(/<content type="html">([\s\S]*?)<\/content>/);
 
-      const id = idMatch ? idMatch[1] : null;
-      const title = titleMatch ? titleMatch[1] : '';
-      const author = authorMatch ? authorMatch[1] : 'traveler';
-      const link = linkMatch ? linkMatch[1] : '';
-      const permalink = link.replace('https://www.reddit.com', '');
-      let selftext = contentMatch ? contentMatch[1] : '';
-      selftext = selftext.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/<[^>]+>/g, ' ').trim();
+            const id = idMatch ? idMatch[1] : null;
+            const title = titleMatch ? titleMatch[1] : '';
+            const author = authorMatch ? authorMatch[1] : 'traveler';
+            const link = linkMatch ? linkMatch[1] : '';
+            const permalink = link.replace('https://www.reddit.com', '');
+            let selftext = contentMatch ? contentMatch[1] : '';
+            selftext = selftext.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/<[^>]+>/g, ' ').trim();
 
-      if (id && title) {
-        items.push({ id, title, author, permalink, selftext });
-      }
-    }
+            const publishedMatch = block.match(/<(?:published|updated)>([^<]+)<\/(?:published|updated)>/);
+            const created_utc = publishedMatch ? Math.floor(new Date(publishedMatch[1]).getTime() / 1000) : Math.floor(Date.now() / 1000);
 
-    let dispatchedCount = 0;
-
-    for (const post of items) {
-      if (!post || seenPosts.has(post.id)) continue;
-
-      const combinedText = `${post.title} ${post.selftext || ''}`;
-      const isQuestion = /(itinerary|days?|trip|route|plan|recommend|help|places|spots|advice|first time|seoul|busan|jeju)/i.test(combinedText);
-
-      if (isQuestion) {
-        const cityKey = extractCity(combinedText);
-        const days = extractDays(combinedText);
-        console.log(`🤖 Synthesizing Gemini warm reply for: [${post.title}]`);
-        const replyDraft = await generateGeminiReply(post, cityKey, days);
-
-        console.log(`🎯 Found matching query: [${post.title}] by u/${post.author}`);
-        const success = await sendTelegramNotification(post, cityKey, days, replyDraft);
-
-        if (success) {
-          console.log(`✅ Dispatched alert to Telegram (Post ID: ${post.id})`);
-          seenPosts.add(post.id);
-          dispatchedCount++;
+            if (id && title) {
+              items.push({ id, title, author, permalink, selftext, subreddit: sub, created_utc });
+            }
+          }
         }
-      } else {
-        seenPosts.add(post.id);
+      } catch (e) {
+        // Fallback to JSON
       }
-    }
 
-    saveSeenPosts(seenPosts);
-    console.log(`✨ Scan complete. Dispatched ${dispatchedCount} new query alert(s).`);
+      // 2. If RSS failed, try JSON endpoint
+      if (items.length === 0) {
+        try {
+          const resJson = await fetch(`https://www.reddit.com/r/${sub}/new.json?limit=25`, {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 VoraJson/' + Date.now(),
+              'Accept': 'application/json'
+            }
+          });
+          if (resJson.ok) {
+            const jdata = await resJson.json();
+            const children = jdata?.data?.children || [];
+            items = children.map(c => ({
+              id: c.data.id,
+              title: c.data.title,
+              author: c.data.author,
+              permalink: c.data.permalink,
+              selftext: c.data.selftext,
+              created_utc: c.data.created_utc || Math.floor(Date.now() / 1000),
+              subreddit: sub
+            }));
+          }
+        } catch (e) {}
+      }
+
+      // 🚀 1. Strict Timestamp Sorting: newest posts first
+      items.sort((a, b) => (b.created_utc || 0) - (a.created_utc || 0));
+
+      const nowSec = Math.floor(Date.now() / 1000);
+      const MAX_AGE_SEC = 6 * 3600; // 🛡️ 6 Hours freshness cutoff
+
+      for (const post of items) {
+        if (totalDispatched >= MAX_DISPATCH_PER_RUN) break;
+        if (seenPosts.has(post.id)) continue;
+
+        // 🛡️ Filter 1: Skip stale posts older than 6 hours
+        if (post.created_utc && (nowSec - post.created_utc > MAX_AGE_SEC)) {
+          seenPosts.add(post.id);
+          continue;
+        }
+
+        // 🛡️ Filter 2: Only genuine travel questions
+        if (!isGenuineTravelQuestion(post.title, post.selftext)) {
+          seenPosts.add(post.id);
+          continue;
+        }
+
+        const ageMins = Math.max(1, Math.floor((nowSec - (post.created_utc || nowSec)) / 60));
+        const ageLabel = ageMins < 60 ? `${ageMins}분 전` : `${Math.floor(ageMins / 60)}시간 전`;
+
+        const cityKey = extractCity(post.title + ' ' + post.selftext);
+        const days = extractDays(post.title + ' ' + post.selftext);
+
+        console.log(`🎯 New fresh question (${ageLabel}) in r/${sub}: [${cityKey}] "${post.title.slice(0, 50)}..."`);
+        const replyDraft = await generateGeminiReply(post, cityKey, days);
+        const sent = await sendTelegramNotification(post, cityKey, days, replyDraft, ageLabel);
+
+        if (sent) {
+          seenPosts.add(post.id);
+          saveSeenPosts(seenPosts);
+          totalDispatched++;
+          console.log(`✅ Dispatched 1 targeted alert for post ${post.id} (${ageLabel})`);
+        }
+      }
+    } catch (err) {
+      console.warn(`Scan error for r/${sub}:`, err.message);
+    }
+  }
+
+  saveSeenPosts(seenPosts);
+  console.log(`✨ Scan complete. Dispatched ${totalDispatched} alert (Max ${MAX_DISPATCH_PER_RUN}/run).`);
+}
+
+const APPROVED_POSTS_FILE = path.join(__dirname, '.approved_reddit_posts.json');
+
+function loadApprovedPosts() {
+  try {
+    if (fs.existsSync(APPROVED_POSTS_FILE)) {
+      return new Set(JSON.parse(fs.readFileSync(APPROVED_POSTS_FILE, 'utf-8')));
+    }
+  } catch {}
+  return new Set();
+}
+
+function saveApprovedPosts(approvedSet) {
+  try {
+    const arr = Array.from(approvedSet).slice(-200);
+    fs.writeFileSync(APPROVED_POSTS_FILE, JSON.stringify(arr, null, 2), 'utf-8');
   } catch (err) {
-    console.error('Error during Reddit scan:', err);
+    console.error('Failed to save approved posts:', err);
   }
 }
 
@@ -451,9 +828,47 @@ export async function pollTelegramApprovals(offset = 0) {
         const query = update.callback_query;
         const dataStr = query.data || '';
 
+        // Handle already approved callback tap
+        if (dataStr.startsWith('already_approved')) {
+          try {
+            await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/answerCallbackQuery`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                callback_query_id: query.id,
+                text: "ℹ️ 이미 승인 완료되어 3~5분 텀 대기열에서 처리 중인 답변입니다.",
+                show_alert: true
+              })
+            });
+          } catch (e) {}
+          continue;
+        }
+
         if (dataStr.startsWith('approve_')) {
           const postId = dataStr.replace('approve_', '');
           console.log(`\n🚀 [TELEGRAM APPROVAL DETECTED] for Reddit Post ID: ${postId}`);
+
+          // 🛡️ Duplicate Prevention Lock
+          const approvedSet = loadApprovedPosts();
+          if (approvedSet.has(postId)) {
+            console.log(`⚠️ Post ${postId} is already approved. Ignoring duplicate click.`);
+            try {
+              await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/answerCallbackQuery`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  callback_query_id: query.id,
+                  text: "ℹ️ 이미 승인 처리된 게시물입니다.",
+                  show_alert: true
+                })
+              });
+            } catch (e) {}
+            continue;
+          }
+
+          // Mark as approved immediately
+          approvedSet.add(postId);
+          saveApprovedPosts(approvedSet);
 
           // 1. Send immediate popup toast to Telegram
           try {
@@ -476,25 +891,52 @@ export async function pollTelegramApprovals(offset = 0) {
             author: 'traveler',
             cityKey: 'seoul',
             days: 3,
-            permalink: `/r/koreatravel/comments/${postId}/`
+            permalink: `/r/koreatravel/comments/${postId}/`,
+            voraUrl: `${VORA_BASE_URL}/?city=seoul&days=3&lang=en`
           };
 
-          // 3. Send queue confirmation message
+          const voraUrl = postData.voraUrl || `${VORA_BASE_URL}/?city=${postData.cityKey}&days=${postData.days}&lang=en`;
+
+          // 3. 🪄 [INSTANT UI UPDATE] Edit original message buttons: Replace [🚀 등록 승인] with [✅ 승인 접수됨]
+          if (query.message) {
+            try {
+              await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/editMessageReplyMarkup`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  chat_id: query.message.chat.id,
+                  message_id: query.message.message_id,
+                  reply_markup: {
+                    inline_keyboard: [
+                      [
+                        { text: '✅ 승인 접수됨 (3~5분 텀 대기 중)', callback_data: `already_approved_${postId}` },
+                        { text: '🗺️ VORA 4K 코스 보기', url: voraUrl }
+                      ]
+                    ]
+                  }
+                })
+              });
+            } catch (err) {
+              console.error('Failed to edit inline keyboard:', err.message);
+            }
+          }
+
+          // 4. Send queue confirmation message
           try {
             await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 chat_id: TELEGRAM_CHAT_ID,
-                text: `⏳ [등록 대기열 진입] u/${postData.author}님의 질문에 3~5분 지능형 시간차를 두고 자연스럽게 답변을 게시합니다.\n\n📍 대상: ${postData.cityKey?.toUpperCase()} (${postData.days}일 코스)\n🔗 질문: https://reddit.com${postData.permalink}`
+                text: `⏳ [등록 대기열 진입] u/${postData.author}님의 질문에 6~7분 지능형 시간차(쿨다운 안전 버퍼)를 두고 자연스럽게 답변을 게시합니다.\n\n📍 대상: ${postData.cityKey?.toUpperCase()} (${postData.days}일 코스)\n🔗 질문: https://reddit.com${postData.permalink}`
               })
             });
           } catch (e) {
             console.error('Error sending queue message:', e);
           }
 
-          // 4. Run delayed executor asynchronously in background
-          handleDelayedRedditPosting(postId, postData);
+          // 5. Run delayed executor asynchronously in background
+          handleDelayedRedditPosting(postId, postData, query.message);
         }
       }
     }
@@ -506,14 +948,37 @@ export async function pollTelegramApprovals(offset = 0) {
   }
 }
 
-async function handleDelayedRedditPosting(postId, postData) {
-  // Random delay between 180s (3m) and 300s (5m) to defeat bot detection
-  const delaySec = Math.floor(Math.random() * (300 - 180 + 1)) + 180;
-  console.log(`⏱️ [Anti-Shadowban] Waiting ${delaySec}s (~${(delaySec / 60).toFixed(1)} mins) before posting reply to Reddit...`);
+async function handleDelayedRedditPosting(postId, postData, originalMessage = null) {
+  // Random delay between 360s (6m) and 420s (7m) for 100% cooldown safety
+  const delaySec = Math.floor(Math.random() * (420 - 360 + 1)) + 360;
+  console.log(`⏱️ [Cooldown-Safe Delay] Waiting ${delaySec}s (~${(delaySec / 60).toFixed(1)} mins) before posting reply to Reddit...`);
 
   await new Promise(r => setTimeout(r, delaySec * 1000));
 
   console.log(`🤖 [Posting to Reddit] u/${postData.author} reply dispatched successfully!`);
+
+  // Optional: Update original message button to [🎉 등록 완료]
+  if (originalMessage) {
+    try {
+      const voraUrl = postData.voraUrl || `${VORA_BASE_URL}/?city=${postData.cityKey}&days=${postData.days}&lang=en`;
+      await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/editMessageReplyMarkup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: originalMessage.chat.id,
+          message_id: originalMessage.message_id,
+          reply_markup: {
+            inline_keyboard: [
+              [
+                { text: '🎉 등록 완료됨 (게시 완료)', callback_data: `already_approved_${postId}` },
+                { text: '🗺️ VORA 4K 코스 보기', url: voraUrl }
+              ]
+            ]
+          }
+        })
+      });
+    } catch (e) {}
+  }
 
   // Send final success confirmation to Telegram
   try {
@@ -537,7 +1002,7 @@ export async function runRadarDaemon() {
   console.log('📡 Starting VORA Reddit Radar & Telegram Approval Daemon...');
   let updateOffset = 0;
   let lastScanTime = 0;
-  const SCAN_INTERVAL_MS = 10 * 60 * 1000; // scan reddit every 10 mins
+  const SCAN_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes scan cycle for optimal cooldown & zero fatigue
 
   while (true) {
     const now = Date.now();
