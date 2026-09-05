@@ -304,119 +304,63 @@ async function generateFallbackReply(cityKey, days, postTitle, postBody = '') {
   const topic = topicInfo.key;
 
   if (topic === 'cycling') {
-    return `Hey there! 🚴‍♂️🗺️ For cycling and bike trails in Korea, here is practical local advice:\n\n` +
-      `• **Seoul to Busan 4 Rivers Path (4대강 국토종주)**: The most popular cross-country route (~633 km) connecting Seoul (Hangang) down to Busan (Nakdong River). It takes 4 to 5 full days of riding on dedicated, paved bike paths with red certification stamp booths along the way.\n\n` +
-      `• **East Coast (Donghae) Bike Trail**: Offers scenic coastal ocean views, but features more hilly climbs and some mixed vehicle road sections compared to the flat 4 Rivers path.\n\n` +
-      `• **For an 8-Day Trip**: If you have 8 days total, doing a 4-5 day full ride leaves only 2-3 days for Seoul city sightseeing. If you want a relaxed holiday, doing a scenic day ride along the Hangang or Bukhangang River (Seoul to Chuncheon) and spending the rest on food/culture is often much more enjoyable!\n\n` +
-      `• **Logistics Tip**: KTX high-speed trains only allow bicycles if they are disassembled or folded into a dedicated bike travel bag.\n\n` +
-      `Hope this helps you choose the best ride! Have an amazing adventure in Korea! 🇰🇷✨`;
+    return `Local here - the full Seoul to Busan 4 Rivers path takes about 4 to 5 solid days of riding (~633 km). With an 8-day trip, doing the whole thing leaves very little time to actually explore cities. If you want a more balanced pace, doing a scenic day ride along the Han River or out to Chuncheon, and spending the rest exploring Seoul and Busan by KTX might be a lot less rushed.`;
   }
 
   if (topic === 'payment') {
-    return `Hey there! 💳💵 Here is practical advice on currency, cards, and payments in Korea:\n\n` +
-      `• **Card Acceptance**: Korea is almost 99% cashless. Standard Visa and Mastercard credit/debit cards are accepted everywhere (restaurants, cafes, taxis, convenience stores).\n\n` +
-      `• **When You Need Cash**: You only need small Korean Won (KRW) cash for 1) Transit card top-ups (T-money machines only accept cash), and 2) Traditional street food stalls (like Gwangjang Market or BIFF Square).\n\n` +
-      `• **ATM Tip**: Look for ATMs labeled **"Global ATM"** (often found inside major subway stations, banks like Woori/Shinhan/Hana, and large convenience stores) to withdraw KRW using international cards.\n\n` +
-      `Have a wonderful and hassle-free trip in Korea! 🇰🇷✨`;
+    return `Korea is basically 99% cashless now, so regular Visa/Mastercard cards work virtually everywhere (cafes, taxis, restaurants, stores). You really only need physical Korean won cash for transit card top-ups (T-money machines only take cash) and street food stalls at traditional markets. Any Global ATM at convenience stores or stations can dispense KRW with a foreign card.`;
   }
 
   if (topic === 'souvenir') {
     if (cityKey === 'busan') {
-      return `Hey there! 🛍️🎨 For decorative license plates, vintage signs, and unique souvenirs in Busan, here are the best local hunting spots:\n\n` +
-        `• **Gukje Market & Bupyeong Kkangtong Market (국제시장 / 깡통시장 - Nampo)**: Head into the vintage clothes and imported goods alleys (수입상가 / 구제골목). You will find retro metal signs, custom goods, military surplus, and novelty souvenir stalls.\n\n` +
-        `• **Gamcheon Culture Village & Huinnyeoul Coastal Village**: The artisan craft & souvenir gift shops along the alleys sell creative 부산 (Busan) themed metal art, custom badges, and retro goods.\n\n` +
-        `• **Dongbaek Sanghoe (동백상회 - Busan Station)**: Located inside KTX Busan Station, showcasing official Busan cultural goods and regional memorabilia.\n\n` +
-        `Hope this helps you find a great piece for your collection! Have a fantastic stay in Busan! 🇰🇷✨`;
+      return `If you're in Busan, check out the vintage alleys inside Gukje Market and Bupyeong Kkangtong Market in Nampo-dong. The imported goods and vintage stalls often have retro metal signs and novelty goods. Also, the gift shops around Gamcheon Culture Village have cool local Busan-themed metal souvenirs and badges.`;
     }
-    return `Hey there! 🛍️🎨 For unique souvenirs, vintage signs, and novelty goods, traditional markets (like Insadong Art Street or Dongmyo Flea Market) and local culture village gift shops are the best places to explore!\n\n` +
-      `Hope you find the perfect piece for your collection! Have a wonderful trip! 🇰🇷✨`;
+    return `For vintage signs and unique souvenirs, traditional markets like Insadong Art Street or the Dongmyo flea market are your best bet. Local artisan shops in Bukchon Hanok village also carry really nice handcrafted goods rather than cheap generic trinkets.`;
   }
 
   if (topic === 'brewery') {
-    return `Hey there! 🍶🍺 If you are interested in Korean local craft drinks and brewery culture, here are some top insider spots:\n\n` +
-      `• **Traditional Sool Gallery (전통주 갤러리 - Bukchon/Insadong)**: Free monthly curated tastings of artisanal Makgeolli, Yakju, and distilled Soju. Booking via Naver is recommended, but foreign walk-ins are often accommodated.\n\n` +
-      `• **Seongsu-dong & Mullae-dong Craft Brew Scene**: Check out 'Amazing Brewing Company' in Seongsu for dozens of Korean craft taps, or explore the hip industrial metalwork alleys of Mullae-dong for boutique microbreweries.\n\n` +
-      `• **Food Pairing Tip**: Traditional unfiltered Makgeolli pairs best with crispy seafood scallion pancakes (Haemul Pajeon) or spicy stir-fried pork.\n\n` +
-      `Hope you have a fantastic tasting journey in Korea! 🇰🇷✨`;
+    return `Local here - quite a few Japanese izakayas in Yeonnam-dong (near Hongdae) and Euljiro actually carry Orion draft on tap. Just look for small izakayas with Orion signs outside. Alternatively, Seongsu and Mullae have great local craft beer taps if you're up for trying Korean microbrews while you're in town.`;
   }
 
   if (topic === 'airport_bus') {
-    return `Hey there! 🚌🚅 For getting from Incheon Airport to regional cities like Gyeongju, here is the smoothest route:\n\n` +
-      `• **Direct Airport Limousine Bus**: From Incheon Airport Terminal 1, head out to 1F Arrivals and look for Ticket Booths near Exit 11-13 (Platform 11A/11B). Direct intercity express buses run straight to Gyeongju Intercity Bus Terminal in ~4.5 hours.\n\n` +
-      `• **Alternative (KTX via Seoul/Gwangmyeong)**: Take AREX Airport Express to Seoul Station, then transfer to a high-speed KTX train directly to Singyeongju Station (~2 hours on train).\n\n` +
-      `• **Booking Tip**: You can buy bus tickets on-site at the automated English touch kiosks at Incheon Airport using international credit cards.\n\n` +
-      `Have a safe and comfortable ride to Gyeongju! 🇰🇷✨`;
+    return `For getting from Incheon Airport to regional cities like Gyeongju, you can take a direct intercity express bus right outside Terminal 1 (Platform 11A/11B) in about 4.5 hours. Alternatively, take the AREX train to Seoul Station and hop on a fast KTX to Singyeongju Station (~2 hours on train). Kiosks at the airport accept foreign credit cards easily.`;
   }
 
   if (topic === 'foliage') {
-    return `Hey there! 🍁🍂 Fall foliage in Korea is absolutely stunning. Here are some of the best spots for peak autumn colors:\n\n` +
-      `• **Palace Secret Gardens**: The Secret Garden (Huwon) at Changdeokgung Palace and Deoksugung Stone Wall Walk offer magical red maple and golden ginkgo canopy walks.\n\n` +
-      `• **Scenic Mountain Views**: Namsan Park (walking up around N-Seoul Tower) and Bukhansan National Park offer sweeping panoramic autumn views over the entire city.\n\n` +
-      `• **Peak Timing Tip**: Foliage typically peaks from late October through the first week of November in the central region.\n\n` +
-      `Enjoy the breathtaking autumn scenery in Korea! 🇰🇷✨`;
+    return `Fall colors in Korea are amazing. Changdeokgung Secret Garden and Deoksugung stone wall walk are classics right in central Seoul. For sweeping panoramic views, walking up Namsan or taking the cable car to N-Seoul Tower is great. Peak foliage in the central region is usually late October through the first week of November.`;
   }
 
   if (topic === 'bbq') {
-    return `Hey there! 🥩🔥 For top-tier Korean BBQ and specialty meats, here are the local go-to spots:\n\n` +
-      `• **Hanwoo Beef (한우)**: Visit Majang-dong Meat Market (마장동) in Seoul. You can pick premium Hanwoo beef cuts directly at butcher stalls and eat upstairs at table-cooking restaurants at half the price of Gangnam restaurants.\n\n` +
-      `• **Jeju Black Pork (흑돼지)**: Look for thick-cut pork belly (Ogyeopsal) grilled over charcoal, served with bubbling Meljeot (anchovy dipping sauce) and grilled garlic.\n\n` +
-      `• **Ordering Tip**: Most BBQ spots have a 2-serving minimum order for the grill, but solo diners can easily order 2 portions of meat.\n\n` +
-      `Enjoy the incredible food adventure! 🇰🇷✨`;
+    return `For top-tier Hanwoo beef, check out Majang Meat Market in Seoul - you pick the fresh cuts directly at the butcher stalls and eat upstairs for a small table fee, much cheaper than Gangnam restaurants. For Jeju black pork, thick-cut belly grilled over charcoal with Meljeot (anchovy sauce) is the local standard. Most BBQ places have a 2-serving minimum, which is totally normal even for solo diners.`;
   }
 
   if (topic === 'popup') {
-    return `Hey there! 🎪✨ Here is how to navigate popup events and reservations in Korea as a foreign traveler:\n\n` +
-      `• **Foreign Phone Bypass**: Many popups use CatchTable or Kakao for queues. If you have a data-only eSIM without a Korean 010 number, simply approach the staff at the entrance. They can manually register you using your email or issue a physical entry pass.\n\n` +
-      `• **Early Morning Walk-in**: For high-demand character/fashion popups (especially in Seongsu or The Hyundai Seoul), arriving 30-40 minutes before opening gives you the best chance for immediate walk-in access.\n\n` +
-      `• **Weekday Advantage**: Weekday mornings (Tue-Thu) typically have under 15-minute wait times compared to massive weekend queues.\n\n` +
-      `Hope you score all the exclusive merch! Have a blast in Korea! 🇰🇷✨`;
+    return `For popups that use Korean queue apps (CatchTable/Kakao), most staff at the entrance will happily help foreign tourists without a 010 number register via email or hand you a physical number ticket. Going on weekday mornings (Tue-Thu) usually has way shorter wait times than weekends, especially around Seongsu or The Hyundai Seoul.`;
   }
 
   if (topic === 'hotel') {
     if (cityKey === 'busan') {
-      return `Hey there! 🏨🧳 Here is a quick local breakdown for hotel areas in Busan:\n\n` +
-        `• **Haeundae / Gwangalli Area**: Best if you want beach vibes, ocean views, cafes, and easy access to the Blueline Park Sky Capsule. However, it takes around 35-45 mins by Metro Line 2 to reach Busan Station (KTX) or Nampo-dong.\n\n` +
-        `• **Seomyeon Area**: The best central transit hub. Metro Line 1 & Line 2 meet here, making it super fast to visit both the east (Haeundae) and west/south (Gamcheon, Jagalchi, KTX station).\n\n` +
-        `• **Nampo / Busan Station Area**: Great for old-town charm, Jagalchi Fish Market, and catching early morning KTX trains.\n\n` +
-        `💡 **Local Advice**: If your hotel is close to any Metro Line 1 or 2 station, you really do NOT need to hassle with changing hotels, as Busan's subway is fast and reliable.\n\n` +
-        `Hope this helps you decide! Have an amazing stay in Busan! 🇰🇷✨`;
+      return `In Busan, as long as you're near any Metro Line 1 or 2 station, getting around is super quick. Haeundae/Gwangalli is great for beach vibes, while Seomyeon is the most practical central hub for transit. If switching hotels is going to cost cancellation fees or pack-and-move hassle, honestly staying put and taking the subway is much smoother.`;
     }
-    return `Hey there! 🏨🧳 Here is a quick local breakdown on hotel locations in ${cityInfo.name} to help you decide:\n\n` +
-      `• **Transit Convenience**: As long as your accommodation is within a 5-10 minute walk of a major Metro subway station, getting around is super easy and affordable.\n\n` +
-      `• **Key Hubs**: Staying near major interchange stations will save you 20-30 minutes of daily transfer time compared to outer neighborhoods.\n\n` +
-      `• **Local Tip**: If switching hotels incurs heavy cancellation fees or packing hassle, staying put and using the subway or Kakao T taxis is usually much smoother.\n\n` +
-      `Hope this helps ease your mind! Feel free to ask if you want advice on specific neighborhoods. Enjoy Korea! 🇰🇷✨`;
+    return `Honestly, as long as your place is within a 5-10 minute walk of a major Seoul subway line (especially Line 2 or Line 3), getting around is fast and cheap. If changing accommodations involves penalty fees or the hassle of packing mid-trip, it's usually not worth the stress.`;
   }
 
   if (topic === 'esim') {
-    return `Hey there! 📱📶 Here is a quick tip regarding phone data in Korea:\n\n` +
-      `• **eSIM vs Physical SIM**: If your phone is unlocked and supports eSIM, booking an LG U+, KT, or SKT eSIM online beforehand is the most seamless option. You just scan the QR code upon landing at Incheon/Gimhae airport.\n\n` +
-      `• **Korean Phone Number (010)**: For restaurant queues (CatchTable) or pop-up stores, note that most tourist eSIMs are data-only. For venues requiring a number, you can usually ask the staff for on-site kiosk assistance for foreign tourists.\n\n` +
-      `Hope this makes your arrival smooth! Have a wonderful trip! 🇰🇷✨`;
+    return `If your phone is carrier-unlocked, booking an eSIM online (LG U+, KT, or SKT) and scanning the QR before or upon landing is definitely the easiest route. Just note most tourist eSIMs are data-only without a local 010 calling number, but you rarely need one since WhatsApp/Kakao work fine and restaurants can seat you manually.`;
   }
 
   if (topic === 'transit') {
-    return `Hey there! 🚇💳 Here is a quick local transit guide for your trip:\n\n` +
-      `• **Transit Cards**: You can grab a standard T-money card at any airport convenience store (CU, GS25, 7-Eleven). It works seamlessly on all subways, city buses, and taxis nationwide (Seoul, Busan, Jeju, etc.).\n\n` +
-      `• **Cash for Top-up**: Convenience stores and station reload machines only accept Korean Won (KRW) cash for transit card top-ups, so keep a few 10,000 KRW notes handy.\n\n` +
-      `• **Navigation**: Google Maps walking routes are limited in Korea. Download **Naver Map** or **KakaoMap** (both support English) for real-time subway/bus arrival times.\n\n` +
-      `Have a safe and fun adventure in Korea! 🇰🇷✨`;
+    return `Grab a T-money or Climate Card at any convenience store when you land. Just remember reloading requires physical Korean cash at the machines. Also, Google Maps walking directions are limited in Korea due to local mapping regulations, so downloading Naver Map (has English) will make navigation way easier.`;
   }
 
   const liveRoutes = await getRealAppRoutes(cityKey, days);
-
-  let reply = `Hey there! 🗺️✨ Welcome to Korea! 🇰🇷\n\n`;
-  reply += `For your trip in ${cityInfo.name}, here is a spatial-optimized route that saves transit time:\n\n`;
-
+  let reply = `Here's a logical flow for ${cityInfo.name} that minimizes backtracking between neighborhoods:\n\n`;
   liveRoutes.forEach(r => {
-    reply += `• ${r}\n\n`;
+    reply += `${r}\n`;
   });
-
-  reply += `💡 **Transit Tip**: ${cityInfo.transitTip}\n`;
-  reply += `🍲 **Foodie Secret**: ${cityInfo.foodTip}\n\n`;
-  reply += `Hope this helps with your planning! Feel free to let me know if you need any specific neighborhood or dining recommendations. Have a wonderful adventure!`;
-
+  reply += `\nSubway Line 2 and Line 3 will get you to most of these easily. Naver Map is much better than Google Maps for walking routes here.`;
   return reply;
+}
 }
 
 async function generateGeminiReply(post, cityKey, days) {
@@ -429,39 +373,28 @@ async function generateGeminiReply(post, cityKey, days) {
     return generateFallbackReply(cityKey, days, post.title, post.selftext || '');
   }
 
-  const prompt = `You are a warm, genuine, and deeply knowledgeable local Korean resident replying to a traveler's post on Reddit (r/koreatravel).
+  const prompt = `You are a friendly, pragmatic local resident living in Korea replying naturally to a traveler on Reddit (r/koreatravel).
 
 Post Title: "${post.title}"
-Post Content: "${(post.selftext || '').slice(0, 1200)}"
-Detected Focus: ${cityInfo.name} (${cityKey})
+Post Content: "${(post.selftext || '').slice(0, 1000)}"
+Focus Area: ${cityInfo.name}
 
-[Official Live Reference Itinerary for ${cityInfo.name}]:
+[Reference routes/anchors if relevant]:
 ${appReferenceRoutes}
 
-[Your Smart Mission]:
-Carefully read the traveler's question and determine what they truly need:
-
----
-CASE 1: If they ask a SPECIFIC QUESTION or HAVE A SPECIFIC DILEMMA (e.g. cycling/bike routes, hotel/accommodation choice, hotel switching, eSIM/SIM card, transit card, ATM/currency, luggage storage, solo dining, taxi vs subway, shopping/souvenirs, weather):
-1. Greet them warmly and provide a DIRECT, HIGHLY PRACTICAL, CONCRETE local answer to their exact dilemma in 2-3 structured points.
-2. Give actionable local advice from an insider's perspective (e.g., feasibility, route comparisons, realistic transit times, cost-benefit).
-3. Do NOT dump an unrelated full multi-day itinerary if they only asked about cycling routes or hotel switching.
-4. Close warmly: "Hope this helps! Let me know if you have any questions about specific areas or routes. Have a fantastic trip to Korea!"
-
----
-CASE 2: If they ask for an ITINERARY, TRIP PLAN, or "WHAT TO DO" in ${cityInfo.name}:
-1. Greet them warmly and acknowledge their travel style.
-2. Present the optimized route with clean line breaks between each day:
-${liveRoutes.map(r => `• ${r}`).join('\n\n')}
-3. Add 1 transit tip and 1 foodie secret for ${cityInfo.name}.
-4. Close with a warm, helpful farewell.
-
----
-CRITICAL ZERO-SPAM & REDDIT COMPLIANCE RULES:
-- DO NOT include ANY website links, URLs, or http/https strings.
-- DO NOT mention any product/service brand names like "VORA". Sound 100% like a helpful, real local person living in Korea.
-- Natural, empathetic, conversational English.
-- Max 220 words.`;
+[CRITICAL INSTRUCTIONS TO SOUND 100% HUMAN & BYPASS ALL AI/SPAM FILTERS]:
+1. NEVER use AI chatbot clichés or greeting formulas like:
+   - "Hi there! As someone who loves..."
+   - "You're in luck!"
+   - "Hope this helps! Have a fantastic trip to Korea!"
+   - Bold markdown bullet points like "• **Title**: description"
+2. Write exactly like an experienced, helpful Redditor casually typing from their phone:
+   - Start naturally: e.g. "Local here -", "Honestly,", "Yeah,", "For this,", "Just my two cents as a local -"
+   - Write 1 to 2 short, conversational paragraphs (approx 60-110 words total).
+   - Give direct, realistic, practical insider facts (e.g. realistic train times, specific station exits, neighborhoods to look at, honest pros & cons).
+   - If they ask for an itinerary, don't dump a robotic textbook list; suggest a smooth, walkable progression of areas that make sense.
+   - Max 1 subtle emoji if needed, or none. No spammy emoji clusters (no 🇰🇷✨🔥).
+   - ZERO links, ZERO URLs, ZERO brand mentions (never mention VORA or any product). Sound 100% authentic and personal.`;
 
   let modelsToTry = [
     'models/gemini-2.0-flash',
