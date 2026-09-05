@@ -361,7 +361,6 @@ async function generateFallbackReply(cityKey, days, postTitle, postBody = '') {
   reply += `\nSubway Line 2 and Line 3 will get you to most of these easily. Naver Map is much better than Google Maps for walking routes here.`;
   return reply;
 }
-}
 
 async function generateGeminiReply(post, cityKey, days) {
   const cityInfo = CITY_SAMPLE_ROUTES[cityKey] || CITY_SAMPLE_ROUTES.seoul;

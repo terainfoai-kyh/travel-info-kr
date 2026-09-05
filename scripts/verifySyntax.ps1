@@ -1,9 +1,14 @@
 # Pre-Push Zero Defect Syntax & AST Verifier
 param (
-    [string]$TargetDir = "src"
+    [string[]]$TargetDirs = @("src", "scripts")
 )
 
-$files = Get-ChildItem -Path $TargetDir -Recurse -Include *.jsx, *.js
+$files = @()
+foreach ($dir in $TargetDirs) {
+    if (Test-Path $dir) {
+        $files += Get-ChildItem -Path $dir -Recurse -Include *.jsx, *.js
+    }
+}
 $errorCount = 0
 
 Write-Host "=== Starting Pre-Push Zero-Defect Code Verification ===" -ForegroundColor Cyan
@@ -11,6 +16,15 @@ Write-Host "=== Starting Pre-Push Zero-Defect Code Verification ===" -Foreground
 foreach ($file in $files) {
     $content = Get-Content -Path $file.FullName -Raw
     $relPath = $file.FullName.Replace((Get-Location).Path, "")
+
+    # 0. AST Syntax Check for standard .js files using node --check
+    if ($file.Extension -eq ".js") {
+        $checkResult = & node --check $file.FullName 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host " [SYNTAX COMPILATION ERROR] in $relPath : $checkResult" -ForegroundColor Red
+            $errorCount++
+        }
+    }
 
     # 1. Check duplicate useState declarations
     $stateMatches = [regex]::Matches($content, 'const\s+\[\s*(\w+)\s*,\s*(\w+)\s*\]\s*=\s*useState')
