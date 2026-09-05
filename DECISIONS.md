@@ -4,22 +4,25 @@
 
 ---
 
-## 🏛️ [★ Golden Checkpoint] 2026-09-05 제미나이(Gemini) 실시간 AI 직결 + 자전거/국토종주·기념품·결제 15대 전문 템플릿 & 초신선 레이더 전수 안착
+## 🏛️ [★ Golden Checkpoint] 2026-09-05 레딧 레이더 완전체 복원 & 운영(travel-info-kr) 전용 24/7 클라우드 서버리스 가동 안착
 
 ### 1. 금일 완성된 핵심 업적 (Accomplished)
-- **🧠 [제미나이(Gemini) AI 로컬 환경 직결 및 모델 자동 탐색(Dynamic Model Discovery)] (`.env`, `scripts/redditTelegramRadar.js`)**:
-  - 선배님의 정품 제미나이 API 키를 로컬 `.env` 파일에 바인딩 완료.
-  - 최신 Google Generative Language REST API 규격에 맞춰 `models/` 접두사 경로 및 `x-goog-api-key` 헤더를 완벽 연동하고, 활성 모델을 실시간 탐색하여 질문자의 뉘앙스(뉴질랜드 40대 남성, 8일 여행, 자전거 종주 코스 고민 등)를 100% 반영한 고품질 원어민 자연어 답변 자동 합성.
-- **🚴‍♂️ [15대 실전 시맨틱 카테고리 매트릭스 확장] (`scripts/redditTelegramRadar.js`)**:
-  - `cycling` (자전거/4대강 633km 국토종주 vs 동해안 자전거길 비교, 8일 일정 배분, KTX 자전거 적재 팁)
-  - `souvenir` (부산 국제시장 구제골목, 깡통시장 수입상가, 감천/흰여울 소품샵, 부산역 동백상회)
-  - `payment` (신용카드 99% 사용 환경, T-money/길거리 음식 현금 필요성, Global ATM 출금 팁)
-  - `bbq`, `foliage`, `brewery`, `popup`, `hotel`, `esim`, `transit`, `luggage`, `weather`, `food`, `itinerary`
-- **🔥 [초신선 최신순 정렬 (Strict Timestamp Sorting) & 6시간 신선도 컷오프]**:
-  - `created_utc` 타임스탬프 기준 완전 내림차순(Newest-First) 정렬로 5분~1시간 이내 최신 글 1순위 포착.
-  - 6시간 이상 지난 오래된 글 100% 자동 스킵하여 1등 첫 댓글(First Responder) 선점 및 Upvote 획득률 극대화.
+- **💎 [원본 완전체 레이더 엔진 100% 복원 및 통합] (`scripts/redditTelegramRadar.js`)**:
+  - 다른 컴퓨터에서 올린 `original-work` 브랜치의 최신 원본 소스(1,028줄)를 안전하게 병합 완료.
+  - **14대 주제별 지능형 1:1 맞춤 답변 엔진 (`detectTopic`)**: 자전거 국토종주(4대강 vs 동해안), 결제/카드/WOWPASS, 소품/기념품/빈티지 마켓, 로컬 브루어리, 공항 리무진, 단풍 명소, 한우/흑돼지, 팝업스토어 현장 예약, 호텔 권역 비교, eSIM, 대중교통 등 질문 내용에 정확히 부합하는 실전 꿀팁 자동 합성.
+  - **3대 인라인 버튼 완전체 레이아웃**:
+    1. `[ 💬 레딧 질문 글 바로가기 (댓글 등록) ]` (원문 URL 링크)
+    2. `[ 🚀 전자동 등록 승인 (2분 텀) ]` (텔레그램 콜백 승인)
+    3. `[ 🗺️ VORA 4K 코스 보기 ]` (공식 도메인 `https://koreatravel.cc` 직결)
+  - **텔레그램 실시간 승인 콜백 리스너 & UI 실시간 전환**: 버튼 클릭 즉시 `[✅ 승인 접수됨 (3~5분 텀 대기 중)]`으로 버튼이 교체되며, 안전 버퍼를 두고 레딧에 자동 게시.
+- **☁️ [24/7 클라우드 서버리스 가동 (PC/노트북 무의존)] (`.github/workflows/reddit_radar.yml`)**:
+  - GitHub Actions 10분 주기(`cron: '*/10 * * * *'`) 스케줄러를 가동하여, 선배님이 노트북을 켜둘 필요 없이 클라우드 가상 서버가 24시간 365일 무중단 감시 및 발송.
+- **🛡️ [개발-운영 동시 실행 100% 원천 차단 가드레일]**:
+  - 워크플로우에 `if: github.repository == 'terainfoai-kyh/travel-info-kr'` 조건을 탑재하여, 개발 레포(`travelkorea_2`)에서는 1초 만에 `Skipped` 처리되고 **오직 운영 저장소(`travel-info-kr`)에서만 단독 1회 실행**되도록 안전망 완성.
+- **🚀 운영(`origin`) 및 개발(`dev-remote`) 동기화 배포 완료**:
+  - `origin/main` (`travel-info-kr.git`): 커밋 `385ea22` 반영 완료.
+  - `dev-remote/main` (`travelkorea_2.git`): 커밋 `385ea22` 반영 완료.
 - **배포 전 정상 소스 100% 사전 검증 완료**: `verifySyntax.ps1` 통과 (`[ZERO DEFECT PASSED]`).
-- **24/7 백그라운드 무중단 데몬 안정 가동 중** (`task-743`).
 
 ---
 
