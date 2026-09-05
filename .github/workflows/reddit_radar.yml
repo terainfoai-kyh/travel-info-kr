@@ -1,0 +1,42 @@
+name: VORA 24/7 Reddit Radar Daemon (Cloud Serverless)
+
+on:
+  schedule:
+    # Run every 10 minutes 24/7 in the cloud
+    - cron: '*/10 * * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+jobs:
+  scan-reddit-and-alert:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # Cache seen posts across runs to prevent duplicates
+      - name: Restore Seen Posts Cache
+        uses: actions/cache@v4
+        with:
+          path: scripts/.seen_reddit_posts.json
+          key: seen-posts-${{ github.run_id }}
+          restore-keys: |
+            seen-posts-
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline || npm install
+
+      - name: Run Radar Scan (1 Post Limit per Run)
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY || 'AQ.Ab8RN6IVJdGHWrSeODhQlsVer2F_Qv5918v1aoWjc42Qi1xjRw' }}
+          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY || 'AQ.Ab8RN6IVJdGHWrSeODhQlsVer2F_Qv5918v1aoWjc42Qi1xjRw' }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN || '8862336937:AAGjolvwXh3BEBrLa1PMWFHLDu2ipcf90D0' }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID || '8955008233' }}
+          VORA_BASE_URL: 'https://koreatravel.cc'
+        run: node scripts/redditTelegramRadar.js
