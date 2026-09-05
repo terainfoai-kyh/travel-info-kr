@@ -8,6 +8,8 @@ on:
 
 jobs:
   scan-reddit-and-alert:
+    # 🛡️ 중복 실행 원천 차단: 오직 운영 저장소(travel-info-kr)에서만 단독 실행, 개발 레포는 100% 자동 스킵
+    if: github.repository == 'terainfoai-kyh/travel-info-kr'
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
