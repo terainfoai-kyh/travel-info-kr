@@ -4,6 +4,10 @@ on:
   schedule:
     # Run every 10 minutes 24/7 in the cloud
     - cron: '*/10 * * * *'
+  push:
+    paths:
+      - 'scripts/redditTelegramRadar.js'
+      - '.github/workflows/reddit_radar.yml'
   workflow_dispatch: # Allows manual trigger from GitHub UI
 
 jobs:

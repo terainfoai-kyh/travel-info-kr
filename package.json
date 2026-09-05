@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
-    "deploy:dev": "vite build && npx wrangler pages deploy dist --project-name=travelkorea-dev --commit-dirty=true"
+    "deploy:dev": "vite build && npx wrangler pages deploy dist --project-name=travelkorea-dev --commit-dirty=true",
+    "radar:scan": "node scripts/redditTelegramRadar.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

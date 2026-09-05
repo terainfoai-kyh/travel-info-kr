@@ -31,9 +31,9 @@ try {
   }
 } catch {}
 
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '8862336937:AAGjolvwXh3BEBrLa1PMWFHLDu2ipcf90D0';
-const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || '8955008233';
-const VORA_BASE_URL = process.env.VORA_BASE_URL || 'https://koreatravel.cc';
+const TELEGRAM_BOT_TOKEN = (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_BOT_TOKEN.trim()) || '8862336937:AAGjolvwXh3BEBrLa1PMWFHLDu2ipcf90D0';
+const TELEGRAM_CHAT_ID = (process.env.TELEGRAM_CHAT_ID && process.env.TELEGRAM_CHAT_ID.trim()) || '8955008233';
+const VORA_BASE_URL = (process.env.VORA_BASE_URL && process.env.VORA_BASE_URL.trim()) || 'https://koreatravel.cc';
 const SEEN_POSTS_FILE = path.join(__dirname, '.seen_reddit_posts.json');
 
 // Localized sample itineraries for instant fallback generation
@@ -201,7 +201,8 @@ function extractDays(text = '') {
   return 3;
 }
 
-const GEMINI_API_KEY = (process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '').trim();
+const DEFAULT_GEMINI_KEY = 'AQ.Ab8RN6IVJdGHWrSeODhQlsVer2F_Qv5918v1aoWjc42Qi1xjRw';
+const GEMINI_API_KEY = (process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || process.env.GOOGLE_API_KEY || DEFAULT_GEMINI_KEY).trim() || DEFAULT_GEMINI_KEY;
 
 async function getRealAppRoutes(cityKey, days) {
   const cityNamesMap = {
@@ -708,10 +709,36 @@ export async function runRadarOnce() {
           }
         }
       } catch (e) {
-        // Fallback to JSON
+        // Fallback to Gateway / JSON
       }
 
-      // 2. If RSS failed, try JSON endpoint
+      // 2. 🛡️ Cloud Gateway Fallback (Bypasses Cloud/Datacenter IP 403 Forbidden bans)
+      if (items.length === 0) {
+        try {
+          const resGateway = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(`https://www.reddit.com/r/${sub}/new.rss`)}`);
+          if (resGateway.ok) {
+            const gdata = await resGateway.json();
+            if (gdata.status === 'ok' && Array.isArray(gdata.items)) {
+              items = gdata.items.map(it => {
+                const id = (it.guid || '').replace(/^t3_/, '') || (it.link?.match(/comments\/([a-z0-9]+)/i) || [])[1];
+                let selftext = it.description || it.content || '';
+                selftext = selftext.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/<[^>]+>/g, ' ').trim();
+                const author = (it.author || '').replace(/^\/u\//, '').replace(/^u\//, '') || 'traveler';
+                const link = it.link || '';
+                const permalink = link.replace('https://www.reddit.com', '');
+                let created_utc = Math.floor(Date.now() / 1000);
+                if (it.pubDate) {
+                  const parsedTime = new Date(it.pubDate + (it.pubDate.includes('Z') || it.pubDate.includes('+') ? '' : ' UTC')).getTime();
+                  if (!isNaN(parsedTime)) created_utc = Math.floor(parsedTime / 1000);
+                }
+                return { id, title: it.title || '', author, permalink, selftext, subreddit: sub, created_utc };
+              }).filter(p => p.id && p.title);
+            }
+          }
+        } catch (e) {}
+      }
+
+      // 3. If Gateway failed, try JSON endpoint
       if (items.length === 0) {
         try {
           const resJson = await fetch(`https://www.reddit.com/r/${sub}/new.json?limit=25`, {
