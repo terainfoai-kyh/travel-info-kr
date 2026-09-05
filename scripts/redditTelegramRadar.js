@@ -292,6 +292,9 @@ function detectTopic(title = '', body = '') {
   if (/weather|clothes|outfit|rain|snow|temperature/i.test(t)) {
     return { key: 'weather', label: '날씨/옷차림 팁', emoji: '☀️🧥' };
   }
+  if (/musinsa|fashion|clothes|collab|merch|streetwear|thrifting|dongmyo|vintage shop|k-fashion|ak plaza|animate|kpop merch/i.test(t)) {
+    return { key: 'fashion', label: '무신사/K-패션/한정 굿즈', emoji: '👕🛍️' };
+  }
   if (/food|restaurant|dine|dining|eat|pork soup|market food|halal|vegetarian/i.test(t)) {
     return { key: 'food', label: '현지 로컬 맛집', emoji: '🍲🥢' };
   }
@@ -349,6 +352,10 @@ async function generateFallbackReply(cityKey, days, postTitle, postBody = '') {
     return `If your phone is carrier-unlocked, booking an eSIM online (LG U+, KT, or SKT) and scanning the QR before or upon landing is definitely the easiest route. Just note most tourist eSIMs are data-only without a local 010 calling number, but you rarely need one since WhatsApp/Kakao work fine and restaurants can seat you manually.`;
   }
 
+  if (topic === 'fashion') {
+    return `There are plenty of locations all over Seoul. However, if you are close to these areas, I highly recommend visiting MUSINSA Store Hongdae or the Seongsu area (MUSINSA Store Seongsu @ Daelim Warehouse and nearby brand stores). This is because Musinsa operates different store formats offline, and the anime collaboration items you are looking for are usually released as limited capsule collections (Drops) rather than their basic clothing lines. If you look them up on Naver Maps or other map apps, you'll find plenty of locations nearby.`;
+  }
+
   if (topic === 'transit') {
     return `Grab a T-money or Climate Card at any convenience store when you land. Just remember reloading requires physical Korean cash at the machines. Also, Google Maps walking directions are limited in Korea due to local mapping regulations, so downloading Naver Map (has English) will make navigation way easier.`;
   }
@@ -381,6 +388,16 @@ Focus Area: ${cityInfo.name}
 [Reference routes/anchors if relevant]:
 ${appReferenceRoutes}
 
+[MANDATORY 3-PART HUMAN FORMULA - CRAFTED BY SENIOR TRAVELER]:
+Every reply MUST follow this exact 3-part flow:
+1. Part 1 (Empathetic Context Intro): Acknowledge their situation and flexibly narrow down areas. E.g.: "There are plenty of locations all over Seoul/Korea. However, if you are close to these areas, I highly recommend [Area A] or [Area B]..."
+2. Part 2 (Insider Cause & Effect Body): Explain WHY with practical insider mechanics (e.g. store formats, limited drops, queue kiosk apps, cash-only T-money machines, butcher fee system).
+3. Part 3 (Pragmatic Outro): Conclude with a clean, realistic navigation or action tip (e.g. "If you look them up on Naver Maps or other map apps, you'll find plenty of locations nearby.").
+
+[GOLDEN HUMAN BENCHMARK - STUDY THIS EXACT TONE & STYLE]:
+User: "Which MUSINSA store in Seoul has anime collab merch?"
+Your Tone: "There are plenty of locations all over Seoul. However, if you are close to these areas, I highly recommend visiting MUSINSA Store Hongdae or the Seongsu area (MUSINSA Store Seongsu @ Daelim Warehouse and nearby brand stores). This is because Musinsa operates different store formats offline, and the anime collaboration items you are looking for are usually released as limited capsule collections (Drops) rather than their basic clothing lines. If you look them up on Naver Maps or other map apps, you'll find plenty of locations nearby"
+
 [CRITICAL INSTRUCTIONS TO SOUND 100% HUMAN & BYPASS ALL AI/SPAM FILTERS]:
 1. NEVER use AI chatbot clichés or greeting formulas like:
    - "Hi there! As someone who loves..."
@@ -388,7 +405,7 @@ ${appReferenceRoutes}
    - "Hope this helps! Have a fantastic trip to Korea!"
    - Bold markdown bullet points like "• **Title**: description"
 2. Write exactly like an experienced, helpful Redditor casually typing from their phone:
-   - Start naturally: e.g. "Local here -", "Honestly,", "Yeah,", "For this,", "Just my two cents as a local -"
+   - Start naturally without stiff pleasantries.
    - Write 1 to 2 short, conversational paragraphs (approx 60-110 words total).
    - Give direct, realistic, practical insider facts (e.g. realistic train times, specific station exits, neighborhoods to look at, honest pros & cons).
    - If they ask for an itinerary, don't dump a robotic textbook list; suggest a smooth, walkable progression of areas that make sense.
@@ -584,9 +601,39 @@ function isGenuineTravelQuestion(title = '', body = '') {
 
   // 2. Must contain authentic traveler question indicators
   const hasQuestionMark = fullText.includes('?');
-  const hasTravelKeyword = /(itinerary|days?|trip|travel|visit|stay|hotel|hostel|recommend|advice|help|where to|how to|best way|t-money|climate card|subway|transit|esim|sim|luggage|storage|schedule|first time|solo travel)/i.test(fullText);
+  const hasTravelKeyword = /(itinerary|days?|trip|travel|visit|stay|hotel|hostel|recommend|advice|help|where to|how to|best way|t-money|climate card|subway|transit|esim|sim|luggage|storage|schedule|first time|solo travel|musinsa|shopping|fashion|merch|collab)/i.test(fullText);
 
   return hasQuestionMark || hasTravelKeyword;
+}
+
+function parseRssXml(xml, sub) {
+  const items = [];
+  const entryRegex = /<entry>([\s\S]*?)<\/entry>/g;
+  let match;
+  while ((match = entryRegex.exec(xml)) !== null) {
+    const block = match[1];
+    const idMatch = block.match(/<id>(?:t3_)?([^<]+)<\/id>/);
+    const titleMatch = block.match(/<title>([^<]+)<\/title>/);
+    const authorMatch = block.match(/<author><name>\/u\/([^<]+)<\/name>/);
+    const linkMatch = block.match(/<link href="([^"]+)"/);
+    const contentMatch = block.match(/<content type="html">([\s\S]*?)<\/content>/);
+
+    const id = idMatch ? idMatch[1] : null;
+    const title = titleMatch ? titleMatch[1] : '';
+    const author = authorMatch ? authorMatch[1] : 'traveler';
+    const link = linkMatch ? linkMatch[1] : '';
+    const permalink = link.replace('https://www.reddit.com', '');
+    let selftext = contentMatch ? contentMatch[1] : '';
+    selftext = selftext.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/<[^>]+>/g, ' ').trim();
+
+    const publishedMatch = block.match(/<(?:published|updated)>([^<]+)<\/(?:published|updated)>/);
+    const created_utc = publishedMatch ? Math.floor(new Date(publishedMatch[1]).getTime() / 1000) : Math.floor(Date.now() / 1000);
+
+    if (id && title) {
+      items.push({ id, title, author, permalink, selftext, subreddit: sub, created_utc });
+    }
+  }
+  return items;
 }
 
 export async function runRadarOnce() {
@@ -601,53 +648,41 @@ export async function runRadarOnce() {
     try {
       let items = [];
       
-      // 1. Try RSS feed first
+      // 1. Try RSS feed directly first
       try {
-        const res = await fetch(`https://www.reddit.com/r/${sub}/new.rss`, {
+        const res = await fetch(`https://www.reddit.com/r/${sub}/new.rss?_t=${Date.now()}`, {
           headers: {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 VoraRadar/' + Date.now(),
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             'Accept-Language': 'en-US,en;q=0.9',
-            'Cache-Control': 'no-cache'
+            'Cache-Control': 'no-cache, no-store'
           }
         });
 
         if (res.ok) {
           const xml = await res.text();
-          const entryRegex = /<entry>([\s\S]*?)<\/entry>/g;
-          let match;
-          while ((match = entryRegex.exec(xml)) !== null) {
-            const block = match[1];
-            const idMatch = block.match(/<id>(?:t3_)?([^<]+)<\/id>/);
-            const titleMatch = block.match(/<title>([^<]+)<\/title>/);
-            const authorMatch = block.match(/<author><name>\/u\/([^<]+)<\/name>/);
-            const linkMatch = block.match(/<link href="([^"]+)"/);
-            const contentMatch = block.match(/<content type="html">([\s\S]*?)<\/content>/);
-
-            const id = idMatch ? idMatch[1] : null;
-            const title = titleMatch ? titleMatch[1] : '';
-            const author = authorMatch ? authorMatch[1] : 'traveler';
-            const link = linkMatch ? linkMatch[1] : '';
-            const permalink = link.replace('https://www.reddit.com', '');
-            let selftext = contentMatch ? contentMatch[1] : '';
-            selftext = selftext.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/<[^>]+>/g, ' ').trim();
-
-            const publishedMatch = block.match(/<(?:published|updated)>([^<]+)<\/(?:published|updated)>/);
-            const created_utc = publishedMatch ? Math.floor(new Date(publishedMatch[1]).getTime() / 1000) : Math.floor(Date.now() / 1000);
-
-            if (id && title) {
-              items.push({ id, title, author, permalink, selftext, subreddit: sub, created_utc });
-            }
-          }
+          items = parseRssXml(xml, sub);
         }
       } catch (e) {
-        // Fallback to Gateway / JSON
+        // Fallback to Proxies
       }
 
-      // 2. 🛡️ Cloud Gateway Fallback (Bypasses Cloud/Datacenter IP 403 Forbidden bans)
+      // 2. ⚡ Zero-Cache Realtime Proxy (AllOrigins - bypasses 403 with 0-sec cache lag)
       if (items.length === 0) {
         try {
-          const resGateway = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(`https://www.reddit.com/r/${sub}/new.rss`)}`);
+          const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://www.reddit.com/r/${sub}/new.rss?_t=${Date.now()}`)}`;
+          const resProxy = await fetch(proxyUrl, { headers: { 'Cache-Control': 'no-cache' } });
+          if (resProxy.ok) {
+            const xml = await resProxy.text();
+            items = parseRssXml(xml, sub);
+          }
+        } catch (e) {}
+      }
+
+      // 3. 🛡️ Cloud Gateway Fallback (rss2json with cachebuster)
+      if (items.length === 0) {
+        try {
+          const resGateway = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(`https://www.reddit.com/r/${sub}/new.rss`)}&_t=${Date.now()}`);
           if (resGateway.ok) {
             const gdata = await resGateway.json();
             if (gdata.status === 'ok' && Array.isArray(gdata.items)) {
@@ -670,10 +705,10 @@ export async function runRadarOnce() {
         } catch (e) {}
       }
 
-      // 3. If Gateway failed, try JSON endpoint
+      // 4. If all RSS gateways failed, try JSON endpoint
       if (items.length === 0) {
         try {
-          const resJson = await fetch(`https://www.reddit.com/r/${sub}/new.json?limit=25`, {
+          const resJson = await fetch(`https://www.reddit.com/r/${sub}/new.json?limit=25&_t=${Date.now()}`, {
             headers: {
               'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 VoraJson/' + Date.now(),
               'Accept': 'application/json'

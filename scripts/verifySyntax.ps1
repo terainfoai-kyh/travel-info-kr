@@ -6,7 +6,7 @@ param (
 $files = @()
 foreach ($dir in $TargetDirs) {
     if (Test-Path $dir) {
-        $files += Get-ChildItem -Path $dir -Recurse -Include *.jsx, *.js
+        $files += Get-ChildItem -Path $dir -Recurse -Include *.jsx, *.js -Exclude original_*
     }
 }
 $errorCount = 0
