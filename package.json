@@ -11,6 +11,7 @@
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
     "deploy:dev": "vite build && npx wrangler pages deploy dist --project-name=travelkorea-dev --commit-dirty=true",
+    "deploy:prod": "powershell.exe -ExecutionPolicy Bypass -File .\\scripts\\deployProd.ps1",
     "radar:scan": "node scripts/redditTelegramRadar.js"
   },
   "dependencies": {

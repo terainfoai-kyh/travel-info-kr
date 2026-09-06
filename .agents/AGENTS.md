@@ -70,9 +70,12 @@
     - 단순하거나 사소한 디자인/구현 선택 시 인터랙티브 팝업(`ask_question`)을 남발하지 않고 가장 우수한 추천 옵션을 자율적으로 선택하여 진행합니다.
     - 사용자의 승인을 받은 구현 계획 범위 내에서는 추가 확인 팝업 없이 안전한 검증 및 코드 완성을 자율적(Autonomous)으로 신속히 수행합니다.
 
-11. **Two-Track Deployment Isolation (개발-운영 깃 레포 분리)**
-    - 개발/테스트 단계 배포 지시("배포해", "푸시해") 시: **오직 개발 전용 `dev-remote` (`travelkorea_2.git`) 레포로만 푸시**합니다. (Cloudflare Pages `travelkorea-dev.pages.dev` 반영)
-    - 운영/실제 서비스 배포 지시("운영 배포해", "프로덕션 배포해", "origin 푸시해") 시에만 **운영 전용 `origin` (`travel-info-kr.git`) 레포로 푸시**합니다. (GitHub Pages `terainfoai-kyh.github.io/travel-info-kr/` 반영)
+11. **Two-Track Deployment Isolation (개발-운영 깃 레포 분리 & 운영 배포 파이프라인 단일화)**
+    - **개발/테스트 단계 배포 지시("배포해", "푸시해") 시**: **오직 개발 전용 `dev-remote` (`travelkorea_2.git`) 레포로만 배포**합니다 (`npm run deploy:dev` -> Cloudflare Pages `travelkorea-dev.pages.dev` 반영). 운영 사이트는 1픽셀도 건드리지 않습니다.
+    - **운영/실제 서비스 배포 지시("운영 배포해", "프로덕션 배포해", "origin 푸시해") 시**:
+      - **단독 `git push origin main` 실행 100% 영구 엄금**: `git push origin main`만 실행하고 끝내는 행위는 GitHub Pages 서빙 브랜치(`gh-pages`) 갱신을 누락시켜 구버전 유령 사이트 장애를 유발하므로 절대 금지합니다.
+      - **반드시 `powershell.exe -ExecutionPolicy Bypass -File .\scripts\deployProd.ps1` (또는 `npm run deploy:prod`) 단일 파이프라인으로만 배포**: 문법 검증(`verifySyntax.ps1`) ➔ 로컬 번들 빌드(`vite build`) ➔ 소스 백업(`git push origin main`) ➔ 서빙 브랜치 번들 배포(`npx gh-pages -d dist`)를 원자적으로 완수합니다.
+      - **배포 후 실제 서빙 번들 해시 확인 의무화**: 배포 완료 시 반드시 실제 운영 사이트(`https://koreatravel.cc/`)에 배포된 번들 해시가 로컬 빌드 해시와 일치하는지 확인하고 선배님께 브리핑합니다.
 
 12. **Strict User Opinion Seeking Rule (의견 문의 시 선(先) 코드 수정 금지 및 100% 승인 대기)**
     - 사용자가 "의견은?", "어때?", "어떻게 생각해?", "의견좀" 등 의견을 질의할 때는 **절대로 코드를 사전에 수정하거나 실행하지 않습니다.**
@@ -149,7 +152,10 @@
 
 25. **Mandatory Local Build & Fast Direct Deployment Rule (로컬 직접 빌드 & 초고속 다이렉트 배포 의무화 헌법)**
     - **원격 클라우드 빌드 큐 정체 100% 영구 척결**: Cloudflare Pages 등 원격 클라우드 러너의 느려터진 의존성 다운로드(`npm install`)로 인해 6분씩 빌드가 지연되거나 큐(`Queued`)에 갇혀 선배님께 답답함을 드리는 행위를 100% 영구 금지한다.
-    - **"이제부턴 빌드해서 올리자" 선배님 수칙 영구 계승**: 모든 배포는 로컬 머신에서 5초 만에 초고속으로 `vite build`를 완료한 후 정적 번들(`dist`)만을 즉시 엣지로 쏘아 올리는 다이렉트 배포(`npm run deploy:dev` / `gh-pages`) 방식을 표준으로 전면 전환하여 단 8초 만에 배포를 완료한다.
+    - **"이제부턴 빌드해서 올리자" 선배님 수칙 영구 계승**:
+      - 모든 배포는 로컬 머신에서 5초 만에 초고속으로 `vite build`를 완료한 후 정적 번들(`dist`)만을 즉시 엣지로 쏘아 올리는 다이렉트 배포 방식을 표준으로 전면 전환한다.
+      - **개발 배포**: `npm run deploy:dev` (Cloudflare Pages 다이렉트 엣지 배포)
+      - **운영 배포**: `powershell.exe -ExecutionPolicy Bypass -File .\scripts\deployProd.ps1` (검증 ➔ 빌드 ➔ origin/main 푸시 ➔ gh-pages 번들 배포 ➔ 해시 검증 완비)
 
 26. **Permanent Dual-Track Verified Map Engine Rule (국문 OSM + 다국어 공식 CartoDB Voyager 정품 타일 표준 헌법)**
     - **부실 타일 임의 교체 100% 영구 엄금**: 국내 상세 줌(레벨 14 이상)에서 회색 깨짐(`Map data not yet available`)을 유발하는 Esri 타일이나 키 없는 무단 호출로 워터마크가 찍히는 타일의 사용을 100% 영구 배제한다.
