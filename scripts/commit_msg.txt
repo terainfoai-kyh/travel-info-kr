@@ -1,1 +1,6 @@
-revert: restore development server code to verified 91de624 state per senior directive
+feat: build chunked background TourAPI loading and 7-day persistent cache
+
+- 1단계: 40개 정예 명소 초광속 수신(0.8s) -> 5일 일정표(30개) 즉시 렌더링
+- 2단계: UI 블로킹 없이 백그라운드 41~100위 비동기 누적 채우기 -> 100개 풀 완성
+- Dual-Layer 7일 영구 캐싱(localStorage + Memory)으로 재방문/재생성 시 0ms 즉시 서빙
+- 헌법 제11조 준수: 1단계 개발 서버(travelkorea-dev) 단독 배포
