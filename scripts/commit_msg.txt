@@ -1,1 +1,1 @@
-docs(decisions): log short-circuit loop termination & 6s bottleneck fix checkpoint
+docs(decisions): record verified live production performance metric (1.41s)
