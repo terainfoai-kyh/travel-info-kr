@@ -1,1 +1,5 @@
-docs(decisions): log senior's 4.5s timeout deployment in DECISIONS.md
+revert: remove 4.5s timeout and restore pure prefetch 100% per senior directive
+
+- Completely removed all AbortSignal.timeout calls from tourApi.js
+- Restored 100% pure background prefetching with zero timeout risks
+- Restored bundle index-CYwATFYc.js exactly matching verified 1.41s golden state
