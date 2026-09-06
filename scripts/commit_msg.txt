@@ -1,6 +1,1 @@
-fix: cap concurrent TourAPI fetches to eliminate 22s lag and enforce min 3 spots per day
-
-- Cap concurrent TourAPI network fetches to max 2 when cityPois pool is rich (>= 15)
-- Enhance core landmark key matching to prevent false negative network refetches
-- Enforce minimum 3 spots guarantee on all days to eliminate 1-spot cutoff distortion on Day 2
-- Pass pre-push zero defect syntax verification [ZERO DEFECT PASSED]
+revert: restore development server code to verified 91de624 state per senior directive

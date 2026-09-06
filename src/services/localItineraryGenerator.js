@@ -419,29 +419,15 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
   // 🌟 Guarantee Genuine TourAPI POI data for all day anchors (Single Preloading Pipeline)
   const anchorKeywordsToFetch = parsedSignatureAnchors.flat().slice(0, 10);
   const fetchPromises = [];
-  const maxNetworkFetches = (cityPois.length >= 15) ? 2 : 5; // ⚡ 이미 풍부한 100개 풀이 있으면 외부 호출 최대 2개로 엄격 제한!
 
   for (const anchorKw of anchorKeywordsToFetch) {
-    if (fetchPromises.length >= maxNetworkFetches) break; // ⚡ 공공데이터포털 10중 동시 요청 병목(22초) 원천 차단!
-
     const synonyms = SYNONYM_MAP[anchorKw] || [anchorKw];
-    const anchorCoreKey = extractCoreLandmarkKey(anchorKw);
     
     // 🎯 [선배님 직강 기본 원칙: 찾았으면 즉시 루프 종료 & 불필요한 탐색 완전 차단]
     let isAlreadyInPool = false;
     for (const syn of synonyms) {
       const normSyn = normalizeTargetString(syn);
-      const synCoreKey = extractCoreLandmarkKey(syn);
-
-      const existsInPool = cityPois.some(p => {
-        const normP = normalizeTargetString(p.title);
-        if (normSyn.length >= 2 && (normP.includes(normSyn) || normSyn.includes(normP))) return true;
-        if (anchorCoreKey && extractCoreLandmarkKey(p.title) === anchorCoreKey) return true;
-        if (synCoreKey && extractCoreLandmarkKey(p.title) === synCoreKey) return true;
-        return false;
-      });
-
-      if (existsInPool) {
+      if (normSyn.length >= 2 && cityPois.some(p => normalizeTargetString(p.title).includes(normSyn))) {
         isAlreadyInPool = true;
         break; // ⚡ 이미 풀에 존재함을 확인했으므로 더 이상 다른 동의어를 비교하지 않고 즉시 종료!
       }
@@ -939,61 +925,43 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
       lastSpotLocation = { lat: nextSpot.lat, lng: nextSpot.lng };
     }
 
-    // 🌟 [최소 3개 스팟 보장 철통 가드] 어떤 이유로든 daySpots.length === 0 이거나 1~2개로 조기 종료된 경우, 미방문 풀에서 3개까지 즉시 보충!
-    if ((daySpots.length === 0 || daySpots.length < 3) && cityPois.length > 0) {
-      const neededCount = 3 - daySpots.length;
-      const unvisitedSupplements = cityPois.filter(p => {
-        const norm = normalizeTargetString(p.title);
-        const core = extractCoreLandmarkKey(p.title);
-        return !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(norm) && !visitedCoreLandmarkKeys.has(core);
-      });
-
-      const fallbackPool = (unvisitedSupplements.length >= neededCount) ? unvisitedSupplements : cityPois;
-      let emCursor = (daySpots.length > 0) ? (currentCursorMinutes || 840) : 570; // 09:30 AM or last cursor
-
-      for (let sIdx = 0; sIdx < neededCount; sIdx++) {
-        const supSpot = fallbackPool[sIdx % fallbackPool.length];
-        if (!supSpot) break;
-
-        const normSup = normalizeTargetString(supSpot.title);
-        const coreSup = extractCoreLandmarkKey(supSpot.title);
-        visitedPoiIds.add(supSpot.id);
-        visitedNormalizedTitles.add(normSup);
-        visitedCoreLandmarkKeys.add(coreSup);
-
-        emCursor += 90; // 1.5h interval
+    // 🌟 [절대 0개 방지 철통 보호막] 어떤 이유로든 daySpots가 비어있다면 cityPois에서 즉시 2~3개 스팟 긴급 배치!
+    if (daySpots.length === 0 && cityPois.length > 0) {
+      const emergencySpots = cityPois.slice(0, 3);
+      let emCursor = 570; // 09:30 AM
+      for (let emIdx = 0; emIdx < emergencySpots.length; emIdx++) {
+        const em = emergencySpots[emIdx];
         const emH = Math.floor(emCursor / 60);
         const emM = emCursor % 60;
         const emTime = isEnglish
           ? (emH < 12 ? `${emH === 0 ? 12 : emH}:${emM.toString().padStart(2, '0')} AM` : `${emH === 12 ? 12 : emH - 12}:${emM.toString().padStart(2, '0')} PM`)
           : (emH < 12 ? `오전 ${emH}:${emM.toString().padStart(2, '0')}` : `오후 ${emH === 12 ? 12 : emH - 12}:${emM.toString().padStart(2, '0')}`);
-
-        let cleanTitle = (supSpot.title || supSpot.name || `${city} 명소`).replace(/대한민국|일대|주변/g, '').trim();
-        const supObj = {
-          id: `sup_${supSpot.id || sIdx}_d${d}_s${daySpots.length + 1}`,
-          contentId: supSpot.contentId || '',
-          title: cleanTitle,
-          name: cleanTitle,
-          category: supSpot.category || (isEnglish ? 'Sightseeing' : '관광명소'),
-          theme: supSpot.theme || (isEnglish ? 'TourAPI Heritage' : '한국관광공사 정품 명소'),
-          description: supSpot.description || supSpot.overview || (isEnglish ? `A representative landmark in ${city}.` : `한국관광공사에 등록된 ${city}의 대표 관광 명소입니다.`),
+        
+        const emObj = {
+          id: `em_${em.id || emIdx}_d${d}_s${emIdx + 1}`,
+          contentId: em.contentId || '',
+          title: em.title || `${city} 대표 명소 ${emIdx + 1}`,
+          name: em.title || `${city} 대표 명소 ${emIdx + 1}`,
+          category: em.category || '관광명소',
+          theme: em.theme || '지역 핵심 힐링 투어',
+          description: em.description || `${city}의 유서 깊은 대표 관광 명소입니다.`,
           bestTime: emTime,
-          photoTip: `📸 ${cleanTitle} 시그니처 포토스팟`,
+          photoTip: `📸 ${em.title || city} 시그니처 포토스팟`,
           signatureItem: `✨ ${city} 로컬 명소 투어`,
-          lat: supSpot.lat || cityMeta.lat,
-          lng: supSpot.lng || cityMeta.lng,
-          address: supSpot.addr1 || supSpot.address || `${city} 일대`,
-          location: supSpot.addr1 || supSpot.address || `${city} 일대`,
+          lat: em.lat || cityMeta.lat,
+          lng: em.lng || cityMeta.lng,
+          address: em.address || `${city} 일대`,
+          location: em.address || `${city} 일대`,
           transitTime: isEnglish ? '15 min transit' : '대중교통 15분',
           transitMinutes: 15,
-          dwellMinutes: 75,
-          rating: supSpot.rating || 4.8,
-          image: supSpot.image || null,
+          dwellMinutes: 90,
+          rating: 4.8,
+          image: em.image || 'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg',
           dataSource: 'EMERGENCY_SAFE_GENUINE'
         };
-
-        daySpots.push(supObj);
-        allGeneratedSpots.push(supObj);
+        daySpots.push(emObj);
+        allGeneratedSpots.push(emObj);
+        emCursor += 105;
       }
     }
 
