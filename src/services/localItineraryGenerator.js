@@ -422,22 +422,30 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
 
   for (const anchorKw of anchorKeywordsToFetch) {
     const synonyms = SYNONYM_MAP[anchorKw] || [anchorKw];
+    
+    // 🎯 [선배님 직강 기본 원칙: 찾았으면 즉시 루프 종료 & 불필요한 탐색 완전 차단]
+    let isAlreadyInPool = false;
     for (const syn of synonyms) {
       const normSyn = normalizeTargetString(syn);
-      const alreadyInPool = cityPois.some(p => normalizeTargetString(p.title).includes(normSyn));
-      if (!alreadyInPool) {
-        const queryWithCity = (syn.includes(city) || city === '전국') ? syn : `${city} ${syn}`;
-        fetchPromises.push(
-          fetchDynamicRealtimeSpots(queryWithCity, lang).catch(() => [])
-        );
-        // 🌟 '기장군' 등 군/구 단위 랜드마크(해동용궁사 등) 완벽 수신을 위한 순수 키워드 병렬 쿼리
-        if (syn !== queryWithCity && syn.length >= 3) {
-          fetchPromises.push(
-            fetchDynamicRealtimeSpots(syn, lang).catch(() => [])
-          );
-        }
+      if (normSyn.length >= 2 && cityPois.some(p => normalizeTargetString(p.title).includes(normSyn))) {
+        isAlreadyInPool = true;
+        break; // ⚡ 이미 풀에 존재함을 확인했으므로 더 이상 다른 동의어를 비교하지 않고 즉시 종료!
       }
     }
+
+    // ⚡ 이미 풀에 존재하면 추가 네트워크 쿼리를 단 1건도 보내지 않고 다음 앵커로 스킵!
+    if (isAlreadyInPool) {
+      continue;
+    }
+
+    // 🌟 풀에 진짜 없는 외곽 랜드마크일 때만, 현재 언어에 최적화된 대표 키워드로 단 1회만 정밀 수신
+    const targetSyn = (lang === 'en')
+      ? (synonyms.find(s => /^[a-zA-Z\s]+$/.test(s)) || anchorKw)
+      : anchorKw;
+    const queryWithCity = (targetSyn.includes(city) || city === '전국') ? targetSyn : `${city} ${targetSyn}`;
+    fetchPromises.push(
+      fetchDynamicRealtimeSpots(queryWithCity, lang).catch(() => [])
+    );
   }
 
   if (fetchPromises.length > 0) {
@@ -582,26 +590,21 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
         const isCommercialOrFood = /(한쿡|식당|음식점|맛집|gs25|cu|세븐일레븐|이마트24|스토어|플래그쉽|직영점|본점|매장)/i.test(p.title);
         if (!notVisited || isCommercialOrFood) continue;
 
-        let score = 0;
+        // ⚡ [선배님 직강 기본 원칙: 100% 일치 명소를 찾았으면 즉시 반환하고 탐색 종료!]
         if (normPTitle === normSyn) {
-          score += 100;
-        } else if (normPTitle.includes(normSyn) || normSyn.includes(normPTitle)) {
-          score += 50;
-        } else {
-          continue;
+          return p;
         }
 
-        // 🌟 순수 대표 관광지 유형 가중치 (+40): 해수욕장, 해변, 블루라인파크, 스카이캡슐, 해동용궁사, 문화마을, 타워, 공원 등
-        if (/(해수욕장|해변|비치|공원|타워|전망대|사찰|절|궁|궁궐|마을|문화마을|케이블카|블루라인|스카이캡슐|유람선|수목원|식물원|오름|폭포|바다|산책로|디피랑|동피랑|해동용궁사|불국사|석굴암|첨성대|동궁과월지|성산일출봉|우도)/i.test(p.title)) {
-          score += 40;
+        if (normPTitle.includes(normSyn) || normSyn.includes(normPTitle)) {
+          let score = 50;
+          if (/(해수욕장|해변|비치|공원|타워|전망대|사찰|절|궁|궁궐|마을|문화마을|케이블카|블루라인|스카이캡슐|유람선|수목원|식물원|오름|폭포|바다|산책로|디피랑|동피랑|해동용궁사|불국사|석굴암|첨성대|동궁과월지|성산일출봉|우도)/i.test(p.title)) {
+            score += 40;
+          }
+          if (/(관광특구|특구|온천|온천센터|사우나|목욕|스파|찜질|헬스|체육)/i.test(p.title)) {
+            score -= 50;
+          }
+          candidates.push({ spot: p, score });
         }
-
-        // 🛡️ 행정구역/특구/부속시설 감점 (-50): 관광특구, 특구, 온천, 온천센터, 사우나, 목욕, 스파 등
-        if (/(관광특구|특구|온천|온천센터|사우나|목욕|스파|찜질|헬스|체육)/i.test(p.title)) {
-          score -= 50;
-        }
-
-        candidates.push({ spot: p, score });
       }
     }
 
