@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Calendar, Share2, Check, MapPin, Sparkles, Navigation, Info, ExternalLink, Clock, CheckCircle2, Trash2, PlusCircle, Bookmark, Printer, Download, Zap, Smartphone, RotateCw, X } from 'lucide-react';
-import { TRANSLATIONS } from '../i18n/translations';
+import { TRANSLATIONS, getLocalizedCityName } from '../i18n/translations';
 import QRCodeModal from './QRCodeModal';
 
 /**

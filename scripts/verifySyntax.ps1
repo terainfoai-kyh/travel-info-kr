@@ -87,6 +87,14 @@ foreach ($file in $files) {
             }
         }
     }
+
+    # 5. Check for unimported critical helper functions (getLocalizedCityName, etc.)
+    if ($content -match '\bgetLocalizedCityName\s*\(') {
+        if (-not ($content -match '\bimport\s+[\s\S]*?\bgetLocalizedCityName\b' -or $content -match '\bfunction\s+getLocalizedCityName\b')) {
+            Write-Host " [UNDECLARED HELPER ERROR]: 'getLocalizedCityName' called without import in $relPath" -ForegroundColor Red
+            $errorCount++
+        }
+    }
 }
 
 # Target file specific check for DesktopMapExplorer.jsx and App.jsx
