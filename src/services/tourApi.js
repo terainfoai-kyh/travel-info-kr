@@ -547,7 +547,7 @@ export async function fetchCityTourApiSpots(city = '서울', lang = 'ko') {
       fetchUrl = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&keyword=${encodeURIComponent(cleanCity)}&arrange=P&numOfRows=100&pageNo=1`;
     }
 
-    const res = await fetch(fetchUrl);
+    const res = await fetch(fetchUrl, { signal: AbortSignal.timeout(4500) });
     if (!res.ok) return [];
     const data = await res.json();
     const itemsRaw = data.response?.body?.items?.item || [];
@@ -592,7 +592,7 @@ export async function fetchCityTourApiSpots(city = '서울', lang = 'ko') {
     if (validSpots.length < 8) {
       try {
         const kwUrl = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&keyword=${encodeURIComponent(cleanCity)}&arrange=P&numOfRows=30&pageNo=1`;
-        const kwRes = await fetch(kwUrl);
+        const kwRes = await fetch(kwUrl, { signal: AbortSignal.timeout(4500) });
         if (kwRes.ok) {
           const kwData = await kwRes.json();
           const kwItems = kwData.response?.body?.items?.item || [];
@@ -675,14 +675,14 @@ export async function fetchDynamicRealtimeSpots(query, lang = 'ko') {
 
   try {
     const searchUrl = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&keyword=${encodeURIComponent(searchKw)}&numOfRows=30&pageNo=1&arrange=P`;
-    let res = await fetch(searchUrl);
+    let res = await fetch(searchUrl, { signal: AbortSignal.timeout(4500) });
     let data = res.ok ? await res.json() : null;
     let itemsRaw = data?.response?.body?.items?.item || [];
 
     // 만약 번역 키워드로 0건이면 원본 키워드로 2차 재시도
     if ((!itemsRaw || (Array.isArray(itemsRaw) && itemsRaw.length === 0)) && searchKw !== cleanQ) {
       const fallbackUrl = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&keyword=${encodeURIComponent(cleanQ)}&numOfRows=30&pageNo=1&arrange=P`;
-      const fallbackRes = await fetch(fallbackUrl);
+      const fallbackRes = await fetch(fallbackUrl, { signal: AbortSignal.timeout(4500) });
       if (fallbackRes.ok) {
         const fallbackData = await fallbackRes.json();
         itemsRaw = fallbackData?.response?.body?.items?.item || [];

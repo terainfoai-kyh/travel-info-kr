@@ -1,1 +1,5 @@
-docs(decisions): record verified live production performance metric (1.41s)
+fix(tourapi): enforce senior's 4.5s safety timeout on all TourAPI network calls
+
+- Add AbortSignal.timeout(4500) to fetchCityTourApiSpots and fetchDynamicRealtimeSpots
+- Immediately aborts hung government API calls after 4.5s to prevent net::ERR_TIMED_OUT
+- Clean fallback to local knowledge pool prevents infinite browser hanging
