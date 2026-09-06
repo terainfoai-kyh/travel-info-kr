@@ -1,10 +1,11 @@
 # scripts/deployProd.ps1 - Mandatory Production Release Pipeline
-# 100% Guaranteed Zero-Defect, Dual-Sync (Source + gh-pages Bundle) Deployment
+# 100% Guaranteed Zero-Defect, Cloudflare Pages Production Direct Deployment (travel-info-kr -> koreatravel.cc)
 
 $ErrorActionPreference = "Stop"
 
 Write-Host "==========================================================" -ForegroundColor Cyan
 Write-Host "  VORA AI - Mandatory Production Release Pipeline         " -ForegroundColor Cyan
+Write-Host "  Target: Cloudflare Pages [travel-info-kr] (koreatravel.cc)" -ForegroundColor Cyan
 Write-Host "==========================================================" -ForegroundColor Cyan
 
 # 1. Zero Defect Syntax & Integrity Verification
@@ -40,14 +41,14 @@ if ($LASTEXITCODE -ne 0) {
     Write-Host "✅ Source code synced to origin/main." -ForegroundColor Green
 }
 
-# 5. Direct Deploy to GitHub Pages Serving Branch (gh-pages)
-Write-Host "`n[Step 5/5] Deploying Production Static Bundle to gh-pages branch..." -ForegroundColor Yellow
-& npx gh-pages -d dist --dotfiles
+# 5. Direct Deploy to Cloudflare Pages Production (travel-info-kr)
+Write-Host "`n[Step 5/5] Deploying Production Static Bundle to Cloudflare Pages [travel-info-kr]..." -ForegroundColor Yellow
+& npx wrangler pages deploy dist --project-name=travel-info-kr --commit-dirty=true
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "`n❌ [DEPLOY FAILED] gh-pages upload failed!" -ForegroundColor Red
+    Write-Host "`n❌ [DEPLOY FAILED] Cloudflare Pages deployment failed!" -ForegroundColor Red
     exit 1
 }
-Write-Host "✅ gh-pages production deployment completed!" -ForegroundColor Green
+Write-Host "✅ Cloudflare Pages production deployment completed!" -ForegroundColor Green
 
 Write-Host "`n==========================================================" -ForegroundColor Green
 Write-Host "  🎉 PRODUCTION DEPLOYMENT COMPLETE!                      " -ForegroundColor Green

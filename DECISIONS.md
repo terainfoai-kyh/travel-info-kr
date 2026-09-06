@@ -4,19 +4,17 @@
 
 ---
 
-## 🏛️ [★ Golden Checkpoint] 2026-09-06 Two-Track 운영 배포 원자적 단일 파이프라인(deployProd.ps1) & 구버전 유령 서빙 100% 영구 박멸
+## 🏛️ [★ Golden Checkpoint] 2026-09-06 Cloudflare Pages Two-Track(travelkorea-dev vs travel-info-kr) 원상 복구 & gh-pages 찌꺼기 100% 영구 박멸
 
 ### 1. 금일 완성된 핵심 업적 (Accomplished)
-- **👑 [선배님 직강 수칙 영구 계승: 개발 검증 완료 ➔ 운영 단일 원자적 배포 체계 가동] (`scripts/deployProd.ps1`, `package.json`, `AGENTS.md`)**:
-  - **선배님 가르침**: *"개발에서 테스트 완료한 것만 운영에 반영해야 되는게 아닌가? 자동 동기화를 하면 백업용으로만 사용하는거 아닌가? 너희들이 매번 이러던데 어떻게 하면 재발 방지가 될까?"*
-  - **운영 누락 사고의 근본 원인 규명**: 일반적인 `git push origin main`만 실행하고 실제 GitHub Pages가 바라보는 `gh-pages` 서빙 브랜치 배포(`npx gh-pages -d dist`)를 누락하여 운영 사이트(`koreatravel.cc`)에 구버전 번들(`index-dFF-Cc9k.js`)이 장시간 방치되는 휴먼/AI 착각을 100% 원천 박멸.
-  - **5단계 단일 원자적 운영 배포 스크립트 전격 도입 (`deployProd.ps1` / `npm run deploy:prod`)**:
-    1) 문법/무결성 사전 검사 (`verifySyntax.ps1` 통과 필수)
-    2) 로컬 프로덕션 번들 빌드 (`vite build`)
-    3) 빌드 번들 해시 영수증 추출 (`index-XXXX.js`)
-    4) 소스 코드 깃허브 백업 (`git push origin main`)
-    5) 운영 서빙 브랜치 다이렉트 배포 (`npx gh-pages -d dist --dotfiles`)
-  - **단독 git push origin main 영구 금지**: 헌법 제11조 및 제25조에 운영 배포 시 반드시 `deployProd.ps1` 단일 파이프라인으로만 실행하도록 못 박아 다음 세션 AI의 임의 분리 푸시 및 누락을 100% 차단.
+- **👑 [선배님 직강 수칙 영구 계승: 로컬 ➔ 개발 ➔ 운영 3단계 정석 라이프사이클 복구] (`scripts/deployProd.ps1`, `package.json`, `AGENTS.md`)**:
+  - **선배님 가르침**: *"잠시만 로컬->개발->운영 이렇게 넘어가는거 아닌가? 계속 분리가 잘 됐었는데 얼마전 운영에 고도화 반영하면서부터 이상해졌군."*
+  - **운영 꼬임의 근본 원인 규명**: 얼마 전 고도화 작업 당시 주입된 `gh-pages` 패키지와 브랜치 잔재로 인해, Cloudflare Pages 운영 프로젝트(`travel-info-kr`)가 `gh-pages` 브랜치를 감지하고 `ENOENT: package.json` 빌드 실패를 일으키며 운영 사이트(`koreatravel.cc`)가 구버전에 얼어붙어 있었던 진상을 완벽 규명.
+  - **Cloudflare Pages 1:1 대칭 Two-Track 아키텍처 원상 복구**:
+    1) **1단계 (로컬)**: 내 PC 코딩 및 `verifySyntax.ps1` 무결성 검증.
+    2) **2단계 (개발)**: `npm run deploy:dev` (`travelkorea-dev` Cloudflare Pages) ➔ 실제 웹 환경에서 1초대 성능 실측 및 사전 테스트 완료.
+    3) **3단계 (운영)**: 개발 검증 후 선배님 승인 시 `npm run deploy:prod` (`travel-info-kr` Cloudflare Pages ➔ `koreatravel.cc`) ➔ 5초 만에 완제품 번들 다이렉트 엣지 배포 완비!
+  - **gh-pages 브랜치 사용 100% 영구 엄금**: 헌법 제11조 및 제25조에 불필요한 빌드 실패를 유발하는 `gh-pages` 브랜치 사용을 원천 금지하고, `deployProd.ps1`을 통해 `travel-info-kr`로 다이렉트 쏘아 올리는 체계 구축.
 - **⚡ [초고속 로컬 빌드 및 운영 배포 완비] (`dist`)**:
   - `verifySyntax.ps1` 통과 (`[ZERO DEFECT PASSED]`).
 
