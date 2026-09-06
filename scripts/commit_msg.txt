@@ -1,7 +1,5 @@
-feat: implement AbortController request preemption and 8s socket recovery
+docs: document comprehensive handover guide for next Vora AI agent
 
-- 선배님 통찰 반영: 첫 로딩(서울) 지연 시 후속 도시(수원) 락 걸리는 현상 100% 영구 박멸
-- 도시 전환 시 이전 진행 중 요청 소켓 0.001초 강제 회수(activeCitySpotsController.abort())
-- 공공데이터포털 무응답 시 브라우저 5분 락 방지 8초 안전 소켓 회수 가드 적용
-- AbortError 조용히 처리하여 콘솔 에러 및 UI 블로킹 차단
-- 헌법 제11조 준수: 1단계 개발 서버(travelkorea-dev) 단독 배포
+- 선배님 작업 철칙 100% 영구 계승 (운영은 개발 완료 후 반영 원칙, 선 브리핑, 승인 대기)
+- 금일 해결 아키텍처 맥락 (40개 번개 생성, 백그라운드 100개 풀, 7일 영구 캐시, AbortController 소켓 락 영구 박멸)
+- 개발/운영 Two-Track 배포 상태 및 다음 보라의 1순위 이어서 할 작업 명시

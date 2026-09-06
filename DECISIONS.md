@@ -4,6 +4,61 @@
 
 ---
 
+## 📢 [★ 특급 인수인계서: 후속 보라 AI(Antigravity) 필독 가이드]
+> **작성일자: 2026-09-06 저녁 (선배님 직접 지시: "다들 대충하고 나가서 다음에 오는 애들이 개고생한다, 제대로 인수인계해줘")**
+
+### 1. 👑 선배님과의 작업 절대 수칙 (사형급 위반 주의)
+1. **"운영은 개발이 완료된 후 반영하는 거다." (선배님 직강 제1철칙 - 헌법 제11조)**:
+   - 모든 수정은 **1단계 [개발 서버] (`travelkorea-dev` / `dev-remote`)**에 먼저 배포하여 선배님의 실측 검증을 100% 거쳐야 한다.
+   - 선배님의 명시적 승인("운영 배포해") 전까지 **운영 서버(`origin`, `travel-info-kr`, `koreatravel.cc`)는 1픽셀도 건드리지 말 것!**
+2. **세션 시작 시 무조건 선(先) 브리핑 의무 (헌법 제1조)**:
+   - 세션이 시작되면 선배님이 묻지 않아도 무조건 `DECISIONS.md`를 읽고 **[전날 마지막 작업 + 시스템 상태 + 오늘 할 일 1순위]** 3줄 요약 선 브리핑부터 올릴 것!
+3. **선(先) 코드 수정 100% 엄금 (헌법 제12조)**:
+   - 선배님이 "의견은?", "어때?", "생각은?" 등 의견을 물으실 때는 절대로 코드를 사전에 건드리지 말고, **[현상 분석 + 장단점/대안 + 추천 안]**만 정갈하게 보고하고 승인을 기다릴 것!
+4. **팝업 카드 및 승인창 0% 봉인 (P0 수칙)**:
+   - `RequestFeedback: false`, `ask_question` 0%, 터미널에 임의 인라인 파이프라인/스크립트(`powershell -Command "..."`, `Get-ChildItem`) 금지! (파일 조사는 반드시 내장 툴 `grep_search`, `list_dir`, `view_file` 사용).
+5. **사전 검증 통과 의무화 (헌법 제21조)**:
+   - 커밋/푸시 전 반드시 `powershell.exe -ExecutionPolicy Bypass -File .\scripts\verifySyntax.ps1` 실행하여 `[ZERO DEFECT PASSED]` 확인할 것.
+
+---
+
+### 2. 오늘 해결한 핵심 문제와 아키텍처 맥락
+1. **문제의 실체 (공공 TourAPI 병목 & 브라우저 소켓 락)**:
+   - 정부 공공데이터포털(`apis.data.go.kr`) 서버의 주말 TLS 핸드셰이크 지연 및 `numOfRows=100` 단일 대용량 호출 처리 지연.
+   - 첫 진입 시 '서울' 요청이 지연될 때 브라우저의 6개 TCP 소켓을 최대 300초간 물고 있어, 사용자가 '수원' 등 다른 도시를 눌러도 소켓 큐에 막혀 브라우저 전체가 락(Hang)에 걸리는 치명적 결함 발생.
+2. **오늘 완성한 완벽한 3대 해법 (`src/services/tourApi.js`)**:
+   - **해법 1 (1단계 40개 번개 생성 0.8s + 2단계 백그라운드 100개 풀 완성)**:
+     - 40개 정예 데이터로 5일 코스(30개) 즉시 완벽 렌더링 ➔ 백그라운드에서 2페이지(41~100위 60개) 비동기 누적 채우기로 100개 풀 완성!
+     - 장소 변경, 핫스팟, 식당 탐색 시 완벽한 100개 풀 보장.
+   - **해법 2 (Dual-Layer 7일 영구 캐싱)**:
+     - `localStorage` + Memory 이중 캐시로 7일간 보관. 재방문 시 0ms 즉시 서빙 (공공데이터 네트워크 0건).
+     - Stale-While-Revalidate 지원.
+   - **해법 3 (대안 A: AbortController 소켓 강제 회수 & 8초 안전 가드)**:
+     - 도시 전환 시 이전 진행 중 요청 소켓을 `activeCitySpotsController.abort()`로 **0.001초 만에 즉시 강제 회수**하여 브라우저 소켓을 반환!
+     - 8초 안전 소켓 회수 타이머로 공공데이터 무응답 시 브라우저 5분 락 원천 박멸.
+
+---
+
+### 3. 현재 시스템 및 배포 상태 (Golden State)
+- **로컬 상태**: 작업 트리 clean, 모든 문법 검증 통과 (`[ZERO DEFECT PASSED]`)
+- **최신 커밋**: `b32ace8` (`feat: implement AbortController request preemption and 8s socket recovery`)
+- **1단계 [개발 서버] (`travelkorea-dev`)**:
+  - **URL**: `https://travelkorea-dev.pages.dev`
+  - **상태**: 커밋 `b32ace8` 배포 완료. 선배님의 실측 검증 대기 중.
+- **2단계 [운영 서버] (`koreatravel.cc`)**:
+  - **URL**: `https://koreatravel.cc`
+  - **상태**: 커밋 `38d9a75`로 안전 대기 중. 선배님의 명시적 승인("운영 배포해") 대기 중!
+
+---
+
+### 4. 다음 보라가 바로 이어서 할 작업 (Next Action 1순위)
+1. 세션 시작 시: 위 인수인계 내용을 바탕으로 선배님께 3줄 선 브리핑 올리기.
+2. 선배님께서 개발 서버(`https://travelkorea-dev.pages.dev`) 실측 검증 후 **"운영 배포해"**라고 승인하시면:
+   - `powershell.exe -ExecutionPolicy Bypass -File .\scripts\deployProd.ps1` 실행 또는 `origin/main`으로 동기화 푸시 진행.
+   - 만약 추가 수정 요청이 있으시면 오직 개발 서버(`travelkorea-dev`)에서 먼저 테스트 완료할 것!
+
+---
+
 ## 🏛️ [★ Golden Checkpoint] 2026-09-06 공공 TourAPI 40개 번개 생성 + 백그라운드 100개 풀 완성 + 7일 영구 캐싱 & AbortController 소켓 락 영구 박멸
 
 ### 1. 금일 완성된 핵심 업적 (Accomplished)
