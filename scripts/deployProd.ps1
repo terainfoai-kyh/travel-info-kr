@@ -19,7 +19,7 @@ Write-Host "✅ Code integrity verified." -ForegroundColor Green
 
 # 2. Local Production Bundle Build (vite build)
 Write-Host "`n[Step 2/5] Building Local Production Bundle (vite build)..." -ForegroundColor Yellow
-& npm run build
+& npm.cmd run build
 if ($LASTEXITCODE -ne 0) {
     Write-Host "`n❌ [DEPLOY BLOCKED] Build failed! Halting production deploy." -ForegroundColor Red
     exit 1
