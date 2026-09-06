@@ -1,6 +1,1 @@
-perf(itinerary): short-circuit anchor search loop & eliminate redundant TourAPI requests
-
-- Found in pool -> break immediately from synonym check
-- Skip anchor fetching if already represented in cityPois pool
-- Exact match in findPoiForLandmark returns spot immediately without wasted scoring loops
-- Eliminates 15-20 duplicate TourAPI searchKeyword2 calls, cutting generation time to sub-second
+docs(decisions): log short-circuit loop termination & 6s bottleneck fix checkpoint
