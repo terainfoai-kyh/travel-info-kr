@@ -254,6 +254,11 @@ export default function App() {
     }
   }, []);
 
+  // 🚀 [선배님 혜안] 첫 화면 기본 도시 '서울' TourAPI 정품 데이터를 백그라운드에서 조용히 사전 프리패치 (Zero Latency)
+  useEffect(() => {
+    fetchCityTourApiSpots('서울', lang).catch(() => {});
+  }, [lang]);
+
   const [chatMessages, setChatMessages] = useState(() => getInitialWelcomeMessages(lang, null));
   const [activeDay, setActiveDay] = useState(1);
   const [isLoading, setIsLoading] = useState(false);

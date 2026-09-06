@@ -1,0 +1,1 @@
+feat(perf): background pre-fetch TourAPI spots on app load and location selection

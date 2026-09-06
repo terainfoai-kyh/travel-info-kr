@@ -982,6 +982,9 @@ export default function DesktopMapExplorer({
       }));
     }
 
+    // 🚀 [선배님 혜안] 지도 위치 선택 즉시 TourAPI 정품 데이터 백그라운드 사전 프리패치 (Zero Latency)
+    fetchCityTourApiSpots(detectedCityNameKo, lang).catch(() => {});
+
     // 🏛️ TourAPI 실시간 정품 데이터 비동기 보정 (사진, 명소 3개, 반경 조회)
     enrichLocationWithLiveTourApi(baseLoc, detectedCityNameKo, lang)
       .then(enriched => {
@@ -999,6 +1002,10 @@ export default function DesktopMapExplorer({
 
   const handleQuickCityClick = (city) => {
     setIsPhotoLoading(false);
+
+    // 🚀 [선배님 혜안] 빠른 도시 칩 클릭 즉시 TourAPI 정품 데이터 백그라운드 사전 프리패치 (Zero Latency)
+    fetchCityTourApiSpots(city.nameKo, lang).catch(() => {});
+
     const cleanK = (city.nameKo || '').replace(/(특별시|광역시|특별자치시|특별자치도|시|군|구)$/, '').trim();
     const foundData = cleanK ? REGIONAL_FALLBACK_CENTERS.find(c => c.nameKo === cleanK || c.nameKo === city.nameKo) : null;
     const localKn = CITY_LOCAL_KNOWLEDGE[cleanK] || CITY_LOCAL_KNOWLEDGE[city.nameKo];
