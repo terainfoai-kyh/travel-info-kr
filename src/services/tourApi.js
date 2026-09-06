@@ -617,12 +617,26 @@ function parseAndFilterTourApiSpots(items, city) {
     }));
 }
 
+// ⚡ 브라우저 소켓 락 방지용 활성 요청 컨트롤러 (Request Preemption & Socket Recovery)
+let activeCitySpotsController = null;
+let activeBackgroundEnrichController = null;
+
 // ⚡ Background Enrichment: 2페이지(41~100위 60개)를 조용히 비동기 수신하여 100개 풀 완성 및 7일 영구 캐싱
 function enrichSpotsPage2(apiBase, cleanCity, rawCityStr, subCity, city, cacheKey, existingSpots) {
   setTimeout(async () => {
+    if (activeBackgroundEnrichController) {
+      try { activeBackgroundEnrichController.abort(); } catch (e) {}
+    }
+    const bgController = new AbortController();
+    activeBackgroundEnrichController = bgController;
+    const bgTimeout = setTimeout(() => {
+      try { bgController.abort(); } catch (e) {}
+    }, 10000);
+
     try {
       const page2Url = buildTourApiFetchUrl(apiBase, cleanCity, rawCityStr, subCity, 60, 2);
-      const res = await fetch(page2Url);
+      const res = await fetch(page2Url, { signal: bgController.signal });
+      clearTimeout(bgTimeout);
       if (!res.ok) return;
       const data = await res.json();
       const itemsRaw = data.response?.body?.items?.item || [];
@@ -641,7 +655,12 @@ function enrichSpotsPage2(apiBase, cleanCity, rawCityStr, subCity, city, cacheKe
         setPersistentSpotCache(cacheKey, combined);
       }
     } catch (err) {
-      // 백그라운드 수신 실패는 메인 UI에 아무런 영향을 주지 않음
+      clearTimeout(bgTimeout);
+      // 백그라운드 수신 실패나 abort는 메인 UI에 아무런 영향을 주지 않음
+    } finally {
+      if (activeBackgroundEnrichController === bgController) {
+        activeBackgroundEnrichController = null;
+      }
     }
   }, 400);
 }
@@ -688,13 +707,31 @@ export async function fetchCityTourApiSpots(city = '서울', lang = 'ko') {
     return cached.data;
   }
 
+  // 🛡️ [대안 A: Request Preemption] 도시 전환 시 이전 진행 중이던 네트워크 소켓을 0.001초 만에 즉시 강제 회수!
+  if (activeCitySpotsController) {
+    try {
+      activeCitySpotsController.abort();
+    } catch (e) {}
+  }
+  const controller = new AbortController();
+  activeCitySpotsController = controller;
+
+  // ⏱️ 8초 안전 소켓 회수 가드 (공공데이터포털 무응답 시 브라우저 5분 락 원천 방지)
+  const timeoutId = setTimeout(() => {
+    try {
+      controller.abort();
+    } catch (e) {}
+  }, 8000);
+
   // 3️⃣ [첫 방문 실시간 수신] 공공 TourAPI 4.0 청크 분할 초광속 수신 파이프라인
   let apiBase = getTourApiBaseByLang(lang);
 
   try {
     // ⚡ 1단계: 1페이지 40개 정예 데이터 호출 (100개 대비 3~5배 빠른 0.8초 초광속 응답)
     const fetchUrl = buildTourApiFetchUrl(apiBase, cleanCity, rawCityStr, subCity, 40, 1);
-    const res = await fetch(fetchUrl);
+    const res = await fetch(fetchUrl, { signal: controller.signal });
+    clearTimeout(timeoutId);
+
     if (!res.ok) return [];
     const data = await res.json();
     const itemsRaw = data.response?.body?.items?.item || [];
@@ -703,10 +740,10 @@ export async function fetchCityTourApiSpots(city = '서울', lang = 'ko') {
     let validSpots = parseAndFilterTourApiSpots(items, city);
 
     // 🌟 [2차 안전망] 결과가 8개 미만으로 적은 소도시일 경우 키워드 검색(searchKeyword2) 병렬 보강
-    if (validSpots.length < 8) {
+    if (validSpots.length < 8 && !controller.signal.aborted) {
       try {
         const kwUrl = `${apiBase}/searchKeyword2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&keyword=${encodeURIComponent(cleanCity)}&arrange=P&numOfRows=30&pageNo=1`;
-        const kwRes = await fetch(kwUrl);
+        const kwRes = await fetch(kwUrl, { signal: controller.signal });
         if (kwRes.ok) {
           const kwData = await kwRes.json();
           const kwItems = kwData.response?.body?.items?.item || [];
@@ -735,8 +772,17 @@ export async function fetchCityTourApiSpots(city = '서울', lang = 'ko') {
     // 5일 코스(6개 * 5일 = 30개)를 0.8초 만에 즉시 렌더링하기 위해 1단계 데이터 즉시 반환!
     return validSpots;
   } catch (err) {
+    clearTimeout(timeoutId);
+    if (err.name === 'AbortError') {
+      // 사용자가 다른 도시를 선택하여 이전 요청 소켓을 안전하게 회수한 것이므로 정상 흐름
+      return [];
+    }
     console.warn(`[TourAPI] Realtime Fetch Error for ${city}:`, err);
     return [];
+  } finally {
+    if (activeCitySpotsController === controller) {
+      activeCitySpotsController = null;
+    }
   }
 }
 
