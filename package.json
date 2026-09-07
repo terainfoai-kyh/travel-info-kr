@@ -12,7 +12,8 @@
     "deploy": "powershell.exe -ExecutionPolicy Bypass -File .\\scripts\\deployProd.ps1",
     "deploy:dev": "powershell.exe -ExecutionPolicy Bypass -File .\\scripts\\deployDev.ps1",
     "deploy:prod": "powershell.exe -ExecutionPolicy Bypass -File .\\scripts\\deployProd.ps1",
-    "radar:scan": "node scripts/redditTelegramRadar.js"
+    "radar:scan": "node scripts/redditTelegramRadar.js",
+    "harvest": "node scripts/harvestTourApi.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
