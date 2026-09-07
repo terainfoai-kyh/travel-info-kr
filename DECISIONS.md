@@ -32,7 +32,8 @@
 - **배포 및 검증 상태**:
   - `verifySyntax.ps1` 무결점 검증 통과 (`[ZERO DEFECT PASSED]`).
   - Vite 프로덕션 빌드 완료 (최신 번들: `index-bKCQG04s.js`).
-  - **개발 서버 배포 (`travelkorea-dev.pages.dev`)**: 반영 완료. 운영 서버(`koreatravel.cc`)는 선배님 승인 전까지 1픽셀도 건드리지 않고 안전 보존.
+  - **개발 서버 배포 (`travelkorea-dev.pages.dev`)**: 반영 및 실측 완료.
+  - **운영 서버 승격 배포 (`koreatravel.cc`)**: 선배님 승인("운영에 배포해")에 따라 `scripts/deployProd.ps1` 파이프라인으로 무결점 다이렉트 승격 배포 완료 (커밋 `e3a35bb`). Cloudflare Pages 엣지 실측 정상 서빙 확인.
 
 ---
 
