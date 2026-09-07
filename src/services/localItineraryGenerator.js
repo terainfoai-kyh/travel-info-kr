@@ -586,7 +586,8 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
       for (const p of cityPois) {
         const normPTitle = normalizeTargetString(p.title);
         const coreKey = extractCoreLandmarkKey(p.title);
-        const notVisited = !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normPTitle) && !visitedCoreLandmarkKeys.has(coreKey);
+        const pKey = p.id || p.contentId || p.contentid || p.title;
+        const notVisited = (!pKey || !visitedPoiIds.has(pKey)) && !visitedNormalizedTitles.has(normPTitle) && !visitedCoreLandmarkKeys.has(coreKey);
         const isCommercialOrFood = /(한쿡|식당|음식점|맛집|gs25|cu|세븐일레븐|이마트24|스토어|플래그쉽|직영점|본점|매장)/i.test(p.title);
         if (!notVisited || isCommercialOrFood) continue;
 
@@ -633,7 +634,10 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
       dayAnchorNames = parsedSignatureAnchors[d - 1];
     } else {
       // 🌟 [전국 100% 자동 분배] 도시 지식이 없어도 TourAPI 인기 명소 목록에서 일차별 대표 앵커 자동 선발!
-      const unvisitedTop = cityPois.filter(p => !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normalizeTargetString(p.title)));
+      const unvisitedTop = cityPois.filter(p => {
+        const pk = p.id || p.contentId || p.contentid || p.title;
+        return (!pk || !visitedPoiIds.has(pk)) && !visitedNormalizedTitles.has(normalizeTargetString(p.title));
+      });
       if (unvisitedTop.length > 0) {
         dayAnchorNames = [unvisitedTop[0].title];
       }
@@ -682,13 +686,17 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
 
       // 🌟 [최후의 방탄 Fallback] anchorSpot이 아직 비어있다면, cityPois에서 미방문 명소를 즉시 채택!
       if (!anchorSpot && cityPois.length > 0) {
-        anchorSpot = cityPois.find(p => !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normalizeTargetString(p.title)));
+        anchorSpot = cityPois.find(p => {
+          const pk = p.id || p.contentId || p.contentid || p.title;
+          return (!pk || !visitedPoiIds.has(pk)) && !visitedNormalizedTitles.has(normalizeTargetString(p.title));
+        });
       }
 
       if (anchorSpot) {
         const normTitle = normalizeTargetString(anchorSpot.title);
         const coreKey = extractCoreLandmarkKey(anchorSpot.title);
-        visitedPoiIds.add(anchorSpot.id);
+        const aKey = anchorSpot.id || anchorSpot.contentId || anchorSpot.contentid || anchorSpot.title;
+        if (aKey) visitedPoiIds.add(aKey);
         visitedNormalizedTitles.add(normTitle);
         visitedCoreLandmarkKeys.add(coreKey);
 
@@ -772,7 +780,8 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
       const remainingUnvisited = cityPois.filter(p => {
         const normPTitle = normalizeTargetString(p.title);
         const coreKey = extractCoreLandmarkKey(p.title);
-        const isNotVisited = !visitedPoiIds.has(p.id) && !visitedNormalizedTitles.has(normPTitle) && !visitedCoreLandmarkKeys.has(coreKey);
+        const pKey = p.id || p.contentId || p.contentid || p.title;
+        const isNotVisited = (!pKey || !visitedPoiIds.has(pKey)) && !visitedNormalizedTitles.has(normPTitle) && !visitedCoreLandmarkKeys.has(coreKey);
         if (!isNotVisited) return false;
 
         // 🛡️ Do NOT consume future day anchor keywords in today's filler loop!
@@ -849,7 +858,8 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
 
       const normTitle = normalizeTargetString(nextSpot.title);
       const coreKey = extractCoreLandmarkKey(nextSpot.title);
-      visitedPoiIds.add(nextSpot.id);
+      const nKey = nextSpot.id || nextSpot.contentId || nextSpot.contentid || nextSpot.title;
+      if (nKey) visitedPoiIds.add(nKey);
       visitedNormalizedTitles.add(normTitle);
       visitedCoreLandmarkKeys.add(coreKey);
 

@@ -1,1 +1,1 @@
-docs: log 5-dataset full harvesting Golden Checkpoint in DECISIONS.md
+fix: enrich master tour spots with certified landmarks and fix POI visited set matching

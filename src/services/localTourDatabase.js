@@ -175,6 +175,7 @@ export async function queryLocalTourSpots(city = '서울', lang = 'ko') {
     else if ((lang === 'zh' || lang === 'zht') && enriched.title_zh) displayTitle = enriched.title_zh;
 
     return {
+      id: `tourapi_${s.contentId}`,
       contentid: String(s.contentId),
       contentId: String(s.contentId),
       title: displayTitle,

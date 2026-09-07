@@ -6,10 +6,18 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { enrichSpots } from './enrichMasterTourSpots.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, '..');
+
+// Ensure top master landmarks are guaranteed in korea_tour_spots.json
+try {
+  enrichSpots();
+} catch (e) {
+  console.warn('⚠️ [Sync Datasets] enrichSpots warning:', e.message);
+}
 
 const SRC_DATA_DIR = path.join(ROOT_DIR, 'data');
 const PUB_DATA_DIR = path.join(ROOT_DIR, 'public', 'data');
