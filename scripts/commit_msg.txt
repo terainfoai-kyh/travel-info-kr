@@ -1,1 +1,1 @@
-fix(build): sync dist bundle with tier scoring and anti-monotony guard
+docs: record active bundle verification in DECISIONS.md

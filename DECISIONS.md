@@ -56,8 +56,9 @@
      - 750m 거리의 세종문화회관이나 광화문광장이 200m 거리의 소규모 사설 갤러리를 자연스럽게 압도하되, 5km 이상 떨어진 타 권역 명소는 거리 페널티로 인해 같은 권역(2km 이내)을 절대 침범하지 못하도록 수학적으로 완벽한 균형 완성.
 - **배포 현황**:
   - `verifySyntax.ps1` 통과 (`[ZERO DEFECT PASSED]`).
-  - 번들 빌드: `index-Bglk4zXa.js` (10.12초).
-  - **개발 서버 배포 완료 (`travelkorea-dev.pages.dev`)**: 최신 커밋 `84b3c3d` 반영 완료.
+  - 번들 빌드: `index-Bglk4zXa.js`.
+  - `scripts/deployDev.ps1` 개선: wrangler 및 git dist 트래킹 동기화 완료.
+  - **개발 서버 배포 검증 완료 (`https://travelkorea-dev.pages.dev/`)**: 엣지 실측 결과 `index-Bglk4zXa.js` 정상 서빙 확인 (최신 커밋 `3fecd90`).
   - 운영 서버(`koreatravel.cc`)는 선배님 검증 전까지 1픽셀도 건드리지 않고 안전 보존.
 
 ---
