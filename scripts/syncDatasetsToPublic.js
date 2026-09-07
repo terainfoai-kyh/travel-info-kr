@@ -8,6 +8,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { enrichSpots } from './enrichMasterTourSpots.js';
 
+import { encryptData } from '../src/utils/voraCrypto.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, '..');
@@ -35,23 +37,32 @@ const FILES_TO_SYNC = [
   'korea_enriched_landmarks.json'
 ];
 
-console.log('📦 [Sync Datasets] Synchronizing harvested datasets to public/data/...');
+console.log('🔒 [Sync Datasets] Encrypting and synchronizing datasets to public/data/...');
 
 let totalBytes = 0;
 
 for (const fileName of FILES_TO_SYNC) {
   const src = path.join(SRC_DATA_DIR, fileName);
-  const dest = path.join(PUB_DATA_DIR, fileName);
+  const baseName = fileName.replace(/\.json$/, '');
+  const encDest = path.join(PUB_DATA_DIR, `${baseName}.enc`);
 
   if (fs.existsSync(src)) {
-    const stat = fs.statSync(src);
-    fs.copyFileSync(src, dest);
+    const rawContent = fs.readFileSync(src, 'utf8');
+    const encrypted = encryptData(rawContent);
+    fs.writeFileSync(encDest, encrypted, 'utf8');
+    const stat = fs.statSync(encDest);
     totalBytes += stat.size;
-    console.log(`  ✅ Synced: ${fileName} (${(stat.size / 1024 / 1024).toFixed(2)} MB)`);
+    console.log(`  🔒 Encrypted: ${baseName}.enc (${(stat.size / 1024 / 1024).toFixed(2)} MB)`);
   } else {
-    // If not exists yet (e.g. enriched landmarks before run), write empty object to avoid 404
-    fs.writeFileSync(dest, '{}', 'utf8');
-    console.log(`  ℹ️ Initialized empty: ${fileName}`);
+    const emptyEnc = encryptData(fileName.includes('spots') ? '[]' : '{}');
+    fs.writeFileSync(encDest, emptyEnc, 'utf8');
+    console.log(`  ℹ️ Initialized empty encrypted: ${baseName}.enc`);
+  }
+
+  // 🛡️ Remove exposed plain JSON from public/data/ to prevent scraper access
+  const plainDest = path.join(PUB_DATA_DIR, fileName);
+  if (fs.existsSync(plainDest)) {
+    fs.unlinkSync(plainDest);
   }
 }
 

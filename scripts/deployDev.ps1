@@ -34,6 +34,17 @@ Write-Host "`n[Step 3/4] Generated Bundle Hash: $bundleHash" -ForegroundColor Cy
 
 # 4. Sync Source Code to dev-remote/main (Source Code Archival)
 Write-Host "`n[Step 4/5] Syncing Source Code to dev-remote/main..." -ForegroundColor Yellow
+$gitStatus = & git status --porcelain
+if ($gitStatus) {
+    Write-Host "ℹ️ Uncommitted changes detected. Committing..." -ForegroundColor Cyan
+    $commitMsg = "feat: encrypt master datasets and sync to dev"
+    if (Test-Path ".\scripts\commit_msg.txt") {
+        $fileMsg = (Get-Content -Path ".\scripts\commit_msg.txt" -Raw).Trim()
+        if ($fileMsg) { $commitMsg = $fileMsg }
+    }
+    & git add -A
+    & git commit -m $commitMsg
+}
 & git push dev-remote main
 if ($LASTEXITCODE -ne 0) {
     Write-Host "`n⚠️ Warning: git push dev-remote main encountered an issue, checking status..." -ForegroundColor Yellow

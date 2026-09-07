@@ -11,6 +11,8 @@
  * Provides instantaneous 0ms local lookups with zero network socket lock and zero API quota costs.
  */
 
+import { decryptData } from '../utils/voraCrypto.js';
+
 // In-memory singletons for instantaneous caching
 let cachedTourSpots = null;
 let cachedDetailsMap = null;
@@ -23,6 +25,31 @@ let isTourSpotsLoading = false;
 let tourSpotsLoadPromise = null;
 
 /**
+ * 🔒 Fetch & Decrypt Dataset (In-Memory instant decryption)
+ */
+async function fetchAndDecryptDataset(baseName, defaultVal) {
+  try {
+    // 1. Prioritize encrypted dataset (.enc)
+    const resEnc = await fetch(`/data/${baseName}.enc`);
+    if (resEnc.ok) {
+      const cipherText = await resEnc.text();
+      const decrypted = decryptData(cipherText);
+      if (decrypted !== null && typeof decrypted !== 'undefined') {
+        return decrypted;
+      }
+    }
+    // 2. Fallback to plain .json if available
+    const resJson = await fetch(`/data/${baseName}.json`);
+    if (resJson.ok) {
+      return await resJson.json();
+    }
+  } catch (err) {
+    console.warn(`⚠️ [Local Tour DB] Dataset load fallback for ${baseName}:`, err.message);
+  }
+  return defaultVal;
+}
+
+/**
  * ⚡ Load All Sightseeing Spots (Single-flight asynchronous promise)
  */
 export async function ensureTourSpotsLoaded() {
@@ -30,17 +57,7 @@ export async function ensureTourSpotsLoaded() {
   if (tourSpotsLoadPromise) return tourSpotsLoadPromise;
 
   tourSpotsLoadPromise = (async () => {
-    try {
-      const res = await fetch('/data/korea_tour_spots.json');
-      if (res.ok) {
-        cachedTourSpots = await res.json();
-      } else {
-        cachedTourSpots = [];
-      }
-    } catch (e) {
-      console.warn('⚠️ [Local Tour DB] Failed to load korea_tour_spots.json:', e.message);
-      cachedTourSpots = [];
-    }
+    cachedTourSpots = await fetchAndDecryptDataset('korea_tour_spots', []);
     return cachedTourSpots;
   })();
 
@@ -52,16 +69,7 @@ export async function ensureTourSpotsLoaded() {
  */
 export async function ensureDetailsLoaded() {
   if (cachedDetailsMap) return cachedDetailsMap;
-  try {
-    const res = await fetch('/data/korea_spots_details.json');
-    if (res.ok) {
-      cachedDetailsMap = await res.json();
-    } else {
-      cachedDetailsMap = {};
-    }
-  } catch (e) {
-    cachedDetailsMap = {};
-  }
+  cachedDetailsMap = await fetchAndDecryptDataset('korea_spots_details', {});
   return cachedDetailsMap;
 }
 
@@ -70,16 +78,7 @@ export async function ensureDetailsLoaded() {
  */
 export async function ensureEnrichedLoaded() {
   if (cachedEnrichedMap) return cachedEnrichedMap;
-  try {
-    const res = await fetch('/data/korea_enriched_landmarks.json');
-    if (res.ok) {
-      cachedEnrichedMap = await res.json();
-    } else {
-      cachedEnrichedMap = {};
-    }
-  } catch (e) {
-    cachedEnrichedMap = {};
-  }
+  cachedEnrichedMap = await fetchAndDecryptDataset('korea_enriched_landmarks', {});
   return cachedEnrichedMap;
 }
 
@@ -88,17 +87,26 @@ export async function ensureEnrichedLoaded() {
  */
 export async function ensureFoodSpotsLoaded() {
   if (cachedFoodSpots) return cachedFoodSpots;
-  try {
-    const res = await fetch('/data/korea_food_spots.json');
-    if (res.ok) {
-      cachedFoodSpots = await res.json();
-    } else {
-      cachedFoodSpots = [];
-    }
-  } catch (e) {
-    cachedFoodSpots = [];
-  }
+  cachedFoodSpots = await fetchAndDecryptDataset('korea_food_spots', []);
   return cachedFoodSpots;
+}
+
+/**
+ * ⚡ Load Stay Spots
+ */
+export async function ensureStaySpotsLoaded() {
+  if (cachedStaySpots) return cachedStaySpots;
+  cachedStaySpots = await fetchAndDecryptDataset('korea_stay_spots', []);
+  return cachedStaySpots;
+}
+
+/**
+ * ⚡ Load Festival Spots
+ */
+export async function ensureFestivalSpotsLoaded() {
+  if (cachedFestivalSpots) return cachedFestivalSpots;
+  cachedFestivalSpots = await fetchAndDecryptDataset('korea_festival_spots', []);
+  return cachedFestivalSpots;
 }
 
 /**

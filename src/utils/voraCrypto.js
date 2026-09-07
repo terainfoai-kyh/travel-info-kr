@@ -61,6 +61,31 @@ export function encryptVoraPayload(plain) {
   }
 }
 
+function uint8ArrayToBase64(bytes) {
+  if (typeof Buffer !== 'undefined') {
+    return Buffer.from(bytes).toString('base64');
+  }
+  let binary = '';
+  const chunkSize = 0x8000; // 32KB chunks
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+  }
+  return btoa(binary);
+}
+
+function base64ToUint8Array(b64) {
+  if (typeof Buffer !== 'undefined') {
+    return new Uint8Array(Buffer.from(b64, 'base64'));
+  }
+  const binary = atob(b64);
+  const len = binary.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+}
+
 /**
  * 🔒 범용 데이터 암호화 (객체/배열 지원)
  */
@@ -77,12 +102,7 @@ export function encryptData(data, secretKey = 'vora_secure_vault_2026') {
       cipherBytes[i] = utf8Bytes[i] ^ k ^ s;
     }
 
-    let binary = '';
-    const len = cipherBytes.byteLength;
-    for (let i = 0; i < len; i++) {
-      binary += String.fromCharCode(cipherBytes[i]);
-    }
-    return btoa(binary);
+    return uint8ArrayToBase64(cipherBytes);
   } catch (e) {
     console.error('Encryption failed:', e);
     return '';
@@ -96,12 +116,7 @@ export function decryptData(cipherText, secretKey = 'vora_secure_vault_2026') {
   if (!cipherText || typeof cipherText !== 'string') return null;
 
   try {
-    const binary = atob(cipherText);
-    const cipherBytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) {
-      cipherBytes[i] = binary.charCodeAt(i);
-    }
-
+    const cipherBytes = base64ToUint8Array(cipherText);
     const keyBytes = new TextEncoder().encode(secretKey);
     const plainBytes = new Uint8Array(cipherBytes.length);
 

@@ -1,1 +1,1 @@
-docs: record production deployment in DECISIONS.md
+feat: encrypt proprietary tourism datasets (.enc) and eliminate plain json scraping vulnerability
