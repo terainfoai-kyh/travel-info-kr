@@ -1,1 +1,1 @@
-feat: add universal landmark tier scoring and anti-monotony diversity guard
+docs: record universal landmark tier scoring and anti-monotony guard in DECISIONS.md
