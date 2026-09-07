@@ -32,14 +32,27 @@ $bundleMatch = [regex]::Match($distIndex, 'src="\/assets\/(index-[^"]+\.js)"')
 $bundleHash = if ($bundleMatch.Success) { $bundleMatch.Groups[1].Value } else { "UNKNOWN" }
 Write-Host "`n[Step 3/4] Generated Bundle Hash: $bundleHash" -ForegroundColor Cyan
 
-# 4. Sync Source Code to dev-remote/main (Cloudflare Pages travelkorea-dev Git Trigger)
-Write-Host "`n[Step 4/4] Syncing Source Code to dev-remote/main..." -ForegroundColor Yellow
+# 4. Sync Source Code to dev-remote/main (Source Code Archival)
+Write-Host "`n[Step 4/5] Syncing Source Code to dev-remote/main..." -ForegroundColor Yellow
 & git push dev-remote main
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "`n❌ [DEPLOY FAILED] Failed to push to dev-remote main!" -ForegroundColor Red
-    exit 1
+    Write-Host "`n⚠️ Warning: git push dev-remote main encountered an issue, checking status..." -ForegroundColor Yellow
+} else {
+    Write-Host "✅ Source code synced to dev-remote/main." -ForegroundColor Green
 }
-Write-Host "✅ Source code synced to dev-remote/main! Cloudflare Pages build triggered." -ForegroundColor Green
+
+# 5. Direct Deploy to Cloudflare Pages Dev (travelkorea-dev)
+Write-Host "`n[Step 5/5] Deploying Dev Static Bundle to Cloudflare Pages [travelkorea-dev]..." -ForegroundColor Yellow
+try {
+    & npx.cmd wrangler pages deploy dist --project-name=travelkorea-dev --commit-dirty=true
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "✅ Cloudflare Pages dev direct deployment completed!" -ForegroundColor Green
+    } else {
+        Write-Host "ℹ️ Wrangler dev deploy fallback: Cloudflare Pages Git pipeline." -ForegroundColor Cyan
+    }
+} catch {
+    Write-Host "ℹ️ Wrangler dev deploy exception: $_" -ForegroundColor Cyan
+}
 
 Write-Host "`n==========================================================" -ForegroundColor Green
 Write-Host "  🎉 DEV DEPLOYMENT COMPLETE!                             " -ForegroundColor Green

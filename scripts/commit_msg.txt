@@ -1,1 +1,1 @@
-docs: record universal landmark tier scoring and anti-monotony guard in DECISIONS.md
+fix(deploy): add direct wrangler pages deploy to deployDev.ps1
