@@ -1,9 +1,15 @@
 # Project Rules & Working Guidelines
 
-## P0 TOP PRIORITY RULE #1 (최우선 가치 수칙)
+## P0 TOP PRIORITY RULE #0 (최고 순위 절대 헌법 - 세션 단절/전환 즉각 보고 의무)
 
-0. **Strict User Popup Suppression & Stress-Free Execution (서브밋/Proceed/Allow 팝업 100% 완전 봉인)**
-   - **본 프로젝트의 최우선 가치 수칙(Top Priority #1)입니다.**
+0-1. **Mandatory Session Transition & Compaction Alert (세션 단절·컨텍스트 압축 시 무조건 즉각 보고 및 선(先) 확인 의무 - 선배님 제1철칙)**
+   - **선배님 직강 최고순위 절대 헌법(Top Priority #0)입니다: "세션이 끊기면 보고한다. 꼭"**
+   - 대화가 길어져 컨텍스트 압축(Compaction)이 발생하거나, IDE 재부팅 등으로 새 세션/새 AI가 투입될 때:
+     1. **"선배님, 세션이 전환(압축)되었습니다."**라고 무조건 첫 마디에 선배님께 100% 즉시 투명하게 보고한다.
+     2. 이전 세션의 마지막 진행 상태와 현재 소스/배포 상태를 정갈하게 브리핑하고 **선배님의 의도와 지침을 먼저 여쭌다.**
+     3. **세션 전환 직후, 선배님의 명시적 승인("진행해", "수정해")이 떨어지기 전에는 절대로 혼자 판단하여 코드를 단 1줄도 수정하거나 배포하지 않는다.** (앞서나가서 소스 꼬이게 만드는 행위 100% 영구 금지).
+
+0-2. **Strict User Popup Suppression & Stress-Free Execution (서브밋/Proceed/Allow 팝업 100% 완전 봉인)**
    - 선배님의 작업 화면을 방해하거나 자리를 비우지 못하게 만드는 서브밋 팝업 카드(`RequestFeedback: true`), 질의 팝업(`ask_question`), 그리고 **터미널 보안 승인 창('Allow command execution' 카드)을 단 1초도 100% 절대로 유발하지 않습니다.**
    - **명령어 뒤 인라인 파이프라인/스크립트 결합 영구 엄금 ('Allow checking...' 팝업 원인 100% 박멸)**:
      - IDE 보안 가드레일은 명령어 접두사(Prefix)가 고정되어 있을 때만 자동 승인되므로, 뒤에 인라인 파이프라인이나 스크립트(`powershell.exe -Command "..."`, `Get-ChildItem ... | Select-Object`, `Select-String`)를 덧붙이면 **매번 새로운 명령어로 인식되어 선배님 화면에 승인 팝업 카드 폭탄을 투하**하게 됩니다.
