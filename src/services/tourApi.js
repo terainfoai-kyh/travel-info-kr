@@ -749,6 +749,16 @@ export async function fetchCityTourApiSpots(city = '서울', lang = 'ko') {
   const cacheKey = `city_spots_${rawCityStr}_${lang}`;
   const cached = getPersistentSpotCache(cacheKey);
 
+  // ⚡ [0순위: 0ms In-Memory Local Tour Database]
+  // 공공 TourAPI 4.0 전수 수집 데이터셋(/data/korea_tour_spots.json)에서 0ms 즉각 반환!
+  try {
+    const localSpots = await queryLocalTourSpots(cleanCity, lang);
+    if (localSpots && localSpots.length >= 10) {
+      setPersistentSpotCache(cacheKey, localSpots);
+      return localSpots;
+    }
+  } catch (e) {}
+
   // 1️⃣ [0ms 서빙] 7일 영구 캐시에 유효한 데이터가 있으면 즉시 반환!
   if (cached && !cached.isExpired && cached.data.length > 0) {
     return cached.data;
@@ -781,7 +791,7 @@ export async function fetchCityTourApiSpots(city = '서울', lang = 'ko') {
     } catch (e) {}
   }, 8000);
 
-  // 3️⃣ [첫 방문 실시간 수신] 공공 TourAPI 4.0 청크 분할 초광속 수신 파이프라인 (arrange=P 정품 인기순)
+  // 3️⃣ [첫 방문 실시간 수신] 공공 TourAPI 4.0 청크 분할 초광속 수신 파이프라인
   let apiBase = getTourApiBaseByLang(lang);
 
   try {
@@ -791,9 +801,6 @@ export async function fetchCityTourApiSpots(city = '서울', lang = 'ko') {
 
     if (!res.ok) {
       clearTimeout(timeoutId);
-      // 🛡️ [안전망: Local Tour DB Fallback]
-      const localFallback = await queryLocalTourSpots(cleanCity, lang);
-      if (localFallback && localFallback.length > 0) return localFallback;
       return [];
     }
     const data = await res.json();
@@ -824,22 +831,6 @@ export async function fetchCityTourApiSpots(city = '서울', lang = 'ko') {
       } catch (e) {}
     }
 
-    // 🌟 [3차 안전망: Local Tour DB Fallback] 만약 공공 TourAPI가 비어있거나 8개 미만일 때 로컬 전수 DB 즉시 보강!
-    if (validSpots.length < 8) {
-      try {
-        const localFallback = await queryLocalTourSpots(cleanCity, lang);
-        if (localFallback && localFallback.length > 0) {
-          const existingIds = new Set(validSpots.map(s => s.contentId));
-          for (const ls of localFallback) {
-            if (!existingIds.has(ls.contentId)) {
-              existingIds.add(ls.contentId);
-              validSpots.push(ls);
-            }
-          }
-        }
-      } catch (e) {}
-    }
-
     // 1차 및 2차 소도시 보강까지 모두 완료된 후 안전하게 타이머 해제
     clearTimeout(timeoutId);
 
@@ -859,14 +850,7 @@ export async function fetchCityTourApiSpots(city = '서울', lang = 'ko') {
       // 사용자가 다른 도시를 선택하여 이전 요청 소켓을 안전하게 회수한 것이므로 정상 흐름
       return [];
     }
-    console.warn(`[TourAPI] Realtime Fetch Error for ${city}, falling back to Local Tour DB:`, err);
-    try {
-      const localFallback = await queryLocalTourSpots(cleanCity, lang);
-      if (localFallback && localFallback.length > 0) {
-        setPersistentSpotCache(cacheKey, localFallback);
-        return localFallback;
-      }
-    } catch (e) {}
+    console.warn(`[TourAPI] Realtime Fetch Error for ${city}:`, err);
     return [];
   } finally {
     if (activeCitySpotsController === controller) {

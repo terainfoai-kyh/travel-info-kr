@@ -163,15 +163,6 @@ export async function queryLocalTourSpots(city = '서울', lang = 'ko') {
     return false;
   });
 
-  // Sort filtered spots so iconic landmarks (Palaces, Towers, Villages, Parks, Museums) appear first
-  filtered.sort((a, b) => {
-    const isIconicA = /(궁|궁궐|타워|전망대|한옥마을|공원|수목원|해수욕장|해변|유적지|박물관|미술관|문화거리|케이블카)/i.test(a.title || '');
-    const isIconicB = /(궁|궁궐|타워|전망대|한옥마을|공원|수목원|해수욕장|해변|유적지|박물관|미술관|문화거리|케이블카)/i.test(b.title || '');
-    if (isIconicA && !isIconicB) return -1;
-    if (!isIconicA && isIconicB) return 1;
-    return 0;
-  });
-
   // Transform into TourAPI 4.0 standard item shape for 100% drop-in compatibility
   return filtered.map(s => {
     const detail = detailsMap[String(s.contentId)] || {};
@@ -183,25 +174,15 @@ export async function queryLocalTourSpots(city = '서울', lang = 'ko') {
     else if (lang === 'ja' && enriched.title_ja) displayTitle = enriched.title_ja;
     else if ((lang === 'zh' || lang === 'zht') && enriched.title_zh) displayTitle = enriched.title_zh;
 
-    const spotAddress = s.address || s.addr1 || `${city} 일대`;
-    const spotImg = s.image || '';
-    const spotDesc = detail.overview || `${s.title}의 대표적인 관광 명소입니다.`;
-
     return {
-      id: `tourapi_${s.contentId}`,
       contentid: String(s.contentId),
       contentId: String(s.contentId),
       title: displayTitle,
-      name: displayTitle,
       titleKo: s.title,
-      firstimage: spotImg,
-      firstimage2: spotImg,
-      image: spotImg,
-      addr1: spotAddress,
+      firstimage: s.image || '',
+      firstimage2: s.image || '',
+      addr1: s.address || s.addr1 || '',
       addr2: s.addr2 || '',
-      address: spotAddress,
-      description: spotDesc,
-      overview: spotDesc,
       mapx: String(s.lng),
       mapy: String(s.lat),
       lat: s.lat,
@@ -211,8 +192,7 @@ export async function queryLocalTourSpots(city = '서울', lang = 'ko') {
       cat1: s.theme ? s.theme.slice(0, 3) : 'A02',
       cat2: s.theme ? s.theme.slice(0, 5) : 'A0201',
       cat3: s.theme || 'A02010100',
-      category: s.category || (String(s.contentTypeId) === '14' ? '문화시설' : String(s.contentTypeId) === '28' ? '체험/레포츠' : '관광명소'),
-      theme: s.theme || '한국 대표 관광지',
+      category: s.category || '관광명소',
       tel: s.tel || '',
       modifiedtime: s.modifiedTime || '',
       rating: s.rating || 4.8,
@@ -221,6 +201,7 @@ export async function queryLocalTourSpots(city = '서울', lang = 'ko') {
       // Enriched AI & Operation metadata
       useTime: detail.useTime || '상시 개방',
       restDate: detail.restDate || '연중무휴',
+      overview: detail.overview || `${s.title}의 대표적인 관광 명소입니다.`,
       parking: detail.parking || '가능',
       photoTip_en: enriched.photoTip_en || '',
       localProTip_en: enriched.localProTip_en || '',
