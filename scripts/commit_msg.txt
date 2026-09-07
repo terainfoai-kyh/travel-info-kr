@@ -1,1 +1,1 @@
-fix(deploy): add direct wrangler pages deploy to deployDev.ps1
+fix(build): sync dist bundle with tier scoring and anti-monotony guard
