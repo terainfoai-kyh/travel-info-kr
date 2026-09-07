@@ -1,4 +1,1 @@
-chore: enhance deployProd.ps1 with non-interactive resilience
-
-- deployProd.ps1 내 Step 5에 non-interactive 환경 안전 폴백 처리 탑재
-- origin/main 푸시를 통한 Cloudflare Pages 운영 다이렉트 배포 완비
+docs: record production release completion (f12fb4b) in DECISIONS.md

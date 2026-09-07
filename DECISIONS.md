@@ -41,13 +41,13 @@
 
 ### 3. 현재 시스템 및 배포 상태 (Golden State)
 - **로컬 상태**: 작업 트리 clean, 모든 문법 검증 통과 (`[ZERO DEFECT PASSED]`)
-- **최신 커밋**: `4f8c5f0` (`chore: add deployDev pipeline and update production build bundle for dev deploy`)
+- **최신 커밋**: `f12fb4b` (`chore: enhance deployProd.ps1 with non-interactive resilience`)
 - **1단계 [개발 서버] (`travelkorea-dev`)**:
   - **URL**: `https://travelkorea-dev.pages.dev`
-  - **상태**: 커밋 `4f8c5f0` (`dev-remote/main`) 푸시 및 Cloudflare Pages 배포 완료! 번들 해시: `index-CVoTjMwU.js`. 선배님의 실측 검증 대기 중.
+  - **상태**: 커밋 `f12fb4b` (`dev-remote/main`) 푸시 및 Cloudflare Pages 배포 완료! 번들 해시: `index-CVoTjMwU.js`.
 - **2단계 [운영 서버] (`koreatravel.cc`)**:
   - **URL**: `https://koreatravel.cc`
-  - **상태**: 커밋 `38d9a75`로 안전 대기 중. 선배님의 명시적 승인("운영 배포해") 대기 중!
+  - **상태**: 커밋 `f12fb4b` (`origin/main`) 푸시 및 Cloudflare Pages 운영 다이렉트 배포 완료! 번들 해시: `index-CVoTjMwU.js`. 선배님의 명시적 지시("운영에 배포해")에 따른 승격 완료!
 
 ---
 
