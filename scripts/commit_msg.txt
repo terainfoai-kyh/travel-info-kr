@@ -1,6 +1,1 @@
-feat: add TourAPI 4.0 nationwide sightseeing database harvester and collect initial 4,089 core spots
-
-- scripts/harvestTourApi.js: 전국 17개 시도별 최신 정품 관광지(12/14/28) 전수 수집기 구현
-- data/korea_tour_spots.json: 전국 4,089개 핵심 관광지 데이터 45.3초 만에 무결점 추출 완료 (2.51MB)
-- data/harvest_summary.json: 지역별 수집 통계 및 메타데이터 기록
-- verifySyntax.ps1 전수 검증 통과 ([ZERO DEFECT PASSED])
+docs: log nationwide TourAPI 4.0 harvesting Golden Checkpoint in DECISIONS.md
