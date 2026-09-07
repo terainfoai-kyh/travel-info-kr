@@ -1,5 +1,5 @@
-docs: document comprehensive handover guide for next Vora AI agent
+fix: synchronize background controller abort and extend 8s timeout guard through 2nd fallback fetch
 
-- 선배님 작업 철칙 100% 영구 계승 (운영은 개발 완료 후 반영 원칙, 선 브리핑, 승인 대기)
-- 금일 해결 아키텍처 맥락 (40개 번개 생성, 백그라운드 100개 풀, 7일 영구 캐시, AbortController 소켓 락 영구 박멸)
-- 개발/운영 Two-Track 배포 상태 및 다음 보라의 1순위 이어서 할 작업 명시
+- 도시 전환 시 activeBackgroundEnrichController도 메인 컨트롤러와 함께 0.001초 즉시 abort 회수
+- 1단계 40개 및 2단계 소도시 searchKeyword2 보강 쿼리까지 8초 안전 소켓 타임아웃 가드 일괄 적용
+- verifySyntax.ps1 전수 검증 통과 ([ZERO DEFECT PASSED])

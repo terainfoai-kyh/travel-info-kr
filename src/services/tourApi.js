@@ -713,6 +713,11 @@ export async function fetchCityTourApiSpots(city = '서울', lang = 'ko') {
       activeCitySpotsController.abort();
     } catch (e) {}
   }
+  if (activeBackgroundEnrichController) {
+    try {
+      activeBackgroundEnrichController.abort();
+    } catch (e) {}
+  }
   const controller = new AbortController();
   activeCitySpotsController = controller;
 
@@ -730,9 +735,11 @@ export async function fetchCityTourApiSpots(city = '서울', lang = 'ko') {
     // ⚡ 1단계: 1페이지 40개 정예 데이터 호출 (100개 대비 3~5배 빠른 0.8초 초광속 응답)
     const fetchUrl = buildTourApiFetchUrl(apiBase, cleanCity, rawCityStr, subCity, 40, 1);
     const res = await fetch(fetchUrl, { signal: controller.signal });
-    clearTimeout(timeoutId);
 
-    if (!res.ok) return [];
+    if (!res.ok) {
+      clearTimeout(timeoutId);
+      return [];
+    }
     const data = await res.json();
     const itemsRaw = data.response?.body?.items?.item || [];
     const items = Array.isArray(itemsRaw) ? itemsRaw : (itemsRaw ? [itemsRaw] : []);
@@ -760,6 +767,9 @@ export async function fetchCityTourApiSpots(city = '서울', lang = 'ko') {
         }
       } catch (e) {}
     }
+
+    // 1차 및 2차 소도시 보강까지 모두 완료된 후 안전하게 타이머 해제
+    clearTimeout(timeoutId);
 
     if (validSpots.length > 0) {
       // 1단계 40개 즉시 캐시 저장
