@@ -1,5 +1,1 @@
-chore: add deployDev pipeline and update production build bundle for dev deploy
-
-- deployDev.ps1 파이프라인 생성 (무결성 검증 -> 로컬 빌드 -> dev-remote/main 푸시)
-- Cloudflare Pages travelkorea-dev 깃 트리거 배포 연동
-- verifySyntax.ps1 전수 검증 통과 ([ZERO DEFECT PASSED])
+docs: update DECISIONS.md with latest dev deployment checkpoint
