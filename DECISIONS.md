@@ -32,7 +32,7 @@
 - **배포 및 검증 상태**:
   - `verifySyntax.ps1` 무결점 검증 통과 (`[ZERO DEFECT PASSED]`).
   - 개발 서버 배포 파이프라인(`scripts/deployDev.ps1`) 가동 및 실측 검증 완료.
-  - 운영 서버 배포는 선배님 승인 후 다이렉트 승격 준비.
+  - **운영 서버 배포 완료 (`koreatravel.cc`)**: Cloudflare Pages 프로덕션 다이렉트 승격 완료 (`d737ffb`, `https://a9e3d374.travel-info-kr.pages.dev`). 3대 도메인(`koreatravel.cc`, `koreatravelsguide.com`, `travel-info-kr.pages.dev`)에 6대 데이터셋 암호화(.enc) 및 평문 JSON 소거 완벽 반영 완료.
 
 ---
 
