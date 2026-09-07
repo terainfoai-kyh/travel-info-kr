@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "predeploy": "npm run build",
     "deploy": "powershell.exe -ExecutionPolicy Bypass -File .\\scripts\\deployProd.ps1",
-    "deploy:dev": "vite build && npx wrangler pages deploy dist --project-name=travelkorea-dev --commit-dirty=true",
+    "deploy:dev": "powershell.exe -ExecutionPolicy Bypass -File .\\scripts\\deployDev.ps1",
     "deploy:prod": "powershell.exe -ExecutionPolicy Bypass -File .\\scripts\\deployProd.ps1",
     "radar:scan": "node scripts/redditTelegramRadar.js"
   },

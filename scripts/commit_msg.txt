@@ -1,5 +1,5 @@
-fix: synchronize background controller abort and extend 8s timeout guard through 2nd fallback fetch
+chore: add deployDev pipeline and update production build bundle for dev deploy
 
-- 도시 전환 시 activeBackgroundEnrichController도 메인 컨트롤러와 함께 0.001초 즉시 abort 회수
-- 1단계 40개 및 2단계 소도시 searchKeyword2 보강 쿼리까지 8초 안전 소켓 타임아웃 가드 일괄 적용
+- deployDev.ps1 파이프라인 생성 (무결성 검증 -> 로컬 빌드 -> dev-remote/main 푸시)
+- Cloudflare Pages travelkorea-dev 깃 트리거 배포 연동
 - verifySyntax.ps1 전수 검증 통과 ([ZERO DEFECT PASSED])
