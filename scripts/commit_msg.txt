@@ -1,1 +1,10 @@
-docs: log nationwide TourAPI 4.0 harvesting Golden Checkpoint in DECISIONS.md
+feat: harvest complete 5-part nationwide tourism datasets (9,455 items, 5.4MB in 2.9 mins)
+
+- scripts/harvestAllDatasets.js: 5대 공공데이터 올인원 정밀 수집기 구현
+- data/korea_tour_spots.json: 4,089개 순수 관광지 (2.51MB)
+- data/korea_spots_details.json: 350개 핵심 랜드마크 운영시간/휴무일/개요 (0.11MB)
+- data/korea_food_spots.json: 2,945개 전국 추천 맛집/감성카페 (1.66MB)
+- data/korea_festival_spots.json: 672개 전국 축제/문화이벤트 (0.37MB)
+- data/korea_stay_spots.json: 1,399개 추천숙소/한옥스테이/호텔 (0.78MB)
+- data/master_datasets_summary.json: 종합 수집 통계 (총 9,455건, 5.43MB, 171.6초)
+- verifySyntax.ps1 전수 검증 통과 ([ZERO DEFECT PASSED])

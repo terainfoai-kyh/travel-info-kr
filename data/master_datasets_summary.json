@@ -1,0 +1,31 @@
+{
+  "completedAt": "2026-09-07T02:06:36.040Z",
+  "elapsedSeconds": 171.6,
+  "datasets": {
+    "tourSpots": {
+      "file": "korea_tour_spots.json",
+      "count": 4089,
+      "sizeMb": 2.51
+    },
+    "foodSpots": {
+      "file": "korea_food_spots.json",
+      "count": 2945,
+      "sizeMb": "1.66"
+    },
+    "festivalSpots": {
+      "file": "korea_festival_spots.json",
+      "count": 672,
+      "sizeMb": "0.37"
+    },
+    "staySpots": {
+      "file": "korea_stay_spots.json",
+      "count": 1399,
+      "sizeMb": "0.78"
+    },
+    "spotDetails": {
+      "file": "korea_spots_details.json",
+      "count": 350,
+      "sizeMb": "0.11"
+    }
+  }
+}
