@@ -1,9 +1,34 @@
 import { PUBLIC_API_CONFIG, REGION_META, THEME_META, getDynamicRegionMeta } from './apiConfig.js';
 import { TRAVEL_SPOTS } from '../data/travelData.js';
+import { queryLocalTourSpots, queryLocalSpotDetail, queryLocalNearbyFood } from './localTourDatabase.js';
 
 // 한국관광공사 TourAPI 4.0 - 공통정보조회 (/detailCommon2)
 export async function fetchSpotDetailCommon(contentId, lang = 'ko') {
   if (!contentId) return null;
+
+  // ⚡ [0순위: 0ms Local Landmark Database] 로컬 랜드마크 상세 DB 우선 조회
+  try {
+    const localDetail = await queryLocalSpotDetail(contentId);
+    if (localDetail && localDetail.overview) {
+      return {
+        contentid: String(contentId),
+        title: localDetail.title || '',
+        overview: localDetail.overview || '',
+        homepage: localDetail.homepage || '',
+        homepageUrl: localDetail.homepage || '',
+        tel: localDetail.tel || '',
+        firstimage: localDetail.image || '',
+        firstimage2: localDetail.image || '',
+        usetime: localDetail.useTime || '',
+        restdate: localDetail.restDate || '',
+        parking: localDetail.parking || '',
+        photoTip_en: localDetail.photoTip_en || '',
+        localProTip_en: localDetail.localProTip_en || '',
+        vibeTags: localDetail.vibeTags || [],
+        transitAccess_en: localDetail.transitAccess_en || ''
+      };
+    }
+  } catch (e) {}
 
   let baseUrl = PUBLIC_API_CONFIG.DETAIL_COMMON_URL;
   if (lang === 'en') baseUrl = `${PUBLIC_API_CONFIG.ENG_BASE}/detailCommon2`;
@@ -504,6 +529,34 @@ export async function fetchNearbyRestaurantsAndCafes(lat, lng, radius = 800, lan
     return DYNAMIC_SPOT_CACHE.get(cacheKey);
   }
 
+  // ⚡ [0순위: 0ms Local Food Database] 로컬 2,945개 정품 맛집/카페 DB 우선 조회
+  try {
+    const localFoods = await queryLocalNearbyFood(lat, lng, radius || 1200, 4);
+    if (localFoods && localFoods.length > 0) {
+      const mapped = localFoods.map(item => {
+        const isCafe = /(카페|커피|베이커리|디저트|cafe|coffee|bakery|찻집)/i.test(item.title);
+        const distM = item.distanceMeters || 200;
+        const walkMins = Math.max(1, Math.round(distM / 70));
+        const distanceLabel = lang === 'en' ? `Walk ${walkMins}m (${distM}m)` : `도보 ${walkMins}분 (${distM}m)`;
+
+        return {
+          id: `food_${item.contentId}`,
+          name: item.title,
+          type: isCafe ? (lang === 'en' ? 'Cafe ☕' : '감성카페 ☕') : (lang === 'en' ? 'Local Food 🍲' : '로컬미식 🍲'),
+          category: isCafe ? '카페/디저트' : '향토음식점',
+          distance: distanceLabel,
+          distM: distM,
+          desc: item.address || item.addr1 || (isCafe ? '여유로운 분위기의 로컬 카페' : '현지 식재료를 살린 추천 식당'),
+          image: item.image || null,
+          lat: parseFloat(item.lat),
+          lng: parseFloat(item.lng)
+        };
+      });
+      DYNAMIC_SPOT_CACHE.set(cacheKey, mapped);
+      return mapped;
+    }
+  } catch (e) {}
+
   try {
     const url = `${apiBase}/locationBasedList2?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&mapX=${lng}&mapY=${lat}&radius=${radius}&contentTypeId=${foodTypeId}&arrange=E&numOfRows=20&pageNo=1`;
     const res = await fetch(url);
@@ -695,6 +748,16 @@ export async function fetchCityTourApiSpots(city = '서울', lang = 'ko') {
 
   const cacheKey = `city_spots_${rawCityStr}_${lang}`;
   const cached = getPersistentSpotCache(cacheKey);
+
+  // ⚡ [0순위: 0ms In-Memory Local Tour Database]
+  // 공공 TourAPI 4.0 전수 수집 데이터셋(/data/korea_tour_spots.json)에서 0ms 즉각 반환!
+  try {
+    const localSpots = await queryLocalTourSpots(cleanCity, lang);
+    if (localSpots && localSpots.length >= 10) {
+      setPersistentSpotCache(cacheKey, localSpots);
+      return localSpots;
+    }
+  } catch (e) {}
 
   // 1️⃣ [0ms 서빙] 7일 영구 캐시에 유효한 데이터가 있으면 즉시 반환!
   if (cached && !cached.isExpired && cached.data.length > 0) {

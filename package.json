@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node scripts/syncDatasetsToPublic.js && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "predeploy": "npm run build",
@@ -14,7 +14,8 @@
     "deploy:prod": "powershell.exe -ExecutionPolicy Bypass -File .\\scripts\\deployProd.ps1",
     "radar:scan": "node scripts/redditTelegramRadar.js",
     "harvest": "node scripts/harvestTourApi.js",
-    "harvest:all": "node scripts/harvestAllDatasets.js"
+    "harvest:all": "node scripts/harvestAllDatasets.js",
+    "enrich:gemini": "node scripts/enrichGeminiKnowledge.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
