@@ -33,7 +33,6 @@ if (fs.existsSync(envPath)) {
 const GEMINI_API_KEY = (
   process.env.GEMINI_API_KEY ||
   process.env.VITE_GEMINI_API_KEY ||
-  process.env.GOOGLE_API_KEY ||
   ''
 ).trim();
 
@@ -49,22 +48,20 @@ const ENRICHED_OUT_PATH = path.join(ROOT_DIR, 'data', 'korea_enriched_landmarks.
 // Parse CLI flags
 const args = process.argv.slice(2);
 let limit = 150; // Top landmarks to enrich by default
-let batchSize = 5;
+let batchSize = 4;
 
 for (const arg of args) {
   if (arg.startsWith('--limit=')) limit = parseInt(arg.split('=')[1], 10) || 150;
-  if (arg.startsWith('--batchSize=')) batchSize = parseInt(arg.split('=')[1], 10) || 5;
+  if (arg.startsWith('--batchSize=')) batchSize = parseInt(arg.split('=')[1], 10) || 4;
 }
 
-// Fallback Gemini models
+// Active verified Gemini models
 const GEMINI_MODELS = [
-  'gemini-2.0-flash',
-  'gemini-1.5-flash',
-  'gemini-1.5-flash-8b',
-  'gemini-1.5-pro'
+  'gemini-flash-latest',
+  'gemini-pro-latest'
 ];
 
-async function callGemini(prompt) {
+async function callGemini(prompt, retryCount = 0) {
   for (const model of GEMINI_MODELS) {
     try {
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
@@ -90,8 +87,11 @@ async function callGemini(prompt) {
           return JSON.parse(rawText);
         }
       } else if (res.status === 429 || res.status === 503) {
-        console.warn(`⚠️ [Gemini ${model}] Rate limit / busy (HTTP ${res.status}), trying next model...`);
-        await new Promise(r => setTimeout(r, 2000));
+        console.warn(`⚠️ [Gemini ${model}] Busy (HTTP ${res.status}), waiting 6s...`);
+        await new Promise(r => setTimeout(r, 6000));
+        if (retryCount < 3) {
+          return callGemini(prompt, retryCount + 1);
+        }
       } else {
         const err = await res.text();
         console.warn(`⚠️ [Gemini ${model}] HTTP ${res.status}:`, err.slice(0, 150));
@@ -203,7 +203,7 @@ Provide authentic, accurate, and practical information.`;
     }
 
     // Gentle throttle to respect free tier quota
-    await new Promise(r => setTimeout(r, 1500));
+    await new Promise(r => setTimeout(r, 3500));
   }
 
   console.log(`\n🎉 [Enrichment Complete] Successfully enriched ${successCount} landmarks!`);

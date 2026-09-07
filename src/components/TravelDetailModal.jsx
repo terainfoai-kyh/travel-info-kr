@@ -1115,6 +1115,59 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
             {description}
           </p>
 
+          {/* 🌟 VORA AI Gemini Pro Tips (포토 스팟 & 로컬 꿀팁) */}
+          {(liveCommonDetails?.photoTip_en || spot?.photoTip_en || liveCommonDetails?.localProTip_en || spot?.localProTip_en) && (
+            <div style={{
+              backgroundColor: 'rgba(245, 158, 11, 0.08)',
+              border: '1px solid rgba(245, 158, 11, 0.25)',
+              borderRadius: '14px',
+              padding: '0.85rem 1rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.45rem',
+              fontSize: '0.85rem'
+            }}>
+              {(liveCommonDetails?.photoTip_en || spot?.photoTip_en) && (
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', color: '#b45309' }}>
+                  <span style={{ fontSize: '1rem', flexShrink: 0 }}>📸</span>
+                  <div>
+                    <strong style={{ color: '#92400e' }}>Photo Angle Tip:</strong>{' '}
+                    <span style={{ color: 'var(--text-main)', opacity: 0.9 }}>
+                      {liveCommonDetails?.photoTip_en || spot?.photoTip_en}
+                    </span>
+                  </div>
+                </div>
+              )}
+              {(liveCommonDetails?.localProTip_en || spot?.localProTip_en) && (
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', color: '#047857' }}>
+                  <span style={{ fontSize: '1rem', flexShrink: 0 }}>💡</span>
+                  <div>
+                    <strong style={{ color: '#065f46' }}>Local Pro Tip:</strong>{' '}
+                    <span style={{ color: 'var(--text-main)', opacity: 0.9 }}>
+                      {liveCommonDetails?.localProTip_en || spot?.localProTip_en}
+                    </span>
+                  </div>
+                </div>
+              )}
+              {((liveCommonDetails?.vibeTags && liveCommonDetails.vibeTags.length > 0) || (spot?.vibeTags && spot.vibeTags.length > 0)) && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginTop: '0.2rem' }}>
+                  {(liveCommonDetails?.vibeTags || spot?.vibeTags || []).map((tag, tIdx) => (
+                    <span key={tIdx} style={{
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      color: '#d97706',
+                      backgroundColor: 'rgba(245, 158, 11, 0.15)',
+                      padding: '0.15rem 0.45rem',
+                      borderRadius: '6px'
+                    }}>
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* 차분한 모노톤 1줄 플랫 정보 리스트 (와이드 최적화 풀 팩) */}
           <div style={{
             display: 'flex',
