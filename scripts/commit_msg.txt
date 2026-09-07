@@ -1,1 +1,1 @@
-docs: record dev itinerary parity fix and dev deployment in DECISIONS.md
+feat: add universal landmark tier scoring and anti-monotony diversity guard

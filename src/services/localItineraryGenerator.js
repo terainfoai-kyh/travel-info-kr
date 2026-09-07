@@ -313,6 +313,44 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
     return score;
   };
 
+  /**
+   * 🏛️ Universal Spot Tier & Diversity Weight (Article 22 Universal Pipeline)
+   * Prevents micro-commercial galleries from crowding out major civic landmarks,
+   * while enforcing category diversity (anti-monotony guard).
+   */
+  const calculateSpotTierAndDiversityScore = (spot, lastSpot) => {
+    let weight = 0;
+    const t = (spot.title || '').toLowerCase();
+
+    // 🏛️ Major National/Municipal Cultural Landmarks, Palaces, UNESCO, Fortresses (+35)
+    if (/(궁|궁궐|경복궁|창덕궁|창경궁|덕수궁|경희궁|행궁|읍성|산성|성곽|서원|향교|사적|유네스코|세종문화회관|예술의전당|문화예술회관|국립|시립|도립|문화재)/.test(t)) {
+      weight += 35;
+    }
+    // 🌟 Prominent Public Plazas, Iconic Streets, Hanok Villages, Major Towers/Observatories (+25)
+    if (/(타워|전망대|케이블카|한옥마을|벽화마을|돌담길|광장|호수공원|대공원|유람선|모노레일|스카이워크|해수욕장|국립공원|도립공원)/.test(t)) {
+      weight += 25;
+    }
+
+    // 🖼️ Minor private commercial galleries / small craft shops / private exhibits (-30)
+    // (단, '국립', '시립', '도립', '세종', '예술의전당' 등 대형 공공 문화시설은 절대 감점하지 않음!)
+    const isMajorPublicVenue = /(국립|시립|도립|세종|예술의전당|대형|문화예술회관)/.test(t);
+    if (!isMajorPublicVenue && /(갤러리|화랑|아트홀|소극장|표구|공방|도예|전시실|장신구|기념품)/.test(t)) {
+      weight -= 30;
+    }
+
+    // 🛡️ [Anti-Monotony Guard] Avoid stacking consecutive indoor galleries/museums
+    if (lastSpot) {
+      const lastT = (lastSpot.title || '').toLowerCase();
+      const wasLastGalleryOrMuseum = /(미술관|박물관|갤러리|화랑|전시관|기념관|전시실)/.test(lastT);
+      const isCurrentGalleryOrMuseum = /(미술관|박물관|갤러리|화랑|전시관|기념관|전시실)/.test(t);
+      if (wasLastGalleryOrMuseum && isCurrentGalleryOrMuseum) {
+        weight -= 40; // Encourage moving to an outdoor plaza, park, traditional alley, or palace next
+      }
+    }
+
+    return weight;
+  };
+
   // 1. Fetch Realtime Genuine TourAPI 4.0 Spots from Korea Tourism Organization Server
   let liveSpots = await fetchCityTourApiSpots(city, lang).catch(() => []);
 
@@ -827,12 +865,14 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
       });
 
       if (remainingUnvisited.length > 0) {
+        const lastSpotObj = daySpots.length > 0 ? daySpots[daySpots.length - 1] : null;
+
         remainingUnvisited.sort((a, b) => {
           // 1. 🌟 사용자 선택 조건 가중치 점수 반영 (Score-Boost)
-          const scoreA = calculateSpotPreferenceScore(a);
-          const scoreB = calculateSpotPreferenceScore(b);
-          if (scoreA !== scoreB) {
-            return scoreB - scoreA; // 점수 높은 스팟 최우선 선택!
+          const prefScoreA = calculateSpotPreferenceScore(a);
+          const prefScoreB = calculateSpotPreferenceScore(b);
+          if (prefScoreA !== prefScoreB) {
+            return prefScoreB - prefScoreA; // 사용자 명시 조건 최우선!
           }
 
           // 2. 🌙 저녁(17:00+) 야경/시장/타워/해변 최우선 순위
@@ -843,11 +883,21 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
             if (!aNight && bNight) return 1;
           }
 
-          // 3. 📍 이동 거리 최단 동선 정렬
+          // 3. 📍 공간 클러스터링 + 랜드마크 Tier/다양성 가중치 결합 (Effective Distance)
           if (lastSpotLocation) {
             const distA = calculateDistanceKm(lastSpotLocation.lat, lastSpotLocation.lng, a.lat, a.lng);
             const distB = calculateDistanceKm(lastSpotLocation.lat, lastSpotLocation.lng, b.lat, b.lng);
-            return distA - distB;
+
+            const tierA = calculateSpotTierAndDiversityScore(a, lastSpotObj);
+            const tierB = calculateSpotTierAndDiversityScore(b, lastSpotObj);
+
+            // 거리 1km당 40점 환산 (1점 = 25m 거리 가치)
+            // e.g. Tier +35 랜드마크는 750m 떨어져 있어도 200m 떨어진 Tier -30 사설 갤러리를 압도!
+            // 반면 5km 떨어진 타 권역 명소는 거리 페널티로 인해 같은 권역(2km 이내)을 절대 침범하지 못함!
+            const effectiveDistA = distA - (tierA * 0.025);
+            const effectiveDistB = distB - (tierB * 0.025);
+
+            return effectiveDistA - effectiveDistB;
           }
           return 0;
         });
