@@ -1,1 +1,1 @@
-fix: enrich master tour spots with certified landmarks and fix POI visited set matching
+docs: record dev itinerary parity fix and dev deployment in DECISIONS.md

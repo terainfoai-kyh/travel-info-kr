@@ -23,6 +23,26 @@
 
 ---
 
+## 🎯 [★ 개발-운영 일정 불일치 해결: 0ms 로컬 DB 정품 랜드마크 전진 배치 & Generator 결함 수정]
+> **일자: 2026-09-07 (선배님 승인 "진행해" 반영)**
+- **문제 현상**: 서울 1일차 여행 일정 생성 시 운영 서버는 풍성한 6개 스팟(경복궁, 세종문화회관, 대한성공회, 덕수궁 돌담길, 사직공원, 독립문)을 생성한 반면, 개발 서버는 2개 스팟(경복궁, 건청궁)만 생성하여 퀄리티 불일치 발생.
+- **근본 원인 규명**:
+  1. `data/korea_tour_spots.json` 수집 시 `areaBasedList2`의 알파벳순 contentId 정렬 한계로 인해 서울 핵심 랜드마크(경복궁, 덕수궁, DDP 등)가 누락되고 비주요 시설 위주로 수집됨.
+  2. `src/services/localTourDatabase.js`에서 반환 객체에 `id` 필드가 누락되어, `localItineraryGenerator.js`의 `visitedPoiIds.add(anchorSpot.id)`에서 `undefined`가 추가됨.
+  3. 이후 `!visitedPoiIds.has(p.id)` 비교 시 `!visitedPoiIds.has(undefined) === false`가 되어 후속 40여개 후보 스팟이 전부 루프에서 탈락하여 2개 스팟만 남음.
+- **해결 조치**:
+  1. `scripts/enrichMasterTourSpots.js` 신설 및 `syncDatasetsToPublic.js` 연동: 서울/부산/제주/경주 등 주요 도시 공식 한국관광공사 TourAPI 4.0 정품 시그니처 랜드마크(4,114개)를 로컬 DB 최우선 정렬 전진 배치.
+  2. `src/services/localTourDatabase.js`: 반환 객체에 `id: tourapi_${s.contentId}` 명시적 부여.
+  3. `src/services/localItineraryGenerator.js`: `p.id || p.contentId || p.contentid || p.title` 다중 안전 가드로 `undefined` blocking 영구 차단.
+- **배포 및 검증 상태**:
+  - `verifySyntax.ps1` 통과 (`[ZERO DEFECT PASSED]`).
+  - 로컬 4,114개 스팟 동기화 및 Vite 빌드 완료 (번들: `index-I4Kgt1M9.js`).
+  - **개발 서버 배포 완료 (`travelkorea-dev.pages.dev`)**: `git push dev-remote main` 반영 (커밋 `3cbb34c`).
+  - 운영 서버(`koreatravel.cc`)는 선배님 검증 전까지 1픽셀도 건드리지 않고 안전 보존.
+
+---
+
+
 ## 📢 [★ 특급 인수인계서: 후속 보라 AI(Antigravity) 필독 가이드]
 > **작성일자: 2026-09-06 저녁 (선배님 직접 지시: "다들 대충하고 나가서 다음에 오는 애들이 개고생한다, 제대로 인수인계해줘")**
 
