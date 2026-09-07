@@ -1,1 +1,7 @@
-docs: record active bundle verification in DECISIONS.md
+feat: elevate Gwanghwamun Plaza & Deoksugung Doldam-gil and eliminate sub-palace duplicates
+
+- Add LANDMARK_GWANGHWAMUN_PLAZA, LANDMARK_SEJONG_CENTER, LANDMARK_DEOKSUGUNG_DOLDAM to extractCoreLandmarkKey
+- Group Gyeongbokgung sub-palaces (Geoncheonggung, Hyangwonjeong, Jibokjae) into LANDMARK_GYEONGBOKGUNG
+- Group Sejong Center sub-facilities (Sejongno Park, Sejong Hall) into LANDMARK_SEJONG_CENTER
+- Boost major civic plazas (+35) in calculateSpotTierAndDiversityScore
+- Zero defect verified and deployed to travelkorea-dev

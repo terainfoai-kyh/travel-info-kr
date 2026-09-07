@@ -43,7 +43,10 @@ export function normalizeTargetString(str = '') {
 function extractCoreLandmarkKey(str = '') {
   const norm = normalizeTargetString(str);
   if (/(N서울타워|남산서울타워|남산타워|나이트워크|남산공원)/i.test(norm)) return 'LANDMARK_NSEOULTOWER';
-  if (/(경복궁|광화문|근정전|경회루)/i.test(norm)) return 'LANDMARK_GYEONGBOKGUNG';
+  if (/(광화문광장|광화문시민광장)/i.test(norm)) return 'LANDMARK_GWANGHWAMUN_PLAZA';
+  if (/(경복궁|광화문|근정전|경회루|건청궁|향원정|집옥재|교태전|수정전|사정전)/i.test(norm)) return 'LANDMARK_GYEONGBOKGUNG';
+  if (/(세종문화회관|세종로공원|세종홀)/i.test(norm)) return 'LANDMARK_SEJONG_CENTER';
+  if (/(덕수궁돌담길|정동돌담길|정동길)/i.test(norm)) return 'LANDMARK_DEOKSUGUNG_DOLDAM';
   if (/(DDP|동대문디자인플라자|동대문역사문화공원)/i.test(norm)) return 'LANDMARK_DDP';
   if (/(북촌|북촌한옥마을|백인제)/i.test(norm)) return 'LANDMARK_BUKCHON';
   if (/(해운대|블루라인|스카이캡슐)/i.test(norm)) return 'LANDMARK_HAEUNDAE';
@@ -158,6 +161,9 @@ function decomposeSignatureString(rawString = '') {
 // 🌟 Landmark Synonym & Alias Dictionary for 100% TourAPI Matching
 const SYNONYM_MAP = {
   '경복궁': ['경복궁', '광화문', 'Gyeongbokgung'],
+  '광화문광장': ['광화문광장', '광화문 광장', 'Gwanghwamun Square', 'Gwanghwamun Plaza'],
+  '세종문화회관': ['세종문화회관', '세종문화회관 미술관', '세종문화회관 대극장', 'Sejong Center'],
+  '덕수궁 돌담길': ['덕수궁돌담길', '덕수궁 돌담길', '정동길', '정동돌담길', 'Deoksugung Doldam-gil'],
   '북촌한옥마을': ['북촌한옥마을', '북촌', 'Bukchon Hanok Village'],
   'N서울타워': ['N서울타워', '남산서울타워', 'N Seoul Tower'],
   'DDP': ['동대문디자인플라자', 'DDP', 'Dongdaemun Design Plaza'],
@@ -323,7 +329,7 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
     const t = (spot.title || '').toLowerCase();
 
     // 🏛️ Major National/Municipal Cultural Landmarks, Palaces, UNESCO, Fortresses (+35)
-    if (/(궁|궁궐|경복궁|창덕궁|창경궁|덕수궁|경희궁|행궁|읍성|산성|성곽|서원|향교|사적|유네스코|세종문화회관|예술의전당|문화예술회관|국립|시립|도립|문화재)/.test(t)) {
+    if (/(궁|궁궐|경복궁|창덕궁|창경궁|덕수궁|경희궁|행궁|읍성|산성|성곽|서원|향교|사적|유네스코|세종문화회관|예술의전당|문화예술회관|국립|시립|도립|문화재|광화문광장|시청광장|평화의광장)/.test(t)) {
       weight += 35;
     }
     // 🌟 Prominent Public Plazas, Iconic Streets, Hanok Villages, Major Towers/Observatories (+25)
