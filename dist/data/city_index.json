@@ -204,6 +204,47 @@
       }
     ]
   },
+  "강원": {
+    "name": "강원",
+    "count": 333,
+    "sampleSpots": [
+      {
+        "contentId": "126533",
+        "title": "오죽헌",
+        "image": "http://tong.visitkorea.or.kr/cms/resource/90/3342090_image2_1.jpg",
+        "lat": 37.7792,
+        "lng": 128.8789
+      },
+      {
+        "contentId": "127509",
+        "title": "경포대",
+        "image": "http://tong.visitkorea.or.kr/cms/resource/03/3342103_image2_1.jpg",
+        "lat": 37.7952,
+        "lng": 128.8967
+      },
+      {
+        "contentId": "125707",
+        "title": "경포해변",
+        "image": "http://tong.visitkorea.or.kr/cms/resource/07/2645607_image2_1.jpg",
+        "lat": 37.8055,
+        "lng": 128.9079
+      },
+      {
+        "contentId": "125704",
+        "title": "안목해변 강릉 커피거리",
+        "image": "http://tong.visitkorea.or.kr/cms/resource/08/3342108_image2_1.jpg",
+        "lat": 37.7718,
+        "lng": 128.9482
+      },
+      {
+        "contentId": "127506",
+        "title": "선교장",
+        "image": "http://tong.visitkorea.or.kr/cms/resource/89/3342089_image2_1.jpg",
+        "lat": 37.7865,
+        "lng": 128.8856
+      }
+    ]
+  },
   "인천": {
     "name": "인천",
     "count": 182,
@@ -447,47 +488,6 @@
         "image": null,
         "lat": 36.5984910341,
         "lng": 127.288125509
-      }
-    ]
-  },
-  "강원": {
-    "name": "강원",
-    "count": 325,
-    "sampleSpots": [
-      {
-        "contentId": "1012186",
-        "title": "[강릉 바우길 3구간] 어명을 받은 소나무길",
-        "image": "http://tong.visitkorea.or.kr/cms/resource/39/3374039_image2_1.JPG",
-        "lat": 37.7374655536,
-        "lng": 128.7939875313
-      },
-      {
-        "contentId": "1012259",
-        "title": "[강릉 바우길 5구간] 바다 호숫길",
-        "image": "http://tong.visitkorea.or.kr/cms/resource/37/3393437_image2_1.JPG",
-        "lat": 37.8296093261,
-        "lng": 128.879207557
-      },
-      {
-        "contentId": "1059957",
-        "title": "화천 파로호 자전거 100리길",
-        "image": "http://tong.visitkorea.or.kr/cms/resource/41/3044141_image2_1.jpg",
-        "lat": 38.09651687,
-        "lng": 127.6996453484
-      },
-      {
-        "contentId": "1071342",
-        "title": "알펜시아 오션700",
-        "image": null,
-        "lat": 37.6612362616,
-        "lng": 128.6907658364
-      },
-      {
-        "contentId": "1122739",
-        "title": "청춘양구 펀치볼 시래기사과축제",
-        "image": "http://tong.visitkorea.or.kr/cms/resource/97/3543397_image2_1.jpg",
-        "lat": 38.2911497868,
-        "lng": 128.1434933608
       }
     ]
   },

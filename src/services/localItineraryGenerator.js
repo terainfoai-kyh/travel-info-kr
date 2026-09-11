@@ -24,6 +24,7 @@ import { getDynamicRegionMeta } from './apiConfig.js';
 import { CITY_COORDINATES, getCityCoordinates } from './geminiNlpService.js';
 import { CITY_LOCAL_KNOWLEDGE } from '../data/voraDialogKnowledge.js';
 import { KOREA_TRAVEL_POI_DB } from '../data/koreaTravelPoiDatabase.js';
+import { ensureEnrichedLoaded } from './localTourDatabase.js';
 import { getLocalizedCityName } from '../i18n/translations.js';
 
 // 🧹 Helper: Case-Insensitive & Special Character Compressed Normalizer
@@ -70,6 +71,12 @@ function extractCoreLandmarkKey(str = '') {
   if (/(장생포|고래문화|고래박물관)/i.test(norm)) return 'LANDMARK_JANGSAENGPO';
   if (/(불국사|석굴암)/i.test(norm)) return 'LANDMARK_BULGUKSA';
   if (/(황리단|대릉원|천마총|첨성대)/i.test(norm)) return 'LANDMARK_HWANGRIDAN';
+  // 🛡️ 바우길/올레길 등 동일 트레일 코스 중복 원천 차단 (Constitution Article 16)
+  if (/(바우길|강릉바우길|대관령바우길)/i.test(norm)) return 'LANDMARK_BAWUGIL';
+  if (/(경포대|경포호|경포해변|경포해수욕장)/i.test(norm)) return 'LANDMARK_GYEONGPO';
+  if (/(오죽헌|신사임당|율곡이이)/i.test(norm)) return 'LANDMARK_OJUKHEON';
+  if (/(안목해변|안목커피거리|강릉커피거리|안목)/i.test(norm)) return 'LANDMARK_ANMOK';
+  if (/(정동진|썬크루즈|모래시계공원|바다부채길)/i.test(norm)) return 'LANDMARK_JEONGDONGJIN';
   return norm;
 }
 
@@ -232,7 +239,16 @@ const SYNONYM_MAP = {
   '옥순봉출렁다리': ['옥순봉출렁다리', '옥순봉 출렁다리', '옥순대교'],
   '청풍문화재단지': ['청풍문화재단지', '청풍문화마을', '청풍호반'],
   '비봉산전망대': ['비봉산전망대', '비봉산', '비봉산하늘전망대'],
-  '박달재': ['박달재', '울고넘는박달재', '박달재목각공원']
+  '박달재': ['박달재', '울고넘는박달재', '박달재목각공원'],
+  // 강원 강릉 대표 랜드마크 동의어 매핑
+  '오죽헌': ['오죽헌', '율곡이이', 'Ojukheon'],
+  '경포대': ['경포대', '경포호', 'Gyeongpodae'],
+  '경포해변': ['경포해변', '경포해수욕장', 'Gyeongpo Beach'],
+  '안목해변 강릉 커피거리': ['안목해변', '안목커피거리', '강릉커피거리', '커피거리', 'Anmok'],
+  '선교장': ['선교장', 'Seongyojang'],
+  '아르떼뮤지엄 강릉': ['아르떼뮤지엄', '아르떼뮤지엄강릉', 'Arte Museum'],
+  '정동진 썬크루즈 & 모래시계공원': ['정동진', '썬크루즈', '모래시계공원', '바다부채길', 'Jeongdongjin'],
+  '하슬라아트월드': ['하슬라아트월드', '하슬라', 'Haslla']
 };
 
 /**
@@ -249,6 +265,7 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
     ? { ...cityCoords } 
     : (dynMeta?.lat ? { lat: dynMeta.lat, lng: dynMeta.lng, nameEn: city } : { lat: 37.5665, lng: 126.9780, nameEn: city });
   const cityKnowledge = CITY_LOCAL_KNOWLEDGE[rawCityStr] || CITY_LOCAL_KNOWLEDGE[city] || null; // 🛡️ 서울로 강제 대체 금지!
+  const enrichedMap = await ensureEnrichedLoaded().catch(() => ({}));
 
   // Parse User Preferences & Constraints from prompt
   const isRainPreference = /(비|실내|비오는날|rain|indoor)/i.test(rawPrompt);
@@ -787,16 +804,30 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
           || anchorSpot.location 
           || `${city} 일대`;
 
+        // 🌐 Pre-computed Multilingual Title Selection (Constitution Articles 5 & 8)
+        const anchorCId = String(anchorSpot.contentId || anchorSpot.contentid || '');
+        const enrichedAnchor = enrichedMap[anchorCId] || {};
+        let finalDisplayTitle = cleanSpotTitle;
+
+        if (lang === 'en') {
+          finalDisplayTitle = anchorSpot.title_en || enrichedAnchor.title_en || matchedPoiDb?.title_en || cleanSpotTitle;
+        } else if (lang === 'ja') {
+          finalDisplayTitle = anchorSpot.title_ja || enrichedAnchor.title_ja || matchedPoiDb?.title_ja || cleanSpotTitle;
+        } else if (lang === 'zh' || lang === 'zht') {
+          finalDisplayTitle = anchorSpot.title_zh || enrichedAnchor.title_zh || matchedPoiDb?.title_zh || cleanSpotTitle;
+        }
+
         const spotObj = {
           id: `${anchorSpot.id || anchorSpot.contentId}_d${d}_s${daySpots.length + 1}`,
           contentId: anchorSpot.contentId || '',
-          title: cleanSpotTitle,
-          name: cleanSpotTitle,
+          title: finalDisplayTitle,
+          name: finalDisplayTitle,
+          titleKo: cleanSpotTitle,
           category: anchorSpot.category || (isEnglish ? 'Sightseeing' : '관광명소'),
           theme: anchorSpot.theme || matchedPoiDb?.theme || (isEnglish ? 'TourAPI Heritage' : '한국관광공사 정품 명소'),
           description: spotDescription,
           bestTime: formattedBestTime,
-          photoTip: `📸 ${cleanSpotTitle} 시그니처 포토스팟`,
+          photoTip: `📸 ${finalDisplayTitle} 시그니처 포토스팟`,
           signatureItem: `✨ ${city} 대표 관광 탐방`,
           lat: anchorSpot.lat || matchedPoiDb?.lat || cityMeta.lat,
           lng: anchorSpot.lng || matchedPoiDb?.lng || cityMeta.lng,
@@ -962,16 +993,30 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
         || nextSpot.location 
         || `${city} 일대`;
 
+      // 🌐 Pre-computed Multilingual Title Selection (Constitution Articles 5 & 8)
+      const nextCId = String(nextSpot.contentId || nextSpot.contentid || '');
+      const enrichedNext = enrichedMap[nextCId] || {};
+      let finalNextTitle = cleanSpotTitle;
+
+      if (lang === 'en') {
+        finalNextTitle = nextSpot.title_en || enrichedNext.title_en || matchedNextPoiDb?.title_en || cleanSpotTitle;
+      } else if (lang === 'ja') {
+        finalNextTitle = nextSpot.title_ja || enrichedNext.title_ja || matchedNextPoiDb?.title_ja || cleanSpotTitle;
+      } else if (lang === 'zh' || lang === 'zht') {
+        finalNextTitle = nextSpot.title_zh || enrichedNext.title_zh || matchedNextPoiDb?.title_zh || cleanSpotTitle;
+      }
+
       const spotObj = {
         id: `${nextSpot.id || nextSpot.contentId}_d${d}_s${daySpots.length + 1}`,
         contentId: nextSpot.contentId || '',
-        title: cleanSpotTitle,
-        name: cleanSpotTitle,
+        title: finalNextTitle,
+        name: finalNextTitle,
+        titleKo: cleanSpotTitle,
         category: nextSpot.category || (isEnglish ? 'Sightseeing' : '관광명소'),
         theme: nextSpot.theme || matchedNextPoiDb?.theme || (isEnglish ? 'TourAPI Heritage' : '한국관광공사 정품 명소'),
         description: nextSpotDescription,
         bestTime: formattedBestTime,
-        photoTip: `📸 ${cleanSpotTitle} 시그니처 포토스팟`,
+        photoTip: `📸 ${finalNextTitle} 시그니처 포토스팟`,
         signatureItem: `✨ ${city} 대표 관광 탐방`,
         lat: nextSpot.lat || matchedNextPoiDb?.lat || cityMeta.lat,
         lng: nextSpot.lng || matchedNextPoiDb?.lng || cityMeta.lng,

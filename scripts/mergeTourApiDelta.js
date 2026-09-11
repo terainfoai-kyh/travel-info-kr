@@ -250,16 +250,14 @@ async function runDeltaSync() {
           };
         }
 
-        // Queue for Gemini AI Enrichment if it has image
-        if (newSpot.image) {
-          newSpotsToEnrich.push({
-            contentId: cId,
-            title_ko: item.title,
-            region: newSpot.region,
-            address: newSpot.address,
-            category: newSpot.category
-          });
-        }
+        // Queue for Gemini AI Enrichment (Guarantees multilingual title_en, title_ja, title_zh)
+        newSpotsToEnrich.push({
+          contentId: cId,
+          title_ko: item.title,
+          region: newSpot.region,
+          address: newSpot.address,
+          category: newSpot.category
+        });
       }
     }
 
