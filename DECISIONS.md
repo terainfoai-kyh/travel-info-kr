@@ -17,7 +17,10 @@
   2. **4,122개 전체 데이터셋 전수 Pre-computed 다국어 구워넣기 (`enrichMasterTourSpots.js` & `syncDatasetsToPublic.js`)**:
      - `korea_tour_spots.json`, `korea_spots_details.json`, `korea_enriched_landmarks.json`의 4,122개 모든 스팟에 `title_en`, `title_ja`, `title_zh` 100% 주입.
      - `public/data/` 6대 암호화 파일(`.enc`, 7.96MB) 및 `city_index.json` 최신 다국어 데이터로 암호화 동기화 완료.
-  3. **UI 런타임 실시간 TourAPI 응답 2중 안전망 연동 (`translations.js` & `MyTripTab.jsx`)**:
+  3. **TourAPI 공공데이터 일일 델타 머지 배치 다국어 100% 영구 직결 (`mergeTourApiDelta.js` & `enrichGeminiKnowledge.js`)**:
+     - TourAPI에서 매일 아침 들어오는 신규 명소(INSERT) 생성 시 `newSpot.title_en/ja/zh`에 유니버설 변환기 즉시 주입 (`korea_tour_spots.json` 동시 영구 보존).
+     - 제미나이 AI 호출 실패/쿼터 제한 시에도 `createSafeFallback`이 유니버설 엔진을 100% 호출하여 한글 유출 원천 박멸.
+  4. **UI 런타임 실시간 TourAPI 응답 2중 안전망 연동 (`translations.js` & `MyTripTab.jsx`)**:
      - `getTranslatedTitle`: 랜드마크 맵에 없는 실시간 TourAPI 수신 스팟도 `universalTranslateSpot`으로 직결되어 100% 다국어 전환.
      - `cleanDayTheme`: 일차별 테마 헤더 내의 한국어 잔여 텍스트(`/[가-힣]+/g`)를 정규식으로 감지하여 전수 다국어 자동 치환.
 - **실측 단위 검증 결과 (`scripts/testNonsanTranslation.js`)**:

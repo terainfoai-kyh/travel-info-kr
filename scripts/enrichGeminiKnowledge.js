@@ -9,6 +9,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { universalTranslateSpot } from '../src/utils/koreanRomanizer.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -241,11 +242,12 @@ Provide authentic, accurate, and practical information.`;
     if (Array.isArray(result) && result.length > 0) {
       return result.map(resItem => {
         const orig = items.find(x => String(x.contentId) === String(resItem.contentId)) || {};
+        const koTitle = orig.title_ko || orig.title || '';
         return {
           contentId: String(resItem.contentId || orig.contentId),
-          title_en: resItem.title_en || orig.title_ko || '',
-          title_ja: resItem.title_ja || orig.title_ko || '',
-          title_zh: resItem.title_zh || orig.title_ko || '',
+          title_en: resItem.title_en || universalTranslateSpot(koTitle, 'en') || 'Scenic Landmark',
+          title_ja: resItem.title_ja || universalTranslateSpot(koTitle, 'ja') || '名所',
+          title_zh: resItem.title_zh || universalTranslateSpot(koTitle, 'zh') || '名胜',
           photoTip_en: resItem.photoTip_en || 'Capture great landscape memories during golden hour before sunset.',
           localProTip_en: resItem.localProTip_en || 'Morning visits offer quiet ambiance and unobstructed photo opportunities.',
           vibeTags: Array.isArray(resItem.vibeTags) && resItem.vibeTags.length > 0 ? resItem.vibeTags : ['#Scenic', '#KoreaTravel', '#MustVisit'],
@@ -262,11 +264,12 @@ Provide authentic, accurate, and practical information.`;
 }
 
 function createSafeFallback(item) {
+  const koTitle = item.title_ko || item.title || '';
   return {
     contentId: String(item.contentId),
-    title_en: item.title_ko || 'Scenic Landmark',
-    title_ja: item.title_ko || '名所',
-    title_zh: item.title_ko || '名胜',
+    title_en: universalTranslateSpot(koTitle, 'en') || 'Scenic Landmark',
+    title_ja: universalTranslateSpot(koTitle, 'ja') || '名所',
+    title_zh: universalTranslateSpot(koTitle, 'zh') || '名胜',
     photoTip_en: 'Capture great landscape memories during golden hour before sunset.',
     localProTip_en: 'Morning visits offer quiet ambiance and unobstructed photo opportunities.',
     vibeTags: ['#Scenic', '#KoreaTravel', '#MustVisit'],

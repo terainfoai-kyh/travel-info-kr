@@ -15,6 +15,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { enrichSpotsWithGemini } from './enrichGeminiKnowledge.js';
+import { universalTranslateSpot } from '../src/utils/koreanRomanizer.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -215,6 +216,9 @@ async function runDeltaSync() {
         const newSpot = {
           contentId: cId,
           title: item.title,
+          title_en: universalTranslateSpot(item.title, 'en'),
+          title_ja: universalTranslateSpot(item.title, 'ja'),
+          title_zh: universalTranslateSpot(item.title, 'zh'),
           category: catId === '14' ? '문화시설' : (catId === '28' ? '레포츠' : '관광명소'),
           contentTypeId: catId,
           theme: item.cat3 || 'A02010100',
@@ -284,7 +288,14 @@ async function runDeltaSync() {
       const enrichedBatch = await enrichSpotsWithGemini(newSpotsToEnrich);
       for (const enr of enrichedBatch) {
         if (enr && enr.contentId) {
-          enrichedMap[String(enr.contentId)] = enr;
+          const cStr = String(enr.contentId);
+          enrichedMap[cStr] = enr;
+          if (tourSpotsMap.has(cStr)) {
+            const spot = tourSpotsMap.get(cStr);
+            if (enr.title_en) spot.title_en = enr.title_en;
+            if (enr.title_ja) spot.title_ja = enr.title_ja;
+            if (enr.title_zh) spot.title_zh = enr.title_zh;
+          }
           console.log(`   ✨ Enriched: [${enr.contentId}] ${enr.title_en}`);
         }
       }
