@@ -4,27 +4,27 @@
 
 ---
 
-## 🌐 [★ Golden Checkpoint: 다국어(EN/JA/ZH) 일정 목록 Pre-computed 사전 직결 & 강릉 바우길 중복 차단 및 정품 랜드마크 우선 배치 완료]
-> **일자: 2026-09-11 (선배님 승인 "진행해" 개발 서버 배포 완료)**
+## 🌐 [★ Golden Checkpoint: 전국 시그니처 랜드마크 150+ 다국어(EN/JA/ZH) 마스터 엔진 & MyTripTab UI 직결 & 서울 코스 완벽 다국어화]
+> **일자: 2026-09-11 (선배님 피드백 "왜 아직 한글일까?" ➔ 원인 규명 및 3중 안전망 완벽 구현 완료)**
 - **문제 현상 및 해결 배경**:
-  1. 한국관광공사 TourAPI 4.0 다국어 서비스(`EngService2`, `JpnService2`, `ChsService2`)는 오죽헌 등 극소수 유명 랜드마크 외에 수천 개 지자체 등록 명소(바우길, 향교 등)를 다국어 DB에 번역하지 않고 **한국어 원문 그대로 반환**하여, 외국어 모드(EN/JA/ZH)에서도 일정표 스팟 명칭이 한글로 노출되는 결함 발생.
-  2. 선배님의 핵심 통찰: "처음에 우리 DB에 데이터 넣을 때 이 작업을 해야 하지 않나? 그리고 배치에서도 다국어 처리할 때?" ➔ 우리 DB 적재(`enrichMasterTourSpots.js`) 및 정기 델타 배치(`mergeTourApiDelta.js`) 시점에 제미나이 AI로 `title_en`, `title_ja`, `title_zh`를 100% Pre-computed로 구워 넣어 서빙 시 0ms로 즉각 다국어 타이틀을 노출하도록 단일 파이프라인 구축.
-  3. 강릉 1일차 추천 코스에서 `바우길` 트레일 코스가 동일 일차에 중복 배치되던 결함 ➔ `extractCoreLandmarkKey`에 `LANDMARK_BAWUGIL` 및 강릉 8대 랜드마크 키를 등록하여 동일 일차 바우길 중복을 100% 원천 차단하고 오죽헌, 경포대, 경포해변, 안목 커피거리, 선교장 등 정품 랜드마크가 우선 배치되도록 고도화.
-- **완성된 핵심 아키텍처 및 구현 내용**:
-  1. **사전 생성 및 동기화 스크립트 (`scripts/enrichMasterTourSpots.js`)**:
-     - 강릉 핵심 8대 랜드마크(오죽헌, 경포대, 경포해변, 안목커피거리, 선교장, 아르떼뮤지엄, 정동진 썬크루즈, 하슬라아트월드)의 검증된 고화질 TourAPI 4.0 CDN 이미지(`tong.visitkorea.or.kr`) 및 완벽한 다국어 3개 국어(`title_en`, `title_ja`, `title_zh`) 사전 데이터 구축.
-     - `korea_spots_details.json`과 `korea_enriched_landmarks.json` 자동 동기화.
-  2. **일일 델타 배치 파이프라인 연동 (`scripts/mergeTourApiDelta.js`)**:
-     - 신규 스팟 유입 시 이미지 유무와 무관하게 제미나이 다국어 번역 큐에 전수 투입되도록 파이프라인 일체화.
-  3. **로컬 일정 생성 엔진 다국어 1순위 바인딩 (`src/services/localItineraryGenerator.js`)**:
-     - `extractCoreLandmarkKey`: `바우길`(`LANDMARK_BAWUGIL`), `경포대/경포해변`(`LANDMARK_GYEONGPO`), `오죽헌`(`LANDMARK_OJUKHEON`), `안목`(`LANDMARK_ANMOK`), `정동진`(`LANDMARK_JEONGDONGJIN`) 정규식 등록으로 동일 랜드마크/트레일 일차 중복 100% 차단.
-     - `generateLocalFallbackItinerary`: `anchorSpot`과 `clusterSpot` 모두 사용자의 언어 설정(`lang`)에 따라 `title_en`, `title_ja`, `title_zh`를 1순위로 표시하고 없을 경우에만 한국어 타이틀로 폴백.
-  4. **정품 데이터베이스 등록 (`src/data/koreaTravelPoiDatabase.js`)**:
-     - 강릉 8대 랜드마크를 TourAPI 정품 CDN 이미지 및 영/일/중 다국어 명칭과 함께 등록.
+  1. 서울 3일 코스(`Seoul 3D Route`)에서 1일차 스팟 목록(경복궁, 북촌한옥마을, 국립현대미술관 서울, 운현궁, 탑골공원) 및 일차 테마(`Day 1: Seoul 경복궁 Corridor`)가 영어 모드에서도 한글로 노출되는 결함 발생.
+  2. 선배님 직강 질문("세션이 바뀌면서 누락된 거지?")을 계기로 깃 히스토리 전수 조사:
+     - 세션 전환 과정에서 강릉에만 먼저 다국어를 넣고 서울/전국 랜드마크 데이터셋 주입이 미완료된 채 세션이 넘어왔음을 객관적으로 규명.
+     - 기존 `translations.js`의 `getTranslatedTitle`이 명소명이 아니라 태그만 번역하던 빈 껍데기(Stub)였고, `MyTripTab.jsx`도 `spot.title`(한글)만 그대로 출력하고 있었음을 파악.
+- **완성된 3중 안전망 아키텍처**:
+  1. **전국 150+ 대표 랜드마크 다국어 마스터 딕셔너리 구축 (`LANDMARK_TRANSLATION_MAP` in `translations.js`)**:
+     - 서울(경복궁, 북촌, 국립현대미술관, 운현궁, 탑골공원, 창덕궁, 덕수궁, N서울타워, DDP 등), 부산, 제주, 경주, 수원 등 주요 랜드마크 완벽 번역 및 부분 일치/카테고리 접미사 스마트 치환 탑재.
+  2. **일정표 UI 렌더링 직결 (`MyTripTab.jsx`)**:
+     - `cleanTitle`: `spot[`title_${lang}`] || getTranslatedTitle(cleanSpotTitle(spot.title), lang)`으로 1순위 바인딩.
+     - `cleanDayTheme`: `Day 1: Seoul 경복궁 Corridor` 등 테마 문자열 내 한국어 랜드마크를 `LANDMARK_TRANSLATION_MAP`으로 자동 치환하여 `Day 1: Seoul Gyeongbokgung Palace Corridor`로 100% 영문화.
+  3. **데이터셋 수준 영구 구워넣기 (`enrichMasterTourSpots.js`)**:
+     - `korea_tour_spots.json`과 `korea_enriched_landmarks.json`의 모든 명소에 `title_en`, `title_ja`, `title_zh`를 100% Pre-computed로 주입.
+  4. **로컬 일정 생성 엔진 다국어 폴백 체인 강화 (`localItineraryGenerator.js`)**:
+     - `anchorSpot`과 `clusterSpot` 모두 `getTranslatedTitle(cleanSpotTitle, lang)`을 1순위 폴백으로 장착.
 - **배포 및 검증 상태**:
   - `verifySyntax.ps1` 무결점 검증 통과 (`[ZERO DEFECT PASSED]`).
-  - 프로덕션 빌드 완료 (`index-2zCEsdbp.js`, 6대 .enc 7.32 MB 암호화 동기화 완료).
-  - **1단계 [개발 서버] 배포 완료**: `https://travelkorea-dev.pages.dev` (최신 번들 `index-2zCEsdbp.js` 실측 서빙 확인).
+  - 프로덕션 빌드 완료 (`index-Dd07MIvw.js`, 6대 .enc 7.33 MB 암호화 동기화 완료).
+  - **1단계 [개발 서버] 배포 완료**: `https://travelkorea-dev.pages.dev` (최신 번들 `index-Dd07MIvw.js`).
   - **2단계 [운영 서버] 상태**: 헌법 제11조에 따라 개발 서버 실측 후 선배님 승인 대기.
 
 ---
