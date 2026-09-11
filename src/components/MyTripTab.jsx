@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Calendar, Share2, Check, MapPin, Sparkles, Navigation, Info, ExternalLink, Clock, CheckCircle2, Trash2, PlusCircle, Bookmark, Printer, Download, Zap, Smartphone, RotateCw, X } from 'lucide-react';
-import { TRANSLATIONS, getLocalizedCityName } from '../i18n/translations';
+import { TRANSLATIONS, getLocalizedCityName, getTranslatedTitle, LANDMARK_TRANSLATION_MAP } from '../i18n/translations';
 import QRCodeModal from './QRCodeModal';
 
 /**
@@ -336,10 +336,20 @@ export default function MyTripTab({
     return rawTitle.split('&')[0].split('/')[0].split('+')[0].trim();
   };
 
-  // 서브 타이틀에서 "1일차:", "2일차:" 같은 중복 접두사 제거
+  // 서브 타이틀에서 "1일차:", "2일차:" 같은 중복 접두사 제거 및 다국어 치환
   const cleanDayTheme = (rawTheme = '') => {
-    if (!rawTheme) return `${targetCity}의 하루`;
-    return rawTheme.replace(/^\d+일차[:\s—-]*/, '').trim() || `${targetCity}의 하루`;
+    const locCity = getLocalizedCityName(targetCity, lang);
+    if (!rawTheme) return lang === 'en' ? `A Day in ${locCity}` : `${locCity}의 하루`;
+    let themeStr = rawTheme.replace(/^\d+일차[:\s—-]*/, '').trim();
+    if (lang !== 'ko') {
+      const targetLang = (lang === 'zht' ? 'zh' : lang);
+      for (const [krKey, transObj] of Object.entries(LANDMARK_TRANSLATION_MAP || {})) {
+        if (themeStr.includes(krKey) && transObj[targetLang]) {
+          themeStr = themeStr.replace(krKey, transObj[targetLang]);
+        }
+      }
+    }
+    return themeStr || (lang === 'en' ? `A Day in ${locCity}` : `${locCity}의 하루`);
   };
 
   // 🌟 명소별 지능형 카테고리 태그 및 맞춤 스타일링 함수
@@ -923,7 +933,11 @@ export default function MyTripTab({
         }}>
           {activeSpots.map((spot, idx) => {
             const timeStr = getTimeSlot(idx, activeSpots.length, activeDay);
-            const cleanTitle = cleanSpotTitle(spot.title || spot.name);
+            const targetLang = (lang === 'zht' ? 'zh' : lang);
+            const spotLangTitle = (lang !== 'ko' && spot[`title_${targetLang}`])
+              ? spot[`title_${targetLang}`]
+              : ((lang !== 'ko' && spot.title_en) ? spot.title_en : null);
+            const cleanTitle = spotLangTitle || getTranslatedTitle(cleanSpotTitle(spot.title || spot.name), lang);
             const isLast = idx === activeSpots.length - 1;
 
             return (

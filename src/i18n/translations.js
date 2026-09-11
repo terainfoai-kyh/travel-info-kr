@@ -67,9 +67,167 @@ export function getMapSearchBtnLabel(foodName, lang = 'ko') {
   }
 }
 
+// 🏛️ 대한민국 전국 대표 시그니처 랜드마크 마스터 다국어 룩업 테이블
+export const LANDMARK_TRANSLATION_MAP = {
+  // 서울 (Seoul)
+  '경복궁': { en: 'Gyeongbokgung Palace', ja: '景福宮', zh: '景福宫' },
+  '북촌한옥마을': { en: 'Bukchon Hanok Village', ja: '北村韓屋村', zh: '北村韩屋村' },
+  '국립현대미술관': { en: 'MMCA (National Museum of Modern and Contemporary Art)', ja: '国立現代美術館', zh: '国立现代美术馆' },
+  '국립현대미술관 서울': { en: 'MMCA Seoul', ja: '国立現代美術館 ソウル', zh: '国立现代美术馆 首尔' },
+  '서울 운현궁': { en: 'Unhyeongung Royal Residence', ja: '雲峴宮', zh: '云岘宫' },
+  '운현궁': { en: 'Unhyeongung Royal Residence', ja: '雲峴宮', zh: '云岘宫' },
+  '탑골공원 팔각정': { en: 'Tapgol Park (Pagoda Park)', ja: 'タプコル公園 八角亭', zh: '塔谷公园 八角亭' },
+  '탑골공원': { en: 'Tapgol Park (Pagoda Park)', ja: 'タプコル公園', zh: '塔谷公园' },
+  '창덕궁': { en: 'Changdeokgung Palace', ja: '昌徳宮', zh: '昌德宫' },
+  '창덕궁 후원': { en: 'Changdeokgung Secret Garden', ja: '昌徳宮 後苑', zh: '昌德宫 后苑' },
+  '창경궁': { en: 'Changgyeonggung Palace', ja: '昌慶宮', zh: '昌庆宫' },
+  '덕수궁': { en: 'Deoksugung Palace', ja: '徳寿宮', zh: '德寿宫' },
+  '덕수궁 돌담길': { en: 'Deoksugung Stone Wall Walk', ja: '徳寿宮 トルダムキル', zh: '德寿宫 石墙路' },
+  '광화문광장': { en: 'Gwanghwamun Square', ja: '光化門広場', zh: '光化门广场' },
+  '세종문화회관': { en: 'Sejong Center for the Performing Arts', ja: '世宗文化会館', zh: '世宗文化会馆' },
+  'N서울타워': { en: 'N Seoul Tower', ja: 'Nソウルタワー', zh: 'N首尔塔' },
+  '남산타워': { en: 'N Seoul Tower', ja: 'Nソウルタワー', zh: 'N首尔塔' },
+  '동대문디자인플라자(DDP)': { en: 'Dongdaemun Design Plaza (DDP)', ja: '東大門デザインプラザ(DDP)', zh: '东大门设计广场(DDP)' },
+  '동대문디자인플라자': { en: 'Dongdaemun Design Plaza (DDP)', ja: '東大門デザインプラザ(DDP)', zh: '东大门设计广场(DDP)' },
+  'DDP': { en: 'Dongdaemun Design Plaza (DDP)', ja: '東大門デザインプラザ(DDP)', zh: '东大门设计广场(DDP)' },
+  '명동거리': { en: 'Myeongdong Shopping Street', ja: '明洞通り', zh: '明洞街区' },
+  '명동': { en: 'Myeongdong', ja: '明洞', zh: '明洞' },
+  '인사동': { en: 'Insadong Culture Street', ja: '仁寺洞', zh: '仁寺洞文化街' },
+  '인사동 쌈지길': { en: 'Insadong Ssamzigil', ja: '仁寺洞 サムジキル', zh: '仁寺洞 人人广场' },
+  '청계천': { en: 'Cheonggyecheon Stream', ja: '清渓川', zh: '清溪川' },
+  '롯데월드타워': { en: 'Lotte World Tower (Seoul Sky)', ja: 'ロッテワールドタワー', zh: '乐天世界塔' },
+  '코엑스 별마당도서관': { en: 'COEX Starfield Library', ja: 'ピョルマダン図書館', zh: '星空图书馆' },
+  '별마당도서관': { en: 'Starfield Library', ja: 'ピョルマダン図書館', zh: '星空图书馆' },
+  '성수동 카페거리': { en: 'Seongsu-dong Cafe Street', ja: '聖水洞カフェ通り', zh: '圣水洞咖啡街' },
+  '성수동': { en: 'Seongsu-dong', ja: '聖水洞', zh: '圣水洞' },
+  '남산골한옥마을': { en: 'Namsangol Hanok Village', ja: '南山コル韓屋村', zh: '南山谷韩屋村' },
+  '남대문시장': { en: 'Namdaemun Market', ja: '南大門市場', zh: '南大门市场' },
+  '광장시장': { en: 'Gwangjang Market', ja: '広蔵市場', zh: '广藏市场' },
+  '광장시장 먹거리골목': { en: 'Gwangjang Market Food Alley', ja: '広蔵市場 屋台通り', zh: '广藏市场 美食街' },
+  '국립중앙박물관': { en: 'National Museum of Korea', ja: '国立中央博物館', zh: '韩国国立中央博物馆' },
+  '전쟁기념관': { en: 'The War Memorial of Korea', ja: '戦争記念館', zh: '战争纪念馆' },
+  '여의도 한강공원': { en: 'Yeouido Hangang Park', ja: '汝矣島 漢江公園', zh: '汝矣岛 汉江公园' },
+  '반포 한강공원': { en: 'Banpo Hangang Park', ja: '盤浦 漢江公園', zh: '盘浦 汉江公园' },
+  '익선동 한옥거리': { en: 'Ikseon-dong Hanok Street', ja: '益善洞 韓屋村', zh: '益善洞 韩屋街' },
+  '익선동': { en: 'Ikseon-dong', ja: '益善洞', zh: '益善洞' },
+  '청와대': { en: 'Cheong Wa Dae (The Blue House)', ja: '青瓦台', zh: '青瓦台' },
+  '홍대 걷고싶은거리': { en: 'Hongdae Street', ja: '弘大 通り', zh: '弘大 步行街' },
+  '홍대': { en: 'Hongdae', ja: '弘大', zh: '弘大' },
+
+  // 부산 (Busan)
+  '해운대해수욕장': { en: 'Haeundae Beach', ja: '海雲台海水浴場', zh: '海云台海水浴场' },
+  '광안리해수욕장': { en: 'Gwangalli Beach', ja: '広安里海水浴場', zh: '广安里海水浴场' },
+  '해운대 블루라인파크': { en: 'Haeundae Blueline Park (Sky Capsule)', ja: '海雲台ブルーラインパーク', zh: '海云台蓝线公园天空胶囊' },
+  '감천문화마을': { en: 'Gamcheon Culture Village', ja: '甘川文化村', zh: '甘川文化村' },
+  '자갈치시장': { en: 'Jagalchi Fish Market', ja: 'チャガルチ市場', zh: '札嘎其水产市场' },
+  '자갈치시장 & 남포동 먹자골목': { en: 'Jagalchi Market & Nampo Food Alley', ja: 'チャガルチ市場＆南浦洞グルメ通り', zh: '札嘎其市场与南浦洞美食街' },
+  '용두산공원': { en: 'Yongdusan Park (Busan Tower)', ja: '竜頭山公園', zh: '龙头山公园' },
+  '부산타워': { en: 'Busan Tower (Diamond Tower)', ja: '釜山タワー', zh: '釜山塔' },
+  '흰여울문화마을': { en: 'Huinnyeoul Culture Village', ja: '白瀬文化村', zh: '白浅滩文化村' },
+  '송도 해상케이블카': { en: 'Songdo Marine Cable Car', ja: '松島海上ケーブルカー', zh: '松岛海上缆车' },
+  '태종대': { en: 'Taejongdae Resort Park', ja: '太宗台', zh: '太宗台' },
+  '해동용궁사': { en: 'Haedong Yonggungsa Temple', ja: '海東龍宮寺', zh: '海东龙宫寺' },
+  '국립해양박물관': { en: 'National Maritime Museum', ja: '国立海洋博物館', zh: '国立海洋博物馆' },
+  '오륙도 스카이워크': { en: 'Oryukdo Skywalk', ja: '五六島スカイウォーク', zh: '五六岛天空步道' },
+  '동백섬': { en: 'Dongbaekseom Island', ja: '冬柏島', zh: '冬柏岛' },
+
+  // 제주 (Jeju)
+  '성산일출봉': { en: 'Seongsan Ilchulbong Peak', ja: '城山日出峰', zh: '城山日出峰' },
+  '만장굴': { en: 'Manjanggul Lava Tube', ja: '万丈窟', zh: '万丈窟' },
+  '한라산국립공원': { en: 'Hallasan National Park', ja: '漢拏山国立公園', zh: '汉拏山国立公园' },
+  '협재해수욕장': { en: 'Hyeopjae Beach', ja: '挟才海水浴場', zh: '挟才海水浴场' },
+  '함덕해수욕장': { en: 'Hamdeok Beach', ja: '咸徳海水浴場', zh: '咸德海水浴场' },
+  '오설록 티뮤지엄': { en: 'Osulloc Tea Museum', ja: 'オソルロック ティーミュージアム', zh: '雪绿茶博物馆' },
+  '아르떼뮤지엄 제주': { en: 'Arte Museum Jeju', ja: 'アルテミュージアム 済州', zh: '济州ARTE沉浸式艺术馆' },
+  '섭지코지': { en: 'Seopjikoji Coastal Walk', ja: '渉地可支', zh: '涉地可支' },
+  '천지연폭포': { en: 'Cheonjiyeon Falls', ja: '天地淵の滝', zh: '天地渊瀑布' },
+  '정방폭포': { en: 'Jeongbang Falls', ja: '正房の滝', zh: '正房瀑布' },
+  '중문주상절리대': { en: 'Jungmun Daepo Coast Jusangjeolli Cliff', ja: '柱状節理帯', zh: '柱状节理带' },
+  '우도': { en: 'Udo Island', ja: '牛島', zh: '牛岛' },
+
+  // 경주 (Gyeongju)
+  '불국사': { en: 'Bulguksa Temple', ja: '仏国寺', zh: '佛国寺' },
+  '석굴암': { en: 'Seokguram Grotto', ja: '石窟庵', zh: '石窟庵' },
+  '첨성대': { en: 'Cheomseongdae Observatory', ja: '瞻星台', zh: '瞻星台' },
+  '경주 동궁과 월지 (안압지)': { en: 'Donggung Palace & Wolji Pond', ja: '東宮と月池(雁鴨池)', zh: '东宫与月池' },
+  '동궁과 월지': { en: 'Donggung Palace & Wolji Pond', ja: '東宮と月池', zh: '东宫与月池' },
+  '경주 황리단길': { en: 'Hwangridan-gil Hanok Street', ja: '皇理団通り', zh: '皇理团路' },
+  '황리단길': { en: 'Hwangridan-gil', ja: '皇理団通り', zh: '皇理团路' },
+  '대릉원': { en: 'Daereungwon Ancient Tomb Complex', ja: '大陵苑', zh: '大陵苑' },
+  '천마총': { en: 'Cheonmachong Tomb', ja: '天馬塚', zh: '天马冢' },
+  '월정교': { en: 'Woljeonggyo Bridge', ja: '月精橋', zh: '月精桥' },
+
+  // 강릉 (Gangneung)
+  '오죽헌': { en: 'Ojukheon House', ja: '烏竹軒', zh: '乌竹轩' },
+  '경포대': { en: 'Gyeongpodae Pavilion', ja: '鏡浦台', zh: '镜浦台' },
+  '경포해변': { en: 'Gyeongpo Beach', ja: '鏡浦ビーチ', zh: '镜浦海滩' },
+  '안목해변 강릉 커피거리': { en: 'Anmok Beach Coffee Street', ja: '安木ビーチ江陵コーヒー通り', zh: '安木海滩江陵咖啡街' },
+  '안목해변 커피거리': { en: 'Anmok Beach Coffee Street', ja: '安木ビーチ江陵コーヒー通り', zh: '安木海滩江陵咖啡街' },
+  '선교장': { en: 'Seongyojang House', ja: '船橋荘', zh: '船桥庄' },
+  '아르떼뮤지엄 강릉': { en: 'Arte Museum Gangneung', ja: 'アルテミュージアム江陵', zh: '江陵ARTE艺术馆' },
+  '정동진 썬크루즈 & 모래시계공원': { en: 'Jeongdongjin Sun Cruise & Hourglass Park', ja: '正東津サンクルーズ＆砂時計公園', zh: '正东津太阳邮轮与沙漏公园' },
+  '하슬라아트월드': { en: 'Haslla Art World', ja: 'ハスラアートワールド', zh: '哈斯拉艺术世界' },
+  '초당 순두부마을': { en: 'Chodang Soft Tofu Village', ja: '草堂スンドゥブ村', zh: '草堂嫩豆腐村' },
+
+  // 수원 (Suwon)
+  '수원화성 & 방화수류정': { en: 'Suwon Hwaseong Fortress & Banghwasuryujeong', ja: '水原華城＆訪花随柳亭', zh: '水原华城与访花随柳亭' },
+  '수원화성': { en: 'Suwon Hwaseong Fortress', ja: '水原華城', zh: '水原华城' },
+  '방화수류정': { en: 'Banghwasuryujeong Pavilion', ja: '訪花随柳亭', zh: '访花随柳亭' },
+  '화성행궁': { en: 'Hwaseong Haenggung Palace', ja: '華城行宮', zh: '华城行宫' },
+  '행리단길 감성 카페거리': { en: 'Haengnidan-gil Cafe Street', ja: 'ヘンリダンキルカフェ通り', zh: '行理团路咖啡街' },
+  '행리단길': { en: 'Haengnidan-gil', ja: 'ヘンリダンキル', zh: '行理团路' },
+  '수원 통닭거리 & 왕갈비 맛집': { en: 'Suwon Fried Chicken & Galbi Street', ja: '水原チキン＆カルビ通り', zh: '水原炸鸡与王牛排骨街' },
+
+  // 전주 (Jeonju)
+  '전주 한옥마을 & 경기전': { en: 'Jeonju Hanok Village & Gyeonggijeon', ja: '全州韓屋村＆慶基殿', zh: '全州韩屋村与庆基殿' },
+  '전주 한옥마을': { en: 'Jeonju Hanok Village', ja: '全州韓屋村', zh: '全州韩屋村' },
+  '경기전': { en: 'Gyeonggijeon Shrine', ja: '慶基殿', zh: '庆基殿' },
+  '전동성당': { en: 'Jeondong Catholic Cathedral', ja: '殿洞聖堂', zh: '殿洞圣堂' },
+
+  // 여수 (Yeosu)
+  '여수 해상케이블카 & 오동도': { en: 'Yeosu Maritime Cable Car & Odongdo', ja: '麗水海上ケーブルカー＆梧桐島', zh: '丽水海上缆车与梧桐岛' },
+  '여수 해상케이블카': { en: 'Yeosu Maritime Cable Car', ja: '麗水海上ケーブルカー', zh: '丽水海上缆车' },
+  '오동도': { en: 'Odongdo Island', ja: '梧桐島', zh: '梧桐岛' },
+  '향일암': { en: 'Hyangiram Hermitage', ja: '向日庵', zh: '向日庵' }
+};
+
 export function getTranslatedTitle(title, lang = 'ko') {
   if (!title || typeof title !== 'string') return '';
-  return title.trim();
+  if (lang === 'ko') return title.trim();
+
+  const clean = title.trim();
+  const targetLang = (lang === 'zht' ? 'zh' : lang);
+
+  // 1. 완전 일치 매칭
+  if (LANDMARK_TRANSLATION_MAP[clean] && LANDMARK_TRANSLATION_MAP[clean][targetLang]) {
+    return LANDMARK_TRANSLATION_MAP[clean][targetLang];
+  }
+
+  // 2. 부분 일치 매칭 (예: "경복궁 근정전" -> "Gyeongbokgung Palace", "탑골공원 팔각정" -> "Tapgol Park (Pagoda Park)")
+  for (const [key, transObj] of Object.entries(LANDMARK_TRANSLATION_MAP)) {
+    if (transObj[targetLang] && (clean.includes(key) || key.includes(clean))) {
+      return transObj[targetLang];
+    }
+  }
+
+  // 3. 일반적인 공통 관광 카테고리 접미사 스마트 치환
+  if (targetLang === 'en') {
+    return clean
+      .replace(/궁궐|궁$/g, ' Palace')
+      .replace(/한옥마을$/g, ' Hanok Village')
+      .replace(/해수욕장|해변$/g, ' Beach')
+      .replace(/시장$/g, ' Market')
+      .replace(/공원$/g, ' Park')
+      .replace(/박물관$/g, ' Museum')
+      .replace(/미술관$/g, ' Art Museum')
+      .replace(/타워$/g, ' Tower')
+      .replace(/사찰|절$/g, ' Temple')
+      .replace(/전망대$/g, ' Observatory')
+      .replace(/카페거리$/g, ' Cafe Street')
+      .replace(/길$/g, ' Street');
+  }
+
+  return clean;
 }
 
 export function getTranslatedAddress(addr, lang = 'ko') {

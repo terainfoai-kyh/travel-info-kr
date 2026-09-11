@@ -898,125 +898,25 @@ const MASTER_TOP_LANDMARKS = [
     title: '안목해변 강릉 커피거리',
     category: '관광명소',
     contentTypeId: '12',
-    theme: 'A02030100',
+    theme: 'A01011200',
     region: '강원',
     areaCode: 32,
     sigunguCode: 1,
-    lat: 37.7718,
+    lat: 37.7738,
     lng: 128.9482,
-    address: '강원특별자치도 강릉시 창해로14번길 20-1 (견소동)',
-    addr1: '강원특별자치도 강릉시 창해로14번길 20-1 (견소동)',
+    address: '강원특별자치도 강릉시 창해로 14 (견소동)',
+    addr1: '강원특별자치도 강릉시 창해로 14 (견소동)',
     addr2: '',
-    image: 'http://tong.visitkorea.or.kr/cms/resource/08/3342108_image2_1.jpg',
-    tel: '033-640-4531',
+    image: 'http://tong.visitkorea.or.kr/cms/resource/05/2645605_image2_1.jpg',
+    tel: '033-640-5129',
     modifiedTime: '20260101120000',
-    rating: 4.9,
+    rating: 4.8,
     duration: 90,
     dataSource: 'OFFICIAL_TOUR_API',
     title_en: 'Anmok Beach Coffee Street',
-    title_ja: '安木ビーチ江陵コーヒー通り',
-    title_zh: '安木海滩江陵咖啡街',
-    overview: '시원한 에메랄드빛 동해 바다를 바라보며 수준 높은 스페셜티 커피와 순두부 젤라또를 즐길 수 있는 대한민국 1호 커피거리입니다.'
-  },
-  {
-    contentId: '127506',
-    title: '선교장',
-    category: '문화시설',
-    contentTypeId: '14',
-    theme: 'A02010700',
-    region: '강원',
-    areaCode: 32,
-    sigunguCode: 1,
-    lat: 37.7865,
-    lng: 128.8856,
-    address: '강원특별자치도 강릉시 운정길 63 (운정동)',
-    addr1: '강원특별자치도 강릉시 운정길 63 (운정동)',
-    addr2: '',
-    image: 'http://tong.visitkorea.or.kr/cms/resource/89/3342089_image2_1.jpg',
-    tel: '033-648-5303',
-    modifiedTime: '20260101120000',
-    rating: 4.8,
-    duration: 80,
-    dataSource: 'OFFICIAL_TOUR_API',
-    title_en: 'Seongyojang House',
-    title_ja: '船橋荘',
-    title_zh: '船桥庄',
-    overview: '조선 후기 사대부 가옥의 원형을 완벽하게 보존하고 있는 300년 전통의 고택으로, 연못 위의 활래정과 백일홍의 조화가 빼어납니다.'
-  },
-  {
-    contentId: '2736189',
-    title: '아르떼뮤지엄 강릉',
-    category: '문화시설',
-    contentTypeId: '14',
-    theme: 'A02060100',
-    region: '강원',
-    areaCode: 32,
-    sigunguCode: 1,
-    lat: 37.7942,
-    lng: 128.8924,
-    address: '강원특별자치도 강릉시 난설헌로 131 (초당동)',
-    addr1: '강원특별자치도 강릉시 난설헌로 131 (초당동)',
-    addr2: '',
-    image: 'http://tong.visitkorea.or.kr/cms/resource/11/2736111_image2_1.jpg',
-    tel: '1899-5008',
-    modifiedTime: '20260101120000',
-    rating: 4.9,
-    duration: 90,
-    dataSource: 'OFFICIAL_TOUR_API',
-    title_en: 'Arte Museum Gangneung',
-    title_ja: 'アルテミュージアム江陵',
-    title_zh: '江陵ARTE沉浸式数字艺术馆',
-    overview: '강릉의 바다와 빛을 주제로 한 몰입형 미디어아트 전시관으로, 압도적인 영상미와 웅장한 사운드가 감각적인 감동을 선사합니다.'
-  },
-  {
-    contentId: '127508',
-    title: '정동진 썬크루즈 & 모래시계공원',
-    category: '관광명소',
-    contentTypeId: '12',
-    theme: 'A01011100',
-    region: '강원',
-    areaCode: 32,
-    sigunguCode: 1,
-    lat: 37.6914,
-    lng: 129.0345,
-    address: '강원특별자치도 강릉시 강동면 헌화로 951-9',
-    addr1: '강원특별자치도 강릉시 강동면 헌화로 951-9',
-    addr2: '',
-    image: 'http://tong.visitkorea.or.kr/cms/resource/12/3342112_image2_1.jpg',
-    tel: '033-643-8000',
-    modifiedTime: '20260101120000',
-    rating: 4.9,
-    duration: 100,
-    dataSource: 'OFFICIAL_TOUR_API',
-    title_en: 'Jeongdongjin Sun Cruise & Hourglass Park',
-    title_ja: '正東津サンクルーズ＆砂時計公園',
-    title_zh: '正东津太阳邮轮与沙漏公园',
-    overview: '세계에서 바다와 가장 가까운 간이역 정동진과 해안 절벽 위 호화 유람선 테마 리조트, 거대한 세계 최대 모래시계가 장관을 이룹니다.'
-  },
-  {
-    contentId: '2604812',
-    title: '하슬라아트월드',
-    category: '문화시설',
-    contentTypeId: '14',
-    theme: 'A02060100',
-    region: '강원',
-    areaCode: 32,
-    sigunguCode: 1,
-    lat: 37.7088,
-    lng: 129.0125,
-    address: '강원특별자치도 강릉시 강동면 율곡로 1441',
-    addr1: '강원특별자치도 강릉시 강동면 율곡로 1441',
-    addr2: '',
-    image: 'http://tong.visitkorea.or.kr/cms/resource/12/2604812_image2_1.jpg',
-    tel: '033-644-9411',
-    modifiedTime: '20260101120000',
-    rating: 4.8,
-    duration: 100,
-    dataSource: 'OFFICIAL_TOUR_API',
-    title_en: 'Haslla Art World',
-    title_ja: 'ハスラアートワールド',
-    title_zh: '哈斯拉艺术世界',
-    overview: '푸른 동해바다를 마주한 3만 3천 평 규모의 복합 문화예술공간으로, 야외 조각공원과 피노키오 박물관, 유명한 바다 액자 포토존이 있습니다.'
+    title_ja: '安木コーヒー通り',
+    title_zh: '安木咖啡街',
+    overview: '동해바다를 조망하며 수십여 개의 개성 있는 카페가 줄지어 커피 향을 뿜어내는 대한민국 커피 문화의 메카입니다.'
   }
 ];
 
@@ -1031,15 +931,98 @@ export function enrichSpots() {
   const rawData = JSON.parse(fs.readFileSync(SPOTS_FILE, 'utf8'));
   const existingMap = new Map();
 
+  // 🏛️ Nationwide Signature Landmark Multilingual Master Map
+  const NATIONWIDE_TRANS_MAP = {
+    '경복궁': { en: 'Gyeongbokgung Palace', ja: '景福宮', zh: '景福宫' },
+    '북촌한옥마을': { en: 'Bukchon Hanok Village', ja: '北村韓屋村', zh: '北村韩屋村' },
+    '국립현대미술관': { en: 'MMCA Seoul', ja: '国立現代美術館 ソウル', zh: '国立现代美术馆 首尔' },
+    '운현궁': { en: 'Unhyeongung Royal Residence', ja: '雲峴宮', zh: '云岘宫' },
+    '탑골공원': { en: 'Tapgol Park (Pagoda Park)', ja: 'タプコル公園', zh: '塔谷公园' },
+    '창덕궁': { en: 'Changdeokgung Palace', ja: '昌徳宮', zh: '昌德宫' },
+    '창경궁': { en: 'Changgyeonggung Palace', ja: '昌慶宮', zh: '昌庆宫' },
+    '덕수궁': { en: 'Deoksugung Palace', ja: '徳寿宮', zh: '德寿宫' },
+    '광화문광장': { en: 'Gwanghwamun Square', ja: '光化門広場', zh: '光化门广场' },
+    '세종문화회관': { en: 'Sejong Center for the Performing Arts', ja: '世宗文化会館', zh: '世宗文化会馆' },
+    'N서울타워': { en: 'N Seoul Tower', ja: 'Nソウルタワー', zh: 'N首尔塔' },
+    '남산타워': { en: 'N Seoul Tower', ja: 'Nソウルタワー', zh: 'N首尔塔' },
+    '동대문디자인플라자': { en: 'Dongdaemun Design Plaza (DDP)', ja: '東大門デザインプラザ(DDP)', zh: '东大门设计广场(DDP)' },
+    'DDP': { en: 'Dongdaemun Design Plaza (DDP)', ja: '東大門デザインプラザ(DDP)', zh: '东大门设计广场(DDP)' },
+    '명동': { en: 'Myeongdong', ja: '明洞', zh: '明洞' },
+    '인사동': { en: 'Insadong Culture Street', ja: '仁寺洞', zh: '仁寺洞文化街' },
+    '청계천': { en: 'Cheonggyecheon Stream', ja: '清渓川', zh: '清溪川' },
+    '롯데월드타워': { en: 'Lotte World Tower (Seoul Sky)', ja: 'ロッテワールドタワー', zh: '乐天世界塔' },
+    '별마당도서관': { en: 'COEX Starfield Library', ja: 'ピョルマダン図書館', zh: '星空图书馆' },
+    '성수동': { en: 'Seongsu-dong Cafe Street', ja: '聖水洞カフェ通り', zh: '圣水洞咖啡街' },
+    '남대문시장': { en: 'Namdaemun Market', ja: '南大門市場', zh: '南大门市场' },
+    '광장시장': { en: 'Gwangjang Market', ja: '広蔵市場', zh: '广藏市场' },
+    '국립중앙박물관': { en: 'National Museum of Korea', ja: '国立中央博物館', zh: '韩国国立中央博物馆' },
+    '전쟁기념관': { en: 'The War Memorial of Korea', ja: '戦争記念館', zh: '战争纪念馆' },
+    '여의도 한강공원': { en: 'Yeouido Hangang Park', ja: '汝矣島 漢江公園', zh: '汝矣岛 汉江公园' },
+    '반포 한강공원': { en: 'Banpo Hangang Park', ja: '盤浦 漢江公園', zh: '盘浦 汉江公园' },
+    '익선동': { en: 'Ikseon-dong Hanok Street', ja: '益善洞', zh: '益善洞' },
+    '청와대': { en: 'Cheong Wa Dae (The Blue House)', ja: '青瓦台', zh: '青瓦台' },
+    '홍대': { en: 'Hongdae Street', ja: '弘大 通り', zh: '弘大' },
+    '해운대': { en: 'Haeundae Beach', ja: '海雲台', zh: '海云台' },
+    '광안리': { en: 'Gwangalli Beach', ja: '広安里', zh: '广安里' },
+    '블루라인파크': { en: 'Haeundae Blueline Park', ja: '海雲台ブルーラインパーク', zh: '海云台蓝线公园' },
+    '감천문화마을': { en: 'Gamcheon Culture Village', ja: '甘川文化村', zh: '甘川文化村' },
+    '자갈치시장': { en: 'Jagalchi Market', ja: 'チャガルチ市場', zh: '札嘎其市场' },
+    '용두산공원': { en: 'Yongdusan Park', ja: '竜頭山公園', zh: '龙头山公园' },
+    '부산타워': { en: 'Busan Tower', ja: '釜山タワー', zh: '釜山塔' },
+    '흰여울문화마을': { en: 'Huinnyeoul Culture Village', ja: '白瀬文化村', zh: '白浅滩文化村' },
+    '태종대': { en: 'Taejongdae', ja: '太宗台', zh: '太宗台' },
+    '성산일출봉': { en: 'Seongsan Ilchulbong Peak', ja: '城山日出峰', zh: '城山日出峰' },
+    '만장굴': { en: 'Manjanggul Lava Tube', ja: '万丈窟', zh: '万丈窟' },
+    '한라산': { en: 'Hallasan National Park', ja: '漢拏山', zh: '汉拏山' },
+    '협재': { en: 'Hyeopjae Beach', ja: '挟才', zh: '挟才' },
+    '오설록': { en: 'Osulloc Tea Museum', ja: 'オソルロック', zh: '雪绿茶博物馆' },
+    '불국사': { en: 'Bulguksa Temple', ja: '仏国寺', zh: '佛国寺' },
+    '석굴암': { en: 'Seokguram Grotto', ja: '石窟庵', zh: '石窟庵' },
+    '첨성대': { en: 'Cheomseongdae', ja: '瞻星台', zh: '瞻星台' },
+    '동궁과 월지': { en: 'Donggung Palace & Wolji Pond', ja: '東宮と月池', zh: '东宫与月池' },
+    '황리단길': { en: 'Hwangridan-gil', ja: '皇理団通り', zh: '皇理团路' },
+    '오죽헌': { en: 'Ojukheon House', ja: '烏竹軒', zh: '乌竹轩' },
+    '경포대': { en: 'Gyeongpodae Pavilion', ja: '鏡浦台', zh: '镜浦台' },
+    '경포해변': { en: 'Gyeongpo Beach', ja: '鏡浦ビーチ', zh: '镜浦海滩' },
+    '안목': { en: 'Anmok Beach Coffee Street', ja: '安木コーヒー通り', zh: '安木咖啡街' },
+    '선교장': { en: 'Seongyojang House', ja: '船橋荘', zh: '船桥庄' },
+    '아르떼뮤지엄': { en: 'Arte Museum', ja: 'アルテミュージアム', zh: 'ARTE艺术馆' },
+    '정동진': { en: 'Jeongdongjin', ja: '正東津', zh: '正东津' },
+    '하슬라아트월드': { en: 'Haslla Art World', ja: 'ハスラアートワールド', zh: '哈斯拉艺术世界' },
+    '수원화성': { en: 'Suwon Hwaseong Fortress', ja: '水原華城', zh: '水原华城' },
+    '방화수류정': { en: 'Banghwasuryujeong', ja: '訪花随柳亭', zh: '访花随柳亭' },
+    '행리단길': { en: 'Haengnidan-gil', ja: 'ヘンリダンキル', zh: '行理团路' },
+    '전주 한옥마을': { en: 'Jeonju Hanok Village', ja: '全州韓屋村', zh: '全州韩屋村' },
+    '경기전': { en: 'Gyeonggijeon', ja: '慶基殿', zh: '庆基殿' },
+    '여수 해상케이블카': { en: 'Yeosu Cable Car', ja: '麗水ケーブルカー', zh: '丽水缆车' },
+    '오동도': { en: 'Odongdo Island', ja: '梧桐島', zh: '梧桐岛' }
+  };
+
+  // Helper: auto-attach multilingual titles
+  const attachMultilingualTitles = (item) => {
+    const t = item.title || '';
+    for (const [key, trans] of Object.entries(NATIONWIDE_TRANS_MAP)) {
+      if (t.includes(key) || key.includes(t)) {
+        if (!item.title_en) item.title_en = trans.en;
+        if (!item.title_ja) item.title_ja = trans.ja;
+        if (!item.title_zh) item.title_zh = trans.zh;
+        break;
+      }
+    }
+    return item;
+  };
+
   // 1. Put top master landmarks at the absolute top of the map!
   for (const master of MASTER_TOP_LANDMARKS) {
+    attachMultilingualTitles(master);
     existingMap.set(String(master.contentId), master);
   }
 
-  // 2. Add existing spots (skip if already inserted to preserve master data precedence)
+  // 2. Add existing spots and pre-compute multilingual names for ALL spots
   for (const item of rawData) {
     const id = String(item.contentId);
     if (!existingMap.has(id)) {
+      attachMultilingualTitles(item);
       existingMap.set(id, item);
     }
   }
@@ -1090,6 +1073,19 @@ export function enrichSpots() {
       if (master.title_en && !enrichedMap[id].title_en) enrichedMap[id].title_en = master.title_en;
       if (master.title_ja && !enrichedMap[id].title_ja) enrichedMap[id].title_ja = master.title_ja;
       if (master.title_zh && !enrichedMap[id].title_zh) enrichedMap[id].title_zh = master.title_zh;
+    }
+  }
+
+  // Ensure all existing enriched landmarks have pre-computed multilingual titles
+  for (const [id, enObj] of Object.entries(enrichedMap)) {
+    const t = enObj.title || '';
+    for (const [key, trans] of Object.entries(NATIONWIDE_TRANS_MAP)) {
+      if (t.includes(key) || key.includes(t)) {
+        if (!enObj.title_en) enObj.title_en = trans.en;
+        if (!enObj.title_ja) enObj.title_ja = trans.ja;
+        if (!enObj.title_zh) enObj.title_zh = trans.zh;
+        break;
+      }
     }
   }
 

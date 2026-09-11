@@ -18,7 +18,10 @@
     "modifiedTime": "20260101120000",
     "rating": 4.9,
     "duration": 110,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Gyeongbokgung Palace",
+    "title_ja": "景福宮",
+    "title_zh": "景福宫"
   },
   {
     "contentId": "128220",
@@ -39,7 +42,10 @@
     "modifiedTime": "20260101120000",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Sejong Center for the Performing Arts",
+    "title_ja": "世宗文化会館",
+    "title_zh": "世宗文化会馆"
   },
   {
     "contentId": "126510",
@@ -81,7 +87,10 @@
     "modifiedTime": "20260101120000",
     "rating": 4.9,
     "duration": 70,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Deoksugung Palace",
+    "title_ja": "徳寿宮",
+    "title_zh": "德寿宫"
   },
   {
     "contentId": "126511",
@@ -144,7 +153,10 @@
     "modifiedTime": "20260101120000",
     "rating": 4.9,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Bukchon Hanok Village",
+    "title_ja": "北村韓屋村",
+    "title_zh": "北村韩屋村"
   },
   {
     "contentId": "126535",
@@ -165,7 +177,10 @@
     "modifiedTime": "20260101120000",
     "rating": 4.9,
     "duration": 120,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "N Seoul Tower",
+    "title_ja": "Nソウルタワー",
+    "title_zh": "N首尔塔"
   },
   {
     "contentId": "1905973",
@@ -186,7 +201,10 @@
     "modifiedTime": "20260101120000",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Dongdaemun Design Plaza (DDP)",
+    "title_ja": "東大門デザインプラザ(DDP)",
+    "title_zh": "东大门设计广场(DDP)"
   },
   {
     "contentId": "2732918",
@@ -207,7 +225,10 @@
     "modifiedTime": "20260101120000",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Seongsu-dong Cafe Street",
+    "title_ja": "聖水洞カフェ通り",
+    "title_zh": "圣水洞咖啡街"
   },
   {
     "contentId": "2711842",
@@ -249,7 +270,10 @@
     "modifiedTime": "20260101120000",
     "rating": 4.9,
     "duration": 100,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Yeouido Hangang Park",
+    "title_ja": "汝矣島 漢江公園",
+    "title_zh": "汝矣岛 汉江公园"
   },
   {
     "contentId": "126509",
@@ -270,7 +294,10 @@
     "modifiedTime": "20260101120000",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Deoksugung Palace",
+    "title_ja": "徳寿宮",
+    "title_zh": "德寿宫"
   },
   {
     "contentId": "126506",
@@ -291,7 +318,10 @@
     "modifiedTime": "20260101120000",
     "rating": 4.9,
     "duration": 110,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Changdeokgung Palace",
+    "title_ja": "昌徳宮",
+    "title_zh": "昌德宫"
   },
   {
     "contentId": "126523",
@@ -312,7 +342,10 @@
     "modifiedTime": "20260101120000",
     "rating": 4.7,
     "duration": 80,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Insadong Culture Street",
+    "title_ja": "仁寺洞",
+    "title_zh": "仁寺洞文化街"
   },
   {
     "contentId": "126516",
@@ -333,7 +366,10 @@
     "modifiedTime": "20260101120000",
     "rating": 4.8,
     "duration": 60,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Gwanghwamun Square",
+    "title_ja": "光化門広場",
+    "title_zh": "光化门广场"
   },
   {
     "contentId": "126525",
@@ -354,7 +390,10 @@
     "modifiedTime": "20260101120000",
     "rating": 4.8,
     "duration": 70,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Cheonggyecheon Stream",
+    "title_ja": "清渓川",
+    "title_zh": "清溪川"
   },
   {
     "contentId": "126078",
@@ -375,7 +414,10 @@
     "modifiedTime": "20260101120000",
     "rating": 4.9,
     "duration": 100,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Haeundae Beach",
+    "title_ja": "海雲台",
+    "title_zh": "海云台"
   },
   {
     "contentId": "2677843",
@@ -396,7 +438,10 @@
     "modifiedTime": "20260101120000",
     "rating": 4.9,
     "duration": 120,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Haeundae Beach",
+    "title_ja": "海雲台",
+    "title_zh": "海云台"
   },
   {
     "contentId": "126082",
@@ -438,7 +483,10 @@
     "modifiedTime": "20260101120000",
     "rating": 4.9,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Gwangalli Beach",
+    "title_ja": "広安里",
+    "title_zh": "广安里"
   },
   {
     "contentId": "126085",
@@ -459,7 +507,10 @@
     "modifiedTime": "20260101120000",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Jagalchi Market",
+    "title_ja": "チャガルチ市場",
+    "title_zh": "札嘎其市场"
   },
   {
     "contentId": "126084",
@@ -480,7 +531,10 @@
     "modifiedTime": "20260101120000",
     "rating": 4.9,
     "duration": 100,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Gamcheon Culture Village",
+    "title_ja": "甘川文化村",
+    "title_zh": "甘川文化村"
   },
   {
     "contentId": "2433918",
@@ -501,7 +555,10 @@
     "modifiedTime": "20260101120000",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Huinnyeoul Culture Village",
+    "title_ja": "白瀬文化村",
+    "title_zh": "白浅滩文化村"
   },
   {
     "contentId": "126438",
@@ -522,7 +579,10 @@
     "modifiedTime": "20260101120000",
     "rating": 4.9,
     "duration": 120,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Seongsan Ilchulbong Peak",
+    "title_ja": "城山日出峰",
+    "title_zh": "城山日出峰"
   },
   {
     "contentId": "126442",
@@ -564,7 +624,10 @@
     "modifiedTime": "20260101120000",
     "rating": 4.9,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Hyeopjae Beach",
+    "title_ja": "挟才",
+    "title_zh": "挟才"
   },
   {
     "contentId": "2643891",
@@ -606,7 +669,10 @@
     "modifiedTime": "20260101120000",
     "rating": 4.9,
     "duration": 120,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Bulguksa Temple",
+    "title_ja": "仏国寺",
+    "title_zh": "佛国寺"
   },
   {
     "contentId": "126049",
@@ -627,7 +693,10 @@
     "modifiedTime": "20260101120000",
     "rating": 4.9,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Seokguram Grotto",
+    "title_ja": "石窟庵",
+    "title_zh": "石窟庵"
   },
   {
     "contentId": "126050",
@@ -648,7 +717,10 @@
     "modifiedTime": "20260101120000",
     "rating": 4.8,
     "duration": 60,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Cheomseongdae",
+    "title_ja": "瞻星台",
+    "title_zh": "瞻星台"
   },
   {
     "contentId": "126052",
@@ -690,7 +762,10 @@
     "modifiedTime": "20260101120000",
     "rating": 4.9,
     "duration": 80,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Donggung Palace & Wolji Pond",
+    "title_ja": "東宮と月池",
+    "title_zh": "东宫与月池"
   },
   {
     "contentId": "2549812",
@@ -711,7 +786,10 @@
     "modifiedTime": "20260101120000",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Hwangridan-gil",
+    "title_ja": "皇理団通り",
+    "title_zh": "皇理团路"
   },
   {
     "contentId": "126537",
@@ -732,7 +810,10 @@
     "modifiedTime": "20260101120000",
     "rating": 4.9,
     "duration": 120,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Suwon Hwaseong Fortress",
+    "title_ja": "水原華城",
+    "title_zh": "水原华城"
   },
   {
     "contentId": "126538",
@@ -774,7 +855,10 @@
     "modifiedTime": "20260101120000",
     "rating": 4.9,
     "duration": 60,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Banghwasuryujeong",
+    "title_ja": "訪花随柳亭",
+    "title_zh": "访花随柳亭"
   },
   {
     "contentId": "126533",
@@ -856,25 +940,25 @@
     "title": "안목해변 강릉 커피거리",
     "category": "관광명소",
     "contentTypeId": "12",
-    "theme": "A02030100",
+    "theme": "A01011200",
     "region": "강원",
     "areaCode": 32,
     "sigunguCode": 1,
-    "lat": 37.7718,
+    "lat": 37.7738,
     "lng": 128.9482,
-    "address": "강원특별자치도 강릉시 창해로14번길 20-1 (견소동)",
-    "addr1": "강원특별자치도 강릉시 창해로14번길 20-1 (견소동)",
+    "address": "강원특별자치도 강릉시 창해로 14 (견소동)",
+    "addr1": "강원특별자치도 강릉시 창해로 14 (견소동)",
     "addr2": "",
-    "image": "http://tong.visitkorea.or.kr/cms/resource/08/3342108_image2_1.jpg",
-    "tel": "033-640-4531",
+    "image": "http://tong.visitkorea.or.kr/cms/resource/05/2645605_image2_1.jpg",
+    "tel": "033-640-5129",
     "modifiedTime": "20260101120000",
-    "rating": 4.9,
+    "rating": 4.8,
     "duration": 90,
     "dataSource": "OFFICIAL_TOUR_API",
     "title_en": "Anmok Beach Coffee Street",
-    "title_ja": "安木ビーチ江陵コーヒー通り",
-    "title_zh": "安木海滩江陵咖啡街",
-    "overview": "시원한 에메랄드빛 동해 바다를 바라보며 수준 높은 스페셜티 커피와 순두부 젤라또를 즐길 수 있는 대한민국 1호 커피거리입니다."
+    "title_ja": "安木コーヒー通り",
+    "title_zh": "安木咖啡街",
+    "overview": "동해바다를 조망하며 수십여 개의 개성 있는 카페가 줄지어 커피 향을 뿜어내는 대한민국 커피 문화의 메카입니다."
   },
   {
     "contentId": "127506",
@@ -1310,7 +1394,10 @@
     "modifiedTime": "20251124143715",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Changdeokgung Palace",
+    "title_ja": "昌徳宮",
+    "title_zh": "昌德宫"
   },
   {
     "contentId": "1113537",
@@ -2381,7 +2468,10 @@
     "modifiedTime": "20251202162416",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Unhyeongung Royal Residence",
+    "title_ja": "雲峴宮",
+    "title_zh": "云岘宫"
   },
   {
     "contentId": "127466",
@@ -2675,7 +2765,10 @@
     "modifiedTime": "20250109134517",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Deoksugung Palace",
+    "title_ja": "徳寿宮",
+    "title_zh": "德寿宫"
   },
   {
     "contentId": "129418",
@@ -2759,7 +2852,10 @@
     "modifiedTime": "20251121142704",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Sejong Center for the Performing Arts",
+    "title_ja": "世宗文化会館",
+    "title_zh": "世宗文化会馆"
   },
   {
     "contentId": "129747",
@@ -3893,7 +3989,10 @@
     "modifiedTime": "20251126132825",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "The War Memorial of Korea",
+    "title_ja": "戦争記念館",
+    "title_zh": "战争纪念馆"
   },
   {
     "contentId": "130446",
@@ -4859,7 +4958,10 @@
     "modifiedTime": "20250317112136",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Myeongdong",
+    "title_ja": "明洞",
+    "title_zh": "明洞"
   },
   {
     "contentId": "131958",
@@ -5174,7 +5276,10 @@
     "modifiedTime": "20250711163627",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "National Museum of Korea",
+    "title_ja": "国立中央博物館",
+    "title_zh": "韩国国立中央博物馆"
   },
   {
     "contentId": "1604652",
@@ -5300,7 +5405,10 @@
     "modifiedTime": "20250730164818",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Changdeokgung Palace",
+    "title_ja": "昌徳宮",
+    "title_zh": "昌德宫"
   },
   {
     "contentId": "1604953",
@@ -5321,7 +5429,10 @@
     "modifiedTime": "20250313135513",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Changdeokgung Palace",
+    "title_ja": "昌徳宮",
+    "title_zh": "昌德宫"
   },
   {
     "contentId": "1605009",
@@ -5342,7 +5453,10 @@
     "modifiedTime": "20250313140549",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Changgyeonggung Palace",
+    "title_ja": "昌慶宮",
+    "title_zh": "昌庆宫"
   },
   {
     "contentId": "1605933",
@@ -5363,7 +5477,10 @@
     "modifiedTime": "20250812095528",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Tapgol Park (Pagoda Park)",
+    "title_ja": "タプコル公園",
+    "title_zh": "塔谷公园"
   },
   {
     "contentId": "1605948",
@@ -5447,7 +5564,10 @@
     "modifiedTime": "20250730154607",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Deoksugung Palace",
+    "title_ja": "徳寿宮",
+    "title_zh": "德寿宫"
   },
   {
     "contentId": "1605990",
@@ -6035,7 +6155,10 @@
     "modifiedTime": "20250402150225",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "MMCA Seoul",
+    "title_ja": "国立現代美術館 ソウル",
+    "title_zh": "国立现代美术馆 首尔"
   },
   {
     "contentId": "1957600",
@@ -6056,7 +6179,10 @@
     "modifiedTime": "20250820134146",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Myeongdong",
+    "title_ja": "明洞",
+    "title_zh": "明洞"
   },
   {
     "contentId": "2003909",
@@ -6077,7 +6203,10 @@
     "modifiedTime": "20250414114039",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Lotte World Tower (Seoul Sky)",
+    "title_ja": "ロッテワールドタワー",
+    "title_zh": "乐天世界塔"
   },
   {
     "contentId": "2028176",
@@ -18782,7 +18911,10 @@
     "modifiedTime": "20250415095848",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Haeundae Beach",
+    "title_ja": "海雲台",
+    "title_zh": "海云台"
   },
   {
     "contentId": "126122",
@@ -18908,7 +19040,10 @@
     "modifiedTime": "20250407112716",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Haeundae Beach",
+    "title_ja": "海雲台",
+    "title_zh": "海云台"
   },
   {
     "contentId": "127149",
@@ -18950,7 +19085,10 @@
     "modifiedTime": "20251023143000",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Taejongdae",
+    "title_ja": "太宗台",
+    "title_zh": "太宗台"
   },
   {
     "contentId": "127891",
@@ -18992,7 +19130,10 @@
     "modifiedTime": "20250522092010",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Gwangalli Beach",
+    "title_ja": "広安里",
+    "title_zh": "广安里"
   },
   {
     "contentId": "128053",
@@ -19811,7 +19952,10 @@
     "modifiedTime": "20250407153914",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Haeundae Beach",
+    "title_ja": "海雲台",
+    "title_zh": "海云台"
   },
   {
     "contentId": "1846830",
@@ -20084,7 +20228,10 @@
     "modifiedTime": "20251231135120",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Haeundae Beach",
+    "title_ja": "海雲台",
+    "title_zh": "海云台"
   },
   {
     "contentId": "229912",
@@ -20819,7 +20966,10 @@
     "modifiedTime": "20250428160105",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Haeundae Beach",
+    "title_ja": "海雲台",
+    "title_zh": "海云台"
   },
   {
     "contentId": "2708019",
@@ -20840,7 +20990,10 @@
     "modifiedTime": "20250307103416",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Gwangalli Beach",
+    "title_ja": "広安里",
+    "title_zh": "广安里"
   },
   {
     "contentId": "2708108",
@@ -21659,7 +21812,10 @@
     "modifiedTime": "20250814152348",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Haeundae Beach",
+    "title_ja": "海雲台",
+    "title_zh": "海云台"
   },
   {
     "contentId": "2823059",
@@ -29744,7 +29900,10 @@
     "modifiedTime": "20251128160406",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "MMCA Seoul",
+    "title_ja": "国立現代美術館 ソウル",
+    "title_zh": "国立现代美术馆 首尔"
   },
   {
     "contentId": "129770",
@@ -37178,7 +37337,10 @@
     "modifiedTime": "20251215152340",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Taejongdae",
+    "title_ja": "太宗台",
+    "title_zh": "太宗台"
   },
   {
     "contentId": "129265",
@@ -56414,7 +56576,10 @@
     "modifiedTime": "20251202172402",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Donggung Palace & Wolji Pond",
+    "title_ja": "東宮と月池",
+    "title_zh": "东宫与月池"
   },
   {
     "contentId": "128559",
@@ -77225,7 +77390,10 @@
     "modifiedTime": "20260630184428",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Odongdo Island",
+    "title_ja": "梧桐島",
+    "title_zh": "梧桐岛"
   },
   {
     "contentId": "129185",
@@ -80753,7 +80921,10 @@
     "modifiedTime": "20251023143000",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Hallasan National Park",
+    "title_ja": "漢拏山",
+    "title_zh": "汉拏山"
   },
   {
     "contentId": "126470",
@@ -81047,7 +81218,10 @@
     "modifiedTime": "20251023143000",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Hyeopjae Beach",
+    "title_ja": "挟才",
+    "title_zh": "挟才"
   },
   {
     "contentId": "127514",
@@ -85142,7 +85316,10 @@
     "modifiedTime": "20250811162913",
     "rating": 4.8,
     "duration": 90,
-    "dataSource": "OFFICIAL_TOUR_API"
+    "dataSource": "OFFICIAL_TOUR_API",
+    "title_en": "Hallasan National Park",
+    "title_ja": "漢拏山",
+    "title_zh": "汉拏山"
   },
   {
     "contentId": "2661407",

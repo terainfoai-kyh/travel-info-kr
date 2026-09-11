@@ -25,7 +25,7 @@ import { CITY_COORDINATES, getCityCoordinates } from './geminiNlpService.js';
 import { CITY_LOCAL_KNOWLEDGE } from '../data/voraDialogKnowledge.js';
 import { KOREA_TRAVEL_POI_DB } from '../data/koreaTravelPoiDatabase.js';
 import { ensureEnrichedLoaded } from './localTourDatabase.js';
-import { getLocalizedCityName } from '../i18n/translations.js';
+import { getLocalizedCityName, getTranslatedTitle } from '../i18n/translations.js';
 
 // 🧹 Helper: Case-Insensitive & Special Character Compressed Normalizer
 export function normalizeTargetString(str = '') {
@@ -810,11 +810,11 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
         let finalDisplayTitle = cleanSpotTitle;
 
         if (lang === 'en') {
-          finalDisplayTitle = anchorSpot.title_en || enrichedAnchor.title_en || matchedPoiDb?.title_en || cleanSpotTitle;
+          finalDisplayTitle = anchorSpot.title_en || enrichedAnchor.title_en || matchedPoiDb?.title_en || getTranslatedTitle(cleanSpotTitle, 'en') || cleanSpotTitle;
         } else if (lang === 'ja') {
-          finalDisplayTitle = anchorSpot.title_ja || enrichedAnchor.title_ja || matchedPoiDb?.title_ja || cleanSpotTitle;
+          finalDisplayTitle = anchorSpot.title_ja || enrichedAnchor.title_ja || matchedPoiDb?.title_ja || getTranslatedTitle(cleanSpotTitle, 'ja') || cleanSpotTitle;
         } else if (lang === 'zh' || lang === 'zht') {
-          finalDisplayTitle = anchorSpot.title_zh || enrichedAnchor.title_zh || matchedPoiDb?.title_zh || cleanSpotTitle;
+          finalDisplayTitle = anchorSpot.title_zh || enrichedAnchor.title_zh || matchedPoiDb?.title_zh || getTranslatedTitle(cleanSpotTitle, 'zh') || cleanSpotTitle;
         }
 
         const spotObj = {
@@ -999,11 +999,11 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
       let finalNextTitle = cleanSpotTitle;
 
       if (lang === 'en') {
-        finalNextTitle = nextSpot.title_en || enrichedNext.title_en || matchedNextPoiDb?.title_en || cleanSpotTitle;
+        finalNextTitle = nextSpot.title_en || enrichedNext.title_en || matchedNextPoiDb?.title_en || getTranslatedTitle(cleanSpotTitle, 'en') || cleanSpotTitle;
       } else if (lang === 'ja') {
-        finalNextTitle = nextSpot.title_ja || enrichedNext.title_ja || matchedNextPoiDb?.title_ja || cleanSpotTitle;
+        finalNextTitle = nextSpot.title_ja || enrichedNext.title_ja || matchedNextPoiDb?.title_ja || getTranslatedTitle(cleanSpotTitle, 'ja') || cleanSpotTitle;
       } else if (lang === 'zh' || lang === 'zht') {
-        finalNextTitle = nextSpot.title_zh || enrichedNext.title_zh || matchedNextPoiDb?.title_zh || cleanSpotTitle;
+        finalNextTitle = nextSpot.title_zh || enrichedNext.title_zh || matchedNextPoiDb?.title_zh || getTranslatedTitle(cleanSpotTitle, 'zh') || cleanSpotTitle;
       }
 
       const spotObj = {
