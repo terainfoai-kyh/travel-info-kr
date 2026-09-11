@@ -13,9 +13,15 @@
 
 import fs from 'fs';
 import path from 'path';
+import dns from 'node:dns';
 import { fileURLToPath } from 'url';
 import { enrichSpotsWithGemini } from './enrichGeminiKnowledge.js';
 import { universalTranslateSpot } from '../src/utils/koreanRomanizer.js';
+
+// 🌐 Node.js 18+ 해외 클라우드 러너 IPv6 라우팅 블랙홀 방지 (IPv4 강제 우선)
+try {
+  dns.setDefaultResultOrder('ipv4first');
+} catch (e) {}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -90,7 +96,7 @@ function getKstTodayYmd() {
 }
 
 /**
- * Fetch delta sync items from TourAPI 4.0 areaBasedSyncList2
+ * Fetch delta sync items from TourAPI 4.0 areaBasedSyncList2 with 3-attempt retry & timeout
  */
 async function fetchSyncList(contentTypeId, modifiedTime, showFlag = 1, numOfRows = 100) {
   if (!TOUR_API_KEY) {
@@ -103,21 +109,43 @@ async function fetchSyncList(contentTypeId, modifiedTime, showFlag = 1, numOfRow
   const endpoint = `https://apis.data.go.kr/B551011/KorService2/areaBasedSyncList2`;
   const url = `${endpoint}?serviceKey=${finalKey}&numOfRows=${numOfRows}&pageNo=1&MobileOS=ETC&MobileApp=TravelKorea&_type=json&modifiedtime=${modifiedTime}&showflag=${showFlag}${contentTypeId ? `&contentTypeId=${contentTypeId}` : ''}`;
 
-  try {
-    const res = await fetch(url, { headers: { 'User-Agent': 'TravelKorea-DeltaSync/1.0' } });
-    if (!res.ok) {
-      console.warn(`⚠️ [TourAPI Delta] HTTP ${res.status} for contentTypeId=${contentTypeId || 'all'}, showflag=${showFlag}`);
+  const headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+    'Accept': 'application/json, text/plain, */*',
+    'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
+    'Connection': 'keep-alive'
+  };
+
+  const MAX_RETRIES = 3;
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const res = await fetch(url, {
+        headers,
+        signal: AbortSignal.timeout(15000)
+      });
+
+      if (!res.ok) {
+        console.warn(`⚠️ [TourAPI Delta] HTTP ${res.status} for contentTypeId=${contentTypeId || 'all'}, showflag=${showFlag}`);
+        return [];
+      }
+
+      const data = await res.json();
+      const items = data?.response?.body?.items?.item;
+      if (Array.isArray(items)) return items;
+      if (items && typeof items === 'object') return [items];
       return [];
+    } catch (e) {
+      const errMsg = e.cause?.message || e.message || String(e);
+      if (attempt < MAX_RETRIES) {
+        console.warn(`⚠️ [TourAPI Delta] Attempt ${attempt}/${MAX_RETRIES} failed (${errMsg}). Retrying in ${attempt * 1.5}s...`);
+        await new Promise(r => setTimeout(r, attempt * 1500));
+      } else {
+        console.warn(`⚠️ [TourAPI Delta] Final network error after ${MAX_RETRIES} attempts: ${errMsg}`);
+      }
     }
-    const data = await res.json();
-    const items = data?.response?.body?.items?.item;
-    if (Array.isArray(items)) return items;
-    if (items && typeof items === 'object') return [items];
-    return [];
-  } catch (e) {
-    console.warn(`⚠️ [TourAPI Delta] Network error: ${e.message}`);
-    return [];
   }
+
+  return [];
 }
 
 /**

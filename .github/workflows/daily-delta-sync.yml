@@ -38,6 +38,7 @@ jobs:
 
       - name: 🚀 TourAPI 4.0 델타 머지 및 제미나이 AI 자동 보완
         env:
+          NODE_OPTIONS: "--dns-result-order=ipv4first"
           KOREA_TOUR_API_KEY: ${{ secrets.KOREA_TOUR_API_KEY }}
           VITE_KOREA_TOUR_API_KEY: ${{ secrets.KOREA_TOUR_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
