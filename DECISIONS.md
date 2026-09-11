@@ -4,17 +4,42 @@
 
 ---
 
-## 📌 [★ 내일 이어서 할 작업 1순위: 한국관광공사 TourAPI 공공데이터 수정/신규 변동분 정기 델타 머지(Sync & Merge) 파이프라인 구축]
-> **등록일자: 2026-09-07 (선배님 직접 지정: "공공 데이터 수정된거 정기적인 머지 작업")**
-- **작업 목표**: 한국관광공사 TourAPI 4.0에서 수시로 발생하는 명소 수정/신규 등록/폐업/축제 변동 데이터를 기존 4,114개 마스터 DB(`data/*.json`)에 안전하게 병합하는 지능형 정기 델타 머지 스크립트(`scripts/mergeTourApiDelta.js`) 및 주기적 실행 체계 구축.
-- **핵심 요구사항 (선배님 철칙)**:
-  1. 기존에 튜닝해 둔 핵심 시그니처 랜드마크(경복궁, 광화문광장, 세종문화회관, 덕수궁돌담길 등)의 우선순위/가중치 및 AI 메타데이터를 100% 온전히 보존.
-  2. 신규 관광지 및 수정된 정보(최신 사진, 주소, 전화번호, 운영정보 등)만 지능적으로 대조하여 델타 UPDATE / INSERT.
-  3. 머지 완료 즉시 `syncDatasetsToPublic.js`를 자동 호출하여 6대 암호화 파일(`.enc`)까지 100% 원스톱 동기화 완결.
-- **현재 시스템 상태 (Golden State)**:
-  1. 6대 마스터 데이터셋 암호화(`.enc`) 및 평문 JSON 영구 소거 완료.
-  2. 운영 서버([koreatravel.cc](https://koreatravel.cc/)) Cloudflare Pages 배포 완료 (`main d737ffb` Active).
-  3. 로컬 소스 완전무결 통과 (`[ZERO DEFECT PASSED]`), Git 워킹 트리 clean.
+## 🚀 [★ Golden Checkpoint: 한국관광공사 TourAPI 4.0 정기 델타 머지 & 제미나이 AI 자동 보완 & 글로벌 3-Way 동기화 파이프라인 구축 완료]
+> **일자: 2026-09-11 (선배님 승인 "진행해" 완벽 구축 완료)**
+- **구축 배경 및 비즈니스 가치**:
+  1. 공공데이터포털 한국관광공사 TourAPI 4.0에서 수시로 발생하는 명소 수정/신규/폐업/축제 데이터를 수동 작업 없이 매일 자율적으로 감지 및 병합.
+  2. 선배님의 핵심 통찰(글로벌 외국인 시차 고려 ➔ 한국 시간 아침 08:00 KST 실행) 및 3대 머지 원칙(신규 제미나이 보완, 수정 부분 패치, 삭제 비활성화) 100% 반영.
+  3. GitOps 3-Way 동기화 체계로 운영과 개발, 그리고 로컬 PC까지 단일 진실 원천(SSOT)으로 100% 일치.
+- **완성된 핵심 아키텍처**:
+  1. **정기 델타 머지 코어 엔진 (`scripts/mergeTourApiDelta.js`)**:
+     - `areaBasedSyncList2` 엔드포인트 직결 (KST 기준 `modifiedtime` 필터).
+     - **신규 (INSERT)**: 유효성 입구컷 통과 시 ➔ `enrichSpotsWithGemini` 자동 호출 ➔ 7대 AI 확장 칼럼(`photoTip_en`, `localProTip_en`, `vibeTags`, `transitAccess_en`, 다국어 명칭) 자동 생성하여 `korea_enriched_landmarks.json` 및 `korea_tour_spots.json`에 동시 등록.
+     - **수정 (UPDATE)**: 수정된 순수 공공 필드(주소, 전화번호, 사진)만 핀포인트 패치 (기존 시그니처 랜드마크의 `tierScore`, `landmarkKey`, `customTags` 100% 불변 보존).
+     - **삭제 (DELETE)**: `showflag=0`(비표출/폐업) 감지 시 DB에서 즉시 안전 삭제 또는 비활성화.
+     - **4대 데이터셋 분리 머지 (헌법 제15조)**: 관광지(12/14/28) ➔ `korea_tour_spots.json`, 축제(15) ➔ `korea_festival_spots.json`(지난 축제 자동 청소), 음식점(39) ➔ `korea_food_spots.json`(사진 있는 진짜 맛집만 선별), 숙소(32) ➔ `korea_stay_spots.json`.
+     - **Zero-Change Skip**: 변동 0건 감지 시 파일 및 빌드를 건드리지 않고 0초 만에 종료하여 불필요한 Git 커밋/빌드 방지.
+     - **암호화 자동 연동**: 변동 발생 시 `syncDatasetsToPublic.js`를 자동 호출하여 6대 암호화 파일(`.enc`) 및 `city_index.json` 원스톱 동기화.
+  2. **글로벌 3-Way GitHub Actions 무인 워크플로우 (`.github/workflows/daily-delta-sync.yml`)**:
+     - **실행 주기**: 매일 한국 시간 아침 08:00 KST (Cron: `0 23 * * *` UTC) ➔ 미국/유럽 접속 최저점 & 공공데이터 밤사이 마감 직후 최적 골든타임.
+     - **파이프라인**: 델타 머지 ➔ Git main 커밋/푸시 (`github-actions[bot]`) ➔ `vite build` ➔ 1단계 개발 배포(`travelkorea-dev`) ➔ 헬스체크 ➔ 2단계 운영 배포(`koreatravel.cc`).
+     - 수동 트리거 지원 (`workflow_dispatch`).
+  3. **package.json 원클릭 스크립트 등록**:
+     - `"sync:delta": "node scripts/mergeTourApiDelta.js"` 추가 (로컬 수동 테스트 및 강제 동기화 지원).
+- **검증 및 시스템 상태 (Golden State)**:
+  - `node scripts/mergeTourApiDelta.js --dryRun` 통과 (`[Zero-Change Skip]` 정상 동작 확인).
+  - `verifySyntax.ps1` 무결점 검증 통과 (`[ZERO DEFECT PASSED]`).
+  - 로컬 번들 빌드 (`npm.cmd run build`) 완료 (최신 번들: `index-C2SaZvWj.js`, 6대 .enc 7.27MB 동기화 완료).
+  - 현재 시스템: 개발 서버 배포 대기 상태.
+
+---
+
+## ⚖️ [★ Golden Checkpoint: 선배님 헌법 제27조 신설 - 제3자적 객관성, 가감 없는 직언 및 최선의 대안 제시 의무]
+> **제정일자: 2026-09-11 (선배님 직접 엄명: "너는 제 3자 입장에서 객관적으로 업무를 하고 이상이 있거나 더 좋은 아이디어가 있으면 최고의 아이디어를 제안하고 잘못된것은 눈치 보지말고 지적한다.")**
+- **조항**: **헌법 제27조 (Article 27)**
+- **핵심 수칙**:
+  1. **제3자적 객관성 유지 (Unbiased Objective Stance)**: 선배님과의 협업 및 모든 코드/아키텍처/기획 분석 시 단순 수동적 추종이나 맹목적 동조를 영구 배제하고, 철저히 제3자의 시선에서 시스템의 완성도, 안정성, 확장성, 비즈니스 가치를 냉철하고 객관적으로 평가한다.
+  2. **눈치 보지 않는 솔직한 결함/이상 지적 (Fearless Feedback on Flaws)**: 설계, 코드, UX, 운영 흐름 전반에서 이상이 있거나 잘못된 점, 비효율, 잠재적 리스크(사이드 이펙트, 보안 취약점, 성능 저하 등)가 발견되면 선배님의 눈치를 보지 않고 즉시 명확하게 직언으로 지적한다.
+  3. **최고의 대안 및 혁신적 아이디어 선제적 제안 (Proactive Proposal of Best Ideas)**: 단순한 문제 지적에 그치지 않고, "어떻게 하면 더 완벽해질 수 있는가"에 집중하여 현시점에서 구현 가능한 가장 우수하고 혁신적인 최선의 아이디어와 대안(Best Practice)을 정갈하게 정리하여 적극적으로 제안한다.
 
 ---
 

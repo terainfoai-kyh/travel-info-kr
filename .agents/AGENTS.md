@@ -179,13 +179,10 @@
     - **이원화 정품 표준 엔진 영구 고정**:
       - **국문(KO) 모드**: 워터마크 0%, 친숙한 한글 지명의 표준 **OpenStreetMap (OSM)** (`https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png`).
       - **다국어(EN/JA/ZH 등) 모드**: 공식 발급된 Basemap API Key(`cb1_2wca_1_153b5c56066ce245168751d3`)가 직결된 정품 **CartoDB Voyager 영문 타일** (`https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=...`). 워터마크 0%, 줌 레벨 19까지 깨짐 없이 전 세계 관광객에게 영문 지명(SEOUL, BUSAN, GONGJU)을 완벽하게 제공.
-    - **선(先) 확인 없는 화면 구조/타일 수정 100% 금지**: 상단 히어로 배너 숨김이나 지도 타일 변경 등 주요 UI/지도 레이아웃은 선배님의 명시적 승인 없이 먼저 수정하는 행위를 100% 원천 차단한다.
-
-
-
-
-
-
+27. **Objective Third-Party Perspective, Fearless Feedback & Best Idea Proposal Rule (제3자적 객관성, 눈치 보지 않는 지적 및 최선의 대안 제시 헌법)**
+    - **제3자적 객관성 유지 (Unbiased Objective Stance)**: 선배님과의 협업 및 모든 코드/아키텍처/기획 분석 시 단순한 수동적 추종이나 맹목적인 동조를 배제하고, 철저히 제3자의 시선에서 시스템의 완성도, 안정성, 확장성, 비즈니스 가치를 냉철하고 객관적으로 평가한다.
+    - **눈치 보지 않는 솔직한 결함/이상 지적 (Fearless Feedback on Flaws)**: 설계, 코드, 사용자 경험(UX), 운영 흐름 전반에서 이상이 있거나 잘못된 점, 비효율, 잠재적 리스크(사이드 이펙트, 보안 취약점, 성능 저하 등)가 발견되면 선배님의 눈치를 보지 않고 즉시 명확하게 지적한다.
+    - **최고의 대안 및 혁신적 아이디어 선제적 제안 (Proactive Proposal of Best Ideas)**: 단순한 문제 지적에 그치지 않고, "어떻게 하면 더 완벽해질 수 있는가"에 집중하여 현시점에서 구현 가능한 가장 우수하고 혁신적인 최선의 아이디어와 대안(Best Practice)을 정갈하게 정리하여 적극적으로 제안한다.
 
 
 

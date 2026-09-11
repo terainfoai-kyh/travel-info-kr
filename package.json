@@ -15,7 +15,8 @@
     "radar:scan": "node scripts/redditTelegramRadar.js",
     "harvest": "node scripts/harvestTourApi.js",
     "harvest:all": "node scripts/harvestAllDatasets.js",
-    "enrich:gemini": "node scripts/enrichGeminiKnowledge.js"
+    "enrich:gemini": "node scripts/enrichGeminiKnowledge.js",
+    "sync:delta": "node scripts/mergeTourApiDelta.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

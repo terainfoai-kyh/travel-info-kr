@@ -1,0 +1,102 @@
+name: TourAPI Daily Public Data Delta Sync
+
+on:
+  # 1. 매일 아침 08:00 KST (23:00 UTC) 글로벌 외국인 트래픽 최저점 & 공공데이터 마감 후 자동 실행
+  schedule:
+    - cron: '0 23 * * *'
+  
+  # 2. 깃허브 웹(Actions 탭)에서 즉시 테스트 가능한 수동 실행 버튼
+  workflow_dispatch:
+    inputs:
+      lookback_days:
+        description: 'Lookback Days (e.g. 1 or 7)'
+        required: false
+        default: '1'
+
+jobs:
+  delta-sync-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: 📥 레포지토리 체크아웃
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: main
+          fetch-depth: 0
+
+      - name: 🟢 Node.js 환경 세팅
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: 📦 의존성 설치
+        run: npm ci
+
+      - name: 🚀 TourAPI 4.0 델타 머지 및 제미나이 AI 자동 보완
+        env:
+          KOREA_TOUR_API_KEY: ${{ secrets.KOREA_TOUR_API_KEY }}
+          VITE_KOREA_TOUR_API_KEY: ${{ secrets.KOREA_TOUR_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          VITE_GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          VORA_VAULT_KEY: ${{ secrets.VORA_VAULT_KEY }}
+        run: |
+          DAYS="${{ github.event.inputs.lookback_days || '1' }}"
+          node scripts/mergeTourApiDelta.js --days=$DAYS
+
+      - name: 💾 변경된 마스터 데이터셋 Git 자동 커밋 & 푸시
+        id: git_check
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
+          if [[ -n $(git status -s data/ public/data/) ]]; then
+            git add data/ public/data/
+            git commit -m "chore(data-sync): TourAPI 4.0 daily delta sync & .enc encryption [skip ci]"
+            git pull origin main --rebase
+            git push origin main
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "🎉 새로운 공공데이터 변동분이 Git에 성공적으로 커밋 및 푸시되었습니다!"
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "✨ 새로운 공공데이터 변동이 없어 Git 커밋 및 배포를 생략합니다."
+          fi
+
+      - name: 🏗️ 프로덕션 번들 빌드
+        if: steps.git_check.outputs.has_changes == 'true'
+        env:
+          VORA_VAULT_KEY: ${{ secrets.VORA_VAULT_KEY }}
+        run: npm run build
+
+      - name: 🚀 1단계 [개발 서버] 다이렉트 배포 (travelkorea-dev)
+        if: steps.git_check.outputs.has_changes == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          npx wrangler pages deploy dist --project-name=travelkorea-dev --commit-dirty=true
+
+      - name: 🛡️ 개발 서버 헬스체크
+        if: steps.git_check.outputs.has_changes == 'true'
+        run: |
+          echo "Checking dev server health..."
+          sleep 5
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://travelkorea-dev.pages.dev)
+          if [ "$HTTP_STATUS" -eq 200 ]; then
+            echo "✅ Dev server healthy (HTTP 200)"
+          else
+            echo "❌ Dev server health check failed (HTTP $HTTP_STATUS)"
+            exit 1
+          fi
+
+      - name: 👑 2단계 [운영 서버] 다이렉트 승격 배포 (koreatravel.cc)
+        if: steps.git_check.outputs.has_changes == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          npx wrangler pages deploy dist --project-name=travel-info-kr --commit-dirty=true
+          echo "🎉 운영 서버(koreatravel.cc)에 최신 정품 공공데이터가 성공적으로 승격 배포되었습니다!"

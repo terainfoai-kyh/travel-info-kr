@@ -37,8 +37,7 @@ const GEMINI_API_KEY = (
 ).trim();
 
 if (!GEMINI_API_KEY) {
-  console.error('❌ [ERROR] GEMINI_API_KEY is not set. Please check .env file.');
-  process.exit(1);
+  console.warn('⚠️ [WARN] GEMINI_API_KEY is not set. Enrichment will use safe fallbacks.');
 }
 
 const DETAILS_PATH = path.join(ROOT_DIR, 'data', 'korea_spots_details.json');
@@ -193,7 +192,6 @@ Provide authentic, accurate, and practical information.`;
             enrichedAt: new Date().toISOString()
           };
           successCount++;
-          console.log(`  ✨ Enriched: [${item.contentId}] ${item.title_en || itemsForPrompt.find(x => x.contentId === item.contentId)?.title_ko}`);
         }
       }
       // Save progress incrementally after every batch
@@ -210,7 +208,79 @@ Provide authentic, accurate, and practical information.`;
   console.log(`💾 Saved to: ${ENRICHED_OUT_PATH} (Total enriched records: ${Object.keys(enrichedMap).length})`);
 }
 
-main().catch(err => {
-  console.error('💥 Fatal error in enrichment script:', err);
-  process.exit(1);
-});
+/**
+ * ⚡ Public Export: Enrich a small batch of spots on demand (e.g. from delta sync)
+ */
+export async function enrichSpotsWithGemini(items = []) {
+  if (!items || items.length === 0) return [];
+  if (!GEMINI_API_KEY) {
+    console.warn('⚠️ [Gemini Enrichment] GEMINI_API_KEY is not set. Generating safe fallbacks.');
+    return items.map(createSafeFallback);
+  }
+
+  const prompt = `You are Vora, Korea's top AI travel expert for international visitors.
+Given the following list of Korean tourism landmarks, produce high-value tourist metadata formatted as a JSON array of objects.
+
+Input Landmarks:
+${JSON.stringify(items, null, 2)}
+
+Return a strict JSON array where each object has:
+- "contentId": (string) matching the input contentId
+- "title_en": (string) Accurate English landmark name
+- "title_ja": (string) Natural Japanese landmark name
+- "title_zh": (string) Simplified Chinese landmark name
+- "photoTip_en": (string) 1-2 practical tips in English on the best camera angle, timing/lighting, or photogenic spots
+- "localProTip_en": (string) 1-2 insider local tips in English (e.g. hanbok discounts, quietest hours, must-see ceremonies, ticketing hacks)
+- "vibeTags": (array of 3-4 strings) English hashtag labels (e.g. ["#HistoricPalace", "#HanbokExperience", "#MustVisit"])
+- "transitAccess_en": (string) Concise public transit directions in English (e.g. "Subway Line 3 Anguk Stn Exit 3, 5 min walk" or "Direct bus from Seoul Stn")
+
+Provide authentic, accurate, and practical information.`;
+
+  try {
+    const result = await callGemini(prompt);
+    if (Array.isArray(result) && result.length > 0) {
+      return result.map(resItem => {
+        const orig = items.find(x => String(x.contentId) === String(resItem.contentId)) || {};
+        return {
+          contentId: String(resItem.contentId || orig.contentId),
+          title_en: resItem.title_en || orig.title_ko || '',
+          title_ja: resItem.title_ja || orig.title_ko || '',
+          title_zh: resItem.title_zh || orig.title_ko || '',
+          photoTip_en: resItem.photoTip_en || 'Capture great landscape memories during golden hour before sunset.',
+          localProTip_en: resItem.localProTip_en || 'Morning visits offer quiet ambiance and unobstructed photo opportunities.',
+          vibeTags: Array.isArray(resItem.vibeTags) && resItem.vibeTags.length > 0 ? resItem.vibeTags : ['#Scenic', '#KoreaTravel', '#MustVisit'],
+          transitAccess_en: resItem.transitAccess_en || 'Easily accessible via local subway and public bus transit.',
+          enrichedAt: new Date().toISOString()
+        };
+      });
+    }
+  } catch (err) {
+    console.warn(`⚠️ [Gemini Enrichment] Failed to call Gemini: ${err.message}. Using fallbacks.`);
+  }
+
+  return items.map(createSafeFallback);
+}
+
+function createSafeFallback(item) {
+  return {
+    contentId: String(item.contentId),
+    title_en: item.title_ko || 'Scenic Landmark',
+    title_ja: item.title_ko || '名所',
+    title_zh: item.title_ko || '名胜',
+    photoTip_en: 'Capture great landscape memories during golden hour before sunset.',
+    localProTip_en: 'Morning visits offer quiet ambiance and unobstructed photo opportunities.',
+    vibeTags: ['#Scenic', '#KoreaTravel', '#MustVisit'],
+    transitAccess_en: 'Easily accessible via local subway and public bus transit.',
+    enrichedAt: new Date().toISOString()
+  };
+}
+
+// Run main if called directly from CLI
+const isDirectRun = process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
+if (isDirectRun) {
+  main().catch(err => {
+    console.error('💥 Fatal error in enrichment script:', err);
+    process.exit(1);
+  });
+}
+
