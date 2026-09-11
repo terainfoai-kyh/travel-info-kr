@@ -348,6 +348,18 @@ export default function MyTripTab({
           themeStr = themeStr.replace(krKey, transObj[targetLang]);
         }
       }
+      themeStr = themeStr
+        .replace(/코스/g, targetLang === 'en' ? 'Course' : targetLang === 'ja' ? 'コース' : '路线')
+        .replace(/중심/g, targetLang === 'en' ? 'Focus' : targetLang === 'ja' ? '中心' : '中心')
+        .replace(/힐링/g, targetLang === 'en' ? 'Healing' : targetLang === 'ja' ? 'ヒーリング' : '治愈')
+        .replace(/탐방/g, targetLang === 'en' ? 'Tour' : targetLang === 'ja' ? '探訪' : '探寻')
+        .replace(/투어/g, targetLang === 'en' ? 'Tour' : targetLang === 'ja' ? 'ツアー' : '游');
+
+      if (/[가-힣]/.test(themeStr)) {
+        themeStr = themeStr.replace(/[가-힣]+/g, (match) => {
+          return getTranslatedTitle(match, lang);
+        });
+      }
     }
     return themeStr || (lang === 'en' ? `A Day in ${locCity}` : `${locCity}의 하루`);
   };

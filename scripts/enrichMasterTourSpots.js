@@ -10,6 +10,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { universalTranslateSpot } from '../src/utils/koreanRomanizer.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -1001,6 +1002,7 @@ export function enrichSpots() {
   // Helper: auto-attach multilingual titles
   const attachMultilingualTitles = (item) => {
     const t = item.title || '';
+    // 1차: 마스터 랜드마크 매칭
     for (const [key, trans] of Object.entries(NATIONWIDE_TRANS_MAP)) {
       if (t.includes(key) || key.includes(t)) {
         if (!item.title_en) item.title_en = trans.en;
@@ -1009,6 +1011,11 @@ export function enrichSpots() {
         break;
       }
     }
+    // 2차: 🏛️ 대한민국 226개 전 시·군·구 유니버설 국어원 로마자 & 형태소 표준 파이프라인
+    if (!item.title_en) item.title_en = universalTranslateSpot(t, 'en');
+    if (!item.title_ja) item.title_ja = universalTranslateSpot(t, 'ja');
+    if (!item.title_zh) item.title_zh = universalTranslateSpot(t, 'zh');
+
     return item;
   };
 
@@ -1087,6 +1094,9 @@ export function enrichSpots() {
         break;
       }
     }
+    if (!enObj.title_en) enObj.title_en = universalTranslateSpot(t, 'en');
+    if (!enObj.title_ja) enObj.title_ja = universalTranslateSpot(t, 'ja');
+    if (!enObj.title_zh) enObj.title_zh = universalTranslateSpot(t, 'zh');
   }
 
   fs.writeFileSync(detailsPath, JSON.stringify(detailsMap, null, 2), 'utf8');

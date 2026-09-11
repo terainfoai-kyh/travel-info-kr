@@ -3,6 +3,7 @@
  * Eliminates translation holes, ensures 100% complete localization across all UI,
  * itinerary planning, travel essentials, and Google AdSense compliance modals.
  */
+import { universalTranslateSpot } from '../utils/koreanRomanizer.js';
 
 export function detectBrowserLanguage() {
   if (typeof navigator === 'undefined') return 'ko';
@@ -210,24 +211,13 @@ export function getTranslatedTitle(title, lang = 'ko') {
     }
   }
 
-  // 3. 일반적인 공통 관광 카테고리 접미사 스마트 치환
-  if (targetLang === 'en') {
-    return clean
-      .replace(/궁궐|궁$/g, ' Palace')
-      .replace(/한옥마을$/g, ' Hanok Village')
-      .replace(/해수욕장|해변$/g, ' Beach')
-      .replace(/시장$/g, ' Market')
-      .replace(/공원$/g, ' Park')
-      .replace(/박물관$/g, ' Museum')
-      .replace(/미술관$/g, ' Art Museum')
-      .replace(/타워$/g, ' Tower')
-      .replace(/사찰|절$/g, ' Temple')
-      .replace(/전망대$/g, ' Observatory')
-      .replace(/카페거리$/g, ' Cafe Street')
-      .replace(/길$/g, ' Street');
+  // 3. 🏛️ 대한민국 226개 전 시·군·구 유니버설 국어원 로마자 & 관광 형태소 단일 표준 파이프라인
+  const universal = universalTranslateSpot(clean, targetLang);
+  if (universal && universal !== clean) {
+    return universal;
   }
 
-  return clean;
+  return universal || clean;
 }
 
 export function getTranslatedAddress(addr, lang = 'ko') {
