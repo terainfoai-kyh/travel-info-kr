@@ -1,1 +1,1 @@
-feat(adsense): inject pre-rendered semantic guide in root, add static legal pages and adsense account meta for adsense approval
+fix(i18n): localize Gemini Pro Tips photo and local tips and vibeTags in TravelDetailModal

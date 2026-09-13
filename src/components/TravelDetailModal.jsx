@@ -483,6 +483,183 @@ function renderContactWithTel(text = '') {
   });
 }
 
+// 🏷️ 해시태그(vibeTags) 다국어 변환기
+export function getLocalizedVibeTag(tag = '', lang = 'ko') {
+  if (!tag) return '';
+  const clean = tag.replace(/^#/, '').trim();
+  
+  const mapKo = {
+    'SignatureLandmark': '대표명소',
+    'KoreaTravel': '한국여행',
+    'MustVisit': '필수코스',
+    'SeoulHiking': '서울등산',
+    'NatureEscape': '자연힐링',
+    'CityViews': '도심전망',
+    'ActiveTravel': '액티브여행',
+    'IslandGetaway': '섬여행',
+    'TidalFlats': '갯벌체험',
+    'PineForest': '솔숲산책',
+    'SunsetSpot': '일몰명소',
+    'HiddenBeach': '숨은해변',
+    'IslandRetreat': '섬힐링',
+    'ClearWaters': '청정바다',
+    'PeacefulNature': '청정자연',
+    'HistoricFortress': '역사산성',
+    'HeritageTrail': '문화유적길',
+    'GanghwaIsland': '강화도',
+    'AncientHistory': '고대역사',
+    'RoyalPalace': '조선궁궐',
+    'HanokVibe': '한옥감성',
+    'NightView': '야경명소',
+    'FoodieStreet': '미식골목',
+    'OceanDrive': '해안드라이브'
+  };
+
+  const mapJa = {
+    'SignatureLandmark': '代表名所',
+    'KoreaTravel': '韓国旅行',
+    'MustVisit': 'おすすめスポット',
+    'SeoulHiking': 'ソウル登山',
+    'NatureEscape': '自然癒やし',
+    'CityViews': '都心の眺望',
+    'ActiveTravel': 'アクティブ旅行',
+    'IslandGetaway': '島の旅',
+    'TidalFlats': '干潟体験',
+    'PineForest': '松林散策',
+    'SunsetSpot': '夕日スポット',
+    'HiddenBeach': '隠れたビーチ',
+    'IslandRetreat': '島のリトリート',
+    'ClearWaters': '透明な海',
+    'PeacefulNature': '静かな自然',
+    'HistoricFortress': '歴史山城',
+    'HeritageTrail': '歴史の道',
+    'GanghwaIsland': '江華島',
+    'AncientHistory': '古代史',
+    'RoyalPalace': '王宮',
+    'HanokVibe': '韓屋の風情',
+    'NightView': '夜景スポット',
+    'FoodieStreet': 'グルメ街',
+    'OceanDrive': '海岸ドライブ'
+  };
+
+  const mapZh = {
+    'SignatureLandmark': '标志性地标',
+    'KoreaTravel': '韩国旅游',
+    'MustVisit': '必打卡',
+    'SeoulHiking': '首尔徒步',
+    'NatureEscape': '自然风光',
+    'CityViews': '城市全景',
+    'ActiveTravel': '户外旅行',
+    'IslandGetaway': '海岛度假',
+    'TidalFlats': '滩涂体验',
+    'PineForest': '松林漫步',
+    'SunsetSpot': '日落胜地',
+    'HiddenBeach': '小众海滩',
+    'IslandRetreat': '海岛疗愈',
+    'ClearWaters': '清澈碧海',
+    'PeacefulNature': '宁静自然',
+    'HistoricFortress': '历史古城',
+    'HeritageTrail': '文化遗产径',
+    'GanghwaIsland': '江华岛',
+    'AncientHistory': '古代历史',
+    'RoyalPalace': '传统宫殿',
+    'HanokVibe': '韩屋风情',
+    'NightView': '夜景胜地',
+    'FoodieStreet': '美食街',
+    'OceanDrive': '海岸公路'
+  };
+
+  if (lang === 'ko') return `#${mapKo[clean] || clean}`;
+  if (lang === 'ja') return `#${mapJa[clean] || clean}`;
+  if (lang === 'zh' || lang === 'zht') return `#${mapZh[clean] || clean}`;
+  return `#${clean}`;
+}
+
+// 📸 포토 앵글 팁 다국어 변환기
+export function getLocalizedPhotoTip(rawTip = '', title = '', lang = 'ko') {
+  if (!rawTip) return '';
+  if (lang === 'en') return rawTip;
+
+  if (lang === 'ko') {
+    if (rawTip.includes('Capture great panoramic photos around golden hour') || rawTip.includes('panoramic photos')) {
+      return `${title}의 고즈넉한 풍경과 골든아워(일몰 전후)의 황금빛 노을을 배경으로 멋진 파노라마 인생샷을 담아보세요.`;
+    }
+    if (rawTip.includes('Maebong Peak') || rawTip.includes('southern Seoul')) {
+      return `해 질 녘 골든아워 시간대에 매봉 정상에 오르면 서울 남부와 성남 일대가 시원하게 펼쳐지는 파노라마 뷰를 담으실 수 있습니다.`;
+    }
+    if (rawTip.includes('crescent shoreline') || rawTip.includes('mudflats')) {
+      return `오후 썰물 시간대에 소나무 숲 그늘 아래에서 갯벌과 초승달 모양의 해안선이 어우러진 서정적인 풍경을 프레임에 담아보세요.`;
+    }
+    if (rawTip.includes('turquoise sea') || rawTip.includes('pine forest')) {
+      return `한낮의 햇살 아래 에메랄드빛 청정 바다와 푸른 해안 솔숲이 대비되는 시원한 광각 뷰를 촬영해 보세요.`;
+    }
+    if (rawTip.includes('North Gate') || rawTip.includes('stone ramparts')) {
+      return `북문의 웅장한 아치형 홍예문과 산 능선을 따라 이어지는 고즈넉한 성곽 라인을 한 앵글에 담아 깊이감을 연출해 보세요.`;
+    }
+    if (rawTip.includes('golden hour before sunset') || rawTip.includes('landscape memories')) {
+      return `${title}의 시그니처 뷰와 일몰 직전 골든아워의 부드러운 자연광을 배경으로 최고의 여행 사진을 남겨보세요.`;
+    }
+    return `${title}의 시그니처 랜드마크 뷰와 일몰 전후 골든아워의 부드러운 자연광을 배경으로 멋진 파노라마 앵글을 연출해 보세요.`;
+  }
+
+  if (lang === 'ja') {
+    if (rawTip.includes('Capture great panoramic photos around golden hour') || rawTip.includes('panoramic photos')) {
+      return `${title}の美しい景観と夕暮れ前のゴールデンアワーの光を背景に、素敵なパノラマ写真を撮影してみてください。`;
+    }
+    return `${title}のシグネチャービューと夕暮れ時の柔らかな自然光を背景に、素敵な旅の写真を撮影してみてください。`;
+  }
+
+  if (lang === 'zh' || lang === 'zht') {
+    if (rawTip.includes('Capture great panoramic photos around golden hour') || rawTip.includes('panoramic photos')) {
+      return `建议在日落前后的黄金时段，以${title}的绝美风光为背景拍摄全景大片。`;
+    }
+    return `建议在傍晚黄金时段以${title}标志性全景为背景，利用柔和自然光拍摄旅行大片。`;
+  }
+
+  return rawTip;
+}
+
+// 💡 현지 로컬 꿀팁 다국어 변환기
+export function getLocalizedLocalProTip(rawTip = '', title = '', lang = 'ko') {
+  if (!rawTip) return '';
+  if (lang === 'en') return rawTip;
+
+  if (lang === 'ko') {
+    if (rawTip.includes('Early morning visits offer quiet ambiance and best lighting')) {
+      return `이른 아침 시간대에 방문하시면 붐비지 않는 한적한 분위기 속에서 사진 촬영에 가장 좋은 은은한 자연광을 즐기실 수 있습니다.`;
+    }
+    if (rawTip.includes('Wonteogol trail') || rawTip.includes('pajeon')) {
+      return `원터골 코스의 계단로를 이용하면 가장 빠르게 정상에 오를 수 있으며, 하산 후 등산로 입구 맛집 마을에서 바삭한 파전과 막걸리를 즐겨보세요.`;
+    }
+    if (rawTip.includes('water shoes') || rawTip.includes('clams')) {
+      return `썰물 때 조개잡이 체험을 위해 아쿠아슈즈를 챙기시면 좋으며, 선착장 인근에서 자전거를 대여해 해안도로를 달려보는 것을 추천합니다.`;
+    }
+    if (rawTip.includes('fine yellow sand') || rawTip.includes('gentle slope')) {
+      return `완만한 경사와 고운 금빛 모래사장 덕분에 인파 없이 여유롭고 안전하게 바다 힐링을 즐길 수 있는 숨은 명소입니다.`;
+    }
+    if (rawTip.includes('Ganghwa Dulle-gil') || rawTip.includes('local tea houses')) {
+      return `성곽 문들을 잇는 강화 나들길 코스와 함께 둘러보시면 강화읍 골목의 정겨운 전통 찻집들도 함께 발견하실 수 있습니다.`;
+    }
+    return `이른 아침이나 늦은 오후 시간대에 방문하시면 한적한 분위기 속에서 ${title}의 매력을 더욱 쾌적하게 즐기실 수 있습니다.`;
+  }
+
+  if (lang === 'ja') {
+    if (rawTip.includes('Early morning visits offer quiet ambiance and best lighting')) {
+      return `早朝の時間帯に訪れると、混雑を避けて静かな雰囲気の中で撮影に最適な自然光を楽しめます。`;
+    }
+    return `早朝や夕方の時間帯に訪れると、ゆったりとした静かな雰囲気の中で散策を楽しむことができます。`;
+  }
+
+  if (lang === 'zh' || lang === 'zht') {
+    if (rawTip.includes('Early morning visits offer quiet ambiance and best lighting')) {
+      return `建议清晨时段前往，不仅游人较少清幽舒适，还能享受最佳的自然拍摄光线。`;
+    }
+    return `建议清晨或傍晚前往，避开人流高峰，更加惬意舒适地游览体验。`;
+  }
+
+  return rawTip;
+}
+
 export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang = 'ko' }) {
   if (!spot) return null;
 
@@ -1115,8 +1292,8 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
             {description}
           </p>
 
-          {/* 🌟 VORA AI Gemini Pro Tips (포토 스팟 & 로컬 꿀팁) */}
-          {(liveCommonDetails?.photoTip_en || spot?.photoTip_en || liveCommonDetails?.localProTip_en || spot?.localProTip_en) && (
+          {/* 🌟 VORA AI Gemini Pro Tips (포토 스팟 & 로컬 꿀팁 다국어 연동) */}
+          {(liveCommonDetails?.photoTip_en || spot?.photoTip_en || spot?.photoTip || liveCommonDetails?.localProTip_en || spot?.localProTip_en || spot?.localProTip) && (
             <div style={{
               backgroundColor: 'rgba(245, 158, 11, 0.08)',
               border: '1px solid rgba(245, 158, 11, 0.25)',
@@ -1127,24 +1304,28 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
               gap: '0.45rem',
               fontSize: '0.85rem'
             }}>
-              {(liveCommonDetails?.photoTip_en || spot?.photoTip_en) && (
+              {(liveCommonDetails?.photoTip_en || spot?.photoTip_en || spot?.photoTip) && (
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', color: '#b45309' }}>
                   <span style={{ fontSize: '1rem', flexShrink: 0 }}>📸</span>
                   <div>
-                    <strong style={{ color: '#92400e' }}>Photo Angle Tip:</strong>{' '}
+                    <strong style={{ color: '#92400e' }}>
+                      {lang === 'ko' ? '추천 포토 앵글:' : lang === 'ja' ? 'おすすめ撮影アングル:' : (lang === 'zh' || lang === 'zht') ? '推荐拍照角度:' : 'Photo Angle Tip:'}
+                    </strong>{' '}
                     <span style={{ color: 'var(--text-main)', opacity: 0.9 }}>
-                      {liveCommonDetails?.photoTip_en || spot?.photoTip_en}
+                      {getLocalizedPhotoTip(liveCommonDetails?.photoTip_en || spot?.photoTip_en || spot?.photoTip, cleanTitle, lang)}
                     </span>
                   </div>
                 </div>
               )}
-              {(liveCommonDetails?.localProTip_en || spot?.localProTip_en) && (
+              {(liveCommonDetails?.localProTip_en || spot?.localProTip_en || spot?.localProTip) && (
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', color: '#047857' }}>
                   <span style={{ fontSize: '1rem', flexShrink: 0 }}>💡</span>
                   <div>
-                    <strong style={{ color: '#065f46' }}>Local Pro Tip:</strong>{' '}
+                    <strong style={{ color: '#065f46' }}>
+                      {lang === 'ko' ? '현지 로컬 프로 팁:' : lang === 'ja' ? '現地ローカルのコツ:' : (lang === 'zh' || lang === 'zht') ? '当地游玩贴士:' : 'Local Pro Tip:'}
+                    </strong>{' '}
                     <span style={{ color: 'var(--text-main)', opacity: 0.9 }}>
-                      {liveCommonDetails?.localProTip_en || spot?.localProTip_en}
+                      {getLocalizedLocalProTip(liveCommonDetails?.localProTip_en || spot?.localProTip_en || spot?.localProTip, cleanTitle, lang)}
                     </span>
                   </div>
                 </div>
@@ -1160,7 +1341,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                       padding: '0.15rem 0.45rem',
                       borderRadius: '6px'
                     }}>
-                      {tag}
+                      {getLocalizedVibeTag(tag, lang)}
                     </span>
                   ))}
                 </div>
