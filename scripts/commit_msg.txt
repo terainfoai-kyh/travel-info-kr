@@ -1,1 +1,1 @@
-feat: 100% complete zero-defect multilingual overhaul across 13 components, modals, and guides
+feat: enhance tourApi nearby food multilingual labels and map official foreign contentTypeId
