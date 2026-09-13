@@ -21,11 +21,11 @@ export default function TourSpotGrid({
   const [activeMood, setActiveMood] = React.useState('all');
 
   const moodTabs = [
-    { id: 'all', label: '✨ AI 강추 전체' },
-    { id: 'hotspot', label: '🔥 인스타 핫플' },
-    { id: 'nature', label: '🌸 힐링 & 자연' },
-    { id: 'tradition', label: '🏯 전통 & 한옥' },
-    { id: 'night', label: '🌊 해변 & 야경' }
+    { id: 'all', label: lang === 'en' ? '✨ All Top Picks' : lang === 'ja' ? '✨ AIおすすめ全件' : (lang === 'zh' || lang === 'zht') ? '✨ AI推荐全部' : '✨ AI 강추 전체' },
+    { id: 'hotspot', label: t.hotSpotBadge || (lang === 'en' ? '🔥 Trending Spots' : lang === 'ja' ? '🔥 人気スポット' : (lang === 'zh' || lang === 'zht') ? '🔥 热门打卡地' : '🔥 인스타 핫플') },
+    { id: 'nature', label: lang === 'en' ? '🌸 Nature & Healing' : lang === 'ja' ? '🌸 自然・ヒーリング' : (lang === 'zh' || lang === 'zht') ? '🌸 自然与疗愈' : '🌸 힐링 & 자연' },
+    { id: 'tradition', label: lang === 'en' ? '🏯 Culture & Heritage' : lang === 'ja' ? '🏯 伝統・韓屋' : (lang === 'zh' || lang === 'zht') ? '🏯 传统与韩屋' : '🏯 전통 & 한옥' },
+    { id: 'night', label: lang === 'en' ? '🌊 Night View & Beach' : lang === 'ja' ? '🌊 夜景・ビーチ' : (lang === 'zh' || lang === 'zht') ? '🌊 海滨与夜景' : '🌊 해변 & 야경' }
   ];
 
   return (
@@ -140,7 +140,7 @@ export default function TourSpotGrid({
                       alignItems: 'center',
                       gap: '0.2rem'
                     }}>
-                      <span>🔥 인스타 핫플</span>
+                      <span>{t.hotSpotBadge || (lang === 'en' ? '🔥 Trending Spot' : lang === 'ja' ? '🔥 人気スポット' : (lang === 'zh' || lang === 'zht') ? '🔥 热门打卡地' : '🔥 인스타 핫플')}</span>
                     </div>
                   </div>
 

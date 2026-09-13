@@ -2,4 +2,11 @@
 /robots.txt /robots.txt 200
 /sitemap.xml /sitemap.xml 200
 /assets/*   /assets/:splat  200
+/guides/*   /guides/:splat  200
+/about.html /about.html     200
+/privacy.html /privacy.html 200
+/terms.html /terms.html     200
+/contact.html /contact.html 200
+/data/*     /data/:splat    200
 /*          /index.html     200
+

@@ -406,7 +406,13 @@ export default function WeatherModal({
       const dayIdx = targetDate.getDay();
       
       let localizedDayLabel = f.day;
-      if (language === 'en') {
+      if (f.day === '오늘') {
+        localizedDayLabel = language === 'en' ? 'Today' : language === 'ja' ? '今日' : '今天';
+      } else if (f.day === '내일') {
+        localizedDayLabel = language === 'en' ? 'Tomorrow' : language === 'ja' ? '明日' : '明天';
+      } else if (f.day === '모레') {
+        localizedDayLabel = language === 'en' ? 'Day After' : language === 'ja' ? '明後日' : (language === 'zht' ? '後天' : '后天');
+      } else if (language === 'en') {
         const weekEn = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dayIdx];
         localizedDayLabel = offset === 1 ? `Tmrw (${weekEn})` : (offset === 2 ? `Day +2 (${weekEn})` : `${weekEn}`);
       } else if (language === 'ja') {
@@ -749,7 +755,9 @@ export default function WeatherModal({
                     <span>{t.weatherForecastTitle || (lang === 'en' ? '3-Day Forecast' : lang === 'ja' ? '3日間週間天気予報' : (lang === 'zh' || lang === 'zht') ? '3天天气预报' : '3일 주간 예보')}</span>
                   </div>
                   <span style={{ fontSize: '0.66rem', color: 'var(--text-dim)', fontWeight: 600 }}>
-                    {liveWeatherData?.source === 'kma-official' ? '🇰🇷 기상청 공식 데이터' : '🛰️ 실시간 기상 관측'}
+                    {liveWeatherData?.source === 'kma-official' 
+                      ? (lang === 'en' ? '🇰🇷 Official KMA Data' : lang === 'ja' ? '🇰🇷 気象庁公式データ' : (lang === 'zh' || lang === 'zht') ? '🇰🇷 韩国气象厅官方数据' : '🇰🇷 기상청 공식 데이터') 
+                      : (lang === 'en' ? '🛰️ Real-time Weather' : lang === 'ja' ? '🛰️ リアルタイム気象観測' : (lang === 'zh' || lang === 'zht') ? '🛰️ 实时气象观测' : '🛰️ 실시간 기상 관측')}
                   </span>
                 </div>
 
@@ -808,7 +816,11 @@ export default function WeatherModal({
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                 <Shirt size={16} style={{ color: 'var(--accent-primary)' }} />
                 <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 900, color: 'var(--text-main)' }}>
-                  {t.weatherOutfitSectionTitle ? t.weatherOutfitSectionTitle(getLocalizedCityName(matchedCityKey, lang)) : `오늘 ${getLocalizedCityName(matchedCityKey, lang)} 맞춤 여행 코디 & 필수 준비물`}
+                  {t.weatherOutfitSectionTitle ? t.weatherOutfitSectionTitle(getLocalizedCityName(matchedCityKey, lang)) 
+                    : (lang === 'en' ? `Today's Curated Outfit & Essentials for ${getLocalizedCityName(matchedCityKey, lang)}`
+                       : lang === 'ja' ? `本日の${getLocalizedCityName(matchedCityKey, lang)}おすすめコーデ＆持ち物`
+                       : (lang === 'zh' || lang === 'zht') ? `今日${getLocalizedCityName(matchedCityKey, lang)}专属穿搭与必备用品`
+                       : `오늘 ${getLocalizedCityName(matchedCityKey, lang)} 맞춤 여행 코디 & 필수 준비물`)}
                 </h4>
               </div>
 
@@ -819,15 +831,21 @@ export default function WeatherModal({
                 fontSize: '0.8rem'
               }}>
                 <div style={{ backgroundColor: 'var(--bg-card)', padding: '0.55rem 0.75rem', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
-                  <span style={{ fontWeight: 800, color: 'var(--accent-primary)', marginRight: '0.35rem' }}>{t.weatherTopBottom || '👕 상의 / 하의:'}</span>
+                  <span style={{ fontWeight: 800, color: 'var(--accent-primary)', marginRight: '0.35rem' }}>
+                    {t.weatherTopBottom || (lang === 'en' ? '👕 Top / Bottom:' : lang === 'ja' ? '👕 トップス／ボトムス:' : (lang === 'zh' || lang === 'zht') ? '👕 上装／下装:' : '👕 상의 / 하의:')}
+                  </span>
                   <span style={{ fontWeight: 700, color: 'var(--text-main)' }}>{current.topBottom}</span>
                 </div>
                 <div style={{ backgroundColor: 'var(--bg-card)', padding: '0.55rem 0.75rem', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
-                  <span style={{ fontWeight: 800, color: 'var(--accent-primary)', marginRight: '0.35rem' }}>{t.weatherOuter || '🧥 아우터 레이어드:'}</span>
+                  <span style={{ fontWeight: 800, color: 'var(--accent-primary)', marginRight: '0.35rem' }}>
+                    {t.weatherOuter || (lang === 'en' ? '🧥 Outerwear Layering:' : lang === 'ja' ? '🧥 アウター・羽織り:' : (lang === 'zh' || lang === 'zht') ? '🧥 外套叠穿:' : '🧥 아우터 레이어드:')}
+                  </span>
                   <span style={{ fontWeight: 700, color: 'var(--text-main)' }}>{current.outer}</span>
                 </div>
                 <div style={{ backgroundColor: 'var(--bg-card)', padding: '0.55rem 0.75rem', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
-                  <span style={{ fontWeight: 800, color: 'var(--accent-primary)', marginRight: '0.35rem' }}>{t.weatherEssentials || '🎒 필수 여행 소품:'}</span>
+                  <span style={{ fontWeight: 800, color: 'var(--accent-primary)', marginRight: '0.35rem' }}>
+                    {t.weatherEssentials || (lang === 'en' ? '🎒 Travel Essentials:' : lang === 'ja' ? '🎒 必須トラベル小物:' : (lang === 'zh' || lang === 'zht') ? '🎒 必备旅行好物:' : '🎒 필수 여행 소품:')}
+                  </span>
                   <span style={{ fontWeight: 700, color: 'var(--text-main)' }}>{current.essentials}</span>
                 </div>
               </div>
@@ -844,7 +862,9 @@ export default function WeatherModal({
               }}>
                 <Sparkles size={15} style={{ color: 'var(--accent-primary)', flexShrink: 0, marginTop: '2px' }} />
                 <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-main)', lineHeight: 1.45 }}>
-                  <strong style={{ color: 'var(--accent-primary)' }}>{t.weatherStylistTip || '현지 스타일리스트 꿀팁: '}</strong>
+                  <strong style={{ color: 'var(--accent-primary)' }}>
+                    {t.weatherStylistTip || (lang === 'en' ? 'Stylist Pro Tip: ' : lang === 'ja' ? 'スタイリストのコツ: ' : (lang === 'zh' || lang === 'zht') ? '穿搭造型贴士: ' : '현지 스타일리스트 꿀팁: ')}
+                  </strong>
                   {current.tip}
                 </div>
               </div>
@@ -878,7 +898,7 @@ export default function WeatherModal({
                 fontWeight: 800
               }}
             >
-              <span>{t.weatherSunscreenLink || '🧴 여행용 선크림 & 쿨링패치'}</span>
+              <span>{t.weatherSunscreenLink || (lang === 'en' ? '🧴 Travel Sunscreen & Cooling' : lang === 'ja' ? '🧴 旅行用日焼け止め＆冷却' : (lang === 'zh' || lang === 'zht') ? '🧴 旅行防晒霜与降温贴' : '🧴 여행용 선크림 & 쿨링패치')}</span>
               <ExternalLink size={12} style={{ color: 'var(--text-dim)' }} />
             </a>
 
@@ -901,7 +921,7 @@ export default function WeatherModal({
                 fontWeight: 800
               }}
             >
-              <span>{t.weatherHanbokLink || '👘 전통 한복/의상 대여'}</span>
+              <span>{t.weatherHanbokLink || (lang === 'en' ? '👘 Traditional Hanbok Rental' : lang === 'ja' ? '👘 伝統韓服レンタル' : (lang === 'zh' || lang === 'zht') ? '👘 传统韩服租赁' : '👘 전통 한복/의상 대여')}</span>
               <ExternalLink size={12} style={{ color: 'var(--text-dim)' }} />
             </a>
 
@@ -924,7 +944,7 @@ export default function WeatherModal({
                 fontWeight: 800
               }}
             >
-              <span>{t.weatherLookbookLink || '📌 K-패션 여행 감성 룩북 (Pinterest)'}</span>
+              <span>{t.weatherLookbookLink || (lang === 'en' ? '📌 K-Fashion Travel Lookbook (Pinterest)' : lang === 'ja' ? '📌 K-Fashion 旅行ルックブック (Pinterest)' : (lang === 'zh' || lang === 'zht') ? '📌 韩国潮流旅行穿搭指南 (Pinterest)' : '📌 K-패션 여행 감성 룩북 (Pinterest)')}</span>
               <ExternalLink size={12} style={{ color: 'var(--text-dim)' }} />
             </a>
           </div>

@@ -11,7 +11,7 @@ import {
   Calendar,
   Layers
 } from 'lucide-react';
-import { TRANSLATIONS } from '../i18n/translations';
+import { TRANSLATIONS, getLocalizedCityName, getTranslatedTitle } from '../i18n/translations';
 import { generateGoogleMapsRouteUrl, getGooglePlaceSearchUrl } from '../services/geminiNlpService';
 import { SOUTH_KOREA_MAP_BOUNDS, updateMapTileLayer } from '../utils/mapTileUtils';
 
@@ -374,7 +374,7 @@ export default function DockedMapStation({
             letterSpacing: '0.1em',
             color: '#475569'
           }}>
-            🗺️ {lang === 'en' ? 'OPEN MAP' : '지도 보기'}
+            🗺️ {lang === 'en' ? 'OPEN MAP' : lang === 'ja' ? '地図表示' : (lang === 'zh' || lang === 'zht') ? '查看地图' : '지도 보기'}
           </span>
           <div style={{
             fontSize: '0.65rem',
@@ -384,7 +384,7 @@ export default function DockedMapStation({
             backgroundColor: '#f1f5f9',
             color: '#2563eb'
           }}>
-            {targetCity}
+            {getLocalizedCityName(targetCity, lang)}
           </div>
         </button>
       </div>
@@ -611,7 +611,7 @@ export default function DockedMapStation({
               }}
             >
               <Navigation size={11} />
-              <span>{lang === 'en' ? 'Google Route ↗' : '구글 동선 ↗'}</span>
+              <span>{lang === 'en' ? 'Google Route ↗' : lang === 'ja' ? 'Googleルート ↗' : (lang === 'zh' || lang === 'zht') ? '谷歌路线 ↗' : '구글 동선 ↗'}</span>
             </a>
           )}
         </div>
@@ -674,7 +674,7 @@ export default function DockedMapStation({
                 textOverflow: 'ellipsis',
                 flex: 1
               }}>
-                {spot.title || spot.name}
+                {getTranslatedTitle(spot.title || spot.name, lang)}
               </span>
             </div>
           ))}

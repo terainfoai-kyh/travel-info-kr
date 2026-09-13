@@ -3,7 +3,7 @@ import DatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { X, Calendar, Clock, MapPin, Sparkles, Navigation, Copy, Check, Filter, ShieldCheck, CloudRain, RefreshCw, Car, Bus, Utensils, Compass, Trash2, Plus } from 'lucide-react';
 import { generateSmartItinerary, generateCustomPickedItinerary, calculateTravelEstimate } from '../services/recommendationEngine';
-import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress } from '../i18n/translations';
+import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress, getLocalizedCityName } from '../i18n/translations';
 import { getI18nTravelNote } from '../i18n/travelChipI18n';
 import { buildAgodaDeepLink, buildKlookDeepLink } from '../services/apiConfig';
 import ItineraryMapView, { getDayBtnText } from './ItineraryMapView';
@@ -145,7 +145,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
       const rawSpots = Array.isArray(ds.spots) ? ds.spots : [];
       const schedule = rawSpots.map((sp, sIdx) => ({
         time: sIdx === 0 ? '09:30' : (sIdx === 1 ? '13:00' : (sIdx === 2 ? '16:30' : '20:00')),
-        slotName: sIdx === 0 ? '오전 명소 & 출발' : (sIdx === 1 ? '점심 & 랜드마크' : (sIdx === 2 ? '오후 관광 & 체험' : '야경 & 마감')),
+        slotName: sIdx === 0 ? (t.slotMorning || '오전 명소 & 출발') : (sIdx === 1 ? (t.slotLunch || '점심 & 랜드마크') : (sIdx === 2 ? (t.slotAfternoon || '오후 관광 & 체험') : (t.slotNight || '야경 & 마감'))),
         spotId: sp.id || `fullai-${ds.day || (idx + 1)}-${sIdx}`,
         title: sp.title,
         location: sp.location || sp.addr1 || `${ds.city || '전국'} 중심가`,
@@ -269,7 +269,7 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
 
     const formattedItem = {
       time: '18:00',
-      slotName: '추천 추가 명소',
+      slotName: t.slotExtra || '추천 추가 명소',
       spotId: newSpot.id || `added-${Date.now()}`,
       title: newSpot.title,
       image: newSpot.image || '/default-spot.png',
@@ -286,18 +286,47 @@ export default function ItineraryModal({ isOpen, onClose, filters, spots, lang, 
   };
 
   const handleCopyItinerary = () => {
-    let summaryText = `[Vora Explorer] ${region} ${selectedDays}박 ${selectedDays + 1}일 추천 코스 (${customStartDate} 출발)\n`;
-    if (rainyMode) summaryText += `🌧️ 비 오는 날 실내 전용 코스 적용\n`;
-    summaryText += `📍 상세 조건: 지역(${region}) · 테마(${theme}) · 성별(${filters?.gender || '무관'}) · 연령대(${filters?.age || '전체'})\n\n`;
+    const locCity = getLocalizedCityName(region, lang);
+    let summaryText = lang === 'en' 
+      ? `[Vora Explorer] ${locCity} ${selectedDays}-Night ${selectedDays + 1}-Day Recommended Route (Departing ${customStartDate})\n`
+      : lang === 'ja'
+      ? `[Vora Explorer] ${locCity} ${selectedDays}泊${selectedDays + 1}日 おすすめコース (${customStartDate} 出発)\n`
+      : (lang === 'zh' || lang === 'zht')
+      ? `[Vora Explorer] ${locCity} ${selectedDays}晚${selectedDays + 1}天 推荐行程 (${customStartDate} 出发)\n`
+      : `[Vora Explorer] ${region} ${selectedDays}박 ${selectedDays + 1}일 추천 코스 (${customStartDate} 출발)\n`;
+
+    if (rainyMode) {
+      summaryText += lang === 'en' 
+        ? `🌧️ Rainy Day Indoor Route Applied\n`
+        : lang === 'ja'
+        ? `🌧️ 雨の日・屋内専用コース適用\n`
+        : (lang === 'zh' || lang === 'zht')
+        ? `🌧️ 雨天室内专属路线已应用\n`
+        : `🌧️ 비 오는 날 실내 전용 코스 적용\n`;
+    }
+
+    summaryText += lang === 'en'
+      ? `📍 Preferences: Region(${locCity}) · Theme(${theme}) · Gender(${filters?.gender || 'Any'}) · Age(${filters?.age || 'All'})\n\n`
+      : lang === 'ja'
+      ? `📍 詳細条件: 地域(${locCity}) · テーマ(${theme}) · 性別(${filters?.gender || '指定なし'}) · 年代(${filters?.age || '全体'})\n\n`
+      : (lang === 'zh' || lang === 'zht')
+      ? `📍 偏好条件: 地区(${locCity}) · 主题(${theme}) · 性别(${filters?.gender || '不限'}) · 年龄段(${filters?.age || '全部'})\n\n`
+      : `📍 상세 조건: 지역(${region}) · 테마(${theme}) · 성별(${filters?.gender || '무관'}) · 연령대(${filters?.age || '전체'})\n\n`;
     
     itinerary.forEach(day => {
       summaryText += `📌 ${day.dayTitle}\n`;
       day.schedule.forEach(s => {
-        summaryText += `  • [${s.time}] ${s.title} (${s.location})\n`;
+        summaryText += `  • [${s.time}] ${getTranslatedTitle(s.title, lang)} (${getTranslatedAddress(s.location, lang)})\n`;
       });
       summaryText += `\n`;
     });
-    summaryText += `🔗 전체 코스 보기: https://koreatravel.cc/?region=${encodeURIComponent(region)}&startDate=${customStartDate}`;
+    summaryText += lang === 'en'
+      ? `🔗 View Full Course: https://koreatravel.cc/?region=${encodeURIComponent(region)}&startDate=${customStartDate}`
+      : lang === 'ja'
+      ? `🔗 全コースを見る: https://koreatravel.cc/?region=${encodeURIComponent(region)}&startDate=${customStartDate}`
+      : (lang === 'zh' || lang === 'zht')
+      ? `🔗 查看完整行程: https://koreatravel.cc/?region=${encodeURIComponent(region)}&startDate=${customStartDate}`
+      : `🔗 전체 코스 보기: https://koreatravel.cc/?region=${encodeURIComponent(region)}&startDate=${customStartDate}`;
 
     navigator.clipboard.writeText(summaryText);
     setCopied(true);

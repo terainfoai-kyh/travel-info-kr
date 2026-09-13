@@ -12,6 +12,12 @@ export function getAgodaHotelSearchUrl(cityName, hotelName) {
   return `https://www.agoda.com/partners/partnersearch.aspx?cid=${AGODA_CID}&pcs=1&hl=en&searchText=${query}`;
 }
 
+export function getLocalizedPriceLevel(hotel, lang = 'ko') {
+  if (!hotel?.priceLevel) return '';
+  if (typeof hotel.priceLevel === 'string') return hotel.priceLevel;
+  return hotel.priceLevel[lang] || hotel.priceLevel.en || hotel.priceLevel.ko || '';
+}
+
 export const CURATED_HOTELS = [
   // 1. Seoul - Myeongdong Top Pick
   {
@@ -31,7 +37,12 @@ export const CURATED_HOTELS = [
     },
     rating: 4.8,
     reviewsCount: '3,450+',
-    priceLevel: '₩₩ (가성비 럭셔리)',
+    priceLevel: {
+      ko: '₩₩ (가성비 럭셔리)',
+      en: '₩₩ (Affordable Luxury)',
+      ja: '₩₩ (コスパラグジュアリー)',
+      zh: '₩₩ (超值奢华)'
+    },
     badge: {
       ko: '⭐ 명동 쇼핑거리 도보 1분',
       en: '⭐ 1-min Walk to Myeongdong Street',
@@ -67,7 +78,12 @@ export const CURATED_HOTELS = [
     },
     rating: 4.9,
     reviewsCount: '2,890+',
-    priceLevel: '₩₩₩ (5성급 럭셔리)',
+    priceLevel: {
+      ko: '₩₩₩ (5성급 럭셔리)',
+      en: '₩₩₩ (5-Star Luxury)',
+      ja: '₩₩₩ (5つ星ラグジュアリー)',
+      zh: '₩₩₩ (五星级奢华)'
+    },
     badge: {
       ko: '🏆 코엑스몰 & 삼성역 직결',
       en: '🏆 Connected to COEX & Subway',
@@ -103,7 +119,12 @@ export const CURATED_HOTELS = [
     },
     rating: 4.9,
     reviewsCount: '2,150+',
-    priceLevel: '₩₩₩ (해운대 랜드마크)',
+    priceLevel: {
+      ko: '₩₩₩ (해운대 랜드마크)',
+      en: '₩₩₩ (Haeundae Landmark)',
+      ja: '₩₩₩ (海雲台ランドマーク)',
+      zh: '₩₩₩ (海云台地标)'
+    },
     badge: {
       ko: '🌊 전 객실 파노라마 오션뷰 발코니',
       en: '🌊 Ocean View Balcony in All Rooms',
@@ -139,7 +160,12 @@ export const CURATED_HOTELS = [
     },
     rating: 4.8,
     reviewsCount: '1,980+',
-    priceLevel: '₩₩₩ (힐링 리조트)',
+    priceLevel: {
+      ko: '₩₩₩ (힐링 리조트)',
+      en: '₩₩₩ (Healing Resort)',
+      ja: '₩₩₩ (癒やしリゾート)',
+      zh: '₩₩₩ (疗愈度假村)'
+    },
     badge: {
       ko: '🌴 사계절 온수풀 & 야자수 가든',
       en: '🌴 Year-Round Heated Pools & Palm Garden',
@@ -154,6 +180,6 @@ export const CURATED_HOTELS = [
       zh: '置身于中文度假区的热带椰林怀抱中，拥有成人专属屋顶温水无边际泳池与丰富的亲子休闲设施，享受纯正的海岛假期。'
     },
     amenities: ['Heated Pool', 'Kids Club', 'Tropical Garden', 'Fine Dining'],
-    agodaUrl: getAgodaHotelSearchUrl('Jeju', 'Grand Josun Jeju')
   }
 ];
+

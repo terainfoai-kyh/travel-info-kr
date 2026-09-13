@@ -1,6 +1,7 @@
 import { PUBLIC_API_CONFIG, REGION_META, THEME_META, getDynamicRegionMeta } from './apiConfig.js';
 import { TRAVEL_SPOTS } from '../data/travelData.js';
 import { queryLocalTourSpots, queryLocalSpotDetail, queryLocalNearbyFood } from './localTourDatabase.js';
+import { getTranslatedTitle, getTranslatedAddress } from '../i18n/translations.js';
 
 // 한국관광공사 TourAPI 4.0 - 공통정보조회 (/detailCommon2)
 export async function fetchSpotDetailCommon(contentId, lang = 'ko') {
@@ -10,23 +11,29 @@ export async function fetchSpotDetailCommon(contentId, lang = 'ko') {
   try {
     const localDetail = await queryLocalSpotDetail(contentId);
     if (localDetail && localDetail.overview) {
-      return {
-        contentid: String(contentId),
-        title: localDetail.title || '',
-        overview: localDetail.overview || '',
-        homepage: localDetail.homepage || '',
-        homepageUrl: localDetail.homepage || '',
-        tel: localDetail.tel || '',
-        firstimage: localDetail.image || '',
-        firstimage2: localDetail.image || '',
-        usetime: localDetail.useTime || '',
-        restdate: localDetail.restDate || '',
-        parking: localDetail.parking || '',
-        photoTip_en: localDetail.photoTip_en || '',
-        localProTip_en: localDetail.localProTip_en || '',
-        vibeTags: localDetail.vibeTags || [],
-        transitAccess_en: localDetail.transitAccess_en || ''
-      };
+      const foreignOverview = lang === 'en' ? localDetail.overview_en
+        : lang === 'ja' ? (localDetail.overview_ja || localDetail.overview_en)
+        : (lang === 'zh' || lang === 'zht') ? (localDetail.overview_zh || localDetail.overview_en)
+        : null;
+      if (lang === 'ko' || foreignOverview) {
+        return {
+          contentid: String(contentId),
+          title: (lang !== 'ko' && localDetail[`title_${lang}`]) ? localDetail[`title_${lang}`] : (localDetail.title || ''),
+          overview: foreignOverview || localDetail.overview || '',
+          homepage: localDetail.homepage || '',
+          homepageUrl: localDetail.homepage || '',
+          tel: localDetail.tel || '',
+          firstimage: localDetail.image || '',
+          firstimage2: localDetail.image || '',
+          usetime: localDetail.useTime || '',
+          restdate: localDetail.restDate || '',
+          parking: localDetail.parking || '',
+          photoTip_en: localDetail.photoTip_en || '',
+          localProTip_en: localDetail.localProTip_en || '',
+          vibeTags: localDetail.vibeTags || [],
+          transitAccess_en: localDetail.transitAccess_en || ''
+        };
+      }
     }
   } catch (e) {}
 
@@ -537,16 +544,31 @@ export async function fetchNearbyRestaurantsAndCafes(lat, lng, radius = 800, lan
         const isCafe = /(카페|커피|베이커리|디저트|cafe|coffee|bakery|찻집)/i.test(item.title);
         const distM = item.distanceMeters || 200;
         const walkMins = Math.max(1, Math.round(distM / 70));
-        const distanceLabel = lang === 'en' ? `Walk ${walkMins}m (${distM}m)` : `도보 ${walkMins}분 (${distM}m)`;
+        const distanceLabel = lang === 'en' ? `Walk ${walkMins}m (${distM}m)`
+          : lang === 'ja' ? `徒歩${walkMins}分 (${distM}m)`
+          : (lang === 'zh' || lang === 'zht') ? `步行${walkMins}分钟 (${distM}米)`
+          : `도보 ${walkMins}분 (${distM}m)`;
+
+        const localizedName = (lang !== 'ko' && item[`title_${lang}`]) 
+          ? item[`title_${lang}`] 
+          : getTranslatedTitle(item.title, lang);
+
+        const localizedType = isCafe
+          ? (lang === 'en' ? 'Cafe ☕' : lang === 'ja' ? 'カフェ ☕' : (lang === 'zh' || lang === 'zht') ? '咖啡厅 ☕' : '한옥카페 ☕')
+          : (lang === 'en' ? 'Local Gourmet 🍲' : lang === 'ja' ? 'グルメ 🍲' : (lang === 'zh' || lang === 'zht') ? '地道美食 🍲' : '로컬미식 🍲');
+
+        const localizedDesc = lang !== 'ko'
+          ? (item.address || item.addr1 ? getTranslatedAddress(item.address || item.addr1, lang) : (isCafe ? (lang === 'en' ? 'Cozy local cafe & bakery' : lang === 'ja' ? 'ゆったり寛げるローカルカフェ' : '舒适惬意的特色咖啡店') : (lang === 'en' ? 'Authentic local Korean restaurant' : lang === 'ja' ? '地元食材を活かした本格料理店' : '当地正宗韩国料理店')))
+          : (item.address || item.addr1 || (isCafe ? '여유로운 분위기의 로컬 카페' : '현지 식재료를 살린 추천 식당'));
 
         return {
           id: `food_${item.contentId}`,
-          name: item.title,
-          type: isCafe ? (lang === 'en' ? 'Cafe ☕' : '감성카페 ☕') : (lang === 'en' ? 'Local Food 🍲' : '로컬미식 🍲'),
+          name: localizedName,
+          type: localizedType,
           category: isCafe ? '카페/디저트' : '향토음식점',
           distance: distanceLabel,
           distM: distM,
-          desc: item.address || item.addr1 || (isCafe ? '여유로운 분위기의 로컬 카페' : '현지 식재료를 살린 추천 식당'),
+          desc: localizedDesc,
           image: item.image || null,
           lat: parseFloat(item.lat),
           lng: parseFloat(item.lng)
@@ -580,17 +602,29 @@ export async function fetchNearbyRestaurantsAndCafes(lat, lng, radius = 800, lan
         const distM = item.dist ? Math.round(parseFloat(item.dist)) : null;
         const walkMins = distM ? Math.max(1, Math.round(distM / 70)) : null;
         const distanceLabel = walkMins 
-          ? (lang === 'en' ? `Walk ${walkMins}m (${distM}m)` : `도보 ${walkMins}분 (${distM}m)`)
-          : (lang === 'en' ? 'Walking distance' : '도보 권역');
+          ? (lang === 'en' ? `Walk ${walkMins}m (${distM}m)` : lang === 'ja' ? `徒歩${walkMins}分 (${distM}m)` : (lang === 'zh' || lang === 'zht') ? `步行${walkMins}分钟 (${distM}米)` : `도보 ${walkMins}분 (${distM}m)`)
+          : (lang === 'en' ? 'Walking distance' : lang === 'ja' ? '徒歩圏内' : (lang === 'zh' || lang === 'zht') ? '步行范围内' : '도보 권역');
+
+        const localizedName = (lang !== 'ko' && item[`title_${lang}`]) 
+          ? item[`title_${lang}`] 
+          : getTranslatedTitle(item.title, lang);
+
+        const localizedType = isCafe
+          ? (lang === 'en' ? 'Cafe ☕' : lang === 'ja' ? 'カフェ ☕' : (lang === 'zh' || lang === 'zht') ? '咖啡厅 ☕' : '감성카페 ☕')
+          : (lang === 'en' ? 'Local Gourmet 🍲' : lang === 'ja' ? 'グルメ 🍲' : (lang === 'zh' || lang === 'zht') ? '地道美食 🍲' : '로컬미식 🍲');
+
+        const localizedDesc = lang !== 'ko'
+          ? (item.addr1 ? getTranslatedAddress(item.addr1, lang) : (isCafe ? (lang === 'en' ? 'Cozy local cafe & bakery' : lang === 'ja' ? 'ゆったり寛げるローカルカフェ' : '舒适惬意的特色咖啡店') : (lang === 'en' ? 'Authentic local Korean restaurant' : lang === 'ja' ? '地元食材を活かした本格料理店' : '当地正宗韩国料理店')))
+          : (item.addr1 || (isCafe ? '여유로운 분위기의 로컬 카페' : '현지 식재료를 살린 추천 식당'));
 
         return {
           id: `food_${item.contentid}`,
-          name: item.title,
-          type: isCafe ? (lang === 'en' ? 'Cafe ☕' : '감성카페 ☕') : (lang === 'en' ? 'Local Food 🍲' : '로컬미식 🍲'),
+          name: localizedName,
+          type: localizedType,
           category: isCafe ? '카페/디저트' : '향토음식점',
           distance: distanceLabel,
           distM: distM,
-          desc: item.addr1 || (isCafe ? '여유로운 분위기의 로컬 카페' : '현지 식재료를 살린 추천 식당'),
+          desc: localizedDesc,
           image: item.firstimage || item.firstimage2 || null,
           lat: parseFloat(item.mapy),
           lng: parseFloat(item.mapx)
@@ -962,6 +996,21 @@ export async function fetchDynamicRealtimeSpots(query, lang = 'ko') {
 export async function fetchSpotDetailIntro(contentId, contentTypeId = '14', lang = 'ko') {
   if (!contentId) return null;
 
+  // 🏛️ TourAPI 국문(KorService2) vs 다국어(EngService2 등) contentTypeId 공식 변환 매핑
+  const KOR_TO_FOREIGN_CONTENT_TYPE = {
+    '12': '76', // 관광지 -> Tourist Attraction
+    '14': '78', // 문화시설 -> Cultural Facility
+    '15': '85', // 행사/공연/축제 -> Festival
+    '28': '75', // 레포츠 -> Reports / Leisure Sports
+    '32': '80', // 숙박 -> Lodging / Stay
+    '38': '79', // 쇼핑 -> Shopping
+    '39': '82'  // 음식점 -> Food / Restaurant
+  };
+
+  const effectiveContentTypeId = (lang !== 'ko' && KOR_TO_FOREIGN_CONTENT_TYPE[String(contentTypeId)])
+    ? KOR_TO_FOREIGN_CONTENT_TYPE[String(contentTypeId)]
+    : contentTypeId;
+
   let baseUrl = PUBLIC_API_CONFIG.DETAIL_INTRO_URL;
   if (lang === 'en') baseUrl = `${PUBLIC_API_CONFIG.ENG_BASE}/detailIntro2`;
   else if (lang === 'ja') baseUrl = `${PUBLIC_API_CONFIG.JPN_BASE}/detailIntro2`;
@@ -972,7 +1021,7 @@ export async function fetchSpotDetailIntro(contentId, contentTypeId = '14', lang
   else if (lang === 'es') baseUrl = `${PUBLIC_API_CONFIG.SPN_BASE}/detailIntro2`;
   else if (lang === 'ru') baseUrl = `${PUBLIC_API_CONFIG.RUS_BASE}/detailIntro2`;
 
-  const url = `${baseUrl}?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&contentId=${contentId}&contentTypeId=${contentTypeId}`;
+  const url = `${baseUrl}?serviceKey=${PUBLIC_API_CONFIG.SERVICE_KEY}&MobileOS=ETC&MobileApp=KTravelApp&_type=json&contentId=${contentId}&contentTypeId=${effectiveContentTypeId}`;
 
   try {
     const res = await fetch(url);

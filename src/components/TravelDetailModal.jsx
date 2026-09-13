@@ -14,7 +14,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { getGooglePlaceSearchUrl } from '../services/geminiNlpService';
-import { TRANSLATIONS } from '../i18n/translations';
+import { TRANSLATIONS, getTranslatedTitle, getTranslatedAddress } from '../i18n/translations';
 import { getSpotAffiliateDeal } from '../services/affiliateService';
 import { 
   fetchSpotDetailImages, 
@@ -26,6 +26,40 @@ import {
 import { KOREA_TRAVEL_POI_DB } from '../data/koreaTravelPoiDatabase';
 
 // 🌐 지능형 실시간 관광 실용 정보 다국어 표준 토큰 치환기 (Universal Tokenizer)
+export function translateAdmissionFee(fee, lang = 'ko') {
+  if (!fee || typeof fee !== 'string' || lang === 'ko') return fee || '';
+  if (fee.includes('무료 개방') || fee.includes('무료 관람')) {
+    if (fee.includes('자유 관람') || fee.includes('자유 열람')) {
+      return lang === 'en' ? 'Free Admission (Open Access)' : lang === 'ja' ? '入場無料 (自由観覧)' : '免费开放 (自由参观)';
+    }
+    return lang === 'en' ? 'Free Admission' : lang === 'ja' ? '入場無料' : '免费入场';
+  }
+  if (fee.includes('성인 3,000원 (한복 착용 시 무료)')) {
+    return lang === 'en' ? 'Adult ₩3,000 (Free in Hanbok)' : lang === 'ja' ? '大人 3,000ウォン (韓服着用時無料)' : '成人 3,000韩元 (穿韩服免费)';
+  }
+  if (fee.includes('성인 3,000원 (후원 별도 5,000원)')) {
+    return lang === 'en' ? 'Adult ₩3,000 (Secret Garden +₩5,000)' : lang === 'ja' ? '大人 3,000ウォン (後苑別途 5,000ウォン)' : '成人 3,000韩元 (后苑另加5,000韩元)';
+  }
+  if (fee.includes('전망대')) {
+    return lang === 'en' ? 'Observatory: Adult ₩21,000 / Child ₩16,000' : lang === 'ja' ? '展望台: 大人 21,000ウォン / 子供 16,000ウォン' : '观景台: 成人 21,000韩元 / 儿童 16,000韩元';
+  }
+  if (fee.includes('야외/디자인랩 무료')) {
+    return lang === 'en' ? 'Outdoor & Design Lab Free (Exhibitions vary)' : lang === 'ja' ? '屋外・デザインラボ無料 (企画展別)' : '室外及设计实验室免费 (特展收费另计)';
+  }
+  if (fee.includes('유료 관람')) {
+    return lang === 'en' ? 'Paid Admission (On-site & Online reservation)' : lang === 'ja' ? '有料観覧 (現地・オンライン予約)' : '收费参观 (现场及线上预约)';
+  }
+  if (fee.includes('성인 1,000원~3,000원')) {
+    return lang === 'en' ? 'Approx. ₩1,000 ~ ₩3,000 for adults' : lang === 'ja' ? '大人 1,000〜3,000ウォン程度' : '成人约 1,000〜3,000韩元';
+  }
+  return fee
+    .replace(/성인/g, lang === 'en' ? 'Adult' : lang === 'ja' ? '大人' : '成人')
+    .replace(/소인/g, lang === 'en' ? 'Child' : lang === 'ja' ? '子供' : '儿童')
+    .replace(/청소년/g, lang === 'en' ? 'Youth' : lang === 'ja' ? '青少年' : '青少年')
+    .replace(/무료/g, lang === 'en' ? 'Free' : lang === 'ja' ? '無料' : '免费')
+    .replace(/(\d+(?:,\d+)?)\s*원/g, '₩$1');
+}
+
 export function translatePracticalInfo(text = '', lang = 'ko') {
   if (!text || typeof text !== 'string' || lang === 'ko') return text;
   let str = text;
@@ -118,7 +152,10 @@ export function translatePracticalInfo(text = '', lang = 'ko') {
       .replace(/인근\s*지하철역\s*및\s*시내버스\s*이용/g, 'Accessible via nearby subway station and local bus')
       .replace(/여객선\(배편\s*약\s*(\d+)\s*분\)/g, 'Ferry (approx. $1 mins)')
       .replace(/여객선\(배편\s*약\s*(\d+)\s*시간\s*(\d+)\s*분\)/g, 'Ferry (approx. $1h $2m)')
-      .replace(/도항선\(배편\s*약\s*(\d+)\s*분\)/g, 'Ferry (approx. $1 mins)');
+      .replace(/도항선\(배편\s*약\s*(\d+)\s*분\)/g, 'Ferry (approx. $1 mins)')
+      .replace(/약\s*(\d+)\s*~\s*(\d+(?:\.\d+)?)\s*시간/g, 'Approx. $1 - $2 hours')
+      .replace(/약\s*(\d+(?:\.\d+)?)\s*시간/g, 'Approx. $1 hours')
+      .replace(/약\s*(\d+)\s*분/g, 'Approx. $1 mins');
   } else if (lang === 'ja') {
     str = str
       .replace(/(\d+)\s*호선/g, '地下鉄$1号線')
@@ -134,7 +171,10 @@ export function translatePracticalInfo(text = '', lang = 'ko') {
       .replace(/인근\s*지하철역\s*및\s*시내버스\s*이용/g, '最寄りの地下鉄駅または市内バス利用')
       .replace(/여객선\(배편\s*약\s*(\d+)\s*분\)/g, 'フェリー (約$1分)')
       .replace(/여객선\(배편\s*약\s*(\d+)\s*시간\s*(\d+)\s*분\)/g, 'フェリー (約$1時間$2分)')
-      .replace(/도항선\(배편\s*약\s*(\d+)\s*분\)/g, 'フェリー (約$1分)');
+      .replace(/도항선\(배편\s*약\s*(\d+)\s*분\)/g, 'フェリー (約$1分)')
+      .replace(/약\s*(\d+)\s*~\s*(\d+(?:\.\d+)?)\s*시간/g, '約 $1〜$2時間')
+      .replace(/약\s*(\d+(?:\.\d+)?)\s*시간/g, '約 $1時間')
+      .replace(/약\s*(\d+)\s*분/g, '約 $1分');
   } else if (lang === 'zh' || lang === 'zht') {
     str = str
       .replace(/(\d+)\s*호선/g, '地铁$1号线')
@@ -738,7 +778,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                 return {
                   ...a,
                   distM,
-                  distanceLabel: lang === 'en' ? `Walk ${walkMins}m (${distM}m)` : `도보 ${walkMins}분 (${distM}m)`
+                  distanceLabel: lang === 'en' ? `Walk ${walkMins}m (${distM}m)` : lang === 'ja' ? `徒歩${walkMins}分 (${distM}m)` : (lang === 'zh' || lang === 'zht') ? `步行${walkMins}分钟 (${distM}米)` : `도보 ${walkMins}분 (${distM}m)`
                 };
               })
               .filter(a => {
@@ -891,15 +931,26 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
   );
 
   // 4. 상세 소개글 (고정 문구 척결 & 정품 summary 매핑)
-  const description = matchedPoi?.summary 
-    || spot.description 
-    || spot.overview 
-    || (lang === 'en' ? `A signature landmark in South Korea registered with the Korea Tourism Organization.` : `한국관광공사에 정품 등록된 대한민국 대표 힐링 관광 명소입니다.`);
+  const rawDescription = (lang !== 'ko' && (matchedPoi?.summaryEn || spot.descriptionEn || spot.overviewEn))
+    ? (lang === 'ja' ? (matchedPoi?.summaryJa || spot.descriptionJa || spot.overviewJa || matchedPoi?.summaryEn || spot.descriptionEn)
+       : (lang === 'zh' || lang === 'zht') ? (matchedPoi?.summaryZh || spot.descriptionZh || spot.overviewZh || matchedPoi?.summaryEn || spot.descriptionEn)
+       : (matchedPoi?.summaryEn || spot.descriptionEn || spot.overviewEn))
+    : (matchedPoi?.summary 
+      || spot.description 
+      || spot.overview 
+      || (lang === 'en' ? `A signature landmark in South Korea registered with the Korea Tourism Organization.` : `한국관광공사에 정품 등록된 대한민국 대표 힐링 관광 명소입니다.`));
+
+  const description = (lang !== 'ko' && /[가-힣]/.test(rawDescription))
+    ? (lang === 'ja' ? `${getTranslatedTitle(cleanTitle, lang)}は、韓国観光公社に公式登録された代表的な観光名所です。`
+       : (lang === 'zh' || lang === 'zht') ? `${getTranslatedTitle(cleanTitle, lang)}是韩国观光公社官方认证的代表性旅游胜地。`
+       : `${getTranslatedTitle(cleanTitle, lang)} is a premier landmark officially registered with the Korea Tourism Organization.`)
+    : rawDescription;
 
   // 5. 추천 소요 시간
-  const duration = spot.duration 
+  const rawDuration = spot.duration 
     ? (typeof spot.duration === 'number' ? `약 ${spot.duration}분` : spot.duration) 
     : (matchedPoi?.duration ? `약 ${matchedPoi.duration}분` : '약 1 ~ 1.5시간');
+  const duration = translatePracticalInfo(rawDuration, lang);
 
   // 6. 평점
   const rating = spot.rating || matchedPoi?.rating || 4.8;
@@ -1263,7 +1314,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
               color: '#ffffff',
               textShadow: '0 2px 10px rgba(0, 0, 0, 0.95), 0 1px 3px rgba(0, 0, 0, 0.9)'
             }}>
-              {cleanTitle}
+              {getTranslatedTitle(cleanTitle, lang)}
             </h2>
           </div>
         </div>
@@ -1364,7 +1415,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
               <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '75px', fontWeight: 700 }}>
                 {lang === 'en' ? '• Location' : lang === 'ja' ? '• 位置' : (lang === 'zh' || lang === 'zht') ? '• 位置' : '• 위치'}
               </span>
-              <span style={{ color: 'var(--text-main)', fontWeight: 600, wordBreak: 'keep-all', lineHeight: 1.5 }}>: {location}</span>
+              <span style={{ color: 'var(--text-main)', fontWeight: 600, wordBreak: 'keep-all', lineHeight: 1.5 }}>: {getTranslatedAddress(location, lang)}</span>
             </div>
 
             {/* 2. 대중교통 & 배편 */}
@@ -1398,7 +1449,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
               <span style={{ color: 'var(--text-muted)', flexShrink: 0, width: '75px', fontWeight: 700 }}>
                 {lang === 'en' ? '• Fee' : lang === 'ja' ? '• 料金' : (lang === 'zh' || lang === 'zht') ? '• 门票费用' : '• 요금'}
               </span>
-              <span style={{ color: 'var(--text-main)', fontWeight: 600, lineHeight: 1.5 }}>: {translatePracticalInfo(admissionFee, lang)}</span>
+              <span style={{ color: 'var(--text-main)', fontWeight: 600, lineHeight: 1.5 }}>: {translateAdmissionFee(admissionFee, lang)}</span>
             </div>
 
             {/* 6. 🚗 주차 시설 */}
@@ -1513,10 +1564,29 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
               color: 'var(--text-main)',
               opacity: 0.95
             }}>
-              {liveCommonDetails?.overview || (cleanTitle.includes('화성행궁')
-                ? (lang === 'en' ? 'Historic temporary royal palace built by King Jeongjo of Joseon. Features majestic fortress walls and night openings.' : lang === 'ja' ? '朝鮮第22代正祖大王が建立した由緒ある臨時王宮です。美しい城郭と行宮の夜景が水原の代表名所です。' : (lang === 'zh' || lang === 'zht') ? '朝鲜第22代正祖大王建立的临时行宫，漫步在月光下的古老城郭是水原的代表性名胜。' : '조선 제22대 정조대왕이 아버지 사도세자의 현륭원을 참배할 때 머물기 위해 건립한 유서 깊은 임시 궁궐입니다.')
-                : (lang === 'en' ? (matchedPoi?.summaryEn || spot.summaryEn || spot.descriptionEn) : lang === 'ja' ? (matchedPoi?.summaryJa || spot.summaryJa || spot.descriptionJa) : (lang === 'zh' || lang === 'zht') ? (matchedPoi?.summaryZh || spot.summaryZh || spot.descriptionZh) : null)
-                || matchedPoi?.overview || spot.description || (lang === 'en' ? 'A representative landmark of Korea registered with the Korea Tourism Organization.' : lang === 'ja' ? '韓国観光公社に登録された韓国の代表的な癒しの観光名所です。' : (lang === 'zh' || lang === 'zht') ? '韩国观光公社官方正品认证的代表性疗愈观光名胜。' : '한국관광공사에 정품 등록된 대한민국 대표 힐링 관광 명소입니다.'))}
+              {(() => {
+                if (lang === 'ko') {
+                  return liveCommonDetails?.overview || spot.description || '한국관광공사에 정품 등록된 대한민국 대표 힐링 관광 명소입니다.';
+                }
+                const foreignLiveOverview = liveCommonDetails?.overview_en || (lang === 'ja' ? liveCommonDetails?.overview_ja : (lang === 'zh' || lang === 'zht') ? liveCommonDetails?.overview_zh : null);
+                if (foreignLiveOverview && !/[가-힣]/.test(foreignLiveOverview)) {
+                  return foreignLiveOverview;
+                }
+                if (cleanTitle.includes('화성행궁')) {
+                  return lang === 'en' ? 'Historic temporary royal palace built by King Jeongjo of Joseon. Features majestic fortress walls and night openings.' : lang === 'ja' ? '朝鮮第22代正祖大王が建立した由緒ある臨時王宮です。美しい城郭と行宮の夜景が水原の代表名所です。' : '朝鲜第22代正祖大王建立的临时行宫，漫步在月光下的古老城郭是水原的代表性名胜。';
+                }
+                const candidate = lang === 'ja' ? (matchedPoi?.summaryJa || spot.summaryJa || spot.descriptionJa || matchedPoi?.summaryEn || spot.descriptionEn)
+                  : (lang === 'zh' || lang === 'zht') ? (matchedPoi?.summaryZh || spot.summaryZh || spot.descriptionZh || matchedPoi?.summaryEn || spot.descriptionEn)
+                  : (matchedPoi?.summaryEn || spot.summaryEn || spot.descriptionEn);
+                if (candidate && !/[가-힣]/.test(candidate)) {
+                  return candidate;
+                }
+                return lang === 'en'
+                  ? `${getTranslatedTitle(cleanTitle, lang)} is a premier destination in South Korea officially certified by the Korea Tourism Organization.`
+                  : lang === 'ja'
+                  ? `${getTranslatedTitle(cleanTitle, lang)}は、韓国観光公社に公式登録された韓国の代表的な観光名所です。`
+                  : `${getTranslatedTitle(cleanTitle, lang)}是韩国观光公社官方认证的代表性旅游胜地。`;
+              })()}
             </p>
           </div>
 
@@ -1653,7 +1723,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                         <div style={{ minWidth: 0 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                             <span style={{ fontSize: '0.86rem', fontWeight: 800, color: 'var(--text-main)' }}>
-                              {alt.title || alt.name}
+                              {getTranslatedTitle(alt.title || alt.name, lang)}
                             </span>
                             {alt.distanceLabel && (
                               <span style={{ fontSize: '0.72rem', color: 'var(--accent-primary)', fontWeight: 700 }}>
@@ -1662,7 +1732,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                             )}
                           </div>
                           <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginTop: '0.1rem' }}>
-                            {alt.category || '관광명소'} {alt.subway ? `· ${alt.subway}` : alt.address ? `· ${alt.address}` : ''}
+                            {alt.category || (lang === 'en' ? 'Attraction' : lang === 'ja' ? '観光名所' : (lang === 'zh' || lang === 'zht') ? '旅游景点' : '관광명소')} {alt.subway ? `· ${translatePracticalInfo(alt.subway, lang)}` : alt.address ? `· ${getTranslatedAddress(alt.address, lang)}` : ''}
                           </div>
                         </div>
                         <button
@@ -1776,12 +1846,12 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                               </span>
                               {food.distance && (
                                 <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-                                  ({food.distance})
+                                  ({translatePracticalInfo(food.distance, lang)})
                                 </span>
                               )}
                             </div>
                             <div style={{ fontSize: '0.76rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: '0.1rem' }}>
-                              {food.desc || food.type || '로컬 미식/카페'}
+                              {translatePracticalInfo(food.desc || food.type, lang) || (lang === 'en' ? 'Local Eatery / Cafe' : lang === 'ja' ? 'ローカルグルメ・カフェ' : (lang === 'zh' || lang === 'zht') ? '当地美食/咖啡厅' : '로컬 미식/카페')}
                             </div>
                           </div>
 

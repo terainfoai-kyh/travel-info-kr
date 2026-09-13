@@ -1,6 +1,6 @@
 import React from 'react';
 import { Sparkles, MapPin, Bookmark, X } from 'lucide-react';
-import { TRANSLATIONS } from '../i18n/translations';
+import { TRANSLATIONS, getLocalizedCityName, getTranslatedTitle } from '../i18n/translations';
 
 /**
  * ExitConfirmModal
@@ -21,8 +21,9 @@ export default function ExitConfirmModal({
   if (!isOpen) return null;
 
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
-  const targetCity = itineraryData?.targetCity || '서울';
-  const tripTitle = itineraryData?.tripTitle || `${targetCity} 여행 일정`;
+  const rawTargetCity = itineraryData?.targetCity || '서울';
+  const targetCity = getLocalizedCityName(rawTargetCity, lang);
+  const tripTitle = itineraryData?.tripTitle ? getTranslatedTitle(itineraryData.tripTitle, lang) : (t.exitTripTitle ? t.exitTripTitle(targetCity) : `${targetCity} 여행 일정`);
   const spotsCount = itineraryData?.spots?.length || (itineraryData?.dailySchedules?.reduce((acc, d) => acc + (d.spots?.length || 0), 0)) || 0;
 
   return (

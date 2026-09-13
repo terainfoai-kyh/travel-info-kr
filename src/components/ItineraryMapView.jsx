@@ -482,10 +482,10 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
             {currentDayData?.weather && (
               <div style={{ background: 'rgba(30, 41, 59, 0.6)', border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '10px', padding: '0.45rem 0.65rem' }}>
                 <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                  <span>🌤️ AI 맞춤 날씨</span>
+                  <span>{t.cardWeather || '🌤️ AI 맞춤 날씨'}</span>
                 </div>
                 <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#ffffff', marginTop: '0.15rem' }}>
-                  {currentDayData.weather.temp} · {currentDayData.weather.condition} (강수 {currentDayData.weather.rainProbability})
+                  {currentDayData.weather.temp} · {currentDayData.weather.condition} ({lang === 'en' ? 'Rain' : lang === 'ja' ? '降水' : (lang === 'zh' || lang === 'zht') ? '降水' : '강수'} {currentDayData.weather.rainProbability})
                 </div>
               </div>
             )}
@@ -494,13 +494,13 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
             {currentDayData?.foodRecommendation && (
               <div style={{ background: 'rgba(30, 41, 59, 0.6)', border: '1px solid rgba(251, 146, 60, 0.3)', borderRadius: '10px', padding: '0.45rem 0.65rem' }}>
                 <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#fb923c', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                  <span>🍱 추천 대표 미식</span>
+                  <span>{t.cardGourmet || '🍱 추천 대표 미식'}</span>
                 </div>
                 <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#ffffff', marginTop: '0.15rem' }}>
-                  {currentDayData.foodRecommendation.dishName}
+                  {getTranslatedTitle(currentDayData.foodRecommendation.dishName, lang)}
                 </div>
                 <div style={{ fontSize: '0.68rem', color: '#cbd5e1' }}>
-                  {currentDayData.foodRecommendation.restaurantName}
+                  {getTranslatedTitle(currentDayData.foodRecommendation.restaurantName, lang)}
                 </div>
               </div>
             )}
@@ -509,7 +509,7 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
             {currentDayData?.outfitRecommendation && (
               <div style={{ background: 'rgba(30, 41, 59, 0.6)', border: '1px solid rgba(192, 132, 252, 0.3)', borderRadius: '10px', padding: '0.45rem 0.65rem' }}>
                 <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#c084fc', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                  <span>👗 AI 추천 TPO 코디</span>
+                  <span>{t.cardCoordi || '👗 AI 추천 TPO 코디'}</span>
                 </div>
                 <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#ffffff', marginTop: '0.15rem' }}>
                   {currentDayData.outfitRecommendation.title}
@@ -524,10 +524,10 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
             {currentDayData?.accommodation && (
               <div style={{ background: 'rgba(30, 41, 59, 0.6)', border: '1px solid rgba(52, 211, 153, 0.3)', borderRadius: '10px', padding: '0.45rem 0.65rem' }}>
                 <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#34d399', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                  <span>🏨 추천 패밀리/호텔</span>
+                  <span>{t.cardHotel || '🏨 추천 패밀리/호텔'}</span>
                 </div>
                 <div style={{ fontSize: '0.74rem', fontWeight: 700, color: '#ffffff', marginTop: '0.15rem', marginBottom: '0.25rem' }}>
-                  {currentDayData.accommodation.name}
+                  {getTranslatedTitle(currentDayData.accommodation.name, lang)}
                 </div>
                 <a
                   href={currentDayData.accommodation.agodaLink || `https://www.agoda.com/search?text=${encodeURIComponent(currentDayData.accommodation.name)}`}
@@ -546,7 +546,7 @@ export default function ItineraryMapView({ itinerary = [], activeDay = 1, onChan
                     textDecoration: 'none'
                   }}
                 >
-                  <span>🏨 1-클릭 숙소 예약 ↗</span>
+                  <span>{t.cardBookHotel || '🏨 1-클릭 숙소 예약 ↗'}</span>
                 </a>
               </div>
             )}

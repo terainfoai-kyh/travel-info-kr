@@ -156,9 +156,34 @@
       font-weight: 600;
     }
     .footer-links a:hover { color: var(--accent); }
+    .lang-selector {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .lang-pill {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 5px 12px;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .lang-pill.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+    }
+    [data-lang="en"] { display: none; }
+    body.show-en [data-lang="ko"] { display: none; }
+    body.show-en [data-lang="en"] { display: block; }
     @media (max-width: 640px) {
       h1 { font-size: 1.65rem; }
       .article-section { padding: 20px; }
+      header { flex-direction: column; gap: 10px; align-items: flex-start; }
     }
   </style>
 </head>
@@ -166,65 +191,140 @@
 
   <header>
     <a href="/" class="logo">✨ VORA AI</a>
-    <a href="/" class="back-link">← AI 여행 플래너 홈</a>
+    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+      <div class="lang-selector">
+        <button type="button" class="lang-pill active" onclick="switchLang('ko')">🇰🇷 한국어</button>
+        <button type="button" class="lang-pill" onclick="switchLang('en')">🇺🇸 English</button>
+      </div>
+      <a href="/" class="back-link">← AI 여행 플래너 홈</a>
+    </div>
   </header>
 
   <main>
-    <span class="badge">🌋 유네스코 3관왕 세계자연유산</span>
-    <h1>2026 제주 유네스코 세계자연유산 &amp; 힐링 로드 완벽 가이드</h1>
-    <p class="lead">
-      수성화산 분화구 성산일출봉부터 신비로운 지하 용암동굴 만장굴, 사계절 야생화와 설경이 아름다운 한라산까지 — 한국관광공사 TourAPI 4.0과 공공 기상 데이터를 결합한 제주도 대표 큐레이션입니다.
-    </p>
-
-    <!-- 섹션 1 -->
-    <section class="article-section">
-      <h2>🌅 1. 푸른 바다 위로 솟은 거대한 성채: 성산일출봉</h2>
-      <p>
-        약 5천 년 전 얕은 바닷속 화산 분출로 형성된 <strong>성산일출봉(Seongsan Ilchulbong)</strong>은 왕관 모양의 거대한 분화구가 사면 절벽을 이루고 있는 유네스코 세계자연유산입니다. 정상까지 계단 탐방로를 따라 20분 정도 오르면 성산포 앞바다와 우도가 파노라마로 펼쳐지며, 동틀 무렵 수평선 너머로 솟아오르는 장엄한 일출은 평생 잊지 못할 장관입니다.
+    <!-- KOREAN EDITION -->
+    <div data-lang="ko">
+      <span class="badge">🌋 유네스코 3관왕 세계자연유산</span>
+      <h1>2026 제주 유네스코 세계자연유산 &amp; 힐링 로드 완벽 가이드</h1>
+      <p class="lead">
+        수성화산 분화구 성산일출봉부터 신비로운 지하 용암동굴 만장굴, 사계절 야생화와 설경이 아름다운 한라산까지 — 한국관광공사 TourAPI 4.0과 공공 기상 데이터를 결합한 제주도 대표 큐레이션입니다.
       </p>
-      <div class="pro-tip-box">
-        <strong>📸 로컬 프로 팁:</strong> 일출봉 서쪽 우뭇개 해안에서는 하루 2회(13:30, 15:00) 제주 전통 해녀들의 물질 시연과 신선한 전복·해삼 시식을 관람할 수 있습니다.
-      </div>
-    </section>
 
-    <!-- 섹션 2 -->
-    <section class="article-section">
-      <h2>🦇 2. 수십만 년 지하 세계의 경이로움: 만장굴</h2>
-      <p>
-        거문오름 화산 분출 당시 흘러내린 용암이 형성한 <strong>만장굴(Manjanggul Cave)</strong>은 총 길이 약 7.4km에 달하는 세계적인 규모의 용암동굴입니다. 동굴 내부에는 용암 유선, 용암 선반 등 신비로운 지형지물이 원형 그대로 보존되어 있으며, 개방 구간 끝에서 만나는 높이 7.6m의 용암석주(Lava Column)는 세계 최대 규모를 자랑합니다. 연중 11~15℃를 유지하여 여름철 피서지로도 인기입니다.
-      </p>
-    </section>
+      <!-- 섹션 1 -->
+      <section class="article-section">
+        <h2>🌅 1. 푸른 바다 위로 솟은 거대한 성채: 성산일출봉</h2>
+        <p>
+          약 5천 년 전 얕은 바닷속 화산 분출로 형성된 <strong>성산일출봉(Seongsan Ilchulbong)</strong>은 왕관 모양의 거대한 분화구가 사면 절벽을 이루고 있는 유네스코 세계자연유산입니다. 정상까지 계단 탐방로를 따라 20분 정도 오르면 성산포 앞바다와 우도가 파노라마로 펼쳐지며, 동틀 무렵 수평선 너머로 솟아오르는 장엄한 일출은 평생 잊지 못할 장관입니다.
+        </p>
+        <div class="pro-tip-box">
+          <strong>📸 로컬 프로 팁:</strong> 일출봉 서쪽 우뭇개 해안에서는 하루 2회(13:30, 15:00) 제주 전통 해녀들의 물질 시연과 신선한 전복·해삼 시식을 관람할 수 있습니다.
+        </div>
+      </section>
 
-    <!-- 섹션 3 -->
-    <section class="article-section">
-      <h2>🏔️ 3. 남한 최고봉의 태고적 신비: 한라산 국립공원</h2>
-      <p>
-        해발 1,947m의 <strong>한라산(Hallasan)</strong>은 제주도 중심에 솟아오른 휴화산으로, 아열대부터 한대 식물까지 수천 종의 동식물이 서식하는 생태계의 보고입니다. 백록담 분화구를 직접 마주하는 성판악·관음사 코스는 사전 탐방예약제로 운영되며, 예약 없이도 자유롭게 즐길 수 있는 영실코스(윗세오름)와 어리목 코스는 병풍바위와 기암절벽의 절경으로 등산 초보자들에게도 사랑받습니다.
-      </p>
-    </section>
+      <!-- 섹션 2 -->
+      <section class="article-section">
+        <h2>🦇 2. 수십만 년 지하 세계의 경이로움: 만장굴</h2>
+        <p>
+          거문오름 화산 분출 당시 흘러내린 용암이 형성한 <strong>만장굴(Manjanggul Cave)</strong>은 총 길이 약 7.4km에 달하는 세계적인 규모의 용암동굴입니다. 동굴 내부에는 용암 유선, 용암 선반 등 신비로운 지형지물이 원형 그대로 보존되어 있으며, 개방 구간 끝에서 만나는 높이 7.6m의 용암석주(Lava Column)는 세계 최대 규모를 자랑합니다. 연중 11~15℃를 유지하여 여름철 피서지로도 인기입니다.
+        </p>
+      </section>
 
-    <!-- 섹션 4 -->
-    <section class="article-section">
-      <h2>🏖️ 4. 에메랄드빛 바다와 검은 현무암: 협재 &amp; 함덕 해수욕장</h2>
-      <p>
-        제주 서쪽의 <strong>협재 해수욕장</strong>은 조개껍데기가 섞인 하얀 백사장과 수심이 얕고 투명한 에메랄드빛 바다, 그리고 손에 잡힐 듯 떠 있는 비양도의 풍경이 이국적인 힐링을 줍니다. 동쪽의 <strong>함덕 해수욕장</strong>은 완만한 백사장 옆으로 우뚝 솟은 서우봉에 올라 봄철 노란 유채꽃 군락과 쪽빛 바다를 동시에 앵글에 담을 수 있는 대표적인 포토 스팟입니다.
+      <!-- 섹션 3 -->
+      <section class="article-section">
+        <h2>🏔️ 3. 남한 최고봉의 태고적 신비: 한라산 국립공원</h2>
+        <p>
+          해발 1,947m의 <strong>한라산(Hallasan)</strong>은 제주도 중심에 솟아오른 휴화산으로, 아열대부터 한대 식물까지 수천 종의 동식물이 서식하는 생태계의 보고입니다. 백록담 분화구를 직접 마주하는 성판악·관음사 코스는 사전 탐방예약제로 운영되며, 예약 없이도 자유롭게 즐길 수 있는 영실코스(윗세오름)와 어리목 코스는 병풍바위와 기암절벽의 절경으로 등산 초보자들에게도 사랑받습니다.
+        </p>
+      </section>
+
+      <!-- 섹션 4 -->
+      <section class="article-section">
+        <h2>🏖️ 4. 에메랄드빛 바다와 검은 현무암: 협재 &amp; 함덕 해수욕장</h2>
+        <p>
+          제주 서쪽의 <strong>협재 해수욕장</strong>은 조개껍데기가 섞인 하얀 백사장과 수심이 얕고 투명한 에메랄드빛 바다, 그리고 손에 잡힐 듯 떠 있는 비양도의 풍경이 이국적인 힐링을 줍니다. 동쪽의 <strong>함덕 해수욕장</strong>은 완만한 백사장 옆으로 우뚝 솟은 서우봉에 올라 봄철 노란 유채꽃 군락과 쪽빛 바다를 동시에 앵글에 담을 수 있는 대표적인 포토 스팟입니다.
+        </p>
+      </section>
+    </div>
+
+    <!-- ENGLISH EDITION -->
+    <div data-lang="en">
+      <span class="badge">🌋 UNESCO Triple Crown World Heritage</span>
+      <h1>2026 Jeju UNESCO World Natural Heritage &amp; Healing Trail Guide</h1>
+      <p class="lead">
+        From hydrovolcanic tuff cone Seongsan Ilchulbong to underground volcanic tunnels at Manjanggul Cave and subalpine trekking on Mt. Hallasan — curated directly from Korea Tourism Organization TourAPI 4.0 data.
       </p>
-    </section>
+
+      <!-- Section 1 -->
+      <section class="article-section">
+        <h2>🌅 1. Volcanic Fortress Rising from the Ocean: Seongsan Ilchulbong</h2>
+        <p>
+          Formed approximately 5,000 years ago by an underwater volcanic eruption, <strong>Seongsan Ilchulbong (Sunrise Peak)</strong> is a designated UNESCO World Natural Heritage site with a crown-like crater surrounded by steep sea cliffs. A brisk 20-minute climb along wooden boardwalks leads to panoramic vistas over Seongsan port and Udo Island, culminating in a sunrise spectacle of fiery golden light breaking across the East Sea.
+        </p>
+        <div class="pro-tip-box">
+          <strong>📸 Local Pro Tip:</strong> At the western base on Umutgae Coast, witness authentic Jeju Haenyeo (female free-divers) diving demonstrations twice daily (13:30 &amp; 15:00), where you can sample fresh abalone and sea cucumber caught on the spot.
+        </div>
+      </section>
+
+      <!-- Section 2 -->
+      <section class="article-section">
+        <h2>🦇 2. Primeval Subterranean Marvel: Manjanggul Lava Tube</h2>
+        <p>
+          Sculpted by massive basalt lava flows cascading from the Geomunoreum volcano, <strong>Manjanggul Cave</strong> is one of the world's most magnificent lava tubes, stretching over 7.4 km. Inside, pristine volcanic flow lines and lava benches remain intact, culminating at a towering 7.6-meter Stone Column — the largest known lava column in the world. Maintaining a cool 11–15°C year-round, it is a refreshing geological haven.
+        </p>
+      </section>
+
+      <!-- Section 3 -->
+      <section class="article-section">
+        <h2>🏔️ 3. South Korea's Highest Peak: Hallasan National Park</h2>
+        <p>
+          Towering 1,947 meters above sea level, dormant shield volcano <strong>Mt. Hallasan</strong> anchors the heart of Jeju Island. While the summit trails to the Baengnokdam crater lake (Seongpanak and Gwaneumsa) require online reservations, the scenic Yeongsil and Eorimok trails can be explored freely without reservations, offering breathtaking views of the Yeongsil Giam columnar rocks and subalpine rhododendron meadows.
+        </p>
+      </section>
+
+      <!-- Section 4 -->
+      <section class="article-section">
+        <h2>🏖️ 4. Emerald Waters &amp; Basalt Sands: Hyeopjae &amp; Hamdeok Beaches</h2>
+        <p>
+          On Jeju's western shore, <strong>Hyeopjae Beach</strong> enchants travelers with crushed seashell white sands, gentle shallow lagoons, and views of Biyangdo Island floating on turquoise waters. To the east, <strong>Hamdeok Beach</strong> boasts Seoubong Peak, where trails wind through golden canola blossom fields overlooking cobalt bays.
+        </p>
+      </section>
+    </div>
   </main>
 
   <footer>
     <div class="footer-links">
-      <a href="/guides/seoul.html">서울 가이드</a> •
-      <a href="/guides/busan.html">부산 가이드</a> •
-      <a href="/guides/jeju.html">제주 가이드</a> •
-      <a href="/guides/transit.html">대중교통 & 날씨 코디</a> •
-      <a href="/about.html">회사 소개</a> •
-      <a href="/privacy.html">개인정보처리방침</a> •
-      <a href="/terms.html">이용약관</a> •
-      <a href="/contact.html">고객 지원</a>
+      <a href="/guides/seoul.html">Seoul Guide</a> •
+      <a href="/guides/busan.html">Busan Guide</a> •
+      <a href="/guides/jeju.html">Jeju Guide</a> •
+      <a href="/guides/transit.html">Transit & Weather</a> •
+      <a href="/about.html">About Us</a> •
+      <a href="/privacy.html">Privacy Policy</a> •
+      <a href="/terms.html">Terms</a> •
+      <a href="/contact.html">Contact</a>
     </div>
-    <p>© 2026 VORA AI (koreatravel.cc). 한국관광공사 TourAPI 4.0 정품 데이터 연동.</p>
+    <p>© 2026 VORA AI (koreatravel.cc). Verified with Korea Tourism Organization TourAPI 4.0.</p>
   </footer>
 
+  <script>
+    function switchLang(lang) {
+      if (lang === 'en') {
+        document.body.classList.add('show-en');
+        document.querySelectorAll('.lang-pill').forEach(b => b.classList.toggle('active', b.textContent.includes('English')));
+        document.documentElement.lang = 'en';
+        const backBtn = document.querySelector('.back-link');
+        if (backBtn) backBtn.textContent = '← AI Travel Planner Home';
+        localStorage.setItem('guide_lang', 'en');
+      } else {
+        document.body.classList.remove('show-en');
+        document.querySelectorAll('.lang-pill').forEach(b => b.classList.toggle('active', b.textContent.includes('한국어')));
+        document.documentElement.lang = 'ko';
+        const backBtn = document.querySelector('.back-link');
+        if (backBtn) backBtn.textContent = '← AI 여행 플래너 홈';
+        localStorage.setItem('guide_lang', 'ko');
+      }
+    }
+    if (localStorage.getItem('guide_lang') === 'en' || (!localStorage.getItem('guide_lang') && !navigator.language.startsWith('ko'))) {
+      switchLang('en');
+    }
+  </script>
 </body>
 </html>

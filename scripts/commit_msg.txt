@@ -1,1 +1,1 @@
-feat(prod): release independent static travel guides and clean AdSense architecture to koreatravel.cc
+feat: 100% complete zero-defect multilingual overhaul across 13 components, modals, and guides

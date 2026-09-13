@@ -502,13 +502,19 @@ export default function CourseMapViewModal({
 
   const handleCopyCourse = () => {
     try {
-      const lines = [
-        `🗺️ [Vora AI] ${regionName} ${availableDays.length > 1 ? `${availableDays.length}일 코스` : '당일 코스'} 추천 일정`,
-        ''
-      ];
+      const courseTitle = lang === 'en'
+        ? `🗺️ [Vora AI] ${regionName} ${availableDays.length > 1 ? `${availableDays.length}-Day Course` : 'Day Trip'} Curated Route`
+        : lang === 'ja'
+        ? `🗺️ [Vora AI] ${regionName} ${availableDays.length > 1 ? `${availableDays.length}日間コース` : '日帰りコース'} おすすめ日程`
+        : (lang === 'zh' || lang === 'zht')
+        ? `🗺️ [Vora AI] ${regionName} ${availableDays.length > 1 ? `${availableDays.length}天定制路线` : '一日游路线'} 推荐行程`
+        : `🗺️ [Vora AI] ${regionName} ${availableDays.length > 1 ? `${availableDays.length}일 코스` : '당일 코스'} 추천 일정`;
+
+      const lines = [courseTitle, ''];
 
       availableDays.forEach(dayNum => {
-        lines.push(`📌 [${dayNum}일차]`);
+        const dayLabel = lang === 'en' ? `Day ${dayNum}` : lang === 'ja' ? `${dayNum}日目` : (lang === 'zh' || lang === 'zht') ? `第${dayNum}天` : `${dayNum}일차`;
+        lines.push(`📌 [${dayLabel}]`);
         const daySpots = daysGroup[dayNum] || [];
         daySpots.forEach((s, idx) => {
           lines.push(`  ${idx + 1}. ${getTranslatedTitle(s.title, lang)} (${getTranslatedAddress(s.addr1 || s.location, lang)})`);
@@ -516,7 +522,11 @@ export default function CourseMapViewModal({
         lines.push('');
       });
 
-      lines.push(`👉 Vora AI 실시간 여행 컨시어지: ${window.location.origin}`);
+      const footerLabel = lang === 'en' ? '👉 Vora AI — Smart Travel Concierge for South Korea:'
+        : lang === 'ja' ? '👉 Vora AI — 韓国旅行スマートAIコンシェルジュ:'
+        : (lang === 'zh' || lang === 'zht') ? '👉 Vora AI — 韩国专属智能旅行管家:'
+        : '👉 Vora AI 실시간 여행 컨시어지:';
+      lines.push(`${footerLabel} ${window.location.origin}`);
       const textToCopy = lines.join('\n');
 
       navigator.clipboard.writeText(textToCopy);

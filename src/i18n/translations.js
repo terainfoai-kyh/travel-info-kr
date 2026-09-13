@@ -3,7 +3,7 @@
  * Eliminates translation holes, ensures 100% complete localization across all UI,
  * itinerary planning, travel essentials, and Google AdSense compliance modals.
  */
-import { universalTranslateSpot } from '../utils/koreanRomanizer.js';
+import { universalTranslateSpot, romanizeKorean } from '../utils/koreanRomanizer.js';
 
 export function detectBrowserLanguage() {
   if (typeof navigator === 'undefined') return 'ko';
@@ -220,10 +220,7 @@ export function getTranslatedTitle(title, lang = 'ko') {
   return universal || clean;
 }
 
-export function getTranslatedAddress(addr, lang = 'ko') {
-  if (!addr || typeof addr !== 'string') return '';
-  return addr.trim();
-}
+
 
 export const CITY_TRANSLATIONS = {
   ko: {
@@ -324,6 +321,265 @@ export function getLocalizedCityName(city, lang = 'ko') {
   }
 
   return clean;
+}
+
+export function getTranslatedAddress(addr, lang = 'ko') {
+  if (!addr || typeof addr !== 'string') return '';
+  if (lang === 'ko') return addr.trim();
+
+  let text = addr.trim();
+  if (text === '대한민국 관광 명소' || text === '관광 명소') {
+    return lang === 'en' ? 'Tourist Attraction in South Korea' : lang === 'ja' ? '韓国の観光名所' : '韩国旅游名胜';
+  }
+
+  const PROVINCE_MAP = {
+    '대한민국': { en: 'South Korea', ja: '大韓民国', zh: '大韩民国' },
+    '한국': { en: 'Korea', ja: '韓国', zh: '韩国' },
+    '서울특별시': { en: 'Seoul', ja: 'ソウル特別市', zh: '首尔特别市' },
+    '서울시': { en: 'Seoul', ja: 'ソウル市', zh: '首尔市' },
+    '서울': { en: 'Seoul', ja: 'ソウル', zh: '首尔' },
+    '부산광역시': { en: 'Busan', ja: '釜山広域市', zh: '釜山广域市' },
+    '부산시': { en: 'Busan', ja: '釜山市', zh: '釜山市' },
+    '부산': { en: 'Busan', ja: '釜山', zh: '釜山' },
+    '인천광역시': { en: 'Incheon', ja: '仁川広域市', zh: '仁川广域市' },
+    '인천시': { en: 'Incheon', ja: '仁川市', zh: '仁川市' },
+    '인천': { en: 'Incheon', ja: '仁川', zh: '仁川' },
+    '대구광역시': { en: 'Daegu', ja: '大邱広域市', zh: '大邱广域市' },
+    '대구시': { en: 'Daegu', ja: '大邱市', zh: '大邱市' },
+    '대구': { en: 'Daegu', ja: '大邱', zh: '大邱' },
+    '대전광역시': { en: 'Daejeon', ja: '大田広域市', zh: '大田广域市' },
+    '대전시': { en: 'Daejeon', ja: '大田市', zh: '大田市' },
+    '대전': { en: 'Daejeon', ja: '大田', zh: '大田' },
+    '광주광역시': { en: 'Gwangju', ja: '光州広域市', zh: '光州广域市' },
+    '광주시': { en: 'Gwangju', ja: '光州市', zh: '光州市' },
+    '울산광역시': { en: 'Ulsan', ja: '蔚山広域市', zh: '蔚山广域市' },
+    '울산시': { en: 'Ulsan', ja: '蔚山市', zh: '蔚山市' },
+    '울산': { en: 'Ulsan', ja: '蔚山', zh: '蔚山' },
+    '세종특별자치시': { en: 'Sejong', ja: '世宗特別自治市', zh: '世宗特别自治市' },
+    '세종시': { en: 'Sejong', ja: '世宗市', zh: '世宗市' },
+    '세종': { en: 'Sejong', ja: '世宗', zh: '世宗' },
+    '경기도': { en: 'Gyeonggi-do', ja: '京畿道', zh: '京畿道' },
+    '경기': { en: 'Gyeonggi', ja: '京畿', zh: '京畿' },
+    '강원특별자치도': { en: 'Gangwon-do', ja: '江原道', zh: '江原道' },
+    '강원도': { en: 'Gangwon-do', ja: '江原道', zh: '江原道' },
+    '강원': { en: 'Gangwon', ja: '江原', zh: '江原' },
+    '충청북도': { en: 'Chungcheongbuk-do', ja: '忠清北道', zh: '忠清北道' },
+    '충북': { en: 'Chungbuk', ja: '忠北', zh: '忠北' },
+    '충청남도': { en: 'Chungcheongnam-do', ja: '忠清南道', zh: '忠清南道' },
+    '충남': { en: 'Chungnam', ja: '忠南', zh: '忠南' },
+    '전라북도': { en: 'Jeonbuk-do', ja: '全羅北道', zh: '全罗北道' },
+    '전북특별자치도': { en: 'Jeonbuk-do', ja: '全羅北道', zh: '全罗北道' },
+    '전북': { en: 'Jeonbuk', ja: '全北', zh: '全北' },
+    '전라남도': { en: 'Jeollanam-do', ja: '全羅南道', zh: '全罗南道' },
+    '전남': { en: 'Jeonnam', ja: '全南', zh: '全南' },
+    '경상북도': { en: 'Gyeongsangbuk-do', ja: '慶尚北道', zh: '庆尚北道' },
+    '경북': { en: 'Gyeongbuk', ja: '慶北', zh: '庆北' },
+    '경상남도': { en: 'Gyeongsangnam-do', ja: '慶尚南道', zh: '庆尚南道' },
+    '경남': { en: 'Gyeongnam', ja: '慶南', zh: '庆南' },
+    '제주특별자치도': { en: 'Jeju-do', ja: '済州道', zh: '济州道' },
+    '제주도': { en: 'Jeju-do', ja: '済州道', zh: '济州道' },
+    '제주': { en: 'Jeju', ja: '済州', zh: '济州' }
+  };
+
+  const GU_MAP = {
+    // 서울특별시 25개 구
+    '종로구': { en: 'Jongno-gu', ja: '鐘路区', zh: '钟路区' },
+    '중구': { en: 'Jung-gu', ja: '中区', zh: '中区' },
+    '용산구': { en: 'Yongsan-gu', ja: '龍山区', zh: '龙山区' },
+    '성동구': { en: 'Seongdong-gu', ja: '城東区', zh: '城东区' },
+    '광진구': { en: 'Gwangjin-gu', ja: '広津区', zh: '广津区' },
+    '동대문구': { en: 'Dongdaemun-gu', ja: '東大門区', zh: '东大门区' },
+    '중랑구': { en: 'Jungnang-gu', ja: '中浪区', zh: '中浪区' },
+    '성북구': { en: 'Seongbuk-gu', ja: '城北区', zh: '城北区' },
+    '강북구': { en: 'Gangbuk-gu', ja: '江北区', zh: '江北区' },
+    '도봉구': { en: 'Dobong-gu', ja: '道峰区', zh: '道峰区' },
+    '노원구': { en: 'Nowon-gu', ja: '蘆原区', zh: '芦原区' },
+    '은평구': { en: 'Eunpyeong-gu', ja: '恩平区', zh: '恩平区' },
+    '서대문구': { en: 'Seodaemun-gu', ja: '西大門区', zh: '西大门区' },
+    '마포구': { en: 'Mapo-gu', ja: '麻浦区', zh: '麻浦区' },
+    '양천구': { en: 'Yangcheon-gu', ja: '陽川区', zh: '阳川区' },
+    '강서구': { en: 'Gangseo-gu', ja: '江西区', zh: '江西区' },
+    '구로구': { en: 'Guro-gu', ja: '九老区', zh: '九老区' },
+    '금천구': { en: 'Geumcheon-gu', ja: '衿川区', zh: '衿川区' },
+    '영등포구': { en: 'Yeongdeungpo-gu', ja: '永登浦区', zh: '永登浦区' },
+    '동작구': { en: 'Dongjak-gu', ja: '銅雀区', zh: '铜雀区' },
+    '관악구': { en: 'Gwanak-gu', ja: '冠岳区', zh: '冠岳区' },
+    '서초구': { en: 'Seocho-gu', ja: '瑞草区', zh: '瑞草区' },
+    '강남구': { en: 'Gangnam-gu', ja: '江南区', zh: '江南区' },
+    '송파구': { en: 'Songpa-gu', ja: '松坡区', zh: '松坡区' },
+    '강동구': { en: 'Gangdong-gu', ja: '江東区', zh: '江东区' },
+    // 부산광역시 구/군
+    '해운대구': { en: 'Haeundae-gu', ja: '海雲台区', zh: '海云台区' },
+    '수영구': { en: 'Suyeong-gu', ja: '水営区', zh: '水营区' },
+    '부산진구': { en: 'Busanjin-gu', ja: '釜山鎮区', zh: '釜山镇区' },
+    '남구': { en: 'Nam-gu', ja: '南区', zh: '南区' },
+    '동구': { en: 'Dong-gu', ja: '東区', zh: '东区' },
+    '서구': { en: 'Seo-gu', ja: '西区', zh: '西区' },
+    '북구': { en: 'Buk-gu', ja: '北区', zh: '北区' },
+    '사하구': { en: 'Saha-gu', ja: '沙下区', zh: '沙下区' },
+    '금정구': { en: 'Geumjeong-gu', ja: '金井区', zh: '金井区' },
+    '강서구': { en: 'Gangseo-gu', ja: '江西区', zh: '江西区' },
+    '연제구': { en: 'Yeonje-gu', ja: '蓮堤区', zh: '莲堤区' },
+    '사상구': { en: 'Sasang-gu', ja: '沙上区', zh: '沙上区' },
+    '영도구': { en: 'Yeongdo-gu', ja: '影島区', zh: '影岛区' },
+    '기장군': { en: 'Gijang-gun', ja: '機張郡', zh: '机张郡' },
+    // 경기 및 전국 주요 자치구/일반구
+    '분당구': { en: 'Bundang-gu', ja: '盆唐区', zh: '盆唐区' },
+    '수정구': { en: 'Sujeong-gu', ja: '寿井区', zh: '寿井区' },
+    '중원구': { en: 'Jungwon-gu', ja: '中原区', zh: '中原区' },
+    '팔달구': { en: 'Paldal-gu', ja: '八達区', zh: '八达区' },
+    '장안구': { en: 'Jangan-gu', ja: '長安区', zh: '长安区' },
+    '권선구': { en: 'Gwonseon-gu', ja: '勧善区', zh: '劝善区' },
+    '영통구': { en: 'Yeongtong-gu', ja: '霊通区', zh: '灵通区' },
+    '일산동구': { en: 'Ilsandong-gu', ja: '一山東区', zh: '一山东区' },
+    '일산서구': { en: 'Ilsanseo-gu', ja: '一山西区', zh: '一山西区' },
+    '덕양구': { en: 'Deogyang-gu', ja: '徳陽区', zh: '德阳区' },
+    '수지구': { en: 'Suji-gu', ja: '水枝区', zh: '水枝区' },
+    '기흥구': { en: 'Giheung-gu', ja: '器興区', zh: '器兴区' },
+    '처인구': { en: 'Cheoin-gu', ja: '処仁区', zh: '处仁区' },
+    '단원구': { en: 'Danwon-gu', ja: '檀园区', zh: '檀园区' },
+    '상록구': { en: 'Sangnok-gu', ja: '常緑区', zh: '常绿区' },
+    '동안구': { en: 'Dongan-gu', ja: '東安区', zh: '东安区' },
+    '만안구': { en: 'Manan-gu', ja: '万安区', zh: '万安区' },
+    '울주군': { en: 'Ulju-gun', ja: '蔚州郡', zh: '蔚州郡' },
+    '달성군': { en: 'Dalseong-gun', ja: '達城郡', zh: '达城郡' },
+    '강화군': { en: 'Ganghwa-gun', ja: '江華郡', zh: '江华郡' },
+    '옹진군': { en: 'Ongjin-gun', ja: '甕津郡', zh: '瓮津郡' }
+  };
+
+  const targetLang = (lang === 'zht') ? 'zh' : lang;
+
+  // 단일 주소 토큰 변환 내부 함수
+  const translateToken = (rawToken) => {
+    if (!rawToken) return '';
+
+    // 괄호, 쉼표 등 문장 부호 분리
+    const prefixMatch = rawToken.match(/^([(\[{<"']+)/);
+    const suffixMatch = rawToken.match(/([)\]}>"',]+)$/);
+    const prefix = prefixMatch ? prefixMatch[1] : '';
+    const suffix = suffixMatch ? suffixMatch[1] : '';
+    const cleanToken = rawToken.slice(prefix.length, rawToken.length - suffix.length);
+
+    if (!cleanToken) return rawToken;
+
+    // 1. 시도 / 광역자치단체
+    if (PROVINCE_MAP[cleanToken]) {
+      return prefix + (PROVINCE_MAP[cleanToken][targetLang] || PROVINCE_MAP[cleanToken].en) + suffix;
+    }
+
+    // 2. 구 / 군 사전
+    if (GU_MAP[cleanToken]) {
+      return prefix + (GU_MAP[cleanToken][targetLang] || GU_MAP[cleanToken].en) + suffix;
+    }
+
+    // 3. 226개 시군구 기본 테이블
+    const strippedCity = cleanToken.replace(/(시|군|구)$/, '');
+    if (CITY_TRANSLATIONS[targetLang] && CITY_TRANSLATIONS[targetLang][strippedCity]) {
+      const sfx = cleanToken.endsWith('시') ? (targetLang === 'en' ? '-si' : '市')
+        : cleanToken.endsWith('군') ? (targetLang === 'en' ? '-gun' : (targetLang === 'ja' ? '郡' : '县'))
+        : cleanToken.endsWith('구') ? (targetLang === 'en' ? '-gu' : '区') : '';
+      return prefix + `${CITY_TRANSLATIONS[targetLang][strippedCity]}${sfx}` + suffix;
+    }
+
+    // 4. ~일대 (Area)
+    if (/일대$/.test(cleanToken)) {
+      const stem = cleanToken.replace(/일대$/, '');
+      const stemTrans = romanizeKorean(stem);
+      const capStem = stemTrans ? stemTrans.charAt(0).toUpperCase() + stemTrans.slice(1) : '';
+      return prefix + (targetLang === 'en' ? `${capStem} Area` : targetLang === 'ja' ? `${capStem}エリア` : `${capStem}一带`) + suffix;
+    }
+
+    // 5. 도로명 주소: 번길 (e.g. 62번길)
+    if (/(\d+)번길$/.test(cleanToken)) {
+      const match = cleanToken.match(/^(.*?)(\d+)번길$/);
+      if (match) {
+        const stem = match[1];
+        const num = match[2];
+        const stemTrans = romanizeKorean(stem);
+        const capStem = stemTrans ? stemTrans.charAt(0).toUpperCase() + stemTrans.slice(1) : '';
+        return prefix + (targetLang === 'en' ? `${capStem} ${num}beon-gil` : targetLang === 'ja' ? `${capStem}${num}番道` : `${capStem}${num}号巷`) + suffix;
+      }
+    }
+
+    // 6. 도로명 주소: 길 (e.g. 사직로, 계동길)
+    if (/길$/.test(cleanToken)) {
+      const stem = cleanToken.replace(/길$/, '');
+      const stemTrans = romanizeKorean(stem);
+      const capStem = stemTrans ? stemTrans.charAt(0).toUpperCase() + stemTrans.slice(1) : '';
+      return prefix + (targetLang === 'en' ? `${capStem}-gil` : targetLang === 'ja' ? `${capStem}道` : `${capStem}街`) + suffix;
+    }
+
+    // 7. 도로명 주소: 로 (e.g. 율곡로, 삼청로)
+    if (/로$/.test(cleanToken)) {
+      const stem = cleanToken.replace(/로$/, '');
+      const stemTrans = romanizeKorean(stem);
+      const capStem = stemTrans ? stemTrans.charAt(0).toUpperCase() + stemTrans.slice(1) : '';
+      return prefix + (targetLang === 'en' ? `${capStem}-ro` : `${capStem}路`) + suffix;
+    }
+
+    // 8. 읍/면/동/리 행정단위
+    if (/읍$/.test(cleanToken)) {
+      const stem = cleanToken.replace(/읍$/, '');
+      const stemTrans = romanizeKorean(stem);
+      const capStem = stemTrans ? stemTrans.charAt(0).toUpperCase() + stemTrans.slice(1) : '';
+      return prefix + (targetLang === 'en' ? `${capStem}-eup` : `${capStem}邑`) + suffix;
+    }
+    if (/면$/.test(cleanToken)) {
+      const stem = cleanToken.replace(/면$/, '');
+      const stemTrans = romanizeKorean(stem);
+      const capStem = stemTrans ? stemTrans.charAt(0).toUpperCase() + stemTrans.slice(1) : '';
+      return prefix + (targetLang === 'en' ? `${capStem}-myeon` : `${capStem}面`) + suffix;
+    }
+    if (/동$/.test(cleanToken)) {
+      const stem = cleanToken.replace(/동$/, '');
+      const stemTrans = romanizeKorean(stem);
+      const capStem = stemTrans ? stemTrans.charAt(0).toUpperCase() + stemTrans.slice(1) : '';
+      return prefix + (targetLang === 'en' ? `${capStem}-dong` : `${capStem}洞`) + suffix;
+    }
+    if (/리$/.test(cleanToken)) {
+      const stem = cleanToken.replace(/리$/, '');
+      const stemTrans = romanizeKorean(stem);
+      const capStem = stemTrans ? stemTrans.charAt(0).toUpperCase() + stemTrans.slice(1) : '';
+      return prefix + (targetLang === 'en' ? `${capStem}-ri` : `${capStem}里`) + suffix;
+    }
+
+    // 9. 건물/층수/호실 단위
+    if (/지하\s*(\d+)층$/i.test(cleanToken)) {
+      const f = cleanToken.match(/(\d+)/)?.[1] || '1';
+      return prefix + (targetLang === 'en' ? `B${f}F` : targetLang === 'ja' ? `地下${f}階` : `地下${f}层`) + suffix;
+    }
+    if (/(\d+)층$/i.test(cleanToken)) {
+      const f = cleanToken.match(/(\d+)/)?.[1] || '1';
+      return prefix + (targetLang === 'en' ? `${f}F` : targetLang === 'ja' ? `${f}階` : `${f}层`) + suffix;
+    }
+    if (/(\d+)호$/i.test(cleanToken)) {
+      const h = cleanToken.match(/(\d+)/)?.[1] || '';
+      return prefix + (targetLang === 'en' ? `#${h}` : targetLang === 'ja' ? `${h}号` : `${h}室`) + suffix;
+    }
+    if (/(\d+)번지$/i.test(cleanToken)) {
+      const b = cleanToken.match(/(\d+)/)?.[1] || '';
+      return prefix + b + suffix;
+    }
+
+    // 10. 숫자, 하이픈, 쉼표, 기호 (번지수)
+    if (/^[\d\-~,]+$/.test(cleanToken)) {
+      return rawToken;
+    }
+
+    // 11. 잔여 한글 전수 유니버설 로마자 음차 (외국어 모드 한글 유출 100% 차단)
+    if (/[가-힣]/.test(cleanToken)) {
+      const r = romanizeKorean(cleanToken);
+      const cap = r ? r.charAt(0).toUpperCase() + r.slice(1) : cleanToken;
+      return prefix + cap + suffix;
+    }
+
+    return rawToken;
+  };
+
+  const tokens = text.split(/\s+/);
+  const translatedTokens = tokens.map(t => translateToken(t)).filter(Boolean);
+
+  return translatedTokens.join(' ');
 }
 
 export const TRANSLATIONS = {
@@ -488,6 +744,52 @@ export const TRANSLATIONS = {
     noSpotsInfo: '정보 없음',
     walkMinutes: (mins, dist) => `도보 ${mins}분 (${dist}m)`,
     carMinutes: (mins, km) => `차량 ${mins}분 (${km}km)`,
+
+    // Timeslots
+    slotMorning: '오전 명소 & 출발',
+    slotLunch: '점심 & 랜드마크',
+    slotAfternoon: '오후 관광 & 체험',
+    slotNight: '야경 & 마감',
+    slotExtra: '추천 추가 명소',
+
+    // Badges
+    hotSpotBadge: '🔥 인스타 핫플',
+
+    // Itinerary Sub-cards
+    cardWeather: '🌤️ AI 맞춤 날씨',
+    cardGourmet: '🍱 추천 대표 미식',
+    cardCoordi: '👗 AI 추천 TPO 코디',
+    cardHotel: '🏨 추천 패밀리/호텔',
+    cardBookHotel: '🏨 1-클릭 숙소 예약 ↗',
+
+    // AI Chat UI
+    chatPlaceholder: '예: 1일차 수원 ➔ 2일차 명동...',
+    chatSend: '전송',
+    chatClear: '대화 지우기',
+    chatFold: '대화 접기',
+    chatRenderingMap: '5일치 완벽 지도 & 코스 렌더링 보기',
+    chatVoraCustomNotice: 'Vora AI가 100% 맞춤 일정과 지도를 구성했습니다.',
+
+    // Exit Modal
+    exitTripTitle: (city) => `${city || ''} 여행 일정`,
+
+    // Travel Detail Modal Actions & Notices
+    swapPlace: '다른 장소로 교체',
+    nearbyFoodCafe: '주변 맛집/카페',
+    searchingNearbySpots: '인근 대체 명소를 실시간 탐색 중입니다...',
+    noNearbySpots: '해당 장소 도보 10분(800m) 내에 교체 가능한 인근 등록 명소가 없습니다.',
+    searchSpotsGoogle: '구글맵에서 인근 명소 더 찾아보기',
+    tapSwapGuide: '📍 [교체] 클릭 시 확인 후 즉시 일정이 변경됩니다:',
+    swapBtn: '교체',
+    searchingNearbyFoods: '주변 맛집 및 카페를 실시간 탐색 중입니다...',
+    noNearbyFoods: '해당 장소 도보 10분(800m) 내에 한국관광공사 등록 맛집이 없습니다.',
+    searchFoodGoogle: '구글맵에서 주변 맛집 실시간 검색',
+    handpickedNearbyFood: '☕ 인근 엄선 로컬 맛집·카페 (길찾기 클릭 시 구글맵 연결):',
+    mapDirections: '길찾기',
+    confirmChangeTitle: '일정을 변경하시겠습니까?',
+    confirmChangeDesc: '내 일정과 지도 경로가 즉시 업데이트됩니다.',
+    cancel: '취소',
+    confirm: '변경하기',
 
     // Modals
     modalClose: '닫기',
@@ -679,6 +981,52 @@ export const TRANSLATIONS = {
     noSpotsInfo: 'No Info',
     walkMinutes: (mins, dist) => `Walk ${mins}m (${dist}m)`,
     carMinutes: (mins, km) => `Car ${mins}m (${km}km)`,
+
+    // Timeslots
+    slotMorning: 'Morning Highlights & Departure',
+    slotLunch: 'Lunch & Landmark',
+    slotAfternoon: 'Afternoon Sightseeing & Experience',
+    slotNight: 'Night View & Wrap-up',
+    slotExtra: 'Recommended Extra Spots',
+
+    // Badges
+    hotSpotBadge: '🔥 Trending Spot',
+
+    // Itinerary Sub-cards
+    cardWeather: '🌤️ AI Weather',
+    cardGourmet: '🍱 Top Local Gourmet',
+    cardCoordi: '👗 AI Outfit Guide',
+    cardHotel: '🏨 Recommended Hotels',
+    cardBookHotel: '🏨 Book Hotel ↗',
+
+    // AI Chat UI
+    chatPlaceholder: 'e.g. Day 1 Suwon ➔ Day 2 Myeongdong...',
+    chatSend: 'Send',
+    chatClear: 'Clear Chat',
+    chatFold: 'Collapse Chat',
+    chatRenderingMap: 'View Full Multi-Day Map & Route',
+    chatVoraCustomNotice: 'Vora AI has tailored your personalized itinerary and map.',
+
+    // Exit Modal
+    exitTripTitle: (city) => `${city || ''} Travel Itinerary`,
+
+    // Travel Detail Modal Actions & Notices
+    swapPlace: 'Swap with Alternative',
+    nearbyFoodCafe: 'Nearby Food & Cafes',
+    searchingNearbySpots: 'Searching nearby alternative attractions in real-time...',
+    noNearbySpots: 'No verified alternative attractions within a 10-min walk (800m).',
+    searchSpotsGoogle: 'Explore More Attractions on Google Maps',
+    tapSwapGuide: '📍 Tap [Swap] to update your itinerary instantly:',
+    swapBtn: 'Swap',
+    searchingNearbyFoods: 'Searching nearby eateries and cafes in real-time...',
+    noNearbyFoods: 'No official verified eateries within a 10-min walk (800m).',
+    searchFoodGoogle: 'Search Nearby Restaurants on Google Maps',
+    handpickedNearbyFood: '☕ Curated Local Eateries & Cafes (Tap Directions for Google Maps):',
+    mapDirections: 'Directions',
+    confirmChangeTitle: 'Change Itinerary Stop?',
+    confirmChangeDesc: 'Your itinerary and map route will update immediately.',
+    cancel: 'Cancel',
+    confirm: 'Confirm',
 
     // Modals
     modalClose: 'Close',
@@ -873,6 +1221,52 @@ export const TRANSLATIONS = {
     walkMinutes: (mins, dist) => `徒歩${mins}分 (${dist}m)`,
     carMinutes: (mins, km) => `車${mins}分 (${km}km)`,
 
+    // Timeslots
+    slotMorning: '午前の名所＆出発',
+    slotLunch: '昼食＆ランドマーク',
+    slotAfternoon: '午後の観光＆体験',
+    slotNight: '夜景＆締めくくり',
+    slotExtra: 'おすすめ追加スポット',
+
+    // Badges
+    hotSpotBadge: '🔥 人気スポット',
+
+    // Itinerary Sub-cards
+    cardWeather: '🌤️ AIおすすめ天気',
+    cardGourmet: '🍱 おすすめ代表グルメ',
+    cardCoordi: '👗 AIおすすめコーデ',
+    cardHotel: '🏨 おすすめホテル',
+    cardBookHotel: '🏨 ホテル即時予約 ↗',
+
+    // AI Chat UI
+    chatPlaceholder: '例: 1日目 水原 ➔ 2日目 明洞...',
+    chatSend: '送信',
+    chatClear: 'チャット履歴削除',
+    chatFold: 'チャットを閉じる',
+    chatRenderingMap: '全日程の地図＆ルートを表示',
+    chatVoraCustomNotice: 'Vora AIがあなた専用の日程と地図を作成しました。',
+
+    // Exit Modal
+    exitTripTitle: (city) => `${city || ''} 旅行日程`,
+
+    // Travel Detail Modal Actions & Notices
+    swapPlace: '別の名所に変更',
+    nearbyFoodCafe: '周辺グルメ・カフェ',
+    searchingNearbySpots: '近隣の代替名所をリアルタイム検索中...',
+    noNearbySpots: '徒歩10分(800m)以内に変更可能な登録名所がありません。',
+    searchSpotsGoogle: 'Googleマップで他の名所を探す',
+    tapSwapGuide: '📍 [変更]をタップすると旅程が即座に更新されます:',
+    swapBtn: '変更',
+    searchingNearbyFoods: '周辺のグルメとカフェをリアルタイム検索中...',
+    noNearbyFoods: '徒歩10分(800m)以内に韓国観光公社登録のグルメがありません。',
+    searchFoodGoogle: 'Googleマップで周辺グルメを検索',
+    handpickedNearbyFood: '☕ 厳選ローカルグルメ・カフェ (道案内タップでGoogleマップ):',
+    mapDirections: 'ルート',
+    confirmChangeTitle: '日程を変更しますか？',
+    confirmChangeDesc: '旅程とマップルートが即座に更新されます。',
+    cancel: 'キャンセル',
+    confirm: '変更する',
+
     // Modals
     modalClose: '閉じる',
     privacyPolicy: 'プライバシーポリシー',
@@ -1066,6 +1460,52 @@ export const TRANSLATIONS = {
     walkMinutes: (mins, dist) => `步行${mins}分钟 (${dist}米)`,
     carMinutes: (mins, km) => `乘车${mins}分钟 (${km}公里)`,
 
+    // Timeslots
+    slotMorning: '上午精选景点与出发',
+    slotLunch: '午餐与地标',
+    slotAfternoon: '下午观光与体验',
+    slotNight: '夜景与晚间行程',
+    slotExtra: '推荐附加景点',
+
+    // Badges
+    hotSpotBadge: '🔥 热门打卡地',
+
+    // Itinerary Sub-cards
+    cardWeather: '🌤️ AI精准天气',
+    cardGourmet: '🍱 推荐代表美食',
+    cardCoordi: '👗 AI推荐穿搭',
+    cardHotel: '🏨 推荐精选酒店',
+    cardBookHotel: '🏨 一键预订住宿 ↗',
+
+    // AI Chat UI
+    chatPlaceholder: '例如: 第1天 水原 ➔ 第2天 明洞...',
+    chatSend: '发送',
+    chatClear: '清空对话',
+    chatFold: '折叠对话',
+    chatRenderingMap: '查看完整日程地图与路线',
+    chatVoraCustomNotice: 'Vora AI已为您生成专属定制行程与地图。',
+
+    // Exit Modal
+    exitTripTitle: (city) => `${city || ''} 旅行行程`,
+
+    // Travel Detail Modal Actions & Notices
+    swapPlace: '更换其他景点',
+    nearbyFoodCafe: '周边美食/咖啡厅',
+    searchingNearbySpots: '正在实时搜索附近替代景点...',
+    noNearbySpots: '该地点步行10分钟(800米)内暂无可替换的认证名胜。',
+    searchSpotsGoogle: '在Google地图中探索更多名胜',
+    tapSwapGuide: '📍 点击[更换]后即可立即更新行程:',
+    swapBtn: '更换',
+    searchingNearbyFoods: '正在实时搜索周边美食与咖啡厅...',
+    noNearbyFoods: '该地点步行10分钟(800米)内暂无韩国观光公社认证美食。',
+    searchFoodGoogle: '在Google地图中搜索周边美食',
+    handpickedNearbyFood: '☕ 精选当地美食·咖啡厅 (点击导航直通Google地图):',
+    mapDirections: '路线',
+    confirmChangeTitle: '确定要更改此行程吗？',
+    confirmChangeDesc: '您的行程路线与地图导航将立即同步更新。',
+    cancel: '取消',
+    confirm: '确认更改',
+
     // Modals
     modalClose: '关闭',
     privacyPolicy: '隐私政策',
@@ -1258,6 +1698,52 @@ export const TRANSLATIONS = {
     noSpotsInfo: '暫無資訊',
     walkMinutes: (mins, dist) => `步行${mins}分鐘 (${dist}米)`,
     carMinutes: (mins, km) => `乘車${mins}分鐘 (${km}公里)`,
+
+    // Timeslots
+    slotMorning: '上午精選景點與出發',
+    slotLunch: '午餐與地標',
+    slotAfternoon: '下午觀光與體驗',
+    slotNight: '夜景與晚間行程',
+    slotExtra: '推薦附加景點',
+
+    // Badges
+    hotSpotBadge: '🔥 熱門打卡地',
+
+    // Itinerary Sub-cards
+    cardWeather: '🌤️ AI精準天氣',
+    cardGourmet: '🍱 推薦代表美食',
+    cardCoordi: '👗 AI推薦穿搭',
+    cardHotel: '🏨 推薦精選飯店',
+    cardBookHotel: '🏨 一鍵預訂住宿 ↗',
+
+    // AI Chat UI
+    chatPlaceholder: '例如: 第1天 水原 ➔ 第2天 明洞...',
+    chatSend: '發送',
+    chatClear: '清空對話',
+    chatFold: '折疊對話',
+    chatRenderingMap: '查看完整日程地圖與路線',
+    chatVoraCustomNotice: 'Vora AI已為您生成專屬客製化行程與地圖。',
+
+    // Exit Modal
+    exitTripTitle: (city) => `${city || ''} 旅行行程`,
+
+    // Travel Detail Modal Actions & Notices
+    swapPlace: '更換其他景點',
+    nearbyFoodCafe: '周邊美食/咖啡廳',
+    searchingNearbySpots: '正在實時搜尋附近替代景點...',
+    noNearbySpots: '該地點步行10分鐘(800米)內暫無可替換的認證名勝。',
+    searchSpotsGoogle: '在Google地圖中探索更多名勝',
+    tapSwapGuide: '📍 點擊[更換]後即可立即更新行程:',
+    swapBtn: '更換',
+    searchingNearbyFoods: '正在實時搜尋周邊美食與咖啡廳...',
+    noNearbyFoods: '該地點步行10分鐘(800米)內暫無韓國觀光公社認證美食。',
+    searchFoodGoogle: '在Google地圖中搜尋周邊美食',
+    handpickedNearbyFood: '☕ 精選當地美食·咖啡廳 (點擊導航直通Google地圖):',
+    mapDirections: '路線',
+    confirmChangeTitle: '確定要更改此行程嗎？',
+    confirmChangeDesc: '您的行程路線與地圖導航將立即同步更新。',
+    cancel: '取消',
+    confirm: '確認更改',
 
     // Modals
     modalClose: '關閉',

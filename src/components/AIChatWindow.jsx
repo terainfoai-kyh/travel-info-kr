@@ -222,7 +222,7 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
                 </span>
               </h3>
               <p style={{ color: '#64748b', fontSize: '0.74rem', margin: '0.15rem 0 0 0', fontWeight: 600 }}>
-                실시간 인스타 핫플 & 날씨 / 미식 / 코디 100% 맞춤 생성
+                {lang === 'en' ? 'Live Hotspots & Weather / Gourmet / Outfit 100% Customized' : lang === 'ja' ? 'リアルタイム人気スポット＆天気・グルメ・コーデ 100%カスタマイズ' : (lang === 'zh' || lang === 'zht') ? '实时热门打卡点与天气·美食·穿搭 100%专属定制' : '실시간 인스타 핫플 & 날씨 / 미식 / 코디 100% 맞춤 생성'}
               </p>
             </div>
           </div>
@@ -400,7 +400,7 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
                           }}
                         >
                           <MapPin size={14} />
-                          <span>5일치 완벽 지도 & 코스 렌더링 보기</span>
+                          <span>{t.chatRenderingMap || (lang === 'en' ? 'View Full Multi-Day Map & Route' : lang === 'ja' ? '全日程の地図＆ルートを表示' : (lang === 'zh' || lang === 'zht') ? '查看完整日程地图与路线' : '5일치 완벽 지도 & 코스 렌더링 보기')}</span>
                         </button>
                       </div>
                     </div>
@@ -414,7 +414,7 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
           {isGenerating && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#1e40af', fontSize: '0.78rem', padding: '0.5rem 0.85rem', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '12px', width: 'fit-content' }}>
               <Sparkles size={16} color="#2563eb" style={{ animation: 'spin 1.5s linear infinite' }} />
-              <span>Vora AI가 100% 맞춤 일정과 실시간 날씨/미식을 디자인하는 중...</span>
+              <span>{t.chatThinking || (lang === 'en' ? 'Vora AI is designing your personalized itinerary...' : lang === 'ja' ? 'Vora AIがオーダーメイドの日程を作成中...' : (lang === 'zh' || lang === 'zht') ? 'Vora AI正在设计专属行程...' : 'Vora AI가 100% 맞춤 일정과 실시간 날씨/미식을 디자인하는 중...')}</span>
             </div>
           )}
           <div ref={chatEndRef} />
@@ -447,7 +447,7 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
               type="text"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              placeholder="예: 1일차 수원 ➔ 2일차 명동 ➔ 3일차 인천 또는 50대 가족여행..."
+              placeholder={t.chatPlaceholder || (lang === 'en' ? 'e.g. Day 1 Suwon ➔ Day 2 Myeongdong ➔ Day 3 Incheon...' : lang === 'ja' ? '例: 1日目 水原 ➔ 2日目 明洞 ➔ 3日目 仁川...' : (lang === 'zh' || lang === 'zht') ? '例如: 第1天 水原 ➔ 第2天 明洞 ➔ 第3天 仁川...' : '예: 1일차 수원 ➔ 2일차 명동 ➔ 3일차 인천 또는 50대 가족여행...')}
               style={{
                 flex: 1,
                 background: 'transparent',
@@ -493,7 +493,7 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
                 boxShadow: '0 2px 8px rgba(37, 99, 235, 0.25)'
               }}
             >
-              <span>전송</span>
+              <span>{t.chatSend || (lang === 'en' ? 'Send' : lang === 'ja' ? '送信' : (lang === 'zh' || lang === 'zht') ? '发送' : '전송')}</span>
               <Send size={13} />
             </button>
           </form>

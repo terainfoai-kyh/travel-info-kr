@@ -705,12 +705,12 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
                 }}
               >
                 <Trash2 size={13} />
-                <span>대화 지우기</span>
+                <span>{t.chatClear || (lang === 'en' ? 'Clear Chat' : lang === 'ja' ? 'チャット履歴削除' : (lang === 'zh' || lang === 'zht') ? '清空对话' : '대화 지우기')}</span>
               </button>
               <button
                 type="button"
                 onClick={() => setIsInlineChatExpanded(false)}
-                title="대화창 접기 ✕"
+                title={t.chatFold || (lang === 'en' ? 'Collapse Chat ✕' : lang === 'ja' ? 'チャットを閉じる ✕' : (lang === 'zh' || lang === 'zht') ? '折叠对话 ✕' : '대화창 접기 ✕')}
                 style={{
                   padding: '0.25rem 0.65rem',
                   borderRadius: '9999px',
@@ -726,7 +726,7 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
                 }}
               >
                 <X size={13} />
-                <span>대화 접기</span>
+                <span>{t.chatFold || (lang === 'en' ? 'Collapse Chat' : lang === 'ja' ? 'チャットを閉じる' : (lang === 'zh' || lang === 'zht') ? '折叠对话' : '대화 접기')}</span>
               </button>
             </div>
           </div>
@@ -883,10 +883,10 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.05rem' }}>
                               <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#1e3a8a' }}>
-                                🗺️ 이 코스 전체 지도에서 확인하기
+                                🗺️ {lang === 'en' ? 'View Entire Course on Map' : lang === 'ja' ? '全日程を地図で確認する' : (lang === 'zh' || lang === 'zht') ? '在地图上查看完整路线' : '이 코스 전체 지도에서 확인하기'}
                               </span>
                               <span style={{ fontSize: '0.66rem', color: '#2563eb', fontWeight: 600 }}>
-                                {msg.itinerarySummary.days || 3}일치 코스 및 동선 시각화 팝업 열기 ➔
+                                {lang === 'en' ? `Open ${msg.itinerarySummary.days || 3}-day route visualization map ➔` : lang === 'ja' ? `${msg.itinerarySummary.days || 3}日間のルート可視化マップを開く ➔` : (lang === 'zh' || lang === 'zht') ? `打开${msg.itinerarySummary.days || 3}天路线可视化地图 ➔` : `${msg.itinerarySummary.days || 3}일치 코스 및 동선 시각화 팝업 열기 ➔`}
                               </span>
                             </div>
                           </div>
@@ -903,7 +903,7 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
           {isGenerating && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#1e40af', fontSize: '0.76rem', padding: '0.45rem 0.75rem', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '10px', width: 'fit-content' }}>
               <Sparkles size={15} color="#2563eb" style={{ animation: 'spin 1.5s linear infinite' }} />
-              <span>Vora AI가 100% 맞춤 일정과 실시간 날씨/미식을 디자인하는 중...</span>
+              <span>{t.chatThinking || (lang === 'en' ? 'Vora AI is designing your personalized itinerary...' : lang === 'ja' ? 'Vora AIがオーダーメイドの日程を作成中...' : (lang === 'zh' || lang === 'zht') ? 'Vora AI正在设计专属行程...' : 'Vora AI가 100% 맞춤 일정과 실시간 날씨/미식을 디자인하는 중...')}</span>
             </div>
           )}
         </div>
@@ -948,7 +948,7 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
             <button
               type="button"
               onClick={() => setPromptText('')}
-              title="검색어 지우기 ✕"
+              title={lang === 'en' ? 'Clear search ✕' : lang === 'ja' ? '検索クリア ✕' : (lang === 'zh' || lang === 'zht') ? '清除搜索词 ✕' : '검색어 지우기 ✕'}
               style={{
                 width: isMobile ? '28px' : '32px',
                 height: isMobile ? '28px' : '32px',
@@ -995,7 +995,7 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
           {/* Single Sleek AI Send Button for Pure Conversational UX */}
           <button
             type="submit"
-            title="AI 컨시어지 대화 전송 (Enter 키)"
+            title={lang === 'en' ? 'Send AI Concierge Message (Enter)' : lang === 'ja' ? 'AIコンシェルジュに対話を送信 (Enter)' : (lang === 'zh' || lang === 'zht') ? '发送AI智能管家对话 (Enter)' : 'AI 컨시어지 대화 전송 (Enter 키)'}
             style={{
               padding: isMobile ? '0.45rem 0.75rem' : '0.5rem 1.1rem',
               borderRadius: '9999px',
