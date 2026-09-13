@@ -1634,6 +1634,7 @@ export default function App() {
 
             {/* 🏨 4-Language Curated Hotel & Travel Magazine Section (Desktop/PC View) */}
             <CuratedTravelGuides lang={lang} />
+            <AdSenseArticlesSection lang={lang} />
         </div>
 
         {/* ==============================================================================
@@ -1669,6 +1670,7 @@ export default function App() {
 
               {/* 🏨 4-Language Curated Hotel & Travel Magazine Section (Agoda Partner & Rich SEO Content) */}
               <CuratedTravelGuides lang={lang} />
+              <AdSenseArticlesSection lang={lang} />
             </div>
           )}
 

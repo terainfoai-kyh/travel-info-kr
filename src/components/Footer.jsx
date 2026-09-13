@@ -198,6 +198,27 @@ export default function Footer({
           )}
         </div>
 
+        {/* Row 1.5: 🌸 한국 여행 심층 가이드 매거진 (SEO & Crawlers & Users) */}
+        <div style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '8px',
+          fontSize: '11.5px',
+          color: '#64748b',
+          marginBottom: '8px'
+        }}>
+          <span style={{ fontWeight: 800, color: '#7c3aed' }}>📖 {lang === 'en' ? 'Travel Guides:' : lang === 'ja' ? '韓国旅行ガイド:' : (lang === 'zh' || lang === 'zht') ? '韩国旅游指南:' : '한국 여행 심층 가이드:'}</span>
+          <a href="/guides/seoul.html" style={{ color: '#475569', fontWeight: 600, textDecoration: 'none' }}>{lang === 'en' ? 'Seoul' : lang === 'ja' ? 'ソウル' : (lang === 'zh' || lang === 'zht') ? '首尔' : '서울'}</a>
+          <span style={{ color: '#cbd5e1' }}>•</span>
+          <a href="/guides/busan.html" style={{ color: '#475569', fontWeight: 600, textDecoration: 'none' }}>{lang === 'en' ? 'Busan' : lang === 'ja' ? '釜山' : (lang === 'zh' || lang === 'zht') ? '釜山' : '부산'}</a>
+          <span style={{ color: '#cbd5e1' }}>•</span>
+          <a href="/guides/jeju.html" style={{ color: '#475569', fontWeight: 600, textDecoration: 'none' }}>{lang === 'en' ? 'Jeju Island' : lang === 'ja' ? '済州島' : (lang === 'zh' || lang === 'zht') ? '济州岛' : '제주도'}</a>
+          <span style={{ color: '#cbd5e1' }}>•</span>
+          <a href="/guides/transit.html" style={{ color: '#475569', fontWeight: 600, textDecoration: 'none' }}>{lang === 'en' ? 'Transit & Weather' : lang === 'ja' ? '交通＆服装' : (lang === 'zh' || lang === 'zht') ? '交通与穿搭' : '대중교통 & 날씨 코디'}</a>
+        </div>
+
         {/* Row 2: Legal Policies + Copyright + Contact Inline */}
         <div style={{
           display: 'flex',
