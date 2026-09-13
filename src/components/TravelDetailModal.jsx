@@ -78,6 +78,11 @@ export function translatePracticalInfo(text = '', lang = 'ko') {
       .replace(/안국역/g, 'Anguk Station')
       .replace(/명동역/g, 'Myeongdong Station')
       .replace(/동대문역/g, 'Dongdaemun Station')
+      .replace(/동대문역사문화공원역/g, 'Dongdaemun History & Culture Park Station')
+      .replace(/삼성역/g, 'Samseong Station')
+      .replace(/성수역/g, 'Seongsu Station')
+      .replace(/오시리아역/g, 'Osiria Station')
+      .replace(/중동역/g, 'Jung-dong Station')
       .replace(/홍대입구역/g, 'Hongik Univ. Station')
       .replace(/강남역/g, 'Gangnam Station')
       .replace(/잠실역/g, 'Jamsil Station')
@@ -100,7 +105,12 @@ export function translatePracticalInfo(text = '', lang = 'ko') {
       .replace(/경복궁역/g, '景福宮駅')
       .replace(/안국역/g, '安国駅')
       .replace(/명동역/g, '明洞駅')
+      .replace(/동대문역사문화공원역/g, '東大門歴史文化公園駅')
       .replace(/동대문역/g, '東大門駅')
+      .replace(/삼성역/g, '三成駅')
+      .replace(/성수역/g, '聖水駅')
+      .replace(/오시리아역/g, 'オシリア駅')
+      .replace(/중동역/g, '中洞駅')
       .replace(/홍대입구역/g, '弘大入口駅')
       .replace(/강남역/g, '江南駅')
       .replace(/잠실역/g, '蚕室駅')
@@ -123,7 +133,12 @@ export function translatePracticalInfo(text = '', lang = 'ko') {
       .replace(/경복궁역/g, '景福宫站')
       .replace(/안국역/g, '安国站')
       .replace(/명동역/g, '明洞站')
+      .replace(/동대문역사문화공원역/g, '东大门历史文化公园站')
       .replace(/동대문역/g, '东大门站')
+      .replace(/삼성역/g, '三成站')
+      .replace(/성수역/g, '圣水站')
+      .replace(/오시리아역/g, '奥西利亚站')
+      .replace(/중동역/g, '中洞站')
       .replace(/홍대입구역/g, '弘大入口站')
       .replace(/강남역/g, '江南站')
       .replace(/잠실역/g, '蚕室站')
@@ -141,12 +156,21 @@ export function translatePracticalInfo(text = '', lang = 'ko') {
     str = str
       .replace(/(\d+)\s*호선/g, 'Line $1')
       .replace(/(\d+)\s*번\s*출구/g, 'Exit $1')
+      .replace(/\(도보\s*(\d+)\s*분\)/g, '($1 min walk)')
+      .replace(/\(버스\s*(\d+)\s*분\)/g, '($1 min by bus)')
       .replace(/도보\s*(\d+)\s*분/g, '$1 min walk')
       .replace(/버스\s*(\d+)\s*분/g, '$1 min by bus')
       .replace(/도보/g, 'walk')
+      .replace(/\(직결\)/g, '(Direct Access)')
       .replace(/직결/g, 'Direct access')
       .replace(/남산\s*케이블카/g, 'Namsan Cable Car')
+      .replace(/\(코엑스몰\s*연결\)/g, '(Connected to COEX Mall)')
       .replace(/코엑스몰\s*연결/g, 'Connected to COEX Mall')
+      .replace(/통영\s*가오치선착장\/여객선터미널에서\s*여객선\(배편\s*약\s*(\d+)\s*분\)/g, 'Ferry from Tongyeong Gaochi Terminal (approx. $1 mins)')
+      .replace(/통영\s*삼덕항\/여객선터미널에서\s*여객선\(배편\s*약\s*(\d+)\s*분\)/g, 'Ferry from Tongyeong Samdeok Port (approx. $1 mins)')
+      .replace(/제주\s*성산포항\s*여객터미널에서\s*도항선\(배편\s*약\s*(\d+)\s*분\)/g, 'Ferry from Jeju Seongsanpo Port (approx. $1 mins)')
+      .replace(/울릉도\s*저동항\/사동항에서\s*여객선\(배편\s*약\s*(\d+)\s*시간\s*(\d+)\s*분\)/g, 'Ferry from Ulleungdo Jeodong/Sadong Port (approx. $1h $2m)')
+      .replace(/완도항\s*여객선터미널에서\s*여객선\(배편\s*약\s*(\d+)\s*분\)/g, 'Ferry from Wando Port Terminal (approx. $1 mins)')
       .replace(/인근\s*여객선터미널에서\s*여객선\/도항선\(배편\)\s*이용/g, 'Passenger ferry available at nearby terminal')
       .replace(/시내버스\s*및\s*택시\s*이용\s*\(자가용\/렌터카\s*권장\)/g, 'Accessible via local bus, taxi or rental car')
       .replace(/인근\s*지하철역\s*및\s*시내버스\s*이용/g, 'Accessible via nearby subway station and local bus')
@@ -160,12 +184,21 @@ export function translatePracticalInfo(text = '', lang = 'ko') {
     str = str
       .replace(/(\d+)\s*호선/g, '地下鉄$1号線')
       .replace(/(\d+)\s*번\s*출구/g, '$1番出口')
+      .replace(/\(도보\s*(\d+)\s*분\)/g, '(徒歩$1分)')
+      .replace(/\(버스\s*(\d+)\s*분\)/g, '(バス$1分)')
       .replace(/도보\s*(\d+)\s*분/g, '徒歩$1分')
       .replace(/버스\s*(\d+)\s*분/g, 'バス$1分')
       .replace(/도보/g, '徒歩')
+      .replace(/\(직결\)/g, '(直結)')
       .replace(/직결/g, '直結')
       .replace(/남산\s*케이블카/g, '南山ケーブルカー')
+      .replace(/\(코엑스몰\s*연결\)/g, '(COEXモール直結)')
       .replace(/코엑스몰\s*연결/g, 'COEXモール直結')
+      .replace(/통영\s*가오치선착장\/여객선터미널에서\s*여객선\(배편\s*약\s*(\d+)\s*분\)/g, '統営ガオチ船着場からフェリー (約$1分)')
+      .replace(/통영\s*삼덕항\/여객선터미널에서\s*여객선\(배편\s*약\s*(\d+)\s*분\)/g, '統営三徳港からフェリー (約$1分)')
+      .replace(/제주\s*성산포항\s*여객터미널에서\s*도항선\(배편\s*약\s*(\d+)\s*분\)/g, '済州城山浦港からフェリー (約$1分)')
+      .replace(/울릉도\s*저동항\/사동항에서\s*여객선\(배편\s*약\s*(\d+)\s*시간\s*(\d+)\s*분\)/g, '鬱陵島低洞港からフェリー (約$1時間$2分)')
+      .replace(/완도항\s*여객선터미널에서\s*여객선\(배편\s*약\s*(\d+)\s*분\)/g, '莞島港からフェリー (約$1分)')
       .replace(/인근\s*여객선터미널에서\s*여객선\/도항선\(배편\)\s*이용/g, '近隣の旅客ターミナルからフェリー利用')
       .replace(/시내버스\s*및\s*택시\s*이용\s*\(자가용\/렌터카\s*권장\)/g, '市内バス・タクシー利用推奨（レンタカー可）')
       .replace(/인근\s*지하철역\s*및\s*시내버스\s*이용/g, '最寄りの地下鉄駅または市内バス利用')
@@ -179,18 +212,30 @@ export function translatePracticalInfo(text = '', lang = 'ko') {
     str = str
       .replace(/(\d+)\s*호선/g, '地铁$1号线')
       .replace(/(\d+)\s*번\s*출구/g, '$1号出口')
+      .replace(/\(도보\s*(\d+)\s*분\)/g, '(步行$1分钟)')
+      .replace(/\(버스\s*(\d+)\s*분\)/g, '(公交$1分钟)')
       .replace(/도보\s*(\d+)\s*분/g, '步行$1分钟')
       .replace(/버스\s*(\d+)\s*분/g, '公交$1分钟')
       .replace(/도보/g, '步行')
+      .replace(/\(직결\)/g, '(直通)')
       .replace(/직결/g, '直通')
       .replace(/남산\s*케이블카/g, '南山缆车')
+      .replace(/\(코엑스몰\s*연결\)/g, '(直通COEX商场)')
       .replace(/코엑스몰\s*연결/g, '直通COEX商场')
+      .replace(/통영\s*가오치선착장\/여객선터미널에서\s*여객선\(배편\s*약\s*(\d+)\s*분\)/g, '从统营高峙码头乘坐轮渡 (约$1分钟)')
+      .replace(/통영\s*삼덕항\/여객선터미널에서\s*여객선\(배편\s*약\s*(\d+)\s*분\)/g, '从统营三德港乘坐轮渡 (约$1分钟)')
+      .replace(/제주\s*성산포항\s*여객터미널에서\s*도항선\(배편\s*약\s*(\d+)\s*분\)/g, '从济州城山浦港乘坐轮渡 (约$1分钟)')
+      .replace(/울릉도\s*저동항\/사동항에서\s*여객선\(배편\s*약\s*(\d+)\s*시간\s*(\d+)\s*분\)/g, '从郁陵岛低洞港乘坐轮渡 (约$1小时$2分钟)')
+      .replace(/완도항\s*여객선터미널에서\s*여객선\(배편\s*약\s*(\d+)\s*분\)/g, '从莞岛港乘坐轮渡 (约$1分钟)')
       .replace(/인근\s*여객선터미널에서\s*여객선\/도항선\(배편\)\s*이용/g, '在附近客运码头乘坐轮渡')
       .replace(/시내버스\s*및\s*택시\s*이용\s*\(자가용\/렌터카\s*권장\)/g, '乘坐市内公交或出租车（建议自驾/租车）')
       .replace(/인근\s*지하철역\s*및\s*시내버스\s*이용/g, '乘坐附近地铁站或市内公交')
       .replace(/여객선\(배편\s*약\s*(\d+)\s*분\)/g, '轮渡 (约$1分钟)')
       .replace(/여객선\(배편\s*약\s*(\d+)\s*시간\s*(\d+)\s*분\)/g, '轮渡 (约$1小时$2分钟)')
-      .replace(/도항선\(배편\s*약\s*(\d+)\s*분\)/g, '轮渡 (约$1分钟)');
+      .replace(/도항선\(배편\s*약\s*(\d+)\s*분\)/g, '轮渡 (约$1分钟)')
+      .replace(/약\s*(\d+)\s*~\s*(\d+(?:\.\d+)?)\s*시간/g, '约 $1 - $2小时')
+      .replace(/약\s*(\d+(?:\.\d+)?)\s*시간/g, '约 $1小时')
+      .replace(/약\s*(\d+)\s*분/g, '约 $1分钟');
   }
 
   // 2. 입장 요금 및 혜택
@@ -495,10 +540,13 @@ function formatOperatingHours(hoursStr = '', closedDays = '', lang = 'ko') {
 }
 
 // 📞 전화번호(031-xxx, 02-xxx 등)를 파싱하여 원클릭 tel: 링크로 렌더링
-function renderContactWithTel(text = '') {
-  if (!text) return '정보 없음';
+function renderContactWithTel(text = '', lang = 'ko') {
+  if (!text) {
+    return lang === 'en' ? 'No contact info' : lang === 'ja' ? '問合せ先なし' : (lang === 'zh' || lang === 'zht') ? '暂无电话' : '정보 없음';
+  }
   const phoneRegex = /(\d{2,4}-\d{3,4}-\d{4}|\d{4}-\d{4}|1330)/g;
   const parts = text.split(phoneRegex);
+  const linkTitle = (phone) => lang === 'en' ? `Call ${phone}` : lang === 'ja' ? `${phone}に発信` : (lang === 'zh' || lang === 'zht') ? `拨打电话 ${phone}` : `${phone}로 바로 통화 연결`;
   return parts.map((part, pIdx) => {
     if (phoneRegex.test(part)) {
       const cleanPhone = part.replace(/[^\d]/g, '');
@@ -513,7 +561,7 @@ function renderContactWithTel(text = '') {
             textUnderlineOffset: '2px',
             margin: '0 3px'
           }}
-          title={`${part}로 바로 통화 연결`}
+          title={linkTitle(part)}
         >
           {part}
         </a>
@@ -831,16 +879,64 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
     }
     if (cleanTitle.includes('경복궁') || cleanTitle.includes('인사동') || cleanTitle.includes('북촌')) {
       return [
-        { name: '토속촌 삼계탕', type: '미식 🍲', distance: '도보 5분', desc: '진한 국물의 서울 대표 전통 삼계탕' },
-        { name: '어니언 안국 (Cafe Onion)', type: '한옥카페 ☕', distance: '도보 6분', desc: '고즈넉한 한옥 중정에서 즐기는 스페셜티 베이커리 카페' },
-        { name: '삼청동 수제비', type: '미식 🍜', distance: '도보 8분', desc: '미쉐린 가이드에 선정된 깔끔한 멸치 육수 수제비' }
+        { 
+          name: '토속촌 삼계탕', 
+          type: '미식 🍲', 
+          distance: '도보 5분', 
+          desc: '진한 국물의 서울 대표 전통 삼계탕',
+          descEn: 'Seoul iconic Ginseng Chicken Soup with deep rich broth',
+          descJa: '濃厚なスープが絶品のソウル代表サムゲタン名店',
+          descZh: '汤汁醇厚浓郁的首尔代表性传统参鸡汤'
+        },
+        { 
+          name: '어니언 안국 (Cafe Onion)', 
+          type: '한옥카페 ☕', 
+          distance: '도보 6분', 
+          desc: '고즈넉한 한옥 중정에서 즐기는 스페셜티 베이커리 카페',
+          descEn: 'Specialty bakery cafe in a scenic hanok courtyard',
+          descJa: '風情ある韓屋の中庭で楽しむベーカリーカフェ',
+          descZh: '传统韩屋庭院里的特色烘焙咖啡厅'
+        },
+        { 
+          name: '삼청동 수제비', 
+          type: '미식 🍜', 
+          distance: '도보 8분', 
+          desc: '미쉐린 가이드에 선정된 깔끔한 멸치 육수 수제비',
+          descEn: 'Michelin Guide featured clean anchovy broth Sujebi',
+          descJa: 'ミシュラン掲載のすっきり煮干し出汁スジェビ',
+          descZh: '米其林指南精选传统手工面疙瘩汤'
+        }
       ];
     }
     if (cleanTitle.includes('해운대') || cleanTitle.includes('광안리') || cleanTitle.includes('블루라인') || cleanTitle.includes('엑스더스카이')) {
       return [
-        { name: '해운대 소문난 암소갈비', type: '미식 🥩', distance: '도보 7분', desc: '감자사리가 일품인 부산 최고의 한우 갈비 명가' },
-        { name: '랑데자뷰 해운대', type: '오션뷰카페 ☕', distance: '도보 4분', desc: '탁 트인 해운대 바다를 한눈에 담는 오션뷰 카페' },
-        { name: '금수복국 본점', type: '로컬맛집 🍲', distance: '도보 5분', desc: '시원한 국물로 속을 풀어주는 50년 전통 복국' }
+        { 
+          name: '해운대 소문난 암소갈비', 
+          type: '미식 🥩', 
+          distance: '도보 7분', 
+          desc: '감자사리가 일품인 부산 최고의 한우 갈비 명가',
+          descEn: 'Busan top Hanwoo beef ribs famous for potato noodles',
+          descJa: '釜山屈指の最高級韓牛リブ専門店',
+          descZh: '釜山顶级的传统韩牛烤排骨名店'
+        },
+        { 
+          name: '랑데자뷰 해운대', 
+          type: '오션뷰카페 ☕', 
+          distance: '도보 4분', 
+          desc: '탁 트인 해운대 바다를 한눈에 담는 오션뷰 카페',
+          descEn: 'Panoramic ocean view cafe overlooking Haeundae',
+          descJa: '海雲台の青い海を一望できるオーシャンビューカフェ',
+          descZh: '饱览海云台壮阔海景的特色咖啡馆'
+        },
+        { 
+          name: '금수복국 본점', 
+          type: '로컬맛집 🍲', 
+          distance: '도보 5분', 
+          desc: '시원한 국물로 속을 풀어주는 50년 전통 복국',
+          descEn: '50-year heritage pufferfish soup renowned for refreshing broth',
+          descJa: '50年の伝統を誇るさっぱりフグスープの名店',
+          descZh: '50年老字号清爽鲜美河豚汤'
+        }
       ];
     }
     return [];
@@ -1095,9 +1191,9 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                   {t.confirmChangeTitle || '일정을 변경하시겠습니까?'}
                 </h4>
                 <p style={{ margin: 0, fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: 1.55 }}>
-                  <strong style={{ color: 'var(--text-main)' }}>'{cleanTitle}'</strong>
+                  <strong style={{ color: 'var(--text-main)' }}>'{displayTitle}'</strong>
                   <span style={{ margin: '0 0.4rem' }}>➔</span>
-                  <strong style={{ color: '#2563eb' }}>'{confirmTargetSpot.title}'</strong>
+                  <strong style={{ color: '#2563eb' }}>'{confirmTargetSpot[`title_${lang}`] || getTranslatedTitle(confirmTargetSpot.title, lang)}'</strong>
                   <br />
                   {t.confirmChangeDesc || '내 일정과 지도 경로가 즉시 업데이트됩니다.'}
                 </p>
@@ -1162,7 +1258,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
         >
           <img
             src={currentPhoto}
-            alt={`${cleanTitle} ${activePhotoIdx + 1}`}
+            alt={`${displayTitle} ${activePhotoIdx + 1}`}
             style={{ 
               width: '100%', 
               height: '100%', 
@@ -1314,7 +1410,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
               color: '#ffffff',
               textShadow: '0 2px 10px rgba(0, 0, 0, 0.95), 0 1px 3px rgba(0, 0, 0, 0.9)'
             }}>
-              {getTranslatedTitle(cleanTitle, lang)}
+              {displayTitle}
             </h2>
           </div>
         </div>
@@ -1469,7 +1565,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                   {lang === 'en' ? '• Contact' : lang === 'ja' ? '• お問合せ' : (lang === 'zh' || lang === 'zht') ? '• 咨询电话' : '• 문의'}
                 </span>
                 <span style={{ color: 'var(--text-main)', fontWeight: 600, lineHeight: 1.5 }}>
-                  : {renderContactWithTel(liveIntroDetails?.infocenter || liveCommonDetails?.tel)}
+                  : {renderContactWithTel(liveIntroDetails?.infocenter || liveCommonDetails?.tel, lang)}
                 </span>
               </div>
             )}
@@ -1568,24 +1664,26 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                 if (lang === 'ko') {
                   return liveCommonDetails?.overview || spot.description || '한국관광공사에 정품 등록된 대한민국 대표 힐링 관광 명소입니다.';
                 }
-                const foreignLiveOverview = liveCommonDetails?.overview_en || (lang === 'ja' ? liveCommonDetails?.overview_ja : (lang === 'zh' || lang === 'zht') ? liveCommonDetails?.overview_zh : null);
+                const foreignLiveOverview = (liveCommonDetails?.overview && !/[가-힣]/.test(liveCommonDetails.overview))
+                  ? liveCommonDetails.overview
+                  : (liveCommonDetails?.overview_en || (lang === 'ja' ? liveCommonDetails?.overview_ja : (lang === 'zh' || lang === 'zht') ? liveCommonDetails?.overview_zh : null));
                 if (foreignLiveOverview && !/[가-힣]/.test(foreignLiveOverview)) {
                   return foreignLiveOverview;
                 }
                 if (cleanTitle.includes('화성행궁')) {
                   return lang === 'en' ? 'Historic temporary royal palace built by King Jeongjo of Joseon. Features majestic fortress walls and night openings.' : lang === 'ja' ? '朝鮮第22代正祖大王が建立した由緒ある臨時王宮です。美しい城郭と行宮の夜景が水原の代表名所です。' : '朝鲜第22代正祖大王建立的临时行宫，漫步在月光下的古老城郭是水原的代表性名胜。';
                 }
-                const candidate = lang === 'ja' ? (matchedPoi?.summaryJa || spot.summaryJa || spot.descriptionJa || matchedPoi?.summaryEn || spot.descriptionEn)
-                  : (lang === 'zh' || lang === 'zht') ? (matchedPoi?.summaryZh || spot.summaryZh || spot.descriptionZh || matchedPoi?.summaryEn || spot.descriptionEn)
-                  : (matchedPoi?.summaryEn || spot.summaryEn || spot.descriptionEn);
+                const candidate = lang === 'ja' ? (spot.summaryJa || spot.descriptionJa || spot.overviewJa || matchedPoi?.summaryJa || spot.summaryEn || spot.descriptionEn)
+                  : (lang === 'zh' || lang === 'zht') ? (spot.summaryZh || spot.descriptionZh || spot.overviewZh || matchedPoi?.summaryZh || spot.summaryEn || spot.descriptionEn)
+                  : (spot.summaryEn || spot.descriptionEn || spot.overviewEn || matchedPoi?.summaryEn);
                 if (candidate && !/[가-힣]/.test(candidate)) {
                   return candidate;
                 }
                 return lang === 'en'
-                  ? `${getTranslatedTitle(cleanTitle, lang)} is a premier destination in South Korea officially certified by the Korea Tourism Organization.`
+                  ? `${displayTitle} is a premier destination in South Korea officially certified by the Korea Tourism Organization.`
                   : lang === 'ja'
-                  ? `${getTranslatedTitle(cleanTitle, lang)}は、韓国観光公社に公式登録された韓国の代表的な観光名所です。`
-                  : `${getTranslatedTitle(cleanTitle, lang)}是韩国观光公社官方认证的代表性旅游胜地。`;
+                  ? `${displayTitle}は、韓国観光公社に公式登録された韓国の代表的な観光名所です。`
+                  : `${displayTitle}是韩国观光公社官方认证的代表性旅游胜地。`;
               })()}
             </p>
           </div>
@@ -1842,7 +1940,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                           <div style={{ minWidth: 0 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                               <span style={{ fontSize: '0.86rem', fontWeight: 800, color: 'var(--text-main)' }}>
-                                {food.name}
+                                {(lang !== 'ko' && food[`name_${lang}`]) ? food[`name_${lang}`] : getTranslatedTitle(food.name, lang)}
                               </span>
                               {food.distance && (
                                 <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)', fontWeight: 600 }}>
@@ -1851,7 +1949,17 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                               )}
                             </div>
                             <div style={{ fontSize: '0.76rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: '0.1rem' }}>
-                              {translatePracticalInfo(food.desc || food.type, lang) || (lang === 'en' ? 'Local Eatery / Cafe' : lang === 'ja' ? 'ローカルグルメ・カフェ' : (lang === 'zh' || lang === 'zht') ? '当地美食/咖啡厅' : '로컬 미식/카페')}
+                              {(() => {
+                                if (lang === 'ko') return food.desc || food.type || '로컬 미식/카페';
+                                const fDesc = (lang === 'ja' ? (food.descJa || food.desc_ja) : (lang === 'zh' || lang === 'zht') ? (food.descZh || food.desc_zh) : (food.descEn || food.desc_en))
+                                  || (!/[가-힣]/.test(food.desc || '') ? food.desc : null);
+                                if (fDesc) return fDesc;
+                                const transDesc = translatePracticalInfo(food.desc || food.type, lang);
+                                if (transDesc && !/[가-힣]/.test(transDesc)) return transDesc;
+                                const isCafe = /(카페|커피|베이커리|디저트|cafe|coffee|bakery)/i.test((food.name || '') + ' ' + (food.type || ''));
+                                if (isCafe) return lang === 'en' ? 'Cozy local cafe & bakery' : lang === 'ja' ? 'ゆったり寛げるローカルカフェ' : '舒适惬意的特色咖啡店';
+                                return lang === 'en' ? 'Authentic local Korean restaurant' : lang === 'ja' ? '地元食材を活かした本格料理店' : '当地正宗韩国料理店';
+                              })()}
                             </div>
                           </div>
 

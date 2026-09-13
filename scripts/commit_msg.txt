@@ -1,1 +1,1 @@
-feat: enhance tourApi nearby food multilingual labels and map official foreign contentTypeId
+feat: enhance TravelDetailModal transit stations, contact tel links, and nearby food multilingual descriptions
