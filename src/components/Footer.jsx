@@ -208,41 +208,57 @@ export default function Footer({
           fontSize: '11.5px',
           color: '#64748b'
         }}>
-          {onOpenPrivacy && (
-            <button
-              onClick={onOpenPrivacy}
-              style={{ background: 'none', border: 'none', color: '#475569', cursor: 'pointer', padding: 0, fontWeight: 700, fontSize: '11.5px' }}
-            >
-              {t.privacyPolicy || '개인정보처리방침'}
-            </button>
-          )}
+          <a
+            href="/privacy.html"
+            onClick={(e) => {
+              if (onOpenPrivacy) {
+                e.preventDefault();
+                onOpenPrivacy();
+              }
+            }}
+            style={{ background: 'none', border: 'none', color: '#475569', cursor: 'pointer', padding: 0, fontWeight: 700, fontSize: '11.5px', textDecoration: 'none' }}
+          >
+            {t.privacyPolicy || '개인정보처리방침'}
+          </a>
           <span style={{ color: '#cbd5e1' }}>•</span>
-          {onOpenTerms && (
-            <button
-              onClick={onOpenTerms}
-              style={{ background: 'none', border: 'none', color: '#475569', cursor: 'pointer', padding: 0, fontWeight: 700, fontSize: '11.5px' }}
-            >
-              {t.termsOfService || '이용약관'}
-            </button>
-          )}
+          <a
+            href="/terms.html"
+            onClick={(e) => {
+              if (onOpenTerms) {
+                e.preventDefault();
+                onOpenTerms();
+              }
+            }}
+            style={{ background: 'none', border: 'none', color: '#475569', cursor: 'pointer', padding: 0, fontWeight: 700, fontSize: '11.5px', textDecoration: 'none' }}
+          >
+            {t.termsOfService || '이용약관'}
+          </a>
           <span style={{ color: '#cbd5e1' }}>•</span>
-          {onOpenAbout && (
-            <button
-              onClick={onOpenAbout}
-              style={{ background: 'none', border: 'none', color: '#475569', cursor: 'pointer', padding: 0, fontWeight: 700, fontSize: '11.5px' }}
-            >
-              {t.aboutUs || '서비스 소개'}
-            </button>
-          )}
+          <a
+            href="/about.html"
+            onClick={(e) => {
+              if (onOpenAbout) {
+                e.preventDefault();
+                onOpenAbout();
+              }
+            }}
+            style={{ background: 'none', border: 'none', color: '#475569', cursor: 'pointer', padding: 0, fontWeight: 700, fontSize: '11.5px', textDecoration: 'none' }}
+          >
+            {t.aboutUs || '서비스 소개'}
+          </a>
           <span style={{ color: '#cbd5e1' }}>•</span>
-          {onOpenContact && (
-            <button
-              onClick={onOpenContact}
-              style={{ background: 'none', border: 'none', color: '#475569', cursor: 'pointer', padding: 0, fontWeight: 700, fontSize: '11.5px' }}
-            >
-              {t.contactUs || '제휴 및 문의'}
-            </button>
-          )}
+          <a
+            href="/contact.html"
+            onClick={(e) => {
+              if (onOpenContact) {
+                e.preventDefault();
+                onOpenContact();
+              }
+            }}
+            style={{ background: 'none', border: 'none', color: '#475569', cursor: 'pointer', padding: 0, fontWeight: 700, fontSize: '11.5px', textDecoration: 'none' }}
+          >
+            {t.contactUs || '제휴 및 문의'}
+          </a>
           <span style={{ color: '#cbd5e1', margin: '0 4px' }}>|</span>
           <span style={{ color: '#94a3b8' }}>
             © 2026 VORA AI
