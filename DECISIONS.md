@@ -2,6 +2,30 @@
 
 이 문서는 선배님과의 모든 설계 철학, 시스템 환경, 요구사항, 규칙을 영구히 기록하여 **세션 리셋이나 안티그래비티 재부팅 후 새로 투입되는 에이전트도 100% 기억하고 동일한 원칙으로 동작하도록 하는 마스터 Living Spec**입니다.
 
+## 🚀 [★ Golden Checkpoint: 애드센스 독립 정적 매거진 허브 + 패스스루 완결 + 13대 다국어 무결점 운영 서버(koreatravel.cc) 승격 배포 완료]
+> **일자: 2026-09-13 (선배님 승인 "진행해" ➔ 헌법 제11조에 의거한 공식 운영 서버 승격 배포 완료)**
+- **운영 반영 내역**:
+  1. **구글 애드센스 심사 통과 '독립 정적 매거진 허브' 운영 배포**:
+     - 4대 독립 매거진(`seoul.html`, `busan.html`, `jeju.html`, `transit.html` in `public/guides/`)의 전문 여행 콘텐츠 및 Article Schema 구조화 데이터 운영 서빙 개시.
+     - 브라우저 언어 자동 감지 및 원클릭 🇰🇷/🇺🇸 토글 듀얼 에디션 탑재.
+     - `index.html` 내 텍스트 주입 제거 및 기본 다크 배경(`#0f172a`) 적용으로 2~3초간 깜빡이던 FOUC 영구 박멸.
+  2. **Cloudflare Pages 패스스루 라우팅 100% 완결 (`public/_redirects`)**:
+     - `/guides/*`, `/about.html`, `/privacy.html`, `/terms.html`, `/contact.html`, `/data/*`, `/images/*` 명시적 200 직접 서빙 등록.
+     - 구글 애드센스 봇 및 심사관 조회 시 빈 SPA가 아닌 수만 자의 고가치 정적 HTML 및 이미지가 즉시 서빙되도록 완비.
+  3. **전국 전수조사 13대 다국어 구멍 및 모바일 상세 대체명소(Swap) 카테고리 태그 다국어화 운영 반영**:
+     - 단일 진실 원천 `getLocalizedCategory` 및 `getTranslatedAddress` 운영 반영.
+     - 모바일 상세 대체명소 패널, 웹맵 대시보드 Day/소요시간, 채팅 일정 요약 카드 등 전수 다국어화 완료.
+- **배포 및 라이브 검증 상태**:
+  - `verifySyntax.ps1` 무결점 통과 (`[ZERO DEFECT PASSED]`).
+  - 프로덕션 빌드 완료 (최신 번들: `index-C1JyQ7Bp.js`, 6대 암호화 파일 `.enc` 7.96MB 동기화 완료).
+  - Git `origin/main` 동기화 완료 (`commit a9c9de3`).
+  - **운영 사이트 서빙 실측**:
+    - `https://koreatravel.cc/` ➔ 정상 가동 확인.
+    - `https://koreatravel.cc/guides/seoul.html` ➔ 순수 고가치 정적 HTML 정상 서빙 확인.
+    - `https://koreatravel.cc/about.html` ➔ 정책 페이지 정상 서빙 확인.
+
+---
+
 ## 🏛️ [★ Golden Checkpoint: 모바일 상세 대체명소(Swap) 및 4대 뷰 하드코딩 한국어 전수 박멸 & 개발 배포 완료]
 > **일자: 2026-09-13 (선배님 피드백 "제발 전수 검사 하고 말해줘", "진행해" ➔ 100% 전수 조사 및 박멸 완료)**
 - **문제 현상 및 헌법적 분석**:
