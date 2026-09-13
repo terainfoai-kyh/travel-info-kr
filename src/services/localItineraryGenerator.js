@@ -94,6 +94,21 @@ function calculateDistanceKm(lat1, lon1, lat2, lon2) {
   return R * c;
 }
 
+// 🌐 Multilingual Photo Tip & Signature Item Generators (Articles 5 & 9)
+function generateLocalizedPhotoTip(title, lang = 'ko') {
+  if (lang === 'en') return `📸 Iconic photo spot at ${title}`;
+  if (lang === 'ja') return `📸 ${title}のシグネチャーフォトスポット`;
+  if (lang === 'zh' || lang === 'zht') return `📸 ${title} 标志性打卡机位`;
+  return `📸 ${title} 시그니처 포토스팟`;
+}
+
+function generateLocalizedSignatureItem(cityName, lang = 'ko') {
+  if (lang === 'en') return `✨ Explore top sights of ${cityName}`;
+  if (lang === 'ja') return `✨ ${cityName}の代表的な観光名所`;
+  if (lang === 'zh' || lang === 'zht') return `✨ 探索${cityName}代表性景点`;
+  return `✨ ${cityName} 대표 관광 탐방`;
+}
+
 // Realistic Walking / Transit Time Buffering
 function getTransitInfo(distKm, isEnglish = false) {
   if (distKm <= 1.2) {
@@ -823,12 +838,12 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
           title: finalDisplayTitle,
           name: finalDisplayTitle,
           titleKo: cleanSpotTitle,
-          category: anchorSpot.category || (isEnglish ? 'Sightseeing' : '관광명소'),
-          theme: anchorSpot.theme || matchedPoiDb?.theme || (isEnglish ? 'TourAPI Heritage' : '한국관광공사 정품 명소'),
+          category: anchorSpot.category || (lang === 'en' ? 'Sightseeing' : lang === 'ja' ? '観光名所' : (lang === 'zh' || lang === 'zht') ? '旅游景点' : '관광명소'),
+          theme: anchorSpot.theme || matchedPoiDb?.theme || (lang === 'en' ? 'TourAPI Heritage' : lang === 'ja' ? '韓国観光公社認定名所' : (lang === 'zh' || lang === 'zht') ? '韩国观光公社认证景点' : '한국관광공사 정품 명소'),
           description: spotDescription,
           bestTime: formattedBestTime,
-          photoTip: `📸 ${finalDisplayTitle} 시그니처 포토스팟`,
-          signatureItem: `✨ ${city} 대표 관광 탐방`,
+          photoTip: generateLocalizedPhotoTip(finalDisplayTitle, lang),
+          signatureItem: generateLocalizedSignatureItem(city, lang),
           lat: anchorSpot.lat || matchedPoiDb?.lat || cityMeta.lat,
           lng: anchorSpot.lng || matchedPoiDb?.lng || cityMeta.lng,
           address: spotAddress,
@@ -1012,12 +1027,12 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
         title: finalNextTitle,
         name: finalNextTitle,
         titleKo: cleanSpotTitle,
-        category: nextSpot.category || (isEnglish ? 'Sightseeing' : '관광명소'),
-        theme: nextSpot.theme || matchedNextPoiDb?.theme || (isEnglish ? 'TourAPI Heritage' : '한국관광공사 정품 명소'),
+        category: nextSpot.category || (lang === 'en' ? 'Sightseeing' : lang === 'ja' ? '観光名所' : (lang === 'zh' || lang === 'zht') ? '旅游景点' : '관광명소'),
+        theme: nextSpot.theme || matchedNextPoiDb?.theme || (lang === 'en' ? 'TourAPI Heritage' : lang === 'ja' ? '韓国観光公社認定名所' : (lang === 'zh' || lang === 'zht') ? '韩国观光公社认证景点' : '한국관광공사 정품 명소'),
         description: nextSpotDescription,
         bestTime: formattedBestTime,
-        photoTip: `📸 ${finalNextTitle} 시그니처 포토스팟`,
-        signatureItem: `✨ ${city} 대표 관광 탐방`,
+        photoTip: generateLocalizedPhotoTip(finalNextTitle, lang),
+        signatureItem: generateLocalizedSignatureItem(city, lang),
         lat: nextSpot.lat || matchedNextPoiDb?.lat || cityMeta.lat,
         lng: nextSpot.lng || matchedNextPoiDb?.lng || cityMeta.lng,
         address: nextSpotAddress,
@@ -1053,12 +1068,12 @@ export async function generateLocalFallbackItinerary(rawPrompt, targetCity, requ
           contentId: em.contentId || '',
           title: em.title || `${city} 대표 명소 ${emIdx + 1}`,
           name: em.title || `${city} 대표 명소 ${emIdx + 1}`,
-          category: em.category || '관광명소',
-          theme: em.theme || '지역 핵심 힐링 투어',
-          description: em.description || `${city}의 유서 깊은 대표 관광 명소입니다.`,
+          category: em.category || (lang === 'en' ? 'Sightseeing' : lang === 'ja' ? '観光名所' : (lang === 'zh' || lang === 'zht') ? '旅游景点' : '관광명소'),
+          theme: em.theme || (lang === 'en' ? 'Core City Tour' : lang === 'ja' ? '地域コアヒーリングツアー' : (lang === 'zh' || lang === 'zht') ? '区域核心疗愈游' : '지역 핵심 힐링 투어'),
+          description: em.description || (lang === 'en' ? `A premier iconic landmark in ${city}.` : lang === 'ja' ? `${city}を代表する由緒ある観光名所です。` : (lang === 'zh' || lang === 'zht') ? `${city}著名的代表性历史文化景点。` : `${city}의 유서 깊은 대표 관광 명소입니다.`),
           bestTime: emTime,
-          photoTip: `📸 ${em.title || city} 시그니처 포토스팟`,
-          signatureItem: `✨ ${city} 로컬 명소 투어`,
+          photoTip: generateLocalizedPhotoTip(em.title || city, lang),
+          signatureItem: generateLocalizedSignatureItem(city, lang),
           lat: em.lat || cityMeta.lat,
           lng: em.lng || cityMeta.lng,
           address: em.address || `${city} 일대`,

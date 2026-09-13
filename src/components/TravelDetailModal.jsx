@@ -666,86 +666,107 @@ export function getLocalizedVibeTag(tag = '', lang = 'ko') {
 // 📸 포토 앵글 팁 다국어 변환기
 export function getLocalizedPhotoTip(rawTip = '', title = '', lang = 'ko') {
   if (!rawTip) return '';
-  if (lang === 'en') return rawTip;
+  const cleanTip = rawTip.replace(/^📸\s*/, '').trim();
+
+  if (lang === 'en') {
+    if (!/[가-힣]/.test(cleanTip)) return cleanTip;
+    if (cleanTip.includes('시그니처 포토스팟') || cleanTip.includes('포토스팟') || cleanTip.includes('포토존')) {
+      return `Capture stunning panoramic photos at the iconic photo spot of ${title}, especially around the golden hour before sunset.`;
+    }
+    return `Capture great panoramic photos around golden hour with the scenic landscape of ${title} in the background.`;
+  }
 
   if (lang === 'ko') {
-    if (rawTip.includes('Capture great panoramic photos around golden hour') || rawTip.includes('panoramic photos')) {
+    if (cleanTip.includes('Capture great panoramic photos around golden hour') || cleanTip.includes('panoramic photos')) {
       return `${title}의 고즈넉한 풍경과 골든아워(일몰 전후)의 황금빛 노을을 배경으로 멋진 파노라마 인생샷을 담아보세요.`;
     }
-    if (rawTip.includes('Maebong Peak') || rawTip.includes('southern Seoul')) {
+    if (cleanTip.includes('Maebong Peak') || cleanTip.includes('southern Seoul')) {
       return `해 질 녘 골든아워 시간대에 매봉 정상에 오르면 서울 남부와 성남 일대가 시원하게 펼쳐지는 파노라마 뷰를 담으실 수 있습니다.`;
     }
-    if (rawTip.includes('crescent shoreline') || rawTip.includes('mudflats')) {
+    if (cleanTip.includes('crescent shoreline') || cleanTip.includes('mudflats')) {
       return `오후 썰물 시간대에 소나무 숲 그늘 아래에서 갯벌과 초승달 모양의 해안선이 어우러진 서정적인 풍경을 프레임에 담아보세요.`;
     }
-    if (rawTip.includes('turquoise sea') || rawTip.includes('pine forest')) {
+    if (cleanTip.includes('turquoise sea') || cleanTip.includes('pine forest')) {
       return `한낮의 햇살 아래 에메랄드빛 청정 바다와 푸른 해안 솔숲이 대비되는 시원한 광각 뷰를 촬영해 보세요.`;
     }
-    if (rawTip.includes('North Gate') || rawTip.includes('stone ramparts')) {
+    if (cleanTip.includes('North Gate') || cleanTip.includes('stone ramparts')) {
       return `북문의 웅장한 아치형 홍예문과 산 능선을 따라 이어지는 고즈넉한 성곽 라인을 한 앵글에 담아 깊이감을 연출해 보세요.`;
     }
-    if (rawTip.includes('golden hour before sunset') || rawTip.includes('landscape memories')) {
+    if (cleanTip.includes('golden hour before sunset') || cleanTip.includes('landscape memories')) {
       return `${title}의 시그니처 뷰와 일몰 직전 골든아워의 부드러운 자연광을 배경으로 최고의 여행 사진을 남겨보세요.`;
     }
-    return `${title}의 시그니처 랜드마크 뷰와 일몰 전후 골든아워의 부드러운 자연광을 배경으로 멋진 파노라마 앵글을 연출해 보세요.`;
+    return cleanTip.includes('시그니처 포토스팟') ? `${title} 시그니처 포토스팟` : `${title}의 시그니처 랜드마크 뷰와 일몰 전후 골든아워의 부드러운 자연광을 배경으로 멋진 파노라마 앵글을 연출해 보세요.`;
   }
 
   if (lang === 'ja') {
-    if (rawTip.includes('Capture great panoramic photos around golden hour') || rawTip.includes('panoramic photos')) {
-      return `${title}の美しい景観と夕暮れ前のゴールデンアワーの光を背景に、素敵なパノラマ写真を撮影してみてください。`;
+    if (cleanTip.includes('시그니처 포토스팟') || cleanTip.includes('포토스팟') || cleanTip.includes('포토존') || cleanTip.includes('Capture great panoramic photos')) {
+      return `${title}のシグネチャーフォトスポットで、夕暮れ時の柔らかな自然光を背景に素敵なパノラマ写真を撮影してみてください。`;
     }
-    return `${title}のシグネチャービューと夕暮れ時の柔らかな自然光を背景に、素敵な旅の写真を撮影してみてください。`;
+    if (/[가-힣]/.test(cleanTip)) {
+      return `${title}のシグネチャービューと夕暮れ時の柔らかな自然光を背景に、素敵な旅の写真を撮影してみてください。`;
+    }
+    return cleanTip;
   }
 
   if (lang === 'zh' || lang === 'zht') {
-    if (rawTip.includes('Capture great panoramic photos around golden hour') || rawTip.includes('panoramic photos')) {
-      return `建议在日落前后的黄金时段，以${title}的绝美风光为背景拍摄全景大片。`;
+    const isZht = lang === 'zht';
+    if (cleanTip.includes('시그니처 포토스팟') || cleanTip.includes('포토스팟') || cleanTip.includes('포토존') || cleanTip.includes('Capture great panoramic photos')) {
+      return isZht ? `建議在日落前後的黃金時段，以${title}的標誌性拍照點為背景拍攝全景大片。` : `建议在日落前后的黄金时段，以${title}的标志性拍照点为背景拍摄全景大片。`;
     }
-    return `建议在傍晚黄金时段以${title}标志性全景为背景，利用柔和自然光拍摄旅行大片。`;
+    if (/[가-힣]/.test(cleanTip)) {
+      return isZht ? `建議在傍晚黃金時段以${title}標誌性全景為背景，利用柔和自然光拍攝旅行大片。` : `建议在傍晚黄金时段以${title}标志性全景为背景，利用柔和自然光拍摄旅行大片。`;
+    }
+    return cleanTip;
   }
 
-  return rawTip;
+  return cleanTip;
 }
 
 // 💡 현지 로컬 꿀팁 다국어 변환기
 export function getLocalizedLocalProTip(rawTip = '', title = '', lang = 'ko') {
   if (!rawTip) return '';
-  if (lang === 'en') return rawTip;
+  const cleanTip = rawTip.replace(/^💡\s*/, '').trim();
+
+  if (lang === 'en') {
+    if (!/[가-힣]/.test(cleanTip)) return cleanTip;
+    return `Visiting in early morning or late afternoon offers a peaceful ambiance and pleasant stroll around ${title}.`;
+  }
 
   if (lang === 'ko') {
-    if (rawTip.includes('Early morning visits offer quiet ambiance and best lighting')) {
+    if (cleanTip.includes('Early morning visits offer quiet ambiance and best lighting')) {
       return `이른 아침 시간대에 방문하시면 붐비지 않는 한적한 분위기 속에서 사진 촬영에 가장 좋은 은은한 자연광을 즐기실 수 있습니다.`;
     }
-    if (rawTip.includes('Wonteogol trail') || rawTip.includes('pajeon')) {
+    if (cleanTip.includes('Wonteogol trail') || cleanTip.includes('pajeon')) {
       return `원터골 코스의 계단로를 이용하면 가장 빠르게 정상에 오를 수 있으며, 하산 후 등산로 입구 맛집 마을에서 바삭한 파전과 막걸리를 즐겨보세요.`;
     }
-    if (rawTip.includes('water shoes') || rawTip.includes('clams')) {
+    if (cleanTip.includes('water shoes') || cleanTip.includes('clams')) {
       return `썰물 때 조개잡이 체험을 위해 아쿠아슈즈를 챙기시면 좋으며, 선착장 인근에서 자전거를 대여해 해안도로를 달려보는 것을 추천합니다.`;
     }
-    if (rawTip.includes('fine yellow sand') || rawTip.includes('gentle slope')) {
+    if (cleanTip.includes('fine yellow sand') || cleanTip.includes('gentle slope')) {
       return `완만한 경사와 고운 금빛 모래사장 덕분에 인파 없이 여유롭고 안전하게 바다 힐링을 즐길 수 있는 숨은 명소입니다.`;
     }
-    if (rawTip.includes('Ganghwa Dulle-gil') || rawTip.includes('local tea houses')) {
+    if (cleanTip.includes('Ganghwa Dulle-gil') || cleanTip.includes('local tea houses')) {
       return `성곽 문들을 잇는 강화 나들길 코스와 함께 둘러보시면 강화읍 골목의 정겨운 전통 찻집들도 함께 발견하실 수 있습니다.`;
     }
-    return `이른 아침이나 늦은 오후 시간대에 방문하시면 한적한 분위기 속에서 ${title}의 매력을 더욱 쾌적하게 즐기실 수 있습니다.`;
+    return `${title} 방문 시 이른 아침이나 늦은 오후 시간대를 이용하시면 한적한 분위기 속에서 매력을 더욱 쾌적하게 즐기실 수 있습니다.`;
   }
 
   if (lang === 'ja') {
-    if (rawTip.includes('Early morning visits offer quiet ambiance and best lighting')) {
-      return `早朝の時間帯に訪れると、混雑を避けて静かな雰囲気の中で撮影に最適な自然光を楽しめます。`;
+    if (cleanTip.includes('Early morning visits offer quiet ambiance and best lighting') || /[가-힣]/.test(cleanTip)) {
+      return `早朝や夕方の時間帯に訪れると、混雑を避けて静かな雰囲気の中で${title}の散策を楽しむことができます。`;
     }
-    return `早朝や夕方の時間帯に訪れると、ゆったりとした静かな雰囲気の中で散策を楽しむことができます。`;
+    return cleanTip;
   }
 
   if (lang === 'zh' || lang === 'zht') {
-    if (rawTip.includes('Early morning visits offer quiet ambiance and best lighting')) {
-      return `建议清晨时段前往，不仅游人较少清幽舒适，还能享受最佳的自然拍摄光线。`;
+    const isZht = lang === 'zht';
+    if (cleanTip.includes('Early morning visits offer quiet ambiance and best lighting') || /[가-힣]/.test(cleanTip)) {
+      return isZht ? `建議清晨或傍晚前往，避開人流高峰，更加愜意舒適地遊覽${title}。` : `建议清晨或傍晚前往，避开人流高峰，更加惬意舒适地游览${title}。`;
     }
-    return `建议清晨或傍晚前往，避开人流高峰，更加惬意舒适地游览体验。`;
+    return cleanTip;
   }
 
-  return rawTip;
+  return cleanTip;
 }
 
 export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang = 'ko' }) {
@@ -1460,7 +1481,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                       {lang === 'ko' ? '추천 포토 앵글:' : lang === 'ja' ? 'おすすめ撮影アングル:' : (lang === 'zh' || lang === 'zht') ? '推荐拍照角度:' : 'Photo Angle Tip:'}
                     </strong>{' '}
                     <span style={{ color: 'var(--text-main)', opacity: 0.9 }}>
-                      {getLocalizedPhotoTip(liveCommonDetails?.photoTip_en || spot?.photoTip_en || spot?.photoTip, cleanTitle, lang)}
+                      {getLocalizedPhotoTip(liveCommonDetails?.photoTip_en || spot?.photoTip_en || spot?.photoTip, displayTitle, lang)}
                     </span>
                   </div>
                 </div>
@@ -1473,7 +1494,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                       {lang === 'ko' ? '현지 로컬 프로 팁:' : lang === 'ja' ? '現地ローカルのコツ:' : (lang === 'zh' || lang === 'zht') ? '当地游玩贴士:' : 'Local Pro Tip:'}
                     </strong>{' '}
                     <span style={{ color: 'var(--text-main)', opacity: 0.9 }}>
-                      {getLocalizedLocalProTip(liveCommonDetails?.localProTip_en || spot?.localProTip_en || spot?.localProTip, cleanTitle, lang)}
+                      {getLocalizedLocalProTip(liveCommonDetails?.localProTip_en || spot?.localProTip_en || spot?.localProTip, displayTitle, lang)}
                     </span>
                   </div>
                 </div>

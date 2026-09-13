@@ -3,6 +3,7 @@ import { Calendar, MapPin, Heart, ExternalLink, Info, Navigation, Star, Sparkles
 import GoogleMapView from './GoogleMapView';
 import { getGooglePlaceSearchUrl } from '../services/geminiNlpService';
 import { TRANSLATIONS } from '../i18n/translations';
+import { getLocalizedPhotoTip } from './TravelDetailModal';
 import { getSpotAffiliateDeal } from '../services/affiliateService';
 
 export default function CourseMagazineView({
@@ -452,7 +453,7 @@ export default function CourseMagazineView({
                             textOverflow: 'ellipsis',
                             maxWidth: '200px'
                           }}>
-                            ✨ {spot.photoTip}
+                            ✨ {getLocalizedPhotoTip(spot.photoTip, spot.title || spot.name, lang)}
                           </div>
                         )}
                       </div>
