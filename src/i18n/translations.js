@@ -1761,3 +1761,45 @@ TRANSLATIONS.de = TRANSLATIONS.en;
 TRANSLATIONS.fr = TRANSLATIONS.en;
 TRANSLATIONS.es = TRANSLATIONS.en;
 TRANSLATIONS.ru = TRANSLATIONS.en;
+
+// 🏛️ 대한민국 관광공사 & 로컬 카테고리 유니버설 4개국어 번역기 (Constitution Articles 5 & 9)
+export function getLocalizedCategory(category = '', lang = 'ko') {
+  if (!category) return lang === 'en' ? 'Attraction' : lang === 'ja' ? '観光名所' : (lang === 'zh' || lang === 'zht') ? '热门景点' : '관광명소';
+  if (lang === 'ko') return category;
+  
+  const mapEn = {
+    '관광명소': 'Attraction', '관광지': 'Attraction', '추천명소': 'Attraction', '명소': 'Attraction',
+    '문화시설': 'Culture & Arts', '역사문화': 'Heritage & History', '궁궐': 'Royal Palace',
+    '체험/레포츠': 'Activity / Sports', '레포츠': 'Activity / Sports',
+    '전시·미술': 'Art & Exhibition', '미술관': 'Art Museum', '박물관': 'Museum',
+    '감성골목': 'Charming Street', '전망대': 'Observatory', '사찰·바다': 'Temple & Sea',
+    '자연명소': 'Nature Sight', '공원': 'Park & Nature', '쇼핑': 'Shopping',
+    '음식점': 'Restaurant', '맛집': 'Gourmet Food', '카페': 'Cafe & Bakery', '디저트': 'Dessert & Cafe',
+    '숙박': 'Hotel & Stay', '호텔': 'Hotel', '축제': 'Festival', '공연/행사': 'Event & Show'
+  };
+  const mapJa = {
+    '관광명소': '観光名所', '관광지': '観光名所', '추천명소': 'おすすめ名所', '명소': '名所',
+    '문화시설': '文化施設', '역사문화': '歴史文化', '궁궐': '王宮',
+    '체험/레포츠': 'アクティビティ', '레포츠': 'レジャースポーツ',
+    '전시·미술': '美術・展示', '미술관': '美術館', '박물관': '博物館',
+    '감성골목': 'ストリート', '전망대': '展望台', '사찰·바다': '寺院・海',
+    '자연명소': '自然名所', '공원': '公園・自然', '쇼핑': 'ショッピング',
+    '음식점': 'レストラン', '맛집': 'グルメ', '카페': 'カフェ', '디저트': 'デザート・カフェ',
+    '숙박': '宿泊施設', '호텔': 'ホテル', '축제': 'お祭り', '공연/행사': 'イベント'
+  };
+  const mapZh = {
+    '관광명소': '热门景点', '관광지': '旅游名胜', '추천명소': '精选名胜', '명소': '名胜',
+    '문화시설': '文化设施', '역사문화': '历史文化', '궁궐': '古宫',
+    '체험/레포츠': '体验/休闲', '레포츠': '休闲运动',
+    '전시·미술': '艺术展览', '미술관': '美术馆', '박물관': '博物馆',
+    '감성골목': '特色街区', '전망대': '观景台', '사찰·바다': '寺庙/海景',
+    '자연명소': '自然风光', '공원': '公园/自然', '쇼핑': '购物商圈',
+    '음식점': '正宗餐厅', '맛집': '特色美食', '카페': '特色咖啡', '디저트': '甜点咖啡',
+    '숙박': '住宿酒店', '호텔': '精选酒店', '축제': '传统庆典', '공연/행사': '文艺演出'
+  };
+
+  if (lang === 'en') return mapEn[category] || (/[가-힣]/.test(category) ? 'Attraction' : category);
+  if (lang === 'ja') return mapJa[category] || (/[가-힣]/.test(category) ? '観光名所' : category);
+  if (lang === 'zh' || lang === 'zht') return mapZh[category] || (/[가-힣]/.test(category) ? '热门景点' : category);
+  return category;
+}

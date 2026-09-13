@@ -1,6 +1,6 @@
 import React from 'react';
 import { Utensils, Info } from 'lucide-react';
-import { TRANSLATIONS, getTranslatedFood } from '../i18n/translations';
+import { TRANSLATIONS, getTranslatedFood, getLocalizedCategory } from '../i18n/translations';
 
 export default function FoodRecommendation({ foods, lang }) {
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
@@ -51,7 +51,7 @@ export default function FoodRecommendation({ foods, lang }) {
                   fontSize: '0.75rem',
                   fontWeight: 700
                 }}>
-                  {food.category}
+                  {getLocalizedCategory(food.category, lang)}
                 </span>
               </div>
 

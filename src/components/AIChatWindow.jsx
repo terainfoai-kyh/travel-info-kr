@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Sparkles, Send, Mic, MicOff, X, Compass, MapPin, Calendar, Heart, MessageSquare, RefreshCw, Shirt, Utensils, CloudSun, Hotel } from 'lucide-react';
-import { TRANSLATIONS } from '../i18n/translations';
+import { TRANSLATIONS, getLocalizedCityName } from '../i18n/translations';
 import { geminiParseNaturalPrompt, geminiGenerateFullItinerary, generateLocalFallbackItinerary, extractLocationKeyword } from '../services/geminiNlpService';
 
 export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateItinerary, initialPrompt = '' }) {
@@ -348,7 +348,7 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
                             <span>{msg.itinerarySummary.title}</span>
                           </h4>
                           <span style={{ fontSize: '0.65rem', padding: '0.15rem 0.45rem', borderRadius: '4px', background: '#d1fae5', color: '#065f46', fontWeight: 800 }}>
-                            {msg.itinerarySummary.days}일치 완벽 생성
+                            {lang === 'en' ? `${msg.itinerarySummary.days}-Day Route` : lang === 'ja' ? `${msg.itinerarySummary.days}日間コース生成` : (lang === 'zh' || lang === 'zht') ? `${msg.itinerarySummary.days}天行程生成` : `${msg.itinerarySummary.days}일치 완벽 생성`}
                           </span>
                         </div>
 
@@ -357,8 +357,12 @@ export default function AIChatWindow({ isOpen, onClose, lang = 'ko', onGenerateI
                           {msg.itinerarySummary.dailySchedules?.map((ds, idx) => (
                             <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem', padding: '0.35rem 0', borderBottom: '1px solid #e2e8f0' }}>
                               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.75rem' }}>
-                                <span style={{ fontWeight: 700, color: '#1e293b' }}>{ds.dateLabel || `${ds.day}일차 - ${ds.city || '전국'}`}</span>
-                                <span style={{ color: '#64748b' }}>{ds.spots?.length || 4}개 명소 100% 동기화</span>
+                                <span style={{ fontWeight: 700, color: '#1e293b' }}>
+                                  {ds.dateLabel || (lang === 'en' ? `Day ${ds.day} - ${getLocalizedCityName(ds.city || 'Korea', lang)}` : lang === 'ja' ? `${ds.day}日目 - ${getLocalizedCityName(ds.city || '韓国', lang)}` : (lang === 'zh' || lang === 'zht') ? `第${ds.day}天 - ${getLocalizedCityName(ds.city || '全国', lang)}` : `${ds.day}일차 - ${ds.city || '전국'}`)}
+                                </span>
+                                <span style={{ color: '#64748b' }}>
+                                  {lang === 'en' ? `${ds.spots?.length || 4} Spots Synchronized` : lang === 'ja' ? `${ds.spots?.length || 4}ヶ所 同期完了` : (lang === 'zh' || lang === 'zht') ? `${ds.spots?.length || 4}个景点 实时同步` : `${ds.spots?.length || 4}개 명소 100% 동기화`}
+                                </span>
                               </div>
                               {/* Synchronized Spot Sequence Order Badges */}
                               {Array.isArray(ds.spots) && ds.spots.length > 0 && (

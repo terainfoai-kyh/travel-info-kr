@@ -431,7 +431,9 @@ export function getLocalizedCategory(category = '', lang = 'ko') {
     '체험/레포츠': 'Activity / Sports', '레포츠': 'Activity / Sports',
     '전시·미술': 'Art & Exhibition', '미술관': 'Art Museum', '박물관': 'Museum',
     '감성골목': 'Charming Street', '전망대': 'Observatory', '사찰·바다': 'Temple & Sea',
-    '자연명소': 'Nature Sight', '공원': 'Park & Nature', '쇼핑': 'Shopping'
+    '자연명소': 'Nature Sight', '공원': 'Park & Nature', '쇼핑': 'Shopping',
+    '음식점': 'Restaurant', '맛집': 'Gourmet Food', '카페': 'Cafe & Bakery',
+    '숙박': 'Hotel & Stay', '호텔': 'Hotel', '축제': 'Festival', '공연/행사': 'Event & Show'
   };
   const mapJa = {
     '관광명소': '観光名所', '관광지': '観光名所', '추천명소': 'おすすめ名所',
@@ -439,7 +441,9 @@ export function getLocalizedCategory(category = '', lang = 'ko') {
     '체험/레포츠': 'アクティビティ', '레포츠': 'レジャースポーツ',
     '전시·미술': '美術・展示', '미술관': '美術館', '박물관': '博物館',
     '감성골목': 'ストリート', '전망대': '展望台', '사찰·바다': '寺院・海',
-    '자연명소': '自然名所', '공원': '公園・自然', '쇼핑': 'ショッピング'
+    '자연명소': '自然名所', '공원': '公園・自然', '쇼핑': 'ショッピング',
+    '음식점': 'レストラン', '맛집': 'グルメ', '카페': 'カフェ',
+    '숙박': '宿泊施設', '호텔': 'ホテル', '축제': 'お祭り', '공연/행사': 'イベント'
   };
   const mapZh = {
     '관광명소': '热门景点', '관광지': '旅游名胜', '추천명소': '精选名胜',
@@ -447,12 +451,14 @@ export function getLocalizedCategory(category = '', lang = 'ko') {
     '체험/레포츠': '体验/休闲', '레포츠': '休闲运动',
     '전시·미술': '艺术展览', '미술관': '美术馆', '박물관': '博物馆',
     '감성골목': '特色街区', '전망대': '观景台', '사찰·바다': '寺庙/海景',
-    '자연명소': '自然风光', '공원': '公园/自然', '쇼핑': '购物商圈'
+    '자연명소': '自然风光', '공원': '公园/自然', '쇼핑': '购物商圈',
+    '음식점': '正宗餐厅', '맛집': '特色美食', '카페': '特色咖啡',
+    '숙박': '住宿酒店', '호텔': '精选酒店', '축제': '传统庆典', '공연/행사': '文艺演出'
   };
 
-  if (lang === 'en') return mapEn[category] || category;
-  if (lang === 'ja') return mapJa[category] || category;
-  if (lang === 'zh' || lang === 'zht') return mapZh[category] || category;
+  if (lang === 'en') return mapEn[category] || (/[가-힣]/.test(category) ? 'Attraction' : category);
+  if (lang === 'ja') return mapJa[category] || (/[가-힣]/.test(category) ? '観光名所' : category);
+  if (lang === 'zh' || lang === 'zht') return mapZh[category] || (/[가-힣]/.test(category) ? '热门景点' : category);
   return category;
 }
 
@@ -1852,7 +1858,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
                             )}
                           </div>
                           <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginTop: '0.1rem' }}>
-                            {alt.category || (lang === 'en' ? 'Attraction' : lang === 'ja' ? '観光名所' : (lang === 'zh' || lang === 'zht') ? '旅游景点' : '관광명소')} {alt.subway ? `· ${translatePracticalInfo(alt.subway, lang)}` : alt.address ? `· ${getTranslatedAddress(alt.address, lang)}` : ''}
+                            {getLocalizedCategory(alt.category || alt.theme || '관광명소', lang)} {alt.subway ? `· ${translatePracticalInfo(alt.subway, lang)}` : alt.address ? `· ${getTranslatedAddress(alt.address, lang)}` : ''}
                           </div>
                         </div>
                         <button

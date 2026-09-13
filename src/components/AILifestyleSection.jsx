@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Utensils, Shirt, Sparkles, MapPin, ExternalLink, CheckCircle, Info, Flame, Sun, Droplets } from 'lucide-react';
-import { TRANSLATIONS, getTranslatedFood, getTranslatedOutfit, getMapSearchBtnLabel } from '../i18n/translations';
+import { TRANSLATIONS, getTranslatedFood, getTranslatedOutfit, getMapSearchBtnLabel, getLocalizedCategory } from '../i18n/translations';
 
 export default function AILifestyleSection({ foods = [], outfits = [], filters = {}, lang = 'ko', themeMode = 'dark' }) {
   const [activeTab, setActiveTab] = useState('food'); // 'food' | 'outfit'
@@ -207,7 +207,7 @@ export default function AILifestyleSection({ foods = [], outfits = [], filters =
                         borderRadius: 'var(--radius-sm)',
                         border: isLight ? '1px solid rgba(249, 115, 22, 0.3)' : '1px solid rgba(249, 115, 22, 0.25)'
                       }}>
-                        {food.category}
+                        {getLocalizedCategory(food.category, lang)}
                       </span>
 
                       <span style={{

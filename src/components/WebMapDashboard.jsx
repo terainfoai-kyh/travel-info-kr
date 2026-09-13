@@ -1236,7 +1236,7 @@ export default function WebMapDashboard({
                         transition: 'all 0.15s'
                       }}
                     >
-                      {sch.day}{lang === 'en' ? ' Day' : '일차'}
+                      {lang === 'en' ? `Day ${sch.day}` : lang === 'ja' ? `${sch.day}日目` : (lang === 'zh' || lang === 'zht') ? `第${sch.day}天` : `${sch.day}일차`}
                     </button>
                   ))}
                 </div>
@@ -1327,7 +1327,15 @@ export default function WebMapDashboard({
                               gap: '6px',
                               marginTop: '2px'
                             }}>
-                              <span>⏱️ {spot.duration || '90분'}</span>
+                              <span>⏱️ {(() => {
+                                const rawDur = spot.duration;
+                                const parsed = typeof rawDur === 'number' ? rawDur : parseInt(rawDur, 10);
+                                const min = !isNaN(parsed) && parsed > 0 ? parsed : 90;
+                                if (lang === 'en') return `${min}m`;
+                                if (lang === 'ja') return `${min}分`;
+                                if (lang === 'zh' || lang === 'zht') return `${min}分钟`;
+                                return `${min}분`;
+                              })()}</span>
                               {spot.time && <span>• {spot.time}</span>}
                             </div>
                           </div>

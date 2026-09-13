@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, Mic, MicOff, ArrowRight, Camera, X, MessageSquare, Send, MapPin, Compass, ChevronDown, ChevronUp, Trash2, Volume2, VolumeX } from 'lucide-react';
-import { TRANSLATIONS } from '../i18n/translations';
+import { TRANSLATIONS, getLocalizedCityName } from '../i18n/translations';
 import { geminiParseNaturalPrompt, geminiGenerateFullItinerary, generateLocalFallbackItinerary, isGreetingQuery, isAffirmativeYes, isCasualChatQuery, extractLocationKeyword } from '../services/geminiNlpService';
 
 /**
@@ -831,15 +831,19 @@ export default function AIChatPromptHeader({ lang = 'ko', onGenerateItinerary, f
                             <span>{msg.itinerarySummary.title}</span>
                           </h4>
                           <span style={{ fontSize: '0.65rem', padding: '0.12rem 0.4rem', borderRadius: '4px', background: '#d1fae5', color: '#065f46', fontWeight: 800 }}>
-                            {msg.itinerarySummary.days}일치 코스 생성
+                            {lang === 'en' ? `${msg.itinerarySummary.days}-Day Course` : lang === 'ja' ? `${msg.itinerarySummary.days}日間コース生成` : (lang === 'zh' || lang === 'zht') ? `${msg.itinerarySummary.days}天行程生成` : `${msg.itinerarySummary.days}일치 코스 생성`}
                           </span>
                         </div>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                           {msg.itinerarySummary.dailySchedules?.map((ds, idx) => (
                             <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.73rem', padding: '0.2rem 0', borderBottom: '1px solid #e2e8f0' }}>
-                              <span style={{ fontWeight: 700, color: '#1e293b' }}>{ds.dateLabel || `${ds.day}일차 - ${ds.city}`}</span>
-                              <span style={{ color: '#64748b' }}>{ds.spots?.length || 4}개 추천 명소</span>
+                              <span style={{ fontWeight: 700, color: '#1e293b' }}>
+                                {ds.dateLabel || (lang === 'en' ? `Day ${ds.day} - ${getLocalizedCityName(ds.city, lang)}` : lang === 'ja' ? `${ds.day}日目 - ${getLocalizedCityName(ds.city, lang)}` : (lang === 'zh' || lang === 'zht') ? `第${ds.day}天 - ${getLocalizedCityName(ds.city, lang)}` : `${ds.day}일차 - ${ds.city}`)}
+                              </span>
+                              <span style={{ color: '#64748b' }}>
+                                {lang === 'en' ? `${ds.spots?.length || 4} Highlights` : lang === 'ja' ? `${ds.spots?.length || 4}ヶ所のおすすめ` : (lang === 'zh' || lang === 'zht') ? `${ds.spots?.length || 4}个精选景点` : `${ds.spots?.length || 4}개 추천 명소`}
+                              </span>
                             </div>
                           ))}
                         </div>
