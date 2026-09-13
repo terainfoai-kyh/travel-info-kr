@@ -1,7 +1,1 @@
-fix: eradicate all hardcoded Korean tags and category labels across modals, dashboard and chat cards
-
-- Fix TravelDetailModal alternative swap card category fallback (use getLocalizedCategory)
-- Export getLocalizedCategory as single source of truth in translations.js
-- Localize food.category in FoodRecommendation and AILifestyleSection
-- Localize spot.duration and Day tabs in WebMapDashboard
-- Localize daily schedule route headers and spot count badges in AIChatPromptHeader and AIChatWindow
+docs: record decisions for full multilingual category and card cleanup
