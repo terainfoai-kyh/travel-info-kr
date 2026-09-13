@@ -1,1 +1,1 @@
-feat(adsense): remove index.html FOUC text and establish independent static travel guides in public/guides
+feat(prod): release independent static travel guides and clean AdSense architecture to koreatravel.cc

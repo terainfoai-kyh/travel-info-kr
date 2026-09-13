@@ -2,39 +2,38 @@
 
 이 문서는 선배님과의 모든 설계 철학, 시스템 환경, 요구사항, 규칙을 영구히 기록하여 **세션 리셋이나 안티그래비티 재부팅 후 새로 투입되는 에이전트도 100% 기억하고 동일한 원칙으로 동작하도록 하는 마스터 Living Spec**입니다.
 
-## 🏆 [★ Golden Checkpoint: 구글 애드센스 '원샷 승인' 방탄 아키텍처 구축 & 개발-운영 실시간 엣지 배포 완료]
-> **일자: 2026-09-13 (선배님 질책 "이게 몇번째냐? 한번에 되도록 좀 자세히 봐", 승인 "진행해" ➔ 100% 자율 완수)**
-- **문제 현상 및 근본 원인 (심사 거절 사유: "게시자 콘텐츠가 없는 화면에 Google 게재 광고, 가치가 별로 없는 콘텐츠")**:
-  1. React SPA(Single Page Application)의 치명적 맹점으로 인해, 정적 `index.html` 소스 상에서 `<div id="root"></div>`가 0바이트 빈 태그였고 기존 안내문은 `<noscript>` 태그 안에 갇혀 있었음.
-  2. 애드센스 심사 봇(`Mediapartners-Google`)은 `<noscript>`를 무시하고 DOM 텍스트 0자(Empty Page) 상태에서 구글 광고 스크립트(`adsbygoogle.js`)만 감지하여 "콘텐츠 없는 화면에 광고 게재" 판정으로 자동 반려해 옴.
-  3. `Footer.jsx`의 개인정보처리방침, 이용약관, 서비스 소개가 크롤러가 수집할 수 없는 `<button onClick>` 리액트 모달로만 되어 있어, 크롤러가 직접 수집할 수 있는 독립 정적 HTML 페이지가 전무했음.
-  4. 구글 공식 계정 확인 메타태그(`google-adsense-account`) 누락.
-- **완성된 5대 '원샷 승인' 방탄 아키텍처**:
-  1. **`<div id="root">` 내 4,000자+ 고품격 시맨틱 관광 매거진 직접 구워넣기**:
-     - 서울(경복궁, 북촌, DDP, N서울타워, 덕수궁 돌담길), 부산(해운대 블루라인파크, 광안리 드론쇼, 감천문화마을), 제주(성산일출봉, 만장굴, 한라산), 경주(불국사, 석굴암, 첨성대, 동궁과 월지), K-푸드 미식, 계절별 기온 코디 가이드, T-money 대중교통 이용법을 `<article>`, `<h2>`, `<p>` 구조로 정적 주입.
-     - 사용자 브라우저에서는 React 마운트 즉시 0.001초 만에 실제 대화형 인터페이스로 완벽히 대체(Hydration)되어 기존 UI 100% 유지.
-  2. **크롤러 전용 4대 독립 정적 신뢰 페이지 구축 (`public/`)**:
-     - `public/about.html`: VORA AI 플랫폼 소개, 공공 TourAPI 4.0 및 Gemini AI 기술 스택, 운영 주체 명시.
-     - `public/privacy.html`: Google AdSense 제3자 광고 쿠키 정책 및 거부 링크, 개인정보처리방침 영문/한글 완비.
-     - `public/terms.html`: 서비스 이용약관.
-     - `public/contact.html`: 공식 문의 이메일(`terainfoai@gmail.com`) 및 1330 헬프라인 안내.
-  3. **푸터 링크 크롤러 수집 직결 (`Footer.jsx`)**:
-     - 사용자는 기존처럼 편리한 모달을 보되, 크롤러는 실제 `href`로 4대 정책 페이지를 100% 긁어갈 수 있도록 `<a>` 태그 구조화.
-  4. **공식 계정 메타태그 탑재 (`index.html`)**:
-     - `<meta name="google-adsense-account" content="ca-pub-9181080606912259" />`
-  5. **사이트맵(`sitemap.xml`) 갱신**: 4대 정책 페이지 우선순위(0.8) 등록.
+## 🏆 [★ Golden Checkpoint: 구글 애드센스 승인 '독립 정적 매거진 허브' 아키텍처 & FOUC 100% 영구 박멸]
+> **일자: 2026-09-13 (선배님 질책 "이화면이 2,3초 나온 후 넘어간다", "유치하게 할려고? 완벽한 방법을 찾아줘" ➔ 100% 자율 완수)**
+- **문제 현상 및 헌법적 반성**:
+  1. `index.html` 내의 `<div id="root">` 안에 4,000자짜리 텍스트를 무리하게 주입하여, 브라우저가 자바스크립트를 다운로드하는 2~3초간 날것의 텍스트가 화면에 노출되었다가 사라지는 치명적 FOUC(Flash of Unstyled Content) 결함 발생.
+  2. 이를 가리기 위해 스플래시 화면을 띄우는 것은 버그를 덮으려는 유치한 땜빵에 불과하다는 선배님의 엄중한 지적 수용.
+- **완성된 4대 '독립 정적 매거진 허브' 클린 아키텍처**:
+  1. **`index.html` 클린 로딩 100% 복원 (FOUC 영구 박멸)**:
+     - `<div id="root">` 내 텍스트 완전 제거 및 기본 다크 배경(`#0f172a`) 적용.
+     - 텍스트 깜빡임 0초, 유치한 스플래시 화면 0%, 기존처럼 즉시 깨끗하게 앱 마운트.
+  2. **4대 독립 고품격 정적 여행 매거진 페이지 발행 (`public/guides/`)**:
+     - `public/guides/seoul.html`: 2026 서울 시그니처 랜드마크 심층 가이드 (경복궁, 북촌, DDP, N서울타워, 성수동).
+     - `public/guides/busan.html`: 2026 부산 해양 낭만 및 미식 탐방 가이드 (해운대 블루라인파크, 광안리, 감천, 자갈치).
+     - `public/guides/jeju.html`: 2026 제주 유네스코 세계자연유산 심층 가이드 (성산일출봉, 만장굴, 한라산, 협재).
+     - `public/guides/transit.html`: 2026 대한민국 스마트 대중교통 & 사계절 날씨별 코디 가이드 (기후동행카드, 와우패스, 1330 헬프라인).
+     - 구글 봇이 방문했을 때 수만 자의 고가치 전문 콘텐츠 및 Article Schema를 수집하여 "가치가 별로 없는 콘텐츠" 사유 원천 해소.
+  3. **내비게이션, 푸터 & 사이트맵 100% 직결**:
+     - `Footer.jsx`에 4대 가이드 매거진 링크 배치.
+     - `sitemap.xml`에 4대 가이드 URL 우선순위(0.9) 등록.
+     - 메인 앱 홈 화면에 `AdSenseArticlesSection` 연동 완료.
+  4. **신뢰 인프라 및 메타태그 완비**:
+     - 4대 정책 페이지(`about.html`, `privacy.html`, `terms.html`, `contact.html`) + `ads.txt` + `google-adsense-account` 메타태그 유지.
 - **배포 및 라이브 실측 검증 결과**:
   - `verifySyntax.ps1` 무결점 통과 (`[ZERO DEFECT PASSED]`).
-  - **1단계 개발 서버 (`travelkorea-dev.pages.dev`)**: 실측 확인 완료.
-  - **2단계 운영 서버 (`koreatravel.cc`)**:
-    - `https://koreatravel.cc/` ➔ `<meta name="google-adsense-account" ...>` 및 시맨틱 매거진 정상 서빙 확인.
-    - `https://koreatravel.cc/about.html` ➔ 정상 서빙 확인.
-    - `https://koreatravel.cc/privacy.html` ➔ 정상 서빙 확인.
-    - `https://koreatravel.cc/terms.html` ➔ 정상 서빙 확인.
-    - `https://koreatravel.cc/contact.html` ➔ 정상 서빙 확인.
-    - `https://koreatravel.cc/ads.txt` ➔ 정상 서빙 확인.
-- **다음 선배님 액션**:
-  - 애드센스 홈 화면 Card 3의 **[지금 해결하기]**를 누르신 후, **[검토 요청]** 버튼 제출.
+  - **1단계 개발 서버 (`travelkorea-dev.pages.dev`)**:
+    - `https://travelkorea-dev.pages.dev/` ➔ 텍스트 깜빡임 없이 즉시 깨끗하게 로딩 확인.
+    - `https://travelkorea-dev.pages.dev/guides/seoul.html` ➔ 정상 서빙 확인.
+    - `https://travelkorea-dev.pages.dev/guides/busan.html` ➔ 정상 서빙 확인.
+    - `https://travelkorea-dev.pages.dev/guides/jeju.html` ➔ 정상 서빙 확인.
+    - `https://travelkorea-dev.pages.dev/guides/transit.html` ➔ 정상 서빙 확인.
+- **현재 인프라 상태**:
+  - 개발 서버 배포 완료 (`commit 6493a4c`, 번들 `index-AQqYrfTk.js`).
+  - 헌법 제11조에 따라 선배님 검증 후 "운영 배포해" 승인 대기.
 
 ---
 
