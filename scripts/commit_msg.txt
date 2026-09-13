@@ -1,1 +1,1 @@
-fix: eliminate photoTip hardcoding in localItineraryGenerator and patch TravelDetailModal multilingual filters
+feat: deploy AdSense static magazine hub, redirects passthrough and 13 universal multilingual fixes to production
