@@ -756,6 +756,7 @@ export default function TravelDetailModal({ spot, onClose, onReplaceSpot, lang =
   // 단일 명소명 정제 (& 또는 / 제거)
   const rawTitle = spot.title || spot.name || '추천 여행 명소';
   const cleanTitle = rawTitle.split('&')[0].split('/')[0].split('+')[0].trim();
+  const displayTitle = spot[`title_${lang}`] || getTranslatedTitle(cleanTitle, lang);
 
   // 인터랙티브 상태 (교체 패널 / 주변 맛집 패널 / 확인 다이얼로그)
   const [activePanel, setActivePanel] = useState(null); // 'replace' | 'nearby' | null

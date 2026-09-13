@@ -31,7 +31,7 @@
      - 서울, 부산, 제주, 대중교통&날씨 가이드 4편 전체에 브라우저 언어 자동 감지 및 원클릭 🇰🇷/🇺🇸 토글 듀얼 에디션 탑재.
   7. **배포 및 검증 상태**:
      - `verifySyntax.ps1` 무결점 통과 (`[ZERO DEFECT PASSED]`).
-     - 1단계 개발 서버(`https://travelkorea-dev.pages.dev`) 실시간 빌드 및 배포 완료.
+     - 1단계 개발 서버(`https://travelkorea-dev.pages.dev`) 실시간 빌드 및 배포 완료 (`commit e720bfa`, 번들 `index-1cbuqa2v.js`).
      - 헌법 제11조에 따라 선배님의 검증 후 "운영 배포해" 승인 대기.
 
 ---
