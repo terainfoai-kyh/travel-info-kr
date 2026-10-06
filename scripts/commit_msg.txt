@@ -1,1 +1,1 @@
-feat: deploy AdSense static magazine hub, redirects passthrough and 13 universal multilingual fixes to production
+fix: rotate telegram bot token and isolate google maps api key to env variables

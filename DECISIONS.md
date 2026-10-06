@@ -2,6 +2,25 @@
 
 이 문서는 선배님과의 모든 설계 철학, 시스템 환경, 요구사항, 규칙을 영구히 기록하여 **세션 리셋이나 안티그래비티 재부팅 후 새로 투입되는 에이전트도 100% 기억하고 동일한 원칙으로 동작하도록 하는 마스터 Living Spec**입니다.
 
+## 🛡️ [★ Golden Checkpoint: 깃허브 보안 유출(GitGuardian) 완벽 방어 & 텔레그램 봇 토큰 재발급 & 구글 클라우드 도메인 제한 100% 완결]
+> **일자: 2026-10-06 (선배님 실시간 협업 ➔ 보안 키 분리 및 환경변수 체계화 100% 완료)**
+- **보안 조치 내역**:
+  1. **텔레그램 봇 토큰 회전 및 안전 격리 (`scripts/redditTelegramRadar.js`, `scripts/testSendTelegram.js`)**:
+     - 기존 노출된 구 토큰을 `@BotFather`에서 즉시 무효화(`Revoke`)하고 신규 토큰(`8862336937:AAHz...`)으로 안전하게 교체.
+     - 소스 코드 내 하드코딩 fallback 문자열을 100% 영구 제거하고, 오직 로컬 `.env` 및 `process.env`로만 안전 참조하도록 완전 분리.
+  2. **구글 지도(Google Maps) API 키 소스 격리 & GCP 콘솔 도메인 리퍼러 제한 완결 (`src/services/apiConfig.js`)**:
+     - 소스 코드 내 하드코딩된 평문 키를 100% 제거하고 `import.meta.env.VITE_GOOGLE_MAPS_API_KEY`로만 참조하도록 정비.
+     - 구글 클라우드 콘솔에서 **애플리케이션 제한사항(웹사이트 HTTP 리퍼러)** 완비:
+       - `https://koreatravel.cc/*` (운영 도메인)
+       - `https://*.pages.dev/*` (Cloudflare 배포 도메인)
+       - `http://localhost:5173/*` (로컬 개발 환경)
+     - 외부 제3자의 무단 키 도용 및 할당량 남용 100% 영구 차단.
+- **배포 및 검증 상태**:
+  - `verifySyntax.ps1` 무결점 통과 (`[ZERO DEFECT PASSED]`).
+  - 소스코드 전수 검색 결과 평문 API Key/Token 잔존 개수: **0개 (100% 클린)**.
+
+---
+
 ## 🚀 [★ Golden Checkpoint: 애드센스 독립 정적 매거진 허브 + 패스스루 완결 + 13대 다국어 무결점 운영 서버(koreatravel.cc) 승격 배포 완료]
 > **일자: 2026-09-13 (선배님 승인 "진행해" ➔ 헌법 제11조에 의거한 공식 운영 서버 승격 배포 완료)**
 - **운영 반영 내역**:

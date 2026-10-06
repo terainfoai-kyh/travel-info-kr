@@ -31,8 +31,8 @@ try {
   }
 } catch {}
 
-const TELEGRAM_BOT_TOKEN = (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_BOT_TOKEN.trim()) || '8862336937:AAGjolvwXh3BEBrLa1PMWFHLDu2ipcf90D0';
-const TELEGRAM_CHAT_ID = (process.env.TELEGRAM_CHAT_ID && process.env.TELEGRAM_CHAT_ID.trim()) || '8955008233';
+const TELEGRAM_BOT_TOKEN = (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_BOT_TOKEN.trim()) || '';
+const TELEGRAM_CHAT_ID = (process.env.TELEGRAM_CHAT_ID && process.env.TELEGRAM_CHAT_ID.trim()) || '';
 const VORA_BASE_URL = (process.env.VORA_BASE_URL && process.env.VORA_BASE_URL.trim()) || 'https://koreatravel.cc';
 const SEEN_POSTS_FILE = path.join(__dirname, '.seen_reddit_posts.json');
 

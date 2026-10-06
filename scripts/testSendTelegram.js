@@ -1,4 +1,26 @@
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { generateLocalFallbackItinerary } from '../src/services/localItineraryGenerator.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// 🔑 Auto-load API keys from root .env
+try {
+  const envPath = path.join(__dirname, '../.env');
+  if (fs.existsSync(envPath)) {
+    const envContent = fs.readFileSync(envPath, 'utf-8');
+    envContent.split('\n').forEach(line => {
+      const match = line.match(/^\s*([\w_]+)\s*=\s*(.*)?\s*$/);
+      if (match) {
+        const key = match[1];
+        const val = (match[2] || '').trim().replace(/^['"]|['"]$/g, '');
+        if (val) process.env[key] = val;
+      }
+    });
+  }
+} catch {}
 
 async function sendTestTelegram() {
   console.log('🚀 Generating 100% genuine live itinerary from VORA engine...');
@@ -27,8 +49,8 @@ async function sendTestTelegram() {
     `\n\n💡 Tip: Grab a Climate Card at any convenience store for unlimited subway & bus rides!\n` +
     `🍲 Foodie Secret: Don't miss warm Bindaetteok & Kimbap at Gwangjang Market!`;
 
-  const TELEGRAM_BOT_TOKEN = '8862336937:AAGjolvwXh3BEBrLa1PMWFHLDu2ipcf90D0';
-  const TELEGRAM_CHAT_ID = '8955008233';
+  const TELEGRAM_BOT_TOKEN = (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_BOT_TOKEN.trim()) || '';
+  const TELEGRAM_CHAT_ID = (process.env.TELEGRAM_CHAT_ID && process.env.TELEGRAM_CHAT_ID.trim()) || '';
   const voraUrl = 'https://travelkorea-dev.pages.dev/?city=seoul&days=3&lang=en';
 
   const messageText = `🗺️ [VORA 4K COURSE & REDDIT RADAR]\n\n` +
