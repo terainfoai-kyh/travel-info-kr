@@ -20,7 +20,12 @@ import {
   Laptop,
   Smartphone,
   Share2,
-  Check
+  Check,
+  Calendar,
+  Utensils,
+  BookOpen,
+  Award,
+  Navigation
 } from 'lucide-react';
 import { getLocalizedCityName, TRANSLATIONS } from '../i18n/translations';
 import { buildKlookDeepLink } from '../services/apiConfig';
@@ -41,6 +46,9 @@ const HERO_SLIDES = [
     spotQuery: '경복궁',
     image: '/images/themes/theme-gyeongbokgung.jpg',
     tagKo: '👑 서울 K-헤리티지',
+    tagEn: '👑 Seoul K-Heritage',
+    tagJa: '👑 ソウル文化遺産',
+    tagZh: '👑 首尔传统文化',
     city: '서울'
   },
   {
@@ -56,6 +64,9 @@ const HERO_SLIDES = [
     spotQuery: '수원화성',
     image: '/images/themes/hero-suwon-hwaseong.jpg',
     tagKo: '🏰 경기·수원 세계유산',
+    tagEn: '🏰 Suwon UNESCO Fortress',
+    tagJa: '🏰 水原 世界遺産',
+    tagZh: '🏰 水原 世界遗产',
     city: '수원'
   },
   {
@@ -71,6 +82,9 @@ const HERO_SLIDES = [
     spotQuery: '광안리해수욕장',
     image: '/images/themes/theme-busan.jpg',
     tagKo: '🌊 부산 오션뷰 & 미식',
+    tagEn: '🌊 Busan Ocean & Dining',
+    tagJa: '🌊 釜山 海＆グルメ',
+    tagZh: '🌊 釜山 海景与美食',
     city: '부산'
   },
   {
@@ -86,7 +100,209 @@ const HERO_SLIDES = [
     spotQuery: '성산일출봉',
     image: '/images/themes/theme-jeju.jpg',
     tagKo: '🍊 제주 자연 & 힐링',
+    tagEn: '🍊 Jeju Nature & Healing',
+    tagJa: '🍊 済州 癒やしの旅',
+    tagZh: '🍊 济州 自然治愈',
     city: '제주'
+  },
+  {
+    id: 5,
+    titleKo: '신라 천년의 달빛 아래 빛나는 역사 도시',
+    titleEn: 'Millennium Starlight in Ancient Gyeongju',
+    titleJa: '新羅千年の月明かりが輝く歴史の都 慶州',
+    titleZh: '新罗千年古都 璀璨月光下的庆州',
+    subKo: '동궁과 월지 야경과 황리단길 감성 한옥 골목 탐방',
+    subEn: 'Enchanting Donggung Palace night reflection & Hwangnidan-gil Hanok cafes',
+    subJa: '東宮と月池の幻想的な夜景と皇理団通りのレトロな韓屋散歩',
+    subZh: '东宫与月池梦幻夜景与皇理团路特色韩屋街',
+    spotQuery: '동궁과 월지',
+    image: '/images/themes/theme-gyeongju.jpg',
+    tagKo: '🌙 경주 천년고도',
+    tagEn: '🌙 Gyeongju Ancient Capital',
+    tagJa: '🌙 慶州 千年の古都',
+    tagZh: '🌙 庆州 千年古都',
+    city: '경주'
+  }
+];
+
+// 🎪 실시간 전국 공식 대표 축제 & 문화 행사 데이터셋
+const NATIONWIDE_FESTIVALS = [
+  {
+    id: 'fest-1',
+    titleKo: '서울 빛초롱 축제 & 광화문 마켓',
+    titleEn: 'Seoul Lantern Festival & Gwanghwamun Market',
+    titleJa: 'ソウルランタンフェスティバル＆光化門マーケット',
+    titleZh: '首尔水光灯节与光化门圣诞市集',
+    dateKo: '2026.11 ~ 2026.12 (겨울 시즌)',
+    dateEn: 'Nov - Dec 2026 (Winter Season)',
+    dateJa: '2026年11月～12月 (冬シーズン)',
+    dateZh: '2026年11月至12月 (冬季)',
+    city: '서울',
+    locationKo: '광화문광장 & 청계천 일대',
+    locationEn: 'Gwanghwamun Square & Cheonggyecheon',
+    locationJa: '光化門広場＆清渓川一帯',
+    locationZh: '光化门广场与清溪川一带',
+    image: '/images/themes/hero-hangang.jpg',
+    badgeKo: '🏮 대표 등불 축제',
+    badgeEn: '🏮 Lantern Festival',
+    badgeJa: '🏮 光の祭典',
+    badgeZh: '🏮 灯光盛典',
+    descKo: '화려한 전통 한지 등불과 현대 미디어 파사드가 광화문 광장을 수놓는 서울 최대 겨울 축제',
+    descEn: 'Seoul’s iconic winter night festival featuring hundreds of glowing Hanji lanterns and modern media art.',
+    descJa: '伝統韓紙ランタンと最新メディアアートが光化門広場を彩るソウル最大の冬祭り',
+    descZh: '传统韩纸彩灯与现代新媒体艺术点亮光化门广场的首尔代表性冬季夜间庆典',
+    prompt: '서울 빛초롱 축제와 광화문 광장, 청계천 야경 중심의 2박3일 서울 겨울 낭만 코스'
+  },
+  {
+    id: 'fest-2',
+    titleKo: '부산 불꽃축제 (광안리 해변)',
+    titleEn: 'Busan International Fireworks Festival',
+    titleJa: '釜山国際花火祭り（広安里海岸）',
+    titleZh: '釜山国际烟花节（广安里海滩）',
+    dateKo: '2026.11 (가을·겨울 시즌)',
+    dateEn: 'November 2026',
+    dateJa: '2026年11月',
+    dateZh: '2026年11月',
+    city: '부산',
+    locationKo: '광안리 해수욕장 & 광안대교',
+    locationEn: 'Gwangalli Beach & Gwangan Bridge',
+    locationJa: '広安里海水浴場＆広安大橋',
+    locationZh: '广安里海水浴场与广安大桥',
+    image: '/images/themes/theme-busan.jpg',
+    badgeKo: '🎆 오션 불꽃쇼',
+    badgeEn: '🎆 Mega Fireworks',
+    badgeJa: '🎆 海上花火',
+    badgeZh: '🎆 海上烟花',
+    descKo: '광안대교를 배경으로 밤하늘과 바다를 화려하게 수놓는 아시아 최대 규모의 해상 멀티미디어 불꽃쇼',
+    descEn: 'Asia’s premier oceanfront fireworks extravaganza illuminated over the iconic Diamond Bridge.',
+    descJa: '広安大橋をバックに夜空と海を華麗に染め上げるアジア最大級のマルチメディア花火ショー',
+    descZh: '以广安大桥为背景、点亮海天夜空的亚洲超大规模多媒体海上烟花盛宴',
+    prompt: '부산 불꽃축제 관람과 광안리, 해운대 블루라인파크 중심의 3박4일 부산 힐링 코스'
+  },
+  {
+    id: 'fest-3',
+    titleKo: '수원화성 문화제 & 미디어아트쇼',
+    titleEn: 'Suwon Hwaseong Cultural Festival',
+    titleJa: '水原華城文化祭＆メディアアート',
+    titleZh: '水原华城文化节与新媒体灯光秀',
+    dateKo: '2026.10 (가을 시즌)',
+    dateEn: 'October 2026 (Autumn)',
+    dateJa: '2026年10月 (秋シーズン)',
+    dateZh: '2026年10月 (秋季)',
+    city: '수원',
+    locationKo: '수원 화성행궁 & 화서문 성곽',
+    locationEn: 'Suwon Hwaseong Fortress & Palace',
+    locationJa: '水原華城行宮＆城郭一帯',
+    locationZh: '水原华城行宫与古城墙',
+    image: '/images/themes/hero-suwon-hwaseong.jpg',
+    badgeKo: '🏰 세계유산 축제',
+    badgeEn: '🏰 UNESCO Festival',
+    badgeJa: '🏰 世界遺産の祭り',
+    badgeZh: '🏰 世界遗产庆典',
+    descKo: '정조대왕 능행차 재현과 유네스코 세계문화유산 성곽에 투사되는 환상적인 3D 미디어아트',
+    descEn: 'Spectacular UNESCO fortress projection mapping and historical royal procession reenactment.',
+    descJa: '正祖大王の壮大な行列再現と世界遺産の城壁に映し出される幻想的な3Dメディアアート',
+    descZh: '正祖大王盛大出巡历史重现与世界文化遗产城墙上的梦幻3D光影大秀',
+    prompt: '수원화성 문화제와 행궁동 카페거리, 방화수류정 야경 1일 당일치기 코스'
+  },
+  {
+    id: 'fest-4',
+    titleKo: '강릉 커피축제 (안목해변 & 오죽헌)',
+    titleEn: 'Gangneung Coffee & Coastal Festival',
+    titleJa: '江陵コーヒーフェスティバル',
+    titleZh: '江陵咖啡节与海滨风情',
+    dateKo: '2026.10 (가을 시즌)',
+    dateEn: 'October 2026',
+    dateJa: '2026年10月',
+    dateZh: '2026年10月',
+    city: '강릉',
+    locationKo: '안목해변 커피거리 & 아레나',
+    locationEn: 'Anmok Beach Coffee Street',
+    locationJa: '安木海岸コーヒー通り',
+    locationZh: '安木海边咖啡街',
+    image: '/images/themes/theme-gangneung.jpg',
+    badgeKo: '☕ K-커피 힐링',
+    badgeEn: '☕ Specialty Coffee',
+    badgeJa: '☕ 名品コーヒー',
+    badgeZh: '☕ 精品咖啡',
+    descKo: '파도 소리와 함께 전국 100여 개 로스터리의 스페셜티 커피를 맛볼 수 있는 대한민국 커피 수도 축제',
+    descEn: 'Taste master roaster artisan coffees along the breezy Anmok oceanfront coffee boulevard.',
+    descJa: '波の音を聞きながら名門ロースタリーのスペシャリティコーヒーを味わう韓国コーヒーの都の祭典',
+    descZh: '在涛声中品鉴全国百余家顶尖烘焙工坊的手冲咖啡，打卡韩国咖啡之都的秋日盛会',
+    prompt: '강릉 커피축제와 안목해변, BTS 정류장, 주문진 도깨비 촬영지 1박2일 힐링 코스'
+  }
+];
+
+// 🍲 K-Food & 로컬 미식 골목 큐레이션
+const K_FOOD_HOTSPOTS = [
+  {
+    id: 'food-1',
+    titleKo: '서울 광장시장 전통 먹거리',
+    titleEn: 'Seoul Gwangjang Market Delicacies',
+    titleJa: 'ソウル広蔵市場 伝統グルメ',
+    titleZh: '首尔广藏市场经典传统美食',
+    signatureKo: '바삭한 녹두빈대떡 · 원조 마약김밥 · 신선 한우육회',
+    signatureEn: 'Crispy Bindaetteok · Mayak Gimbap · Fresh Beef Tartare',
+    signatureJa: 'ピンデトック · 麻薬キンパ · 新鮮ユッケ',
+    signatureZh: '酥脆绿豆煎饼 · 麻药紫菜包饭 · 鲜美生牛肉',
+    city: '서울',
+    cityCode: 'seoul',
+    locationKo: '종로 5가역 도보 1분',
+    locationEn: 'Jongno 5-ga Station (1 min walk)',
+    locationJa: '鍾路5街駅 徒歩1分',
+    locationZh: '钟路5街站 步行1分钟',
+    tagKo: '🍲 100년 전통 미식',
+    tagEn: '🍲 100-Year Street Food',
+    tagJa: '🍲 100年の屋台通り',
+    tagZh: '🍲 百年老字号街市',
+    image: '/images/themes/theme-seongsu.jpg',
+    prompt: '서울 광장시장 빈대떡과 육회, 동대문 DDP와 청계천 야경 중심의 1일 미식 투어 코스'
+  },
+  {
+    id: 'food-2',
+    titleKo: '전주 한옥마을 전통 비빔밥 & 떡갈비',
+    titleEn: 'Jeonju Hanok Bibimbap & Tteokgalbi',
+    titleJa: '全州韓屋村 伝統ビビンバ＆トッカルビ',
+    titleZh: '全州韩屋村 正统全州拌饭与烤牛排饼',
+    signatureKo: '유네스코 음식창의도시 전주비빔밥 · 숯불 떡갈비 · 모주',
+    signatureEn: 'UNESCO Gastronomy Bibimbap · Grilled Short Rib Patties · Moju',
+    signatureJa: 'ユネスコ認定 全州ビビンバ · 炭火トッカルビ · 母酒',
+    signatureZh: '联合国教科文组织美食之都全州拌饭 · 炭烤牛排饼 · 传统母酒',
+    city: '전주',
+    cityCode: 'jeonju',
+    locationKo: '전주 한옥마을 경기전 일대',
+    locationEn: 'Jeonju Hanok Village Gyeonggijeon',
+    locationJa: '全州韓屋村 慶基殿一帯',
+    locationZh: '全州韩屋村 庆基殿周边',
+    tagKo: '🍚 유네스코 미식',
+    tagEn: '🍚 UNESCO Gastronomy',
+    tagJa: '🍚 美食の聖地',
+    tagZh: '🍚 世界美食之都',
+    image: '/images/themes/theme-gyeongbokgung.jpg',
+    prompt: '전주 한옥마을 비빔밥 맛집과 경기전, 전동성당, 자만벽화마을 1박2일 미식 코스'
+  },
+  {
+    id: 'food-3',
+    titleKo: '부산 자갈치시장 & 민락회타운',
+    titleEn: 'Busan Jagalchi Fresh Seafood Market',
+    titleJa: '釜山チャガルチ市場＆民楽刺身タウン',
+    titleZh: '釜山扎嘎其海鲜市场与民乐生鱼片城',
+    signatureKo: '살아있는 대게 코스 · 자연산 제철 활어회 · 꼼장어 구이',
+    signatureEn: 'Live King Crab Course · Seasonal Sashimi · Grilled Sea Eel',
+    signatureJa: '獲れたて活ズワイガニ · 旬の刺身盛り · ヌタウナギ焼き',
+    signatureZh: '现捞帝王蟹套餐 · 时令鲜甜海鲜刺身 · 鲜香烤盲鳗',
+    city: '부산',
+    cityCode: 'busan',
+    locationKo: '남포역 자갈치시장 & 광안리 민락동',
+    locationEn: 'Nampo Jagalchi & Gwangan Millak',
+    locationJa: '南浦チャガルチ＆広安里民楽',
+    locationZh: '南浦扎嘎其与广安里民乐',
+    tagKo: '🐟 청정 해산물',
+    tagEn: '🐟 Fresh Ocean Seafood',
+    tagJa: '🐟 活きの良い魚介',
+    tagZh: '🐟 鲜活大海鲜',
+    image: '/images/themes/theme-busan.jpg',
+    prompt: '부산 자갈치시장 신선 해산물과 해운대, 광안리 오션뷰 2박3일 미식 코스'
   }
 ];
 
@@ -287,6 +503,7 @@ export default function PortalHomePrototype({
   onOpenEssentials,
   onOpenPlanner,
   onSelectTheme,
+  onNavigateTab,
   targetCity = '서울'
 }) {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
@@ -373,11 +590,21 @@ export default function PortalHomePrototype({
       promptEn: '3-day coastal scenic drive and healing tour of Aewol and Seogwipo in Jeju',
       promptJa: '済州島涯月海岸と西帰浦ヒーリングドライブ3日間コース',
       promptZh: '济州岛涯月与西归浦海岸公路治愈自驾路线'
+    },
+    {
+      labelKo: '🌙 경주 천년고도 야경',
+      labelEn: '🌙 Gyeongju Starlight',
+      labelJa: '🌙 慶州 夜景遺産',
+      labelZh: '🌙 庆州 千年夜景',
+      promptKo: '경주 동궁과 월지, 첨성대, 황리단길 2박3일 역사 낭만 코스',
+      promptEn: '2-day historic starlight trip in Gyeongju including Donggung Palace and Hwangnidan-gil',
+      promptJa: '慶州 東宮と月池、瞻星台、皇理団通り2泊3日歴史ツアー',
+      promptZh: '庆州东宫与月池、瞻星台、皇理团路2天1晚历史浪漫路线'
     }
   ];
 
   const CITY_TABS = [
-    { code: 'all', labelKo: '전체', labelEn: 'All', labelJa: 'すべて', labelZh: '全部' },
+    { code: 'all', labelKo: '전체 (All)', labelEn: 'All Destinations', labelJa: 'すべて', labelZh: '全部目的地' },
     { code: 'seoul', labelKo: '서울', labelEn: 'Seoul', labelJa: 'ソウル', labelZh: '首尔' },
     { code: 'busan', labelKo: '부산', labelEn: 'Busan', labelJa: '釜山', labelZh: '釜山' },
     { code: 'jeju', labelKo: '제주', labelEn: 'Jeju', labelJa: '済州', labelZh: '济州' },
@@ -390,32 +617,32 @@ export default function PortalHomePrototype({
     : CURATED_THEMES.filter(t => t.cityCode === selectedCityTab);
 
   return (
-    <div style={{ width: '100%', color: 'var(--text-main)', paddingBottom: 0 }}>
+    <div style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', color: 'var(--text-main)', padding: '0 0.5rem 2rem' }}>
       
-      {/* ☀️ 1. Grand Natural Bright & Scenic Hero (상단 헤드라인 + 하단 검색창 완벽 분리) */}
+      {/* ☀️ 1. Grand Natural Scenic Hero Section */}
       <div 
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         style={{
           position: 'relative',
           width: '100%',
-          minHeight: '260px',
-          maxHeight: '360px',
-          height: 'clamp(260px, 34vh, 340px)',
-          borderRadius: '22px',
+          minHeight: '280px',
+          maxHeight: '380px',
+          height: 'clamp(280px, 36vh, 380px)',
+          borderRadius: '24px',
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
           alignItems: 'center',
-          padding: '1.4rem 0.75rem 0.65rem 0.75rem',
+          padding: '1.5rem 1rem 1rem 1rem',
           boxSizing: 'border-box',
-          boxShadow: '0 12px 30px -8px rgba(0, 0, 0, 0.22)',
-          marginBottom: '0.5rem',
-          border: '1px solid rgba(255, 255, 255, 0.2)'
+          boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.35)',
+          marginBottom: '1.25rem',
+          border: '1px solid rgba(255, 255, 255, 0.15)'
         }}
       >
-        {/* Background Image Carousel with Smooth Crossfade & Zoom */}
+        {/* Background Image Carousel with Smooth Crossfade */}
         {HERO_SLIDES.map((slide, idx) => (
           <div
             key={slide.id}
@@ -427,7 +654,7 @@ export default function PortalHomePrototype({
               height: '100%',
               backgroundImage: `url(${slide.image})`,
               backgroundSize: 'cover',
-              backgroundPosition: 'center 30%', // 중앙/상단 메인 랜드마크 피사체 최적 포커스
+              backgroundPosition: 'center 35%',
               opacity: idx === currentSlideIndex ? 1 : 0,
               transform: idx === currentSlideIndex ? 'scale(1.03)' : 'scale(1.0)',
               transition: 'opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), transform 6s ease-out',
@@ -436,62 +663,65 @@ export default function PortalHomePrototype({
           />
         ))}
 
-        {/* Ambient Subtle Light Scrim (사진 본연의 맑고 찬란한 100% 퓨어 자연 색감 노출) */}
-        {/* Ambient Contrast Scrim (글자가 선명하게 돋보이면서도 4K 정품 사진의 웅장함을 완벽 보존) */}
+        {/* Ambient Contrast Scrim */}
         <div style={{
           position: 'absolute',
           top: 0,
           left: 0,
           width: '100%',
           height: '100%',
-          background: 'linear-gradient(180deg, rgba(0, 0, 0, 0.42) 0%, rgba(0, 0, 0, 0.18) 45%, rgba(0, 0, 0, 0.58) 100%)',
+          background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.65) 0%, rgba(15, 23, 42, 0.25) 45%, rgba(15, 23, 42, 0.85) 100%)',
           zIndex: 2
         }} />
 
-        {/* [TOP] Master Hero Headline with English Subtitle */}
+        {/* [TOP] Master Hero Headline */}
         <div style={{
           position: 'relative',
           zIndex: 3,
           textAlign: 'center',
           width: '100%',
-          maxWidth: '860px',
-          paddingTop: '0.4rem'
+          maxWidth: '900px',
+          paddingTop: '0.2rem'
         }}>
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '5px',
-            backgroundColor: 'rgba(15, 23, 42, 0.70)',
+            gap: '6px',
+            backgroundColor: 'rgba(139, 92, 246, 0.85)',
             backdropFilter: 'blur(8px)',
             WebkitBackdropFilter: 'blur(8px)',
-            border: '1px solid rgba(255, 255, 255, 0.32)',
             borderRadius: '9999px',
-            padding: '3px 12px',
-            fontSize: '0.72rem',
+            padding: '4px 14px',
+            fontSize: '0.75rem',
             fontWeight: 800,
-            letterSpacing: '0.12em',
+            letterSpacing: '0.08em',
             color: '#ffffff',
-            textTransform: 'uppercase',
-            marginBottom: '0.35rem',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+            marginBottom: '0.4rem',
+            boxShadow: '0 4px 12px rgba(139, 92, 246, 0.4)'
           }}>
-            <span style={{ color: '#f43f5e' }}>✦</span>
-            <span>PLAN YOUR KOREA TRIP</span>
+            <Sparkles size={12} />
+            <span>{currentSlide[`tag${lang.charAt(0).toUpperCase() + lang.slice(1)}`] || currentSlide.tagEn || 'KOREA AI CONCIERGE'}</span>
           </div>
           <h1 style={{
-            fontSize: 'clamp(1.25rem, 3.8vw, 1.95rem)',
+            fontSize: 'clamp(1.4rem, 4vw, 2.3rem)',
             fontWeight: 900,
             lineHeight: 1.25,
             color: '#ffffff',
-            margin: 0,
-            textShadow: '0 2px 14px rgba(0, 0, 0, 0.95), 0 1px 4px rgba(0, 0, 0, 0.95)',
+            margin: '0 0 0.3rem',
+            textShadow: '0 2px 14px rgba(0, 0, 0, 0.8)',
             letterSpacing: '-0.02em'
           }}>
-            {lang === 'en' ? 'Custom Korea Trip, Powered by AI' :
-             lang === 'ja' ? 'あなただけの韓国旅行、AIと一緒に始めましょう' :
-             (lang === 'zh' || lang === 'zht') ? '定制专属韩国之旅，与AI一同开启' :
-             '나만의 한국 여행, AI와 함께 시작하세요'}
+            {currentSlide[`title${lang.charAt(0).toUpperCase() + lang.slice(1)}`] || currentSlide.titleEn}
           </h1>
+          <p style={{
+            fontSize: 'clamp(0.8rem, 1.8vw, 1.0rem)',
+            color: 'rgba(255, 255, 255, 0.9)',
+            margin: 0,
+            fontWeight: 600,
+            textShadow: '0 1px 8px rgba(0, 0, 0, 0.8)'
+          }}>
+            {currentSlide[`sub${lang.charAt(0).toUpperCase() + lang.slice(1)}`] || currentSlide.subEn}
+          </p>
         </div>
 
         {/* [BOTTOM] Master AI Search Box */}
@@ -499,43 +729,37 @@ export default function PortalHomePrototype({
           position: 'relative',
           zIndex: 3,
           textAlign: 'center',
-          maxWidth: '860px',
+          maxWidth: '680px',
           width: '100%',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          paddingBottom: '1.25rem'
+          paddingBottom: '0.8rem'
         }}>
-
-          {/* 🔍 Elevated Pure White AI Search Box */}
           <form 
             onSubmit={handleSearch}
-            style={{
-              width: '100%',
-              maxWidth: '520px',
-              position: 'relative'
-            }}
+            style={{ width: '100%' }}
           >
             <div style={{
               display: 'flex',
               alignItems: 'center',
               backgroundColor: '#ffffff',
               borderRadius: '9999px',
-              padding: '0.2rem 0.25rem 0.2rem 0.85rem',
-              boxShadow: '0 12px 32px rgba(15, 23, 42, 0.25), 0 2px 6px rgba(0, 0, 0, 0.08)',
+              padding: '0.3rem 0.35rem 0.3rem 1.1rem',
+              boxShadow: '0 12px 32px rgba(0, 0, 0, 0.35)',
               border: '2px solid rgba(255, 255, 255, 0.95)',
               transition: 'all 0.3s ease'
             }}>
-              <MapPin size={16} style={{ color: '#2563eb', flexShrink: 0 }} />
+              <MapPin size={18} style={{ color: '#8b5cf6', flexShrink: 0 }} />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={
-                  lang === 'en' ? 'Where are you traveling? (e.g. Jeju 4-day foodie tour)' :
-                  lang === 'ja' ? 'どこへ旅行しますか？ (例: 済州島 3泊4日 グルメ旅)' :
-                  (lang === 'zh' || lang === 'zht') ? '想去哪里旅行？ (例如: 济州岛 4天3晚 美食之旅)' :
-                  '어디로 여행하시나요? (예: 제주 3박 4일 맛집 여행)'
+                  lang === 'en' ? 'Where to in Korea? (e.g. Seoul 3 days with night views)' :
+                  lang === 'ja' ? 'どこへ旅行しますか？ (例: ソウル 3泊4日 夜景＆グルメ)' :
+                  (lang === 'zh' || lang === 'zht') ? '想去韩国哪里？ (例如: 首尔 3天2晚 夜景与美食之旅)' :
+                  '어디로 여행하시나요? (예: 서울 3일 야경과 미식 코스)'
                 }
                 style={{
                   flex: 1,
@@ -543,42 +767,75 @@ export default function PortalHomePrototype({
                   border: 'none',
                   outline: 'none',
                   color: '#0f172a',
-                  fontSize: '0.82rem',
+                  fontSize: '0.9rem',
                   fontWeight: 700,
-                  padding: '0.35rem 0.5rem',
+                  padding: '0.4rem 0.6rem',
                   minWidth: 0
                 }}
               />
               <button
                 type="submit"
                 style={{
-                  background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
+                  background: 'linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%)',
                   color: '#ffffff',
                   border: 'none',
                   borderRadius: '9999px',
-                  padding: '0.38rem 0.95rem',
-                  fontSize: '0.78rem',
+                  padding: '0.55rem 1.2rem',
+                  fontSize: '0.85rem',
                   fontWeight: 800,
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.3rem',
-                  boxShadow: '0 4px 14px rgba(37, 99, 235, 0.4)',
+                  gap: '0.4rem',
+                  boxShadow: '0 4px 14px rgba(139, 92, 246, 0.4)',
                   transition: 'all 0.2s ease',
                   flexShrink: 0
                 }}
               >
-                <Sparkles size={13} />
-                <span>{lang === 'en' ? 'AI Plan' : lang === 'ja' ? 'AI 作成' : (lang === 'zh' || lang === 'zht') ? 'AI 生成' : '✦ AI 생성'}</span>
+                <Sparkles size={15} />
+                <span>{lang === 'en' ? 'AI Itinerary' : lang === 'ja' ? 'AIコース作成' : (lang === 'zh' || lang === 'zht') ? 'AI定制行程' : '✦ 3초 코스 생성'}</span>
               </button>
             </div>
           </form>
+
+          {/* Quick Intent Chips */}
+          <div style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            gap: '0.4rem',
+            marginTop: '0.6rem',
+            width: '100%'
+          }}>
+            {QUICK_CHIPS.map((chip, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => handleChipClick(chip[`prompt${lang.charAt(0).toUpperCase() + lang.slice(1)}`] || chip.promptEn)}
+                style={{
+                  padding: '0.22rem 0.65rem',
+                  borderRadius: '9999px',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                  backdropFilter: 'blur(6px)',
+                  color: '#ffffff',
+                  fontSize: '0.74rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                {chip[`label${lang.charAt(0).toUpperCase() + lang.slice(1)}`] || chip.labelEn}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Slide Indicators / Navigation Dots */}
+        {/* Slide Indicators */}
         <div style={{
           position: 'absolute',
-          bottom: '0.35rem',
+          bottom: '0.4rem',
           left: '50%',
           transform: 'translateX(-50%)',
           display: 'flex',
@@ -590,10 +847,10 @@ export default function PortalHomePrototype({
               key={idx}
               onClick={() => setCurrentSlideIndex(idx)}
               style={{
-                width: idx === currentSlideIndex ? '24px' : '8px',
-                height: '8px',
+                width: idx === currentSlideIndex ? '28px' : '8px',
+                height: '7px',
                 borderRadius: '4px',
-                backgroundColor: idx === currentSlideIndex ? '#ffffff' : 'rgba(255, 255, 255, 0.5)',
+                backgroundColor: idx === currentSlideIndex ? '#8b5cf6' : 'rgba(255, 255, 255, 0.5)',
                 border: 'none',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease'
@@ -604,25 +861,569 @@ export default function PortalHomePrototype({
         </div>
       </div>
 
-      {/* ⚡ 2. HanaTour / VisitKorea Style 6-Icon Circular Quick Hub (Mobile Only - Desktop uses Slim Nav Sidebar) */}
-      <div className="hide-desktop" style={{ marginBottom: '0.6rem' }}>
+      {/* 🎪 2. Real-Time Nationwide Festivals & Cultural Events Section */}
+      <section style={{ marginBottom: '2.5rem' }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '1rem',
+          flexWrap: 'wrap',
+          gap: '0.5rem'
+        }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span style={{ fontSize: '1.25rem' }}>🎪</span>
+              <h2 style={{
+                margin: 0,
+                fontSize: '1.25rem',
+                fontWeight: 900,
+                color: 'var(--text-main)',
+                letterSpacing: '-0.02em'
+              }}>
+                {lang === 'en' ? 'Live Nationwide Festivals & Events' :
+                 lang === 'ja' ? '全国 リアルタイム祭り＆文化イベント' :
+                 (lang === 'zh' || lang === 'zht') ? '韩国实时节庆与文化盛典' :
+                 '지금 한국은 축제 중! 전국 실시간 축제 & 문화 행사'}
+              </h2>
+            </div>
+            <p style={{ margin: '0.2rem 0 0 1.8rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+              {lang === 'en' ? 'Official Korea Tourism Organization real-time event updates' :
+               lang === 'ja' ? '韓国観光公社公式 リアルタイムイベント情報連動' :
+               (lang === 'zh' || lang === 'zht') ? '韩国旅游发展局官方实时庆典活动联动' :
+               '한국관광공사 TourAPI 4.0 실시간 직결 · 일정에 바로 쏙 넣는 맞춤 코스'}
+            </p>
+          </div>
+        </div>
+
+        {/* Festivals Card Grid */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: '1.1rem'
+        }}>
+          {NATIONWIDE_FESTIVALS.map((fest) => (
+            <div
+              key={fest.id}
+              style={{
+                backgroundColor: 'var(--bg-card)',
+                borderRadius: '18px',
+                border: '1px solid var(--border-color)',
+                overflow: 'hidden',
+                boxShadow: 'var(--shadow-card)',
+                display: 'flex',
+                flexDirection: 'column',
+                transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+              }}
+            >
+              {/* Image & Badges */}
+              <div style={{ position: 'relative', height: '160px', width: '100%', overflow: 'hidden' }}>
+                <img
+                  src={fest.image}
+                  alt={fest.titleEn}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  loading="lazy"
+                />
+                <div style={{
+                  position: 'absolute',
+                  top: '10px',
+                  left: '10px',
+                  backgroundColor: 'rgba(15, 23, 42, 0.75)',
+                  backdropFilter: 'blur(6px)',
+                  color: '#ffffff',
+                  padding: '3px 9px',
+                  borderRadius: '9999px',
+                  fontSize: '0.72rem',
+                  fontWeight: 800
+                }}>
+                  {fest[`badge${lang.charAt(0).toUpperCase() + lang.slice(1)}`] || fest.badgeEn}
+                </div>
+                <div style={{
+                  position: 'absolute',
+                  top: '10px',
+                  right: '10px',
+                  backgroundColor: '#8b5cf6',
+                  color: '#ffffff',
+                  padding: '3px 9px',
+                  borderRadius: '9999px',
+                  fontSize: '0.72rem',
+                  fontWeight: 800
+                }}>
+                  {getLocalizedCityName(fest.city, lang)}
+                </div>
+              </div>
+
+              {/* Content */}
+              <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between', gap: '0.6rem' }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#f59e0b', fontSize: '0.75rem', fontWeight: 800, marginBottom: '0.25rem' }}>
+                    <Calendar size={13} />
+                    <span>{fest[`date${lang.charAt(0).toUpperCase() + lang.slice(1)}`] || fest.dateEn}</span>
+                  </div>
+                  <h3 style={{ margin: '0 0 0.4rem', fontSize: '1.02rem', fontWeight: 800, color: 'var(--text-main)', lineHeight: 1.35 }}>
+                    {fest[`title${lang.charAt(0).toUpperCase() + lang.slice(1)}`] || fest.titleEn}
+                  </h3>
+                  <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+                    {fest[`desc${lang.charAt(0).toUpperCase() + lang.slice(1)}`] || fest.descEn}
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (onSelectTheme) {
+                      onSelectTheme(fest.prompt, fest.city);
+                    } else if (onSearchSubmit) {
+                      onSearchSubmit(fest.prompt);
+                    }
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '0.55rem',
+                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                    color: '#8b5cf6',
+                    border: '1px solid rgba(139, 92, 246, 0.3)',
+                    borderRadius: '10px',
+                    fontWeight: 800,
+                    fontSize: '0.8rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.35rem',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <Sparkles size={14} />
+                  <span>
+                    {lang === 'en' ? 'Create Route with this Festival' :
+                     lang === 'ja' ? 'この祭りのコースを作る' :
+                     (lang === 'zh' || lang === 'zht') ? '生成此庆典定制路线' :
+                     '이 축제 포함 AI 일정 만들기'}
+                  </span>
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 🗺️ 3. Full-Screen 4K Interactive Map Launcher Banner */}
+      <div style={{
+        marginBottom: '2.5rem',
+        padding: '1.25rem 1.5rem',
+        background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.12) 0%, rgba(139, 92, 246, 0.15) 100%)',
+        border: '1px solid rgba(139, 92, 246, 0.35)',
+        borderRadius: '20px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '1rem',
+        boxShadow: '0 8px 24px rgba(139, 92, 246, 0.15)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            borderRadius: '14px',
+            background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#ffffff',
+            boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3)'
+          }}>
+            <Navigation size={26} />
+          </div>
+          <div>
+            <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 900, color: 'var(--text-main)' }}>
+              {lang === 'en' ? 'Explore Korea on 4K Interactive Map' :
+               lang === 'ja' ? '4K インタラクティブ地図で韓国全土を探検' :
+               (lang === 'zh' || lang === 'zht') ? '在4K全景交互地图上探索韩国全境' :
+               '전국 4,100개 명소를 4K 인터랙티브 지도로 탐색하기'}
+            </h3>
+            <p style={{ margin: '0.2rem 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+              {lang === 'en' ? 'Visualize daily travel routes, spot clusters & subway lines seamlessly' :
+               lang === 'ja' ? '日別ルート、スポット密集エリア、地下鉄路線をひと目で可視化' :
+               (lang === 'zh' || lang === 'zht') ? '直观查看每日路线、景点分布与地铁线路' :
+               '일차별 동선 클러스터링, 이동 시간, 지하철 노선도를 한눈에 확인하세요'}
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            if (onNavigateTab) onNavigateTab('map');
+          }}
+          style={{
+            padding: '0.65rem 1.4rem',
+            background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)',
+            color: '#ffffff',
+            border: 'none',
+            borderRadius: '9999px',
+            fontWeight: 800,
+            fontSize: '0.88rem',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.4rem',
+            boxShadow: '0 4px 14px rgba(139, 92, 246, 0.4)'
+          }}
+        >
+          <Map size={16} />
+          <span>
+            {lang === 'en' ? 'Open 4K Map Explorer' :
+             lang === 'ja' ? '4K 地図を開く' :
+             (lang === 'zh' || lang === 'zht') ? '打开4K交互地图' :
+             '4K 인터랙티브 지도 열기'}
+          </span>
+          <ArrowRight size={14} />
+        </button>
+      </div>
+
+      {/* 🍲 4. Iconic K-Food & Street Markets Section */}
+      <section style={{ marginBottom: '2.5rem' }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '1rem',
+          flexWrap: 'wrap',
+          gap: '0.5rem'
+        }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span style={{ fontSize: '1.25rem' }}>🍲</span>
+              <h2 style={{
+                margin: 0,
+                fontSize: '1.25rem',
+                fontWeight: 900,
+                color: 'var(--text-main)',
+                letterSpacing: '-0.02em'
+              }}>
+                {lang === 'en' ? 'Must-Eat K-Food & Iconic Street Markets' :
+                 lang === 'ja' ? '必食！K-フード＆名物屋台市場' :
+                 (lang === 'zh' || lang === 'zht') ? '必吃韩国美食与标志性夜市' :
+                 '놓치면 후회할 대표 K-푸드 & 전통 미식 시장'}
+              </h2>
+            </div>
+            <p style={{ margin: '0.2rem 0 0 1.8rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+              {lang === 'en' ? 'Authentic regional street foodie secrets certified by local experts' :
+               lang === 'ja' ? 'ローカル専門家が認めた本場の名物グルメ通り' :
+               (lang === 'zh' || lang === 'zht') ? '当地美食专家力荐的正宗地道美食街区' :
+               '현지인과 글로벌 여행객이 극찬한 100년 전통 미식 골목'}
+            </p>
+          </div>
+        </div>
+
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(290px, 1fr))',
+          gap: '1.1rem'
+        }}>
+          {K_FOOD_HOTSPOTS.map((food) => (
+            <div
+              key={food.id}
+              style={{
+                backgroundColor: 'var(--bg-card)',
+                borderRadius: '18px',
+                border: '1px solid var(--border-color)',
+                padding: '1.1rem',
+                boxShadow: 'var(--shadow-card)',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                gap: '0.8rem'
+              }}
+            >
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+                  <span style={{
+                    fontSize: '0.72rem',
+                    fontWeight: 800,
+                    padding: '0.2rem 0.6rem',
+                    borderRadius: '6px',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    color: '#ef4444'
+                  }}>
+                    {food[`tag${lang.charAt(0).toUpperCase() + lang.slice(1)}`] || food.tagEn}
+                  </span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700 }}>
+                    {getLocalizedCityName(food.city, lang)}
+                  </span>
+                </div>
+
+                <h3 style={{ margin: '0 0 0.35rem', fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                  {food[`title${lang.charAt(0).toUpperCase() + lang.slice(1)}`] || food.titleEn}
+                </h3>
+
+                <div style={{
+                  padding: '0.6rem 0.75rem',
+                  backgroundColor: 'var(--bg-primary)',
+                  borderRadius: '10px',
+                  border: '1px solid var(--border-color)',
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  color: 'var(--accent-primary)',
+                  marginBottom: '0.35rem'
+                }}>
+                  ✨ {food[`signature${lang.charAt(0).toUpperCase() + lang.slice(1)}`] || food.signatureEn}
+                </div>
+
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                  📍 {food[`location${lang.charAt(0).toUpperCase() + lang.slice(1)}`] || food.locationEn}
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  if (onSelectTheme) {
+                    onSelectTheme(food.prompt, food.city);
+                  } else if (onSearchSubmit) {
+                    onSearchSubmit(food.prompt);
+                  }
+                }}
+                style={{
+                  width: '100%',
+                  padding: '0.55rem',
+                  backgroundColor: 'rgba(239, 68, 68, 0.08)',
+                  color: '#ef4444',
+                  border: '1px solid rgba(239, 68, 68, 0.25)',
+                  borderRadius: '10px',
+                  fontWeight: 800,
+                  fontSize: '0.8rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.35rem'
+                }}
+              >
+                <Utensils size={13} />
+                <span>
+                  {lang === 'en' ? 'Plan Foodie Course' :
+                   lang === 'ja' ? 'グルメコースを計画' :
+                   (lang === 'zh' || lang === 'zht') ? '定制美食路线' :
+                   '이 미식 코스 기획하기'}
+                </span>
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 🏙️ 5. Curated Regional Signature Themes Grid */}
+      <section style={{ marginBottom: '2.5rem' }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '1rem',
+          flexWrap: 'wrap',
+          gap: '0.5rem'
+        }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span style={{ fontSize: '1.25rem' }}>🏙️</span>
+              <h2 style={{
+                margin: 0,
+                fontSize: '1.25rem',
+                fontWeight: 900,
+                color: 'var(--text-main)',
+                letterSpacing: '-0.02em'
+              }}>
+                {lang === 'en' ? 'Curated Regional Travel Itineraries' :
+                 lang === 'ja' ? '地域別 おすすめ定番旅行コース' :
+                 (lang === 'zh' || lang === 'zht') ? '热门目的地精选推荐路线' :
+                 '인기 도시별 엄선 추천 여행 코스'}
+              </h2>
+            </div>
+            <p style={{ margin: '0.2rem 0 0 1.8rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+              {lang === 'en' ? 'Verified 1 to 4-day signature routes optimized for seamless spatial travel' :
+               lang === 'ja' ? '無駄のない動線で設計された1〜4日間の定番おすすめプラン' :
+               (lang === 'zh' || lang === 'zht') ? '精心设计的1至4日经典路线，游览更省心' :
+               '외국인 관광객 만족도 1위 · 1일~4일 동선 낭비 제로 시그니처 코스'}
+            </p>
+          </div>
+
+          {/* City Filter Tabs */}
+          <div style={{ display: 'flex', gap: '0.35rem', overflowX: 'auto', paddingBottom: '0.2rem' }}>
+            {CITY_TABS.map((ct) => (
+              <button
+                key={ct.code}
+                onClick={() => setSelectedCityTab(ct.code)}
+                style={{
+                  padding: '0.35rem 0.8rem',
+                  borderRadius: '9999px',
+                  border: selectedCityTab === ct.code ? '1px solid #8b5cf6' : '1px solid var(--border-color)',
+                  backgroundColor: selectedCityTab === ct.code ? '#8b5cf6' : 'var(--bg-card)',
+                  color: selectedCityTab === ct.code ? '#ffffff' : 'var(--text-muted)',
+                  fontSize: '0.78rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                {ct[`label${lang.charAt(0).toUpperCase() + lang.slice(1)}`] || ct.labelEn}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Themes Grid */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gap: '1.25rem'
+        }}>
+          {filteredThemes.map((theme) => (
+            <div
+              key={theme.id}
+              style={{
+                backgroundColor: 'var(--bg-card)',
+                borderRadius: '20px',
+                border: '1px solid var(--border-color)',
+                overflow: 'hidden',
+                boxShadow: 'var(--shadow-card)',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+              }}
+            >
+              {/* Photo & Duration Badge */}
+              <div style={{ position: 'relative', height: '175px', width: '100%', overflow: 'hidden' }}>
+                <img
+                  src={theme.image}
+                  alt={theme.titleEn}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  loading="lazy"
+                />
+                <div style={{
+                  position: 'absolute',
+                  top: '12px',
+                  left: '12px',
+                  backgroundColor: 'rgba(15, 23, 42, 0.75)',
+                  backdropFilter: 'blur(6px)',
+                  color: '#ffffff',
+                  padding: '3px 10px',
+                  borderRadius: '9999px',
+                  fontSize: '0.72rem',
+                  fontWeight: 800
+                }}>
+                  ⏱️ {theme[`duration${lang.charAt(0).toUpperCase() + lang.slice(1)}`] || theme.durationEn}
+                </div>
+                <div style={{
+                  position: 'absolute',
+                  bottom: '12px',
+                  right: '12px',
+                  backgroundColor: 'rgba(15, 23, 42, 0.8)',
+                  backdropFilter: 'blur(6px)',
+                  color: '#f59e0b',
+                  padding: '3px 9px',
+                  borderRadius: '9999px',
+                  fontSize: '0.75rem',
+                  fontWeight: 800,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '3px'
+                }}>
+                  <Star size={12} fill="#f59e0b" />
+                  <span>{theme.rating}</span>
+                  <span style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.68rem' }}>({theme.reviews})</span>
+                </div>
+              </div>
+
+              {/* Body */}
+              <div style={{ padding: '1.1rem', display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between', gap: '0.8rem' }}>
+                <div>
+                  <h3 style={{ margin: '0 0 0.4rem', fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-main)', lineHeight: 1.35 }}>
+                    {theme[`title${lang.charAt(0).toUpperCase() + lang.slice(1)}`] || theme.titleEn}
+                  </h3>
+                  <p style={{ margin: '0 0 0.6rem', fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+                    {theme[`desc${lang.charAt(0).toUpperCase() + lang.slice(1)}`] || theme.descEn}
+                  </p>
+                  
+                  {/* Tags */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
+                    {(theme[`tags${lang.charAt(0).toUpperCase() + lang.slice(1)}`] || theme.tagsEn || []).map((tag, tIdx) => (
+                      <span
+                        key={tIdx}
+                        style={{
+                          fontSize: '0.68rem',
+                          fontWeight: 700,
+                          padding: '0.15rem 0.45rem',
+                          borderRadius: '6px',
+                          backgroundColor: 'var(--bg-primary)',
+                          color: 'var(--text-muted)',
+                          border: '1px solid var(--border-color)'
+                        }}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (onSelectTheme) {
+                      onSelectTheme(theme.prompt, theme.city);
+                    } else if (onSearchSubmit) {
+                      onSearchSubmit(theme.prompt);
+                    }
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '0.65rem',
+                    background: 'linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%)',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '12px',
+                    fontWeight: 800,
+                    fontSize: '0.84rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.4rem',
+                    boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3)',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <Sparkles size={14} />
+                  <span>
+                    {lang === 'en' ? 'Generate 3D Itinerary' :
+                     lang === 'ja' ? 'このコースで日程を作成' :
+                     (lang === 'zh' || lang === 'zht') ? '生成此路线行程' :
+                     '이 코스로 3초 만에 일정 생성'}
+                  </span>
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ⚡ 6. Travel Essentials Quick Hub */}
+      <div style={{ marginBottom: '1rem' }}>
         <div className="portal-quick-hub-grid">
-          
           {/* Icon 1: AI Course Planner */}
           <div 
             className="portal-quick-hub-card"
             onClick={() => {
-              if (onOpenPlanner) {
-                onOpenPlanner();
-              } else {
-                const el = document.getElementById('itinerary-hub');
-                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              }
+              if (onOpenPlanner) onOpenPlanner();
+              else if (onNavigateTab) onNavigateTab('ai');
             }}
           >
             <div className="portal-quick-hub-icon" style={{
-              background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
-              boxShadow: '0 8px 16px rgba(37, 99, 235, 0.25)'
+              background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)',
+              boxShadow: '0 8px 16px rgba(139, 92, 246, 0.25)'
             }}>
               <Sparkles size={22} />
             </div>
@@ -653,9 +1454,7 @@ export default function PortalHomePrototype({
           <div 
             className="portal-quick-hub-card"
             onClick={() => {
-              const el = document.getElementById('travel-essentials-section');
-              if (el) el.scrollIntoView({ behavior: 'smooth' });
-              else if (onOpenEssentials) onOpenEssentials();
+              if (onOpenEssentials) onOpenEssentials();
             }}
           >
             <div className="portal-quick-hub-icon" style={{
@@ -685,7 +1484,7 @@ export default function PortalHomePrototype({
             </div>
           </div>
 
-          {/* Icon 5: Unlimited eSIM (Klook Product Deep Link) */}
+          {/* Icon 5: Unlimited eSIM */}
           <div 
             className="portal-quick-hub-card"
             onClick={() => {
@@ -704,7 +1503,7 @@ export default function PortalHomePrototype({
             </div>
           </div>
 
-          {/* Icon 6: 1330 Emergency Helpline (Smart Modal) */}
+          {/* Icon 6: 1330 Emergency Helpline */}
           <div 
             className="portal-quick-hub-card"
             onClick={() => setIsHelplineModalOpen(true)}
@@ -719,171 +1518,6 @@ export default function PortalHomePrototype({
               {lang === 'en' ? '1330 Hotline' : lang === 'ja' ? '1330 通訳' : (lang === 'zh' || lang === 'zht') ? '1330 翻译热线' : '1330 긴급통역'}
             </div>
           </div>
-
-        </div>
-      </div>
-
-      {/* 💡 3. Cute Interactive 1-Line AI Live Tip Pill (Mobile Only) */}
-      <div 
-        className="hide-desktop"
-        onClick={() => {
-          const currentTip = ROLLING_TIPS[currentTipIndex];
-          if (currentTip) {
-            handleChipClick(currentTip.prompt);
-          }
-        }}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0.45rem 0.85rem',
-          backgroundColor: 'rgba(37, 99, 235, 0.05)',
-          border: '1px solid rgba(37, 99, 235, 0.16)',
-          borderRadius: '9999px',
-          cursor: 'pointer',
-          marginBottom: '0.25rem',
-          transition: 'all 0.2s ease',
-          boxShadow: '0 2px 8px rgba(37, 99, 235, 0.04)'
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', overflow: 'hidden', flex: 1 }}>
-          <span style={{ fontSize: '0.85rem', flexShrink: 0 }}>💡</span>
-          <span style={{
-            fontSize: '0.73rem',
-            fontWeight: 800,
-            color: 'var(--text-main)',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis'
-          }}>
-            <span style={{ color: 'var(--accent-primary)', fontWeight: 900 }}>
-              {lang === 'en' ? 'VORA Tip: ' : lang === 'ja' ? 'VORA ヒント: ' : (lang === 'zh' || lang === 'zht') ? 'VORA 贴士: ' : 'VORA 꿀팁: '}
-            </span>
-            {lang === 'en' ? ROLLING_TIPS[currentTipIndex].textEn : lang === 'ja' ? ROLLING_TIPS[currentTipIndex].textJa : (lang === 'zh' || lang === 'zht') ? ROLLING_TIPS[currentTipIndex].textZh : ROLLING_TIPS[currentTipIndex].textKo}
-          </span>
-        </div>
-        <span style={{
-          fontSize: '0.70rem',
-          fontWeight: 900,
-          color: 'var(--accent-primary)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.2rem',
-          flexShrink: 0,
-          marginLeft: '0.5rem',
-          padding: '0.15rem 0.5rem',
-          borderRadius: '9999px',
-          backgroundColor: 'rgba(37, 99, 235, 0.1)'
-        }}>
-          <span>{lang === 'en' ? 'Ask' : lang === 'ja' ? '作成' : (lang === 'zh' || lang === 'zht') ? '提问' : '질문'}</span>
-          <Sparkles size={10} />
-        </span>
-      </div>
-
-      {/* 📱 4. Cross-Platform Synergistic Banner (Mobile Only) */}
-      <div 
-        className="hide-desktop"
-        style={{
-          marginTop: '0.45rem',
-          marginBottom: '0.2rem',
-          padding: '0.75rem 0.95rem',
-          background: 'linear-gradient(135deg, rgba(248, 250, 252, 0.98) 0%, rgba(241, 245, 249, 0.98) 100%)',
-          border: '1px solid rgba(226, 232, 240, 0.95)',
-          borderRadius: '16px',
-          boxShadow: '0 4px 16px rgba(100, 116, 139, 0.06)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '6px'
-        }}
-      >
-        {/* Top Header Badge & Share Button */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px',
-            padding: '2px 8px',
-            backgroundColor: 'rgba(124, 58, 237, 0.08)',
-            borderRadius: '9999px',
-            border: '1px solid rgba(124, 58, 237, 0.18)'
-          }}>
-            <Laptop size={11} color="#7c3aed" />
-            <span style={{ fontSize: '10px', color: '#7c3aed' }}>➔</span>
-            <Smartphone size={11} color="#7c3aed" />
-            <span style={{ fontSize: '10px', fontWeight: 800, color: '#7c3aed', marginLeft: '2px' }}>
-              {lang === 'en' ? 'Cloud Sync' : lang === 'ja' ? 'リアルタイム連動' : (lang === 'zh' || lang === 'zht') ? '实时同步' : '실시간 연동'}
-            </span>
-          </div>
-
-          {/* Copy Link / Share Button */}
-          <button
-            onClick={() => {
-              if (navigator.clipboard) {
-                navigator.clipboard.writeText(window.location.origin);
-                setIsLinkCopied(true);
-                setTimeout(() => setIsLinkCopied(false), 2500);
-              }
-            }}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              border: 'none',
-              backgroundColor: isLinkCopied ? '#10b981' : 'rgba(15, 23, 42, 0.06)',
-              color: isLinkCopied ? '#ffffff' : '#475569',
-              padding: '3px 9px',
-              borderRadius: '9999px',
-              fontSize: '10.5px',
-              fontWeight: 800,
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-          >
-            {isLinkCopied ? (
-              <>
-                <Check size={11} color="#ffffff" />
-                <span>{lang === 'en' ? 'Link Copied!' : lang === 'ja' ? 'コピー完了!' : (lang === 'zh' || lang === 'zht') ? '已复制!' : '복사 완료!'}</span>
-              </>
-            ) : (
-              <>
-                <Share2 size={11} />
-                <span>{lang === 'en' ? 'Copy PC Link' : lang === 'ja' ? 'PCリンク共有' : (lang === 'zh' || lang === 'zht') ? '分享PC链接' : 'PC 링크 복사'}</span>
-              </>
-            )}
-          </button>
-        </div>
-
-        {/* Main Title Phrase */}
-        <div style={{
-          fontSize: '0.86rem',
-          fontWeight: 900,
-          color: '#1e293b',
-          lineHeight: '1.35',
-          letterSpacing: '-0.02em'
-        }}>
-          {lang === 'en' 
-            ? 'Plan on Desktop, Travel on Mobile ✈️' 
-            : lang === 'ja' 
-            ? '計画は大画面PCで、旅行はスマートなスマホで ✈️' 
-            : (lang === 'zh' || lang === 'zht') 
-            ? '在电脑端定制行程，在手机端轻松畅游 ✈️' 
-            : '계획은 시원한 PC에서, 여행은 내 손안의 모바일에서 ✈️'}
-        </div>
-
-        {/* Sub Guide Text */}
-        <div style={{
-          fontSize: '0.72rem',
-          fontWeight: 700,
-          color: '#64748b',
-          lineHeight: '1.4'
-        }}>
-          {lang === 'en'
-            ? '👉 Experience full 3D interactive maps & AI itinerary builder on PC!'
-            : lang === 'ja'
-            ? '👉 226市・郡のインタラクティブマップとAI旅程作成をPCで体験！'
-            : (lang === 'zh' || lang === 'zht')
-            ? '👉 体验226个市郡全景交互地图与AI行程生成！'
-            : '👉 226개 시·군 4K 대형 지도 탐색 & AI 일정표를 PC에서 편리하게 즐겨보세요!'}
         </div>
       </div>
 

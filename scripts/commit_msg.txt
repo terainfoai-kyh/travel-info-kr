@@ -1,1 +1,1 @@
-fix: rotate telegram bot token and isolate google maps api key to env variables
+feat: unify portal landing view with nationwide festivals, K-food hotspots, 4K map switcher, and clean tab navigation
