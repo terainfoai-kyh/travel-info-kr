@@ -1,1 +1,1 @@
-feat: unify portal landing view with nationwide festivals, K-food hotspots, 4K map switcher, and clean tab navigation
+feat: add tourism-org style arch regional destinations ribbon and visual polish

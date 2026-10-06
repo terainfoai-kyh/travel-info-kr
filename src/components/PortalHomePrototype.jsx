@@ -233,6 +233,146 @@ const NATIONWIDE_FESTIVALS = [
   }
 ];
 
+// 🏛️ 관광공사 스타일 전국 대표 도시 아치형(Arch) 감성 큐레이션 데이터셋
+const REGIONAL_ARCH_DESTINATIONS = [
+  {
+    id: 'arch-seoul',
+    nameKo: '서울',
+    nameEn: 'Seoul',
+    nameJa: 'ソウル',
+    nameZh: '首尔',
+    tagKo: '고궁 & 트렌드',
+    tagEn: 'Palaces & Trends',
+    tagJa: '古宮＆トレンド',
+    tagZh: '古宫与潮流',
+    image: '/images/themes/theme-gyeongbokgung.jpg',
+    color: '#8b5cf6',
+    promptKo: '서울 경복궁, 북촌 한옥마을, 성수동 3박4일 추천 코스',
+    promptEn: '3-day classic and trendy Seoul travel course with Gyeongbokgung and Seongsu',
+    promptJa: '景福宮、北村韓屋村、聖水洞を巡るソウル3泊4日おすすめコース',
+    promptZh: '景福宫、北村韩屋村、圣水洞首尔3天2晚精选路线'
+  },
+  {
+    id: 'arch-busan',
+    nameKo: '부산',
+    nameEn: 'Busan',
+    nameJa: '釜山',
+    nameZh: '釜山',
+    tagKo: '오션뷰 & 미식',
+    tagEn: 'Ocean & Seafood',
+    tagJa: 'オーシャン＆海鮮',
+    tagZh: '海景与海鲜',
+    image: '/images/themes/theme-busan.jpg',
+    color: '#3b82f6',
+    promptKo: '부산 해운대, 광안리 오션뷰와 자갈치 미식 2박3일 코스',
+    promptEn: '2-day scenic Busan ocean and seafood itinerary with Haeundae and Gwangalli',
+    promptJa: '海雲台、広安里のオーシャンビューと海鮮グルメ釜山2泊3日コース',
+    promptZh: '海云台、广安里海景与札嘎其海鲜美食釜山2天1晚路线'
+  },
+  {
+    id: 'arch-jeju',
+    nameKo: '제주',
+    nameEn: 'Jeju',
+    nameJa: '済州',
+    nameZh: '济州',
+    tagKo: '자연 & 힐링',
+    tagEn: 'Nature & Coast',
+    tagJa: '自然＆癒やし',
+    tagZh: '自然与疗愈',
+    image: '/images/themes/theme-jeju.jpg',
+    color: '#10b981',
+    promptKo: '제주 성산일출봉, 애월 해안도로, 서귀포 3박4일 힐링 코스',
+    promptEn: '3-day Jeju nature and coastal scenic drive tour with Seongsan Peak',
+    promptJa: '城山日出峰、涯月海岸道路、西帰浦を巡る済州3泊4日ヒーリングコース',
+    promptZh: '城山日出峰、涯月海岸公路、西归浦济州3天2晚疗愈路线'
+  },
+  {
+    id: 'arch-gyeongju',
+    nameKo: '경주',
+    nameEn: 'Gyeongju',
+    nameJa: '慶州',
+    nameZh: '庆州',
+    tagKo: '천년고도 & 야경',
+    tagEn: 'Heritage & Starlight',
+    tagJa: '世界遺産＆夜景',
+    tagZh: '世界遗产与夜景',
+    image: '/images/themes/theme-gyeongju.jpg',
+    color: '#f59e0b',
+    promptKo: '경주 불국사, 동궁과 월지 야경, 황리단길 2박3일 역사 낭만 코스',
+    promptEn: '2-day historic Gyeongju tour with Bulguksa and Donggung Palace night views',
+    promptJa: '仏国寺、東宮と月池の夜景、皇理団通りを巡る慶州2泊3日コース',
+    promptZh: '佛国寺、东宫与月池夜景、皇理团路庆州2天1晚历史浪漫路线'
+  },
+  {
+    id: 'arch-suwon',
+    nameKo: '수원',
+    nameEn: 'Suwon',
+    nameJa: '水原',
+    nameZh: '水原',
+    tagKo: '세계유산 & 행궁동',
+    tagEn: 'Fortress & Cafes',
+    tagJa: '世界遺産＆カフェ',
+    tagZh: '世界遗产与咖啡街',
+    image: '/images/themes/hero-suwon-hwaseong.jpg',
+    color: '#ec4899',
+    promptKo: '수원화성 성곽길 트레킹과 행궁동 감성 카페거리 1일 당일치기 코스',
+    promptEn: '1-day Suwon Hwaseong fortress wall walk and Haenggung cafe street tour',
+    promptJa: '水原華城の城郭散歩と行宮洞カフェ巡り1日コース',
+    promptZh: '水原华城城墙漫步与行宫洞特色咖啡街一日游路线'
+  },
+  {
+    id: 'arch-gangneung',
+    nameKo: '강릉',
+    nameEn: 'Gangneung',
+    nameJa: '江陵',
+    nameZh: '江陵',
+    tagKo: '커피거리 & 바다',
+    tagEn: 'Coffee & K-Wave',
+    tagJa: 'カフェ通り＆海',
+    tagZh: '咖啡街与海景',
+    image: '/images/themes/theme-gangneung.jpg',
+    color: '#06b6d4',
+    promptKo: '강릉 안목해변 커피거리, BTS 정류장, 주문진 1박2일 감성 코스',
+    promptEn: '2-day Gangneung trip with Anmok Beach Coffee Street and BTS bus stop',
+    promptJa: '安木海岸カフェ通り、BTSバス停、注文津を巡る江陵1泊2日コース',
+    promptZh: '安木海边咖啡街、BTS打卡点、订单津江陵2天1晚浪漫路线'
+  },
+  {
+    id: 'arch-seongsu',
+    nameKo: '성수·한남',
+    nameEn: 'Seongsu',
+    nameJa: '聖水・漢南',
+    nameZh: '圣水·汉南',
+    tagKo: 'K-패션 & 팝업',
+    tagEn: 'K-Fashion & Pop-ups',
+    tagJa: 'Kファッション＆カフェ',
+    tagZh: '韩流潮牌与快闪店',
+    image: '/images/themes/theme-seongsu.jpg',
+    color: '#a855f7',
+    promptKo: '서울 성수동과 한남동 감성 카페와 K-패션 팝업스토어 1일 트렌드 코스',
+    promptEn: '1-day Seongsu hip cafes and Hannam K-fashion pop-up trend tour',
+    promptJa: '聖水洞＆漢南洞の映えカフェとKファッション1日トレンドコース',
+    promptZh: '首尔圣水洞与汉南洞人气咖啡馆与潮牌快闪店一日打卡路线'
+  },
+  {
+    id: 'arch-incheon',
+    nameKo: '인천',
+    nameEn: 'Incheon',
+    nameJa: '仁川',
+    nameZh: '仁川',
+    tagKo: '송도 & 개항장',
+    tagEn: 'Future City & Chinatown',
+    tagJa: '未来都市＆開港場',
+    tagZh: '未来之城与开港场',
+    image: '/images/themes/hero-hangang.jpg',
+    color: '#6366f1',
+    promptKo: '인천 송도 센트럴파크 수상택시와 개항장 차이나타운 1일 코스',
+    promptEn: '1-day Incheon Songdo Central Park and Chinatown historic heritage tour',
+    promptJa: '仁川松島セントラルパークと開港場チャイナタウン1日コース',
+    promptZh: '仁川松岛中央公园水上出租车与开港场中国城一日游路线'
+  }
+];
+
 // 🍲 K-Food & 로컬 미식 골목 큐레이션
 const K_FOOD_HOTSPOTS = [
   {
@@ -861,7 +1001,156 @@ export default function PortalHomePrototype({
         </div>
       </div>
 
-      {/* 🎪 2. Real-Time Nationwide Festivals & Cultural Events Section */}
+      {/* 🏛️ 2. Tourism Org Style: Arch Regional Destinations Ribbon (전국 대표 여행지 아치형 감성 띠) */}
+      <section style={{
+        marginBottom: '2.2rem',
+        padding: '1.25rem 1rem 1.3rem',
+        borderRadius: '24px',
+        background: 'linear-gradient(135deg, rgba(243, 232, 255, 0.45) 0%, rgba(224, 242, 254, 0.45) 50%, rgba(254, 243, 199, 0.45) 100%)',
+        border: '1px solid var(--border-color)',
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)',
+        position: 'relative'
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '0.9rem',
+          flexWrap: 'wrap',
+          gap: '0.5rem'
+        }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span style={{ fontSize: '1.3rem' }}>✨</span>
+              <h2 style={{
+                margin: 0,
+                fontSize: '1.2rem',
+                fontWeight: 900,
+                color: 'var(--text-main)',
+                letterSpacing: '-0.02em'
+              }}>
+                {lang === 'en' ? 'Where to in Korea? Iconic Regional Destinations' :
+                 lang === 'ja' ? '韓国のどこへ旅しますか？ 全国代表観光地' :
+                 (lang === 'zh' || lang === 'zht') ? '想去韩国哪里旅行？ 全国代表性旅游名胜' :
+                 '대한민국 어디로 떠나볼까요? 전국 대표 여행지'}
+              </h2>
+            </div>
+            <p style={{ margin: '0.2rem 0 0 1.8rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+              {lang === 'en' ? 'One-click AI curated courses for Korea’s top scenic regions' :
+               lang === 'ja' ? 'ワンクリックで完成する韓国人気都市のAIカスタムコース' :
+               (lang === 'zh' || lang === 'zht') ? '一键生成韩国热门城市AI专属旅行路线' :
+               '원하는 도시를 콕 집으면 VORA AI가 맞춤 일정표를 즉시 완성해 드립니다'}
+            </p>
+          </div>
+        </div>
+
+        {/* Arch Shaped Horizontal Scroll Grid */}
+        <div style={{
+          display: 'flex',
+          gap: '0.9rem',
+          overflowX: 'auto',
+          paddingBottom: '0.5rem',
+          scrollSnapType: 'x mandatory',
+          WebkitOverflowScrolling: 'touch',
+          scrollbarWidth: 'thin'
+        }}>
+          {REGIONAL_ARCH_DESTINATIONS.map((dest) => (
+            <div
+              key={dest.id}
+              onClick={() => {
+                const prompt = dest[`prompt${lang.charAt(0).toUpperCase() + lang.slice(1)}`] || dest.promptEn;
+                if (onSelectTheme) {
+                  onSelectTheme(prompt, dest.nameKo);
+                } else if (onSearchSubmit) {
+                  onSearchSubmit(prompt);
+                }
+              }}
+              style={{
+                flex: '0 0 135px',
+                width: '135px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                cursor: 'pointer',
+                backgroundColor: 'var(--bg-card)',
+                borderRadius: '40px 40px 18px 18px',
+                border: '1.5px solid var(--border-color)',
+                padding: '6px 6px 10px 6px',
+                boxShadow: '0 4px 14px rgba(0, 0, 0, 0.06)',
+                transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                scrollSnapAlign: 'start',
+                textAlign: 'center'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-6px)';
+                e.currentTarget.style.boxShadow = `0 12px 24px -6px ${dest.color}40`;
+                e.currentTarget.style.borderColor = dest.color;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 4px 14px rgba(0, 0, 0, 0.06)';
+                e.currentTarget.style.borderColor = 'var(--border-color)';
+              }}
+            >
+              {/* Arch Dome Image Container */}
+              <div style={{
+                position: 'relative',
+                width: '100%',
+                height: '115px',
+                borderRadius: '34px 34px 12px 12px',
+                overflow: 'hidden',
+                backgroundColor: '#0f172a'
+              }}>
+                <img
+                  src={dest.image}
+                  alt={dest.nameEn}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    transition: 'transform 0.4s ease'
+                  }}
+                  loading="lazy"
+                />
+                <div style={{
+                  position: 'absolute',
+                  inset: 0,
+                  background: 'linear-gradient(180deg, transparent 50%, rgba(15, 23, 42, 0.7) 100%)'
+                }} />
+                <span style={{
+                  position: 'absolute',
+                  bottom: '6px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  backgroundColor: dest.color,
+                  color: '#ffffff',
+                  fontSize: '0.65rem',
+                  fontWeight: 900,
+                  padding: '2px 7px',
+                  borderRadius: '9999px',
+                  whiteSpace: 'nowrap',
+                  boxShadow: '0 2px 6px rgba(0, 0, 0, 0.3)'
+                }}>
+                  {dest[`name${lang.charAt(0).toUpperCase() + lang.slice(1)}`] || dest.nameEn}
+                </span>
+              </div>
+
+              {/* City Tag */}
+              <span style={{
+                marginTop: '0.5rem',
+                fontSize: '0.74rem',
+                fontWeight: 700,
+                color: 'var(--text-main)',
+                lineHeight: 1.2
+              }}>
+                {dest[`tag${lang.charAt(0).toUpperCase() + lang.slice(1)}`] || dest.tagEn}
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 🎪 3. Real-Time Nationwide Festivals & Cultural Events Section */}
       <section style={{ marginBottom: '2.5rem' }}>
         <div style={{
           display: 'flex',
