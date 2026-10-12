@@ -40,9 +40,9 @@ jobs:
 
       - name: Run Radar Scan (1 Post Limit per Run)
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY || 'AQ.Ab8RN6IVJdGHWrSeODhQlsVer2F_Qv5918v1aoWjc42Qi1xjRw' }}
-          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY || 'AQ.Ab8RN6IVJdGHWrSeODhQlsVer2F_Qv5918v1aoWjc42Qi1xjRw' }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN || '8862336937:AAGjolvwXh3BEBrLa1PMWFHLDu2ipcf90D0' }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY || secrets.GEMINI_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID || '8955008233' }}
           VORA_BASE_URL: 'https://koreatravel.cc'
         run: node scripts/redditTelegramRadar.js
