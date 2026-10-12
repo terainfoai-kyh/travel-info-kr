@@ -428,7 +428,7 @@ Your Tone: "There are plenty of locations all over Seoul. However, if you are cl
       const models = listData.models || [];
       const validGenModels = models
         .filter(m => m.supportedGenerationMethods?.includes('generateContent'))
-        .filter(m => !/tts|image|transcribe|robotics|computer-use|lyria|embedding/i.test(m.name));
+        .filter(m => !/tts|image|transcribe|robotics|computer-use|lyria|embedding|2\.5-flash/i.test(m.name));
 
       const prioritized = [
         ...validGenModels.filter(m => m.name.includes('2.0-flash') && !m.name.includes('lite')),
